@@ -5,7 +5,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
-import type { SliderRoot } from '../root/SliderRoot';
+import type { SliderRootState } from '../root/SliderRoot';
 
 /**
  * Displays the current value of the slider as text.
@@ -73,8 +73,10 @@ export const SliderValue = React.forwardRef(function SliderValue(
   return element;
 });
 
+export interface SliderValueState {}
+
 export interface SliderValueProps extends Omit<
-  BaseUIComponentProps<'output', SliderRoot.State>,
+  BaseUIComponentProps<'output', SliderRootState>,
   'children'
 > {
   children?:
@@ -84,5 +86,6 @@ export interface SliderValueProps extends Omit<
 }
 
 export namespace SliderValue {
+  export type State = SliderValueState;
   export type Props = SliderValueProps;
 }

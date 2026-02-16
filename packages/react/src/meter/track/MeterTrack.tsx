@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { MeterRoot } from '../root/MeterRoot';
+import type { MeterRootState } from '../root/MeterRoot';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 
@@ -22,8 +22,11 @@ export const MeterTrack = React.forwardRef(function MeterTrack(
   });
 });
 
-export interface MeterTrackProps extends BaseUIComponentProps<'div', MeterRoot.State> {}
+export interface MeterTrackState {}
+
+export interface MeterTrackProps extends BaseUIComponentProps<'div', MeterRootState> {}
 
 export namespace MeterTrack {
+  export type State = MeterTrackState;
   export type Props = MeterTrackProps;
 }

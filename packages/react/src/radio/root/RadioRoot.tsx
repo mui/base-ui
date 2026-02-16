@@ -15,7 +15,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
 import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
 import { CompositeItem } from '../../composite/item/CompositeItem';
-import type { FieldRoot } from '../../field/root/FieldRoot';
+import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldItemContext } from '../../field/item/FieldItemContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
@@ -210,7 +210,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     },
   };
 
-  const state: RadioRoot.State = React.useMemo(
+  const state: RadioRootState = React.useMemo(
     () => ({
       ...fieldState,
       required,
@@ -264,7 +264,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   <Value>(props: RadioRoot.Props<Value>): React.JSX.Element;
 };
 
-export interface RadioRootState extends FieldRoot.State {
+export interface RadioRootState extends FieldRootState {
   /**
    * Whether the radio button is currently selected.
    */
@@ -284,7 +284,7 @@ export interface RadioRootState extends FieldRoot.State {
 }
 
 export interface RadioRootProps<Value = any>
-  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'span', RadioRoot.State>, 'value'> {
+  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'span', RadioRootState>, 'value'> {
   /**
    * The unique identifying value of the radio in a group.
    */

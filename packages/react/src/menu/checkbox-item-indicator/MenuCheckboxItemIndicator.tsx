@@ -35,7 +35,7 @@ export const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxI
     },
   });
 
-  const state: MenuCheckboxItemIndicator.State = {
+  const state: MenuCheckboxItemIndicatorState = {
     checked: item.checked,
     disabled: item.disabled,
     highlighted: item.highlighted,
@@ -58,7 +58,7 @@ export const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxI
 
 export interface MenuCheckboxItemIndicatorProps extends BaseUIComponentProps<
   'span',
-  MenuCheckboxItemIndicator.State
+  MenuCheckboxItemIndicatorState
 > {
   /**
    * Whether to keep the HTML element in the DOM when the checkbox item is not checked.
@@ -76,7 +76,13 @@ export interface MenuCheckboxItemIndicatorState {
    * Whether the component should ignore user interaction.
    */
   disabled: boolean;
+  /**
+   * Whether the item is highlighted.
+   */
   highlighted: boolean;
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
 }
 

@@ -128,7 +128,7 @@ export const ComboboxItem = React.memo(
       }
     }, [hasRegistered, hasItems, open, store, index, itemValue, isItemEqualToValue]);
 
-    const state: ComboboxItem.State = {
+    const state: ComboboxItemState = {
       disabled,
       selected,
       highlighted,
@@ -224,7 +224,7 @@ export interface ComboboxItemState {
 }
 
 export interface ComboboxItemProps
-  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'div', ComboboxItem.State>, 'id'> {
+  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'div', ComboboxItemState>, 'id'> {
   children?: React.ReactNode;
   /**
    * An optional click handler for the item when selected.

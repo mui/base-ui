@@ -21,7 +21,7 @@ import {
   ANY_MINUS_DETECT_RE,
   ANY_PLUS_DETECT_RE,
 } from '../utils/parse';
-import type { NumberFieldRoot } from '../root/NumberFieldRoot';
+import type { NumberFieldRootState } from '../root/NumberFieldRoot';
 import { stateAttributesMapping as numberFieldStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import {
@@ -426,11 +426,11 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   return element;
 });
 
-export interface NumberFieldInputState extends NumberFieldRoot.State {}
+export interface NumberFieldInputState extends NumberFieldRootState {}
 
 export interface NumberFieldInputProps extends BaseUIComponentProps<
   'input',
-  NumberFieldInput.State
+  NumberFieldInputState
 > {
   /**
    * A string value that provides a user-friendly name for the role of the input.

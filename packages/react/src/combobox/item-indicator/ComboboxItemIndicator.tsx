@@ -44,7 +44,7 @@ const Inner = React.memo(
 
       const { transitionStatus, setMounted } = useTransitionStatus(selected);
 
-      const state: ComboboxItemIndicator.State = {
+      const state: ComboboxItemIndicatorState = {
         selected,
         transitionStatus,
       };
@@ -79,7 +79,7 @@ const Inner = React.memo(
 
 export interface ComboboxItemIndicatorProps extends BaseUIComponentProps<
   'span',
-  ComboboxItemIndicator.State
+  ComboboxItemIndicatorState
 > {
   children?: React.ReactNode;
   /**
@@ -90,7 +90,13 @@ export interface ComboboxItemIndicatorProps extends BaseUIComponentProps<
 }
 
 export interface ComboboxItemIndicatorState {
+  /**
+   * Whether the item is selected.
+   */
   selected: boolean;
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
 }
 

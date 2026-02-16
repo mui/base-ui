@@ -221,7 +221,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     });
   }
 
-  const state: NavigationMenuTrigger.State = {
+  const state: NavigationMenuTriggerState = {
     open: isActiveItem,
   };
 
@@ -355,7 +355,7 @@ export interface NavigationMenuTriggerState {
 }
 
 export interface NavigationMenuTriggerProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', NavigationMenuTrigger.State> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', NavigationMenuTriggerState> {}
 
 export namespace NavigationMenuTrigger {
   export type State = NavigationMenuTriggerState;

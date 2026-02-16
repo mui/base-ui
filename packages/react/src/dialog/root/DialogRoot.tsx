@@ -85,6 +85,8 @@ export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
   );
 }
 
+export interface DialogRootState {}
+
 export interface DialogRootProps<Payload = unknown> {
   /**
    * Whether the dialog is currently open.
@@ -170,6 +172,7 @@ export type DialogRootChangeEventDetails =
   };
 
 export namespace DialogRoot {
+  export type State = DialogRootState;
   export type Props<Payload = unknown> = DialogRootProps<Payload>;
   export type Actions = DialogRootActions;
   export type ChangeEventReason = DialogRootChangeEventReason;

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useMeterRootContext } from '../root/MeterRootContext';
-import type { MeterRoot } from '../root/MeterRoot';
+import type { MeterRootState } from '../root/MeterRoot';
 import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
@@ -34,13 +34,16 @@ export const MeterValue = React.forwardRef(function MeterValue(
   });
 });
 
+export interface MeterValueState {}
+
 export interface MeterValueProps extends Omit<
-  BaseUIComponentProps<'span', MeterRoot.State>,
+  BaseUIComponentProps<'span', MeterRootState>,
   'children'
 > {
   children?: null | ((formattedValue: string, value: number) => React.ReactNode) | undefined;
 }
 
 export namespace MeterValue {
+  export type State = MeterValueState;
   export type Props = MeterValueProps;
 }

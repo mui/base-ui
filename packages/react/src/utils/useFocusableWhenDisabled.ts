@@ -2,8 +2,8 @@
 import * as React from 'react';
 
 export function useFocusableWhenDisabled(
-  parameters: useFocusableWhenDisabled.Parameters,
-): useFocusableWhenDisabled.ReturnValue {
+  parameters: UseFocusableWhenDisabledParameters,
+): UseFocusableWhenDisabledReturnValue {
   const {
     focusableWhenDisabled,
     disabled,
@@ -96,7 +96,4 @@ export interface UseFocusableWhenDisabledReturnValue {
   props: FocusableWhenDisabledProps;
 }
 
-export namespace useFocusableWhenDisabled {
-  export type Parameters = UseFocusableWhenDisabledParameters;
-  export type ReturnValue = UseFocusableWhenDisabledReturnValue;
-}
+export interface UseFocusableWhenDisabledState {}

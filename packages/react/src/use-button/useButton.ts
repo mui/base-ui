@@ -10,7 +10,7 @@ import { useCompositeRootContext } from '../composite/root/CompositeRootContext'
 import { BaseUIEvent, HTMLProps } from '../utils/types';
 import { useFocusableWhenDisabled } from '../utils/useFocusableWhenDisabled';
 
-export function useButton(parameters: useButton.Parameters = {}): useButton.ReturnValue {
+export function useButton(parameters: UseButtonParameters = {}): UseButtonReturnValue {
   const {
     disabled = false,
     focusableWhenDisabled,
@@ -248,7 +248,4 @@ export interface UseButtonReturnValue {
   buttonRef: React.Ref<HTMLElement>;
 }
 
-export namespace useButton {
-  export type Parameters = UseButtonParameters;
-  export type ReturnValue = UseButtonReturnValue;
-}
+export interface UseButtonState {}

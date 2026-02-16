@@ -64,7 +64,7 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
     itemMetadata: REGULAR_ITEM,
   });
 
-  const state: MenuRadioItem.State = React.useMemo(
+  const state: MenuRadioItemState = React.useMemo(
     () => ({
       disabled,
       highlighted,
@@ -100,7 +100,7 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   return <MenuRadioItemContext.Provider value={state}>{element}</MenuRadioItemContext.Provider>;
 });
 
-export type MenuRadioItemState = {
+export interface MenuRadioItemState {
   /**
    * Whether the radio item should ignore user interaction.
    */
@@ -113,10 +113,10 @@ export type MenuRadioItemState = {
    * Whether the radio item is currently selected.
    */
   checked: boolean;
-};
+}
 
 export interface MenuRadioItemProps
-  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuRadioItem.State> {
+  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuRadioItemState> {
   /**
    * Value of the radio item.
    * This is the value that will be set in the MenuRadioGroup when the item is selected.

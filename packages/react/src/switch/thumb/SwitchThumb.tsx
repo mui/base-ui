@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { SwitchRoot } from '../root/SwitchRoot';
+import type { SwitchRootState } from '../root/SwitchRoot';
 import { useSwitchRootContext } from '../root/SwitchRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
@@ -32,9 +32,9 @@ export const SwitchThumb = React.forwardRef(function SwitchThumb(
   });
 });
 
-export interface SwitchThumbProps extends BaseUIComponentProps<'span', SwitchThumb.State> {}
+export interface SwitchThumbProps extends BaseUIComponentProps<'span', SwitchThumbState> {}
 
-export interface SwitchThumbState extends SwitchRoot.State {}
+export interface SwitchThumbState extends SwitchRootState {}
 
 export namespace SwitchThumb {
   export type Props = SwitchThumbProps;

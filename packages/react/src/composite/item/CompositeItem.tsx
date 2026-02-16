@@ -34,6 +34,8 @@ export function CompositeItem<Metadata, State extends Record<string, any>>(
   });
 }
 
+export interface CompositeItemState {}
+
 export interface CompositeItemProps<Metadata, State extends Record<string, any>> extends Pick<
   BaseUIComponentProps<any, State>,
   'render' | 'className'
@@ -48,8 +50,9 @@ export interface CompositeItemProps<Metadata, State extends Record<string, any>>
 }
 
 export namespace CompositeItem {
-  export type Props<Metadata, State extends Record<string, any>> = CompositeItemProps<
+  export type State = CompositeItemState;
+  export type Props<Metadata, TState extends Record<string, any>> = CompositeItemProps<
     Metadata,
-    State
+    TState
   >;
 }

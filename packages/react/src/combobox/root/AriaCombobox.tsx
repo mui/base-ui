@@ -1503,6 +1503,8 @@ interface ComboboxRootProps<ItemValue> {
   fillInputOnItemPress?: boolean | undefined;
 }
 
+export interface AriaComboboxState {}
+
 export type AriaComboboxProps<
   Value,
   Mode extends SelectionMode = 'none',
@@ -1538,8 +1540,7 @@ export type AriaComboboxProps<
 
 export namespace AriaCombobox {
   export type Props<Value, Mode extends SelectionMode = 'none'> = AriaComboboxProps<Value, Mode>;
-
-  export interface State {}
+  export type State = AriaComboboxState;
 
   export interface Actions {
     unmount: () => void;

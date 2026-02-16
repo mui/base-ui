@@ -236,7 +236,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     onClick: handleFocus,
   };
 
-  const state: ToastViewport.State = {
+  const state: ToastViewportState = {
     expanded,
   };
 
@@ -295,7 +295,7 @@ export interface ToastViewportState {
   expanded: boolean;
 }
 
-export interface ToastViewportProps extends BaseUIComponentProps<'div', ToastViewport.State> {}
+export interface ToastViewportProps extends BaseUIComponentProps<'div', ToastViewportState> {}
 
 export namespace ToastViewport {
   export type State = ToastViewportState;

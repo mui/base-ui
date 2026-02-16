@@ -26,8 +26,8 @@ export function useRenderElement<
   Enabled extends boolean | undefined = undefined,
 >(
   element: TagName,
-  componentProps: useRenderElement.ComponentProps<State>,
-  params: useRenderElement.Parameters<State, RenderedElementType, TagName, Enabled> = {},
+  componentProps: UseRenderElementComponentProps<State>,
+  params: UseRenderElementParameters<State, RenderedElementType, TagName, Enabled> = {},
 ): Enabled extends false ? null : React.ReactElement {
   const renderProp = componentProps.render;
   const outProps = useRenderElementProps(componentProps, params);
@@ -50,8 +50,8 @@ function useRenderElementProps<
   TagName extends IntrinsicTagName | undefined,
   Enabled extends boolean | undefined,
 >(
-  componentProps: useRenderElement.ComponentProps<State>,
-  params: useRenderElement.Parameters<State, RenderedElementType, TagName, Enabled> = {},
+  componentProps: UseRenderElementComponentProps<State>,
+  params: UseRenderElementParameters<State, RenderedElementType, TagName, Enabled> = {},
 ): React.HTMLAttributes<any> & React.RefAttributes<any> {
   const { className: classNameProp, style: styleProp, render: renderProp } = componentProps;
 
@@ -260,12 +260,4 @@ export interface UseRenderElementComponentProps<State> {
   style?: React.CSSProperties | ((state: State) => React.CSSProperties | undefined) | undefined;
 }
 
-export namespace useRenderElement {
-  export type Parameters<
-    State,
-    RenderedElementType extends Element,
-    TagName,
-    Enabled extends boolean | undefined,
-  > = UseRenderElementParameters<State, RenderedElementType, TagName, Enabled>;
-  export type ComponentProps<State> = UseRenderElementComponentProps<State>;
-}
+export interface UseRenderElementState {}

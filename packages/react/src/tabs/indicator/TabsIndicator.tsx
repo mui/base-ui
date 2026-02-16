@@ -5,7 +5,7 @@ import { useOnMount } from '@base-ui/utils/useOnMount';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { getCssDimensions } from '../../utils/getCssDimensions';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { TabsRoot } from '../root/TabsRoot';
+import type { TabsRoot, TabsRootState } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useTabsListContext } from '../list/TabsListContext';
@@ -142,7 +142,7 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
 
   const displayIndicator = isTabSelected && width > 0 && height > 0;
 
-  const state: TabsIndicator.State = {
+  const state: TabsIndicatorState = {
     orientation,
     activeTabPosition,
     activeTabSize,
@@ -185,13 +185,22 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
   );
 });
 
-export interface TabsIndicatorState extends TabsRoot.State {
+export interface TabsIndicatorState extends TabsRootState {
+  /**
+   * The active tab position.
+   */
   activeTabPosition: TabsTab.Position | null;
+  /**
+   * The active tab size.
+   */
   activeTabSize: TabsTab.Size | null;
+  /**
+   * The component orientation.
+   */
   orientation: TabsRoot.Orientation;
 }
 
-export interface TabsIndicatorProps extends BaseUIComponentProps<'span', TabsIndicator.State> {
+export interface TabsIndicatorProps extends BaseUIComponentProps<'span', TabsIndicatorState> {
   /**
    * Whether to render itself before React hydrates.
    * This minimizes the time that the indicator isn’t visible after server-side rendering.

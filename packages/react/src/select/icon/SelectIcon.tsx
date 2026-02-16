@@ -22,7 +22,7 @@ export const SelectIcon = React.forwardRef(function SelectIcon(
   const { store } = useSelectRootContext();
   const open = useStore(store, selectors.open);
 
-  const state: SelectIcon.State = {
+  const state: SelectIconState = {
     open,
   };
 
@@ -43,7 +43,7 @@ export interface SelectIconState {
   open: boolean;
 }
 
-export interface SelectIconProps extends BaseUIComponentProps<'span', SelectIcon.State> {}
+export interface SelectIconProps extends BaseUIComponentProps<'span', SelectIconState> {}
 
 export namespace SelectIcon {
   export type State = SelectIconState;

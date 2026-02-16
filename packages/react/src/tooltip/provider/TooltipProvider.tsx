@@ -31,6 +31,8 @@ export const TooltipProvider: React.FC<TooltipProvider.Props> = function Tooltip
   );
 };
 
+export interface TooltipProviderState {}
+
 export interface TooltipProviderProps {
   children?: React.ReactNode;
   /**
@@ -50,5 +52,6 @@ export interface TooltipProviderProps {
 }
 
 export namespace TooltipProvider {
+  export type State = TooltipProviderState;
   export type Props = TooltipProviderProps;
 }

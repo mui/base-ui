@@ -89,7 +89,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
 
   const valid = !invalid && validityData.state.valid;
 
-  const state: FieldRoot.State = React.useMemo(
+  const state: FieldRootState = React.useMemo(
     () => ({
       disabled,
       touched,
@@ -219,16 +219,33 @@ export interface FieldRootActions {
 }
 
 export interface FieldRootState {
-  /** Whether the component should ignore user interaction. */
+  /**
+   * Whether the component should ignore user interaction.
+   */
   disabled: boolean;
+  /**
+   * Whether the field has been touched.
+   */
   touched: boolean;
+  /**
+   * Whether the field value has changed from its initial value.
+   */
   dirty: boolean;
+  /**
+   * Whether the field is valid.
+   */
   valid: boolean | null;
+  /**
+   * Whether the field has a value.
+   */
   filled: boolean;
+  /**
+   * Whether the field is focused.
+   */
   focused: boolean;
 }
 
-export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRoot.State> {
+export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRootState> {
   /**
    * Whether the component should ignore user interaction.
    * Takes precedence over the `disabled` prop on the `<Field.Control>` component.

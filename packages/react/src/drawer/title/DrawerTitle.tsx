@@ -11,7 +11,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
  */
 export const DrawerTitle = DialogTitle as DrawerTitle;
 
-export interface DrawerTitleProps extends BaseUIComponentProps<'h2', DrawerTitle.State> {}
+export interface DrawerTitleProps extends BaseUIComponentProps<'h2', DrawerTitleState> {}
 
 export interface DrawerTitleState {}
 

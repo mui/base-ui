@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
-import type { ToolbarRoot } from '../root/ToolbarRoot';
+import type { ToolbarRootState } from '../root/ToolbarRoot';
 import { ToolbarGroupContext } from './ToolbarGroupContext';
 
 /**
@@ -29,7 +29,7 @@ export const ToolbarGroup = React.forwardRef(function ToolbarGroup(
     [disabled],
   );
 
-  const state: ToolbarRoot.State = {
+  const state: ToolbarRootState = {
     disabled,
     orientation,
   };
@@ -45,7 +45,9 @@ export const ToolbarGroup = React.forwardRef(function ToolbarGroup(
   );
 });
 
-export interface ToolbarGroupProps extends BaseUIComponentProps<'div', ToolbarRoot.State> {
+export interface ToolbarGroupState {}
+
+export interface ToolbarGroupProps extends BaseUIComponentProps<'div', ToolbarRootState> {
   /**
    * When `true` all toolbar items in the group are disabled.
    * @default false
@@ -54,5 +56,6 @@ export interface ToolbarGroupProps extends BaseUIComponentProps<'div', ToolbarRo
 }
 
 export namespace ToolbarGroup {
+  export type State = ToolbarGroupState;
   export type Props = ToolbarGroupProps;
 }

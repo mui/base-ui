@@ -3,7 +3,7 @@ import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useSliderRootContext } from '../root/SliderRootContext';
-import type { SliderRoot } from '../root/SliderRoot';
+import type { SliderRootState } from '../root/SliderRoot';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 
 /**
@@ -37,8 +37,11 @@ export const SliderTrack = React.forwardRef(function SliderTrack(
   return element;
 });
 
-export interface SliderTrackProps extends BaseUIComponentProps<'div', SliderRoot.State> {}
+export interface SliderTrackState {}
+
+export interface SliderTrackProps extends BaseUIComponentProps<'div', SliderRootState> {}
 
 export namespace SliderTrack {
+  export type State = SliderTrackState;
   export type Props = SliderTrackProps;
 }

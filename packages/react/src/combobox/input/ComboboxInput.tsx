@@ -13,7 +13,7 @@ import {
 } from '../root/ComboboxRootContext';
 import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { selectors } from '../store';
-import type { FieldRoot } from '../../field/root/FieldRoot';
+import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
@@ -101,7 +101,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     });
   });
 
-  const state: ComboboxInput.State = {
+  const state: ComboboxInputState = {
     ...fieldState,
     open,
     disabled,
@@ -462,7 +462,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   return element;
 });
 
-export interface ComboboxInputState extends FieldRoot.State {
+export interface ComboboxInputState extends FieldRootState {
   /**
    * Whether the corresponding popup is open.
    */
@@ -481,7 +481,7 @@ export interface ComboboxInputState extends FieldRoot.State {
   readOnly: boolean;
 }
 
-export interface ComboboxInputProps extends BaseUIComponentProps<'input', ComboboxInput.State> {
+export interface ComboboxInputProps extends BaseUIComponentProps<'input', ComboboxInputState> {
   /**
    * Whether the component should ignore user interaction.
    * @default false

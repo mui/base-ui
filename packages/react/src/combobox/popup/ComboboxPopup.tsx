@@ -21,7 +21,7 @@ import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 
-const stateAttributesMapping: StateAttributesMapping<ComboboxPopup.State> = {
+const stateAttributesMapping: StateAttributesMapping<ComboboxPopupState> = {
   ...popupStateMapping,
   ...transitionStatusMapping,
 };
@@ -60,7 +60,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
     },
   });
 
-  const state: ComboboxPopup.State = {
+  const state: ComboboxPopupState = {
     open,
     side: positioning.side,
     align: positioning.align,
@@ -125,15 +125,33 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
 });
 
 export interface ComboboxPopupState {
+  /**
+   * Whether the component is open.
+   */
   open: boolean;
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
   align: Align;
+  /**
+   * Whether the anchor element is hidden.
+   */
   anchorHidden: boolean;
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
+  /**
+   * Whether there are no items to display.
+   */
   empty: boolean;
 }
 
-export interface ComboboxPopupProps extends BaseUIComponentProps<'div', ComboboxPopup.State> {
+export interface ComboboxPopupProps extends BaseUIComponentProps<'div', ComboboxPopupState> {
   /**
    * Determines the element to focus when the popup is opened.
    *

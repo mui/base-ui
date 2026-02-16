@@ -6,7 +6,7 @@ import { useAnimationsFinished } from './useAnimationsFinished';
 /**
  * Calls the provided function when the CSS open/close animation or transition completes.
  */
-export function useOpenChangeComplete(parameters: useOpenChangeComplete.Parameters) {
+export function useOpenChangeComplete(parameters: UseOpenChangeCompleteParameters) {
   const { enabled = true, open, ref, onComplete: onCompleteParam } = parameters;
 
   const onComplete = useStableCallback(onCompleteParam);
@@ -47,6 +47,4 @@ export interface UseOpenChangeCompleteParameters {
   onComplete: () => void;
 }
 
-export namespace useOpenChangeComplete {
-  export type Parameters = UseOpenChangeCompleteParameters;
-}
+export interface UseOpenChangeCompleteState {}

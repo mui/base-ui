@@ -36,7 +36,7 @@ const SWIPE_AREA_CLOSED_HOOK: Record<string, string> = {
   [CommonPopupDataAttributes.closed]: '',
 };
 
-const stateAttributesMapping: StateAttributesMapping<DrawerSwipeArea.State> = {
+const stateAttributesMapping: StateAttributesMapping<DrawerSwipeAreaState> = {
   open(value) {
     return value ? SWIPE_AREA_OPEN_HOOK : SWIPE_AREA_CLOSED_HOOK;
   },
@@ -380,7 +380,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     };
   }, [store]);
 
-  const state: DrawerSwipeArea.State = {
+  const state: DrawerSwipeAreaState = {
     open,
     swiping: swipe.swiping,
     swipeDirection: resolvedSwipeDirection,
@@ -435,7 +435,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
   });
 });
 
-export interface DrawerSwipeAreaProps extends BaseUIComponentProps<'div', DrawerSwipeArea.State> {
+export interface DrawerSwipeAreaProps extends BaseUIComponentProps<'div', DrawerSwipeAreaState> {
   /**
    * Whether the swipe area is disabled.
    * @default false

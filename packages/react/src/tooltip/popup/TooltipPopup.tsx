@@ -13,7 +13,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { useHoverFloatingInteraction } from '../../floating-ui-react';
 
-const stateAttributesMapping: StateAttributesMapping<TooltipPopup.State> = {
+const stateAttributesMapping: StateAttributesMapping<TooltipPopupState> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -57,7 +57,7 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
     closeDelay,
   });
 
-  const state: TooltipPopup.State = {
+  const state: TooltipPopupState = {
     open,
     side,
     align,
@@ -80,13 +80,25 @@ export interface TooltipPopupState {
    * Whether the tooltip is currently open.
    */
   open: boolean;
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
   align: Align;
+  /**
+   * Whether transitions should be skipped.
+   */
   instant: 'delay' | 'focus' | 'dismiss' | undefined;
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
 }
 
-export interface TooltipPopupProps extends BaseUIComponentProps<'div', TooltipPopup.State> {}
+export interface TooltipPopupProps extends BaseUIComponentProps<'div', TooltipPopupState> {}
 
 export namespace TooltipPopup {
   export type State = TooltipPopupState;

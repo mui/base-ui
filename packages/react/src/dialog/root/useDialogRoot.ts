@@ -16,7 +16,7 @@ import { type DialogRoot } from './DialogRoot';
 import { DialogStore } from '../store/DialogStore';
 import { useImplicitActiveTrigger, useOpenStateTransitions } from '../../utils/popups';
 
-export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
+export function useDialogRoot(params: UseDialogRootParameters): UseDialogRootReturnValue {
   const { store, parentContext, actionsRef } = params;
 
   const open = store.useState('open');
@@ -176,8 +176,4 @@ export interface UseDialogRootParameters {
 
 export type UseDialogRootReturnValue = void;
 
-export namespace useDialogRoot {
-  export type SharedParameters = UseDialogRootSharedParameters;
-  export type Parameters = UseDialogRootParameters;
-  export type ReturnValue = UseDialogRootReturnValue;
-}
+export interface UseDialogRootState {}

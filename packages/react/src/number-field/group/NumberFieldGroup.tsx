@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
-import type { NumberFieldRoot } from '../root/NumberFieldRoot';
+import type { NumberFieldRootState } from '../root/NumberFieldRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -30,12 +30,9 @@ export const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
   return element;
 });
 
-export interface NumberFieldGroupState extends NumberFieldRoot.State {}
+export interface NumberFieldGroupState extends NumberFieldRootState {}
 
-export interface NumberFieldGroupProps extends BaseUIComponentProps<
-  'div',
-  NumberFieldGroup.State
-> {}
+export interface NumberFieldGroupProps extends BaseUIComponentProps<'div', NumberFieldGroupState> {}
 
 export namespace NumberFieldGroup {
   export type State = NumberFieldGroupState;

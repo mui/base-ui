@@ -7,9 +7,9 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import { useCollapsibleRootContext } from '../root/CollapsibleRootContext';
-import { CollapsibleRoot } from '../root/CollapsibleRoot';
+import { type CollapsibleRootState } from '../root/CollapsibleRoot';
 
-const stateAttributesMapping: StateAttributesMapping<CollapsibleRoot.State> = {
+const stateAttributesMapping: StateAttributesMapping<CollapsibleRootState> = {
   ...triggerOpenStateMapping,
   ...transitionStatusMapping,
 };
@@ -66,9 +66,12 @@ export const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
   return element;
 });
 
+export interface CollapsibleTriggerState {}
+
 export interface CollapsibleTriggerProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', CollapsibleRoot.State> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', CollapsibleRootState> {}
 
 export namespace CollapsibleTrigger {
+  export type State = CollapsibleTriggerState;
   export type Props = CollapsibleTriggerProps;
 }

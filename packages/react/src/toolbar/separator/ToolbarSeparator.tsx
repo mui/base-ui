@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { Separator } from '../../separator';
+import { Separator, type SeparatorState } from '../../separator';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 import type { ToolbarRoot } from '../root/ToolbarRoot';
 /**
@@ -26,9 +26,12 @@ export const ToolbarSeparator = React.forwardRef(function ToolbarSeparator(
   return <Separator orientation={orientation} {...props} ref={forwardedRef} />;
 });
 
+export interface ToolbarSeparatorState {}
+
 export interface ToolbarSeparatorProps
-  extends BaseUIComponentProps<'div', Separator.State>, Separator.Props {}
+  extends BaseUIComponentProps<'div', SeparatorState>, Separator.Props {}
 
 export namespace ToolbarSeparator {
+  export type State = ToolbarSeparatorState;
   export type Props = ToolbarSeparatorProps;
 }

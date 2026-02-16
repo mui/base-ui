@@ -18,7 +18,7 @@ import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { EMPTY_OBJECT } from '../../utils/constants';
 
-const stateAttributesMapping: StateAttributesMapping<NavigationMenuContent.State> = {
+const stateAttributesMapping: StateAttributesMapping<NavigationMenuContentState> = {
   ...popupStateMapping,
   ...transitionStatusMapping,
   activationDirection(value) {
@@ -80,7 +80,7 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
     },
   });
 
-  const state: NavigationMenuContent.State = {
+  const state: NavigationMenuContentState = {
     open,
     transitionStatus,
     activationDirection,
@@ -176,7 +176,7 @@ export interface NavigationMenuContentState {
 
 export interface NavigationMenuContentProps extends BaseUIComponentProps<
   'div',
-  NavigationMenuContent.State
+  NavigationMenuContentState
 > {
   /**
    * Whether to keep the content mounted in the DOM while the popup is closed.

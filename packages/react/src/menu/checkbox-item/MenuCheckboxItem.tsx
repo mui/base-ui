@@ -65,7 +65,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
     itemMetadata: REGULAR_ITEM,
   });
 
-  const state: MenuCheckboxItem.State = React.useMemo(
+  const state: MenuCheckboxItemState = React.useMemo(
     () => ({
       disabled,
       highlighted,
@@ -110,7 +110,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   );
 });
 
-export type MenuCheckboxItemState = {
+export interface MenuCheckboxItemState {
   /**
    * Whether the checkbox item should ignore user interaction.
    */
@@ -123,10 +123,10 @@ export type MenuCheckboxItemState = {
    * Whether the checkbox item is currently ticked.
    */
   checked: boolean;
-};
+}
 
 export interface MenuCheckboxItemProps
-  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuCheckboxItem.State> {
+  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuCheckboxItemState> {
   /**
    * Whether the checkbox item is currently ticked.
    *

@@ -157,7 +157,7 @@ export interface NavigationMenuViewportState {}
 
 export interface NavigationMenuViewportProps extends BaseUIComponentProps<
   'div',
-  NavigationMenuViewport.State
+  NavigationMenuViewportState
 > {}
 
 export namespace NavigationMenuViewport {

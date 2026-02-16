@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { valueToPercent } from '../../utils/valueToPercent';
-import type { ProgressRoot } from '../root/ProgressRoot';
+import type { ProgressRootState } from '../root/ProgressRoot';
 import { useProgressRootContext } from '../root/ProgressRootContext';
 import { progressStateAttributesMapping } from '../root/stateAttributesMapping';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -51,8 +51,11 @@ export const ProgressIndicator = React.forwardRef(function ProgressIndicator(
   return element;
 });
 
-export interface ProgressIndicatorProps extends BaseUIComponentProps<'div', ProgressRoot.State> {}
+export interface ProgressIndicatorState {}
+
+export interface ProgressIndicatorProps extends BaseUIComponentProps<'div', ProgressRootState> {}
 
 export namespace ProgressIndicator {
+  export type State = ProgressIndicatorState;
   export type Props = ProgressIndicatorProps;
 }

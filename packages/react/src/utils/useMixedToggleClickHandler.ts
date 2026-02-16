@@ -9,7 +9,7 @@ import { EMPTY_OBJECT } from './constants';
  * For example, a button that opens a popup on mousedown and closes it on click.
  * This hook prevents the popup from closing immediately after the mouse button is released.
  */
-export function useMixedToggleClickHandler(params: useMixedToggleClickHandler.Parameters) {
+export function useMixedToggleClickHandler(params: UseMixedToggleClickHandlerParameters) {
   const { enabled = true, mouseDownAction, open } = params;
   const ignoreClickRef = React.useRef(false);
 
@@ -58,6 +58,4 @@ export interface UseMixedToggleClickHandlerParameters {
   open: boolean;
 }
 
-export namespace useMixedToggleClickHandler {
-  export type Parameters = UseMixedToggleClickHandlerParameters;
-}
+export interface UseMixedToggleClickHandlerState {}

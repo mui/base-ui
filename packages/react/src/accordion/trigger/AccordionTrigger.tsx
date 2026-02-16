@@ -16,7 +16,7 @@ import {
   stopEvent,
 } from '../../composite/composite';
 import { useAccordionRootContext } from '../root/AccordionRootContext';
-import type { AccordionItem } from '../item/AccordionItem';
+import type { AccordionItemState } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 
@@ -181,9 +181,12 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
   return element;
 });
 
+export interface AccordionTriggerState {}
+
 export interface AccordionTriggerProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', AccordionItem.State> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', AccordionItemState> {}
 
 export namespace AccordionTrigger {
+  export type State = AccordionTriggerState;
   export type Props = AccordionTriggerProps;
 }

@@ -165,7 +165,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
     }
   }
 
-  const state: TabsTab.State = {
+  const state: TabsTabState = {
     disabled,
     active,
     orientation,
@@ -224,12 +224,18 @@ export interface TabsTabState {
    * Whether the component should ignore user interaction.
    */
   disabled: boolean;
+  /**
+   * Whether the component is active.
+   */
   active: boolean;
+  /**
+   * The component orientation.
+   */
   orientation: TabsRoot.Orientation;
 }
 
 export interface TabsTabProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', TabsTab.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', TabsTabState> {
   /**
    * The value of the Tab.
    */

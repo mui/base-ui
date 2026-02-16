@@ -29,7 +29,7 @@ export const Button = React.forwardRef(function Button(
     native: nativeButton,
   });
 
-  const state: Button.State = {
+  const state: ButtonState = {
     disabled,
   };
 

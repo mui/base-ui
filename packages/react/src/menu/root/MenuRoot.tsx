@@ -36,7 +36,7 @@ import {
   useContextMenuRootContext,
 } from '../../context-menu/root/ContextMenuRootContext';
 import { mergeProps } from '../../merge-props';
-import { MenuStore, State } from '../store/MenuStore';
+import { MenuStore, type State as MenuStoreState } from '../store/MenuStore';
 import { MenuHandle } from '../store/MenuHandle';
 import {
   PayloadChildRenderFunction,
@@ -325,7 +325,10 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         nativeEvent?.isTrusted;
       const isDismissClose = !nextOpen && (reason === REASONS.escapeKey || reason == null);
 
-      const updatedState: Partial<State<Payload>> = { open: nextOpen, openChangeReason: reason };
+      const updatedState: Partial<MenuStoreState<Payload>> = {
+        open: nextOpen,
+        openChangeReason: reason,
+      };
       openEventRef.current = eventDetails.event ?? null;
 
       // If a popup is closing, the `trigger` may be null.
@@ -571,6 +574,8 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   return content;
 });
 
+export interface MenuRootState {}
+
 export interface MenuRootProps<Payload = unknown> {
   /**
    * Whether the menu is initially open.
@@ -707,6 +712,7 @@ export type MenuParent =
     };
 
 export namespace MenuRoot {
+  export type State = MenuRootState;
   export type Props<Payload = unknown> = MenuRootProps<Payload>;
   export type Actions = MenuRootActions;
   export type ChangeEventReason = MenuRootChangeEventReason;

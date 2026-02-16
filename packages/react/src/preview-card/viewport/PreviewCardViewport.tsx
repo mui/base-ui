@@ -8,7 +8,7 @@ import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { PreviewCardViewportCssVars } from './PreviewCardViewportCssVars';
 import { usePopupViewport } from '../../utils/usePopupViewport';
 
-const stateAttributesMapping: StateAttributesMapping<PreviewCardViewport.State> = {
+const stateAttributesMapping: StateAttributesMapping<PreviewCardViewportState> = {
   activationDirection: (value) =>
     value
       ? {
@@ -42,7 +42,7 @@ export const PreviewCardViewport = React.forwardRef(function PreviewCardViewport
     children,
   });
 
-  const state: PreviewCardViewport.State = {
+  const state: PreviewCardViewportState = {
     activationDirection: viewportState.activationDirection,
     transitioning: viewportState.transitioning,
     instant: instantType,
@@ -56,20 +56,28 @@ export const PreviewCardViewport = React.forwardRef(function PreviewCardViewport
   });
 });
 
+export interface PreviewCardViewportState {
+  /**
+   * The activation direction of the transitioned content.
+   */
+  activationDirection: string | undefined;
+  /**
+   * Whether the viewport is currently transitioning between contents.
+   */
+  transitioning: boolean;
+  /**
+   * Present if animations should be instant.
+   */
+  instant: 'dismiss' | 'focus' | undefined;
+}
+
 export namespace PreviewCardViewport {
-  export interface Props extends BaseUIComponentProps<'div', State> {
+  export interface Props extends BaseUIComponentProps<'div', PreviewCardViewportState> {
     /**
      * The content to render inside the transition container.
      */
     children?: React.ReactNode;
   }
 
-  export interface State {
-    activationDirection: string | undefined;
-    /**
-     * Whether the viewport is currently transitioning between contents.
-     */
-    transitioning: boolean;
-    instant: 'dismiss' | 'focus' | undefined;
-  }
+  export type State = PreviewCardViewportState;
 }

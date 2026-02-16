@@ -111,7 +111,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
-  const state: PopoverTrigger.State = {
+  const state: PopoverTriggerState = {
     disabled,
     open: isOpenedByThisTrigger,
   };

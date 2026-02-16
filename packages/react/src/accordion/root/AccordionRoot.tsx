@@ -105,7 +105,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
     }
   });
 
-  const state: AccordionRoot.State = React.useMemo(
+  const state: AccordionRootState = React.useMemo(
     () => ({
       value,
       disabled,
@@ -163,15 +163,21 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
 export type AccordionValue = (any | null)[];
 
 export interface AccordionRootState {
+  /**
+   * The current value.
+   */
   value: AccordionValue;
   /**
    * Whether the component should ignore user interaction.
    */
   disabled: boolean;
+  /**
+   * The component orientation.
+   */
   orientation: Orientation;
 }
 
-export interface AccordionRootProps extends BaseUIComponentProps<'div', AccordionRoot.State> {
+export interface AccordionRootProps extends BaseUIComponentProps<'div', AccordionRootState> {
   /**
    * The controlled value of the item(s) that should be expanded.
    *

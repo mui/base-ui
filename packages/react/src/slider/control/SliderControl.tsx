@@ -18,7 +18,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
-import type { SliderRoot } from '../root/SliderRoot';
+import type { SliderRootState } from '../root/SliderRoot';
 import { getMidpoint } from '../utils/getMidpoint';
 import { roundValueToStep } from '../utils/roundValueToStep';
 import { validateMinimumDistance } from '../utils/validateMinimumDistance';
@@ -513,9 +513,11 @@ interface FingerState {
   didSwap: boolean;
 }
 
-export interface SliderControlProps extends BaseUIComponentProps<'div', SliderRoot.State> {}
+export interface SliderControlState extends SliderRootState {}
+
+export interface SliderControlProps extends BaseUIComponentProps<'div', SliderControlState> {}
 
 export namespace SliderControl {
-  export type State = SliderRoot.State;
+  export type State = SliderControlState;
   export type Props = SliderControlProps;
 }

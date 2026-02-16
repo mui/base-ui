@@ -2,7 +2,7 @@
 import * as React from 'react';
 import type { Orientation } from '../../utils/types';
 import type { TextDirection } from '../../direction-provider';
-import type { AccordionRoot, AccordionValue } from './AccordionRoot';
+import type { AccordionValue, AccordionRootState } from './AccordionRoot';
 
 export interface AccordionRootContext {
   accordionItemRefs: React.RefObject<(HTMLElement | null)[]>;
@@ -13,7 +13,7 @@ export interface AccordionRootContext {
   keepMounted: boolean;
   loopFocus: boolean;
   orientation: Orientation;
-  state: AccordionRoot.State;
+  state: AccordionRootState;
   value: AccordionValue;
 }
 

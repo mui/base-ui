@@ -39,7 +39,7 @@ export interface ComboboxGroupLabelState {}
 
 export interface ComboboxGroupLabelProps extends BaseUIComponentProps<
   'div',
-  ComboboxGroupLabel.State
+  ComboboxGroupLabelState
 > {}
 
 export namespace ComboboxGroupLabel {

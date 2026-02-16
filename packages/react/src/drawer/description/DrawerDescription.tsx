@@ -11,10 +11,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
  */
 export const DrawerDescription = DialogDescription as DrawerDescription;
 
-export interface DrawerDescriptionProps extends BaseUIComponentProps<
-  'p',
-  DrawerDescription.State
-> {}
+export interface DrawerDescriptionProps extends BaseUIComponentProps<'p', DrawerDescriptionState> {}
 
 export interface DrawerDescriptionState {}
 

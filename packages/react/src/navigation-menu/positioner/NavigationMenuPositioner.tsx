@@ -16,7 +16,12 @@ import {
   useNavigationMenuTreeContext,
 } from '../root/NavigationMenuRootContext';
 import { useNavigationMenuPortalContext } from '../portal/NavigationMenuPortalContext';
-import { useAnchorPositioning, type Align, type Side } from '../../utils/useAnchorPositioning';
+import {
+  useAnchorPositioning,
+  type Align,
+  type Side,
+  type UseAnchorPositioningSharedParameters,
+} from '../../utils/useAnchorPositioning';
 import { NavigationMenuPositionerContext } from './NavigationMenuPositionerContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
@@ -141,7 +146,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     };
   }, [open, mounted, positioning.positionerStyles]);
 
-  const state: NavigationMenuPositioner.State = {
+  const state: NavigationMenuPositionerState = {
     open,
     side: positioning.side,
     align: positioning.align,
@@ -190,8 +195,17 @@ export interface NavigationMenuPositionerState {
    * Whether the navigation menu is currently open.
    */
   open: boolean;
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
   align: Align;
+  /**
+   * Whether the anchor element is hidden.
+   */
   anchorHidden: boolean;
   /**
    * Whether CSS transitions should be disabled.
@@ -201,8 +215,8 @@ export interface NavigationMenuPositionerState {
 
 export interface NavigationMenuPositionerProps
   extends
-    useAnchorPositioning.SharedParameters,
-    BaseUIComponentProps<'div', NavigationMenuPositioner.State> {}
+    UseAnchorPositioningSharedParameters,
+    BaseUIComponentProps<'div', NavigationMenuPositionerState> {}
 
 export namespace NavigationMenuPositioner {
   export type State = NavigationMenuPositionerState;

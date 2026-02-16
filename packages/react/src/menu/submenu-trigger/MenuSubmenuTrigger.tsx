@@ -140,7 +140,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   const rootTriggerProps = store.useState('triggerProps', true);
   delete rootTriggerProps.id;
 
-  const state: MenuSubmenuTrigger.State = { disabled, highlighted, open };
+  const state: MenuSubmenuTriggerState = { disabled, highlighted, open };
 
   const element = useRenderElement('div', componentProps, {
     state,

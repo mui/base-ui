@@ -3,7 +3,7 @@ import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useProgressRootContext } from '../root/ProgressRootContext';
-import type { ProgressRoot } from '../root/ProgressRoot';
+import type { ProgressRootState } from '../root/ProgressRoot';
 import { progressStateAttributesMapping } from '../root/stateAttributesMapping';
 /**
  * A text label displaying the current value.
@@ -41,8 +41,10 @@ export const ProgressValue = React.forwardRef(function ProgressValue(
   return element;
 });
 
+export interface ProgressValueState {}
+
 export interface ProgressValueProps extends Omit<
-  BaseUIComponentProps<'span', ProgressRoot.State>,
+  BaseUIComponentProps<'span', ProgressRootState>,
   'children'
 > {
   children?:
@@ -52,5 +54,6 @@ export interface ProgressValueProps extends Omit<
 }
 
 export namespace ProgressValue {
+  export type State = ProgressValueState;
   export type Props = ProgressValueProps;
 }

@@ -11,7 +11,7 @@ import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
 
-const stateAttributesMapping: StateAttributesMapping<SelectArrow.State> = {
+const stateAttributesMapping: StateAttributesMapping<SelectArrowState> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -34,7 +34,7 @@ export const SelectArrow = React.forwardRef(function SelectArrow(
 
   const open = useStore(store, selectors.open, true);
 
-  const state: SelectArrow.State = {
+  const state: SelectArrowState = {
     open,
     side,
     align,
@@ -60,12 +60,21 @@ export interface SelectArrowState {
    * Whether the select popup is currently open.
    */
   open: boolean;
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side | 'none';
+  /**
+   * The alignment of the component relative to the anchor.
+   */
   align: Align;
+  /**
+   * Whether the arrow cannot be centered on the anchor.
+   */
   uncentered: boolean;
 }
 
-export interface SelectArrowProps extends BaseUIComponentProps<'div', SelectArrow.State> {}
+export interface SelectArrowProps extends BaseUIComponentProps<'div', SelectArrowState> {}
 
 export namespace SelectArrow {
   export type State = SelectArrowState;
