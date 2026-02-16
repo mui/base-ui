@@ -59,7 +59,7 @@ export interface SharedCalendarState<TValue extends TemporalSupportedValue = any
    */
   isDateUnavailable: ((day: TemporalSupportedObject) => boolean) | undefined;
   /**
-   * The amount of months to navigate by when pressing Calendar.SetNextMonth, Calendar.SetPreviousMonth or when using keyboard navigation in the day grid.
+   * The amount of months to navigate by when pressing Calendar.IncrementMonth, Calendar.DecrementMonth or when using keyboard navigation in the day grid.
    */
   monthPageSize: number;
   /**

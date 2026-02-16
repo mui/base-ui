@@ -4,10 +4,10 @@ import { spy } from 'sinon';
 import { Calendar } from '@base-ui/react/calendar';
 import { createTemporalRenderer, describeConformance } from '#test-utils';
 
-describe('<Calendar.SetNextMonth />', () => {
+describe('<Calendar.IncrementMonth />', () => {
   const { render, adapter } = createTemporalRenderer();
 
-  describeConformance(<Calendar.SetNextMonth />, () => ({
+  describeConformance(<Calendar.IncrementMonth />, () => ({
     refInstanceof: window.HTMLButtonElement,
     render(node) {
       return render(<Calendar.Root>{node}</Calendar.Root>);
@@ -23,7 +23,7 @@ describe('<Calendar.SetNextMonth />', () => {
           onVisibleDateChange={onVisibleDateChange}
           visibleDate={adapter.date('2025-02-05T12:01:02.003Z', 'default')}
         >
-          <Calendar.SetNextMonth />
+          <Calendar.IncrementMonth />
         </Calendar.Root>,
       );
 
@@ -39,7 +39,7 @@ describe('<Calendar.SetNextMonth />', () => {
     it('should be disabled when props.disabled is true', () => {
       render(
         <Calendar.Root>
-          <Calendar.SetNextMonth disabled />
+          <Calendar.IncrementMonth disabled />
         </Calendar.Root>,
       );
 
@@ -51,7 +51,7 @@ describe('<Calendar.SetNextMonth />', () => {
     it('should be disabled when the Calendar is disabled', () => {
       render(
         <Calendar.Root disabled>
-          <Calendar.SetNextMonth />
+          <Calendar.IncrementMonth />
         </Calendar.Root>,
       );
 
@@ -66,7 +66,7 @@ describe('<Calendar.SetNextMonth />', () => {
           maxDate={adapter.date('2025-01-10', 'default')}
           visibleDate={adapter.date('2025-01-01', 'default')}
         >
-          <Calendar.SetNextMonth />
+          <Calendar.IncrementMonth />
         </Calendar.Root>,
       );
 
@@ -81,7 +81,7 @@ describe('<Calendar.SetNextMonth />', () => {
           maxDate={adapter.date('2025-01-10', 'default')}
           visibleDate={adapter.date('2024-12-01', 'default')}
         >
-          <Calendar.SetNextMonth />
+          <Calendar.IncrementMonth />
         </Calendar.Root>,
       );
 

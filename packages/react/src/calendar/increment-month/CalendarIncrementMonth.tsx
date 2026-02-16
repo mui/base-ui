@@ -14,8 +14,8 @@ import { selectors } from '../store';
  *
  * Documentation: [Base UI Calendar](https://base-ui.com/react/components/calendar)
  */
-export const CalendarSetNextMonth = React.forwardRef(function CalendarSetNextMonth(
-  componentProps: CalendarSetNextMonth.Props,
+export const CalendarIncrementMonth = React.forwardRef(function CalendarIncrementMonth(
+  componentProps: CalendarIncrementMonth.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const { className, render, nativeButton, disabled, ...elementProps } = componentProps;
@@ -37,7 +37,7 @@ export const CalendarSetNextMonth = React.forwardRef(function CalendarSetNextMon
     native: nativeButton,
   });
 
-  const state: CalendarSetNextMonth.State = React.useMemo(
+  const state: CalendarIncrementMonth.State = React.useMemo(
     () => ({ disabled: isDisabled }),
     [isDisabled],
   );
@@ -64,17 +64,17 @@ export const CalendarSetNextMonth = React.forwardRef(function CalendarSetNextMon
   return element;
 });
 
-export interface CalendarSetNextMonthState {
+export interface CalendarIncrementMonthState {
   /**
    * Whether the button is disabled.
    */
   disabled: boolean;
 }
 
-export interface CalendarSetNextMonthProps
-  extends BaseUIComponentProps<'button', CalendarSetNextMonthState>, NativeButtonProps {}
+export interface CalendarIncrementMonthProps
+  extends BaseUIComponentProps<'button', CalendarIncrementMonthState>, NativeButtonProps {}
 
-export namespace CalendarSetNextMonth {
-  export type State = CalendarSetNextMonthState;
-  export type Props = CalendarSetNextMonthProps;
+export namespace CalendarIncrementMonth {
+  export type State = CalendarIncrementMonthState;
+  export type Props = CalendarIncrementMonthProps;
 }

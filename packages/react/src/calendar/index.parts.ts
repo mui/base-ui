@@ -12,8 +12,8 @@ export { CalendarDayButton as DayButton } from './day-button/CalendarDayButton';
 
 // Navigation
 export { CalendarSetMonth as SetMonth } from './set-month/CalendarSetMonth';
-export { CalendarSetPreviousMonth as SetPreviousMonth } from './set-previous-month/CalendarSetPreviousMonth';
-export { CalendarSetNextMonth as SetNextMonth } from './set-next-month/CalendarSetNextMonth';
+export { CalendarDecrementMonth as DecrementMonth } from './decrement-month/CalendarDecrementMonth';
+export { CalendarIncrementMonth as IncrementMonth } from './increment-month/CalendarIncrementMonth';
 
 // Context
 export { useCalendarContext as useContext } from './use-context/CalendarContext';

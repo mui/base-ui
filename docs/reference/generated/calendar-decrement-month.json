@@ -1,5 +1,5 @@
 {
-  "name": "CalendarSetPreviousMonth",
+  "name": "CalendarDecrementMonth",
   "description": "Displays an element to navigate to the previous month in the calendar.\nRenders a `<button>` element.",
   "props": {
     "nativeButton": {
@@ -9,18 +9,18 @@
       "detailedType": "boolean | undefined"
     },
     "className": {
-      "type": "string | ((state: Calendar.SetPreviousMonth.State) => string | undefined)",
+      "type": "string | ((state: Calendar.DecrementMonth.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((\n    state: Calendar.SetPreviousMonth.State,\n  ) => string | undefined)"
+      "detailedType": "| string\n| ((\n    state: Calendar.DecrementMonth.State,\n  ) => string | undefined)"
     },
     "style": {
-      "type": "CSSProperties | ((state: Calendar.SetPreviousMonth.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((\n    state: Calendar.SetPreviousMonth.State,\n  ) => CSSProperties | undefined)\n| undefined"
+      "type": "CSSProperties | ((state: Calendar.DecrementMonth.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Calendar.DecrementMonth.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Calendar.SetPreviousMonth.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Calendar.DecrementMonth.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Calendar.SetPreviousMonth.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Calendar.DecrementMonth.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

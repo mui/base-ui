@@ -1,4 +1,4 @@
-export enum CalendarSetNextMonthDataAttributes {
+export enum CalendarDecrementMonthDataAttributes {
   /**
    * Present when the button is disabled.
    */

@@ -244,7 +244,7 @@ export const selectors = {
    */
   validationProps: validationPropsSelector,
   /**
-   * Returns the amount of months to navigate by when pressing Calendar.SetNextMonth, Calendar.SetPreviousMonth or when using keyboard navigation in the day grid.
+   * Returns the amount of months to navigate by when pressing Calendar.IncrementMonth, Calendar.DecrementMonth or when using keyboard navigation in the day grid.
    */
   monthPageSize: createSelector((state: State) => state.monthPageSize),
   /**

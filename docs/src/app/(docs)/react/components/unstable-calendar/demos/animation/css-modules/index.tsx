@@ -12,9 +12,7 @@ export default function AnimatedCalendar() {
       {({ visibleDate }) => (
         <React.Fragment>
           <header className={styles.Header}>
-            <Calendar.SetPreviousMonth className={styles.SetPreviousMonth}>
-              ◀
-            </Calendar.SetPreviousMonth>
+            <Calendar.DecrementMonth className={styles.DecrementMonth}>◀</Calendar.DecrementMonth>
             <div className={indexStyles.HeaderLabelWrapper}>
               <Calendar.Viewport>
                 <span className={clsx(styles.HeaderLabel, indexStyles.HeaderLabel)}>
@@ -22,7 +20,7 @@ export default function AnimatedCalendar() {
                 </span>
               </Calendar.Viewport>
             </div>
-            <Calendar.SetNextMonth className={styles.SetNextMonth}>▶</Calendar.SetNextMonth>
+            <Calendar.IncrementMonth className={styles.IncrementMonth}>▶</Calendar.IncrementMonth>
           </header>
           <Calendar.DayGrid className={clsx(styles.DayGrid, indexStyles.DayGrid)}>
             <Calendar.DayGridHeader className={styles.DayGridHeader}>

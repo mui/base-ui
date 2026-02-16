@@ -4,10 +4,10 @@ import { spy } from 'sinon';
 import { Calendar } from '@base-ui/react/calendar';
 import { createTemporalRenderer, describeConformance } from '#test-utils';
 
-describe('<Calendar.SetPreviousMonth />', () => {
+describe('<Calendar.DecrementMonth />', () => {
   const { render, adapter } = createTemporalRenderer();
 
-  describeConformance(<Calendar.SetPreviousMonth />, () => ({
+  describeConformance(<Calendar.DecrementMonth />, () => ({
     refInstanceof: window.HTMLButtonElement,
     render(node) {
       return render(<Calendar.Root>{node}</Calendar.Root>);
@@ -23,7 +23,7 @@ describe('<Calendar.SetPreviousMonth />', () => {
           onVisibleDateChange={onVisibleDateChange}
           visibleDate={adapter.date('2025-02-05T12:01:02.003Z', 'default')}
         >
-          <Calendar.SetPreviousMonth />
+          <Calendar.DecrementMonth />
         </Calendar.Root>,
       );
 
@@ -39,7 +39,7 @@ describe('<Calendar.SetPreviousMonth />', () => {
     it('should be disabled when props.disabled is true', () => {
       render(
         <Calendar.Root>
-          <Calendar.SetPreviousMonth disabled />
+          <Calendar.DecrementMonth disabled />
         </Calendar.Root>,
       );
 
@@ -51,7 +51,7 @@ describe('<Calendar.SetPreviousMonth />', () => {
     it('should be disabled when the calendar is disabled', () => {
       render(
         <Calendar.Root disabled>
-          <Calendar.SetPreviousMonth />
+          <Calendar.DecrementMonth />
         </Calendar.Root>,
       );
 
@@ -66,7 +66,7 @@ describe('<Calendar.SetPreviousMonth />', () => {
           minDate={adapter.date('2025-01-10', 'default')}
           visibleDate={adapter.date('2025-01-01', 'default')}
         >
-          <Calendar.SetPreviousMonth />
+          <Calendar.DecrementMonth />
         </Calendar.Root>,
       );
 
@@ -81,7 +81,7 @@ describe('<Calendar.SetPreviousMonth />', () => {
           minDate={adapter.date('2025-01-10', 'default')}
           visibleDate={adapter.date('2025-02-01', 'default')}
         >
-          <Calendar.SetPreviousMonth />
+          <Calendar.DecrementMonth />
         </Calendar.Root>,
       );
 

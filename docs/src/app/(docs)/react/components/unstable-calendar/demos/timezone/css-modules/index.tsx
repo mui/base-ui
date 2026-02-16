@@ -24,11 +24,9 @@ export default function CalendarWithTimezone() {
         {({ visibleDate }) => (
           <React.Fragment>
             <header className={styles.Header}>
-              <Calendar.SetPreviousMonth className={styles.SetPreviousMonth}>
-                ◀
-              </Calendar.SetPreviousMonth>
+              <Calendar.DecrementMonth className={styles.DecrementMonth}>◀</Calendar.DecrementMonth>
               <span className={styles.HeaderLabel}>{format(visibleDate, 'MMMM yyyy')}</span>
-              <Calendar.SetNextMonth className={styles.SetNextMonth}>▶</Calendar.SetNextMonth>
+              <Calendar.IncrementMonth className={styles.IncrementMonth}>▶</Calendar.IncrementMonth>
             </header>
             <Calendar.DayGrid className={styles.DayGrid}>
               <Calendar.DayGridHeader className={styles.DayGridHeader}>

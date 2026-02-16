@@ -18,8 +18,8 @@ Import the component and assemble its parts:
 import { Calendar } from '@base-ui/react/calendar';
 
 <Calendar.Root>
-  <Calendar.SetPreviousMonth />
-  <Calendar.SetNextMonth />
+  <Calendar.DecrementMonth />
+  <Calendar.IncrementMonth />
   <Calendar.SetMonth />
   <Calendar.DayGrid>
     <Calendar.DayGridHeader>
@@ -42,7 +42,7 @@ import { Calendar } from '@base-ui/react/calendar';
 
 <Reference
   component="Calendar"
-  parts="Root, DayGrid, DayGridHeader, DayGridHeaderCell, DayGridBody, DayGridRow, DayGridCell, DayButton, SetMonth, SetPreviousMonth, SetNextMonth, Viewport"
+  parts="Root, DayGrid, DayGridHeader, DayGridHeaderCell, DayGridBody, DayGridRow, DayGridCell, DayButton, SetMonth, DecrementMonth, IncrementMonth, Viewport"
 />
 
 ## Examples
