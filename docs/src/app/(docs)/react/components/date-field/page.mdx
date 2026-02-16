@@ -43,7 +43,7 @@ import { DemoDateFieldCustomFormat } from './demos/custom-format';
 
 ### Clear button
 
-Use `<DateField.SectionList>` with `<DateField.Clear>` to add a clear button that resets the field value.
+Wrap the sections in `<DateField.SectionList>` to render the clear button next to them using `<DateField.Clear>`. The `SectionList` groups all sections into a single element so that additional controls can be placed alongside them inside the field.
 
 import { DemoDateFieldClearButton } from './demos/clear-button';
 
@@ -60,6 +60,8 @@ import { DemoDateFieldValidation } from './demos/validation';
 ### Localization
 
 Use `<TemporalLocaleProvider>` to set the locale and `placeholderGetters` to customize placeholder text.
+
+The `placeholderGetters` prop is a temporary solution. It will no longer be needed once a built-in localization system is implemented.
 
 import { DemoDateFieldLocalization } from './demos/localization';
 

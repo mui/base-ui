@@ -44,7 +44,7 @@ import { DemoTimeFieldCustomFormat } from './demos/custom-format';
 
 ### Clear button
 
-Use `<TimeField.SectionList>` with `<TimeField.Clear>` to add a clear button that resets the field value.
+Wrap the sections in `<TimeField.SectionList>` to render the clear button next to them using `<TimeField.Clear>`. The `SectionList` groups all sections into a single element so that additional controls can be placed alongside them inside the field.
 
 import { DemoTimeFieldClearButton } from './demos/clear-button';
 
@@ -61,6 +61,8 @@ import { DemoTimeFieldValidation } from './demos/validation';
 ### Localization
 
 Use `<TemporalLocaleProvider>` to set the locale and `placeholderGetters` to customize placeholder text.
+
+The `placeholderGetters` prop is a temporary solution. It will no longer be needed once a built-in localization system is implemented.
 
 import { DemoTimeFieldLocalization } from './demos/localization';
 
