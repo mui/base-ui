@@ -11,7 +11,6 @@ export default function ExampleCreatableCombobox() {
   const [query, setQuery] = React.useState('');
   const [openDialog, setOpenDialog] = React.useState(false);
 
-  const containerRef = React.useRef<HTMLDivElement | null>(null);
   const createInputRef = React.useRef<HTMLInputElement | null>(null);
   const comboboxInputRef = React.useRef<HTMLInputElement | null>(null);
   const pendingQueryRef = React.useRef('');
@@ -126,43 +125,42 @@ export default function ExampleCreatableCombobox() {
           <label className="text-sm leading-5 font-medium text-gray-900" htmlFor={id}>
             Labels
           </label>
-          <Combobox.Chips
-            className="flex flex-wrap items-center gap-0.5 rounded-md border border-gray-200 px-1.5 py-1 w-64 focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-blue-800 min-[500px]:w-[22rem]"
-            ref={containerRef}
-          >
-            <Combobox.Value>
-              {(value: LabelItem[]) => (
-                <React.Fragment>
-                  {value.map((label) => (
-                    <Combobox.Chip
-                      key={label.id}
-                      className="flex items-center gap-1 rounded-md bg-gray-100 px-1.5 py-[0.2rem] text-sm text-gray-900 outline-none cursor-default [@media(hover:hover)]:[&[data-highlighted]]:bg-blue-800 [@media(hover:hover)]:[&[data-highlighted]]:text-gray-50 focus-within:bg-blue-800 focus-within:text-gray-50"
-                      aria-label={label.value}
-                    >
-                      {label.value}
-                      <Combobox.ChipRemove
-                        className="rounded-md p-1 text-inherit hover:bg-gray-200"
-                        aria-label="Remove"
+          <Combobox.InputGroup className="w-64 rounded-md border border-gray-200 bg-[canvas] px-1.5 py-1 focus-within:outline focus-within:outline-1 focus-within:-outline-offset-1 focus-within:outline-blue-800 data-[highlighted]:focus-within:outline-2 min-[500px]:w-[22rem]">
+            <Combobox.Chips className="flex w-full flex-wrap items-center gap-0.5">
+              <Combobox.Value>
+                {(value: LabelItem[]) => (
+                  <React.Fragment>
+                    {value.map((label) => (
+                      <Combobox.Chip
+                        key={label.id}
+                        className="flex items-center gap-1 rounded-md bg-gray-100 px-1.5 py-[0.2rem] text-sm text-gray-900 outline-none cursor-default [@media(hover:hover)]:[&[data-highlighted]]:bg-blue-800 [@media(hover:hover)]:[&[data-highlighted]]:text-gray-50 focus-within:bg-blue-800 focus-within:text-gray-50"
+                        aria-label={label.value}
                       >
-                        <XIcon />
-                      </Combobox.ChipRemove>
-                    </Combobox.Chip>
-                  ))}
-                  <Combobox.Input
-                    ref={comboboxInputRef}
-                    id={id}
-                    placeholder={value.length > 0 ? '' : 'e.g. bug'}
-                    className="min-w-12 flex-1 h-8 rounded-md border-0 bg-transparent pl-2 text-base text-gray-900 outline-none"
-                    onKeyDown={handleInputKeyDown}
-                  />
-                </React.Fragment>
-              )}
-            </Combobox.Value>
-          </Combobox.Chips>
+                        {label.value}
+                        <Combobox.ChipRemove
+                          className="rounded-md p-1 text-inherit hover:bg-gray-200"
+                          aria-label="Remove"
+                        >
+                          <XIcon />
+                        </Combobox.ChipRemove>
+                      </Combobox.Chip>
+                    ))}
+                    <Combobox.Input
+                      ref={comboboxInputRef}
+                      id={id}
+                      placeholder={value.length > 0 ? '' : 'e.g. bug'}
+                      className="min-w-12 flex-1 h-8 rounded-md border-0 bg-transparent pl-2 text-base text-gray-900 outline-none"
+                      onKeyDown={handleInputKeyDown}
+                    />
+                  </React.Fragment>
+                )}
+              </Combobox.Value>
+            </Combobox.Chips>
+          </Combobox.InputGroup>
         </div>
 
         <Combobox.Portal>
-          <Combobox.Positioner className="z-50 outline-none" sideOffset={4} anchor={containerRef}>
+          <Combobox.Positioner className="z-50 outline-none" sideOffset={4}>
             <Combobox.Popup className="w-[var(--anchor-width)] max-h-[min(var(--available-height),24rem)] max-w-[var(--available-width)] overflow-y-auto scroll-pt-2 scroll-pb-2 overscroll-contain rounded-lg bg-[canvas] py-2 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
               <Combobox.Empty className="px-4 py-2 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0">
                 No labels found.

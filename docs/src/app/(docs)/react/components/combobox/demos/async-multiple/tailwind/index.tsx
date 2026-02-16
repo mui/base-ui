@@ -5,8 +5,6 @@ import { Combobox } from '@base-ui/react/combobox';
 export default function ExampleAsyncMultipleCombobox() {
   const id = React.useId();
 
-  const containerRef = React.useRef<HTMLDivElement | null>(null);
-
   const [searchResults, setSearchResults] = React.useState<DirectoryUser[]>([]);
   const [selectedValues, setSelectedValues] = React.useState<DirectoryUser[]>([]);
   const [searchValue, setSearchValue] = React.useState('');
@@ -137,41 +135,40 @@ export default function ExampleAsyncMultipleCombobox() {
         <label className="inline-flex text-inherit" htmlFor={id}>
           Assign reviewers
         </label>
-        <Combobox.Chips
-          className="relative flex min-h-10 w-[16rem] md:w-[20rem] flex-wrap items-center gap-1 rounded-md border border-gray-200 bg-[canvas] px-1.5 py-1 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-blue-800"
-          ref={containerRef}
-        >
-          <Combobox.Value>
-            {(value: DirectoryUser[]) => (
-              <React.Fragment>
-                {value.map((user) => (
-                  <Combobox.Chip
-                    key={user.id}
-                    className="flex cursor-default items-center gap-1 rounded-md bg-gray-100 py-1 pl-2 pr-1 text-sm text-gray-900 outline-none focus-within:bg-blue-800 focus-within:text-gray-50 [@media(hover:hover)]:[&[data-highlighted]]:bg-blue-800 [@media(hover:hover)]:[&[data-highlighted]]:text-gray-50"
-                    aria-label={user.name}
-                  >
-                    {user.name}
-                    <Combobox.ChipRemove
-                      className="inline-flex items-center justify-center rounded-md border-none bg-transparent p-[0.2rem] text-inherit hover:bg-gray-200"
-                      aria-label="Remove"
+        <Combobox.InputGroup className="relative flex min-h-10 w-[16rem] rounded-md border border-gray-200 bg-[canvas] px-1.5 py-1 focus-within:outline focus-within:outline-1 focus-within:-outline-offset-1 focus-within:outline-blue-800 data-[highlighted]:focus-within:outline-2 md:w-[20rem]">
+          <Combobox.Chips className="flex w-full flex-wrap items-center gap-1">
+            <Combobox.Value>
+              {(value: DirectoryUser[]) => (
+                <React.Fragment>
+                  {value.map((user) => (
+                    <Combobox.Chip
+                      key={user.id}
+                      className="flex cursor-default items-center gap-1 rounded-md bg-gray-100 py-1 pl-2 pr-1 text-sm text-gray-900 outline-none focus-within:bg-blue-800 focus-within:text-gray-50 [@media(hover:hover)]:[&[data-highlighted]]:bg-blue-800 [@media(hover:hover)]:[&[data-highlighted]]:text-gray-50"
+                      aria-label={user.name}
                     >
-                      <XIcon />
-                    </Combobox.ChipRemove>
-                  </Combobox.Chip>
-                ))}
-                <Combobox.Input
-                  id={id}
-                  placeholder={value.length > 0 ? '' : 'e.g. Michael'}
-                  className="h-8 min-w-24 flex-1 rounded-md border-0 bg-transparent pl-2 text-base font-normal text-gray-900 outline-none placeholder:font-normal"
-                />
-              </React.Fragment>
-            )}
-          </Combobox.Value>
-        </Combobox.Chips>
+                      {user.name}
+                      <Combobox.ChipRemove
+                        className="inline-flex items-center justify-center rounded-md border-none bg-transparent p-[0.2rem] text-inherit hover:bg-gray-200"
+                        aria-label="Remove"
+                      >
+                        <XIcon />
+                      </Combobox.ChipRemove>
+                    </Combobox.Chip>
+                  ))}
+                  <Combobox.Input
+                    id={id}
+                    placeholder={value.length > 0 ? '' : 'e.g. Michael'}
+                    className="h-8 min-w-24 flex-1 rounded-md border-0 bg-transparent pl-2 text-base font-normal text-gray-900 outline-none placeholder:font-normal"
+                  />
+                </React.Fragment>
+              )}
+            </Combobox.Value>
+          </Combobox.Chips>
+        </Combobox.InputGroup>
       </div>
 
       <Combobox.Portal>
-        <Combobox.Positioner className="outline-none" anchor={containerRef} sideOffset={4}>
+        <Combobox.Positioner className="outline-none" sideOffset={4}>
           <Combobox.Popup
             className="box-border w-[var(--anchor-width)] max-h-[min(var(--available-height),23rem)] max-w-[var(--available-width)] origin-[var(--transform-origin)] overflow-y-auto scroll-pb-2 scroll-pt-2 overscroll-contain rounded-md bg-[canvas] py-2 text-gray-900 shadow-[0_10px_15px_-3px_var(--color-gray-200),0_4px_6px_-4px_var(--color-gray-200)] outline outline-1 outline-gray-200 transition-[opacity,transform,scale] duration-100 data-[ending-style]:transition-none data-[starting-style]:scale-95 data-[starting-style]:opacity-0 dark:-outline-offset-1 dark:shadow-none dark:outline-gray-300"
             aria-busy={isPending || undefined}

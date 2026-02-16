@@ -8,11 +8,11 @@ export default function ExampleGroupedCombobox() {
     <Combobox.Root items={groupedProduce}>
       <div className="relative flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">
         <label htmlFor={id}>Select produce</label>
-        <div className="relative [&>input]:pr-[calc(0.5rem+1.5rem)] has-[.combobox-clear]:[&>input]:pr-[calc(0.5rem+1.5rem*2)]">
+        <Combobox.InputGroup className="relative box-content h-10 w-[16rem] rounded-md border border-gray-200 bg-[canvas] focus-within:outline focus-within:outline-1 focus-within:-outline-offset-1 focus-within:outline-blue-800 data-[highlighted]:focus-within:outline-2 [&>input]:pr-[calc(0.5rem+1.5rem)] has-[.combobox-clear]:[&>input]:pr-[calc(0.5rem+1.5rem*2)]">
           <Combobox.Input
             placeholder="e.g. Mango"
             id={id}
-            className="bg-[canvas] h-10 w-[16rem] rounded-md border border-gray-200 pl-3.5 text-base font-normal text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+            className="h-full w-full border-0 bg-transparent pl-3.5 text-base font-normal text-gray-900 outline-none"
           />
           <div className="absolute right-2 bottom-0 flex h-10 items-center justify-center text-gray-600">
             <Combobox.Clear
@@ -28,7 +28,7 @@ export default function ExampleGroupedCombobox() {
               <ChevronDownIcon className="size-4" />
             </Combobox.Trigger>
           </div>
-        </div>
+        </Combobox.InputGroup>
       </div>
 
       <Combobox.Portal>
