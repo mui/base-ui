@@ -301,24 +301,6 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
     this.parameters = parameters;
   }
 
-  /**
-   * Registers an effect to be run when the value returned by the selector changes.
-   */
-  private registerStoreEffect = <Value>(
-    selector: (state: TemporalFieldState<TValue>) => Value,
-    effect: (previous: Value, next: Value) => void,
-  ) => {
-    let previousValue = selector(this.state);
-
-    this.subscribe((state) => {
-      const nextValue = selector(state);
-      if (nextValue !== previousValue) {
-        effect(previousValue, nextValue);
-        previousValue = nextValue;
-      }
-    });
-  };
-
   public mountEffect = () => {
     // Sync selection to DOM on mount and whenever the selected section changes.
     this.syncSelectionToDOM();
@@ -456,10 +438,6 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
             referenceValueBefore,
           )) as TemporalNonNullableValue<TValue>,
     };
-  }
-
-  private getDatePartRenderedValue(datePart: TemporalFieldDatePart) {
-    return datePart.value || datePart.token.placeholder;
   }
 
   /**
@@ -633,6 +611,458 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
     this.set('selectedSection', null);
   }
 
+  public resetCharacterQuery() {
+    this.setCharacterQuery(null);
+  }
+
+  public editSection(parameters: EditSectionParameters) {
+    const { keyPressed, sectionIndex } = parameters;
+    const localizedDigits = getLocalizedDigits(selectors.adapter(this.state));
+    const response = isStringNumber(keyPressed, localizedDigits)
+      ? this.applyNumericEditing(parameters)
+      : this.applyLetterEditing(parameters);
+    if (response == null) {
+      return;
+    }
+
+    this.updateDatePart({
+      sectionIndex,
+      newDatePartValue: response.datePartValue,
+      shouldGoToNextSection: response.shouldGoToNextSection,
+    });
+  }
+
+  public isAdjustSectionValueKeyCode(keyCode: string): keyCode is AdjustDatePartValueKeyCode {
+    return TemporalFieldStore.adjustKeyCodes.has(keyCode as AdjustDatePartValueKeyCode);
+  }
+
+  /**
+   * Adjusts the value of the active section based on the provided key code.
+   * For example, pressing ArrowUp will increment the section's value.
+   */
+  public adjustActiveDatePartValue(keyCode: AdjustDatePartValueKeyCode, sectionIndex: number) {
+    if (!selectors.editable(this.state)) {
+      return;
+    }
+
+    this.updateDatePart({
+      sectionIndex,
+      newDatePartValue: this.getAdjustedDatePartValue(keyCode, sectionIndex),
+      shouldGoToNextSection: false,
+    });
+
+    this.timeoutManager.startInterval(
+      'cleanCharacterQuery',
+      TemporalFieldStore.queryLifeDuration,
+      () => this.set('characterQuery', null),
+    );
+  }
+
+  public registerSection = (sectionElement: HTMLDivElement | null) => {
+    const index = this.getSectionIndexFromDOMElement(sectionElement);
+    if (index == null) {
+      return undefined;
+    }
+
+    this.sectionElementMap.set(index, sectionElement!);
+    return () => this.sectionElementMap.delete(index);
+  };
+
+  public readonly rootEventHandlers = {
+    onClick: () => {
+      if (selectors.disabled(this.state) || !this.state.inputRef.current) {
+        return;
+      }
+
+      if (!this.isFocused() && selectors.selectedSection(this.state) == null) {
+        this.selectClosestDatePart(0);
+      }
+    },
+  };
+
+  public readonly hiddenInputEventHandlers = {
+    onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+      // Workaround for https://github.com/facebook/react/issues/9023
+      if (event.nativeEvent.defaultPrevented) {
+        return;
+      }
+
+      this.updateFromString(event.target.value);
+    },
+    onFocus: () => {
+      this.selectClosestDatePart(0);
+    },
+  };
+
+  public readonly clearEventHandlers = {
+    onMouseDown: (event: React.MouseEvent) => {
+      // Prevent focus stealing from the input
+      event.preventDefault();
+    },
+    onClick: () => {
+      if (selectors.disabled(this.state) || selectors.readOnly(this.state)) {
+        return;
+      }
+
+      this.clear();
+      this.state.inputRef.current?.focus();
+    },
+  };
+
+  public readonly sectionEventHandlers = {
+    onClick: (event: React.MouseEvent<HTMLElement>) => {
+      // The click event on the clear button would propagate to the input, trigger this handler and result in a wrong section selection.
+      // We avoid this by checking if the call to this function is actually intended, or a side effect.
+      if (selectors.disabled(this.state) || event.isDefaultPrevented()) {
+        return;
+      }
+
+      const sectionIndex = this.getSectionIndexFromDOMElement(event.target as HTMLElement)!;
+      this.selectClosestDatePart(sectionIndex);
+    },
+
+    onInput: (event: React.FormEvent) => {
+      const target = event.target as HTMLSpanElement;
+      const keyPressed = target.textContent ?? '';
+      const sectionIndex = this.getSectionIndexFromDOMElement(target);
+      if (sectionIndex == null) {
+        return;
+      }
+
+      if (selectors.editable(this.state)) {
+        const section = selectors.datePart(this.state, sectionIndex);
+        if (section != null) {
+          if (keyPressed.length === 0) {
+            const inputType = (event.nativeEvent as InputEvent).inputType;
+            if (
+              section.value !== '' &&
+              inputType !== 'insertParagraph' &&
+              inputType !== 'insertLineBreak'
+            ) {
+              this.clearActive();
+            }
+          } else {
+            this.editSection({ keyPressed, sectionIndex });
+          }
+        }
+      }
+
+      // The DOM value needs to remain the one React is expecting.
+      this.syncDatePartContentToDOM(sectionIndex);
+    },
+
+    onPaste: (event: React.ClipboardEvent) => {
+      // prevent default to avoid the input `onInput` handler being called
+      event.preventDefault();
+
+      const sectionIndex = this.getSectionIndexFromDOMElement(event.target as HTMLElement);
+      if (!selectors.editable(this.state) || sectionIndex == null) {
+        return;
+      }
+
+      const section = selectors.datePart(this.state, sectionIndex);
+      if (section == null) {
+        return;
+      }
+
+      const pastedValue = event.clipboardData.getData('text');
+      const lettersOnly = LETTERS_ONLY_REGEX.test(pastedValue);
+      const digitsOnly = DIGITS_ONLY_REGEX.test(pastedValue);
+      const digitsAndLetterOnly = DIGITS_AND_LETTER_REGEX.test(pastedValue);
+      const isValidPastedValue =
+        (section.token.config.contentType === 'letter' && lettersOnly) ||
+        (section.token.config.contentType === 'digit' && digitsOnly) ||
+        (section.token.config.contentType === 'digit-with-letter' && digitsAndLetterOnly);
+
+      if (isValidPastedValue) {
+        this.resetCharacterQuery();
+        this.updateDatePart({
+          sectionIndex,
+          newDatePartValue: pastedValue,
+          shouldGoToNextSection: true,
+        });
+      }
+      // If the pasted value corresponds to a single section, but not the expected type, we skip the modification
+      else if (!lettersOnly && !digitsOnly) {
+        this.resetCharacterQuery();
+        this.updateFromString(pastedValue);
+      }
+    },
+
+    onKeyDown: (event: React.KeyboardEvent<HTMLSpanElement>) => {
+      if (selectors.disabled(this.state)) {
+        return;
+      }
+
+      const sectionIndex = this.getSectionIndexFromDOMElement(event.target as HTMLElement);
+      if (sectionIndex == null) {
+        return;
+      }
+
+      // eslint-disable-next-line default-case
+      switch (true) {
+        // Move selection to next section
+        case event.key === 'ArrowRight': {
+          event.preventDefault();
+          this.selectNextDatePart();
+          break;
+        }
+
+        // Move selection to previous section
+        case event.key === 'ArrowLeft': {
+          event.preventDefault();
+          this.selectPreviousDatePart();
+          break;
+        }
+
+        // Reset the value of the current section
+        case event.key === 'Delete': {
+          event.preventDefault();
+
+          if (!selectors.editable(this.state)) {
+            break;
+          }
+
+          this.updateDatePart({
+            sectionIndex,
+            newDatePartValue: '',
+            shouldGoToNextSection: false,
+          });
+          break;
+        }
+
+        // Increment / decrement the current section value
+        case this.isAdjustSectionValueKeyCode(event.key): {
+          event.preventDefault();
+          this.adjustActiveDatePartValue(event.key, sectionIndex);
+          break;
+        }
+      }
+    },
+
+    onMouseUp: (event: React.MouseEvent) => {
+      // Without this, the browser will remove the selected when clicking inside an already-selected section.
+      event.preventDefault();
+    },
+
+    onDragOver: (event: React.DragEvent) => {
+      event.preventDefault();
+      event.dataTransfer.dropEffect = 'none';
+    },
+
+    onFocus: (event: React.FocusEvent) => {
+      if (selectors.disabled(this.state)) {
+        return;
+      }
+
+      const sectionIndex = this.getSectionIndexFromDOMElement(event.target)!;
+      this.selectClosestDatePart(sectionIndex);
+    },
+
+    onBlur: () => {
+      // Defer to next tick to check if focus moved to another section
+      this.timeoutManager.startTimeout('blur-detection', 0, () => {
+        const activeEl = this.getActiveElement();
+        const newSectionIndex = this.getSectionIndexFromDOMElement(activeEl);
+
+        // If focus didn't move to another section in this field, clear selection
+        if (newSectionIndex == null || !this.state.inputRef.current?.contains(activeEl)) {
+          this.removeSelectedSection();
+        }
+      });
+    },
+  };
+
+  /**
+   * Registers an effect to be run when the value returned by the selector changes.
+   */
+  private registerStoreEffect = <Value>(
+    selector: (state: TemporalFieldState<TValue>) => Value,
+    effect: (previous: Value, next: Value) => void,
+  ) => {
+    let previousValue = selector(this.state);
+
+    this.subscribe((state) => {
+      const nextValue = selector(state);
+      if (nextValue !== previousValue) {
+        effect(previousValue, nextValue);
+        previousValue = nextValue;
+      }
+    });
+  };
+
+  private getDatePartRenderedValue(datePart: TemporalFieldDatePart) {
+    return datePart.value || datePart.token.placeholder;
+  }
+
+  /**
+   * Updates the content of a section in the DOM to match the store state.
+   * This is needed to revert unwanted change made when the section has contentEditable enabled.
+   */
+  private syncDatePartContentToDOM(sectionIndex: number) {
+    const sectionElement = this.getSectionElement(sectionIndex);
+    if (sectionElement == null) {
+      return;
+    }
+
+    const datePart = selectors.datePart(this.state, sectionIndex);
+    if (datePart == null) {
+      return;
+    }
+    sectionElement.innerHTML = this.getDatePartRenderedValue(datePart);
+    this.syncSelectionToDOM();
+  }
+
+  private syncSelectionToDOM = () => {
+    if (!this.state.inputRef.current) {
+      return;
+    }
+
+    const selection = ownerDocument(this.state.inputRef.current).getSelection();
+    if (!selection) {
+      return;
+    }
+
+    const selected = selectors.selectedSection(this.state);
+    if (selected == null) {
+      // If the selection contains an element inside the field, we reset it.
+      if (
+        selection.rangeCount > 0 &&
+        // Firefox can return a Restricted object here
+        selection.getRangeAt(0).startContainer instanceof Node &&
+        this.state.inputRef.current.contains(selection.getRangeAt(0).startContainer)
+      ) {
+        selection.removeAllRanges();
+      }
+
+      return;
+    }
+
+    const range = new window.Range();
+    const target = this.getSectionElement(selected);
+    if (target == null) {
+      return;
+    }
+
+    range.selectNodeContents(target);
+    target.focus();
+    selection.removeAllRanges();
+    selection.addRange(range);
+  };
+
+  private getSectionElement(sectionIndex: number) {
+    return this.sectionElementMap.get(sectionIndex) ?? null;
+  }
+
+  private getAdjustedDatePartValue(keyCode: AdjustDatePartValueKeyCode, sectionIndex: number) {
+    const adapter = selectors.adapter(this.state);
+    const validationPropsVal = selectors.validationProps(this.state);
+    const datePart = selectors.datePart(this.state, sectionIndex);
+    if (datePart == null) {
+      return '';
+    }
+
+    // When initializing the year and there is no validation boundary in the direction we are going,
+    // we set the section to the current year instead of the structural boundary.
+    const isYearInitialization = datePart.value === '' && datePart.token.config.part === 'year';
+    const hasNoBoundaryInDirection =
+      (isDecrementDirection(keyCode) && validationPropsVal.maxDate == null) ||
+      (isIncrementDirection(keyCode) && validationPropsVal.minDate == null);
+    if (isYearInitialization && hasNoBoundaryInDirection) {
+      const timezone = selectors.timezoneToRender(this.state);
+      return adapter.formatByString(adapter.now(timezone), datePart.token.value);
+    }
+
+    const stepVal = datePart.token.isMostGranularPart ? selectors.step(this.state) : 1;
+    const delta = getAdjustmentDelta(keyCode, datePart.value);
+    const direction = getDirection(keyCode);
+    const contentType = datePart.token.config.contentType;
+
+    if (contentType === 'digit' || contentType === 'digit-with-letter') {
+      return this.getAdjustedDigitPartValue(datePart, delta, direction, stepVal);
+    }
+
+    return this.getAdjustedLetterPartValue(datePart, delta, direction, stepVal);
+  }
+
+  private getAdjustedDigitPartValue(
+    dp: TemporalFieldDatePart,
+    delta: number | 'boundary',
+    direction: 'up' | 'down',
+    stepVal: number,
+  ) {
+    const adapter = selectors.adapter(this.state);
+    const localizedDigits = getLocalizedDigits(adapter);
+    const boundaries = dp.token.boundaries.adjustment;
+
+    const formatValue = (val: number) =>
+      cleanDigitDatePartValue(adapter, val, localizedDigits, dp.token);
+
+    let newValue: number;
+
+    if (delta === 'boundary') {
+      newValue = direction === 'up' ? boundaries.minimum : boundaries.maximum;
+    } else {
+      const currentValue = parseInt(removeLocalizedDigits(dp.value, localizedDigits), 10);
+      newValue = currentValue + delta * stepVal;
+
+      // Align to step boundary if needed
+      if (stepVal > 1 && newValue % stepVal !== 0) {
+        newValue = alignToStep(newValue, stepVal, direction);
+      }
+    }
+
+    return formatValue(wrapInRange(newValue, boundaries.minimum, boundaries.maximum));
+  }
+
+  private getAdjustedLetterPartValue(
+    dp: TemporalFieldDatePart,
+    delta: number | 'boundary',
+    direction: 'up' | 'down',
+    stepVal: number,
+  ) {
+    const adapter = selectors.adapter(this.state);
+
+    const options = getLetterEditingOptions(adapter, dp.token.config.part, dp.token.value);
+
+    if (options.length === 0) {
+      return dp.value;
+    }
+
+    if (delta === 'boundary') {
+      return direction === 'up' ? options[0] : options[options.length - 1];
+    }
+
+    const currentIndex = options.indexOf(dp.value);
+    const newIndex = (currentIndex + delta * stepVal) % options.length;
+    // Handle negative modulo (JS returns negative for negative dividend)
+    const wrappedIndex = (newIndex + options.length) % options.length;
+
+    return options[wrappedIndex];
+  }
+
+  private getActiveElement() {
+    const doc = ownerDocument(this.state.inputRef.current);
+    return activeElement(doc);
+  }
+
+  private getSectionIndexFromDOMElement(element: Element | null | undefined) {
+    if (element == null) {
+      return null;
+    }
+
+    const indexStr = (element as HTMLElement).dataset?.sectionIndex;
+    if (indexStr == null) {
+      return null;
+    }
+
+    return Number(indexStr);
+  }
+
+  private isFocused() {
+    return !!this.state.inputRef.current?.contains(this.getActiveElement());
+  }
+
   private getAdjacentDatePartIndex(
     sectionsList: TemporalFieldSection[],
     startIndex: number,
@@ -711,27 +1141,6 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
       this.sectionToUpdateOnNextInvalidDate = null;
     });
   };
-
-  public resetCharacterQuery() {
-    this.setCharacterQuery(null);
-  }
-
-  public editSection(parameters: EditSectionParameters) {
-    const { keyPressed, sectionIndex } = parameters;
-    const localizedDigits = getLocalizedDigits(selectors.adapter(this.state));
-    const response = isStringNumber(keyPressed, localizedDigits)
-      ? this.applyNumericEditing(parameters)
-      : this.applyLetterEditing(parameters);
-    if (response == null) {
-      return;
-    }
-
-    this.updateDatePart({
-      sectionIndex,
-      newDatePartValue: response.datePartValue,
-      shouldGoToNextSection: response.shouldGoToNextSection,
-    });
-  }
 
   private applyLetterEditing(parameters: EditSectionParameters) {
     const adapter = selectors.adapter(this.state);
@@ -1041,409 +1450,4 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
 
     return adapter.formatByString(adapter.parse(valueStr, currentFormat, timezone)!, newFormat);
   }
-
-  public isAdjustSectionValueKeyCode(keyCode: string): keyCode is AdjustDatePartValueKeyCode {
-    return TemporalFieldStore.adjustKeyCodes.has(keyCode as AdjustDatePartValueKeyCode);
-  }
-
-  /**
-   * Adjusts the value of the active section based on the provided key code.
-   * For example, pressing ArrowUp will increment the section's value.
-   */
-  public adjustActiveDatePartValue(keyCode: AdjustDatePartValueKeyCode, sectionIndex: number) {
-    if (!selectors.editable(this.state)) {
-      return;
-    }
-
-    this.updateDatePart({
-      sectionIndex,
-      newDatePartValue: this.getAdjustedDatePartValue(keyCode, sectionIndex),
-      shouldGoToNextSection: false,
-    });
-
-    this.timeoutManager.startInterval(
-      'cleanCharacterQuery',
-      TemporalFieldStore.queryLifeDuration,
-      () => this.set('characterQuery', null),
-    );
-  }
-
-  private getAdjustedDatePartValue(keyCode: AdjustDatePartValueKeyCode, sectionIndex: number) {
-    const adapter = selectors.adapter(this.state);
-    const validationPropsVal = selectors.validationProps(this.state);
-    const datePart = selectors.datePart(this.state, sectionIndex);
-    if (datePart == null) {
-      return '';
-    }
-
-    // When initializing the year and there is no validation boundary in the direction we are going,
-    // we set the section to the current year instead of the structural boundary.
-    const isYearInitialization = datePart.value === '' && datePart.token.config.part === 'year';
-    const hasNoBoundaryInDirection =
-      (isDecrementDirection(keyCode) && validationPropsVal.maxDate == null) ||
-      (isIncrementDirection(keyCode) && validationPropsVal.minDate == null);
-    if (isYearInitialization && hasNoBoundaryInDirection) {
-      const timezone = selectors.timezoneToRender(this.state);
-      return adapter.formatByString(adapter.now(timezone), datePart.token.value);
-    }
-
-    const stepVal = datePart.token.isMostGranularPart ? selectors.step(this.state) : 1;
-    const delta = getAdjustmentDelta(keyCode, datePart.value);
-    const direction = getDirection(keyCode);
-    const contentType = datePart.token.config.contentType;
-
-    if (contentType === 'digit' || contentType === 'digit-with-letter') {
-      return this.getAdjustedDigitPartValue(datePart, delta, direction, stepVal);
-    }
-
-    return this.getAdjustedLetterPartValue(datePart, delta, direction, stepVal);
-  }
-
-  private getAdjustedDigitPartValue(
-    dp: TemporalFieldDatePart,
-    delta: number | 'boundary',
-    direction: 'up' | 'down',
-    stepVal: number,
-  ) {
-    const adapter = selectors.adapter(this.state);
-    const localizedDigits = getLocalizedDigits(adapter);
-    const boundaries = dp.token.boundaries.adjustment;
-
-    const formatValue = (val: number) =>
-      cleanDigitDatePartValue(adapter, val, localizedDigits, dp.token);
-
-    let newValue: number;
-
-    if (delta === 'boundary') {
-      newValue = direction === 'up' ? boundaries.minimum : boundaries.maximum;
-    } else {
-      const currentValue = parseInt(removeLocalizedDigits(dp.value, localizedDigits), 10);
-      newValue = currentValue + delta * stepVal;
-
-      // Align to step boundary if needed
-      if (stepVal > 1 && newValue % stepVal !== 0) {
-        newValue = alignToStep(newValue, stepVal, direction);
-      }
-    }
-
-    return formatValue(wrapInRange(newValue, boundaries.minimum, boundaries.maximum));
-  }
-
-  private getAdjustedLetterPartValue(
-    dp: TemporalFieldDatePart,
-    delta: number | 'boundary',
-    direction: 'up' | 'down',
-    stepVal: number,
-  ) {
-    const adapter = selectors.adapter(this.state);
-
-    const options = getLetterEditingOptions(adapter, dp.token.config.part, dp.token.value);
-
-    if (options.length === 0) {
-      return dp.value;
-    }
-
-    if (delta === 'boundary') {
-      return direction === 'up' ? options[0] : options[options.length - 1];
-    }
-
-    const currentIndex = options.indexOf(dp.value);
-    const newIndex = (currentIndex + delta * stepVal) % options.length;
-    // Handle negative modulo (JS returns negative for negative dividend)
-    const wrappedIndex = (newIndex + options.length) % options.length;
-
-    return options[wrappedIndex];
-  }
-
-  private getActiveElement() {
-    const doc = ownerDocument(this.state.inputRef.current);
-    return activeElement(doc);
-  }
-
-  private getSectionIndexFromDOMElement(element: Element | null | undefined) {
-    if (element == null) {
-      return null;
-    }
-
-    const indexStr = (element as HTMLElement).dataset?.sectionIndex;
-    if (indexStr == null) {
-      return null;
-    }
-
-    return Number(indexStr);
-  }
-
-  private isFocused() {
-    return !!this.state.inputRef.current?.contains(this.getActiveElement());
-  }
-
-  public registerSection = (sectionElement: HTMLDivElement | null) => {
-    const index = this.getSectionIndexFromDOMElement(sectionElement);
-    if (index == null) {
-      return undefined;
-    }
-
-    this.sectionElementMap.set(index, sectionElement!);
-    return () => this.sectionElementMap.delete(index);
-  };
-
-  /**
-   * Updates the content of a section in the DOM to match the store state.
-   * This is needed to revert unwanted change made when the section has contentEditable enabled.
-   */
-  private syncDatePartContentToDOM(sectionIndex: number) {
-    const sectionElement = this.getSectionElement(sectionIndex);
-    if (sectionElement == null) {
-      return;
-    }
-
-    const datePart = selectors.datePart(this.state, sectionIndex);
-    if (datePart == null) {
-      return;
-    }
-    sectionElement.innerHTML = this.getDatePartRenderedValue(datePart);
-    this.syncSelectionToDOM();
-  }
-
-  private syncSelectionToDOM = () => {
-    if (!this.state.inputRef.current) {
-      return;
-    }
-
-    const selection = ownerDocument(this.state.inputRef.current).getSelection();
-    if (!selection) {
-      return;
-    }
-
-    const selected = selectors.selectedSection(this.state);
-    if (selected == null) {
-      // If the selection contains an element inside the field, we reset it.
-      if (
-        selection.rangeCount > 0 &&
-        // Firefox can return a Restricted object here
-        selection.getRangeAt(0).startContainer instanceof Node &&
-        this.state.inputRef.current.contains(selection.getRangeAt(0).startContainer)
-      ) {
-        selection.removeAllRanges();
-      }
-
-      return;
-    }
-
-    const range = new window.Range();
-    const target = this.getSectionElement(selected);
-    if (target == null) {
-      return;
-    }
-
-    range.selectNodeContents(target);
-    target.focus();
-    selection.removeAllRanges();
-    selection.addRange(range);
-  };
-
-  private getSectionElement(sectionIndex: number) {
-    return this.sectionElementMap.get(sectionIndex) ?? null;
-  }
-
-  public handleHiddenInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // Workaround for https://github.com/facebook/react/issues/9023
-    if (event.nativeEvent.defaultPrevented) {
-      return;
-    }
-
-    this.updateFromString(event.target.value);
-  };
-
-  public handleHiddenInputFocus = () => {
-    this.selectClosestDatePart(0);
-  };
-
-  public handleRootClick = () => {
-    if (selectors.disabled(this.state) || !this.state.inputRef.current) {
-      return;
-    }
-
-    if (!this.isFocused() && selectors.selectedSection(this.state) == null) {
-      this.selectClosestDatePart(0);
-    }
-  };
-
-  public handleClearMouseDown = (event: React.MouseEvent) => {
-    // Prevent focus stealing from the input
-    event.preventDefault();
-  };
-
-  public handleClearClick = () => {
-    if (selectors.disabled(this.state) || selectors.readOnly(this.state)) {
-      return;
-    }
-
-    this.clear();
-    this.state.inputRef.current?.focus();
-  };
-
-  public readonly sectionEventHandlers = {
-    onClick: (event: React.MouseEvent<HTMLElement>) => {
-      // The click event on the clear button would propagate to the input, trigger this handler and result in a wrong section selection.
-      // We avoid this by checking if the call to this function is actually intended, or a side effect.
-      if (selectors.disabled(this.state) || event.isDefaultPrevented()) {
-        return;
-      }
-
-      const sectionIndex = this.getSectionIndexFromDOMElement(event.target as HTMLElement)!;
-      this.selectClosestDatePart(sectionIndex);
-    },
-
-    onInput: (event: React.FormEvent) => {
-      const target = event.target as HTMLSpanElement;
-      const keyPressed = target.textContent ?? '';
-      const sectionIndex = this.getSectionIndexFromDOMElement(target);
-      if (sectionIndex == null) {
-        return;
-      }
-
-      if (selectors.editable(this.state)) {
-        const section = selectors.datePart(this.state, sectionIndex);
-        if (section != null) {
-          if (keyPressed.length === 0) {
-            const inputType = (event.nativeEvent as InputEvent).inputType;
-            if (
-              section.value !== '' &&
-              inputType !== 'insertParagraph' &&
-              inputType !== 'insertLineBreak'
-            ) {
-              this.clearActive();
-            }
-          } else {
-            this.editSection({ keyPressed, sectionIndex });
-          }
-        }
-      }
-
-      // The DOM value needs to remain the one React is expecting.
-      this.syncDatePartContentToDOM(sectionIndex);
-    },
-
-    onPaste: (event: React.ClipboardEvent) => {
-      // prevent default to avoid the input `onInput` handler being called
-      event.preventDefault();
-
-      const sectionIndex = this.getSectionIndexFromDOMElement(event.target as HTMLElement);
-      if (!selectors.editable(this.state) || sectionIndex == null) {
-        return;
-      }
-
-      const section = selectors.datePart(this.state, sectionIndex);
-      if (section == null) {
-        return;
-      }
-
-      const pastedValue = event.clipboardData.getData('text');
-      const lettersOnly = LETTERS_ONLY_REGEX.test(pastedValue);
-      const digitsOnly = DIGITS_ONLY_REGEX.test(pastedValue);
-      const digitsAndLetterOnly = DIGITS_AND_LETTER_REGEX.test(pastedValue);
-      const isValidPastedValue =
-        (section.token.config.contentType === 'letter' && lettersOnly) ||
-        (section.token.config.contentType === 'digit' && digitsOnly) ||
-        (section.token.config.contentType === 'digit-with-letter' && digitsAndLetterOnly);
-
-      if (isValidPastedValue) {
-        this.resetCharacterQuery();
-        this.updateDatePart({
-          sectionIndex,
-          newDatePartValue: pastedValue,
-          shouldGoToNextSection: true,
-        });
-      }
-      // If the pasted value corresponds to a single section, but not the expected type, we skip the modification
-      else if (!lettersOnly && !digitsOnly) {
-        this.resetCharacterQuery();
-        this.updateFromString(pastedValue);
-      }
-    },
-
-    onKeyDown: (event: React.KeyboardEvent<HTMLSpanElement>) => {
-      if (selectors.disabled(this.state)) {
-        return;
-      }
-
-      const sectionIndex = this.getSectionIndexFromDOMElement(event.target as HTMLElement);
-      if (sectionIndex == null) {
-        return;
-      }
-
-      // eslint-disable-next-line default-case
-      switch (true) {
-        // Move selection to next section
-        case event.key === 'ArrowRight': {
-          event.preventDefault();
-          this.selectNextDatePart();
-          break;
-        }
-
-        // Move selection to previous section
-        case event.key === 'ArrowLeft': {
-          event.preventDefault();
-          this.selectPreviousDatePart();
-          break;
-        }
-
-        // Reset the value of the current section
-        case event.key === 'Delete': {
-          event.preventDefault();
-
-          if (!selectors.editable(this.state)) {
-            break;
-          }
-
-          this.updateDatePart({
-            sectionIndex,
-            newDatePartValue: '',
-            shouldGoToNextSection: false,
-          });
-          break;
-        }
-
-        // Increment / decrement the current section value
-        case this.isAdjustSectionValueKeyCode(event.key): {
-          event.preventDefault();
-          this.adjustActiveDatePartValue(event.key, sectionIndex);
-          break;
-        }
-      }
-    },
-
-    onMouseUp: (event: React.MouseEvent) => {
-      // Without this, the browser will remove the selected when clicking inside an already-selected section.
-      event.preventDefault();
-    },
-
-    onDragOver: (event: React.DragEvent) => {
-      event.preventDefault();
-      event.dataTransfer.dropEffect = 'none';
-    },
-
-    onFocus: (event: React.FocusEvent) => {
-      if (selectors.disabled(this.state)) {
-        return;
-      }
-
-      const sectionIndex = this.getSectionIndexFromDOMElement(event.target)!;
-      this.selectClosestDatePart(sectionIndex);
-    },
-
-    onBlur: () => {
-      // Defer to next tick to check if focus moved to another section
-      this.timeoutManager.startTimeout('blur-detection', 0, () => {
-        const activeEl = this.getActiveElement();
-        const newSectionIndex = this.getSectionIndexFromDOMElement(activeEl);
-
-        // If focus didn't move to another section in this field, clear selection
-        if (newSectionIndex == null || !this.state.inputRef.current?.contains(activeEl)) {
-          this.removeSelectedSection();
-        }
-      });
-    },
-  };
 }

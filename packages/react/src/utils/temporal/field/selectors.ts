@@ -173,7 +173,7 @@ export const selectors = {
           : children;
 
       return {
-        onClick: store.handleRootClick,
+        ...store.rootEventHandlers,
         children: resolvedChildren,
       };
     },
@@ -220,8 +220,7 @@ export const selectors = {
       'aria-hidden': true,
       tabIndex: -1,
       style: visuallyHiddenInput,
-      onChange: store.handleHiddenInputChange,
-      onFocus: store.handleHiddenInputFocus,
+      ...store.hiddenInputEventHandlers,
     }),
   ),
   /**
@@ -321,8 +320,7 @@ export const selectors = {
       children: '✕',
       'aria-readonly': readOnly || undefined,
       'aria-disabled': disabled || undefined,
-      onMouseDown: store.handleClearMouseDown,
-      onClick: store.handleClearClick,
+      ...store.clearEventHandlers,
     }),
   ),
 };
