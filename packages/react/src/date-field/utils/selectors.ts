@@ -29,8 +29,9 @@ const translations = {
   meridiem: 'Meridiem',
 };
 
+const adapterSelector = createSelector((state: State) => state.adapter);
 const timezoneToRenderSelector = createSelectorMemoized(
-  (state: State) => state.adapter,
+  adapterSelector,
   (state: State) => state.manager,
   (state: State) => state.value,
   (state: State) => state.referenceDateProp,
@@ -48,7 +49,6 @@ const editableSelector = createSelector(
 const invalidSelector = createSelector((state: State) => state.fieldContext?.invalid ?? false);
 const nameSelector = createSelector((state: State) => state.fieldContext?.name ?? state.nameProp);
 const idSelector = createSelector((state: State) => state.id);
-const adapterSelector = createSelector((state: State) => state.adapter);
 const managerSelector = createSelector((state: State) => state.manager);
 const configSelector = createSelector((state: State) => state.config);
 const validationPropsSelector = createSelectorMemoized(
@@ -237,7 +237,7 @@ export const selectors = {
     },
   ),
   sectionProps: createSelectorMemoized(
-    (state: State) => state.adapter,
+    adapterSelector,
     editableSelector,
     disabledSelector,
     readOnlySelector,
