@@ -43,7 +43,7 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     crossOrigin,
   });
 
-  const isVisible = imageLoadingStatus === 'loading' || imageLoadingStatus === 'loaded';
+  const isVisible = imageLoadingStatus === 'loaded';
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(isVisible);
 
   const imageRef = React.useRef<HTMLImageElement | null>(null);
@@ -59,11 +59,9 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     }
   }, [imageLoadingStatus, handleLoadingStatusChange]);
 
-  const resolvedTransitionStatus = imageLoadingStatus === 'loading' ? 'starting' : transitionStatus;
-
   const state: AvatarImage.State = {
     imageLoadingStatus,
-    transitionStatus: resolvedTransitionStatus,
+    transitionStatus,
   };
 
   useOpenChangeComplete({
