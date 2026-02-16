@@ -262,8 +262,8 @@ type DrawerPreviewRootSnapPointChangeEventReason =
 
 ### Provider
 
-Provides a shared context for coordinating global Drawer UI,
-such as indent/background effects based on whether any Drawer is open.
+Provides a shared context for coordinating global Drawer UI, such as indent/background effects based on whether any Drawer is open.
+Doesn't render its own HTML element.
 
 **Provider Props:**
 
@@ -348,6 +348,15 @@ Renders a `<div>` element.
 | style       | `React.CSSProperties \| ((state: DrawerBackdropState) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
 | render      | `ReactElement \| ((props: HTMLProps, state: DrawerBackdropState) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
+**Backdrop Data Attributes:**
+
+| Attribute           | Type | Description                               |
+| :------------------ | :--- | :---------------------------------------- |
+| data-open           | -    | Present when the drawer is open.          |
+| data-closed         | -    | Present when the drawer is closed.        |
+| data-starting-style | -    | Present when the drawer is animating in.  |
+| data-ending-style   | -    | Present when the drawer is animating out. |
+
 **Backdrop CSS Variables:**
 
 | Variable                  | Type     | Description                               |
@@ -383,12 +392,16 @@ Renders a `<div>` element.
 
 | Attribute                  | Type                                  | Description                                                          |
 | :------------------------- | :------------------------------------ | :------------------------------------------------------------------- |
+| data-open                  | -                                     | Present when the drawer is open.                                     |
+| data-closed                | -                                     | Present when the drawer is closed.                                   |
 | data-expanded              | -                                     | Present when the drawer is at the expanded (full-height) snap point. |
 | data-nested-drawer-open    | -                                     | Present when a nested drawer is open.                                |
 | data-nested-drawer-swiping | -                                     | Present when a nested drawer is being swiped.                        |
 | data-swipe-direction       | `'up' \| 'down' \| 'left' \| 'right'` | Indicates the swipe direction.                                       |
 | data-swipe-dismiss         | -                                     | Present when the drawer is dismissed by swiping.                     |
 | data-swiping               | -                                     | Present when the drawer is being swiped.                             |
+| data-starting-style        | -                                     | Present when the drawer is animating in.                             |
+| data-ending-style          | -                                     | Present when the drawer is animating out.                            |
 
 **Popup CSS Variables:**
 
@@ -527,6 +540,16 @@ Renders a `<div>` element.
 | style     | `React.CSSProperties \| ((state: DrawerViewportState) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
 | render    | `ReactElement \| ((props: HTMLProps, state: DrawerViewportState) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
+**Viewport Data Attributes:**
+
+| Attribute           | Type | Description                                              |
+| :------------------ | :--- | :------------------------------------------------------- |
+| data-open           | -    | Present when the drawer is open.                         |
+| data-closed         | -    | Present when the drawer is closed.                       |
+| data-nested         | -    | Present when the drawer is nested within another drawer. |
+| data-starting-style | -    | Present when the drawer is animating in.                 |
+| data-ending-style   | -    | Present when the drawer is animating out.                |
+
 ### Viewport.Props
 
 Re-export of [Viewport](#viewport) props.
@@ -595,7 +618,8 @@ Closes the dialog.
 ### Indent
 
 A wrapper element intended to contain your app's main UI.
-Applies `data-active` when any drawer within the nearest \<Drawer.Provider> is open.
+Applies `data-active` when any drawer within the nearest `<Drawer.Provider>` is open.
+Renders a `<div>` element.
 
 **Indent Props:**
 
@@ -617,8 +641,8 @@ type DrawerPreviewIndentState = { active: boolean };
 
 ### IndentBackground
 
-An element placed before \<Drawer.Indent> to render a background layer
-that can be styled based on whether any drawer is open.
+An element placed before `<Drawer.Indent>` to render a background layer that can be styled based on whether any drawer is open.
+Renders a `<div>` element.
 
 **IndentBackground Props:**
 

@@ -41,6 +41,13 @@ Renders an `<img>` element.
 | style                 | `React.CSSProperties \| ((state: Avatar.Image.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
 | render                | `ReactElement \| ((props: HTMLProps, state: Avatar.Image.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
+**Image Data Attributes:**
+
+| Attribute           | Type | Description                              |
+| :------------------ | :--- | :--------------------------------------- |
+| data-starting-style | -    | Present when the image is animating in.  |
+| data-ending-style   | -    | Present when the image is animating out. |
+
 ### Image.Props
 
 Re-export of [Image](#image) props.
@@ -68,6 +75,13 @@ Renders a `<span>` element.
 | style     | `React.CSSProperties \| ((state: Avatar.Fallback.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
 | render    | `ReactElement \| ((props: HTMLProps, state: Avatar.Fallback.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
+**Fallback Data Attributes:**
+
+| Attribute           | Type | Description                                 |
+| :------------------ | :--- | :------------------------------------------ |
+| data-starting-style | -    | Present when the fallback is animating in.  |
+| data-ending-style   | -    | Present when the fallback is animating out. |
+
 ### Fallback.Props
 
 Re-export of [Fallback](#fallback) props.
@@ -75,10 +89,7 @@ Re-export of [Fallback](#fallback) props.
 ### Fallback.State
 
 ```typescript
-type AvatarFallbackState = {
-  transitionStatus: TransitionStatus;
-  imageLoadingStatus: ImageLoadingStatus;
-};
+type AvatarFallbackState = { imageLoadingStatus: ImageLoadingStatus };
 ```
 
 ## Additional Types

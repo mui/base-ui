@@ -682,6 +682,13 @@ Renders a `<span>` element.
 | keepMounted | `boolean`                                                                                          | -       | Whether to keep the HTML element in the DOM when the item is not selected.                                                                                                                    |
 | render      | `ReactElement \| ((props: HTMLProps, state: Select.ItemIndicator.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
+**ItemIndicator Data Attributes:**
+
+| Attribute           | Type | Description                                  |
+| :------------------ | :--- | :------------------------------------------- |
+| data-starting-style | -    | Present when the indicator is animating in.  |
+| data-ending-style   | -    | Present when the indicator is animating out. |
+
 ### ItemIndicator.Props
 
 Re-export of [ItemIndicator](#itemindicator) props.

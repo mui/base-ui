@@ -32,7 +32,7 @@ function isInteractiveElement(element: Element | null) {
 
 export interface HandleCloseContext extends FloatingContext {
   onClose: () => void;
-  tree?: (FloatingTreeType | null) | undefined;
+  tree?: FloatingTreeType | null | undefined;
   leave?: boolean | undefined;
 }
 
@@ -78,19 +78,19 @@ export interface UseHoverProps {
    * floating element closes once the cursor leaves the reference element.
    * @default null
    */
-  handleClose?: (HandleClose | null) | undefined;
+  handleClose?: HandleClose | null | undefined;
   /**
    * Waits until the user's cursor is at “rest” over the reference element
    * before changing the `open` state.
    * @default 0
    */
-  restMs?: (number | (() => number)) | undefined;
+  restMs?: number | (() => number) | undefined;
   /**
    * Waits for the specified time when the event listener runs before changing
    * the `open` state.
    * @default 0
    */
-  delay?: (Delay | (() => Delay)) | undefined;
+  delay?: Delay | (() => Delay) | undefined;
   /**
    * Whether moving the cursor over the floating element will open it, without a
    * regular hover event required.

@@ -22,6 +22,70 @@ import { useDrawerSnapPoints } from '../root/useDrawerSnapPoints';
 import { useDrawerViewportContext } from '../viewport/DrawerViewportContext';
 import { EMPTY_OBJECT } from '../../utils/constants';
 
+// Module-level flag to ensure we only register the CSS properties once,
+// regardless of how many Drawer components are mounted.
+let drawerSwipeVarsRegistered = false;
+
+/**
+ * Removes inheritance of high-frequency drawer swipe CSS variables, which
+ * reduces style recalculation cost in complex drawers with deep subtrees.
+ * Child elements that need these values can still opt-in by using `inherit`.
+ * See https://motion.dev/blog/web-animation-performance-tier-list
+ * under the "Improving CSS variable performance" section.
+ */
+function removeCSSVariableInheritance() {
+  if (drawerSwipeVarsRegistered) {
+    return;
+  }
+
+  // Intentionally keep inheritance disabled on WebKit as well. Safari doesn't support
+  // opting descendants back in via `--var: inherit` for custom properties registered
+  // with `inherits: false`, but Drawer does not rely on descendant access to these vars
+  // (unlike ScrollArea), so we keep the performance optimization enabled.
+  if (typeof CSS !== 'undefined' && 'registerProperty' in CSS) {
+    [
+      DrawerPopupCssVars.swipeMovementX,
+      DrawerPopupCssVars.swipeMovementY,
+      DrawerPopupCssVars.snapPointOffset,
+    ].forEach((name) => {
+      try {
+        CSS.registerProperty({
+          name,
+          syntax: '<length>',
+          inherits: false,
+          initialValue: '0px',
+        });
+      } catch {
+        /* ignore already-registered */
+      }
+    });
+
+    [
+      {
+        name: DrawerBackdropCssVars.swipeProgress,
+        initialValue: '0',
+      },
+      {
+        name: DrawerPopupCssVars.swipeStrength,
+        initialValue: '1',
+      },
+    ].forEach(({ name, initialValue }) => {
+      try {
+        CSS.registerProperty({
+          name,
+          syntax: '<number>',
+          inherits: false,
+          initialValue,
+        });
+      } catch {
+        /* ignore already-registered */
+      }
+    });
+  }
+
+  drawerSwipeVarsRegistered = true;
+}
+
 const stateAttributesMapping: StateAttributesMapping<DrawerPopup.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
@@ -143,6 +207,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
       return undefined;
     }
 
+    removeCSSVariableInheritance();
     measureHeight();
 
     if (typeof ResizeObserver !== 'function') {
@@ -337,11 +402,9 @@ export interface DrawerPopupProps extends BaseUIComponentProps<'div', DrawerPopu
    *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
    */
   initialFocus?:
-    | (
-        | boolean
-        | React.RefObject<HTMLElement | null>
-        | ((openType: InteractionType) => boolean | HTMLElement | null | void)
-      )
+    | boolean
+    | React.RefObject<HTMLElement | null>
+    | ((openType: InteractionType) => boolean | HTMLElement | null | void)
     | undefined;
   /**
    * Determines the element to focus when the drawer is closed.
@@ -353,11 +416,9 @@ export interface DrawerPopupProps extends BaseUIComponentProps<'div', DrawerPopu
    *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
    */
   finalFocus?:
-    | (
-        | boolean
-        | React.RefObject<HTMLElement | null>
-        | ((closeType: InteractionType) => boolean | HTMLElement | null | void)
-      )
+    | boolean
+    | React.RefObject<HTMLElement | null>
+    | ((closeType: InteractionType) => boolean | HTMLElement | null | void)
     | undefined;
 }
 

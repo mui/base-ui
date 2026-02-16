@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { isMac } from '@base-ui/utils/detectBrowser';
 import { HTMLProps } from '../../utils/types';
 import { MenuStore } from '../store/MenuStore';
 import { REASONS } from '../../utils/reasons';
@@ -81,6 +82,12 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
             Math.abs(event.clientX - initialCursorPoint.x) <= 1 &&
             Math.abs(event.clientY - initialCursorPoint.y) <= 1
           ) {
+            return;
+          }
+
+          // On non-macOS platforms, this mouseup belongs to the right-click gesture
+          // that opened the context menu, so it must not activate an item.
+          if (isContextMenu && !isMac && event.button === 2) {
             return;
           }
         }

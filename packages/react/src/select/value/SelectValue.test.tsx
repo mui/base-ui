@@ -393,7 +393,7 @@ describe('<Select.Value />', () => {
     });
   });
 
-  describe('children prop takes precedence over items', () => {
+  describe('prop: children (takes precedence over items)', () => {
     it('uses children string over items object', async () => {
       const items = {
         sans: 'Sans-serif',
