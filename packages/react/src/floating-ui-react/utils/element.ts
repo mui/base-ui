@@ -1,6 +1,7 @@
-import { isHTMLElement, isShadowRoot } from '@floating-ui/utils/dom';
+import { isElement, isHTMLElement, isShadowRoot } from '@floating-ui/utils/dom';
 import { isJSDOM } from '@base-ui/utils/detectBrowser';
 import { FOCUSABLE_ATTRIBUTE, TYPEABLE_SELECTOR } from './constants';
+import { type PopupTriggerMap } from '../../utils/popups';
 
 export function activeElement(doc: Document) {
   let element = doc.activeElement;
@@ -39,6 +40,29 @@ export function contains(parent?: Element | null, child?: Element | null) {
   return false;
 }
 
+export function isTargetInsideEnabledTrigger(
+  target: EventTarget | null,
+  triggerElements: PopupTriggerMap,
+) {
+  if (!isElement(target)) {
+    return false;
+  }
+
+  const targetElement = target as Element;
+
+  if (triggerElements.hasElement(targetElement)) {
+    return !targetElement.hasAttribute('data-trigger-disabled');
+  }
+
+  for (const [, trigger] of triggerElements.entries()) {
+    if (contains(trigger, targetElement)) {
+      return !trigger.hasAttribute('data-trigger-disabled');
+    }
+  }
+
+  return false;
+}
+
 export function getTarget(event: Event) {
   if ('composedPath' in event) {
     return event.composedPath()[0];
@@ -65,10 +89,6 @@ export function isEventTargetWithin(event: Event, node: Node | null | undefined)
 
 export function isRootElement(element: Element): boolean {
   return element.matches('html,body');
-}
-
-export function getDocument(node: Element | null) {
-  return node?.ownerDocument || document;
 }
 
 export function isTypeableElement(element: unknown): boolean {
