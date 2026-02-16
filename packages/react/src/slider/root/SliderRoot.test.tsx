@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import * as React from 'react';
 import { spy, stub } from 'sinon';
+import { expect as expectVitest, vi } from 'vitest';
 import { act, flushMicrotasks, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
 import { Field } from '@base-ui/react/field';
@@ -1293,6 +1294,100 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       });
     });
 
+    it.skipIf(!isJSDOM)(
+      'should not rely on the global event when cloning change events',
+      async () => {
+        const hadGlobalEvent = Object.prototype.hasOwnProperty.call(globalThis, 'event');
+        const previousDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'event');
+        const globalEventConstructor = class {
+          constructor() {
+            throw new Error('Should not construct global event');
+          }
+        };
+        const fakeGlobalEvent = {
+          type: 'click',
+          constructor: globalEventConstructor,
+        };
+
+        Object.defineProperty(globalThis, 'event', {
+          configurable: true,
+          get() {
+            return fakeGlobalEvent;
+          },
+          set() {
+            // Ignore assignments from the event system to ensure we never use it.
+          },
+        });
+
+        try {
+          const handleValueChange = vi.fn();
+
+          await render(
+            <TestSlider onValueChange={handleValueChange} name="change-testing" value={3} />,
+          );
+
+          const slider = screen.getByRole('slider');
+
+          await act(async () => {
+            slider.focus();
+          });
+
+          expectVitest(() => {
+            fireEvent.change(slider, {
+              target: {
+                value: 4,
+              },
+            });
+          }).not.toThrow();
+
+          expectVitest(handleValueChange).toHaveBeenCalledTimes(1);
+        } finally {
+          if (hadGlobalEvent && previousDescriptor) {
+            Object.defineProperty(globalThis, 'event', previousDescriptor);
+          } else {
+            delete (globalThis as any).event;
+          }
+        }
+      },
+    );
+
+    it.skipIf(isJSDOM)('should handle keyboard changes inside a shadow root', async () => {
+      const host = document.createElement('div');
+      document.body.appendChild(host);
+      const shadowRoot = host.attachShadow({ mode: 'open' });
+      const container = document.createElement('div');
+      shadowRoot.appendChild(container);
+
+      try {
+        const handleValueChange = vi.fn();
+
+        await render(<TestSlider onValueChange={handleValueChange} name="shadow" value={3} />, {
+          container,
+        });
+
+        const slider = shadowRoot.querySelector('input[type="range"]');
+        expectVitest(slider).toBeTruthy();
+
+        if (!slider) {
+          return;
+        }
+
+        await act(async () => {
+          (slider as HTMLInputElement).focus();
+        });
+
+        await act(async () => {
+          slider.dispatchEvent(new KeyboardEvent('keydown', { key: ARROW_RIGHT, bubbles: true }));
+        });
+
+        expectVitest(handleValueChange).toHaveBeenCalledTimes(1);
+      } finally {
+        await act(async () => {
+          host.remove();
+        });
+      }
+    });
+
     it.skipIf(isJSDOM)(
       'onValueCommitted is called with the same value as the latest onValueChange when pointerUp occurs at a different location than onValueChange',
       async () => {
@@ -2254,6 +2349,32 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         fireEvent.click(screen.getByText('submit'));
         expect(validateSpy.callCount).to.equal(1);
         expect(validateSpy.args[0][0]).to.deep.equal([5, 12]);
+      });
+
+      it('does not call validate on change when validationMode is omitted', async () => {
+        const validateSpy = spy();
+        await render(
+          <Form>
+            <Field.Root validate={validateSpy}>
+              <Slider.Root defaultValue={50}>
+                <Slider.Control data-testid="control">
+                  <Slider.Track>
+                    <Slider.Thumb aria-label="Value" />
+                  </Slider.Track>
+                </Slider.Control>
+              </Slider.Root>
+            </Field.Root>
+            <button type="submit">submit</button>
+          </Form>,
+        );
+
+        expect(validateSpy.callCount).to.equal(0);
+
+        const sliderControl = screen.getByTestId('control');
+        fireEvent.pointerDown(sliderControl, { buttons: 1, clientX: 10 });
+        fireEvent.pointerUp(sliderControl, { buttons: 1, clientX: 30 });
+
+        expect(validateSpy.callCount).to.equal(0);
       });
     });
 

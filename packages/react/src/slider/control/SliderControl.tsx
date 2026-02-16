@@ -90,7 +90,6 @@ export const SliderControl = React.forwardRef(function SliderControl(
   const {
     disabled,
     dragging,
-    validation,
     inset,
     lastChangedValueRef,
     lastChangeReasonRef,
@@ -328,7 +327,6 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
     if (finger != null) {
       const commitReason = lastChangeReasonRef.current;
-      validation.commit(lastChangedValueRef.current ?? finger.value);
       onValueCommitted(
         lastChangedValueRef.current ?? finger.value,
         createGenericEventDetails(commitReason, nativeEvent),

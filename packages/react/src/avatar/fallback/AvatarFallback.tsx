@@ -30,7 +30,7 @@ export const AvatarFallback = React.forwardRef(function AvatarFallback(
     return timeout.clear;
   }, [timeout, delay]);
 
-  const state: AvatarRoot.State = {
+  const state: AvatarFallbackState = {
     imageLoadingStatus,
   };
 
@@ -45,7 +45,9 @@ export const AvatarFallback = React.forwardRef(function AvatarFallback(
   return element;
 });
 
-export interface AvatarFallbackProps extends BaseUIComponentProps<'span', AvatarRoot.State> {
+export interface AvatarFallbackState extends AvatarRoot.State {}
+
+export interface AvatarFallbackProps extends BaseUIComponentProps<'span', AvatarFallback.State> {
   /**
    * How long to wait before showing the fallback. Specified in milliseconds.
    */
@@ -53,5 +55,6 @@ export interface AvatarFallbackProps extends BaseUIComponentProps<'span', Avatar
 }
 
 export namespace AvatarFallback {
+  export type State = AvatarFallbackState;
   export type Props = AvatarFallbackProps;
 }

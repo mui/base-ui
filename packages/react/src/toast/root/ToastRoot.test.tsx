@@ -577,4 +577,131 @@ describe('<Toast.Root />', () => {
       }
     });
   });
+
+  describe('object identity', () => {
+    // Regression test for https://github.com/mui/base-ui/issues/3922
+    // Toast calculations should use ID-based lookups, not referential equality
+    it('works correctly when toast objects are recreated (not referentially equal)', async () => {
+      // This component wraps useToastManager and creates NEW toast objects
+      // by spreading them. This is a common pattern when users want to
+      // add type-safety to the data field or transform toast properties.
+      function ToastListWithNewObjects() {
+        const { toasts } = Toast.useToastManager();
+
+        // Create new objects - this breaks referential equality
+        const transformedToasts = toasts.map((t) => ({
+          ...t,
+          // Users might transform data for type-safety, like:
+          // data: parseToastData(t.data)
+        }));
+
+        return transformedToasts.map((toastItem) => (
+          <Toast.Root key={toastItem.id} toast={toastItem} data-testid="toast-root">
+            <Toast.Title>{toastItem.title}</Toast.Title>
+            <Toast.Description>{toastItem.description}</Toast.Description>
+            <Toast.Close data-testid="toast-close">Close</Toast.Close>
+          </Toast.Root>
+        ));
+      }
+
+      function AddButton() {
+        const { add } = Toast.useToastManager();
+        return (
+          <button
+            type="button"
+            onClick={() => {
+              add({
+                id: 'test-toast',
+                title: 'Test Title',
+                description: 'Test Description',
+              });
+            }}
+          >
+            add toast
+          </button>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <ToastListWithNewObjects />
+          </Toast.Viewport>
+          <AddButton />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add toast' }));
+
+      const toastElement = await screen.findByTestId('toast-root');
+
+      // Verify the toast index is correctly calculated (should be 0, not -1)
+      // The --toast-index CSS variable is set based on the domIndex calculation
+      await waitFor(() => {
+        const toastIndex = toastElement.style.getPropertyValue('--toast-index');
+        expect(toastIndex).to.equal('0');
+      });
+
+      // Verify the close button works (which also relies on ID-based lookup)
+      fireEvent.click(screen.getByTestId('toast-close'));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('toast-root')).to.equal(null);
+      });
+    });
+
+    it('correctly calculates indices for multiple toasts with recreated objects', async () => {
+      function ToastListWithNewObjects() {
+        const { toasts } = Toast.useToastManager();
+
+        // Create new objects - this breaks referential equality
+        const transformedToasts = toasts.map((t) => ({ ...t }));
+
+        return transformedToasts.map((toastItem) => (
+          <Toast.Root key={toastItem.id} toast={toastItem} data-testid={`toast-${toastItem.id}`}>
+            <Toast.Title>{toastItem.title}</Toast.Title>
+          </Toast.Root>
+        ));
+      }
+
+      function AddButton() {
+        const { add } = Toast.useToastManager();
+        return (
+          <button
+            type="button"
+            onClick={() => {
+              add({ title: 'Toast 1' });
+              add({ title: 'Toast 2' });
+              add({ title: 'Toast 3' });
+            }}
+          >
+            add toasts
+          </button>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <ToastListWithNewObjects />
+          </Toast.Viewport>
+          <AddButton />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add toasts' }));
+
+      // Wait for all toasts to appear
+      const toasts = await screen.findAllByTestId(/^toast-/);
+      expect(toasts).to.have.length(3);
+
+      // Verify each toast has a valid (non-negative) index
+      await waitFor(() => {
+        toasts.forEach((toastEl) => {
+          const toastIndex = parseInt(toastEl.style.getPropertyValue('--toast-index'), 10);
+          expect(toastIndex).to.be.at.least(0);
+        });
+      });
+    });
+  });
 });
