@@ -15,5 +15,5 @@ export function Link({ className, ...props }: React.ComponentPropsWithoutRef<'a'
 export const styles = [
   'text-[var(--color-blue)] underline underline-offset-2',
   'decoration-[1px] decoration-[color-mix(in_oklab,var(--color-blue),transparent)] hover:decoration-[var(--color-blue)]',
-  'focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--color-blue)] focus-visible:outline-offset-[-2px] focus-visible:rounded-[var(--radius-sm)]',
+  'focus-visible:outline-2 focus-visible:outline-[var(--color-blue)] focus-visible:outline-offset-[-2px] focus-visible:rounded-[var(--radius-sm)]',
 ];

@@ -7,7 +7,7 @@ export default function ExampleField() {
       <Field.Control
         required
         placeholder="Required"
-        className="h-10 w-full rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+        className="h-10 w-full rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
       />
       <Field.Error className="text-sm text-red-800" match="valueMissing">
         Please enter your name
