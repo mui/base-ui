@@ -41,6 +41,7 @@ export const DateFieldSection = React.forwardRef(function DateFieldSection(
   const state: DateFieldSection.State = {
     sectionIndex: section.index,
     empty: section.value === '',
+    separator: section.type === 'separator',
   };
 
   return useRenderElement('div', componentProps, {
@@ -60,6 +61,10 @@ export interface DateFieldSectionState {
    * Whether the section is empty.
    */
   empty: boolean;
+  /**
+   * Whether the section is a separator (e.g. "/", "-").
+   */
+  separator: boolean;
 }
 
 export interface DateFieldSectionProps extends BaseUIComponentProps<'div', DateFieldSectionState> {
