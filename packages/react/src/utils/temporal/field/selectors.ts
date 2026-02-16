@@ -1,6 +1,7 @@
 import { createSelector, createSelectorMemoized } from '@base-ui/utils/store';
 import { warn } from '@base-ui/utils/warn';
 import { visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
+import { NOOP } from '@base-ui/utils/empty';
 import { TemporalAdapter, TemporalFieldDatePartType } from '../../../types';
 import {
   TemporalFieldState as State,
@@ -13,7 +14,8 @@ import { getTimezoneToRender, isDatePart, isToken } from './utils';
 import { FormatParser } from './formatParser';
 import { TemporalDateType } from '../types';
 import { getAriaValueText, getMeridiemsStr, getMonthsStr, getWeekDaysStr } from './adapter-cache';
-import { NOOP } from '@base-ui/utils/empty';
+
+const SEPARATOR_STYLE: React.CSSProperties = { whiteSpace: 'pre' };
 
 const translations = {
   empty: 'Empty',
@@ -267,17 +269,6 @@ export const selectors = {
       section: TemporalFieldSection,
       store: any,
     ): React.HTMLAttributes<HTMLDivElement> => {
-      const eventHandlers = {
-        onClick: store.handleSectionClick,
-        onInput: store.handleSectionInput,
-        onPaste: store.handleSectionPaste,
-        onKeyDown: store.handleSectionKeyDown,
-        onMouseUp: store.handleSectionMouseUp,
-        onDragOver: store.handleSectionDragOver,
-        onFocus: store.handleSectionFocus,
-        onBlur: store.handleSectionBlur,
-      };
-
       // Date part
       if (isDatePart(section)) {
         return {
@@ -305,8 +296,7 @@ export const selectors = {
           autoCorrect: editable ? 'off' : undefined,
           inputMode: section.token.config.contentType === 'letter' ? 'text' : 'numeric',
 
-          // Event handlers
-          ...eventHandlers,
+          ...store.sectionEventHandlers,
         };
       }
 
@@ -317,10 +307,9 @@ export const selectors = {
 
         // Other
         children: section.value,
-        style: { whiteSpace: 'pre' },
+        style: SEPARATOR_STYLE,
 
-        // Event handlers
-        ...eventHandlers,
+        ...store.sectionEventHandlers,
       };
     },
   ),

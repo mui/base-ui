@@ -1283,165 +1283,167 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
     this.state.inputRef.current?.focus();
   };
 
-  public handleSectionClick = (event: React.MouseEvent<HTMLElement>) => {
-    // The click event on the clear button would propagate to the input, trigger this handler and result in a wrong section selection.
-    // We avoid this by checking if the call to this function is actually intended, or a side effect.
-    if (selectors.disabled(this.state) || event.isDefaultPrevented()) {
-      return;
-    }
+  public readonly sectionEventHandlers = {
+    onClick: (event: React.MouseEvent<HTMLElement>) => {
+      // The click event on the clear button would propagate to the input, trigger this handler and result in a wrong section selection.
+      // We avoid this by checking if the call to this function is actually intended, or a side effect.
+      if (selectors.disabled(this.state) || event.isDefaultPrevented()) {
+        return;
+      }
 
-    const sectionIndex = this.getSectionIndexFromDOMElement(event.target as HTMLElement)!;
-    this.selectClosestDatePart(sectionIndex);
-  };
+      const sectionIndex = this.getSectionIndexFromDOMElement(event.target as HTMLElement)!;
+      this.selectClosestDatePart(sectionIndex);
+    },
 
-  public handleSectionInput = (event: React.FormEvent) => {
-    const target = event.target as HTMLSpanElement;
-    const keyPressed = target.textContent ?? '';
-    const sectionIndex = this.getSectionIndexFromDOMElement(target);
-    if (sectionIndex == null) {
-      return;
-    }
+    onInput: (event: React.FormEvent) => {
+      const target = event.target as HTMLSpanElement;
+      const keyPressed = target.textContent ?? '';
+      const sectionIndex = this.getSectionIndexFromDOMElement(target);
+      if (sectionIndex == null) {
+        return;
+      }
 
-    if (selectors.editable(this.state)) {
-      const section = selectors.datePart(this.state, sectionIndex);
-      if (section != null) {
-        if (keyPressed.length === 0) {
-          const inputType = (event.nativeEvent as InputEvent).inputType;
-          if (
-            section.value !== '' &&
-            inputType !== 'insertParagraph' &&
-            inputType !== 'insertLineBreak'
-          ) {
-            this.clearActive();
+      if (selectors.editable(this.state)) {
+        const section = selectors.datePart(this.state, sectionIndex);
+        if (section != null) {
+          if (keyPressed.length === 0) {
+            const inputType = (event.nativeEvent as InputEvent).inputType;
+            if (
+              section.value !== '' &&
+              inputType !== 'insertParagraph' &&
+              inputType !== 'insertLineBreak'
+            ) {
+              this.clearActive();
+            }
+          } else {
+            this.editSection({ keyPressed, sectionIndex });
           }
-        } else {
-          this.editSection({ keyPressed, sectionIndex });
         }
       }
-    }
 
-    // The DOM value needs to remain the one React is expecting.
-    this.syncDatePartContentToDOM(sectionIndex);
-  };
+      // The DOM value needs to remain the one React is expecting.
+      this.syncDatePartContentToDOM(sectionIndex);
+    },
 
-  public handleSectionPaste = (event: React.ClipboardEvent) => {
-    // prevent default to avoid the input `onInput` handler being called
-    event.preventDefault();
+    onPaste: (event: React.ClipboardEvent) => {
+      // prevent default to avoid the input `onInput` handler being called
+      event.preventDefault();
 
-    const sectionIndex = this.getSectionIndexFromDOMElement(event.target as HTMLElement);
-    if (!selectors.editable(this.state) || sectionIndex == null) {
-      return;
-    }
-
-    const section = selectors.datePart(this.state, sectionIndex);
-    if (section == null) {
-      return;
-    }
-
-    const pastedValue = event.clipboardData.getData('text');
-    const lettersOnly = LETTERS_ONLY_REGEX.test(pastedValue);
-    const digitsOnly = DIGITS_ONLY_REGEX.test(pastedValue);
-    const digitsAndLetterOnly = DIGITS_AND_LETTER_REGEX.test(pastedValue);
-    const isValidPastedValue =
-      (section.token.config.contentType === 'letter' && lettersOnly) ||
-      (section.token.config.contentType === 'digit' && digitsOnly) ||
-      (section.token.config.contentType === 'digit-with-letter' && digitsAndLetterOnly);
-
-    if (isValidPastedValue) {
-      this.resetCharacterQuery();
-      this.updateDatePart({
-        sectionIndex,
-        newDatePartValue: pastedValue,
-        shouldGoToNextSection: true,
-      });
-    }
-    // If the pasted value corresponds to a single section, but not the expected type, we skip the modification
-    else if (!lettersOnly && !digitsOnly) {
-      this.resetCharacterQuery();
-      this.updateFromString(pastedValue);
-    }
-  };
-
-  public handleSectionMouseUp = (event: React.MouseEvent) => {
-    // Without this, the browser will remove the selected when clicking inside an already-selected section.
-    event.preventDefault();
-  };
-
-  public handleSectionDragOver = (event: React.DragEvent) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = 'none';
-  };
-
-  public handleSectionKeyDown = (event: React.KeyboardEvent<HTMLSpanElement>) => {
-    if (selectors.disabled(this.state)) {
-      return;
-    }
-
-    const sectionIndex = this.getSectionIndexFromDOMElement(event.target as HTMLElement);
-    if (sectionIndex == null) {
-      return;
-    }
-
-    // eslint-disable-next-line default-case
-    switch (true) {
-      // Move selection to next section
-      case event.key === 'ArrowRight': {
-        event.preventDefault();
-        this.selectNextDatePart();
-        break;
+      const sectionIndex = this.getSectionIndexFromDOMElement(event.target as HTMLElement);
+      if (!selectors.editable(this.state) || sectionIndex == null) {
+        return;
       }
 
-      // Move selection to previous section
-      case event.key === 'ArrowLeft': {
-        event.preventDefault();
-        this.selectPreviousDatePart();
-        break;
+      const section = selectors.datePart(this.state, sectionIndex);
+      if (section == null) {
+        return;
       }
 
-      // Reset the value of the current section
-      case event.key === 'Delete': {
-        event.preventDefault();
+      const pastedValue = event.clipboardData.getData('text');
+      const lettersOnly = LETTERS_ONLY_REGEX.test(pastedValue);
+      const digitsOnly = DIGITS_ONLY_REGEX.test(pastedValue);
+      const digitsAndLetterOnly = DIGITS_AND_LETTER_REGEX.test(pastedValue);
+      const isValidPastedValue =
+        (section.token.config.contentType === 'letter' && lettersOnly) ||
+        (section.token.config.contentType === 'digit' && digitsOnly) ||
+        (section.token.config.contentType === 'digit-with-letter' && digitsAndLetterOnly);
 
-        if (!selectors.editable(this.state)) {
+      if (isValidPastedValue) {
+        this.resetCharacterQuery();
+        this.updateDatePart({
+          sectionIndex,
+          newDatePartValue: pastedValue,
+          shouldGoToNextSection: true,
+        });
+      }
+      // If the pasted value corresponds to a single section, but not the expected type, we skip the modification
+      else if (!lettersOnly && !digitsOnly) {
+        this.resetCharacterQuery();
+        this.updateFromString(pastedValue);
+      }
+    },
+
+    onKeyDown: (event: React.KeyboardEvent<HTMLSpanElement>) => {
+      if (selectors.disabled(this.state)) {
+        return;
+      }
+
+      const sectionIndex = this.getSectionIndexFromDOMElement(event.target as HTMLElement);
+      if (sectionIndex == null) {
+        return;
+      }
+
+      // eslint-disable-next-line default-case
+      switch (true) {
+        // Move selection to next section
+        case event.key === 'ArrowRight': {
+          event.preventDefault();
+          this.selectNextDatePart();
           break;
         }
 
-        this.updateDatePart({
-          sectionIndex,
-          newDatePartValue: '',
-          shouldGoToNextSection: false,
-        });
-        break;
+        // Move selection to previous section
+        case event.key === 'ArrowLeft': {
+          event.preventDefault();
+          this.selectPreviousDatePart();
+          break;
+        }
+
+        // Reset the value of the current section
+        case event.key === 'Delete': {
+          event.preventDefault();
+
+          if (!selectors.editable(this.state)) {
+            break;
+          }
+
+          this.updateDatePart({
+            sectionIndex,
+            newDatePartValue: '',
+            shouldGoToNextSection: false,
+          });
+          break;
+        }
+
+        // Increment / decrement the current section value
+        case this.isAdjustSectionValueKeyCode(event.key): {
+          event.preventDefault();
+          this.adjustActiveDatePartValue(event.key, sectionIndex);
+          break;
+        }
+      }
+    },
+
+    onMouseUp: (event: React.MouseEvent) => {
+      // Without this, the browser will remove the selected when clicking inside an already-selected section.
+      event.preventDefault();
+    },
+
+    onDragOver: (event: React.DragEvent) => {
+      event.preventDefault();
+      event.dataTransfer.dropEffect = 'none';
+    },
+
+    onFocus: (event: React.FocusEvent) => {
+      if (selectors.disabled(this.state)) {
+        return;
       }
 
-      // Increment / decrement the current section value
-      case this.isAdjustSectionValueKeyCode(event.key): {
-        event.preventDefault();
-        this.adjustActiveDatePartValue(event.key, sectionIndex);
-        break;
-      }
-    }
-  };
+      const sectionIndex = this.getSectionIndexFromDOMElement(event.target)!;
+      this.selectClosestDatePart(sectionIndex);
+    },
 
-  public handleSectionFocus = (event: React.FocusEvent) => {
-    if (selectors.disabled(this.state)) {
-      return;
-    }
+    onBlur: () => {
+      // Defer to next tick to check if focus moved to another section
+      this.timeoutManager.startTimeout('blur-detection', 0, () => {
+        const activeEl = this.getActiveElement();
+        const newSectionIndex = this.getSectionIndexFromDOMElement(activeEl);
 
-    const sectionIndex = this.getSectionIndexFromDOMElement(event.target)!;
-    this.selectClosestDatePart(sectionIndex);
-  };
-
-  public handleSectionBlur = () => {
-    // Defer to next tick to check if focus moved to another section
-    this.timeoutManager.startTimeout('blur-detection', 0, () => {
-      const activeEl = this.getActiveElement();
-      const newSectionIndex = this.getSectionIndexFromDOMElement(activeEl);
-
-      // If focus didn't move to another section in this field, clear selection
-      if (newSectionIndex == null || !this.state.inputRef.current?.contains(activeEl)) {
-        this.removeSelectedSection();
-      }
-    });
+        // If focus didn't move to another section in this field, clear selection
+        if (newSectionIndex == null || !this.state.inputRef.current?.contains(activeEl)) {
+          this.removeSelectedSection();
+        }
+      });
+    },
   };
 }
