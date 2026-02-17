@@ -44,6 +44,55 @@ describe('<Popover.Viewport />', () => {
     expect(currentContainer!.textContent).to.equal('Content');
   });
 
+  it('should remount the `current` container when the active trigger changes', async () => {
+    const { user } = await render(
+      <Popover.Root>
+        {({ payload }) => (
+          <React.Fragment>
+            <Popover.Trigger payload="first" data-testid="trigger1">
+              Trigger 1
+            </Popover.Trigger>
+            <Popover.Trigger payload="second" data-testid="trigger2">
+              Trigger 2
+            </Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>
+                  <Popover.Viewport>
+                    {payload === 'first' ? (
+                      <img data-testid="payload-image-1" src="about:blank" alt="Preview 1" />
+                    ) : null}
+                    {payload === 'second' ? (
+                      <img data-testid="payload-image-2" src="about:blank" alt="Preview 2" />
+                    ) : null}
+                  </Popover.Viewport>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </React.Fragment>
+        )}
+      </Popover.Root>,
+    );
+
+    const trigger1 = screen.getByTestId('trigger1');
+    const trigger2 = screen.getByTestId('trigger2');
+
+    await user.click(trigger1);
+
+    const firstImage = await screen.findByTestId('payload-image-1');
+    const firstContainer = firstImage.closest('[data-current]');
+    expect(firstContainer).not.to.equal(null);
+
+    await user.click(trigger2);
+
+    await waitFor(() => {
+      const secondImage = screen.getByTestId('payload-image-2');
+      const secondContainer = secondImage.closest('[data-current]');
+      expect(secondContainer).not.to.equal(null);
+      expect(secondContainer).not.to.equal(firstContainer);
+    });
+  });
+
   describe.skipIf(isJSDOM)('morphing containers with multiple triggers and payloads', () => {
     beforeEach(() => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;

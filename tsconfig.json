@@ -14,6 +14,9 @@
     },
     {
       "path": "scripts/tsconfig.json"
+    },
+    {
+      "path": "playground/vite-app/tsconfig.json"
     }
   ]
 }

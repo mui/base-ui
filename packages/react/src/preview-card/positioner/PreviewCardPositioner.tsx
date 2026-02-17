@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
+import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react';
 import { type Side, type Align, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
@@ -41,6 +42,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
 
   const store = usePreviewCardRootContext();
   const keepMounted = usePreviewCardPortalContext();
+  const nodeId = useFloatingNodeId();
 
   const open = store.useState('open');
   const mounted = store.useState('mounted');
@@ -64,6 +66,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     sticky,
     disableAnchorTracking,
     keepMounted,
+    nodeId,
     collisionAvoidance,
     adaptiveOrigin: hasViewport ? adaptiveOrigin : undefined,
   });
@@ -119,7 +122,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
 
   return (
     <PreviewCardPositionerContext.Provider value={contextValue}>
-      {element}
+      <FloatingNode id={nodeId}>{element}</FloatingNode>
     </PreviewCardPositionerContext.Provider>
   );
 });

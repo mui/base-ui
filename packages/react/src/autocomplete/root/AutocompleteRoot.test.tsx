@@ -191,6 +191,33 @@ describe('<Autocomplete.Root />', () => {
     expect(input.value).to.equal('beta');
   });
 
+  it('should pass autoComplete to the visible input', async () => {
+    await render(
+      <Autocomplete.Root name="search">
+        <Autocomplete.Input autoComplete="on" />
+        <Autocomplete.Portal>
+          <Autocomplete.Positioner>
+            <Autocomplete.Popup>
+              <Autocomplete.List>
+                <Autocomplete.Item value="alpha">alpha</Autocomplete.Item>
+                <Autocomplete.Item value="beta">beta</Autocomplete.Item>
+              </Autocomplete.List>
+            </Autocomplete.Popup>
+          </Autocomplete.Positioner>
+        </Autocomplete.Portal>
+      </Autocomplete.Root>,
+    );
+
+    const input = screen.getByRole('combobox');
+    const hiddenInput = screen.getByRole('textbox', { hidden: true });
+
+    expect(input).to.have.attribute('name', 'search');
+    expect(input).to.have.attribute('autocomplete', 'on');
+    expect(hiddenInput).not.to.have.attribute('name');
+    expect(hiddenInput).to.have.attribute('id');
+    expect(hiddenInput).not.to.have.attribute('autocomplete');
+  });
+
   describe('prop: autoHighlight', () => {
     it('calls onItemHighlighted when the popup auto highlights on open', async () => {
       const onItemHighlighted = spy();
@@ -478,6 +505,58 @@ describe('<Autocomplete.Root />', () => {
 
       expect(input).to.have.attribute('aria-activedescendant', firstOption.id);
       expect(firstOption).to.have.attribute('data-highlighted');
+    });
+
+    it('keeps the latest pointer highlight on outside blur when behavior is "always"', async () => {
+      const { user } = await render(
+        <React.Fragment>
+          <Autocomplete.Root
+            items={['apple', 'banana', 'cherry']}
+            autoHighlight="always"
+            keepHighlight
+            open
+            inline
+          >
+            <Autocomplete.Input data-testid="input" />
+            <Autocomplete.List>
+              {(item: string) => (
+                <Autocomplete.Item key={item} value={item}>
+                  {item}
+                </Autocomplete.Item>
+              )}
+            </Autocomplete.List>
+          </Autocomplete.Root>
+          <button data-testid="outside">outside</button>
+        </React.Fragment>,
+      );
+
+      const input = screen.getByTestId<HTMLInputElement>('input');
+      const banana = screen.getByRole('option', { name: 'banana' });
+
+      await act(async () => {
+        input.focus();
+      });
+
+      await user.hover(banana);
+
+      await waitFor(() => {
+        expect(input).to.have.attribute('aria-activedescendant', banana.id);
+        expect(banana).to.have.attribute('data-highlighted');
+      });
+
+      const outside = screen.getByTestId('outside');
+      fireEvent.pointerDown(outside);
+      fireEvent.blur(input, { relatedTarget: outside });
+      fireEvent.focus(outside);
+
+      await waitFor(() => {
+        expect(input).to.have.attribute('aria-activedescendant', banana.id);
+        expect(banana).to.have.attribute('data-highlighted');
+      });
+
+      expect(screen.getByRole('option', { name: 'apple' })).not.to.have.attribute(
+        'data-highlighted',
+      );
     });
   });
 

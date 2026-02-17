@@ -52,10 +52,11 @@ import {
   isGroupedItems,
 } from '../../utils/resolveValueLabel';
 import {
+  compareItemEquality,
   defaultItemEquality,
   findItemIndex,
-  itemIncludes,
   removeItem,
+  selectedValueIncludes,
 } from '../../utils/itemEquality';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
 
@@ -63,17 +64,17 @@ import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
  * @internal
  */
 export function AriaCombobox<Value, Mode extends SelectionMode = 'none'>(
-  props: Omit<ComboboxRootConditionalProps<Value, Mode>, 'items'> & {
+  props: Omit<AriaComboboxProps<Value, Mode>, 'items'> & {
     items: readonly Group<any>[];
   },
 ): React.JSX.Element;
 export function AriaCombobox<Value, Mode extends SelectionMode = 'none'>(
-  props: Omit<ComboboxRootConditionalProps<Value, Mode>, 'items'> & {
+  props: Omit<AriaComboboxProps<Value, Mode>, 'items'> & {
     items?: readonly any[] | undefined;
   },
 ): React.JSX.Element;
 export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
-  props: ComboboxRootConditionalProps<Value, Mode>,
+  props: AriaComboboxProps<Value, Mode>,
 ): React.JSX.Element {
   const {
     id: idProp,
@@ -108,6 +109,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     modal = false,
     limit = -1,
     autoComplete = 'list',
+    formAutoComplete,
     locale,
     submitOnItemClick = false,
   } = props;
@@ -469,9 +471,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const setIndices = useStableCallback(
     (options: {
-      activeIndex?: (number | null) | undefined;
-      selectedIndex?: (number | null) | undefined;
-      type?: ('none' | 'keyboard' | 'pointer') | undefined;
+      activeIndex?: number | null | undefined;
+      selectedIndex?: number | null | undefined;
+      type?: 'none' | 'keyboard' | 'pointer' | undefined;
     }) => {
       store.update(options);
       const type: AriaCombobox.HighlightEventReason = options.type || 'none';
@@ -511,19 +513,28 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       // If user is typing, ensure we don't auto-highlight on open due to a race
       // with the post-open effect that sets this flag.
       if (eventDetails.reason === REASONS.inputChange) {
-        if (!autoHighlightMode) {
-          ignoreProgrammaticNavigationRef.current = true;
-        }
+        const event = eventDetails.event as Event;
+        const inputType = (event as InputEvent).inputType;
+        // Treat composition commits as typed input; autofill may omit `inputType` or
+        // report `insertReplacementText`.
+        const isTypedInput =
+          event.type === 'compositionend' ||
+          (inputType != null && inputType !== '' && inputType !== 'insertReplacementText');
+        if (isTypedInput) {
+          if (!autoHighlightMode) {
+            ignoreProgrammaticNavigationRef.current = true;
+          }
 
-        const hasQuery = next.trim() !== '';
-        if (hasQuery) {
-          setQueryChangedAfterOpen(true);
-        }
-        // Defer index updates until after the filtered items have been derived to ensure
-        // `onItemHighlighted` receives the latest item.
-        pendingQueryHighlightRef.current = { hasQuery };
-        if (hasQuery && autoHighlightMode && store.state.activeIndex == null) {
-          store.set('activeIndex', 0);
+          const hasQuery = next.trim() !== '';
+          if (hasQuery) {
+            setQueryChangedAfterOpen(true);
+          }
+          // Defer index updates until after the filtered items have been derived to ensure
+          // `onItemHighlighted` receives the latest item.
+          pendingQueryHighlightRef.current = { hasQuery };
+          if (hasQuery && autoHighlightMode && store.state.activeIndex == null) {
+            store.set('activeIndex', 0);
+          }
         }
       }
 
@@ -557,7 +568,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
       if (!nextOpen && queryChangedAfterOpen) {
         if (single) {
-          setCloseQuery(query);
+          if (!inline) {
+            setCloseQuery(query);
+          }
           // Avoid a flicker when closing the popup with an empty query.
           if (query === '') {
             setQueryChangedAfterOpen(false);
@@ -620,7 +633,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         single &&
         nextValue != null &&
         eventDetails.reason !== REASONS.inputChange &&
-        queryChangedAfterOpen
+        queryChangedAfterOpen &&
+        !inline
       ) {
         setCloseQuery(query);
       }
@@ -629,12 +643,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const handleSelection = useStableCallback(
     (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => {
-      let value = passedValue;
-      if (value === undefined) {
+      let itemValue = passedValue;
+      if (itemValue === undefined) {
         if (activeIndex === null) {
           return;
         }
-        value = valuesRef.current[activeIndex];
+        itemValue = valuesRef.current[activeIndex];
       }
 
       const targetEl = getTarget(event) as HTMLElement | null;
@@ -653,14 +667,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
       if (multiple) {
         const currentSelectedValue = Array.isArray(selectedValue) ? selectedValue : [];
-        const isCurrentlySelected = itemIncludes(
+        const isCurrentlySelected = selectedValueIncludes(
           currentSelectedValue,
-          value,
+          itemValue,
           store.state.isItemEqualToValue,
         );
         const nextValue = isCurrentlySelected
-          ? removeItem(currentSelectedValue, value, store.state.isItemEqualToValue)
-          : [...currentSelectedValue, value];
+          ? removeItem(currentSelectedValue, itemValue, store.state.isItemEqualToValue)
+          : [...currentSelectedValue, itemValue];
 
         setSelectedValue(nextValue, eventDetails);
 
@@ -675,7 +689,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           setOpen(false, eventDetails);
         }
       } else {
-        setSelectedValue(value, eventDetails);
+        setSelectedValue(itemValue, eventDetails);
         setOpen(false, eventDetails);
       }
     },
@@ -847,16 +861,20 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       return;
     }
 
-    const nextActiveValue = candidateItems[storeActiveIndex];
-    const lastHighlightedValue = lastHighlightRef.current.value;
+    const itemValue = candidateItems[storeActiveIndex];
+    const previouslyHighlightedItemValue = lastHighlightRef.current.value;
     const isSameItem =
-      lastHighlightedValue !== NO_ACTIVE_VALUE &&
-      store.state.isItemEqualToValue(nextActiveValue, lastHighlightedValue);
+      previouslyHighlightedItemValue !== NO_ACTIVE_VALUE &&
+      compareItemEquality(
+        itemValue,
+        previouslyHighlightedItemValue,
+        store.state.isItemEqualToValue,
+      );
 
     if (lastHighlightRef.current.index !== storeActiveIndex || !isSameItem) {
-      lastHighlightRef.current = { value: nextActiveValue, index: storeActiveIndex };
+      lastHighlightRef.current = { value: itemValue, index: storeActiveIndex };
       store.state.onItemHighlighted(
-        nextActiveValue,
+        itemValue,
         createGenericEventDetails(REASONS.none, undefined, { index: storeActiveIndex }),
       );
     }
@@ -908,14 +926,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       validation.commit(selectedValue);
     } else {
       validation.commit(selectedValue, true);
-    }
-
-    if (
-      multiple &&
-      store.state.selectedIndex !== null &&
-      (!Array.isArray(selectedValue) || selectedValue.length === 0)
-    ) {
-      setIndices({ activeIndex: null, selectedIndex: null });
     }
 
     if (single && !hasInputValue && !inputInsidePopup) {
@@ -1004,6 +1014,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     // Apply a small delay for touch to let iOS viewport centering settle.
     // This avoids top-bottom flip flickers if the preferred position is "top" when first tapping.
     touchOpenDelay: inputInsidePopup ? 0 : 50,
+    reason: REASONS.inputPress,
   });
 
   const dismiss = useDismiss(floatingRootContext, {
@@ -1174,10 +1185,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     () => ({
       query,
       filterQuery,
+      hasItems,
       filteredItems,
       flatFilteredItems,
     }),
-    [query, filterQuery, filteredItems, flatFilteredItems],
+    [query, filterQuery, hasItems, filteredItems, flatFilteredItems],
   );
 
   const serializedValue = React.useMemo(() => {
@@ -1188,6 +1200,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   }, [fieldRawValue, itemToStringValue]);
 
   const hasMultipleSelection = multiple && Array.isArray(selectedValue) && selectedValue.length > 0;
+  const hiddenInputName = multiple || selectionMode === 'none' ? undefined : name;
 
   const hiddenInputs = React.useMemo(() => {
     if (!multiple || !Array.isArray(selectedValue) || !name) {
@@ -1229,7 +1242,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
             }
 
             const nextValue = event.target.value;
-            const details = createChangeEventDetails(REASONS.inputChange, event.nativeEvent);
+            const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
             function handleChange() {
               // Browser autofill only writes a single scalar value.
@@ -1273,13 +1286,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
             }
           },
         })}
-        name={multiple || selectionMode === 'none' ? undefined : name}
+        id={id && hiddenInputName == null ? `${id}-hidden-input` : undefined}
+        name={hiddenInputName}
+        autoComplete={formAutoComplete}
         disabled={disabled}
         required={required && !hasMultipleSelection}
         readOnly={readOnly}
         value={serializedValue}
         ref={hiddenInputRef}
-        style={name ? visuallyHiddenInput : visuallyHidden}
+        style={hiddenInputName ? visuallyHiddenInput : visuallyHidden}
         tabIndex={-1}
         aria-hidden
       />
@@ -1364,7 +1379,7 @@ interface ComboboxRootProps<ItemValue> {
    * - `'always'`: highlight the first item as soon as the list opens.
    * @default false
    */
-  autoHighlight?: (boolean | 'always') | undefined;
+  autoHighlight?: boolean | 'always' | undefined;
   /**
    * Whether the highlighted item should be preserved when the pointer leaves the list.
    * @default false
@@ -1431,25 +1446,23 @@ interface ComboboxRootProps<ItemValue> {
    * The items to be displayed in the list.
    * Can be either a flat array of items or an array of groups with items.
    */
-  items?: (readonly any[] | readonly Group<any>[]) | undefined;
+  items?: readonly any[] | readonly Group<any>[] | undefined;
   /**
    * Filtered items to display in the list.
    * When provided, the list will use these items instead of filtering the `items` prop internally.
    * Use when you want to control filtering logic externally with the `useFilter()` hook.
    */
-  filteredItems?: (readonly any[] | readonly Group<any>[]) | undefined;
+  filteredItems?: readonly any[] | readonly Group<any>[] | undefined;
   /**
    * Filter function used to match items vs input query.
    */
   filter?:
-    | (
-        | null
-        | ((
-            itemValue: ItemValue,
-            query: string,
-            itemToString?: (itemValue: ItemValue) => string,
-          ) => boolean)
-      )
+    | null
+    | ((
+        itemValue: ItemValue,
+        query: string,
+        itemToString?: (itemValue: ItemValue) => string,
+      ) => boolean)
     | undefined;
   /**
    * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.
@@ -1465,7 +1478,7 @@ interface ComboboxRootProps<ItemValue> {
    * Custom comparison logic used to determine if a combobox item value matches the current selected value. Useful when item values are objects without matching referentially.
    * Defaults to `Object.is` comparison.
    */
-  isItemEqualToValue?: ((itemValue: ItemValue, selectedValue: ItemValue) => boolean) | undefined;
+  isItemEqualToValue?: ((itemValue: ItemValue, value: ItemValue) => boolean) | undefined;
   /**
    * Whether the items are being externally virtualized.
    * @default false
@@ -1496,7 +1509,12 @@ interface ComboboxRootProps<ItemValue> {
    * - `none`: items are static (not filtered), and the input value will not change based on the active item.
    * @default 'list'
    */
-  autoComplete?: ('list' | 'both' | 'inline' | 'none') | undefined;
+  autoComplete?: 'list' | 'both' | 'inline' | 'none' | undefined;
+  /**
+   * Provides a hint to the browser for autofill on the hidden input element.
+   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/autocomplete
+   */
+  formAutoComplete?: string | undefined;
   /**
    * The locale to use for string comparison.
    * Defaults to the user's runtime locale.
@@ -1513,10 +1531,10 @@ interface ComboboxRootProps<ItemValue> {
   fillInputOnItemPress?: boolean | undefined;
 }
 
-export type ComboboxRootConditionalProps<Value, Mode extends SelectionMode = 'none'> = Omit<
-  ComboboxRootProps<Value>,
-  'selectionMode' | 'selectedValue' | 'defaultSelectedValue' | 'onSelectedValueChange'
-> & {
+export type AriaComboboxProps<
+  Value,
+  Mode extends SelectionMode = 'none',
+> = ComboboxRootProps<Value> & {
   /**
    * How the combobox should remember the selected value.
    * - `single`: Remembers the last selected value.
@@ -1534,7 +1552,7 @@ export type ComboboxRootConditionalProps<Value, Mode extends SelectionMode = 'no
    *
    * To render a controlled combobox, use the `selectedValue` prop instead.
    */
-  defaultSelectedValue?: (ComboboxItemValueType<Value, Mode> | null) | undefined;
+  defaultSelectedValue?: ComboboxItemValueType<Value, Mode> | null | undefined;
   /**
    * Callback fired when the selected value of the combobox changes.
    */
@@ -1547,10 +1565,7 @@ export type ComboboxRootConditionalProps<Value, Mode extends SelectionMode = 'no
 };
 
 export namespace AriaCombobox {
-  export type Props<Value, Mode extends SelectionMode = 'none'> = ComboboxRootConditionalProps<
-    Value,
-    Mode
-  >;
+  export type Props<Value, Mode extends SelectionMode = 'none'> = AriaComboboxProps<Value, Mode>;
 
   export interface State {}
 

@@ -81,6 +81,10 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
       };
     },
     outsidePress(event) {
+      if (!store.context.outsidePressEnabledRef.current) {
+        return false;
+      }
+
       // For mouse events, only accept left button (button 0)
       // For touch events, a single touch is equivalent to left button
       if ('button' in event && event.button !== 0) {
@@ -167,7 +171,7 @@ export interface UseDialogRootParameters {
   actionsRef?: DialogRoot.Props['actionsRef'] | undefined;
   parentContext?: DialogStore<unknown>['context'] | undefined;
   onOpenChange: DialogRoot.Props['onOpenChange'];
-  triggerIdProp?: (string | null) | undefined;
+  triggerIdProp?: string | null | undefined;
 }
 
 export type UseDialogRootReturnValue = void;

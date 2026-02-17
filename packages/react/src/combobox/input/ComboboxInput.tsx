@@ -52,9 +52,9 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   // `inputValue` can't be placed in the store.
   // https://github.com/mui/base-ui/issues/2703
   const inputValue = useComboboxInputValueContext();
-  const required = useStore(store, selectors.required);
   const direction = useDirection();
 
+  const required = useStore(store, selectors.required);
   const comboboxDisabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
   const name = useStore(store, selectors.name);
@@ -81,6 +81,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
   const [composingValue, setComposingValue] = React.useState<string | null>(null);
   const isComposingRef = React.useRef(false);
+  const lastActiveIndexRef = React.useRef<number | null>(null);
+  const shouldRestoreActiveIndexRef = React.useRef(false);
 
   const setInputElement = useStableCallback((element: HTMLInputElement | null) => {
     const nextIsInsidePopup = hasPositionerParent || store.state.inline;
@@ -182,10 +184,34 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         id,
         onFocus() {
           setFocused(true);
+
+          if (!inline || !shouldRestoreActiveIndexRef.current) {
+            return;
+          }
+
+          shouldRestoreActiveIndexRef.current = false;
+          const nextActiveIndex = lastActiveIndexRef.current;
+
+          if (
+            nextActiveIndex == null ||
+            // `valuesRef` can be sparse, so guard against restoring a removed slot.
+            !Object.hasOwn(store.state.valuesRef.current, nextActiveIndex)
+          ) {
+            return;
+          }
+
+          store.state.setIndices({ activeIndex: nextActiveIndex });
         },
         onBlur() {
           setTouched(true);
           setFocused(false);
+
+          const activeIndex = store.state.activeIndex;
+          if (inline && activeIndex !== null && autoHighlightMode !== 'always') {
+            lastActiveIndexRef.current = activeIndex;
+            shouldRestoreActiveIndexRef.current = true;
+            store.state.setIndices({ activeIndex: null });
+          }
 
           if (validationMode === 'onBlur') {
             const valueToValidate = selectionMode === 'none' ? inputValue : selectedValue;
@@ -208,7 +234,13 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             createChangeEventDetails(REASONS.inputChange, event.nativeEvent),
           );
         },
-        onChange(event: React.ChangeEvent<HTMLInputElement>) {
+        onChange(event) {
+          // Autofill may not provide `inputType` (Chrome) or may report
+          // `insertReplacementText` (Firefox).
+          const inputType = (event.nativeEvent as InputEvent).inputType;
+          const autofillLikeInput = !inputType || inputType === 'insertReplacementText';
+          const shouldOpenOnInput = isComposingRef.current || !autofillLikeInput;
+
           // During IME composition, avoid propagating controlled updates to prevent
           // filtering the options prematurely so `Empty` won't show incorrectly.
           // We can't rely on this check for Android due to how it handles composition
@@ -229,8 +261,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             const trimmed = nextVal.trim();
             const shouldMaintainHighlight = autoHighlightEnabled && trimmed !== '';
 
-            if (!readOnly && !disabled) {
-              if (trimmed !== '') {
+            if (!readOnly && !disabled && trimmed) {
+              if (shouldOpenOnInput) {
                 store.state.setOpen(
                   true,
                   createChangeEventDetails(REASONS.inputChange, event.nativeEvent),
@@ -275,8 +307,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           }
 
           const trimmed = event.currentTarget.value.trim();
-          if (!readOnly && !disabled) {
-            if (trimmed !== '') {
+          if (!readOnly && !disabled && trimmed) {
+            if (shouldOpenOnInput) {
               store.state.setOpen(
                 true,
                 createChangeEventDetails(REASONS.inputChange, event.nativeEvent),
@@ -374,13 +406,14 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             return;
           }
 
+          const hadHighlightedChip = comboboxChipsContext?.highlightedChipIndex !== undefined;
           const nextIndex = handleKeyDown(event);
 
           comboboxChipsContext?.setHighlightedChipIndex(nextIndex);
 
           if (nextIndex !== undefined) {
             comboboxChipsContext?.chipsRef.current[nextIndex]?.focus();
-          } else {
+          } else if (hadHighlightedChip) {
             store.state.inputRef.current?.focus();
           }
 

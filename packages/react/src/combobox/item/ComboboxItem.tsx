@@ -32,7 +32,7 @@ export const ComboboxItem = React.memo(
     const {
       render,
       className,
-      value = null,
+      value: itemValue = null,
       index: indexProp,
       disabled = false,
       nativeButton = false,
@@ -59,17 +59,19 @@ export const ComboboxItem = React.memo(
     const virtualized = useStore(store, selectors.virtualized);
     const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
     const hasFilteredItemsProp = useStore(store, selectors.hasFilteredItemsProp);
+    const items = useStore(store, selectors.items);
 
     const selectable = selectionMode !== 'none';
     const index =
       indexProp ??
-      (virtualized ? findItemIndex(flatFilteredItems, value, isItemEqualToValue) : listItem.index);
+      (virtualized
+        ? findItemIndex(flatFilteredItems, itemValue, isItemEqualToValue)
+        : listItem.index);
     const hasRegistered = listItem.index !== -1;
 
     const rootId = useStore(store, selectors.id);
     const highlighted = useStore(store, selectors.isActive, index);
-    const matchesSelectedValue = useStore(store, selectors.isSelected, value);
-    const items = useStore(store, selectors.items);
+    const matchesSelectedValue = useStore(store, selectors.isSelected, itemValue);
     const getItemProps = useStore(store, selectors.getItemProps);
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
@@ -79,7 +81,10 @@ export const ComboboxItem = React.memo(
 
     const shouldFilterByQuery = !items && !hasFilteredItemsProp;
     const matchesQuery =
-      !shouldFilterByQuery || value == null || filterQuery === '' || filter(value, filterQuery);
+      !shouldFilterByQuery ||
+      itemValue == null ||
+      filterQuery === '' ||
+      filter(itemValue, filterQuery);
 
     const prevItemElementRef = React.useRef<HTMLDivElement | null>(null);
     const handleItemRef = React.useCallback(
@@ -97,9 +102,9 @@ export const ComboboxItem = React.memo(
           return;
         }
 
-        store.state.itemValueMapRef.current.set(node, value);
+        store.state.itemValueMapRef.current.set(node, itemValue);
       },
-      [shouldFilterByQuery, store, value],
+      [shouldFilterByQuery, store, itemValue],
     );
 
     useIsoLayoutEffect(() => {
@@ -124,12 +129,12 @@ export const ComboboxItem = React.memo(
       }
 
       const visibleMap = store.state.valuesRef.current;
-      visibleMap[index] = value;
+      visibleMap[index] = itemValue;
 
       return () => {
         delete visibleMap[index];
       };
-    }, [shouldRegisterValue, matchesQuery, hasRegistered, index, value, store]);
+    }, [shouldRegisterValue, matchesQuery, hasRegistered, index, itemValue, store]);
 
     useIsoLayoutEffect(() => {
       if (!open) {
@@ -148,10 +153,10 @@ export const ComboboxItem = React.memo(
         ? selectedValue[selectedValue.length - 1]
         : selectedValue;
 
-      if (compareItemEquality(lastSelectedValue, value, store.state.isItemEqualToValue)) {
+      if (compareItemEquality(lastSelectedValue, itemValue, isItemEqualToValue)) {
         store.set('selectedIndex', index);
       }
-    }, [hasRegistered, items, open, store, index, value, selectionMode, filterQuery]);
+    }, [hasRegistered, items, open, store, index, itemValue, isItemEqualToValue, selectionMode, filterQuery]);
 
     useIsoLayoutEffect(() => {
       const registerItem = groupContext?.registerVisibleItem;
@@ -180,7 +185,7 @@ export const ComboboxItem = React.memo(
 
     function commitSelection(nativeEvent: MouseEvent) {
       function selectItem() {
-        store.state.handleSelection(nativeEvent, value);
+        store.state.handleSelection(nativeEvent, itemValue);
       }
 
       if (store.state.submitOnItemClick) {

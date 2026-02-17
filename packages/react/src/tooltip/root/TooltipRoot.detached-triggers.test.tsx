@@ -396,6 +396,46 @@ describe('<Tooltip.Root />', () => {
       expect(screen.queryByText('Tooltip Content')).to.equal(null);
     });
 
+    it('should close when focusing a disabled trigger while another trigger is open', async () => {
+      const testTooltip = Tooltip.createHandle<number>();
+      await render(
+        <div>
+          <Tooltip.Trigger handle={testTooltip} payload={1}>
+            Trigger 1
+          </Tooltip.Trigger>
+          <Tooltip.Trigger handle={testTooltip} payload={2} disabled>
+            Trigger 2
+          </Tooltip.Trigger>
+
+          <Tooltip.Root handle={testTooltip}>
+            {({ payload }: NumberPayload) => (
+              <Tooltip.Portal>
+                <Tooltip.Positioner>
+                  <Tooltip.Popup>
+                    <span data-testid="content">{payload}</span>
+                  </Tooltip.Popup>
+                </Tooltip.Positioner>
+              </Tooltip.Portal>
+            )}
+          </Tooltip.Root>
+        </div>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      await act(async () => trigger1.focus());
+      await flushMicrotasks();
+      expect(screen.getByTestId('content').textContent).to.equal('1');
+
+      await act(async () => trigger2.focus());
+      await flushMicrotasks();
+      await waitFor(() => {
+        expect(screen.queryByTestId('content')).to.equal(null);
+      });
+      expect(trigger2).not.to.have.attribute('data-popup-open');
+    });
+
     it('should set the payload and render content based on its value', async () => {
       const testTooltip = Tooltip.createHandle<number>();
       const { user } = await render(
@@ -430,6 +470,93 @@ describe('<Tooltip.Root />', () => {
       await user.unhover(trigger1);
       await user.hover(trigger2);
       expect(screen.getByTestId('content').textContent).to.equal('2');
+    });
+
+    it('should close when hovering a disabled trigger while another trigger is open', async () => {
+      const testTooltip = Tooltip.createHandle<number>();
+      const { user } = await render(
+        <div>
+          <Tooltip.Trigger handle={testTooltip} payload={1} delay={0}>
+            Trigger 1
+          </Tooltip.Trigger>
+          <Tooltip.Trigger handle={testTooltip} payload={2} disabled>
+            Trigger 2
+          </Tooltip.Trigger>
+
+          <Tooltip.Root handle={testTooltip}>
+            {({ payload }: NumberPayload) => (
+              <Tooltip.Portal>
+                <Tooltip.Positioner>
+                  <Tooltip.Popup>
+                    <span data-testid="content">{payload}</span>
+                  </Tooltip.Popup>
+                </Tooltip.Positioner>
+              </Tooltip.Portal>
+            )}
+          </Tooltip.Root>
+        </div>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      await user.hover(trigger1);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).to.equal('1');
+      });
+
+      await user.hover(trigger2);
+      await waitFor(() => {
+        expect(screen.queryByTestId('content')).to.equal(null);
+      });
+      expect(trigger2).not.to.have.attribute('data-popup-open');
+    });
+
+    it('should switch to a rendered disabled button trigger when trigger hover is enabled', async () => {
+      const testTooltip = Tooltip.createHandle<number>();
+      const { user } = await render(
+        <div>
+          <Tooltip.Trigger handle={testTooltip} payload={1} delay={0}>
+            Trigger 1
+          </Tooltip.Trigger>
+          <Tooltip.Trigger
+            handle={testTooltip}
+            payload={2}
+            delay={0}
+            render={
+              <button type="button" disabled>
+                Trigger 2
+              </button>
+            }
+          />
+
+          <Tooltip.Root handle={testTooltip}>
+            {({ payload }: NumberPayload) => (
+              <Tooltip.Portal>
+                <Tooltip.Positioner>
+                  <Tooltip.Popup>
+                    <span data-testid="content">{payload}</span>
+                  </Tooltip.Popup>
+                </Tooltip.Positioner>
+              </Tooltip.Portal>
+            )}
+          </Tooltip.Root>
+        </div>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      await user.hover(trigger1);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).to.equal('1');
+      });
+
+      await user.hover(trigger2);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).to.equal('2');
+      });
+      expect(trigger2).to.have.attribute('data-popup-open');
     });
 
     it('should reuse the popup and positioner DOM nodes when switching triggers', async () => {
