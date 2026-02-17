@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { getOverflowAncestors } from '@floating-ui/react-dom';
 import {
@@ -10,9 +11,9 @@ import {
 } from '@floating-ui/utils/dom';
 import { Timeout, useTimeout } from '@base-ui/utils/useTimeout';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { ownerDocument } from '@base-ui/utils/owner';
 import {
   contains,
-  getDocument,
   getTarget,
   isEventTargetWithin,
   isReactEvent,
@@ -86,26 +87,24 @@ export interface UseDismissProps {
    * ```
    * @default true
    */
-  outsidePress?: (boolean | ((event: MouseEvent | TouchEvent) => boolean)) | undefined;
+  outsidePress?: boolean | ((event: MouseEvent | TouchEvent) => boolean) | undefined;
   /**
    * The type of event to use to determine an outside "press".
    * - `intentional` requires the user to click outside intentionally, firing on `pointerup` for mouse, and requiring minimal `touchmove`s for touch.
    * - `sloppy` fires on `pointerdown` for mouse, while for touch it fires on `touchend` (within 1 second) or while scrolling away after `touchstart`.
    */
   outsidePressEvent?:
-    | (
+    | PressType
+    | {
+        mouse: PressType;
+        touch: PressType;
+      }
+    | (() =>
         | PressType
         | {
             mouse: PressType;
             touch: PressType;
-          }
-        | (() =>
-            | PressType
-            | {
-                mouse: PressType;
-                touch: PressType;
-              })
-      )
+          })
     | undefined;
   /**
    * Whether to dismiss the floating element upon scrolling an overflow
@@ -118,7 +117,8 @@ export interface UseDismissProps {
    * floating elements.
    */
   bubbles?:
-    | (boolean | { escapeKey?: boolean | undefined; outsidePress?: boolean | undefined })
+    | boolean
+    | { escapeKey?: boolean | undefined; outsidePress?: boolean | undefined }
     | undefined;
   /**
    * External FlatingTree to use when the one provided by context can't be used.
@@ -279,7 +279,9 @@ export function useDismiss(
 
       const target = getTarget(event);
       const inertSelector = `[${createAttribute('inert')}]`;
-      const markers = getDocument(store.select('floatingElement')).querySelectorAll(inertSelector);
+      const markers = ownerDocument(store.select('floatingElement')).querySelectorAll(
+        inertSelector,
+      );
 
       const triggers = store.context.triggerElements;
 
@@ -571,7 +573,7 @@ export function useDismiss(
       );
     }
 
-    const doc = getDocument(floatingElement);
+    const doc = ownerDocument(floatingElement);
 
     doc.addEventListener('pointerdown', trackPointerType, true);
 

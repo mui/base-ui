@@ -7,7 +7,7 @@ export default function ExampleToggle() {
     <div className="flex gap-px rounded-md border border-gray-200 bg-gray-50 p-0.5">
       <Toggle
         aria-label="Favorite"
-        className="flex size-8 items-center justify-center rounded-sm text-gray-600 select-none hover:bg-gray-100 focus-visible:bg-none focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-200 data-[pressed]:text-gray-900"
+        className="flex size-8 items-center justify-center rounded-xs text-gray-600 select-none hover:bg-gray-100 focus-visible:bg-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-200 data-[pressed]:text-gray-900"
         render={(props, state) => {
           if (state.pressed) {
             return (

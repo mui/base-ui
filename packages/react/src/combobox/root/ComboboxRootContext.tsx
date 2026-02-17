@@ -1,9 +1,11 @@
+'use client';
 import * as React from 'react';
 import { ComboboxStore } from '../store';
 import type { FloatingRootContext } from '../../floating-ui-react';
 
 export interface ComboboxDerivedItemsContext {
   query: string;
+  hasItems: boolean;
   filteredItems: any[];
   flatFilteredItems: any[];
 }

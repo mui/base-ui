@@ -17,9 +17,9 @@ export interface NumberFieldRootContext {
   disabled: boolean;
   readOnly: boolean;
   id: string | undefined;
-  setValue: (value: number | null, details: NumberFieldRoot.ChangeEventDetails) => void;
+  setValue: (value: number | null, details: NumberFieldRoot.ChangeEventDetails) => boolean;
   getStepAmount: (event?: EventWithOptionalKeyState) => number | undefined;
-  incrementValue: (amount: number, params: IncrementValueParameters) => void;
+  incrementValue: (amount: number, params: IncrementValueParameters) => boolean;
   inputRef: React.RefObject<HTMLInputElement | null>;
   allowInputSyncRef: React.RefObject<boolean | null>;
   formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;

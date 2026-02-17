@@ -3,7 +3,9 @@ import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
+import { spy } from 'sinon';
 import { Field } from '@base-ui/react/field';
+import { REASONS } from '../../utils/reasons';
 
 describe('<Combobox.Input />', () => {
   const { render } = createRenderer();
@@ -186,6 +188,38 @@ describe('<Combobox.Input />', () => {
     });
   });
 
+  describe('onOpenChange reason', () => {
+    it('fires with reason input-press when Input is clicked', async () => {
+      const onOpenChange = spy();
+
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'banana']} onOpenChange={onOpenChange}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+
+      expect(onOpenChange.callCount).to.be.greaterThan(0);
+      expect(onOpenChange.lastCall.args[0]).to.equal(true);
+      expect(onOpenChange.lastCall.args[1].reason).to.equal(REASONS.inputPress);
+    });
+  });
+
   describe('interaction behavior', () => {
     it('clears selected value when input text is cleared (single selection)', async () => {
       const { user } = await render(
@@ -307,11 +341,9 @@ describe('<Combobox.Input />', () => {
 
       const input = screen.getByTestId('input');
       const chip = screen.getByTestId('chip');
-      const remove = screen.getByTestId('remove');
 
       expect(input).to.have.attribute('aria-readonly', 'true');
       expect(chip).to.have.attribute('aria-readonly', 'true');
-      expect(remove).to.have.attribute('aria-readonly', 'true');
 
       await user.type(input, '{backspace}');
       expect(screen.getByTestId('chip')).not.to.equal(null);

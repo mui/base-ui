@@ -591,6 +591,28 @@ describe('<Select.Root />', () => {
     });
   });
 
+  it('should pass autoComplete to the hidden input', async () => {
+    await render(
+      <Select.Root name="country" autoComplete="country">
+        <Select.Trigger data-testid="trigger">
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.Item value="US">United States</Select.Item>
+              <Select.Item value="CA">Canada</Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    const hiddenInput = screen.getByRole('textbox', { hidden: true });
+    expect(hiddenInput).to.have.attribute('name', 'country');
+    expect(hiddenInput).to.have.attribute('autocomplete', 'country');
+  });
+
   it('should handle browser autofill with object values', async () => {
     const items = [
       { country: 'United States', code: 'US' },
@@ -2427,6 +2449,95 @@ describe('<Select.Root />', () => {
     });
   });
 
+  describe('typeahead', () => {
+    it('starts from the first match after value reset (closed)', async () => {
+      function App() {
+        const [value, setValue] = React.useState<string | null>(null);
+        return (
+          <React.Fragment>
+            <button data-testid="reset" onClick={() => setValue(null)}>
+              Reset
+            </button>
+            <Select.Root value={value} onValueChange={setValue}>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value data-testid="value" />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="a1">A1</Select.Item>
+                    <Select.Item value="a2">A2</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const trigger = screen.getByTestId('trigger');
+      const valueEl = screen.getByTestId('value');
+      const resetBtn = screen.getByTestId('reset');
+
+      act(() => trigger.focus());
+      await user.keyboard('a');
+      expect(valueEl.textContent).to.equal('a1');
+
+      await user.click(resetBtn);
+
+      act(() => trigger.focus());
+      await user.keyboard('a');
+      expect(valueEl.textContent).to.equal('a1');
+    });
+
+    it('does not jump matches after a closed-state value reset', async () => {
+      function App() {
+        const [value, setValue] = React.useState<string | null>('dog');
+        return (
+          <React.Fragment>
+            <button data-testid="set-car" onClick={() => setValue('car')}>
+              Set car
+            </button>
+            <Select.Root value={value} onValueChange={setValue}>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value data-testid="value" />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="car">car</Select.Item>
+                    <Select.Item value="cat">cat</Select.Item>
+                    <Select.Item value="dog">dog</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const trigger = screen.getByTestId('trigger');
+      const valueEl = screen.getByTestId('value');
+      const setCarButton = screen.getByTestId('set-car');
+
+      expect(valueEl.textContent).to.equal('dog');
+
+      await user.click(setCarButton);
+      expect(valueEl.textContent).to.equal('car');
+
+      await act(async () => trigger.focus());
+      await user.keyboard('c');
+      expect(valueEl.textContent).to.equal('cat');
+
+      await user.keyboard('a');
+      expect(valueEl.textContent).to.equal('cat');
+    });
+  });
+
   describe('prop: multiple', () => {
     it('removes selections that no longer exist', async () => {
       function Test() {
@@ -2905,6 +3016,50 @@ describe('<Select.Root />', () => {
 
       await waitFor(() => {
         expect(screen.getByRole('option', { name: 'Bob' })).to.have.attribute('data-selected', '');
+      });
+    });
+
+    it('passes item as the first comparator argument in multiple mode', async () => {
+      const users = [
+        { id: 1, name: 'Alice', source: 'item' },
+        { id: 2, name: 'Bob', source: 'item' },
+      ];
+
+      await render(
+        <Select.Root
+          multiple
+          defaultOpen
+          defaultValue={[{ id: 2, name: 'Bob', source: 'selected' }]}
+          itemToStringLabel={(item) => item.name}
+          itemToStringValue={(item) => String(item.id)}
+          isItemEqualToValue={(item, value) =>
+            item.id === value.id && item.source === 'item' && value.source === 'selected'
+          }
+        >
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                {users.map((user) => (
+                  <Select.Item key={user.id} value={user}>
+                    {user.name}
+                  </Select.Item>
+                ))}
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const option = screen.getByRole('option', { name: 'Bob' });
+      expect(option).to.have.attribute('data-selected', '');
+
+      fireEvent.click(option);
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Bob' })).not.to.have.attribute('data-selected');
       });
     });
   });

@@ -9,7 +9,13 @@ import { useTriggerDataForwarding, getInlineRectHoverCoords } from '../../utils/
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { TooltipHandle } from '../store/TooltipHandle';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
-import { safePolygon, useDelayGroup, useHoverReferenceInteraction } from '../../floating-ui-react';
+import {
+  safePolygon,
+  useDelayGroup,
+  useFocus,
+  useHoverReferenceInteraction,
+} from '../../floating-ui-react';
+import { TooltipTriggerDataAttributes } from './TooltipTriggerDataAttributes';
 
 import { OPEN_DELAY } from '../utils/constants';
 
@@ -112,6 +118,8 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     isActiveTrigger: isTriggerActive,
   });
 
+  const focusProps = useFocus(floatingRootContext, { enabled: !disabled }).reference;
+
   const state: TooltipTrigger.State = { open: isOpenedByThisTrigger };
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
@@ -123,6 +131,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     ref: [forwardedRef, registerTrigger, triggerElementRef],
     props: [
       hoverProps,
+      focusProps,
       rootTriggerProps,
       {
         id: thisTriggerId,
@@ -135,7 +144,8 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
           }
           inlineRectCoordsRef.current = getInlineRectHoverCoords(event);
         },
-      },
+        [TooltipTriggerDataAttributes.triggerDisabled]: disabled ? '' : undefined,
+      } as React.HTMLAttributes<Element>,
       elementProps,
     ],
     stateAttributesMapping: triggerOpenStateMapping,
@@ -179,6 +189,13 @@ export interface TooltipTriggerProps<Payload = unknown> extends BaseUIComponentP
    * @default 0
    */
   closeDelay?: number | undefined;
+  /**
+   * If `true`, the tooltip will not open when interacting with this trigger.
+   * Note that this doesn't apply the `disabled` attribute to the trigger element.
+   * If you want to disable the trigger element itself, you can pass the `disabled` prop to the trigger element via the `render` prop.
+   * @default false
+   */
+  disabled?: boolean | undefined;
 }
 
 export namespace TooltipTrigger {

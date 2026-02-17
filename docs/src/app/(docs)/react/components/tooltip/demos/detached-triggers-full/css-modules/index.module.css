@@ -166,6 +166,7 @@
 
 .Viewport {
   --viewport-inline-padding: 0.5rem;
+  box-sizing: border-box;
   position: relative;
   height: 100%;
   width: 100%;

@@ -107,7 +107,7 @@ export interface CompositeRootProps<Metadata, State extends Record<string, any>>
   stateAttributesMapping?: StateAttributesMapping<State> | undefined;
   refs?: React.Ref<HTMLElement | null>[] | undefined;
   tag?: keyof React.JSX.IntrinsicElements | undefined;
-  orientation?: ('horizontal' | 'vertical' | 'both') | undefined;
+  orientation?: 'horizontal' | 'vertical' | 'both' | undefined;
   cols?: number | undefined;
   loopFocus?: boolean | undefined;
   highlightedIndex?: number | undefined;

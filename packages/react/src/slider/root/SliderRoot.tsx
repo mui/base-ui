@@ -223,8 +223,9 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       // This allows seamless integration with the most popular form libraries.
       // https://github.com/mui/material-ui/issues/13485#issuecomment-676048492
       // Clone the event to not override `target` of the original event.
-      // @ts-expect-error The nativeEvent is function, not object
-      const clonedEvent = new event.constructor(event.type, event);
+      const nativeEvent = changeDetails.event;
+      const EventConstructor = (nativeEvent.constructor as typeof Event | undefined) ?? Event;
+      const clonedEvent = new EventConstructor(nativeEvent.type, nativeEvent);
 
       Object.defineProperty(clonedEvent, 'target', {
         writable: true,
@@ -526,7 +527,7 @@ export interface SliderRootProps<
    * - `edge-client-only`: Same as `edge` but renders after React hydration on the client, reducing bundle size in return
    * @default 'center'
    */
-  thumbAlignment?: ('center' | 'edge' | 'edge-client-only') | undefined;
+  thumbAlignment?: 'center' | 'edge' | 'edge-client-only' | undefined;
   /**
    * Controls how thumbs behave when they collide during pointer interactions.
    *
@@ -536,7 +537,7 @@ export interface SliderRootProps<
    *
    * @default 'push'
    */
-  thumbCollisionBehavior?: ('push' | 'swap' | 'none') | undefined;
+  thumbCollisionBehavior?: 'push' | 'swap' | 'none' | undefined;
   /**
    * The value of the slider.
    * For ranged sliders, provide an array with two values.

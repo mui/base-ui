@@ -1,3 +1,5 @@
+import { TransitionStatusDataAttributes } from '../../utils/stateAttributesMapping';
+
 export enum FieldErrorDataAttributes {
   /**
    * Present when the field is disabled.
@@ -27,4 +29,12 @@ export enum FieldErrorDataAttributes {
    * Present when the field control is focused.
    */
   focused = 'data-focused',
+  /**
+   * Present when the error message is animating in.
+   */
+  startingStyle = TransitionStatusDataAttributes.startingStyle,
+  /**
+   * Present when the error message is animating out.
+   */
+  endingStyle = TransitionStatusDataAttributes.endingStyle,
 }

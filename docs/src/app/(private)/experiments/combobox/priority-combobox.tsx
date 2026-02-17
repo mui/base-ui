@@ -5,7 +5,7 @@ import { Combobox } from '@base-ui/react/combobox';
 function CustomCombobox(props: { items: Priority[] }) {
   return (
     <Combobox.Root items={props.items} defaultValue={props.items?.[0]} autoHighlight>
-      <Combobox.Trigger className="bg-[canvas] h-8 items-center justify-between rounded-lg border border-gray-200 px-3 text-sm text-gray-900 select-none hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-50 cursor-default bg-clip-padding">
+      <Combobox.Trigger className="bg-[canvas] h-8 items-center justify-between rounded-lg border border-gray-200 px-3 text-sm text-gray-900 select-none hover:bg-gray-50 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-50 cursor-default bg-clip-padding">
         <Combobox.Value>
           {(priority: Priority) => (
             <div className="flex items-center gap-2">

@@ -207,6 +207,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
 
   const state: ScrollAreaRoot.State = React.useMemo(
     () => ({
+      scrolling: scrollingX || scrollingY,
       hasOverflowX: !hiddenState.x,
       hasOverflowY: !hiddenState.y,
       overflowXStart: overflowEdges.xStart,
@@ -215,7 +216,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
       overflowYEnd: overflowEdges.yEnd,
       cornerHidden: hiddenState.corner,
     }),
-    [hiddenState.x, hiddenState.y, hiddenState.corner, overflowEdges],
+    [scrollingX, scrollingY, hiddenState.x, hiddenState.y, hiddenState.corner, overflowEdges],
   );
 
   const props: HTMLProps = {
@@ -303,6 +304,8 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
 });
 
 export interface ScrollAreaRootState {
+  /** Whether the scroll area is being scrolled. */
+  scrolling: boolean;
   /** Whether horizontal overflow is present. */
   hasOverflowX: boolean;
   /** Whether vertical overflow is present. */
@@ -326,15 +329,13 @@ export interface ScrollAreaRootProps extends BaseUIComponentProps<'div', ScrollA
    * @default 0
    */
   overflowEdgeThreshold?:
-    | (
-        | number
-        | Partial<{
-            xStart: number;
-            xEnd: number;
-            yStart: number;
-            yEnd: number;
-          }>
-      )
+    | number
+    | Partial<{
+        xStart: number;
+        xEnd: number;
+        yStart: number;
+        yEnd: number;
+      }>
     | undefined;
 }
 
