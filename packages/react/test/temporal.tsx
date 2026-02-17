@@ -33,7 +33,7 @@ export function createTemporalRenderer(
   });
 
   function Wrapper({ children }: { children?: React.ReactNode }) {
-    return <LocalizationProvider dateLocale={locale}>{children}</LocalizationProvider>;
+    return <LocalizationProvider temporalLocale={locale}>{children}</LocalizationProvider>;
   }
 
   return {

@@ -6,16 +6,16 @@ import { TemporalAdapterDateFns } from '../temporal-adapter-date-fns/TemporalAda
 import { TemporalAdapterContext } from '../temporal-adapter-provider/TemporalAdapterContext';
 
 /**
- * Defines the date locale provider for Base UI temporal components.
+ * Defines the temporal locale provider for Base UI temporal components.
  */
 export const LocalizationProvider: React.FC<LocalizationProvider.Props> =
   function LocalizationProvider(props: LocalizationProvider.Props) {
-    const { children, dateLocale } = props;
+    const { children, temporalLocale } = props;
 
-    const contextValue = React.useMemo(() => ({ dateLocale }), [dateLocale]);
+    const contextValue = React.useMemo(() => ({ temporalLocale }), [temporalLocale]);
     const adapterContextValue = React.useMemo(
-      () => ({ adapter: new TemporalAdapterDateFns({ locale: dateLocale }) }),
-      [dateLocale],
+      () => ({ adapter: new TemporalAdapterDateFns({ locale: temporalLocale }) }),
+      [temporalLocale],
     );
 
     return (
@@ -34,6 +34,6 @@ export namespace LocalizationProvider {
      * The locale to use in temporal components.
      * @default en-US
      */
-    dateLocale?: Locale | undefined;
+    temporalLocale?: Locale | undefined;
   }
 }

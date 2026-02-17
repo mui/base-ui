@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Locale } from 'date-fns/locale';
 
 export type LocalizationContext = {
-  dateLocale?: Locale | undefined;
+  temporalLocale?: Locale | undefined;
 };
 
 /**
@@ -11,7 +11,7 @@ export type LocalizationContext = {
  */
 export const LocalizationContext = React.createContext<LocalizationContext | undefined>(undefined);
 
-export function useDateLocale() {
+export function useTemporalLocale() {
   const context = React.useContext(LocalizationContext);
   if (context === undefined) {
     throw new Error(
@@ -19,5 +19,5 @@ export function useDateLocale() {
     );
   }
 
-  return context.dateLocale;
+  return context.temporalLocale;
 }

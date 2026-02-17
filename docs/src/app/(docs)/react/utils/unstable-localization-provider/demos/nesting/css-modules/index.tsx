@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { format } from 'date-fns/format';
 import { fr, zhCN } from 'date-fns/locale';
-import { LocalizationProvider, useDateLocale } from '@base-ui/react/localization-provider';
+import { LocalizationProvider, useTemporalLocale } from '@base-ui/react/localization-provider';
 import { Calendar } from '@base-ui/react/calendar';
 import styles from '../../../calendar.module.css';
 import indexStyles from './index.module.css';
@@ -10,9 +10,9 @@ import indexStyles from './index.module.css';
 export default function NestedLocalizedCalendars() {
   return (
     <div className={indexStyles.Wrapper}>
-      <LocalizationProvider dateLocale={fr}>
+      <LocalizationProvider temporalLocale={fr}>
         <LocalizedCalendar />
-        <LocalizationProvider dateLocale={zhCN}>
+        <LocalizationProvider temporalLocale={zhCN}>
           <LocalizedCalendar />
         </LocalizationProvider>
       </LocalizationProvider>
@@ -21,7 +21,7 @@ export default function NestedLocalizedCalendars() {
 }
 
 function LocalizedCalendar() {
-  const locale = useDateLocale();
+  const locale = useTemporalLocale();
   return (
     <Calendar.Root className={styles.Root}>
       {({ visibleDate }) => (
