@@ -576,16 +576,16 @@ Closes the popover.
 
 ## External Types
 
-### preventUnmountOnClose
-
-```typescript
-type preventUnmountOnClose = () => void;
-```
-
 ### PayloadChildRenderFunction
 
 ```typescript
 type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => ReactNode;
+```
+
+### preventUnmountOnClose
+
+```typescript
+type preventUnmountOnClose = () => void;
 ```
 
 ### Side
@@ -600,12 +600,6 @@ type Side = 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start';
 type Align = 'start' | 'center' | 'end';
 ```
 
-### InteractionType
-
-```typescript
-type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
-```
-
 ### OffsetFunction
 
 ```typescript
@@ -615,6 +609,12 @@ type OffsetFunction = (data: {
   anchor: { width: number; height: number };
   positioner: { width: number; height: number };
 }) => number;
+```
+
+### InteractionType
+
+```typescript
+type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
 ```
 
 ## Export Groups

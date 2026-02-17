@@ -1372,24 +1372,6 @@ type MenuParent =
 
 ## External Types
 
-### preventUnmountOnClose
-
-```typescript
-type preventUnmountOnClose = () => void;
-```
-
-### Orientation
-
-```typescript
-type Orientation = 'horizontal' | 'vertical';
-```
-
-### PayloadChildRenderFunction
-
-```typescript
-type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => ReactNode;
-```
-
 ### Side
 
 ```typescript
@@ -1400,6 +1382,12 @@ type Side = 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start';
 
 ```typescript
 type Align = 'start' | 'center' | 'end';
+```
+
+### preventUnmountOnClose
+
+```typescript
+type preventUnmountOnClose = () => void;
 ```
 
 ### InteractionType
@@ -1417,6 +1405,12 @@ type OffsetFunction = (data: {
   anchor: { width: number; height: number };
   positioner: { width: number; height: number };
 }) => number;
+```
+
+### PayloadChildRenderFunction
+
+```typescript
+type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => ReactNode;
 ```
 
 ## Export Groups

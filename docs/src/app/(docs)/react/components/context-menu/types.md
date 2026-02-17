@@ -1316,12 +1316,6 @@ type Orientation = 'horizontal' | 'vertical';
 type PayloadChildRenderFunction = (arg: { payload: unknown }) => ReactNode;
 ```
 
-### preventUnmountOnClose
-
-```typescript
-type preventUnmountOnClose = () => void;
-```
-
 ### Side
 
 ```typescript
@@ -1334,12 +1328,6 @@ type Side = 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start';
 type Align = 'start' | 'center' | 'end';
 ```
 
-### InteractionType
-
-```typescript
-type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
-```
-
 ### OffsetFunction
 
 ```typescript
@@ -1349,6 +1337,18 @@ type OffsetFunction = (data: {
   anchor: { width: number; height: number };
   positioner: { width: number; height: number };
 }) => number;
+```
+
+### InteractionType
+
+```typescript
+type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
+```
+
+### preventUnmountOnClose
+
+```typescript
+type preventUnmountOnClose = () => void;
 ```
 
 ## Export Groups

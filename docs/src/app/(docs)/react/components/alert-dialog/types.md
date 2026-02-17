@@ -427,16 +427,16 @@ Closes the dialog.
 
 ## External Types
 
-### preventUnmountOnClose
-
-```typescript
-type preventUnmountOnClose = () => void;
-```
-
 ### PayloadChildRenderFunction
 
 ```typescript
 type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => ReactNode;
+```
+
+### preventUnmountOnClose
+
+```typescript
+type preventUnmountOnClose = () => void;
 ```
 
 ### InteractionType

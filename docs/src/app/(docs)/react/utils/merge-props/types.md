@@ -69,7 +69,7 @@ They must check `event.baseUIHandlerPrevented` themselves and bail out if it's t
 The merged props.
 
 ```tsx
-type ReturnValue = { [key: string]: ((event: BaseUIEvent<any>) => R | any) | any | undefined };
+type ReturnValue = WithBaseUIEvent<React.ComponentPropsWithRef<ElementType>>;
 ```
 
 ### mergePropsN
@@ -92,5 +92,5 @@ fewer prop sets for better performance.
 The merged props.
 
 ```tsx
-type ReturnValue = { [key: string]: ((event: BaseUIEvent<any>) => R | any) | any | undefined };
+type ReturnValue = WithBaseUIEvent<React.ComponentPropsWithRef<ElementType>>;
 ```

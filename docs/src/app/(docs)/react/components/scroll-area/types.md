@@ -255,25 +255,25 @@ type ScrollAreaCornerState = {};
 ### Coords
 
 ```typescript
-type Coords = __object;
+type Coords = { x: number; y: number };
 ```
 
 ### HiddenState
 
 ```typescript
-type HiddenState = __object;
+type HiddenState = { x: boolean; y: boolean; corner: boolean };
 ```
 
 ### OverflowEdges
 
 ```typescript
-type OverflowEdges = __object;
+type OverflowEdges = { xStart: boolean; xEnd: boolean; yStart: boolean; yEnd: boolean };
 ```
 
 ### Size
 
 ```typescript
-type Size = __object;
+type Size = { width: number; height: number };
 ```
 
 ## Export Groups

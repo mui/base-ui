@@ -266,20 +266,6 @@ type TabsTabPosition = { left: number; right: number; top: number; bottom: numbe
 type TabsTabSize = { width: number; height: number };
 ```
 
-## External Types
-
-### Orientation
-
-```typescript
-type Orientation = 'horizontal' | 'vertical';
-```
-
-### ActivationDirection
-
-```typescript
-type ActivationDirection = 'left' | 'right' | 'up' | 'down' | 'none';
-```
-
 ## Export Groups
 
 - `Tabs.Root`: `Tabs.Root`, `Tabs.Root.State`, `Tabs.Root.Props`, `Tabs.Root.Orientation`, `Tabs.Root.ChangeEventReason`, `Tabs.Root.ChangeEventDetails`

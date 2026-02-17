@@ -15,7 +15,7 @@ Doesn't render its own HTML element.
 | :------------------- | :-------------------------------------------------------------------------------------------------------------- | :------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | name                 | `string`                                                                                                        | -        | Identifies the field when a form is submitted.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | defaultValue         | `string \| number \| string[]`                                                                                  | -        | The uncontrolled input value of the autocomplete when it's initially rendered. To render a controlled autocomplete, use the `value` prop instead.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| value                | `string \| number \| string[]`                                                                                  | -        | The input value of the autocomplete. Use when controlled.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| value                | `string \| string[] \| number`                                                                                  | -        | The input value of the autocomplete. Use when controlled.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | onValueChange        | `((value: string, eventDetails: Autocomplete.Root.ChangeEventDetails) => void)`                                 | -        | Event handler called when the input value of the autocomplete changes.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | defaultOpen          | `boolean`                                                                                                       | `false`  | Whether the popup is initially open. To render a controlled popup, use the `open` prop instead.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | open                 | `boolean`                                                                                                       | -        | Whether the popup is currently open. Use when controlled.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
@@ -840,17 +840,15 @@ Matches items against a query using `Intl.Collator` for robust string matching.
 
 **Parameters:**
 
-| Parameter | Type                                | Default | Description |
-| :-------- | :---------------------------------- | :------ | :---------- |
-| options?  | `{ locale?: Intl.LocalesArgument }` | -       | -           |
+| Parameter | Type                        | Default | Description |
+| :-------- | :-------------------------- | :------ | :---------- |
+| options?  | `AutocompleteFilterOptions` | -       | -           |
 
 **Return Value:**
 
-| Property     | Type                                                              | Description |
-| :----------- | :---------------------------------------------------------------- | :---------- |
-| `contains`   | `((item: Item, query: string, itemToString?: ((item: Item) =>...` | -           |
-| `startsWith` | `((item: Item, query: string, itemToString?: ((item: Item) =>...` | -           |
-| `endsWith`   | `((item: Item, query: string, itemToString?: ((item: Item) =>...` | -           |
+```tsx
+type ReturnValue = AutocompleteFilter;
+```
 
 ### useFilteredItems
 
@@ -882,12 +880,6 @@ type AutocompleteFilterOptions = { locale?: Intl.LocalesArgument };
 
 ## External Types
 
-### Orientation
-
-```typescript
-type Orientation = 'horizontal' | 'vertical';
-```
-
 ### Side
 
 ```typescript
@@ -900,12 +892,6 @@ type Side = 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start';
 type Align = 'start' | 'center' | 'end';
 ```
 
-### InteractionType
-
-```typescript
-type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
-```
-
 ### OffsetFunction
 
 ```typescript
@@ -915,6 +901,18 @@ type OffsetFunction = (data: {
   anchor: { width: number; height: number };
   positioner: { width: number; height: number };
 }) => number;
+```
+
+### InteractionType
+
+```typescript
+type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
+```
+
+### Orientation
+
+```typescript
+type Orientation = 'horizontal' | 'vertical';
 ```
 
 ## Export Groups

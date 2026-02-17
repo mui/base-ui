@@ -18,7 +18,7 @@ Doesn't render its own HTML element.
 | value                | `Value[] \| Value \| null`                                                                              | -       | The selected value of the combobox. Use when controlled.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | onValueChange        | `((value: Value[] \| Value \| any \| null, eventDetails: Combobox.Root.ChangeEventDetails) => void)`    | -       | Event handler called when the selected value of the combobox changes.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | defaultInputValue    | `string \| number \| string[]`                                                                          | -       | The uncontrolled input value when initially rendered. To render a controlled input, use the `inputValue` prop instead.                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| inputValue           | `string \| number \| string[]`                                                                          | -       | The input value of the combobox. Use when controlled.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| inputValue           | `string \| string[] \| number`                                                                          | -       | The input value of the combobox. Use when controlled.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | onInputValueChange   | `((inputValue: string, eventDetails: Combobox.Root.ChangeEventDetails) => void)`                        | -       | Event handler called when the input value changes.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | defaultOpen          | `boolean`                                                                                               | `false` | Whether the popup is initially open. To render a controlled popup, use the `open` prop instead.                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | open                 | `boolean`                                                                                               | -       | Whether the popup is currently open. Use when controlled.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
@@ -947,17 +947,15 @@ Matches items against a query using `Intl.Collator` for robust string matching.
 
 **Parameters:**
 
-| Parameter | Type                                                                 | Default | Description |
-| :-------- | :------------------------------------------------------------------- | :------ | :---------- |
-| options?  | `{ multiple?: boolean; value?: any; locale?: Intl.LocalesArgument }` | -       | -           |
+| Parameter | Type                    | Default | Description |
+| :-------- | :---------------------- | :------ | :---------- |
+| options?  | `ComboboxFilterOptions` | -       | -           |
 
 **Return Value:**
 
-| Property     | Type                                                              | Description |
-| :----------- | :---------------------------------------------------------------- | :---------- |
-| `contains`   | `((item: Item, query: string, itemToString?: ((item: Item) =>...` | -           |
-| `startsWith` | `((item: Item, query: string, itemToString?: ((item: Item) =>...` | -           |
-| `endsWith`   | `((item: Item, query: string, itemToString?: ((item: Item) =>...` | -           |
+```tsx
+type ReturnValue = ComboboxFilter;
+```
 
 ### useFilteredItems
 
@@ -989,12 +987,6 @@ type ComboboxFilterOptions = { multiple?: boolean; value?: any; locale?: Intl.Lo
 
 ## External Types
 
-### Orientation
-
-```typescript
-type Orientation = 'horizontal' | 'vertical';
-```
-
 ### Side
 
 ```typescript
@@ -1007,12 +999,6 @@ type Side = 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start';
 type Align = 'start' | 'center' | 'end';
 ```
 
-### InteractionType
-
-```typescript
-type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
-```
-
 ### OffsetFunction
 
 ```typescript
@@ -1022,6 +1008,18 @@ type OffsetFunction = (data: {
   anchor: { width: number; height: number };
   positioner: { width: number; height: number };
 }) => number;
+```
+
+### InteractionType
+
+```typescript
+type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
+```
+
+### Orientation
+
+```typescript
+type Orientation = 'horizontal' | 'vertical';
 ```
 
 ## Export Groups

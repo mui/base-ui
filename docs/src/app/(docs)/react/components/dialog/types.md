@@ -431,10 +431,10 @@ Closes the dialog.
 
 ## External Types
 
-### preventUnmountOnClose
+### InteractionType
 
 ```typescript
-type preventUnmountOnClose = () => void;
+type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
 ```
 
 ### PayloadChildRenderFunction
@@ -443,10 +443,10 @@ type preventUnmountOnClose = () => void;
 type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => ReactNode;
 ```
 
-### InteractionType
+### preventUnmountOnClose
 
 ```typescript
-type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
+type preventUnmountOnClose = () => void;
 ```
 
 ## Export Groups

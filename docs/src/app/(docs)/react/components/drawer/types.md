@@ -16,16 +16,16 @@ Doesn't render its own HTML element.
 | defaultOpen             | `boolean`                                                                                                      | `false`  | Whether the drawer is initially open. To render a controlled drawer, use the `open` prop instead.                                                                                                                                                                                                                                                                                                                                                 |
 | open                    | `boolean`                                                                                                      | -        | Whether the drawer is currently open.                                                                                                                                                                                                                                                                                                                                                                                                             |
 | onOpenChange            | `((open: boolean, eventDetails: DrawerPreview.Root.ChangeEventDetails) => void)`                               | -        | Event handler called when the drawer is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                         |
-| actionsRef              | `React.RefObject<DrawerPreview.Root.Actions \| null>`                                                          | -        | A ref to imperative actions. `unmount`: When specified, the drawer will not be unmounted when closed.&#xA;Instead, the `unmount` function must be called to unmount the drawer manually.&#xA;Useful when the drawer's animation is controlled by an external library.`close`: Closes the drawer imperatively when called.                                                                                                                         |
+| snapPoints              | `DrawerSnapPoint[]`                                                                                            | -        | Snap points used to position the drawer.&#xA;Use numbers between 0 and 1 to represent fractions of the viewport height,&#xA;numbers greater than 1 as pixel values, or strings in `px`/`rem` units&#xA;(for example, `'148px'` or `'30rem'`).                                                                                                                                                                                                     |
 | defaultSnapPoint        | `DrawerSnapPoint \| null`                                                                                      | -        | The initial snap point value when uncontrolled.                                                                                                                                                                                                                                                                                                                                                                                                   |
+| snapPoint               | `DrawerSnapPoint \| null`                                                                                      | -        | The currently active snap point. Use with `onSnapPointChange` to control the snap point.                                                                                                                                                                                                                                                                                                                                                          |
+| onSnapPointChange       | `((snapPoint: DrawerSnapPoint \| null, eventDetails: DrawerPreview.Root.SnapPointChangeEventDetails) => void)` | -        | Callback fired when the snap point changes.                                                                                                                                                                                                                                                                                                                                                                                                       |
+| actionsRef              | `React.RefObject<DrawerPreview.Root.Actions \| null>`                                                          | -        | A ref to imperative actions. `unmount`: When specified, the drawer will not be unmounted when closed.&#xA;Instead, the `unmount` function must be called to unmount the drawer manually.&#xA;Useful when the drawer's animation is controlled by an external library.`close`: Closes the drawer imperatively when called.                                                                                                                         |
 | defaultTriggerId        | `string \| null`                                                                                               | -        | ID of the trigger that the drawer is associated with.&#xA;This is useful in conjunction with the `defaultOpen` prop to create an initially open drawer.                                                                                                                                                                                                                                                                                           |
 | disablePointerDismissal | `boolean`                                                                                                      | `false`  | Determines whether the drawer should close on outside clicks.                                                                                                                                                                                                                                                                                                                                                                                     |
 | handle                  | `DrawerPreview.Handle<Payload>`                                                                                | -        | A handle to associate the drawer with a trigger.&#xA;If specified, allows detached triggers to control the drawer's open state.&#xA;Can be created with the Drawer.createHandle() method.                                                                                                                                                                                                                                                         |
 | modal                   | `boolean \| 'trap-focus'`                                                                                      | `true`   | Determines if the drawer enters a modal state when open. `true`: user interaction is limited to just the drawer: focus is trapped, document page scroll is locked, and pointer interactions on outside elements are disabled.`false`: user interaction with the rest of the document is allowed.`'trap-focus'`: focus is trapped inside the drawer, but document page scroll is not locked and pointer interactions outside of it remain enabled. |
 | onOpenChangeComplete    | `((open: boolean) => void)`                                                                                    | -        | Event handler called after any animations complete when the drawer is opened or closed.                                                                                                                                                                                                                                                                                                                                                           |
-| onSnapPointChange       | `((snapPoint: DrawerSnapPoint \| null, eventDetails: DrawerPreview.Root.SnapPointChangeEventDetails) => void)` | -        | Callback fired when the snap point changes.                                                                                                                                                                                                                                                                                                                                                                                                       |
-| snapPoint               | `DrawerSnapPoint \| null`                                                                                      | -        | The currently active snap point. Use with `onSnapPointChange` to control the snap point.                                                                                                                                                                                                                                                                                                                                                          |
-| snapPoints              | `DrawerSnapPoint[]`                                                                                            | -        | Snap points used to position the drawer.&#xA;Use numbers between 0 and 1 to represent fractions of the viewport height,&#xA;numbers greater than 1 as pixel values, or strings in `px`/`rem` units&#xA;(for example, `'148px'` or `'30rem'`).                                                                                                                                                                                                     |
 | snapToSequentialPoints  | `boolean`                                                                                                      | `false`  | Disables velocity-based snap skipping so drag distance determines the next snap point.                                                                                                                                                                                                                                                                                                                                                            |
 | swipeDirection          | `DrawerSwipeDirection`                                                                                         | `'down'` | The swipe direction used to dismiss the drawer.                                                                                                                                                                                                                                                                                                                                                                                                   |
 | triggerId               | `string \| null`                                                                                               | -        | ID of the trigger that the drawer is associated with.&#xA;This is useful in conjunction with the `open` prop to create a controlled drawer.&#xA;There's no need to specify this prop when the drawer is uncontrolled (that is, when the `open` prop is not set).                                                                                                                                                                                  |
@@ -942,16 +942,10 @@ type DrawerViewportState = {
 
 ## External Types
 
-### preventUnmountOnClose
+### InteractionType
 
 ```typescript
-type preventUnmountOnClose = () => void;
-```
-
-### PayloadChildRenderFunction
-
-```typescript
-type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => ReactNode;
+type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
 ```
 
 ### DrawerSwipeDirection
@@ -960,16 +954,22 @@ type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => Rea
 type DrawerSwipeDirection = 'up' | 'down' | 'left' | 'right';
 ```
 
+### PayloadChildRenderFunction
+
+```typescript
+type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => ReactNode;
+```
+
 ### DrawerSnapPoint
 
 ```typescript
 type DrawerSnapPoint = number | string;
 ```
 
-### InteractionType
+### preventUnmountOnClose
 
 ```typescript
-type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
+type preventUnmountOnClose = () => void;
 ```
 
 ## Export Groups

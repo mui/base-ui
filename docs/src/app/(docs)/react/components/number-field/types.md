@@ -443,14 +443,6 @@ type NumberFieldIncrementState = {
 };
 ```
 
-## External Types
-
-### Direction
-
-```typescript
-type Direction = -1 | 1;
-```
-
 ## Export Groups
 
 - `NumberField.Root`: `NumberField.Root`, `NumberField.Root.State`, `NumberField.Root.Props`, `NumberField.Root.ChangeEventReason`, `NumberField.Root.ChangeEventDetails`, `NumberField.Root.CommitEventReason`, `NumberField.Root.CommitEventDetails`

@@ -63,19 +63,67 @@ export function ReferenceTable(props: ReferenceTableProps) {
       <React.Fragment>
         {multiple && !hideDescription && data.description && data.description}
 
-        {Object.keys(data.parameters).length > 0 && (
-          <ParametersReferenceTable name={data.name} data={data.parameters} className="mt-5 mb-6" />
+        {data.optionsProperties && (
+          <React.Fragment>
+            <SectionHeading>Parameters</SectionHeading>
+            <p className="mb-2 text-sm text-gray-600 dark:text-gray-400">
+              <code>
+                <span className="pl-en">{data.optionsTypeName}</span>
+              </code>
+            </p>
+            <ReferenceAccordion
+              name={data.name}
+              data={data.optionsProperties}
+              nameLabel="Prop"
+              caption="Parameter properties table"
+              hideDefault
+              className="mb-6"
+            />
+          </React.Fragment>
         )}
+
+        {!data.optionsProperties && data.properties && Object.keys(data.properties).length > 0 && (
+          <React.Fragment>
+            <SectionHeading>Properties</SectionHeading>
+            <ReferenceAccordion
+              name={data.name}
+              data={data.properties}
+              nameLabel="Property"
+              caption="Properties table"
+              hideDefault
+              className="mb-6"
+            />
+          </React.Fragment>
+        )}
+
+        {!data.optionsProperties &&
+          !data.properties &&
+          data.parameters &&
+          Object.keys(data.parameters).length > 0 && (
+            <ParametersReferenceTable
+              name={data.name}
+              data={data.parameters}
+              className="mt-5 mb-6"
+            />
+          )}
 
         {data.returnValue && data.returnValue.kind === 'object' && (
           <React.Fragment>
             <SectionHeading>Return value</SectionHeading>
+            {data.returnValue.typeName && (
+              <p className="mb-2 text-sm text-gray-600 dark:text-gray-400">
+                <code>
+                  <span className="pl-en">{data.returnValue.typeName}</span>
+                </code>
+              </p>
+            )}
             <ReferenceAccordion
               name={data.name}
               data={data.returnValue.properties}
               nameLabel="Property"
               caption="Return value properties table"
               hideRequired
+              hideDefault
               className="mb-6"
             />
           </React.Fragment>
@@ -85,6 +133,7 @@ export function ReferenceTable(props: ReferenceTableProps) {
           <div className="mb-6">
             <SectionHeading>Return value</SectionHeading>
             {data.returnValue.type}
+            {data.returnValue.detailedType && data.returnValue.detailedType}
           </div>
         )}
 
@@ -101,22 +150,66 @@ export function ReferenceTable(props: ReferenceTableProps) {
       <React.Fragment>
         {multiple && !hideDescription && data.description && data.description}
 
-        {Object.keys(data.parameters).length > 0 && (
+        {data.optionsProperties && (
           <React.Fragment>
             <SectionHeading>Parameters</SectionHeading>
-            <ParametersReferenceTable name={data.name} data={data.parameters} className="mb-6" />
+            <p className="mb-2 text-sm text-gray-600 dark:text-gray-400">
+              <code>
+                <span className="pl-en">{data.optionsTypeName}</span>
+              </code>
+            </p>
+            <ReferenceAccordion
+              name={data.name}
+              data={data.optionsProperties}
+              nameLabel="Prop"
+              caption="Parameter properties table"
+              hideDefault
+              className="mb-6"
+            />
           </React.Fragment>
         )}
+
+        {!data.optionsProperties && data.properties && Object.keys(data.properties).length > 0 && (
+          <React.Fragment>
+            <SectionHeading>Properties</SectionHeading>
+            <ReferenceAccordion
+              name={data.name}
+              data={data.properties}
+              nameLabel="Property"
+              caption="Properties table"
+              hideDefault
+              className="mb-6"
+            />
+          </React.Fragment>
+        )}
+
+        {!data.optionsProperties &&
+          !data.properties &&
+          data.parameters &&
+          Object.keys(data.parameters).length > 0 && (
+            <React.Fragment>
+              <SectionHeading>Parameters</SectionHeading>
+              <ParametersReferenceTable name={data.name} data={data.parameters} className="mb-6" />
+            </React.Fragment>
+          )}
 
         {data.returnValue && data.returnValue.kind === 'object' && (
           <React.Fragment>
             <SectionHeading>Return value</SectionHeading>
+            {data.returnValue.typeName && (
+              <p className="mb-2 text-sm text-gray-600 dark:text-gray-400">
+                <code>
+                  <span className="pl-en">{data.returnValue.typeName}</span>
+                </code>
+              </p>
+            )}
             <ReferenceAccordion
               name={data.name}
               data={data.returnValue.properties}
               nameLabel="Property"
               caption="Return value properties table"
               hideRequired
+              hideDefault
               className="mb-6"
             />
           </React.Fragment>
@@ -126,6 +219,7 @@ export function ReferenceTable(props: ReferenceTableProps) {
           <div className="mb-6">
             <SectionHeading>Return value</SectionHeading>
             {data.returnValue.type}
+            {data.returnValue.detailedType && data.returnValue.detailedType}
           </div>
         )}
 

@@ -24,6 +24,8 @@ interface Props extends React.ComponentPropsWithoutRef<any> {
   caption?: string;
   /** Hide the required indicator (red star) - useful for return values where "required" doesn't apply */
   hideRequired?: boolean;
+  /** Hide the default value column - useful for return values that don't have defaults */
+  hideDefault?: boolean;
 }
 
 export function ReferenceAccordion({
@@ -34,19 +36,25 @@ export function ReferenceAccordion({
   nameLabel = 'Prop',
   caption = 'Component props table',
   hideRequired = false,
+  hideDefault = false,
   ...props
 }: Props) {
   const captionId = `${partName}-caption`;
+
+  const triggerGridLayout = hideDefault ? TRIGGER_GRID_LAYOUT_NO_DEFAULT : TRIGGER_GRID_LAYOUT;
+  const panelGridLayout = hideDefault ? PANEL_GRID_LAYOUT_NO_DEFAULT : PANEL_GRID_LAYOUT;
 
   return (
     <Accordion.Root aria-describedby={captionId} {...props}>
       <span id={captionId} style={visuallyHidden} aria-hidden>
         {caption}
       </span>
-      <Accordion.HeaderRow className={clsx('grid', TRIGGER_GRID_LAYOUT)}>
+      <Accordion.HeaderRow className={clsx('grid', triggerGridLayout)}>
         <Accordion.HeaderCell>{nameLabel}</Accordion.HeaderCell>
         <Accordion.HeaderCell className="max-xs:hidden">Type</Accordion.HeaderCell>
-        <Accordion.HeaderCell className="max-md:hidden">Default</Accordion.HeaderCell>
+        {!hideDefault && (
+          <Accordion.HeaderCell className="max-md:hidden">Default</Accordion.HeaderCell>
+        )}
         <Accordion.HeaderCell className="max-md:hidden w-10" />
       </Accordion.HeaderRow>
       {Object.keys(data).map((name, index) => {
@@ -74,7 +82,7 @@ export function ReferenceAccordion({
               id={id}
               index={index}
               aria-label={`${nameLabel}: ${name},${!hideRequired && prop.required ? ' required,' : ''} type: ${shortTypeText} ${defaultText !== undefined ? `(default: ${defaultText})` : ''}`}
-              className={clsx('min-h-min scroll-mt-12 p-0 md:scroll-mt-0', TRIGGER_GRID_LAYOUT)}
+              className={clsx('min-h-min scroll-mt-12 p-0 md:scroll-mt-0', triggerGridLayout)}
             >
               <Accordion.Scrollable className="px-3">
                 <TableCode className="text-navy whitespace-nowrap">
@@ -102,13 +110,15 @@ export function ReferenceAccordion({
                   )}
                 </Accordion.Scrollable>
               )}
-              <Accordion.Scrollable className="max-md:hidden break-keep whitespace-nowrap px-3">
-                {prop.required || prop.default === undefined ? (
-                  <TableCode className="text-(--syntax-nullish)">—</TableCode>
-                ) : (
-                  <TableDefault>{prop.default}</TableDefault>
-                )}
-              </Accordion.Scrollable>
+              {!hideDefault && (
+                <Accordion.Scrollable className="max-md:hidden break-keep whitespace-nowrap px-3">
+                  {prop.required || prop.default === undefined ? (
+                    <TableCode className="text-(--syntax-nullish)">—</TableCode>
+                  ) : (
+                    <TableDefault>{prop.default}</TableDefault>
+                  )}
+                </Accordion.Scrollable>
+              )}
               <span className="flex justify-center max-xs:ml-auto max-xs:mr-3">
                 <svg
                   className="AccordionIcon translate-y-px"
@@ -125,7 +135,7 @@ export function ReferenceAccordion({
             <Accordion.Panel>
               <Accordion.Content>
                 <DescriptionList.Root
-                  className={clsx('text-gray-600 max-xs:py-3', PANEL_GRID_LAYOUT)}
+                  className={clsx('text-gray-600 max-xs:py-3', panelGridLayout)}
                   aria-label="Info"
                 >
                   <DescriptionList.Item>
@@ -150,7 +160,7 @@ export function ReferenceAccordion({
                     <DescriptionList.Term separator>Type</DescriptionList.Term>
                     <DescriptionList.Details>{displayDetailedType}</DescriptionList.Details>
                   </DescriptionList.Item>
-                  {prop.default !== undefined && (
+                  {!hideDefault && prop.default !== undefined && (
                     <DescriptionList.Item>
                       <DescriptionList.Term separator>Default</DescriptionList.Term>
                       <DescriptionList.Details>{prop.default}</DescriptionList.Details>
@@ -181,10 +191,23 @@ const TRIGGER_GRID_LAYOUT =
   'sm:grid-cols-[theme(spacing.56)_1fr_theme(spacing.10)] ' +
   'md:grid-cols-[5fr_7fr_4.5fr_theme(spacing.10)] ';
 
+const TRIGGER_GRID_LAYOUT_NO_DEFAULT =
+  'xs:grid ' +
+  'xs:grid-cols-[theme(spacing.48)_1fr_theme(spacing.10)] ' +
+  'sm:grid-cols-[theme(spacing.56)_1fr_theme(spacing.10)] ' +
+  'md:grid-cols-[5fr_11.5fr_theme(spacing.10)] ';
+
 const PANEL_GRID_LAYOUT =
   'max-xs:flex max-xs:flex-col ' +
   'min-xs:gap-0 ' +
   'xs:grid-cols-[theme(spacing.48)_1fr_theme(spacing.10)] ' +
   'sm:grid-cols-[theme(spacing.56)_1fr_theme(spacing.10)] ' +
   // 5fr+11.5fr aligns with 5fr+7fr+4.5fr above
+  'md:grid-cols-[5fr_11.5fr_theme(spacing.10)] ';
+
+const PANEL_GRID_LAYOUT_NO_DEFAULT =
+  'max-xs:flex max-xs:flex-col ' +
+  'min-xs:gap-0 ' +
+  'xs:grid-cols-[theme(spacing.48)_1fr_theme(spacing.10)] ' +
+  'sm:grid-cols-[theme(spacing.56)_1fr_theme(spacing.10)] ' +
   'md:grid-cols-[5fr_11.5fr_theme(spacing.10)] ';

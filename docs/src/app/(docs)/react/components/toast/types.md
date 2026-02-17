@@ -432,13 +432,9 @@ Creates a new toast manager.
 
 **Return Value:**
 
-| Property     | Type                                                              | Description |
-| :----------- | :---------------------------------------------------------------- | :---------- |
-| ` subscribe` | `((listener: ((data: ToastManagerEvent) => void)) => (() => v...` | -           |
-| `add`        | `((options: ToastManagerAddOptions<{}>) => string)`               | -           |
-| `close`      | `((id: string) => void)`                                          | -           |
-| `update`     | `((id: string, updates: ToastManagerUpdateOptions<{}>) => voi...` | -           |
-| `promise`    | `((promiseValue: Promise<Value>, options: ToastManagerPromise...` | -           |
+```tsx
+type ReturnValue = ToastManager<{}>;
+```
 
 ### useToastManager
 
@@ -446,13 +442,9 @@ Returns the array of toasts and methods to manage them.
 
 **Return Value:**
 
-| Property  | Type                                                              | Description |
-| :-------- | :---------------------------------------------------------------- | :---------- |
-| `toasts`  | `ToastManagerAddOptions<{}>[]`                                    | -           |
-| `add`     | `((options: ToastManagerAddOptions<{}>) => string)`               | -           |
-| `close`   | `((toastId: string) => void)`                                     | -           |
-| `update`  | `((toastId: string, options: ToastManagerUpdateOptions<{}>) =...` | -           |
-| `promise` | `((promise: Promise<Value>, options: ToastManagerPromiseOptio...` | -           |
+```tsx
+type ReturnValue = UseToastManagerReturnValue<{}>;
+```
 
 ## Additional Types
 
