@@ -7,6 +7,10 @@ import { TemporalAdapterContext } from '../temporal-adapter-provider/TemporalAda
 
 /**
  * Defines the temporal locale provider for Base UI temporal components.
+ *
+ * Doesn't render its own HTML element.
+ *
+ * Documentation: [Base UI Localization Provider](https://base-ui.com/react/utils/unstable-localization-provider)
  */
 export const LocalizationProvider: React.FC<LocalizationProvider.Props> =
   function LocalizationProvider(props: LocalizationProvider.Props) {
