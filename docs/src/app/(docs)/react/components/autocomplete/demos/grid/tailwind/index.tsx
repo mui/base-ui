@@ -35,7 +35,7 @@ export default function ExampleEmojiPicker() {
         <input
           ref={textInputRef}
           type="text"
-          className="h-10 flex-1 font-normal rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+          className="h-10 flex-1 font-normal rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
           placeholder="iMessage"
           value={textValue}
           onChange={(event) => setTextValue(event.target.value)}
@@ -55,18 +55,18 @@ export default function ExampleEmojiPicker() {
           }}
         >
           <Autocomplete.Trigger
-            className="size-10 rounded-md border border-gray-200 bg-[canvas] text-[1.25rem] text-gray-900 outline-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100"
+            className="size-10 rounded-md border border-gray-200 bg-[canvas] text-[1.25rem] text-gray-900 outline-hidden hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100"
             aria-label="Choose emoji"
           >
             😀
           </Autocomplete.Trigger>
           <Autocomplete.Portal>
-            <Autocomplete.Positioner className="outline-none" sideOffset={4} align="end">
+            <Autocomplete.Positioner className="outline-hidden" sideOffset={4} align="end">
               <Autocomplete.Popup className="[--input-container-height:3rem] max-w-[var(--available-width)] max-h-[20.5rem] origin-[var(--transform-origin)] rounded-lg bg-[canvas] shadow-lg shadow-gray-200 text-gray-900 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
                 <div className="mx-1 flex h-[var(--input-container-height)] w-64 items-center justify-center bg-[canvas] text-center">
                   <Autocomplete.Input
                     placeholder="Search emojis…"
-                    className="h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+                    className="h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
                   />
                 </div>
                 <Autocomplete.Empty className="px-4 pb-4 pt-2 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0">
@@ -85,7 +85,7 @@ export default function ExampleEmojiPicker() {
                               <Autocomplete.Item
                                 key={rowItem.emoji}
                                 value={rowItem}
-                                className="group min-w-[var(--anchor-width)] select-none flex h-10 flex-col items-center justify-center rounded-md bg-transparent px-0.5 py-2 text-gray-900 outline-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-md data-[highlighted]:before:bg-gray-200"
+                                className="group min-w-[var(--anchor-width)] select-none flex h-10 flex-col items-center justify-center rounded-md bg-transparent px-0.5 py-2 text-gray-900 outline-hidden data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-md data-[highlighted]:before:bg-gray-200"
                                 onClick={() => {
                                   handleInsertEmoji(rowItem.emoji);
                                   setPickerOpen(false);

@@ -14,6 +14,7 @@ import { visit } from 'unist-util-visit';
 import { processReference } from './referenceProcessor.mjs';
 import { processDemo } from './demoProcessor.mjs';
 import { processPropsReferenceTable } from './propsReferenceTableProcessor.mjs';
+import { processReleaseTimeline } from './releaseTimelineProcessor.mjs';
 import * as mdx from './mdxNodeHelpers.mjs';
 import { resolveMdLinks } from './resolver.mjs';
 
@@ -89,6 +90,10 @@ function transformJsx() {
                   parent,
                   importPath,
                 });
+              } else {
+                // Remove non-demo imports (e.g., component imports used only in JSX)
+                parent.children.splice(index, 1);
+                return [visit.SKIP, index];
               }
               return visit.CONTINUE;
             }
@@ -141,9 +146,9 @@ function transformJsx() {
           }
 
           case 'ReleaseTimeline': {
-            // Remove the ReleaseTimeline component from LLM output
-            parent.children.splice(index, 1);
-            return [visit.SKIP, index];
+            const releaseNodes = processReleaseTimeline();
+            parent.children.splice(index, 1, ...releaseNodes);
+            return visit.CONTINUE;
           }
 
           case 'Meta': {

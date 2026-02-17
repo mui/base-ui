@@ -9,7 +9,7 @@ export default function ExampleTooltip() {
           <Tooltip.Trigger
             className="
               flex size-8 items-center justify-center
-              border-0 rounded-sm
+              border-0 rounded-xs
               bg-transparent
               text-gray-900
               select-none
@@ -59,7 +59,7 @@ export default function ExampleTooltip() {
           <Tooltip.Trigger
             className="
               flex size-8 items-center justify-center
-              border-0 rounded-sm
+              border-0 rounded-xs
               bg-transparent
               text-gray-900
               select-none
@@ -109,7 +109,7 @@ export default function ExampleTooltip() {
           <Tooltip.Trigger
             className="
               flex size-8 items-center justify-center
-              border-0 rounded-sm
+              border-0 rounded-xs
               bg-transparent
               text-gray-900
               select-none

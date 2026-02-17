@@ -434,7 +434,7 @@ describe('<Slider.Thumb />', () => {
         expect(computedStyles.thumb2.getPropertyValue('left')).to.equal('700px');
       });
 
-      describe('thumbCollisionBehavior', () => {
+      describe('prop: thumbCollisionBehavior', () => {
         function getSliderValues() {
           return screen
             .getAllByRole('slider')

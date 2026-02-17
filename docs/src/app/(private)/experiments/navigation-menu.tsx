@@ -108,7 +108,7 @@ export default function ExampleNavigationMenu() {
             </NavigationMenu.Trigger>
             <NavigationMenu.Content className={styles.Content}>
               <Collapsible.Root className="flex w-56 flex-col justify-center text-gray-900">
-                <Collapsible.Trigger className="group flex items-center gap-2 rounded-sm bg-gray-100 px-2 py-1 text-sm font-medium hover:bg-gray-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800 active:bg-gray-200">
+                <Collapsible.Trigger className="group flex items-center gap-2 rounded-sm bg-gray-100 px-2 py-1 text-sm font-medium hover:bg-gray-200 focus-visible:outline-2 focus-visible:outline-blue-800 active:bg-gray-200">
                   Recovery keys
                 </Collapsible.Trigger>
                 <Collapsible.Panel className="flex h-[var(--collapsible-panel-height)] flex-col justify-end overflow-hidden text-sm transition-all ease-out data-[ending-style]:h-0 data-[starting-style]:h-0">
