@@ -46,7 +46,7 @@ describe.skipIf(!isJSDOM)('useHover', () => {
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
 
-  describe('delay', () => {
+  describe('prop: delay', () => {
     test('symmetric number', async () => {
       render(<App delay={1000} />);
 
@@ -181,17 +181,6 @@ describe.skipIf(!isJSDOM)('useHover', () => {
     await waitFor(() => {
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
     });
-  });
-
-  test('restMs does not cause floating element to open if mouseOnly is true', async () => {
-    render(<App restMs={100} mouseOnly />);
-
-    fireEvent.pointerDown(screen.getByRole('button'), { pointerType: 'touch' });
-    fireEvent.mouseMove(screen.getByRole('button'));
-
-    await flushMicrotasks();
-
-    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
 
   test('restMs does not reset timer for minor mouse movement', async () => {

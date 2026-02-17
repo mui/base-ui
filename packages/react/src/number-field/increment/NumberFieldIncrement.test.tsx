@@ -331,6 +331,22 @@ describe('<NumberField.Increment />', () => {
     expect(input).to.have.value('101');
   });
 
+  it('treats pen pointer as touch-like', async () => {
+    await render(
+      <NumberField.Root defaultValue={0}>
+        <NumberField.Increment />
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const button = screen.getByRole('button');
+    const input = screen.getByRole('textbox');
+
+    fireEvent.pointerDown(button, { pointerType: 'pen', button: 0 });
+
+    expect(document.activeElement).not.to.equal(input);
+  });
+
   it('always increments on quick touch (touchend that occurs before TOUCH_TIMEOUT)', async () => {
     await render(
       <NumberField.Root defaultValue={0}>
@@ -483,7 +499,7 @@ describe('<NumberField.Increment />', () => {
       expect(input).to.have.value('0');
     });
 
-    describe('should be provided to className prop as a fn argument', () => {
+    describe('prop: className', () => {
       it('when root is disabled', async () => {
         const classNameSpy = spy();
         await render(

@@ -55,6 +55,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     defaultOpen = false,
     onOpenChange,
     name: nameProp,
+    autoComplete,
     disabled: disabledProp = false,
     readOnly = false,
     required = false,
@@ -566,6 +567,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
             },
           })}
           name={multiple ? undefined : name}
+          autoComplete={autoComplete}
           value={serializedValue}
           disabled={disabled}
           required={required && !hasMultipleSelection}
@@ -595,6 +597,11 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    * Identifies the field when a form is submitted.
    */
   name?: string | undefined;
+  /**
+   * Provides a hint to the browser for autofill.
+   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/autocomplete
+   */
+  autoComplete?: string | undefined;
   /**
    * The id of the Select.
    */
@@ -673,7 +680,8 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    * ```
    */
   items?:
-    | (Record<string, React.ReactNode> | ReadonlyArray<{ label: React.ReactNode; value: any }>)
+    | Record<string, React.ReactNode>
+    | ReadonlyArray<{ label: React.ReactNode; value: any }>
     | undefined;
   /**
    * When the item values are objects (`<Select.Item value={object}>`), this function converts the object value to a string representation for display in the trigger.
@@ -695,11 +703,11 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    *
    * To render a controlled select, use the `value` prop instead.
    */
-  defaultValue?: (SelectValueType<Value, Multiple> | null) | undefined;
+  defaultValue?: SelectValueType<Value, Multiple> | null | undefined;
   /**
    * The value of the select. Use when controlled.
    */
-  value?: (SelectValueType<Value, Multiple> | null) | undefined;
+  value?: SelectValueType<Value, Multiple> | null | undefined;
   /**
    * Event handler called when the value of the select changes.
    */

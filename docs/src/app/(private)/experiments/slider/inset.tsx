@@ -25,7 +25,7 @@ function InsetSlider(props: Slider.Root.Props) {
           />
 
           {!range && (
-            <Slider.Thumb className="z-[1] h-[calc(var(--thumb-radius)*2)] w-[calc(var(--thumb-radius)*2)] rounded-full bg-white shadow-[0_0_3px_0_var(--color-gray-500)] select-none has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-[var(--color-blue)] data-[dragging]:shadow-[0_0_2px_1px_var(--color-gray-500)]" />
+            <Slider.Thumb className="z-[1] h-[calc(var(--thumb-radius)*2)] w-[calc(var(--thumb-radius)*2)] rounded-full bg-white shadow-[0_0_3px_0_var(--color-gray-500)] select-none has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-[var(--color-blue)] data-[dragging]:shadow-[0_0_2px_1px_var(--color-gray-500)]" />
           )}
 
           {range &&
@@ -34,7 +34,7 @@ function InsetSlider(props: Slider.Root.Props) {
                 <Slider.Thumb
                   key={`${prefix}${i}`}
                   index={i}
-                  className="z-[1] h-[calc(var(--thumb-radius)*2)] w-[calc(var(--thumb-radius)*2)] rounded-full bg-white shadow-[0_0_3px_0_var(--color-gray-500)] select-none has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-[var(--color-blue)] data-[dragging]:shadow-[0_0_2px_1px_var(--color-gray-500)]"
+                  className="z-[1] h-[calc(var(--thumb-radius)*2)] w-[calc(var(--thumb-radius)*2)] rounded-full bg-white shadow-[0_0_3px_0_var(--color-gray-500)] select-none has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-[var(--color-blue)] data-[dragging]:shadow-[0_0_2px_1px_var(--color-gray-500)]"
                 />
               );
             })}
@@ -73,7 +73,7 @@ function DemoSlider(props: Slider.Root.Props & { wide?: boolean }) {
           />
 
           {!range && (
-            <Slider.Thumb className="z-[1] h-[calc(var(--thumb-radius)*2)] w-[calc(var(--thumb-radius)*2)] rounded-full bg-[var(--indicator-bg)] select-none has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--base-color)] data-[dragging]:bg-[var(--dragging-color)] data-[dragging]:shadow-[0_0_0_1px_var(--dragging-color)]" />
+            <Slider.Thumb className="z-[1] h-[calc(var(--thumb-radius)*2)] w-[calc(var(--thumb-radius)*2)] rounded-full bg-[var(--indicator-bg)] select-none has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--base-color)] data-[dragging]:bg-[var(--dragging-color)] data-[dragging]:shadow-[0_0_0_1px_var(--dragging-color)]" />
           )}
 
           {range &&
@@ -82,7 +82,7 @@ function DemoSlider(props: Slider.Root.Props & { wide?: boolean }) {
                 <Slider.Thumb
                   key={`${prefix}${i}`}
                   index={i}
-                  className="z-[1] h-[calc(var(--thumb-radius)*2)] w-[calc(var(--thumb-radius)*2)] rounded-full bg-[var(--indicator-bg)] select-none has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--base-color)] data-[dragging]:bg-[var(--dragging-color)] data-[dragging]:shadow-[0_0_0_1px_var(--dragging-color)]"
+                  className="z-[1] h-[calc(var(--thumb-radius)*2)] w-[calc(var(--thumb-radius)*2)] rounded-full bg-[var(--indicator-bg)] select-none has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--base-color)] data-[dragging]:bg-[var(--dragging-color)] data-[dragging]:shadow-[0_0_0_1px_var(--dragging-color)]"
                 />
               );
             })}

@@ -1,8 +1,9 @@
-import { fireEvent, screen } from '@mui/internal-test-utils';
+import * as React from 'react';
+import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Field.Error />', () => {
   const { render } = createRenderer();
@@ -111,6 +112,123 @@ describe('<Field.Error />', () => {
       );
 
       expect(screen.queryByText('Message')).not.to.equal(null);
+    });
+  });
+
+  describe.skipIf(isJSDOM)('animations', () => {
+    afterEach(() => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+    });
+
+    it('triggers enter animation via data-starting-style when mounting', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      let transitionFinished = false;
+      function notifyTransitionFinished() {
+        transitionFinished = true;
+      }
+
+      const style = `
+        .animation-test-error {
+          transition: opacity 1ms;
+        }
+
+        .animation-test-error[data-starting-style],
+        .animation-test-error[data-ending-style] {
+          opacity: 0;
+        }
+      `;
+
+      function Test() {
+        const [showError, setShowError] = React.useState(false);
+
+        function handleShowError() {
+          setShowError(true);
+        }
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={handleShowError}>Show</button>
+            <Field.Root>
+              <Field.Control required />
+              <Field.Error
+                className="animation-test-error"
+                data-testid="error"
+                match={showError}
+                onTransitionEnd={notifyTransitionFinished}
+              >
+                Message
+              </Field.Error>
+            </Field.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      expect(screen.queryByTestId('error')).to.equal(null);
+
+      await user.click(screen.getByText('Show'));
+
+      await waitFor(() => {
+        expect(transitionFinished).to.equal(true);
+      });
+
+      expect(screen.getByTestId('error')).not.to.equal(null);
+    });
+
+    it('applies data-ending-style before unmount', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const style = `
+        @keyframes test-anim {
+          to {
+            opacity: 0;
+          }
+        }
+
+        .animation-test-error[data-ending-style] {
+          animation: test-anim 1ms;
+        }
+      `;
+
+      function Test() {
+        const [showError, setShowError] = React.useState(true);
+
+        function handleHideError() {
+          setShowError(false);
+        }
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={handleHideError}>Hide</button>
+            <Field.Root>
+              <Field.Control required />
+              <Field.Error className="animation-test-error" data-testid="error" match={showError}>
+                Message
+              </Field.Error>
+            </Field.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      expect(screen.getByTestId('error')).not.to.equal(null);
+
+      await user.click(screen.getByText('Hide'));
+
+      await waitFor(() => {
+        const error = screen.queryByTestId('error');
+        expect(error).not.to.equal(null);
+        expect(error).to.have.attribute('data-ending-style');
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('error')).to.equal(null);
+      });
     });
   });
 });

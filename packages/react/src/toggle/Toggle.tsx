@@ -2,6 +2,8 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useControlled } from '@base-ui/utils/useControlled';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { error } from '@base-ui/utils/error';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { useRenderElement } from '../utils/useRenderElement';
 import type { NativeButtonComponentProps } from '../utils/types';
@@ -20,8 +22,8 @@ import { REASONS } from '../utils/reasons';
  *
  * Documentation: [Base UI Toggle](https://base-ui.com/react/components/toggle)
  */
-export const Toggle = React.forwardRef(function Toggle(
-  componentProps: Toggle.Props,
+export const Toggle = React.forwardRef(function Toggle<Value extends string>(
+  componentProps: Toggle.Props<Value>,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
@@ -46,6 +48,19 @@ export const Toggle = React.forwardRef(function Toggle(
   const defaultPressed = groupContext ? undefined : defaultPressedProp;
 
   const disabled = (disabledProp || groupContext?.disabled) ?? false;
+
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useIsoLayoutEffect(() => {
+      if (groupContext && valueProp === undefined && groupContext.isValueInitialized) {
+        error(
+          'A `<Toggle>` component rendered in a `<ToggleGroup>` has no explicit `value` prop.',
+          'This will cause issues between the Toggle Group and Toggle values.',
+          'Provide the `<Toggle>` with a `value` prop matching the `<ToggleGroup>` values prop type.',
+        );
+      }
+    }, [groupContext, valueProp, groupContext?.isValueInitialized]);
+  }
 
   const [pressed, setPressedState] = useControlled({
     controlled: groupContext ? value !== undefined && groupValue.indexOf(value) > -1 : pressedProp,
@@ -129,6 +144,7 @@ export interface ToggleState {
 }
 
 export type ToggleProps<
+  TValue extends string,
   TNativeButton extends boolean,
   TElement extends React.ElementType,
 > = NativeButtonComponentProps<TNativeButton, TElement, Toggle.State> & {
@@ -158,7 +174,7 @@ export type ToggleProps<
    * A unique string that identifies the toggle when used
    * inside a toggle group.
    */
-  value?: string | undefined;
+  value?: TValue | undefined;
 };
 
 export type ToggleChangeEventReason = typeof REASONS.none;
@@ -168,16 +184,20 @@ export type ToggleChangeEventDetails = BaseUIChangeEventDetails<Toggle.ChangeEve
 export namespace Toggle {
   export type State = ToggleState;
   export type Props<
+    TValue extends string = string,
     TNativeButton extends boolean = true,
     TElement extends React.ElementType = 'button',
-  > = ToggleProps<TNativeButton, TElement>;
+  > = ToggleProps<TValue, TNativeButton, TElement>;
   export type ChangeEventReason = ToggleChangeEventReason;
   export type ChangeEventDetails = ToggleChangeEventDetails;
 }
 
 type ToggleComponent = <
+  TValue extends string = string,
   TNativeButton extends boolean = true,
   TElement extends React.ElementType = 'button',
 >(
-  props: Toggle.Props<TNativeButton, TElement> & { ref?: React.Ref<HTMLButtonElement> | undefined },
+  props: Toggle.Props<TValue, TNativeButton, TElement> & {
+    ref?: React.Ref<HTMLButtonElement> | undefined;
+  },
 ) => React.ReactElement | null;
