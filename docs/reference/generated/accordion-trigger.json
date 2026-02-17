@@ -2,6 +2,12 @@
   "name": "AccordionTrigger",
   "description": "A button that opens and closes the corresponding panel.\nRenders a `<button>` element.",
   "props": {
+    "focusableWhenDisabled": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether the button should be focusable when disabled.",
+      "detailedType": "boolean | undefined"
+    },
     "nativeButton": {
       "type": "boolean",
       "default": "true",

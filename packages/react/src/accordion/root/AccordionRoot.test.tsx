@@ -241,6 +241,59 @@ describe('<Accordion.Root />', () => {
         expect(element).to.not.have.attribute('data-disabled');
       });
     });
+
+    describe('prop: focusableWhenDisabled', () => {
+      it('disabled trigger is focusable by default', async () => {
+        const { user } = await render(
+          <Accordion.Root>
+            <Accordion.Item disabled>
+              <Accordion.Header>
+                <Accordion.Trigger>Trigger 1</Accordion.Trigger>
+              </Accordion.Header>
+              <Accordion.Panel />
+            </Accordion.Item>
+            <Accordion.Item>
+              <Accordion.Header>
+                <Accordion.Trigger>Trigger 2</Accordion.Trigger>
+              </Accordion.Header>
+              <Accordion.Panel />
+            </Accordion.Item>
+          </Accordion.Root>,
+        );
+
+        const [trigger1, trigger2] = screen.getAllByRole('button');
+
+        await user.tab();
+        expect(trigger1).toHaveFocus();
+
+        await user.tab();
+        expect(trigger2).toHaveFocus();
+      });
+
+      it('when false disabled triggers are not focusable', async () => {
+        const { user } = await render(
+          <Accordion.Root>
+            <Accordion.Item disabled>
+              <Accordion.Header>
+                <Accordion.Trigger focusableWhenDisabled={false}>Trigger 1</Accordion.Trigger>
+              </Accordion.Header>
+              <Accordion.Panel />
+            </Accordion.Item>
+            <Accordion.Item>
+              <Accordion.Header>
+                <Accordion.Trigger focusableWhenDisabled={false}>Trigger 2</Accordion.Trigger>
+              </Accordion.Header>
+              <Accordion.Panel />
+            </Accordion.Item>
+          </Accordion.Root>,
+        );
+
+        const [, trigger2] = screen.getAllByRole('button');
+
+        await user.tab();
+        expect(trigger2).toHaveFocus();
+      });
+    });
   });
 
   describe.skipIf(isJSDOM)('keyboard interactions', () => {

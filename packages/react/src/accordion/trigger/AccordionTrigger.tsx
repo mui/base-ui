@@ -54,6 +54,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
   const {
     disabled: disabledProp,
     className,
+    focusableWhenDisabled = true,
     id: idProp,
     render,
     nativeButton = true,
@@ -66,7 +67,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
-    focusableWhenDisabled: true,
+    focusableWhenDisabled,
     native: nativeButton,
   });
 
@@ -182,7 +183,13 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
 });
 
 export interface AccordionTriggerProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', AccordionItem.State> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', AccordionItem.State> {
+  /**
+   * Whether the button should be focusable when disabled.
+   * @default true
+   */
+  focusableWhenDisabled?: boolean | undefined;
+}
 
 export namespace AccordionTrigger {
   export type Props = AccordionTriggerProps;
