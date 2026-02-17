@@ -61,7 +61,7 @@ export interface ToastObject<Data extends object> {
    * - `high` - The toast will be announced urgently.
    * @default 'low'
    */
-  priority?: ('low' | 'high') | undefined;
+  priority?: 'low' | 'high' | undefined;
   /**
    * The transition status of the toast.
    */
@@ -103,7 +103,7 @@ export interface ToastManagerPositionerProps extends Omit<
   /**
    * An element to position the toast against.
    */
-  anchor?: (Element | null) | undefined;
+  anchor?: Element | null | undefined;
 }
 
 export interface UseToastManagerReturnValue<Data extends object = any> {

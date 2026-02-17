@@ -52,10 +52,11 @@ import {
   isGroupedItems,
 } from '../../utils/resolveValueLabel';
 import {
+  compareItemEquality,
   defaultItemEquality,
   findItemIndex,
-  itemIncludes,
   removeItem,
+  selectedValueIncludes,
 } from '../../utils/itemEquality';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
 
@@ -460,9 +461,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const setIndices = useStableCallback(
     (options: {
-      activeIndex?: (number | null) | undefined;
-      selectedIndex?: (number | null) | undefined;
-      type?: ('none' | 'keyboard' | 'pointer') | undefined;
+      activeIndex?: number | null | undefined;
+      selectedIndex?: number | null | undefined;
+      type?: 'none' | 'keyboard' | 'pointer' | undefined;
     }) => {
       store.update(options);
       const type: AriaCombobox.HighlightEventReason = options.type || 'none';
@@ -628,12 +629,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const handleSelection = useStableCallback(
     (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => {
-      let value = passedValue;
-      if (value === undefined) {
+      let itemValue = passedValue;
+      if (itemValue === undefined) {
         if (activeIndex === null) {
           return;
         }
-        value = valuesRef.current[activeIndex];
+        itemValue = valuesRef.current[activeIndex];
       }
 
       const targetEl = getTarget(event) as HTMLElement | null;
@@ -652,14 +653,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
       if (multiple) {
         const currentSelectedValue = Array.isArray(selectedValue) ? selectedValue : [];
-        const isCurrentlySelected = itemIncludes(
+        const isCurrentlySelected = selectedValueIncludes(
           currentSelectedValue,
-          value,
+          itemValue,
           store.state.isItemEqualToValue,
         );
         const nextValue = isCurrentlySelected
-          ? removeItem(currentSelectedValue, value, store.state.isItemEqualToValue)
-          : [...currentSelectedValue, value];
+          ? removeItem(currentSelectedValue, itemValue, store.state.isItemEqualToValue)
+          : [...currentSelectedValue, itemValue];
 
         setSelectedValue(nextValue, eventDetails);
 
@@ -674,7 +675,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           setOpen(false, eventDetails);
         }
       } else {
-        setSelectedValue(value, eventDetails);
+        setSelectedValue(itemValue, eventDetails);
         setOpen(false, eventDetails);
       }
     },
@@ -844,16 +845,20 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       return;
     }
 
-    const nextActiveValue = candidateItems[storeActiveIndex];
-    const lastHighlightedValue = lastHighlightRef.current.value;
+    const itemValue = candidateItems[storeActiveIndex];
+    const previouslyHighlightedItemValue = lastHighlightRef.current.value;
     const isSameItem =
-      lastHighlightedValue !== NO_ACTIVE_VALUE &&
-      store.state.isItemEqualToValue(nextActiveValue, lastHighlightedValue);
+      previouslyHighlightedItemValue !== NO_ACTIVE_VALUE &&
+      compareItemEquality(
+        itemValue,
+        previouslyHighlightedItemValue,
+        store.state.isItemEqualToValue,
+      );
 
     if (lastHighlightRef.current.index !== storeActiveIndex || !isSameItem) {
-      lastHighlightRef.current = { value: nextActiveValue, index: storeActiveIndex };
+      lastHighlightRef.current = { value: itemValue, index: storeActiveIndex };
       store.state.onItemHighlighted(
-        nextActiveValue,
+        itemValue,
         createGenericEventDetails(REASONS.none, undefined, { index: storeActiveIndex }),
       );
     }
@@ -1152,10 +1157,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const itemsContextValue: ComboboxDerivedItemsContext = React.useMemo(
     () => ({
       query,
+      hasItems,
       filteredItems,
       flatFilteredItems,
     }),
-    [query, filteredItems, flatFilteredItems],
+    [query, hasItems, filteredItems, flatFilteredItems],
   );
 
   const serializedValue = React.useMemo(() => {
@@ -1345,7 +1351,7 @@ interface ComboboxRootProps<ItemValue> {
    * - `'always'`: highlight the first item as soon as the list opens.
    * @default false
    */
-  autoHighlight?: (boolean | 'always') | undefined;
+  autoHighlight?: boolean | 'always' | undefined;
   /**
    * Whether the highlighted item should be preserved when the pointer leaves the list.
    * @default false
@@ -1412,25 +1418,23 @@ interface ComboboxRootProps<ItemValue> {
    * The items to be displayed in the list.
    * Can be either a flat array of items or an array of groups with items.
    */
-  items?: (readonly any[] | readonly Group<any>[]) | undefined;
+  items?: readonly any[] | readonly Group<any>[] | undefined;
   /**
    * Filtered items to display in the list.
    * When provided, the list will use these items instead of filtering the `items` prop internally.
    * Use when you want to control filtering logic externally with the `useFilter()` hook.
    */
-  filteredItems?: (readonly any[] | readonly Group<any>[]) | undefined;
+  filteredItems?: readonly any[] | readonly Group<any>[] | undefined;
   /**
    * Filter function used to match items vs input query.
    */
   filter?:
-    | (
-        | null
-        | ((
-            itemValue: ItemValue,
-            query: string,
-            itemToString?: (itemValue: ItemValue) => string,
-          ) => boolean)
-      )
+    | null
+    | ((
+        itemValue: ItemValue,
+        query: string,
+        itemToString?: (itemValue: ItemValue) => string,
+      ) => boolean)
     | undefined;
   /**
    * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.
@@ -1446,7 +1450,7 @@ interface ComboboxRootProps<ItemValue> {
    * Custom comparison logic used to determine if a combobox item value matches the current selected value. Useful when item values are objects without matching referentially.
    * Defaults to `Object.is` comparison.
    */
-  isItemEqualToValue?: ((itemValue: ItemValue, selectedValue: ItemValue) => boolean) | undefined;
+  isItemEqualToValue?: ((itemValue: ItemValue, value: ItemValue) => boolean) | undefined;
   /**
    * Whether the items are being externally virtualized.
    * @default false
@@ -1477,10 +1481,10 @@ interface ComboboxRootProps<ItemValue> {
    * - `none`: items are static (not filtered), and the input value will not change based on the active item.
    * @default 'list'
    */
-  autoComplete?: ('list' | 'both' | 'inline' | 'none') | undefined;
+  autoComplete?: 'list' | 'both' | 'inline' | 'none' | undefined;
   /**
    * Provides a hint to the browser for autofill on the hidden input element.
-   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete
+   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/autocomplete
    */
   formAutoComplete?: string | undefined;
   /**
@@ -1520,7 +1524,7 @@ export type AriaComboboxProps<
    *
    * To render a controlled combobox, use the `selectedValue` prop instead.
    */
-  defaultSelectedValue?: (ComboboxItemValueType<Value, Mode> | null) | undefined;
+  defaultSelectedValue?: ComboboxItemValueType<Value, Mode> | null | undefined;
   /**
    * Callback fired when the selected value of the combobox changes.
    */

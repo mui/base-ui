@@ -1,5 +1,178 @@
 # Versions
 
+## v1.2.0
+
+_Feb 12, 2026_
+
+### General changes
+
+- Do not memoize `state` when not needed (#3812) by @flaviendelangle
+- Support lazy element in `render` prop (#3856) by @oliviertassinari
+- Replace Firefox deprecated mozInputSource check for virtual click detection (#3942) by @CiscoFran10
+- Use `WeakRef` for previously focused elements (#3916) by @atomiks
+- Fix page scroll jump when input has focus on unmount in Safari (#3925) by @atomiks
+- Fix flash at origin before positioning completes in Preact (#3975) by @OliverSpeir
+- Reduce style recalculation with classic scrollbars (#3854) by @mdm317
+- Fix event handling in useEnhancedClickHandler (#3981) by @sai6855
+
+### Autocomplete
+
+- Fix filter method's `useMemo` dependency (#3862) by @ZeeshanTamboli
+- Fix Autocomplete not using its internal filter method when `mode` is `list` (#3936) by @ZeeshanTamboli
+- Remove unnecessary double stringification of item in filtering logic (#3945) by @ZeeshanTamboli
+- Add `useFilteredItems` hook (#3732) by @guisehn
+- Fix popup closing on iOS VoiceOver (#3859) by @atomiks
+- Remove `aria-readonly` prop from `Clear` and `Popup` components when `readOnly` (#3907) by @markocupic024
+
+### Avatar
+
+- Add transition attributes (#3939) by @atomiks
+
+### Button
+
+- Capture component stack for `nativeButton` error message (#3861) by @atomiks
+
+### Checkbox
+
+- Cleanup disabled state tracking (#3913) by @atomiks
+- Preserve modifier key properties in the change event (#3935) by @mj12albert
+- Allow exit animations on `<Checkbox.Indicator>` when `keepMounted={false}` (#3939) by @atomiks
+
+### Combobox
+
+- Fix the type of the ref of the `Icon` part (#3796) by @flaviendelangle
+- Avoid clearing selected value if item is not present in items array (#3824) by @atomiks
+- Fix highlight change reason in `ChipRemove` (#3980) by @sai6855
+- Keep highlight on last deselect (#3923) by @atomiks
+- Fix inline filtering after selection in single mode (#3978) by @atomiks
+- Clear highlight on inline blur when inline (#3973) by @atomiks
+- Prevent opening popup on autofill change (#3924) by @atomiks
+- Distinguish `input-press` from `trigger-press` in `onOpenChange` reason (#4015) by @jijiseong
+- Fix async items while popup is open (#4034) by @atomiks
+- Prevent `Chip` from receiving focus when `disabled` (#4044) by @jijiseong
+- Add `useFilteredItems` hook (#3732) by @guisehn
+- Fix popup closing on iOS VoiceOver (#3859) by @atomiks
+- Remove `aria-readonly` prop from `Clear` and `Popup` components when `readOnly` (#3907) by @markocupic024
+- Fix `onClick` `Item` type (#3964) by @atomiks
+- Use reactive `domReferenceElement` subscriptions (#4017) by @atomiks
+- Add `autoComplete` prop for explicit browser autofill support (#4005) by @mattrothenberg
+- Fix inconsistent isItemEqualToValue argument order (#4056) by @atomiks
+
+### Context Menu
+
+- Fix `disabled` prop not working (#3806) by @arturbien
+- Fix explicit `collisionAvoidance` with `side: 'flip'` not working (#3877) by @obeattie
+
+### Drawer
+
+- Create new Drawer / Sheet component (#3680) by @atomiks
+
+### Field
+
+- Prevent re-renders when `Field.Control` is uncontrolled (#3820) by @atomiks
+- Fix autofocus in SSR environments (#3871) by @mj12albert
+- Fix max update depth loop when using `<React.Activity>` (#3931) by @atomiks
+- Add transition attributes (#3939) by @atomiks
+
+### Input
+
+- Fix autofocus in SSR environments (#3871) by @mj12albert
+- Update ref type to `HTMLElement` (#3866) by @mj12albert
+
+### Menu
+
+- Fix `onClick` `Item` type (#3964) by @atomiks
+- Fix submenu stuck glitch (#3783) by @atomiks
+- Fix race conditions (#3821) by @atomiks
+- Add `<Menu.LinkItem>` part (#3400) by @mj12albert
+
+### Navigation Menu
+
+- Fix forwarded ref types (#3775) by @CrawlerCode
+- Add `keepMounted` prop to `Content` part (#3794) by @atomiks
+
+### Number Field
+
+- Fix click handlers on ScrubArea (#3827) by @mj12albert
+- Remove `event.isTrusted` (#3920) by @atomiks
+- Stop repeat change at bounds (#3915) by @atomiks
+- Add `allowOutOfRange` prop (#3919) by @atomiks
+- Fix pen pointer handling (#3917) by @atomiks
+- Fix missing field state data attributes (#3909) by @mj12albert
+
+### Popover
+
+- Fix missing `aria-owns` element (#3959) by @atomiks
+- Use reactive `domReferenceElement` subscriptions (#4017) by @atomiks
+- Fix broken scale transition with detached triggers (#3810) by @michaldudak
+
+### Preview Card
+
+- Fix broken scale transition with detached triggers (#3810) by @michaldudak
+
+### Progress
+
+- De-duplicate `formatValue` function (#3805) by @sai6855
+
+### Radio Group
+
+- Preserve modifier key properties in the change event (#3935) by @mj12albert
+- Allow exit animations on `<Radio.Indicator>` when `keepMounted={false}` (#3939) by @atomiks
+- Rely on individual radio hidden inputs (#3826) by @atomiks
+- Add generic `Value` typing to `Radio` (#4033) by @atomiks
+
+### Scroll Area
+
+- Add `data-scrolling` state attribute to `Root` and `Viewport` parts (#3823) by @arturbien
+- Fix overflow edge rounding (#3888) by @atomiks
+
+### Select
+
+- Add `finalFocus` prop (#3785) by @markocupic024
+- Fix `alignItemWithTrigger` transform with CSS animations (#3831) by @atomiks
+- Fix `highlightItemOnHover` not being respected (#3868) by @sarthakmalik0810
+- Reset typeahead on external blur (#2618) by @antonfrolovsky
+- Fix scroll height loop (#3795) by @atomiks
+- Add `autoComplete` prop for explicit browser autofill support (#4005) by @mattrothenberg
+- Fix inconsistent isItemEqualToValue argument order (#4056) by @atomiks
+
+### Slider
+
+- Fix missing field state data attributes (#3909) by @mj12albert
+- Fix change event cloning (#3960) by @atomiks
+
+### Switch
+
+- Preserve modifier key properties in the change event (#3935) by @mj12albert
+
+### Tabs
+
+- Add transition attributes to `<Tabs.Panel>` part (#3880) by @atomiks
+
+### Toast
+
+- Make `useToastManager` and `createToastManager` generic functions (#3882) by @solastley
+- Prevent dismissed promise toast from reopening on updates (#4040) by @atomiks
+- Introduce a store (#3464) by @flaviendelangle
+
+### Toggle
+
+- Improve type safety and inference (#3173) by @michaelhazan
+
+### Toggle Group
+
+- Type value as string to match Toggle (#3770) by @markocupic024
+- Enable `Home`/`End` key navigation (#3971) by @jijiseong
+- Improve type safety and inference (#3173) by @michaelhazan
+
+### Tooltip
+
+- Prevent opening when focusing a disabled Trigger (#3902) by @michaldudak
+- Fix broken scale transition with detached triggers (#3810) by @michaldudak
+- Fix disabled prop on Triggers (#4049) by @michaldudak
+
+All contributors of this release in alphabetical order : @antonfrolovsky, @arturbien, @atomiks, @CiscoFran10, @CrawlerCode, @flaviendelangle, @guisehn, @jijiseong, @LukasTy, @markocupic024, @mattrothenberg, @mdm317, @michaelhazan, @michaldudak, @mj12albert, @obeattie, @OliverSpeir, @oliviertassinari, @sai6855, @sarthakmalik0810, @solastley, @ZeeshanTamboli
+
 ## v1.1.0
 
 _Jan 15, 2026_

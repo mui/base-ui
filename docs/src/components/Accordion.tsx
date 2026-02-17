@@ -2,6 +2,7 @@
 import * as React from 'react';
 import clsx from 'clsx';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
 import { observeScrollableInner } from '../utils/observeScrollableInner';
 
 const ARROW_UP = 'ArrowUp';
@@ -102,8 +103,18 @@ export function Trigger({
   );
 }
 
-export function Item(props: React.ComponentProps<'details'>) {
+export function Item({
+  gaCategory,
+  gaLabel,
+  gaParams,
+  ...props
+}: React.ComponentProps<'details'> & {
+  gaCategory?: string;
+  gaLabel?: string;
+  gaParams?: Record<string, string | number | boolean>;
+}) {
   const [open, setOpen] = React.useState<boolean>(false);
+  const ga = useGoogleAnalytics();
   // in Chrome, the <details> opens automatically when the hash part of a URL
   // matches the `id` on <summary> but needs to be manually handled for Safari
   // and Firefox
@@ -125,6 +136,18 @@ export function Item(props: React.ComponentProps<'details'>) {
       ref={handleRef}
       open={open || undefined}
       className={clsx('AccordionItem', props.className)}
+      onToggle={(event) => {
+        props.onToggle?.(event);
+        setOpen(event.currentTarget.open);
+        if (gaCategory && event.currentTarget.open && event.nativeEvent.isTrusted) {
+          ga?.trackEvent({
+            category: gaCategory,
+            action: 'expand',
+            label: gaLabel,
+            params: gaParams,
+          });
+        }
+      }}
     />
   );
 }

@@ -22,7 +22,7 @@ export function Trigger({ className, ...props }: NavigationMenu.Trigger.Props) {
         'px-2 xs:px-3.5 py-0.5 m-0 rounded-sm bg-gray-50 text-gray-900 font-medium',
         'text-base leading-6 select-none no-underline',
         'hover:bg-gray-100 active:bg-gray-100 data-[popup-open]:bg-gray-100',
-        'focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 focus-visible:relative',
+        'focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 focus-visible:relative',
         className,
       )}
       {...props}
@@ -64,7 +64,7 @@ export function Content({ className, ...props }: NavigationMenu.Content.Props) {
 
 const cardLinkStyles = [
   'block rounded-md p-2 xs:p-3 no-underline text-inherit',
-  'hover:bg-gray-100 focus-visible:relative focus-visible:outline focus-visible:outline-2',
+  'hover:bg-gray-100 focus-visible:relative focus-visible:outline-2',
   'focus-visible:-outline-offset-1 focus-visible:outline-blue-800',
 ];
 
@@ -73,7 +73,7 @@ const textLinkStyles = [
   'px-2 xs:px-3.5 py-0.5 m-0 rounded-sm bg-gray-50 text-gray-900 font-medium',
   'text-base leading-6 select-none no-underline',
   'hover:bg-gray-100 active:bg-gray-100 data-[popup-open]:bg-gray-100',
-  'focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 focus-visible:relative',
+  'focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 focus-visible:relative',
 ];
 
 export function Link({
@@ -129,7 +129,7 @@ export function Popup({ className, ...props }: NavigationMenu.Popup.Props) {
   return (
     <NavigationMenu.Popup
       className={clsx(
-        'data-[ending-style]:easing-[ease] relative h-[var(--popup-height)] origin-[var(--transform-origin)] rounded-lg bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[opacity,transform,width,height,scale,translate] duration-[var(--duration)] ease-[var(--easing)] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 w-[var(--popup-width)] xs:w-[var(--popup-width)] dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300',
+        'data-[ending-style]:easing-[ease] relative h-[var(--popup-height)] origin-[var(--transform-origin)] rounded-lg bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 transition-[opacity,transform,width,height,scale,translate] duration-[var(--duration)] ease-[var(--easing)] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 w-[var(--popup-width)] xs:w-[var(--popup-width)] dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300',
         className,
       )}
       {...props}

@@ -3,11 +3,12 @@ import * as React from 'react';
 import { getWindow, isElement, isHTMLElement } from '@floating-ui/utils/dom';
 import { isMac, isSafari } from '@base-ui/utils/detectBrowser';
 import { useTimeout } from '@base-ui/utils/useTimeout';
+import { ownerDocument } from '@base-ui/utils/owner';
 import {
   activeElement,
   contains,
-  getDocument,
   getTarget,
+  isTargetInsideEnabledTrigger,
   isTypeableElement,
   matchesFocusVisible,
 } from '../utils';
@@ -31,7 +32,7 @@ export interface UseFocusProps {
    * Waits for the specified time before opening.
    * @default undefined
    */
-  delay?: (number | (() => number | undefined)) | undefined;
+  delay?: number | (() => number | undefined) | undefined;
 }
 
 /**
@@ -70,7 +71,7 @@ export function useFocus(
       if (
         !store.select('open') &&
         isHTMLElement(currentDomReference) &&
-        currentDomReference === activeElement(getDocument(currentDomReference))
+        currentDomReference === activeElement(ownerDocument(currentDomReference))
       ) {
         blockFocusRef.current = true;
       }
@@ -153,15 +154,16 @@ export function useFocus(
           }
         }
 
-        const movedFromOtherTrigger =
-          event.relatedTarget &&
-          store.context.triggerElements.hasElement(event.relatedTarget as Element);
+        const movedFromOtherEnabledTrigger = isTargetInsideEnabledTrigger(
+          event.relatedTarget,
+          store.context.triggerElements,
+        );
 
         const { nativeEvent, currentTarget } = event;
         const delayValue = typeof delay === 'function' ? delay() : delay;
 
         if (
-          (store.select('open') && movedFromOtherTrigger) ||
+          (store.select('open') && movedFromOtherEnabledTrigger) ||
           delayValue === 0 ||
           delayValue === undefined
         ) {
@@ -233,14 +235,8 @@ export function useFocus(
           // the floating element. The focus handler of that trigger will
           // handle the open state.
           const nextFocusedElement = relatedTarget ?? activeEl;
-          if (isElement(nextFocusedElement)) {
-            const triggerElements = store.context.triggerElements;
-            if (
-              triggerElements.hasElement(nextFocusedElement) ||
-              triggerElements.hasMatchingElement((trigger) => contains(trigger, nextFocusedElement))
-            ) {
-              return;
-            }
+          if (isTargetInsideEnabledTrigger(nextFocusedElement, store.context.triggerElements)) {
+            return;
           }
 
           store.setOpen(false, createChangeEventDetails(REASONS.triggerFocus, nativeEvent));

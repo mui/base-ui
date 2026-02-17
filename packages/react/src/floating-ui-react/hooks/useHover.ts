@@ -5,7 +5,8 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { contains, getDocument, getTarget, isMouseLikePointerType } from '../utils';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { contains, getTarget, isMouseLikePointerType } from '../utils';
 
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import type {
@@ -31,7 +32,7 @@ function isInteractiveElement(element: Element | null) {
 
 export interface HandleCloseContext extends FloatingContext {
   onClose: () => void;
-  tree?: (FloatingTreeType | null) | undefined;
+  tree?: FloatingTreeType | null | undefined;
   leave?: boolean | undefined;
 }
 
@@ -77,19 +78,19 @@ export interface UseHoverProps {
    * floating element closes once the cursor leaves the reference element.
    * @default null
    */
-  handleClose?: (HandleClose | null) | undefined;
+  handleClose?: HandleClose | null | undefined;
   /**
    * Waits until the user’s cursor is at “rest” over the reference element
    * before changing the `open` state.
    * @default 0
    */
-  restMs?: (number | (() => number)) | undefined;
+  restMs?: number | (() => number) | undefined;
   /**
    * Waits for the specified time when the event listener runs before changing
    * the `open` state.
    * @default 0
    */
-  delay?: (Delay | (() => Delay)) | undefined;
+  delay?: Delay | (() => Delay) | undefined;
   /**
    * Whether moving the cursor over the floating element will open it, without a
    * regular hover event required.
@@ -188,7 +189,7 @@ export function useHover(
       }
     }
 
-    const html = getDocument(floatingElement).documentElement;
+    const html = ownerDocument(floatingElement).documentElement;
     html.addEventListener('mouseleave', onLeave);
     return () => {
       html.removeEventListener('mouseleave', onLeave);
@@ -217,7 +218,7 @@ export function useHover(
 
   const clearPointerEvents = useStableCallback(() => {
     if (performedPointerEventsMutationRef.current) {
-      const body = getDocument(floatingElement).body;
+      const body = ownerDocument(floatingElement).body;
       body.style.pointerEvents = '';
       body.removeAttribute(safePolygonIdentifier);
       performedPointerEventsMutationRef.current = false;
@@ -272,7 +273,7 @@ export function useHover(
 
       unbindMouseMoveRef.current();
 
-      const doc = getDocument(floatingElement);
+      const doc = ownerDocument(floatingElement);
       restTimeout.clear();
       restTimeoutPendingRef.current = false;
 
@@ -446,7 +447,7 @@ export function useHover(
       const floatingEl = floatingElement;
 
       if (isElement(domReferenceElement) && floatingEl) {
-        const body = getDocument(floatingElement).body;
+        const body = ownerDocument(floatingElement).body;
         body.setAttribute(safePolygonIdentifier, '');
 
         const ref = domReferenceElement as HTMLElement | SVGSVGElement;

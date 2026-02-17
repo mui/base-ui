@@ -163,11 +163,9 @@ export interface MenuPopupProps extends BaseUIComponentProps<'div', MenuPopup.St
    *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
    */
   finalFocus?:
-    | (
-        | boolean
-        | React.RefObject<HTMLElement | null>
-        | ((closeType: InteractionType) => boolean | HTMLElement | null | void)
-      )
+    | boolean
+    | React.RefObject<HTMLElement | null>
+    | ((closeType: InteractionType) => boolean | HTMLElement | null | void)
     | undefined;
 }
 
