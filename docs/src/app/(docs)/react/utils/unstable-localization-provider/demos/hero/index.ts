@@ -1,6 +1,6 @@
 import { createDemoWithVariants } from 'docs/src/utils/createDemo';
 import CssModules from './css-modules';
 
-export const DemoTemporalLocaleProviderHero = createDemoWithVariants(import.meta.url, {
+export const DemoLocalizationProviderHero = createDemoWithVariants(import.meta.url, {
   CssModules,
 });

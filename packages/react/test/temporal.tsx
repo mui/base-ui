@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Locale } from 'date-fns/locale';
-import { TemporalLocaleProvider } from '@base-ui/react/temporal-locale-provider';
+import { LocalizationProvider } from '@base-ui/react/localization-provider';
 import { TemporalAdapter } from '@base-ui/react/types';
 import {
   createRenderer,
@@ -11,7 +11,7 @@ import {
 import { TemporalAdapterDateFns } from '../../react/src/temporal-adapter-date-fns/TemporalAdapterDateFns';
 
 /**
- * Returns a function to render a temporal component, wrapped with TemporalLocaleProvider.
+ * Returns a function to render a temporal component, wrapped with LocalizationProvider.
  */
 export function createTemporalRenderer(
   parameters: createTemporalRenderer.Parameters = {},
@@ -33,7 +33,7 @@ export function createTemporalRenderer(
   });
 
   function Wrapper({ children }: { children?: React.ReactNode }) {
-    return <TemporalLocaleProvider locale={locale}>{children}</TemporalLocaleProvider>;
+    return <LocalizationProvider dateLocale={locale}>{children}</LocalizationProvider>;
   }
 
   return {

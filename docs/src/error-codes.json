@@ -91,7 +91,7 @@
   "91": "Base UI: DrawerProviderContext is missing. Use <Drawer.Provider>.",
   "92": "Base UI: DrawerViewportContext is missing. Drawer parts must be placed within <Drawer.Viewport>.",
   "93": "Base UI: TemporalAdapterContext is missing. Temporal components must be place within <TemporalAdapterProvider />",
-  "94": "Base UI: TemporalLocaleContext is missing. Temporal components must be place within <TemporalLocaleProvider />",
+  "94": "Base UI: LocalizationContext is missing. Temporal components must be place within <LocalizationProvider />",
   "95": "Base UI: SharedCalendarDayGridBodyContext is missing. <Calendar.DayGridRow /> must be placed within <Calendar.DayGridBody /> and <RangeCalendar.DayGridRow /> must be placed within <RangeCalendar.DayGridBody />.",
   "96": "Base UI: SharedCalendarDayGridCellContext is missing. <Calendar.DayButton /> must be placed within <Calendar.DayGridCell /> and <RangeCalendar.DayButton /> must be placed within <RangeCalendar.DayGriCell />.",
   "97": "Base UI: SharedCalendarRootContext is missing. Calendar parts must be placed within <Calendar.Root /> and Range Calendar parts must be placed within <RangeCalendar.Root />."

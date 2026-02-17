@@ -34,7 +34,7 @@ export * from './separator';
 export * from './slider';
 export * from './switch';
 export * from './tabs';
-export * from './temporal-locale-provider';
+export * from './localization-provider';
 export * from './toast';
 export * from './toggle';
 export * from './toggle-group';

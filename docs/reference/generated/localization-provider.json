@@ -1,8 +1,8 @@
 {
-  "name": "TemporalLocaleProvider",
+  "name": "LocalizationProvider",
   "description": "Defines the date locale provider for Base UI temporal components.",
   "props": {
-    "locale": {
+    "dateLocale": {
       "type": "Locale",
       "default": "en-US",
       "description": "The locale to use in temporal components.",
