@@ -10,12 +10,12 @@
   --calendar-button-hover-bg-color: #e0f2fe;
   --calendar-button-focus-border-color: #0ea5e9;
   --calendar-day-grid-separator-bg-color: #9ca3af;
-  --calendar-day-grid-header-color: var(--color-gray-600);
+  --calendar-day-grid-header-color: var(--color-gray-500);
 
   --calendar-cell-selected-bg-color: #7dd3fc;
   --calendar-cell-outside-month-color: var(--color-gray-400);
   --calendar-cell-disabled-color: var(--color-gray-500);
-  --calendar-cell-current-border-color: var(--color-gray-600);
+  --calendar-cell-current-border-color: var(--color-gray-500);
   --calendar-cell-unavailable-color: #f87171;
 
   @media (prefers-color-scheme: dark) {
