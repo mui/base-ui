@@ -51,7 +51,7 @@
     "referenceDate": {
       "type": "Date",
       "default": "'The closest valid date using the validation props.'",
-      "description": "The date used to generate the new value when both `value` and `defaultValue` are empty.",
+      "description": "The date used to generate the new value when both `value` and `defaultValue` are empty.\nIt can be used to:\n- set a desired time on the selected date;\n- set a desired default year or month;",
       "detailedType": "Date | undefined"
     },
     "timezone": {

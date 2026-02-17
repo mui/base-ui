@@ -365,6 +365,9 @@ export interface SharedCalendarStoreParameters<TValue extends TemporalSupportedV
     | undefined;
   /**
    * The date used to generate the new value when both `value` and `defaultValue` are empty.
+   * It can be used to:
+   * - set a desired time on the selected date;
+   * - set a desired default year or month;
    * @default 'The closest valid date using the validation props.'
    */
   referenceDate?: TemporalSupportedObject | undefined;
