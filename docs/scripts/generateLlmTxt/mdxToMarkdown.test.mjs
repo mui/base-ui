@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import fs from 'fs';
 import path from 'path';
-import { releases } from 'docs/src/data/releases.ts';
+// eslint-disable-next-line import/extensions
+import { releases } from '../../src/data/releases.ts';
 import { mdxToMarkdown } from './mdxToMarkdown.mjs';
 
 describe('mdxToMarkdown', () => {

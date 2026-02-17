@@ -7,7 +7,8 @@
 
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
-import { releases } from 'docs/src/data/releases.ts';
+// eslint-disable-next-line import/extensions
+import { releases } from '../../src/data/releases.ts';
 import * as mdx from './mdxNodeHelpers.mjs';
 
 const dateFormatter = new Intl.DateTimeFormat('en-US', {
