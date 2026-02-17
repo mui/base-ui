@@ -49,7 +49,7 @@ export const DATE_PART_GRANULARITY: Record<string, number> = {
  * Meridiem is last (8) because it depends on the hours value — setting meridiem before hours
  * would be overwritten when hours are subsequently applied.
  */
-export const DATE_PART_TRANSFER_PRIORITY: Record<string, number> = {
+const DATE_PART_TRANSFER_PRIORITY: Record<string, number> = {
   year: 1,
   month: 2,
   day: 3,
@@ -100,16 +100,6 @@ export function applyLocalizedDigits(valueStr: string, localizedDigits: Localize
     .split('')
     .map((char) => localizedDigits.toLocalized.get(char) ?? char)
     .join('');
-}
-
-/**
- * Normalizes a digit string to have the correct amount of leading zeros for the given size.
- * E.g.: `3` with size 2 => `03`, `007` with size 2 => `07`
- * Warning: Should only be called with non-localized digits. Call `removeLocalizedDigits` with your value if needed.
- */
-export function normalizeLeadingZeros(valueStr: string, size: number) {
-  // Remove the leading zeros and then add back as many as needed.
-  return Number(valueStr).toString().padStart(size, '0');
 }
 
 export function removeLocalizedDigits(valueStr: string, localizedDigits: LocalizedDigits | null) {
@@ -223,7 +213,8 @@ export function cleanDigitDatePartValue(
   let valueStr = value.toString();
 
   if (token.isPadded) {
-    valueStr = normalizeLeadingZeros(valueStr, token.maxLength!);
+    // Remove the leading zeros and then add back as many as needed.
+    valueStr = Number(valueStr).toString().padStart(token.maxLength!, '0');
   }
 
   return applyLocalizedDigits(valueStr, localizedDigits);

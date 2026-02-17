@@ -2,6 +2,7 @@ import * as React from 'react';
 import { createSelectorMemoized, ReactStore } from '@base-ui/utils/store';
 import { warn } from '@base-ui/utils/warn';
 import { ownerDocument } from '@base-ui/utils/owner';
+import { TimeoutManager } from '@base-ui/utils/TimeoutManager';
 import {
   TemporalAdapter,
   TemporalNonNullableValue,
@@ -45,7 +46,6 @@ import {
   wrapInRange,
 } from './utils';
 import { TextDirection } from '../../direction-provider';
-import { TimeoutManager } from '../../utils/TimeoutManager';
 import { selectors } from './selectors';
 import { getLocalizedDigits, getWeekDaysStr } from './adapter-cache';
 import { activeElement } from '../../floating-ui-react/utils';
@@ -353,14 +353,16 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
    * Updates the one of the date in the value from its string representation.
    */
   public updateFromString(valueStr: string) {
-    const formatVal = selectors.format(this.state);
+    const format = selectors.format(this.state);
     const adapter = selectors.adapter(this.state);
     const fieldConfig = selectors.config(this.state);
     const parsedFormatVal = selectors.parsedFormat(this.state);
 
+    let invalidValue = false;
     const parseDateStr = (dateStr: string, referenceDate: TemporalSupportedObject) => {
-      const date = adapter.parse(dateStr, formatVal, selectors.timezoneToRender(this.state));
+      const date = adapter.parse(dateStr, format, selectors.timezoneToRender(this.state));
       if (!adapter.isValid(date)) {
+        invalidValue = true;
         return null;
       }
 
@@ -369,7 +371,9 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
     };
 
     const newValue = fieldConfig.parseValueStr(valueStr, this.state.referenceValue, parseDateStr);
-    this.publish(newValue);
+    if (!invalidValue) {
+      this.publish(newValue);
+    }
   }
 
   /**
@@ -760,13 +764,11 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
       }
 
       const pastedValue = event.clipboardData.getData('text');
-      const lettersOnly = LETTERS_ONLY_REGEX.test(pastedValue);
-      const digitsOnly = DIGITS_ONLY_REGEX.test(pastedValue);
-      const digitsAndLetterOnly = DIGITS_AND_LETTER_REGEX.test(pastedValue);
+      const contentType = section.token.config.contentType;
       const isValidPastedValue =
-        (section.token.config.contentType === 'letter' && lettersOnly) ||
-        (section.token.config.contentType === 'digit' && digitsOnly) ||
-        (section.token.config.contentType === 'digit-with-letter' && digitsAndLetterOnly);
+        (contentType === 'letter' && LETTERS_ONLY_REGEX.test(pastedValue)) ||
+        (contentType === 'digit' && DIGITS_ONLY_REGEX.test(pastedValue)) ||
+        (contentType === 'digit-with-letter' && DIGITS_AND_LETTER_REGEX.test(pastedValue));
 
       if (isValidPastedValue) {
         this.resetCharacterQuery();
@@ -775,9 +777,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
           newDatePartValue: pastedValue,
           shouldGoToNextSection: true,
         });
-      }
-      // If the pasted value corresponds to a single section, but not the expected type, we skip the modification
-      else if (!lettersOnly && !digitsOnly) {
+      } else {
         this.resetCharacterQuery();
         this.updateFromString(pastedValue);
       }

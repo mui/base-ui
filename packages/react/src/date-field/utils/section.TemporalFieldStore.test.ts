@@ -173,7 +173,7 @@ describe('TemporalFieldStore - Section', () => {
       expect(adapter.getYear(value!)).to.equal(2024);
     });
 
-    it('should handle invalid string by setting value to null', () => {
+    it('should not update the value when the string is invalid', () => {
       const store = new DateFieldStore({
         format: numericDateFormat,
         defaultValue: adapter.date('2024-03-15', 'default'),
@@ -184,10 +184,13 @@ describe('TemporalFieldStore - Section', () => {
       store.updateFromString('invalid date string');
 
       const value = selectors.value(store.state);
-      expect(value).to.equal(null);
+      expect(adapter.isValid(value)).to.equal(true);
+      expect(adapter.getMonth(value!)).to.equal(2); // March (0-indexed)
+      expect(adapter.getDate(value!)).to.equal(15);
+      expect(adapter.getYear(value!)).to.equal(2024);
     });
 
-    it('should handle empty string by setting value to null', () => {
+    it('should not update the value when the string is empty', () => {
       const store = new DateFieldStore({
         format: numericDateFormat,
         defaultValue: adapter.date('2024-03-15', 'default'),
@@ -198,7 +201,10 @@ describe('TemporalFieldStore - Section', () => {
       store.updateFromString('');
 
       const value = selectors.value(store.state);
-      expect(value).to.equal(null);
+      expect(adapter.isValid(value)).to.equal(true);
+      expect(adapter.getMonth(value!)).to.equal(2); // March (0-indexed)
+      expect(adapter.getDate(value!)).to.equal(15);
+      expect(adapter.getYear(value!)).to.equal(2024);
     });
 
     it('should parse time string correctly', () => {

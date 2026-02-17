@@ -212,7 +212,7 @@ export interface TemporalFieldCharacterEditingQuery {
   part: TemporalFieldDatePartType;
 }
 
-export type TemporalFieldChangeReason = 'none';
+type TemporalFieldChangeReason = 'none';
 
 export interface TemporalFieldParsedFormat {
   elements: (TemporalFieldToken | TemporalFieldSeparator)[];
