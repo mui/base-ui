@@ -11,7 +11,12 @@ export function testRenderProp(
   element: React.ReactElement<ConformantComponentProps>,
   getOptions: () => BaseUiConformanceTestsOptions,
 ) {
-  const { render, testRenderPropWith: Element = 'div', button = false } = getOptions();
+  const {
+    render,
+    testRenderPropWith: Element = 'div',
+    button = false,
+    wrappingAllowed = true,
+  } = getOptions();
 
   if (!render) {
     throwMissingPropError('render');
@@ -21,11 +26,13 @@ export function testRenderProp(
 
   const Wrapper = React.forwardRef<any, { children?: React.ReactNode }>(
     function Wrapper(props, forwardedRef) {
-      return (
+      return wrappingAllowed ? (
         <div data-testid="base-ui-wrapper">
-          {/* @ts-expect-error complex type */}
           <Element ref={forwardedRef} {...props} data-testid="wrapped" />
         </div>
+      ) : (
+        /* @ts-expect-error complex type */
+        <Element ref={forwardedRef} {...props} data-testid="wrapped" />
       );
     },
   );
@@ -44,7 +51,9 @@ export function testRenderProp(
         }),
       );
 
-      expect(screen.queryByTestId('base-ui-wrapper')).not.to.equal(null);
+      if (wrappingAllowed) {
+        expect(screen.queryByTestId('base-ui-wrapper')).not.to.equal(null);
+      }
       expect(screen.queryByTestId('wrapped')).not.to.equal(null);
       expect(screen.queryByTestId('wrapped')).to.have.attribute('data-test-value', testValue);
     });
@@ -59,7 +68,9 @@ export function testRenderProp(
         }),
       );
 
-      expect(screen.queryByTestId('base-ui-wrapper')).not.to.equal(null);
+      if (wrappingAllowed) {
+        expect(screen.queryByTestId('base-ui-wrapper')).not.to.equal(null);
+      }
       expect(screen.queryByTestId('wrapped')).not.to.equal(null);
       expect(screen.queryByTestId('wrapped')).to.have.attribute('data-test-value', testValue);
     });
@@ -72,7 +83,11 @@ export function testRenderProp(
         }),
       );
 
-      expect(document.querySelector('[data-testid="base-ui-wrapper"]')).not.to.equal(null);
+      if (wrappingAllowed) {
+        expect(screen.queryByTestId('base-ui-wrapper')).not.to.equal(null);
+      } else {
+        expect(screen.queryByTestId('wrapped')).not.to.equal(null);
+      }
     });
 
     it('should pass the ref to the custom component', async () => {

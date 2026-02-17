@@ -8,6 +8,8 @@ describe('<Calendar.DayGridBody />', () => {
 
   describeConformance(<Calendar.DayGridBody />, () => ({
     refInstanceof: window.HTMLTableSectionElement,
+    testRenderPropWith: 'tbody',
+    wrappingAllowed: false,
     render(node) {
       return render(
         <Calendar.Root>

@@ -9,6 +9,7 @@ describe('<Calendar.DecrementMonth />', () => {
 
   describeConformance(<Calendar.DecrementMonth />, () => ({
     refInstanceof: window.HTMLButtonElement,
+    button: true,
     render(node) {
       return render(<Calendar.Root>{node}</Calendar.Root>);
     },

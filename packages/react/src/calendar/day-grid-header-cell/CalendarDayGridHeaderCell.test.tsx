@@ -10,6 +10,8 @@ describe('<Calendar.DayGridHeaderCell />', () => {
 
   describeConformance(<Calendar.DayGridHeaderCell value={date} />, () => ({
     refInstanceof: window.HTMLTableCellElement,
+    testRenderPropWith: 'th',
+    wrappingAllowed: false,
     render(node) {
       return render(
         <Calendar.Root>

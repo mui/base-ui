@@ -9,6 +9,7 @@ describe('<Calendar.SetMonth />', () => {
 
   describeConformance(<Calendar.SetMonth target={adapter.now('default')} />, () => ({
     refInstanceof: window.HTMLButtonElement,
+    button: true,
     render(node) {
       return render(<Calendar.Root>{node}</Calendar.Root>);
     },

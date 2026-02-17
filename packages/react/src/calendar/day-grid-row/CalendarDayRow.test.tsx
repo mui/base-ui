@@ -10,6 +10,8 @@ describe('<Calendar.DayGridRow />', () => {
 
   describeConformance(<Calendar.DayGridRow value={startOfWeek} />, () => ({
     refInstanceof: window.HTMLTableRowElement,
+    testRenderPropWith: 'tr',
+    wrappingAllowed: false,
     render(node) {
       return render(
         <Calendar.Root>

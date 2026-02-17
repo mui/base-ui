@@ -7,6 +7,8 @@ describe('<Calendar.DayGridHeaderRow />', () => {
 
   describeConformance(<Calendar.DayGridHeaderRow />, () => ({
     refInstanceof: window.HTMLTableRowElement,
+    testRenderPropWith: 'tr',
+    wrappingAllowed: false,
     render(node) {
       return render(
         <Calendar.Root>

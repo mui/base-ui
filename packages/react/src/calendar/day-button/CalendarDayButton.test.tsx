@@ -9,6 +9,7 @@ describe('<Calendar.DayButton />', () => {
 
   describeConformance(<Calendar.DayButton />, () => ({
     refInstanceof: window.HTMLButtonElement,
+    button: true,
     render(node) {
       const date = adapter.now('default');
 
