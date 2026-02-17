@@ -351,13 +351,13 @@ export function wrapInRange(value: number, min: number, max: number): number {
  * - 'up' rounds down (e.g., alignToStep(22, 5, 'up') => 20)
  * - 'down' rounds up (e.g., alignToStep(22, 5, 'down') => 25)
  */
-export function alignToStep(value: number, stepVal: number, direction: 'up' | 'down'): number {
-  if (value % stepVal === 0) {
+export function alignToStep(value: number, step: number, direction: 'up' | 'down'): number {
+  if (value % step === 0) {
     return value;
   }
   if (direction === 'down') {
     // For JS: -3 % 5 = -3 (should be 2), so we use (step + value) % step
-    return value + stepVal - ((stepVal + value) % stepVal);
+    return value + step - ((step + value) % step);
   }
-  return value - (value % stepVal);
+  return value - (value % step);
 }
