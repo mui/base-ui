@@ -54,9 +54,9 @@ export default function ExampleDrawerMobileNav() {
                         <ul className={styles.List}>
                           {ITEMS.map((item) => (
                             <li key={item.label} className={styles.Item}>
-                              <Link className={styles.Link} href={item.href}>
+                              <a className={styles.Link} href={item.href}>
                                 {item.label}
-                              </Link>
+                              </a>
                             </li>
                           ))}
                         </ul>
@@ -64,9 +64,9 @@ export default function ExampleDrawerMobileNav() {
                         <ul className={styles.LongList} aria-label="Long list">
                           {LONG_LIST.map((item) => (
                             <li key={item.label} className={styles.Item}>
-                              <Link className={styles.Link} href={item.href}>
+                              <a className={styles.Link} href={item.href}>
                                 {item.label}
-                              </Link>
+                              </a>
                             </li>
                           ))}
                         </ul>
@@ -84,9 +84,4 @@ export default function ExampleDrawerMobileNav() {
       </Drawer.Portal>
     </Drawer.Root>
   );
-}
-
-// Replace with your router's Link component
-function Link({ href, ...props }: React.ComponentProps<'a'>) {
-  return <a {...props} href={href} onClick={(event) => event.preventDefault()} />;
 }
