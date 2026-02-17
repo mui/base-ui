@@ -727,7 +727,8 @@ describe('<Autocomplete.Root />', () => {
 
       const asyncResults: Movie[] = [
         { id: '1', title: 'Pulp Fiction', year: 1994 },
-        { id: '2', title: 'Forrest Gump', year: 1994 },
+        { id: '2', title: 'The Godfather', year: 1972 },
+        { id: '3', title: 'The Dark Knight', year: 2008 },
       ];
 
       const { user } = await render(
@@ -757,10 +758,11 @@ describe('<Autocomplete.Root />', () => {
       await user.type(input, '1994');
 
       await waitFor(() => {
-        expect(screen.getAllByRole('option')).to.have.length(2);
+        expect(screen.getAllByRole('option')).to.have.length(3);
       });
       expect(screen.getByRole('option', { name: 'Pulp Fiction' })).not.to.equal(null);
-      expect(screen.getByRole('option', { name: 'Forrest Gump' })).not.to.equal(null);
+      expect(screen.getByRole('option', { name: 'The Godfather' })).not.to.equal(null);
+      expect(screen.getByRole('option', { name: 'The Dark Knight' })).not.to.equal(null);
     });
   });
 
