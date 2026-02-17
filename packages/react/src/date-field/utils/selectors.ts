@@ -1,16 +1,13 @@
 import { createSelector, createSelectorMemoized } from '@base-ui/utils/store';
-import { warn } from '@base-ui/utils/warn';
 import { visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { NOOP } from '@base-ui/utils/empty';
-import { TemporalAdapter, TemporalFieldDatePartType } from '../../types';
+import { TemporalAdapter } from '../../types';
 import {
   TemporalFieldState as State,
   TemporalFieldDatePart,
   TemporalFieldSection,
-  TemporalFieldToken,
 } from './types';
-import { getTimezoneToRender, isDatePart, isToken } from './utils';
-import { FormatParser } from './formatParser';
+import { getTimezoneToRender, isDatePart } from './utils';
 import { getAriaValueText, getMeridiemsStr, getMonthsStr, getWeekDaysStr } from './adapter-cache';
 
 const SEPARATOR_STYLE: React.CSSProperties = { whiteSpace: 'pre' };
@@ -64,46 +61,7 @@ const areAllSectionsEmptySelector = createSelectorMemoized(
   (sections) => sections.every((section) => !isDatePart(section) || section.value === ''),
 );
 
-const parsedFormatSelector = createSelectorMemoized(
-  adapterSelector,
-  managerSelector,
-  (state: State) => state.format,
-  (state: State) => state.direction,
-  (state: State) => state.placeholderGetters,
-  validationPropsSelector,
-  (adapter, manager, format, direction, placeholderGetters, validationProps) => {
-    const parsedFormat = FormatParser.parse(
-      adapter,
-      format,
-      direction,
-      placeholderGetters,
-      validationProps,
-    );
-
-    if (process.env.NODE_ENV !== 'production') {
-      const supportedSections: TemporalFieldDatePartType[] = [];
-      if (['date', 'date-time'].includes(manager.dateType)) {
-        supportedSections.push('weekDay', 'day', 'month', 'year');
-      }
-      if (['time', 'date-time'].includes(manager.dateType)) {
-        supportedSections.push('hours', 'minutes', 'seconds', 'meridiem');
-      }
-
-      const invalidDatePartEl = parsedFormat.elements.find(
-        (element) => isToken(element) && !supportedSections.includes(element.config.part),
-      ) as TemporalFieldToken | undefined;
-
-      if (invalidDatePartEl) {
-        warn(
-          `Base UI: The field component you are using is not compatible with the "${invalidDatePartEl.config.part}" date section.`,
-          `The supported date parts are ["${supportedSections.join('", "')}"]\`.`,
-        );
-      }
-    }
-
-    return parsedFormat;
-  },
-);
+const formatSelector = createSelector((state: State) => state.format);
 
 export const selectors = {
   // Base
@@ -165,8 +123,7 @@ export const selectors = {
   ),
 
   // Format
-  format: createSelector((state: State) => state.format),
-  parsedFormat: parsedFormatSelector,
+  format: formatSelector,
 
   // ElementsProps
   rootState: createSelectorMemoized(
@@ -185,7 +142,7 @@ export const selectors = {
   ),
   hiddenInputProps: createSelectorMemoized(
     valueSelector,
-    parsedFormatSelector,
+    formatSelector,
     adapterSelector,
     configSelector,
     requiredSelector,
@@ -197,7 +154,7 @@ export const selectors = {
     stepSelector,
     (
       value,
-      parsedFormat,
+      format,
       adapter,
       config,
       required,
@@ -211,11 +168,11 @@ export const selectors = {
       ...config.stringifyValidationPropsForHiddenInput(
         adapter,
         validationProps,
-        parsedFormat,
+        format,
         step,
       ),
       type: config.hiddenInputType,
-      value: config.stringifyValueForHiddenInput(adapter, value, parsedFormat.granularity),
+      value: config.stringifyValueForHiddenInput(adapter, value, format.granularity),
       name,
       id,
       disabled,
@@ -237,12 +194,12 @@ export const selectors = {
     fieldContextSelector,
     inputRefSelector,
     valueSelector,
-    parsedFormatSelector,
-    (id, name, adapter, config, fieldContext, inputRef, value, parsedFormat) => {
+    formatSelector,
+    (id, name, adapter, config, fieldContext, inputRef, value, format) => {
       const formValue = config.stringifyValueForHiddenInput(
         adapter,
         value,
-        parsedFormat.granularity,
+        format.granularity,
       );
       const commit = fieldContext != null ? fieldContext.validation.commit : NOOP;
 

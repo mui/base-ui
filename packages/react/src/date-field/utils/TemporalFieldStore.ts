@@ -5,6 +5,7 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import { TimeoutManager } from '@base-ui/utils/TimeoutManager';
 import {
   TemporalAdapter,
+  TemporalFieldDatePartType,
   TemporalNonNullableValue,
   TemporalSupportedObject,
   TemporalSupportedValue,
@@ -14,6 +15,7 @@ import {
   EditSectionParameters,
   TemporalFieldQueryApplier,
   TemporalFieldModelUpdater,
+  TemporalFieldParsedFormat,
   TemporalFieldState,
   TemporalFieldStoreSharedParameters,
   TemporalFieldConfiguration,
@@ -37,6 +39,7 @@ import {
   cleanDigitDatePartValue,
   getLetterEditingOptions,
   isDatePart,
+  isToken,
   isDecrementDirection,
   isIncrementDirection,
   isQueryResponseWithoutValue,
@@ -50,6 +53,29 @@ import { selectors } from './selectors';
 import { getLocalizedDigits, getWeekDaysStr } from './adapter-cache';
 import { activeElement } from '../../floating-ui-react/utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+
+function validateParsedFormat(dateType: string, parsedFormat: TemporalFieldParsedFormat) {
+  if (process.env.NODE_ENV !== 'production') {
+    const supportedSections: TemporalFieldDatePartType[] = [];
+    if (['date', 'date-time'].includes(dateType)) {
+      supportedSections.push('weekDay', 'day', 'month', 'year');
+    }
+    if (['time', 'date-time'].includes(dateType)) {
+      supportedSections.push('hours', 'minutes', 'seconds', 'meridiem');
+    }
+
+    const invalidDatePartEl = parsedFormat.elements.find(
+      (element) => isToken(element) && !supportedSections.includes(element.config.part),
+    ) as TemporalFieldToken | undefined;
+
+    if (invalidDatePartEl) {
+      warn(
+        `Base UI: The field component you are using is not compatible with the "${invalidDatePartEl.config.part}" date section.`,
+        `The supported date parts are ["${supportedSections.join('", "')}"]\`.`,
+      );
+    }
+  }
+}
 
 const LETTERS_ONLY_REGEX = /^[a-zA-Z]+$/;
 const DIGITS_ONLY_REGEX = /^[0-9]+$/;
@@ -105,6 +131,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
       parameters.placeholderGetters,
       validationProps,
     );
+    validateParsedFormat(manager.dateType, parsedFormat);
 
     const referenceValue = config.getInitialReferenceValue({
       externalReferenceDate: parameters.referenceDate,
@@ -134,6 +161,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
         value,
         sections,
         referenceValue,
+        format: parsedFormat,
         characterQuery: null,
         selectedSection: null,
         inputRef,
@@ -249,7 +277,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
 
     // If the format changed, we need to rebuild the sections
     const hasFormatChanged =
-      parameters.format !== this.state.format ||
+      parameters.format !== this.state.format.rawFormat ||
       parameters.placeholderGetters !== this.state.placeholderGetters ||
       direction !== this.state.direction ||
       adapter !== this.state.adapter ||
@@ -266,6 +294,9 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
         parameters.placeholderGetters,
         validationProps,
       );
+      validateParsedFormat(this.state.manager.dateType, parsedFormat);
+
+      newState.format = parsedFormat;
 
       // When both format and value change, build sections from the new value directly.
       // deriveStateFromNewValue cannot be used here because it reads parsedFormat from
@@ -353,20 +384,19 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
    * Updates the one of the date in the value from its string representation.
    */
   public updateFromString(valueStr: string) {
-    const format = selectors.format(this.state);
     const adapter = selectors.adapter(this.state);
     const fieldConfig = selectors.config(this.state);
-    const parsedFormat = selectors.parsedFormat(this.state);
+    const format = selectors.format(this.state);
 
     let invalidValue = false;
     const parseDateStr = (dateStr: string, referenceDate: TemporalSupportedObject) => {
-      const date = adapter.parse(dateStr, format, selectors.timezoneToRender(this.state));
+      const date = adapter.parse(dateStr, format.rawFormat, selectors.timezoneToRender(this.state));
       if (!adapter.isValid(date)) {
         invalidValue = true;
         return null;
       }
 
-      const sectionsList = buildSections(adapter, parsedFormat, date);
+      const sectionsList = buildSections(adapter, format, date);
       return mergeDateIntoReferenceDate(date, sectionsList, referenceDate, false);
     };
 
@@ -409,7 +439,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
   public deriveStateFromNewValue(newValue: TValue) {
     const adapter = selectors.adapter(this.state);
     const config = selectors.config(this.state);
-    const parsedFormat = selectors.parsedFormat(this.state);
+    const format = selectors.format(this.state);
     const sectionsBefore = selectors.sections(this.state);
     const referenceValueBefore = selectors.referenceValue(this.state);
     const sectionToUpdate = this.sectionToUpdateOnNextInvalidDate;
@@ -426,7 +456,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
       );
     } else {
       sectionsList = config.getSectionsFromValue(newValue, (date) =>
-        buildSections(adapter, parsedFormat, date),
+        buildSections(adapter, format, date),
       );
     }
 
@@ -893,14 +923,11 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
    */
   private syncDatePartContentToDOM(sectionIndex: number) {
     const sectionElement = this.getSectionElement(sectionIndex);
-    if (sectionElement == null) {
+    const datePart = selectors.datePart(this.state, sectionIndex);
+    if (sectionElement == null || datePart == null) {
       return;
     }
 
-    const datePart = selectors.datePart(this.state, sectionIndex);
-    if (datePart == null) {
-      return;
-    }
     sectionElement.innerHTML = this.getDatePartRenderedValue(datePart);
     this.syncSelectionToDOM();
   }

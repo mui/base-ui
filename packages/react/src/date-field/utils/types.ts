@@ -134,10 +134,6 @@ export interface TemporalFieldState<TValue extends TemporalSupportedValue = any>
    */
   sections: TemporalFieldSection[];
   /**
-   * Format of the date when rendered in the field.
-   */
-  format: string;
-  /**
    * The value of the field, as passed to `props.value` or `props.defaultValue`.
    */
   value: TValue;
@@ -204,6 +200,10 @@ export interface TemporalFieldState<TValue extends TemporalSupportedValue = any>
    * A ref to the input element (the div containing the sections).
    */
   inputRef: React.RefObject<HTMLElement | null>;
+  /**
+   * The parsed representation of the format string.
+   */
+  format: TemporalFieldParsedFormat;
 }
 
 export interface TemporalFieldCharacterEditingQuery {
@@ -215,6 +215,10 @@ export interface TemporalFieldCharacterEditingQuery {
 type TemporalFieldChangeReason = 'none';
 
 export interface TemporalFieldParsedFormat {
+  /**
+   * The raw format string (e.g. "MM/DD/YYYY").
+   */
+  rawFormat: string;
   elements: (TemporalFieldToken | TemporalFieldSeparator)[];
   granularity: TemporalFieldDatePartType;
 }

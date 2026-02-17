@@ -78,7 +78,6 @@ export function deriveStateFromParameters<TValue extends TemporalSupportedValue>
     adapter,
     referenceDateProp: parameters.referenceDate ?? null,
     valueProp: parameters.value,
-    format: parameters.format,
     required: parameters.required ?? false,
     disabledProp: parameters.disabled ?? false,
     readOnly: parameters.readOnly ?? false,

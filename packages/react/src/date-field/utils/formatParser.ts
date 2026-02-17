@@ -434,7 +434,7 @@ export class FormatParser {
       }
     }
 
-    return parsedFormat;
+    return { ...parsedFormat, rawFormat: format };
   }
 
   /**
@@ -581,7 +581,7 @@ export class FormatParser {
   private parse(
     expandedFormat: string,
     escapedParts: FormatEscapedParts,
-  ): TemporalFieldParsedFormat {
+  ): Omit<TemporalFieldParsedFormat, 'rawFormat'> {
     const elements: (TemporalFieldToken | TemporalFieldSeparator)[] = [];
     let separator: string = '';
 

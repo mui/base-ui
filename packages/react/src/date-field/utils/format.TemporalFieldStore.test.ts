@@ -12,14 +12,14 @@ describe('TemporalFieldStore - Format', () => {
 
   describe('selectors', () => {
     describe('format', () => {
-      it('should return the format string from state', () => {
+      it('should return the raw format string', () => {
         const store = new DateFieldStore({
           format: numericDateFormat,
           adapter,
           direction: 'ltr',
         });
 
-        expect(selectors.format(store.state)).to.equal(numericDateFormat);
+        expect(selectors.format(store.state).rawFormat).to.equal(numericDateFormat);
       });
 
       it('should return custom format when provided', () => {
@@ -30,11 +30,9 @@ describe('TemporalFieldStore - Format', () => {
           direction: 'ltr',
         });
 
-        expect(selectors.format(store.state)).to.equal(customFormat);
+        expect(selectors.format(store.state).rawFormat).to.equal(customFormat);
       });
-    });
 
-    describe('parsedFormat', () => {
       it('should return a parsed format with correct number of elements for date format', () => {
         const store = new DateFieldStore({
           format: numericDateFormat,
@@ -42,9 +40,9 @@ describe('TemporalFieldStore - Format', () => {
           direction: 'ltr',
         });
 
-        const parsedFormat = selectors.parsedFormat(store.state);
+        const format = selectors.format(store.state);
         // MM/DD/YYYY = 5 elements: month, separator, day, separator, year
-        expect(parsedFormat.elements).to.have.length(5);
+        expect(format.elements).to.have.length(5);
       });
 
       it('should return a parsed format with correct number of elements for time format', () => {
@@ -54,9 +52,9 @@ describe('TemporalFieldStore - Format', () => {
           direction: 'ltr',
         });
 
-        const parsedFormat = selectors.parsedFormat(store.state);
+        const format = selectors.format(store.state);
         // HH:mm = 3 elements: hours, separator, minutes
-        expect(parsedFormat.elements).to.have.length(3);
+        expect(format.elements).to.have.length(3);
       });
 
       it('should return correct granularity for date format', () => {
@@ -66,9 +64,9 @@ describe('TemporalFieldStore - Format', () => {
           direction: 'ltr',
         });
 
-        const parsedFormat = selectors.parsedFormat(store.state);
+        const format = selectors.format(store.state);
         // The most granular part in MM/DD/YYYY is 'day'
-        expect(parsedFormat.granularity).to.equal('day');
+        expect(format.granularity).to.equal('day');
       });
 
       it('should return correct granularity for time format', () => {
@@ -78,9 +76,9 @@ describe('TemporalFieldStore - Format', () => {
           direction: 'ltr',
         });
 
-        const parsedFormat = selectors.parsedFormat(store.state);
+        const format = selectors.format(store.state);
         // The most granular part in HH:mm is 'minutes'
-        expect(parsedFormat.granularity).to.equal('minutes');
+        expect(format.granularity).to.equal('minutes');
       });
 
       it('should identify tokens correctly in parsed format', () => {
@@ -90,8 +88,8 @@ describe('TemporalFieldStore - Format', () => {
           direction: 'ltr',
         });
 
-        const parsedFormat = selectors.parsedFormat(store.state);
-        const tokens = parsedFormat.elements.filter(isToken);
+        const format = selectors.format(store.state);
+        const tokens = format.elements.filter(isToken);
         expect(tokens).to.have.length(3); // month, day, year
       });
     });
