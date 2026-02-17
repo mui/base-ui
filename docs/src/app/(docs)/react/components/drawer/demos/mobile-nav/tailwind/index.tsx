@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import NextLink from 'next/link';
 import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 
@@ -67,12 +66,12 @@ export default function ExampleDrawerMobileNav() {
                         <ul className="grid list-none gap-1 p-0 m-0">
                           {ITEMS.map((item) => (
                             <li key={item.label} className="flex">
-                              <NextLink
+                              <Link
                                 className="w-full rounded-xl bg-gray-100 px-4 py-3 text-gray-900 no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:-outline-offset-1"
                                 href={item.href}
                               >
                                 {item.label}
-                              </NextLink>
+                              </Link>
                             </li>
                           ))}
                         </ul>
@@ -80,12 +79,12 @@ export default function ExampleDrawerMobileNav() {
                         <ul aria-label="Long list" className="mt-6 grid list-none gap-1 p-0 m-0">
                           {LONG_LIST.map((item) => (
                             <li key={item.label} className="flex">
-                              <NextLink
+                              <Link
                                 className="w-full rounded-xl bg-gray-100 px-4 py-3 text-gray-900 no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:-outline-offset-1"
                                 href={item.href}
                               >
                                 {item.label}
-                              </NextLink>
+                              </Link>
                             </li>
                           ))}
                         </ul>
@@ -103,4 +102,9 @@ export default function ExampleDrawerMobileNav() {
       </Drawer.Portal>
     </Drawer.Root>
   );
+}
+
+// Replace with your router's Link component
+function Link({ href, ...props }: React.ComponentProps<'a'>) {
+  return <a {...props} href={href} onClick={(event) => event.preventDefault()} />;
 }
