@@ -47,7 +47,7 @@ export interface CalendarDayGridHeaderCellProps extends BaseUIComponentProps<
    * The formatter function used to display the day of the week.
    * @param {TemporalSupportedObject} date The date to format.
    * @returns {string} The formatted date.
-   * @default (date) => adapter.format(date, 'weekday3Letters').charAt(0).toUpperCase()
+   * @default (date) => adapter.format(date, 'EEE').charAt(0).toUpperCase()
    */
   formatter?: ((date: TemporalSupportedObject) => string) | undefined;
 }

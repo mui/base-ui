@@ -8,7 +8,7 @@
     },
     "formatter": {
       "type": "((date: Date) => string)",
-      "default": "(date) => adapter.format(date, 'weekday3Letters').charAt(0).toUpperCase()",
+      "default": "(date) => adapter.format(date, 'EEE').charAt(0).toUpperCase()",
       "description": "The formatter function used to display the day of the week.",
       "detailedType": "((date: Date) => string) | undefined"
     },
