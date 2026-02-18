@@ -10,8 +10,10 @@
 /experiments/*
   X-Robots-Tag: noindex
 
-# Avoid indexing any unstable pages (i.e. calendar)
-/unstable-*/*
+# Avoid indexing any unreleased pages (i.e. calendar, localization provider)
+/components/calendar/
+  X-Robots-Tag: noindex
+/utils/localization-provider/
   X-Robots-Tag: noindex
 
 /*
