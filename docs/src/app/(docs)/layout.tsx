@@ -55,7 +55,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
                             <SideNav.List>
                               {section.pages
                                 .filter((page) =>
-                                  page.tags?.includes('Internal') ? !isProduction : true,
+                                  page.tags?.includes('Private') ? !isProduction : true,
                                 )
                                 .map((page) => {
                                   const isNew = page.tags?.includes('New');
