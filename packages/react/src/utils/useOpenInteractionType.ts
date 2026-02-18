@@ -27,13 +27,9 @@ export function useOpenInteractionType(open: boolean) {
     },
   );
 
-  const reset = React.useCallback(() => {
-    setOpenMethod(null);
-  }, []);
-
   useValueChanged(open, (previousOpen) => {
     if (previousOpen && !open) {
-      reset();
+      setOpenMethod(null);
     }
   });
 
@@ -42,12 +38,11 @@ export function useOpenInteractionType(open: boolean) {
   return React.useMemo(
     () => ({
       openMethod,
-      reset,
       triggerProps: {
         onClick,
         onPointerDown,
       },
     }),
-    [openMethod, reset, onClick, onPointerDown],
+    [openMethod, onClick, onPointerDown],
   );
 }
