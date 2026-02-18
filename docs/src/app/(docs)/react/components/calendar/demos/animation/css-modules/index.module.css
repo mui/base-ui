@@ -11,9 +11,6 @@
   width: 100%;
   display: grid;
   justify-content: center;
-  perspective: 200px;
-  transform-origin: center center;
-  transform-style: preserve-3d;
 }
 
 .HeaderLabel {
@@ -22,6 +19,7 @@
   background-color: var(--color-background);
   min-width: 185px;
   text-align: center;
+  overflow: clip;
   /* Apply transition only when `data-ending-style` is present to allow for smooth animations from original translated positions. */
   &[data-ending-style] {
     &[data-current],
@@ -37,44 +35,44 @@
   &[data-navigation-direction='next'][data-previous] {
     &[data-starting-style] {
       opacity: 1;
-      transform: rotateX(0);
+      transform: translateY(0);
     }
     &[data-ending-style] {
       opacity: 0;
-      transform: rotateX(90deg);
+      transform: translateY(-20px);
     }
   }
 
   &[data-navigation-direction='next'][data-current] {
     &[data-starting-style] {
       opacity: 0;
-      transform: rotateX(-270deg);
+      transform: translateY(20px);
     }
     &[data-ending-style] {
       opacity: 1;
-      transform: rotateX(0);
+      transform: translateY(0);
     }
   }
 
   &[data-navigation-direction='previous'][data-previous] {
     &[data-starting-style] {
       opacity: 1;
-      transform: rotateX(0);
+      transform: translateY(0);
     }
     &[data-ending-style] {
       opacity: 0;
-      transform: rotateX(-90deg);
+      transform: translateY(20px);
     }
   }
 
   &[data-navigation-direction='previous'][data-current] {
     &[data-starting-style] {
       opacity: 0;
-      transform: rotateX(270deg);
+      transform: translateY(-20px);
     }
     &[data-ending-style] {
       opacity: 1;
-      transform: rotateX(0);
+      transform: translateY(0);
     }
   }
 }
