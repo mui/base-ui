@@ -48,7 +48,9 @@ export default function NestedMenu() {
               </Menu.SubmenuRoot>
 
               <Menu.SubmenuRoot>
-                <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>Style</Menu.SubmenuTrigger>
+                <Menu.SubmenuTrigger className={styles.SubmenuTrigger} closeDelay={1000}>
+                  Style
+                </Menu.SubmenuTrigger>
                 <Menu.Portal>
                   <Menu.Positioner align="start" side="right" sideOffset={12}>
                     <Menu.Popup className={styles.MenuPopup}>

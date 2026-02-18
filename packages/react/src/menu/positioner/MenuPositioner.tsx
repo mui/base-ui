@@ -18,6 +18,7 @@ import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRo
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { MenuOpenEventDetails } from '../utils/types';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 
 /**
  * Positions the menu popup against the trigger.
@@ -173,6 +174,15 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     };
   }, [floatingTreeRoot.events, store]);
 
+  const closeTimeout = useTimeout();
+
+  // Clear pending close timeout when the menu closes.
+  React.useEffect(() => {
+    if (!open) {
+      closeTimeout.clear();
+    }
+  }, [open, closeTimeout]);
+
   // Close unrelated child submenus when hovering a different item in the parent menu.
   React.useEffect(() => {
     function onItemHover(event: { nodeId: string | undefined; target: Element | null }) {
@@ -183,7 +193,17 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       }
 
       if (event.target && triggerElement && triggerElement !== event.target) {
-        store.setOpen(false, createChangeEventDetails(REASONS.siblingOpen));
+        const delay = store.select('closeDelay');
+        if (delay > 0) {
+          closeTimeout.start(delay, () => {
+            store.setOpen(false, createChangeEventDetails(REASONS.siblingOpen));
+          });
+        } else {
+          store.setOpen(false, createChangeEventDetails(REASONS.siblingOpen));
+        }
+      } else {
+        // User re-hovered the submenu trigger, cancel pending close.
+        closeTimeout.clear();
       }
     }
 
@@ -191,7 +211,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     return () => {
       floatingTreeRoot.events.off('itemhover', onItemHover);
     };
-  }, [floatingTreeRoot.events, open, triggerElement, store]);
+  }, [floatingTreeRoot.events, open, triggerElement, store, closeTimeout]);
 
   React.useEffect(() => {
     const eventDetails: MenuOpenEventDetails = {
