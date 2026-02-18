@@ -145,24 +145,20 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
             }
           },
           onKeyUp(event: BaseUIEvent<React.KeyboardEvent>) {
-            // calling preventDefault in keyUp on a <button> will not dispatch a click event if Space is pressed
-            // https://codesandbox.io/p/sandbox/button-keyup-preventdefault-dn7f0
-            // Keyboard accessibility for non interactive elements
-            if (!disabled) {
-              makeEventPreventable(event);
-              externalOnKeyUp?.(event);
+            if (disabled) {
+              return;
             }
 
+            // calling preventDefault in keyUp on a <button> will not dispatch a click event if Space is pressed
+            // https://codesandbox.io/p/sandbox/button-keyup-preventdefault-dn7f0
+            makeEventPreventable(event);
+            externalOnKeyUp?.(event);
             if (event.baseUIHandlerPrevented) {
               return;
             }
 
-            if (
-              event.target === event.currentTarget &&
-              !isNativeButton &&
-              !disabled &&
-              event.key === ' '
-            ) {
+            // Keyboard accessibility for non interactive elements
+            if (event.target === event.currentTarget && !isNativeButton && event.key === ' ') {
               externalOnClick?.(event);
             }
           },
