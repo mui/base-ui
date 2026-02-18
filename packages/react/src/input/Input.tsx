@@ -22,6 +22,10 @@ export interface InputProps extends BaseUIComponentProps<'input', Input.State> {
    */
   onValueChange?: Field.Control.Props['onValueChange'] | undefined;
   defaultValue?: Field.Control.Props['defaultValue'] | undefined;
+  /**
+   * The value of the input. Use when controlled.
+   */
+  value?: React.ComponentProps<'input'>['value'] | undefined;
 }
 
 export interface InputState extends Field.Control.State {}
