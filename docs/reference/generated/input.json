@@ -6,6 +6,11 @@
       "type": "string | number | string[]",
       "detailedType": "string | number | string[] | undefined"
     },
+    "value": {
+      "type": "string | number | string[]",
+      "description": "The value of the input. Use when controlled.",
+      "detailedType": "string | number | string[] | undefined"
+    },
     "onValueChange": {
       "type": "((value: string, eventDetails: Field.Control.ChangeEventDetails) => void)",
       "description": "Callback fired when the `value` changes. Use when controlled.",
