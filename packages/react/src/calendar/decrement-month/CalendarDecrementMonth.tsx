@@ -7,6 +7,7 @@ import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { selectors } from '../store';
+import { useCalendarMonthButton } from '../utils/useCalendarMonthButton';
 
 /**
  * Displays an element to navigate to the previous month in the calendar.
@@ -38,6 +39,14 @@ export const CalendarDecrementMonth = React.forwardRef(function CalendarDecremen
     native: nativeButton,
   });
 
+  const { pointerHandlers, autoChangeButtonRef } = useCalendarMonthButton({
+    direction: -1,
+    disabled: isDisabled,
+    store,
+    adapter,
+    monthPageSize,
+  });
+
   const state: CalendarDecrementMonth.State = React.useMemo(
     () => ({ disabled: isDisabled }),
     [isDisabled],
@@ -45,17 +54,20 @@ export const CalendarDecrementMonth = React.forwardRef(function CalendarDecremen
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [buttonRef, forwardedRef],
+    ref: [buttonRef, autoChangeButtonRef, forwardedRef],
     props: [
       {
         tabIndex: 0,
         'aria-label': monthPageSize > 1 ? 'Previous months' : 'Previous month',
         onClick(event) {
-          if (isDisabled) {
+          // Skip for pointer clicks — onPointerDown already handled the first navigation.
+          // Keep for keyboard activation (Enter/Space) where detail === 0.
+          if (isDisabled || event.detail !== 0) {
             return;
           }
-          store.setVisibleDate(targetDate, event, false);
+          store.setVisibleDate(targetDate, event.nativeEvent, event.currentTarget as HTMLElement);
         },
+        ...pointerHandlers,
       },
       elementProps,
       getButtonProps,

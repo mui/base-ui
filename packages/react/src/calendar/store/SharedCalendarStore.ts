@@ -143,22 +143,19 @@ export class SharedCalendarStore<
   };
 
   /**
-   * Sets the visible data.
+   * Sets the visible date.
    */
   public setVisibleDate = (
     visibleDate: TemporalSupportedObject,
-    event: React.SyntheticEvent,
-    skipIfAlreadyVisible: boolean,
+    nativeEvent?: Event,
+    trigger?: HTMLElement,
+    skipIfAlreadyVisible?: boolean,
   ) => {
     if (skipIfAlreadyVisible && this.isDateCellVisible(visibleDate)) {
       return;
     }
 
-    const eventDetails = createChangeEventDetails(
-      'day-press',
-      event.nativeEvent,
-      event.currentTarget as HTMLElement,
-    );
+    const eventDetails = createChangeEventDetails('day-press', nativeEvent, trigger);
 
     this.parameters.onVisibleDateChange?.(visibleDate, eventDetails);
     if (!eventDetails.isCanceled && this.parameters.visibleDate === undefined) {

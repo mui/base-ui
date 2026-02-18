@@ -12,22 +12,6 @@ import {
 import { calendarValueManager } from '../../root/CalendarRoot';
 
 /**
- * Creates a mock SyntheticEvent for testing setVisibleDate.
- */
-function createMockSyntheticEvent(): React.SyntheticEvent {
-  const nativeEvent = new MouseEvent('click');
-  const currentTarget = document.createElement('button');
-
-  return {
-    nativeEvent,
-    currentTarget,
-    type: 'click',
-    preventDefault: () => {},
-    stopPropagation: () => {},
-  } as unknown as React.SyntheticEvent;
-}
-
-/**
  * Helper to create a SharedCalendarStore with sensible defaults.
  */
 function createStore(
@@ -103,7 +87,7 @@ describe('SharedCalendarStore - visibleDate', () => {
       });
       const newVisibleDate = adapter.date('2025-03-01', 'default');
 
-      store.setVisibleDate(newVisibleDate, createMockSyntheticEvent(), false);
+      store.setVisibleDate(newVisibleDate);
 
       expect(adapter.isEqual(store.state.visibleDate, newVisibleDate)).to.equal(true);
     });
@@ -116,7 +100,7 @@ describe('SharedCalendarStore - visibleDate', () => {
       });
       const newVisibleDate = adapter.date('2025-03-01', 'default');
 
-      store.setVisibleDate(newVisibleDate, createMockSyntheticEvent(), false);
+      store.setVisibleDate(newVisibleDate);
 
       expect(onVisibleDateChange.callCount).to.equal(1);
       expect(adapter.isEqual(onVisibleDateChange.firstCall.args[0], newVisibleDate)).to.equal(true);
@@ -132,10 +116,10 @@ describe('SharedCalendarStore - visibleDate', () => {
       const date1 = adapter.date('2025-03-01', 'default');
       const date2 = adapter.date('2025-04-01', 'default');
 
-      store.setVisibleDate(date1, createMockSyntheticEvent(), false);
+      store.setVisibleDate(date1);
       expect(adapter.isEqual(store.state.visibleDate, date1)).to.equal(true);
 
-      store.setVisibleDate(date2, createMockSyntheticEvent(), false);
+      store.setVisibleDate(date2);
       expect(adapter.isEqual(store.state.visibleDate, date2)).to.equal(true);
 
       expect(onVisibleDateChange.callCount).to.equal(2);
@@ -149,7 +133,7 @@ describe('SharedCalendarStore - visibleDate', () => {
       const store = createStore(adapter, { visibleDate, onVisibleDateChange });
       const newVisibleDate = adapter.date('2025-03-01', 'default');
 
-      store.setVisibleDate(newVisibleDate, createMockSyntheticEvent(), false);
+      store.setVisibleDate(newVisibleDate);
 
       // visibleDate should remain unchanged (controlled mode)
       expect(adapter.isEqual(store.state.visibleDate, visibleDate)).to.equal(true);
@@ -161,7 +145,7 @@ describe('SharedCalendarStore - visibleDate', () => {
       const store = createStore(adapter, { visibleDate, onVisibleDateChange });
       const newVisibleDate = adapter.date('2025-03-01', 'default');
 
-      store.setVisibleDate(newVisibleDate, createMockSyntheticEvent(), false);
+      store.setVisibleDate(newVisibleDate);
 
       expect(onVisibleDateChange.callCount).to.equal(1);
       expect(adapter.isEqual(onVisibleDateChange.firstCall.args[0], newVisibleDate)).to.equal(true);
@@ -188,7 +172,7 @@ describe('SharedCalendarStore - visibleDate', () => {
       });
       const newVisibleDate = adapter.date('2025-03-01', 'default');
 
-      store.setVisibleDate(newVisibleDate, createMockSyntheticEvent(), false);
+      store.setVisibleDate(newVisibleDate);
 
       expect(onVisibleDateChange.callCount).to.equal(1);
 
@@ -196,7 +180,7 @@ describe('SharedCalendarStore - visibleDate', () => {
         .args[1] as CalendarVisibleDateChangeEventDetails;
       expect(eventDetails).not.to.equal(undefined);
       expect(eventDetails.reason).to.equal('day-press');
-      expect(eventDetails.event).to.be.instanceOf(MouseEvent);
+      expect(eventDetails.event).to.be.instanceOf(Event);
       expect(eventDetails.isCanceled).to.equal(false);
       expect(typeof eventDetails.cancel).to.equal('function');
     });
@@ -209,7 +193,7 @@ describe('SharedCalendarStore - visibleDate', () => {
       });
       const newVisibleDate = adapter.date('2025-03-01', 'default');
 
-      store.setVisibleDate(newVisibleDate, createMockSyntheticEvent(), false);
+      store.setVisibleDate(newVisibleDate);
 
       // visibleDate should remain unchanged because cancel() was called
       expect(adapter.isEqual(store.state.visibleDate, defaultVisibleDate)).to.equal(true);
@@ -229,12 +213,12 @@ describe('SharedCalendarStore - visibleDate', () => {
 
       // Try to navigate backward - should be canceled
       const pastDate = adapter.date('2025-01-01', 'default');
-      store.setVisibleDate(pastDate, createMockSyntheticEvent(), false);
+      store.setVisibleDate(pastDate);
       expect(adapter.isEqual(store.state.visibleDate, defaultVisibleDate)).to.equal(true);
 
       // Navigate forward - should succeed
       const futureDate = adapter.date('2025-03-01', 'default');
-      store.setVisibleDate(futureDate, createMockSyntheticEvent(), false);
+      store.setVisibleDate(futureDate);
       expect(adapter.isEqual(store.state.visibleDate, futureDate)).to.equal(true);
     });
   });
@@ -246,7 +230,7 @@ describe('SharedCalendarStore - visibleDate', () => {
       });
       const newVisibleDate = adapter.date('2025-03-01', 'default');
 
-      store.setVisibleDate(newVisibleDate, createMockSyntheticEvent(), false);
+      store.setVisibleDate(newVisibleDate);
 
       expect(store.state.navigationDirection).to.equal('next');
     });
@@ -257,7 +241,7 @@ describe('SharedCalendarStore - visibleDate', () => {
       });
       const newVisibleDate = adapter.date('2025-01-01', 'default');
 
-      store.setVisibleDate(newVisibleDate, createMockSyntheticEvent(), false);
+      store.setVisibleDate(newVisibleDate);
 
       expect(store.state.navigationDirection).to.equal('previous');
     });
@@ -267,19 +251,11 @@ describe('SharedCalendarStore - visibleDate', () => {
       const store = createStore(adapter, { defaultVisibleDate: visibleDate });
 
       // First set a different date to change direction
-      store.setVisibleDate(
-        adapter.date('2025-03-01', 'default'),
-        createMockSyntheticEvent(),
-        false,
-      );
+      store.setVisibleDate(adapter.date('2025-03-01', 'default'));
       expect(store.state.navigationDirection).to.equal('next');
 
       // Now set back to the same date
-      store.setVisibleDate(
-        adapter.date('2025-03-01', 'default'),
-        createMockSyntheticEvent(),
-        false,
-      );
+      store.setVisibleDate(adapter.date('2025-03-01', 'default'));
       expect(store.state.navigationDirection).to.equal('none');
     });
 
@@ -302,7 +278,7 @@ describe('SharedCalendarStore - visibleDate', () => {
       const newVisibleDate = adapter.date('2025-03-01', 'default');
 
       // Without registered day grids, isDateCellVisible returns true
-      store.setVisibleDate(newVisibleDate, createMockSyntheticEvent(), true);
+      store.setVisibleDate(newVisibleDate, undefined, undefined, true);
 
       // Should not update because skipIfAlreadyVisible is true and isDateCellVisible returns true
       expect(onVisibleDateChange.callCount).to.equal(0);
@@ -316,7 +292,7 @@ describe('SharedCalendarStore - visibleDate', () => {
       });
       const newVisibleDate = adapter.date('2025-03-01', 'default');
 
-      store.setVisibleDate(newVisibleDate, createMockSyntheticEvent(), false);
+      store.setVisibleDate(newVisibleDate);
 
       expect(onVisibleDateChange.callCount).to.equal(1);
       expect(adapter.isEqual(store.state.visibleDate, newVisibleDate)).to.equal(true);

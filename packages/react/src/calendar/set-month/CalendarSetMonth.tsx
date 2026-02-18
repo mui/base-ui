@@ -58,7 +58,7 @@ export const CalendarSetMonth = React.forwardRef(function CalendarSetMonth(
           if (isDisabled) {
             return;
           }
-          store.setVisibleDate(targetDate, event, false);
+          store.setVisibleDate(targetDate, event.nativeEvent, event.currentTarget as HTMLElement);
         },
       },
       elementProps,

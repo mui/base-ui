@@ -1,9 +1,10 @@
 import * as React from 'react';
-import { screen } from '@mui/internal-test-utils';
+import { screen, fireEvent } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { Calendar } from '@base-ui/react/calendar';
-import { createTemporalRenderer, describeConformance } from '#test-utils';
+import { LocalizationProvider } from '@base-ui/react/localization-provider';
+import { createRenderer, createTemporalRenderer, describeConformance } from '#test-utils';
 
 describe('<Calendar.IncrementMonth />', () => {
   const { render, adapter } = createTemporalRenderer();
@@ -90,6 +91,80 @@ describe('<Calendar.IncrementMonth />', () => {
       const button = screen.getByRole('button');
       expect(button).not.to.have.attribute('disabled');
       expect(button).not.to.have.attribute('data-disabled');
+    });
+  });
+
+  describe('press and hold', () => {
+    const { render: renderWithClock, clock } = createRenderer();
+    clock.withFakeTimers();
+
+    function renderCalendar(props: Record<string, any> = {}) {
+      return renderWithClock(
+        <LocalizationProvider>
+          <Calendar.Root defaultVisibleDate={adapter.date('2025-01-15', 'default')} {...props}>
+            <Calendar.IncrementMonth data-testid="increment" />
+          </Calendar.Root>
+        </LocalizationProvider>,
+      );
+    }
+
+    it('should navigate continuously when holding pointerdown', async () => {
+      const onVisibleDateChange = spy();
+      await renderCalendar({ onVisibleDateChange });
+
+      const button = screen.getByTestId('increment');
+
+      fireEvent.pointerDown(button);
+
+      // First tick fires immediately
+      expect(onVisibleDateChange.callCount).to.equal(1);
+
+      // Wait for initial delay (400ms)
+      clock.tick(400);
+
+      // Continuous ticks at 100ms intervals
+      clock.tick(100);
+      expect(onVisibleDateChange.callCount).to.equal(2);
+
+      clock.tick(100);
+      expect(onVisibleDateChange.callCount).to.equal(3);
+
+      clock.tick(100);
+      expect(onVisibleDateChange.callCount).to.equal(4);
+
+      fireEvent.pointerUp(button);
+
+      // Should stop after pointer up
+      clock.tick(100);
+      expect(onVisibleDateChange.callCount).to.equal(4);
+    });
+
+    it('should stop at maxDate boundary', async () => {
+      const onVisibleDateChange = spy();
+      await renderCalendar({
+        defaultVisibleDate: adapter.date('2025-01-15', 'default'),
+        maxDate: adapter.date('2025-03-31', 'default'),
+        onVisibleDateChange,
+      });
+
+      const button = screen.getByTestId('increment');
+
+      fireEvent.pointerDown(button);
+
+      // First tick: Jan -> Feb
+      expect(onVisibleDateChange.callCount).to.equal(1);
+
+      clock.tick(400);
+
+      // Second tick: Feb -> Mar
+      clock.tick(100);
+      expect(onVisibleDateChange.callCount).to.equal(2);
+
+      // Third tick would go to Apr which is after maxDate, should stop
+      clock.tick(100);
+      expect(onVisibleDateChange.callCount).to.equal(2);
+
+      fireEvent.pointerUp(button);
     });
   });
 });
