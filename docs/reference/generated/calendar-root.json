@@ -22,6 +22,16 @@
       "description": "The date used to decide which month should be initially displayed in the Day Grid.\nTo render a controlled Calendar, use the `visibleDate` prop instead.",
       "detailedType": "Date | undefined"
     },
+    "visibleDate": {
+      "type": "Date",
+      "description": "The date used to decide which month should be displayed in the Day Grid.\nTo render an uncontrolled Calendar, use the `defaultVisibleDate` prop instead.",
+      "detailedType": "Date | undefined"
+    },
+    "onVisibleDateChange": {
+      "type": "((visibleDate: Date, eventDetails: CalendarVisibleDateChangeEventDetails) => void)",
+      "description": "Event handler called when the selected value changes.\nProvides the new value as an argument.\nHas `getValidationError()` in the `eventDetails` to retrieve the validation error associated to the new value.",
+      "detailedType": "| ((\n    visibleDate: Date,\n    eventDetails: CalendarVisibleDateChangeEventDetails,\n  ) => void)\n| undefined"
+    },
     "isDateUnavailable": {
       "type": "((day: Date) => boolean)",
       "description": "Mark specific dates as unavailable.\nThose dates will not be selectable but they will still be focusable with the keyboard.",
@@ -43,11 +53,6 @@
       "description": "The amount of months to move by when navigating.\nThis is mostly useful when displaying multiple day grids.",
       "detailedType": "number | undefined"
     },
-    "onVisibleDateChange": {
-      "type": "((visibleDate: Date, eventDetails: CalendarVisibleDateChangeEventDetails) => void)",
-      "description": "Event handler called when the selected value changes.\nProvides the new value as an argument.\nHas `getValidationError()` in the `eventDetails` to retrieve the validation error associated to the new value.",
-      "detailedType": "| ((\n    visibleDate: Date,\n    eventDetails: CalendarVisibleDateChangeEventDetails,\n  ) => void)\n| undefined"
-    },
     "referenceDate": {
       "type": "Date",
       "default": "'The closest valid date using the validation props.'",
@@ -59,11 +64,6 @@
       "default": "'The timezone of the \"value\" or \"defaultValue\" prop if defined, \"default\" otherwise.'",
       "description": "Choose which timezone to use for the value.\nExample: \"default\", \"system\", \"UTC\", \"America/New_York\".\nIf you pass values from other timezones to some props, they will be converted to this timezone before being used.",
       "detailedType": "string | undefined"
-    },
-    "visibleDate": {
-      "type": "Date",
-      "description": "The date used to decide which month should be displayed in the Day Grid.\nTo render an uncontrolled Calendar, use the `defaultVisibleDate` prop instead.",
-      "detailedType": "Date | undefined"
     },
     "disabled": {
       "type": "boolean",
