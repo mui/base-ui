@@ -22,11 +22,6 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
 
   const isCompositeItem = useCompositeRootContext(true) !== undefined;
 
-  const isValidLink = useStableCallback(() => {
-    const element = elementRef.current;
-    return Boolean(element?.tagName === 'A' && (element as HTMLAnchorElement)?.href);
-  });
-
   const { props: focusableWhenDisabledProps } = useFocusableWhenDisabled({
     focusableWhenDisabled,
     disabled,
@@ -42,7 +37,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         return;
       }
 
-      const isButtonTag = elementRef.current.tagName === 'BUTTON';
+      const isButtonTag = isButtonElement(elementRef.current);
 
       if (isNativeButton) {
         if (!isButtonTag) {
@@ -131,7 +126,9 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
 
             // Keyboard accessibility for non interactive elements
             const shouldClick =
-              event.target === event.currentTarget && !isNativeButton && !isValidLink();
+              event.target === event.currentTarget &&
+              !isNativeButton &&
+              !isValidLinkElement(elementRef.current);
             if (shouldClick) {
               const isEnterKey = event.key === 'Enter';
               const isSpaceKey = event.key === ' ';
@@ -175,7 +172,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         otherExternalProps,
       );
     },
-    [disabled, focusableWhenDisabledProps, isNativeButton, isValidLink],
+    [disabled, focusableWhenDisabledProps, isNativeButton],
   );
 
   const buttonRef = useStableCallback((element: HTMLElement | null) => {
@@ -193,6 +190,10 @@ function isButtonElement(
   elem: HTMLButtonElement | HTMLAnchorElement | HTMLElement | null,
 ): elem is HTMLButtonElement {
   return isHTMLElement(elem) && elem.tagName === 'BUTTON';
+}
+
+function isValidLinkElement(elem: HTMLElement | null): elem is HTMLAnchorElement {
+  return Boolean(elem?.tagName === 'A' && (elem as HTMLAnchorElement)?.href);
 }
 
 interface GenericButtonProps extends Omit<HTMLProps, 'onClick'>, AdditionalButtonProps {
