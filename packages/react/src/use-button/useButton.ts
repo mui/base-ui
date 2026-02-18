@@ -129,13 +129,12 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
               return;
             }
 
+            // Keyboard accessibility for non interactive elements
             const shouldClick =
               event.target === event.currentTarget && !isNativeButton && !isValidLink();
-            const isEnterKey = event.key === 'Enter';
-            const isSpaceKey = event.key === ' ';
-
-            // Keyboard accessibility for non interactive elements
             if (shouldClick) {
+              const isEnterKey = event.key === 'Enter';
+              const isSpaceKey = event.key === ' ';
               if (isSpaceKey || isEnterKey) {
                 event.preventDefault();
               }
