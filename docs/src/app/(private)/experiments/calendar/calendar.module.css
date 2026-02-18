@@ -89,6 +89,7 @@
   flex-direction: column;
   gap: 4px;
   z-index: 1;
+  position: relative;
 }
 
 .DayGridBody {
