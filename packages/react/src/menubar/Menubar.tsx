@@ -47,17 +47,7 @@ export const Menubar = React.forwardRef(function Menubar(
   const [contentElement, setContentElement] = React.useState<HTMLElement | null>(null);
   const [hasSubmenuOpen, setHasSubmenuOpen] = React.useState(false);
 
-  const {
-    openMethod,
-    triggerProps: interactionTypeProps,
-    reset: resetOpenInteractionType,
-  } = useOpenInteractionType(hasSubmenuOpen);
-
-  React.useEffect(() => {
-    if (!hasSubmenuOpen) {
-      resetOpenInteractionType();
-    }
-  }, [hasSubmenuOpen, resetOpenInteractionType]);
+  const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(hasSubmenuOpen);
 
   useScrollLock(modal && hasSubmenuOpen && openMethod !== 'touch', contentElement);
 

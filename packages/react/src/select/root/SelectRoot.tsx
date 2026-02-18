@@ -122,11 +122,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const alignItemWithTriggerActiveRef = React.useRef(false);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
-  const {
-    openMethod,
-    triggerProps: interactionTypeProps,
-    reset: resetOpenInteractionType,
-  } = useOpenInteractionType(open);
+  const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
 
   const store = useRefWithInit(
     () =>
@@ -278,7 +274,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const handleUnmount = useStableCallback(() => {
     setMounted(false);
     store.set('activeIndex', null);
-    resetOpenInteractionType();
     onOpenChangeComplete?.(false);
   });
 
