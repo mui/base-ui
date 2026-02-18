@@ -46,6 +46,7 @@ export default function ExampleVirtualizedAutocomplete() {
             <Autocomplete.List className={styles.List}>
               <VirtualizedList open={open} virtualizerRef={virtualizerRef} />
             </Autocomplete.List>
+            <Autocomplete.Close visuallyHidden aria-label="Dismiss popup" />
           </Autocomplete.Popup>
         </Autocomplete.Positioner>
       </Autocomplete.Portal>

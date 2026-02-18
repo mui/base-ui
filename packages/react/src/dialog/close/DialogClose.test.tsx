@@ -115,4 +115,21 @@ describe('<Dialog.Close />', () => {
     expect(handleOpenChange.callCount).to.equal(2);
     expect(handleOpenChange.secondCall.args[0]).to.equal(false);
   });
+
+  describe('prop: visuallyHidden', () => {
+    it('supports the `visuallyHidden` prop', async () => {
+      await render(
+        <Dialog.Root open modal={false}>
+          <Dialog.Portal>
+            <Dialog.Popup>
+              <Dialog.Close visuallyHidden aria-label="Close dialog" />
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      const closeButton = screen.getByRole('button', { name: 'Close dialog' });
+      expect(closeButton.style.position).to.equal('fixed');
+    });
+  });
 });

@@ -15,6 +15,7 @@ import {
 
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
+  closePartCount: number;
   modal: boolean;
   allowMouseEnter: boolean;
   parent: MenuParent;
@@ -50,6 +51,7 @@ const selectors = {
       ? state.parent.context.disabled || state.disabled
       : state.disabled,
   ),
+  hasClosePart: createSelector((state: State<unknown>) => state.closePartCount > 0),
 
   modal: createSelector(
     (state: State<unknown>) =>
@@ -167,6 +169,7 @@ function createInitialState<Payload>(): State<Payload> {
   return {
     ...createInitialPopupStoreState(),
     disabled: false,
+    closePartCount: 0,
     modal: true,
     allowMouseEnter: false,
     stickIfOpen: true,

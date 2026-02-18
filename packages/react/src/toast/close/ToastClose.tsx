@@ -5,6 +5,7 @@ import { useToastRootContext } from '../root/ToastRootContext';
 import { useToastProviderContext } from '../provider/ToastProviderContext';
 import { useButton } from '../../use-button/useButton';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { getCloseButtonStyle } from '../../utils/closePart';
 
 /**
  * Closes the toast when clicked.
@@ -16,7 +17,14 @@ export const ToastClose = React.forwardRef(function ToastClose(
   componentProps: ToastClose.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, disabled, nativeButton = true, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    disabled,
+    nativeButton = true,
+    visuallyHidden = false,
+    ...elementProps
+  } = componentProps;
 
   const store = useToastProviderContext();
   const { toast } = useToastRootContext();
@@ -38,6 +46,7 @@ export const ToastClose = React.forwardRef(function ToastClose(
     state,
     props: [
       {
+        style: getCloseButtonStyle(visuallyHidden),
         'aria-hidden': !expanded && !hasFocus,
         onClick() {
           store.closeToast(toast.id);
@@ -65,7 +74,13 @@ export interface ToastCloseState {
 }
 
 export interface ToastCloseProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', ToastClose.State> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', ToastClose.State> {
+  /**
+   * Whether the close button should be visually hidden.
+   * @default false
+   */
+  visuallyHidden?: boolean | undefined;
+}
 
 export namespace ToastClose {
   export type State = ToastCloseState;

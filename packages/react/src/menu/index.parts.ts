@@ -2,6 +2,7 @@ export { MenuArrow as Arrow } from './arrow/MenuArrow';
 export { MenuBackdrop as Backdrop } from './backdrop/MenuBackdrop';
 export { MenuCheckboxItem as CheckboxItem } from './checkbox-item/MenuCheckboxItem';
 export { MenuCheckboxItemIndicator as CheckboxItemIndicator } from './checkbox-item-indicator/MenuCheckboxItemIndicator';
+export { MenuClose as Close } from './close/MenuClose';
 export { MenuGroup as Group } from './group/MenuGroup';
 export { MenuGroupLabel as GroupLabel } from './group-label/MenuGroupLabel';
 export { MenuItem as Item } from './item/MenuItem';

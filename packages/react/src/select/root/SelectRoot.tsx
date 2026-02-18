@@ -133,6 +133,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       new Store<StoreState>({
         id: generatedId,
         modal,
+        closePartCount: 0,
         multiple,
         itemToStringLabel,
         itemToStringValue,
@@ -655,6 +656,10 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    * Determines if the select enters a modal state when open.
    * - `true`: user interaction is limited to the select: document page scroll is locked and pointer interactions on outside elements are disabled.
    * - `false`: user interaction with the rest of the document is allowed.
+   *
+   * Focus trapping when `modal` is `true` requires rendering the `<Select.Close>` part inside
+   * `<Select.Popup>`. Use the `visuallyHidden` prop on `<Select.Close>` to hide it visually while
+   * keeping it accessible to screen readers.
    * @default true
    */
   modal?: boolean | undefined;
@@ -731,6 +736,7 @@ export type SelectRootChangeEventReason =
   | typeof REASONS.escapeKey
   | typeof REASONS.windowResize
   | typeof REASONS.itemPress
+  | typeof REASONS.closePress
   | typeof REASONS.focusOut
   | typeof REASONS.listNavigation
   | typeof REASONS.cancelOpen

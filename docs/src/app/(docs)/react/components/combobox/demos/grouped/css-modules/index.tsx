@@ -45,6 +45,7 @@ export default function ExampleGroupedCombobox() {
                 </Combobox.Group>
               )}
             </Combobox.List>
+            <Combobox.Close visuallyHidden aria-label="Dismiss popup" />
           </Combobox.Popup>
         </Combobox.Positioner>
       </Combobox.Portal>

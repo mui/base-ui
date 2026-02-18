@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
-import { usePopoverRootContext } from '../root/PopoverRootContext';
+import { useSelectRootContext } from '../root/SelectRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -9,13 +9,13 @@ import { REASONS } from '../../utils/reasons';
 import { getCloseButtonStyle, useClosePartRegistration } from '../../utils/closePart';
 
 /**
- * A button that closes the popover.
+ * A button that closes the select popup.
  * Renders a `<button>` element.
  *
- * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-export const PopoverClose = React.forwardRef(function PopoverClose(
-  componentProps: PopoverClose.Props,
+export const SelectClose = React.forwardRef(function SelectClose(
+  componentProps: SelectClose.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
@@ -27,22 +27,24 @@ export const PopoverClose = React.forwardRef(function PopoverClose(
     ...elementProps
   } = componentProps;
 
-  const { buttonRef, getButtonProps } = useButton({
+  const { store, setOpen } = useSelectRootContext();
+  useClosePartRegistration(store);
+
+  const { getButtonProps, buttonRef } = useButton({
     disabled,
-    focusableWhenDisabled: false,
     native: nativeButton,
   });
 
-  const { store } = usePopoverRootContext();
-  useClosePartRegistration(store);
+  const state: SelectClose.State = { disabled };
 
-  const element = useRenderElement('button', componentProps, {
+  return useRenderElement('button', componentProps, {
+    state,
     ref: [forwardedRef, buttonRef],
     props: [
       {
         style: getCloseButtonStyle(visuallyHidden),
         onClick(event) {
-          store.setOpen(
+          setOpen(
             false,
             createChangeEventDetails(REASONS.closePress, event.nativeEvent, event.currentTarget),
           );
@@ -52,14 +54,10 @@ export const PopoverClose = React.forwardRef(function PopoverClose(
       getButtonProps,
     ],
   });
-
-  return element;
 });
 
-export interface PopoverCloseState {}
-
-export interface PopoverCloseProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', PopoverClose.State> {
+export interface SelectCloseProps
+  extends NativeButtonProps, BaseUIComponentProps<'button', SelectClose.State> {
   /**
    * Whether the close button should be visually hidden.
    * @default false
@@ -67,7 +65,14 @@ export interface PopoverCloseProps
   visuallyHidden?: boolean | undefined;
 }
 
-export namespace PopoverClose {
-  export type State = PopoverCloseState;
-  export type Props = PopoverCloseProps;
+export interface SelectCloseState {
+  /**
+   * Whether the button is currently disabled.
+   */
+  disabled: boolean;
+}
+
+export namespace SelectClose {
+  export type Props = SelectCloseProps;
+  export type State = SelectCloseState;
 }
