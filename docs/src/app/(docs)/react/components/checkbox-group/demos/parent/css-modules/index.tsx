@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { Checkbox } from '@base-ui/react/checkbox';
 import { CheckboxGroup } from '@base-ui/react/checkbox-group';
+import { Label } from '@base-ui/react/label';
 import styles from './index.module.css';
 
 const fruits = ['fuji-apple', 'gala-apple', 'granny-smith-apple'];
@@ -19,7 +20,7 @@ export default function ExampleCheckboxGroup() {
       className={styles.CheckboxGroup}
       style={{ marginLeft: '1rem' }}
     >
-      <label className={styles.Item} id={id} style={{ marginLeft: '-1rem' }}>
+      <Label className={styles.Item} id={id} style={{ marginLeft: '-1rem' }}>
         <Checkbox.Root className={styles.Checkbox} parent>
           <Checkbox.Indicator
             className={styles.Indicator}
@@ -35,34 +36,34 @@ export default function ExampleCheckboxGroup() {
           />
         </Checkbox.Root>
         Apples
-      </label>
+      </Label>
 
-      <label className={styles.Item}>
+      <Label className={styles.Item}>
         <Checkbox.Root value="fuji-apple" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
             <CheckIcon className={styles.Icon} />
           </Checkbox.Indicator>
         </Checkbox.Root>
         Fuji
-      </label>
+      </Label>
 
-      <label className={styles.Item}>
+      <Label className={styles.Item}>
         <Checkbox.Root value="gala-apple" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
             <CheckIcon className={styles.Icon} />
           </Checkbox.Indicator>
         </Checkbox.Root>
         Gala
-      </label>
+      </Label>
 
-      <label className={styles.Item}>
+      <Label className={styles.Item}>
         <Checkbox.Root value="granny-smith-apple" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
             <CheckIcon className={styles.Icon} />
           </Checkbox.Indicator>
         </Checkbox.Root>
         Granny Smith
-      </label>
+      </Label>
     </CheckboxGroup>
   );
 }

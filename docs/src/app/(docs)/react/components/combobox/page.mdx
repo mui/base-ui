@@ -15,7 +15,7 @@ import { DemoComboboxHero } from './demos/hero';
 - **Combobox is a filterable Select**: Use Combobox when the input is restricted to a set of predefined selectable items, similar to [Select](/react/components/select) but whose items are filterable using an input. Prefer using Combobox over Select when the number of items is sufficiently large to warrant filtering.
 - **Avoid for simple search widgets**: Combobox does not allow free-form text input. For search widgets, consider using [Autocomplete](/react/components/autocomplete) instead.
 - **Avoid when not rendering an input**: Use [Select](/react/components/select) instead of Combobox if no input is being rendered, which includes accessibility features specific to a listbox without an input.
-- **Form controls must have an accessible name**: It can be created using a `<label>` element or the `Field` component. See [Labeling a combobox](#input-inside-popup) and the [forms guide](/react/handbook/forms).
+- **Form controls must have an accessible name**: It can be created using a `<label>` element, the [Label](/react/components/label) component, or the `Field` component. See [Labeling a combobox](#labeling-a-combobox) and the [forms guide](/react/handbook/forms).
 
 ## Anatomy
 
@@ -98,17 +98,33 @@ import { DemoComboboxMultiple } from './demos/multiple';
 
 <DemoComboboxMultiple compact />
 
-### Input inside popup
+### Labeling a combobox
 
-`<Combobox.Input>` can be rendered inside `<Combobox.Popup>` to create a searchable select popup.
+Use the [Label](/react/components/label) component for a visible combobox label:
 
-import { DemoComboboxInputInsidePopup } from './demos/input-inside-popup';
+```tsx title="Using Label to label a combobox" {2}
+<Combobox.Root>
+  <Label>Favorite fruit</Label>
+  <Combobox.Input />
+  <Combobox.Portal>{/* ... */}</Combobox.Portal>
+</Combobox.Root>
+```
 
-<DemoComboboxInputInsidePopup compact />
+When the combobox input is rendered inside the popup and the trigger is labeled instead, replace the rendered `<label>` with a `<div>` and add `nativeLabel={false}`:
 
-Use the [Field](/react/components/field) component to provide a visible label for the combobox trigger:
+```tsx title="Labeling a combobox trigger when input is in popup" {2,5}
+<Combobox.Root>
+  <Label nativeLabel={false} render={<div />}>
+    Favorite fruit
+    <Combobox.Trigger />
+  </Label>
+  <Combobox.Portal>{/* ... */}</Combobox.Portal>
+</Combobox.Root>
+```
 
-```tsx title="Using Field to label a combobox" {2,4}
+The [Field](/react/components/field) component is an alternative that additionally supports validation and description text:
+
+```tsx title="Using Field to label a combobox trigger" {2,4}
 <Field.Root>
   <Field.Label nativeLabel={false} render={<div />}>
     Favorite fruit
@@ -117,7 +133,13 @@ Use the [Field](/react/components/field) component to provide a visible label fo
 </Field.Root>
 ```
 
-Replace the rendered `<label>` element with a `<div>` element and add `nativeLabel={false}` so it does not inherit native label behaviors. This ensures clicking on the label will focus the combobox trigger without opening the associated popup to match native `<select>` behavior, and prevents CSS `:hover` from activating on the trigger when hovering over the label.
+### Input inside popup
+
+`<Combobox.Input>` can be rendered inside `<Combobox.Popup>` to create a searchable select popup.
+
+import { DemoComboboxInputInsidePopup } from './demos/input-inside-popup';
+
+<DemoComboboxInputInsidePopup compact />
 
 ### Grouped
 

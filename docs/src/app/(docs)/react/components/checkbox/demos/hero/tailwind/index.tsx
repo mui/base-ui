@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { Checkbox } from '@base-ui/react/checkbox';
+import { Label } from '@base-ui/react/label';
 
 export default function ExampleCheckbox() {
   return (
-    <label className="flex items-center gap-2 text-base text-gray-900">
+    <Label className="flex items-center gap-2 text-base text-gray-900">
       <Checkbox.Root
         defaultChecked
         className="flex size-5 items-center justify-center rounded-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
@@ -13,7 +14,7 @@ export default function ExampleCheckbox() {
         </Checkbox.Indicator>
       </Checkbox.Root>
       Enable notifications
-    </label>
+    </Label>
   );
 }
 

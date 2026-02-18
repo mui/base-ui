@@ -1,24 +1,24 @@
 'use client';
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
-import { Field } from '@base-ui/react/field';
+import { Label } from '@base-ui/react/label';
 import styles from './index.module.css';
 
 export default function ExamplePopoverCombobox() {
   return (
-    <Field.Root className={styles.Field}>
-      <Field.Label className={styles.Label} nativeLabel={false} render={<div />}>
-        Country
-      </Field.Label>
+    <div className={styles.Field}>
       <Combobox.Root items={countries}>
-        <Combobox.Trigger className={styles.Trigger}>
-          <Combobox.Value
-            placeholder={<span className={styles.Placeholder}>Select country</span>}
-          />
-          <Combobox.Icon className={styles.TriggerIcon}>
-            <ChevronUpDownIcon />
-          </Combobox.Icon>
-        </Combobox.Trigger>
+        <Label className={styles.Label} nativeLabel={false} render={<div />}>
+          Country
+          <Combobox.Trigger className={styles.Trigger}>
+            <Combobox.Value
+              placeholder={<span className={styles.Placeholder}>Select country</span>}
+            />
+            <Combobox.Icon className={styles.TriggerIcon}>
+              <ChevronUpDownIcon />
+            </Combobox.Icon>
+          </Combobox.Trigger>
+        </Label>
         <Combobox.Portal>
           <Combobox.Positioner align="start" sideOffset={4}>
             <Combobox.Popup className={styles.Popup} aria-label="Select country">
@@ -40,7 +40,7 @@ export default function ExamplePopoverCombobox() {
           </Combobox.Positioner>
         </Combobox.Portal>
       </Combobox.Root>
-    </Field.Root>
+    </div>
   );
 }
 
