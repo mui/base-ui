@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { FloatingNode } from '../../floating-ui-react';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -18,7 +19,6 @@ import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRo
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { MenuOpenEventDetails } from '../utils/types';
-import { useTimeout } from '@base-ui/utils/useTimeout';
 
 /**
  * Positions the menu popup against the trigger.
