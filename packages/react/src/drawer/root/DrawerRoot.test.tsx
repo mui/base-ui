@@ -477,6 +477,25 @@ function CanceledCloseSnapPointResetCase() {
   );
 }
 
+function ControlledAlwaysOpenCase({
+  onOpenChange,
+}: {
+  onOpenChange?: (open: boolean, eventDetails: Drawer.Root.ChangeEventDetails) => void;
+}) {
+  return (
+    <Drawer.Root open onOpenChange={onOpenChange} swipeDirection="down">
+      <Drawer.Portal>
+        <Drawer.Backdrop data-testid="backdrop" />
+        <Drawer.Viewport data-testid="viewport" style={{ height: 300 }}>
+          <Drawer.Popup data-testid="popup" style={{ height: 200 }}>
+            Drawer
+          </Drawer.Popup>
+        </Drawer.Viewport>
+      </Drawer.Portal>
+    </Drawer.Root>
+  );
+}
+
 function CanceledSwipeCloseCase() {
   const [open, setOpen] = React.useState(true);
 
@@ -780,6 +799,61 @@ describe('<Drawer.Root />', () => {
       expect(popup).toHaveAttribute('data-open', '');
       expect(popup.style.getPropertyValue('--drawer-swipe-movement-y')).toBe('0px');
     } finally {
+      document.elementFromPoint = originalElementFromPoint;
+      if (typeof originalResizeObserver === 'function') {
+        globalThis.ResizeObserver = originalResizeObserver;
+      }
+    }
+  });
+
+  it('does not dismiss a controlled drawer via swipe when open is always true', async () => {
+    const handleOpenChange = vi.fn();
+
+    const originalElementFromPoint = document.elementFromPoint;
+    const originalResizeObserver = globalThis.ResizeObserver;
+    if (typeof originalResizeObserver === 'function') {
+      globalThis.ResizeObserver = class {
+        observe() {}
+        unobserve() {}
+        disconnect() {}
+      } as typeof ResizeObserver;
+    }
+
+    const useFakeTimers = isJSDOM;
+    if (useFakeTimers) {
+      vi.useFakeTimers();
+    }
+
+    try {
+      await render(<ControlledAlwaysOpenCase onOpenChange={handleOpenChange} />);
+      await flushMicrotasks();
+
+      const viewport = screen.getByTestId('viewport');
+      const popup = screen.getByTestId('popup');
+      const backdrop = screen.getByTestId('backdrop');
+
+      Object.defineProperty(popup, 'offsetHeight', { value: 200, configurable: true });
+
+      document.elementFromPoint = () => popup;
+
+      await simulateTimedDownSwipe(viewport, 100, 250, 1000, 1010, 1040);
+
+      // onOpenChange should still be called so the parent knows about the dismiss intent
+      expect(handleOpenChange).toHaveBeenCalledWith(false, expect.anything());
+
+      // The event details should be canceled since the drawer is controlled
+      const eventDetails = handleOpenChange.mock.calls[0][1];
+      expect(eventDetails.isCanceled).toBe(true);
+
+      // The drawer should remain open without data-swipe-dismiss
+      expect(popup).not.toHaveAttribute('data-swipe-dismiss');
+      expect(backdrop).not.toHaveAttribute('data-swipe-dismiss');
+      expect(popup).not.toHaveAttribute('data-ending-style');
+      expect(popup).toHaveAttribute('data-open', '');
+    } finally {
+      if (useFakeTimers) {
+        vi.useRealTimers();
+      }
       document.elementFromPoint = originalElementFromPoint;
       if (typeof originalResizeObserver === 'function') {
         globalThis.ResizeObserver = originalResizeObserver;
