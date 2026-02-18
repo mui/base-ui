@@ -119,20 +119,18 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
             }
           },
           onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
-            if (!disabled) {
-              makeEventPreventable(event);
-              externalOnKeyDown?.(event);
+            if (disabled) {
+              return;
             }
 
+            makeEventPreventable(event);
+            externalOnKeyDown?.(event);
             if (event.baseUIHandlerPrevented) {
               return;
             }
 
             const shouldClick =
-              event.target === event.currentTarget &&
-              !isNativeButton &&
-              !isValidLink() &&
-              !disabled;
+              event.target === event.currentTarget && !isNativeButton && !isValidLink();
             const isEnterKey = event.key === 'Enter';
             const isSpaceKey = event.key === ' ';
 
