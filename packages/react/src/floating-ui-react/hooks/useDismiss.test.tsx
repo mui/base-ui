@@ -49,7 +49,7 @@ function App(
         if (!openArg) {
           props.onClose?.();
         }
-      } else if (props.referencePress) {
+      } else if (props.referencePress?.()) {
         expect(reason).toBe(REASONS.triggerPress);
       } else if (props.ancestorScroll) {
         expect(reason).toBe(REASONS.none);
@@ -118,13 +118,13 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
     });
 
     test('dismisses with reference press', async () => {
-      render(<App referencePress />);
+      render(<App referencePress={() => true} />);
       await userEvent.click(screen.getByRole('button'));
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
 
     test('dismisses with native click', async () => {
-      render(<App referencePress />);
+      render(<App referencePress={() => true} />);
       fireEvent.click(screen.getByRole('button'));
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
@@ -301,7 +301,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
     });
 
     test('does not dismiss with reference pointer down', async () => {
-      render(<App referencePress={false} />);
+      render(<App referencePress={() => false} />);
       await userEvent.click(screen.getByRole('button'));
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
     });

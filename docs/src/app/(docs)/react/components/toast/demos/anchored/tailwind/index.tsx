@@ -64,16 +64,10 @@ function CopyButton() {
   }
 
   return (
-    <Tooltip.Root
-      disabled={copied}
-      onOpenChange={(open, eventDetails) => {
-        if (eventDetails.reason === 'trigger-press') {
-          eventDetails.cancel();
-        }
-      }}
-    >
+    <Tooltip.Root disabled={copied}>
       <Tooltip.Trigger
         ref={buttonRef}
+        closeOnClick={false}
         className="box-border flex h-10 w-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 text-gray-900 outline-0 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100"
         onClick={handleCopy}
         aria-label="Copy to clipboard"

@@ -134,7 +134,10 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
 
   const floatingRootContext = store.useState('floatingRootContext');
 
-  const dismiss = useDismiss(floatingRootContext, { enabled: !disabled, referencePress: true });
+  const dismiss = useDismiss(floatingRootContext, {
+    enabled: !disabled,
+    referencePress: () => store.select('closeOnClick'),
+  });
   const clientPoint = useClientPoint(floatingRootContext, {
     enabled: !disabled && trackCursorAxis !== 'none',
     axis: trackCursorAxis === 'none' ? undefined : trackCursorAxis,
