@@ -146,6 +146,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
   });
 
   useField({
+    disabled,
     id,
     commit: validation.commit,
     value: checkedValue,

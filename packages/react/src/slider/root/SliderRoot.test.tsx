@@ -2170,29 +2170,78 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(root).to.have.attribute('data-dirty', '');
     });
 
-    it('[data-focused]', async () => {
-      await render(
-        <Field.Root>
-          <Slider.Root data-testid="root">
-            <Slider.Control>
-              <Slider.Thumb />
-            </Slider.Control>
-          </Slider.Root>
-        </Field.Root>,
-      );
+    describe('[data-focused]', () => {
+      it('sets [data-focused] when focused', async () => {
+        await render(
+          <Field.Root>
+            <Slider.Root data-testid="root">
+              <Slider.Control>
+                <Slider.Thumb />
+              </Slider.Control>
+            </Slider.Root>
+          </Field.Root>,
+        );
 
-      const root = screen.getByTestId('root');
-      const input = screen.getByRole('slider');
+        const root = screen.getByTestId('root');
+        const input = screen.getByRole('slider');
 
-      expect(root).not.to.have.attribute('data-focused');
+        expect(root).not.to.have.attribute('data-focused');
 
-      fireEvent.focus(input);
+        fireEvent.focus(input);
+        expect(root).to.have.attribute('data-focused', '');
 
-      expect(root).to.have.attribute('data-focused', '');
+        fireEvent.blur(input);
+        expect(root).not.to.have.attribute('data-focused');
+      });
 
-      fireEvent.blur(input);
+      it('should remove [data-focused] when the field becomes disabled', async () => {
+        const { setProps } = await render(
+          <Field.Root>
+            <Slider.Root data-testid="root">
+              <Slider.Control>
+                <Slider.Thumb />
+              </Slider.Control>
+            </Slider.Root>
+          </Field.Root>,
+        );
 
-      expect(root).not.to.have.attribute('data-focused');
+        const root = screen.getByTestId('root');
+        const input = screen.getByRole('slider');
+
+        expect(root).not.to.have.attribute('data-focused');
+
+        fireEvent.focus(input);
+        expect(root).to.have.attribute('data-focused', '');
+
+        await setProps({ disabled: true });
+        expect(root).not.to.have.attribute('data-focused');
+      });
+
+      it('should remove [data-focused] when the slider becomes disabled', async () => {
+        function App({ disabled }: { disabled: boolean }) {
+          return (
+            <Field.Root>
+              <Slider.Root data-testid="root" disabled={disabled}>
+                <Slider.Control>
+                  <Slider.Thumb />
+                </Slider.Control>
+              </Slider.Root>
+            </Field.Root>
+          );
+        }
+        const { setProps } = await render(<App disabled={false} />);
+
+        const root = screen.getByTestId('root');
+        const input = screen.getByRole('slider');
+
+        expect(root).not.to.have.attribute('data-focused');
+
+        fireEvent.focus(input);
+        expect(root).to.have.attribute('data-focused', '');
+
+        await setProps({ disabled: true });
+        expect(root).not.to.have.attribute('data-focused');
+      });
     });
 
     describe('prop: validate', () => {

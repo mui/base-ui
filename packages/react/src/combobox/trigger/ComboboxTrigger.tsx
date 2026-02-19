@@ -16,6 +16,7 @@ import {
 import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { selectors } from '../store';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useClearFocusWhenDisabled } from '../../field/useField';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { stopEvent, contains, getTarget } from '../../floating-ui-react/utils';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
@@ -124,10 +125,12 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     event: 'mousedown',
   });
 
-  const { buttonRef, getButtonProps } = useButton({
+  const { buttonRef, getButtonProps, focusableWhenDisabled } = useButton({
     native: nativeButton,
     disabled,
   });
+
+  useClearFocusWhenDisabled(disabled, focusableWhenDisabled);
 
   const state: ComboboxTrigger.State = {
     ...fieldState,

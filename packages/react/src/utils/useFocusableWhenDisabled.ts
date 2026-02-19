@@ -14,6 +14,7 @@ export function useFocusableWhenDisabled(
 
   const isFocusableComposite = composite && focusableWhenDisabled !== false;
   const isNonFocusableComposite = composite && focusableWhenDisabled === false;
+  const isFocusableWhenDisabled = Boolean(focusableWhenDisabled) || isFocusableComposite;
 
   // we can't explicitly assign `undefined` to any of these props because it
   // would otherwise prevent subsequently merged props from setting them
@@ -57,7 +58,10 @@ export function useFocusableWhenDisabled(
     tabIndexProp,
   ]);
 
-  return { props };
+  return {
+    props,
+    focusableWhenDisabled: isFocusableWhenDisabled,
+  };
 }
 
 interface FocusableWhenDisabledProps {
@@ -94,6 +98,7 @@ export interface UseFocusableWhenDisabledParameters {
 
 export interface UseFocusableWhenDisabledReturnValue {
   props: FocusableWhenDisabledProps;
+  focusableWhenDisabled: boolean;
 }
 
 export namespace useFocusableWhenDisabled {

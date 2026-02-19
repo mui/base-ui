@@ -165,6 +165,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   useField({
     enabled: !groupContext,
+    disabled,
     id,
     commit: validation.commit,
     value: checked,

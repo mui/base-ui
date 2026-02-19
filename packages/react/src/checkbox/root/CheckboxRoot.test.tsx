@@ -742,24 +742,71 @@ describe('<Checkbox.Root />', () => {
       });
     });
 
-    it('[data-focused]', async () => {
-      await render(
-        <Field.Root>
-          <Checkbox.Root data-testid="button" />
-        </Field.Root>,
-      );
+    describe('[data-focused]', () => {
+      it('sets [data-focused] when focused', async () => {
+        await render(
+          <Field.Root>
+            <Checkbox.Root data-testid="button" />
+          </Field.Root>,
+        );
 
-      const button = screen.getByTestId('button');
+        const button = screen.getByTestId('button');
 
-      expect(button).not.to.have.attribute('data-focused');
+        expect(button).not.to.have.attribute('data-focused');
 
-      fireEvent.focus(button);
+        fireEvent.focus(button);
 
-      expect(button).to.have.attribute('data-focused', '');
+        expect(button).to.have.attribute('data-focused', '');
 
-      fireEvent.blur(button);
+        fireEvent.blur(button);
 
-      expect(button).not.to.have.attribute('data-focused');
+        expect(button).not.to.have.attribute('data-focused');
+      });
+
+      it('should remove data-focused when the field becomes disabled', async () => {
+        const { setProps } = await render(
+          <Field.Root data-testid="root">
+            <Checkbox.Root />
+          </Field.Root>,
+        );
+
+        const root = screen.getByTestId('root');
+        const checkbox = screen.getByRole('checkbox');
+
+        fireEvent.focus(checkbox);
+
+        expect(root).to.have.attribute('data-focused', '');
+        expect(checkbox).to.have.attribute('data-focused', '');
+
+        await setProps({ disabled: true });
+
+        expect(root).not.to.have.attribute('data-focused', '');
+        expect(checkbox).not.to.have.attribute('data-focused', '');
+      });
+
+      it('should remove data-focused when the checkbox becomes disabled', async () => {
+        function App({ disabled }: { disabled: boolean }) {
+          return (
+            <Field.Root data-testid="root">
+              <Checkbox.Root disabled={disabled} />
+            </Field.Root>
+          );
+        }
+        const { setProps } = await render(<App disabled={false} />);
+
+        const root = screen.getByTestId('root');
+        const checkbox = screen.getByRole('checkbox');
+
+        fireEvent.focus(checkbox);
+
+        expect(root).to.have.attribute('data-focused', '');
+        expect(checkbox).to.have.attribute('data-focused', '');
+
+        await setProps({ disabled: true });
+
+        expect(root).not.to.have.attribute('data-focused', '');
+        expect(checkbox).not.to.have.attribute('data-focused', '');
+      });
     });
 
     it('[data-invalid]', async () => {

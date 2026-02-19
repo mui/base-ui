@@ -94,7 +94,14 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     state: 'checked',
   });
 
+  const { getButtonProps, buttonRef, focusableWhenDisabled } = useButton({
+    disabled,
+    native: nativeButton,
+  });
+
   useField({
+    disabled,
+    focusableWhenDisabled,
     id,
     commit: validation.commit,
     value: checked,
@@ -119,11 +126,6 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     } else {
       validation.commit(checked, true);
     }
-  });
-
-  const { getButtonProps, buttonRef } = useButton({
-    disabled,
-    native: nativeButton,
   });
 
   const rootProps: React.ComponentPropsWithRef<'span'> = {

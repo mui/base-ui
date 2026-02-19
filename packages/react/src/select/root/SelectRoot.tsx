@@ -179,6 +179,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const controlRef = useValueAsRef(store.state.triggerElement);
 
   useField({
+    disabled,
     id: generatedId,
     commit: validation.commit,
     value,

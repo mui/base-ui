@@ -165,6 +165,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   });
 
   useField({
+    disabled,
     id,
     commit: validation.commit,
     value: valueUnwrapped,
@@ -273,12 +274,14 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   }
 
   useIsoLayoutEffect(() => {
-    const activeEl = activeElement(ownerDocument(sliderRef.current));
-    if (disabled && activeEl && sliderRef.current?.contains(activeEl)) {
-      // This is necessary because Firefox and Safari will keep focus
-      // on a disabled element:
-      // https://codesandbox.io/p/sandbox/mui-pr-22247-forked-h151h?file=/src/App.js
-      (activeEl as HTMLElement).blur();
+    if (disabled) {
+      const activeEl = activeElement(ownerDocument(sliderRef.current));
+      if (activeEl && sliderRef.current?.contains(activeEl)) {
+        // This is necessary because Firefox and Safari will keep focus
+        // on a disabled element:
+        // https://codesandbox.io/p/sandbox/mui-pr-22247-forked-h151h?file=/src/App.js
+        (activeEl as HTMLElement).blur();
+      }
     }
   }, [disabled]);
 
