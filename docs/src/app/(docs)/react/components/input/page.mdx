@@ -24,19 +24,6 @@ import { Input } from '@base-ui/react/input';
 <Input />;
 ```
 
-## Value and defaultValue
-
-Use the **`value`** prop for a controlled input and **`onValueChange`** to update it. Use **`defaultValue`** for an uncontrolled input.
-
-```jsx title="Controlled"
-const [value, setValue] = React.useState('');
-<Input value={value} onValueChange={(v) => setValue(v)} />;
-```
-
-```jsx title="Uncontrolled"
-<Input defaultValue="Initial" />
-```
-
 ## API reference
 
 <Reference component="Input" />
