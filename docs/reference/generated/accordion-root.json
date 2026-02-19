@@ -3,19 +3,19 @@
   "description": "Groups all parts of the accordion.\nRenders a `<div>` element.",
   "props": {
     "defaultValue": {
-      "type": "any[]",
+      "type": "Value[]",
       "description": "The uncontrolled value of the item(s) that should be initially expanded.\n\nTo render a controlled accordion, use the `value` prop instead.",
-      "detailedType": "any[] | undefined"
+      "detailedType": "Value[] | undefined"
     },
     "value": {
-      "type": "any[]",
+      "type": "Value[]",
       "description": "The controlled value of the item(s) that should be expanded.\n\nTo render an uncontrolled accordion, use the `defaultValue` prop instead.",
-      "detailedType": "any[] | undefined"
+      "detailedType": "Value[] | undefined"
     },
     "onValueChange": {
-      "type": "((value: any[], eventDetails: Accordion.Root.ChangeEventDetails) => void)",
+      "type": "((value: Value[], eventDetails: Accordion.Root.ChangeEventDetails) => void)",
       "description": "Event handler called when an accordion item is expanded or collapsed.\nProvides the new value as an argument.",
-      "detailedType": "| ((\n    value: any[],\n    eventDetails: Accordion.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: Value[],\n    eventDetails: Accordion.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "hiddenUntilFound": {
       "type": "boolean",
@@ -48,13 +48,13 @@
       "detailedType": "'horizontal' | 'vertical' | undefined"
     },
     "className": {
-      "type": "string | ((state: Accordion.Root.State) => string | undefined)",
+      "type": "string | ((state: Accordion.Root.State<Value>) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: Accordion.Root.State) => string | undefined)"
+      "detailedType": "| string\n| ((\n    state: Accordion.Root.State<Value>,\n  ) => string | undefined)"
     },
     "style": {
-      "type": "CSSProperties | ((state: Accordion.Root.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((\n    state: Accordion.Root.State,\n  ) => CSSProperties | undefined)\n| undefined"
+      "type": "CSSProperties | ((state: Accordion.Root.State<Value>) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Accordion.Root.State<Value>,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "keepMounted": {
       "type": "boolean",
@@ -63,9 +63,9 @@
       "detailedType": "boolean | undefined"
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Accordion.Root.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Accordion.Root.State<Value>) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Accordion.Root.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Accordion.Root.State<Value>,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {
