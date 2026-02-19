@@ -7,6 +7,7 @@ import {
   isElement,
   isHTMLElement,
   isLastTraversableNode,
+  isShadowRoot,
   isWebKit,
 } from '@floating-ui/utils/dom';
 import { Timeout, useTimeout } from '@base-ui/utils/useTimeout';
@@ -174,6 +175,16 @@ export function useDismiss(
 
   const cancelDismissOnEndTimeout = useTimeout();
   const clearInsideReactTreeTimeout = useTimeout();
+
+  const handledEventsRef = React.useRef<WeakSet<Event>>(new WeakSet());
+
+  function shouldHandleCapturedEvent(event: Event) {
+    if (handledEventsRef.current.has(event)) {
+      return false;
+    }
+    handledEventsRef.current.add(event);
+    return true;
+  }
 
   const clearInsideReactTree = useStableCallback(() => {
     clearInsideReactTreeTimeout.clear();
@@ -435,6 +446,10 @@ export function useDismiss(
   });
 
   const handleTouchStartCapture = useStableCallback((event: TouchEvent) => {
+    if (!shouldHandleCapturedEvent(event)) {
+      return;
+    }
+
     const target = getTarget(event);
     function callback() {
       handleTouchStart(event);
@@ -444,6 +459,10 @@ export function useDismiss(
   });
 
   const closeOnPressOutsideCapture = useStableCallback((event: PointerEvent | MouseEvent) => {
+    if (!shouldHandleCapturedEvent(event)) {
+      return;
+    }
+
     // When click outside is lazy (`up` event), handle dragging.
     // Don't close if:
     // - The click started inside the floating element.
@@ -505,6 +524,10 @@ export function useDismiss(
   });
 
   const handleTouchMoveCapture = useStableCallback((event: TouchEvent) => {
+    if (!shouldHandleCapturedEvent(event)) {
+      return;
+    }
+
     const target = getTarget(event);
     function callback() {
       handleTouchMove(event);
@@ -532,6 +555,10 @@ export function useDismiss(
   });
 
   const handleTouchEndCapture = useStableCallback((event: TouchEvent) => {
+    if (!shouldHandleCapturedEvent(event)) {
+      return;
+    }
+
     const target = getTarget(event);
     function callback() {
       handleTouchEnd(event);
@@ -575,7 +602,13 @@ export function useDismiss(
 
     const doc = ownerDocument(floatingElement);
 
+    const rootNode = floatingElement?.getRootNode?.();
+    const shadowRoot = rootNode && isShadowRoot(rootNode) ? rootNode : null;
+
     doc.addEventListener('pointerdown', trackPointerType, true);
+    if (shadowRoot) {
+      shadowRoot.addEventListener('pointerdown', trackPointerType as EventListener, true);
+    }
 
     if (escapeKey) {
       doc.addEventListener('keydown', closeOnEscapeKeyDown);
@@ -590,6 +623,18 @@ export function useDismiss(
       doc.addEventListener('touchmove', handleTouchMoveCapture, true);
       doc.addEventListener('touchend', handleTouchEndCapture, true);
       doc.addEventListener('mousedown', closeOnPressOutsideCapture, true);
+
+      if (shadowRoot) {
+        shadowRoot.addEventListener(
+          'pointerdown',
+          closeOnPressOutsideCapture as EventListener,
+          true,
+        );
+        shadowRoot.addEventListener('touchstart', handleTouchStartCapture as EventListener, true);
+        shadowRoot.addEventListener('touchmove', handleTouchMoveCapture as EventListener, true);
+        shadowRoot.addEventListener('touchend', handleTouchEndCapture as EventListener, true);
+        shadowRoot.addEventListener('mousedown', closeOnPressOutsideCapture as EventListener, true);
+      }
     }
 
     let ancestors: (Element | Window | VisualViewport)[] = [];
@@ -618,6 +663,10 @@ export function useDismiss(
     return () => {
       doc.removeEventListener('pointerdown', trackPointerType, true);
 
+      if (shadowRoot) {
+        shadowRoot.removeEventListener('pointerdown', trackPointerType as EventListener, true);
+      }
+
       if (escapeKey) {
         doc.removeEventListener('keydown', closeOnEscapeKeyDown);
         doc.removeEventListener('compositionstart', handleCompositionStart);
@@ -631,6 +680,30 @@ export function useDismiss(
         doc.removeEventListener('touchmove', handleTouchMoveCapture, true);
         doc.removeEventListener('touchend', handleTouchEndCapture, true);
         doc.removeEventListener('mousedown', closeOnPressOutsideCapture, true);
+
+        if (shadowRoot) {
+          shadowRoot.removeEventListener(
+            'pointerdown',
+            closeOnPressOutsideCapture as EventListener,
+            true,
+          );
+          shadowRoot.removeEventListener(
+            'touchstart',
+            handleTouchStartCapture as EventListener,
+            true,
+          );
+          shadowRoot.removeEventListener(
+            'touchmove',
+            handleTouchMoveCapture as EventListener,
+            true,
+          );
+          shadowRoot.removeEventListener('touchend', handleTouchEndCapture as EventListener, true);
+          shadowRoot.removeEventListener(
+            'mousedown',
+            closeOnPressOutsideCapture as EventListener,
+            true,
+          );
+        }
       }
 
       ancestors.forEach((ancestor) => {

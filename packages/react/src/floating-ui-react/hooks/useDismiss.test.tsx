@@ -117,6 +117,112 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
 
+    test('dismisses with outside press inside open ShadowRoot when portaled into ShadowRoot', async () => {
+      if (!HTMLElement.prototype.attachShadow) {
+        return;
+      }
+
+      const host = document.createElement('div');
+      document.body.append(host);
+      const shadowRoot = host.attachShadow({ mode: 'open' });
+
+      const outside = document.createElement('button');
+      outside.setAttribute('data-testid', 'outside');
+      shadowRoot.append(outside);
+
+      function ShadowRootPortalApp() {
+        const [open, setOpen] = React.useState(true);
+
+        const { refs, context } = useFloating({
+          open,
+          onOpenChange(openArg, data) {
+            setOpen(openArg);
+            if (!openArg) {
+              expect(data?.reason).toBe(REASONS.outsidePress);
+            }
+          },
+        });
+
+        const { getReferenceProps, getFloatingProps } = useInteractions([useDismiss(context)]);
+
+        return (
+          <React.Fragment>
+            <button {...getReferenceProps({ ref: refs.setReference })} />
+            {open && (
+              <FloatingPortal container={shadowRoot}>
+                <div role="tooltip" {...getFloatingProps({ ref: refs.setFloating })} />
+              </FloatingPortal>
+            )}
+          </React.Fragment>
+        );
+      }
+
+      render(<ShadowRootPortalApp />);
+      await flushMicrotasks();
+      expect(shadowRoot.querySelector('[role="tooltip"]')).not.toBeNull();
+
+      outside.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, composed: false }));
+
+      await waitFor(() => {
+        expect(shadowRoot.querySelector('[role="tooltip"]')).toBeNull();
+      });
+
+      host.remove();
+    });
+
+    test('dismisses with outside press inside closed ShadowRoot when portaled into ShadowRoot', async () => {
+      if (!HTMLElement.prototype.attachShadow) {
+        return;
+      }
+
+      const host = document.createElement('div');
+      document.body.append(host);
+      const shadowRoot = host.attachShadow({ mode: 'closed' });
+
+      const outside = document.createElement('button');
+      outside.setAttribute('data-testid', 'outside');
+      shadowRoot.append(outside);
+
+      function ShadowRootPortalApp() {
+        const [open, setOpen] = React.useState(true);
+
+        const { refs, context } = useFloating({
+          open,
+          onOpenChange(openArg, data) {
+            setOpen(openArg);
+            if (!openArg) {
+              expect(data?.reason).toBe(REASONS.outsidePress);
+            }
+          },
+        });
+
+        const { getReferenceProps, getFloatingProps } = useInteractions([useDismiss(context)]);
+
+        return (
+          <React.Fragment>
+            <button {...getReferenceProps({ ref: refs.setReference })} />
+            {open && (
+              <FloatingPortal container={shadowRoot}>
+                <div role="tooltip" {...getFloatingProps({ ref: refs.setFloating })} />
+              </FloatingPortal>
+            )}
+          </React.Fragment>
+        );
+      }
+
+      render(<ShadowRootPortalApp />);
+      await flushMicrotasks();
+      expect(shadowRoot.querySelector('[role="tooltip"]')).not.toBeNull();
+
+      outside.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, composed: false }));
+
+      await waitFor(() => {
+        expect(shadowRoot.querySelector('[role="tooltip"]')).toBeNull();
+      });
+
+      host.remove();
+    });
+
     test('dismisses with reference press', async () => {
       render(<App referencePress />);
       await userEvent.click(screen.getByRole('button'));
