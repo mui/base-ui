@@ -575,7 +575,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           required={required && !hasMultipleSelection}
           readOnly={readOnly}
           ref={ref}
-          style={hiddenInputName ? visuallyHiddenInput : visuallyHidden}
+          style={name ? visuallyHiddenInput : visuallyHidden}
           tabIndex={-1}
           aria-hidden
         />
