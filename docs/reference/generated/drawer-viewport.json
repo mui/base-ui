@@ -17,6 +17,22 @@
       "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Drawer.Viewport.State,\n  ) => ReactElement)"
     }
   },
-  "dataAttributes": {},
+  "dataAttributes": {
+    "data-open": {
+      "description": "Present when the drawer is open."
+    },
+    "data-closed": {
+      "description": "Present when the drawer is closed."
+    },
+    "data-nested": {
+      "description": "Present when the drawer is nested within another drawer."
+    },
+    "data-starting-style": {
+      "description": "Present when the drawer is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the drawer is animating out."
+    }
+  },
   "cssVariables": {}
 }

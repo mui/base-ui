@@ -56,6 +56,12 @@
     },
     "data-focused": {
       "description": "Present when the radio is focused (when wrapped in Field.Root)."
+    },
+    "data-starting-style": {
+      "description": "Present when the radio indicator is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the radio indicator is animating out."
     }
   },
   "cssVariables": {}
