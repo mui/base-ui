@@ -75,13 +75,6 @@ Renders a `<span>` element.
 | style     | `React.CSSProperties \| ((state: Avatar.Fallback.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
 | render    | `ReactElement \| ((props: HTMLProps, state: Avatar.Fallback.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
-**Fallback Data Attributes:**
-
-| Attribute           | Type | Description                                 |
-| :------------------ | :--- | :------------------------------------------ |
-| data-starting-style | -    | Present when the fallback is animating in.  |
-| data-ending-style   | -    | Present when the fallback is animating out. |
-
 ### Fallback.Props
 
 Re-export of [Fallback](#fallback) props.
