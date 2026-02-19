@@ -86,14 +86,6 @@ export class DialogStore<Payload> extends ReactStore<
       return;
     }
 
-    // In controlled mode, don't update internal state.
-    // The parent must update the `open` prop for the state to change.
-    // Cancel the event so callers (e.g. DrawerViewport.onDismiss) clean up properly.
-    if (this.state.openProp !== undefined) {
-      eventDetails.cancel();
-      return;
-    }
-
     const details: FloatingUIOpenChangeDetails = {
       open: nextOpen,
       nativeEvent: eventDetails.event,
@@ -103,9 +95,15 @@ export class DialogStore<Payload> extends ReactStore<
 
     this.state.floatingRootContext.context.events?.emit('openchange', details);
 
-    const updatedState: Partial<State<Payload>> = {
-      open: nextOpen,
-    };
+    const updatedState: Partial<State<Payload>> = {};
+
+    // Only update internal open state when not externally controlled.
+    // When controlled, openProp takes precedence via the open selector,
+    // so state.open should not be modified directly — the parent must
+    // update the open prop for the effective state to change.
+    if (this.state.openProp === undefined) {
+      updatedState.open = nextOpen;
+    }
 
     // If a popup is closing, the `trigger` may be null.
     // We want to keep the previous value so that exit animations are played and focus is returned correctly.

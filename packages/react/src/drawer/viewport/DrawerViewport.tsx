@@ -695,6 +695,16 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         return;
       }
 
+      // When the effective open state hasn't changed (e.g. controlled mode where
+      // the parent keeps the drawer open), clean up swipe state without
+      // triggering the visual dismiss animation.
+      if (store.select('open')) {
+        pendingSwipeCloseSnapPointRef.current = undefined;
+        resetSwipeRef.current?.();
+        clearSwipeRelease();
+        return;
+      }
+
       pendingSwipeCloseSnapPointRef.current = undefined;
       setSwipeDismissed(true);
     },
