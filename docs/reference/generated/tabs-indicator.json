@@ -39,7 +39,7 @@
       "type": "number"
     },
     "--active-tab-height": {
-      "description": "Indicates the width of the tab if it is active.",
+      "description": "Indicates the height of the tab if it is active.",
       "type": "number"
     },
     "--active-tab-left": {
