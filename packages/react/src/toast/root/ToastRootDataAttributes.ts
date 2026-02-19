@@ -1,3 +1,5 @@
+import { TransitionStatusDataAttributes } from '../../utils/stateAttributesMapping';
+
 export enum ToastRootDataAttributes {
   /**
    * Present when the toast is expanded in the viewport.
@@ -27,9 +29,9 @@ export enum ToastRootDataAttributes {
   /**
    * Present when the toast is animating in.
    */
-  startingStyle = 'data-starting-style',
+  startingStyle = TransitionStatusDataAttributes.startingStyle,
   /**
    * Present when the toast is animating out.
    */
-  endingStyle = 'data-ending-style',
+  endingStyle = TransitionStatusDataAttributes.endingStyle,
 }

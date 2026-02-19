@@ -1,0 +1,27 @@
+import { areDatesEqual } from './date-helpers';
+import { validateDateTime, ValidateDateTimeReturnValue } from './validateDateTime';
+import { ValidateDateValidationProps } from './validateDate';
+import { TemporalManager } from './types';
+import { TemporalValue, TemporalAdapter } from '../../types';
+
+export function getDateTimeManager(adapter: TemporalAdapter): GetDateTimeManagerReturnValue {
+  return {
+    dateType: 'date-time',
+    emptyValue: null,
+    emptyValidationError: null,
+    areValuesEqual: (valueA, valueB) => areDatesEqual(adapter, valueA, valueB),
+    getValidationError: (value, validationProps) =>
+      validateDateTime({ adapter, value, validationProps }),
+    areValidationErrorEquals: (errorA, errorB) => errorA === errorB,
+    isValidationErrorEmpty: (error) => error == null,
+    getTimezone: (value) => (adapter.isValid(value) ? adapter.getTimezone(value) : null),
+    setTimezone: (value, timezone) => (value == null ? null : adapter.setTimezone(value, timezone)),
+    getDatesFromValue: (value) => (value == null ? [] : [value]),
+  };
+}
+
+export type GetDateTimeManagerReturnValue = TemporalManager<
+  TemporalValue,
+  ValidateDateTimeReturnValue,
+  ValidateDateValidationProps
+>;

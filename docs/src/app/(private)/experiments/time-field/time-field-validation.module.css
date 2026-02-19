@@ -1,0 +1,89 @@
+.Page {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.DemoList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.Demo {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.5rem;
+}
+
+.DemoField {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.Root {
+  display: flex;
+  border: 1px solid var(--color-gray-200);
+  padding: 4px 8px;
+  height: 2.5rem;
+  line-height: calc(2.5rem - 8px);
+  font-size: 1rem;
+  border-radius: 0.375rem;
+  color: var(--color-gray-900);
+  outline: none;
+}
+
+.Section {
+  outline: none;
+  font-family: monospace;
+
+  &[data-empty] {
+    color: var(--color-gray-700);
+  }
+}
+
+.Label {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  color: var(--color-gray-900);
+}
+
+.Error {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: red;
+}
+
+.Button {
+  padding: 0.5rem 1rem;
+  height: 2.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  border: 1px solid var(--color-gray-200);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover {
+    background-color: var(--color-gray-100);
+  }
+}
+
+.SectionTitle {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-gray-500);
+  margin-bottom: 0.5rem;
+}
