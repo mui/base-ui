@@ -22,11 +22,7 @@ function normalizeParameters(data: Record<string, ProcessedHookParameter>) {
   ) as Record<string, ProcessedProperty>;
 }
 
-export function ParametersReferenceTable({
-  data,
-  name,
-  ...props
-}: ParametersReferenceTableProps) {
+export function ParametersReferenceTable({ data, name, ...props }: ParametersReferenceTableProps) {
   return (
     <ReferenceAccordion
       {...props}
