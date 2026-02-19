@@ -22,5 +22,18 @@
     & mark {
       display: inline-block;
     }
+
+    & a {
+      text-decoration: underline;
+      text-decoration-color: color-mix(in oklab, currentColor, transparent 60%);
+      text-underline-offset: 2px;
+      text-decoration-thickness: 1px;
+
+      @media (hover: hover) {
+        &:hover {
+          text-decoration-color: currentColor;
+        }
+      }
+    }
   }
 }

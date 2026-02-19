@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import type { TypesContentProps } from '@mui/internal-docs-infra/abstractCreateTypes';
 import { useTypes } from '@mui/internal-docs-infra/useTypes';

@@ -38,6 +38,7 @@ export const createTypes = createTypesFactory({
   TypesContent: ReferenceTable,
   components,
   inlineComponents,
+  typeRefComponent: 'TypeRef',
 });
 
 /**
@@ -51,4 +52,5 @@ export const createMultipleTypes = createMultipleTypesFactory({
   TypesContent: ReferenceTable,
   components,
   inlineComponents,
+  typeRefComponent: 'TypeRef',
 });
