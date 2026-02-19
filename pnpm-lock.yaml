@@ -29,14 +29,14 @@ importers:
         specifier: workspace:*
         version: link:test
       '@mui/internal-code-infra':
-        specifier: 0.0.3-canary.93
-        version: 0.0.3-canary.93(@next/eslint-plugin-next@16.1.6)(@types/node@22.18.13)(eslint-import-resolver-node@0.3.9)(eslint-plugin-import-x@4.16.1(@typescript-eslint/utils@8.54.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint@9.39.2(jiti@2.6.1)))(eslint@9.39.2(jiti@2.6.1))(postcss@8.5.6)(prettier@3.8.1)(stylelint@17.2.0(typescript@5.9.3))(typescript@5.9.3)(vitest@4.0.18)
+        specifier: 0.0.3-canary.94
+        version: 0.0.3-canary.94(@next/eslint-plugin-next@16.1.6)(@types/node@22.18.13)(eslint-import-resolver-node@0.3.9)(eslint-plugin-import-x@4.16.1(@typescript-eslint/utils@8.54.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint@9.39.2(jiti@2.6.1)))(eslint@9.39.2(jiti@2.6.1))(postcss@8.5.6)(prettier@3.8.1)(stylelint@17.2.0(typescript@5.9.3))(typescript@5.9.3)(vitest@4.0.18)
       '@mui/internal-netlify-cache':
         specifier: 0.0.3-canary.0
         version: 0.0.3-canary.0
       '@mui/internal-test-utils':
-        specifier: 2.0.18-canary.7
-        version: 2.0.18-canary.7(@playwright/test@1.58.2)(@types/react-dom@19.2.3(@types/react@19.2.13))(@types/react@19.2.13)(@vitest/utils@4.0.18)(chai@6.2.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vite@7.3.1(@types/node@22.18.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(vitest@4.0.18)
+        specifier: 2.0.18-canary.8
+        version: 2.0.18-canary.8(@playwright/test@1.58.2)(@types/react-dom@19.2.3(@types/react@19.2.13))(@types/react@19.2.13)(@vitest/utils@4.0.18)(chai@6.2.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vite@7.3.1(@types/node@22.18.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(vitest@4.0.18)
       '@next/eslint-plugin-next':
         specifier: 16.1.6
         version: 16.1.6
@@ -2442,8 +2442,8 @@ packages:
     resolution: {integrity: sha512-wIcHJzvDbt3lBoDmAlife9SBN6olxwU76CKe6zZ7x7TgwR8Jjybh0OKhY9hJGmeY9xdXiYsjtsLzp8tv0fPKdg==}
     hasBin: true
 
-  '@mui/internal-code-infra@0.0.3-canary.93':
-    resolution: {integrity: sha512-M75BVs0OoNfD+OUd6t+ISin01SkmUA9PwI8Os7VsmfxNe/lvpC75D/MbSJ6cueWad9SZvXsOiZxACg754HU//g==}
+  '@mui/internal-code-infra@0.0.3-canary.94':
+    resolution: {integrity: sha512-Kn4L35kiEpPEbIOFesME5V+i4akJ4A/NN1d/wXcsZDVu47T7MPHolAAWSTsLgKiOfnGSCEntGywi2s+cV9LvhQ==}
     hasBin: true
     peerDependencies:
       '@next/eslint-plugin-next': '*'
@@ -2477,8 +2477,8 @@ packages:
   '@mui/internal-netlify-cache@0.0.3-canary.0':
     resolution: {integrity: sha512-5QPmAEpzgMTNe6djyApxiczzDUDy71iRk19w0EFfzknDo3hzz4DmFvaSFXUrEDk2KUDlVwdZ7qhODMbHB88hcw==}
 
-  '@mui/internal-test-utils@2.0.18-canary.7':
-    resolution: {integrity: sha512-7UtBcdgB0xoWTpwADgPU+fH6MBh2FsxM6K41AUlDEk4TWFoUDbp7v9h15uaZq+sia7xdFNLLLnLPsJzyBJrODw==}
+  '@mui/internal-test-utils@2.0.18-canary.8':
+    resolution: {integrity: sha512-042AOXpLXf93nnaPpkA5wIVoH3y1Jux36oMNzhC77G0sh2BQqxdi9K1qfuR69tUOQp2HXs/qBY7yepooPjq5Tw==}
     peerDependencies:
       '@emotion/cache': '11'
       '@emotion/react': '11'
@@ -12528,7 +12528,7 @@ snapshots:
       - tsx
       - yaml
 
-  '@mui/internal-code-infra@0.0.3-canary.93(@next/eslint-plugin-next@16.1.6)(@types/node@22.18.13)(eslint-import-resolver-node@0.3.9)(eslint-plugin-import-x@4.16.1(@typescript-eslint/utils@8.54.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint@9.39.2(jiti@2.6.1)))(eslint@9.39.2(jiti@2.6.1))(postcss@8.5.6)(prettier@3.8.1)(stylelint@17.2.0(typescript@5.9.3))(typescript@5.9.3)(vitest@4.0.18)':
+  '@mui/internal-code-infra@0.0.3-canary.94(@next/eslint-plugin-next@16.1.6)(@types/node@22.18.13)(eslint-import-resolver-node@0.3.9)(eslint-plugin-import-x@4.16.1(@typescript-eslint/utils@8.54.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint@9.39.2(jiti@2.6.1)))(eslint@9.39.2(jiti@2.6.1))(postcss@8.5.6)(prettier@3.8.1)(stylelint@17.2.0(typescript@5.9.3))(typescript@5.9.3)(vitest@4.0.18)':
     dependencies:
       '@argos-ci/core': 4.5.0
       '@babel/cli': 7.28.6(@babel/core@7.29.0)
@@ -12649,7 +12649,7 @@ snapshots:
 
   '@mui/internal-netlify-cache@0.0.3-canary.0': {}
 
-  '@mui/internal-test-utils@2.0.18-canary.7(@playwright/test@1.58.2)(@types/react-dom@19.2.3(@types/react@19.2.13))(@types/react@19.2.13)(@vitest/utils@4.0.18)(chai@6.2.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vite@7.3.1(@types/node@22.18.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(vitest@4.0.18)':
+  '@mui/internal-test-utils@2.0.18-canary.8(@playwright/test@1.58.2)(@types/react-dom@19.2.3(@types/react@19.2.13))(@types/react@19.2.13)(@vitest/utils@4.0.18)(chai@6.2.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vite@7.3.1(@types/node@22.18.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(vitest@4.0.18)':
     dependencies:
       '@babel/runtime': 7.28.6
       '@playwright/test': 1.58.2
