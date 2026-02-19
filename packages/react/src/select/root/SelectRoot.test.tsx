@@ -1135,6 +1135,34 @@ describe('<Select.Root />', () => {
       const trigger = screen.getByRole('combobox');
       expect(trigger).to.have.attribute('id', 'test-id');
     });
+
+    it('sets a hidden input id when name is not provided', async () => {
+      await render(
+        <Select.Root id="test-id">
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+        </Select.Root>,
+      );
+
+      const hiddenInput = screen.getByRole('textbox', { hidden: true });
+      expect(hiddenInput).to.have.attribute('id', 'test-id-hidden-input');
+      expect(hiddenInput).not.to.have.attribute('name');
+    });
+
+    it('does not set a hidden input id when name is provided', async () => {
+      await render(
+        <Select.Root id="test-id" name="country">
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+        </Select.Root>,
+      );
+
+      const hiddenInput = screen.getByRole('textbox', { hidden: true });
+      expect(hiddenInput).to.have.attribute('name', 'country');
+      expect(hiddenInput).not.to.have.attribute('id');
+    });
   });
 
   describe('with Field.Root parent', () => {
