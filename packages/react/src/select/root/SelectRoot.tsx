@@ -494,6 +494,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const ref = useMergedRefs(inputRef, validation.inputRef);
 
   const hasMultipleSelection = multiple && Array.isArray(value) && value.length > 0;
+  const hiddenInputName = multiple ? undefined : name;
 
   const hiddenInputs = React.useMemo(() => {
     if (!multiple || !Array.isArray(value) || !name) {
@@ -566,7 +567,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
               queueMicrotask(handleChange);
             },
           })}
-          name={multiple ? undefined : name}
+          id={generatedId && hiddenInputName == null ? `${generatedId}-hidden-input` : undefined}
+          name={hiddenInputName}
           autoComplete={autoComplete}
           value={serializedValue}
           disabled={disabled}

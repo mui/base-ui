@@ -22,11 +22,6 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
 
   const isCompositeItem = useCompositeRootContext(true) !== undefined;
 
-  const isValidLink = useStableCallback(() => {
-    const element = elementRef.current;
-    return Boolean(element?.tagName === 'A' && (element as HTMLAnchorElement)?.href);
-  });
-
   const { props: focusableWhenDisabledProps } = useFocusableWhenDisabled({
     focusableWhenDisabled,
     disabled,
@@ -42,7 +37,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         return;
       }
 
-      const isButtonTag = elementRef.current.tagName === 'BUTTON';
+      const isButtonTag = isButtonElement(elementRef.current);
 
       if (isNativeButton) {
         if (!isButtonTag) {
@@ -119,25 +114,24 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
             }
           },
           onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
-            if (!disabled) {
-              makeEventPreventable(event);
-              externalOnKeyDown?.(event);
+            if (disabled) {
+              return;
             }
 
+            makeEventPreventable(event);
+            externalOnKeyDown?.(event);
             if (event.baseUIHandlerPrevented) {
               return;
             }
 
+            // Keyboard accessibility for non interactive elements
             const shouldClick =
               event.target === event.currentTarget &&
               !isNativeButton &&
-              !isValidLink() &&
-              !disabled;
-            const isEnterKey = event.key === 'Enter';
-            const isSpaceKey = event.key === ' ';
-
-            // Keyboard accessibility for non interactive elements
+              !isValidLinkElement(elementRef.current);
             if (shouldClick) {
+              const isEnterKey = event.key === 'Enter';
+              const isSpaceKey = event.key === ' ';
               if (isSpaceKey || isEnterKey) {
                 event.preventDefault();
               }
@@ -148,24 +142,20 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
             }
           },
           onKeyUp(event: BaseUIEvent<React.KeyboardEvent>) {
-            // calling preventDefault in keyUp on a <button> will not dispatch a click event if Space is pressed
-            // https://codesandbox.io/p/sandbox/button-keyup-preventdefault-dn7f0
-            // Keyboard accessibility for non interactive elements
-            if (!disabled) {
-              makeEventPreventable(event);
-              externalOnKeyUp?.(event);
+            if (disabled) {
+              return;
             }
 
+            // calling preventDefault in keyUp on a <button> will not dispatch a click event if Space is pressed
+            // https://codesandbox.io/p/sandbox/button-keyup-preventdefault-dn7f0
+            makeEventPreventable(event);
+            externalOnKeyUp?.(event);
             if (event.baseUIHandlerPrevented) {
               return;
             }
 
-            if (
-              event.target === event.currentTarget &&
-              !isNativeButton &&
-              !disabled &&
-              event.key === ' '
-            ) {
+            // Keyboard accessibility for non interactive elements
+            if (event.target === event.currentTarget && !isNativeButton && event.key === ' ') {
               externalOnClick?.(event);
             }
           },
@@ -182,7 +172,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         otherExternalProps,
       );
     },
-    [disabled, focusableWhenDisabledProps, isNativeButton, isValidLink],
+    [disabled, focusableWhenDisabledProps, isNativeButton],
   );
 
   const buttonRef = useStableCallback((element: HTMLElement | null) => {
@@ -200,6 +190,10 @@ function isButtonElement(
   elem: HTMLButtonElement | HTMLAnchorElement | HTMLElement | null,
 ): elem is HTMLButtonElement {
   return isHTMLElement(elem) && elem.tagName === 'BUTTON';
+}
+
+function isValidLinkElement(elem: HTMLElement | null): elem is HTMLAnchorElement {
+  return Boolean(elem?.tagName === 'A' && (elem as HTMLAnchorElement)?.href);
 }
 
 interface GenericButtonProps extends Omit<HTMLProps, 'onClick'>, AdditionalButtonProps {
