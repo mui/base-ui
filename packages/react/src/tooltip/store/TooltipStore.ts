@@ -20,6 +20,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   trackCursorAxis: 'none' | 'x' | 'y' | 'both';
   disableHoverablePopup: boolean;
   openChangeReason: TooltipRoot.ChangeEventReason | null;
+  closeOnClick: boolean;
   closeDelay: number;
   hasViewport: boolean;
 };
@@ -36,6 +37,7 @@ const selectors = {
   trackCursorAxis: createSelector((state: State<unknown>) => state.trackCursorAxis),
   disableHoverablePopup: createSelector((state: State<unknown>) => state.disableHoverablePopup),
   lastOpenChangeReason: createSelector((state: State<unknown>) => state.openChangeReason),
+  closeOnClick: createSelector((state: State<unknown>) => state.closeOnClick),
   closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
   hasViewport: createSelector((state: State<unknown>) => state.hasViewport),
 };
@@ -145,6 +147,7 @@ function createInitialState<Payload>(): State<Payload> {
     trackCursorAxis: 'none',
     disableHoverablePopup: false,
     openChangeReason: null,
+    closeOnClick: true,
     closeDelay: 0,
     hasViewport: false,
   };

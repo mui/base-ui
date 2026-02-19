@@ -2,6 +2,12 @@
   "name": "TooltipTrigger",
   "description": "An element to attach the tooltip to.\nRenders a `<button>` element.",
   "props": {
+    "closeOnClick": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether the tooltip should close when this trigger is clicked.",
+      "detailedType": "boolean | undefined"
+    },
     "handle": {
       "type": "Tooltip.Handle<Payload>",
       "description": "A handle to associate the trigger with a tooltip.",
