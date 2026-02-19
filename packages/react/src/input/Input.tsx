@@ -21,6 +21,9 @@ export interface InputProps extends BaseUIComponentProps<'input', Input.State> {
    * Callback fired when the `value` changes. Use when controlled.
    */
   onValueChange?: Field.Control.Props['onValueChange'] | undefined;
+  /**
+   * The default value of the input. Use when uncontrolled.
+   */
   defaultValue?: Field.Control.Props['defaultValue'] | undefined;
   /**
    * The value of the input. Use when controlled.
