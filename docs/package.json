@@ -13,7 +13,7 @@
     "internal-validate": "docs-infra validate --useVisibleDescription",
     "typescript": "tsc -b tsconfig.json",
     "link-check": "tsx ./scripts/reportBrokenLinks.mts",
-    "generate-llms": "node ./scripts/generateLlmTxt/index.mjs"
+    "generate-llms": "node --experimental-strip-types ./scripts/generateLlmTxt/index.mjs"
   },
   "dependencies": {
     "@base-ui/react": "workspace:*",
@@ -70,7 +70,7 @@
     "@types/gtag.js": "0.0.20",
     "@types/hast": "3.0.4",
     "@types/node": "22.18.13",
-    "@types/react": "19.2.10",
+    "@types/react": "19.2.13",
     "@types/react-dom": "19.2.3",
     "@types/unist": "3.0.3",
     "@wooorm/starry-night": "3.9.0",
@@ -78,7 +78,7 @@
     "chai": "6.2.2",
     "cross-env": "10.1.0",
     "mdast-util-mdx-jsx": "3.2.0",
-    "motion": "12.33.0",
+    "motion": "12.34.0",
     "prettier": "3.8.1",
     "react-reconciler": "0.33.0",
     "remark-parse": "11.0.0",

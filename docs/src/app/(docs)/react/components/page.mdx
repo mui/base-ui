@@ -13,6 +13,7 @@
 - [Combobox](#combobox) - [Full Docs](./combobox/page.mdx)
 - [Context Menu](#context-menu) - [Full Docs](./context-menu/page.mdx)
 - [Dialog](#dialog) - [Full Docs](./dialog/page.mdx)
+- [Drawer](#drawer) [Preview] - [Full Docs](./drawer/page.mdx)
 - [Field](#field) - [Full Docs](./field/page.mdx)
 - [Fieldset](#fieldset) - [Full Docs](./fieldset/page.mdx)
 - [Form](#form) - [Full Docs](./form/page.mdx)
@@ -144,6 +145,7 @@ An input that suggests options as you type.
     - Fuzzy matching
     - Limit results
     - Auto highlight
+    - Command palette
     - Grid layout
     - Virtualized
   - API reference
@@ -179,6 +181,7 @@ An easily stylable avatar component.
     - Props: className, render, style
   - Avatar - Image
     - Props: className, onLoadingStatusChange, render, style
+    - Data Attributes: data-ending-style, data-starting-style
   - Avatar - Fallback
     - Props: className, delay, render, style
 
@@ -344,6 +347,7 @@ An input combined with a list of predefined items to select.
     - Data Attributes: data-disabled, data-highlighted, data-selected
   - Combobox - ItemIndicator
     - Props: children, className, keepMounted, render, style
+    - Data Attributes: data-ending-style, data-starting-style
   - Combobox - Value
     - Props: children, placeholder
   - Combobox - Icon
@@ -417,6 +421,7 @@ A popup that opens on top of the entire page.
 
 - Keywords: React Dialog, Modal Dialog Component, Modal Popup, Modal Window, Popup Window, Modal Overlay, Overlay, Lightbox, Popover Dialog, Controlled Dialog State, Nested Dialog React, Accessible Dialog, Headless React Components, Base UI
 - Sections:
+  - Usage guidelines
   - Anatomy
   - Examples
     - State
@@ -460,6 +465,69 @@ A popup that opens on top of the entire page.
 
 [Read more](./dialog/page.mdx)
 
+## Drawer
+
+A panel that slides in from the edge of the screen.
+
+<details>
+
+<summary>Outline</summary>
+
+- Keywords: React Drawer, Drawer Component, Side Panel, Bottom Sheet, Swipe Dismiss Drawer, Offcanvas, Sliding Panel, Modal Drawer, Controlled Drawer State, Accessible Drawer, Headless React Components, Base UI
+- Sections:
+  - Usage guidelines
+  - Anatomy
+  - Examples
+    - State
+    - Position
+    - Nested drawers
+    - Snap points
+    - Indent effect
+    - Non-modal
+    - Mobile navigation
+    - Action sheet with separate destructive action
+    - Detached triggers
+    - Stacking and animations
+  - API reference
+- Exports:
+  - Drawer - Root
+    - Props: actionsRef, children, defaultOpen, defaultSnapPoint, defaultTriggerId, disablePointerDismissal, handle, modal, onOpenChange, onOpenChangeComplete, onSnapPointChange, open, snapPoint, snapPoints, snapToSequentialPoints, swipeDirection, triggerId
+  - Drawer - Provider
+    - Props: children
+  - Drawer - Indent
+    - Props: className, render, style
+  - Drawer - IndentBackground
+    - Props: className, render, style
+  - Drawer - Trigger
+    - Props: className, handle, id, nativeButton, payload, render, style
+  - Drawer - Portal
+    - Props: className, container, keepMounted, render, style
+  - Drawer - Popup
+    - Props: className, finalFocus, initialFocus, render, style
+    - Data Attributes: data-closed, data-ending-style, data-expanded, data-nested-drawer-open, data-nested-drawer-swiping, data-open, data-starting-style, data-swipe-direction, data-swipe-dismiss, data-swiping
+    - CSS Variables: --drawer-frontmost-height, --drawer-height, --drawer-snap-point-offset, --drawer-swipe-movement-x, --drawer-swipe-movement-y, --drawer-swipe-strength, --nested-drawers
+  - Drawer - Content
+    - Props: className, render, style
+  - Drawer - Backdrop
+    - Props: className, forceRender, render, style
+    - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
+    - CSS Variables: --drawer-swipe-progress
+  - Drawer - Viewport
+    - Props: className, render, style
+    - Data Attributes: data-closed, data-ending-style, data-nested, data-open, data-starting-style
+  - Drawer - Title
+    - Props: className, render, style
+  - Drawer - Description
+    - Props: className, render, style
+  - Drawer - Close
+    - Props: className, nativeButton, render, style
+  - Drawer - SwipeArea
+    - Props: className, disabled, render, style, swipeDirection
+
+</details>
+
+[Read more](./drawer/page.mdx)
+
 ## Field
 
 A component that provides labeling and validation for form controls.
@@ -484,7 +552,7 @@ A component that provides labeling and validation for form controls.
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-touched, data-valid
   - Field - Error
     - Props: className, match, render, style
-    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-touched, data-valid
+    - Data Attributes: data-dirty, data-disabled, data-ending-style, data-filled, data-focused, data-invalid, data-starting-style, data-touched, data-valid
   - Field - Control
     - Props: className, defaultValue, onValueChange, render, style
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-touched, data-valid
@@ -558,7 +626,7 @@ A native input element that automatically works with [Field](/react/components/f
   - API reference
 - Exports:
   - Input
-    - Props: className, defaultValue, onValueChange, render, style
+    - Props: className, defaultValue, onValueChange, render, style, value
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-touched, data-valid
 
 </details>
@@ -951,7 +1019,7 @@ An easily stylable radio button component.
     - Data Attributes: data-checked, data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-readonly, data-required, data-touched, data-unchecked, data-valid
   - Radio - Indicator
     - Props: className, keepMounted, render, style
-    - Data Attributes: data-checked, data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-readonly, data-required, data-touched, data-unchecked, data-valid
+    - Data Attributes: data-checked, data-dirty, data-disabled, data-ending-style, data-filled, data-focused, data-invalid, data-readonly, data-required, data-starting-style, data-touched, data-unchecked, data-valid
 
 </details>
 
@@ -1049,6 +1117,7 @@ A common form component for choosing a predefined value in a dropdown menu.
     - Data Attributes: data-disabled, data-highlighted, data-selected
   - Select - ItemIndicator
     - Props: children, className, keepMounted, render, style
+    - Data Attributes: data-ending-style, data-starting-style
   - Select - ItemText
     - Props: className, render, style
   - Select - Arrow
@@ -1184,7 +1253,7 @@ A component for toggling between related panels on the same page.
     - Data Attributes: data-activation-direction, data-active, data-disabled, data-orientation
   - Tabs - Panel
     - Props: className, keepMounted, render, style, value
-    - Data Attributes: data-activation-direction, data-hidden, data-index, data-orientation
+    - Data Attributes: data-activation-direction, data-ending-style, data-hidden, data-index, data-orientation, data-starting-style
   - Tabs - List
     - Props: activateOnFocus, className, loopFocus, render, style
     - Data Attributes: data-activation-direction, data-orientation
@@ -1375,8 +1444,8 @@ A popup that appears when an element is hovered or focused, showing a hint for s
   - Tooltip - Root
     - Props: actionsRef, children, defaultOpen, defaultTriggerId, disableHoverablePopup, disabled, handle, onOpenChange, onOpenChangeComplete, open, trackCursorAxis, triggerId
   - Tooltip - Trigger
-    - Props: className, closeDelay, delay, handle, payload, render, style
-    - Data Attributes: data-popup-open
+    - Props: className, closeDelay, delay, disabled, handle, payload, render, style
+    - Data Attributes: data-popup-open, data-trigger-disabled
   - Tooltip - Portal
     - Props: className, container, keepMounted, render, style
   - Tooltip - Positioner

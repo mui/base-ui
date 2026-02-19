@@ -19,7 +19,7 @@ describe('NumberField parse', () => {
       expect(parseNumber(numberString)).to.equal(1234.56);
     });
 
-    it('parses a number with different options', () => {
+    it('parses percentages by default', () => {
       expect(parseNumber('12%')).to.equal(0.12);
     });
 
@@ -33,11 +33,11 @@ describe('NumberField parse', () => {
       expect(parseNumber('一,二三四.五六')).to.equal(1234.56);
     });
 
-    it('parses a number with different options and Arabic numerals', () => {
+    it('parses percentages with Arabic numerals', () => {
       expect(parseNumber('١٢٪')).to.equal(0.12);
     });
 
-    it('parses a number with different options and Han numerals', () => {
+    it('parses percentages with Han numerals', () => {
       expect(parseNumber('一二%')).to.equal(0.12);
     });
 

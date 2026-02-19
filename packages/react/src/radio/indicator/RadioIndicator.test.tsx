@@ -114,4 +114,124 @@ describe('<Radio.Indicator />', () => {
       expect(animationFinished).to.equal(true);
     });
   });
+
+  describe.skipIf(isJSDOM)('animations', () => {
+    afterEach(() => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+    });
+
+    it('triggers enter animation via data-starting-style when mounting', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      let transitionFinished = false;
+      function notifyTransitionFinished() {
+        transitionFinished = true;
+      }
+
+      const style = `
+        .animation-test-indicator {
+          transition: opacity 1ms;
+        }
+
+        .animation-test-indicator[data-starting-style],
+        .animation-test-indicator[data-ending-style] {
+          opacity: 0;
+        }
+      `;
+
+      function Test() {
+        const [value, setValue] = React.useState('b');
+
+        function handleSelectA() {
+          setValue('a');
+        }
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={handleSelectA}>Select a</button>
+            <RadioGroup value={value}>
+              <Radio.Root value="a">
+                <Radio.Indicator
+                  className="animation-test-indicator"
+                  data-testid="indicator-a"
+                  onTransitionEnd={notifyTransitionFinished}
+                />
+              </Radio.Root>
+              <Radio.Root value="b">
+                <Radio.Indicator className="animation-test-indicator" data-testid="indicator-b" />
+              </Radio.Root>
+            </RadioGroup>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      expect(screen.queryByTestId('indicator-a')).to.equal(null);
+
+      await user.click(screen.getByText('Select a'));
+
+      await waitFor(() => {
+        expect(transitionFinished).to.equal(true);
+      });
+
+      expect(screen.getByTestId('indicator-a')).not.to.equal(null);
+    });
+
+    it('applies data-ending-style before unmount', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const style = `
+        @keyframes test-anim {
+          to {
+            opacity: 0;
+          }
+        }
+
+        .animation-test-indicator[data-ending-style] {
+          animation: test-anim 1ms;
+        }
+      `;
+
+      function Test() {
+        const [value, setValue] = React.useState('a');
+
+        function handleSelectB() {
+          setValue('b');
+        }
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={handleSelectB}>Select b</button>
+            <RadioGroup value={value}>
+              <Radio.Root value="a">
+                <Radio.Indicator className="animation-test-indicator" data-testid="indicator-a" />
+              </Radio.Root>
+              <Radio.Root value="b">
+                <Radio.Indicator className="animation-test-indicator" data-testid="indicator-b" />
+              </Radio.Root>
+            </RadioGroup>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      expect(screen.getByTestId('indicator-a')).not.to.equal(null);
+
+      await user.click(screen.getByText('Select b'));
+
+      await waitFor(() => {
+        const indicator = screen.queryByTestId('indicator-a');
+        expect(indicator).not.to.equal(null);
+        expect(indicator).to.have.attribute('data-ending-style');
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('indicator-a')).to.equal(null);
+      });
+    });
+  });
 });

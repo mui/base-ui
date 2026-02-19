@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useMergedRefs, useMergedRefsN } from '@base-ui/utils/useMergedRefs';
 import { getReactElementRef } from '@base-ui/utils/getReactElementRef';
 import { mergeObjects } from '@base-ui/utils/mergeObjects';
+import { warn } from '@base-ui/utils/warn';
 import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from './types';
 import { getStateAttributesProps, StateAttributesMapping } from './getStateAttributesProps';
 import { resolveClassName } from './resolveClassName';
@@ -118,6 +119,9 @@ function evaluateRenderProp<T extends React.ElementType, S>(
 ): React.ReactElement {
   if (render) {
     if (typeof render === 'function') {
+      if (process.env.NODE_ENV !== 'production') {
+        warnIfRenderPropLooksLikeComponent(render);
+      }
       return render(props, state);
     }
     const mergedProps = mergeProps(props, render.props);
@@ -163,6 +167,27 @@ function evaluateRenderProp<T extends React.ElementType, S>(
   throw new Error('Base UI: Render element or function are not defined.');
 }
 
+function warnIfRenderPropLooksLikeComponent(renderFn: { name: string }) {
+  const functionName = renderFn.name;
+  if (functionName.length === 0) {
+    return;
+  }
+
+  const firstCharacterCode = functionName.charCodeAt(0);
+  if (firstCharacterCode < 65 || firstCharacterCode > 90) {
+    return;
+  }
+
+  warn(
+    `The \`render\` prop received a function named \`${functionName}\` that starts with an uppercase letter.`,
+    'This usually means a React component was passed directly as `render={Component}`.',
+    'Base UI calls `render` as a plain function, which can break the Rules of Hooks during reconciliation.',
+    'If this is an intentional render callback, rename it to start with a lowercase letter.',
+    'Use `render={<Component />}` or `render={(props) => <Component {...props} />}` instead.',
+    'https://base-ui.com/r/invalid-render-prop',
+  );
+}
+
 function renderTag(Tag: string, props: Record<string, any>) {
   if (Tag === 'button') {
     return <button type="button" {...props} key={props.key} />;
@@ -196,9 +221,7 @@ export type UseRenderElementParameters<
   /**
    * The ref to apply to the rendered element.
    */
-  ref?:
-    | (React.Ref<RenderedElementType> | (React.Ref<RenderedElementType> | undefined)[])
-    | undefined;
+  ref?: React.Ref<RenderedElementType> | (React.Ref<RenderedElementType> | undefined)[] | undefined;
   /**
    * The state of the component.
    */
@@ -207,14 +230,12 @@ export type UseRenderElementParameters<
    * Intrinsic props to be spread on the rendered element.
    */
   props?:
-    | (
+    | RenderFunctionProps<TagName>
+    | Array<
         | RenderFunctionProps<TagName>
-        | Array<
-            | RenderFunctionProps<TagName>
-            | undefined
-            | ((props: RenderFunctionProps<TagName>) => RenderFunctionProps<TagName>)
-          >
-      )
+        | undefined
+        | ((props: RenderFunctionProps<TagName>) => RenderFunctionProps<TagName>)
+      >
     | undefined;
   /**
    * A mapping of state to `data-*` attributes.
@@ -227,7 +248,7 @@ export interface UseRenderElementComponentProps<State> {
    * The class name to apply to the rendered element.
    * Can be a string or a function that accepts the state and returns a string.
    */
-  className?: (string | ((state: State) => string | undefined)) | undefined;
+  className?: string | ((state: State) => string | undefined) | undefined;
   /**
    * The render prop or React element to override the default element.
    */
@@ -236,7 +257,7 @@ export interface UseRenderElementComponentProps<State> {
    * The style to apply to the rendered element.
    * Can be a style object or a function that accepts the state and returns a style object.
    */
-  style?: (React.CSSProperties | ((state: State) => React.CSSProperties | undefined)) | undefined;
+  style?: React.CSSProperties | ((state: State) => React.CSSProperties | undefined) | undefined;
 }
 
 export namespace useRenderElement {

@@ -3,52 +3,67 @@ import * as React from 'react';
 import { useMediaQuery } from '@base-ui/react/unstable-use-media-query';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 
-let boundDataGaListener = false;
-
 declare global {
   interface Window {
     dataLayer: unknown[];
   }
 }
 
-/**
- * basically just a `useAnalytics` hook.
- * However, it needs the redux store which is created
- * in the same component this "hook" is used.
- */
-export const GoogleAnalytics = React.memo(function GoogleAnalytics(props: GoogleAnalytics.Props) {
-  const {
-    productId,
-    productCategoryId,
-    codeLanguage,
-    codeStylingVariant,
-    currentRoute,
-    userLanguage,
-  } = props;
+export interface GoogleAnalyticsEvent {
+  category: string;
+  action: string;
+  label?: string;
+  params?: Record<string, string | number | boolean>;
+}
 
+export interface GoogleAnalyticsContextValue {
+  trackEvent: (event: GoogleAnalyticsEvent) => void;
+}
+
+export const GoogleAnalyticsContext = React.createContext<GoogleAnalyticsContextValue | null>(null);
+
+export function useGoogleAnalytics() {
+  return React.useContext(GoogleAnalyticsContext);
+}
+
+export interface GoogleAnalyticsProviderProps {
+  id: string;
+  productId: string;
+  productCategoryId: string;
+  codeStylingVariant: string | null;
+  codeLanguage: string;
+  currentRoute: string;
+  userLanguage: string;
+  children?: React.ReactNode;
+}
+
+export function GoogleAnalyticsProvider({
+  id,
+  productId,
+  productCategoryId,
+  codeLanguage,
+  codeStylingVariant,
+  currentRoute,
+  userLanguage,
+  children,
+}: GoogleAnalyticsProviderProps) {
   useIsoLayoutEffect(() => {
     window.dataLayer = window.dataLayer || [];
 
-    const gtag: Gtag.Gtag = function gtag(command, ...args) {
-      window.dataLayer.push([command, ...args]);
+    const gtag: Gtag.Gtag = function gtag() {
+      // gtag expects the Arguments object
+      // eslint-disable-next-line prefer-rest-params
+      window.dataLayer.push(arguments);
     };
 
     window.gtag = gtag;
 
     gtag('js', new Date());
 
-    // eslint-disable-next-line no-template-curly-in-string
-    gtag('config', '${id}', {
+    gtag('config', id, {
       send_page_view: false,
     });
-  }, []);
-
-  React.useEffect(() => {
-    if (!boundDataGaListener) {
-      boundDataGaListener = true;
-      document.addEventListener('click', handleDocumentClick);
-    }
-  }, []);
+  }, [id]);
 
   const timeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -122,51 +137,22 @@ export const GoogleAnalytics = React.memo(function GoogleAnalytics(props: Google
     });
   }, [preferredColorScheme]);
 
-  return null;
-});
+  const contextValue = React.useMemo<GoogleAnalyticsContextValue>(
+    () => ({
+      trackEvent({ category, action, label, params }) {
+        window.gtag('event', category, {
+          action,
+          label,
+          ...params,
+        });
+      },
+    }),
+    [],
+  );
 
-export namespace GoogleAnalytics {
-  export interface Props {
-    productId: string;
-    productCategoryId: string;
-    codeStylingVariant: string | null;
-    codeLanguage: string;
-    currentRoute: string;
-    packageManager: string;
-    userLanguage: string;
-  }
-}
-
-// So we can write code like:
-//
-// <Button
-//   data-ga-event-category="demo"
-//   data-ga-event-action="expand"
-// >
-//   Foo
-// </Button>
-function handleDocumentClick(event: MouseEvent) {
-  let node = event.target as Node | null;
-
-  while (node && node !== document) {
-    const element: Element | null = node as Element;
-    const category = (element as Element).getAttribute('data-ga-event-category');
-
-    // We reach a tracking element, no need to look higher in the dom tree.
-    if (category) {
-      const split = parseFloat(element.getAttribute('data-ga-event-split') ?? '0');
-
-      if (split && split < Math.random()) {
-        return;
-      }
-
-      window.gtag('event', category, {
-        eventAction: element.getAttribute('data-ga-event-action'),
-        eventLabel: element.getAttribute('data-ga-event-label'),
-      });
-      break;
-    }
-
-    node = element.parentElement;
-  }
+  return (
+    <GoogleAnalyticsContext.Provider value={contextValue}>
+      {children}
+    </GoogleAnalyticsContext.Provider>
+  );
 }

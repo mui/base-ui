@@ -69,7 +69,7 @@ function App(
 }
 
 describe.skipIf(!isJSDOM)('useDismiss', () => {
-  describe('true', () => {
+  describe('default options', () => {
     test('dismisses with escape key', async () => {
       render(<App />);
       fireEvent.keyDown(document.body, { key: 'Escape' });
@@ -277,21 +277,21 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
     });
   });
 
-  describe('false', () => {
-    test('dismisses with escape key', async () => {
+  describe('options set to false', () => {
+    test('does not dismiss with escape key', async () => {
       render(<App escapeKey={false} />);
       fireEvent.keyDown(document.body, { key: 'Escape' });
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
       await flushMicrotasks();
     });
 
-    test('dismisses with outside press', async () => {
+    test('does not dismiss with outside press', async () => {
       render(<App outsidePress={false} />);
       await userEvent.click(document.body);
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
     });
 
-    test('dismisses with reference pointer down', async () => {
+    test('does not dismiss with reference pointer down', async () => {
       render(<App referencePress={false} />);
       await userEvent.click(screen.getByRole('button'));
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
@@ -338,7 +338,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
     });
   });
 
-  describe('bubbles', () => {
+  describe('prop: bubbles', () => {
     function Dialog({
       testId,
       children,
@@ -383,7 +383,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       return <Dialog {...props} />;
     }
 
-    describe('prop resolution', () => {
+    describe('normalizeProp', () => {
       test('undefined', () => {
         const { escapeKey: escapeKeyBubbles, outsidePress: outsidePressBubbles } = normalizeProp();
 
@@ -391,7 +391,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         expect(outsidePressBubbles).toBe(true);
       });
 
-      test('false', () => {
+      test('when false', () => {
         const { escapeKey: escapeKeyBubbles, outsidePress: outsidePressBubbles } =
           normalizeProp(false);
 
@@ -427,8 +427,8 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       });
     });
 
-    describe('outsidePress', () => {
-      test('true', async () => {
+    describe('prop: bubbles.outsidePress', () => {
+      test('when true', async () => {
         render(
           <NestedDialog testId="outer">
             <NestedDialog testId="inner">
@@ -446,7 +446,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
       });
 
-      test('false', async () => {
+      test('when false', async () => {
         render(
           <NestedDialog testId="outer" bubbles={{ outsidePress: false }}>
             <NestedDialog testId="inner" bubbles={{ outsidePress: false }}>
@@ -493,7 +493,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       });
     });
 
-    describe('escapeKey', () => {
+    describe('prop: bubbles.escapeKey', () => {
       test('without FloatingTree', async () => {
         function App() {
           const [popoverOpen, setPopoverOpen] = React.useState(true);
@@ -510,7 +510,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
           const popoverInteractions = useInteractions([useDismiss(popover.context)]);
           const tooltipInteractions = useInteractions([
-            useFocus(tooltip.context, { visibleOnly: false }),
+            useFocus(tooltip.context),
             useDismiss(tooltip.context),
           ]);
 
@@ -563,7 +563,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         expect(screen.getByRole('dialog')).toBeInTheDocument();
       });
 
-      test('true', async () => {
+      test('when true', async () => {
         render(
           <NestedDialog testId="outer" bubbles>
             <NestedDialog testId="inner" bubbles>
@@ -581,7 +581,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
       });
 
-      test('false', async () => {
+      test('when false', async () => {
         render(
           <NestedDialog testId="outer" bubbles={{ escapeKey: false }}>
             <NestedDialog testId="inner" bubbles={{ escapeKey: false }}>
@@ -629,8 +629,8 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
     });
   });
 
-  describe('capture', () => {
-    describe('prop resolution', () => {
+  describe('prop: capture', () => {
+    describe('normalizeProp', () => {
       test('undefined', () => {
         const { escapeKey: escapeKeyCapture, outsidePress: outsidePressCapture } = normalizeProp();
 
@@ -647,7 +647,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         expect(outsidePressCapture).toBe(true);
       });
 
-      test('true', () => {
+      test('when true', () => {
         const { escapeKey: escapeKeyCapture, outsidePress: outsidePressCapture } =
           normalizeProp(true);
 
@@ -655,7 +655,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         expect(outsidePressCapture).toBe(true);
       });
 
-      test('false', () => {
+      test('when false', () => {
         const { escapeKey: escapeKeyCapture, outsidePress: outsidePressCapture } =
           normalizeProp(false);
 
@@ -746,8 +746,8 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       return <Dialog {...props} />;
     }
 
-    describe('outsidePress', () => {
-      test('true', async () => {
+    describe('prop: capture.outsidePress', () => {
+      test('when true', async () => {
         const user = userEvent.setup();
 
         render(
@@ -773,8 +773,8 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       });
     });
 
-    describe('escapeKey', () => {
-      test('false', async () => {
+    describe('prop: capture.escapeKey', () => {
+      test('when false', async () => {
         const user = userEvent.setup();
 
         render(
