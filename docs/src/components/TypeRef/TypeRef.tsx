@@ -50,12 +50,14 @@ export function TypeRef({ href, name, className, children }: TypeRefProps) {
               <span className="text-sm font-medium text-gray-900">{typeData.meta.name}</span>
               <div className="flex items-center gap-2">
                 {typeData.meta.type !== 'raw' && (
-                  <a
-                    href={href}
+                  <Popover.Close
+                    // eslint-disable-next-line jsx-a11y/control-has-associated-label -- children provide the label
+                    render={<a href={href} />}
+                    nativeButton={false}
                     className="text-xs text-gray-600 underline decoration-gray-300 hover:text-gray-900 hover:decoration-gray-500"
                   >
                     Full docs
-                  </a>
+                  </Popover.Close>
                 )}
                 <Popover.Close
                   aria-label="Close"
