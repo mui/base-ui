@@ -16,10 +16,6 @@ function TableDefault({ children }: { children: React.ReactNode }) {
 interface Props extends React.ComponentPropsWithoutRef<any> {
   data: Record<string, ProcessedProperty>;
   name: string;
-  // When reusing a component's reference for another component,
-  // replace occurrences of "renameFrom.*" with "renameTo.*" in types
-  renameFrom?: string;
-  renameTo?: string;
   nameLabel?: string;
   caption?: string;
   /** Hide the required indicator (red star) - useful for return values where "required" doesn't apply */
@@ -31,8 +27,6 @@ interface Props extends React.ComponentPropsWithoutRef<any> {
 export function ReferenceAccordion({
   data,
   name: partName,
-  renameFrom,
-  renameTo,
   nameLabel = 'Prop',
   caption = 'Component props table',
   hideRequired = false,

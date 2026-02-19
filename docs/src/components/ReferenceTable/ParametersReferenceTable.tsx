@@ -5,8 +5,6 @@ import { ReferenceAccordion } from './ReferenceAccordion';
 interface ParametersReferenceTableProps extends React.ComponentPropsWithoutRef<any> {
   data: Record<string, ProcessedHookParameter>;
   name: string;
-  renameFrom?: string;
-  renameTo?: string;
 }
 
 function normalizeParameters(data: Record<string, ProcessedHookParameter>) {
@@ -24,11 +22,9 @@ function normalizeParameters(data: Record<string, ProcessedHookParameter>) {
   ) as Record<string, ProcessedProperty>;
 }
 
-export async function ParametersReferenceTable({
+export function ParametersReferenceTable({
   data,
   name,
-  renameFrom,
-  renameTo,
   ...props
 }: ParametersReferenceTableProps) {
   return (
@@ -36,8 +32,6 @@ export async function ParametersReferenceTable({
       {...props}
       name={name}
       data={normalizeParameters(data)}
-      renameFrom={renameFrom}
-      renameTo={renameTo}
       nameLabel="Parameter"
       caption="Function parameters table"
     />
