@@ -176,7 +176,7 @@ Renders a `<span>` element.
 | Variable              | Type     | Description                                                                                 |
 | :-------------------- | :------- | :------------------------------------------------------------------------------------------ |
 | `--active-tab-bottom` | `number` | Indicates the distance on the bottom side from the parent's container if the tab is active. |
-| `--active-tab-height` | `number` | Indicates the width of the tab if it is active.                                             |
+| `--active-tab-height` | `number` | Indicates the height of the tab if it is active.                                            |
 | `--active-tab-left`   | `number` | Indicates the distance on the left side from the parent's container if the tab is active.   |
 | `--active-tab-right`  | `number` | Indicates the distance on the right side from the parent's container if the tab is active.  |
 | `--active-tab-top`    | `number` | Indicates the distance on the top side from the parent's container if the tab is active.    |
