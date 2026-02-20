@@ -131,6 +131,24 @@ export function resolveSelectedLabel(
   return fallback();
 }
 
+export function resolveSelectedLabelString(
+  value: any,
+  items: ItemsInput,
+  itemToStringLabel?: (item: any) => string,
+): string {
+  const label = resolveSelectedLabel(value, items, itemToStringLabel);
+
+  if (label == null || typeof label === 'boolean') {
+    return '';
+  }
+
+  if (typeof label === 'string' || typeof label === 'number') {
+    return String(label);
+  }
+
+  return stringifyAsLabel(value);
+}
+
 export function resolveMultipleLabels(
   values: any[],
   items: ItemsInput,
