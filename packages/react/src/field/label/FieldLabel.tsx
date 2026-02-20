@@ -29,9 +29,10 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
 
   const fieldRootContext = useFieldRootContext(false);
 
-  const { controlId, setLabelId, labelId } = useLabelableContext();
+  const { controlId, setLabelId, labelId: contextLabelId } = useLabelableContext();
 
-  const id = useBaseUiId(idProp);
+  const generatedLabelId = useBaseUiId(idProp);
+  const labelId = idProp ?? contextLabelId ?? generatedLabelId;
 
   const labelRef = React.useRef<HTMLElement | null>(null);
 
@@ -92,14 +93,12 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
   }
 
   useIsoLayoutEffect(() => {
-    if (id) {
-      setLabelId(id);
-    }
+    setLabelId(labelId);
 
     return () => {
       setLabelId(undefined);
     };
-  }, [id, setLabelId]);
+  }, [labelId, setLabelId]);
 
   const element = useRenderElement('label', componentProps, {
     ref: [forwardedRef, labelRef],

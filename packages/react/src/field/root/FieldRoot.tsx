@@ -188,7 +188,7 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   return (
-    <LabelableProvider>
+    <LabelableProvider fromControlId>
       <FieldRootInner {...componentProps} ref={forwardedRef} />
     </LabelableProvider>
   );

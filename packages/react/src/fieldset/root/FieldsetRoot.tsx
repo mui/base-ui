@@ -3,6 +3,7 @@ import * as React from 'react';
 import { FieldsetRootContext } from './FieldsetRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 
 /**
  * Groups a shared legend with related controls.
@@ -15,8 +16,14 @@ export const FieldsetRoot = React.forwardRef(function FieldsetRoot(
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const { render, className, disabled = false, ...elementProps } = componentProps;
+  const defaultLegendId = useBaseUiId();
 
-  const [legendId, setLegendId] = React.useState<string | undefined>(undefined);
+  const [legendId, setLegendId] = React.useState<string | undefined>(defaultLegendId);
+
+  // React 17 fallback ids are assigned after mount.
+  React.useEffect(() => {
+    setLegendId((prevLegendId) => prevLegendId ?? defaultLegendId);
+  }, [defaultLegendId]);
 
   const state: FieldsetRoot.State = {
     disabled,

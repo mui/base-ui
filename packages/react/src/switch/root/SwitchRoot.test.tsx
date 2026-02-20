@@ -93,6 +93,19 @@ describe('<Switch.Root />', () => {
       await render(<Switch.Root role="checkbox" data-testid="switch" />);
       expect(screen.getByTestId('switch')).to.have.attribute('role', 'checkbox');
     });
+
+    it('sets `aria-labelledby` from a sibling label associated with the hidden input', async () => {
+      await render(
+        <div>
+          <label htmlFor="switch-input">Label</label>
+          <Switch.Root id="switch-input" />
+        </div>,
+      );
+
+      const label = screen.getByText('Label');
+      expect(label.id).not.to.equal('');
+      expect(screen.getByRole('switch')).to.have.attribute('aria-labelledby', label.id);
+    });
   });
 
   describe('prop: onCheckedChange', () => {

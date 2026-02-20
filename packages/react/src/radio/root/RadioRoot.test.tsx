@@ -66,6 +66,21 @@ describe('<Radio.Root />', () => {
     expect(radioA).to.have.attribute('aria-checked', 'true');
   });
 
+  it('sets `aria-labelledby` from a sibling label associated with the hidden input', async () => {
+    await render(
+      <div>
+        <label htmlFor="radio-input">Label</label>
+        <RadioGroup>
+          <Radio.Root value="a" id="radio-input" />
+        </RadioGroup>
+      </div>,
+    );
+
+    const label = screen.getByText('Label');
+    expect(label.id).not.to.equal('');
+    expect(screen.getByRole('radio')).to.have.attribute('aria-labelledby', label.id);
+  });
+
   describe('prop: disabled', () => {
     it('uses aria-disabled instead of HTML disabled', async () => {
       await render(
