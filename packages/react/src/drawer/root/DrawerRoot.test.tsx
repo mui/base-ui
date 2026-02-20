@@ -351,6 +351,22 @@ async function simulateTimedSwipe(element: HTMLElement, steps: TimedSwipeStep[])
   }, Promise.resolve());
 }
 
+function mockResizeObserver() {
+  const original = globalThis.ResizeObserver;
+  if (typeof original === 'function') {
+    globalThis.ResizeObserver = class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    } as typeof ResizeObserver;
+  }
+  return () => {
+    if (typeof original === 'function') {
+      globalThis.ResizeObserver = original;
+    }
+  };
+}
+
 function SnapPointResetCase() {
   const snapPoints = ['100px', '300px', 1];
   const [open, setOpen] = React.useState(true);
@@ -800,14 +816,7 @@ describe('<Drawer.Root />', () => {
 
   it.skipIf(isJSDOM)('clears swipe-dismiss styles when swipe close is canceled', async () => {
     const originalElementFromPoint = document.elementFromPoint;
-    const originalResizeObserver = globalThis.ResizeObserver;
-    if (typeof originalResizeObserver === 'function') {
-      globalThis.ResizeObserver = class {
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-      } as typeof ResizeObserver;
-    }
+    const restoreResizeObserver = mockResizeObserver();
 
     try {
       await render(<CanceledSwipeCloseCase />);
@@ -831,9 +840,7 @@ describe('<Drawer.Root />', () => {
       expect(popup.style.getPropertyValue('--drawer-swipe-movement-y')).toBe('0px');
     } finally {
       document.elementFromPoint = originalElementFromPoint;
-      if (typeof originalResizeObserver === 'function') {
-        globalThis.ResizeObserver = originalResizeObserver;
-      }
+      restoreResizeObserver();
     }
   });
 
@@ -843,14 +850,7 @@ describe('<Drawer.Root />', () => {
       const handleOpenChange = vi.fn();
 
       const originalElementFromPoint = document.elementFromPoint;
-      const originalResizeObserver = globalThis.ResizeObserver;
-      if (typeof originalResizeObserver === 'function') {
-        globalThis.ResizeObserver = class {
-          observe() {}
-          unobserve() {}
-          disconnect() {}
-        } as typeof ResizeObserver;
-      }
+      const restoreResizeObserver = mockResizeObserver();
 
       try {
         await render(<ControlledAlwaysOpenCase onOpenChange={handleOpenChange} />);
@@ -876,9 +876,7 @@ describe('<Drawer.Root />', () => {
         expect(popup).toHaveAttribute('data-open', '');
       } finally {
         document.elementFromPoint = originalElementFromPoint;
-        if (typeof originalResizeObserver === 'function') {
-          globalThis.ResizeObserver = originalResizeObserver;
-        }
+        restoreResizeObserver();
       }
     },
   );
@@ -887,14 +885,7 @@ describe('<Drawer.Root />', () => {
     'does not restore snap point when a controlled swipe close is accepted by the parent',
     async () => {
       const originalElementFromPoint = document.elementFromPoint;
-      const originalResizeObserver = globalThis.ResizeObserver;
-      if (typeof originalResizeObserver === 'function') {
-        globalThis.ResizeObserver = class {
-          observe() {}
-          unobserve() {}
-          disconnect() {}
-        } as typeof ResizeObserver;
-      }
+      const restoreResizeObserver = mockResizeObserver();
 
       try {
         await render(<ControlledSwipeCloseSnapPointCase />);
@@ -909,9 +900,7 @@ describe('<Drawer.Root />', () => {
         expect(screen.getByTestId('active-snap').textContent).toBe('100px');
       } finally {
         document.elementFromPoint = originalElementFromPoint;
-        if (typeof originalResizeObserver === 'function') {
-          globalThis.ResizeObserver = originalResizeObserver;
-        }
+        restoreResizeObserver();
       }
     },
   );
@@ -920,14 +909,7 @@ describe('<Drawer.Root />', () => {
     'restores snap point and swipe offsets when swipe close is canceled',
     async () => {
       const originalElementFromPoint = document.elementFromPoint;
-      const originalResizeObserver = globalThis.ResizeObserver;
-      if (typeof originalResizeObserver === 'function') {
-        globalThis.ResizeObserver = class {
-          observe() {}
-          unobserve() {}
-          disconnect() {}
-        } as typeof ResizeObserver;
-      }
+      const restoreResizeObserver = mockResizeObserver();
 
       try {
         await render(<CanceledSwipeCloseSnapPointCase />);
@@ -947,9 +929,7 @@ describe('<Drawer.Root />', () => {
         expect(popup.style.getPropertyValue('--drawer-swipe-movement-y')).toBe('0px');
       } finally {
         document.elementFromPoint = originalElementFromPoint;
-        if (typeof originalResizeObserver === 'function') {
-          globalThis.ResizeObserver = originalResizeObserver;
-        }
+        restoreResizeObserver();
       }
     },
   );
@@ -958,14 +938,7 @@ describe('<Drawer.Root />', () => {
     'allows dragging past a snap point when snapToSequentialPoints is enabled',
     async () => {
       const originalElementFromPoint = document.elementFromPoint;
-      const originalResizeObserver = globalThis.ResizeObserver;
-      if (typeof originalResizeObserver === 'function') {
-        globalThis.ResizeObserver = class {
-          observe() {}
-          unobserve() {}
-          disconnect() {}
-        } as typeof ResizeObserver;
-      }
+      const restoreResizeObserver = mockResizeObserver();
 
       const useFakeTimers = isJSDOM;
       if (useFakeTimers) {
@@ -993,9 +966,7 @@ describe('<Drawer.Root />', () => {
           vi.useRealTimers();
         }
         document.elementFromPoint = originalElementFromPoint;
-        if (typeof originalResizeObserver === 'function') {
-          globalThis.ResizeObserver = originalResizeObserver;
-        }
+        restoreResizeObserver();
       }
     },
   );
@@ -1004,14 +975,7 @@ describe('<Drawer.Root />', () => {
     'advances to the next snap point on fast flicks when snapToSequentialPoints is enabled',
     async () => {
       const originalElementFromPoint = document.elementFromPoint;
-      const originalResizeObserver = globalThis.ResizeObserver;
-      if (typeof originalResizeObserver === 'function') {
-        globalThis.ResizeObserver = class {
-          observe() {}
-          unobserve() {}
-          disconnect() {}
-        } as typeof ResizeObserver;
-      }
+      const restoreResizeObserver = mockResizeObserver();
 
       const useFakeTimers = isJSDOM;
       if (useFakeTimers) {
@@ -1039,9 +1003,7 @@ describe('<Drawer.Root />', () => {
           vi.useRealTimers();
         }
         document.elementFromPoint = originalElementFromPoint;
-        if (typeof originalResizeObserver === 'function') {
-          globalThis.ResizeObserver = originalResizeObserver;
-        }
+        restoreResizeObserver();
       }
     },
   );
@@ -1050,14 +1012,7 @@ describe('<Drawer.Root />', () => {
     const handleOpenChange = vi.fn();
 
     const originalElementFromPoint = document.elementFromPoint;
-    const originalResizeObserver = globalThis.ResizeObserver;
-    if (typeof originalResizeObserver === 'function') {
-      globalThis.ResizeObserver = class {
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-      } as typeof ResizeObserver;
-    }
+    const restoreResizeObserver = mockResizeObserver();
 
     const useFakeTimers = isJSDOM;
     if (useFakeTimers) {
@@ -1087,9 +1042,7 @@ describe('<Drawer.Root />', () => {
         vi.useRealTimers();
       }
       document.elementFromPoint = originalElementFromPoint;
-      if (typeof originalResizeObserver === 'function') {
-        globalThis.ResizeObserver = originalResizeObserver;
-      }
+      restoreResizeObserver();
     }
   });
 
@@ -1099,14 +1052,7 @@ describe('<Drawer.Root />', () => {
       const handleOpenChange = vi.fn();
 
       const originalElementFromPoint = document.elementFromPoint;
-      const originalResizeObserver = globalThis.ResizeObserver;
-      if (typeof originalResizeObserver === 'function') {
-        globalThis.ResizeObserver = class {
-          observe() {}
-          unobserve() {}
-          disconnect() {}
-        } as typeof ResizeObserver;
-      }
+      const restoreResizeObserver = mockResizeObserver();
 
       const useFakeTimers = isJSDOM;
       if (useFakeTimers) {
@@ -1142,9 +1088,7 @@ describe('<Drawer.Root />', () => {
           vi.useRealTimers();
         }
         document.elementFromPoint = originalElementFromPoint;
-        if (typeof originalResizeObserver === 'function') {
-          globalThis.ResizeObserver = originalResizeObserver;
-        }
+        restoreResizeObserver();
       }
     },
   );

@@ -700,6 +700,9 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
       // (openProp takes precedence over state.open). Proceed optimistically with the
       // dismiss animation — React's Scheduler flushes before the next rAF, so we can
       // reliably check whether the parent accepted or rejected the close.
+      // Note: if onOpenChange is asynchronous (e.g., closes the drawer after a network
+      // call), the rAF check will see open === true, revert the animation, and the
+      // drawer will close without animation when the parent eventually sets open={false}.
       if (store.select('open')) {
         const savedEvent = event;
         controlledDismissRafRef.current = requestAnimationFrame(() => {
