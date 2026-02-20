@@ -80,8 +80,8 @@ export function AutocompleteRoot<ItemValue>(
 
   const collator = useCoreFilter();
 
-  const baseFilter: typeof other.filter = React.useMemo(() => {
-    if (other.filter) {
+  const baseFilter = React.useMemo<Exclude<typeof other.filter, undefined>>(() => {
+    if (other.filter !== undefined) {
       return other.filter;
     }
     return collator.contains;
@@ -93,6 +93,9 @@ export function AutocompleteRoot<ItemValue>(
   const resolvedFilter: typeof other.filter = React.useMemo(() => {
     if (mode !== 'both') {
       return staticItems ? null : baseFilter;
+    }
+    if (baseFilter === null) {
+      return null;
     }
     return (item, _query, toString) => {
       return baseFilter(item, resolvedQuery, toString);
