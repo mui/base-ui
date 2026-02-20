@@ -86,7 +86,7 @@
   "dependencies": {
     "@babel/runtime": "^7.28.6",
     "@base-ui/utils": "workspace:*",
-    "@floating-ui/react-dom": "^2.1.6",
+    "@floating-ui/react-dom": "^2.1.7",
     "@floating-ui/utils": "^0.2.10",
     "tabbable": "^6.4.0",
     "use-sync-external-store": "^1.6.0"
@@ -98,7 +98,7 @@
     "@types/chai": "5.2.3",
     "@types/chai-dom": "1.11.3",
     "@types/luxon": "^3.7.1",
-    "@types/react": "19.2.13",
+    "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@types/sinon": "21.0.0",
     "@types/use-sync-external-store": "1.5.0",
@@ -111,7 +111,7 @@
     "react-router": "7.13.0",
     "sinon": "21.0.1",
     "typescript": "5.9.3",
-    "vitest-browser-react": "2.0.4"
+    "vitest-browser-react": "2.0.5"
   },
   "peerDependencies": {
     "@date-fns/tz": "^1.2.0",
