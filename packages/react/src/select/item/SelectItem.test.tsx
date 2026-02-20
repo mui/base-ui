@@ -8,7 +8,7 @@ import {
   waitFor,
 } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { expect } from 'chai';
+import { expect, vi } from 'vitest';
 
 describe('<Select.Item />', () => {
   const { render } = createRenderer();
@@ -172,6 +172,37 @@ describe('<Select.Item />', () => {
     expect(screen.getByTestId('value').textContent).to.equal('');
   });
 
+  it('should call onClick exactly once for a regular click', async () => {
+    const handleClick = vi.fn();
+
+    await render(
+      <Select.Root>
+        <Select.Trigger data-testid="trigger">
+          <Select.Value data-testid="value" />
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.Item value="one" onClick={handleClick}>
+                one
+              </Select.Item>
+              <Select.Item value="two">two</Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    fireEvent.click(screen.getByTestId('trigger'));
+    await flushMicrotasks();
+
+    fireEvent.click(screen.getByRole('option', { name: 'one' }));
+    await flushMicrotasks();
+
+    expect(screen.getByTestId('value').textContent).to.equal('one');
+    expect(handleClick).toHaveBeenCalledOnce();
+  });
+
   it('should focus the selected item upon opening the popup', async () => {
     const { user } = await render(
       <Select.Root>
@@ -260,6 +291,87 @@ describe('<Select.Item />', () => {
       await waitFor(() => {
         expect(value.textContent).to.equal('Select font');
       });
+    });
+
+    it('should call onClick when selecting via drag-to-select (mousedown on trigger, mouseup on item)', async () => {
+      ignoreActWarnings();
+      const handleClick = vi.fn();
+
+      await renderFakeTimers(
+        <Select.Root>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value data-testid="value" placeholder="Select font" />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="one" onClick={handleClick}>
+                  one
+                </Select.Item>
+                <Select.Item value="two">two</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      fireEvent.mouseDown(trigger);
+      await waitFor(() => expect(screen.queryByRole('listbox')).not.to.equal(null));
+
+      const option = screen.getByRole('option', { name: 'one' });
+      fireEvent.pointerEnter(option, { pointerType: 'mouse' });
+      fireEvent.pointerMove(option, { pointerType: 'mouse' });
+
+      // Wait past the delay gates and release the mouse over the option
+      await act(async () => {
+        await clock.tickAsync(500);
+      });
+      fireEvent.mouseUp(option);
+
+      await waitFor(() => expect(screen.getByTestId('value').textContent).to.equal('one'));
+      expect(handleClick).toHaveBeenCalledOnce();
+    });
+
+    it('should not select item when onClick calls preventBaseUIHandler during drag-to-select', async () => {
+      ignoreActWarnings();
+      const handleClick = vi.fn((event) => event.preventBaseUIHandler());
+
+      await renderFakeTimers(
+        <Select.Root>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value data-testid="value" placeholder="Select font" />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="one" onClick={handleClick}>
+                  one
+                </Select.Item>
+                <Select.Item value="two">two</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      fireEvent.mouseDown(trigger);
+      await waitFor(() => expect(screen.queryByRole('listbox')).not.to.equal(null));
+
+      const option = screen.getByRole('option', { name: 'one' });
+      fireEvent.pointerEnter(option, { pointerType: 'mouse' });
+      fireEvent.pointerMove(option, { pointerType: 'mouse' });
+
+      // Wait past the delay gates and release the mouse over the option
+      await act(async () => {
+        await clock.tickAsync(500);
+      });
+      fireEvent.mouseUp(option);
+
+      expect(handleClick).toHaveBeenCalledOnce();
+      expect(screen.getByTestId('value').textContent).to.equal('Select font');
+      expect(screen.queryByRole('listbox')).not.to.equal(null);
     });
   });
 

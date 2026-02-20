@@ -35,7 +35,7 @@
     "@testing-library/user-event": "14.6.1",
     "@types/chai": "5.2.3",
     "@types/chai-dom": "1.11.3",
-    "@types/react": "19.2.13",
+    "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@types/sinon": "21.0.0",
     "@types/use-sync-external-store": "1.5.0",

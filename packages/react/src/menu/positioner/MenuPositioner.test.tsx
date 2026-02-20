@@ -301,14 +301,14 @@ describe('<Menu.Positioner />', () => {
   describe.skipIf(isJSDOM)('prop: keepMounted', () => {
     afterEach(async () => {
       const { cleanup } = await import('vitest-browser-react');
-      cleanup();
+      await cleanup();
     });
 
     it('when keepMounted=true, should keep the content mounted when closed', async () => {
       const { userEvent: user } = await import('vitest/browser');
       const { render: vbrRender } = await import('vitest-browser-react');
 
-      vbrRender(
+      await vbrRender(
         <Menu.Root modal={false}>
           <Menu.Trigger>Toggle</Menu.Trigger>
           <Menu.Portal keepMounted>
@@ -346,7 +346,7 @@ describe('<Menu.Positioner />', () => {
       const { userEvent: user } = await import('vitest/browser');
       const { render: vbrRender } = await import('vitest-browser-react');
 
-      vbrRender(
+      await vbrRender(
         <Menu.Root modal={false}>
           <Menu.Trigger>Toggle</Menu.Trigger>
           <Menu.Portal keepMounted={false}>
