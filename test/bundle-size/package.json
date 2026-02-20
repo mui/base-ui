@@ -7,7 +7,7 @@
   "dependencies": {
     "@base-ui/react": "workspace:*",
     "@base-ui/utils": "workspace:*",
-    "@mui/internal-bundle-size-checker": "1.0.9-canary.60",
+    "@mui/internal-bundle-size-checker": "1.0.9-canary.61",
     "radix-ui": "^1.4.3"
   },
   "devDependencies": {

@@ -9,7 +9,7 @@ permissions: {}
 jobs:
   issue_cleanup:
     name: Clean issue body
-    uses: mui/mui-public/.github/workflows/issues_body-cleanup.yml@8d98527ab3be91784f2e3c272f96508f35ba7165
+    uses: mui/mui-public/.github/workflows/issues_body-cleanup.yml@c0101909662d4d3db7eed81ec210f16708dd7535
     permissions:
       contents: read
       issues: write
