@@ -142,6 +142,7 @@ export const ComboboxItem = React.memo(
       disabled,
       focusableWhenDisabled: true,
       native: nativeButton,
+      composite: true,
     });
 
     function commitSelection(nativeEvent: MouseEvent) {

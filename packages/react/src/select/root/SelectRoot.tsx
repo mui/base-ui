@@ -376,8 +376,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       }
     },
     onTypingChange(typing) {
-      // FIXME: Floating UI doesn't support allowing space to select an item while the popup is
-      // closed and the trigger isn't a native <button>.
       typingRef.current = typing;
     },
   });

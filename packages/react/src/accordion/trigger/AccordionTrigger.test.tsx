@@ -1,4 +1,6 @@
 import { Accordion } from '@base-ui/react/accordion';
+import { screen } from '@mui/internal-test-utils';
+import { expect } from 'chai';
 import { describeConformance, createRenderer } from '#test-utils';
 
 describe('<Accordion.Trigger />', () => {
@@ -15,4 +17,22 @@ describe('<Accordion.Trigger />', () => {
         </Accordion.Root>,
       ),
   }));
+
+  it('keeps a non-native trigger tabbable', async () => {
+    await render(
+      <Accordion.Root>
+        <Accordion.Item>
+          <Accordion.Header>
+            <Accordion.Trigger nativeButton={false} render={<span />}>
+              Trigger
+            </Accordion.Trigger>
+          </Accordion.Header>
+          <Accordion.Panel>Panel</Accordion.Panel>
+        </Accordion.Item>
+      </Accordion.Root>,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Trigger' });
+    expect(trigger).to.have.attribute('tabindex', '0');
+  });
 });

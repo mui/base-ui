@@ -27,7 +27,7 @@ describe('<Menu.LinkItem />', () => {
       return <div data-testid="location">{location.pathname}</div>;
     }
 
-    it.skipIf(isJSDOM)('react-router <Link>', async () => {
+    it.skipIf(isJSDOM)('react-router <Link> activates with Enter and Space', async () => {
       const { user } = await render(
         <MemoryRouter initialEntries={['/']}>
           <Routes>
@@ -81,6 +81,34 @@ describe('<Menu.LinkItem />', () => {
       });
 
       await user.keyboard('[Enter]');
+
+      expect(screen.getByText(/page one/i)).not.to.equal(null);
+
+      expect(locationDisplay).to.have.text('/');
+
+      act(() => {
+        link2.focus();
+      });
+
+      await waitFor(() => {
+        expect(link2).toHaveFocus();
+      });
+
+      await user.keyboard('[Space]');
+
+      expect(locationDisplay).to.have.text('/two');
+
+      expect(screen.getByText(/page two/i)).not.to.equal(null);
+
+      act(() => {
+        link1.focus();
+      });
+
+      await waitFor(() => {
+        expect(link1).toHaveFocus();
+      });
+
+      await user.keyboard('[Space]');
 
       expect(screen.getByText(/page one/i)).not.to.equal(null);
 

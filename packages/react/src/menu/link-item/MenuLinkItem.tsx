@@ -3,10 +3,12 @@ import * as React from 'react';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps, BaseUIEvent } from '../../utils/types';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useMenuItemCommonProps } from '../item/useMenuItemCommonProps';
+import { useButton } from '../../use-button';
+import { mergeProps } from '../../merge-props';
 
 /**
  * A link in the menu that can be used to navigate to a different page or section.
@@ -38,6 +40,12 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
   const { store } = useMenuRootContext();
   const highlighted = store.useState('isActive', listItem.index);
   const itemProps = store.useState('itemProps');
+  const typingRef = store.context.typingRef;
+
+  const { getButtonProps, buttonRef } = useButton({
+    native: false,
+    composite: true,
+  });
 
   const commonProps = useMenuItemCommonProps({
     closeOnClick,
@@ -48,6 +56,21 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
     itemRef: linkRef,
   });
 
+  function getItemProps(externalProps?: HTMLProps): HTMLProps {
+    return mergeProps<'a'>(
+      commonProps,
+      {
+        onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
+          if (event.key === ' ' && typingRef.current) {
+            event.preventDefault();
+          }
+        },
+      },
+      externalProps,
+      getButtonProps,
+    );
+  }
+
   const state: MenuLinkItem.State = React.useMemo(
     () => ({
       highlighted,
@@ -57,8 +80,8 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
 
   return useRenderElement('a', componentProps, {
     state,
-    props: [itemProps, elementProps, commonProps],
-    ref: [linkRef, forwardedRef, listItem.ref],
+    props: [itemProps, elementProps, getItemProps],
+    ref: [linkRef, buttonRef, forwardedRef, listItem.ref],
   });
 });
 

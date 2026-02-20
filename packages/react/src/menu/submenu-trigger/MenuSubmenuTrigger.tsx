@@ -108,6 +108,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     highlighted,
     id: thisTriggerId,
     store,
+    typingRef: parentMenuStore.context.typingRef,
     nativeButton,
     itemMetadata,
     nodeId: menuPositionerContext?.nodeId,
