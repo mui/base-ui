@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import type { NativeButtonComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
@@ -99,14 +99,28 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
   });
 
   return element;
-});
+}) as NumberFieldIncrementComponent;
 
 export interface NumberFieldIncrementState extends NumberFieldRoot.State {}
 
-export interface NumberFieldIncrementProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', NumberFieldIncrement.State> {}
+export type NumberFieldIncrementProps<
+  TNativeButton extends boolean,
+  TElement extends React.ElementType,
+> = NativeButtonComponentProps<TNativeButton, TElement, NumberFieldIncrement.State>;
 
 export namespace NumberFieldIncrement {
   export type State = NumberFieldIncrementState;
-  export type Props = NumberFieldIncrementProps;
+  export type Props<
+    TNativeButton extends boolean = true,
+    TElement extends React.ElementType = 'button',
+  > = NumberFieldIncrementProps<TNativeButton, TElement>;
 }
+
+type NumberFieldIncrementComponent = <
+  TNativeButton extends boolean = true,
+  TElement extends React.ElementType = 'button',
+>(
+  props: NumberFieldIncrement.Props<TNativeButton, TElement> & {
+    ref?: React.Ref<HTMLButtonElement> | undefined;
+  },
+) => React.ReactElement | null;

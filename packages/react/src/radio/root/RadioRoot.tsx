@@ -4,7 +4,7 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
-import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
+import type { NativeButtonComponentProps } from '../../utils/types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { EMPTY_OBJECT } from '../../utils/constants';
@@ -260,9 +260,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
       <input {...inputProps} />
     </RadioRootContext.Provider>
   );
-}) as {
-  <Value>(props: RadioRoot.Props<Value>): React.JSX.Element;
-};
+}) as RadioRootComponent;
 
 export interface RadioRootState extends FieldRoot.State {
   /**
@@ -283,8 +281,11 @@ export interface RadioRootState extends FieldRoot.State {
   required: boolean;
 }
 
-export interface RadioRootProps<Value = any>
-  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'span', RadioRoot.State>, 'value'> {
+export type RadioRootProps<
+  Value,
+  TNativeButton extends boolean,
+  TElement extends React.ElementType,
+> = Omit<NativeButtonComponentProps<TNativeButton, TElement, RadioRoot.State>, 'value'> & {
   /**
    * The unique identifying value of the radio in a group.
    */
@@ -305,9 +306,23 @@ export interface RadioRootProps<Value = any>
    * A ref to access the hidden input element.
    */
   inputRef?: React.Ref<HTMLInputElement> | undefined;
-}
+};
 
 export namespace RadioRoot {
   export type State = RadioRootState;
-  export type Props<TValue = any> = RadioRootProps<TValue>;
+  export type Props<
+    TValue = any,
+    TNativeButton extends boolean = false,
+    TElement extends React.ElementType = 'span',
+  > = RadioRootProps<TValue, TNativeButton, TElement>;
 }
+
+type RadioRootComponent = <
+  TValue = any,
+  TNativeButton extends boolean = false,
+  TElement extends React.ElementType = 'span',
+>(
+  props: RadioRoot.Props<TValue, TNativeButton, TElement> & {
+    ref?: React.Ref<HTMLElement> | undefined;
+  },
+) => React.ReactElement | null;

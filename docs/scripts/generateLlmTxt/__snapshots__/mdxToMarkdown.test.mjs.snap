@@ -568,12 +568,13 @@ Renders a \`<button>\` element.
 
 **Trigger Props:**
 
-| Prop         | Type                                                                                | Default | Description                                                                                                                                                                                  |
-| :----------- | :---------------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| nativeButton | \`boolean\`                                                                           | \`true\`  | Whether the component renders a native \`<button>\` element when replacing it&#xA;via the \`render\` prop.&#xA;Set to \`false\` if the rendered element is not a button (e.g. \`<div>\`).            |
-| className    | \`string \\| ((state: Accordion.Item.State) => string \\| undefined)\`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| style        | \`CSSProperties \\| ((state: Accordion.Item.State) => CSSProperties \\| undefined)\`    | -       | -                                                                                                                                                                                            |
-| render       | \`ReactElement \\| ((props: HTMLProps, state: Accordion.Item.State) => ReactElement)\` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a \`ReactElement\` or a function that returns the element to render. |
+| Prop         | Type      | Default | Description                                                                                                                                                                                  |
+| :----------- | :-------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| nativeButton | \`boolean\` | \`true\`  | Whether the component renders a native \`<button>\` element when replacing it&#xA;via the \`render\` prop.&#xA;Set to \`false\` if the rendered element is not a button (e.g. \`<div>\`).            |
+| disabled     | \`boolean\` | -       | -                                                                                                                                                                                            |
+| className    | \`any\`     | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| style        | \`any\`     | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component’s state.                                                                                  |
+| render       | \`any\`     | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a \`ReactElement\` or a function that returns the element to render. |
 
 **Trigger Data Attributes:**
 

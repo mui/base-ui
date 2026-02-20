@@ -4,7 +4,7 @@ import { REGULAR_ITEM, useMenuItem } from './useMenuItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonComponentProps } from '../../utils/types';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 
@@ -58,7 +58,7 @@ export const MenuItem = React.forwardRef(function MenuItem(
     props: [itemProps, elementProps, getItemProps],
     ref: [itemRef, forwardedRef, listItem.ref],
   });
-});
+}) as MenuItemComponent;
 
 export interface MenuItemState {
   /**
@@ -71,8 +71,10 @@ export interface MenuItemState {
   highlighted: boolean;
 }
 
-export interface MenuItemProps
-  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuItem.State> {
+export type MenuItemProps<
+  TNativeButton extends boolean,
+  TElement extends React.ElementType,
+> = NativeButtonComponentProps<TNativeButton, TElement, MenuItem.State> & {
   /**
    * The click handler for the menu item.
    */
@@ -96,9 +98,19 @@ export interface MenuItemProps
    * @default true
    */
   closeOnClick?: boolean | undefined;
-}
+};
 
 export namespace MenuItem {
   export type State = MenuItemState;
-  export type Props = MenuItemProps;
+  export type Props<
+    TNativeButton extends boolean = false,
+    TElement extends React.ElementType = 'div',
+  > = MenuItemProps<TNativeButton, TElement>;
 }
+
+type MenuItemComponent = <
+  TNativeButton extends boolean = false,
+  TElement extends React.ElementType = 'div',
+>(
+  props: MenuItem.Props<TNativeButton, TElement> & { ref?: React.Ref<HTMLElement> | undefined },
+) => React.ReactElement | null;

@@ -4,7 +4,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonComponentProps } from '../../utils/types';
 import { useMenuRadioGroupContext } from '../radio-group/MenuRadioGroupContext';
 import { MenuRadioItemContext } from './MenuRadioItemContext';
 import { itemMapping } from '../utils/stateAttributesMapping';
@@ -98,7 +98,7 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   });
 
   return <MenuRadioItemContext.Provider value={state}>{element}</MenuRadioItemContext.Provider>;
-});
+}) as MenuRadioItemComponent;
 
 export type MenuRadioItemState = {
   /**
@@ -115,8 +115,10 @@ export type MenuRadioItemState = {
   checked: boolean;
 };
 
-export interface MenuRadioItemProps
-  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuRadioItem.State> {
+export type MenuRadioItemProps<
+  TNativeButton extends boolean,
+  TElement extends React.ElementType,
+> = Omit<NativeButtonComponentProps<TNativeButton, TElement, MenuRadioItem.State>, 'value'> & {
   /**
    * Value of the radio item.
    * This is the value that will be set in the MenuRadioGroup when the item is selected.
@@ -144,9 +146,21 @@ export interface MenuRadioItemProps
    * @default false
    */
   closeOnClick?: boolean | undefined;
-}
+};
 
 export namespace MenuRadioItem {
   export type State = MenuRadioItemState;
-  export type Props = MenuRadioItemProps;
+  export type Props<
+    TNativeButton extends boolean = false,
+    TElement extends React.ElementType = 'div',
+  > = MenuRadioItemProps<TNativeButton, TElement>;
 }
+
+type MenuRadioItemComponent = <
+  TNativeButton extends boolean = false,
+  TElement extends React.ElementType = 'div',
+>(
+  props: MenuRadioItem.Props<TNativeButton, TElement> & {
+    ref?: React.Ref<HTMLElement> | undefined;
+  },
+) => React.ReactElement | null;

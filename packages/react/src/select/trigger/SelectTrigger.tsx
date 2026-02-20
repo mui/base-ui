@@ -7,7 +7,7 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStore } from '@base-ui/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { BaseUIComponentProps, HTMLProps, NativeButtonProps } from '../../utils/types';
+import { HTMLProps, NativeButtonComponentProps } from '../../utils/types';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -282,7 +282,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     stateAttributesMapping,
     props,
   });
-});
+}) as SelectTriggerComponent;
 
 export interface SelectTriggerState extends FieldRoot.State {
   /**
@@ -303,14 +303,28 @@ export interface SelectTriggerState extends FieldRoot.State {
   placeholder: boolean;
 }
 
-export interface SelectTriggerProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', SelectTrigger.State> {
+export type SelectTriggerProps<
+  TNativeButton extends boolean,
+  TElement extends React.ElementType,
+> = NativeButtonComponentProps<TNativeButton, TElement, SelectTrigger.State> & {
   children?: React.ReactNode;
   /** Whether the component should ignore user interaction. */
   disabled?: boolean | undefined;
-}
+};
 
 export namespace SelectTrigger {
   export type State = SelectTriggerState;
-  export type Props = SelectTriggerProps;
+  export type Props<
+    TNativeButton extends boolean = true,
+    TElement extends React.ElementType = 'button',
+  > = SelectTriggerProps<TNativeButton, TElement>;
 }
+
+type SelectTriggerComponent = <
+  TNativeButton extends boolean = true,
+  TElement extends React.ElementType = 'button',
+>(
+  props: SelectTrigger.Props<TNativeButton, TElement> & {
+    ref?: React.Ref<HTMLButtonElement> | undefined;
+  },
+) => React.ReactElement | null;

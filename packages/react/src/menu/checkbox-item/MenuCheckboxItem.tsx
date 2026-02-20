@@ -8,7 +8,7 @@ import { useCompositeListItem } from '../../composite/list/useCompositeListItem'
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonComponentProps } from '../../utils/types';
 import { itemMapping } from '../utils/stateAttributesMapping';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -108,7 +108,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   return (
     <MenuCheckboxItemContext.Provider value={state}>{element}</MenuCheckboxItemContext.Provider>
   );
-});
+}) as MenuCheckboxItemComponent;
 
 export type MenuCheckboxItemState = {
   /**
@@ -125,8 +125,10 @@ export type MenuCheckboxItemState = {
   checked: boolean;
 };
 
-export interface MenuCheckboxItemProps
-  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuCheckboxItem.State> {
+export type MenuCheckboxItemProps<
+  TNativeButton extends boolean,
+  TElement extends React.ElementType,
+> = NativeButtonComponentProps<TNativeButton, TElement, MenuCheckboxItem.State> & {
   /**
    * Whether the checkbox item is currently ticked.
    *
@@ -168,14 +170,26 @@ export interface MenuCheckboxItemProps
    * @default false
    */
   closeOnClick?: boolean | undefined;
-}
+};
 
 export type MenuCheckboxItemChangeEventReason = MenuRoot.ChangeEventReason;
 export type MenuCheckboxItemChangeEventDetails = MenuRoot.ChangeEventDetails;
 
 export namespace MenuCheckboxItem {
   export type State = MenuCheckboxItemState;
-  export type Props = MenuCheckboxItemProps;
+  export type Props<
+    TNativeButton extends boolean = false,
+    TElement extends React.ElementType = 'div',
+  > = MenuCheckboxItemProps<TNativeButton, TElement>;
   export type ChangeEventReason = MenuCheckboxItemChangeEventReason;
   export type ChangeEventDetails = MenuCheckboxItemChangeEventDetails;
 }
+
+type MenuCheckboxItemComponent = <
+  TNativeButton extends boolean = false,
+  TElement extends React.ElementType = 'div',
+>(
+  props: MenuCheckboxItem.Props<TNativeButton, TElement> & {
+    ref?: React.Ref<HTMLElement> | undefined;
+  },
+) => React.ReactElement | null;

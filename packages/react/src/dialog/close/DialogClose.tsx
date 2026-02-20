@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import type { NativeButtonComponentProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
@@ -46,10 +46,12 @@ export const DialogClose = React.forwardRef(function DialogClose(
     ref: [forwardedRef, buttonRef],
     props: [{ onClick: handleClick }, elementProps, getButtonProps],
   });
-});
+}) as DialogCloseComponent;
 
-export interface DialogCloseProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', DialogClose.State> {}
+export type DialogCloseProps<
+  TNativeButton extends boolean,
+  TElement extends React.ElementType,
+> = NativeButtonComponentProps<TNativeButton, TElement, DialogClose.State>;
 
 export interface DialogCloseState {
   /**
@@ -59,6 +61,18 @@ export interface DialogCloseState {
 }
 
 export namespace DialogClose {
-  export type Props = DialogCloseProps;
+  export type Props<
+    TNativeButton extends boolean = true,
+    TElement extends React.ElementType = 'button',
+  > = DialogCloseProps<TNativeButton, TElement>;
   export type State = DialogCloseState;
 }
+
+type DialogCloseComponent = <
+  TNativeButton extends boolean = true,
+  TElement extends React.ElementType = 'button',
+>(
+  props: DialogClose.Props<TNativeButton, TElement> & {
+    ref?: React.Ref<HTMLButtonElement> | undefined;
+  },
+) => React.ReactElement | null;
