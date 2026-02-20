@@ -2375,6 +2375,39 @@ describe('<Combobox.Root />', () => {
       expect(screen.queryByText('alpine')).not.to.equal(null);
     });
 
+    it('matches item keywords during filtering', async () => {
+      const items = [
+        { label: 'Moe Amaya', value: 'moe', keywords: ['moe@org.com'] },
+        { label: 'Dan Knisely', value: 'dan', keywords: ['  dan@org.com  '] },
+      ];
+
+      const { user } = await render(
+        <Combobox.Root items={items} defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: (typeof items)[number]) => (
+                    <Combobox.Item key={item.value} value={item}>
+                      {item.label}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.type(input, 'dan@org.com');
+      await flushMicrotasks();
+
+      expect(screen.queryByText('Moe Amaya')).to.equal(null);
+      expect(screen.queryByText('Dan Knisely')).not.to.equal(null);
+    });
+
     it('resets filtered results after selecting when using a custom search stringifier', async () => {
       type Movie = { id: number; english: string; romaji: string };
       const movies: Movie[] = [

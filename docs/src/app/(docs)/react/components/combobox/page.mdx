@@ -192,6 +192,9 @@ Matches items against a query using `Intl.Collator` for robust string matching.
 This hook is used when externally filtering items.
 Pass the result to the `filter` prop of `<Combobox.Root>`.
 
+Items can include a `keywords` array to match additional terms alongside the label/value.
+Keywords are trimmed before matching.
+
 ### Input parameters
 
 Accepts all `Intl.CollatorOptions`, plus the following options:
