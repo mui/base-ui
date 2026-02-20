@@ -54,7 +54,7 @@
     sans-serif;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 48rem) {
   .Text.bp2\:size-1 {
     font-size: 15px;
     line-height: 22px;

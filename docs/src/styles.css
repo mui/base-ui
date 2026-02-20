@@ -24,7 +24,7 @@
 @import 'tailwindcss/theme' layer(theme);
 @import 'tailwindcss/utilities' layer(utilities);
 
-@import './breakpoints.css';
+@import './css/breakpoints.css';
 @import './fonts/index.css';
 @import './syntax-highlighting/index.css';
 @import './components/Code.css';
@@ -45,9 +45,11 @@
 @import './components/Subtitle/Subtitle.css';
 @import './components/Subtitle/MarkdownLink.css';
 @import './components/Table.css';
-
+@import './components/ReferenceTable/ReferenceTable.css';
 @import './components/Accordion.css';
 @import './components/DescriptionList.css';
+
+@import './css/utilities/index.css';
 
 /* Handy link to the default Tailwind theme:
 /* https://github.com/tailwindlabs/tailwindcss/blob/next/packages/tailwindcss/theme.css */
@@ -158,8 +160,8 @@
   --header-height: 3rem;
 }
 
-:root {
-  @media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: dark) {
+  :root {
     /* Gray colors defined in file://./demo-data/theme/css-modules/theme.css */
     --color-gray-75: oklch(19% 0.5% 264deg); /* Not a Tailwind step, don't use it in the demos */
 

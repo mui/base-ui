@@ -1,15 +1,15 @@
-.jc-c {
+.bui-jc-c {
   justify-content: center;
 }
 
-.jc-fs {
+.bui-jc-fs {
   justify-content: flex-start;
 }
 
-.jc-fe {
+.bui-jc-fe {
   justify-content: flex-end;
 }
 
-.jc-sb {
+.bui-jc-sb {
   justify-content: space-between;
 }

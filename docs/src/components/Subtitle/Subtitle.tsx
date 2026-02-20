@@ -8,12 +8,7 @@ export function Subtitle({
   ...props
 }: React.ComponentProps<'p'> & { skipMarkdownLink?: boolean }) {
   return (
-    <div
-      className={clsx(
-        'Subtitle flex items-baseline justify-between flex-col md:flex-row',
-        className,
-      )}
-    >
+    <div className={clsx('Subtitle', className)}>
       <p {...props} />
       {!skipMarkdownLink && <MarkdownLink />}
     </div>

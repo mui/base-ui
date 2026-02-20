@@ -16,7 +16,9 @@
         var(--side-nav-scrollbar-thumb-width) / 2
     );
 
-    @apply text-md;
+    font-size: var(--text-md);
+    line-height: var(--text-md--line-height);
+    letter-spacing: var(--text-md--letter-spacing);
     position: sticky;
     top: 0;
 

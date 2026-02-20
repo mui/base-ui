@@ -144,12 +144,12 @@ export function Demo({
   return (
     <div className={clsx('DemoRoot', className)}>
       {demo.allFilesSlugs.map(({ slug }) => (
-        <span key={slug} id={slug} className="scroll-mt-4" />
+        <span key={slug} id={slug} className="bui-scroll-mt-4" />
       ))}
       <div onPointerDown={onPlaygroundInteraction} onKeyDownCapture={onPlaygroundInteraction}>
         <DemoPlayground component={demo.component} variant={demo.selectedVariant}>
           {showExtraPlaygroundLink && (
-            <span className="absolute top-3 right-4.5">{externalPlaygroundLink}</span>
+            <span className="DemoPlaygroundExternalLink">{externalPlaygroundLink}</span>
           )}
         </DemoPlayground>
       </div>
@@ -178,7 +178,7 @@ export function Demo({
                 {externalPlaygroundLink}
                 <GhostButton aria-label="Copy code" onClick={demo.copy}>
                   Copy
-                  <span className="flex size-3.5 items-center justify-center">
+                  <span className="DemoCopyIconWrap">
                     {copyTimeout ? <CheckIcon /> : <CopyIcon />}
                   </span>
                 </GhostButton>

@@ -1,5 +1,4 @@
 import * as React from 'react';
-import clsx from 'clsx';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { createMdxComponent } from 'docs/src/mdx/createMdxComponent';
 import { inlineMdxComponents, mdxComponents } from 'docs/src/mdx-components';
@@ -23,7 +22,7 @@ function ExpandedCode(props: React.ComponentProps<'code'>) {
 function ExpandedPre(props: React.ComponentProps<'pre'>) {
   return (
     <Accordion.Scrollable tag="div" gradientColor="var(--color-gray-50)">
-      <pre {...props} className="text-xs p-0 m-0" style={{ backgroundColor: undefined }} />
+      <pre {...props} className="ReferencePre" style={{ backgroundColor: undefined }} />
     </Accordion.Scrollable>
   );
 }
@@ -109,11 +108,11 @@ export async function ReferenceAccordion({
       <span id={captionId} style={visuallyHidden} aria-hidden>
         {caption}
       </span>
-      <Accordion.HeaderRow className={clsx('grid', TRIGGER_GRID_LAYOUT)}>
+      <Accordion.HeaderRow className="ReferenceHeaderRow">
         <Accordion.HeaderCell>{nameLabel}</Accordion.HeaderCell>
-        <Accordion.HeaderCell className="max-xs:hidden">Type</Accordion.HeaderCell>
-        <Accordion.HeaderCell className="max-md:hidden">Default</Accordion.HeaderCell>
-        <Accordion.HeaderCell className="max-md:hidden w-10" />
+        <Accordion.HeaderCell className="ReferenceHeaderTypeCell">Type</Accordion.HeaderCell>
+        <Accordion.HeaderCell className="ReferenceHeaderDefaultCell">Default</Accordion.HeaderCell>
+        <Accordion.HeaderCell className="ReferenceHeaderIconCell" />
       </Accordion.HeaderRow>
       {Object.keys(data).map(async (name, index) => {
         const prop = data[name];
@@ -189,16 +188,16 @@ export async function ReferenceAccordion({
               id={id}
               index={index}
               aria-label={`${nameLabel}: ${name},${prop.required ? ' required,' : ''} type: ${shortPropTypeName} ${prop.default !== undefined ? `(default: ${prop.default})` : ''}`}
-              className={clsx('min-h-min scroll-mt-12 p-0 md:scroll-mt-0', TRIGGER_GRID_LAYOUT)}
+              className="ReferenceTrigger"
             >
-              <Accordion.Scrollable className="px-3">
-                <TableCode className="text-navy whitespace-nowrap">
+              <Accordion.Scrollable className="ReferenceNameCell">
+                <TableCode className="bui-ws-nw" style={{ color: 'var(--color-navy)' }}>
                   {name}
-                  {prop.required ? <sup className="top-[-0.3em] text-xs text-red-800">*</sup> : ''}
+                  {prop.required ? <sup className="ReferenceRequired">*</sup> : ''}
                 </TableCode>
               </Accordion.Scrollable>
               {prop.type && (
-                <Accordion.Scrollable className="px-3 flex items-baseline text-sm leading-none break-keep whitespace-nowrap max-xs:hidden">
+                <Accordion.Scrollable className="ReferenceTypeCell">
                   {hasExpandedType || detailedType ? (
                     <ReferenceTableTooltip.Root disableHoverablePopup>
                       <ReferenceTableTooltip.Trigger render={<ShortPropType />} delay={300} />
@@ -211,16 +210,16 @@ export async function ReferenceAccordion({
                   )}
                 </Accordion.Scrollable>
               )}
-              <Accordion.Scrollable className="max-md:hidden break-keep whitespace-nowrap px-3">
+              <Accordion.Scrollable className="ReferenceDefaultCell">
                 {prop.required || prop.default === undefined ? (
-                  <TableCode className="text-(--syntax-nullish)">—</TableCode>
+                  <TableCode style={{ color: 'var(--syntax-nullish)' }}>—</TableCode>
                 ) : (
                   <PropDefault />
                 )}
               </Accordion.Scrollable>
-              <span className="flex justify-center max-xs:ml-auto max-xs:mr-3">
+              <span className="ReferenceIconWrap">
                 <svg
-                  className="AccordionIcon translate-y-px"
+                  className="AccordionIcon ReferenceIcon"
                   width="10"
                   height="10"
                   viewBox="0 0 10 10"
@@ -233,15 +232,12 @@ export async function ReferenceAccordion({
             </Accordion.Trigger>
             <Accordion.Panel>
               <Accordion.Content>
-                <DescriptionList.Root
-                  className={clsx('text-gray-600 max-xs:py-3', PANEL_GRID_LAYOUT)}
-                  aria-label="Info"
-                >
+                <DescriptionList.Root className="ReferenceContent" aria-label="Info">
                   <DescriptionList.Item>
                     <DescriptionList.Term>Name</DescriptionList.Term>
                     <DescriptionList.Details>
                       <Link href={`#${id}`}>
-                        <TableCode className="text-(--color-blue)">{name}</TableCode>
+                        <TableCode style={{ color: 'var(--color-blue)' }}>{name}</TableCode>
                       </Link>
                     </DescriptionList.Details>
                   </DescriptionList.Item>
@@ -249,7 +245,7 @@ export async function ReferenceAccordion({
                     <DescriptionList.Item>
                       <DescriptionList.Term separator>Description</DescriptionList.Term>
                       {/* one-off override of the default mt/mb on CodeBlock.Root */}
-                      <DescriptionList.Details className="[&_[role='figure']]:mt-1 [&_[role='figure']]:mb-1">
+                      <DescriptionList.Details className="ReferenceDescription">
                         <PropDescription />
                       </DescriptionList.Details>
                     </DescriptionList.Item>
@@ -271,7 +267,7 @@ export async function ReferenceAccordion({
                   {ExampleSnippet != null && (
                     <DescriptionList.Item>
                       <DescriptionList.Term separator>Example</DescriptionList.Term>
-                      <DescriptionList.Details className="*:my-0">
+                      <DescriptionList.Details className="ReferenceExampleReset">
                         <ExampleSnippet />
                       </DescriptionList.Details>
                     </DescriptionList.Item>
@@ -285,17 +281,3 @@ export async function ReferenceAccordion({
     </Accordion.Root>
   );
 }
-
-const TRIGGER_GRID_LAYOUT =
-  'xs:grid ' +
-  'xs:grid-cols-[theme(spacing.48)_1fr_theme(spacing.10)] ' +
-  'sm:grid-cols-[theme(spacing.56)_1fr_theme(spacing.10)] ' +
-  'md:grid-cols-[5fr_7fr_4.5fr_theme(spacing.10)] ';
-
-const PANEL_GRID_LAYOUT =
-  'max-xs:flex max-xs:flex-col ' +
-  'min-xs:gap-0 ' +
-  'xs:grid-cols-[theme(spacing.48)_1fr_theme(spacing.10)] ' +
-  'sm:grid-cols-[theme(spacing.56)_1fr_theme(spacing.10)] ' +
-  // 5fr+11.5fr aligns with 5fr+7fr+4.5fr above
-  'md:grid-cols-[5fr_11.5fr_theme(spacing.10)] ';

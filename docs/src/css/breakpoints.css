@@ -1,4 +1,4 @@
-@theme {
+:root {
   /* Default Tailwind breakpoints */
   --breakpoint-sm: 40rem; /* 640px */
   --breakpoint-md: 48rem; /* 768px */

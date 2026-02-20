@@ -66,7 +66,9 @@
     height: 100dvh;
     overflow-y: auto;
 
-    @apply text-base;
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
+    letter-spacing: var(--text-base--letter-spacing);
 
     /* Native apps don't show scrollbars on sheets like this */
     scrollbar-width: none;
@@ -151,7 +153,9 @@
   }
 
   .MobileNavHeading {
-    @apply text-lg;
+    font-size: var(--text-lg);
+    line-height: var(--text-lg--line-height);
+    letter-spacing: var(--text-lg--letter-spacing);
     font-weight: 500;
     padding-inline: var(--mobile-nav-item-padding-x);
 
@@ -230,6 +234,11 @@
   margin-right: 0.75rem;
   height: 0;
   width: fit-content;
+}
+
+.MobileNavBody {
+  display: flex;
+  flex-direction: column-reverse;
 }
 
 .MobileNavClose {

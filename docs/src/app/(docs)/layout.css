@@ -1,4 +1,4 @@
-@import 'docs/src/breakpoints.css';
+@import 'docs/src/css/breakpoints.css';
 
 @layer base {
   html {
