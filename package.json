@@ -95,7 +95,7 @@
     "remark-mdx": "3.1.1",
     "rimraf": "6.1.2",
     "serve": "14.2.5",
-    "stylelint": "17.2.0",
+    "stylelint": "17.3.0",
     "stylelint-config-tailwindcss": "1.0.1",
     "tailwindcss": "4.1.18",
     "terser": "5.46.0",
