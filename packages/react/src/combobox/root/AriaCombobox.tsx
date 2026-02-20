@@ -338,6 +338,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     () =>
       new Store<StoreState>({
         id,
+        closePartCount: 0,
         selectedValue,
         open,
         filter,
@@ -1465,6 +1466,10 @@ interface ComboboxRootProps<ItemValue> {
    * Determines if the popup enters a modal state when open.
    * - `true`: user interaction is limited to the popup: document page scroll is locked and pointer interactions on outside elements are disabled.
    * - `false`: user interaction with the rest of the document is allowed.
+   *
+   * Focus trapping when `modal` is `true` requires rendering the `<Combobox.Close>` part inside
+   * `<Combobox.Popup>`. Use the `visuallyHidden` prop on `<Combobox.Close>` to hide it visually
+   * while keeping it accessible to screen readers.
    * @default false
    */
   modal?: boolean | undefined;
@@ -1555,6 +1560,7 @@ export namespace AriaCombobox {
     | typeof REASONS.triggerPress
     | typeof REASONS.outsidePress
     | typeof REASONS.itemPress
+    | typeof REASONS.closePress
     | typeof REASONS.escapeKey
     | typeof REASONS.listNavigation
     | typeof REASONS.focusOut

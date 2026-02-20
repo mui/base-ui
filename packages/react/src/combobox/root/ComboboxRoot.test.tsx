@@ -65,6 +65,21 @@ function SelectedIndexProbe() {
   );
 }
 
+function isElementOrAncestorInert(element: HTMLElement) {
+  let current: HTMLElement | null = element;
+  while (current) {
+    if (
+      current.getAttribute('aria-hidden') === 'true' ||
+      current.hasAttribute('inert') ||
+      current.hasAttribute('data-base-ui-inert')
+    ) {
+      return true;
+    }
+    current = current.parentElement;
+  }
+  return false;
+}
+
 describe('<Combobox.Root />', () => {
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
@@ -156,6 +171,46 @@ describe('<Combobox.Root />', () => {
         </Combobox.Portal>
       </Combobox.Root>,
     );
+  });
+
+  it('hides the trigger when popup is open with input outside the popup', async () => {
+    const { user } = await render(
+      <div>
+        <button data-testid="outside">Outside</button>
+        <Combobox.Root items={['Apple', 'Banana']}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>
+      </div>,
+    );
+
+    await user.click(screen.getByTestId('input'));
+
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox')).not.to.equal(null);
+    });
+
+    const outside = screen.getByTestId('outside');
+    const trigger = screen.getByTestId('trigger');
+
+    await waitFor(() => {
+      expect(isElementOrAncestorInert(outside)).to.equal(true);
+    });
+
+    expect(isElementOrAncestorInert(trigger)).to.equal(true);
   });
 
   describe('selection behavior', () => {

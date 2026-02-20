@@ -47,6 +47,8 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const transitionStatus = useStore(store, selectors.transitionStatus);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
   const inputElement = useStore(store, selectors.inputElement);
+  const modal = useStore(store, selectors.modal);
+  const hasClosePart = useStore(store, selectors.hasClosePart);
 
   const empty = filteredItems.length === 0;
 
@@ -109,12 +111,13 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   } else {
     resolvedFinalFocus = inputInsidePopup ? undefined : false;
   }
+  const focusManagerModal = !inputInsidePopup || (modal && hasClosePart);
 
   return (
     <FloatingFocusManager
       context={floatingRootContext}
       disabled={!mounted}
-      modal={!inputInsidePopup}
+      modal={focusManagerModal}
       openInteractionType={openMethod}
       initialFocus={resolvedInitialFocus}
       returnFocus={resolvedFinalFocus}

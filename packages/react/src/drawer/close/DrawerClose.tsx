@@ -12,7 +12,13 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types'
 export const DrawerClose = DialogClose as DrawerClose;
 
 export interface DrawerCloseProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', DrawerClose.State> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', DrawerClose.State> {
+  /**
+   * Whether the close button should be visually hidden.
+   * @default false
+   */
+  visuallyHidden?: boolean | undefined;
+}
 
 export interface DrawerCloseState {
   /**

@@ -595,6 +595,10 @@ export interface MenuRootProps<Payload = unknown> {
    * Determines if the menu enters a modal state when open.
    * - `true`: user interaction is limited to the menu: document page scroll is locked and pointer interactions on outside elements are disabled.
    * - `false`: user interaction with the rest of the document is allowed.
+   *
+   * Focus trapping when `modal` is `true` requires rendering the `<Menu.Close>` part inside
+   * `<Menu.Popup>`. Use the `visuallyHidden` prop on `<Menu.Close>` to hide it visually while
+   * keeping it accessible to screen readers.
    * @default true
    */
   modal?: boolean | undefined;

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
-import { usePopoverRootContext } from '../root/PopoverRootContext';
+import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -9,13 +9,13 @@ import { REASONS } from '../../utils/reasons';
 import { getCloseButtonStyle, useClosePartRegistration } from '../../utils/closePart';
 
 /**
- * A button that closes the popover.
+ * A button that closes the menu.
  * Renders a `<button>` element.
  *
- * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-export const PopoverClose = React.forwardRef(function PopoverClose(
-  componentProps: PopoverClose.Props,
+export const MenuClose = React.forwardRef(function MenuClose(
+  componentProps: MenuClose.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
@@ -27,16 +27,18 @@ export const PopoverClose = React.forwardRef(function PopoverClose(
     ...elementProps
   } = componentProps;
 
-  const { buttonRef, getButtonProps } = useButton({
+  const { store } = useMenuRootContext();
+  useClosePartRegistration(store);
+
+  const { getButtonProps, buttonRef } = useButton({
     disabled,
-    focusableWhenDisabled: false,
     native: nativeButton,
   });
 
-  const { store } = usePopoverRootContext();
-  useClosePartRegistration(store);
+  const state: MenuClose.State = { disabled };
 
-  const element = useRenderElement('button', componentProps, {
+  return useRenderElement('button', componentProps, {
+    state,
     ref: [forwardedRef, buttonRef],
     props: [
       {
@@ -52,14 +54,10 @@ export const PopoverClose = React.forwardRef(function PopoverClose(
       getButtonProps,
     ],
   });
-
-  return element;
 });
 
-export interface PopoverCloseState {}
-
-export interface PopoverCloseProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', PopoverClose.State> {
+export interface MenuCloseProps
+  extends NativeButtonProps, BaseUIComponentProps<'button', MenuClose.State> {
   /**
    * Whether the close button should be visually hidden.
    * @default false
@@ -67,7 +65,14 @@ export interface PopoverCloseProps
   visuallyHidden?: boolean | undefined;
 }
 
-export namespace PopoverClose {
-  export type State = PopoverCloseState;
-  export type Props = PopoverCloseProps;
+export interface MenuCloseState {
+  /**
+   * Whether the button is currently disabled.
+   */
+  disabled: boolean;
+}
+
+export namespace MenuClose {
+  export type Props = MenuCloseProps;
+  export type State = MenuCloseState;
 }

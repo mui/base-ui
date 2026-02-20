@@ -9,6 +9,7 @@ export type * from './backdrop/SelectBackdrop';
 export type * from './positioner/SelectPositioner';
 export type * from './popup/SelectPopup';
 export type * from './list/SelectList';
+export type * from './close/SelectClose';
 export type * from './item/SelectItem';
 export type * from './item-indicator/SelectItemIndicator';
 export type * from './item-text/SelectItemText';

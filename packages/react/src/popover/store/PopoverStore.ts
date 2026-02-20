@@ -20,6 +20,7 @@ import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
+  closePartCount: number;
   instantType: 'dismiss' | 'click' | undefined;
   modal: boolean | 'trap-focus';
   openMethod: InteractionType | null;
@@ -46,6 +47,7 @@ function createInitialState<Payload>(): State<Payload> {
   return {
     ...createInitialPopupStoreState(),
     disabled: false,
+    closePartCount: 0,
     modal: false,
     instantType: undefined,
     openMethod: null,
@@ -63,6 +65,7 @@ function createInitialState<Payload>(): State<Payload> {
 const selectors = {
   ...popupStoreSelectors,
   disabled: createSelector((state: State<unknown>) => state.disabled),
+  hasClosePart: createSelector((state: State<unknown>) => state.closePartCount > 0),
   instantType: createSelector((state: State<unknown>) => state.instantType),
   openMethod: createSelector((state: State<unknown>) => state.openMethod),
   openChangeReason: createSelector((state: State<unknown>) => state.openChangeReason),

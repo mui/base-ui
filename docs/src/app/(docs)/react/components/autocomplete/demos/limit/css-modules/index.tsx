@@ -47,6 +47,7 @@ export default function ExampleAutocompleteLimit() {
                 ? `Hiding ${moreCount} results (type a more specific query to narrow results)`
                 : null}
             </Autocomplete.Status>
+            <Autocomplete.Close visuallyHidden aria-label="Dismiss popup" />
           </Autocomplete.Popup>
         </Autocomplete.Positioner>
       </Autocomplete.Portal>

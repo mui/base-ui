@@ -518,7 +518,7 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
       HTMLElement.prototype.focus = originalFocus;
     });
 
-    test('removes fallback element when return element is falsy', async () => {
+    test('does not insert fallback element when return element is falsy', async () => {
       function App() {
         const [isOpen, setIsOpen] = React.useState(false);
 
@@ -547,19 +547,17 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
 
       const reference = screen.getByTestId('reference');
       await userEvent.click(reference);
+      await flushMicrotasks();
 
-      const fallback = reference.nextElementSibling as HTMLElement | null;
-      await waitFor(() => {
-        expect(fallback).not.toBeNull();
-      });
-      expect(fallback?.getAttribute('aria-hidden')).toBe('true');
-      expect(fallback?.getAttribute('tabindex')).toBe('-1');
+      expect(reference.nextElementSibling).toBeNull();
 
       await userEvent.click(screen.getByTestId('close'));
 
       await waitFor(() => {
-        expect(fallback && fallback.isConnected).toBe(false);
+        expect(screen.queryByTestId('close')).toBeNull();
       });
+
+      expect(reference.nextElementSibling).toBeNull();
     });
   });
 
