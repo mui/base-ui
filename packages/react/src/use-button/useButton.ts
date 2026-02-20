@@ -243,6 +243,12 @@ export interface UseButtonReturnValue {
 }
 
 export namespace useButton {
+  /**
+   * Event handler keys that useButton makes preventable via `makeEventPreventable`.
+   * Pass this type (or a union including it) as the `PreventableEvents` generic
+   * of `BaseUIComponentProps` for components that use `useButton`.
+   */
+  export type PreventableEvents = 'onClick' | 'onMouseDown' | 'onKeyDown' | 'onKeyUp' | 'onPointerDown';
   export type Parameters = UseButtonParameters;
   export type ReturnValue = UseButtonReturnValue;
 }
