@@ -15,6 +15,7 @@ import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { selectors } from '../store';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { DEFAULT_FIELD_STATE_ATTRIBUTES } from '../../field/utils/constants';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
 import { stopEvent } from '../../floating-ui-react/utils';
@@ -23,17 +24,6 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import type { Side } from '../../utils/useAnchorPositioning';
 import { useDirection } from '../../direction-provider/DirectionContext';
-
-const POPUP_INPUT_FIELD_STATE: Pick<
-  FieldRoot.State,
-  'valid' | 'touched' | 'dirty' | 'filled' | 'focused'
-> = {
-  valid: null,
-  touched: false,
-  dirty: false,
-  filled: false,
-  focused: false,
-};
 
 /**
  * A text input to search for items in the list.
@@ -93,7 +83,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
   const isInsidePopup = hasPositionerParent || inline;
   const id = useBaseUiId(idProp ?? (!isInsidePopup ? rootId : undefined));
-  const fieldStateForInput = hasPositionerParent ? POPUP_INPUT_FIELD_STATE : fieldState;
+  const fieldStateForInput = hasPositionerParent ? DEFAULT_FIELD_STATE_ATTRIBUTES : fieldState;
 
   const [composingValue, setComposingValue] = React.useState<string | null>(null);
   const isComposingRef = React.useRef(false);
