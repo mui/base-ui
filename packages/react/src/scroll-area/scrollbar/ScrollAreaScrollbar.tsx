@@ -44,6 +44,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
     handlePointerUp,
     rootId,
     thumbSize,
+    hasMeasuredScrollbar,
   } = useScrollAreaRootContext();
 
   const state: ScrollAreaScrollbar.State = {
@@ -63,6 +64,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
   };
 
   const direction = useDirection();
+  const hideTrackUntilMeasured = !hasMeasuredScrollbar && !keepMounted;
 
   React.useEffect(() => {
     const viewportEl = viewportRef.current;
@@ -190,6 +192,8 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
       touchAction: 'none',
       WebkitUserSelect: 'none',
       userSelect: 'none',
+      visibility: hideTrackUntilMeasured ? 'hidden' : undefined,
+      pointerEvents: hideTrackUntilMeasured ? 'none' : undefined,
       ...(orientation === 'vertical' && {
         top: 0,
         bottom: `var(${ScrollAreaRootCssVars.scrollAreaCornerHeight})`,
