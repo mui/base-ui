@@ -1,6 +1,7 @@
+import * as React from 'react';
 import { expect } from 'chai';
 import userEvent from '@testing-library/user-event';
-import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { Popover } from '@base-ui/react/popover';
 import { describeConformance, createRenderer } from '#test-utils';
@@ -68,6 +69,80 @@ describe('<Menu.Trigger />', () => {
     const menuPopup = await screen.findByRole('menu', { hidden: false });
     expect(menuPopup).not.to.equal(null);
     expect(menuPopup).to.have.attribute('data-open', '');
+  });
+
+  describe('prop: pressMode', () => {
+    it('should open the menu on mousedown when pressMode is "mousedown"', async () => {
+      await render(
+        <Menu.Root>
+          <Menu.Trigger pressMode="mousedown" />
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+      await user.pointer({ keys: '[MouseLeft>]', target: trigger });
+
+      await waitFor(() => {
+        expect(trigger).to.have.attribute('data-popup-open', '');
+      });
+    });
+
+    it('should not open the menu on mousedown when pressMode is "click"', async () => {
+      await render(
+        <Menu.Root>
+          <Menu.Trigger pressMode="click" />
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+      await user.pointer({ keys: '[MouseLeft>]', target: trigger });
+      await new Promise((resolve) => {
+        // Make sure the schedulers in useClick have run
+        requestAnimationFrame(resolve);
+      });
+
+      expect(trigger).not.to.have.attribute('data-popup-open', '');
+    });
+
+    it('should keep open when pressMode changes to "click" on open', async () => {
+      function Test() {
+        const [open, setOpen] = React.useState(false);
+        return (
+          <Menu.Root open={open} onOpenChange={setOpen}>
+            <Menu.Trigger pressMode={open ? 'click' : 'mousedown'} />
+          </Menu.Root>
+        );
+      }
+
+      await render(<Test />);
+
+      const trigger = screen.getByRole('button');
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(trigger).to.have.attribute('data-popup-open', '');
+      });
+    });
+
+    it('should keep closed when pressMode changes to "click" on close', async () => {
+      function Test() {
+        const [open, setOpen] = React.useState(true);
+        return (
+          <Menu.Root open={open} onOpenChange={setOpen}>
+            <Menu.Trigger pressMode={open ? 'mousedown' : 'click'} />
+          </Menu.Root>
+        );
+      }
+
+      await render(<Test />);
+
+      const trigger = screen.getByRole('button');
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(trigger).not.to.have.attribute('data-popup-open', '');
+      });
+    });
   });
 
   describe('keyboard navigation', () => {
