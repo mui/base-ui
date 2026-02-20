@@ -14,9 +14,9 @@
       "detailedType": "Tabs.Tab.Value | undefined"
     },
     "onValueChange": {
-      "type": "((value: Tabs.Tab.Value, eventDetails: Tabs.Root.ChangeEventDetails<'none', { activationDirection: Tabs.Tab.ActivationDirection }>) => void)",
+      "type": "((value: Tabs.Tab.Value, eventDetails: Tabs.Root.ChangeEventDetails) => void)",
       "description": "Callback invoked when new value is being set.",
-      "detailedType": "| ((\n    value: Tabs.Tab.Value,\n    eventDetails: Tabs.Root.ChangeEventDetails<\n      'none',\n      {\n        activationDirection: Tabs.Tab.ActivationDirection\n      }\n    >,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: Tabs.Tab.Value,\n    eventDetails: Tabs.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "orientation": {
       "type": "Tabs.Root.Orientation",
