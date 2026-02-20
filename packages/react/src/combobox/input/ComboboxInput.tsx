@@ -103,6 +103,9 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     });
   });
 
+  const validationProps =
+    hasPositionerParent || !validation ? elementProps : validation.getValidationProps(elementProps);
+
   const state: ComboboxInput.State = {
     ...fieldStateForInput,
     open,
@@ -111,8 +114,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     popupSide,
     listEmpty,
   };
-  const validationProps =
-    hasPositionerParent || !validation ? elementProps : validation.getValidationProps(elementProps);
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (!comboboxChipsContext) {

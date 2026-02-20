@@ -15,8 +15,10 @@ export const DEFAULT_VALIDITY_STATE = {
   valueMissing: false,
 };
 
-export const DEFAULT_FIELD_ROOT_STATE: FieldRootState = {
-  disabled: false,
+export const DEFAULT_FIELD_STATE_ATTRIBUTES: Pick<
+  FieldRootState,
+  'valid' | 'touched' | 'dirty' | 'filled' | 'focused'
+> = {
   valid: null,
   touched: false,
   dirty: false,
@@ -24,15 +26,9 @@ export const DEFAULT_FIELD_ROOT_STATE: FieldRootState = {
   focused: false,
 };
 
-export const DEFAULT_FIELD_STATE_ATTRIBUTES: Pick<
-  FieldRootState,
-  'valid' | 'touched' | 'dirty' | 'filled' | 'focused'
-> = {
-  valid: DEFAULT_FIELD_ROOT_STATE.valid,
-  touched: DEFAULT_FIELD_ROOT_STATE.touched,
-  dirty: DEFAULT_FIELD_ROOT_STATE.dirty,
-  filled: DEFAULT_FIELD_ROOT_STATE.filled,
-  focused: DEFAULT_FIELD_ROOT_STATE.focused,
+export const DEFAULT_FIELD_ROOT_STATE: FieldRootState = {
+  disabled: false,
+  ...DEFAULT_FIELD_STATE_ATTRIBUTES,
 };
 
 export const fieldValidityMapping = {
