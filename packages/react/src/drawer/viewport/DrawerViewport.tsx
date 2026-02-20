@@ -82,6 +82,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   const [swipeRelease, setSwipeRelease] = React.useState<number | null>(null);
   const pendingSwipeCloseSnapPointRef = React.useRef<typeof activeSnapPoint>(undefined);
   const resetSwipeRef = React.useRef<(() => void) | null>(null);
+  const controlledDismissRafRef = React.useRef<number | null>(null);
 
   const nestedSwipeActiveRef = React.useRef(false);
   const lastPointerTypeRef = React.useRef<React.PointerEvent['pointerType'] | ''>('');
@@ -695,6 +696,34 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         return;
       }
 
+      // In controlled mode, the effective open state may not have changed yet
+      // (openProp takes precedence over state.open). Proceed optimistically with the
+      // dismiss animation — React's Scheduler flushes before the next rAF, so we can
+      // reliably check whether the parent accepted or rejected the close.
+      if (store.select('open')) {
+        const savedEvent = event;
+        controlledDismissRafRef.current = requestAnimationFrame(() => {
+          controlledDismissRafRef.current = null;
+          if (store.select('open')) {
+            // Parent rejected: revert animation and restore snap point.
+            const pendingSnapPoint = pendingSwipeCloseSnapPointRef.current;
+            if (pendingSnapPoint !== undefined) {
+              setActiveSnapPoint?.(
+                pendingSnapPoint,
+                createChangeEventDetails(REASONS.swipe, savedEvent),
+              );
+            }
+            pendingSwipeCloseSnapPointRef.current = undefined;
+            clearSwipeRelease();
+            resetSwipeRef.current?.();
+          } else {
+            // Parent accepted: clean up the ref.
+            pendingSwipeCloseSnapPointRef.current = undefined;
+          }
+        });
+        return;
+      }
+
       pendingSwipeCloseSnapPointRef.current = undefined;
       setSwipeDismissed(true);
     },
@@ -704,6 +733,14 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   const swipeTouchProps = swipe.getTouchProps();
   const resetSwipe = swipe.reset;
   resetSwipeRef.current = resetSwipe;
+
+  React.useEffect(() => {
+    return () => {
+      if (controlledDismissRafRef.current !== null) {
+        cancelAnimationFrame(controlledDismissRafRef.current);
+      }
+    };
+  }, []);
 
   React.useEffect(() => {
     const rootElement = viewportElement ?? popupElementState;
