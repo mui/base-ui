@@ -496,6 +496,37 @@ function ControlledAlwaysOpenCase({
   );
 }
 
+function ControlledSwipeCloseSnapPointCase() {
+  const snapPoints = ['100px', '300px', 1];
+  const [open, setOpen] = React.useState(true);
+  // Start at '300px' (non-default) so we can distinguish correct reset to
+  // the default ('100px') from incorrect restoration to the pre-swipe value.
+  const [snapPoint, setSnapPoint] = React.useState<Drawer.Root.SnapPoint | null>(snapPoints[1]);
+
+  return (
+    <div>
+      <div data-testid="active-snap">{String(snapPoint)}</div>
+      <Drawer.Root
+        open={open}
+        onOpenChange={setOpen}
+        snapPoints={snapPoints}
+        snapPoint={snapPoint}
+        onSnapPointChange={setSnapPoint}
+        swipeDirection="down"
+      >
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport data-testid="viewport" style={{ height: 600 }}>
+            <Drawer.Popup data-testid="popup" style={{ height: 600 }}>
+              Drawer
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>
+    </div>
+  );
+}
+
 function CanceledSwipeCloseCase() {
   const [open, setOpen] = React.useState(true);
 
@@ -843,6 +874,39 @@ describe('<Drawer.Root />', () => {
         expect(backdrop).not.toHaveAttribute('data-swipe-dismiss');
         expect(popup).not.toHaveAttribute('data-ending-style');
         expect(popup).toHaveAttribute('data-open', '');
+      } finally {
+        document.elementFromPoint = originalElementFromPoint;
+        if (typeof originalResizeObserver === 'function') {
+          globalThis.ResizeObserver = originalResizeObserver;
+        }
+      }
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'does not restore snap point when a controlled swipe close is accepted by the parent',
+    async () => {
+      const originalElementFromPoint = document.elementFromPoint;
+      const originalResizeObserver = globalThis.ResizeObserver;
+      if (typeof originalResizeObserver === 'function') {
+        globalThis.ResizeObserver = class {
+          observe() {}
+          unobserve() {}
+          disconnect() {}
+        } as typeof ResizeObserver;
+      }
+
+      try {
+        await render(<ControlledSwipeCloseSnapPointCase />);
+        await flushMicrotasks();
+
+        const viewport = screen.getByTestId('viewport');
+        const popup = screen.getByTestId('popup');
+
+        document.elementFromPoint = () => popup;
+
+        await simulateTimedDownSwipe(viewport, 100, 260, 1000, 1010, 1040);
+        expect(screen.getByTestId('active-snap').textContent).toBe('100px');
       } finally {
         document.elementFromPoint = originalElementFromPoint;
         if (typeof originalResizeObserver === 'function') {

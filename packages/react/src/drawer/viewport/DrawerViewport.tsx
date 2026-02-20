@@ -683,16 +683,21 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
       );
       store.setOpen(false, dismissEventDetails);
 
-      if (!dismissEventDetails.isCanceled && store.select('open')) {
-        dismissEventDetails.cancel();
-      }
-
       if (dismissEventDetails.isCanceled) {
         const pendingSnapPoint = pendingSwipeCloseSnapPointRef.current;
         if (pendingSnapPoint !== undefined) {
           setActiveSnapPoint?.(pendingSnapPoint, createChangeEventDetails(REASONS.swipe, event));
         }
 
+        pendingSwipeCloseSnapPointRef.current = undefined;
+        resetSwipeRef.current?.();
+        clearSwipeRelease();
+        return;
+      }
+
+      // In controlled mode, the effective open state may not have changed yet
+      // Clean up swipe state without playing the visual dismiss animation.
+      if (store.select('open')) {
         pendingSwipeCloseSnapPointRef.current = undefined;
         resetSwipeRef.current?.();
         clearSwipeRelease();
