@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { useOnMount } from '@base-ui/utils/useOnMount';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { valueToPercent } from '../../utils/valueToPercent';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
@@ -63,15 +62,15 @@ function getCenteredStyles(
 
   if (!range) {
     styles[startEdge] = 0;
-    styles[mainSide] = `${start}%`;
+    styles[mainSide] = `${start * 100}%`;
 
     return styles;
   }
 
   const size = end - start;
 
-  styles[startEdge] = `${start}%`;
-  styles[mainSide] = `${size}%`;
+  styles[startEdge] = `${start * 100}%`;
+  styles[mainSide] = `${size * 100}%`;
 
   return styles;
 }
@@ -88,8 +87,15 @@ export const SliderIndicator = React.forwardRef(function SliderIndicator(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { indicatorPosition, inset, max, min, orientation, renderBeforeHydration, state, values } =
-    useSliderRootContext();
+  const {
+    indicatorPosition,
+    inset,
+    mapValueToPosition,
+    orientation,
+    renderBeforeHydration,
+    state,
+    values,
+  } = useSliderRootContext();
 
   const [isMounted, setIsMounted] = React.useState(false);
   useOnMount(() => setIsMounted(true));
@@ -109,8 +115,8 @@ export const SliderIndicator = React.forwardRef(function SliderIndicator(
     : getCenteredStyles(
         vertical,
         range,
-        valueToPercent(values[0], min, max),
-        valueToPercent(values[values.length - 1], min, max),
+        mapValueToPosition(values[0]),
+        mapValueToPosition(values[values.length - 1]),
       );
 
   const element = useRenderElement('div', componentProps, {

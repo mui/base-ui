@@ -32,6 +32,11 @@
       "description": "The locale used by `Intl.NumberFormat` when formatting the value.\nDefaults to the user's runtime locale.",
       "detailedType": "Intl.LocalesArgument | undefined"
     },
+    "scale": {
+      "type": "{ positionToValue: ((position: number) => number), valueToPosition: ((value: number) => number) }",
+      "description": "An object containing two functions for configuring a non-linear scale.\n\n- `positionToValue`: Receives the relative position as a number between 0–1 and returns the value at that position.\n- `valueToPosition`: Receives a value and returns the relative position as a number between 0–1.",
+      "detailedType": "| {\n    positionToValue: (position: number) => number\n    valueToPosition: (value: number) => number\n  }\n| undefined"
+    },
     "thumbAlignment": {
       "type": "'center' | 'edge' | 'edge-client-only'",
       "default": "'center'",
