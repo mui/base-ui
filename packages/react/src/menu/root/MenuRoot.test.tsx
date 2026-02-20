@@ -1331,6 +1331,43 @@ describe('<Menu.Root />', () => {
 
         expect(screen.queryByText('Item 1')).to.equal(null);
       });
+
+      it('should close submenu after delay when hovering a sibling item', async () => {
+        await renderFakeTimers(
+          <TestMenu
+            triggerProps={{ openOnHover: true, delay: 0 }}
+            submenuTriggerProps={{ delay: 0, closeDelay: 100 }}
+          />,
+        );
+
+        const trigger = screen.getByRole('button');
+
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        await flushMicrotasks();
+
+        // Open the submenu by hovering its trigger
+        const submenuTrigger = screen.getByRole('menuitem', { name: 'Item 4' });
+        fireEvent.mouseEnter(submenuTrigger);
+        fireEvent.mouseMove(submenuTrigger);
+
+        await flushMicrotasks();
+
+        expect(screen.queryByTestId('submenu')).not.to.equal(null);
+
+        // Hover a sibling item in the parent menu
+        const siblingItem = screen.getByRole('menuitem', { name: 'Item 1' });
+        fireEvent.mouseMove(siblingItem);
+
+        // Submenu should still be open after partial delay
+        clock.tick(50);
+        expect(screen.queryByTestId('submenu')).not.to.equal(null);
+
+        // Submenu should close after the full delay
+        clock.tick(50);
+        expect(screen.queryByTestId('submenu')).to.equal(null);
+      });
     });
 
     describe.skipIf(isJSDOM)('mouse interaction', () => {
