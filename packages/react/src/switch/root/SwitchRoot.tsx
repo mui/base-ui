@@ -18,6 +18,7 @@ import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFormContext } from '../../form/FormContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import { useAriaLabelledBy } from '../../labelable-provider/useAriaLabelledBy';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
@@ -38,6 +39,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     checked: checkedProp,
     className,
     defaultChecked,
+    'aria-labelledby': ariaLabelledByProp,
     id: idProp,
     inputRef: externalInputRef,
     name: nameProp,
@@ -126,13 +128,15 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     native: nativeButton,
   });
 
+  const ariaLabelledBy = useAriaLabelledBy(ariaLabelledByProp, labelId, inputRef, !nativeButton);
+
   const rootProps: React.ComponentPropsWithRef<'span'> = {
     id: nativeButton ? controlId : id,
     role: 'switch',
     'aria-checked': checked,
     'aria-readonly': readOnly || undefined,
     'aria-required': required || undefined,
-    'aria-labelledby': labelId,
+    'aria-labelledby': ariaLabelledBy,
     onFocus() {
       if (!disabled) {
         setFocused(true);

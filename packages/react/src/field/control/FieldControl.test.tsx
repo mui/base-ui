@@ -70,4 +70,22 @@ describe('<Field.Control />', () => {
     expect(control).to.have.attribute('data-focused', '');
     expect(screen.getByText('Name')).to.have.attribute('data-focused', '');
   });
+
+  it.skipIf(isJSDOM)(
+    'sets `aria-labelledby` when sibling Field.Label is present during SSR',
+    async () => {
+      await renderToString(
+        <Field.Root>
+          <Field.Control data-testid="control" />
+          <Field.Label data-testid="label">Name</Field.Label>
+        </Field.Root>,
+      );
+
+      const control = screen.getByTestId('control');
+      const label = screen.getByTestId('label');
+
+      expect(label.id).to.not.equal('');
+      expect(control).to.have.attribute('aria-labelledby', label.id);
+    },
+  );
 });

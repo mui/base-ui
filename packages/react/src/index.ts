@@ -16,6 +16,7 @@ export * from './field';
 export * from './fieldset';
 export * from './form';
 export * from './input';
+export * from './label';
 export * from './menu';
 export * from './menubar';
 export * from './merge-props';

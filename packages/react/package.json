@@ -44,6 +44,7 @@
     "./fieldset": "./src/fieldset/index.ts",
     "./form": "./src/form/index.ts",
     "./input": "./src/input/index.ts",
+    "./label": "./src/label/index.ts",
     "./menu": "./src/menu/index.ts",
     "./menubar": "./src/menubar/index.ts",
     "./merge-props": "./src/merge-props/index.ts",

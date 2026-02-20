@@ -1,31 +1,31 @@
 'use client';
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
-import { Field } from '@base-ui/react/field';
+import { Label } from '@base-ui/react/label';
 import styles from './index.module.css';
 
 export default function ObjectValueSelect() {
   return (
-    <Field.Root className={styles.Field}>
-      <Field.Label className={styles.Label} nativeLabel={false} render={<div />}>
-        Shipping method
-      </Field.Label>
+    <div className={styles.Field}>
       <Select.Root defaultValue={shippingMethods[0]} itemToStringValue={(item) => item.id}>
-        <Select.Trigger className={styles.Select}>
-          <Select.Value>
-            {(method: ShippingMethod) => (
-              <span className={styles.ValueText}>
-                <span className={styles.ValuePrimary}>{method.name}</span>
-                <span className={styles.ValueSecondary}>
-                  {method.duration} ({method.price})
+        <Label className={styles.Label} nativeLabel={false} render={<div />}>
+          Shipping method
+          <Select.Trigger className={styles.Select}>
+            <Select.Value>
+              {(method: ShippingMethod) => (
+                <span className={styles.ValueText}>
+                  <span className={styles.ValuePrimary}>{method.name}</span>
+                  <span className={styles.ValueSecondary}>
+                    {method.duration} ({method.price})
+                  </span>
                 </span>
-              </span>
-            )}
-          </Select.Value>
-          <Select.Icon className={styles.SelectIcon}>
-            <ChevronUpDownIcon />
-          </Select.Icon>
-        </Select.Trigger>
+              )}
+            </Select.Value>
+            <Select.Icon className={styles.SelectIcon}>
+              <ChevronUpDownIcon />
+            </Select.Icon>
+          </Select.Trigger>
+        </Label>
         <Select.Portal>
           <Select.Positioner className={styles.Positioner} sideOffset={8}>
             <Select.Popup className={styles.Popup}>
@@ -50,7 +50,7 @@ export default function ObjectValueSelect() {
           </Select.Positioner>
         </Select.Portal>
       </Select.Root>
-    </Field.Root>
+    </div>
   );
 }
 

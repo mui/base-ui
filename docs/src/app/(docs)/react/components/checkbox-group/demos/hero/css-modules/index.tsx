@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { Checkbox } from '@base-ui/react/checkbox';
 import { CheckboxGroup } from '@base-ui/react/checkbox-group';
+import { Label } from '@base-ui/react/label';
 import styles from './index.module.css';
 
 export default function ExampleCheckboxGroup() {
@@ -16,32 +17,32 @@ export default function ExampleCheckboxGroup() {
         Apples
       </div>
 
-      <label className={styles.Item}>
+      <Label className={styles.Item}>
         <Checkbox.Root name="apple" value="fuji-apple" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
             <CheckIcon className={styles.Icon} />
           </Checkbox.Indicator>
         </Checkbox.Root>
         Fuji
-      </label>
+      </Label>
 
-      <label className={styles.Item}>
+      <Label className={styles.Item}>
         <Checkbox.Root name="apple" value="gala-apple" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
             <CheckIcon className={styles.Icon} />
           </Checkbox.Indicator>
         </Checkbox.Root>
         Gala
-      </label>
+      </Label>
 
-      <label className={styles.Item}>
+      <Label className={styles.Item}>
         <Checkbox.Root name="apple" value="granny-smith-apple" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
             <CheckIcon className={styles.Icon} />
           </Checkbox.Indicator>
         </Checkbox.Root>
         Granny Smith
-      </label>
+      </Label>
     </CheckboxGroup>
   );
 }

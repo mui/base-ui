@@ -9,6 +9,7 @@ import { useFormContext } from '../../form/FormContext';
 import { LabelableProvider } from '../../labelable-provider';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useFieldValidation } from './useFieldValidation';
 
 /**
@@ -187,8 +188,10 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
   componentProps: FieldRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
+  const defaultControlId = useBaseUiId();
+
   return (
-    <LabelableProvider>
+    <LabelableProvider initialControlId={defaultControlId} generateLabelIdFromControlId={true}>
       <FieldRootInner {...componentProps} ref={forwardedRef} />
     </LabelableProvider>
   );

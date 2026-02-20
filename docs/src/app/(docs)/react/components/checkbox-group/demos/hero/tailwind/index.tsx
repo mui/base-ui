@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { Checkbox } from '@base-ui/react/checkbox';
 import { CheckboxGroup } from '@base-ui/react/checkbox-group';
+import { Label } from '@base-ui/react/label';
 
 export default function ExampleCheckboxGroup() {
   const id = React.useId();
@@ -15,7 +16,7 @@ export default function ExampleCheckboxGroup() {
         Apples
       </div>
 
-      <label className="flex items-center gap-2">
+      <Label className="flex items-center gap-2">
         <Checkbox.Root
           name="apple"
           value="fuji-apple"
@@ -26,9 +27,9 @@ export default function ExampleCheckboxGroup() {
           </Checkbox.Indicator>
         </Checkbox.Root>
         Fuji
-      </label>
+      </Label>
 
-      <label className="flex items-center gap-2">
+      <Label className="flex items-center gap-2">
         <Checkbox.Root
           name="apple"
           value="gala-apple"
@@ -39,9 +40,9 @@ export default function ExampleCheckboxGroup() {
           </Checkbox.Indicator>
         </Checkbox.Root>
         Gala
-      </label>
+      </Label>
 
-      <label className="flex items-center gap-2">
+      <Label className="flex items-center gap-2">
         <Checkbox.Root
           name="apple"
           value="granny-smith-apple"
@@ -52,7 +53,7 @@ export default function ExampleCheckboxGroup() {
           </Checkbox.Indicator>
         </Checkbox.Root>
         Granny Smith
-      </label>
+      </Label>
     </CheckboxGroup>
   );
 }
