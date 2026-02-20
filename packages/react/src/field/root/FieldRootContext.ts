@@ -1,7 +1,11 @@
 'use client';
 import * as React from 'react';
 import { NOOP } from '../../utils/noop';
-import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
+import {
+  DEFAULT_FIELD_ROOT_STATE,
+  DEFAULT_FIELD_STATE_ATTRIBUTES,
+  DEFAULT_VALIDITY_STATE,
+} from '../utils/constants';
 import type { FieldRoot, FieldValidityData } from './FieldRoot';
 import type { Form } from '../../form';
 import type { UseFieldValidationReturnValue } from './useFieldValidation';
@@ -46,26 +50,19 @@ export const FieldRootContext = React.createContext<FieldRootContext>({
   },
   setValidityData: NOOP,
   disabled: undefined,
-  touched: false,
+  touched: DEFAULT_FIELD_STATE_ATTRIBUTES.touched,
   setTouched: NOOP,
-  dirty: false,
+  dirty: DEFAULT_FIELD_STATE_ATTRIBUTES.dirty,
   setDirty: NOOP,
-  filled: false,
+  filled: DEFAULT_FIELD_STATE_ATTRIBUTES.filled,
   setFilled: NOOP,
-  focused: false,
+  focused: DEFAULT_FIELD_STATE_ATTRIBUTES.focused,
   setFocused: NOOP,
   validate: () => null,
   validationMode: 'onSubmit',
   validationDebounceTime: 0,
   shouldValidateOnChange: () => false,
-  state: {
-    disabled: false,
-    valid: null,
-    touched: false,
-    dirty: false,
-    filled: false,
-    focused: false,
-  },
+  state: DEFAULT_FIELD_ROOT_STATE,
   markedDirtyRef: { current: false },
   validation: {
     getValidationProps: (props: HTMLProps = EMPTY_OBJECT) => props,

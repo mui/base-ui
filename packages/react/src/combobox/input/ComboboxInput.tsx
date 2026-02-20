@@ -15,6 +15,7 @@ import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { selectors } from '../store';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { DEFAULT_FIELD_STATE_ATTRIBUTES } from '../../field/utils/constants';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
 import { stopEvent } from '../../floating-ui-react/utils';
@@ -82,6 +83,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
   const isInsidePopup = hasPositionerParent || inline;
   const id = useBaseUiId(idProp ?? (!isInsidePopup ? rootId : undefined));
+  const fieldStateForInput = hasPositionerParent ? DEFAULT_FIELD_STATE_ATTRIBUTES : fieldState;
 
   const [composingValue, setComposingValue] = React.useState<string | null>(null);
   const isComposingRef = React.useRef(false);
@@ -101,8 +103,11 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     });
   });
 
+  const validationProps =
+    hasPositionerParent || !validation ? elementProps : validation.getValidationProps(elementProps);
+
   const state: ComboboxInput.State = {
-    ...fieldState,
+    ...fieldStateForInput,
     open,
     disabled,
     readOnly,
@@ -454,7 +459,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           store.state.keyboardActiveRef.current = false;
         },
       },
-      validation ? validation.getValidationProps(elementProps) : elementProps,
+      validationProps,
     ],
     stateAttributesMapping: triggerStateAttributesMapping,
   });
