@@ -4,6 +4,7 @@ import { format } from 'date-fns/format';
 import { fr } from 'date-fns/locale/fr';
 import { LocalizationProvider } from '@base-ui/react/localization-provider';
 import { Calendar } from '@base-ui/react/calendar';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import styles from '../../../calendar.module.css';
 
 export default function ExampleCalendar() {
@@ -20,11 +21,15 @@ function MyCalendar() {
       {({ visibleDate }) => (
         <React.Fragment>
           <header className={styles.Header}>
-            <Calendar.DecrementMonth className={styles.DecrementMonth}>◀</Calendar.DecrementMonth>
+            <Calendar.DecrementMonth className={styles.DecrementMonth}>
+              <ArrowLeft />
+            </Calendar.DecrementMonth>
             <span className={styles.HeaderLabel}>
               {format(visibleDate, 'MMMM yyyy', { locale: fr })}
             </span>
-            <Calendar.IncrementMonth className={styles.IncrementMonth}>▶</Calendar.IncrementMonth>
+            <Calendar.IncrementMonth className={styles.IncrementMonth}>
+              <ArrowRight />
+            </Calendar.IncrementMonth>
           </header>
           <Calendar.DayGrid className={styles.DayGrid}>
             <Calendar.DayGridHeader className={styles.DayGridHeader}>

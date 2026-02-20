@@ -58,15 +58,14 @@
 .SetMonth,
 .DecrementMonth,
 .IncrementMonth {
-  height: 24px;
-  width: 24px;
-  font-size: 0.75rem;
   border: none;
   user-select: none;
   background-color: transparent;
   border-radius: 4px;
-  text-align: center;
   color: var(--calendar-root-color);
+  margin: 0 6px;
+  padding: 0;
+  display: flex;
 
   &:hover {
     background-color: var(--calendar-button-hover-bg-color);

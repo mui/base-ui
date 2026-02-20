@@ -4,6 +4,7 @@ import { format } from 'date-fns/format';
 import { addMonths } from 'date-fns/addMonths';
 import { Calendar } from '@base-ui/react/calendar';
 import { Separator } from '@base-ui/react/separator';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import styles from './calendar.module.css';
 
 function Header() {
@@ -12,14 +13,18 @@ function Header() {
   return (
     <header className={styles.Header}>
       <div className={styles.HeaderPanel}>
-        <Calendar.DecrementMonth className={styles.DecrementMonth}>◀</Calendar.DecrementMonth>
+        <Calendar.DecrementMonth className={styles.DecrementMonth}>
+          <ArrowLeft />
+        </Calendar.DecrementMonth>
         <span className={styles.HeaderLabel}>{format(visibleDate, 'MMMM yyyy')}</span>
         <span />
       </div>
       <div className={styles.HeaderPanel}>
         <span />
         <span className={styles.HeaderLabel}>{format(addMonths(visibleDate, 1), 'MMMM yyyy')}</span>
-        <Calendar.IncrementMonth className={styles.IncrementMonth}>▶</Calendar.IncrementMonth>
+        <Calendar.IncrementMonth className={styles.IncrementMonth}>
+          <ArrowRight />
+        </Calendar.IncrementMonth>
       </div>
     </header>
   );

@@ -3,6 +3,7 @@ import * as React from 'react';
 import { format } from 'date-fns/format';
 import { Calendar } from '@base-ui/react/calendar';
 import { motion, AnimatePresence } from 'motion/react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import styles from '../../calendar.module.css';
 
 export default function AnimatedCalendarWithMotion() {
@@ -11,13 +12,17 @@ export default function AnimatedCalendarWithMotion() {
       {({ visibleDate }) => (
         <React.Fragment>
           <header className={styles.Header}>
-            <Calendar.DecrementMonth className={styles.DecrementMonth}>◀</Calendar.DecrementMonth>
+            <Calendar.DecrementMonth className={styles.DecrementMonth}>
+              <ArrowLeft />
+            </Calendar.DecrementMonth>
             <AnimatePresence initial={false} mode="popLayout">
               <motion.span layout className={styles.HeaderLabel}>
                 {format(visibleDate, 'MMMM yyyy')}
               </motion.span>
             </AnimatePresence>
-            <Calendar.IncrementMonth className={styles.IncrementMonth}>▶</Calendar.IncrementMonth>
+            <Calendar.IncrementMonth className={styles.IncrementMonth}>
+              <ArrowRight />
+            </Calendar.IncrementMonth>
           </header>
           <Calendar.DayGrid className={styles.DayGrid}>
             <Calendar.DayGridHeader className={styles.DayGridHeader}>

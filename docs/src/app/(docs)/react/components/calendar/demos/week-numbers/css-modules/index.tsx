@@ -5,6 +5,7 @@ import { startOfWeek } from 'date-fns/startOfWeek';
 import { startOfMonth } from 'date-fns/startOfMonth';
 import { getWeek } from 'date-fns/getWeek';
 import { Calendar } from '@base-ui/react/calendar';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import styles from '../../calendar.module.css';
 import indexStyles from './index.module.css';
 
@@ -17,9 +18,13 @@ export default function CalendarWithWeekNumbers() {
       {({ visibleDate }) => (
         <React.Fragment>
           <header className={styles.Header}>
-            <Calendar.DecrementMonth className={styles.DecrementMonth}>◀</Calendar.DecrementMonth>
+            <Calendar.DecrementMonth className={styles.DecrementMonth}>
+              <ArrowLeft />
+            </Calendar.DecrementMonth>
             <span className={styles.HeaderLabel}>{format(visibleDate, 'MMMM yyyy')}</span>
-            <Calendar.IncrementMonth className={styles.IncrementMonth}>▶</Calendar.IncrementMonth>
+            <Calendar.IncrementMonth className={styles.IncrementMonth}>
+              <ArrowRight />
+            </Calendar.IncrementMonth>
           </header>
           <Calendar.DayGrid className={styles.DayGrid}>
             <Calendar.DayGridHeader className={styles.DayGridHeader}>

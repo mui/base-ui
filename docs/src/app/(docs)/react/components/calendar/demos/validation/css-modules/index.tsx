@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { format } from 'date-fns/format';
 import { Calendar } from '@base-ui/react/calendar';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import indexStyles from './index.module.css';
 import styles from '../../calendar.module.css';
 
@@ -22,9 +23,13 @@ function ValidationCalendar(props: Calendar.Root.Props) {
       {({ visibleDate }) => (
         <React.Fragment>
           <header className={styles.Header}>
-            <Calendar.DecrementMonth className={styles.DecrementMonth}>◀</Calendar.DecrementMonth>
+            <Calendar.DecrementMonth className={styles.DecrementMonth}>
+              <ArrowLeft />
+            </Calendar.DecrementMonth>
             <span className={styles.HeaderLabel}>{format(visibleDate, 'MMMM yyyy')}</span>
-            <Calendar.IncrementMonth className={styles.IncrementMonth}>▶</Calendar.IncrementMonth>
+            <Calendar.IncrementMonth className={styles.IncrementMonth}>
+              <ArrowRight />
+            </Calendar.IncrementMonth>
           </header>
           <Calendar.DayGrid className={styles.DayGrid}>
             <Calendar.DayGridHeader className={styles.DayGridHeader}>
