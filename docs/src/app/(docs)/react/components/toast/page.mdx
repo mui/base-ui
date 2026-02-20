@@ -281,8 +281,8 @@ const toastManager = Toast.useToastManager();
       description: 'Add a toast to the toast list.',
     },
     close: {
-      type: '(toastId: string) => void',
-      description: 'Closes and removes a toast from the toast list.',
+      type: '(toastId?: string) => void',
+      description: 'Closes and removes a toast from the toast list. If no ID is passed, all toasts will be closed.',
     },
     update: {
       type: '(toastId: string, options: ToastManagerUpdateOptions) => void',
@@ -395,6 +395,12 @@ Closes the toast, removing it from the toast list after any animations complete.
 
 ```jsx title="Usage"
 toastManager.close(toastId);
+```
+
+Or you can close all toasts at once by not passing an ID:
+
+```jsx title="Close all toasts"
+toastManager.close();
 ```
 
 ### `promise` method

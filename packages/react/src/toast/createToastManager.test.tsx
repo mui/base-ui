@@ -628,5 +628,49 @@ describe.skipIf(!isJSDOM)('createToastManager', () => {
 
       expect(screen.queryByTestId('title')).to.equal(null);
     });
+
+    it('closes all toasts', async () => {
+      const toastManager = Toast.createToastManager();
+
+      function add() {
+        toastManager.add({ title: 'title' });
+      }
+
+      function close() {
+        toastManager.close();
+      }
+
+      function Buttons() {
+        return (
+          <React.Fragment>
+            <button type="button" onClick={add}>
+              add
+            </button>
+            <button type="button" onClick={close}>
+              close
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider toastManager={toastManager}>
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+          <Buttons />
+        </Toast.Provider>,
+      );
+
+      const button = screen.getByRole('button', { name: 'add' });
+      Array.from({ length: 5 }).forEach(() => {
+        fireEvent.click(button);
+      });
+
+      const closeButton = screen.getByRole('button', { name: 'close' });
+      fireEvent.click(closeButton);
+
+      expect(screen.queryByTestId('title')).to.equal(null);
+    });
   });
 });

@@ -233,15 +233,22 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     }
   };
 
-  closeToast = (toastId: string) => {
-    const toast = selectors.toast(this.state, toastId);
-    toast?.onClose?.();
-
+  closeToast = (toastId?: string) => {
+    const closeAll = toastId === undefined;
     const { limit, toasts } = this.state;
+
+    if (closeAll) {
+      toasts.forEach((toast) => {
+        toast.onClose?.();
+      });
+    } else {
+      const toast = selectors.toast(this.state, toastId);
+      toast?.onClose?.();
+    }
 
     let activeIndex = 0;
     const newToasts = toasts.map((item) => {
-      if (item.id === toastId) {
+      if (closeAll || item.id === toastId) {
         return { ...item, transitionStatus: 'ending' as const, height: 0 };
       }
       if (item.transitionStatus === 'ending') {
@@ -252,10 +259,17 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
       return item.limited !== isLimited ? { ...item, limited: isLimited } : item;
     });
 
-    const timer = this.timers.get(toastId);
-    if (timer && timer.timeout) {
-      timer.timeout.clear();
-      this.timers.delete(toastId);
+    if (closeAll) {
+      this.timers.forEach((timer) => {
+        timer.timeout?.clear();
+      });
+      this.timers.clear();
+    } else {
+      const timer = this.timers.get(toastId);
+      if (timer && timer.timeout) {
+        timer.timeout.clear();
+        this.timers.delete(toastId);
+      }
     }
 
     this.handleFocusManagement(toastId);
@@ -381,13 +395,18 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     this.update(updates);
   }
 
-  private handleFocusManagement(toastId: string) {
+  private handleFocusManagement(toastId: string | undefined) {
     const activeEl = activeElement(ownerDocument(this.state.viewport));
     if (
       !this.state.viewport ||
       !contains(this.state.viewport, activeEl) ||
       !isFocusVisible(activeEl)
     ) {
+      return;
+    }
+
+    if (toastId === undefined) {
+      this.restoreFocusToPrevElement();
       return;
     }
 
