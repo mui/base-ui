@@ -1,0 +1,32 @@
+{
+  "name": "CalendarDayGridHeaderCell",
+  "description": "An individual day header cell in the calendar.\nRenders a `<th>` element.",
+  "props": {
+    "value": {
+      "type": "Date",
+      "required": true
+    },
+    "formatter": {
+      "type": "((date: Date) => string)",
+      "default": "(date) => adapter.format(date, 'EEE').charAt(0).toUpperCase()",
+      "description": "The formatter function used to display the day of the week.",
+      "detailedType": "((date: Date) => string) | undefined"
+    },
+    "className": {
+      "type": "string | ((state: Calendar.DayGridHeaderCell.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((\n    state: Calendar.DayGridHeaderCell.State,\n  ) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Calendar.DayGridHeaderCell.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Calendar.DayGridHeaderCell.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Calendar.DayGridHeaderCell.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Calendar.DayGridHeaderCell.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

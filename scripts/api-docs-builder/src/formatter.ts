@@ -333,6 +333,13 @@ const componentNames: string[] = fs
 function getFullyQualifiedName(typeName: tae.TypeName): string {
   const nameWithTypeArgs = createNameWithTypeArguments(typeName);
 
+  // Special case for TemporalSupportedObject to improve readability
+  // This would be removed if we supported multiple adapters or left only `AdapterDateFns` and refactored types accordingly.
+  // TODO: Remove if temporal adapters are supported
+  if (nameWithTypeArgs === 'TemporalSupportedObject') {
+    return 'Date';
+  }
+
   if (!typeName.namespaces || typeName.namespaces.length === 0) {
     return nameWithTypeArgs;
   }
@@ -352,7 +359,7 @@ function getFullyQualifiedName(typeName: tae.TypeName): string {
     return namespace;
   });
 
-  return `${joinedNamespaces}.${nameWithTypeArgs}`;
+  return `${joinedNamespaces.join('.')}.${nameWithTypeArgs}`;
 }
 
 function createNameWithTypeArguments(typeName: tae.TypeName) {

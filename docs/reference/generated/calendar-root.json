@@ -1,0 +1,125 @@
+{
+  "name": "CalendarRoot",
+  "description": "Groups all parts of the calendar.\nRenders a `<div>` element.",
+  "props": {
+    "defaultValue": {
+      "type": "TemporalValue",
+      "description": "The uncontrolled value that should be initially selected.\nTo render a controlled (Range)Calendar, use the `value` prop instead.",
+      "detailedType": "Date | null | undefined"
+    },
+    "value": {
+      "type": "TemporalValue",
+      "description": "The controlled value that should be selected.\nTo render an uncontrolled (Range)Calendar, use the `defaultValue` prop instead.",
+      "detailedType": "Date | null | undefined"
+    },
+    "onValueChange": {
+      "type": "((value: TemporalValue, eventDetails: CalendarValueChangeEventDetails<ValidateDateReturnValue>) => void)",
+      "description": "Event handler called when the selected value changes.\nProvides the new value as an argument.\nHas `getValidationError()` in the `eventDetails` to retrieve the validation error associated to the new value.",
+      "detailedType": "| ((\n    value: TemporalValue,\n    eventDetails: CalendarValueChangeEventDetails<ValidateDateReturnValue>,\n  ) => void)\n| undefined"
+    },
+    "defaultVisibleDate": {
+      "type": "Date",
+      "description": "The date used to decide which month should be initially displayed in the Day Grid.\nTo render a controlled Calendar, use the `visibleDate` prop instead.",
+      "detailedType": "Date | undefined"
+    },
+    "visibleDate": {
+      "type": "Date",
+      "description": "The date used to decide which month should be displayed in the Day Grid.\nTo render an uncontrolled Calendar, use the `defaultVisibleDate` prop instead.",
+      "detailedType": "Date | undefined"
+    },
+    "onVisibleDateChange": {
+      "type": "((visibleDate: Date, eventDetails: CalendarVisibleDateChangeEventDetails) => void)",
+      "description": "Event handler called when the selected value changes.\nProvides the new value as an argument.\nHas `getValidationError()` in the `eventDetails` to retrieve the validation error associated to the new value.",
+      "detailedType": "| ((\n    visibleDate: Date,\n    eventDetails: CalendarVisibleDateChangeEventDetails,\n  ) => void)\n| undefined"
+    },
+    "isDateUnavailable": {
+      "type": "((day: Date) => boolean)",
+      "description": "Mark specific dates as unavailable.\nThose dates will not be selectable but they will still be focusable with the keyboard.",
+      "detailedType": "((day: Date) => boolean) | undefined"
+    },
+    "maxDate": {
+      "type": "Date",
+      "description": "Maximal selectable date.",
+      "detailedType": "Date | undefined"
+    },
+    "minDate": {
+      "type": "Date",
+      "description": "Minimal selectable date.",
+      "detailedType": "Date | undefined"
+    },
+    "monthPageSize": {
+      "type": "number",
+      "default": "1",
+      "description": "The amount of months to move by when navigating.\nThis is mostly useful when displaying multiple day grids.",
+      "detailedType": "number | undefined"
+    },
+    "referenceDate": {
+      "type": "Date",
+      "default": "'The closest valid date using the validation props.'",
+      "description": "The date used to generate the new value when both `value` and `defaultValue` are empty.\nIt can be used to:\n- set a desired time on the selected date;\n- set a desired default year or month;",
+      "detailedType": "Date | undefined"
+    },
+    "timezone": {
+      "type": "string",
+      "default": "'The timezone of the \"value\" or \"defaultValue\" prop if defined, \"default\" otherwise.'",
+      "description": "Choose which timezone to use for the value.\nExample: \"default\", \"system\", \"UTC\", \"America/New_York\".\nIf you pass values from other timezones to some props, they will be converted to this timezone before being used.",
+      "detailedType": "string | undefined"
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the component should ignore user interaction.",
+      "detailedType": "boolean | undefined"
+    },
+    "readOnly": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the user should be unable to select a date in the calendar.",
+      "detailedType": "boolean | undefined"
+    },
+    "invalid": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the calendar is forcefully marked as invalid.",
+      "detailedType": "boolean | undefined"
+    },
+    "children": {
+      "type": "ReactNode | ((parameters: CalendarContext) => ReactNode)",
+      "description": "The children of the component.\nIf a function is provided, it will be called with the public context as its parameter.",
+      "detailedType": "| React.ReactNode\n| ((parameters: CalendarContext) => ReactNode)"
+    },
+    "className": {
+      "type": "string | ((state: Calendar.Root.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Calendar.Root.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Calendar.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Calendar.Root.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Calendar.Root.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Calendar.Root.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {
+    "data-disabled": {
+      "description": "Present when the calendar is disabled."
+    },
+    "data-readonly": {
+      "description": "Present when the calendar is readonly."
+    },
+    "data-invalid": {
+      "description": "Present when the current value is invalid (fails validation)."
+    },
+    "data-empty": {
+      "description": "Present when the current value is empty."
+    },
+    "data-navigation-direction": {
+      "description": "Indicates the direction of the navigation (based on the month navigating to).",
+      "type": "'previous' | 'next' | 'none'"
+    }
+  },
+  "cssVariables": {}
+}

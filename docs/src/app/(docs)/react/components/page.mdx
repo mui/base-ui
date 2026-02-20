@@ -7,6 +7,7 @@
 - [Autocomplete](#autocomplete) - [Full Docs](./autocomplete/page.mdx)
 - [Avatar](#avatar) - [Full Docs](./avatar/page.mdx)
 - [Button](#button) - [Full Docs](./button/page.mdx)
+- [Calendar](#calendar) [Preview] [Private] - [Full Docs](./calendar/page.mdx)
 - [Checkbox](#checkbox) - [Full Docs](./checkbox/page.mdx)
 - [Checkbox Group](#checkbox-group) - [Full Docs](./checkbox-group/page.mdx)
 - [Collapsible](#collapsible) - [Full Docs](./collapsible/page.mdx)
@@ -213,6 +214,62 @@ A button component that can be rendered as another tag or focusable when disable
 </details>
 
 [Read more](./button/page.mdx)
+
+## Calendar
+
+An easily stylable calendar component.
+
+<details>
+
+<summary>Outline</summary>
+
+- Keywords: React Calendar, React Date Picker, React Date Calendar, Calendar, Date Picker, Temporal, Base UI
+- Sections:
+  - Anatomy
+  - Examples
+    - Validation
+    - Display week numbers
+    - Timezone support
+    - Animating month changes
+      - Animating with `motion/react`
+  - API reference
+- Exports:
+  - Calendar - Root
+    - Props: children, className, defaultValue, defaultVisibleDate, disabled, invalid, isDateUnavailable, maxDate, minDate, monthPageSize, onValueChange, onVisibleDateChange, readOnly, referenceDate, render, style, timezone, value, visibleDate
+    - Data Attributes: data-disabled, data-empty, data-invalid, data-navigation-direction, data-readonly
+  - Calendar - DayGrid
+    - Props: className, render, style
+  - Calendar - DayGridBody
+    - Props: children, className, fixedWeekNumber, offset, render, style
+  - Calendar - DayGridCell
+    - Props: className, render, style, value
+  - Calendar - DayGridHeader
+    - Props: className, render, style
+  - Calendar - DayGridHeaderCell
+    - Props: className, formatter, render, style, value
+  - Calendar - DayGridHeaderRow
+    - Props: children, className, render, style
+  - Calendar - DayGridRow
+    - Props: children, className, render, style, value
+  - Calendar - DayButton
+    - Props: className, format, nativeButton, render, style
+    - Data Attributes: data-current, data-disabled, data-outside-month, data-selected, data-unavailable
+  - Calendar - SetMonth
+    - Props: className, nativeButton, render, style, target
+    - Data Attributes: data-disabled
+  - Calendar - IncrementMonth
+    - Props: className, nativeButton, render, style
+    - Data Attributes: data-disabled
+  - Calendar - DecrementMonth
+    - Props: className, nativeButton, render, style
+    - Data Attributes: data-disabled
+  - Calendar - Viewport
+    - Props: children
+    - Data Attributes: data-current, data-ending-style, data-navigation-direction, data-previous, data-starting-style
+
+</details>
+
+[Read more](./calendar/page.mdx)
 
 ## Checkbox
 

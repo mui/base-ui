@@ -1,0 +1,18 @@
+{
+  "name": "LocalizationProvider",
+  "description": "Defines the temporal locale provider for Base UI temporal components.\n\nDoesn't render its own HTML element.",
+  "props": {
+    "temporalLocale": {
+      "type": "Locale",
+      "default": "en-US",
+      "description": "The locale to use in temporal components.",
+      "detailedType": "Locale | undefined"
+    },
+    "children": {
+      "type": "ReactNode",
+      "detailedType": "React.ReactNode"
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

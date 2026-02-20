@@ -1,0 +1,38 @@
+{
+  "name": "CalendarDayGridBody",
+  "description": "Groups all parts of the calendar's day grid.\nRenders a `<tbody>` element.",
+  "props": {
+    "fixedWeekNumber": {
+      "type": "number",
+      "description": "Will render the requested amount of weeks by adding weeks of the next month if needed.\nSet it to 6 to create a Gregorian calendar where all months have the same number of weeks.",
+      "detailedType": "number | undefined"
+    },
+    "offset": {
+      "type": "number",
+      "default": "0",
+      "description": "The offset to apply to the rendered month compared to the current month.\nThis is mostly useful when displaying multiple day grids.",
+      "detailedType": "number | undefined"
+    },
+    "children": {
+      "type": "ReactNode | ((week: Date, index: number, weeks: Date[]) => ReactNode)",
+      "description": "The children of the component.\nIf a function is provided, it will be called for each week to render as its parameter.",
+      "detailedType": "| React.ReactNode\n| ((\n    week: Date,\n    index: number,\n    weeks: Date[],\n  ) => ReactNode)"
+    },
+    "className": {
+      "type": "string | ((state: Calendar.DayGridBody.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((\n    state: Calendar.DayGridBody.State,\n  ) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Calendar.DayGridBody.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Calendar.DayGridBody.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Calendar.DayGridBody.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Calendar.DayGridBody.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

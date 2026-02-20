@@ -10,6 +10,8 @@ import { sitemap } from 'docs/src/app/sitemap';
 import 'docs/src/styles.css';
 import './layout.css';
 
+const isProduction = process.env.DEPLOY_ENV === 'production';
+
 export default function Layout({ children }: React.PropsWithChildren) {
   return (
     // Use suppressHydrationWarning to avoid https://github.com/facebook/react/issues/24430
@@ -44,48 +46,38 @@ export default function Layout({ children }: React.PropsWithChildren) {
               <div className="RootLayoutContainer">
                 <div className="RootLayoutContent">
                   <div className="ContentLayoutRoot">
-                    <Header />
+                    <Header isProduction={isProduction} />
                     <SideNav.Root>
                       {sitemap &&
-                        Object.entries(
-                          sitemap.data as Record<
-                            string,
-                            {
-                              title?: string;
-                              prefix?: string;
-                              pages: {
-                                title: string;
-                                tags?: string[];
-                                isNew?: boolean;
-                                isPreview?: boolean;
-                                path: string;
-                              }[];
-                            }
-                          >,
-                        ).map(([name, section]) => (
+                        Object.entries(sitemap.data).map(([name, section]) => (
                           <SideNav.Section key={name}>
                             <SideNav.Heading>{name}</SideNav.Heading>
                             <SideNav.List>
-                              {section.pages.map((page) => {
-                                const isNew = page.isNew ?? page.tags?.includes('New');
-                                const isPreview = page.isPreview ?? page.tags?.includes('Preview');
+                              {section.pages
+                                .filter((page) =>
+                                  page.tags?.includes('Private') ? !isProduction : true,
+                                )
+                                .map((page) => {
+                                  const isNew = page.tags?.includes('New');
+                                  const isPreview = page.tags?.includes('Preview');
 
-                                return (
-                                  <SideNav.Item
-                                    key={page.title}
-                                    href={
-                                      page.path.startsWith('./')
-                                        ? `${section.prefix}${page.path.replace(/^\.\//, '').replace(/\/page\.mdx$/, '')}`
-                                        : page.path
-                                    }
-                                    external={page.tags?.includes('External')}
-                                  >
-                                    {titleMap[page.title] || page.title}
-                                    {isPreview && <SideNav.Badge>Preview</SideNav.Badge>}
-                                    {isNew && !isPreview && <SideNav.Badge>New</SideNav.Badge>}
-                                  </SideNav.Item>
-                                );
-                              })}
+                                  return (
+                                    <SideNav.Item
+                                      key={page.title}
+                                      href={
+                                        page.path.startsWith('./')
+                                          ? `${section.prefix}${page.path.replace(/^\.\//, '').replace(/\/page\.mdx$/, '')}`
+                                          : page.path
+                                      }
+                                      external={page.tags?.includes('External')}
+                                    >
+                                      {(page.title !== undefined && titleMap[page.title]) ||
+                                        page.title}
+                                      {isPreview && <SideNav.Badge>Preview</SideNav.Badge>}
+                                      {isNew && !isPreview && <SideNav.Badge>New</SideNav.Badge>}
+                                    </SideNav.Item>
+                                  );
+                                })}
                             </SideNav.List>
                           </SideNav.Section>
                         ))}
