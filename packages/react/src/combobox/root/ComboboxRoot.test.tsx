@@ -4428,7 +4428,7 @@ describe('<Combobox.Root />', () => {
       await user.click(trigger);
 
       const input = await screen.findByTestId('input');
-      expect(input).to.have.attribute('data-invalid', '');
+      expect(input).not.to.have.attribute('data-invalid');
     });
 
     it('clears external errors on change', async () => {
@@ -4682,6 +4682,12 @@ describe('<Combobox.Root />', () => {
 
       expect(input).not.to.have.attribute('aria-invalid');
       expect(input).not.to.have.attribute('aria-describedby');
+      expect(input).not.to.have.attribute('data-valid');
+      expect(input).not.to.have.attribute('data-invalid');
+      expect(input).not.to.have.attribute('data-touched');
+      expect(input).not.to.have.attribute('data-dirty');
+      expect(input).not.to.have.attribute('data-filled');
+      expect(input).not.to.have.attribute('data-focused');
     });
 
     it('[data-touched]', async () => {

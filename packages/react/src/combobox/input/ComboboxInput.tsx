@@ -82,6 +82,15 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
   const isInsidePopup = hasPositionerParent || inline;
   const id = useBaseUiId(idProp ?? (!isInsidePopup ? rootId : undefined));
+  const fieldStateForInput = hasPositionerParent
+    ? {
+        valid: null,
+        touched: false,
+        dirty: false,
+        filled: false,
+        focused: false,
+      }
+    : fieldState;
 
   const [composingValue, setComposingValue] = React.useState<string | null>(null);
   const isComposingRef = React.useRef(false);
@@ -102,7 +111,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   });
 
   const state: ComboboxInput.State = {
-    ...fieldState,
+    ...fieldStateForInput,
     open,
     disabled,
     readOnly,
