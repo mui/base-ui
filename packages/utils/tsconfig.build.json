@@ -10,7 +10,7 @@
     "moduleResolution": "bundler",
     "noEmit": false,
     "rootDir": "./src",
-    "outDir": "build/esm",
+    "outDir": "build",
     "lib": ["ES2022", "DOM"]
   },
   "include": ["src/**/*.ts*", "src/**/*.tsx"],
