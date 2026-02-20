@@ -14,6 +14,52 @@ describe('<Autocomplete.Root />', () => {
 
   const { render } = createRenderer();
 
+  it('supports <Autocomplete.Empty /> when `items` is omitted', async () => {
+    const tags = [
+      { id: 't1', value: 'feature' },
+      { id: 't2', value: 'fix' },
+      { id: 't3', value: 'bug' },
+    ];
+
+    const { user } = await render(
+      <Autocomplete.Root openOnInputClick>
+        <Autocomplete.Input />
+        <Autocomplete.Portal>
+          <Autocomplete.Positioner>
+            <Autocomplete.Popup>
+              <Autocomplete.Empty>No tags found.</Autocomplete.Empty>
+              <Autocomplete.List>
+                {tags.map((tag) => (
+                  <Autocomplete.Item key={tag.id} value={tag}>
+                    {tag.value}
+                  </Autocomplete.Item>
+                ))}
+              </Autocomplete.List>
+            </Autocomplete.Popup>
+          </Autocomplete.Positioner>
+        </Autocomplete.Portal>
+      </Autocomplete.Root>,
+    );
+
+    const input = screen.getByRole<HTMLInputElement>('combobox');
+
+    await user.click(input);
+    await user.type(input, 'zzz');
+
+    await waitFor(() => {
+      expect(screen.queryByText('No tags found.')).not.to.equal(null);
+    });
+
+    await user.clear(input);
+    await user.type(input, 'fea');
+
+    await waitFor(() => {
+      expect(screen.queryByText('No tags found.')).to.equal(null);
+    });
+
+    expect(await screen.findByRole('option', { name: 'feature' })).not.to.equal(null);
+  });
+
   describe('keyboard interactions', () => {
     it('closes popup on Tab after selecting with Enter and typing again', async () => {
       const { user } = await render(
@@ -63,6 +109,54 @@ describe('<Autocomplete.Root />', () => {
       await waitFor(() => {
         expect(screen.queryByRole('listbox')).to.equal(null);
       });
+    });
+
+    it('resets highlight after selecting and reopening quickly (no `items` prop)', async () => {
+      const tags = ['alpha', 'alpine', 'beta'];
+
+      const { user } = await render(
+        <Autocomplete.Root mode="list" openOnInputClick>
+          <Autocomplete.Input />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {tags.map((item) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  ))}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+
+      await user.click(input);
+      await user.type(input, 'al');
+
+      const firstOption = await screen.findByRole('option', { name: 'alpha' });
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(firstOption).to.have.attribute('data-highlighted');
+      });
+
+      // Select and close.
+      await user.keyboard('{Enter}');
+
+      // Immediately reopen.
+      await user.click(input);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).not.to.equal(null);
+      });
+
+      // No stale highlight should be carried over.
+      expect(document.querySelector('[data-highlighted]')).to.equal(null);
     });
   });
 
@@ -575,6 +669,85 @@ describe('<Autocomplete.Root />', () => {
 
       expect(input.value).to.equal('a');
       expect(screen.getAllByRole('option')).to.have.length(2);
+    });
+
+    it('mode="list": filters when rendering items as children (no `items` prop)', async () => {
+      const tags = [
+        { id: 'apple', value: 'apple' },
+        { id: 'banana', value: 'banana' },
+        { id: 'cherry', value: 'cherry' },
+      ];
+
+      const { user } = await render(
+        <Autocomplete.Root mode="list">
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {tags.map((tag) => (
+                    <Autocomplete.Item key={tag.id} value={tag}>
+                      {tag.value}
+                    </Autocomplete.Item>
+                  ))}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByTestId<HTMLInputElement>('input');
+
+      await user.click(input);
+      await user.type(input, 'ch');
+
+      await waitFor(() => {
+        expect(screen.getAllByRole('option')).to.have.length(1);
+      });
+      expect(screen.getByRole('option', { name: 'cherry' })).not.to.equal(null);
+    });
+
+    it('mode="list": arrow navigation skips filtered-out children (no `items` prop)', async () => {
+      const tags = [
+        { id: 'apple', value: 'apple' },
+        { id: 'banana', value: 'banana' },
+        { id: 'cherry', value: 'cherry' },
+      ];
+
+      const { user } = await render(
+        <Autocomplete.Root mode="list">
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {tags.map((tag) => (
+                    <Autocomplete.Item key={tag.id} value={tag}>
+                      {tag.value}
+                    </Autocomplete.Item>
+                  ))}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByTestId<HTMLInputElement>('input');
+
+      await user.click(input);
+      await user.type(input, 'ch');
+
+      const option = await screen.findByRole('option', { name: 'cherry' });
+      expect(option).not.to.equal(null);
+
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(option).to.have.attribute('data-highlighted');
+      });
+      expect(input.getAttribute('aria-activedescendant')).to.equal(option.id);
     });
 
     it('mode="both": inline overlay + autocomplete handles filtering', async () => {

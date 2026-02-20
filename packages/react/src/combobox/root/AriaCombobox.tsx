@@ -146,6 +146,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const selectionEventRef = React.useRef<MouseEvent | PointerEvent | KeyboardEvent | null>(null);
   const lastHighlightRef = React.useRef(INITIAL_LAST_HIGHLIGHT);
   const pendingQueryHighlightRef = React.useRef<null | { hasQuery: boolean }>(null);
+  const ignoreProgrammaticNavigationRef = React.useRef(false);
+  const itemValueMapRef = React.useRef<WeakMap<HTMLElement, any>>(new WeakMap());
 
   /**
    * Contains the currently visible list of item values post-filtering.
@@ -343,6 +345,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         filter,
         query,
         items,
+        hasFilteredItemsProp,
+        defaultSelectedValue,
+        visibleItemCount: hasItems || hasFilteredItemsProp ? flatFilteredItems.length : 0,
         selectionMode,
         listRef,
         labelsRef,
@@ -354,6 +359,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         clearRef,
         valuesRef,
         allValuesRef,
+        itemValueMapRef,
         selectionEventRef,
         name,
         disabled,
@@ -441,6 +447,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   });
 
   const forceMount = useStableCallback(() => {
+    if (selectionMode === 'none') {
+      return;
+    }
+
     if (items) {
       // Ensure typeahead works on a closed list.
       labelsRef.current = flatFilteredItems.map((item) =>
@@ -511,6 +521,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           event.type === 'compositionend' ||
           (inputType != null && inputType !== '' && inputType !== 'insertReplacementText');
         if (isTypedInput) {
+          if (!autoHighlightMode) {
+            ignoreProgrammaticNavigationRef.current = true;
+          }
+
           const hasQuery = next.trim() !== '';
           if (hasQuery) {
             setQueryChangedAfterOpen(true);
@@ -698,6 +712,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     setQueryChangedAfterOpen(false);
     resetOpenInteractionType();
     setCloseQuery(null);
+    ignoreProgrammaticNavigationRef.current = false;
 
     if (selectionMode === 'none') {
       setIndices({ activeIndex: null, selectedIndex: null });
@@ -791,11 +806,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   );
 
   useIsoLayoutEffect(() => {
-    if (items) {
+    if (items || hasFilteredItemsProp) {
       valuesRef.current = flatFilteredItems;
       listRef.current.length = flatFilteredItems.length;
+      store.set('visibleItemCount', flatFilteredItems.length);
     }
-  }, [items, flatFilteredItems]);
+  }, [items, hasFilteredItemsProp, flatFilteredItems, store]);
 
   useIsoLayoutEffect(() => {
     const pendingHighlight = pendingQueryHighlightRef.current;
@@ -1048,11 +1064,16 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         return;
       }
 
+      if (!event && ignoreProgrammaticNavigationRef.current && nextActiveIndex !== null) {
+        return;
+      }
+
       if (!event) {
         setIndices({
           activeIndex: nextActiveIndex,
         });
       } else {
+        ignoreProgrammaticNavigationRef.current = false;
         setIndices({
           activeIndex: nextActiveIndex,
           type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
@@ -1093,7 +1114,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       open,
       mounted,
       transitionStatus,
+      filter,
       items,
+      hasFilteredItemsProp,
+      defaultSelectedValue,
       inline: inlineProp,
       popupProps: getFloatingProps(),
       inputProps: getReferenceProps(),
@@ -1125,7 +1149,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     open,
     mounted,
     transitionStatus,
+    filter,
     items,
+    hasFilteredItemsProp,
+    defaultSelectedValue,
     getFloatingProps,
     getReferenceProps,
     getItemProps,
@@ -1157,11 +1184,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const itemsContextValue: ComboboxDerivedItemsContext = React.useMemo(
     () => ({
       query,
+      filterQuery,
       hasItems,
       filteredItems,
       flatFilteredItems,
     }),
-    [query, hasItems, filteredItems, flatFilteredItems],
+    [query, filterQuery, hasItems, filteredItems, flatFilteredItems],
   );
 
   const serializedValue = React.useMemo(() => {
