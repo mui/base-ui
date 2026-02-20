@@ -12,6 +12,7 @@ import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Menu } from '@base-ui/react/menu';
 import { Dialog } from '@base-ui/react/dialog';
+import { AlertDialog } from '@base-ui/react/alert-dialog';
 import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
 import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
@@ -614,6 +615,69 @@ describe('<Menu.Root />', () => {
           expect(screen.queryByTestId('dialog-popup')).not.to.equal(null);
         });
       });
+
+      it.skipIf(isJSDOM)(
+        'keeps focus in a nested alert dialog popup when the pointer leaves the triggering menu item',
+        async () => {
+          function MenuWithNestedAlertDialog() {
+            return (
+              <Menu.Root>
+                <Menu.Trigger data-testid="menu-trigger">Open Menu</Menu.Trigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup data-testid="menu-popup">
+                      <Menu.Item>Item 1</Menu.Item>
+                      <AlertDialog.Root>
+                        <Menu.Item
+                          render={<AlertDialog.Trigger />}
+                          closeOnClick={false}
+                          nativeButton
+                          data-testid="alert-dialog-trigger"
+                        >
+                          Open Alert Dialog
+                        </Menu.Item>
+                        <AlertDialog.Portal>
+                          <AlertDialog.Backdrop data-testid="alert-dialog-backdrop" />
+                          <AlertDialog.Popup data-testid="alert-dialog-popup">
+                            <AlertDialog.Close data-testid="alert-dialog-close">
+                              Close
+                            </AlertDialog.Close>
+                          </AlertDialog.Popup>
+                        </AlertDialog.Portal>
+                      </AlertDialog.Root>
+                      <Menu.Item>Item 2</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            );
+          }
+
+          const { user } = await render(<MenuWithNestedAlertDialog />);
+
+          await user.click(screen.getByTestId('menu-trigger'));
+
+          const alertDialogTrigger = await screen.findByTestId('alert-dialog-trigger');
+          await user.click(alertDialogTrigger);
+
+          const menuPopup = screen.getByTestId('menu-popup');
+          const alertDialogPopup = await screen.findByTestId('alert-dialog-popup');
+
+          await waitFor(() => {
+            expect(alertDialogPopup.contains(document.activeElement)).to.equal(true);
+          });
+
+          fireEvent.pointerLeave(alertDialogTrigger, {
+            pointerType: 'mouse',
+            relatedTarget: document.body,
+          });
+
+          await waitFor(() => {
+            expect(alertDialogPopup.contains(document.activeElement)).to.equal(true);
+          });
+          expect(menuPopup.contains(document.activeElement)).to.equal(false);
+        },
+      );
     });
 
     describe('focus management', () => {

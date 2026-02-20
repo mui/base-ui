@@ -541,11 +541,16 @@ export function useListNavigation(
         }
 
         enqueueFocus(null, { sync: true });
+
         indexRef.current = -1;
         onNavigate(event);
 
         if (!virtual) {
-          floatingFocusElementRef.current?.focus({ preventScroll: true });
+          const floatingFocusEl = floatingFocusElementRef.current;
+          const activeEl = activeElement(ownerDocument(floatingFocusEl));
+          if (floatingFocusEl && contains(floatingFocusEl, activeEl)) {
+            floatingFocusEl.focus({ preventScroll: true });
+          }
         }
       },
     };
