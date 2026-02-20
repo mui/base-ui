@@ -47,6 +47,7 @@ export function CalendarViewport({ children }: CalendarViewport.Props): React.JS
 
   const onAnimationsFinished = useAnimationsFinished(currentContainerRef, true, false);
   const cleanupTimeout = useAnimationFrame();
+  const abortControllerRef = React.useRef<AbortController | null>(null);
 
   const [showStartingStyleAttribute, setShowStartingStyleAttribute] = React.useState(false);
 
@@ -60,6 +61,11 @@ export function CalendarViewport({ children }: CalendarViewport.Props): React.JS
       !adapter.isEqual(lastHandledVisibleMonth.current, visibleMonth) &&
       capturedNodeRef.current
     ) {
+      // Cancel the previous transition's pending animation-finished callback
+      // abortControllerRef.current?.abort();
+      const abortController = new AbortController();
+      abortControllerRef.current = abortController;
+
       setPreviousContentNode(capturedNodeRef.current);
       setShowStartingStyleAttribute(true);
 
@@ -68,7 +74,7 @@ export function CalendarViewport({ children }: CalendarViewport.Props): React.JS
         onAnimationsFinished(() => {
           setPreviousContentNode(null);
           capturedNodeRef.current = null;
-        });
+        }, abortController.signal);
       });
 
       lastHandledVisibleMonth.current = visibleMonth;

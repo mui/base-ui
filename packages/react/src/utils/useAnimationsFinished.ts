@@ -99,6 +99,7 @@ export function useAnimationsFinished(
 
                 done();
               } else if (
+                !signal?.aborted &&
                 currentAnimations.length > 0 &&
                 currentAnimations.some((anim) => anim.pending || anim.playState !== 'finished')
               ) {
