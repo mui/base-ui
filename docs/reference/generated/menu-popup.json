@@ -39,7 +39,7 @@
     },
     "data-instant": {
       "description": "Present if animations should be instant.",
-      "type": "'click' | 'dismiss' | 'group'"
+      "type": "'click' | 'dismiss' | 'group' | 'trigger-change'"
     },
     "data-side": {
       "description": "Indicates which side the popup is positioned relative to the trigger.",
