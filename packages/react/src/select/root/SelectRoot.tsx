@@ -492,6 +492,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const ref = useMergedRefs(inputRef, validation.inputRef);
 
   const hasMultipleSelection = multiple && Array.isArray(value) && value.length > 0;
+  const hiddenInputName = multiple ? undefined : name;
 
   const hiddenInputs = React.useMemo(() => {
     if (!multiple || !Array.isArray(value) || !name) {
@@ -564,7 +565,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
               queueMicrotask(handleChange);
             },
           })}
-          name={multiple ? undefined : name}
+          id={generatedId && hiddenInputName == null ? `${generatedId}-hidden-input` : undefined}
+          name={hiddenInputName}
           autoComplete={autoComplete}
           value={serializedValue}
           disabled={disabled}
@@ -678,7 +680,8 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    * ```
    */
   items?:
-    | (Record<string, React.ReactNode> | ReadonlyArray<{ label: React.ReactNode; value: any }>)
+    | Record<string, React.ReactNode>
+    | ReadonlyArray<{ label: React.ReactNode; value: any }>
     | undefined;
   /**
    * When the item values are objects (`<Select.Item value={object}>`), this function converts the object value to a string representation for display in the trigger.
@@ -700,11 +703,11 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    *
    * To render a controlled select, use the `value` prop instead.
    */
-  defaultValue?: (SelectValueType<Value, Multiple> | null) | undefined;
+  defaultValue?: SelectValueType<Value, Multiple> | null | undefined;
   /**
    * The value of the select. Use when controlled.
    */
-  value?: (SelectValueType<Value, Multiple> | null) | undefined;
+  value?: SelectValueType<Value, Multiple> | null | undefined;
   /**
    * Event handler called when the value of the select changes.
    */

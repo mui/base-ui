@@ -15,6 +15,7 @@ import {
   useFocus,
   useHoverReferenceInteraction,
 } from '../../floating-ui-react';
+import { TooltipTriggerDataAttributes } from './TooltipTriggerDataAttributes';
 
 import { OPEN_DELAY } from '../utils/constants';
 
@@ -126,7 +127,16 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   const element = useRenderElement('button', componentProps, {
     state,
     ref: [forwardedRef, registerTrigger, triggerElementRef],
-    props: [hoverProps, focusProps, rootTriggerProps, { id: thisTriggerId }, elementProps],
+    props: [
+      hoverProps,
+      focusProps,
+      rootTriggerProps,
+      {
+        id: thisTriggerId,
+        [TooltipTriggerDataAttributes.triggerDisabled]: disabled ? '' : undefined,
+      } as React.HTMLAttributes<Element>,
+      elementProps,
+    ],
     stateAttributesMapping: triggerOpenStateMapping,
   });
 
@@ -168,6 +178,13 @@ export interface TooltipTriggerProps<Payload = unknown> extends BaseUIComponentP
    * @default 0
    */
   closeDelay?: number | undefined;
+  /**
+   * If `true`, the tooltip will not open when interacting with this trigger.
+   * Note that this doesn't apply the `disabled` attribute to the trigger element.
+   * If you want to disable the trigger element itself, you can pass the `disabled` prop to the trigger element via the `render` prop.
+   * @default false
+   */
+  disabled?: boolean | undefined;
 }
 
 export namespace TooltipTrigger {

@@ -393,7 +393,7 @@ describe('<Select.Value />', () => {
     });
   });
 
-  describe('children prop takes precedence over items', () => {
+  describe('prop: children (takes precedence over items)', () => {
     it('uses children string over items object', async () => {
       const items = {
         sans: 'Sans-serif',
@@ -717,6 +717,36 @@ describe('<Select.Value />', () => {
       );
 
       expect(screen.getByTestId('value')).to.have.text('Select an option');
+    });
+
+    it('displays placeholder when object items do not have a null key', async () => {
+      const items = {
+        option1: 'Option 1',
+        option2: 'Option 2',
+      };
+
+      await render(
+        <Select.Root items={items}>
+          <Select.Value data-testid="value" placeholder="Select an option" />
+        </Select.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('Select an option');
+    });
+
+    it('null key label in object items takes precedence over placeholder', async () => {
+      const items = {
+        null: 'None',
+        option1: 'Option 1',
+      };
+
+      await render(
+        <Select.Root items={items}>
+          <Select.Value data-testid="value" placeholder="Select an option" />
+        </Select.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('None');
     });
 
     it('supports ReactNode as placeholder', async () => {

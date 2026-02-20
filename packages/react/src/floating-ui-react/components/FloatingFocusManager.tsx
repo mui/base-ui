@@ -11,12 +11,11 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { isWebKit } from '@base-ui/utils/detectBrowser';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
-import { ownerWindow } from '@base-ui/utils/owner';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   activeElement,
   contains,
-  getDocument,
   getTarget,
   isTypeableCombobox,
   isVirtualClick,
@@ -161,7 +160,7 @@ export interface FloatingFocusManagerProps {
   /**
    * The interaction type used to open the floating element.
    */
-  openInteractionType?: (InteractionType | null) | undefined;
+  openInteractionType?: InteractionType | null | undefined;
   /**
    * Whether or not the focus manager should be disabled. Useful to delay focus
    * management until after a transition completes or some other conditional
@@ -181,11 +180,9 @@ export interface FloatingFocusManagerProps {
    * @default true
    */
   initialFocus?:
-    | (
-        | boolean
-        | React.RefObject<HTMLElement | null>
-        | ((openType: InteractionType) => boolean | HTMLElement | null | void)
-      )
+    | boolean
+    | React.RefObject<HTMLElement | null>
+    | ((openType: InteractionType) => boolean | HTMLElement | null | void)
     | undefined;
   /**
    * Determines the element to focus when the floating element is closed.
@@ -199,11 +196,9 @@ export interface FloatingFocusManagerProps {
    * @default true
    */
   returnFocus?:
-    | (
-        | boolean
-        | React.RefObject<HTMLElement | null>
-        | ((closeType: InteractionType) => boolean | HTMLElement | null | void)
-      )
+    | boolean
+    | React.RefObject<HTMLElement | null>
+    | ((closeType: InteractionType) => boolean | HTMLElement | null | void)
     | undefined;
   /**
    * Determines where focus should be restored if focus inside the floating element is lost
@@ -215,7 +210,7 @@ export interface FloatingFocusManagerProps {
    * - `false`: do not restore focus
    * @default false
    */
-  restoreFocus?: (boolean | 'popup') | undefined;
+  restoreFocus?: boolean | 'popup' | undefined;
   /**
    * Determines if focus is “modal”, meaning focus is fully trapped inside the
    * floating element and outside content cannot be accessed. This includes
@@ -234,11 +229,11 @@ export interface FloatingFocusManagerProps {
   /**
    * Overrides the element to focus when tabbing forward out of the floating element.
    */
-  nextFocusableElement?: (HTMLElement | React.RefObject<HTMLElement | null> | null) | undefined;
+  nextFocusableElement?: HTMLElement | React.RefObject<HTMLElement | null> | null | undefined;
   /**
    * Overrides the element to focus when tabbing backward out of the floating element.
    */
-  previousFocusableElement?: (HTMLElement | React.RefObject<HTMLElement | null> | null) | undefined;
+  previousFocusableElement?: HTMLElement | React.RefObject<HTMLElement | null> | null | undefined;
   /**
    * Ref to the focus guard preceding the floating element content.
    * Can be useful to focus the popup progammatically.
@@ -348,7 +343,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       if (event.key === 'Tab') {
         // The focus guards have nothing to focus, so we need to stop the event.
         if (
-          contains(floatingFocusElement, activeElement(getDocument(floatingFocusElement))) &&
+          contains(floatingFocusElement, activeElement(ownerDocument(floatingFocusElement))) &&
           getTabbableContent().length === 0 &&
           !isUntrappedTypeableCombobox
         ) {
@@ -357,7 +352,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       }
     }
 
-    const doc = getDocument(floatingFocusElement);
+    const doc = ownerDocument(floatingFocusElement);
     doc.addEventListener('keydown', onKeyDown);
     return () => {
       doc.removeEventListener('keydown', onKeyDown);
@@ -379,7 +374,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       return undefined;
     }
 
-    const doc = getDocument(floatingFocusElement);
+    const doc = ownerDocument(floatingFocusElement);
 
     function clearPointerDownOutside() {
       pointerDownOutsideRef.current = false;
@@ -422,7 +417,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       return undefined;
     }
 
-    const doc = getDocument(floatingFocusElement);
+    const doc = ownerDocument(floatingFocusElement);
 
     // In Safari, buttons lose focus when pressing them.
     function handlePointerDown() {
@@ -680,7 +675,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       return;
     }
 
-    const doc = getDocument(floatingFocusElement);
+    const doc = ownerDocument(floatingFocusElement);
     const previouslyFocusedElement = activeElement(doc);
 
     // Wait for any layout effect state setters to execute to set `tabIndex`.
@@ -731,7 +726,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       return undefined;
     }
 
-    const doc = getDocument(floatingFocusElement);
+    const doc = ownerDocument(floatingFocusElement);
     const previouslyFocusedElement = activeElement(doc);
 
     addPreviouslyFocusedElement(previouslyFocusedElement);
@@ -870,7 +865,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       return;
     }
 
-    const activeEl = activeElement(getDocument(floating));
+    const activeEl = activeElement(ownerDocument(floating));
     if (!isHTMLElement(activeEl) || !isTypeableElement(activeEl)) {
       return;
     }

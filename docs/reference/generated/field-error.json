@@ -43,6 +43,12 @@
     },
     "data-focused": {
       "description": "Present when the field control is focused."
+    },
+    "data-starting-style": {
+      "description": "Present when the error message is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the error message is animating out."
     }
   },
   "cssVariables": {}

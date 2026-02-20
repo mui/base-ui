@@ -4,10 +4,10 @@ import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { ownerDocument } from '@base-ui/utils/owner';
 import {
   activeElement,
   contains,
-  getDocument,
   getTarget,
   isTypeableCombobox,
   isVirtualClick,
@@ -120,14 +120,14 @@ export interface UseListNavigationProps {
    * The currently selected item index, which may or may not be active.
    * @default null
    */
-  selectedIndex?: (number | null) | undefined;
+  selectedIndex?: number | null | undefined;
   /**
    * Whether to focus the item upon opening the floating element. 'auto' infers
    * what to do based on the input type (keyboard vs. pointer), while a boolean
    * value will force the value.
    * @default 'auto'
    */
-  focusItemOnOpen?: (boolean | 'auto') | undefined;
+  focusItemOnOpen?: boolean | 'auto' | undefined;
   /**
    * Whether hovering an item synchronizes the focus.
    * @default true
@@ -149,7 +149,7 @@ export interface UseListNavigationProps {
    * navigating via arrow keys, specify an empty array.
    * @default undefined
    */
-  disabledIndices?: (ReadonlyArray<number> | ((index: number) => boolean)) | undefined;
+  disabledIndices?: ReadonlyArray<number> | ((index: number) => boolean) | undefined;
   /**
    * Determines whether focus can escape the list, such that nothing is selected
    * after navigating beyond the boundary of the list. In some
@@ -199,7 +199,7 @@ export interface UseListNavigationProps {
    * The orientation in which navigation occurs.
    * @default 'vertical'
    */
-  orientation?: ('vertical' | 'horizontal' | 'both') | undefined;
+  orientation?: 'vertical' | 'horizontal' | 'both' | undefined;
   /**
    * Specifies how many columns the list has (i.e., it’s a grid). Use an
    * orientation of 'horizontal' (e.g. for an emoji picker/date picker, where
@@ -469,7 +469,7 @@ export function useListNavigation(
 
     const nodes = tree.nodesRef.current;
     const parent = nodes.find((node) => node.id === parentId)?.context?.elements.floating;
-    const activeEl = activeElement(getDocument(floatingElement));
+    const activeEl = activeElement(ownerDocument(floatingElement));
     const treeContainsActiveEl = nodes.some(
       (node) => node.context && contains(node.context.elements.floating, activeEl),
     );
