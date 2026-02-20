@@ -20,7 +20,7 @@ import { clamp } from '../../utils/clamp';
 import { areArraysEqual } from '../../utils/areArraysEqual';
 import { activeElement } from '../../floating-ui-react/utils';
 import { CompositeList, type CompositeMetadata } from '../../composite/list/CompositeList';
-import type { FieldRoot } from '../../field/root/FieldRoot';
+import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useField } from '../../field/useField';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFormContext } from '../../form/FormContext';
@@ -286,7 +286,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     setActive(-1);
   }
 
-  const state: SliderRoot.State = React.useMemo(
+  const state: SliderRootState = React.useMemo(
     () => ({
       ...fieldState,
       activeThumbIndex: active,
@@ -423,7 +423,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   ): React.JSX.Element;
 };
 
-export interface SliderRootState extends FieldRoot.State {
+export interface SliderRootState extends FieldRootState {
   /**
    * The index of the active thumb.
    */
@@ -436,7 +436,13 @@ export interface SliderRootState extends FieldRoot.State {
    * Whether the thumb is currently being dragged.
    */
   dragging: boolean;
+  /**
+   * The maximum value.
+   */
   max: number;
+  /**
+   * The minimum value.
+   */
   min: number;
   /**
    * The minimum steps between values in a range slider.
@@ -461,7 +467,7 @@ export interface SliderRootState extends FieldRoot.State {
 
 export interface SliderRootProps<
   Value extends number | readonly number[] = number | readonly number[],
-> extends BaseUIComponentProps<'div', SliderRoot.State> {
+> extends BaseUIComponentProps<'div', SliderRootState> {
   /**
    * The uncontrolled value of the slider when it’s initially rendered.
    *

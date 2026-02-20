@@ -13,7 +13,7 @@ import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { isIOS } from '@base-ui/utils/detectBrowser';
 import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import type { FieldRoot } from '../../field/root/FieldRoot';
+import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
@@ -452,7 +452,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     [allowWheelScrub, incrementValue, disabled, readOnly, largeStep, step, getStepAmount],
   );
 
-  const state: NumberFieldRoot.State = React.useMemo(
+  const state: NumberFieldRootState = React.useMemo(
     () => ({
       ...fieldState,
       disabled,
@@ -713,7 +713,7 @@ export interface NumberFieldRootProps extends Omit<
   inputRef?: React.Ref<HTMLInputElement> | undefined;
 }
 
-export interface NumberFieldRootState extends FieldRoot.State {
+export interface NumberFieldRootState extends FieldRootState {
   /**
    * The raw numeric value of the field.
    */

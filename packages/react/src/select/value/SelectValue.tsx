@@ -8,7 +8,7 @@ import { resolveMultipleLabels, resolveSelectedLabel } from '../../utils/resolve
 import { selectors } from '../store';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 
-const stateAttributesMapping: StateAttributesMapping<SelectValue.State> = {
+const stateAttributesMapping: StateAttributesMapping<SelectValueState> = {
   value: () => null,
 };
 
@@ -40,7 +40,7 @@ export const SelectValue = React.forwardRef(function SelectValue(
   const shouldCheckNullItemLabel = !hasSelectedValue && placeholder != null && childrenProp == null;
   const hasNullLabel = useStore(store, selectors.hasNullItemLabel, shouldCheckNullItemLabel);
 
-  const state: SelectValue.State = {
+  const state: SelectValueState = {
     value,
     placeholder: !hasSelectedValue,
   };
@@ -80,7 +80,7 @@ export interface SelectValueState {
 }
 
 export interface SelectValueProps extends Omit<
-  BaseUIComponentProps<'span', SelectValue.State>,
+  BaseUIComponentProps<'span', SelectValueState>,
   'children'
 > {
   /**

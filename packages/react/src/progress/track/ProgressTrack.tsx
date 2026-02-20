@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useProgressRootContext } from '../root/ProgressRootContext';
 import { progressStateAttributesMapping } from '../root/stateAttributesMapping';
-import type { ProgressRoot } from '../root/ProgressRoot';
+import type { ProgressRootState } from '../root/ProgressRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
@@ -30,8 +30,11 @@ export const ProgressTrack = React.forwardRef(function ProgressTrack(
   return element;
 });
 
-export interface ProgressTrackProps extends BaseUIComponentProps<'div', ProgressRoot.State> {}
+export interface ProgressTrackState {}
+
+export interface ProgressTrackProps extends BaseUIComponentProps<'div', ProgressRootState> {}
 
 export namespace ProgressTrack {
+  export type State = ProgressTrackState;
   export type Props = ProgressTrackProps;
 }

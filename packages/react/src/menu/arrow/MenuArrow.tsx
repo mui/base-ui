@@ -23,7 +23,7 @@ export const MenuArrow = React.forwardRef(function MenuArrow(
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = useMenuPositionerContext();
   const open = store.useState('open');
 
-  const state: MenuArrow.State = {
+  const state: MenuArrowState = {
     open,
     side,
     align,
@@ -47,12 +47,21 @@ export interface MenuArrowState {
    * Whether the menu is currently open.
    */
   open: boolean;
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
   align: Align;
+  /**
+   * Whether the arrow cannot be centered on the anchor.
+   */
   uncentered: boolean;
 }
 
-export interface MenuArrowProps extends BaseUIComponentProps<'div', MenuArrow.State> {}
+export interface MenuArrowProps extends BaseUIComponentProps<'div', MenuArrowState> {}
 
 export namespace MenuArrow {
   export type State = MenuArrowState;

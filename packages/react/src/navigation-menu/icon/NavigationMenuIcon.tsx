@@ -22,7 +22,7 @@ export const NavigationMenuIcon = React.forwardRef(function NavigationMenuIcon(
 
   const isActiveItem = open && value === itemValue;
 
-  const state: NavigationMenuIcon.State = {
+  const state: NavigationMenuIconState = {
     open: isActiveItem,
   };
 
@@ -45,7 +45,7 @@ export interface NavigationMenuIconState {
 
 export interface NavigationMenuIconProps extends BaseUIComponentProps<
   'span',
-  NavigationMenuIcon.State
+  NavigationMenuIconState
 > {}
 
 export namespace NavigationMenuIcon {

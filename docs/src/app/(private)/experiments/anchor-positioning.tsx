@@ -2,7 +2,10 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
-import { useAnchorPositioning } from '../../../../../packages/react/src/utils/useAnchorPositioning';
+import {
+  useAnchorPositioning,
+  type UseAnchorPositioningParameters,
+} from '../../../../../packages/react/src/utils/useAnchorPositioning';
 import { FloatingRootStore } from '../../../../../packages/react/src/floating-ui-react/components/FloatingRootStore';
 import { PopupTriggerMap } from '../../../../../packages/react/src/utils/popups';
 import styles from './anchor-positioning.module.css';
@@ -35,7 +38,7 @@ export default function AnchorPositioning() {
   const [visible, setVisible] = React.useState(false);
   const [disableAnchorTracking, setDisableAnchorTracking] = React.useState(false);
   const [collisionAvoidance, setCollisionAvoidance] = React.useState<
-    useAnchorPositioning.Parameters['collisionAvoidance']
+    UseAnchorPositioningParameters['collisionAvoidance']
   >({
     side: 'flip',
     align: 'flip',

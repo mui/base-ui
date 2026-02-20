@@ -8,7 +8,7 @@ import { type StateAttributesMapping } from '../../utils/getStateAttributesProps
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 
-const stateAttributesMapping: StateAttributesMapping<DialogBackdrop.State> = {
+const stateAttributesMapping: StateAttributesMapping<DialogBackdropState> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -31,7 +31,7 @@ export const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   const mounted = store.useState('mounted');
   const transitionStatus = store.useState('transitionStatus');
 
-  const state: DialogBackdrop.State = {
+  const state: DialogBackdropState = {
     open,
     transitionStatus,
   };
@@ -55,7 +55,7 @@ export const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   });
 });
 
-export interface DialogBackdropProps extends BaseUIComponentProps<'div', DialogBackdrop.State> {
+export interface DialogBackdropProps extends BaseUIComponentProps<'div', DialogBackdropState> {
   /**
    * Whether the backdrop is forced to render even when nested.
    * @default false
@@ -68,6 +68,9 @@ export interface DialogBackdropState {
    * Whether the dialog is currently open.
    */
   open: boolean;
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
 }
 

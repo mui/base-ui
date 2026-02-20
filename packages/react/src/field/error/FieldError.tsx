@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { FieldRoot } from '../root/FieldRoot';
+import { type FieldRootState } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { fieldValidityMapping } from '../utils/constants';
@@ -14,7 +14,7 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 
-const stateAttributesMapping: StateAttributesMapping<FieldError.State> = {
+const stateAttributesMapping: StateAttributesMapping<FieldErrorState> = {
   ...fieldValidityMapping,
   ...transitionStatusMapping,
 };
@@ -101,7 +101,7 @@ export const FieldError = React.forwardRef(function FieldError(
     },
   });
 
-  const state: FieldError.State = {
+  const state: FieldErrorState = {
     ...fieldState,
     transitionStatus,
   };
@@ -127,11 +127,14 @@ export const FieldError = React.forwardRef(function FieldError(
   return element;
 });
 
-export interface FieldErrorState extends FieldRoot.State {
+export interface FieldErrorState extends FieldRootState {
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
 }
 
-export interface FieldErrorProps extends BaseUIComponentProps<'div', FieldError.State> {
+export interface FieldErrorProps extends BaseUIComponentProps<'div', FieldErrorState> {
   /**
    * Determines whether to show the error message according to the field’s
    * [ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState).

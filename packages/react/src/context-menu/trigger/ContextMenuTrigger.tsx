@@ -174,7 +174,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     };
   }, [backdropRef, disabled, internalBackdropRef]);
 
-  const state: ContextMenuTrigger.State = {
+  const state: ContextMenuTriggerState = {
     open,
   };
 
@@ -200,16 +200,16 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   return element;
 });
 
-export type ContextMenuTriggerState = {
+export interface ContextMenuTriggerState {
   /**
    * Whether the context menu is currently open.
    */
   open: boolean;
-};
+}
 
 export interface ContextMenuTriggerProps extends BaseUIComponentProps<
   'div',
-  ContextMenuTrigger.State
+  ContextMenuTriggerState
 > {}
 
 export namespace ContextMenuTrigger {

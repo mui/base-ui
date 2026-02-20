@@ -41,7 +41,7 @@ export interface PopoverDescriptionState {}
 
 export interface PopoverDescriptionProps extends BaseUIComponentProps<
   'p',
-  PopoverDescription.State
+  PopoverDescriptionState
 > {}
 
 export namespace PopoverDescription {

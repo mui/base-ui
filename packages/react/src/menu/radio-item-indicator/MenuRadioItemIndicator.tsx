@@ -35,7 +35,7 @@ export const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemInd
     },
   });
 
-  const state: MenuRadioItemIndicator.State = {
+  const state: MenuRadioItemIndicatorState = {
     checked: item.checked,
     disabled: item.disabled,
     highlighted: item.highlighted,
@@ -58,7 +58,7 @@ export const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemInd
 
 export interface MenuRadioItemIndicatorProps extends BaseUIComponentProps<
   'span',
-  MenuRadioItemIndicator.State
+  MenuRadioItemIndicatorState
 > {
   /**
    * Whether to keep the HTML element in the DOM when the radio item is inactive.
@@ -76,7 +76,13 @@ export interface MenuRadioItemIndicatorState {
    * Whether the component should ignore user interaction.
    */
   disabled: boolean;
+  /**
+   * Whether the item is highlighted.
+   */
   highlighted: boolean;
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
 }
 

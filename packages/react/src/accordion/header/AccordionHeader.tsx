@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import type { AccordionItem } from '../item/AccordionItem';
+import type { AccordionItemState } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
 import { accordionStateAttributesMapping } from '../item/stateAttributesMapping';
 
@@ -30,8 +30,11 @@ export const AccordionHeader = React.forwardRef(function AccordionHeader(
   return element;
 });
 
-export interface AccordionHeaderProps extends BaseUIComponentProps<'h3', AccordionItem.State> {}
+export interface AccordionHeaderState {}
+
+export interface AccordionHeaderProps extends BaseUIComponentProps<'h3', AccordionItemState> {}
 
 export namespace AccordionHeader {
+  export type State = AccordionHeaderState;
   export type Props = AccordionHeaderProps;
 }

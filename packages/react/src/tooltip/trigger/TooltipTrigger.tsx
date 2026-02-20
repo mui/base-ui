@@ -120,7 +120,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
 
   const focusProps = useFocus(floatingRootContext, { enabled: !disabled }).reference;
 
-  const state: TooltipTrigger.State = { open: isOpenedByThisTrigger };
+  const state: TooltipTriggerState = { open: isOpenedByThisTrigger };
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
@@ -158,7 +158,7 @@ export interface TooltipTriggerState {
 
 export interface TooltipTriggerProps<Payload = unknown> extends BaseUIComponentProps<
   'button',
-  TooltipTrigger.State
+  TooltipTriggerState
 > {
   /**
    * A handle to associate the trigger with a tooltip.

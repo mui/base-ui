@@ -46,7 +46,7 @@ const Inner = React.memo(
 
       const { transitionStatus, setMounted } = useTransitionStatus(selected);
 
-      const state: SelectItemIndicator.State = {
+      const state: SelectItemIndicatorState = {
         selected,
         transitionStatus,
       };
@@ -80,16 +80,24 @@ const Inner = React.memo(
 );
 
 export interface SelectItemIndicatorState {
+  /**
+   * Whether the item is selected.
+   */
   selected: boolean;
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
 }
 
 export interface SelectItemIndicatorProps extends BaseUIComponentProps<
   'span',
-  SelectItemIndicator.State
+  SelectItemIndicatorState
 > {
   children?: React.ReactNode;
-  /** Whether to keep the HTML element in the DOM when the item is not selected. */
+  /**
+   * Whether to keep the HTML element in the DOM when the item is not selected.
+   */
   keepMounted?: boolean | undefined;
 }
 

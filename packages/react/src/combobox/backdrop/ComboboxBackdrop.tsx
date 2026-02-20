@@ -10,7 +10,7 @@ import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
 
-const stateAttributesMapping: StateAttributesMapping<ComboboxBackdrop.State> = {
+const stateAttributesMapping: StateAttributesMapping<ComboboxBackdropState> = {
   ...popupStateMapping,
   ...transitionStatusMapping,
 };
@@ -31,7 +31,7 @@ export const ComboboxBackdrop = React.forwardRef(function ComboboxBackdrop(
   const mounted = useStore(store, selectors.mounted);
   const transitionStatus = useStore(store, selectors.transitionStatus);
 
-  const state: ComboboxBackdrop.State = {
+  const state: ComboboxBackdropState = {
     open,
     transitionStatus,
   };
@@ -54,16 +54,16 @@ export const ComboboxBackdrop = React.forwardRef(function ComboboxBackdrop(
   });
 });
 
-export interface ComboboxBackdropProps extends BaseUIComponentProps<
-  'div',
-  ComboboxBackdrop.State
-> {}
+export interface ComboboxBackdropProps extends BaseUIComponentProps<'div', ComboboxBackdropState> {}
 
 export interface ComboboxBackdropState {
   /**
    * Whether the popup is currently open.
    */
   open: boolean;
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
 }
 

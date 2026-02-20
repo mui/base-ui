@@ -5,7 +5,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { useRenderElement } from '../utils/useRenderElement';
 import { CheckboxGroupContext } from './CheckboxGroupContext';
-import type { FieldRoot } from '../field/root/FieldRoot';
+import type { FieldRootState } from '../field/root/FieldRoot';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
 import { useLabelableContext } from '../labelable-provider/LabelableContext';
 import type { BaseUIComponentProps } from '../utils/types';
@@ -122,7 +122,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     }
   });
 
-  const state: CheckboxGroup.State = {
+  const state: CheckboxGroupState = {
     ...fieldState,
     disabled,
   };
@@ -160,14 +160,14 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
   );
 });
 
-export interface CheckboxGroupState extends FieldRoot.State {
+export interface CheckboxGroupState extends FieldRootState {
   /**
    * Whether the component should ignore user interaction.
    */
   disabled: boolean;
 }
 
-export interface CheckboxGroupProps extends BaseUIComponentProps<'div', CheckboxGroup.State> {
+export interface CheckboxGroupProps extends BaseUIComponentProps<'div', CheckboxGroupState> {
   /**
    * Names of the checkboxes in the group that should be ticked.
    *

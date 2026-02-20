@@ -21,7 +21,6 @@ import { useDrawerRootContext, type DrawerSwipeDirection } from '../root/DrawerR
 import { useDrawerSnapPoints } from '../root/useDrawerSnapPoints';
 import { useDrawerViewportContext } from '../viewport/DrawerViewportContext';
 import { EMPTY_OBJECT } from '../../utils/constants';
-
 // Module-level flag to ensure we only register the CSS properties once,
 // regardless of how many Drawer components are mounted.
 let drawerSwipeVarsRegistered = false;
@@ -86,7 +85,7 @@ function removeCSSVariableInheritance() {
   drawerSwipeVarsRegistered = true;
 }
 
-const stateAttributesMapping: StateAttributesMapping<DrawerPopup.State> = {
+const stateAttributesMapping: StateAttributesMapping<DrawerPopupState> = {
   ...baseMapping,
   ...transitionStatusMapping,
   expanded(value) {
@@ -288,7 +287,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
 
   const resolvedInitialFocus = initialFocus === undefined ? store.context.popupRef : initialFocus;
 
-  const state: DrawerPopup.State = {
+  const state: DrawerPopupState = {
     open,
     nested,
     transitionStatus,
@@ -391,7 +390,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
   );
 });
 
-export interface DrawerPopupProps extends BaseUIComponentProps<'div', DrawerPopup.State> {
+export interface DrawerPopupProps extends BaseUIComponentProps<'div', DrawerPopupState> {
   /**
    * Determines the element to focus when the drawer is opened.
    *
@@ -427,6 +426,9 @@ export interface DrawerPopupState {
    * Whether the drawer is currently open.
    */
   open: boolean;
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
   /**
    * Whether the active snap point is the full-height expanded state.

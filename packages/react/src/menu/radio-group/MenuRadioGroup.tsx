@@ -48,7 +48,7 @@ export const MenuRadioGroup = React.memo(
       },
     );
 
-    const state: MenuRadioGroup.State = { disabled };
+    const state: MenuRadioGroupState = { disabled };
 
     const element = useRenderElement('div', componentProps, {
       state,
@@ -75,7 +75,7 @@ export const MenuRadioGroup = React.memo(
   }),
 );
 
-export interface MenuRadioGroupProps extends BaseUIComponentProps<'div', MenuRadioGroup.State> {
+export interface MenuRadioGroupProps extends BaseUIComponentProps<'div', MenuRadioGroupState> {
   /**
    * The content of the component.
    */
@@ -106,9 +106,12 @@ export interface MenuRadioGroupProps extends BaseUIComponentProps<'div', MenuRad
   disabled?: boolean | undefined;
 }
 
-export type MenuRadioGroupState = {
+export interface MenuRadioGroupState {
+  /**
+   * Whether the component is disabled.
+   */
   disabled: boolean;
-};
+}
 
 export type MenuRadioGroupChangeEventReason = MenuRoot.ChangeEventReason;
 export type MenuRadioGroupChangeEventDetails = MenuRoot.ChangeEventDetails;

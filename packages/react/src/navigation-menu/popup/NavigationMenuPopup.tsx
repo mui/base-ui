@@ -12,7 +12,7 @@ import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { Align, Side } from '../../utils/useAnchorPositioning';
 
-const stateAttributesMapping: StateAttributesMapping<NavigationMenuPopup.State> = {
+const stateAttributesMapping: StateAttributesMapping<NavigationMenuPopupState> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -35,7 +35,7 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
 
   const id = useBaseUiId(idProp);
 
-  const state: NavigationMenuPopup.State = {
+  const state: NavigationMenuPopupState = {
     open,
     transitionStatus,
     side: positioning.side,
@@ -102,7 +102,7 @@ export interface NavigationMenuPopupState {
 
 export interface NavigationMenuPopupProps extends BaseUIComponentProps<
   'nav',
-  NavigationMenuPopup.State
+  NavigationMenuPopupState
 > {}
 
 export namespace NavigationMenuPopup {

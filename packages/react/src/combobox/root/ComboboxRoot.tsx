@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { AriaCombobox } from './AriaCombobox';
+import { AriaCombobox, type AriaComboboxState } from './AriaCombobox';
 
 /**
  * Groups all parts of the combobox.
@@ -153,7 +153,7 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
     | undefined;
 };
 
-export type ComboboxRootState = AriaCombobox.State;
+export interface ComboboxRootState extends AriaComboboxState {}
 
 export type ComboboxRootActions = AriaCombobox.Actions;
 

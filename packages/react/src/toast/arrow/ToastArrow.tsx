@@ -19,7 +19,7 @@ export const ToastArrow = React.forwardRef(function ToastArrow(
 
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = useToastPositionerContext();
 
-  const state: ToastArrow.State = {
+  const state: ToastArrowState = {
     side,
     align,
     uncentered: arrowUncentered,
@@ -35,12 +35,21 @@ export const ToastArrow = React.forwardRef(function ToastArrow(
 });
 
 export interface ToastArrowState {
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
   align: Align;
+  /**
+   * Whether the arrow cannot be centered on the anchor.
+   */
   uncentered: boolean;
 }
 
-export interface ToastArrowProps extends BaseUIComponentProps<'div', ToastArrow.State> {}
+export interface ToastArrowProps extends BaseUIComponentProps<'div', ToastArrowState> {}
 
 export namespace ToastArrow {
   export type State = ToastArrowState;

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useCollapsibleRoot } from './useCollapsibleRoot';
+import { useCollapsibleRoot, type UseCollapsibleRootReturnValue } from './useCollapsibleRoot';
 import { CollapsibleRootContext } from './CollapsibleRootContext';
 import { collapsibleStateAttributesMapping } from './stateAttributesMapping';
 import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -38,7 +38,7 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     disabled,
   });
 
-  const state: CollapsibleRoot.State = React.useMemo(
+  const state: CollapsibleRootState = React.useMemo(
     () => ({
       open: collapsible.open,
       disabled: collapsible.disabled,
@@ -71,11 +71,11 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
 });
 
 export interface CollapsibleRootState extends Pick<
-  useCollapsibleRoot.ReturnValue,
+  UseCollapsibleRootReturnValue,
   'open' | 'disabled'
 > {}
 
-export interface CollapsibleRootProps extends BaseUIComponentProps<'div', CollapsibleRoot.State> {
+export interface CollapsibleRootProps extends BaseUIComponentProps<'div', CollapsibleRootState> {
   /**
    * Whether the collapsible panel is currently open.
    *

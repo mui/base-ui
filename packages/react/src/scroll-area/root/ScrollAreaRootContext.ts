@@ -1,6 +1,12 @@
 'use client';
 import * as React from 'react';
-import type { Coords, HiddenState, OverflowEdges, ScrollAreaRoot, Size } from './ScrollAreaRoot';
+import type {
+  Coords,
+  HiddenState,
+  OverflowEdges,
+  Size,
+  ScrollAreaRootState,
+} from './ScrollAreaRoot';
 
 export interface ScrollAreaRootContext {
   cornerSize: Size;
@@ -30,7 +36,7 @@ export interface ScrollAreaRootContext {
   setHiddenState: React.Dispatch<React.SetStateAction<HiddenState>>;
   overflowEdges: OverflowEdges;
   setOverflowEdges: React.Dispatch<React.SetStateAction<OverflowEdges>>;
-  viewportState: ScrollAreaRoot.State;
+  viewportState: ScrollAreaRootState;
   overflowEdgeThreshold: {
     xStart: number;
     xEnd: number;

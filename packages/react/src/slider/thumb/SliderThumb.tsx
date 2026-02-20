@@ -29,7 +29,7 @@ import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { getMidpoint } from '../utils/getMidpoint';
 import { getSliderValue } from '../utils/getSliderValue';
 import { roundValueToStep } from '../utils/roundValueToStep';
-import type { SliderRoot } from '../root/SliderRoot';
+import type { SliderRootState } from '../root/SliderRoot';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import { SliderThumbDataAttributes } from './SliderThumbDataAttributes';
@@ -467,10 +467,10 @@ export interface ThumbMetadata {
   inputId: LabelableContext['controlId'];
 }
 
-export interface SliderThumbState extends SliderRoot.State {}
+export interface SliderThumbState extends SliderRootState {}
 
 export interface SliderThumbProps extends Omit<
-  BaseUIComponentProps<'div', SliderThumb.State>,
+  BaseUIComponentProps<'div', SliderThumbState>,
   'onBlur' | 'onFocus'
 > {
   /**

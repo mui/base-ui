@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../utils/types';
-import { Field } from '../field';
+import { Field, type FieldControlState } from '../field';
 
 /**
  * A native input element that automatically works with [Field](https://base-ui.com/react/components/field).
@@ -16,7 +16,7 @@ export const Input = React.forwardRef(function Input(
   return <Field.Control ref={forwardedRef} {...props} />;
 });
 
-export interface InputProps extends BaseUIComponentProps<'input', Input.State> {
+export interface InputProps extends BaseUIComponentProps<'input', InputState> {
   /**
    * Callback fired when the `value` changes. Use when controlled.
    */
@@ -31,7 +31,7 @@ export interface InputProps extends BaseUIComponentProps<'input', Input.State> {
   value?: React.ComponentProps<'input'>['value'] | undefined;
 }
 
-export interface InputState extends Field.Control.State {}
+export interface InputState extends FieldControlState {}
 
 export type InputChangeEventReason = Field.Control.ChangeEventReason;
 export type InputChangeEventDetails = Field.Control.ChangeEventDetails;

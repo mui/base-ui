@@ -41,7 +41,7 @@ export interface NavigationMenuItemState {}
 
 export interface NavigationMenuItemProps extends BaseUIComponentProps<
   'li',
-  NavigationMenuItem.State
+  NavigationMenuItemState
 > {
   /**
    * A unique value that identifies this navigation menu item.

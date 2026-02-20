@@ -86,6 +86,9 @@ export interface UseMediaQueryOptions {
   ssrMatchMedia?: ((query: string) => { matches: boolean }) | undefined;
 }
 
+export interface UseMediaQueryState {}
+
 export namespace useMediaQuery {
+  export type State = UseMediaQueryState;
   export type Options = UseMediaQueryOptions;
 }

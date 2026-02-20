@@ -47,7 +47,7 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
   }
   const formattedValue = formatNumberValue(value, locale, formatOptionsRef.current);
 
-  const state: ProgressRoot.State = React.useMemo(() => ({ status }), [status]);
+  const state: ProgressRootState = React.useMemo(() => ({ status }), [status]);
 
   const defaultProps: HTMLProps = {
     'aria-labelledby': labelId,
@@ -86,10 +86,13 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
 export type ProgressStatus = 'indeterminate' | 'progressing' | 'complete';
 
 export interface ProgressRootState {
+  /**
+   * The current status.
+   */
   status: ProgressStatus;
 }
 
-export interface ProgressRootProps extends BaseUIComponentProps<'div', ProgressRoot.State> {
+export interface ProgressRootProps extends BaseUIComponentProps<'div', ProgressRootState> {
   /**
    * A string value that provides a user-friendly name for `aria-valuenow`, the current value of the meter.
    */

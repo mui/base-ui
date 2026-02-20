@@ -64,7 +64,7 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
 
   const localInteractionProps = useInteractions([click]);
 
-  const state: DialogTrigger.State = {
+  const state: DialogTriggerState = {
     disabled,
     open: isOpenedByThisTrigger,
   };
@@ -92,7 +92,7 @@ export interface DialogTrigger {
 }
 
 export interface DialogTriggerProps<Payload = unknown>
-  extends NativeButtonProps, BaseUIComponentProps<'button', DialogTrigger.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', DialogTriggerState> {
   /**
    * A handle to associate the trigger with a dialog.
    * Can be created with the Dialog.createHandle() method.

@@ -29,7 +29,7 @@ export const FieldsetLegend = React.forwardRef(function FieldsetLegend(
     };
   }, [setLegendId, id]);
 
-  const state: FieldsetLegend.State = {
+  const state: FieldsetLegendState = {
     disabled: disabled ?? false,
   };
 
@@ -49,7 +49,7 @@ export interface FieldsetLegendState {
   disabled: boolean;
 }
 
-export interface FieldsetLegendProps extends BaseUIComponentProps<'div', FieldsetLegend.State> {}
+export interface FieldsetLegendProps extends BaseUIComponentProps<'div', FieldsetLegendState> {}
 
 export namespace FieldsetLegend {
   export type State = FieldsetLegendState;

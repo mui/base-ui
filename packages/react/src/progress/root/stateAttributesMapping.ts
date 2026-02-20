@@ -1,8 +1,8 @@
 import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import type { ProgressRoot } from './ProgressRoot';
+import type { ProgressRootState } from './ProgressRoot';
 import { ProgressRootDataAttributes } from './ProgressRootDataAttributes';
 
-export const progressStateAttributesMapping: StateAttributesMapping<ProgressRoot.State> = {
+export const progressStateAttributesMapping: StateAttributesMapping<ProgressRootState> = {
   status(value): Record<string, string> | null {
     if (value === 'progressing') {
       return { [ProgressRootDataAttributes.progressing]: '' };

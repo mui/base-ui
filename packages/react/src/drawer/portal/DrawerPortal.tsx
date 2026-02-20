@@ -14,7 +14,7 @@ export const DrawerPortal = DialogPortal as DrawerPortal;
 
 export interface DrawerPortalState {}
 
-export interface DrawerPortalProps extends FloatingPortal.Props<DrawerPortal.State> {
+export interface DrawerPortalProps extends FloatingPortal.Props<DrawerPortalState> {
   /**
    * Whether to keep the portal mounted in the DOM while the popup is hidden.
    * @default false
@@ -23,7 +23,7 @@ export interface DrawerPortalProps extends FloatingPortal.Props<DrawerPortal.Sta
   /**
    * A parent element to render the portal element into.
    */
-  container?: FloatingPortal.Props<DrawerPortal.State>['container'] | undefined;
+  container?: FloatingPortal.Props<DrawerPortalState>['container'] | undefined;
 }
 
 export interface DrawerPortal {

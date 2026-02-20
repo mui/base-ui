@@ -27,7 +27,7 @@ export const ToastAction = React.forwardRef(function ToastAction(
     native: nativeButton,
   });
 
-  const state: ToastAction.State = {
+  const state: ToastActionState = {
     type: toast.type,
   };
 
@@ -59,7 +59,7 @@ export interface ToastActionState {
 }
 
 export interface ToastActionProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', ToastAction.State> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', ToastActionState> {}
 
 export namespace ToastAction {
   export type State = ToastActionState;

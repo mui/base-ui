@@ -76,7 +76,7 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
 
   const focusProps = useFocus(floatingRootContext, { delay: delayWithDefault });
 
-  const state: PreviewCardTrigger.State = { open: isOpenedByThisTrigger };
+  const state: PreviewCardTriggerState = { open: isOpenedByThisTrigger };
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
@@ -111,7 +111,7 @@ export interface PreviewCardTriggerState {
 
 export interface PreviewCardTriggerProps<Payload = unknown> extends BaseUIComponentProps<
   'a',
-  PreviewCardTrigger.State
+  PreviewCardTriggerState
 > {
   /**
    * A handle to associate the trigger with a preview card.

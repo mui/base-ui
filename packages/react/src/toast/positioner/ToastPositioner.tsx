@@ -1,7 +1,12 @@
 'use client';
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
-import { useAnchorPositioning, type Side, type Align } from '../../utils/useAnchorPositioning';
+import {
+  useAnchorPositioning,
+  type Side,
+  type Align,
+  type UseAnchorPositioningSharedParameters,
+} from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -98,7 +103,7 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
     };
   }, [positioning.positionerStyles, toast.transitionStatus, domIndex, visibleIndex]);
 
-  const state: ToastPositioner.State = React.useMemo(
+  const state: ToastPositionerState = React.useMemo(
     () => ({
       side: positioning.side,
       align: positioning.align,
@@ -132,15 +137,24 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
 });
 
 export interface ToastPositionerState {
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
   align: Align;
+  /**
+   * Whether the anchor element is hidden.
+   */
   anchorHidden: boolean;
 }
 
 export interface ToastPositionerProps
   extends
-    BaseUIComponentProps<'div', ToastPositioner.State>,
-    Omit<useAnchorPositioning.SharedParameters, 'side' | 'anchor'> {
+    BaseUIComponentProps<'div', ToastPositionerState>,
+    Omit<UseAnchorPositioningSharedParameters, 'side' | 'anchor'> {
   /**
    * An element to position the toast against.
    */

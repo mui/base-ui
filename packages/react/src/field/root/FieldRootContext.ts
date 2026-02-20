@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { NOOP } from '../../utils/noop';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
-import type { FieldRoot, FieldValidityData } from './FieldRoot';
+import type { FieldValidityData, FieldRootState } from './FieldRoot';
 import type { Form } from '../../form';
 import type { UseFieldValidationReturnValue } from './useFieldValidation';
 import type { HTMLProps } from '../../utils/types';
@@ -29,7 +29,7 @@ export interface FieldRootContext {
   validationMode: Form.ValidationMode;
   validationDebounceTime: number;
   shouldValidateOnChange: () => boolean;
-  state: FieldRoot.State;
+  state: FieldRootState;
   markedDirtyRef: React.RefObject<boolean>;
   validation: UseFieldValidationReturnValue;
 }

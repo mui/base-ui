@@ -9,7 +9,7 @@ import { ScrollAreaRootCssVars } from '../root/ScrollAreaRootCssVars';
 import { ScrollAreaScrollbarCssVars } from './ScrollAreaScrollbarCssVars';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
-import type { ScrollAreaRoot } from '../root/ScrollAreaRoot';
+import type { ScrollAreaRootState } from '../root/ScrollAreaRoot';
 
 /**
  * A vertical or horizontal scrollbar for the scroll area.
@@ -46,7 +46,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
     thumbSize,
   } = useScrollAreaRootContext();
 
-  const state: ScrollAreaScrollbar.State = {
+  const state: ScrollAreaScrollbarState = {
     hovering,
     scrolling: {
       horizontal: scrollingX,
@@ -228,18 +228,24 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
   );
 });
 
-export interface ScrollAreaScrollbarState extends ScrollAreaRoot.State {
-  /** Whether the scroll area is being hovered. */
+export interface ScrollAreaScrollbarState extends ScrollAreaRootState {
+  /**
+   * Whether the scroll area is being hovered.
+   */
   hovering: boolean;
-  /** Whether the scroll area is being scrolled. */
+  /**
+   * Whether the scroll area is being scrolled.
+   */
   scrolling: boolean;
-  /** The orientation of the scrollbar. */
+  /**
+   * The orientation of the scrollbar.
+   */
   orientation: 'vertical' | 'horizontal';
 }
 
 export interface ScrollAreaScrollbarProps extends BaseUIComponentProps<
   'div',
-  ScrollAreaScrollbar.State
+  ScrollAreaScrollbarState
 > {
   /**
    * Whether the scrollbar controls vertical or horizontal scroll.

@@ -48,7 +48,7 @@ export const MenuItem = React.forwardRef(function MenuItem(
     itemMetadata: REGULAR_ITEM,
   });
 
-  const state: MenuItem.State = {
+  const state: MenuItemState = {
     disabled,
     highlighted,
   };
@@ -72,7 +72,7 @@ export interface MenuItemState {
 }
 
 export interface MenuItemProps
-  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuItem.State> {
+  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuItemState> {
   /**
    * The click handler for the menu item.
    */

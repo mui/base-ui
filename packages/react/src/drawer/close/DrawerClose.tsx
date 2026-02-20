@@ -12,7 +12,7 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types'
 export const DrawerClose = DialogClose as DrawerClose;
 
 export interface DrawerCloseProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', DrawerClose.State> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', DrawerCloseState> {}
 
 export interface DrawerCloseState {
   /**

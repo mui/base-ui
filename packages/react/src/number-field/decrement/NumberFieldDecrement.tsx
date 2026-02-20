@@ -4,7 +4,7 @@ import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
-import type { NumberFieldRoot } from '../root/NumberFieldRoot';
+import type { NumberFieldRootState } from '../root/NumberFieldRoot';
 import { useNumberFieldButton } from '../root/useNumberFieldButton';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 
@@ -101,10 +101,10 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
   return element;
 });
 
-export interface NumberFieldDecrementState extends NumberFieldRoot.State {}
+export interface NumberFieldDecrementState extends NumberFieldRootState {}
 
 export interface NumberFieldDecrementProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', NumberFieldDecrement.State> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', NumberFieldDecrementState> {}
 
 export namespace NumberFieldDecrement {
   export type State = NumberFieldDecrementState;

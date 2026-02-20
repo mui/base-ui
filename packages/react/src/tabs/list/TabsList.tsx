@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-import type { TabsRoot } from '../root/TabsRoot';
+import type { TabsRoot, TabsRootState } from '../root/TabsRoot';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useTabsRootContext } from '../root/TabsRootContext';
@@ -59,7 +59,7 @@ export const TabsList = React.forwardRef(function TabsList(
     },
   );
 
-  const state: TabsList.State = {
+  const state: TabsListState = {
     orientation,
     tabActivationDirection,
   };
@@ -192,9 +192,9 @@ function useActivationDirectionDetector(
   );
 }
 
-export interface TabsListState extends TabsRoot.State {}
+export interface TabsListState extends TabsRootState {}
 
-export interface TabsListProps extends BaseUIComponentProps<'div', TabsList.State> {
+export interface TabsListProps extends BaseUIComponentProps<'div', TabsListState> {
   /**
    * Whether to automatically change the active tab on arrow key focus.
    * Otherwise, tabs will be activated using <kbd>Enter</kbd> or <kbd>Space</kbd> key press.

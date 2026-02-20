@@ -47,7 +47,7 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
     [disabled, orientation, setItemMap],
   );
 
-  const state: ToolbarRoot.State = { disabled, orientation };
+  const state: ToolbarRootState = { disabled, orientation };
 
   const defaultProps: HTMLProps = {
     'aria-orientation': orientation,
@@ -78,11 +78,17 @@ export interface ToolbarRootItemMetadata {
 export type ToolbarRootOrientation = BaseOrientation;
 
 export interface ToolbarRootState {
+  /**
+   * Whether the component is disabled.
+   */
   disabled: boolean;
+  /**
+   * The component orientation.
+   */
   orientation: ToolbarRoot.Orientation;
 }
 
-export interface ToolbarRootProps extends BaseUIComponentProps<'div', ToolbarRoot.State> {
+export interface ToolbarRootProps extends BaseUIComponentProps<'div', ToolbarRootState> {
   disabled?: boolean | undefined;
   /**
    * The orientation of the toolbar.

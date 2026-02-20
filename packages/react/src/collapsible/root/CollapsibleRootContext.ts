@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
-import type { useCollapsibleRoot } from './useCollapsibleRoot';
-import type { CollapsibleRoot } from './CollapsibleRoot';
+import type { UseCollapsibleRootReturnValue } from './useCollapsibleRoot';
+import type { CollapsibleRoot, CollapsibleRootState } from './CollapsibleRoot';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 
-export interface CollapsibleRootContext extends useCollapsibleRoot.ReturnValue {
+export interface CollapsibleRootContext extends UseCollapsibleRootReturnValue {
   onOpenChange: (open: boolean, eventDetails: CollapsibleRoot.ChangeEventDetails) => void;
-  state: CollapsibleRoot.State;
+  state: CollapsibleRootState;
   transitionStatus: TransitionStatus;
 }
 

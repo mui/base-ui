@@ -98,6 +98,8 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
   );
 }
 
+export interface CompositeRootState {}
+
 export interface CompositeRootProps<Metadata, State extends Record<string, any>> extends Pick<
   BaseUIComponentProps<'div', State>,
   'render' | 'className' | 'children'
@@ -124,8 +126,9 @@ export interface CompositeRootProps<Metadata, State extends Record<string, any>>
 }
 
 export namespace CompositeRoot {
-  export type Props<Metadata, State extends Record<string, any>> = CompositeRootProps<
+  export type State = CompositeRootState;
+  export type Props<Metadata, TState extends Record<string, any>> = CompositeRootProps<
     Metadata,
-    State
+    TState
   >;
 }

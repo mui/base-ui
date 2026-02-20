@@ -6,14 +6,14 @@ import { BaseUIComponentProps } from '../../utils/types';
 import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useAvatarRootContext } from '../root/AvatarRootContext';
-import type { AvatarRoot } from '../root/AvatarRoot';
+import type { AvatarRootState } from '../root/AvatarRoot';
 import { avatarStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useImageLoadingStatus, ImageLoadingStatus } from './useImageLoadingStatus';
 
-const stateAttributesMapping: StateAttributesMapping<AvatarImage.State> = {
+const stateAttributesMapping: StateAttributesMapping<AvatarImageState> = {
   ...avatarStateAttributesMapping,
   ...transitionStatusMapping,
 };
@@ -59,7 +59,7 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     }
   }, [imageLoadingStatus, handleLoadingStatusChange]);
 
-  const state: AvatarImage.State = {
+  const state: AvatarImageState = {
     imageLoadingStatus,
     transitionStatus,
   };
@@ -89,11 +89,14 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
   return element;
 });
 
-export interface AvatarImageState extends AvatarRoot.State {
+export interface AvatarImageState extends AvatarRootState {
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
 }
 
-export interface AvatarImageProps extends BaseUIComponentProps<'img', AvatarImage.State> {
+export interface AvatarImageProps extends BaseUIComponentProps<'img', AvatarImageState> {
   /**
    * Callback fired when the loading status changes.
    */

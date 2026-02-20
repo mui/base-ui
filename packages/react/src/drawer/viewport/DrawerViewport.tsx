@@ -11,7 +11,11 @@ import { useDrawerRootContext } from '../root/DrawerRootContext';
 import { useDrawerSnapPoints } from '../root/useDrawerSnapPoints';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
 import { clamp } from '../../utils/clamp';
-import { useSwipeDismiss, type SwipeDirection } from '../../utils/useSwipeDismiss';
+import {
+  useSwipeDismiss,
+  type SwipeDirection,
+  type UseSwipeDismissProgressDetails,
+} from '../../utils/useSwipeDismiss';
 import { DrawerPopupCssVars } from '../popup/DrawerPopupCssVars';
 import { DrawerPopupDataAttributes } from '../popup/DrawerPopupDataAttributes';
 import { DrawerBackdropCssVars } from '../backdrop/DrawerBackdropCssVars';
@@ -303,7 +307,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     return durationScalar;
   }
 
-  function updateNestedSwipeActive(details?: useSwipeDismiss.SwipeProgressDetails) {
+  function updateNestedSwipeActive(details?: UseSwipeDismissProgressDetails) {
     if (nestedSwipeActiveRef.current || !details) {
       return;
     }
@@ -1044,6 +1048,9 @@ export interface DrawerViewportState {
    * Whether the drawer is currently open.
    */
   open: boolean;
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
   /**
    * Whether the drawer is nested within another drawer.
@@ -1055,7 +1062,7 @@ export interface DrawerViewportState {
   nestedDialogOpen: boolean;
 }
 
-export interface DrawerViewportProps extends BaseUIComponentProps<'div', DrawerViewport.State> {}
+export interface DrawerViewportProps extends BaseUIComponentProps<'div', DrawerViewportState> {}
 
 export namespace DrawerViewport {
   export type Props = DrawerViewportProps;

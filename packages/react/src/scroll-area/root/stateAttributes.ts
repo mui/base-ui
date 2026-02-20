@@ -1,8 +1,8 @@
 import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import type { ScrollAreaRoot } from './ScrollAreaRoot';
+import type { ScrollAreaRootState } from './ScrollAreaRoot';
 import { ScrollAreaRootDataAttributes } from './ScrollAreaRootDataAttributes';
 
-export const scrollAreaStateAttributesMapping: StateAttributesMapping<ScrollAreaRoot.State> = {
+export const scrollAreaStateAttributesMapping: StateAttributesMapping<ScrollAreaRootState> = {
   hasOverflowX: (value) => (value ? { [ScrollAreaRootDataAttributes.hasOverflowX]: '' } : null),
   hasOverflowY: (value) => (value ? { [ScrollAreaRootDataAttributes.hasOverflowY]: '' } : null),
   overflowXStart: (value) => (value ? { [ScrollAreaRootDataAttributes.overflowXStart]: '' } : null),
