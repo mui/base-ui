@@ -368,9 +368,7 @@ function TanstackForm() {
                 render={
                   <RadioGroup
                     value={field.state.value}
-                    onValueChange={(newValue) =>
-                      field.handleChange(newValue as FormValues['storageType'])
-                    }
+                    onValueChange={field.handleChange}
                     className="gap-4"
                   />
                 }
