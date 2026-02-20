@@ -141,10 +141,21 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     }
 
     // Subsequent renders while open (when `content` changes).
+    // If a previous size transition is still running, capture the rendered in-flight size
+    // so a quick trigger change doesn't snap back to the last committed endpoint.
+    const inFlightDimensions = isPopupCssSizeFixed(popupElement)
+      ? getCssDimensions(popupElement)
+      : null;
+
+    if (inFlightDimensions) {
+      liveDimensionsRef.current = inFlightDimensions;
+    }
+
     setPopupCssSize(popupElement, 'auto');
     setPositionerCssSize(positionerElement, 'max-content');
 
-    const previousDimensions = committedDimensionsRef.current ?? liveDimensionsRef.current;
+    const previousDimensions =
+      inFlightDimensions ?? committedDimensionsRef.current ?? liveDimensionsRef.current;
     const newDimensions = getCssDimensions(popupElement);
 
     // Commit immediately so future content changes have a stable previous size, even if
@@ -172,14 +183,22 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
 
     const abortController = new AbortController();
 
-    animationFrame.request(() => {
-      setPopupCssSize(popupElement, newDimensions);
+    function startResizeTransition() {
+      if (!popupElement) {
+        return;
+      }
+
+      const resolvedPopupElement = popupElement;
+
+      setPopupCssSize(resolvedPopupElement, newDimensions);
 
       runOnceAnimationsFinish(() => {
-        popupElement.style.setProperty('--popup-width', 'auto');
-        popupElement.style.setProperty('--popup-height', 'auto');
+        resolvedPopupElement.style.setProperty('--popup-width', 'auto');
+        resolvedPopupElement.style.setProperty('--popup-height', 'auto');
       }, abortController.signal);
-    });
+    }
+
+    animationFrame.request(startResizeTransition);
 
     return () => {
       observer.disconnect();
@@ -277,4 +296,11 @@ function setPositionerCssSize(positionerElement: HTMLElement, size: Dimensions |
   const height = size === 'max-content' ? 'max-content' : `${size.height}px`;
   positionerElement.style.setProperty('--positioner-width', width);
   positionerElement.style.setProperty('--positioner-height', height);
+}
+
+function isPopupCssSizeFixed(popupElement: HTMLElement) {
+  const width = popupElement.style.getPropertyValue('--popup-width');
+  const height = popupElement.style.getPropertyValue('--popup-height');
+
+  return width !== '' && width !== 'auto' && height !== '' && height !== 'auto';
 }
