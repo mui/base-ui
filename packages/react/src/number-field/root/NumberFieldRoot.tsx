@@ -653,7 +653,7 @@ export interface NumberFieldRootProps extends Omit<
    */
   value?: number | null | undefined;
   /**
-   * The uncontrolled value of the field when it’s initially rendered.
+   * The uncontrolled value of the field when it's initially rendered.
    *
    * To render a controlled number field, use the `value` prop instead.
    */

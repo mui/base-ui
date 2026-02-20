@@ -104,10 +104,21 @@ To use a radio group in a form, pass the radio group's `name` to `<Field.Root>`:
 
 ### RadioGroup
 
+import { TypesRadioGroup } from '../radio-group/types';
+
 Provides a shared state to a series of radio buttons. Renders a `<div>` element.
 
-<Reference component="RadioGroup" />
-<Reference component="Radio" parts="Root, Indicator" />
+<TypesRadioGroup />
+
+import { TypesRadio } from './types';
+
+### Root
+
+<TypesRadio.Root />
+
+### Indicator
+
+<TypesRadio.Indicator />
 
 export const metadata = {
   keywords: [

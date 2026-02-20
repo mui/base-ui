@@ -197,7 +197,7 @@ export interface AccordionRootProps<Value = any> extends BaseUIComponentProps<
    */
   disabled?: boolean | undefined;
   /**
-   * Allows the browser’s built-in page search to find and expand the panel contents.
+   * Allows the browser's built-in page search to find and expand the panel contents.
    *
    * Overrides the `keepMounted` prop and uses `hidden="until-found"`
    * to hide the element without removing it from the DOM.

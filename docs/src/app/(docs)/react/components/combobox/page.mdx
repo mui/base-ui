@@ -181,59 +181,117 @@ import { DemoComboboxVirtualized } from './demos/virtualized';
 
 ## API reference
 
-<Reference
-  component="Combobox"
-  parts="Root, Value, Icon, Input, Clear, Trigger, Chips, Chip, ChipRemove, List, Portal, Backdrop, Positioner, Popup, Arrow, Status, Empty, Collection, Row, Item, ItemIndicator, Group, GroupLabel, Separator"
-/>
+import { TypesCombobox } from './types';
 
-## useFilter
+### Root
+
+<TypesCombobox.Root />
+
+### Value
+
+<TypesCombobox.Value />
+
+### Icon
+
+<TypesCombobox.Icon />
+
+### Input
+
+<TypesCombobox.Input />
+
+### Clear
+
+<TypesCombobox.Clear />
+
+### Trigger
+
+<TypesCombobox.Trigger />
+
+### Chips
+
+<TypesCombobox.Chips />
+
+### Chip
+
+<TypesCombobox.Chip />
+
+### ChipRemove
+
+<TypesCombobox.ChipRemove />
+
+### List
+
+<TypesCombobox.List />
+
+### Portal
+
+<TypesCombobox.Portal />
+
+### Backdrop
+
+<TypesCombobox.Backdrop />
+
+### Positioner
+
+<TypesCombobox.Positioner />
+
+### Popup
+
+<TypesCombobox.Popup />
+
+### Arrow
+
+<TypesCombobox.Arrow />
+
+### Status
+
+<TypesCombobox.Status />
+
+### Empty
+
+<TypesCombobox.Empty />
+
+### Collection
+
+<TypesCombobox.Collection />
+
+### Row
+
+<TypesCombobox.Row />
+
+### Item
+
+<TypesCombobox.Item />
+
+### ItemIndicator
+
+<TypesCombobox.ItemIndicator />
+
+### Group
+
+<TypesCombobox.Group />
+
+### GroupLabel
+
+<TypesCombobox.GroupLabel />
+
+### Separator
+
+<TypesCombobox.Separator />
+
+### useFilter
 
 Matches items against a query using `Intl.Collator` for robust string matching.
 This hook is used when externally filtering items.
 Pass the result to the `filter` prop of `<Combobox.Root>`.
 
-### Input parameters
+<TypesCombobox.useFilter hideDescription />
 
-Accepts all `Intl.CollatorOptions`, plus the following options:
+### useFilteredItems
 
-<PropsReferenceTable
-  data={{
-    locale: {
-      type: 'Intl.LocalesArgument',
-      description: 'The locale to use for string comparison.',
-    },
-    multiple: {
-      type: 'boolean',
-      description: 'Whether the combobox is in multiple selection mode.',
-      default: 'false',
-    },
-    value: {
-      type: 'any',
-      description:
-        'The current value of the combobox. For single selection, pass this so all items are visible when the query is empty or matches the selection.',
-    },
-  }}
-/>
+Returns the internally filtered items when called inside `<Combobox.Root>`.
 
-### Return value
-
-<PropsReferenceTable
-  type="return"
-  data={{
-    contains: {
-      type: '(itemValue: any, query: string, itemToString?: (itemValue) => string) => boolean',
-      description: 'Returns whether the item matches the query anywhere.',
-    },
-    startsWith: {
-      type: '(itemValue: any, query: string, itemToString?: (itemValue) => string) => boolean',
-      description: 'Returns whether the item starts with the query.',
-    },
-    endsWith: {
-      type: '(itemValue: any, query: string, itemToString?: (itemValue) => string) => boolean',
-      description: 'Returns whether the item ends with the query.',
-    },
-  }}
-/>
+<TypesCombobox.useFilteredItems hideDescription />
 
 export const metadata = {
   keywords: [
@@ -255,19 +313,3 @@ export const metadata = {
     'Base UI',
   ],
 };
-
-## useFilteredItems
-
-Returns the internally filtered items when called inside `<Combobox.Root>`.
-
-### Return value
-
-<PropsReferenceTable
-  type="return"
-  data={{
-    filteredItems: {
-      type: 'any[]',
-      description: 'The filtered items.',
-    },
-  }}
-/>

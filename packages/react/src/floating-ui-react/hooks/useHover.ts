@@ -80,7 +80,7 @@ export interface UseHoverProps {
    */
   handleClose?: HandleClose | null | undefined;
   /**
-   * Waits until the user’s cursor is at “rest” over the reference element
+   * Waits until the user's cursor is at “rest” over the reference element
    * before changing the `open` state.
    * @default 0
    */

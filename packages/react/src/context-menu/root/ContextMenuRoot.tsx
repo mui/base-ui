@@ -9,7 +9,7 @@ import type { MenuRoot } from '../../menu/root/MenuRoot';
 
 /**
  * A component that creates a context menu activated by right clicking or long pressing.
- * Doesn’t render its own HTML element.
+ * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Context Menu](https://base-ui.com/react/components/context-menu)
  */
@@ -66,6 +66,7 @@ export interface ContextMenuRootProps extends Omit<
     | undefined;
 }
 
+export type ContextMenuRootActions = MenuRoot.Actions;
 export type ContextMenuRootChangeEventReason = MenuRoot.ChangeEventReason;
 export type ContextMenuRootChangeEventDetails =
   BaseUIChangeEventDetails<ContextMenuRoot.ChangeEventReason>;
@@ -73,6 +74,7 @@ export type ContextMenuRootChangeEventDetails =
 export namespace ContextMenuRoot {
   export type State = ContextMenuRootState;
   export type Props = ContextMenuRootProps;
+  export type Actions = ContextMenuRootActions;
   export type ChangeEventReason = ContextMenuRootChangeEventReason;
   export type ChangeEventDetails = ContextMenuRootChangeEventDetails;
 }

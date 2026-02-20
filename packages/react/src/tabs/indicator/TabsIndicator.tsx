@@ -194,7 +194,7 @@ export interface TabsIndicatorState extends TabsRoot.State {
 export interface TabsIndicatorProps extends BaseUIComponentProps<'span', TabsIndicator.State> {
   /**
    * Whether to render itself before React hydrates.
-   * This minimizes the time that the indicator isn’t visible after server-side rendering.
+   * This minimizes the time that the indicator isn't visible after server-side rendering.
    * @default false
    */
   renderBeforeHydration?: boolean | undefined;

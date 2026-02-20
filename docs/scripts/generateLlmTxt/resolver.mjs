@@ -22,9 +22,14 @@ export function resolveMdLink(link, { urlPath, urlsWithMdVersion }) {
     return link;
   }
 
+  // If no urlPath is provided, return the link as-is
+  if (!urlPath) {
+    return link;
+  }
+
   const resolvedPath = new URL(link, new URL(urlPath, 'https://example.com')).pathname;
 
-  if (urlsWithMdVersion.has(resolvedPath)) {
+  if (urlsWithMdVersion?.has(resolvedPath)) {
     return `${resolvedPath}.md`;
   }
 

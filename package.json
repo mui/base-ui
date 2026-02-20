@@ -12,7 +12,7 @@
     "release:changelog:docs": "FORMAT=docs code-infra generate-changelog",
     "release:publish": "code-infra publish --github-release",
     "release:publish:dry-run": "code-infra publish --github-release --dry-run ",
-    "docs:api": "pnpm --filter api-docs-builder start",
+    "docs:api": "echo -e '\\e[31m run `pnpm docs:validate --types` to update types.md files.\n\n\\e[0;34m Also updates when running `pnpm docs:build` or viewing the page with `pnpm docs:dev`\\e[0m'",
     "docs:build": "pnpm --filter docs generate-llms && pnpm --filter docs build && pnpm playground:build:export",
     "docs:deploy": "pnpm --filter docs run deploy",
     "docs:dev": "pnpm --filter docs dev",

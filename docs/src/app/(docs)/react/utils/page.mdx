@@ -24,6 +24,9 @@ Configures CSP-related behavior for inline tags rendered by Base UI components.
   - Disable inline style elements
   - Inline style attributes
   - API reference
+- Exports:
+  - CSPProvider
+    - Props: children, disableStyleElements, nonce
 
 </details>
 
@@ -41,8 +44,13 @@ Enables RTL behavior for Base UI components.
 - Sections:
   - Anatomy
   - API reference
+    - DirectionProvider
+    - useDirection
+  - Additional Types
+- Exports:
+  - DirectionProvider
+    - Props: children, direction
   - useDirection
-    - Return value
 
 </details>
 
@@ -61,8 +69,16 @@ A utility to merge multiple sets of React props.
     - Preventing Base UI's default behavior
   - Passing a function instead of an object
   - API reference
-    - mergeProps
     - mergePropsN
+- Exports:
+  - makeEventPreventable
+    - Parameters: event
+  - mergeClassNames
+    - Parameters: ourClassName, theirClassName
+  - mergeProps
+    - Parameters: a, b, c, d, e
+  - mergePropsN
+    - Parameters: props
 
 </details>
 
@@ -84,8 +100,10 @@ Hook for enabling a render prop in custom components.
   - TypeScript
   - Migrating from Radix UI
   - API reference
-    - Input parameters
-    - Return value
+- Exports:
+  - ComponentRenderFn
+  - useRender
+    - Parameters: params
 
 </details>
 

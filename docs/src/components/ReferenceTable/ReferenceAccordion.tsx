@@ -1,182 +1,69 @@
 import * as React from 'react';
 import clsx from 'clsx';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
-import { createMdxComponent } from 'docs/src/mdx/createMdxComponent';
-import { inlineMdxComponents, mdxComponents } from 'docs/src/mdx-components';
-import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting';
+import { ProcessedProperty } from '@mui/internal-docs-infra/useTypes';
 import { Link } from 'docs/src/components/Link';
 import * as Accordion from '../Accordion';
 import * as DescriptionList from '../DescriptionList';
-import type { PropDef as BasePropDef } from './types';
-import { TableCode, type TableCodeProps } from '../TableCode';
+import { TableCode } from '../TableCode';
 import * as ReferenceTableTooltip from './ReferenceTableTooltip';
 
-function ExpandedCode(props: React.ComponentProps<'code'>) {
-  const { className = '', ...other } = props;
-  const cleaned = className
-    .split(' ')
-    .filter((c) => c !== 'Code')
-    .join(' ');
-  return <code {...other} className={cleaned} />;
-}
-
-function ExpandedPre(props: React.ComponentProps<'pre'>) {
-  return (
-    <Accordion.Scrollable tag="div" gradientColor="var(--color-gray-50)">
-      <pre {...props} className="text-xs p-0 m-0" style={{ backgroundColor: undefined }} />
-    </Accordion.Scrollable>
-  );
-}
-
-interface PropDef extends BasePropDef {
-  detailedType?: string;
-  example?: string;
+/** Workaround for strange Server -> Client Component behavior */
+function TableDefault({ children }: { children: React.ReactNode }) {
+  return <React.Fragment>{children}</React.Fragment>;
 }
 
 interface Props extends React.ComponentPropsWithoutRef<any> {
-  data: Record<string, PropDef>;
-  type?: 'props' | 'return';
+  data: Record<string, ProcessedProperty>;
   name: string;
-  // When reusing a component's reference for another component,
-  // replace occurrences of "renameFrom.*" with "renameTo.*" in types
-  renameFrom?: string;
-  renameTo?: string;
   nameLabel?: string;
   caption?: string;
+  /** Hide the required indicator (red star) - useful for return values where "required" doesn't apply */
+  hideRequired?: boolean;
+  /** Hide the default value column - useful for return values that don't have defaults */
+  hideDefault?: boolean;
 }
 
-function getShortPropType(name: string, type: string | undefined) {
-  if (/^(on|get)[A-Z].*/.test(name)) {
-    return { type: 'function', detailedType: true };
-  }
-
-  if (type === undefined || type === null) {
-    return { type: String(type), detailedType: false };
-  }
-
-  if (name === 'className') {
-    return { type: 'string | function', detailedType: true };
-  }
-
-  if (name === 'style') {
-    return { type: 'React.CSSProperties | function', detailedType: true };
-  }
-
-  if (name === 'render') {
-    return { type: 'ReactElement | function', detailedType: true };
-  }
-
-  if (
-    name.endsWith('Ref') ||
-    name === 'children' ||
-    type === 'boolean' ||
-    type === 'string' ||
-    type === 'number' ||
-    type.indexOf(' | ') === -1 ||
-    (type.split('|').length < 3 && type.length < 30)
-  ) {
-    return { type, detailedType: false };
-  }
-
-  return { type: 'Union', detailedType: true };
-}
-
-function escapeRegExp(input: string) {
-  return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-function replaceComponentPrefix(input: string | undefined, from?: string, to?: string) {
-  if (!input || !from || !to) {
-    return input ?? '';
-  }
-  const pattern = new RegExp(`\\b${escapeRegExp(from)}(?=\\.)`, 'g');
-  return input.replace(pattern, to);
-}
-
-export async function ReferenceAccordion({
+export function ReferenceAccordion({
   data,
   name: partName,
-  renameFrom,
-  renameTo,
   nameLabel = 'Prop',
   caption = 'Component props table',
+  hideRequired = false,
+  hideDefault = false,
   ...props
 }: Props) {
   const captionId = `${partName}-caption`;
+
+  const triggerGridLayout = hideDefault ? TRIGGER_GRID_LAYOUT_NO_DEFAULT : TRIGGER_GRID_LAYOUT;
+  const panelGridLayout = hideDefault ? PANEL_GRID_LAYOUT_NO_DEFAULT : PANEL_GRID_LAYOUT;
 
   return (
     <Accordion.Root aria-describedby={captionId} {...props}>
       <span id={captionId} style={visuallyHidden} aria-hidden>
         {caption}
       </span>
-      <Accordion.HeaderRow className={clsx('grid', TRIGGER_GRID_LAYOUT)}>
+      <Accordion.HeaderRow className={clsx('grid', triggerGridLayout)}>
         <Accordion.HeaderCell>{nameLabel}</Accordion.HeaderCell>
         <Accordion.HeaderCell className="max-xs:hidden">Type</Accordion.HeaderCell>
-        <Accordion.HeaderCell className="max-md:hidden">Default</Accordion.HeaderCell>
+        {!hideDefault && (
+          <Accordion.HeaderCell className="max-md:hidden">Default</Accordion.HeaderCell>
+        )}
         <Accordion.HeaderCell className="max-md:hidden w-10" />
       </Accordion.HeaderRow>
-      {Object.keys(data).map(async (name, index) => {
+      {Object.keys(data).map((name, index) => {
         const prop = data[name];
 
-        const displayType = replaceComponentPrefix(prop.type, renameFrom, renameTo);
-        const detailedDisplayType = replaceComponentPrefix(
-          prop.detailedType ?? prop.type,
-          renameFrom,
-          renameTo,
-        );
-
-        const PropType = await createMdxComponent(`\`${displayType}\``, {
-          rehypePlugins: rehypeSyntaxHighlighting,
-          useMDXComponents: () => ({ ...inlineMdxComponents, code: TableCode }),
-        });
-
-        const PropDetailedType = await createMdxComponent(
-          `\`\`\`ts\n${detailedDisplayType}\n\`\`\``,
-          {
-            rehypePlugins: rehypeSyntaxHighlighting,
-            useMDXComponents: () => ({
-              ...inlineMdxComponents,
-              figure: 'figure',
-              pre: ExpandedPre,
-              code: ExpandedCode,
-            }),
-          },
-        );
-
-        const { type: shortPropTypeName, detailedType } = getShortPropType(name, displayType);
-        const hasExpandedType = Boolean(prop.detailedType);
-
-        const ShortPropType = await createMdxComponent(`\`${shortPropTypeName}\``, {
-          rehypePlugins: rehypeSyntaxHighlighting,
-          useMDXComponents: () => ({
-            ...inlineMdxComponents,
-            code: (codeProps: TableCodeProps) => (
-              <TableCode {...codeProps} printWidth={name === 'children' ? 999 : undefined} />
-            ),
-          }),
-        });
-
-        const PropDefault = await createMdxComponent(`\`${prop.default}\``, {
-          rehypePlugins: rehypeSyntaxHighlighting,
-          useMDXComponents: () => ({ ...inlineMdxComponents, code: TableCode }),
-        });
-
-        const PropDescription = prop.description
-          ? await createMdxComponent(prop.description, {
-              rehypePlugins: rehypeSyntaxHighlighting,
-              useMDXComponents: () => ({ ...mdxComponents, p: 'p' }),
-            })
-          : null;
-
-        const ExampleSnippet = prop.example
-          ? await createMdxComponent(prop.example, {
-              rehypePlugins: rehypeSyntaxHighlighting,
-              useMDXComponents: () => inlineMdxComponents,
-            })
-          : null;
+        // Use shortType if available (set by useTypes), otherwise use the full type
+        const displayShortType = prop.shortType ?? prop.type;
+        const displayDetailedType = prop.detailedType ?? prop.type;
+        const hasExpandedType = Boolean(prop.shortType || prop.detailedType);
 
         // anchor hash for each prop
         const id = `${partName}-${name}`;
+
+        const shortTypeText = prop.shortTypeText ?? 'type';
+        const defaultText = prop.defaultText;
 
         return (
           <Accordion.Item
@@ -188,36 +75,44 @@ export async function ReferenceAccordion({
             <Accordion.Trigger
               id={id}
               index={index}
-              aria-label={`${nameLabel}: ${name},${prop.required ? ' required,' : ''} type: ${shortPropTypeName} ${prop.default !== undefined ? `(default: ${prop.default})` : ''}`}
-              className={clsx('min-h-min scroll-mt-12 p-0 md:scroll-mt-0', TRIGGER_GRID_LAYOUT)}
+              aria-label={`${nameLabel}: ${name},${!hideRequired && prop.required ? ' required,' : ''} type: ${shortTypeText} ${defaultText !== undefined ? `(default: ${defaultText})` : ''}`}
+              className={clsx('min-h-min scroll-mt-12 p-0 md:scroll-mt-0', triggerGridLayout)}
             >
               <Accordion.Scrollable className="px-3">
                 <TableCode className="text-navy whitespace-nowrap">
                   {name}
-                  {prop.required ? <sup className="top-[-0.3em] text-xs text-red-800">*</sup> : ''}
+                  {!hideRequired && prop.required ? (
+                    <sup className="top-[-0.3em] text-xs text-red-800">*</sup>
+                  ) : (
+                    ''
+                  )}
                 </TableCode>
               </Accordion.Scrollable>
               {prop.type && (
                 <Accordion.Scrollable className="px-3 flex items-baseline text-sm leading-none break-keep whitespace-nowrap max-xs:hidden">
-                  {hasExpandedType || detailedType ? (
+                  {hasExpandedType ? (
                     <ReferenceTableTooltip.Root disableHoverablePopup>
-                      <ReferenceTableTooltip.Trigger render={<ShortPropType />} delay={300} />
+                      <ReferenceTableTooltip.Trigger delay={300}>
+                        {displayShortType}
+                      </ReferenceTableTooltip.Trigger>
                       <ReferenceTableTooltip.Popup>
-                        {hasExpandedType ? <PropDetailedType /> : <PropType />}
+                        {displayDetailedType}
                       </ReferenceTableTooltip.Popup>
                     </ReferenceTableTooltip.Root>
                   ) : (
-                    <ShortPropType />
+                    displayShortType
                   )}
                 </Accordion.Scrollable>
               )}
-              <Accordion.Scrollable className="max-md:hidden break-keep whitespace-nowrap px-3">
-                {prop.required || prop.default === undefined ? (
-                  <TableCode className="text-(--syntax-nullish)">—</TableCode>
-                ) : (
-                  <PropDefault />
-                )}
-              </Accordion.Scrollable>
+              {!hideDefault && (
+                <Accordion.Scrollable className="max-md:hidden break-keep whitespace-nowrap px-3">
+                  {prop.required || prop.default === undefined ? (
+                    <TableCode className="text-(--syntax-nullish)">—</TableCode>
+                  ) : (
+                    <TableDefault>{prop.default}</TableDefault>
+                  )}
+                </Accordion.Scrollable>
+              )}
               <span className="flex justify-center max-xs:ml-auto max-xs:mr-3">
                 <svg
                   className="AccordionIcon translate-y-px"
@@ -234,7 +129,7 @@ export async function ReferenceAccordion({
             <Accordion.Panel>
               <Accordion.Content>
                 <DescriptionList.Root
-                  className={clsx('text-gray-600 max-xs:py-3', PANEL_GRID_LAYOUT)}
+                  className={clsx('text-gray-600 max-xs:py-3', panelGridLayout)}
                   aria-label="Info"
                 >
                   <DescriptionList.Item>
@@ -245,34 +140,32 @@ export async function ReferenceAccordion({
                       </Link>
                     </DescriptionList.Details>
                   </DescriptionList.Item>
-                  {PropDescription != null && (
+
+                  {prop.description && (
                     <DescriptionList.Item>
                       <DescriptionList.Term separator>Description</DescriptionList.Term>
                       {/* one-off override of the default mt/mb on CodeBlock.Root */}
                       <DescriptionList.Details className="[&_[role='figure']]:mt-1 [&_[role='figure']]:mb-1">
-                        <PropDescription />
+                        {prop.description}
                       </DescriptionList.Details>
                     </DescriptionList.Item>
                   )}
                   <DescriptionList.Item>
                     <DescriptionList.Term separator>Type</DescriptionList.Term>
-                    <DescriptionList.Details>
-                      <PropDetailedType />
-                    </DescriptionList.Details>
+                    <DescriptionList.Details>{displayDetailedType}</DescriptionList.Details>
                   </DescriptionList.Item>
-                  {prop.default !== undefined && (
+                  {!hideDefault && prop.default !== undefined && (
                     <DescriptionList.Item>
                       <DescriptionList.Term separator>Default</DescriptionList.Term>
-                      <DescriptionList.Details>
-                        <PropDefault />
-                      </DescriptionList.Details>
+                      <DescriptionList.Details>{prop.default}</DescriptionList.Details>
                     </DescriptionList.Item>
                   )}
-                  {ExampleSnippet != null && (
+
+                  {prop.example && (
                     <DescriptionList.Item>
                       <DescriptionList.Term separator>Example</DescriptionList.Term>
                       <DescriptionList.Details className="*:my-0">
-                        <ExampleSnippet />
+                        {prop.example}
                       </DescriptionList.Details>
                     </DescriptionList.Item>
                   )}
@@ -292,10 +185,23 @@ const TRIGGER_GRID_LAYOUT =
   'sm:grid-cols-[theme(spacing.56)_1fr_theme(spacing.10)] ' +
   'md:grid-cols-[5fr_7fr_4.5fr_theme(spacing.10)] ';
 
+const TRIGGER_GRID_LAYOUT_NO_DEFAULT =
+  'xs:grid ' +
+  'xs:grid-cols-[theme(spacing.48)_1fr_theme(spacing.10)] ' +
+  'sm:grid-cols-[theme(spacing.56)_1fr_theme(spacing.10)] ' +
+  'md:grid-cols-[5fr_11.5fr_theme(spacing.10)] ';
+
 const PANEL_GRID_LAYOUT =
   'max-xs:flex max-xs:flex-col ' +
   'min-xs:gap-0 ' +
   'xs:grid-cols-[theme(spacing.48)_1fr_theme(spacing.10)] ' +
   'sm:grid-cols-[theme(spacing.56)_1fr_theme(spacing.10)] ' +
   // 5fr+11.5fr aligns with 5fr+7fr+4.5fr above
+  'md:grid-cols-[5fr_11.5fr_theme(spacing.10)] ';
+
+const PANEL_GRID_LAYOUT_NO_DEFAULT =
+  'max-xs:flex max-xs:flex-col ' +
+  'min-xs:gap-0 ' +
+  'xs:grid-cols-[theme(spacing.48)_1fr_theme(spacing.10)] ' +
+  'sm:grid-cols-[theme(spacing.56)_1fr_theme(spacing.10)] ' +
   'md:grid-cols-[5fr_11.5fr_theme(spacing.10)] ';

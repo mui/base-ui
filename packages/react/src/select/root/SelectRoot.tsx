@@ -39,7 +39,7 @@ import { mergeProps } from '../../merge-props';
 
 /**
  * Groups all parts of the select.
- * Doesn’t render its own HTML element.
+ * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
@@ -701,7 +701,7 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    */
   isItemEqualToValue?: ((itemValue: Value, value: Value) => boolean) | undefined;
   /**
-   * The uncontrolled value of the select when it’s initially rendered.
+   * The uncontrolled value of the select when it's initially rendered.
    *
    * To render a controlled select, use the `value` prop instead.
    */

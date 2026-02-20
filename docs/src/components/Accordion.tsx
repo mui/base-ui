@@ -114,11 +114,14 @@ export function Item({
   gaParams?: Record<string, string | number | boolean>;
 }) {
   const [open, setOpen] = React.useState<boolean>(false);
+  const detailsRef = React.useRef<HTMLDetailsElement>(null);
   const ga = useGoogleAnalytics();
+
   // in Chrome, the <details> opens automatically when the hash part of a URL
   // matches the `id` on <summary> but needs to be manually handled for Safari
   // and Firefox
-  const handleRef = useStableCallback((element: HTMLDetailsElement | null) => {
+  const checkHash = useStableCallback(() => {
+    const element = detailsRef.current;
     if (element) {
       const trigger = element.querySelector<HTMLElement>('summary');
       const triggerId = trigger?.getAttribute('id');
@@ -130,10 +133,18 @@ export function Item({
     }
   });
 
+  React.useEffect(() => {
+    checkHash();
+    window.addEventListener('hashchange', checkHash);
+    return () => {
+      window.removeEventListener('hashchange', checkHash);
+    };
+  }, [checkHash]);
+
   return (
     <details
       {...props}
-      ref={handleRef}
+      ref={detailsRef}
       open={open || undefined}
       className={clsx('AccordionItem', props.className)}
       onToggle={(event) => {

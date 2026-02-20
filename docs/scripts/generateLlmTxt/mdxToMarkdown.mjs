@@ -11,12 +11,12 @@ import remarkMdx from 'remark-mdx';
 import remarkGfm from 'remark-gfm';
 import remarkStringify from 'remark-stringify';
 import { visit } from 'unist-util-visit';
-import { processReference } from './referenceProcessor.mjs';
 import { processDemo } from './demoProcessor.mjs';
 import { processPropsReferenceTable } from './propsReferenceTableProcessor.mjs';
 import { processReleaseTimeline } from './releaseTimelineProcessor.mjs';
 import * as mdx from './mdxNodeHelpers.mjs';
 import { resolveMdLinks } from './resolver.mjs';
+import { processTypedoc } from './typedocProcessor.mjs';
 
 /**
  * Plugin to extract metadata from the MDX content
@@ -76,6 +76,7 @@ function transformJsx() {
         'mdxFlowExpression',
         'mdxTextExpression',
         'mdxJsxTextElement',
+        'heading',
       ],
       (node, index, parent) => {
         if (node.type === 'mdxjsEsm') {
@@ -83,8 +84,36 @@ function transformJsx() {
             const estree = node.data.estree;
             if (estree.body[0].type === 'ImportDeclaration') {
               const importPath = estree.body[0].source.value;
-              // Only collect demo imports (those starting with ./demos/)
-              if (importPath.startsWith('./demos/')) {
+
+              // Determine if this is a types import or demo import
+              const specifiers = estree.body[0].specifiers || [];
+              const isTypesImport = specifiers.some((spec) =>
+                spec.imported?.name?.startsWith('Type'),
+              );
+              const isDemoImport = specifiers.some((spec) =>
+                spec.imported?.name?.startsWith('Demo'),
+              );
+
+              if (isTypesImport) {
+                // Mark subsequent h3+ headings for removal until we hit an h2 or lower
+                for (let i = index + 1; i < parent.children.length; i += 1) {
+                  const nextNode = parent.children[i];
+                  if (nextNode.type === 'heading') {
+                    if (nextNode.depth >= 3) {
+                      // Remove h3 headings following the types import
+                      nextNode.data = nextNode.data || {};
+                      nextNode.data.remove = true;
+                    } else {
+                      break;
+                    }
+                  }
+                }
+
+                const processedContent = processTypedoc(node, file.path || '', importPath);
+                // Replace the import with the generated content
+                parent.children.splice(index, 1, ...processedContent);
+              } else if (isDemoImport) {
+                // Collect demos for parallel processing later
                 demosToProcess.push({
                   index,
                   parent,
@@ -95,6 +124,7 @@ function transformJsx() {
                 parent.children.splice(index, 1);
                 return [visit.SKIP, index];
               }
+
               return visit.CONTINUE;
             }
             if (estree.body[0].type === 'ExportNamedDeclaration') {
@@ -112,6 +142,20 @@ function transformJsx() {
           }
         }
 
+        if (node.type === 'heading') {
+          if (node.data?.remove) {
+            parent.children.splice(index, 1);
+            return [visit.SKIP, index];
+          }
+          return visit.CONTINUE;
+        }
+
+        if (node.name?.startsWith('Type')) {
+          // Remove Type components - they are handled by the import statement
+          parent.children.splice(index, 1);
+          return [visit.SKIP, index];
+        }
+
         if (node.name?.startsWith('Demo')) {
           // Remove Demo components - they are handled by the import statement
           parent.children.splice(index, 1);
@@ -120,16 +164,6 @@ function transformJsx() {
 
         // Process different component types
         switch (node.name) {
-          case 'Reference': {
-            // Process the reference component using our dedicated processor
-            const tables = processReference(node, parent, index);
-
-            // Replace the reference component with the generated tables
-            parent.children.splice(index, 1, ...tables);
-
-            return visit.CONTINUE;
-          }
-
           case 'PropsReferenceTable': {
             // Process the PropsReferenceTable component using our dedicated processor
             const tables = processPropsReferenceTable(node);

@@ -55,19 +55,24 @@ A set of collapsible panels with headings.
   - Examples
     - Open multiple panels
   - API reference
+    - Root
+    - Item
+    - Header
+    - Trigger
+    - Panel
 - Exports:
   - Accordion - Root
     - Props: className, defaultValue, disabled, hiddenUntilFound, keepMounted, loopFocus, multiple, onValueChange, orientation, render, style, value
     - Data Attributes: data-disabled, data-orientation
+  - Accordion - Trigger
+    - Props: className, nativeButton, render, style
+    - Data Attributes: data-disabled, data-panel-open
   - Accordion - Item
     - Props: className, disabled, onOpenChange, render, style, value
     - Data Attributes: data-disabled, data-index, data-open
   - Accordion - Header
     - Props: className, render, style
     - Data Attributes: data-disabled, data-index, data-open
-  - Accordion - Trigger
-    - Props: className, nativeButton, render, style
-    - Data Attributes: data-disabled, data-panel-open
   - Accordion - Panel
     - Props: className, hiddenUntilFound, keepMounted, render, style
     - Data Attributes: data-disabled, data-ending-style, data-index, data-open, data-orientation, data-starting-style
@@ -95,31 +100,43 @@ A dialog that requires a user response to proceed.
     - Multiple triggers
     - Controlled mode with multiple triggers
   - API reference
+    - Root
+    - Trigger
+    - Portal
+    - Backdrop
+    - Viewport
+    - Popup
+    - Title
+    - Description
+    - Close
+    - createHandle
+    - Handle
 - Exports:
   - Alert Dialog - Root
     - Props: actionsRef, children, defaultOpen, defaultTriggerId, handle, onOpenChange, onOpenChangeComplete, open, triggerId
+  - Alert Dialog - Trigger
+    - Props: className, handle, id, nativeButton, payload, render, style
+    - Data Attributes: data-disabled, data-popup-open
+  - Alert Dialog - Portal
+    - Props: className, container, keepMounted, render, style
   - Alert Dialog - Backdrop
     - Props: className, forceRender, render, style
     - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
-  - Alert Dialog - Close
-    - Props: className, nativeButton, render, style
-    - Data Attributes: data-disabled
-  - Alert Dialog - Description
-    - Props: className, render, style
   - Alert Dialog - Popup
     - Props: className, finalFocus, initialFocus, render, style
     - Data Attributes: data-closed, data-ending-style, data-nested, data-nested-dialog-open, data-open, data-starting-style
     - CSS Variables: --nested-dialogs
-  - Alert Dialog - Portal
-    - Props: className, container, keepMounted, render, style
   - Alert Dialog - Title
     - Props: className, render, style
-  - Alert Dialog - Trigger
-    - Props: className, handle, id, nativeButton, payload, render, style
-    - Data Attributes: data-disabled, data-popup-open
+  - Alert Dialog - Description
+    - Props: className, render, style
+  - Alert Dialog - Close
+    - Props: className, nativeButton, render, style
+    - Data Attributes: data-disabled
   - Alert Dialog - Viewport
     - Props: className, render, style
     - Data Attributes: data-closed, data-ending-style, data-nested, data-nested-dialog-open, data-open, data-starting-style
+  - AlertDialog.createHandle
 
 </details>
 
@@ -149,16 +166,80 @@ An input that suggests options as you type.
     - Grid layout
     - Virtualized
   - API reference
-  - useFilter
-    - Input parameters
-    - Return value
-  - useFilteredItems
-    - Return value
+    - Root
+    - Value
+    - Input
+    - Trigger
+    - Icon
+    - Clear
+    - List
+    - Portal
+    - Backdrop
+    - Positioner
+    - Popup
+    - Arrow
+    - Status
+    - Empty
+    - Collection
+    - Row
+    - Item
+    - Group
+    - GroupLabel
+    - Separator
+    - useFilter
+    - useFilteredItems
 - Exports:
   - Autocomplete - Root
     - Props: actionsRef, autoHighlight, children, defaultOpen, defaultValue, disabled, filter, filteredItems, grid, highlightItemOnHover, id, inline, inputRef, itemToStringValue, items, keepHighlight, limit, locale, loopFocus, modal, mode, name, onItemHighlighted, onOpenChange, onOpenChangeComplete, onValueChange, open, openOnInputClick, readOnly, required, submitOnItemClick, value, virtualized
+  - Autocomplete - Trigger
+    - Props: className, disabled, nativeButton, render, style
+    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-placeholder, data-popup-open, data-popup-side, data-pressed, data-readonly, data-required, data-touched, data-valid
   - Autocomplete - Value
     - Props: children
+  - Autocomplete - Input
+    - Props: className, disabled, render, style
+    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-popup-open, data-popup-side, data-pressed, data-readonly, data-required, data-touched, data-valid
+  - Autocomplete - Icon
+    - Props: className, render, style
+  - Autocomplete - Clear
+    - Props: className, disabled, keepMounted, nativeButton, render, style
+  - Autocomplete - List
+    - Props: children, className, render, style
+  - Autocomplete - Portal
+    - Props: className, container, keepMounted, render, style
+  - Autocomplete - Backdrop
+    - Props: className, render, style
+    - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
+  - Autocomplete - Positioner
+    - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style
+    - Data Attributes: data-align, data-anchor-hidden, data-closed, data-empty, data-open, data-side
+    - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --transform-origin
+  - Autocomplete - Popup
+    - Props: className, finalFocus, initialFocus, render, style
+    - Data Attributes: data-align, data-closed, data-empty, data-ending-style, data-instant, data-open, data-side, data-starting-style
+  - Autocomplete - Arrow
+    - Props: className, render, style
+    - Data Attributes: data-align, data-closed, data-open, data-side, data-uncentered
+  - Autocomplete - Item
+    - Props: children, className, disabled, index, nativeButton, onClick, render, style, value
+    - Data Attributes: data-disabled, data-highlighted, data-selected
+  - Autocomplete - Group
+    - Props: className, items, render, style
+  - Autocomplete - GroupLabel
+    - Props: className, render, style
+  - Autocomplete - Separator
+    - Props: className, orientation, render, style
+  - Autocomplete - Status
+    - Props: className, render, style
+  - Autocomplete - Empty
+    - Props: className, render, style
+  - Autocomplete - Collection
+    - Props: children
+  - Autocomplete - Row
+    - Props: className, render, style
+  - Autocomplete.useFilter
+    - Parameters: options
+  - Autocomplete.useFilteredItems
 
 </details>
 
@@ -176,6 +257,9 @@ An easily stylable avatar component.
 - Sections:
   - Anatomy
   - API reference
+    - Root
+    - Image
+    - Fallback
 - Exports:
   - Avatar - Root
     - Props: className, render, style
@@ -230,6 +314,8 @@ An easily stylable checkbox component.
     - Labeling a checkbox
     - Form integration
   - API reference
+    - Root
+    - Indicator
 - Exports:
   - Checkbox - Root
     - Props: checked, className, defaultChecked, disabled, id, indeterminate, inputRef, name, nativeButton, onCheckedChange, parent, readOnly, render, required, style, uncheckedValue, value
@@ -281,6 +367,9 @@ A collapsible panel controlled by a button.
 - Sections:
   - Anatomy
   - API reference
+    - Root
+    - Trigger
+    - Panel
 - Exports:
   - Collapsible - Root
     - Props: className, defaultOpen, disabled, onOpenChange, open, render, style
@@ -319,53 +408,79 @@ An input combined with a list of predefined items to select.
     - Creatable
     - Virtualized
   - API reference
-  - useFilter
-    - Input parameters
-    - Return value
-  - useFilteredItems
-    - Return value
+    - Root
+    - Value
+    - Icon
+    - Input
+    - Clear
+    - Trigger
+    - Chips
+    - Chip
+    - ChipRemove
+    - List
+    - Portal
+    - Backdrop
+    - Positioner
+    - Popup
+    - Arrow
+    - Status
+    - Empty
+    - Collection
+    - Row
+    - Item
+    - ItemIndicator
+    - Group
+    - GroupLabel
+    - Separator
+    - useFilter
+    - useFilteredItems
 - Exports:
   - Combobox - Root
     - Props: actionsRef, autoComplete, autoHighlight, children, defaultInputValue, defaultOpen, defaultValue, disabled, filter, filteredItems, grid, highlightItemOnHover, id, inline, inputRef, inputValue, isItemEqualToValue, itemToStringLabel, itemToStringValue, items, limit, locale, loopFocus, modal, multiple, name, onInputValueChange, onItemHighlighted, onOpenChange, onOpenChangeComplete, onValueChange, open, openOnInputClick, readOnly, required, value, virtualized
   - Combobox - Trigger
     - Props: className, disabled, nativeButton, render, style
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-placeholder, data-popup-open, data-popup-side, data-pressed, data-readonly, data-required, data-touched, data-valid
+  - Combobox - Value
+    - Props: children, placeholder
   - Combobox - Input
     - Props: className, disabled, render, style
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-popup-open, data-popup-side, data-pressed, data-readonly, data-required, data-touched, data-valid
-  - Combobox - Popup
-    - Props: className, finalFocus, initialFocus, render, style
-    - Data Attributes: data-align, data-closed, data-empty, data-ending-style, data-instant, data-open, data-side, data-starting-style
+  - Combobox - Icon
+    - Props: className, render, style
+  - Combobox - Clear
+    - Props: className, disabled, keepMounted, nativeButton, render, style
+  - Combobox - List
+    - Props: children, className, render, style
+  - Combobox - Portal
+    - Props: className, container, keepMounted, render, style
+  - Combobox - Backdrop
+    - Props: className, render, style
+    - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
   - Combobox - Positioner
     - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style
     - Data Attributes: data-align, data-anchor-hidden, data-closed, data-empty, data-open, data-side
     - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --transform-origin
-  - Combobox - List
-    - Props: children, className, render, style
-  - Combobox - Item
-    - Props: children, className, disabled, index, nativeButton, onClick, render, style, value
-    - Data Attributes: data-disabled, data-highlighted, data-selected
-  - Combobox - ItemIndicator
-    - Props: children, className, keepMounted, render, style
-    - Data Attributes: data-ending-style, data-starting-style
-  - Combobox - Value
-    - Props: children, placeholder
-  - Combobox - Icon
-    - Props: className, render, style
+  - Combobox - Popup
+    - Props: className, finalFocus, initialFocus, render, style
+    - Data Attributes: data-align, data-closed, data-empty, data-ending-style, data-instant, data-open, data-side, data-starting-style
   - Combobox - Arrow
     - Props: className, render, style
     - Data Attributes: data-align, data-closed, data-open, data-side, data-uncentered
-  - Combobox - Backdrop
-    - Props: className, render, style
-    - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
-  - Combobox - Portal
-    - Props: className, container, keepMounted, render, style
-  - Combobox - Empty
-    - Props: className, render, style
+  - Combobox - Item
+    - Props: children, className, disabled, index, nativeButton, onClick, render, style, value
+    - Data Attributes: data-disabled, data-highlighted, data-selected
   - Combobox - Group
     - Props: className, items, render, style
   - Combobox - GroupLabel
     - Props: className, render, style
+  - Combobox - Separator
+    - Props: className, orientation, render, style
+  - Combobox - Status
+    - Props: className, render, style
+  - Combobox - Empty
+    - Props: className, render, style
+  - Combobox - Collection
+    - Props: children
   - Combobox - Row
     - Props: className, render, style
   - Combobox - Chips
@@ -374,13 +489,12 @@ An input combined with a list of predefined items to select.
     - Props: className, render, style
   - Combobox - ChipRemove
     - Props: className, nativeButton, render, style
-  - Combobox - Clear
-    - Props: className, disabled, keepMounted, nativeButton, render, style
-    - Data Attributes: data-disabled, data-ending-style, data-popup-open, data-starting-style
-  - Combobox - Status
-    - Props: className, render, style
-  - Combobox - Collection
-    - Props: children
+  - Combobox - ItemIndicator
+    - Props: children, className, keepMounted, render, style
+    - Data Attributes: data-ending-style, data-starting-style
+  - Combobox.useFilter
+    - Parameters: options
+  - Combobox.useFilteredItems
 
 </details>
 
@@ -400,12 +514,76 @@ A menu that appears at the pointer on right click or long press.
   - Examples
     - Nested menu
   - API reference
+    - Root
+    - Trigger
+    - Portal
+    - Positioner
+    - Popup
+    - Arrow
+    - Item
+    - LinkItem
+    - SubmenuRoot
+    - SubmenuTrigger
+    - Group
+    - GroupLabel
+    - RadioGroup
+    - RadioItem
+    - RadioItemIndicator
+    - CheckboxItem
+    - CheckboxItemIndicator
+    - Separator
 - Exports:
   - Context Menu - Root
     - Props: actionsRef, children, closeParentOnEsc, defaultOpen, defaultTriggerId, disabled, handle, highlightItemOnHover, loopFocus, onOpenChange, onOpenChangeComplete, open, orientation, triggerId
   - Context Menu - Trigger
     - Props: className, render, style
     - Data Attributes: data-popup-open, data-pressed
+  - Context Menu - Portal
+    - Props: className, container, keepMounted, render, style
+  - Context Menu - Backdrop
+    - Props: className, render, style
+    - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
+  - Context Menu - Positioner
+    - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style
+    - Data Attributes: data-align, data-anchor-hidden, data-closed, data-open, data-side
+    - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --transform-origin
+  - Context Menu - Popup
+    - Props: children, className, finalFocus, render, style
+    - Data Attributes: data-align, data-closed, data-ending-style, data-instant, data-open, data-side, data-starting-style
+  - Context Menu - Arrow
+    - Props: className, render, style
+    - Data Attributes: data-align, data-closed, data-open, data-side, data-uncentered
+  - Context Menu - Item
+    - Props: className, closeOnClick, disabled, label, nativeButton, onClick, render, style
+    - Data Attributes: data-disabled, data-highlighted
+  - Context Menu - Group
+    - Props: children, className, render, style
+  - Context Menu - GroupLabel
+    - Props: className, render, style
+  - Context Menu - Separator
+    - Props: className, orientation, render, style
+  - Context Menu - SubmenuRoot
+    - Props: actionsRef, children, closeParentOnEsc, defaultOpen, defaultTriggerId, disabled, handle, highlightItemOnHover, loopFocus, onOpenChange, onOpenChangeComplete, open, orientation, triggerId
+  - Context Menu - SubmenuTrigger
+    - Props: className, closeDelay, delay, disabled, label, nativeButton, onClick, openOnHover, render, style
+    - Data Attributes: data-disabled, data-highlighted, data-popup-open
+  - Context Menu - RadioGroup
+    - Props: children, className, defaultValue, disabled, onValueChange, render, style, value
+  - Context Menu - RadioItem
+    - Props: className, closeOnClick, disabled, label, nativeButton, onClick, render, style, value
+    - Data Attributes: data-checked, data-disabled, data-highlighted, data-unchecked
+  - Context Menu - RadioItemIndicator
+    - Props: className, keepMounted, render, style
+    - Data Attributes: data-checked, data-disabled, data-ending-style, data-starting-style, data-unchecked
+  - Context Menu - CheckboxItem
+    - Props: checked, className, closeOnClick, defaultChecked, disabled, label, nativeButton, onCheckedChange, onClick, render, style
+    - Data Attributes: data-checked, data-disabled, data-highlighted, data-unchecked
+  - Context Menu - CheckboxItemIndicator
+    - Props: className, keepMounted, render, style
+    - Data Attributes: data-checked, data-disabled, data-ending-style, data-starting-style, data-unchecked
+  - Context Menu - LinkItem
+    - Props: className, closeOnClick, label, render, style
+    - Data Attributes: data-highlighted
 
 </details>
 
@@ -435,6 +613,17 @@ A popup that opens on top of the entire page.
     - Multiple triggers
     - Controlled mode with multiple triggers
   - API reference
+    - Root
+    - Trigger
+    - Portal
+    - Backdrop
+    - Viewport
+    - Popup
+    - Title
+    - Description
+    - Close
+    - createHandle
+    - Handle
 - Exports:
   - Dialog - Root
     - Props: actionsRef, children, defaultOpen, defaultTriggerId, disablePointerDismissal, handle, modal, onOpenChange, onOpenChangeComplete, open, triggerId
@@ -443,13 +632,13 @@ A popup that opens on top of the entire page.
     - Data Attributes: data-disabled, data-popup-open
   - Dialog - Portal
     - Props: className, container, keepMounted, render, style
+  - Dialog - Backdrop
+    - Props: className, forceRender, render, style
+    - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
   - Dialog - Popup
     - Props: className, finalFocus, initialFocus, render, style
     - Data Attributes: data-closed, data-ending-style, data-nested, data-nested-dialog-open, data-open, data-starting-style
     - CSS Variables: --nested-dialogs
-  - Dialog - Backdrop
-    - Props: className, forceRender, render, style
-    - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
   - Dialog - Title
     - Props: className, render, style
   - Dialog - Description
@@ -460,6 +649,7 @@ A popup that opens on top of the entire page.
   - Dialog - Viewport
     - Props: className, render, style
     - Data Attributes: data-closed, data-ending-style, data-nested, data-nested-dialog-open, data-open, data-starting-style
+  - Dialog.createHandle
 
 </details>
 
@@ -489,40 +679,53 @@ A panel that slides in from the edge of the screen.
     - Detached triggers
     - Stacking and animations
   - API reference
+    - Provider
+    - IndentBackground
+    - Indent
+    - Root
+    - Trigger
+    - Portal
+    - Backdrop
+    - Viewport
+    - Popup
+    - Title
+    - Description
+    - Close
+    - createHandle
+    - Handle
 - Exports:
   - Drawer - Root
     - Props: actionsRef, children, defaultOpen, defaultSnapPoint, defaultTriggerId, disablePointerDismissal, handle, modal, onOpenChange, onOpenChangeComplete, onSnapPointChange, open, snapPoint, snapPoints, snapToSequentialPoints, swipeDirection, triggerId
   - Drawer - Provider
     - Props: children
-  - Drawer - Indent
-    - Props: className, render, style
-  - Drawer - IndentBackground
-    - Props: className, render, style
   - Drawer - Trigger
     - Props: className, handle, id, nativeButton, payload, render, style
   - Drawer - Portal
     - Props: className, container, keepMounted, render, style
+  - Drawer - Backdrop
+    - Props: className, forceRender, render, style
+    - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
+    - CSS Variables: --drawer-swipe-progress
   - Drawer - Popup
     - Props: className, finalFocus, initialFocus, render, style
     - Data Attributes: data-closed, data-ending-style, data-expanded, data-nested-drawer-open, data-nested-drawer-swiping, data-open, data-starting-style, data-swipe-direction, data-swipe-dismiss, data-swiping
     - CSS Variables: --drawer-frontmost-height, --drawer-height, --drawer-snap-point-offset, --drawer-swipe-movement-x, --drawer-swipe-movement-y, --drawer-swipe-strength, --nested-drawers
   - Drawer - Content
     - Props: className, render, style
-  - Drawer - Backdrop
-    - Props: className, forceRender, render, style
-    - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
-    - CSS Variables: --drawer-swipe-progress
-  - Drawer - Viewport
-    - Props: className, render, style
-    - Data Attributes: data-closed, data-ending-style, data-nested, data-open, data-starting-style
   - Drawer - Title
     - Props: className, render, style
   - Drawer - Description
     - Props: className, render, style
   - Drawer - Close
     - Props: className, nativeButton, render, style
-  - Drawer - SwipeArea
-    - Props: className, disabled, render, style, swipeDirection
+  - Drawer - Viewport
+    - Props: className, render, style
+    - Data Attributes: data-closed, data-ending-style, data-nested, data-open, data-starting-style
+  - Drawer - Indent
+    - Props: className, render, style
+  - Drawer - IndentBackground
+    - Props: className, render, style
+  - DrawerPreview.createHandle
 
 </details>
 
@@ -540,26 +743,33 @@ A component that provides labeling and validation for form controls.
 - Sections:
   - Anatomy
   - API reference
+    - Root
+    - Label
+    - Control
+    - Description
+    - Item
+    - Error
+    - Validity
 - Exports:
   - Field - Root
     - Props: actionsRef, className, dirty, disabled, invalid, name, render, style, touched, validate, validationDebounceTime, validationMode
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-touched, data-valid
-  - Field - Label
-    - Props: className, nativeLabel, render, style
-    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-touched, data-valid
+  - Field - Item
+    - Props: className, disabled, render, style
   - Field - Description
     - Props: className, render, style
+    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-touched, data-valid
+  - Field - Control
+    - Props: className, defaultValue, onValueChange, render, style
+    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-touched, data-valid
+  - Field - Label
+    - Props: className, nativeLabel, render, style
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-touched, data-valid
   - Field - Error
     - Props: className, match, render, style
     - Data Attributes: data-dirty, data-disabled, data-ending-style, data-filled, data-focused, data-invalid, data-starting-style, data-touched, data-valid
-  - Field - Control
-    - Props: className, defaultValue, onValueChange, render, style
-    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-touched, data-valid
   - Field - Validity
     - Props: children
-  - Field - Item
-    - Props: className, disabled, render, style
 
 </details>
 
@@ -577,6 +787,8 @@ A native fieldset element with an easily stylable legend.
 - Sections:
   - Anatomy
   - API reference
+    - Root
+    - Legend
 - Exports:
   - Fieldset - Root
     - Props: className, render, style
@@ -657,40 +869,62 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
     - Multiple triggers
     - Controlled mode with multiple triggers
   - API reference
+    - Root
+    - Trigger
+    - Portal
+    - Backdrop
+    - Positioner
+    - Popup
+    - Arrow
+    - Item
+    - LinkItem
+    - SubmenuRoot
+    - SubmenuTrigger
+    - Group
+    - GroupLabel
+    - RadioGroup
+    - RadioItem
+    - RadioItemIndicator
+    - CheckboxItem
+    - CheckboxItemIndicator
+    - Separator
+    - createHandle
+    - Handle
 - Exports:
   - Menu - Root
     - Props: actionsRef, children, closeParentOnEsc, defaultOpen, defaultTriggerId, disabled, handle, highlightItemOnHover, loopFocus, modal, onOpenChange, onOpenChangeComplete, open, orientation, triggerId
-  - Menu - Arrow
-    - Props: className, render, style
-    - Data Attributes: data-align, data-closed, data-open, data-side, data-uncentered
+  - Menu - Trigger
+    - Props: children, className, closeDelay, delay, disabled, handle, nativeButton, openOnHover, payload, render, style
+    - Data Attributes: data-popup-open, data-pressed
+  - Menu - Portal
+    - Props: className, container, keepMounted, render, style
   - Menu - Backdrop
     - Props: className, render, style
     - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
-  - Menu - CheckboxItem
-    - Props: checked, className, closeOnClick, defaultChecked, disabled, label, nativeButton, onCheckedChange, onClick, render, style
-    - Data Attributes: data-checked, data-disabled, data-highlighted, data-unchecked
-  - Menu - CheckboxItemIndicator
-    - Props: className, keepMounted, render, style
-    - Data Attributes: data-checked, data-disabled, data-ending-style, data-starting-style, data-unchecked
-  - Menu - GroupLabel
-    - Props: className, render, style
-  - Menu - Group
-    - Props: children, className, render, style
-  - Menu - Item
-    - Props: className, closeOnClick, disabled, label, nativeButton, onClick, render, style
-    - Data Attributes: data-disabled, data-highlighted
-  - Menu - LinkItem
-    - Props: className, closeOnClick, label, render, style
-    - Data Attributes: data-highlighted
-  - Menu - Popup
-    - Props: children, className, finalFocus, render, style
-    - Data Attributes: data-align, data-closed, data-ending-style, data-instant, data-open, data-side, data-starting-style
-  - Menu - Portal
-    - Props: className, container, keepMounted, render, style
   - Menu - Positioner
     - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style
     - Data Attributes: data-align, data-anchor-hidden, data-closed, data-open, data-side
     - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --transform-origin
+  - Menu - Popup
+    - Props: children, className, finalFocus, render, style
+    - Data Attributes: data-align, data-closed, data-ending-style, data-instant, data-open, data-side, data-starting-style
+  - Menu - Arrow
+    - Props: className, render, style
+    - Data Attributes: data-align, data-closed, data-open, data-side, data-uncentered
+  - Menu - Item
+    - Props: className, closeOnClick, disabled, label, nativeButton, onClick, render, style
+    - Data Attributes: data-disabled, data-highlighted
+  - Menu - Group
+    - Props: children, className, render, style
+  - Menu - GroupLabel
+    - Props: className, render, style
+  - Menu - Separator
+    - Props: className, orientation, render, style
+  - Menu - SubmenuRoot
+    - Props: actionsRef, children, closeParentOnEsc, defaultOpen, defaultTriggerId, disabled, handle, highlightItemOnHover, loopFocus, onOpenChange, onOpenChangeComplete, open, orientation, triggerId
+  - Menu - SubmenuTrigger
+    - Props: className, closeDelay, delay, disabled, label, nativeButton, onClick, openOnHover, render, style
+    - Data Attributes: data-disabled, data-highlighted, data-popup-open
   - Menu - RadioGroup
     - Props: children, className, defaultValue, disabled, onValueChange, render, style, value
   - Menu - RadioItem
@@ -699,14 +933,16 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
   - Menu - RadioItemIndicator
     - Props: className, keepMounted, render, style
     - Data Attributes: data-checked, data-disabled, data-ending-style, data-starting-style, data-unchecked
-  - Menu - SubmenuRoot
-    - Props: actionsRef, children, closeParentOnEsc, defaultOpen, defaultTriggerId, disabled, handle, highlightItemOnHover, loopFocus, onOpenChange, onOpenChangeComplete, open, orientation, triggerId
-  - Menu - Trigger
-    - Props: children, className, closeDelay, delay, disabled, handle, nativeButton, openOnHover, payload, render, style
-    - Data Attributes: data-popup-open, data-pressed
-  - Menu - SubmenuTrigger
-    - Props: className, closeDelay, delay, disabled, label, nativeButton, onClick, openOnHover, render, style
-    - Data Attributes: data-disabled, data-highlighted, data-popup-open
+  - Menu - CheckboxItem
+    - Props: checked, className, closeOnClick, defaultChecked, disabled, label, nativeButton, onCheckedChange, onClick, render, style
+    - Data Attributes: data-checked, data-disabled, data-highlighted, data-unchecked
+  - Menu - CheckboxItemIndicator
+    - Props: className, keepMounted, render, style
+    - Data Attributes: data-checked, data-disabled, data-ending-style, data-starting-style, data-unchecked
+  - Menu - LinkItem
+    - Props: className, closeOnClick, label, render, style
+    - Data Attributes: data-highlighted
+  - Menu.createHandle
 
 </details>
 
@@ -744,17 +980,22 @@ A graphical display of a numeric value within a range.
 - Sections:
   - Anatomy
   - API reference
+    - Root
+    - Track
+    - Indicator
+    - Value
+    - Label
 - Exports:
   - Meter - Root
     - Props: aria-valuetext, className, format, getAriaValueText, locale, max, min, render, style, value
+  - Meter - Value
+    - Props: children, className, render, style
   - Meter - Indicator
-    - Props: className, render, style
-  - Meter - Label
     - Props: className, render, style
   - Meter - Track
     - Props: className, render, style
-  - Meter - Value
-    - Props: children, className, render, style
+  - Meter - Label
+    - Props: className, render, style
 
 </details>
 
@@ -776,42 +1017,55 @@ A collection of links and menus for website navigation.
     - Custom links
     - Large menus
   - API reference
+    - Root
+    - List
+    - Item
+    - Trigger
+    - Icon
+    - Content
+    - Link
+    - Backdrop
+    - Portal
+    - Positioner
+    - Popup
+    - Viewport
+    - Arrow
 - Exports:
   - Navigation Menu - Root
     - Props: actionsRef, className, closeDelay, defaultValue, delay, onOpenChangeComplete, onValueChange, orientation, render, style, value
   - Navigation Menu - Trigger
     - Props: className, nativeButton, render, style
     - Data Attributes: data-popup-open, data-pressed
+  - Navigation Menu - Icon
+    - Props: className, render, style
+  - Navigation Menu - List
+    - Props: className, render, style
   - Navigation Menu - Portal
     - Props: className, container, keepMounted, render, style
+  - Navigation Menu - Backdrop
+    - Props: className, render, style
+    - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
   - Navigation Menu - Positioner
     - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style
     - Data Attributes: data-align, data-anchor-hidden, data-closed, data-instant, data-open, data-side
     - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --positioner-height, --positioner-width, --transform-origin
-  - Navigation Menu - Viewport
+  - Navigation Menu - Popup
     - Props: className, render, style
-  - Navigation Menu - List
+    - Data Attributes: data-align, data-closed, data-ending-style, data-open, data-side, data-starting-style
+    - CSS Variables: --popup-height, --popup-width
+  - Navigation Menu - Arrow
     - Props: className, render, style
+    - Data Attributes: data-align, data-closed, data-open, data-side, data-uncentered
   - Navigation Menu - Item
     - Props: className, render, style, value
   - Navigation Menu - Content
     - Props: className, keepMounted, render, style
     - Data Attributes: data-activation-direction, data-closed, data-ending-style, data-open, data-starting-style
-  - Navigation Menu - Popup
+  - Navigation Menu - Viewport
     - Props: className, render, style
-    - Data Attributes: data-align, data-closed, data-ending-style, data-open, data-side, data-starting-style
-    - CSS Variables: --popup-height, --popup-width
-  - Navigation Menu - Backdrop
-    - Props: className, render, style
-    - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
-  - Navigation Menu - Arrow
-    - Props: className, render, style
-    - Data Attributes: data-align, data-closed, data-open, data-side, data-uncentered
   - Navigation Menu - Link
     - Props: active, className, closeOnClick, render, style
     - Data Attributes: data-active
-  - Navigation Menu - Icon
-    - Props: className, render, style
 
 </details>
 
@@ -830,27 +1084,34 @@ A numeric input element with increment and decrement buttons, and a scrub area.
   - Usage guidelines
   - Anatomy
   - API reference
+    - Root
+    - ScrubArea
+    - ScrubAreaCursor
+    - Group
+    - Decrement
+    - Input
+    - Increment
 - Exports:
   - Number Field - Root
     - Props: allowOutOfRange, allowWheelScrub, className, defaultValue, disabled, format, id, inputRef, largeStep, locale, max, min, name, onValueChange, onValueCommitted, readOnly, render, required, smallStep, snapOnStep, step, style, value
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-readonly, data-required, data-scrubbing, data-touched, data-valid
-  - Number Field - Group
-    - Props: className, render, style
-    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-readonly, data-required, data-scrubbing, data-touched, data-valid
-  - Number Field - Increment
-    - Props: className, nativeButton, render, style
-    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-readonly, data-required, data-scrubbing, data-touched, data-valid
-  - Number Field - Decrement
-    - Props: className, nativeButton, render, style
-    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-readonly, data-required, data-scrubbing, data-touched, data-valid
   - Number Field - Input
     - Props: aria-roledescription, className, render, style
+    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-readonly, data-required, data-scrubbing, data-touched, data-valid
+  - Number Field - Group
+    - Props: className, render, style
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-readonly, data-required, data-scrubbing, data-touched, data-valid
   - Number Field - ScrubArea
     - Props: className, direction, pixelSensitivity, render, style, teleportDistance
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-readonly, data-required, data-scrubbing, data-touched, data-valid
   - Number Field - ScrubAreaCursor
     - Props: className, render, style
+    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-readonly, data-required, data-scrubbing, data-touched, data-valid
+  - Number Field - Decrement
+    - Props: className, nativeButton, render, style
+    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-readonly, data-required, data-scrubbing, data-touched, data-valid
+  - Number Field - Increment
+    - Props: className, nativeButton, render, style
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-readonly, data-required, data-scrubbing, data-touched, data-valid
 
 </details>
@@ -877,6 +1138,19 @@ An accessible popup anchored to a button.
       - Position and Size
       - Content
   - API reference
+    - Root
+    - Trigger
+    - Backdrop
+    - Portal
+    - Positioner
+    - Popup
+    - Arrow
+    - Title
+    - Description
+    - Close
+    - Viewport
+    - createHandle
+    - Handle
 - Exports:
   - Popover - Root
     - Props: actionsRef, children, defaultOpen, defaultTriggerId, handle, modal, onOpenChange, onOpenChangeComplete, open, triggerId
@@ -885,6 +1159,9 @@ An accessible popup anchored to a button.
     - Data Attributes: data-popup-open, data-pressed
   - Popover - Portal
     - Props: className, container, keepMounted, render, style
+  - Popover - Backdrop
+    - Props: className, render, style
+    - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
   - Popover - Positioner
     - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style
     - Data Attributes: data-align, data-anchor-hidden, data-closed, data-open, data-side
@@ -896,9 +1173,6 @@ An accessible popup anchored to a button.
   - Popover - Arrow
     - Props: className, render, style
     - Data Attributes: data-align, data-closed, data-open, data-side, data-uncentered
-  - Popover - Backdrop
-    - Props: className, render, style
-    - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
   - Popover - Title
     - Props: className, render, style
   - Popover - Description
@@ -909,6 +1183,7 @@ An accessible popup anchored to a button.
     - Props: children, className, render, style
     - Data Attributes: data-activation-direction, data-current, data-instant, data-previous, data-transitioning
     - CSS Variables: --popup-height, --popup-width
+  - Popover.createHandle
 
 </details>
 
@@ -933,6 +1208,16 @@ A popup that appears when a link is hovered, showing a preview for sighted users
       - Position and Size
       - Content
   - API reference
+    - Root
+    - Trigger
+    - Portal
+    - Backdrop
+    - Positioner
+    - Popup
+    - Viewport
+    - Arrow
+    - createHandle
+    - Handle
 - Exports:
   - Preview Card - Root
     - Props: actionsRef, children, defaultOpen, defaultTriggerId, handle, onOpenChange, onOpenChangeComplete, open, triggerId
@@ -941,6 +1226,9 @@ A popup that appears when a link is hovered, showing a preview for sighted users
     - Data Attributes: data-popup-open
   - Preview Card - Portal
     - Props: className, container, keepMounted, render, style
+  - Preview Card - Backdrop
+    - Props: className, render, style
+    - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
   - Preview Card - Positioner
     - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style
     - Data Attributes: data-align, data-anchor-hidden, data-closed, data-open, data-side
@@ -951,13 +1239,11 @@ A popup that appears when a link is hovered, showing a preview for sighted users
   - Preview Card - Arrow
     - Props: className, render, style
     - Data Attributes: data-align, data-closed, data-open, data-side, data-uncentered
-  - Preview Card - Backdrop
-    - Props: className, render, style
-    - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
   - Preview Card - Viewport
     - Props: children, className, render, style
     - Data Attributes: data-activation-direction, data-current, data-instant, data-previous, data-transitioning
     - CSS Variables: --popup-height, --popup-width
+  - PreviewCard.createHandle
 
 </details>
 
@@ -975,21 +1261,26 @@ Displays the status of a task that takes a long time.
 - Sections:
   - Anatomy
   - API reference
+    - Root
+    - Track
+    - Indicator
+    - Value
+    - Label
 - Exports:
   - Progress - Root
     - Props: aria-valuetext, className, format, getAriaValueText, locale, max, min, render, style, value
     - Data Attributes: data-complete, data-indeterminate, data-progressing
-  - Progress - Indicator
-    - Props: className, render, style
+  - Progress - Value
+    - Props: children, className, render, style
     - Data Attributes: data-complete, data-indeterminate, data-progressing
-  - Progress - Label
+  - Progress - Indicator
     - Props: className, render, style
     - Data Attributes: data-complete, data-indeterminate, data-progressing
   - Progress - Track
     - Props: className, render, style
     - Data Attributes: data-complete, data-indeterminate, data-progressing
-  - Progress - Value
-    - Props: children, className, render, style
+  - Progress - Label
+    - Props: className, render, style
     - Data Attributes: data-complete, data-indeterminate, data-progressing
 
 </details>
@@ -1013,6 +1304,8 @@ An easily stylable radio button component.
     - Form integration
   - API reference
     - RadioGroup
+    - Root
+    - Indicator
 - Exports:
   - Radio - Root
     - Props: className, disabled, inputRef, nativeButton, readOnly, render, required, style, value
@@ -1040,24 +1333,30 @@ A native scroll container with custom scrollbars.
     - Both scrollbars
     - Gradient scroll fade
   - API reference
+    - Root
+    - Viewport
+    - Content
+    - Scrollbar
+    - Thumb
+    - Corner
 - Exports:
   - Scroll Area - Root
     - Props: className, overflowEdgeThreshold, render, style
     - Data Attributes: data-has-overflow-x, data-has-overflow-y, data-overflow-x-end, data-overflow-x-start, data-overflow-y-end, data-overflow-y-start, data-scrolling
     - CSS Variables: --scroll-area-corner-height, --scroll-area-corner-width
+  - Scroll Area - Content
+    - Props: className, render, style
   - Scroll Area - Viewport
     - Props: className, render, style
     - Data Attributes: data-has-overflow-x, data-has-overflow-y, data-overflow-x-end, data-overflow-x-start, data-overflow-y-end, data-overflow-y-start, data-scrolling
     - CSS Variables: --scroll-area-overflow-x-end, --scroll-area-overflow-x-start, --scroll-area-overflow-y-end, --scroll-area-overflow-y-start
+  - Scroll Area - Thumb
+    - Props: className, render, style
+    - Data Attributes: data-orientation
   - Scroll Area - Scrollbar
     - Props: className, keepMounted, orientation, render, style
     - Data Attributes: data-has-overflow-x, data-has-overflow-y, data-hovering, data-orientation, data-overflow-x-end, data-overflow-x-start, data-overflow-y-end, data-overflow-y-start, data-scrolling
     - CSS Variables: --scroll-area-thumb-height, --scroll-area-thumb-width
-  - Scroll Area - Content
-    - Props: className, render, style
-  - Scroll Area - Thumb
-    - Props: className, render, style
-    - Data Attributes: data-orientation
   - Scroll Area - Corner
     - Props: className, render, style
 
@@ -1086,6 +1385,24 @@ A common form component for choosing a predefined value in a dropdown menu.
     - Multiple selection
     - Object values
   - API reference
+    - Root
+    - Trigger
+    - Value
+    - Icon
+    - Backdrop
+    - Portal
+    - Positioner
+    - Popup
+    - List
+    - Arrow
+    - Item
+    - ItemText
+    - ItemIndicator
+    - Group
+    - GroupLabel
+    - ScrollUpArrow
+    - ScrollDownArrow
+    - Separator
 - Exports:
   - Select - Root
     - Props: actionsRef, autoComplete, children, defaultOpen, defaultValue, disabled, highlightItemOnHover, id, inputRef, isItemEqualToValue, itemToStringLabel, itemToStringValue, items, modal, multiple, name, onOpenChange, onOpenChangeComplete, onValueChange, open, readOnly, required, value
@@ -1098,6 +1415,8 @@ A common form component for choosing a predefined value in a dropdown menu.
   - Select - Icon
     - Props: className, render, style
     - Data Attributes: data-popup-open
+  - Select - List
+    - Props: className, render, style
   - Select - Portal
     - Props: className, container, render, style
   - Select - Backdrop
@@ -1110,29 +1429,29 @@ A common form component for choosing a predefined value in a dropdown menu.
   - Select - Popup
     - Props: children, className, finalFocus, render, style
     - Data Attributes: data-align, data-closed, data-ending-style, data-open, data-side, data-starting-style
-  - Select - List
-    - Props: className, render, style
-  - Select - Item
-    - Props: children, className, disabled, label, nativeButton, render, style, value
-    - Data Attributes: data-disabled, data-highlighted, data-selected
-  - Select - ItemIndicator
-    - Props: children, className, keepMounted, render, style
-    - Data Attributes: data-ending-style, data-starting-style
-  - Select - ItemText
-    - Props: className, render, style
   - Select - Arrow
     - Props: className, render, style
     - Data Attributes: data-align, data-closed, data-open, data-side, data-uncentered
-  - Select - ScrollDownArrow
-    - Props: className, keepMounted, render, style
-    - Data Attributes: data-direction, data-ending-style, data-side, data-starting-style, data-visible
-  - Select - ScrollUpArrow
-    - Props: className, keepMounted, render, style
-    - Data Attributes: data-direction, data-ending-style, data-side, data-starting-style, data-visible
+  - Select - Item
+    - Props: children, className, disabled, label, nativeButton, render, style, value
+    - Data Attributes: data-disabled, data-highlighted, data-selected
   - Select - Group
     - Props: className, render, style
   - Select - GroupLabel
     - Props: className, render, style
+  - Select - Separator
+    - Props: className, orientation, render, style
+  - Select - ItemText
+    - Props: className, render, style
+  - Select - ItemIndicator
+    - Props: children, className, keepMounted, render, style
+    - Data Attributes: data-ending-style, data-starting-style
+  - Select - ScrollUpArrow
+    - Props: className, keepMounted, render, style
+    - Data Attributes: data-direction, data-ending-style, data-side, data-starting-style, data-visible
+  - Select - ScrollDownArrow
+    - Props: className, keepMounted, render, style
+    - Data Attributes: data-direction, data-ending-style, data-side, data-starting-style, data-visible
 
 </details>
 
@@ -1176,6 +1495,12 @@ An easily stylable range input.
     - Labeling a slider
     - Form integration
   - API reference
+    - Root
+    - Value
+    - Control
+    - Track
+    - Indicator
+    - Thumb
 - Exports:
   - Slider - Root
     - Props: className, defaultValue, disabled, format, largeStep, locale, max, min, minStepsBetweenValues, name, onValueChange, onValueCommitted, orientation, render, step, style, thumbAlignment, thumbCollisionBehavior, value
@@ -1183,7 +1508,7 @@ An easily stylable range input.
   - Slider - Value
     - Props: children, className, render, style
     - Data Attributes: data-dirty, data-disabled, data-dragging, data-focused, data-invalid, data-orientation, data-touched, data-valid
-  - Slider - Control
+  - Slider - Indicator
     - Props: className, render, style
     - Data Attributes: data-dirty, data-disabled, data-dragging, data-focused, data-invalid, data-orientation, data-touched, data-valid
   - Slider - Track
@@ -1192,7 +1517,7 @@ An easily stylable range input.
   - Slider - Thumb
     - Props: className, disabled, getAriaLabel, getAriaValueText, index, inputRef, onBlur, onFocus, render, style, tabIndex
     - Data Attributes: data-dirty, data-disabled, data-dragging, data-focused, data-index, data-invalid, data-orientation, data-touched, data-valid
-  - Slider - Indicator
+  - Slider - Control
     - Props: className, render, style
     - Data Attributes: data-dirty, data-disabled, data-dragging, data-focused, data-invalid, data-orientation, data-touched, data-valid
 
@@ -1216,6 +1541,8 @@ A control that indicates whether a setting is on or off.
     - Labeling a switch
     - Form integration
   - API reference
+    - Root
+    - Thumb
 - Exports:
   - Switch - Root
     - Props: checked, className, defaultChecked, disabled, id, inputRef, name, nativeButton, onCheckedChange, readOnly, render, required, style, uncheckedValue, value
@@ -1240,10 +1567,21 @@ A component for toggling between related panels on the same page.
 - Sections:
   - Anatomy
   - API reference
+    - Root
+    - List
+    - Tab
+    - Indicator
+    - Panel
 - Exports:
   - Tabs - Root
     - Props: className, defaultValue, onValueChange, orientation, render, style, value
     - Data Attributes: data-activation-direction, data-orientation
+  - Tabs - List
+    - Props: activateOnFocus, className, loopFocus, render, style
+    - Data Attributes: data-activation-direction, data-orientation
+  - Tabs - Panel
+    - Props: className, keepMounted, render, style, value
+    - Data Attributes: data-activation-direction, data-ending-style, data-hidden, data-index, data-orientation, data-starting-style
   - Tabs - Indicator
     - Props: className, render, renderBeforeHydration, style
     - Data Attributes: data-activation-direction, data-orientation
@@ -1251,12 +1589,6 @@ A component for toggling between related panels on the same page.
   - Tabs - Tab
     - Props: className, disabled, nativeButton, render, style, value
     - Data Attributes: data-activation-direction, data-active, data-disabled, data-orientation
-  - Tabs - Panel
-    - Props: className, keepMounted, render, style, value
-    - Data Attributes: data-activation-direction, data-ending-style, data-hidden, data-index, data-orientation, data-starting-style
-  - Tabs - List
-    - Props: activateOnFocus, className, loopFocus, render, style
-    - Data Attributes: data-activation-direction, data-orientation
 
 </details>
 
@@ -1284,13 +1616,23 @@ Generates toast notifications.
     - Custom
     - Varying heights
   - API reference
+    - Provider
+    - Viewport
+    - Portal
+    - Root
+    - Content
+    - Title
+    - Description
+    - Action
+    - Close
+    - Positioner
+    - Arrow
   - useToastManager
-    - Return value
-    - Method options
     - `add` method
     - `update` method
     - `close` method
     - `promise` method
+  - Additional Types
 - Exports:
   - Toast - Root
     - Props: className, render, style, swipeDirection, toast
@@ -1298,25 +1640,6 @@ Generates toast notifications.
     - CSS Variables: --toast-height, --toast-index, --toast-offset-y, --toast-swipe-movement-x, --toast-swipe-movement-y
   - Toast - Provider
     - Props: children, limit, timeout, toastManager
-  - Toast - Viewport
-    - Props: className, render, style
-    - Data Attributes: data-expanded
-    - CSS Variables: --toast-frontmost-height
-  - Toast - Content
-    - Props: className, render, style
-    - Data Attributes: data-behind, data-expanded
-  - Toast - Description
-    - Props: className, render, style
-    - Data Attributes: data-type
-  - Toast - Title
-    - Props: className, render, style
-    - Data Attributes: data-type
-  - Toast - Close
-    - Props: className, nativeButton, render, style
-    - Data Attributes: data-type
-  - Toast - Action
-    - Props: className, nativeButton, render, style
-    - Data Attributes: data-type
   - Toast - Portal
     - Props: className, container, render, style
   - Toast - Positioner
@@ -1326,6 +1649,27 @@ Generates toast notifications.
   - Toast - Arrow
     - Props: className, render, style
     - Data Attributes: data-align, data-side, data-uncentered
+  - Toast - Content
+    - Props: className, render, style
+    - Data Attributes: data-behind, data-expanded
+  - Toast - Title
+    - Props: className, render, style
+    - Data Attributes: data-type
+  - Toast - Description
+    - Props: className, render, style
+    - Data Attributes: data-type
+  - Toast - Close
+    - Props: className, nativeButton, render, style
+    - Data Attributes: data-type
+  - Toast - Action
+    - Props: className, nativeButton, render, style
+    - Data Attributes: data-type
+  - Toast - Viewport
+    - Props: className, render, style
+    - Data Attributes: data-expanded
+    - CSS Variables: --toast-frontmost-height
+  - Toast.createToastManager
+  - Toast.useToastManager
 
 </details>
 
@@ -1390,24 +1734,30 @@ A container for grouping a set of buttons and controls.
     - Using with Tooltip
     - Using with NumberField
   - API reference
+    - Root
+    - Button
+    - Link
+    - Input
+    - Group
+    - Separator
 - Exports:
   - Toolbar - Root
     - Props: className, disabled, loopFocus, orientation, render, style
     - Data Attributes: data-disabled, data-orientation
+  - Toolbar - Input
+    - Props: className, defaultValue, disabled, focusableWhenDisabled, render, style
+    - Data Attributes: data-disabled, data-focusable, data-orientation
   - Toolbar - Group
     - Props: className, disabled, render, style
     - Data Attributes: data-disabled, data-orientation
+  - Toolbar - Separator
+    - Props: className, orientation, render, style
+    - Data Attributes: data-orientation
   - Toolbar - Button
     - Props: className, disabled, focusableWhenDisabled, nativeButton, render, style
     - Data Attributes: data-disabled, data-focusable, data-orientation
   - Toolbar - Link
     - Props: className, render, style
-    - Data Attributes: data-orientation
-  - Toolbar - Input
-    - Props: className, defaultValue, disabled, focusableWhenDisabled, render, style
-    - Data Attributes: data-disabled, data-focusable, data-orientation
-  - Toolbar - Separator
-    - Props: className, orientation, render, style
     - Data Attributes: data-orientation
 
 </details>
@@ -1438,11 +1788,20 @@ A popup that appears when an element is hovered or focused, showing a hint for s
       - Position and Size
       - Content
   - API reference
+    - Provider
+    - Root
+    - Trigger
+    - Portal
+    - Positioner
+    - Popup
+    - Arrow
+    - createHandle
+    - Handle
 - Exports:
-  - Tooltip - Provider
-    - Props: children, closeDelay, delay, timeout
   - Tooltip - Root
     - Props: actionsRef, children, defaultOpen, defaultTriggerId, disableHoverablePopup, disabled, handle, onOpenChange, onOpenChangeComplete, open, trackCursorAxis, triggerId
+  - Tooltip - Provider
+    - Props: children, closeDelay, delay, timeout
   - Tooltip - Trigger
     - Props: className, closeDelay, delay, disabled, handle, payload, render, style
     - Data Attributes: data-popup-open, data-trigger-disabled
@@ -1462,6 +1821,7 @@ A popup that appears when an element is hovered or focused, showing a hint for s
     - Props: children, className, render, style
     - Data Attributes: data-activation-direction, data-current, data-instant, data-previous, data-transitioning
     - CSS Variables: --popup-height, --popup-width
+  - Tooltip.createHandle
 
 </details>
 

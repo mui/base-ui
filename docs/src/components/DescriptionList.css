@@ -74,6 +74,10 @@
       max-width: 100%;
     }
 
+    & > p:last-of-type {
+      margin-bottom: 0 !important;
+    }
+
     .separator & {
       padding-top: --spacing(2);
     }
