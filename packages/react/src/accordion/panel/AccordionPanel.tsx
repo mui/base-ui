@@ -122,6 +122,7 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
     setOpen,
     setVisible,
     transitionDimensionRef,
+    transitionStatus,
     visible,
     width,
   });
