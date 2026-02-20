@@ -7,7 +7,7 @@ import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdap
 
 const InnerCalendarDayGridHeaderCell = React.forwardRef(function InnerCalendarDayGridHeaderCell(
   componentProps: CalendarDayGridHeaderCell.Props,
-  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
+  forwardedRef: React.ForwardedRef<HTMLTableCellElement>,
 ) {
   const adapter = useTemporalAdapter();
   const defaultFormatter = React.useCallback(

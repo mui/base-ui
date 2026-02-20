@@ -152,7 +152,7 @@ export function useSharedCalendarDayGridBody(
         }
         const gridDays = Object.values(store.currentMonthDayGrid)
           .flat() // Sort the days to ensure they are in the chronological order
-          .sort((a, b) => a.getTime() - b.getTime());
+          .sort((a, b) => adapter.getTime(a) - adapter.getTime(b));
         const currentDay = gridDays[highlightedIndex];
         if (!currentDay) {
           return;
@@ -169,7 +169,7 @@ export function useSharedCalendarDayGridBody(
           const newGridDays: TemporalSupportedObject[] = Object.values(store.currentMonthDayGrid)
             .flat()
             // Sort the days to ensure they are in the chronological order
-            .sort((a, b) => a.getTime() - b.getTime());
+            .sort((a, b) => adapter.getTime(a) - adapter.getTime(b));
           // Try to find the same day in the new month
           const sameDayInNewMonthIndex = newGridDays.findIndex(
             (day) =>

@@ -92,7 +92,7 @@ const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
     children: formattedValue,
     tabIndex: isTabbable ? 0 : -1,
     onClick(event) {
-      if (isUnavailable) {
+      if (isUnavailable || isDisabled) {
         return;
       }
       store.selectDate(value, event);
