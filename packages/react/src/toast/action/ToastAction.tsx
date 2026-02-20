@@ -4,6 +4,7 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types'
 import { useToastRootContext } from '../root/ToastRootContext';
 import { useButton } from '../../use-button/useButton';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { ToastType } from '../useToastManager';
 
 /**
  * Performs an action when clicked.
@@ -55,7 +56,7 @@ export interface ToastActionState {
   /**
    * The type of the toast.
    */
-  type: string | undefined;
+  type: ToastType;
 }
 
 export interface ToastActionProps

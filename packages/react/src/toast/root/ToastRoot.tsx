@@ -7,7 +7,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-import type { ToastObject as ToastObjectType } from '../useToastManager';
+import type { ToastObject as ToastObjectType, ToastType } from '../useToastManager';
 import { ToastRootContext } from './ToastRootContext';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
@@ -578,7 +578,7 @@ export interface ToastRootState {
   /** Whether the toast was removed due to exceeding the limit. */
   limited: boolean;
   /** The type of the toast. */
-  type: string | undefined;
+  type: ToastType;
   /** Whether the toast is being swiped. */
   swiping: boolean;
   /** The direction the toast is being swiped. */
