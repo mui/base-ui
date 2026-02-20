@@ -24,6 +24,17 @@ import { REASONS } from '../../utils/reasons';
 import type { Side } from '../../utils/useAnchorPositioning';
 import { useDirection } from '../../direction-provider/DirectionContext';
 
+const POPUP_INPUT_FIELD_STATE: Pick<
+  FieldRoot.State,
+  'valid' | 'touched' | 'dirty' | 'filled' | 'focused'
+> = {
+  valid: null,
+  touched: false,
+  dirty: false,
+  filled: false,
+  focused: false,
+};
+
 /**
  * A text input to search for items in the list.
  * Renders an `<input>` element.
@@ -82,15 +93,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
   const isInsidePopup = hasPositionerParent || inline;
   const id = useBaseUiId(idProp ?? (!isInsidePopup ? rootId : undefined));
-  const fieldStateForInput = hasPositionerParent
-    ? {
-        valid: null,
-        touched: false,
-        dirty: false,
-        filled: false,
-        focused: false,
-      }
-    : fieldState;
+  const fieldStateForInput = hasPositionerParent ? POPUP_INPUT_FIELD_STATE : fieldState;
 
   const [composingValue, setComposingValue] = React.useState<string | null>(null);
   const isComposingRef = React.useRef(false);
