@@ -33,6 +33,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     onOpenChange,
     onOpenChangeComplete,
     modal = false,
+    lockScrollOnHover = false,
     handle,
     triggerId: triggerIdProp,
     defaultTriggerId: defaultTriggerIdProp = null,
@@ -80,7 +81,10 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   });
 
   useScrollLock(
-    open && modal === true && openReason !== REASONS.triggerHover && openMethod !== 'touch',
+    open &&
+      modal === true &&
+      (lockScrollOnHover || openReason !== REASONS.triggerHover) &&
+      openMethod !== 'touch',
     positionerElement,
   );
 
@@ -227,6 +231,12 @@ export interface PopoverRootProps<Payload = unknown> {
    * @default false
    */
   modal?: boolean | 'trap-focus' | undefined;
+  /**
+   * Whether scroll lock should apply when the popover opens via hover.
+   * Requires `modal={true}`.
+   * @default false
+   */
+  lockScrollOnHover?: boolean | undefined;
   /**
    * ID of the trigger that the popover is associated with.
    * This is useful in conjunction with the `open` prop to create a controlled popover.
