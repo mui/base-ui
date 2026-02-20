@@ -72,7 +72,7 @@
     "@playwright/test": "1.58.2",
     "@tailwindcss/postcss": "4.1.18",
     "@types/node": "22.18.13",
-    "@types/react": "19.2.13",
+    "@types/react": "19.2.14",
     "@types/yargs": "17.0.35",
     "@vitejs/plugin-react": "5.1.4",
     "@vitest/browser-playwright": "4.0.18",
@@ -117,7 +117,7 @@
     "@babel/preset-typescript": "^7.28.5",
     "@babel/types": "^7.29.0",
     "@types/node": "22.18.13",
-    "@types/react": "19.2.13",
+    "@types/react": "19.2.14",
     "@types/react-dom": "^19.2.3"
   }
 }
