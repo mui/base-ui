@@ -190,6 +190,46 @@ function transformJsx() {
             return visit.CONTINUE;
           }
 
+          case 'InstallationBlock': {
+            const pkg =
+              node.attributes?.find((attr) => attr.name === 'package')?.value || '@base-ui/react';
+
+            const nodes = [
+              mdx.paragraph(
+                'Use the package manager detected from the project lock file. If no lock file exists, use pnpm.',
+              ),
+
+              {
+                type: 'list',
+                ordered: false,
+                children: [
+                  'pnpm-lock.yaml → pnpm',
+                  'bun.lock → bun',
+                  'yarn.lock → yarn',
+                  'package-lock.json → npm',
+                ].map((item) => ({
+                  type: 'listItem',
+                  children: [mdx.paragraph(item)],
+                })),
+              },
+
+              mdx.heading(3, 'pnpm'),
+              mdx.code(`pnpm add ${pkg}`, 'bash'),
+
+              mdx.heading(3, 'npm'),
+              mdx.code(`npm install ${pkg}`, 'bash'),
+
+              mdx.heading(3, 'yarn'),
+              mdx.code(`yarn add ${pkg}`, 'bash'),
+
+              mdx.heading(3, 'bun'),
+              mdx.code(`bun add ${pkg}`, 'bash'),
+            ];
+
+            parent.children.splice(index, 1, ...nodes);
+            return visit.CONTINUE;
+          }
+
           case 'link': {
             // Ignore some hidden elements
             parent.children.splice(index, 1);
