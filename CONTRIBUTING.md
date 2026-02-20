@@ -100,7 +100,7 @@ import ButtonBasic from './ButtonBasic';
 export const DemoButtonBasic = createDemo(import.meta.url, ButtonBasic);
 ```
 
-For demos with multiple variants (for example, Tailwind CSS and CSS Modules), use `createDemoWithVariants`:
+For demos with multiple variants (for example, `Tailwind CSS` and `CSS Modules`), use `createDemoWithVariants`:
 
 ```ts
 import { createDemoWithVariants } from 'docs/src/utils/createDemo';
