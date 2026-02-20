@@ -33,3 +33,21 @@ export const collapsibleOpenStateMapping = {
 } satisfies StateAttributesMapping<{
   open: boolean;
 }>;
+
+export const panelOpenStateMapping = {
+  open: (open) => {
+    const panelHidden = !open;
+    const collapsibleStateMapping = collapsibleOpenStateMapping.open(open);
+
+    if (panelHidden) {
+      return {
+        ...collapsibleStateMapping,
+        [CollapsiblePanelDataAttributes.hidden]: '',
+      };
+    }
+
+    return collapsibleStateMapping;
+  },
+} satisfies StateAttributesMapping<{
+  open: boolean;
+}>;

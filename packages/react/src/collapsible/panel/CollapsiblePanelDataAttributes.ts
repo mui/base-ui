@@ -17,4 +17,8 @@ export enum CollapsiblePanelDataAttributes {
    * Present when the panel is animating out.
    */
   endingStyle = TransitionStatusDataAttributes.endingStyle,
+  /**
+   * Present when the panel is hidden.
+   */
+  hidden = 'data-hidden'
 }

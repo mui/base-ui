@@ -36,6 +36,9 @@
     "data-closed": {
       "description": "Present when the collapsible panel is closed."
     },
+    "data-hidden": {
+      "description": "Present when the panel is hidden."
+    },
     "data-starting-style": {
       "description": "Present when the panel is animating in."
     },

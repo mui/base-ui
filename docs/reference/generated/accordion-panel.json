@@ -39,6 +39,9 @@
     "data-disabled": {
       "description": "Present when the accordion item is disabled."
     },
+    "data-hidden": {
+      "description": "Present when the panel is hidden."
+    },
     "data-index": {
       "description": "Indicates the index of the accordion item.",
       "type": "number"
