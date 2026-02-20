@@ -32,14 +32,14 @@ describe('<Menubar />', () => {
     describe.skipIf(isJSDOM)('click interactions', () => {
       afterEach(async () => {
         const { cleanup } = await import('vitest-browser-react');
-        cleanup();
+        await cleanup();
       });
 
       it('should open the menu after clicking on its trigger and close it when clicking again', async () => {
         const { userEvent: user } = await import('vitest/browser');
         const { render: vbrRender } = await import('vitest-browser-react');
 
-        vbrRender(<TestMenubar />);
+        await vbrRender(<TestMenubar />);
 
         const fileTrigger = screen.getByTestId('file-trigger');
 
@@ -57,14 +57,14 @@ describe('<Menubar />', () => {
     describe.skipIf(isJSDOM)('hover behavior', async () => {
       afterEach(async () => {
         const { cleanup } = await import('vitest-browser-react');
-        cleanup();
+        await cleanup();
       });
 
       it('should not open submenus on hover when no submenu is already open', async () => {
         const { userEvent: user } = await import('vitest/browser');
         const { render: vbrRender } = await import('vitest-browser-react');
 
-        vbrRender(<TestMenubar />);
+        await vbrRender(<TestMenubar />);
 
         const fileTrigger = screen.getByTestId('file-trigger');
 
@@ -78,7 +78,7 @@ describe('<Menubar />', () => {
         const { userEvent: user } = await import('vitest/browser');
         const { render: vbrRender } = await import('vitest-browser-react');
 
-        vbrRender(<TestMenubar />);
+        await vbrRender(<TestMenubar />);
 
         // First click to open the file menu
         const fileTrigger = screen.getByTestId('file-trigger');
@@ -118,7 +118,7 @@ describe('<Menubar />', () => {
         const { userEvent: user } = await import('vitest/browser');
         const { render: vbrRender } = await import('vitest-browser-react');
 
-        vbrRender(<TestMenubar />);
+        await vbrRender(<TestMenubar />);
 
         // First click to open the file menu
         const fileTrigger = screen.getByTestId('file-trigger');
@@ -147,7 +147,7 @@ describe('<Menubar />', () => {
         const { userEvent: user } = await import('vitest/browser');
         const { render: vbrRender } = await import('vitest-browser-react');
 
-        vbrRender(<TestMenubar />);
+        await vbrRender(<TestMenubar />);
 
         // First click to open the file menu
         const fileTrigger = screen.getByTestId('file-trigger');
@@ -209,14 +209,14 @@ describe('<Menubar />', () => {
     describe.skipIf(isJSDOM)('closeOnClick on nested items behavior', () => {
       afterEach(async () => {
         const { cleanup } = await import('vitest-browser-react');
-        cleanup();
+        await cleanup();
       });
 
       it('should respect closeOnClick on nested items when the menu was opened on click', async () => {
         const { userEvent: user } = await import('vitest/browser');
         const { render: vbrRender } = await import('vitest-browser-react');
 
-        vbrRender(<TestMenubar />);
+        await vbrRender(<TestMenubar />);
 
         const viewTrigger = screen.getByTestId('view-trigger');
 
@@ -242,7 +242,7 @@ describe('<Menubar />', () => {
         const { userEvent: user } = await import('vitest/browser');
         const { render: vbrRender } = await import('vitest-browser-react');
 
-        vbrRender(<TestMenubar />);
+        await vbrRender(<TestMenubar />);
 
         const fileTrigger = screen.getByTestId('file-trigger');
         const viewTrigger = screen.getByTestId('view-trigger');
