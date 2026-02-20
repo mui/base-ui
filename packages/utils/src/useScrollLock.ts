@@ -7,6 +7,128 @@ import { Timeout } from './useTimeout';
 import { AnimationFrame } from './useAnimationFrame';
 import { NOOP } from './empty';
 
+export function preventScrollIOS(referenceElement: Element | null = null) {
+  const doc = ownerDocument(referenceElement);
+  const win = ownerWindow(doc);
+
+  type TouchWithTouchType = Touch & { touchType: string | undefined };
+  type EventWithPointerType = { pointerType: PointerEvent['pointerType'] };
+
+  function isStylusTouch(event: TouchEvent) {
+    const touch = event.touches[0] ?? event.changedTouches[0];
+    // Some browsers expose a non-standard `touchType` property for stylus touches.
+    const touchType = (touch as TouchWithTouchType)?.touchType;
+    // `pointerType` is part of Pointer Events, not Touch Events, but it can be present in some environments.
+    const pointerType = (event as unknown as EventWithPointerType).pointerType;
+    return touchType === 'stylus' || touchType === 'pen' || pointerType === 'pen';
+  }
+
+  function isRangeInput(target: EventTarget | null) {
+    return target instanceof win.HTMLInputElement && target.type === 'range';
+  }
+
+  function isEventOnRangeInput(event: TouchEvent) {
+    const composedPath = event.composedPath();
+    if (composedPath) {
+      return composedPath.some(isRangeInput);
+    }
+    return isRangeInput(event.target);
+  }
+
+  function isScrollable(element: Element | null) {
+    if (!element) {
+      return false;
+    }
+
+    const style = win.getComputedStyle(element);
+
+    const isOverflowScrollable = /(auto|scroll)/.test(
+      style.overflow + style.overflowX + style.overflowY,
+    );
+    const isElementScrollable =
+      element.scrollHeight !== element.clientHeight || element.scrollWidth !== element.clientWidth;
+
+    return isOverflowScrollable && isElementScrollable;
+  }
+
+  function getScrollParent(element: Element | null) {
+    let currentParent: Element | null = element;
+
+    if (currentParent && isScrollable(currentParent)) {
+      currentParent = currentParent.parentElement;
+    }
+
+    while (currentParent && !isScrollable(currentParent)) {
+      currentParent = currentParent.parentElement;
+    }
+
+    return currentParent || doc.scrollingElement || doc.documentElement;
+  }
+
+  let scrollable: Element | undefined;
+  let allowTouchMove = false;
+  let stylusActive = false;
+
+  function onTouchStart(event: TouchEvent) {
+    const target = event.target as Element | null;
+
+    // Apple Pencil typically fires a touchmove along with touchstart, so we need to bail
+    // out if a stylus is active, since it breaks interactive elements.
+    stylusActive = isStylusTouch(event);
+    scrollable = getScrollParent(target);
+
+    const selection = target?.ownerDocument.defaultView?.getSelection();
+
+    // Allow the ability to adjust text selection.
+    const hasTextSelection =
+      !!target && !!selection && !selection.isCollapsed && selection.containsNode(target, true);
+
+    // Allow user to drag the selection handles in an input element.
+    const isDraggingInputSelection =
+      target instanceof win.HTMLInputElement &&
+      target.selectionStart != null &&
+      target.selectionEnd != null &&
+      target.selectionStart < target.selectionEnd &&
+      doc.activeElement === target;
+
+    // Allow range inputs to be interactive.
+    const isRangeInputEvent = isEventOnRangeInput(event);
+
+    allowTouchMove =
+      stylusActive || hasTextSelection || isDraggingInputSelection || isRangeInputEvent;
+  }
+
+  function onTouchMove(event: TouchEvent) {
+    const isPinchZooming = event.touches.length === 2;
+    const shouldAllowTouchMove = isPinchZooming || allowTouchMove || stylusActive;
+
+    if (shouldAllowTouchMove) {
+      return;
+    }
+
+    const isScrollRoot =
+      !scrollable || scrollable === doc.documentElement || scrollable === doc.body;
+
+    const isScrollParentFullyNonScrollable =
+      !!scrollable &&
+      scrollable.scrollHeight === scrollable.clientHeight &&
+      scrollable.scrollWidth === scrollable.clientWidth;
+
+    if (isScrollRoot || isScrollParentFullyNonScrollable) {
+      event.preventDefault();
+    }
+  }
+
+  const touchOptions = { passive: false, capture: true };
+  doc.addEventListener('touchstart', onTouchStart, touchOptions);
+  doc.addEventListener('touchmove', onTouchMove, touchOptions);
+
+  return () => {
+    doc.removeEventListener('touchstart', onTouchStart, touchOptions);
+    doc.removeEventListener('touchmove', onTouchMove, touchOptions);
+  };
+}
+
 let originalHtmlStyles: Partial<CSSStyleDeclaration> = {};
 let originalBodyStyles: Partial<CSSStyleDeclaration> = {};
 let originalHtmlScrollBehavior = '';
@@ -237,7 +359,7 @@ class ScrollLocker {
 
   private unlock = () => {
     if (this.lockCount === 0 && this.restore) {
-      this.restore?.();
+      this.restore();
       this.restore = null;
     }
   };
@@ -257,15 +379,19 @@ class ScrollLocker {
       return;
     }
 
-    const hasOverlayScrollbars = isIOS || !hasInsetScrollbars(referenceElement);
+    if (isIOS) {
+      // Keep `overflow: hidden` on `<body>` when the navbar is collapsed for improved
+      // scroll locking support in cases like Apple Pencil usage.
+      const restoreOverlayScrollbars = preventScrollOverlayScrollbars(referenceElement);
+      const restoreIOS = preventScrollIOS(referenceElement);
+      this.restore = () => {
+        restoreIOS();
+        restoreOverlayScrollbars();
+      };
+      return;
+    }
 
-    // On iOS, scroll locking does not work if the navbar is collapsed. Due to numerous
-    // side effects and bugs that arise on iOS, it must be researched extensively before
-    // being enabled to ensure it doesn't cause the following issues:
-    // - Textboxes must scroll into view when focused, nor cause a glitchy scroll animation.
-    // - The navbar must not force itself into view and cause layout shift.
-    // - Scroll containers must not flicker upon closing a popup when it has an exit animation.
-    this.restore = hasOverlayScrollbars
+    this.restore = !hasInsetScrollbars(referenceElement)
       ? preventScrollOverlayScrollbars(referenceElement)
       : preventScrollInsetScrollbars(referenceElement);
   }
@@ -277,7 +403,7 @@ const SCROLL_LOCKER = new ScrollLocker();
  * Locks the scroll of the document when enabled.
  *
  * @param enabled - Whether to enable the scroll lock.
- * @param referenceElement - Element to use as a reference for lock calculations.
+ * @param referenceElement - Element that defines the lock scope. Used for document lookup and iOS gesture handling.
  */
 export function useScrollLock(enabled: boolean = true, referenceElement: Element | null = null) {
   useIsoLayoutEffect(() => {
