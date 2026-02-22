@@ -156,6 +156,30 @@ function Button({ render, ...props }) {
 <Button render={<a href="/contact" />}>Contact</Button>;
 ```
 
+## Conditional default props
+
+When the `render` prop changes the underlying element, some default props may no longer be valid. For example, `type="button"` is appropriate for a `<button>` but not applicable when rendering an `<a>` or other non-button elements. Conditionally apply defaults based on whether the default element is used.
+
+```tsx title="Conditional defaults" {9}
+import { useRender } from '@base-ui/react/use-render';
+import { mergeProps } from '@base-ui/react/merge-props';
+
+interface ButtonProps extends useRender.ComponentProps<'button'> {}
+
+function Button({ render, ...props }: ButtonProps) {
+  const defaultProps: useRender.ElementProps<'button'> = {
+    className: styles.Button,
+    type: render ? undefined : 'button',
+  };
+
+  return useRender({
+    defaultTagName: 'button',
+    render,
+    props: mergeProps<'button'>(defaultProps, props),
+  });
+}
+```
+
 ## API reference
 
 ### Input parameters

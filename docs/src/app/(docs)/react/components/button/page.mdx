@@ -15,6 +15,7 @@ import { DemoButtonHero } from './demos/hero';
 ## Usage guidelines
 
 - **Submit buttons**: Unlike the native button element, `type="submit"` must be specified on Button for it to act as a submit button.
+- **Links**: The Button component enforces button semantics (`role="button"`, keyboard interaction, disabled state). It should not be used for links. See [Rendering links as buttons](#rendering-links-as-buttons) below.
 
 ## Anatomy
 
@@ -40,6 +41,26 @@ import { Button } from '@base-ui/react/button';
 </Button>;
 ```
 
+### Rendering links as buttons
+
+The Button component enforces button semantics. Even with `nativeButton={false}`, it applies `role="button"` and keyboard interaction handlers to the rendered element. Rendering it as an `<a>` causes screen readers to announce the link as a button:
+
+```jsx title="Incorrect"
+<Button render={<a href="/contact" />} nativeButton={false}>
+  Contact
+</Button>
+```
+
+For links that are visually styled as buttons, apply button styles directly to the `<a>` element:
+
+```tsx title="Correct"
+import styles from './button.module.css';
+
+<a href="/contact" className={styles.Button}>
+  Contact
+</a>;
+```
+
 ### Loading states
 
 For buttons that enter a loading state after being clicked, specify the `focusableWhenDisabled` prop to ensure focus remains on the button when it becomes disabled. This prevents focus from being lost and maintains the tab order.
@@ -63,6 +84,8 @@ export const metadata = {
     'Submit Button',
     'Accessible Button',
     'Loading State Button',
+    'Button as Link',
+    'Link Button',
     'Headless React Components',
     'Base UI',
   ],
