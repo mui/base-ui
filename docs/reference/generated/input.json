@@ -4,6 +4,12 @@
   "props": {
     "defaultValue": {
       "type": "string | number | string[]",
+      "description": "The default value of the input. Use when uncontrolled.",
+      "detailedType": "string | number | string[] | undefined"
+    },
+    "value": {
+      "type": "string | number | string[]",
+      "description": "The value of the input. Use when controlled.",
       "detailedType": "string | number | string[] | undefined"
     },
     "onValueChange": {

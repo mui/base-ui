@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
+import { Popover } from '@base-ui/react/popover';
 import {
   act,
   fireEvent,
@@ -9,7 +10,7 @@ import {
   ignoreActWarnings,
   reactMajor,
 } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
+import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
 import { expect } from 'vitest';
 import { spy } from 'sinon';
 import { Field } from '@base-ui/react/field';
@@ -770,6 +771,57 @@ describe('<Select.Root />', () => {
     });
   });
 
+  describe.skipIf(isJSDOM)('select inside popover', () => {
+    it('keeps the popover open when selecting via drag-to-select', async () => {
+      ignoreActWarnings();
+
+      function Test() {
+        const [value, setValue] = React.useState<string | null>('one');
+        return (
+          <div>
+            <span data-testid="selected-value">{value}</span>
+            <Popover.Root defaultOpen>
+              <Popover.Trigger>Open popover</Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="popover-popup">
+                    <Select.Root value={value} onValueChange={setValue}>
+                      <Select.Trigger data-testid="select-trigger">
+                        <Select.Value placeholder="Pick one" />
+                      </Select.Trigger>
+                      <Select.Portal>
+                        <Select.Positioner>
+                          <Select.Popup>
+                            <Select.Item value="one">One</Select.Item>
+                            <Select.Item value="two">Two</Select.Item>
+                          </Select.Popup>
+                        </Select.Positioner>
+                      </Select.Portal>
+                    </Select.Root>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const selectTrigger = screen.getByTestId('select-trigger');
+
+      await user.pointer({ keys: '[MouseLeft>]', target: selectTrigger });
+
+      const option = await screen.findByRole('option', { name: 'Two' });
+      await user.pointer({ target: option });
+      await wait(500);
+      await user.pointer({ keys: '[/MouseLeft]', target: option });
+
+      await waitFor(() => expect(screen.getByTestId('selected-value')).to.have.text('two'));
+      await waitFor(() => expect(screen.queryByTestId('popover-popup')).not.toBe(null));
+    });
+  });
+
   describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
     it('is called on close when there is no exit animation defined', async () => {
       const onOpenChangeComplete = spy();
@@ -1134,6 +1186,34 @@ describe('<Select.Root />', () => {
 
       const trigger = screen.getByRole('combobox');
       expect(trigger).to.have.attribute('id', 'test-id');
+    });
+
+    it('sets a hidden input id when name is not provided', async () => {
+      await render(
+        <Select.Root id="test-id">
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+        </Select.Root>,
+      );
+
+      const hiddenInput = screen.getByRole('textbox', { hidden: true });
+      expect(hiddenInput).to.have.attribute('id', 'test-id-hidden-input');
+      expect(hiddenInput).not.to.have.attribute('name');
+    });
+
+    it('does not set a hidden input id when name is provided', async () => {
+      await render(
+        <Select.Root id="test-id" name="country">
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+        </Select.Root>,
+      );
+
+      const hiddenInput = screen.getByRole('textbox', { hidden: true });
+      expect(hiddenInput).to.have.attribute('name', 'country');
+      expect(hiddenInput).not.to.have.attribute('id');
     });
   });
 
