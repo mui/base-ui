@@ -96,7 +96,7 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     observer.observe(popupElement);
 
     // Measure the rendered size to enable transitions:
-    setPopupCssSize(popupElement, 'auto');
+    setCssSize(popupElement, '--popup-', 'auto');
 
     const restorePopupPosition = overrideElementStyle(popupElement, 'position', 'static');
     const restorePopupTransform = overrideElementStyle(popupElement, 'transform', 'none');
@@ -121,13 +121,13 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
 
     // Initial render (for each time the popup opens).
     if (isInitialRenderRef.current || committedDimensionsRef.current === null) {
-      setPositionerCssSize(positionerElement, 'max-content');
+      setCssSize(positionerElement, '--positioner-', 'max-content');
 
       const dimensions = getCssDimensions(popupElement);
 
       committedDimensionsRef.current = dimensions;
 
-      setPositionerCssSize(positionerElement, dimensions);
+      setCssSize(positionerElement, '--positioner-', dimensions);
       restoreMeasurementOverridesIncludingScale();
       onMeasureLayoutComplete?.(null, dimensions);
 
@@ -141,8 +141,8 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     }
 
     // Subsequent renders while open (when `content` changes).
-    setPopupCssSize(popupElement, 'auto');
-    setPositionerCssSize(positionerElement, 'max-content');
+    setCssSize(popupElement, '--popup-', 'auto');
+    setCssSize(positionerElement, '--positioner-', 'max-content');
 
     const previousDimensions = committedDimensionsRef.current ?? liveDimensionsRef.current;
     const newDimensions = getCssDimensions(popupElement);
@@ -152,7 +152,7 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     committedDimensionsRef.current = newDimensions;
 
     if (!previousDimensions) {
-      setPositionerCssSize(positionerElement, newDimensions);
+      setCssSize(positionerElement, '--positioner-', newDimensions);
       restoreMeasurementOverridesIncludingScale();
       onMeasureLayoutComplete?.(null, newDimensions);
 
@@ -164,16 +164,16 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
       };
     }
 
-    setPopupCssSize(popupElement, previousDimensions);
+    setCssSize(popupElement, '--popup-', previousDimensions);
     restoreMeasurementOverridesIncludingScale();
     onMeasureLayoutComplete?.(previousDimensions, newDimensions);
 
-    setPositionerCssSize(positionerElement, newDimensions);
+    setCssSize(positionerElement, '--positioner-', newDimensions);
 
     const abortController = new AbortController();
 
     animationFrame.request(() => {
-      setPopupCssSize(popupElement, newDimensions);
+      setCssSize(popupElement, '--popup-', newDimensions);
 
       runOnceAnimationsFinish(() => {
         popupElement.style.setProperty('--popup-width', 'auto');
@@ -265,16 +265,13 @@ function applyElementStyles(element: HTMLElement, styles: Record<string, string>
     : NOOP;
 }
 
-function setPopupCssSize(popupElement: HTMLElement, size: Dimensions | 'auto') {
-  const width = size === 'auto' ? 'auto' : `${size.width}px`;
-  const height = size === 'auto' ? 'auto' : `${size.height}px`;
-  popupElement.style.setProperty('--popup-width', width);
-  popupElement.style.setProperty('--popup-height', height);
-}
-
-function setPositionerCssSize(positionerElement: HTMLElement, size: Dimensions | 'max-content') {
-  const width = size === 'max-content' ? 'max-content' : `${size.width}px`;
-  const height = size === 'max-content' ? 'max-content' : `${size.height}px`;
-  positionerElement.style.setProperty('--positioner-width', width);
-  positionerElement.style.setProperty('--positioner-height', height);
+function setCssSize(element: HTMLElement, prefix: string, size: Dimensions | string) {
+  const s = element.style;
+  if (typeof size === 'string') {
+    s.setProperty(`${prefix}width`, size);
+    s.setProperty(`${prefix}height`, size);
+  } else {
+    s.setProperty(`${prefix}width`, `${size.width}px`);
+    s.setProperty(`${prefix}height`, `${size.height}px`);
+  }
 }
