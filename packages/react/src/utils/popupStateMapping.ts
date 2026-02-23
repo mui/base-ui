@@ -34,6 +34,17 @@ export enum CommonPopupDataAttributes {
   align = 'data-align',
 }
 
+export enum CommonPopupDimensionAttributes {
+  /**
+   * The width of the popup.
+   */
+  popupWidth = '--popup-width',
+  /**
+   * The height of the popup.
+   */
+  popupHeight = '--popup-height',
+}
+
 export enum CommonTriggerDataAttributes {
   /**
    * Present when the popup is open.

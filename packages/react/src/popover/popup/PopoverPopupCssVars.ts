@@ -1,10 +1,12 @@
+import { CommonPopupDimensionAttributes } from "../../utils/popupStateMapping";
+
 export enum PopoverPopupCssVars {
   /**
    * The width of the popup.
    */
-  popupWidth = '--popup-width',
+  popupWidth = CommonPopupDimensionAttributes.popupWidth,
   /**
    * The height of the popup.
    */
-  popupHeight = '--popup-height',
+  popupHeight = CommonPopupDimensionAttributes.popupHeight,
 }
