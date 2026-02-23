@@ -294,7 +294,7 @@ describe('useListNavigation', () => {
     expect(screen.getByTestId('active-index').textContent).toBe('0');
   });
 
-  describe('loop', () => {
+  describe('prop: loopFocus', () => {
     it('ArrowDown looping', async () => {
       render(<App loopFocus />);
 
@@ -348,7 +348,7 @@ describe('useListNavigation', () => {
     });
   });
 
-  describe('orientation', () => {
+  describe('prop: orientation', () => {
     it('navigates down on ArrowRight', async () => {
       render(<App orientation="horizontal" />);
 
@@ -402,7 +402,7 @@ describe('useListNavigation', () => {
     });
   });
 
-  describe('rtl', () => {
+  describe('prop: rtl', () => {
     it('navigates down on ArrowLeft', async () => {
       render(<App rtl orientation="horizontal" />);
 
@@ -456,8 +456,8 @@ describe('useListNavigation', () => {
     });
   });
 
-  describe('focusItemOnOpen', () => {
-    it('true click', async () => {
+  describe('prop: focusItemOnOpen', () => {
+    it('focuses the first item on click when true', async () => {
       render(<App focusItemOnOpen />);
       fireEvent.click(screen.getByRole('button'));
       await waitFor(() => {
@@ -465,7 +465,7 @@ describe('useListNavigation', () => {
       });
     });
 
-    it('false click', async () => {
+    it('does not focus the first item on click when false', async () => {
       render(<App focusItemOnOpen={false} />);
       fireEvent.click(screen.getByRole('button'));
       await waitFor(() => {
@@ -474,8 +474,8 @@ describe('useListNavigation', () => {
     });
   });
 
-  describe('selectedIndex', () => {
-    it('scrollIntoView on open', async ({ onTestFinished }) => {
+  describe('prop: selectedIndex', () => {
+    it('scrolls the selected item into view on open', async ({ onTestFinished }) => {
       const requestAnimationFrame = vi
         .spyOn(window, 'requestAnimationFrame')
         .mockImplementation(() => 0);
@@ -499,7 +499,7 @@ describe('useListNavigation', () => {
   });
 
   describe('allowEscape + virtual', () => {
-    it('true', async () => {
+    it('when true', async () => {
       render(<App allowEscape virtual loopFocus />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
       expect(screen.getByTestId('item-0').getAttribute('aria-selected')).toBe('true');
@@ -516,7 +516,7 @@ describe('useListNavigation', () => {
       await flushMicrotasks();
     });
 
-    it('false', async () => {
+    it('when false', async () => {
       render(<App allowEscape={false} virtual loopFocus />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
       expect(screen.getByTestId('item-0').getAttribute('aria-selected')).toBe('true');
@@ -536,35 +536,35 @@ describe('useListNavigation', () => {
     });
   });
 
-  describe('openOnArrowKeyDown', () => {
-    it('true ArrowDown', async () => {
+  describe('prop: openOnArrowKeyDown', () => {
+    it('opens on ArrowDown when true', async () => {
       render(<App openOnArrowKeyDown />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
       expect(screen.getByRole('menu')).toBeInTheDocument();
       await flushMicrotasks();
     });
 
-    it('true ArrowUp', async () => {
+    it('opens on ArrowUp when true', async () => {
       render(<App openOnArrowKeyDown />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowUp' });
       expect(screen.getByRole('menu')).toBeInTheDocument();
       await flushMicrotasks();
     });
 
-    it('false ArrowDown', () => {
+    it('does not open on ArrowDown when false', () => {
       render(<App openOnArrowKeyDown={false} />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
       expect(screen.queryByRole('menu')).not.toBeInTheDocument();
     });
 
-    it('false ArrowUp', () => {
+    it('does not open on ArrowUp when false', () => {
       render(<App openOnArrowKeyDown={false} />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowUp' });
       expect(screen.queryByRole('menu')).not.toBeInTheDocument();
     });
   });
 
-  describe('disabledIndices', () => {
+  describe('prop: disabledIndices', () => {
     it('indices are skipped in focus order', async () => {
       render(<App disabledIndices={[0]} />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
@@ -578,7 +578,7 @@ describe('useListNavigation', () => {
     });
   });
 
-  describe('focusOnHover', () => {
+  describe('prop: focusItemOnHover', () => {
     it('true - focuses item on hover and syncs the active index', async () => {
       const spy = vi.fn();
       render(<App onNavigate={(index) => spy(index)} />);

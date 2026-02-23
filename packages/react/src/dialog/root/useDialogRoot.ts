@@ -171,7 +171,7 @@ export interface UseDialogRootParameters {
   actionsRef?: DialogRoot.Props['actionsRef'] | undefined;
   parentContext?: DialogStore<unknown>['context'] | undefined;
   onOpenChange: DialogRoot.Props['onOpenChange'];
-  triggerIdProp?: (string | null) | undefined;
+  triggerIdProp?: string | null | undefined;
 }
 
 export type UseDialogRootReturnValue = void;

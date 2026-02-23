@@ -29,7 +29,7 @@ export type UseHoverFloatingInteractionProps = {
    * the `open` state.
    * @default 0
    */
-  closeDelay?: (number | (() => number)) | undefined;
+  closeDelay?: number | (() => number) | undefined;
 };
 
 const clickLikeEvents = new Set(['click', 'mousedown']);

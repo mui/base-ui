@@ -32,7 +32,7 @@ export interface TabsRootContext {
   getTabPanelIdByValue: (tabValue: TabsTab.Value) => string | undefined;
   registerMountedTabPanel: (panelValue: TabsTab.Value | number, panelId: string) => void;
   setTabMap: (
-    map: Map<Node, (TabsTab.Metadata & { index?: (number | null) | undefined }) | null>,
+    map: Map<Node, (TabsTab.Metadata & { index?: number | null | undefined }) | null>,
   ) => void;
   unregisterMountedTabPanel: (panelValue: TabsTab.Value | number, panelId: string) => void;
   /**

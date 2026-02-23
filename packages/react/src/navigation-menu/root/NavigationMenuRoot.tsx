@@ -335,7 +335,7 @@ export interface NavigationMenuRootProps extends BaseUIComponentProps<
    * The orientation of the navigation menu.
    * @default 'horizontal'
    */
-  orientation?: ('horizontal' | 'vertical') | undefined;
+  orientation?: 'horizontal' | 'vertical' | undefined;
 }
 
 export interface NavigationMenuRootActions {

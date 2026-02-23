@@ -65,7 +65,7 @@ export const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
 });
 
 export interface ScrollAreaThumbState {
-  orientation?: ('horizontal' | 'vertical') | undefined;
+  orientation?: 'horizontal' | 'vertical' | undefined;
 }
 
 export interface ScrollAreaThumbProps extends BaseUIComponentProps<'div', ScrollAreaThumb.State> {}

@@ -60,9 +60,9 @@ export type State = {
   setInputValue: (value: string, eventDetails: AriaCombobox.ChangeEventDetails) => void;
   setSelectedValue: (value: any, eventDetails: AriaCombobox.ChangeEventDetails) => void;
   setIndices: (indices: {
-    activeIndex?: (number | null) | undefined;
-    selectedIndex?: (number | null) | undefined;
-    type?: ('keyboard' | 'pointer' | 'none') | undefined;
+    activeIndex?: number | null | undefined;
+    selectedIndex?: number | null | undefined;
+    type?: 'keyboard' | 'pointer' | 'none' | undefined;
   }) => void;
   onItemHighlighted: (item: any, eventDetails: AriaCombobox.HighlightEventDetails) => void;
   forceMount: () => void;

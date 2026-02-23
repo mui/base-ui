@@ -2350,6 +2350,32 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         expect(validateSpy.callCount).to.equal(1);
         expect(validateSpy.args[0][0]).to.deep.equal([5, 12]);
       });
+
+      it('does not call validate on change when validationMode is omitted', async () => {
+        const validateSpy = spy();
+        await render(
+          <Form>
+            <Field.Root validate={validateSpy}>
+              <Slider.Root defaultValue={50}>
+                <Slider.Control data-testid="control">
+                  <Slider.Track>
+                    <Slider.Thumb aria-label="Value" />
+                  </Slider.Track>
+                </Slider.Control>
+              </Slider.Root>
+            </Field.Root>
+            <button type="submit">submit</button>
+          </Form>,
+        );
+
+        expect(validateSpy.callCount).to.equal(0);
+
+        const sliderControl = screen.getByTestId('control');
+        fireEvent.pointerDown(sliderControl, { buttons: 1, clientX: 10 });
+        fireEvent.pointerUp(sliderControl, { buttons: 1, clientX: 30 });
+
+        expect(validateSpy.callCount).to.equal(0);
+      });
     });
 
     it('Field.Label', async () => {

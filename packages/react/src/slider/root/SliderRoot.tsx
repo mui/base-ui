@@ -527,7 +527,7 @@ export interface SliderRootProps<
    * - `edge-client-only`: Same as `edge` but renders after React hydration on the client, reducing bundle size in return
    * @default 'center'
    */
-  thumbAlignment?: ('center' | 'edge' | 'edge-client-only') | undefined;
+  thumbAlignment?: 'center' | 'edge' | 'edge-client-only' | undefined;
   /**
    * Controls how thumbs behave when they collide during pointer interactions.
    *
@@ -537,7 +537,7 @@ export interface SliderRootProps<
    *
    * @default 'push'
    */
-  thumbCollisionBehavior?: ('push' | 'swap' | 'none') | undefined;
+  thumbCollisionBehavior?: 'push' | 'swap' | 'none' | undefined;
   /**
    * The value of the slider.
    * For ranged sliders, provide an array with two values.
