@@ -185,16 +185,13 @@ export function getGridNavigatedIndex(
 
   if (event.key === ARROW_UP) {
     const domBasedCandidate = navigateVertically('up');
+    if (stop) {
+      stopEvent(event);
+    }
     if (domBasedCandidate !== undefined) {
-      if (stop) {
-        stopEvent(event);
-      }
       nextIndex = domBasedCandidate;
     } else {
       // fallback to original logic
-      if (stop) {
-        stopEvent(event);
-      }
 
       if (prevIndex === -1) {
         nextIndex = maxIndex;
@@ -222,16 +219,12 @@ export function getGridNavigatedIndex(
 
   if (event.key === ARROW_DOWN) {
     const domBasedCandidate = navigateVertically('down');
+    if (stop) {
+      stopEvent(event);
+    }
     if (domBasedCandidate !== undefined) {
-      if (stop) {
-        stopEvent(event);
-      }
       nextIndex = domBasedCandidate;
     } else {
-      if (stop) {
-        stopEvent(event);
-      }
-
       if (prevIndex === -1) {
         nextIndex = minIndex;
       } else {
