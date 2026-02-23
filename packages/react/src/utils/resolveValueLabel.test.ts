@@ -41,5 +41,47 @@ describe('resolveValueLabel', () => {
 
       expect(hasNullItemLabel(items)).to.equal(false);
     });
+
+    it('returns true when flat items contain a null-valued item with a label', () => {
+      const items = [
+        { value: 'a', label: 'A' },
+        { value: null, label: 'None' },
+      ];
+
+      expect(hasNullItemLabel(items)).to.equal(true);
+    });
+
+    it('returns false when flat items do not contain a null-valued item', () => {
+      const items = [
+        { value: 'a', label: 'A' },
+        { value: 'b', label: 'B' },
+      ];
+
+      expect(hasNullItemLabel(items)).to.equal(false);
+    });
+
+    it('returns false when items is a Record without a "null" key', () => {
+      const items = {
+        sans: 'Sans-serif',
+        serif: 'Serif',
+        mono: 'Monospace',
+      };
+
+      expect(hasNullItemLabel(items)).to.equal(false);
+    });
+
+    it('returns true when items is a Record with a "null" key', () => {
+      const items = {
+        null: 'None',
+        sans: 'Sans-serif',
+        serif: 'Serif',
+      };
+
+      expect(hasNullItemLabel(items)).to.equal(true);
+    });
+
+    it('returns false when items is undefined', () => {
+      expect(hasNullItemLabel(undefined)).to.equal(false);
+    });
   });
 });

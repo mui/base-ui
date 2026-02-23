@@ -36,7 +36,7 @@ export function isGroupedItems(
  */
 export function hasNullItemLabel(items: ItemsInput): boolean {
   if (!Array.isArray(items)) {
-    return items != null && !('null' in items);
+    return items != null && 'null' in items;
   }
 
   if (isGroupedItems(items)) {
