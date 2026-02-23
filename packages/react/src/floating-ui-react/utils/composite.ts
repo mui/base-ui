@@ -121,7 +121,50 @@ export function getGridNavigatedIndex(
     });
   }
 
-  const hasDomRows = hasRoleRow && rows.length > 0 && rows.some((row) => row.length !== cols);
+  let hasDomRows = false;
+  let visibleItemCount = 0;
+  let inferredDomCols = 0;
+
+  if (hasRoleRow && rows.length > 0) {
+    for (const row of rows) {
+      const rowLength = row.length;
+      visibleItemCount += rowLength;
+
+      if (rowLength > inferredDomCols) {
+        inferredDomCols = rowLength;
+      }
+
+      if (!hasDomRows && rowLength !== cols) {
+        hasDomRows = true;
+      }
+    }
+  }
+
+  const hasVirtualizedGaps =
+    hasDomRows && visibleItemCount > 0 && visibleItemCount < listRef.current.length;
+  const verticalCols = hasDomRows && inferredDomCols > 0 ? inferredDomCols : cols;
+
+  function getLoopedRow(nextRow: number) {
+    if (!loopFocus) {
+      return nextRow;
+    }
+
+    if (nextRow < 0) {
+      if (hasVirtualizedGaps) {
+        return undefined;
+      }
+      return rows.length - 1;
+    }
+
+    if (nextRow >= rows.length) {
+      if (hasVirtualizedGaps) {
+        return undefined;
+      }
+      return 0;
+    }
+
+    return nextRow;
+  }
 
   function navigateVertically(direction: 'up' | 'down') {
     if (!hasDomRows || prevIndex === -1) {
@@ -133,14 +176,12 @@ export function getGridNavigatedIndex(
     }
     const colInRow = rows[currentRow].indexOf(prevIndex);
 
-    let nextRow = direction === 'up' ? currentRow - 1 : currentRow + 1;
-    if (loopFocus) {
-      if (nextRow < 0) {
-        nextRow = rows.length - 1;
-      } else if (nextRow >= rows.length) {
-        nextRow = 0;
-      }
+    const initialNextRow = direction === 'up' ? currentRow - 1 : currentRow + 1;
+    const loopedRow = getLoopedRow(initialNextRow);
+    if (loopedRow == null) {
+      return undefined;
     }
+    let nextRow = loopedRow;
 
     const visited = new Set<number>();
     while (nextRow >= 0 && nextRow < rows.length && !visited.has(nextRow)) {
@@ -160,15 +201,12 @@ export function getGridNavigatedIndex(
         }
       }
       // Row had no enabled items, move to next row in the same direction.
-      nextRow = direction === 'up' ? nextRow - 1 : nextRow + 1;
-
-      if (loopFocus) {
-        if (nextRow < 0) {
-          nextRow = rows.length - 1;
-        } else if (nextRow >= rows.length) {
-          nextRow = 0;
-        }
+      const rawNextRow = direction === 'up' ? nextRow - 1 : nextRow + 1;
+      const nextLoopedRow = getLoopedRow(rawNextRow);
+      if (nextLoopedRow == null) {
+        return undefined;
       }
+      nextRow = nextLoopedRow;
     }
     return undefined;
   }
@@ -191,20 +229,20 @@ export function getGridNavigatedIndex(
       } else {
         nextIndex = findNonDisabledListIndex(listRef, {
           startingIndex: nextIndex,
-          amount: cols,
+          amount: verticalCols,
           decrement: true,
           disabledIndices,
         });
 
-        if (loopFocus && (prevIndex - cols < minIndex || nextIndex < 0)) {
-          const col = prevIndex % cols;
-          const maxCol = maxIndex % cols;
+        if (loopFocus && (prevIndex - verticalCols < minIndex || nextIndex < 0)) {
+          const col = prevIndex % verticalCols;
+          const maxCol = maxIndex % verticalCols;
           const offset = maxIndex - (maxCol - col);
 
           if (maxCol === col) {
             nextIndex = maxIndex;
           } else {
-            nextIndex = maxCol > col ? offset : offset - cols;
+            nextIndex = maxCol > col ? offset : offset - verticalCols;
           }
         }
       }
@@ -232,14 +270,14 @@ export function getGridNavigatedIndex(
       } else {
         nextIndex = findNonDisabledListIndex(listRef, {
           startingIndex: prevIndex,
-          amount: cols,
+          amount: verticalCols,
           disabledIndices,
         });
 
-        if (loopFocus && prevIndex + cols > maxIndex) {
+        if (loopFocus && prevIndex + verticalCols > maxIndex) {
           nextIndex = findNonDisabledListIndex(listRef, {
-            startingIndex: (prevIndex % cols) - cols,
-            amount: cols,
+            startingIndex: (prevIndex % verticalCols) - verticalCols,
+            amount: verticalCols,
             disabledIndices,
           });
         }

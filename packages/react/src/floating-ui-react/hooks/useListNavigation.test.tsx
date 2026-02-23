@@ -74,6 +74,78 @@ function App(
   );
 }
 
+function VirtualizedGridRows() {
+  const TOTAL_ITEMS = 100;
+  const COLUMNS = 5;
+  const VISIBLE_ROWS = 3;
+
+  const [open, setOpen] = React.useState(true);
+  const [activeIndex, setActiveIndex] = React.useState<number | null>(0);
+  const listRef = React.useRef<Array<HTMLButtonElement | null>>([]);
+
+  const { refs, context } = useFloating({
+    open,
+    onOpenChange: setOpen,
+  });
+
+  const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
+    useListNavigation(context, {
+      listRef,
+      activeIndex,
+      onNavigate: setActiveIndex,
+      virtual: true,
+      loopFocus: true,
+      cols: 2,
+      orientation: 'horizontal',
+    }),
+  ]);
+
+  React.useEffect(() => {
+    listRef.current.length = TOTAL_ITEMS;
+  }, []);
+
+  return (
+    <React.Fragment>
+      <input
+        data-testid="virtual-grid-reference"
+        {...getReferenceProps({ ref: refs.setReference })}
+      />
+      {open && (
+        <div
+          role="grid"
+          data-testid="virtual-grid-floating"
+          {...getFloatingProps({ ref: refs.setFloating })}
+        >
+          {Array.from({ length: VISIBLE_ROWS }, (_row, rowIndex) => (
+            <div key={rowIndex} role="row">
+              {Array.from({ length: COLUMNS }, (_column, columnIndex) => {
+                const itemIndex = rowIndex * COLUMNS + columnIndex;
+
+                return (
+                  <button
+                    key={itemIndex}
+                    type="button"
+                    role="gridcell"
+                    data-active={activeIndex === itemIndex ? '' : undefined}
+                    {...getItemProps({
+                      ref(node: HTMLButtonElement | null) {
+                        listRef.current[itemIndex] = node;
+                      },
+                    })}
+                  >
+                    {itemIndex}
+                  </button>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      )}
+      <span data-testid="virtual-grid-active-index" data-active-index={activeIndex ?? ''} />
+    </React.Fragment>
+  );
+}
+
 describe('useListNavigation', () => {
   it('opens on ArrowDown and focuses first item', async () => {
     render(<App />);
@@ -772,6 +844,24 @@ describe('useListNavigation', () => {
       fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowLeft' });
       expect(screen.getAllByRole('option')[46]).toHaveFocus();
       await flushMicrotasks();
+    });
+
+    it('wraps ArrowUp to the last row in the full list for virtualized rows', async () => {
+      render(<VirtualizedGridRows />);
+
+      const reference = screen.getByTestId('virtual-grid-reference');
+      await act(async () => {
+        reference.focus();
+      });
+
+      await userEvent.keyboard('{ArrowUp}');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('virtual-grid-active-index')).toHaveAttribute(
+          'data-active-index',
+          '95',
+        );
+      });
     });
   });
 
