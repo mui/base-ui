@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { FieldRootContext } from './FieldRootContext';
 import { DEFAULT_VALIDITY_STATE, fieldValidityMapping } from '../utils/constants';
 import { useFieldsetRootContext } from '../../fieldset/root/FieldsetRootContext';
@@ -76,10 +75,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
       (validationMode === 'onSubmit' && submitAttemptedRef.current),
   );
 
-  const hasFormError =
-    name !== undefined &&
-    EMPTY_OBJECT.hasOwnProperty.call(errors, name) &&
-    errors[name] !== undefined;
+  const hasFormError = !!name && Object.hasOwn(errors, name) && errors[name] !== undefined;
   const invalid = invalidProp === true || hasFormError;
 
   const [validityData, setValidityData] = React.useState<FieldValidityData>({
