@@ -89,6 +89,16 @@ export function getGridNavigatedIndex(
 ) {
   let nextIndex = prevIndex;
 
+  // Wrapper that closes over listRef and disabledIndices to avoid repeating
+  // object literals with the same long property keys across every call site.
+  const find = (startingIndex: number, decrement?: boolean, amount?: number) =>
+    findNonDisabledListIndex(listRef, {
+      startingIndex,
+      decrement,
+      amount,
+      disabledIndices,
+    });
+
   // ---------------------------------------------------------------------------
   // Detect row structure based on DOM. This works when items are grouped inside
   // elements that declare `role="row"` (e.g., Combobox.Row). We build a matrix
@@ -189,12 +199,7 @@ export function getGridNavigatedIndex(
       if (prevIndex === -1) {
         nextIndex = maxIndex;
       } else {
-        nextIndex = findNonDisabledListIndex(listRef, {
-          startingIndex: nextIndex,
-          amount: cols,
-          decrement: true,
-          disabledIndices,
-        });
+        nextIndex = find(nextIndex, true, cols);
 
         if (loopFocus && (prevIndex - cols < minIndex || nextIndex < 0)) {
           const col = prevIndex % cols;
@@ -230,18 +235,10 @@ export function getGridNavigatedIndex(
       if (prevIndex === -1) {
         nextIndex = minIndex;
       } else {
-        nextIndex = findNonDisabledListIndex(listRef, {
-          startingIndex: prevIndex,
-          amount: cols,
-          disabledIndices,
-        });
+        nextIndex = find(prevIndex, false, cols);
 
         if (loopFocus && prevIndex + cols > maxIndex) {
-          nextIndex = findNonDisabledListIndex(listRef, {
-            startingIndex: (prevIndex % cols) - cols,
-            amount: cols,
-            disabledIndices,
-          });
+          nextIndex = find((prevIndex % cols) - cols, false, cols);
         }
       }
 
@@ -261,22 +258,13 @@ export function getGridNavigatedIndex(
       }
 
       if (prevIndex % cols !== cols - 1) {
-        nextIndex = findNonDisabledListIndex(listRef, {
-          startingIndex: prevIndex,
-          disabledIndices,
-        });
+        nextIndex = find(prevIndex);
 
         if (loopFocus && isDifferentGridRow(nextIndex, cols, prevRow)) {
-          nextIndex = findNonDisabledListIndex(listRef, {
-            startingIndex: prevIndex - (prevIndex % cols) - 1,
-            disabledIndices,
-          });
+          nextIndex = find(prevIndex - (prevIndex % cols) - 1);
         }
       } else if (loopFocus) {
-        nextIndex = findNonDisabledListIndex(listRef, {
-          startingIndex: prevIndex - (prevIndex % cols) - 1,
-          disabledIndices,
-        });
+        nextIndex = find(prevIndex - (prevIndex % cols) - 1);
       }
 
       if (isDifferentGridRow(nextIndex, cols, prevRow)) {
@@ -290,25 +278,13 @@ export function getGridNavigatedIndex(
       }
 
       if (prevIndex % cols !== 0) {
-        nextIndex = findNonDisabledListIndex(listRef, {
-          startingIndex: prevIndex,
-          decrement: true,
-          disabledIndices,
-        });
+        nextIndex = find(prevIndex, true);
 
         if (loopFocus && isDifferentGridRow(nextIndex, cols, prevRow)) {
-          nextIndex = findNonDisabledListIndex(listRef, {
-            startingIndex: prevIndex + (cols - (prevIndex % cols)),
-            decrement: true,
-            disabledIndices,
-          });
+          nextIndex = find(prevIndex + (cols - (prevIndex % cols)), true);
         }
       } else if (loopFocus) {
-        nextIndex = findNonDisabledListIndex(listRef, {
-          startingIndex: prevIndex + (cols - (prevIndex % cols)),
-          decrement: true,
-          disabledIndices,
-        });
+        nextIndex = find(prevIndex + (cols - (prevIndex % cols)), true);
       }
 
       if (isDifferentGridRow(nextIndex, cols, prevRow)) {
@@ -323,10 +299,7 @@ export function getGridNavigatedIndex(
         nextIndex =
           event.key === (rtl ? ARROW_RIGHT : ARROW_LEFT)
             ? maxIndex
-            : findNonDisabledListIndex(listRef, {
-                startingIndex: prevIndex - (prevIndex % cols) - 1,
-                disabledIndices,
-              });
+            : find(prevIndex - (prevIndex % cols) - 1);
       } else {
         nextIndex = prevIndex;
       }

@@ -180,21 +180,13 @@ export function useAnchorPositioning(
   const biasLeft = sideParam === 'right' ? bias : 0;
   const biasRight = sideParam === 'left' ? bias : 0;
 
-  if (typeof collisionPadding === 'number') {
-    collisionPadding = {
-      top: collisionPadding + biasTop,
-      right: collisionPadding + biasRight,
-      bottom: collisionPadding + biasBottom,
-      left: collisionPadding + biasLeft,
-    };
-  } else if (collisionPadding) {
-    collisionPadding = {
-      top: (collisionPadding.top || 0) + biasTop,
-      right: (collisionPadding.right || 0) + biasRight,
-      bottom: (collisionPadding.bottom || 0) + biasBottom,
-      left: (collisionPadding.left || 0) + biasLeft,
-    };
-  }
+  const isNumber = typeof collisionPadding === 'number';
+  collisionPadding = {
+    top: (isNumber ? collisionPadding : collisionPadding.top || 0) + biasTop,
+    right: (isNumber ? collisionPadding : collisionPadding.right || 0) + biasRight,
+    bottom: (isNumber ? collisionPadding : collisionPadding.bottom || 0) + biasBottom,
+    left: (isNumber ? collisionPadding : collisionPadding.left || 0) + biasLeft,
+  };
 
   const commonCollisionProps = {
     boundary: collisionBoundary === 'clipping-ancestors' ? 'clippingAncestors' : collisionBoundary,
