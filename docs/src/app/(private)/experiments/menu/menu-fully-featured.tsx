@@ -66,17 +66,17 @@ export default function MenuFullyFeatured() {
               </Menu.Item>
               <Menu.LinkItem
                 href="https://base-ui.com"
-                className={clsx(classes.Item, 'hover:cursor-pointer!')}
+                className={clsx(classes.Item, classes.LinkItem)}
               >
                 Link 1 (base-ui.com)
               </Menu.LinkItem>
               <Menu.LinkItem
                 render={<a href="https://github.com">Link 2 (github.com)</a>}
-                className={clsx(classes.Item, 'hover:cursor-pointer!')}
+                className={clsx(classes.Item, classes.LinkItem)}
               />
               <Menu.LinkItem
                 render={<NextLink href="/experiments">Link 3 (/experiments)</NextLink>}
-                className={clsx(classes.Item, 'hover:cursor-pointer!')}
+                className={clsx(classes.Item, classes.LinkItem)}
               />
               <Menu.Item className={classes.Item} onClick={handleItemClick}>
                 Item 3
@@ -99,7 +99,7 @@ export default function MenuFullyFeatured() {
                 <Menu.Portal>
                   <Menu.Positioner className={classes.Positioner} sideOffset={8}>
                     <Menu.Popup className={classes.Popup}>
-                      <div className="flex items-center py-2 pl-7.5 text-xs">
+                      <div className={classes.NonFocusableText}>
                         Non-focusable text
                       </div>
                       <Menu.Group>
