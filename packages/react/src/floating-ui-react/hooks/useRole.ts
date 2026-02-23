@@ -14,7 +14,7 @@ export interface UseRoleProps {
    * The role of the floating element.
    * @default 'dialog'
    */
-  role?: (AriaRole | ComponentRole) | undefined;
+  role?: AriaRole | ComponentRole | undefined;
 }
 
 const componentRoleToAriaRoleMap = new Map<AriaRole | ComponentRole, AriaRole | false>([

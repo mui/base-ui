@@ -97,7 +97,7 @@ export interface UseClientPointProps {
    * floating element is also interactive.
    * @default 'both'
    */
-  axis?: ('x' | 'y' | 'both') | undefined;
+  axis?: 'x' | 'y' | 'both' | undefined;
 }
 
 /**

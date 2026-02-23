@@ -5,13 +5,13 @@ import { ScrollArea } from '@base-ui/react/scroll-area';
 export default function InsideScrollDialog() {
   return (
     <Dialog.Root>
-      <Dialog.Trigger className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100">
+      <Dialog.Trigger className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100">
         Open dialog
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Backdrop className="fixed inset-0 bg-black opacity-20 transition-opacity duration-[250ms] ease-[cubic-bezier(0.45,1.005,0,1.005)] data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 dark:opacity-70 supports-[-webkit-touch-callout:none]:absolute" />
         <Dialog.Viewport className="fixed inset-0 flex items-center justify-center overflow-hidden py-6 [@media(min-height:600px)]:pb-12 [@media(min-height:600px)]:pt-8">
-          <Dialog.Popup className="relative flex w-[min(40rem,calc(100vw-2rem))] max-h-full max-w-full min-h-0 flex-col overflow-hidden rounded-lg bg-[var(--color-gray-50)] p-8 text-[var(--color-gray-900)] shadow-[0_24px_45px_rgba(15,23,42,0.18)] outline outline-1 outline-[var(--color-gray-200)] transition-all duration-[300ms] ease-[cubic-bezier(0.45,1.005,0,1.005)] data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0 dark:outline-[var(--color-gray-300)]">
+          <Dialog.Popup className="relative flex w-[min(40rem,calc(100vw-2rem))] max-h-full max-w-full min-h-0 flex-col overflow-hidden rounded-lg bg-[var(--color-gray-50)] p-8 text-[var(--color-gray-900)] shadow-[0_24px_45px_rgba(15,23,42,0.18)] outline-1 outline-[var(--color-gray-200)] transition-all duration-[300ms] ease-[cubic-bezier(0.45,1.005,0,1.005)] data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0 dark:outline-[var(--color-gray-300)]">
             <div className="mb-2 flex items-start justify-between gap-3">
               <Dialog.Title className="m-0 text-xl font-semibold leading-[1.875rem]">
                 Dialog
@@ -21,7 +21,7 @@ export default function InsideScrollDialog() {
               This layout keeps the popup fully on screen while allowing its content to scroll.
             </Dialog.Description>
             <ScrollArea.Root className="relative flex min-h-0 flex-1 overflow-hidden before:absolute before:top-0 before:h-px before:w-full before:bg-[var(--color-gray-200)] before:content-[''] after:absolute after:bottom-0 after:h-px after:w-full after:bg-[var(--color-gray-200)] after:content-['']">
-              <ScrollArea.Viewport className="flex-1 min-h-0 overflow-y-auto overscroll-contain py-6 pr-6 pl-1 focus-visible:outline focus-visible:outline-1 focus-visible:-outline-offset-1 focus-visible:outline-[var(--color-blue)]">
+              <ScrollArea.Viewport className="flex-1 min-h-0 overflow-y-auto overscroll-contain py-6 pr-6 pl-1 focus-visible:outline-1 focus-visible:-outline-offset-1 focus-visible:outline-[var(--color-blue)]">
                 <ScrollArea.Content className="flex flex-col gap-6">
                   {CONTENT_SECTIONS.map((item) => (
                     <section key={item.title}>
@@ -40,7 +40,7 @@ export default function InsideScrollDialog() {
               </ScrollArea.Scrollbar>
             </ScrollArea.Root>
             <div className="mt-4 flex justify-end gap-3">
-              <Dialog.Close className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100">
+              <Dialog.Close className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100">
                 Close
               </Dialog.Close>
             </div>

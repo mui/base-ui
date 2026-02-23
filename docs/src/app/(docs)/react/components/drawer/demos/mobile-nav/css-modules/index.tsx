@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import NextLink from 'next/link';
 import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import styles from './index.module.css';
@@ -55,9 +54,9 @@ export default function ExampleDrawerMobileNav() {
                         <ul className={styles.List}>
                           {ITEMS.map((item) => (
                             <li key={item.label} className={styles.Item}>
-                              <NextLink className={styles.Link} href={item.href}>
+                              <a className={styles.Link} href={item.href}>
                                 {item.label}
-                              </NextLink>
+                              </a>
                             </li>
                           ))}
                         </ul>
@@ -65,9 +64,9 @@ export default function ExampleDrawerMobileNav() {
                         <ul className={styles.LongList} aria-label="Long list">
                           {LONG_LIST.map((item) => (
                             <li key={item.label} className={styles.Item}>
-                              <NextLink className={styles.Link} href={item.href}>
+                              <a className={styles.Link} href={item.href}>
                                 {item.label}
-                              </NextLink>
+                              </a>
                             </li>
                           ))}
                         </ul>

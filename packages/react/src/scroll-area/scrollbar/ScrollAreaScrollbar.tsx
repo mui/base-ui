@@ -245,7 +245,7 @@ export interface ScrollAreaScrollbarProps extends BaseUIComponentProps<
    * Whether the scrollbar controls vertical or horizontal scroll.
    * @default 'vertical'
    */
-  orientation?: ('vertical' | 'horizontal') | undefined;
+  orientation?: 'vertical' | 'horizontal' | undefined;
   /**
    * Whether to keep the HTML element in the DOM when the viewport isn’t scrollable.
    * @default false

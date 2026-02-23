@@ -180,14 +180,14 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
    * - `none`: items are static (not filtered), and the input value will not change based on the active item.
    * @default 'list'
    */
-  mode?: ('list' | 'both' | 'inline' | 'none') | undefined;
+  mode?: 'list' | 'both' | 'inline' | 'none' | undefined;
   /**
    * Whether the first matching item is highlighted automatically.
    * - `true`: highlight after the user types and keep the highlight while the query changes.
    * - `'always'`: always highlight the first item.
    * @default false
    */
-  autoHighlight?: (boolean | 'always') | undefined;
+  autoHighlight?: boolean | 'always' | undefined;
   /**
    * Whether the highlighted item should be preserved when the pointer leaves the list.
    * @default false

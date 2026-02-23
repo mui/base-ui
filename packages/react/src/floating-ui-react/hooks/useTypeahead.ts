@@ -42,7 +42,7 @@ export interface UseTypeaheadProps {
    * The index of the selected item in the list, if available.
    * @default null
    */
-  selectedIndex?: (number | null) | undefined;
+  selectedIndex?: number | null | undefined;
 }
 
 /**
