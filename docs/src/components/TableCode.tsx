@@ -2,6 +2,7 @@ import * as React from 'react';
 import clsx from 'clsx';
 import { Code } from './Code';
 import { getChildrenText } from '../utils/getChildrenText';
+import './TableCode.css';
 
 export interface TableCodeProps extends React.ComponentProps<'code'> {
   printWidth?: number;
@@ -72,7 +73,7 @@ export function TableCode({ children, className, printWidth = 40, ...props }: Ta
   }
 
   return (
-    <Code data-table-code="" className={clsx('text-xs', className)} {...props}>
+    <Code data-table-code="" className={clsx('TableCode', className)} {...props}>
       {children}
     </Code>
   );

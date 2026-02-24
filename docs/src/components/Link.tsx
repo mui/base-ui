@@ -23,7 +23,7 @@ export function Link(props: LinkProps) {
         rel="noopener"
         {...rest}
         href={href}
-        className={clsx('Link mr-[0.125em] inline-flex items-center gap-[0.25em]', className)}
+        className={clsx('Link', className)}
       >
         {props.children}
         {!skipExternalIcon && <ExternalLinkIcon />}
