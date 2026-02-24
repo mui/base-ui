@@ -60,9 +60,10 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
           '`nativeButton` to `true`.';
         error(`${message}${ownerStackMessage}`);
       } else if (elementRef.current.tagName === 'A') {
-        warn(
-          'A component that acts as a button was rendered as an <a> tag, which could cause usability issues for keyboard and assistive tech users. Prefer using `<a>` directly.',
-        );
+        const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
+        const message =
+          'A component that acts as a button was rendered as an <a> tag, which causes usability issues for keyboard and assistive tech users. Prefer using `<a>` directly.';
+        warn(`${message}${ownerStackMessage}`);
       }
     }, [isNativeButton]);
   }
