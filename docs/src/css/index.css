@@ -22,7 +22,7 @@
 
 /* ═══ Docs-only imports ═══ */
 
-@import './breakpoints.css';
+@import './custom-media.css';
 @import '../syntax-highlighting/index.css';
 @import './mdx.css';
 
@@ -84,6 +84,9 @@
     --text-md: 0.9375rem;
     --text-md--line-height: 1.375rem;
     --text-md--letter-spacing: 0.016em;
+
+    /* Breakpoints (use custom-media.css where possible) */
+    --breakpoint-max-layout-width: 89rem;
 
     --ease-out-fast: cubic-bezier(0.45, 1.005, 0, 1.005);
     --ease-in-slow: cubic-bezier(0.375, 0.015, 0.545, 0.455);
