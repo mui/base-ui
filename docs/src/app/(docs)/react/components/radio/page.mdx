@@ -12,7 +12,7 @@ import { DemoRadioHero } from './demos/hero';
 
 ## Usage guidelines
 
-- **Form controls must have an accessible name**: It can be created using `<label>` elements, or the `Field` and `Fieldset` components. See [Labeling a radio group](#labeling-a-radio-group) and the [forms guide](/react/handbook/forms).
+- **Form controls must have an accessible name**: It can be created using `<label>` elements, the [Label](/react/components/label) component, or the `Field` and `Fieldset` components. See [Labeling a radio group](#labeling-a-radio-group) and the [forms guide](/react/handbook/forms).
 
 ## Anatomy
 
@@ -40,16 +40,16 @@ A visible label for the group is created by specifying `aria-labelledby` on `<Ra
 <RadioGroup aria-labelledby="storage-type-label">{/* ... */}</RadioGroup>
 ```
 
-For individual radio buttons, use an enclosing `<label>` element that wraps each `<Radio.Root>`. An enclosing label is announced to screen readers when focus is on the control, and ensures that clicking on any gaps between the label and radio still toggles it.
+For individual radio buttons, use the [Label](/react/components/label) component. It supports the same enclosing labeling pattern as a native `<label>`, so clicking on any gaps between the label text and radio still toggles it.
 
-```tsx title="Using an enclosing label to label a radio button" {1,4}
-<label>
+```tsx title="Using Label to label a radio button" {1,4}
+<Label>
   <Radio.Root value="ssd" />
   SSD
-</label>
+</Label>
 ```
 
-The [Field](/react/components/field) and [Fieldset](/react/components/fieldset) components eliminate the need to track `id` or `aria-labelledby` associations manually. They support both enclosing and sibling labeling patterns, along with a UX improvement to prevent double clicks from selecting the label text.
+The [Field](/react/components/field) and [Fieldset](/react/components/fieldset) components are alternatives that add validation and group labeling support.
 
 1. **Group label**: Since the group contains multiple controls, it can be labeled as a fieldset. Use [Fieldset](/react/components/fieldset) by replacing the `<Fieldset.Root>` element with `<RadioGroup>` via the `render` prop. `<Fieldset.Legend>` provides the visible label for the group.
 2. **Individual label**: Place each individual radio in `<Field.Item>`, then label it using an enclosing `<Field.Label>`. Enclosing labels ensure that clicking on any gaps between the label and radio still toggles it.

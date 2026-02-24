@@ -12,7 +12,7 @@ import { DemoSwitchHero } from './demos/hero';
 
 ## Usage guidelines
 
-- **Form controls must have an accessible name**: It can be created using a `<label>` element or the `Field` component. See [Labeling a switch](#labeling-a-switch) and the [forms guide](/react/handbook/forms).
+- **Form controls must have an accessible name**: It can be created using a `<label>` element, the [Label](/react/components/label) component, or the `Field` component. See [Labeling a switch](#labeling-a-switch) and the [forms guide](/react/handbook/forms).
 
 ## Anatomy
 
@@ -30,16 +30,16 @@ import { Switch } from '@base-ui/react/switch';
 
 ### Labeling a switch
 
-Label a switch using an enclosing `<label>` element that wraps `<Switch.Root>`. An enclosing label is announced to screen readers when focus is on the control, and ensures that clicking on any gaps between the label and switch still toggles the control.
+Label a switch using the [Label](/react/components/label) component. It supports the same enclosing labeling pattern as a native `<label>`, so clicking on any gaps between the label text and switch still toggles the control.
 
-```tsx title="Using an enclosing label to label a switch" {1,4}
-<label>
+```tsx title="Using Label to label a switch" {1,4}
+<Label>
   <Switch.Root />
   Notifications
-</label>
+</Label>
 ```
 
-The [Field](/react/components/field) component eliminates the need to track `id` or `aria-label` associations manually. It supports both enclosing and sibling labeling patterns, along with a UX improvement to prevent double clicks from selecting the label text.
+The [Field](/react/components/field) component is an alternative that adds validation and description support.
 
 ```tsx title="Using the Field component to label a switch" {2,5}
 <Field.Root>

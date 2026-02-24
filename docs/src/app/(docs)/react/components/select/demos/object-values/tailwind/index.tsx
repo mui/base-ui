@@ -1,34 +1,34 @@
 'use client';
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
-import { Field } from '@base-ui/react/field';
+import { Label } from '@base-ui/react/label';
 
 export default function ObjectValueSelect() {
   return (
-    <Field.Root className="flex flex-col gap-1">
-      <Field.Label
-        className="cursor-default text-sm leading-5 font-medium text-gray-900"
-        nativeLabel={false}
-        render={<div />}
-      >
-        Shipping method
-      </Field.Label>
+    <div className="flex flex-col gap-1">
       <Select.Root defaultValue={shippingMethods[0]} itemToStringValue={(item) => item.id}>
-        <Select.Trigger className="flex min-h-10 min-w-[16rem] items-start justify-between gap-3 rounded-md border border-gray-200 pr-3 pl-3.5 py-2 text-base bg-[canvas] text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100">
-          <Select.Value>
-            {(method: ShippingMethod) => (
-              <span className="flex flex-col items-start gap-0.5">
-                <span className="text-base leading-6">{method.name}</span>
-                <span className="text-xs leading-4 text-gray-600">
-                  {method.duration} ({method.price})
+        <Label
+          className="flex flex-col items-start gap-1 cursor-default text-sm leading-5 font-medium text-gray-900"
+          nativeLabel={false}
+          render={<div />}
+        >
+          Shipping method
+          <Select.Trigger className="flex min-h-10 min-w-[16rem] items-start justify-between gap-3 rounded-md border border-gray-200 pr-3 pl-3.5 py-2 text-base bg-[canvas] text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100">
+            <Select.Value>
+              {(method: ShippingMethod) => (
+                <span className="flex flex-col items-start gap-0.5">
+                  <span className="text-base leading-6">{method.name}</span>
+                  <span className="text-xs leading-4 text-gray-600">
+                    {method.duration} ({method.price})
+                  </span>
                 </span>
-              </span>
-            )}
-          </Select.Value>
-          <Select.Icon className="flex items-center self-center">
-            <ChevronUpDownIcon />
-          </Select.Icon>
-        </Select.Trigger>
+              )}
+            </Select.Value>
+            <Select.Icon className="flex items-center self-center">
+              <ChevronUpDownIcon />
+            </Select.Icon>
+          </Select.Trigger>
+        </Label>
         <Select.Portal>
           <Select.Positioner className="outline-hidden select-none z-10" sideOffset={8}>
             <Select.Popup className="group min-w-[var(--anchor-width)] origin-[var(--transform-origin)] bg-clip-padding rounded-md bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[side=none]:min-w-[calc(var(--anchor-width)+1rem)] data-[side=none]:data-[ending-style]:transition-none data-[starting-style]:scale-90 data-[starting-style]:opacity-0 data-[side=none]:data-[starting-style]:scale-100 data-[side=none]:data-[starting-style]:opacity-100 data-[side=none]:data-[starting-style] :transition-none dark:shadow-none dark:outline-gray-300">
@@ -57,7 +57,7 @@ export default function ObjectValueSelect() {
           </Select.Positioner>
         </Select.Portal>
       </Select.Root>
-    </Field.Root>
+    </div>
   );
 }
 

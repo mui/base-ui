@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
-import { Field } from '@base-ui/react/field';
+import { Label } from '@base-ui/react/label';
 
 const languages = {
   javascript: 'JavaScript',
@@ -32,21 +32,21 @@ function renderValue(value: Language[]) {
 
 export default function MultiSelectExample() {
   return (
-    <Field.Root className="flex flex-col gap-1">
-      <Field.Label
-        className="cursor-default text-sm leading-5 font-medium text-gray-900"
-        nativeLabel={false}
-        render={<div />}
-      >
-        Languages
-      </Field.Label>
+    <div className="flex flex-col gap-1">
       <Select.Root multiple defaultValue={['javascript', 'typescript']}>
-        <Select.Trigger className="flex h-10 min-w-[14rem] items-center justify-between gap-3 rounded-md border border-gray-200 pr-3 pl-3.5 text-base bg-[canvas] text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100">
-          <Select.Value className="data-[placeholder]:opacity-60">{renderValue}</Select.Value>
-          <Select.Icon className="flex">
-            <ChevronUpDownIcon />
-          </Select.Icon>
-        </Select.Trigger>
+        <Label
+          className="flex flex-col items-start gap-1 cursor-default text-sm leading-5 font-medium text-gray-900"
+          nativeLabel={false}
+          render={<div />}
+        >
+          Languages
+          <Select.Trigger className="flex h-10 min-w-[14rem] items-center justify-between gap-3 rounded-md border border-gray-200 pr-3 pl-3.5 text-base bg-[canvas] text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100">
+            <Select.Value className="data-[placeholder]:opacity-60">{renderValue}</Select.Value>
+            <Select.Icon className="flex">
+              <ChevronUpDownIcon />
+            </Select.Icon>
+          </Select.Trigger>
+        </Label>
         <Select.Portal>
           <Select.Positioner
             className="outline-hidden z-10"
@@ -70,7 +70,7 @@ export default function MultiSelectExample() {
           </Select.Positioner>
         </Select.Portal>
       </Select.Root>
-    </Field.Root>
+    </div>
   );
 }
 

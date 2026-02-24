@@ -1,0 +1,85 @@
+# Label
+
+<Subtitle>An accessible label component for Base UI form controls.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React label component for naming Base UI form controls."
+/>
+
+## Usage guidelines
+
+- **Use when standalone**: `Label` is a lightweight version of [Field.Label](/react/components/field) that does not include Field validation state attributes. Use [Field.Label](/react/components/field) when the control is wrapped in [Field.Root](/react/components/field).
+- **Use non-native labeling for trigger controls**: For controls like `<Select.Trigger>` and `<Combobox.Trigger>`, set `nativeLabel={false}` and `render={<div />}` so clicks focus the trigger without inheriting native `<label>` behavior.
+
+## Anatomy
+
+Import the component and use it as a single part:
+
+```jsx title="Anatomy"
+import { Label } from '@base-ui/react/label';
+
+<Label>Label</Label>;
+```
+
+## Labeling patterns
+
+For `<Checkbox.Root>`, `<Switch.Root>`, and `<Radio.Root>`, prefer wrapping the control with `Label` instead of using a sibling label. Wrapping avoids tracking IDs manually and keeps CSS gaps between the control and text clickable.
+
+```tsx title="Recommended wrapping pattern" {1,4}
+<Label>
+  <Checkbox.Root />
+  Enable notifications
+</Label>
+```
+
+Sibling `htmlFor`/`id` labeling is supported as a fallback. For non-`nativeButton` controls, `aria-labelledby` is attached after hydration. If you need sibling labeling behavior during SSR, use `nativeButton` with `render={<button />}` on the control.
+
+```tsx title="SSR-first sibling fallback pattern" {3,4}
+const id = React.useId();
+
+<Label htmlFor={id}>Enable notifications</Label>
+<Checkbox.Root id={id} nativeButton render={<button />} />;
+```
+
+`Label` also prevents accidental text selection from double clicks on the label.
+
+## Examples
+
+### Labeling a checkbox
+
+```tsx title="Using Label with Checkbox" {1,4}
+<Label>
+  <Checkbox.Root />
+  Enable notifications
+</Label>
+```
+
+### Labeling a select trigger
+
+```tsx title="Using Label with Select.Trigger" {2,5}
+<Select.Root>
+  <Label nativeLabel={false} render={<div />}>
+    Theme
+    <Select.Trigger>{/* ... */}</Select.Trigger>
+  </Label>
+  <Select.Portal>{/* ... */}</Select.Portal>
+</Select.Root>
+```
+
+## API reference
+
+<Reference component="Label" />
+
+export const metadata = {
+  keywords: [
+    'React Label',
+    'Label Component',
+    'Accessible Label',
+    'Form Control Label',
+    'Custom Label',
+    'Standalone Label',
+    'Label Trigger',
+    'Headless React Components',
+    'Base UI',
+  ],
+};

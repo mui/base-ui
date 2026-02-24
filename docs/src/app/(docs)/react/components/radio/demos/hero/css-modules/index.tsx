@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { Label } from '@base-ui/react/label';
 import { Radio } from '@base-ui/react/radio';
 import { RadioGroup } from '@base-ui/react/radio-group';
 import styles from './index.module.css';
@@ -12,26 +13,26 @@ export default function ExampleRadioGroup() {
         Best apple
       </div>
 
-      <label className={styles.Item}>
+      <Label className={styles.Item}>
         <Radio.Root value="fuji-apple" className={styles.Radio}>
           <Radio.Indicator className={styles.Indicator} />
         </Radio.Root>
         Fuji
-      </label>
+      </Label>
 
-      <label className={styles.Item}>
+      <Label className={styles.Item}>
         <Radio.Root value="gala-apple" className={styles.Radio}>
           <Radio.Indicator className={styles.Indicator} />
         </Radio.Root>
         Gala
-      </label>
+      </Label>
 
-      <label className={styles.Item}>
+      <Label className={styles.Item}>
         <Radio.Root value="granny-smith-apple" className={styles.Radio}>
           <Radio.Indicator className={styles.Indicator} />
         </Radio.Root>
         Granny Smith
-      </label>
+      </Label>
     </RadioGroup>
   );
 }

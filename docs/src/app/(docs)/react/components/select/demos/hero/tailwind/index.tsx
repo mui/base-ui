@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
-import { Field } from '@base-ui/react/field';
+import { Label } from '@base-ui/react/label';
 
 const apples = [
   { label: 'Gala', value: 'gala' },
@@ -12,21 +12,21 @@ const apples = [
 
 export default function ExampleSelect() {
   return (
-    <Field.Root className="flex flex-col gap-1">
-      <Field.Label
-        className="cursor-default text-sm leading-5 font-medium text-gray-900"
-        nativeLabel={false}
-        render={<div />}
-      >
-        Apple
-      </Field.Label>
+    <div className="flex flex-col gap-1">
       <Select.Root items={apples}>
-        <Select.Trigger className="flex h-10 min-w-40 items-center justify-between gap-3 rounded-md border border-gray-200 pr-3 pl-3.5 text-base bg-[canvas] text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100">
-          <Select.Value className="data-[placeholder]:opacity-60" placeholder="Select apple" />
-          <Select.Icon className="flex">
-            <ChevronUpDownIcon />
-          </Select.Icon>
-        </Select.Trigger>
+        <Label
+          className="flex flex-col items-start gap-1 cursor-default text-sm leading-5 font-medium text-gray-900"
+          nativeLabel={false}
+          render={<div />}
+        >
+          Apple
+          <Select.Trigger className="flex h-10 min-w-40 items-center justify-between gap-3 rounded-md border border-gray-200 pr-3 pl-3.5 text-base bg-[canvas] text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100">
+            <Select.Value className="data-[placeholder]:opacity-60" placeholder="Select apple" />
+            <Select.Icon className="flex">
+              <ChevronUpDownIcon />
+            </Select.Icon>
+          </Select.Trigger>
+        </Label>
         <Select.Portal>
           <Select.Positioner className="outline-hidden select-none z-10" sideOffset={8}>
             <Select.Popup className="group min-w-[var(--anchor-width)] origin-[var(--transform-origin)] bg-clip-padding rounded-md bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[side=none]:min-w-[calc(var(--anchor-width)+1rem)] data-[side=none]:data-[ending-style]:transition-none data-[starting-style]:scale-90 data-[starting-style]:opacity-0 data-[side=none]:data-[starting-style]:scale-100 data-[side=none]:data-[starting-style]:opacity-100 data-[side=none]:data-[starting-style]:transition-none dark:shadow-none dark:outline-gray-300">
@@ -50,7 +50,7 @@ export default function ExampleSelect() {
           </Select.Positioner>
         </Select.Portal>
       </Select.Root>
-    </Field.Root>
+    </div>
   );
 }
 

@@ -1000,6 +1000,19 @@ describe('<Checkbox.Root />', () => {
     expect(checkbox).to.have.attribute('aria-checked', 'false');
   });
 
+  it('sets `aria-labelledby` from a sibling label associated with the hidden input', async () => {
+    await render(
+      <div>
+        <label htmlFor="checkbox-input">Label</label>
+        <Checkbox.Root id="checkbox-input" />
+      </div>,
+    );
+
+    const label = screen.getByText('Label');
+    expect(label.id).not.to.equal('');
+    expect(screen.getByRole('checkbox')).to.have.attribute('aria-labelledby', label.id);
+  });
+
   it('can render a native button', async () => {
     const { container, user } = await render(<Checkbox.Root render={<button />} nativeButton />);
 

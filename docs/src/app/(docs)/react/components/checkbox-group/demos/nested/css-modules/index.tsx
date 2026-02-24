@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { Checkbox } from '@base-ui/react/checkbox';
 import { CheckboxGroup } from '@base-ui/react/checkbox-group';
+import { Label } from '@base-ui/react/label';
 import styles from './index.module.css';
 
 const mainPermissions = ['view-dashboard', 'manage-users', 'access-reports'];
@@ -28,7 +29,7 @@ export default function PermissionsForm() {
       className={styles.CheckboxGroup}
       style={{ marginLeft: '1rem' }}
     >
-      <label className={styles.Item} id={id} style={{ marginLeft: '-1rem' }}>
+      <Label className={styles.Item} id={id} style={{ marginLeft: '-1rem' }}>
         <Checkbox.Root
           className={styles.Checkbox}
           parent
@@ -51,25 +52,25 @@ export default function PermissionsForm() {
           />
         </Checkbox.Root>
         User Permissions
-      </label>
+      </Label>
 
-      <label className={styles.Item}>
+      <Label className={styles.Item}>
         <Checkbox.Root value="view-dashboard" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
             <CheckIcon className={styles.Icon} />
           </Checkbox.Indicator>
         </Checkbox.Root>
         View Dashboard
-      </label>
+      </Label>
 
-      <label className={styles.Item}>
+      <Label className={styles.Item}>
         <Checkbox.Root value="access-reports" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
             <CheckIcon className={styles.Icon} />
           </Checkbox.Indicator>
         </Checkbox.Root>
         Access Reports
-      </label>
+      </Label>
 
       <CheckboxGroup
         aria-labelledby="manage-users-caption"
@@ -86,7 +87,7 @@ export default function PermissionsForm() {
         allValues={userManagementPermissions}
         style={{ marginLeft: '1rem' }}
       >
-        <label className={styles.Item} id="manage-users-caption" style={{ marginLeft: '-1rem' }}>
+        <Label className={styles.Item} id="manage-users-caption" style={{ marginLeft: '-1rem' }}>
           <Checkbox.Root className={styles.Checkbox} parent>
             <Checkbox.Indicator
               className={styles.Indicator}
@@ -102,43 +103,43 @@ export default function PermissionsForm() {
             />
           </Checkbox.Root>
           Manage Users
-        </label>
+        </Label>
 
-        <label className={styles.Item}>
+        <Label className={styles.Item}>
           <Checkbox.Root value="create-user" className={styles.Checkbox}>
             <Checkbox.Indicator className={styles.Indicator}>
               <CheckIcon className={styles.Icon} />
             </Checkbox.Indicator>
           </Checkbox.Root>
           Create User
-        </label>
+        </Label>
 
-        <label className={styles.Item}>
+        <Label className={styles.Item}>
           <Checkbox.Root value="edit-user" className={styles.Checkbox}>
             <Checkbox.Indicator className={styles.Indicator}>
               <CheckIcon className={styles.Icon} />
             </Checkbox.Indicator>
           </Checkbox.Root>
           Edit User
-        </label>
+        </Label>
 
-        <label className={styles.Item}>
+        <Label className={styles.Item}>
           <Checkbox.Root value="delete-user" className={styles.Checkbox}>
             <Checkbox.Indicator className={styles.Indicator}>
               <CheckIcon className={styles.Icon} />
             </Checkbox.Indicator>
           </Checkbox.Root>
           Delete User
-        </label>
+        </Label>
 
-        <label className={styles.Item}>
+        <Label className={styles.Item}>
           <Checkbox.Root value="assign-roles" className={styles.Checkbox}>
             <Checkbox.Indicator className={styles.Indicator}>
               <CheckIcon className={styles.Icon} />
             </Checkbox.Indicator>
           </Checkbox.Root>
           Assign Roles
-        </label>
+        </Label>
       </CheckboxGroup>
     </CheckboxGroup>
   );

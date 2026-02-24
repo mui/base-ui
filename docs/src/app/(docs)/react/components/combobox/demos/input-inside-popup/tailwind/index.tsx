@@ -1,25 +1,25 @@
 'use client';
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
-import { Field } from '@base-ui/react/field';
+import { Label } from '@base-ui/react/label';
 
 export default function ExamplePopoverCombobox() {
   return (
-    <Field.Root className="flex flex-col gap-1">
-      <Field.Label
-        className="cursor-default text-sm leading-5 font-medium text-gray-900"
-        nativeLabel={false}
-        render={<div />}
-      >
-        Country
-      </Field.Label>
+    <div className="flex flex-col gap-1">
       <Combobox.Root items={countries}>
-        <Combobox.Trigger className="flex bg-[canvas] h-10 min-w-[12rem] items-center justify-between gap-3 rounded-md border border-gray-200 pr-3 pl-3.5 text-base text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100 cursor-default">
-          <Combobox.Value placeholder={<span className="opacity-60">Select country</span>} />
-          <Combobox.Icon className="flex">
-            <ChevronUpDownIcon />
-          </Combobox.Icon>
-        </Combobox.Trigger>
+        <Label
+          className="flex flex-col items-start gap-1 cursor-default text-sm leading-5 font-medium text-gray-900"
+          nativeLabel={false}
+          render={<div />}
+        >
+          Country
+          <Combobox.Trigger className="flex bg-[canvas] h-10 min-w-[12rem] items-center justify-between gap-3 rounded-md border border-gray-200 pr-3 pl-3.5 text-base text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100 cursor-default">
+            <Combobox.Value placeholder={<span className="opacity-60">Select country</span>} />
+            <Combobox.Icon className="flex">
+              <ChevronUpDownIcon />
+            </Combobox.Icon>
+          </Combobox.Trigger>
+        </Label>
         <Combobox.Portal>
           <Combobox.Positioner align="start" sideOffset={4}>
             <Combobox.Popup
@@ -53,7 +53,7 @@ export default function ExamplePopoverCombobox() {
           </Combobox.Positioner>
         </Combobox.Portal>
       </Combobox.Root>
-    </Field.Root>
+    </div>
   );
 }
 

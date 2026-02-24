@@ -12,7 +12,7 @@ import { DemoSliderHero } from './demos/hero';
 
 ## Usage guidelines
 
-- **Form controls must have an accessible name**: See [Labeling a slider](#labeling-a-slider) and the [forms guide](/react/handbook/forms).
+- **Form controls must have an accessible name**: It can be created using the [Label](/react/components/label), `Field`, and `Fieldset` components, or explicit ARIA labeling. See [Labeling a slider](#labeling-a-slider) and the [forms guide](/react/handbook/forms).
 
 ## Anatomy
 
@@ -72,7 +72,23 @@ A single-thumb slider without a visible label (such as a volume control) can be 
 </Slider.Root>
 ```
 
-A visible label can be created using `aria-labelledby` on `<Slider.Root>` that references the `id` of a sibling element, such as a `<div>`:
+A visible label can be created using the [Label](/react/components/label) component:
+
+```tsx title="Using Label to label a slider" {1,11}
+<Label nativeLabel={false} render={<div />}>
+  Volume
+  <Slider.Root>
+    <Slider.Control>
+      <Slider.Track>
+        <Slider.Indicator />
+        <Slider.Thumb />
+      </Slider.Track>
+    </Slider.Control>
+  </Slider.Root>
+</Label>
+```
+
+Alternatively, use `aria-labelledby` on `<Slider.Root>` that references the `id` of a sibling element, such as a `<div>`:
 
 ```tsx title="Slider with visible label" {1,2}
 <div id="volume-label">Volume</div>
@@ -101,7 +117,7 @@ For a multi-thumb range slider with a visible label, add `aria-label` on each `<
 </Slider.Root>
 ```
 
-The [Field](/react/components/field) and [Fieldset](/react/components/fieldset) components can also be used to provide accessible labels for sliders, eliminating the need to track `id` or `aria-labelledby` associations manually. Field comes with a UX improvement to prevent double clicks from selecting the label text.
+The [Field](/react/components/field) and [Fieldset](/react/components/fieldset) components can also be used to provide accessible labels for sliders while adding validation and group-labeling support.
 
 For a single-thumb slider, use [Field](/react/components/field) to provide a visible label:
 
