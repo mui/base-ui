@@ -2,7 +2,7 @@
 import * as React from 'react';
 import clsx from 'clsx';
 import { Slider } from '@base-ui/react/slider';
-import '../../../../demo-theme.css';
+import '../../../../demo-data/theme/css-modules/theme.css';
 
 function InsetSlider(props: Slider.Root.Props) {
   const value = props.defaultValue ?? props.value;
