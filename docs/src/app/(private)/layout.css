@@ -1,12 +1,4 @@
 html {
-  --color-background: var(--color-gray-50);
-  --color-foreground: var(--color-gray-900);
-
-  @media (prefers-color-scheme: dark) {
-    --color-background: black;
-    --color-foreground: oklch(90% 2% 264deg);
-  }
-
   color-scheme: light dark;
   background-color: var(--color-gray-50);
 }
