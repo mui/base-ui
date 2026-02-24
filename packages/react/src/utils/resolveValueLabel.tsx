@@ -89,46 +89,32 @@ export function resolveSelectedLabel(
   items: ItemsInput,
   itemToStringLabel?: (item: any) => string,
 ): React.ReactNode {
-  function fallback() {
-    return stringifyAsLabel(value, itemToStringLabel);
-  }
-
   if (itemToStringLabel && value != null) {
     return itemToStringLabel(value);
   }
 
-  // Custom object with explicit label takes precedence
-  if (value && typeof value === 'object' && 'label' in value && value.label != null) {
+  if (value == null) {
+    return stringifyAsLabel(value, itemToStringLabel);
+  }
+
+  if (typeof value === 'object' && 'label' in value && value.label != null) {
     return value.label;
   }
 
-  // Items provided as plain record map
   if (items && !Array.isArray(items)) {
-    return (items as any)[value] ?? fallback();
+    return (items as any)[value] ?? stringifyAsLabel(value, itemToStringLabel);
   }
 
-  // Items provided as array (flat or grouped)
   if (Array.isArray(items)) {
-    const flatItems: LabeledItem[] = isGroupedItems(items) ? items.flatMap((g) => g.items) : items;
-
-    if (value == null || typeof value !== 'object') {
-      const match = flatItems.find((item) => item.value === value);
-      if (match && match.label != null) {
-        return match.label;
-      }
-      return fallback();
-    }
-
-    // Object without explicit label: try matching by its `value` property
-    if ('value' in value) {
-      const match = flatItems.find((item) => item && item.value === value.value);
-      if (match && match.label != null) {
-        return match.label;
-      }
+    const flatItems: LabeledItem[] = items.flatMap((item) => item.items ?? [item]);
+    const matchValue = typeof value === 'object' && 'value' in value ? value.value : value;
+    const label = flatItems.find((item) => item?.value === matchValue)?.label;
+    if (label != null) {
+      return label;
     }
   }
 
-  return fallback();
+  return stringifyAsLabel(value, itemToStringLabel);
 }
 
 export function resolveMultipleLabels(
