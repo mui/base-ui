@@ -2,7 +2,6 @@ import * as React from 'react';
 import clsx from 'clsx';
 import { Code } from './Code';
 import { getChildrenText } from '../utils/getChildrenText';
-import './TableCode.css';
 
 export interface TableCodeProps extends React.ComponentProps<'code'> {
   printWidth?: number;

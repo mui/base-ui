@@ -25,6 +25,7 @@
 @import './breakpoints.css';
 @import '../syntax-highlighting/index.css';
 @import './mdx.css';
+
 @import '../components/Code.css';
 @import '../components/CodeBlock.css';
 @import '../components/Demo/Demo.css';
@@ -42,10 +43,11 @@
 @import '../components/SkipNav.css';
 @import '../components/Subtitle/Subtitle.css';
 @import '../components/Subtitle/MarkdownLink.css';
-@import '../components/Table.css';
-@import '../components/ReferenceTable/ReferenceTable.css';
 @import '../components/Accordion.css';
+@import '../components/Table.css';
+@import '../components/TableCode.css';
 @import '../components/DescriptionList.css';
+@import '../components/ReferenceTable/ReferenceTable.css';
 
 @import './utilities/index.css' layer(utilities);
 
