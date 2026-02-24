@@ -12,6 +12,12 @@
       "description": "A payload to pass to the tooltip when it is opened.",
       "detailedType": "Payload | undefined"
     },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "If `true`, the tooltip will not open when interacting with this trigger.\nNote that this doesn't apply the `disabled` attribute to the trigger element.\nIf you want to disable the trigger element itself, you can pass the `disabled` prop to the trigger element via the `render` prop.",
+      "detailedType": "boolean | undefined"
+    },
     "delay": {
       "type": "number",
       "default": "600",
@@ -42,6 +48,9 @@
   "dataAttributes": {
     "data-popup-open": {
       "description": "Present when the corresponding tooltip is open."
+    },
+    "data-trigger-disabled": {
+      "description": "Present when the trigger is disabled, either by the `disabled` prop or by a parent `<Tooltip.Root>` component."
     }
   },
   "cssVariables": {}

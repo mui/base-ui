@@ -125,7 +125,7 @@ export interface MenuRadioItemProps
   /**
    * The click handler for the menu item.
    */
-  onClick?: React.MouseEventHandler<HTMLElement> | undefined;
+  onClick?: BaseUIComponentProps<'div', MenuRadioItemState>['onClick'] | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false

@@ -47,7 +47,6 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const transitionStatus = useStore(store, selectors.transitionStatus);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
   const inputElement = useStore(store, selectors.inputElement);
-  const modal = useStore(store, selectors.modal);
 
   const empty = filteredItems.length === 0;
 
@@ -115,7 +114,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
     <FloatingFocusManager
       context={floatingRootContext}
       disabled={!mounted}
-      modal={inputInsidePopup ? modal : false}
+      modal={!inputInsidePopup}
       openInteractionType={openMethod}
       initialFocus={resolvedInitialFocus}
       returnFocus={resolvedFinalFocus}
@@ -145,11 +144,9 @@ export interface ComboboxPopupProps extends BaseUIComponentProps<'div', Combobox
    *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
    */
   initialFocus?:
-    | (
-        | boolean
-        | React.RefObject<HTMLElement | null>
-        | ((openType: InteractionType) => void | boolean | HTMLElement | null)
-      )
+    | boolean
+    | React.RefObject<HTMLElement | null>
+    | ((openType: InteractionType) => void | boolean | HTMLElement | null)
     | undefined;
   /**
    * Determines the element to focus when the popup is closed.
@@ -161,11 +158,9 @@ export interface ComboboxPopupProps extends BaseUIComponentProps<'div', Combobox
    *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
    */
   finalFocus?:
-    | (
-        | boolean
-        | React.RefObject<HTMLElement | null>
-        | ((closeType: InteractionType) => void | boolean | HTMLElement | null)
-      )
+    | boolean
+    | React.RefObject<HTMLElement | null>
+    | ((closeType: InteractionType) => void | boolean | HTMLElement | null)
     | undefined;
 }
 

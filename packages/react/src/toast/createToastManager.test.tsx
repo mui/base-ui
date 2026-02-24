@@ -2,10 +2,10 @@ import * as React from 'react';
 import { Toast } from '@base-ui/react/toast';
 import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { List } from './utils/test-utils';
 
-describe('Manager', () => {
+describe.skipIf(!isJSDOM)('createToastManager', () => {
   const { render, clock } = createRenderer();
 
   clock.withFakeTimers();
@@ -203,6 +203,53 @@ describe('Manager', () => {
       await flushMicrotasks();
 
       expect(screen.getByTestId('description')).to.have.text('error');
+    });
+
+    it('does not reopen a dismissed promise toast when it resolves', async () => {
+      const toastManager = Toast.createToastManager();
+      let resolvePromise: (value: string) => void = () => {
+        throw new Error('Promise resolver should be assigned before resolving.');
+      };
+
+      function add() {
+        const pendingPromise = new Promise<string>((resolve) => {
+          resolvePromise = resolve;
+        });
+
+        toastManager.promise(pendingPromise, {
+          loading: 'loading',
+          success: 'success',
+          error: 'error',
+        });
+      }
+
+      function Button() {
+        return (
+          <button type="button" onClick={add}>
+            add
+          </button>
+        );
+      }
+
+      await render(
+        <Toast.Provider toastManager={toastManager}>
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+          <Button />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+
+      expect(screen.getByTestId('description')).to.have.text('loading');
+
+      fireEvent.click(screen.getByLabelText('close-press'));
+      resolvePromise('success');
+
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('title')).to.equal(null);
     });
   });
 

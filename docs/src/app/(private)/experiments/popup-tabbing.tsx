@@ -10,13 +10,13 @@ function ExampleMenu() {
     <Menu.Root>
       <Menu.Trigger
         openOnHover
-        className="flex h-10 items-center justify-center gap-1.5 rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100"
+        className="flex h-10 items-center justify-center gap-1.5 rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100"
       >
         Song <ChevronDownIcon className="-mr-1" />
       </Menu.Trigger>
       <Menu.Portal>
         <Menu.Positioner className="outline-none" sideOffset={8}>
-          <Menu.Popup className="origin-[var(--transform-origin)] rounded-md bg-[canvas] py-1 text-gray-900 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
+          <Menu.Popup className="origin-[var(--transform-origin)] rounded-md bg-[canvas] py-1 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
             <Menu.Arrow className="data-[side=bottom]:top-[-8px] data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180">
               <ArrowSvg />
             </Menu.Arrow>
@@ -50,17 +50,17 @@ function ExampleMenu() {
 function ExamplePopoverInPopover() {
   return (
     <Popover.Root>
-      <Popover.Trigger className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
+      <Popover.Trigger className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
         Inner popover
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Positioner sideOffset={8}>
-          <Popover.Popup className="origin-[var(--transform-origin)] w-72 rounded-lg bg-[canvas] p-4 text-gray-900 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0">
+          <Popover.Popup className="origin-[var(--transform-origin)] w-72 rounded-lg bg-[canvas] p-4 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0">
             <div className="text-sm font-medium">Inner content</div>
             <div className="mt-1 text-sm text-gray-600">Try Tab / Shift+Tab out of here.</div>
             <button
               type="button"
-              className="mt-3 inline-flex h-9 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3 text-sm font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
+              className="mt-3 inline-flex h-9 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3 text-sm font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
             >
               Inner button
             </button>
@@ -84,7 +84,7 @@ function ExampleCombobox() {
           <Combobox.Input
             placeholder="e.g. Apple"
             id={id}
-            className="h-10 w-64 rounded-md font-normal border border-gray-200 pl-3.5 pr-[calc(0.5rem+1.5rem)] text-base text-gray-900 bg-[canvas] focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+            className="h-10 w-64 rounded-md font-normal border border-gray-200 pl-3.5 pr-[calc(0.5rem+1.5rem)] text-base text-gray-900 bg-[canvas] focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
           />
           <div className="absolute right-2 bottom-0 flex h-10 items-center justify-center text-gray-600">
             <Combobox.Trigger
@@ -135,7 +135,7 @@ export default function PopupTabbing() {
         <Switch.Root
           checked={renderInsideButtons}
           onCheckedChange={setRenderInsideButtons}
-          className="relative flex h-5 w-9 rounded-full bg-gray-200 p-px outline outline-1 -outline-offset-1 outline-gray-300 transition-colors focus-visible:outline-2 focus-visible:outline-blue-800 data-[checked]:bg-gray-900 data-[checked]:outline-gray-900"
+          className="relative flex h-5 w-9 rounded-full bg-gray-200 p-px outline-1 -outline-offset-1 outline-gray-300 transition-colors focus-visible:outline-2 focus-visible:outline-blue-800 data-[checked]:bg-gray-900 data-[checked]:outline-gray-900"
         >
           <Switch.Thumb className="h-full aspect-square rounded-full bg-white transition-transform data-[checked]:translate-x-4" />
         </Switch.Root>
@@ -148,22 +148,22 @@ export default function PopupTabbing() {
           <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"
-              className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
+              className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
             >
               Outside before
             </button>
 
             <Popover.Root>
-              <Popover.Trigger className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
+              <Popover.Trigger className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
                 Outer popover
               </Popover.Trigger>
               <Popover.Portal>
                 <Popover.Positioner sideOffset={8}>
-                  <Popover.Popup className="origin-[var(--transform-origin)] flex flex-col gap-3 rounded-lg bg-[canvas] p-4 text-gray-900 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0">
+                  <Popover.Popup className="origin-[var(--transform-origin)] flex flex-col gap-3 rounded-lg bg-[canvas] p-4 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0">
                     {renderInsideButtons ? (
                       <button
                         type="button"
-                        className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
+                        className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
                       >
                         Inside before
                       </button>
@@ -174,7 +174,7 @@ export default function PopupTabbing() {
                     {renderInsideButtons ? (
                       <button
                         type="button"
-                        className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
+                        className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
                       >
                         Inside after
                       </button>
@@ -186,7 +186,7 @@ export default function PopupTabbing() {
 
             <button
               type="button"
-              className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
+              className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
             >
               Outside after
             </button>
@@ -198,22 +198,22 @@ export default function PopupTabbing() {
           <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"
-              className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
+              className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
             >
               Outside before
             </button>
 
             <Popover.Root>
-              <Popover.Trigger className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
+              <Popover.Trigger className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
                 Outer popover
               </Popover.Trigger>
               <Popover.Portal>
                 <Popover.Positioner sideOffset={8}>
-                  <Popover.Popup className="origin-[var(--transform-origin)] flex items-center gap-3 rounded-lg bg-[canvas] p-4 text-gray-900 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0">
+                  <Popover.Popup className="origin-[var(--transform-origin)] flex items-center gap-3 rounded-lg bg-[canvas] p-4 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0">
                     {renderInsideButtons ? (
                       <button
                         type="button"
-                        className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
+                        className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
                       >
                         Inside before
                       </button>
@@ -222,7 +222,7 @@ export default function PopupTabbing() {
                     {renderInsideButtons ? (
                       <button
                         type="button"
-                        className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
+                        className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
                       >
                         Inside after
                       </button>
@@ -234,7 +234,7 @@ export default function PopupTabbing() {
 
             <button
               type="button"
-              className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
+              className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
             >
               Outside after
             </button>
@@ -246,22 +246,22 @@ export default function PopupTabbing() {
           <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"
-              className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
+              className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
             >
               Outside before
             </button>
 
             <Popover.Root>
-              <Popover.Trigger className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
+              <Popover.Trigger className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
                 Outer popover
               </Popover.Trigger>
               <Popover.Portal>
                 <Popover.Positioner sideOffset={8}>
-                  <Popover.Popup className="origin-[var(--transform-origin)] flex flex-col gap-3 rounded-lg bg-[canvas] p-4 text-gray-900 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0">
+                  <Popover.Popup className="origin-[var(--transform-origin)] flex flex-col gap-3 rounded-lg bg-[canvas] p-4 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0">
                     {renderInsideButtons ? (
                       <button
                         type="button"
-                        className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
+                        className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
                       >
                         Inside before
                       </button>
@@ -270,7 +270,7 @@ export default function PopupTabbing() {
                     {renderInsideButtons ? (
                       <button
                         type="button"
-                        className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
+                        className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
                       >
                         Inside after
                       </button>
@@ -282,7 +282,7 @@ export default function PopupTabbing() {
 
             <button
               type="button"
-              className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
+              className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
             >
               Outside after
             </button>

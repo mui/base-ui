@@ -100,6 +100,36 @@ describe('<Combobox.Item />', () => {
 
       expect(handleClick.callCount).to.equal(1);
     });
+
+    it('does not select the item when onClick prevents Base UI handler', async () => {
+      const handleClick = spy((event) => event.preventBaseUIHandler());
+      const { user } = await render(
+        <Combobox.Root defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="one" onClick={handleClick}>
+                    one
+                  </Combobox.Item>
+                  <Combobox.Item value="two">two</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const option = screen.getByRole('option', { name: 'one' });
+      await user.click(option);
+      await flushMicrotasks();
+
+      const input = screen.getByTestId('input');
+      expect(handleClick.callCount).to.equal(1);
+      expect(input).to.have.value('');
+      expect(screen.queryByRole('listbox')).not.to.equal(null);
+    });
   });
 
   it('does not select disabled item', async () => {

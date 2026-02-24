@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { error } from '@base-ui/utils/error';
+import { SafeReact } from '@base-ui/utils/safeReact';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
@@ -71,14 +72,21 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
 
       if (nativeLabel) {
         if (!isLabelTag) {
-          error(
-            '<Field.Label> was not rendered as a <label> element, which does not match the `nativeLabel` prop on the component. Ensure that the element passed to the `render` prop of <Field.Label> is a real <label>, or set the `nativeLabel` prop on the component to `false`.',
-          );
+          const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
+          const message =
+            '<Field.Label> expected a <label> element because the `nativeLabel` prop is true. ' +
+            'Rendering a non-<label> disables native label association, so `htmlFor` will not ' +
+            'work. Use a real <label> in the `render` prop, or set `nativeLabel` to `false`.';
+          error(`${message}${ownerStackMessage}`);
         }
       } else if (isLabelTag) {
-        error(
-          '<Field.Label> was rendered as a <label> element, which does not match the `nativeLabel` prop on the component. Ensure that the element passed to the `render` prop of <Field.Label> is not a real <label>, or set the `nativeLabel` prop on the component to `true`.',
-        );
+        const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
+        const message =
+          '<Field.Label> expected a non-<label> element because the `nativeLabel` prop is false. ' +
+          'Rendering a <label> assumes native label behavior while Base UI treats it as ' +
+          'non-native, which can cause unexpected pointer behavior. Use a non-<label> in the ' +
+          '`render` prop, or set `nativeLabel` to `true`.';
+        error(`${message}${ownerStackMessage}`);
       }
     }, [nativeLabel]);
   }

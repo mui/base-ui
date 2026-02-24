@@ -20,7 +20,7 @@ export interface UseClickProps {
    * Keyboard clicks work as normal.
    * @default 'click'
    */
-  event?: ('click' | 'mousedown' | 'mousedown-only') | undefined;
+  event?: 'click' | 'mousedown' | 'mousedown-only' | undefined;
   /**
    * Whether to toggle the open state with repeated clicks.
    * @default true
@@ -44,6 +44,11 @@ export interface UseClickProps {
    * @default 0
    */
   touchOpenDelay?: number | undefined;
+  /**
+   * The reason for the click.
+   * @default REASONS.triggerPress
+   */
+  reason?: typeof REASONS.triggerPress | typeof REASONS.inputPress | undefined;
 }
 
 /**
@@ -64,6 +69,7 @@ export function useClick(
     ignoreMouse = false,
     stickIfOpen = true,
     touchOpenDelay = 0,
+    reason = REASONS.triggerPress,
   } = props;
 
   const pointerTypeRef = React.useRef<'mouse' | 'pen' | 'touch'>(undefined);
@@ -108,7 +114,7 @@ export function useClick(
         // Focus is always set on these elements. For touch, we may delay opening.
         if (isTypeableElement(nativeEvent.target)) {
           const details = createChangeEventDetails(
-            REASONS.triggerPress,
+            reason,
             nativeEvent,
             nativeEvent.target as HTMLElement,
           );
@@ -129,11 +135,7 @@ export function useClick(
         // Wait until focus is set on the element. This is an alternative to
         // `event.preventDefault()` to avoid :focus-visible from appearing when using a pointer.
         frame.request(() => {
-          const details = createChangeEventDetails(
-            REASONS.triggerPress,
-            nativeEvent,
-            eventCurrentTarget,
-          );
+          const details = createChangeEventDetails(reason, nativeEvent, eventCurrentTarget);
           if (nextOpen && pointerType === 'touch' && touchOpenDelay > 0) {
             touchOpenTimeout.start(touchOpenDelay, () => {
               store.setOpen(true, details);
@@ -167,7 +169,7 @@ export function useClick(
           (open && hasClickedOnInactiveTrigger) ||
           !(open && toggle && (openEvent && stickIfOpen ? isClickLikeEvent(openEvent) : true));
         const details = createChangeEventDetails(
-          REASONS.triggerPress,
+          reason,
           event.nativeEvent,
           event.currentTarget as HTMLElement,
         );
@@ -194,6 +196,7 @@ export function useClick(
       frame,
       touchOpenTimeout,
       touchOpenDelay,
+      reason,
     ],
   );
 

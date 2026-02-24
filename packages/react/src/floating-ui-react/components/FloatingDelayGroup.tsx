@@ -14,11 +14,11 @@ import { REASONS } from '../../utils/reasons';
 interface ContextValue {
   hasProvider: boolean;
   timeoutMs: number;
-  delayRef: React.MutableRefObject<Delay>;
-  initialDelayRef: React.MutableRefObject<Delay>;
+  delayRef: React.RefObject<Delay>;
+  initialDelayRef: React.RefObject<Delay>;
   timeout: Timeout;
-  currentIdRef: React.MutableRefObject<any>;
-  currentContextRef: React.MutableRefObject<{
+  currentIdRef: React.RefObject<any>;
+  currentContextRef: React.RefObject<{
     onOpenChange: (open: boolean, eventDetails: BaseUIChangeEventDetails<any>) => void;
     setIsInstantPhase: (value: boolean) => void;
   } | null>;
@@ -90,11 +90,6 @@ export function FloatingDelayGroup(props: FloatingDelayGroupProps): React.JSX.El
 
 interface UseDelayGroupOptions {
   /**
-   * Whether delay grouping should be enabled.
-   * @default true
-   */
-  enabled?: boolean | undefined;
-  /**
    * Whether the trigger this hook is used in has opened the tooltip.
    */
   open: boolean;
@@ -104,7 +99,7 @@ interface UseDelayGroupReturn {
   /**
    * The delay reference object.
    */
-  delayRef: React.MutableRefObject<Delay>;
+  delayRef: React.RefObject<Delay>;
   /**
    * Whether animations should be removed.
    */
@@ -127,7 +122,7 @@ export function useDelayGroup(
 ): UseDelayGroupReturn {
   const store = 'rootStore' in context ? context.rootStore : context;
   const floatingId = store.useState('floatingId');
-  const { enabled = true, open } = options;
+  const { open } = options;
 
   const groupContext = React.useContext(FloatingDelayGroupContext);
   const {
@@ -151,9 +146,6 @@ export function useDelayGroup(
       delayRef.current = initialDelayRef.current;
     }
 
-    if (!enabled) {
-      return undefined;
-    }
     if (!currentIdRef.current) {
       return undefined;
     }
@@ -182,7 +174,6 @@ export function useDelayGroup(
     }
     return undefined;
   }, [
-    enabled,
     open,
     floatingId,
     currentIdRef,
@@ -195,9 +186,6 @@ export function useDelayGroup(
   ]);
 
   useIsoLayoutEffect(() => {
-    if (!enabled) {
-      return;
-    }
     if (!open) {
       return;
     }
@@ -224,7 +212,6 @@ export function useDelayGroup(
       prevContext?.setIsInstantPhase(false);
     }
   }, [
-    enabled,
     open,
     floatingId,
     store,

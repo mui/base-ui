@@ -1,7 +1,7 @@
 // Modified to add conditional `aria-hidden` support:
 // https://github.com/theKashey/aria-hidden/blob/9220c8f4a4fd35f63bee5510a9f41a37264382d4/src/index.ts
 import { getNodeName } from '@floating-ui/utils/dom';
-import { getDocument } from './element';
+import { ownerDocument } from '@base-ui/utils/owner';
 
 type Undo = () => void;
 
@@ -159,7 +159,7 @@ function applyAttributeToOthers(
 }
 
 export function markOthers(avoidElements: Element[], ariaHidden = false, inert = false): Undo {
-  const body = getDocument(avoidElements[0]).body;
+  const body = ownerDocument(avoidElements[0]).body;
   return applyAttributeToOthers(
     avoidElements.concat(Array.from(body.querySelectorAll('[aria-live]'))),
     body,

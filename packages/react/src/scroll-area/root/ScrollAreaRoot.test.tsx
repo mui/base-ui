@@ -4,6 +4,7 @@ import { createRenderer, isJSDOM } from '#test-utils';
 import { expect } from 'chai';
 import { describeConformance } from '../../../test/describeConformance';
 import { DirectionProvider } from '../../direction-provider/DirectionProvider';
+import { SCROLL_TIMEOUT } from '../constants';
 
 const VIEWPORT_SIZE = 200;
 const SCROLLABLE_CONTENT_SIZE = 1000;
@@ -17,6 +18,46 @@ describe('<ScrollArea.Root />', () => {
     refInstanceof: window.HTMLDivElement,
     render,
   }));
+
+  describe('data-scrolling attribute', () => {
+    const { render: renderWithClock, clock } = createRenderer();
+
+    clock.withFakeTimers();
+
+    it('adds [data-scrolling] attribute when viewport is scrolled', async () => {
+      await renderWithClock(
+        <ScrollArea.Root data-testid="root" style={{ width: 200, height: 200 }}>
+          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+            <div style={{ width: 1000, height: 1000 }} />
+          </ScrollArea.Viewport>
+        </ScrollArea.Root>,
+      );
+
+      const root = screen.getByTestId('root');
+      const viewport = screen.getByTestId('viewport');
+
+      expect(root).not.to.have.attribute('data-scrolling');
+
+      fireEvent.pointerEnter(viewport);
+      fireEvent.scroll(viewport, { target: { scrollTop: 1 } });
+
+      expect(root).to.have.attribute('data-scrolling', '');
+
+      await clock.tickAsync(SCROLL_TIMEOUT);
+
+      expect(root).not.to.have.attribute('data-scrolling');
+
+      // Test horizontal scrolling
+      fireEvent.pointerEnter(viewport);
+      fireEvent.scroll(viewport, { target: { scrollLeft: 1 } });
+
+      expect(root).to.have.attribute('data-scrolling', '');
+
+      await clock.tickAsync(SCROLL_TIMEOUT);
+
+      expect(root).not.to.have.attribute('data-scrolling');
+    });
+  });
 
   describe.skipIf(isJSDOM)('sizing', () => {
     it('should correctly set thumb height and width based on scrollable content', async () => {
@@ -278,6 +319,43 @@ describe('<ScrollArea.Root />', () => {
       expect(vScrollbar).not.to.have.attribute('data-overflow-y-end');
       expect(hScrollbar).to.have.attribute('data-overflow-x-start');
       expect(hScrollbar).not.to.have.attribute('data-overflow-x-end');
+    });
+
+    it('treats near-edge scroll offsets as fully scrolled', async () => {
+      await render(
+        <ScrollArea.Root data-testid="root" style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}>
+          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+            <ScrollArea.Content data-testid="content">
+              <div style={{ width: SCROLLABLE_CONTENT_SIZE, height: SCROLLABLE_CONTENT_SIZE }} />
+            </ScrollArea.Content>
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar orientation="vertical" data-testid="scrollbar-vertical">
+            <ScrollArea.Thumb />
+          </ScrollArea.Scrollbar>
+          <ScrollArea.Scrollbar orientation="horizontal" data-testid="scrollbar-horizontal">
+            <ScrollArea.Thumb />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>,
+      );
+
+      const root = screen.getByTestId('root');
+      const viewport = screen.getByTestId('viewport');
+
+      const maxScrollTop = viewport.scrollHeight - viewport.clientHeight;
+      const maxScrollLeft = viewport.scrollWidth - viewport.clientWidth;
+
+      fireEvent.scroll(viewport, {
+        target: {
+          scrollTop: maxScrollTop - 0.5,
+          scrollLeft: maxScrollLeft - 0.5,
+        },
+      });
+      await flushMicrotasks();
+
+      expect(root).to.have.attribute('data-overflow-y-start');
+      expect(root).not.to.have.attribute('data-overflow-y-end');
+      expect(root).to.have.attribute('data-overflow-x-start');
+      expect(root).not.to.have.attribute('data-overflow-x-end');
     });
 
     it('respects overflowEdgeThreshold and exposes scroll metrics', async () => {

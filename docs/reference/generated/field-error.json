@@ -8,18 +8,18 @@
       "detailedType": "| boolean\n| 'valid'\n| 'badInput'\n| 'customError'\n| 'patternMismatch'\n| 'rangeOverflow'\n| 'rangeUnderflow'\n| 'stepMismatch'\n| 'tooLong'\n| 'tooShort'\n| 'typeMismatch'\n| 'valueMissing'\n| undefined"
     },
     "className": {
-      "type": "string | ((state: Field.Root.State) => string | undefined)",
+      "type": "string | ((state: Field.Error.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: Field.Root.State) => string | undefined)"
+      "detailedType": "| string\n| ((state: Field.Error.State) => string | undefined)"
     },
     "style": {
-      "type": "CSSProperties | ((state: Field.Root.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((state: Field.Root.State) => CSSProperties | undefined)\n| undefined"
+      "type": "CSSProperties | ((state: Field.Error.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Field.Error.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Field.Root.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Field.Error.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Field.Root.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Field.Error.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {
@@ -43,6 +43,12 @@
     },
     "data-focused": {
       "description": "Present when the field control is focused."
+    },
+    "data-starting-style": {
+      "description": "Present when the error message is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the error message is animating out."
     }
   },
   "cssVariables": {}

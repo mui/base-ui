@@ -138,6 +138,7 @@
 }
 
 .Spinner {
+  box-sizing: border-box;
   width: 0.75rem;
   height: 0.75rem;
   border-radius: 10rem;

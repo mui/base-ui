@@ -11,7 +11,7 @@
     "toastManager": {
       "type": "ToastManager",
       "description": "A global manager for toasts to use outside of a React component.",
-      "detailedType": "| {\n    subscribe: (\n      listener: (data: ToastManagerEvent) => void,\n    ) => () => void\n    add: (options: ToastManagerAddOptions<{}>) => string\n    close: (id: string) => void\n    update: (\n      id: string,\n      updates: ToastManagerUpdateOptions<{}>,\n    ) => void\n    promise: (\n      promiseValue: Promise<Value>,\n      options: ToastManagerPromiseOptions<Value, {}>,\n    ) => Promise<Value>\n  }\n| undefined"
+      "detailedType": "| {\n    subscribe: (\n      listener: (data: ToastManagerEvent) => void,\n    ) => () => void\n    add: (options: ToastManagerAddOptions<any>) => string\n    close: (id: string) => void\n    update: (\n      id: string,\n      updates: ToastManagerUpdateOptions<any>,\n    ) => void\n    promise: (\n      promiseValue: Promise<Value>,\n      options: ToastManagerPromiseOptions<Value, any>,\n    ) => Promise<Value>\n  }\n| undefined"
     },
     "timeout": {
       "type": "number",

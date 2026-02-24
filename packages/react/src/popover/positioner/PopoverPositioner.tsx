@@ -109,7 +109,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     [defaultProps, positioning],
   );
 
-  const domReference = floatingRootContext?.select('domReferenceElement');
+  const domReference = floatingRootContext.useState('domReferenceElement');
 
   // When the current trigger element changes, enable transitions on the
   // positioner temporarily

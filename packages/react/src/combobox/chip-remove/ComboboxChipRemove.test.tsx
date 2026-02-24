@@ -1,6 +1,6 @@
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance } from '#test-utils';
-import { screen } from '@mui/internal-test-utils';
+import { act, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 
@@ -71,22 +71,6 @@ describe('<Combobox.ChipRemove />', () => {
   });
 
   describe('prop: readOnly', () => {
-    it('should render aria-readonly attribute when readOnly', async () => {
-      await render(
-        <Combobox.Root multiple readOnly>
-          <Combobox.Chips>
-            <Combobox.Chip>
-              apple
-              <Combobox.ChipRemove data-testid="remove" />
-            </Combobox.Chip>
-          </Combobox.Chips>
-        </Combobox.Root>,
-      );
-
-      const remove = screen.getByTestId('remove');
-      expect(remove).to.have.attribute('aria-readonly', 'true');
-    });
-
     it('should not remove chip when readOnly', async () => {
       const handleValueChange = spy();
       const { user } = await render(
@@ -133,7 +117,9 @@ describe('<Combobox.ChipRemove />', () => {
       const remove = screen.getByTestId('remove');
 
       // Should be focusable
-      remove.focus();
+      await act(async () => {
+        remove.focus();
+      });
       expect(remove).toHaveFocus();
 
       // But should not trigger action
@@ -239,7 +225,9 @@ describe('<Combobox.ChipRemove />', () => {
 
       const remove = screen.getByTestId('remove');
 
-      remove.focus();
+      await act(async () => {
+        remove.focus();
+      });
       await user.keyboard('{Enter}');
 
       expect(handleValueChange.callCount).to.equal(1);

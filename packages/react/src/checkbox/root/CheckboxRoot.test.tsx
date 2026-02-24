@@ -93,7 +93,7 @@ describe('<Checkbox.Root />', () => {
       expect(checkbox).to.have.attribute('aria-checked', 'false');
     });
 
-    it('should call onChange when clicked', async () => {
+    it('should call onCheckedChange when clicked', async () => {
       const handleChange = spy();
       await render(<Checkbox.Root onCheckedChange={handleChange} />);
       const [checkbox] = screen.getAllByRole('checkbox');
@@ -104,6 +104,19 @@ describe('<Checkbox.Root />', () => {
 
       expect(handleChange.callCount).to.equal(1);
       expect(handleChange.firstCall.args[0]).to.equal(true);
+    });
+
+    it('should report keyboard modifier event properties when calling onCheckedChange', async () => {
+      const handleChange = spy((checked, eventDetails) => eventDetails);
+      const { user } = await render(<Checkbox.Root onCheckedChange={handleChange} />);
+      const [checkbox] = screen.getAllByRole('checkbox');
+
+      await user.keyboard('{Shift>}');
+      await user.click(checkbox);
+      await user.keyboard('{/Shift}');
+
+      expect(handleChange.callCount).to.equal(1);
+      expect(handleChange.firstCall.returnValue.event.shiftKey).to.equal(true);
     });
 
     it('should update its state if the underlying input is toggled', async () => {
