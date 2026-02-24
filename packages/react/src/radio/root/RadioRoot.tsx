@@ -19,6 +19,7 @@ import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldItemContext } from '../../field/item/FieldItemContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import { useAriaLabelledBy } from '../../labelable-provider/useAriaLabelledBy';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { serializeValue } from '../../utils/serializeValue';
@@ -40,6 +41,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     disabled: disabledProp = false,
     readOnly: readOnlyProp = false,
     required: requiredProp = false,
+    'aria-labelledby': ariaLabelledByProp,
     value,
     inputRef: inputRefProp,
     nativeButton = false,
@@ -124,13 +126,20 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     controlRef: radioRef,
   });
   const hiddenInputId = nativeButton ? undefined : inputId;
+  const ariaLabelledBy = useAriaLabelledBy(
+    ariaLabelledByProp,
+    labelId,
+    inputRef,
+    !nativeButton,
+    hiddenInputId,
+  );
 
   const rootProps: React.ComponentPropsWithRef<'span'> = {
     role: 'radio',
     'aria-checked': checked,
     'aria-required': required || undefined,
     'aria-readonly': readOnly || undefined,
-    'aria-labelledby': labelId,
+    'aria-labelledby': ariaLabelledBy,
     [ACTIVE_COMPOSITE_ITEM as string]: checked ? '' : undefined,
     id: nativeButton ? inputId : id,
     onKeyDown(event) {
