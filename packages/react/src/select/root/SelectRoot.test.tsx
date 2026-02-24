@@ -21,7 +21,7 @@ describe('<Select.Root />', () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describe('conformance', () => {
     beforeEach(() => {
@@ -47,6 +47,27 @@ describe('<Select.Root />', () => {
       triggerMouseAction: 'click',
       expectedPopupRole: 'listbox',
       alwaysMounted: 'only-after-open',
+    });
+  });
+
+  describe('server-side rendering', () => {
+    it('links Select.Label to trigger before hydration', () => {
+      renderToString(
+        <Select.Root>
+          <Select.Label data-testid="label">Font</Select.Label>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+        </Select.Root>,
+      );
+
+      const label = screen.getByTestId('label');
+      const trigger = screen.getByTestId('trigger');
+
+      expect(label.id).not.to.equal('');
+      expect(trigger.id).not.to.equal('');
+      expect(label.id).to.equal(`${trigger.id}-label`);
+      expect(trigger).to.have.attribute('aria-labelledby', label.id);
     });
   });
 
@@ -2200,6 +2221,84 @@ describe('<Select.Root />', () => {
         'aria-labelledby',
         screen.getByTestId('label').id,
       );
+    });
+
+    it('Select.Label', async () => {
+      await render(
+        <Select.Root>
+          <Select.Label data-testid="label" />
+          <Select.Trigger data-testid="trigger" />
+          <Select.Portal>
+            <Select.Positioner />
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      expect(screen.getByTestId('trigger')).to.have.attribute(
+        'aria-labelledby',
+        screen.getByTestId('label').id,
+      );
+    });
+
+    it('does not set fallback aria-labelledby when no label is rendered', async () => {
+      await render(
+        <Select.Root>
+          <Select.Trigger data-testid="trigger" aria-label="Font" />
+          <Select.Portal>
+            <Select.Positioner />
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('trigger')).not.to.have.attribute('aria-labelledby');
+      });
+    });
+
+    it('updates Select.Label linkage when root id changes', async () => {
+      const { setProps } = await render(
+        <Select.Root id="first">
+          <Select.Label data-testid="label">Theme</Select.Label>
+          <Select.Trigger data-testid="trigger" />
+          <Select.Portal>
+            <Select.Positioner />
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await setProps({ id: 'second' });
+
+      await waitFor(() => {
+        const label = screen.getByTestId('label');
+        const trigger = screen.getByTestId('trigger');
+        expect(trigger).to.have.attribute('id', 'second');
+        expect(label.id).to.equal('second-label');
+        expect(trigger).to.have.attribute('aria-labelledby', label.id);
+      });
+    });
+
+    it('Select.Label focuses trigger without opening', async () => {
+      const { user } = await render(
+        <Select.Root>
+          <Select.Label data-testid="label">Font</Select.Label>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="sans">Sans-serif</Select.Item>
+                <Select.Item value="serif">Serif</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await user.click(screen.getByTestId('label'));
+
+      expect(screen.getByTestId('trigger')).toHaveFocus();
+      expect(screen.queryByRole('listbox')).to.equal(null);
     });
 
     it('Field.Label links to trigger and focuses it', async () => {

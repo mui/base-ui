@@ -6,6 +6,12 @@ export function Root(props: Select.Root.Props<any>) {
   return <Select.Root {...props} />;
 }
 
+export function Label({ className, ...props }: Select.Label.Props) {
+  return (
+    <Select.Label className={clsx('text-sm font-medium text-gray-900', className)} {...props} />
+  );
+}
+
 export function Trigger({ className, ...props }: Select.Trigger.Props) {
   return (
     <Select.Trigger
