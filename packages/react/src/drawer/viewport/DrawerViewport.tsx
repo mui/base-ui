@@ -36,6 +36,13 @@ const MAX_SWIPE_RELEASE_DURATION_MS = 360;
 const MIN_SWIPE_RELEASE_SCALAR = 0.1;
 const MAX_SWIPE_RELEASE_SCALAR = 1;
 
+interface TouchScrollState {
+  lastX: number;
+  lastY: number;
+  scrollTarget: HTMLElement | null;
+  allowSwipe: boolean | null;
+}
+
 /**
  * A positioning container for the drawer popup that can be made scrollable.
  * Renders a `<div>` element.
@@ -69,6 +76,8 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   const nestedDrawerOpen = nestedOpenDialogCount > 0;
   const scrollAxis =
     swipeDirection === 'left' || swipeDirection === 'right' ? 'horizontal' : 'vertical';
+  const isVerticalScrollAxis = scrollAxis === 'vertical';
+  const crossScrollAxis: ScrollAxis = isVerticalScrollAxis ? 'horizontal' : 'vertical';
 
   const {
     snapPoints,
@@ -86,12 +95,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   const nestedSwipeActiveRef = React.useRef(false);
   const lastPointerTypeRef = React.useRef<React.PointerEvent['pointerType'] | ''>('');
   const ignoreNextTouchStartFromPenRef = React.useRef(false);
-  const touchScrollStateRef = React.useRef<{
-    lastX: number;
-    lastY: number;
-    scrollTarget: HTMLElement | null;
-    allowSwipe: boolean | null;
-  } | null>(null);
+  const touchScrollStateRef = React.useRef<TouchScrollState | null>(null);
 
   const snapPointRange = React.useMemo(() => {
     if (!snapPoints || snapPoints.length < 2) {
@@ -734,55 +738,68 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         return;
       }
 
-      const updateTouchPosition = () => {
-        touchState.lastX = touch.clientX;
-        touchState.lastY = touch.clientY;
-      };
+      const target = isElement(event.target) ? event.target : null;
+      const drawerAxisDelta = isVerticalScrollAxis
+        ? touch.clientY - touchState.lastY
+        : touch.clientX - touchState.lastX;
+      const crossAxisDelta = isVerticalScrollAxis
+        ? touch.clientX - touchState.lastX
+        : touch.clientY - touchState.lastY;
+      const shouldAllowCrossAxisScroll =
+        target != null &&
+        crossAxisDelta !== 0 &&
+        Math.abs(crossAxisDelta) > Math.abs(drawerAxisDelta) &&
+        findScrollableTouchTarget(target, resolvedRootElement, crossScrollAxis) != null;
 
       // Preserve native range interaction by never locking touchmove for range inputs.
       if (isEventOnRangeInput(event, win)) {
         touchState.allowSwipe = false;
-        updateTouchPosition();
+        updateTouchScrollPosition(touchState, touch);
         return;
       }
 
       // Avoid blocking pinch zoom or text selection adjustments on iOS Safari.
       if (event.touches.length === 2) {
-        updateTouchPosition();
+        updateTouchScrollPosition(touchState, touch);
         return;
       }
 
       const allowTouchMove = shouldIgnoreSwipeForTextSelection(doc, resolvedRootElement);
 
       if (allowTouchMove || !open || !mounted || nestedDrawerOpen) {
-        updateTouchPosition();
+        updateTouchScrollPosition(touchState, touch);
         return;
       }
 
       const scrollTarget = touchState.scrollTarget;
       if (!scrollTarget || scrollTarget === doc.documentElement || scrollTarget === doc.body) {
+        if (preserveNativeCrossAxisScroll(shouldAllowCrossAxisScroll, touchState, touch)) {
+          return;
+        }
+
         if (event.cancelable) {
           event.preventDefault();
         }
-        updateTouchPosition();
+        updateTouchScrollPosition(touchState, touch);
         return;
       }
 
       const hasScrollableContent = hasScrollableContentOnAxis(scrollTarget, scrollAxis);
       if (!hasScrollableContent) {
+        if (preserveNativeCrossAxisScroll(shouldAllowCrossAxisScroll, touchState, touch)) {
+          return;
+        }
+
         // If the scroll container doesn't overflow on the drawer axis, prevent the window from
         // scrolling instead.
         if (event.cancelable) {
           event.preventDefault();
         }
-        updateTouchPosition();
+        updateTouchScrollPosition(touchState, touch);
         return;
       }
 
-      const delta =
-        scrollAxis === 'vertical'
-          ? touch.clientY - touchState.lastY
-          : touch.clientX - touchState.lastX;
+      const delta = drawerAxisDelta;
       if (delta !== 0) {
         const canSwipeFromScrollEdge = canSwipeFromScrollEdgeOnMove(
           scrollTarget,
@@ -791,7 +808,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           delta,
         );
 
-        if (touchState.allowSwipe !== true) {
+        if (!touchState.allowSwipe) {
           if (!event.cancelable) {
             touchState.allowSwipe = false;
           } else if (canSwipeFromScrollEdge) {
@@ -805,7 +822,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         }
       }
 
-      updateTouchPosition();
+      updateTouchScrollPosition(touchState, touch);
     }
 
     doc.addEventListener('touchmove', handleNativeTouchMove, { passive: false, capture: true });
@@ -818,6 +835,8 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     nestedDrawerOpen,
     open,
     popupElementState,
+    crossScrollAxis,
+    isVerticalScrollAxis,
     scrollAxis,
     swipeDirection,
     viewportElement,
@@ -1004,7 +1023,10 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           }
 
           const touchState = touchScrollStateRef.current;
-          if (touchState?.scrollTarget && touchState.allowSwipe !== true) {
+          if (
+            touchState?.allowSwipe === false ||
+            (touchState?.scrollTarget != null && !touchState.allowSwipe)
+          ) {
             return;
           }
 
@@ -1149,6 +1171,25 @@ function isEventOnRangeInput(event: TouchEvent, win: ReturnType<typeof ownerWind
 
 function isReactTouchEventOnRangeInput(event: React.TouchEvent<Element>): boolean {
   return isEventOnRangeInput(event.nativeEvent, ownerWindow(event.currentTarget));
+}
+
+function updateTouchScrollPosition(touchState: TouchScrollState, touch: Touch): void {
+  touchState.lastX = touch.clientX;
+  touchState.lastY = touch.clientY;
+}
+
+function preserveNativeCrossAxisScroll(
+  shouldAllowCrossAxisScroll: boolean,
+  touchState: TouchScrollState,
+  touch: Touch,
+): boolean {
+  if (!shouldAllowCrossAxisScroll) {
+    return false;
+  }
+
+  touchState.allowSwipe = false;
+  updateTouchScrollPosition(touchState, touch);
+  return true;
 }
 
 function hasScrollableContentOnAxis(scrollTarget: HTMLElement, axis: ScrollAxis): boolean {
