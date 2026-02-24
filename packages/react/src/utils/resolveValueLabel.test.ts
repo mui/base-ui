@@ -42,6 +42,20 @@ describe('resolveValueLabel', () => {
       expect(hasNullItemLabel(items)).to.equal(false);
     });
 
+    it('supports grouped items with custom heading keys', () => {
+      const items = [
+        {
+          heading: 'group-1',
+          items: [
+            { value: 'a', label: 'A' },
+            { value: null, label: 'Select' },
+          ],
+        },
+      ];
+
+      expect(hasNullItemLabel(items)).to.equal(true);
+    });
+
     it('returns true when flat items contain a null-valued item with a label', () => {
       const items = [
         { value: 'a', label: 'A' },

@@ -7,11 +7,11 @@ export default function ExampleSelectGrouped() {
   return (
     <Field.Root className={styles.Field}>
       <Field.Label className={styles.Label} nativeLabel={false} render={<div />}>
-        Select produce
+        Produce
       </Field.Label>
       <Select.Root items={groupedProduce}>
         <Select.Trigger className={styles.Select}>
-          <Select.Value className={styles.Value} />
+          <Select.Value className={styles.Value} placeholder="Select produce" />
           <Select.Icon className={styles.SelectIcon}>
             <ChevronUpDownIcon />
           </Select.Icon>
@@ -21,20 +21,27 @@ export default function ExampleSelectGrouped() {
             <Select.Popup className={styles.Popup}>
               <Select.ScrollUpArrow className={styles.ScrollArrow} />
               <Select.List className={styles.List}>
-                {groupedProduce.map((group) => (
-                  <Select.Group key={group.value} className={styles.Group}>
-                    <Select.GroupLabel className={styles.GroupLabel}>
-                      {group.value}
-                    </Select.GroupLabel>
-                    {group.items.map((item) => (
-                      <Select.Item key={item.value} value={item.value} className={styles.Item}>
-                        <Select.ItemIndicator className={styles.ItemIndicator}>
-                          <CheckIcon className={styles.ItemIndicatorIcon} />
-                        </Select.ItemIndicator>
-                        <Select.ItemText className={styles.ItemText}>{item.label}</Select.ItemText>
-                      </Select.Item>
-                    ))}
-                  </Select.Group>
+                {groupedProduce.map((group, index) => (
+                  <React.Fragment key={group.value}>
+                    <Select.Group className={styles.Group}>
+                      <Select.GroupLabel className={styles.GroupLabel}>
+                        {group.value}
+                      </Select.GroupLabel>
+                      {group.items.map((item) => (
+                        <Select.Item key={item.value} value={item.value} className={styles.Item}>
+                          <Select.ItemIndicator className={styles.ItemIndicator}>
+                            <CheckIcon className={styles.ItemIndicatorIcon} />
+                          </Select.ItemIndicator>
+                          <Select.ItemText className={styles.ItemText}>
+                            {item.label}
+                          </Select.ItemText>
+                        </Select.Item>
+                      ))}
+                    </Select.Group>
+                    {index < groupedProduce.length - 1 ? (
+                      <Select.Separator className={styles.Separator} />
+                    ) : null}
+                  </React.Fragment>
                 ))}
               </Select.List>
               <Select.ScrollDownArrow className={styles.ScrollArrow} />
