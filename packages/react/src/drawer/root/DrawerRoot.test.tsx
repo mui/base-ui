@@ -608,6 +608,43 @@ describe('<Drawer.Root />', () => {
     (window as any).PointerEvent = window.MouseEvent;
   });
 
+  it('renders when `React.useId` is unavailable', async ({ skip }) => {
+    const useIdDescriptor = Object.getOwnPropertyDescriptor(React, 'useId');
+
+    if (
+      !useIdDescriptor ||
+      useIdDescriptor.configurable === false ||
+      useIdDescriptor.get ||
+      useIdDescriptor.set
+    ) {
+      skip();
+      return;
+    }
+
+    Object.defineProperty(React, 'useId', {
+      configurable: true,
+      value: undefined,
+    });
+
+    try {
+      await render(
+        <Drawer.Root open swipeDirection="right">
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup>Drawer</Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>,
+      );
+
+      await flushMicrotasks();
+
+      expect(screen.getByText('Drawer')).toBeVisible();
+    } finally {
+      Object.defineProperty(React, 'useId', useIdDescriptor);
+    }
+  });
+
   it.skipIf(isJSDOM)('uses a size-based swipe threshold', async () => {
     const handleOpenChange = vi.fn();
     await render(<TestCase onOpenChange={handleOpenChange} />);
