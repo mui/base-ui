@@ -1,4 +1,8 @@
 /*
+ * Main stylesheet for docs/website/private surfaces.
+ * Imports demo-runtime.css (shared with test harnesses) and layers
+ * docs-only content on top.
+ *
  * README
  * - Use plain CSS to create docs component styles
  *   - Component CSS must use "@layer components" to work correctly with Tailwind
@@ -7,63 +11,52 @@
  * - Use Tailwind for layout utils
  * - There are two reset layers:
  *   - "@layer all" is a truly global reset (includes all demos)
- *   - "@layer base" is Tailwind’s reset that is reverted in non-Tailwind demos
- *   - We rely on both to build the docs docs
+ *   - "@layer base" is Tailwind's reset that is reverted in non-Tailwind demos
+ *   - We rely on both to build the docs
  * - Docs and demos are built using the same theme
  *   - Theme tokens use Tailwind v4 "@theme" naming convention
  *   - Don't use our custom tokens in the demos – only what's available in the default theme.
  */
 
-@layer all;
-@layer base;
-@layer theme;
-@layer components;
-@layer utilities;
+@import './demo-runtime.css';
 
-@import 'tailwindcss/preflight' layer(base);
-@import 'tailwindcss/theme' layer(theme);
-@import 'tailwindcss/utilities' layer(utilities);
+/* ═══ Docs-only imports ═══ */
 
-@import './css/breakpoints.css';
-@import './fonts/index.css';
-@import './syntax-highlighting/index.css';
-@import './components/Code.css';
-@import './components/CodeBlock.css';
-@import './components/Demo/Demo.css';
-@import './components/GhostButton.css';
-@import './components/Header.css';
-@import './components/HeadingLink.css';
-@import './components/Kbd/Kbd.css';
-@import './components/Link.css';
-@import './components/MobileNav.css';
-@import './components/Popup.css';
-@import './components/QuickNav/QuickNav.css';
-@import './components/ScrollArea.css';
-@import './components/Select.css';
-@import './components/SideNav.css';
-@import './components/SkipNav.css';
-@import './components/Subtitle/Subtitle.css';
-@import './components/Subtitle/MarkdownLink.css';
-@import './components/Table.css';
-@import './components/ReferenceTable/ReferenceTable.css';
-@import './components/Accordion.css';
-@import './components/DescriptionList.css';
+@import './breakpoints.css';
+@import '../syntax-highlighting/index.css';
 
-@import './css/utilities/index.css';
+@import '../components/Code.css';
+@import '../components/CodeBlock.css';
+@import '../components/Demo/Demo.css';
+@import '../components/GhostButton.css';
+@import '../components/Header.css';
+@import '../components/HeadingLink.css';
+@import '../components/Kbd/Kbd.css';
+@import '../components/Link.css';
+@import '../components/MobileNav.css';
+@import '../components/Popup.css';
+@import '../components/QuickNav/QuickNav.css';
+@import '../components/ScrollArea.css';
+@import '../components/Select.css';
+@import '../components/SideNav.css';
+@import '../components/SkipNav.css';
+@import '../components/Subtitle/Subtitle.css';
+@import '../components/Subtitle/MarkdownLink.css';
+@import '../components/Table.css';
+@import '../components/ReferenceTable/ReferenceTable.css';
+@import '../components/Accordion.css';
+@import '../components/DescriptionList.css';
 
-/* Handy link to the default Tailwind theme:
-/* https://github.com/tailwindlabs/tailwindcss/blob/next/packages/tailwindcss/theme.css */
+@import './utilities/index.css' layer(utilities);
 
-/* We defined grays, red, and blue in the theme used for demos. */
-/* Uses gray scale that is roughly compatible with Tailwind's grays */
-@import './demo-data/theme/css-modules/theme.css' layer(theme);
+/* ═══ Docs-only theme tokens ═══ */
 
 @theme {
   --color-*: initial;
   --color-white: white;
   --color-black: black;
 
-  /* Gray colors defined in file://./demo-data/theme/css-modules/theme.css */
+  /* Gray colors defined in file://../demo-data/theme/css-modules/theme.css */
   --color-gray-50: inherit;
   --color-gray-75: oklch(97% 0.325% 264deg); /* Not a Tailwind step, don't use it in the demos */
   --color-gray-100: inherit;
@@ -94,7 +87,7 @@
   --color-inline-highlight: oklch(80% 50% 264deg / 15%);
 
   /* Text colors for the docs */
-  /* Color Red and Blue defined in file://./demo-data/theme/css-modules/theme.css */
+  /* Color Red and Blue defined in file://../demo-data/theme/css-modules/theme.css */
   --color-blue: inherit;
   --color-red: inherit;
   --color-gray: var(--color-gray-600);
@@ -160,9 +153,11 @@
   --header-height: 3rem;
 }
 
+/* ═══ Dark mode overrides ═══ */
+
 @media (prefers-color-scheme: dark) {
   :root {
-    /* Gray colors defined in file://./demo-data/theme/css-modules/theme.css */
+    /* Gray colors defined in file://../demo-data/theme/css-modules/theme.css */
     --color-gray-75: oklch(19% 0.5% 264deg); /* Not a Tailwind step, don't use it in the demos */
 
     /* Functional colors */
@@ -178,7 +173,7 @@
     --color-inline-highlight: oklch(50% 50% 264deg / 35%);
 
     /* Text colors */
-    /* Color Red and Blue defined in file://./demo-data/theme/css-modules/theme.css */
+    /* Color Red and Blue defined in file://../demo-data/theme/css-modules/theme.css */
     --color-gray: var(--color-gray-600);
     --color-green: oklch(75% 25% 150deg);
     --color-navy: oklch(85% 25% 264deg);
@@ -187,7 +182,9 @@
   }
 }
 
-/* Disable docs-specific variables in the demos. Keep this in sync with the "@theme" block above */
+/* ═══ Disable docs-specific variables in demos ═══ */
+/* Keep this in sync with the "@theme" block above */
+
 @layer theme {
   [data-demo] {
     --text-md: initial;
@@ -220,40 +217,5 @@
       --color-blue: initial;
       --color-red: initial;
     }
-  }
-}
-
-/* Remove the Tailwind reset in non-Tailwind demos */
-@layer base {
-  [data-demo]:not([data-demo='tailwind']) * {
-    all: revert-layer;
-  }
-
-  [data-demo='tailwind'] {
-    --text-sm--letter-spacing: 0em;
-    --text-md--letter-spacing: 0em;
-  }
-}
-
-@layer all {
-  html {
-    word-break: break-word;
-  }
-
-  body {
-    font-synthesis: none;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    /* Stable scrollbar */
-    overflow-y: scroll;
-  }
-
-  /* Debugging red text? You just forgot to set or inherit color in your demo. */
-  :where([data-demo]) {
-    color: red;
-  }
-  /* Controls usually have #000 text that needs to be explicitly overridden; only Tailwind reset handles it */
-  :where([data-demo]:not([data-demo='tailwind'])) :where(button, input, textarea) {
-    color: red;
   }
 }
