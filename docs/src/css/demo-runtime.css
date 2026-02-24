@@ -23,6 +23,78 @@
 /* Uses gray scale that is roughly compatible with Tailwind's grays */
 @import '../demo-data/theme/css-modules/theme.css' layer(theme);
 
+/* ═══ Tailwind theme registration ═══ */
+/* Register demo-relevant tokens so Tailwind can generate utility classes */
+
+@theme {
+  --color-*: initial;
+  --color-white: white;
+  --color-black: black;
+
+  /* Gray colors defined in file://../demo-data/theme/css-modules/theme.css */
+  --color-gray-50: inherit;
+  --color-gray-100: inherit;
+  --color-gray-200: inherit;
+  --color-gray-300: inherit;
+  --color-gray-400: inherit;
+  --color-gray-500: inherit;
+  --color-gray-600: inherit;
+  --color-gray-700: inherit;
+  --color-gray-800: inherit;
+  --color-gray-900: inherit;
+  --color-gray-950: inherit;
+
+  /* Color Red and Blue defined in file://../demo-data/theme/css-modules/theme.css */
+  --color-blue: inherit;
+  --color-red: inherit;
+  --color-blue-800: var(--color-blue);
+  --color-red-800: var(--color-red);
+
+  /* Typography */
+  --font-mono: 'SF Mono', 'Menlo', 'DejaVu Sans Mono', 'Consolas', 'Inconsolata', monospace;
+  --font-sans: 'Unica 77', system-ui, sans-serif;
+
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.25rem;
+  --text-xs--letter-spacing: 0.001em;
+
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.25rem;
+  --text-sm--letter-spacing: 0.016em;
+
+  --text-base: 1rem;
+  --text-base--line-height: 1.5rem;
+  --text-base--letter-spacing: 0em;
+
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.75rem;
+  --text-lg--letter-spacing: -0.0025em;
+
+  --text-xl: 1.3125rem;
+  --text-xl--line-height: 1.625rem;
+  --text-xl--letter-spacing: -0.005em;
+
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: 1.25;
+  --text-2xl--letter-spacing: -0.0125em;
+
+  --text-3xl: 1.875rem;
+  --text-3xl--line-height: 1.2;
+  --text-3xl--letter-spacing: -0.015em;
+
+  --text-4xl: 2.25rem;
+  --text-4xl--line-height: 2.5rem;
+  --text-4xl--letter-spacing: -0.015em;
+
+  --text-5xl: 3rem;
+  --text-5xl--line-height: 1;
+  --text-5xl--letter-spacing: -0.015em;
+
+  --text-6xl: 3.75rem;
+  --text-6xl--line-height: 0.95;
+  --text-6xl--letter-spacing: -0.015em;
+}
+
 /* ═══ Demo isolation ═══ */
 
 /* Undo `tailwindcss/preflight` in non-Tailwind demos */
