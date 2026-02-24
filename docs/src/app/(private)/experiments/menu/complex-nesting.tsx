@@ -111,12 +111,8 @@ export default function MenuComplexNestingExperiment() {
                         </div>
 
                         <div className={styles.DialogActions}>
-                          <Dialog.Close className={styles.DialogCancel}>
-                            Cancel
-                          </Dialog.Close>
-                          <Dialog.Close className={styles.DialogConfirm}>
-                            Save
-                          </Dialog.Close>
+                          <Dialog.Close className={styles.DialogCancel}>Cancel</Dialog.Close>
+                          <Dialog.Close className={styles.DialogConfirm}>Save</Dialog.Close>
                         </div>
                       </div>
                     </Dialog.Popup>

@@ -13,11 +13,7 @@ export default function Playground() {
     <div className={styles.Container}>
       <h2 className={styles.Heading}>Controlled mode</h2>
       <div className={styles.Row}>
-        <button
-          type="button"
-          className={styles.Button}
-          onClick={() => setOpen((o) => !o)}
-        >
+        <button type="button" className={styles.Button} onClick={() => setOpen((o) => !o)}>
           Toggle externally
         </button>
         <ControllableComponent
@@ -100,11 +96,7 @@ function ControllableComponent(props: Props) {
     <React.Fragment>
       <span>open: {open?.toString() ?? 'undefined'}</span>
       <ChildComponent store={store} />
-      <button
-        type="button"
-        className={styles.Button}
-        onClick={handleClick}
-      >
+      <button type="button" className={styles.Button} onClick={handleClick}>
         Toggle internally
       </button>
       <span>value: {value}</span>

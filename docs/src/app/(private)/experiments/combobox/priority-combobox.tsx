@@ -18,38 +18,22 @@ function CustomCombobox(props: { items: Priority[] }) {
       </Combobox.Trigger>
       <Combobox.Portal>
         <Combobox.Positioner align="start" sideOffset={4} disableAnchorTracking={true}>
-          <Combobox.Popup
-            className={styles.Popup}
-            aria-label="Select priority"
-          >
+          <Combobox.Popup className={styles.Popup} aria-label="Select priority">
             <div className={styles.InputRow}>
-              <Combobox.Input
-                placeholder="Set priority to..."
-                className={styles.Input}
-              />
-              <div className={styles.ShortcutKey}>
-                P
-              </div>
+              <Combobox.Input placeholder="Set priority to..." className={styles.Input} />
+              <div className={styles.ShortcutKey}>P</div>
             </div>
             <Combobox.Separator className={styles.Separator} />
-            <Combobox.Empty className={styles.Empty}>
-              No priority found.
-            </Combobox.Empty>
+            <Combobox.Empty className={styles.Empty}>No priority found.</Combobox.Empty>
             <Combobox.List className={styles.List}>
               {(priority: Priority) => (
-                <Combobox.Item
-                  key={priority.code}
-                  value={priority}
-                  className={styles.Item}
-                >
+                <Combobox.Item key={priority.code} value={priority} className={styles.Item}>
                   <div className={styles.ItemIcon}>{priority.icon}</div>
                   <div className={styles.ItemText}>{priority.label ?? priority.value}</div>
                   <Combobox.ItemIndicator className={styles.ItemIndicator}>
                     <CheckIcon className={styles.ItemIndicatorIcon} />
                   </Combobox.ItemIndicator>
-                  <div className={styles.ItemCode}>
-                    {priority.code}
-                  </div>
+                  <div className={styles.ItemCode}>{priority.code}</div>
                 </Combobox.Item>
               )}
             </Combobox.List>

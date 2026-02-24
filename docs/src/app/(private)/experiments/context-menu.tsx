@@ -24,12 +24,18 @@ export default function ContextMenuExperiment() {
         <ContextMenu.Root>
           <ContextMenu.Trigger className={clsx(styles.ContextBox, styles.Blue)}>
             <div className={styles.CenterText}>
-              <span className={clsx(styles.LabelPrimary, styles.BluePrimary)}>Outer Context Menu</span>
-              <span className={clsx(styles.LabelSecondary, styles.BlueSecondary)}>Right-click me</span>
+              <span className={clsx(styles.LabelPrimary, styles.BluePrimary)}>
+                Outer Context Menu
+              </span>
+              <span className={clsx(styles.LabelSecondary, styles.BlueSecondary)}>
+                Right-click me
+              </span>
 
               <ContextMenu.Root>
                 <ContextMenu.Trigger className={clsx(styles.ContextBoxInner, styles.Red)}>
-                  <span className={clsx(styles.LabelPrimary, styles.RedPrimary)}>Inner Context Menu</span>
+                  <span className={clsx(styles.LabelPrimary, styles.RedPrimary)}>
+                    Inner Context Menu
+                  </span>
                   <span className={clsx(styles.LabelSecondary, styles.RedSecondary)}>
                     Right-click me too!
                   </span>
@@ -37,16 +43,10 @@ export default function ContextMenuExperiment() {
                 <ContextMenu.Portal>
                   <ContextMenu.Positioner className={styles.Positioner}>
                     <ContextMenu.Popup className={styles.Popup180}>
-                      <ContextMenu.Item className={styles.Item}>
-                        Inner Action 1
-                      </ContextMenu.Item>
-                      <ContextMenu.Item className={styles.Item}>
-                        Inner Action 2
-                      </ContextMenu.Item>
+                      <ContextMenu.Item className={styles.Item}>Inner Action 1</ContextMenu.Item>
+                      <ContextMenu.Item className={styles.Item}>Inner Action 2</ContextMenu.Item>
                       <ContextMenu.Separator className={styles.Separator} />
-                      <ContextMenu.Item className={styles.Item}>
-                        Inner Delete
-                      </ContextMenu.Item>
+                      <ContextMenu.Item className={styles.Item}>Inner Delete</ContextMenu.Item>
                     </ContextMenu.Popup>
                   </ContextMenu.Positioner>
                 </ContextMenu.Portal>
@@ -56,16 +56,10 @@ export default function ContextMenuExperiment() {
           <ContextMenu.Portal>
             <ContextMenu.Positioner className={styles.Positioner}>
               <ContextMenu.Popup className={styles.Popup180}>
-                <ContextMenu.Item className={styles.Item}>
-                  Outer Action 1
-                </ContextMenu.Item>
-                <ContextMenu.Item className={styles.Item}>
-                  Outer Action 2
-                </ContextMenu.Item>
+                <ContextMenu.Item className={styles.Item}>Outer Action 1</ContextMenu.Item>
+                <ContextMenu.Item className={styles.Item}>Outer Action 2</ContextMenu.Item>
                 <ContextMenu.Separator className={styles.Separator} />
-                <ContextMenu.Item className={styles.Item}>
-                  Outer Delete
-                </ContextMenu.Item>
+                <ContextMenu.Item className={styles.Item}>Outer Delete</ContextMenu.Item>
               </ContextMenu.Popup>
             </ContextMenu.Positioner>
           </ContextMenu.Portal>
@@ -75,7 +69,9 @@ export default function ContextMenuExperiment() {
       {/* Scenario 2: Context menu within context menu trigger, both with submenus */}
       <section className={styles.Section}>
         <h2 className={styles.SectionTitle}>2. Nested Context Menus with Submenus</h2>
-        <p className={styles.Description}>Right-click on either box and explore the submenu options.</p>
+        <p className={styles.Description}>
+          Right-click on either box and explore the submenu options.
+        </p>
 
         <ContextMenu.Root>
           <ContextMenu.Trigger className={clsx(styles.ContextBox, styles.Green)}>
@@ -83,7 +79,9 @@ export default function ContextMenuExperiment() {
               <span className={clsx(styles.LabelPrimary, styles.GreenPrimary)}>
                 Outer Context Menu with Submenu
               </span>
-              <span className={clsx(styles.LabelSecondary, styles.GreenSecondary)}>Right-click me</span>
+              <span className={clsx(styles.LabelSecondary, styles.GreenSecondary)}>
+                Right-click me
+              </span>
 
               <ContextMenu.Root>
                 <ContextMenu.Trigger className={clsx(styles.ContextBoxInner, styles.Purple)}>
@@ -109,21 +107,15 @@ export default function ContextMenuExperiment() {
                         <Menu.Portal>
                           <Menu.Positioner className={styles.Positioner} sideOffset={4}>
                             <Menu.Popup className={styles.Popup160}>
-                              <Menu.Item className={styles.Item}>
-                                Inner Sub Action 1
-                              </Menu.Item>
-                              <Menu.Item className={styles.Item}>
-                                Inner Sub Action 2
-                              </Menu.Item>
+                              <Menu.Item className={styles.Item}>Inner Sub Action 1</Menu.Item>
+                              <Menu.Item className={styles.Item}>Inner Sub Action 2</Menu.Item>
                             </Menu.Popup>
                           </Menu.Positioner>
                         </Menu.Portal>
                       </Menu.SubmenuRoot>
 
                       <ContextMenu.Separator className={styles.Separator} />
-                      <ContextMenu.Item className={styles.Item}>
-                        Inner Delete
-                      </ContextMenu.Item>
+                      <ContextMenu.Item className={styles.Item}>Inner Delete</ContextMenu.Item>
                     </ContextMenu.Popup>
                   </ContextMenu.Positioner>
                 </ContextMenu.Portal>
@@ -133,9 +125,7 @@ export default function ContextMenuExperiment() {
           <ContextMenu.Portal>
             <ContextMenu.Positioner className={styles.Positioner}>
               <ContextMenu.Popup className={styles.Popup180}>
-                <ContextMenu.Item className={styles.Item}>
-                  Outer Basic Action
-                </ContextMenu.Item>
+                <ContextMenu.Item className={styles.Item}>Outer Basic Action</ContextMenu.Item>
 
                 <Menu.SubmenuRoot>
                   <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>
@@ -145,21 +135,15 @@ export default function ContextMenuExperiment() {
                   <Menu.Portal>
                     <Menu.Positioner className={styles.Positioner} sideOffset={4}>
                       <Menu.Popup className={styles.Popup160}>
-                        <Menu.Item className={styles.Item}>
-                          Outer Sub Action 1
-                        </Menu.Item>
-                        <Menu.Item className={styles.Item}>
-                          Outer Sub Action 2
-                        </Menu.Item>
+                        <Menu.Item className={styles.Item}>Outer Sub Action 1</Menu.Item>
+                        <Menu.Item className={styles.Item}>Outer Sub Action 2</Menu.Item>
                       </Menu.Popup>
                     </Menu.Positioner>
                   </Menu.Portal>
                 </Menu.SubmenuRoot>
 
                 <ContextMenu.Separator className={styles.Separator} />
-                <ContextMenu.Item className={styles.Item}>
-                  Outer Delete
-                </ContextMenu.Item>
+                <ContextMenu.Item className={styles.Item}>Outer Delete</ContextMenu.Item>
               </ContextMenu.Popup>
             </ContextMenu.Positioner>
           </ContextMenu.Portal>
@@ -176,7 +160,9 @@ export default function ContextMenuExperiment() {
         <ContextMenu.Root>
           <ContextMenu.Trigger className={clsx(styles.ContextBox, styles.Orange)}>
             <div className={styles.CenterText}>
-              <span className={clsx(styles.LabelPrimary, styles.OrangePrimary)}>Complex Context Menu</span>
+              <span className={clsx(styles.LabelPrimary, styles.OrangePrimary)}>
+                Complex Context Menu
+              </span>
               <span className={clsx(styles.LabelSecondary, styles.OrangeSecondary)}>
                 Right-click me, then right-click "Special Item"
               </span>
@@ -185,9 +171,7 @@ export default function ContextMenuExperiment() {
           <ContextMenu.Portal>
             <ContextMenu.Positioner className={styles.Positioner}>
               <ContextMenu.Popup className={styles.Popup180}>
-                <ContextMenu.Item className={styles.Item}>
-                  Regular Action
-                </ContextMenu.Item>
+                <ContextMenu.Item className={styles.Item}>Regular Action</ContextMenu.Item>
 
                 <Menu.SubmenuRoot>
                   <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>
@@ -197,12 +181,8 @@ export default function ContextMenuExperiment() {
                   <Menu.Portal>
                     <Menu.Positioner className={styles.Positioner} sideOffset={4}>
                       <Menu.Popup className={styles.Popup160}>
-                        <Menu.Item className={styles.Item}>
-                          Sub Action 1
-                        </Menu.Item>
-                        <Menu.Item className={styles.Item}>
-                          Sub Action 2
-                        </Menu.Item>
+                        <Menu.Item className={styles.Item}>Sub Action 1</Menu.Item>
+                        <Menu.Item className={styles.Item}>Sub Action 2</Menu.Item>
                       </Menu.Popup>
                     </Menu.Positioner>
                   </Menu.Portal>
@@ -218,9 +198,7 @@ export default function ContextMenuExperiment() {
                   <ContextMenu.Portal>
                     <ContextMenu.Positioner className={styles.Positioner}>
                       <ContextMenu.Popup className={styles.Popup180}>
-                        <ContextMenu.Item className={styles.Item}>
-                          Nested Action 1
-                        </ContextMenu.Item>
+                        <ContextMenu.Item className={styles.Item}>Nested Action 1</ContextMenu.Item>
 
                         <Menu.SubmenuRoot>
                           <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>
@@ -230,12 +208,8 @@ export default function ContextMenuExperiment() {
                           <Menu.Portal>
                             <Menu.Positioner className={styles.Positioner} sideOffset={4}>
                               <Menu.Popup className={styles.Popup160}>
-                                <Menu.Item className={styles.Item}>
-                                  Deep Action 1
-                                </Menu.Item>
-                                <Menu.Item className={styles.Item}>
-                                  Deep Action 2
-                                </Menu.Item>
+                                <Menu.Item className={styles.Item}>Deep Action 1</Menu.Item>
+                                <Menu.Item className={styles.Item}>Deep Action 2</Menu.Item>
                                 <Menu.Separator className={styles.Separator} />
                                 <Menu.Item className={clsx(styles.Item, styles.ItemDanger)}>
                                   Deep Delete
@@ -278,8 +252,12 @@ export default function ContextMenuExperiment() {
         <ContextMenu.Root>
           <ContextMenu.Trigger className={clsx(styles.ContextBox, styles.Cyan)}>
             <div className={styles.CenterText}>
-              <span className={clsx(styles.LabelPrimary, styles.CyanPrimary)}>Outer Context Menu</span>
-              <span className={clsx(styles.LabelSecondary, styles.CyanSecondary)}>Right-click me</span>
+              <span className={clsx(styles.LabelPrimary, styles.CyanPrimary)}>
+                Outer Context Menu
+              </span>
+              <span className={clsx(styles.LabelSecondary, styles.CyanSecondary)}>
+                Right-click me
+              </span>
 
               <ContextMenu.Root>
                 <ContextMenu.Trigger
@@ -308,9 +286,7 @@ export default function ContextMenuExperiment() {
                                 <Menu.Portal>
                                   <Menu.Positioner className={styles.Positioner} side="top">
                                     <Menu.Popup className={styles.Popup180}>
-                                      <Menu.Item className={styles.Item}>
-                                        Menu Action
-                                      </Menu.Item>
+                                      <Menu.Item className={styles.Item}>Menu Action</Menu.Item>
                                     </Menu.Popup>
                                   </Menu.Positioner>
                                 </Menu.Portal>
@@ -321,7 +297,9 @@ export default function ContextMenuExperiment() {
                                   <span className={clsx(styles.LabelPrimary, styles.RedPrimary)}>
                                     Popover Context Menu
                                   </span>
-                                  <span className={clsx(styles.LabelSecondary, styles.RedSecondary)}>
+                                  <span
+                                    className={clsx(styles.LabelSecondary, styles.RedSecondary)}
+                                  >
                                     Right-click me!
                                   </span>
                                 </ContextMenu.Trigger>
@@ -345,9 +323,7 @@ export default function ContextMenuExperiment() {
                 <ContextMenu.Portal>
                   <ContextMenu.Positioner className={styles.Positioner}>
                     <ContextMenu.Popup className={styles.Popup220}>
-                      <ContextMenu.Item className={styles.Item}>
-                        Inner Action
-                      </ContextMenu.Item>
+                      <ContextMenu.Item className={styles.Item}>Inner Action</ContextMenu.Item>
                     </ContextMenu.Popup>
                   </ContextMenu.Positioner>
                 </ContextMenu.Portal>
@@ -357,9 +333,7 @@ export default function ContextMenuExperiment() {
           <ContextMenu.Portal>
             <ContextMenu.Positioner className={styles.Positioner}>
               <ContextMenu.Popup className={styles.Popup220}>
-                <ContextMenu.Item className={styles.Item}>
-                  Outer Action
-                </ContextMenu.Item>
+                <ContextMenu.Item className={styles.Item}>Outer Action</ContextMenu.Item>
               </ContextMenu.Popup>
             </ContextMenu.Positioner>
           </ContextMenu.Portal>
@@ -387,7 +361,12 @@ export default function ContextMenuExperiment() {
         <ContextMenu.Root disabled={disabled}>
           <ContextMenu.Trigger className={clsx(styles.ContextBox, styles.Indigo)}>
             <div className={styles.CenterText}>
-              <span className={clsx(styles.LabelPrimary, disabled ? styles.DisabledTextMuted : styles.DisabledTextActive)}>
+              <span
+                className={clsx(
+                  styles.LabelPrimary,
+                  disabled ? styles.DisabledTextMuted : styles.DisabledTextActive,
+                )}
+              >
                 Right-click here
               </span>
               <span
@@ -403,19 +382,11 @@ export default function ContextMenuExperiment() {
           <ContextMenu.Portal>
             <ContextMenu.Positioner className={styles.Positioner}>
               <ContextMenu.Popup className={styles.Popup180}>
-                <ContextMenu.Item className={styles.Item}>
-                  Cut
-                </ContextMenu.Item>
-                <ContextMenu.Item className={styles.Item}>
-                  Copy
-                </ContextMenu.Item>
-                <ContextMenu.Item className={styles.Item}>
-                  Paste
-                </ContextMenu.Item>
+                <ContextMenu.Item className={styles.Item}>Cut</ContextMenu.Item>
+                <ContextMenu.Item className={styles.Item}>Copy</ContextMenu.Item>
+                <ContextMenu.Item className={styles.Item}>Paste</ContextMenu.Item>
                 <ContextMenu.Separator className={styles.Separator} />
-                <ContextMenu.Item className={styles.Item}>
-                  Select All
-                </ContextMenu.Item>
+                <ContextMenu.Item className={styles.Item}>Select All</ContextMenu.Item>
                 <ContextMenu.Separator className={styles.Separator} />
                 <ContextMenu.Item className={clsx(styles.Item, styles.ItemDanger)}>
                   Delete

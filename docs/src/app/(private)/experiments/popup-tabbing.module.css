@@ -126,7 +126,10 @@
   color: var(--color-gray-900);
   outline: 1px solid var(--color-gray-200);
   box-shadow: var(--shadow-lg);
-  transition: transform 150ms, scale 150ms, opacity 150ms;
+  transition:
+    transform 150ms,
+    scale 150ms,
+    opacity 150ms;
 }
 
 .PopoverPopupRow {
@@ -140,7 +143,10 @@
   color: var(--color-gray-900);
   outline: 1px solid var(--color-gray-200);
   box-shadow: var(--shadow-lg);
-  transition: transform 150ms, scale 150ms, opacity 150ms;
+  transition:
+    transform 150ms,
+    scale 150ms,
+    opacity 150ms;
 }
 
 .PopoverPopupColumn[data-starting-style],
@@ -172,7 +178,10 @@
   color: var(--color-gray-900);
   outline: 1px solid var(--color-gray-200);
   box-shadow: var(--shadow-lg);
-  transition: transform 150ms, scale 150ms, opacity 150ms;
+  transition:
+    transform 150ms,
+    scale 150ms,
+    opacity 150ms;
 }
 
 .MenuPopup[data-starting-style],
@@ -304,7 +313,10 @@
   color: var(--color-gray-900);
   outline: 1px solid var(--color-gray-200);
   box-shadow: var(--shadow-lg);
-  transition: transform 150ms, scale 150ms, opacity 150ms;
+  transition:
+    transform 150ms,
+    scale 150ms,
+    opacity 150ms;
 }
 
 .ComboboxPopup[data-starting-style],

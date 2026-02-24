@@ -18,26 +18,14 @@ function ExampleMenu() {
             <Menu.Arrow className={styles.MenuArrow}>
               <ArrowSvg />
             </Menu.Arrow>
-            <Menu.Item className={styles.MenuItem}>
-              Add to Library
-            </Menu.Item>
-            <Menu.Item className={styles.MenuItem}>
-              Add to Playlist
-            </Menu.Item>
+            <Menu.Item className={styles.MenuItem}>Add to Library</Menu.Item>
+            <Menu.Item className={styles.MenuItem}>Add to Playlist</Menu.Item>
             <Menu.Separator className={styles.MenuSeparator} />
-            <Menu.Item className={styles.MenuItem}>
-              Play Next
-            </Menu.Item>
-            <Menu.Item className={styles.MenuItem}>
-              Play Last
-            </Menu.Item>
+            <Menu.Item className={styles.MenuItem}>Play Next</Menu.Item>
+            <Menu.Item className={styles.MenuItem}>Play Last</Menu.Item>
             <Menu.Separator className={styles.MenuSeparator} />
-            <Menu.Item className={styles.MenuItem}>
-              Favorite
-            </Menu.Item>
-            <Menu.Item className={styles.MenuItem}>
-              Share
-            </Menu.Item>
+            <Menu.Item className={styles.MenuItem}>Favorite</Menu.Item>
+            <Menu.Item className={styles.MenuItem}>Share</Menu.Item>
           </Menu.Popup>
         </Menu.Positioner>
       </Menu.Portal>
@@ -48,18 +36,13 @@ function ExampleMenu() {
 function ExamplePopoverInPopover() {
   return (
     <Popover.Root>
-      <Popover.Trigger className={styles.Button}>
-        Inner popover
-      </Popover.Trigger>
+      <Popover.Trigger className={styles.Button}>Inner popover</Popover.Trigger>
       <Popover.Portal>
         <Popover.Positioner sideOffset={8}>
           <Popover.Popup className={styles.PopoverPopupColumn}>
             <div className={styles.InnerTitle}>Inner content</div>
             <div className={styles.InnerDescription}>Try Tab / Shift+Tab out of here.</div>
-            <button
-              type="button"
-              className={styles.Button}
-            >
+            <button type="button" className={styles.Button}>
               Inner button
             </button>
           </Popover.Popup>
@@ -79,16 +62,9 @@ function ExampleCombobox() {
       <div className={styles.ComboboxField}>
         <label htmlFor={id}>Choose a fruit</label>
         <div className={styles.ComboboxInputWrap}>
-          <Combobox.Input
-            placeholder="e.g. Apple"
-            id={id}
-            className={styles.ComboboxInput}
-          />
+          <Combobox.Input placeholder="e.g. Apple" id={id} className={styles.ComboboxInput} />
           <div className={styles.ComboboxActions}>
-            <Combobox.Trigger
-              className={styles.ComboboxTriggerButton}
-              aria-label="Open popup"
-            >
+            <Combobox.Trigger className={styles.ComboboxTriggerButton} aria-label="Open popup">
               <ChevronDownIcon className={styles.ComboboxIcon} />
             </Combobox.Trigger>
           </div>
@@ -98,16 +74,10 @@ function ExampleCombobox() {
       <Combobox.Portal>
         <Combobox.Positioner className={styles.MenuPositioner} sideOffset={4}>
           <Combobox.Popup className={styles.ComboboxPopup}>
-            <Combobox.Empty className={styles.ComboboxEmpty}>
-              No fruits found.
-            </Combobox.Empty>
+            <Combobox.Empty className={styles.ComboboxEmpty}>No fruits found.</Combobox.Empty>
             <Combobox.List>
               {(item: string) => (
-                <Combobox.Item
-                  key={item}
-                  value={item}
-                  className={styles.ComboboxItem}
-                >
+                <Combobox.Item key={item} value={item} className={styles.ComboboxItem}>
                   {item}
                 </Combobox.Item>
               )}
@@ -144,25 +114,17 @@ export default function PopupTabbing() {
         <section className={styles.Section}>
           <h2 className={styles.SectionTitle}>Combobox inside Popover</h2>
           <div className={styles.Row}>
-            <button
-              type="button"
-              className={styles.Button}
-            >
+            <button type="button" className={styles.Button}>
               Outside before
             </button>
 
             <Popover.Root>
-              <Popover.Trigger className={styles.Button}>
-                Outer popover
-              </Popover.Trigger>
+              <Popover.Trigger className={styles.Button}>Outer popover</Popover.Trigger>
               <Popover.Portal>
                 <Popover.Positioner sideOffset={8}>
                   <Popover.Popup className={styles.PopoverPopupColumn}>
                     {renderInsideButtons ? (
-                      <button
-                        type="button"
-                        className={styles.Button}
-                      >
+                      <button type="button" className={styles.Button}>
                         Inside before
                       </button>
                     ) : null}
@@ -170,10 +132,7 @@ export default function PopupTabbing() {
                     <ExampleCombobox />
 
                     {renderInsideButtons ? (
-                      <button
-                        type="button"
-                        className={styles.Button}
-                      >
+                      <button type="button" className={styles.Button}>
                         Inside after
                       </button>
                     ) : null}
@@ -182,10 +141,7 @@ export default function PopupTabbing() {
               </Popover.Portal>
             </Popover.Root>
 
-            <button
-              type="button"
-              className={styles.Button}
-            >
+            <button type="button" className={styles.Button}>
               Outside after
             </button>
           </div>
@@ -194,34 +150,23 @@ export default function PopupTabbing() {
         <section className={styles.Section}>
           <h2 className={styles.SectionTitle}>Menu inside Popover</h2>
           <div className={styles.Row}>
-            <button
-              type="button"
-              className={styles.Button}
-            >
+            <button type="button" className={styles.Button}>
               Outside before
             </button>
 
             <Popover.Root>
-              <Popover.Trigger className={styles.Button}>
-                Outer popover
-              </Popover.Trigger>
+              <Popover.Trigger className={styles.Button}>Outer popover</Popover.Trigger>
               <Popover.Portal>
                 <Popover.Positioner sideOffset={8}>
                   <Popover.Popup className={styles.PopoverPopupRow}>
                     {renderInsideButtons ? (
-                      <button
-                        type="button"
-                        className={styles.Button}
-                      >
+                      <button type="button" className={styles.Button}>
                         Inside before
                       </button>
                     ) : null}
                     <ExampleMenu />
                     {renderInsideButtons ? (
-                      <button
-                        type="button"
-                        className={styles.Button}
-                      >
+                      <button type="button" className={styles.Button}>
                         Inside after
                       </button>
                     ) : null}
@@ -230,10 +175,7 @@ export default function PopupTabbing() {
               </Popover.Portal>
             </Popover.Root>
 
-            <button
-              type="button"
-              className={styles.Button}
-            >
+            <button type="button" className={styles.Button}>
               Outside after
             </button>
           </div>
@@ -242,34 +184,23 @@ export default function PopupTabbing() {
         <section className={styles.Section}>
           <h2 className={styles.SectionTitle}>Popover inside Popover</h2>
           <div className={styles.Row}>
-            <button
-              type="button"
-              className={styles.Button}
-            >
+            <button type="button" className={styles.Button}>
               Outside before
             </button>
 
             <Popover.Root>
-              <Popover.Trigger className={styles.Button}>
-                Outer popover
-              </Popover.Trigger>
+              <Popover.Trigger className={styles.Button}>Outer popover</Popover.Trigger>
               <Popover.Portal>
                 <Popover.Positioner sideOffset={8}>
                   <Popover.Popup className={styles.PopoverPopupColumn}>
                     {renderInsideButtons ? (
-                      <button
-                        type="button"
-                        className={styles.Button}
-                      >
+                      <button type="button" className={styles.Button}>
                         Inside before
                       </button>
                     ) : null}
                     <ExamplePopoverInPopover />
                     {renderInsideButtons ? (
-                      <button
-                        type="button"
-                        className={styles.Button}
-                      >
+                      <button type="button" className={styles.Button}>
                         Inside after
                       </button>
                     ) : null}
@@ -278,10 +209,7 @@ export default function PopupTabbing() {
               </Popover.Portal>
             </Popover.Root>
 
-            <button
-              type="button"
-              className={styles.Button}
-            >
+            <button type="button" className={styles.Button}>
               Outside after
             </button>
           </div>

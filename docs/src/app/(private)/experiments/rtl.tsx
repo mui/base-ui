@@ -182,10 +182,6 @@ function MenuPositioner({ className, ...props }: Menu.Positioner.Props) {
 function PreviewCardPositioner({ className, ...props }: PreviewCard.Positioner.Props) {
   const direction = useDirection();
   return (
-    <PreviewCard.Positioner
-      className={clsx('bui-ol-n', className)}
-      dir={direction}
-      {...props}
-    />
+    <PreviewCard.Positioner className={clsx('bui-ol-n', className)} dir={direction} {...props} />
   );
 }

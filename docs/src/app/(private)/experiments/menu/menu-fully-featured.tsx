@@ -99,9 +99,7 @@ export default function MenuFullyFeatured() {
                 <Menu.Portal>
                   <Menu.Positioner className={classes.Positioner} sideOffset={8}>
                     <Menu.Popup className={classes.Popup}>
-                      <div className={classes.NonFocusableText}>
-                        Non-focusable text
-                      </div>
+                      <div className={classes.NonFocusableText}>Non-focusable text</div>
                       <Menu.Group>
                         <Menu.GroupLabel className={classes.GroupLabel}>
                           Radio items

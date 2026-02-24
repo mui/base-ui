@@ -188,10 +188,7 @@ function Combobox(props: ComboboxProps) {
       }}
     >
       <div className={styles.Field}>
-        <BaseCombobox.Chips
-          className={styles.Chips}
-          ref={containerRef}
-        >
+        <BaseCombobox.Chips className={styles.Chips} ref={containerRef}>
           <BaseCombobox.Value>
             {(itemsToRender: InternalComboboxItem[]) => (
               <React.Fragment>
@@ -202,10 +199,7 @@ function Combobox(props: ComboboxProps) {
                     aria-label={item.value}
                   >
                     {item.value}
-                    <BaseCombobox.ChipRemove
-                      className={styles.ChipRemove}
-                      aria-label="Remove"
-                    >
+                    <BaseCombobox.ChipRemove className={styles.ChipRemove} aria-label="Remove">
                       <XIcon />
                     </BaseCombobox.ChipRemove>
                   </BaseCombobox.Chip>
@@ -239,11 +233,7 @@ function Combobox(props: ComboboxProps) {
 
 function renderRegularItem(item: InternalComboboxItem) {
   return (
-    <BaseCombobox.Item
-      key={String(item.value)}
-      className={styles.Item}
-      value={item}
-    >
+    <BaseCombobox.Item key={String(item.value)} className={styles.Item} value={item}>
       <BaseCombobox.ItemIndicator className={styles.ItemIndicator}>
         <CheckIcon className={styles.TinyIcon} />
       </BaseCombobox.ItemIndicator>
@@ -254,11 +244,7 @@ function renderRegularItem(item: InternalComboboxItem) {
 
 function renderCreateItem(item: InternalComboboxItem) {
   return (
-    <BaseCombobox.Item
-      key={`new:${item.value}`}
-      className={styles.Item}
-      value={item}
-    >
+    <BaseCombobox.Item key={`new:${item.value}`} className={styles.Item} value={item}>
       <span className={styles.ItemIndicator}>
         <PlusIcon className={styles.TinyIcon} />
       </span>

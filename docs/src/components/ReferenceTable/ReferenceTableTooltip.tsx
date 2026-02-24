@@ -20,10 +20,7 @@ export function Popup({ children, ...props }: Tooltip.Popup.Props) {
         sideOffset={6}
         collisionPadding={16}
       >
-        <Tooltip.Popup
-          render={<BasePopup className="ReferenceTooltipPopup" />}
-          {...props}
-        >
+        <Tooltip.Popup render={<BasePopup className="ReferenceTooltipPopup" />} {...props}>
           <div className="ReferenceTooltipContent">{children}</div>
           <Tooltip.Arrow className="ReferenceTooltipArrow">
             <svg width="20" height="10" viewBox="0 0 20 10" fill="none">

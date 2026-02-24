@@ -18,75 +18,57 @@ export default function ExampleNavigationMenu() {
 
             <NavigationMenu.Content className={styles.Content}>
               <Dialog.Root>
-                <Dialog.Trigger className={styles.ActionButton}>
-                  First Dialog
-                </Dialog.Trigger>
+                <Dialog.Trigger className={styles.ActionButton}>First Dialog</Dialog.Trigger>
                 <Dialog.Portal>
                   <Dialog.Backdrop className={styles.Backdrop} />
                   <Dialog.Popup
                     onClick={(event) => event.stopPropagation()}
                     className={styles.ModalPopup}
                   >
-                    <Dialog.Title className={styles.ModalTitle}>
-                      Notifications
-                    </Dialog.Title>
+                    <Dialog.Title className={styles.ModalTitle}>Notifications</Dialog.Title>
                     <Dialog.Description className={styles.ModalDescription}>
                       You are all caught up. Good job!
                     </Dialog.Description>
                     <div className={styles.ModalActions}>
-                      <Dialog.Close className={styles.ActionButton}>
-                        Close
-                      </Dialog.Close>
+                      <Dialog.Close className={styles.ActionButton}>Close</Dialog.Close>
                     </div>
                   </Dialog.Popup>
                 </Dialog.Portal>
               </Dialog.Root>
 
               <Dialog.Root>
-                <Dialog.Trigger className={styles.ActionButton}>
-                  Second Dialog
-                </Dialog.Trigger>
+                <Dialog.Trigger className={styles.ActionButton}>Second Dialog</Dialog.Trigger>
                 <Dialog.Portal>
                   <Dialog.Backdrop className={styles.Backdrop} />
                   <Dialog.Popup
                     onClick={(event) => event.stopPropagation()}
                     className={styles.ModalPopup}
                   >
-                    <Dialog.Title className={styles.ModalTitle}>
-                      Notifications
-                    </Dialog.Title>
+                    <Dialog.Title className={styles.ModalTitle}>Notifications</Dialog.Title>
                     <Dialog.Description className={styles.ModalDescription}>
                       You are all caught up. Good job!
                     </Dialog.Description>
                     <div className={styles.ModalActions}>
-                      <Dialog.Close className={styles.ActionButton}>
-                        Close
-                      </Dialog.Close>
+                      <Dialog.Close className={styles.ActionButton}>Close</Dialog.Close>
                     </div>
                   </Dialog.Popup>
                 </Dialog.Portal>
               </Dialog.Root>
 
               <Dialog.Root>
-                <Dialog.Trigger className={styles.ActionButton}>
-                  Third Dialog
-                </Dialog.Trigger>
+                <Dialog.Trigger className={styles.ActionButton}>Third Dialog</Dialog.Trigger>
                 <Dialog.Portal>
                   <Dialog.Backdrop className={styles.Backdrop} />
                   <Dialog.Popup
                     onClick={(event) => event.stopPropagation()}
                     className={styles.ModalPopup}
                   >
-                    <Dialog.Title className={styles.ModalTitle}>
-                      Notifications
-                    </Dialog.Title>
+                    <Dialog.Title className={styles.ModalTitle}>Notifications</Dialog.Title>
                     <Dialog.Description className={styles.ModalDescription}>
                       You are all caught up. Good job!
                     </Dialog.Description>
                     <div className={styles.ModalActions}>
-                      <Dialog.Close className={styles.ActionButton}>
-                        Close
-                      </Dialog.Close>
+                      <Dialog.Close className={styles.ActionButton}>Close</Dialog.Close>
                     </div>
                   </Dialog.Popup>
                 </Dialog.Portal>
@@ -128,7 +110,9 @@ export default function ExampleNavigationMenu() {
 
             <NavigationMenu.Content className={styles.Content}>
               <AlertDialog.Root>
-                <AlertDialog.Trigger className={`${styles.ActionButton} ${styles.DangerActionButton}`}>
+                <AlertDialog.Trigger
+                  className={`${styles.ActionButton} ${styles.DangerActionButton}`}
+                >
                   Discard draft
                 </AlertDialog.Trigger>
                 <AlertDialog.Portal>
@@ -184,9 +168,7 @@ export default function ExampleNavigationMenu() {
         <AlertDialog.Portal>
           <AlertDialog.Backdrop className={styles.Backdrop} />
           <AlertDialog.Popup className={styles.ModalPopup}>
-            <AlertDialog.Title className={styles.ModalTitle}>
-              Discard draft?
-            </AlertDialog.Title>
+            <AlertDialog.Title className={styles.ModalTitle}>Discard draft?</AlertDialog.Title>
             <AlertDialog.Description className={styles.ModalDescription}>
               You can’t undo this action.
             </AlertDialog.Description>

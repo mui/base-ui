@@ -407,7 +407,10 @@
   background: canvas;
   padding: 1rem 1.5rem;
   color: var(--color-gray-900);
-  transition: transform 150ms, scale 150ms, opacity 150ms;
+  transition:
+    transform 150ms,
+    scale 150ms,
+    opacity 150ms;
 }
 
 .PopoverPopup[data-starting-style],

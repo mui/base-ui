@@ -253,22 +253,12 @@ function ExampleCombobox() {
     <Combobox.Root items={fruits}>
       <div className={styles.ComboboxRoot}>
         <label htmlFor={id}>Choose a fruit</label>
-        <Combobox.Input
-          placeholder="e.g. Apple"
-          id={id}
-          className={styles.ComboboxInput}
-        />
+        <Combobox.Input placeholder="e.g. Apple" id={id} className={styles.ComboboxInput} />
         <div className={styles.ComboboxActions}>
-          <Combobox.Clear
-            className={styles.ComboboxActionButton}
-            aria-label="Clear selection"
-          >
+          <Combobox.Clear className={styles.ComboboxActionButton} aria-label="Clear selection">
             <ClearIcon className={styles.ComboboxActionIcon} />
           </Combobox.Clear>
-          <Combobox.Trigger
-            className={styles.ComboboxActionButton}
-            aria-label="Open popup"
-          >
+          <Combobox.Trigger className={styles.ComboboxActionButton} aria-label="Open popup">
             <ChevronDownIcon className={styles.ComboboxActionIcon} />
           </Combobox.Trigger>
         </div>
@@ -277,16 +267,10 @@ function ExampleCombobox() {
       <Combobox.Portal>
         <Combobox.Positioner className={styles.ComboboxPositioner} sideOffset={4}>
           <Combobox.Popup className={styles.ComboboxPopup}>
-            <Combobox.Empty className={styles.ComboboxEmpty}>
-              No fruits found.
-            </Combobox.Empty>
+            <Combobox.Empty className={styles.ComboboxEmpty}>No fruits found.</Combobox.Empty>
             <Combobox.List>
               {(item: string) => (
-                <Combobox.Item
-                  key={item}
-                  value={item}
-                  className={styles.ComboboxItem}
-                >
+                <Combobox.Item key={item} value={item} className={styles.ComboboxItem}>
                   <Combobox.ItemIndicator className={styles.ComboboxItemIndicator}>
                     <CheckIcon className={styles.ComboboxItemIcon} />
                   </Combobox.ItemIndicator>

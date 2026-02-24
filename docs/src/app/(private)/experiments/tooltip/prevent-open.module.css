@@ -54,7 +54,10 @@
   font-size: var(--text-sm);
   box-shadow: var(--shadow-lg);
   outline: 1px solid var(--color-gray-200);
-  transition: transform 150ms, scale 150ms, opacity 150ms;
+  transition:
+    transform 150ms,
+    scale 150ms,
+    opacity 150ms;
 }
 
 .Popup[data-starting-style],
