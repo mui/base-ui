@@ -24,6 +24,7 @@
 
 @import './breakpoints.css';
 @import '../syntax-highlighting/index.css';
+@import './mdx.css';
 
 @import '../components/Code.css';
 @import '../components/CodeBlock.css';

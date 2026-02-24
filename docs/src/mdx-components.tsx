@@ -12,7 +12,6 @@ import { Link } from './components/Link';
 import { HeadingLink } from './components/HeadingLink';
 import { Subtitle } from './components/Subtitle/Subtitle';
 import { Kbd } from './components/Kbd/Kbd';
-import './mdx-components.css';
 
 interface MDXComponents {
   [key: string]: React.FC<any> | MDXComponents;
@@ -28,22 +27,14 @@ export const mdxComponents: MDXComponents = {
   ),
   h2: ({ children, id, ...otherProps }) => {
     return (
-      <h2
-        className="MdH2"
-        id={id}
-        {...otherProps}
-      >
+      <h2 className="MdH2" id={id} {...otherProps}>
         <HeadingLink id={id}>{children}</HeadingLink>
       </h2>
     );
   },
   h3: ({ children, id, ...otherProps }) => {
     return (
-      <h3
-        className="MdH3"
-        id={id}
-        {...otherProps}
-      >
+      <h3 className="MdH3" id={id} {...otherProps}>
         <HeadingLink id={id}>{children}</HeadingLink>
       </h3>
     );
