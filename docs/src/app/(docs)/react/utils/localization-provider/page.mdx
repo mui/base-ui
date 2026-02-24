@@ -1,0 +1,46 @@
+# Localization Provider
+
+<Subtitle>Defines the locale to use in the temporal components.</Subtitle>
+<Meta
+  name="description"
+  content="A localization provider component that defines the locale to use in the temporal components."
+/>
+
+import { DemoLocalizationProviderHero } from './demos/hero';
+
+<DemoLocalizationProviderHero />
+
+## Anatomy
+
+Import the component plus the `date-fns` library locale and wrap them around your app.
+
+If every temporal component in your app shares the same locale, you should use the provider once at the root of your application.
+
+```jsx title="Anatomy"
+import { fr } from 'date-fns/locale/fr';
+import { LocalizationProvider } from '@base-ui/react/localization-provider';
+
+<LocalizationProvider temporalLocale={fr}>
+  {/* Your app or a group of components */}
+</LocalizationProvider>;
+```
+
+## Examples
+
+### Nesting locales
+
+The `<LocalizationProvider>` can be nested to change the locale for a part of the application.
+
+This could be useful when you need some temporal components in your application to use a different locale than the rest of your app.
+
+import { DemoLocalizationProviderNesting } from './demos/nesting';
+
+<DemoLocalizationProviderNesting />
+
+## API reference
+
+<Reference component="LocalizationProvider" />
+
+export const metadata = {
+  keywords: ['Localization', 'Locale', 'Temporal', 'Date Fns', 'Base UI'],
+};

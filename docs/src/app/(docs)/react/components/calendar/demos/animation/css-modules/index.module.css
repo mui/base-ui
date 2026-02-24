@@ -1,0 +1,147 @@
+.Root {
+  /* Lock width to avoid stretching the container when transitioning (two months are rendered). */
+  width: 278px;
+  /* Clip overflow to prevent content spilling out when transitioning. */
+  overflow: clip;
+  --duration: 0.2s;
+  --easing: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.HeaderLabelWrapper {
+  width: 100%;
+  display: grid;
+  justify-content: center;
+}
+
+.HeaderLabel {
+  grid-row: 1;
+  grid-column: 1;
+  background-color: var(--color-background);
+  min-width: 185px;
+  text-align: center;
+  overflow: clip;
+  /* Apply transition only when `data-ending-style` is present to allow for smooth animations from original translated positions. */
+  &[data-ending-style] {
+    &[data-current],
+    &[data-previous] {
+      @media (prefers-reduced-motion: no-preference) {
+        transition:
+          opacity var(--duration) var(--easing),
+          transform var(--duration) var(--easing);
+      }
+    }
+  }
+
+  &[data-navigation-direction='next'][data-previous] {
+    &[data-starting-style] {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    &[data-ending-style] {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+  }
+
+  &[data-navigation-direction='next'][data-current] {
+    &[data-starting-style] {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    &[data-ending-style] {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  &[data-navigation-direction='previous'][data-previous] {
+    &[data-starting-style] {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    &[data-ending-style] {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+  }
+
+  &[data-navigation-direction='previous'][data-current] {
+    &[data-starting-style] {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    &[data-ending-style] {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+.DayGrid {
+  /* Need to use grid to position two tbody elements centered horizontally. */
+  display: grid;
+  grid-template-rows: min-content 1fr;
+  grid-template-columns: 1fr;
+}
+
+.DayGridBody {
+  grid-row: 2;
+  transform: translateX(0);
+  opacity: 1;
+
+  /* Apply transition only when `data-ending-style` is present to allow for smooth animations from original translated positions. */
+  &[data-ending-style] {
+    &[data-current],
+    &[data-previous] {
+      @media (prefers-reduced-motion: no-preference) {
+        transition:
+          opacity var(--duration) var(--easing),
+          transform var(--duration) var(--easing);
+      }
+    }
+  }
+
+  &[data-navigation-direction='next'][data-previous] {
+    &[data-starting-style] {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    &[data-ending-style] {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+  }
+
+  &[data-navigation-direction='next'][data-current] {
+    &[data-starting-style] {
+      transform: translateX(0);
+      opacity: 0;
+    }
+    &[data-ending-style] {
+      transform: translateX(-100%);
+      opacity: 1;
+    }
+  }
+
+  &[data-navigation-direction='previous'][data-previous] {
+    &[data-starting-style] {
+      transform: translateX(-100%);
+      opacity: 1;
+    }
+    &[data-ending-style] {
+      transform: translateX(0);
+      opacity: 0;
+    }
+  }
+
+  &[data-navigation-direction='previous'][data-current] {
+    &[data-starting-style] {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    &[data-ending-style] {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+}

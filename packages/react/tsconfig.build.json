@@ -12,7 +12,7 @@
     "rootDir": "./src",
     "outDir": "build/esm"
   },
-  "include": ["src/**/*.ts*"],
+  "include": ["src/**/*.ts*", "../utils/src/TimeoutManager.ts"],
   "exclude": ["src/**/*.spec.ts*", "src/**/*.test.ts*"],
   "references": [{ "path": "../utils/tsconfig.build.json" }]
 }

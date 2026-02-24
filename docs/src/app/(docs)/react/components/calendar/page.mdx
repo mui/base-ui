@@ -1,0 +1,109 @@
+# Calendar
+
+<Subtitle>An easily stylable calendar component.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React calendar that is easy to customize."
+/>
+
+import { DemoCalendarHero } from './demos/hero';
+
+<DemoCalendarHero />
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { Calendar } from '@base-ui/react/calendar';
+
+<Calendar.Root>
+  <Calendar.DecrementMonth />
+  <Calendar.IncrementMonth />
+  <Calendar.SetMonth />
+  <Calendar.DayGrid>
+    <Calendar.DayGridHeader>
+      <Calendar.DayGridHeaderRow>
+        <Calendar.DayGridHeaderCell />
+      </Calendar.DayGridHeaderRow>
+    </Calendar.DayGridHeader>
+    <Calendar.DayGridBody>
+      <Calendar.DayGridRow>
+        <Calendar.DayGridCell>
+          <Calendar.DayButton />
+        </Calendar.DayGridCell>
+      </Calendar.DayGridRow>
+    </Calendar.DayGridBody>
+  </Calendar.DayGrid>
+</Calendar.Root>;
+```
+
+## Examples
+
+### Validation
+
+You can use the `minDate` and `maxDate` props to limit the range of selectable dates.
+
+import { DemoCalendarValidation } from './demos/validation';
+
+<DemoCalendarValidation />
+
+### Display week numbers
+
+You can use `useWeekList()` and `useDayList()` hooks to build a calendar with additional DOM elements, like week numbers.
+
+import { DemoCalendarWeekNumber } from './demos/week-numbers';
+
+<DemoCalendarWeekNumber />
+
+### Timezone support
+
+You can use the `timezone` prop to display data in the calendar in your preferred timezone.
+
+Timezone support is based on [@date-fns/tz](https://github.com/date-fns/tz).
+
+import { DemoCalendarTimezone } from './demos/timezone';
+
+<DemoCalendarTimezone />
+
+The calendar can display the date in a selected timezone.
+
+import { DemoCalendarTimezoneDisplay } from './demos/timezone-display';
+
+<DemoCalendarTimezoneDisplay />
+
+### Animating month changes
+
+You can use the `<Calendar.Viewport>` component to animate month transitions.
+Wrapping the `<Calendar.DayGridBody>` in the `<Calendar.Viewport>` renders the previous month if a transition is in progress.
+
+import { DemoCalendarAnimation } from './demos/animation';
+
+<DemoCalendarAnimation />
+
+#### Animating with `motion/react`
+
+You can use external animation libraries like [Framer Motion](https://www.framer.com/motion/) to animate month transitions.
+
+import { DemoCalendarAnimationMotion } from './demos/animation-motion';
+
+<DemoCalendarAnimationMotion />
+
+## API reference
+
+<Reference
+  component="Calendar"
+  parts="Root, DayGrid, DayGridHeader, DayGridHeaderCell, DayGridBody, DayGridRow, DayGridCell, DayButton, SetMonth, DecrementMonth, IncrementMonth, Viewport"
+/>
+
+export const metadata = {
+  keywords: [
+    'React Calendar',
+    'React Date Picker',
+    'React Date Calendar',
+    'Calendar',
+    'Date Picker',
+    'Temporal',
+    'Base UI',
+  ],
+};

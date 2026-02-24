@@ -1,0 +1,172 @@
+.Root {
+  border: 1px solid var(--calendar-root-border-color);
+  border-radius: 8px;
+  height: 312px;
+  display: flex;
+  flex-direction: column;
+
+  --calendar-root-color: var(--color-gray-900);
+  --calendar-root-border-color: var(--color-gray-500);
+  --calendar-button-hover-bg-color: #e0f2fe;
+  --calendar-button-focus-border-color: #0ea5e9;
+  --calendar-day-grid-separator-bg-color: #9ca3af;
+  --calendar-day-grid-header-color: var(--color-gray-500);
+
+  --calendar-cell-selected-bg-color: #7dd3fc;
+  --calendar-cell-outside-month-color: var(--color-gray-400);
+  --calendar-cell-disabled-color: var(--color-gray-500);
+  --calendar-cell-current-border-color: var(--color-gray-500);
+  --calendar-cell-unavailable-color: #f87171;
+
+  @media (prefers-color-scheme: dark) {
+    --calendar-button-hover-bg-color: #075985;
+    --calendar-cell-selected-bg-color: #0369a1;
+  }
+}
+
+.Header {
+  box-sizing: border-box;
+  padding: 8px 12px;
+  height: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.HeaderLabel {
+  color: var(--calendar-root-color);
+}
+
+.SetMonth,
+.DecrementMonth,
+.IncrementMonth {
+  border: none;
+  user-select: none;
+  background-color: transparent;
+  border-radius: 4px;
+  color: var(--calendar-root-color);
+  margin: 0 6px;
+  padding: 0;
+  display: flex;
+
+  &:hover {
+    background-color: var(--calendar-button-hover-bg-color);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--calendar-button-focus-border-color);
+  }
+
+  &[data-disabled] {
+    pointer-events: none;
+    color: var(--calendar-cell-disabled-color);
+  }
+}
+
+.DayGrid {
+  padding: 12px;
+  height: 276px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 1;
+  position: relative;
+}
+
+.DayGridBody {
+  display: flex;
+  flex-direction: column;
+  row-gap: 2px;
+}
+
+.DayGridRow,
+.DayGridHeaderRow {
+  display: flex;
+  justify-content: center;
+}
+
+.DayGridHeaderCell {
+  width: 36px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--calendar-day-grid-header-color);
+  font-weight: 500;
+  padding: 0;
+}
+
+.DayGridCell {
+  padding: 0;
+}
+
+.DayButton {
+  background: none;
+  padding: 0;
+  font: inherit;
+  height: 36px;
+  width: 36px;
+  position: relative;
+  user-select: none;
+  border: none;
+  background-color: transparent;
+  outline: none;
+  box-sizing: border-box;
+  border-radius: 4px;
+  color: var(--calendar-root-color);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: 4px;
+    border: none;
+    z-index: -1;
+    background-color: transparent;
+  }
+
+  &::after {
+    content: '';
+    border-radius: 4px;
+    position: absolute;
+    inset: 2px;
+  }
+
+  &:not([data-outside-month]):focus-visible {
+    &::after {
+      outline: 2px solid var(--calendar-button-focus-border-color);
+    }
+  }
+
+  &:not([data-selected]):hover::before {
+    background-color: var(--calendar-button-hover-bg-color);
+  }
+
+  &[data-selected]:not([data-outside-month])::before {
+    background-color: var(--calendar-cell-selected-bg-color);
+  }
+
+  &[data-disabled] {
+    pointer-events: none;
+  }
+
+  &:not([data-outside-month])[data-disabled] {
+    color: var(--calendar-cell-disabled-color);
+  }
+
+  &:not([data-outside-month])[data-invalid] {
+    text-decoration: line-through;
+  }
+
+  &[data-outside-month] {
+    color: var(--calendar-cell-outside-month-color);
+    pointer-events: none;
+  }
+
+  &[data-current]:not([data-selected], :focus-visible)::after {
+    outline: 1px solid var(--calendar-cell-current-border-color);
+  }
+
+  &:not([data-disabled], [data-outside-month])[data-unavailable] {
+    text-decoration: line-through;
+    color: var(--calendar-cell-unavailable-color);
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "name": "DateFieldSection",
+  "description": "Renders the content of a temporal field's section.\nRenders a `<div>` element.",
+  "props": {
+    "section": {
+      "type": "TemporalFieldSection",
+      "required": true,
+      "description": "The section to render.",
+      "detailedType": "| {\n    type: 'datePart'\n    value: string\n    modified: boolean\n    token: TemporalFieldToken\n    index: number\n  }\n| { type: 'separator'; value: string; index: number }"
+    },
+    "className": {
+      "type": "string | ((state: DateField.Section.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: DateField.Section.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: DateField.Section.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: DateField.Section.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: DateField.Section.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: DateField.Section.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {
+    "data-empty": {
+      "description": "Present when the section value is empty."
+    },
+    "data-section-index": {
+      "description": "Index of the section in the field."
+    },
+    "data-separator": {
+      "description": "Present when the section is a separator (e.g. \"/\", \"-\")."
+    }
+  },
+  "cssVariables": {}
+}

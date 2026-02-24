@@ -1,0 +1,30 @@
+.Form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 24rem;
+}
+
+.Error {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: red;
+}
+
+.Button {
+  padding: 0.5rem 1rem;
+  height: 2.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  border: 1px solid var(--color-gray-200);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  cursor: pointer;
+  white-space: nowrap;
+  align-self: flex-start;
+
+  &:hover {
+    background-color: var(--color-gray-100);
+  }
+}
