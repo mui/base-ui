@@ -5,7 +5,7 @@ import {
   SettingsMetadata,
   useExperimentSettings,
 } from '../../../../components/Experiments/SettingsPanel';
-import '../../../../demo-theme.css';
+import '../../../../demo-data/theme/css-modules/theme.css';
 import styles from './slider.module.css';
 import verticalStyles from './vertical.module.css';
 import smallStyles from './small.module.css';
