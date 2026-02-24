@@ -1,3 +1,7 @@
+@layer theme;
+@layer components;
+@layer utilities;
+
 /* Theme */
 @import './theme.css';
 
