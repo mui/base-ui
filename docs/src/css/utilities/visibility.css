@@ -1,3 +1,5 @@
-.bui-v-h {
-  visibility: hidden;
+@layer utilities {
+  .bui-v-h {
+    visibility: hidden;
+  }
 }

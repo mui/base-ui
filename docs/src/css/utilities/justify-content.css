@@ -1,15 +1,17 @@
-.bui-jc-c {
-  justify-content: center;
-}
+@layer utilities {
+  .bui-jc-c {
+    justify-content: center;
+  }
 
-.bui-jc-fs {
-  justify-content: flex-start;
-}
+  .bui-jc-fs {
+    justify-content: flex-start;
+  }
 
-.bui-jc-fe {
-  justify-content: flex-end;
-}
+  .bui-jc-fe {
+    justify-content: flex-end;
+  }
 
-.bui-jc-sb {
-  justify-content: space-between;
+  .bui-jc-sb {
+    justify-content: space-between;
+  }
 }

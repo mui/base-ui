@@ -1,3 +1,5 @@
-.bui-bs-bb {
-  box-sizing: border-box;
+@layer utilities {
+  .bui-bs-bb {
+    box-sizing: border-box;
+  }
 }

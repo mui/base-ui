@@ -1,7 +1,9 @@
-.bui-fw-1 {
-  font-weight: 400;
-}
+@layer utilities {
+  .bui-fw-1 {
+    font-weight: 400;
+  }
 
-.bui-fw-2 {
-  font-weight: 500;
+  .bui-fw-2 {
+    font-weight: 500;
+  }
 }

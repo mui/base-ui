@@ -1,3 +1,5 @@
-.bui-w-10 {
-  width: 2.5rem;
+@layer utilities {
+  .bui-w-10 {
+    width: 2.5rem;
+  }
 }

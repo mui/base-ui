@@ -1,3 +1,5 @@
-.bui-p-a {
-  position: absolute;
+@layer utilities {
+  .bui-p-a {
+    position: absolute;
+  }
 }

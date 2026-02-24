@@ -1,11 +1,13 @@
-.bui-ai-c {
-  align-items: center;
-}
+@layer utilities {
+  .bui-ai-c {
+    align-items: center;
+  }
 
-.bui-ai-e {
-  align-items: end;
-}
+  .bui-ai-e {
+    align-items: end;
+  }
 
-.bui-ai-s {
-  align-items: start;
+  .bui-ai-s {
+    align-items: start;
+  }
 }

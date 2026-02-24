@@ -49,7 +49,7 @@
 @import '../components/DescriptionList.css';
 @import '../components/ReferenceTable/ReferenceTable.css';
 
-@import './utilities/index.css' layer(utilities);
+@import './utilities/index.css';
 
 /* ═══ Docs-only theme tokens ═══ */
 
