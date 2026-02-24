@@ -1,6 +1,7 @@
 export * as Combobox from './index.parts';
 
 export type * from './root/ComboboxRoot';
+export type * from './label/ComboboxLabel';
 export type * from './trigger/ComboboxTrigger';
 export type * from './input/ComboboxInput';
 export type * from './popup/ComboboxPopup';

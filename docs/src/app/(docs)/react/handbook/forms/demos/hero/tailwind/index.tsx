@@ -111,16 +111,16 @@ function ExampleForm() {
       </Field.Root>
 
       <Field.Root name="serverType">
-        <Field.Label className="cursor-default" nativeLabel={false} render={<div />}>
-          Server type
-        </Field.Label>
         <Select.Root items={SERVER_TYPES} required>
-          <Select.Trigger className="w-48">
-            <Select.Value />
-            <Select.Icon>
-              <ChevronsUpDown className="size-4" />
-            </Select.Icon>
-          </Select.Trigger>
+          <div className="flex flex-col items-start gap-1">
+            <Select.Label>Server type</Select.Label>
+            <Select.Trigger className="w-48">
+              <Select.Value />
+              <Select.Icon>
+                <ChevronsUpDown className="size-4" />
+              </Select.Icon>
+            </Select.Trigger>
+          </div>
           <Select.Portal>
             <Select.Positioner>
               <Select.Popup>

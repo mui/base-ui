@@ -277,11 +277,13 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     cssWritingMode = rtl ? 'vertical-rl' : 'vertical-lr';
   }
 
+  const ariaLabel =
+    typeof getAriaLabelProp === 'function' ? getAriaLabelProp(index) : ariaLabelProp;
+
   const inputProps = mergeProps<'input'>(
     {
-      'aria-label':
-        typeof getAriaLabelProp === 'function' ? getAriaLabelProp(index) : ariaLabelProp,
-      'aria-labelledby': ariaLabelledByProp ?? labelId,
+      'aria-label': ariaLabel,
+      'aria-labelledby': ariaLabelledByProp ?? (ariaLabel == null ? labelId : undefined),
       'aria-describedby': ariaDescribedByProp,
       'aria-orientation': orientation,
       'aria-valuenow': thumbValue,
