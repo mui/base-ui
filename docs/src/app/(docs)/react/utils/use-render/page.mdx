@@ -156,29 +156,11 @@ function Button({ render, ...props }) {
 <Button render={<a href="/contact" />}>Contact</Button>;
 ```
 
-## Conditional default props
+## Render prop and polymorphism
 
-When the `render` prop changes the underlying element, some default props may no longer be valid. For example, `type="button"` is appropriate for a `<button>` but not applicable when rendering an `<a>` or other non-button elements. Conditionally apply defaults based on whether the default element is used.
+The `render` prop is primarily designed for composing event handlers and behavioral props. In most cases it should render the same tag as the default element.
 
-```tsx title="Conditional defaults" {9}
-import { useRender } from '@base-ui/react/use-render';
-import { mergeProps } from '@base-ui/react/merge-props';
-
-interface ButtonProps extends useRender.ComponentProps<'button'> {}
-
-function Button({ render, ...props }: ButtonProps) {
-  const defaultProps: useRender.ElementProps<'button'> = {
-    className: styles.Button,
-    type: render ? undefined : 'button',
-  };
-
-  return useRender({
-    defaultTagName: 'button',
-    render,
-    props: mergeProps<'button'>(defaultProps, props),
-  });
-}
-```
+Using `render` for polymorphism (rendering a different tag) requires more care, as some default props may not be valid on the new element. For example, `type="button"` is only valid on a `<button>`. Since the component can't know what element `render` will produce at render time and before hydration, props like these need an explicit signal. This is why Base UI's [Button](/react/components/button) provides a `nativeButton` prop to control which defaults are applied.
 
 ## API reference
 
