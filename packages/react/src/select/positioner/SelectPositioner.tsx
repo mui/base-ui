@@ -19,7 +19,7 @@ import { clearStyles } from '../popup/utils';
 import { selectors } from '../store';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import { findItemIndex, itemIncludes } from '../../utils/itemEquality';
+import { findItemIndex, selectedValueIncludes } from '../../utils/itemEquality';
 
 const FIXED: React.CSSProperties = { position: 'fixed' };
 
@@ -164,7 +164,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const prevMapSizeRef = React.useRef(0);
 
   const onMapChange = useStableCallback(
-    (map: Map<Element, { index?: (number | null) | undefined } | null>) => {
+    (map: Map<Element, { index?: number | null | undefined } | null>) => {
       if (map.size === 0 && prevMapSizeRef.current === 0) {
         return;
       }
@@ -183,12 +183,13 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
       const eventDetails = createChangeEventDetails(REASONS.none);
 
       if (prevSize !== 0 && !store.state.multiple && value !== null) {
-        const valueIndex = findItemIndex(valuesRef.current, value, isItemEqualToValue);
-        if (valueIndex === -1) {
-          const initial = initialValueRef.current;
+        const selectedValueIndex = findItemIndex(valuesRef.current, value, isItemEqualToValue);
+        if (selectedValueIndex === -1) {
+          const initialSelectedValue = initialValueRef.current;
           const hasInitial =
-            initial != null && itemIncludes(valuesRef.current, initial, isItemEqualToValue);
-          const nextValue = hasInitial ? initial : null;
+            initialSelectedValue != null &&
+            findItemIndex(valuesRef.current, initialSelectedValue, isItemEqualToValue) !== -1;
+          const nextValue = hasInitial ? initialSelectedValue : null;
           setValue(nextValue, eventDetails);
 
           if (nextValue === null) {
@@ -199,12 +200,15 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
       }
 
       if (prevSize !== 0 && store.state.multiple && Array.isArray(value)) {
-        const nextValue = value.filter((v) =>
-          itemIncludes(valuesRef.current, v, isItemEqualToValue),
-        );
+        const hasVisibleItem = (selectedItemValue: unknown) =>
+          findItemIndex(valuesRef.current, selectedItemValue, isItemEqualToValue) !== -1;
+        const nextValue = value.filter((selectedItemValue) => hasVisibleItem(selectedItemValue));
         if (
           nextValue.length !== value.length ||
-          nextValue.some((v) => !itemIncludes(value, v, isItemEqualToValue))
+          nextValue.some(
+            (selectedItemValue) =>
+              !selectedValueIncludes(value, selectedItemValue, isItemEqualToValue),
+          )
         ) {
           setValue(nextValue, eventDetails);
 

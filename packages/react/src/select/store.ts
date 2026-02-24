@@ -16,7 +16,7 @@ export type State = {
     | undefined;
   itemToStringLabel: ((item: any) => string) | undefined;
   itemToStringValue: ((item: any) => string) | undefined;
-  isItemEqualToValue: (item: any, value: any) => boolean;
+  isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean;
 
   value: any;
 
@@ -81,14 +81,14 @@ export const selectors = {
   selectedIndex: createSelector((state: State) => state.selectedIndex),
   isActive: createSelector((state: State, index: number) => state.activeIndex === index),
 
-  isSelected: createSelector((state: State, index: number, candidate: any) => {
+  isSelected: createSelector((state: State, index: number, itemValue: any) => {
     const comparer = state.isItemEqualToValue;
     const storeValue = state.value;
 
     if (state.multiple) {
       return (
         Array.isArray(storeValue) &&
-        storeValue.some((item) => compareItemEquality(item, candidate, comparer))
+        storeValue.some((selectedItem) => compareItemEquality(itemValue, selectedItem, comparer))
       );
     }
 
@@ -98,7 +98,7 @@ export const selectors = {
       return true;
     }
 
-    return compareItemEquality(storeValue, candidate, comparer);
+    return compareItemEquality(itemValue, storeValue, comparer);
   }),
   isSelectedByFocus: createSelector((state: State, index: number) => {
     return state.selectedIndex === index;

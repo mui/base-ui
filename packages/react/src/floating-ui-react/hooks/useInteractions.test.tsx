@@ -130,9 +130,7 @@ describe('useInteractions', () => {
         useTypeahead(context, {
           listRef,
           activeIndex: 0,
-          ignoreKeys: [],
           onMatch: () => {},
-          findMatch: () => '',
         }),
       ]);
 

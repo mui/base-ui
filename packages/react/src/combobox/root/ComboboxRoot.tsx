@@ -70,7 +70,7 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
   multiple?: Multiple | undefined;
   /**
    * Provides a hint to the browser for autofill.
-   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete
+   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/autocomplete
    */
   autoComplete?: string | undefined;
   /**
@@ -98,13 +98,13 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
    * Custom comparison logic used to determine if a combobox item value matches the current selected value. Useful when item values are objects without matching referentially.
    * Defaults to `Object.is` comparison.
    */
-  isItemEqualToValue?: ((itemValue: Value, selectedValue: Value) => boolean) | undefined;
+  isItemEqualToValue?: ((itemValue: Value, value: Value) => boolean) | undefined;
   /**
    * The uncontrolled selected value of the combobox when it's initially rendered.
    *
    * To render a controlled combobox, use the `value` prop instead.
    */
-  defaultValue?: (ComboboxValueType<Value, Multiple> | null) | undefined;
+  defaultValue?: ComboboxValueType<Value, Multiple> | null | undefined;
   /**
    * A ref to imperative actions.
    * - `unmount`: When specified, the combobox will not be unmounted when closed.
@@ -141,7 +141,7 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
   /**
    * The selected value of the combobox. Use when controlled.
    */
-  value?: (ComboboxValueType<Value, Multiple> | null) | undefined;
+  value?: ComboboxValueType<Value, Multiple> | null | undefined;
   /**
    * Event handler called when the selected value of the combobox changes.
    */

@@ -6,7 +6,6 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { contains, stopEvent } from '../utils';
 
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
-import { EMPTY_ARRAY } from '../../utils/constants';
 
 export interface UseTypeaheadProps {
   /**
@@ -35,27 +34,15 @@ export interface UseTypeaheadProps {
    */
   enabled?: boolean | undefined;
   /**
-   * A function that returns the matching string from the list.
-   * @default lowercase-finder
-   */
-  findMatch?:
-    | (null | ((list: Array<string | null>, typedString: string) => string | null | undefined))
-    | undefined;
-  /**
    * The number of milliseconds to wait before resetting the typed string.
    * @default 750
    */
   resetMs?: number | undefined;
   /**
-   * An array of keys to ignore when typing.
-   * @default []
-   */
-  ignoreKeys?: Array<string> | undefined;
-  /**
    * The index of the selected item in the list, if available.
    * @default null
    */
-  selectedIndex?: (number | null) | undefined;
+  selectedIndex?: number | null | undefined;
 }
 
 /**
@@ -76,9 +63,7 @@ export function useTypeahead(
     onMatch: onMatchProp,
     onTypingChange,
     enabled = true,
-    findMatch = null,
     resetMs = 750,
-    ignoreKeys = EMPTY_ARRAY,
     selectedIndex = null,
   } = props;
 
@@ -125,11 +110,9 @@ export function useTypeahead(
       orderedList: Array<string | null>,
       string: string,
     ) {
-      const str = findMatch
-        ? findMatch(orderedList, string)
-        : orderedList.find(
-            (text) => text?.toLocaleLowerCase().indexOf(string.toLocaleLowerCase()) === 0,
-          );
+      const str = orderedList.find(
+        (text) => text?.toLocaleLowerCase().indexOf(string.toLocaleLowerCase()) === 0,
+      );
 
       return str ? list.indexOf(str) : -1;
     }
@@ -146,7 +129,6 @@ export function useTypeahead(
 
     if (
       listContent == null ||
-      ignoreKeys.includes(event.key) ||
       // Character key.
       event.key.length !== 1 ||
       // Modifier key.

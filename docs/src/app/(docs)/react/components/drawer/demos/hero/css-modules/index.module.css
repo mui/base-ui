@@ -1,0 +1,153 @@
+.Button {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.5rem;
+  padding: 0 0.875rem;
+  margin: 0;
+  outline: 0;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  background-color: var(--color-gray-50);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5rem;
+  color: var(--color-gray-900);
+  user-select: none;
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: var(--color-gray-100);
+    }
+  }
+
+  &:active {
+    background-color: var(--color-gray-100);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
+  }
+}
+
+.Backdrop {
+  --backdrop-opacity: 0.2;
+  --bleed: 3rem;
+  position: fixed;
+  min-height: 100dvh;
+  inset: 0;
+  background-color: black;
+  opacity: calc(var(--backdrop-opacity) * (1 - var(--drawer-swipe-progress)));
+  transition-duration: 450ms;
+  transition-property: opacity;
+  transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* iOS 26+: Ensure the backdrop covers the entire visible viewport. */
+  @supports (-webkit-touch-callout: none) {
+    position: absolute;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    --backdrop-opacity: 0.7;
+  }
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+  }
+
+  &[data-swiping] {
+    transition-duration: 0ms;
+  }
+
+  &[data-ending-style] {
+    transition-duration: calc(var(--drawer-swipe-strength) * 400ms);
+  }
+}
+
+.Viewport {
+  --viewport-padding: 0px;
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--viewport-padding);
+
+  @supports (-webkit-touch-callout: none) {
+    --viewport-padding: 0.625rem;
+  }
+}
+
+.Popup {
+  --bleed: 3rem;
+  box-sizing: border-box;
+  width: calc(20rem + var(--bleed));
+  max-width: calc(100vw - 3rem + var(--bleed));
+  height: 100%;
+  padding: 1.5rem;
+  padding-right: calc(1.5rem + var(--bleed));
+  margin-right: calc(-1 * var(--bleed));
+  outline: 1px solid var(--color-gray-200);
+  background-color: var(--color-gray-50);
+  color: var(--color-gray-900);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: auto;
+  transition: transform 450ms cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform;
+  transform: translateX(var(--drawer-swipe-movement-x));
+
+  &[data-swiping] {
+    user-select: none;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    outline: 1px solid var(--color-gray-300);
+  }
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    transform: translateX(calc(100% - var(--bleed) + var(--viewport-padding)));
+  }
+
+  &[data-ending-style] {
+    transition-duration: calc(var(--drawer-swipe-strength) * 400ms);
+  }
+
+  @supports (-webkit-touch-callout: none) {
+    --bleed: 0px;
+    margin-right: 0;
+    border-radius: 10px;
+  }
+}
+
+.Content {
+  width: 100%;
+  max-width: 32rem;
+  margin: 0 auto;
+}
+
+.Title {
+  margin-top: -0.375rem;
+  margin-bottom: 0.25rem;
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  letter-spacing: -0.0025em;
+  font-weight: 500;
+}
+
+.Description {
+  margin: 0 0 1.5rem;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  color: var(--color-gray-600);
+}
+
+.Actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}

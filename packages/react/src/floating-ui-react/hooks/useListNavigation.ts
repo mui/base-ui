@@ -4,10 +4,10 @@ import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { ownerDocument } from '@base-ui/utils/owner';
 import {
   activeElement,
   contains,
-  getDocument,
   getTarget,
   isTypeableCombobox,
   isVirtualClick,
@@ -26,7 +26,7 @@ import {
 } from '../utils';
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import { FloatingTreeStore } from '../components/FloatingTreeStore';
-import type { Dimensions, ElementProps, FloatingContext, FloatingRootContext } from '../types';
+import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { enqueueFocus } from '../utils/enqueueFocus';
@@ -120,14 +120,14 @@ export interface UseListNavigationProps {
    * The currently selected item index, which may or may not be active.
    * @default null
    */
-  selectedIndex?: (number | null) | undefined;
+  selectedIndex?: number | null | undefined;
   /**
    * Whether to focus the item upon opening the floating element. 'auto' infers
    * what to do based on the input type (keyboard vs. pointer), while a boolean
    * value will force the value.
    * @default 'auto'
    */
-  focusItemOnOpen?: (boolean | 'auto') | undefined;
+  focusItemOnOpen?: boolean | 'auto' | undefined;
   /**
    * Whether hovering an item synchronizes the focus.
    * @default true
@@ -149,7 +149,7 @@ export interface UseListNavigationProps {
    * navigating via arrow keys, specify an empty array.
    * @default undefined
    */
-  disabledIndices?: (ReadonlyArray<number> | ((index: number) => boolean)) | undefined;
+  disabledIndices?: ReadonlyArray<number> | ((index: number) => boolean) | undefined;
   /**
    * Determines whether focus can escape the list, such that nothing is selected
    * after navigating beyond the boundary of the list. In some
@@ -199,7 +199,7 @@ export interface UseListNavigationProps {
    * The orientation in which navigation occurs.
    * @default 'vertical'
    */
-  orientation?: ('vertical' | 'horizontal' | 'both') | undefined;
+  orientation?: 'vertical' | 'horizontal' | 'both' | undefined;
   /**
    * Specifies how many columns the list has (i.e., it’s a grid). Use an
    * orientation of 'horizontal' (e.g. for an emoji picker/date picker, where
@@ -209,22 +209,6 @@ export interface UseListNavigationProps {
    * @default 1
    */
   cols?: number | undefined;
-  /**
-   * Whether to scroll the active item into view when navigating. The default
-   * value uses nearest options.
-   */
-  scrollItemIntoView?: (boolean | ScrollIntoViewOptions) | undefined;
-  /**
-   * Only for `cols > 1`, specify sizes for grid items.
-   * `{ width: 2, height: 2 }` means an item is 2 columns wide and 2 rows tall.
-   */
-  itemSizes?: Dimensions[] | undefined;
-  /**
-   * Only relevant for `cols > 1` and items with different sizes, specify if
-   * the grid is dense (as defined in the CSS spec for `grid-auto-flow`).
-   * @default false
-   */
-  dense?: boolean | undefined;
   /**
    * The id of the root component.
    */
@@ -273,9 +257,6 @@ export function useListNavigation(
     orientation = 'vertical',
     parentOrientation,
     cols = 1,
-    scrollItemIntoView = true,
-    itemSizes,
-    dense = false,
     id,
     resetOnPointerLeave = true,
     externalTree,
@@ -329,7 +310,6 @@ export function useListNavigation(
 
   const disabledIndicesRef = useValueAsRef(disabledIndices);
   const latestOpenRef = useValueAsRef(open);
-  const scrollItemIntoViewRef = useValueAsRef(scrollItemIntoView);
   const selectedIndexRef = useValueAsRef(selectedIndex);
   const resetOnPointerLeaveRef = useValueAsRef(resetOnPointerLeave);
 
@@ -365,21 +345,14 @@ export function useListNavigation(
         runFocus(waitedItem);
       }
 
-      const scrollIntoViewOptions = scrollItemIntoViewRef.current;
       const shouldScrollIntoView =
-        scrollIntoViewOptions &&
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        item &&
-        (forceScrollIntoView || !isPointerModalityRef.current);
+        item && (forceScrollIntoView || !isPointerModalityRef.current);
 
       if (shouldScrollIntoView) {
         // JSDOM doesn't support `.scrollIntoView()` but it's widely supported
         // by all browsers.
-        waitedItem.scrollIntoView?.(
-          typeof scrollIntoViewOptions === 'boolean'
-            ? { block: 'nearest', inline: 'nearest' }
-            : scrollIntoViewOptions,
-        );
+        waitedItem.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
       }
     });
   });
@@ -496,7 +469,7 @@ export function useListNavigation(
 
     const nodes = tree.nodesRef.current;
     const parent = nodes.find((node) => node.id === parentId)?.context?.elements.floating;
-    const activeEl = activeElement(getDocument(floatingElement));
+    const activeEl = activeElement(ownerDocument(floatingElement));
     const treeContainsActiveEl = nodes.some(
       (node) => node.context && contains(node.context.elements.floating, activeEl),
     );
@@ -655,15 +628,13 @@ export function useListNavigation(
 
     // Grid navigation.
     if (cols > 1) {
-      const sizes =
-        itemSizes ||
-        Array.from({ length: listRef.current.length }, () => ({
-          width: 1,
-          height: 1,
-        }));
+      const sizes = Array.from({ length: listRef.current.length }, () => ({
+        width: 1,
+        height: 1,
+      }));
       // To calculate movements on the grid, we use hypothetical cell indices
       // as if every item was 1x1, then convert back to real indices.
-      const cellMap = createGridCellMap(sizes, cols, dense);
+      const cellMap = createGridCellMap(sizes, cols, false);
       const minGridIndex = cellMap.findIndex(
         (index) => index != null && !isListIndexDisabled(listRef, index, disabledIndices),
       );

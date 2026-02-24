@@ -622,7 +622,7 @@ export interface NumberFieldRootProps extends Omit<
    * Specify `step="any"` to always disable step validation.
    * @default 1
    */
-  step?: (number | 'any') | undefined;
+  step?: number | 'any' | undefined;
   /**
    * The large step value of the input element when incrementing while the shift key is held. Snaps
    * to multiples of this value.
@@ -651,7 +651,7 @@ export interface NumberFieldRootProps extends Omit<
   /**
    * The raw numeric value of the field.
    */
-  value?: (number | null) | undefined;
+  value?: number | null | undefined;
   /**
    * The uncontrolled value of the field when it’s initially rendered.
    *

@@ -10,6 +10,7 @@ import type { PropDef } from './types';
 
 interface ReturnValueReferenceTableProps extends React.ComponentProps<typeof Table.Root> {
   data: Record<string, PropDef>;
+  name?: string;
 }
 
 const TYPE_MDX_OPTIONS = {
@@ -37,6 +38,7 @@ function getDescription(def: PropDef, name: string, includeName: boolean) {
 
 export async function ReturnValueReferenceTable({
   data,
+  name: partName,
   ...props
 }: ReturnValueReferenceTableProps) {
   const entries = Object.entries(data);
@@ -61,7 +63,16 @@ export async function ReturnValueReferenceTable({
             : null;
 
           return (
-            <Accordion.Item key={name}>
+            <Accordion.Item
+              key={name}
+              gaCategory="reference"
+              gaLabel={`Return value: ${partName ? `${partName}-` : ''}${name}`}
+              gaParams={{
+                type: 'return_value',
+                slug: `${partName ? `${partName}-` : ''}${name}`,
+                part_name: partName || '',
+              }}
+            >
               <Accordion.Trigger index={index}>
                 {ReturnType ? (
                   <ReturnType />

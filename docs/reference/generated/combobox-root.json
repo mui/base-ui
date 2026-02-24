@@ -98,9 +98,9 @@
       "detailedType": "boolean | undefined"
     },
     "isItemEqualToValue": {
-      "type": "((itemValue: Value, selectedValue: Value) => boolean)",
+      "type": "((itemValue: Value, value: Value) => boolean)",
       "description": "Custom comparison logic used to determine if a combobox item value matches the current selected value. Useful when item values are objects without matching referentially.\nDefaults to `Object.is` comparison.",
-      "detailedType": "| ((itemValue: Value, selectedValue: Value) => boolean)\n| undefined"
+      "detailedType": "| ((itemValue: Value, value: Value) => boolean)\n| undefined"
     },
     "itemToStringLabel": {
       "type": "((itemValue: Value) => string)",

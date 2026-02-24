@@ -155,7 +155,10 @@ function describeComponents(componentDefs, referenceName, parts, asParam) {
       subtree.push(
         createMdxElement({
           name: ATTRIBUTES_TABLE,
-          props: { data: def.dataAttributes },
+          props: {
+            name: def.name,
+            data: def.dataAttributes,
+          },
         }),
       );
     }
@@ -164,7 +167,10 @@ function describeComponents(componentDefs, referenceName, parts, asParam) {
       subtree.push(
         createMdxElement({
           name: CSS_VARIABLES_TABLE,
-          props: { data: def.cssVariables },
+          props: {
+            name: def.name,
+            data: def.cssVariables,
+          },
         }),
       );
     }

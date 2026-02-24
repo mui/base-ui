@@ -23,6 +23,8 @@ This repository contains the source code and documentation for Base UI: a headl
 
 - Do not randomly cast (for example `as any`) if there are no type errors without doing so. Run `pnpm typescript` to verify types.
 - Ensure your changes pass linting - run `pnpm eslint`.
+- Ensure your styles pass stylelint - run `pnpm stylelint`.
+- Ensure your markdown passes markdownlint - run `pnpm markdownlint`.
 - Ensure your changes are formatted correctly - run `pnpm prettier`.
 - When you change a public component API (props or JSDoc), run `pnpm docs:api`.
 

@@ -4,7 +4,7 @@ import { fastComponent } from '@base-ui/utils/fastHooks';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { TooltipRootContext } from './TooltipRootContext';
-import { useClientPoint, useDismiss, useFocus, useInteractions } from '../../floating-ui-react';
+import { useClientPoint, useDismiss, useInteractions } from '../../floating-ui-react';
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
@@ -134,7 +134,6 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
 
   const floatingRootContext = store.useState('floatingRootContext');
 
-  const focus = useFocus(floatingRootContext, { enabled: !disabled });
   const dismiss = useDismiss(floatingRootContext, { enabled: !disabled, referencePress: true });
   const clientPoint = useClientPoint(floatingRootContext, {
     enabled: !disabled && trackCursorAxis !== 'none',
@@ -142,7 +141,6 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   });
 
   const { getReferenceProps, getFloatingProps, getTriggerProps } = useInteractions([
-    focus,
     dismiss,
     clientPoint,
   ]);
@@ -211,7 +209,7 @@ export interface TooltipRootProps<Payload = unknown> {
    * Determines which axis the tooltip should track the cursor on.
    * @default 'none'
    */
-  trackCursorAxis?: ('none' | 'x' | 'y' | 'both') | undefined;
+  trackCursorAxis?: 'none' | 'x' | 'y' | 'both' | undefined;
   /**
    * A ref to imperative actions.
    * - `unmount`: Unmounts the tooltip popup.
@@ -239,12 +237,12 @@ export interface TooltipRootProps<Payload = unknown> {
    * This is useful in conjunction with the `open` prop to create a controlled tooltip.
    * There's no need to specify this prop when the tooltip is uncontrolled (i.e. when the `open` prop is not set).
    */
-  triggerId?: (string | null) | undefined;
+  triggerId?: string | null | undefined;
   /**
    * ID of the trigger that the tooltip is associated with.
    * This is useful in conjunction with the `defaultOpen` prop to create an initially open tooltip.
    */
-  defaultTriggerId?: (string | null) | undefined;
+  defaultTriggerId?: string | null | undefined;
 }
 
 export interface TooltipRootActions {

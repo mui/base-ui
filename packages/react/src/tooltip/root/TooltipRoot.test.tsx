@@ -663,6 +663,17 @@ describe('<Tooltip.Root />', () => {
         expect(screen.queryByText('Content')).to.equal(null);
       });
 
+      it('should not open on focus when the trigger is disabled', async () => {
+        await render(<TestTooltip triggerProps={{ disabled: true, delay: 0 }} />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        await act(async () => trigger.focus());
+        await flushMicrotasks();
+
+        expect(screen.queryByText('Content')).to.equal(null);
+      });
+
       it('should close if open when becoming disabled', async () => {
         function App() {
           const [disabled, setDisabled] = React.useState(false);

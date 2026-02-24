@@ -4,6 +4,7 @@ import c from 'clsx';
 import { useMergedRefsN } from '@base-ui/utils/useMergedRefs';
 import { CompositeList } from '../../src/composite/list/CompositeList';
 import { useCompositeListItem } from '../../src/composite/list/useCompositeListItem';
+import { getEmptyRootContext } from '../../src/floating-ui-react/utils/getEmptyRootContext';
 import {
   autoUpdate,
   flip,
@@ -97,9 +98,10 @@ export const MenuComponent = React.forwardRef<
     ],
     whileElementsMounted: autoUpdate,
   });
+  const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
+  const hoverContext = isNested && allowHover ? context : fallbackContext;
 
-  const hover = useHover(context, {
-    enabled: isNested && allowHover,
+  const hover = useHover(hoverContext, {
     delay: { open: 75 },
     handleClose: safePolygon({ blockPointerEvents: true }),
   });

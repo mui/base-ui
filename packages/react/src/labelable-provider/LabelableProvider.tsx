@@ -1,5 +1,7 @@
 'use client';
 import * as React from 'react';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { mergeProps } from '../merge-props';
 import { HTMLProps } from '../utils/types';
 import { useBaseUiId } from '../utils/useBaseUiId';
@@ -13,13 +15,51 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
 ) {
   const defaultId = useBaseUiId();
 
-  const [controlId, setControlId] = React.useState<string | null | undefined>(
+  const [controlId, setControlIdState] = React.useState<string | null | undefined>(
     props.initialControlId === undefined ? defaultId : props.initialControlId,
   );
   const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
   const [messageIds, setMessageIds] = React.useState<string[]>([]);
 
+  const registrationsRef = useRefWithInit(() => new Map<symbol, string | null>());
+
   const { messageIds: parentMessageIds } = useLabelableContext();
+
+  const registerControlId = useStableCallback(
+    (source: symbol, nextId: string | null | undefined) => {
+      const registrations = registrationsRef.current;
+
+      if (nextId === undefined) {
+        registrations.delete(source);
+        return;
+      }
+
+      registrations.set(source, nextId);
+
+      // Only flush when registering, not when unregistering.
+      // This prevents loops during rapid unmount/remount cycles (e.g. React Activity).
+      // The next registration will pick up the correct state.
+      setControlIdState((prev) => {
+        if (registrations.size === 0) {
+          return undefined;
+        }
+
+        let nextControlId: string | null | undefined;
+
+        for (const id of registrations.values()) {
+          if (prev !== undefined && id === prev) {
+            return prev;
+          }
+
+          if (nextControlId === undefined) {
+            nextControlId = id;
+          }
+        }
+
+        return nextControlId;
+      });
+    },
+  );
 
   const getDescriptionProps = React.useCallback(
     (externalProps: HTMLProps) => {
@@ -34,14 +74,22 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
   const contextValue: LabelableContext = React.useMemo(
     () => ({
       controlId,
-      setControlId,
+      registerControlId,
       labelId,
       setLabelId,
       messageIds,
       setMessageIds,
       getDescriptionProps,
     }),
-    [controlId, setControlId, labelId, setLabelId, messageIds, setMessageIds, getDescriptionProps],
+    [
+      controlId,
+      registerControlId,
+      labelId,
+      setLabelId,
+      messageIds,
+      setMessageIds,
+      getDescriptionProps,
+    ],
   );
 
   return (

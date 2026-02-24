@@ -1120,8 +1120,9 @@ describe('<Combobox.Root />', () => {
   });
 
   it('should handle browser autofill', async () => {
+    const onInputValueChange = spy();
     const { user } = await render(
-      <Combobox.Root name="test">
+      <Combobox.Root name="test" onInputValueChange={onInputValueChange}>
         <Combobox.Input />
         <Combobox.Portal>
           <Combobox.Positioner>
@@ -1143,12 +1144,92 @@ describe('<Combobox.Root />', () => {
       { target: { value: 'b' } },
     );
     await flushMicrotasks();
+    expect(onInputValueChange.lastCall.args[0]).to.equal('b');
+    expect(onInputValueChange.lastCall.args[1].reason).to.equal(REASONS.none);
 
     await user.click(input);
 
     await waitFor(() => {
       expect(screen.getByRole('option', { name: 'b' })).to.have.attribute('aria-selected', 'true');
     });
+  });
+
+  it('shows all items when opening after browser autofill', async () => {
+    const items = ['a', 'b', 'c'];
+    const { user } = await render(
+      <Combobox.Root name="test" items={items}>
+        <Combobox.Input />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                {(item: string) => (
+                  <Combobox.Item key={item} value={item}>
+                    {item}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByRole('combobox');
+
+    fireEvent.change(
+      screen.getAllByDisplayValue('').find((el) => el.getAttribute('name') === 'test')!,
+      { target: { value: 'b' } },
+    );
+    await flushMicrotasks();
+
+    await user.click(input);
+
+    await waitFor(() => {
+      expect(screen.getByRole('listbox')).not.to.equal(null);
+    });
+    expect(screen.getByRole('option', { name: 'a' })).not.to.equal(null);
+    expect(screen.getByRole('option', { name: 'b' })).not.to.equal(null);
+    expect(screen.getByRole('option', { name: 'c' })).not.to.equal(null);
+  });
+
+  it('shows all items when opening after browser autofill with insertReplacementText', async () => {
+    const items = ['a', 'b', 'c'];
+    const { user } = await render(
+      <Combobox.Root name="test" items={items}>
+        <Combobox.Input />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                {(item: string) => (
+                  <Combobox.Item key={item} value={item}>
+                    {item}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByRole('combobox');
+
+    fireEvent.input(
+      screen.getAllByDisplayValue('').find((el) => el.getAttribute('name') === 'test')!,
+      { target: { value: 'b' }, inputType: 'insertReplacementText' },
+    );
+    await flushMicrotasks();
+
+    await user.click(input);
+
+    await waitFor(() => {
+      expect(screen.getByRole('listbox')).not.to.equal(null);
+    });
+    expect(screen.getByRole('option', { name: 'a' })).not.to.equal(null);
+    expect(screen.getByRole('option', { name: 'b' })).not.to.equal(null);
+    expect(screen.getByRole('option', { name: 'c' })).not.to.equal(null);
   });
 
   it('should handle browser autofill with object values', async () => {
@@ -1224,7 +1305,60 @@ describe('<Combobox.Root />', () => {
     expect(input).to.have.attribute('autocomplete', 'off');
     expect(input).not.to.have.attribute('name');
     expect(hiddenInput).to.have.attribute('name', 'country');
+    expect(hiddenInput).not.to.have.attribute('id');
     expect(hiddenInput).to.have.attribute('autocomplete', 'country');
+  });
+
+  it('does not open on programmatic input events', async () => {
+    await render(
+      <Combobox.Root>
+        <Combobox.Input />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="Darlinghurst">Darlinghurst</Combobox.Item>
+                <Combobox.Item value="Sydney">Sydney</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByRole('combobox');
+    fireEvent.change(input, { target: { value: 'Darlinghurst' } });
+    await flushMicrotasks();
+
+    expect(screen.queryByRole('listbox')).to.equal(null);
+  });
+
+  it('opens on paste input events', async () => {
+    await render(
+      <Combobox.Root>
+        <Combobox.Input />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="Darlinghurst">Darlinghurst</Combobox.Item>
+                <Combobox.Item value="Sydney">Sydney</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByRole('combobox');
+    fireEvent.input(input, {
+      target: { value: 'Darlinghurst' },
+      inputType: 'insertFromPaste',
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole('listbox')).not.to.equal(null);
+    });
   });
 
   describe('prop: id', () => {
@@ -2662,6 +2796,36 @@ describe('<Combobox.Root />', () => {
 
       const cherry = await screen.findByRole('option', { name: 'cherry' });
       expect(input).to.have.attribute('aria-activedescendant', cherry.id);
+    });
+
+    it('highlights the first matching item after IME composition', async () => {
+      await render(
+        <Combobox.Root items={['apple', 'banana', 'cherry']} autoHighlight openOnInputClick={false}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      fireEvent.compositionStart(input);
+      fireEvent.change(input, { target: { value: 'ch' } });
+      fireEvent.compositionEnd(input, { data: 'ch' });
+
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+      const cherry = await screen.findByRole('option', { name: 'cherry' });
+      await waitFor(() => expect(input).to.have.attribute('aria-activedescendant', cherry.id));
     });
 
     it('highlights the first matching item for a static list without the items prop', async () => {
@@ -5151,6 +5315,54 @@ describe('<Combobox.Root />', () => {
       });
     });
 
+    it('passes item as the first comparator argument in multiple mode', async () => {
+      const users = [
+        { id: 1, name: 'Alice', source: 'item' },
+        { id: 2, name: 'Bob', source: 'item' },
+      ];
+
+      await render(
+        <Combobox.Root
+          items={users}
+          defaultValue={[{ id: 2, name: 'Bob', source: 'selected' }]}
+          itemToStringLabel={(item) => item.name}
+          itemToStringValue={(item) => String(item.id)}
+          isItemEqualToValue={(item, value) =>
+            item.id === value.id && item.source === 'item' && value.source === 'selected'
+          }
+          defaultOpen
+          multiple
+        >
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item) => (
+                    <Combobox.Item key={item.id} value={item}>
+                      {item.name}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const option = screen.getByRole('option', { name: 'Bob' });
+      expect(option).to.have.attribute('aria-selected', 'true');
+
+      fireEvent.click(option);
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Bob' })).to.have.attribute(
+          'aria-selected',
+          'false',
+        );
+      });
+    });
+
     it('does not call comparator with null when clearing the value', async () => {
       const users = [
         { id: 1, name: 'Alice' },
@@ -5205,6 +5417,154 @@ describe('<Combobox.Root />', () => {
       expect(compare.callCount).to.be.greaterThan(0);
       compare.getCalls().forEach((call) => {
         expect(call.args[1]).not.to.equal(null);
+      });
+    });
+
+    it('does not call comparator with undefined when items load asynchronously after opening', async () => {
+      interface Country {
+        code: string;
+        label: string;
+      }
+
+      const loadedItems: Country[] = [
+        { code: 'ca', label: 'Canada' },
+        { code: 'us', label: 'United States' },
+      ];
+
+      const compare = spy((item: Country, value: Country) => {
+        if (item == null || value == null) {
+          throw new Error('Compared against undefined');
+        }
+        return item.code === value.code;
+      });
+
+      const handleInputValueChange = spy();
+      const handleValueChange = spy();
+
+      const { user, setProps } = await render(
+        <Combobox.Root
+          items={undefined}
+          value={loadedItems[0]}
+          inputValue=""
+          onInputValueChange={handleInputValueChange}
+          onValueChange={handleValueChange}
+          itemToStringLabel={(item: Country) => item.label}
+          isItemEqualToValue={compare}
+          filter={null}
+        >
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: Country) => (
+                    <Combobox.Item key={item.code} value={item}>
+                      {item.label}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      await user.click(input);
+
+      await setProps({ items: loadedItems });
+
+      const canada = await screen.findByRole('option', { name: 'Canada' });
+      fireEvent.mouseMove(canada, { pointerType: 'mouse' });
+      await waitFor(() => expect(canada).to.have.attribute('data-highlighted'));
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'United States' })).to.have.attribute(
+          'data-highlighted',
+        );
+      });
+
+      expect(compare.callCount).to.be.greaterThan(0);
+      compare.getCalls().forEach((call) => {
+        expect(call.args[0]).not.to.equal(null);
+        expect(call.args[0]).not.to.equal(undefined);
+        expect(call.args[1]).not.to.equal(null);
+        expect(call.args[1]).not.to.equal(undefined);
+      });
+    });
+
+    it('keeps showing items after selecting in controlled input-inside-popup async load flow', async () => {
+      interface Country {
+        code: string;
+        label: string;
+      }
+
+      const loadedItems: Country[] = [
+        { code: 'ca', label: 'Canada' },
+        { code: 'us', label: 'United States' },
+      ];
+
+      function AsyncControlledCombobox(props: { countries: Country[] | undefined }) {
+        const { countries } = props;
+        const [country, setCountry] = React.useState<Country | null>(null);
+        const [inputValue, setInputValue] = React.useState('');
+
+        return (
+          <Combobox.Root
+            items={countries}
+            filter={null}
+            value={country}
+            inputValue={inputValue}
+            onInputValueChange={setInputValue}
+            isItemEqualToValue={(item, selected) => item?.code === selected?.code}
+            onValueChange={(value) => {
+              if (country?.code === value?.code) {
+                setCountry(null);
+              } else {
+                setCountry(value);
+              }
+            }}
+          >
+            <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.Input />
+                  <Combobox.Empty data-testid="empty">No countries found.</Combobox.Empty>
+                  <Combobox.List>
+                    {(item: Country) => (
+                      <Combobox.Item key={item.code} value={item}>
+                        {item.label}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        );
+      }
+
+      const { user, setProps } = await render(<AsyncControlledCombobox countries={undefined} />);
+
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(trigger);
+      await setProps({ countries: loadedItems });
+
+      const canada = await screen.findByRole('option', { name: 'Canada' });
+      fireEvent.mouseMove(canada, { pointerType: 'mouse' });
+      await waitFor(() => expect(canada).to.have.attribute('data-highlighted'));
+
+      await user.click(canada);
+      await waitFor(() => expect(screen.queryByRole('listbox')).to.equal(null));
+
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Canada' })).not.to.equal(null);
+        expect(screen.getByRole('option', { name: 'United States' })).not.to.equal(null);
       });
     });
   });
