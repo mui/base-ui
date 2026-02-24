@@ -1,3 +1,5 @@
+import { TransitionStatusDataAttributes } from '../../utils/stateAttributesMapping';
+
 export enum TabsPanelDataAttributes {
   /**
    * Indicates the index of the tab panel.
@@ -17,4 +19,12 @@ export enum TabsPanelDataAttributes {
    * Present when the panel is hidden.
    */
   hidden = 'data-hidden',
+  /**
+   * Present when the panel is animating in.
+   */
+  startingStyle = TransitionStatusDataAttributes.startingStyle,
+  /**
+   * Present when the panel is animating out.
+   */
+  endingStyle = TransitionStatusDataAttributes.endingStyle,
 }

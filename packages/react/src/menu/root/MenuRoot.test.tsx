@@ -1336,7 +1336,7 @@ describe('<Menu.Root />', () => {
     describe.skipIf(isJSDOM)('mouse interaction', () => {
       afterEach(async () => {
         const { cleanup } = await import('vitest-browser-react');
-        cleanup();
+        await cleanup();
       });
 
       it('triggers a menu item and closes the menu on click, drag, release', async () => {
@@ -1408,7 +1408,7 @@ describe('<Menu.Root />', () => {
           </Menu.Item>,
         ];
 
-        vbrRender(
+        await vbrRender(
           <div>
             <TestMenu
               rootProps={{ onOpenChange: openChangeSpy }}

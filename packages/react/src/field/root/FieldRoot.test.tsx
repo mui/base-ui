@@ -1224,7 +1224,7 @@ describe('<Field.Root />', () => {
     });
   });
 
-  describe('actionsRef', () => {
+  describe('prop: actionsRef', () => {
     it('validates the field when the `validate` method is called', async () => {
       function App() {
         const actionsRef = React.useRef<Field.Root.Actions>(null);

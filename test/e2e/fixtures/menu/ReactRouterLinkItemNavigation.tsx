@@ -23,7 +23,7 @@ export default function ReactRouterLinkItemNavigation() {
                 data-testid="link-one"
                 href="/e2e-fixtures/menu/PageOne"
                 render={<Link to="/e2e-fixtures/menu/PageOne" />}
-                className="block rounded px-3 py-2 text-gray-900 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800 data-[highlighted]:bg-gray-900 data-[highlighted]:text-gray-50"
+                className="block rounded px-3 py-2 text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-blue-800 data-[highlighted]:bg-gray-900 data-[highlighted]:text-gray-50"
               >
                 Page one
               </Menu.LinkItem>
@@ -32,7 +32,7 @@ export default function ReactRouterLinkItemNavigation() {
                 data-testid="link-two"
                 href="/e2e-fixtures/menu/PageTwo"
                 render={<Link to="/e2e-fixtures/menu/PageTwo" />}
-                className="block rounded px-3 py-2 text-gray-900 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800 data-[highlighted]:bg-gray-900 data-[highlighted]:text-gray-50"
+                className="block rounded px-3 py-2 text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-blue-800 data-[highlighted]:bg-gray-900 data-[highlighted]:text-gray-50"
               >
                 Page two
               </Menu.LinkItem>

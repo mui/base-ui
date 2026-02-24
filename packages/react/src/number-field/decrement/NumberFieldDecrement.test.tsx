@@ -480,7 +480,7 @@ describe('<NumberField.Decrement />', () => {
       expect(input).to.have.value('0');
     });
 
-    describe('should be provided to className prop as a fn argument', () => {
+    describe('prop: className', () => {
       it('when root is disabled', async () => {
         const classNameSpy = spy();
         await render(
