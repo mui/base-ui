@@ -70,10 +70,10 @@
       "detailedType": "((itemValue: Value) => string) | undefined"
     },
     "items": {
-      "type": "Record<string, ReactNode> | ({ label: ReactNode, value: any })[]",
+      "type": "Record<string, ReactNode> | Group[] | ({ label: ReactNode, value: any })[]",
       "description": "Data structure of the items rendered in the select popup.\nWhen specified, `<Select.Value>` renders the label of the selected item instead of the raw value.",
       "example": "```tsx\nconst items = {\n  sans: 'Sans-serif',\n  serif: 'Serif',\n  mono: 'Monospace',\n  cursive: 'Cursive',\n};\n<Select.Root items={items} />\n```",
-      "detailedType": "| Record<string, ReactNode>\n| { label: ReactNode; value: any }[]\n| undefined"
+      "detailedType": "| Record<string, ReactNode>\n| Group[]\n| { label: ReactNode; value: any }[]\n| undefined"
     },
     "modal": {
       "type": "boolean",

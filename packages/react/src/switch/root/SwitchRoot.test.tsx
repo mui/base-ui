@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Switch } from '@base-ui/react/switch';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 import { Field } from '@base-ui/react/field';
@@ -92,6 +92,54 @@ describe('<Switch.Root />', () => {
     it('should override the built-in attributes', async () => {
       await render(<Switch.Root role="checkbox" data-testid="switch" />);
       expect(screen.getByTestId('switch')).to.have.attribute('role', 'checkbox');
+    });
+
+    it('sets `aria-labelledby` from a sibling label associated with the hidden input', async () => {
+      await render(
+        <div>
+          <label htmlFor="switch-input">Label</label>
+          <Switch.Root id="switch-input" />
+        </div>,
+      );
+
+      const label = screen.getByText('Label');
+      expect(label.id).not.to.equal('');
+      expect(screen.getByRole('switch')).to.have.attribute('aria-labelledby', label.id);
+    });
+
+    it('updates fallback `aria-labelledby` when the hidden input id changes', async () => {
+      function TestCase() {
+        const [id, setId] = React.useState('switch-input-a');
+
+        return (
+          <React.Fragment>
+            <label htmlFor="switch-input-a">Label A</label>
+            <label htmlFor="switch-input-b">Label B</label>
+            <Switch.Root id={id} />
+            <button type="button" onClick={() => setId('switch-input-b')}>
+              Toggle
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<TestCase />);
+
+      const switchEl = screen.getByRole('switch');
+      const labelA = screen.getByText('Label A');
+
+      expect(labelA.id).to.not.equal('');
+      expect(switchEl).to.have.attribute('aria-labelledby', labelA.id);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+
+      await waitFor(() => {
+        const labelB = screen.getByText('Label B');
+
+        expect(labelB.id).to.not.equal('');
+        expect(labelA.id).to.not.equal(labelB.id);
+        expect(switchEl).to.have.attribute('aria-labelledby', labelB.id);
+      });
     });
   });
 

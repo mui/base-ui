@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@mui/internal-docs-infra": "0.4.1-canary.9",
+    "@mui/internal-docs-infra": "0.4.1-canary.10",
     "@types/yargs": "^17.0.35",
     "es-toolkit": "^1.44.0",
     "rimraf": "^6.1.3",
