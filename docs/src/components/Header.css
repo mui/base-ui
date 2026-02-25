@@ -1,3 +1,5 @@
+@import 'docs/src/css/custom-media.css';
+
 @layer components {
   .Header {
     font-size: var(--text-md);
@@ -106,11 +108,11 @@
   }
 
   .HeaderDesktopActions {
-    display: flex;
+    display: none;
     gap: 1.5rem;
 
-    @media (width < 1024px) {
-      display: none;
+    @media (--lg) {
+      display: flex;
     }
   }
 
@@ -119,7 +121,7 @@
     align-items: center;
     gap: 0.5rem;
 
-    @media (min-width: 1024px) {
+    @media (--lg) {
       display: none;
     }
   }
