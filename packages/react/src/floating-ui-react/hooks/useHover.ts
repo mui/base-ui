@@ -5,6 +5,7 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { NOOP } from '@base-ui/utils/empty';
 import { contains, getDocument, getTarget, isMouseLikePointerType } from '../utils';
 
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
@@ -159,7 +160,7 @@ export function useHover(
   const restTimeout = useTimeout();
   const blockMouseMoveRef = React.useRef(true);
   const performedPointerEventsMutationRef = React.useRef(false);
-  const unbindMouseMoveRef = React.useRef(() => {});
+  const unbindMouseMoveRef = React.useRef(NOOP);
   const restTimeoutPendingRef = React.useRef(false);
 
   const isHoverOpen = useStableCallback(() => {

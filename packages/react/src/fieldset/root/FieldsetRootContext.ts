@@ -1,4 +1,5 @@
 'use client';
+import { NOOP } from '@base-ui/utils/empty';
 import * as React from 'react';
 
 export interface FieldsetRootContext {
@@ -9,7 +10,7 @@ export interface FieldsetRootContext {
 
 export const FieldsetRootContext = React.createContext<FieldsetRootContext>({
   legendId: undefined,
-  setLegendId: () => {},
+  setLegendId: NOOP,
   disabled: undefined,
 });
 

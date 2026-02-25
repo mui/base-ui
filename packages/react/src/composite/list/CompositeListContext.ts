@@ -1,4 +1,5 @@
 'use client';
+import { NOOP } from '@base-ui/utils/empty';
 import * as React from 'react';
 
 export interface CompositeListContextValue<Metadata> {
@@ -11,10 +12,10 @@ export interface CompositeListContextValue<Metadata> {
 }
 
 export const CompositeListContext = React.createContext<CompositeListContextValue<any>>({
-  register: () => {},
-  unregister: () => {},
+  register: NOOP,
+  unregister: NOOP,
   subscribeMapChange: () => {
-    return () => {};
+    return NOOP;
   },
   elementsRef: { current: [] },
   nextIndexRef: { current: 0 },
