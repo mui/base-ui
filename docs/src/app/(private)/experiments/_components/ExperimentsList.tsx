@@ -8,10 +8,10 @@ import { camelToSentenceCase } from 'docs/src/utils/camelToSentenceCase';
 import classes from './ExperimentsList.module.css';
 
 const currentDirectory = dirname(fileURLToPath(import.meta.url));
-const experimentsRootDirectory = resolve(currentDirectory, '../../app/(private)/experiments');
+const experimentsRootDirectory = resolve(currentDirectory, '../');
 
 const allExperimentFiles = globbySync(
-  ['**/*.tsx', '!infra/**/*', '!**/page.tsx', '!**/layout.tsx'],
+  ['**/*.tsx', '!infra/**/*', '!**/page.tsx', '!**/layout.tsx', '!**/_components'],
   { cwd: experimentsRootDirectory },
 );
 

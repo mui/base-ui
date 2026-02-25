@@ -2,10 +2,7 @@
 import * as React from 'react';
 import { Accordion } from '@base-ui/react/accordion';
 import styles from './animations.module.css';
-import {
-  SettingsMetadata,
-  useExperimentSettings,
-} from '../../../../components/Experiments/SettingsPanel';
+import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
 
 interface Settings extends Record<string, boolean> {}
 
