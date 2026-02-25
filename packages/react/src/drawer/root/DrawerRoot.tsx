@@ -4,6 +4,7 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { isAndroid } from '@base-ui/utils/detectBrowser';
+import { useId } from '@base-ui/utils/useId';
 import {
   DrawerRootContext,
   type DrawerNestedSwipeProgressStore,
@@ -414,7 +415,7 @@ function createNestedSwipeProgressStore(): NestedSwipeProgressStore {
 }
 
 function DrawerProviderReporter() {
-  const drawerId = React.useId();
+  const drawerId = useId();
 
   const providerContext = useDrawerProviderContext(true);
   const dialogRootContext = useDialogRootContext(false);
@@ -426,7 +427,7 @@ function DrawerProviderReporter() {
   const isTopmost = nestedOpenDialogCount === 0;
 
   React.useEffect(() => {
-    if (!providerContext) {
+    if (!providerContext || drawerId == null) {
       return undefined;
     }
 
@@ -436,6 +437,10 @@ function DrawerProviderReporter() {
   }, [drawerId, providerContext]);
 
   React.useEffect(() => {
+    if (drawerId == null) {
+      return;
+    }
+
     providerContext?.setDrawerOpen(drawerId, open);
   }, [drawerId, open, providerContext]);
 
