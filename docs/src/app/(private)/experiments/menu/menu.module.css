@@ -82,6 +82,16 @@
   }
 }
 
+.PopupNoAnimation {
+  transition: none;
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 .Arrow {
   display: flex;
 

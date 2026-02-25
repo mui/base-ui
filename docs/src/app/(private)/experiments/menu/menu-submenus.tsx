@@ -37,6 +37,7 @@ export default function MenuSubmenus() {
     label: string,
     submenuTriggerDelay?: Menu.SubmenuTrigger.Props['delay'],
     submenuTriggerClassName: string = classes.SubmenuTrigger,
+    popupClassName: string = classes.Popup,
   ) => (
     <Menu.Root modal={settings.modal} disabled={settings.disabled}>
       <Menu.Trigger
@@ -56,7 +57,7 @@ export default function MenuSubmenus() {
           align={settings.align}
         >
           <Menu.Popup
-            className={classes.Popup}
+            className={popupClassName}
             style={{ maxHeight: 'var(--available-height)', overflowY: 'scroll' }}
           >
             {Array.from({ length: 50 }).map((_, submenuIndex) => (
@@ -67,7 +68,7 @@ export default function MenuSubmenus() {
                 </Menu.SubmenuTrigger>
                 <Menu.Portal>
                   <Menu.Positioner className={classes.Positioner} sideOffset={8}>
-                    <Menu.Popup className={classes.Popup}>
+                    <Menu.Popup className={popupClassName}>
                       {Array.from({ length: 12 }).map((__, itemIndex) => (
                         <Menu.SubmenuRoot key={itemIndex}>
                           <Menu.SubmenuTrigger
@@ -79,7 +80,7 @@ export default function MenuSubmenus() {
                           </Menu.SubmenuTrigger>
                           <Menu.Portal>
                             <Menu.Positioner className={classes.Positioner} sideOffset={8}>
-                              <Menu.Popup className={classes.Popup}>
+                              <Menu.Popup className={popupClassName}>
                                 {Array.from({ length: 8 }).map((___, nestedIndex) => (
                                   <Menu.Item
                                     key={nestedIndex}
@@ -115,6 +116,7 @@ export default function MenuSubmenus() {
           'Menu (submenu delay=0)',
           0,
           `${classes.SubmenuTrigger} ${classes.PopupOpenAsHighlighted}`,
+          `${classes.Popup} ${classes.PopupNoAnimation}`,
         )}
       </div>
 
