@@ -45,17 +45,7 @@ import { Button } from '@base-ui/react/button';
 
 The Button component enforces button semantics. `nativeButton={false}` signals that the rendered tag is not a `<button>`, but it must still be a tag that can receive button semantics (`role="button"`, keyboard interaction handlers). Links (`<a>`) have their own semantics and should not be rendered as buttons through the `render` prop.
 
-For links that are visually styled as buttons, create a separate `LinkButton` component. This keeps button and link semantics cleanly separated:
-
-```tsx title="Link styled as a button"
-import styles from './button.module.css';
-
-function LinkButton(props: React.ComponentProps<'a'>) {
-  return <a {...props} className={styles.Button} />;
-}
-
-<LinkButton href="/contact">Contact</LinkButton>;
-```
+If a link needs to look like a button visually, style the `<a>` element directly with CSS rather than using the Button component.
 
 ### Loading states
 
