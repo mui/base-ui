@@ -135,7 +135,7 @@ function Button({ asChild, ...props }) {
 
 // Usage
 <Button asChild>
-  <a href="/contact">Contact</a>
+  <MyButton className="primary">Submit</MyButton>
 </Button>;
 ```
 
@@ -153,7 +153,7 @@ function Button({ render, ...props }) {
 }
 
 // Usage
-<Button render={<a href="/contact" />}>Contact</Button>;
+<Button render={<MyButton className="primary" />}>Submit</Button>;
 ```
 
 ## Render prop and polymorphism
