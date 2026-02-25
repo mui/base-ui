@@ -3,7 +3,6 @@ import type { Metadata, Viewport } from 'next/types';
 import { GoogleAnalytics } from 'docs/src/components/GoogleAnalytics';
 import { Link } from 'docs/src/components/Link';
 import { Logo } from 'docs/src/components/Logo';
-import './fonts/index.css';
 import './css/index.css';
 
 export default function Layout({ children }: React.PropsWithChildren) {

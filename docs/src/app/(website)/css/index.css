@@ -5,6 +5,9 @@
 /* Theme */
 @import './theme.css';
 
+/* Fonts */
+@import './fonts/index.css';
+
 /* Components */
 @import './components/Accordion.css';
 @import './components/Body.css';
