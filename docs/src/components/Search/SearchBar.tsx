@@ -372,14 +372,14 @@ export function SearchBar({
         <Search className="SearchTriggerIcon" />
         <div className="SearchTriggerKbd">
           {showCmdSymbol ? (
-            <kbd className="SearchKbdPrimary">⌘</kbd>
+            <kbd className="SearchTriggerCmd">⌘</kbd>
           ) : (
             <React.Fragment>
-              <kbd className="SearchKbdSecondary">Ctrl</kbd>
-              <span className="SearchKbdPlus">+</span>
+              <kbd className="SearchTriggerCtrl">Ctrl</kbd>
+              <span className="SearchTriggerPlus">+</span>
             </React.Fragment>
           )}
-          <kbd className="SearchKbdSecondary">K</kbd>
+          <kbd className="SearchTriggerK">K</kbd>
         </div>
       </Button>
       <Dialog.Root open={dialogOpen} onOpenChange={handleCloseDialog}>

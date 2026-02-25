@@ -1,3 +1,5 @@
+@import 'docs/src/css/custom-media.css';
+
 @layer components {
   .SearchScrollbar {
     display: flex;
@@ -121,7 +123,14 @@
     background-color: hsl(0deg 0% 0% / 5%);
   }
 
+  .SearchTriggerIcon {
+    width: 1rem;
+    height: 1rem;
+    color: var(--color-gray-500);
+  }
+
   .SearchTriggerKbd {
+    display: none;
     height: 20px;
     line-height: 1;
     align-items: center;
@@ -131,16 +140,42 @@
     border: 1px solid var(--color-gray-300);
     background-color: var(--color-gray-50);
     pointer-events: none;
+    color: var(--color-gray-600);
+
+    @media (--lg) {
+      display: inline-flex;
+      margin-right: -0.5rem;
+    }
+  }
+
+  .SearchTriggerKbd kbd {
+    line-height: 1;
   }
 
   .SearchTriggerKbd kbd:first-child {
-    line-height: 1;
     display: inline-flex;
     margin-top: 1px;
   }
 
-  .SearchTriggerKbd kbd:last-child {
-    line-height: 1;
+  .SearchTriggerCmd {
+    font-size: var(--text-lg);
+    letter-spacing: var(--text-lg--letter-spacing);
+  }
+
+  .SearchTriggerCtrl {
+    font-size: var(--text-xs);
+    letter-spacing: var(--text-xs--letter-spacing);
+  }
+
+  .SearchTriggerPlus {
+    font-size: var(--text-xs);
+    letter-spacing: var(--text-xs--letter-spacing);
+    color: var(--color-gray-400);
+  }
+
+  .SearchTriggerK {
+    font-size: var(--text-xs);
+    letter-spacing: var(--text-xs--letter-spacing);
   }
 
   .SearchBreadcrumbPart {
@@ -245,27 +280,6 @@
 
   .SearchOptionItem[data-highlighted] {
     background: var(--color-gray-100);
-  }
-
-  .SearchTriggerIcon {
-    width: 1rem;
-    height: 1rem;
-    color: var(--color-gray-500);
-  }
-
-  .SearchKbdPrimary {
-    font-size: 1.125rem;
-    color: var(--color-gray-600);
-  }
-
-  .SearchKbdSecondary {
-    font-size: var(--text-xs);
-    color: var(--color-gray-600);
-  }
-
-  .SearchKbdPlus {
-    font-size: var(--text-xs);
-    color: var(--color-gray-400);
   }
 
   .SearchBackdrop {
@@ -451,18 +465,5 @@
     overscroll-behavior: contain;
     scroll-padding-top: 2.25rem;
     scroll-padding-bottom: 0.5rem;
-  }
-
-  @media (min-width: 1024px) {
-    .SearchTriggerKbd {
-      display: inline-flex;
-      margin-right: -0.5rem;
-    }
-  }
-
-  @media (width < 1024px) {
-    .SearchTriggerKbd {
-      display: none;
-    }
   }
 }
