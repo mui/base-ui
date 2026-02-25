@@ -140,16 +140,16 @@
       outline-offset: -1px;
     }
   }
-}
 
-.SideNavBadge {
-  color: var(--color-red);
-  line-height: inherit;
-  user-select: none;
-  text-transform: uppercase;
-  font-size: 0.6875rem;
-  font-weight: 500;
-  letter-spacing: 0.035em;
-  padding-inline: 2px;
-  translate: 0 -2px;
+  .SideNavBadge {
+    color: var(--color-red);
+    line-height: inherit;
+    user-select: none;
+    text-transform: uppercase;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.035em;
+    padding-inline: 2px;
+    translate: 0 -2px;
+  }
 }
