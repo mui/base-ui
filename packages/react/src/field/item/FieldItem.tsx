@@ -31,7 +31,7 @@ export const FieldItem = React.forwardRef(function FieldItem(
   // this a more reliable check
   const hasParentCheckbox = checkboxGroupContext?.allValues !== undefined;
 
-  const initialControlId = hasParentCheckbox ? parentId : undefined;
+  const controlId = hasParentCheckbox ? parentId : undefined;
 
   const fieldItemContext: FieldItemContext = React.useMemo(() => ({ disabled }), [disabled]);
 
@@ -43,7 +43,7 @@ export const FieldItem = React.forwardRef(function FieldItem(
   });
 
   return (
-    <LabelableProvider initialControlId={initialControlId}>
+    <LabelableProvider controlId={controlId}>
       <FieldItemContext.Provider value={fieldItemContext}>{element}</FieldItemContext.Provider>
     </LabelableProvider>
   );

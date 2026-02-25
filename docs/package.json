@@ -20,7 +20,7 @@
     "@base-ui/utils": "workspace:*",
     "@mdx-js/loader": "^3.1.1",
     "@mdx-js/react": "^3.1.1",
-    "@mui/internal-docs-infra": "0.4.1-canary.9",
+    "@mui/internal-docs-infra": "0.4.1-canary.10",
     "@next/mdx": "^16.1.6",
     "@react-spring/web": "^10.0.3",
     "@stefanprobst/rehype-extract-toc": "^3.0.0",

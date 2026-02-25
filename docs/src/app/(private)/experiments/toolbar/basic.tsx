@@ -4,7 +4,7 @@ import { Toolbar } from '@base-ui/react/toolbar';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import toolbarClasses from './toolbar.module.css';
 import inputClasses from '../../../(docs)/react/components/input/demos/hero/css-modules/index.module.css';
-import '../../../../demo-theme.css';
+import '../../../../demo-data/theme/css-modules/theme.css';
 
 import {
   SettingsMetadata,
