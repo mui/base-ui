@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { ProcessedTypesMeta } from '@mui/internal-docs-infra/useTypes';
 import { Link } from '../Link';
+import * as CodeBlock from '../CodeBlock';
 
 export function AdditionalTypesAccordion({
   data,
@@ -54,7 +55,9 @@ export function AdditionalTypesAccordion({
               </code>
             </p>
           ) : (
-            additionalType.data.formattedCode
+            <CodeBlock.Root className="my-0 p-2">
+              {additionalType.data.formattedCode}
+            </CodeBlock.Root>
           )}
         </div>
       ))}
