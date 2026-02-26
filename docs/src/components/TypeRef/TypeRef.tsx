@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useType } from '@mui/internal-docs-infra/useType';
 import { Popup } from '../Popup';
 import { ReferenceTable } from '../ReferenceTable/ReferenceTable';
@@ -26,6 +27,12 @@ interface TypeRefProps {
  */
 export function TypeRef({ href, name, className, children }: TypeRefProps) {
   const typeData = useType(name);
+  const [open, setOpen] = React.useState(false);
+  const handleContentClick = useStableCallback((event: React.MouseEvent) => {
+    if ((event.target as HTMLElement).closest('a')) {
+      setOpen(false);
+    }
+  });
 
   // Fall back to a standard anchor if no type data is available
   if (!typeData) {
@@ -37,7 +44,7 @@ export function TypeRef({ href, name, className, children }: TypeRefProps) {
   }
 
   return (
-    <Popover.Root>
+    <Popover.Root open={open} onOpenChange={setOpen}>
       <Popover.Trigger
         className={`${className ?? ''} cursor-pointer border-0 bg-transparent p-0 font-[inherit] text-[inherit] underline decoration-dotted decoration-[var(--color-violet)]`.trim()}
       >
@@ -69,7 +76,8 @@ export function TypeRef({ href, name, className, children }: TypeRefProps) {
                 </Popover.Close>
               </div>
             </div>
-            <div className="p-4">
+            {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */}
+            <div className="p-4" onClick={handleContentClick}>
               {typeData.meta.type === 'raw' ? (
                 typeData.meta.data.formattedCode
               ) : (
