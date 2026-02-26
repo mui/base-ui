@@ -3,7 +3,7 @@ import { ProcessedTypesMeta } from '@mui/internal-docs-infra/useTypes';
 import { Link } from '../Link';
 import * as CodeBlock from '../CodeBlock';
 
-export function AdditionalTypesAccordion({
+export function AdditionalTypes({
   data,
   multiple,
 }: {
