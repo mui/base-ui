@@ -74,7 +74,7 @@ export function Panel({ className, children, ...other }: React.ComponentPropsWit
   );
 }
 
-export function Pre(props: React.ComponentProps<'pre'>) {
+export function PreInline(props: React.ComponentProps<'pre'>) {
   const { codeId } = React.useContext(CodeBlockContext);
   return (
     <ScrollArea.Root
@@ -100,4 +100,8 @@ export function Pre(props: React.ComponentProps<'pre'>) {
       <ScrollArea.Scrollbar orientation="horizontal" />
     </ScrollArea.Root>
   );
+}
+
+export function Pre(props: React.ComponentProps<'pre'>) {
+  return <PreInline {...props} className="CodeBlockPreBackground" />;
 }

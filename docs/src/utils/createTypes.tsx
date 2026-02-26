@@ -6,6 +6,7 @@ import clsx from 'clsx';
 import { ReferenceTable } from '../components/ReferenceTable/ReferenceTable';
 import { mdxComponents, inlineMdxComponents } from '../mdx-components';
 import { CodeBlockPrecomputed } from '../components/CodeBlockPrecomputed';
+import { PreInline } from '../components/CodeBlock';
 import { Code } from '../components/Code';
 
 interface MDXComponents {
@@ -23,9 +24,10 @@ const inlineComponents: MDXComponents = {
     <Code
       {...props}
       data-table-code=""
-      className={clsx(props.className, 'text-xs', 'data-[inline]:mx-[0.1em]')}
+      className={clsx(props.className, 'text-xs [&_.line]:p-0')}
     />
   ),
+  pre: PreInline,
 };
 
 /**

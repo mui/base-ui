@@ -53,9 +53,6 @@
     @apply text-xs;
     cursor: text;
     color: var(--color-foreground);
-    background-color: var(--color-content);
-    padding: 0.5rem 0;
-    border-radius: var(--radius-md);
     outline: 0;
 
     /* Scroll */
@@ -70,6 +67,12 @@
       /* Make sure selection highlight spans full container width in Safari */
       flex-grow: 1;
     }
+  }
+
+  .CodeBlockPreBackground {
+    background-color: var(--color-content);
+    padding: 0.5rem 0;
+    border-radius: var(--radius-md);
   }
 
   .CodeBlockPreContainer {

@@ -58,6 +58,10 @@
     @apply text-sm;
     color: var(--color-foreground);
     grid-column: span 2;
+
+    & p {
+      margin: 0 !important;
+    }
   }
 
   .DescriptionListInner {

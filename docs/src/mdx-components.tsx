@@ -8,6 +8,7 @@ import { HeadingLink } from './components/HeadingLink';
 import { Subtitle } from './components/Subtitle/Subtitle';
 import { TypeRef } from './components/TypeRef';
 import { Kbd } from './components/Kbd/Kbd';
+import clsx from 'clsx';
 
 interface MDXComponents {
   [key: string]: React.FC<any> | MDXComponents;
@@ -16,7 +17,9 @@ interface MDXComponents {
 // Maintain spacing between MDX components here
 export const mdxComponents: MDXComponents = {
   a: Link,
-  code: (props) => <Code className="data-[inline]:mx-[0.1em]" {...props} />,
+  code: (props) => (
+    <Code {...props} className={clsx('data-[inline]:mx-[0.1em]', props.className)} />
+  ),
   h1: (props) => (
     // Do not wrap heading tags in divs, that confuses Safari Reader
     <h1 className="mb-4 text-3xl font-bold text-balance" {...props} />
