@@ -36,11 +36,17 @@ function createHandleCloseContext({
   floating,
   onClose,
   tree,
+  placement = 'right',
+  x = 2,
+  y = 0,
 }: {
   domReference: Element;
   floating: HTMLElement;
   onClose: () => void;
   tree: FloatingTreeStore;
+  placement?: 'top' | 'bottom' | 'left' | 'right';
+  x?: number;
+  y?: number;
 }): HandleCloseContext {
   const refs: HandleCloseContext['refs'] = {
     reference: { current: domReference },
@@ -58,10 +64,10 @@ function createHandleCloseContext({
   };
 
   return {
-    x: 2,
-    y: 0,
+    x,
+    y,
     strategy: 'absolute',
-    placement: 'right',
+    placement,
     middlewareData: {},
     isPositioned: true,
     update: async () => {},
@@ -78,6 +84,53 @@ function createHandleCloseContext({
     onClose,
     tree,
   };
+}
+
+function createPlacementScenario(placement: 'top' | 'bottom' | 'left' | 'right') {
+  const referenceRect = createRect(0, 0, 100, 100);
+
+  switch (placement) {
+    case 'top':
+      return {
+        referenceRect,
+        floatingRect: createRect(0, -120, 100, 100),
+        leavePoint: [50, 0] as const,
+        troughPoint: [50, -10] as const,
+        outsidePoint: [50, 150] as const,
+      };
+    case 'bottom':
+      return {
+        referenceRect,
+        floatingRect: createRect(0, 120, 100, 100),
+        leavePoint: [50, 100] as const,
+        troughPoint: [50, 110] as const,
+        outsidePoint: [50, -50] as const,
+      };
+    case 'left':
+      return {
+        referenceRect,
+        floatingRect: createRect(-120, 0, 100, 100),
+        leavePoint: [0, 50] as const,
+        troughPoint: [-10, 50] as const,
+        outsidePoint: [150, 50] as const,
+      };
+    case 'right':
+      return {
+        referenceRect,
+        floatingRect: createRect(120, 0, 100, 100),
+        leavePoint: [100, 50] as const,
+        troughPoint: [110, 50] as const,
+        outsidePoint: [-50, 50] as const,
+      };
+    default:
+      return {
+        referenceRect,
+        floatingRect: createRect(120, 0, 100, 100),
+        leavePoint: [100, 50] as const,
+        troughPoint: [110, 50] as const,
+        outsidePoint: [-50, 50] as const,
+      };
+  }
 }
 
 describe('safePolygon', () => {
@@ -144,4 +197,62 @@ describe('safePolygon', () => {
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });
+
+  it.each(['top', 'bottom', 'left', 'right'] as const)(
+    'keeps open while moving through the trough on %s placement',
+    (placement) => {
+      const domReference = document.createElement('button');
+      const floating = document.createElement('div');
+      const scenario = createPlacementScenario(placement);
+
+      domReference.getBoundingClientRect = () => scenario.referenceRect;
+      floating.getBoundingClientRect = () => scenario.floatingRect;
+
+      const tree = new FloatingTreeStore();
+      const onClose = vi.fn();
+      const context = createHandleCloseContext({
+        domReference,
+        floating,
+        onClose,
+        tree,
+        placement,
+        x: scenario.leavePoint[0],
+        y: scenario.leavePoint[1],
+      });
+
+      const handler = safePolygon()(context);
+      handler(createMouseMoveEvent(scenario.troughPoint[0], scenario.troughPoint[1]));
+
+      expect(onClose).toHaveBeenCalledTimes(0);
+    },
+  );
+
+  it.each(['top', 'bottom', 'left', 'right'] as const)(
+    'closes when moving away from corridor on %s placement',
+    (placement) => {
+      const domReference = document.createElement('button');
+      const floating = document.createElement('div');
+      const scenario = createPlacementScenario(placement);
+
+      domReference.getBoundingClientRect = () => scenario.referenceRect;
+      floating.getBoundingClientRect = () => scenario.floatingRect;
+
+      const tree = new FloatingTreeStore();
+      const onClose = vi.fn();
+      const context = createHandleCloseContext({
+        domReference,
+        floating,
+        onClose,
+        tree,
+        placement,
+        x: scenario.leavePoint[0],
+        y: scenario.leavePoint[1],
+      });
+
+      const handler = safePolygon()(context);
+      handler(createMouseMoveEvent(scenario.outsidePoint[0], scenario.outsidePoint[1]));
+
+      expect(onClose).toHaveBeenCalledTimes(1);
+    },
+  );
 });
