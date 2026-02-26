@@ -5,8 +5,8 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import {
   safePolygon,
   useFloatingRootContext,
-  useHover,
-  useInteractions,
+  useHoverFloatingInteraction,
+  useHoverReferenceInteraction,
 } from '../../floating-ui-react';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -164,20 +164,19 @@ export const NavigationMenuTriggerGroup = React.forwardRef(function NavigationMe
     },
   });
 
-  const hover = useHover(context, {
+  const hoverProps = useHoverReferenceInteraction(context, {
     move: false,
     handleClose: safePolygon({ blockPointerEvents: pointerType !== 'touch' }),
     restMs: mounted && positionerElement ? 0 : delay,
     delay: { close: closeDelay },
   });
+  useHoverFloatingInteraction(context, { closeDelay });
 
   useIsoLayoutEffect(() => {
     if (isActiveItem) {
       setFloatingRootContext(context);
     }
   }, [context, isActiveItem, setFloatingRootContext]);
-
-  const { getReferenceProps } = useInteractions([hover]);
 
   const state: NavigationMenuTriggerGroup.State = {
     open: isActiveItem,
@@ -208,7 +207,12 @@ export const NavigationMenuTriggerGroup = React.forwardRef(function NavigationMe
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, setGroupElement],
     state,
-    props: [getReferenceProps, dismissProps?.reference || EMPTY_OBJECT, defaultProps, elementProps],
+    props: [
+      hoverProps || EMPTY_OBJECT,
+      dismissProps?.reference || EMPTY_OBJECT,
+      defaultProps,
+      elementProps,
+    ],
     stateAttributesMapping: triggerOpenStateMapping,
   });
 

@@ -4,10 +4,33 @@ import * as React from 'react';
 import { vi, test } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { isJSDOM } from '@base-ui/utils/detectBrowser';
-import { useFloating, useHover, useInteractions } from '../index';
-import type { UseHoverProps } from './useHover';
+import {
+  useFloating,
+  useHoverFloatingInteraction,
+  useHoverReferenceInteraction,
+  useInteractions,
+} from '../index';
+import type { UseHoverProps } from './useHoverReferenceInteraction';
 import { Popover } from '../../../test/floating-ui-tests/Popover';
 import { REASONS } from '../../utils/reasons';
+
+function getCloseDelay(delay: UseHoverProps['delay'] = 0): number | (() => number) {
+  if (typeof delay === 'number') {
+    return delay;
+  }
+
+  if (typeof delay === 'function') {
+    return () => {
+      const result = delay();
+      if (typeof result === 'number') {
+        return result;
+      }
+      return result?.close ?? 0;
+    };
+  }
+
+  return delay?.close ?? 0;
+}
 
 function App({ showReference = true, ...props }: UseHoverProps & { showReference?: boolean }) {
   const [open, setOpen] = React.useState(false);
@@ -15,7 +38,14 @@ function App({ showReference = true, ...props }: UseHoverProps & { showReference
     open,
     onOpenChange: setOpen,
   });
-  const { getReferenceProps, getFloatingProps } = useInteractions([useHover(context, props)]);
+  const hoverReferenceProps = useHoverReferenceInteraction(context, props);
+  useHoverFloatingInteraction(context, {
+    enabled: props.enabled,
+    closeDelay: getCloseDelay(props.delay),
+  });
+  const { getReferenceProps, getFloatingProps } = useInteractions([
+    { reference: hoverReferenceProps },
+  ]);
 
   return (
     <React.Fragment>
@@ -25,7 +55,7 @@ function App({ showReference = true, ...props }: UseHoverProps & { showReference
   );
 }
 
-describe.skipIf(!isJSDOM)('useHover', () => {
+describe.skipIf(!isJSDOM)('hover interactions', () => {
   beforeEach(() => {
     vi.useFakeTimers();
   });
@@ -264,8 +294,11 @@ describe.skipIf(!isJSDOM)('useHover', () => {
         },
       });
 
-      const hover = useHover(context);
-      const { getReferenceProps, getFloatingProps } = useInteractions([hover]);
+      const hoverReferenceProps = useHoverReferenceInteraction(context);
+      useHoverFloatingInteraction(context);
+      const { getReferenceProps, getFloatingProps } = useInteractions([
+        { reference: hoverReferenceProps },
+      ]);
 
       return (
         <React.Fragment>

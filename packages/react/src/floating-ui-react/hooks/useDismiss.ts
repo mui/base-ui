@@ -61,8 +61,8 @@ export interface UseDismissProps {
   escapeKey?: boolean | undefined;
   /**
    * Whether to dismiss the floating element upon pressing the reference
-   * element. You likely want to ensure the `move` option in the `useHover()`
-   * Hook has been disabled when this is in use.
+   * element. You likely want to ensure the `move` option in
+   * `useHoverReferenceInteraction()` has been disabled when this is in use.
    * @default false
    */
   referencePress?: boolean | undefined;

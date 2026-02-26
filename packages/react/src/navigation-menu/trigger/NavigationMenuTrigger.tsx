@@ -10,7 +10,8 @@ import {
   useClick,
   useFloatingRootContext,
   useFloatingTree,
-  useHover,
+  useHoverFloatingInteraction,
+  useHoverReferenceInteraction,
   useInteractions,
 } from '../../floating-ui-react';
 import {
@@ -168,12 +169,16 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     },
   });
 
-  const hover = useHover(context, {
+  const hoverProps = useHoverReferenceInteraction(context, {
     enabled: !insideTriggerGroup,
     move: false,
     handleClose: safePolygon({ blockPointerEvents: pointerType !== 'touch' }),
     restMs: mounted && positionerElement ? 0 : delay,
     delay: { close: closeDelay },
+  });
+  useHoverFloatingInteraction(context, {
+    enabled: !insideTriggerGroup,
+    closeDelay,
   });
   const click = useClick(context, {
     enabled: interactionsEnabled,
@@ -197,7 +202,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     triggerElement,
   ]);
 
-  const { getReferenceProps } = useInteractions([hover, click]);
+  const { getReferenceProps } = useInteractions([click, { reference: hoverProps }]);
 
   function handleActivation(event: React.MouseEvent | React.KeyboardEvent) {
     ReactDOM.flushSync(() => {

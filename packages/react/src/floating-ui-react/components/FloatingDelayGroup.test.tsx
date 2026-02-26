@@ -9,7 +9,8 @@ import {
   FloatingDelayGroup,
   useDelayGroup,
   useFloating,
-  useHover,
+  useHoverFloatingInteraction,
+  useHoverReferenceInteraction,
   useInteractions,
 } from '../index';
 
@@ -27,8 +28,19 @@ function Tooltip({ children, label }: Props) {
   });
 
   const { delayRef } = useDelayGroup(context, { open });
-  const hover = useHover(context, { delay: () => delayRef.current });
-  const { getReferenceProps } = useInteractions([hover]);
+  const hoverReferenceProps = useHoverReferenceInteraction(context, {
+    delay: () => delayRef.current,
+  });
+  useHoverFloatingInteraction(context, {
+    closeDelay: () => {
+      const delay = delayRef.current;
+      if (typeof delay === 'number') {
+        return delay;
+      }
+      return delay.close ?? 0;
+    },
+  });
+  const { getReferenceProps } = useInteractions([{ reference: hoverReferenceProps }]);
 
   const renderCount = React.useRef(0);
   const renderCountRef = React.useRef<HTMLSpanElement | null>(null);
