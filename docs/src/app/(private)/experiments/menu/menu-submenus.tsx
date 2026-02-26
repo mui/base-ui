@@ -62,7 +62,10 @@ export default function MenuSubmenus() {
           >
             {Array.from({ length: 50 }).map((_, submenuIndex) => (
               <Menu.SubmenuRoot key={submenuIndex}>
-                <Menu.SubmenuTrigger className={submenuTriggerClassName} delay={submenuTriggerDelay}>
+                <Menu.SubmenuTrigger
+                  className={submenuTriggerClassName}
+                  delay={submenuTriggerDelay}
+                >
                   Submenu test index {submenuIndex + 1}
                   <ChevronRightIcon />
                 </Menu.SubmenuTrigger>
