@@ -1,4 +1,5 @@
 import * as React from 'react';
+import clsx from 'clsx';
 import * as CodeBlock from './components/CodeBlock';
 import * as Table from './components/Table';
 import * as QuickNav from './components/QuickNav/QuickNav';
@@ -8,7 +9,6 @@ import { HeadingLink } from './components/HeadingLink';
 import { Subtitle } from './components/Subtitle/Subtitle';
 import { TypeRef } from './components/TypeRef';
 import { Kbd } from './components/Kbd/Kbd';
-import clsx from 'clsx';
 
 interface MDXComponents {
   [key: string]: React.FC<any> | MDXComponents;
