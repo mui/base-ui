@@ -18,6 +18,7 @@ import {
 import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
 import { useNavigationMenuPositionerContext } from '../positioner/NavigationMenuPositionerContext';
 import { useDirection } from '../../direction-provider/DirectionContext';
+import { NAVIGATION_MENU_TRIGGER_IDENTIFIER } from '../utils/constants';
 
 const EMPTY_ROOT_CONTEXT = getEmptyRootContext();
 
@@ -113,7 +114,7 @@ export const NavigationMenuViewport = React.forwardRef(function NavigationMenuVi
   const domReference = (floatingRootContext || EMPTY_ROOT_CONTEXT).useState('domReferenceElement');
 
   useIsoLayoutEffect(() => {
-    if (domReference) {
+    if (domReference && domReference.hasAttribute?.(NAVIGATION_MENU_TRIGGER_IDENTIFIER as string)) {
       prevTriggerElementRef.current = domReference;
     }
   }, [domReference, prevTriggerElementRef]);

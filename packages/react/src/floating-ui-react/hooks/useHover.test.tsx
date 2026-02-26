@@ -46,6 +46,13 @@ describe.skipIf(!isJSDOM)('useHover', () => {
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
 
+  test('does not open when disabled', () => {
+    render(<App enabled={false} />);
+
+    fireEvent.mouseEnter(screen.getByRole('button'));
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+  });
+
   describe('prop: delay', () => {
     test('symmetric number', async () => {
       render(<App delay={1000} />);

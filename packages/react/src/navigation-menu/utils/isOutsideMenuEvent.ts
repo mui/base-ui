@@ -21,22 +21,41 @@ export function isOutsideMenuEvent({ currentTarget, relatedTarget }: Targets, pa
     ? getNodeChildren(tree.nodesRef.current, nodeId).some((node) =>
         contains(node.context?.elements.floating, relatedTarget),
       )
-    : [];
+    : false;
+
+  const floatingElement = popupElement || viewportElement;
+  const relatedTargetInConnectedFloating = tree
+    ? tree.nodesRef.current.some((node) => {
+        const nodeFloatingElement = node.context?.elements.floating;
+        const nodeReferenceElement = node.context?.elements.domReference;
+
+        if (!contains(nodeFloatingElement, relatedTarget)) {
+          return false;
+        }
+
+        return (
+          contains(rootRef.current, nodeReferenceElement) ||
+          contains(floatingElement, nodeReferenceElement)
+        );
+      })
+    : false;
 
   // For nested scenarios without popupElement, we need to be more lenient
   // and only close if we're definitely outside the root
   if (!popupElement) {
-    return !contains(rootRef.current, relatedTarget) && !nodeChildrenContains;
+    return (
+      !contains(rootRef.current, relatedTarget) &&
+      !nodeChildrenContains &&
+      !relatedTargetInConnectedFloating
+    );
   }
-
-  // Use popupElement as the primary floating element, but fall back to viewportElement if needed
-  const floatingElement = popupElement || viewportElement;
 
   return (
     !contains(floatingElement, currentTarget) &&
     !contains(floatingElement, relatedTarget) &&
     !contains(rootRef.current, relatedTarget) &&
     !nodeChildrenContains &&
+    !relatedTargetInConnectedFloating &&
     !(
       contains(floatingElement, relatedTarget) &&
       relatedTarget?.hasAttribute('data-base-ui-focus-guard')

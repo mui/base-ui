@@ -1,15 +1,22 @@
 'use client';
 import * as React from 'react';
-import { useDismiss } from '../../floating-ui-react';
+import { useDismiss, useFloatingTree } from '../../floating-ui-react';
 import { getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
-import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
+import {
+  useNavigationMenuRootContext,
+  useNavigationMenuTreeContext,
+} from '../root/NavigationMenuRootContext';
 import { EMPTY_OBJECT } from '../../utils/constants';
-import { NAVIGATION_MENU_TRIGGER_IDENTIFIER } from '../utils/constants';
+import {
+  NAVIGATION_MENU_TRIGGER_IDENTIFIER,
+  NAVIGATION_MENU_TRIGGER_LINK_IDENTIFIER,
+} from '../utils/constants';
 import { NavigationMenuDismissContext } from './NavigationMenuDismissContext';
 import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { handleNavigationMenuBlur } from '../utils/handleNavigationMenuBlur';
 
 /**
  * Contains a list of navigation menu items.
@@ -23,8 +30,19 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const { orientation, open, floatingRootContext, positionerElement, value, nested } =
-    useNavigationMenuRootContext();
+  const {
+    orientation,
+    open,
+    floatingRootContext,
+    positionerElement,
+    popupElement,
+    value,
+    nested,
+    rootRef,
+    setValue,
+  } = useNavigationMenuRootContext();
+  const nodeId = useNavigationMenuTreeContext();
+  const tree = useFloatingTree();
 
   const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
   const context = floatingRootContext || fallbackContext;
@@ -63,6 +81,27 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
           if (shouldStop) {
             event.stopPropagation();
           }
+        },
+        onBlur(event: React.FocusEvent<HTMLUListElement>) {
+          const target = event.target as Element | null;
+
+          if (
+            target?.closest(
+              `[${NAVIGATION_MENU_TRIGGER_IDENTIFIER}], [${NAVIGATION_MENU_TRIGGER_LINK_IDENTIFIER}]`,
+            )
+          ) {
+            return;
+          }
+
+          handleNavigationMenuBlur({
+            event,
+            popupElement,
+            positionerElement,
+            rootRef,
+            tree,
+            nodeId,
+            setValue,
+          });
         },
       };
 

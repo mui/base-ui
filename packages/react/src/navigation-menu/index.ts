@@ -2,6 +2,8 @@ export * as NavigationMenu from './index.parts';
 
 export type * from './root/NavigationMenuRoot';
 export type * from './trigger/NavigationMenuTrigger';
+export type * from './trigger-group/NavigationMenuTriggerGroup';
+export type * from './trigger-link/NavigationMenuTriggerLink';
 export type * from './portal/NavigationMenuPortal';
 export type * from './positioner/NavigationMenuPositioner';
 export type * from './viewport/NavigationMenuViewport';
