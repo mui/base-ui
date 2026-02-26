@@ -55,6 +55,48 @@ function App({ showReference = true, ...props }: UseHoverProps & { showReference
   );
 }
 
+function ReferenceOnlyApp(props: UseHoverProps = {}) {
+  const [open, setOpen] = React.useState(false);
+  const { refs, context } = useFloating({
+    open,
+    onOpenChange: setOpen,
+  });
+  const hoverReferenceProps = useHoverReferenceInteraction(context, props);
+  const { getReferenceProps, getFloatingProps } = useInteractions([
+    { reference: hoverReferenceProps },
+  ]);
+
+  return (
+    <React.Fragment>
+      <button {...getReferenceProps({ ref: refs.setReference })} />
+      {open && <div role="tooltip" {...getFloatingProps({ ref: refs.setFloating })} />}
+    </React.Fragment>
+  );
+}
+
+function FloatingOnlyApp({
+  enabled = true,
+  closeDelay = 0,
+}: {
+  enabled?: boolean;
+  closeDelay?: number | (() => number);
+}) {
+  const [open, setOpen] = React.useState(true);
+  const { refs, context } = useFloating({
+    open,
+    onOpenChange: setOpen,
+  });
+
+  useHoverFloatingInteraction(context, {
+    enabled,
+    closeDelay,
+  });
+
+  const { getFloatingProps } = useInteractions([]);
+
+  return open ? <div role="tooltip" {...getFloatingProps({ ref: refs.setFloating })} /> : null;
+}
+
 describe.skipIf(!isJSDOM)('hover interactions', () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -81,6 +123,36 @@ describe.skipIf(!isJSDOM)('hover interactions', () => {
 
     fireEvent.mouseEnter(screen.getByRole('button'));
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+  });
+
+  describe('split hooks', () => {
+    test('reference hook opens and closes the popup on trigger enter/leave', () => {
+      render(<ReferenceOnlyApp />);
+
+      const button = screen.getByRole('button');
+      fireEvent.mouseEnter(button);
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      fireEvent.mouseLeave(button);
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    test('floating hook honors closeDelay on floating mouseleave', async () => {
+      render(<FloatingOnlyApp closeDelay={100} />);
+
+      fireEvent.mouseLeave(screen.getByRole('tooltip'));
+      await act(async () => {
+        vi.advanceTimersByTime(99);
+      });
+
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      await act(async () => {
+        vi.advanceTimersByTime(1);
+      });
+
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
   });
 
   describe('prop: delay', () => {
