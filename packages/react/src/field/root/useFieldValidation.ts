@@ -224,6 +224,7 @@ export function useFieldValidation(
       if (currentFieldData) {
         formRef.current.fields.set(controlId, {
           ...currentFieldData,
+          // Keep Form-level errors part of overall field validity for submit blocking/focus logic.
           ...getCombinedFieldValidityData(nextValidityData, invalid),
         });
       }
@@ -259,10 +260,8 @@ export function useFieldValidation(
               return;
             }
 
-            if (invalid) {
-              return;
-            }
-
+            // When validating on change, run client-side validation even if
+            // externally invalid
             const element = event.currentTarget;
 
             if (element.value === '') {
@@ -290,7 +289,6 @@ export function useFieldValidation(
       name,
       timeout,
       commit,
-      invalid,
       validationDebounceTime,
       shouldValidateOnChange,
     ],
