@@ -76,7 +76,7 @@
 
 /* ═══ Safelist to generate Tailwind classes ═══ */
 
-@source '../app/(docs)/react/**/demos/**/tailwind/**/*.{ts,tsx}';
+@source '../app/(docs)/react/**/demos/**/*.{ts,tsx}';
 @source '../app/(private)/playground/**/*.{ts,tsx}';
 
 /* ═══ Tailwind theme ═══ */
