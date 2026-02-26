@@ -10,6 +10,15 @@ export function AdditionalTypesAccordion({
   multiple?: boolean;
 }) {
   const rawTypes = data.filter((t) => t.type === 'raw');
+  const hydrated = React.useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+  const handleBack = React.useCallback((event: React.MouseEvent) => {
+    event.preventDefault();
+    history.back();
+  }, []);
 
   return (
     <React.Fragment>
@@ -19,8 +28,15 @@ export function AdditionalTypesAccordion({
           id={additionalType.slug}
           className="sr-only target:not-sr-only scroll-mt-12 md:scroll-mt-0"
         >
-          <h4 className="mt-5 mb-3 text-base font-medium text-gray-900 dark:text-white">
+          <h4 className="mt-5 mb-3 flex items-center gap-2 text-base font-medium text-gray-900 dark:text-white">
             {additionalType.name}
+            <a
+              href="#"
+              className="text-sm font-normal text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+              onClick={hydrated ? handleBack : undefined}
+            >
+              {hydrated ? 'Back' : 'Hide'}
+            </a>
           </h4>
           {additionalType.data.reExportOf ? (
             <p className="text-sm text-gray-600">
