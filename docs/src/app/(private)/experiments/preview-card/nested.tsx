@@ -2,7 +2,7 @@ import * as React from 'react';
 import { PreviewCard } from '@base-ui/react/preview-card';
 import styles from './nested.module.css';
 
-export default function ExamplePreviewCard({ inner }: { inner?: boolean }) {
+export default function ExamplePreviewCard({ levels = 2 }: { levels?: number }) {
   return (
     <PreviewCard.Root>
       <div className={styles.Paragraph}>
@@ -17,7 +17,7 @@ export default function ExamplePreviewCard({ inner }: { inner?: boolean }) {
       </div>
 
       <PreviewCard.Portal>
-        <PreviewCard.Positioner sideOffset={8}>
+        <PreviewCard.Positioner sideOffset={8} collisionAvoidance={{ side: 'none' }}>
           <PreviewCard.Popup className={styles.Popup}>
             <PreviewCard.Arrow className={styles.Arrow}>
               <ArrowSvg />
@@ -32,7 +32,7 @@ export default function ExamplePreviewCard({ inner }: { inner?: boolean }) {
             <div className={styles.Summary}>
               <strong>Typography</strong> is the art and science of arranging type to make written
               language clear, visually appealing, and effective in communication.
-              {!inner && <ExamplePreviewCard inner />}
+              {levels > 0 && <ExamplePreviewCard levels={levels - 1} />}
             </div>
           </PreviewCard.Popup>
         </PreviewCard.Positioner>
