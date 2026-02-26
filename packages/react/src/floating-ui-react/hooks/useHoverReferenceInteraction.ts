@@ -5,22 +5,26 @@ import { isElement } from '@floating-ui/utils/dom';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument } from '@base-ui/utils/owner';
-import type { FloatingContext, FloatingRootContext } from '../types';
+import type { Delay, FloatingContext, FloatingRootContext } from '../types';
 import { contains, isMouseLikePointerType, isTargetInsideEnabledTrigger } from '../utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import type { UseHoverProps } from './useHover';
-import { getDelay } from './useHover';
 import { useFloatingTree } from '../components/FloatingTree';
 import type { FloatingTreeStore } from '../components/FloatingTreeStore';
 import {
   clearSafePolygonPointerEventsMutation,
   useHoverInteractionSharedState,
 } from './useHoverInteractionSharedState';
+import type { HandleClose } from './useHoverShared';
+import { getDelay, getRestMs } from './useHoverShared';
 import { FloatingUIOpenChangeDetails, HTMLProps } from '../../utils/types';
 
-export interface UseHoverReferenceInteractionProps extends UseHoverProps {
+export interface UseHoverReferenceInteractionProps {
   enabled?: boolean | undefined;
+  handleClose?: HandleClose | null | undefined;
+  restMs?: number | (() => number) | undefined;
+  delay?: Delay | (() => Delay) | undefined;
+  move?: boolean | undefined;
   mouseOnly?: boolean | undefined;
   externalTree?: FloatingTreeStore | undefined;
   /**
@@ -31,13 +35,6 @@ export interface UseHoverReferenceInteractionProps extends UseHoverProps {
    */
   isActiveTrigger?: boolean | undefined;
   triggerElementRef?: Readonly<React.RefObject<Element | null>> | undefined;
-}
-
-function getRestMs(value: number | (() => number)) {
-  if (typeof value === 'function') {
-    return value();
-  }
-  return value;
 }
 
 const EMPTY_REF: Readonly<React.RefObject<Element | null>> = { current: null };
@@ -84,9 +81,8 @@ export function useHoverReferenceInteraction(
       return true;
     }
 
-    return dataRef.current.openEvent
-      ? ['click', 'mousedown'].includes(dataRef.current.openEvent.type)
-      : false;
+    const openEventType = dataRef.current.openEvent?.type;
+    return openEventType === 'click' || openEventType === 'mousedown';
   });
 
   const isRelatedTargetInsideEnabledTrigger = useStableCallback((target: EventTarget | null) => {
@@ -173,17 +169,16 @@ export function useHoverReferenceInteraction(
 
       // Only rest delay is set; there's no fallback delay.
       // This will be handled by `onMouseMove`.
-      if (getRestMs(restMsRef.current) > 0 && !getDelay(delayRef.current, 'open')) {
+      const restMsValue = getRestMs(restMsRef.current);
+      if (restMsValue > 0 && !getDelay(delayRef.current, 'open')) {
         return;
       }
 
       const openDelay = getDelay(delayRef.current, 'open', instance.pointerType);
-      const currentDomReference = store.select('domReferenceElement');
       const triggerNode = (event.currentTarget as HTMLElement) ?? null;
-
+      const currentDomReference = store.select('domReferenceElement');
       const isOverInactiveTrigger =
-        triggerNode != null &&
-        (!currentDomReference || !contains(currentDomReference, triggerNode));
+        !currentDomReference || !contains(currentDomReference, triggerNode);
 
       const isOpen = store.select('open');
       const shouldOpen = !isOpen || isOverInactiveTrigger;
@@ -315,19 +310,16 @@ export function useHoverReferenceInteraction(
         const trigger = event.currentTarget as HTMLElement;
 
         const currentDomReference = store.select('domReferenceElement');
-        const allTriggers = store.context.triggerElements;
         const currentOpen = store.select('open');
-
         const isOverInactiveTrigger =
-          (allTriggers.hasElement(event.target as Element) ||
-            allTriggers.hasMatchingElement((t) => contains(t, event.target as Element))) &&
-          (!currentDomReference || !contains(currentDomReference, event.target as Element));
+          !currentDomReference || !contains(currentDomReference, trigger);
 
         if (mouseOnly && !isMouseLikePointerType(instance.pointerType)) {
           return;
         }
 
-        if ((currentOpen && !isOverInactiveTrigger) || getRestMs(restMsRef.current) === 0) {
+        const restMsValue = getRestMs(restMsRef.current);
+        if ((currentOpen && !isOverInactiveTrigger) || restMsValue === 0) {
           return;
         }
 
@@ -368,7 +360,7 @@ export function useHoverReferenceInteraction(
           handleMouseMove();
         } else {
           instance.restTimeoutPending = true;
-          instance.restTimeout.start(getRestMs(restMsRef.current), handleMouseMove);
+          instance.restTimeout.start(restMsValue, handleMouseMove);
         }
       },
     };

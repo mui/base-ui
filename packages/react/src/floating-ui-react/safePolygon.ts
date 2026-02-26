@@ -1,45 +1,85 @@
 import { isElement } from '@floating-ui/utils/dom';
 import { Timeout } from '@base-ui/utils/useTimeout';
 import type { Rect, Side } from './types';
-import type { HandleClose } from './hooks/useHover';
+import type { HandleClose, HandleCloseOptions } from './hooks/useHoverShared';
 import { contains, getTarget } from './utils/element';
 import { getNodeChildren } from './utils/nodes';
 
 /* eslint-disable no-nested-ternary */
 
-type Point = [number, number];
-type Polygon = Point[];
+const CURSOR_SPEED_THRESHOLD = 0.1;
+const CURSOR_SPEED_THRESHOLD_SQUARED = CURSOR_SPEED_THRESHOLD * CURSOR_SPEED_THRESHOLD;
 
-function isPointInPolygon(point: Point, polygon: Polygon) {
-  const [x, y] = point;
+function hasIntersectingEdge(
+  pointX: number,
+  pointY: number,
+  xi: number,
+  yi: number,
+  xj: number,
+  yj: number,
+) {
+  return yi >= pointY !== yj >= pointY && pointX <= ((xj - xi) * (pointY - yi)) / (yj - yi) + xi;
+}
+
+function isPointInQuadrilateral(
+  pointX: number,
+  pointY: number,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  x3: number,
+  y3: number,
+  x4: number,
+  y4: number,
+) {
   let isInsideValue = false;
-  const length = polygon.length;
-  // eslint-disable-next-line no-plusplus
-  for (let i = 0, j = length - 1; i < length; j = i++) {
-    const [xi, yi] = polygon[i] || [0, 0];
-    const [xj, yj] = polygon[j] || [0, 0];
-    const intersect = yi >= y !== yj >= y && x <= ((xj - xi) * (y - yi)) / (yj - yi) + xi;
-    if (intersect) {
-      isInsideValue = !isInsideValue;
-    }
+
+  if (hasIntersectingEdge(pointX, pointY, x1, y1, x2, y2)) {
+    isInsideValue = !isInsideValue;
   }
+
+  if (hasIntersectingEdge(pointX, pointY, x2, y2, x3, y3)) {
+    isInsideValue = !isInsideValue;
+  }
+
+  if (hasIntersectingEdge(pointX, pointY, x3, y3, x4, y4)) {
+    isInsideValue = !isInsideValue;
+  }
+
+  if (hasIntersectingEdge(pointX, pointY, x4, y4, x1, y1)) {
+    isInsideValue = !isInsideValue;
+  }
+
   return isInsideValue;
 }
 
-function isInside(point: Point, rect: Rect) {
+function isInsideRect(pointX: number, pointY: number, rect: Rect) {
   return (
-    point[0] >= rect.x &&
-    point[0] <= rect.x + rect.width &&
-    point[1] >= rect.y &&
-    point[1] <= rect.y + rect.height
+    pointX >= rect.x &&
+    pointX <= rect.x + rect.width &&
+    pointY >= rect.y &&
+    pointY <= rect.y + rect.height
   );
 }
 
-export interface SafePolygonOptions {
-  buffer?: number | undefined;
-  blockPointerEvents?: boolean | undefined;
-  requireIntent?: boolean | undefined;
+function isInsideAxisAlignedRect(
+  pointX: number,
+  pointY: number,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+) {
+  const minX = Math.min(x1, x2);
+  const maxX = Math.max(x1, x2);
+  const minY = Math.min(y1, y2);
+  const maxY = Math.max(y1, y2);
+
+  return pointX >= minX && pointX <= maxX && pointY >= minY && pointY <= maxY;
 }
+
+export interface SafePolygonOptions extends HandleCloseOptions {}
 
 /**
  * Generates a safe polygon area that the user can traverse without closing the
@@ -56,66 +96,51 @@ export function safePolygon(options: SafePolygonOptions = {}) {
   let lastY: number | null = null;
   let lastCursorTime = typeof performance !== 'undefined' ? performance.now() : 0;
 
-  function getCursorSpeed(x: number, y: number): number | null {
+  function isCursorMovingSlowly(nextX: number, nextY: number) {
     const currentTime = performance.now();
     const elapsedTime = currentTime - lastCursorTime;
 
     if (lastX === null || lastY === null || elapsedTime === 0) {
-      lastX = x;
-      lastY = y;
+      lastX = nextX;
+      lastY = nextY;
       lastCursorTime = currentTime;
-      return null;
+      return false;
     }
 
-    const deltaX = x - lastX;
-    const deltaY = y - lastY;
-    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-    const speed = distance / elapsedTime; // px / ms
+    const deltaX = nextX - lastX;
+    const deltaY = nextY - lastY;
+    const distanceSquared = deltaX * deltaX + deltaY * deltaY;
+    const thresholdSquared = elapsedTime * elapsedTime * CURSOR_SPEED_THRESHOLD_SQUARED;
 
-    lastX = x;
-    lastY = y;
+    lastX = nextX;
+    lastY = nextY;
     lastCursorTime = currentTime;
 
-    return speed;
+    return distanceSquared < thresholdSquared;
   }
 
   const fn: HandleClose = ({ x, y, placement, elements, onClose, nodeId, tree }) => {
-    return function onMouseMove(event: MouseEvent) {
-      function close() {
-        timeout.clear();
-        onClose();
-      }
+    const side = placement?.split('-')[0] as Side | undefined;
 
+    function close() {
+      timeout.clear();
+      onClose();
+    }
+
+    return function onMouseMove(event: MouseEvent) {
       timeout.clear();
 
-      if (
-        !elements.domReference ||
-        !elements.floating ||
-        placement == null ||
-        x == null ||
-        y == null
-      ) {
+      const domReference = elements.domReference;
+      const floating = elements.floating;
+      if (!domReference || !floating || side == null || x == null || y == null) {
         return undefined;
       }
 
       const { clientX, clientY } = event;
-      const clientPoint: Point = [clientX, clientY];
       const target = getTarget(event) as Element | null;
       const isLeave = event.type === 'mouseleave';
-      const isOverFloatingEl = contains(elements.floating, target);
-      const isOverReferenceEl = contains(elements.domReference, target);
-      const refRect = elements.domReference.getBoundingClientRect();
-      const rect = elements.floating.getBoundingClientRect();
-      const side = placement.split('-')[0] as Side;
-      const cursorLeaveFromRight = x > rect.right - rect.width / 2;
-      const cursorLeaveFromBottom = y > rect.bottom - rect.height / 2;
-      const isOverReferenceRect = isInside(clientPoint, refRect);
-      const isFloatingWider = rect.width > refRect.width;
-      const isFloatingTaller = rect.height > refRect.height;
-      const left = (isFloatingWider ? refRect : rect).left;
-      const right = (isFloatingWider ? refRect : rect).right;
-      const top = (isFloatingTaller ? refRect : rect).top;
-      const bottom = (isFloatingTaller ? refRect : rect).bottom;
+      const isOverFloatingEl = contains(floating, target);
+      const isOverReferenceEl = contains(domReference, target);
 
       if (isOverFloatingEl) {
         hasLanded = true;
@@ -127,30 +152,47 @@ export function safePolygon(options: SafePolygonOptions = {}) {
 
       if (isOverReferenceEl) {
         hasLanded = false;
-      }
 
-      if (isOverReferenceEl && !isLeave) {
-        hasLanded = true;
-        return undefined;
+        if (!isLeave) {
+          hasLanded = true;
+          return undefined;
+        }
       }
 
       // Prevent overlapping floating element from being stuck in an open-close
       // loop: https://github.com/floating-ui/floating-ui/issues/1910
-      if (
-        isLeave &&
-        isElement(event.relatedTarget) &&
-        contains(elements.floating, event.relatedTarget)
-      ) {
+      if (isLeave && isElement(event.relatedTarget) && contains(floating, event.relatedTarget)) {
         return undefined;
       }
 
-      // If any nested child is open, abort.
-      if (
-        tree &&
-        getNodeChildren(tree.nodesRef.current, nodeId).some(({ context }) => context?.open)
-      ) {
-        return undefined;
+      let hasCheckedOpenChild = false;
+      let hasOpenChild = false;
+      function hasOpenChildNode() {
+        if (hasCheckedOpenChild || !tree) {
+          return hasOpenChild;
+        }
+
+        hasCheckedOpenChild = true;
+        hasOpenChild = getNodeChildren(tree.nodesRef.current, nodeId).length > 0;
+        return hasOpenChild;
       }
+
+      function closeIfNoOpenChild() {
+        if (!hasOpenChildNode()) {
+          close();
+        }
+      }
+
+      const refRect = domReference.getBoundingClientRect();
+      const rect = floating.getBoundingClientRect();
+      const cursorLeaveFromRight = x > rect.right - rect.width / 2;
+      const cursorLeaveFromBottom = y > rect.bottom - rect.height / 2;
+      const isFloatingWider = rect.width > refRect.width;
+      const isFloatingTaller = rect.height > refRect.height;
+      const left = (isFloatingWider ? refRect : rect).left;
+      const right = (isFloatingWider ? refRect : rect).right;
+      const top = (isFloatingTaller ? refRect : rect).top;
+      const bottom = (isFloatingTaller ? refRect : rect).bottom;
 
       // If the pointer is leaving from the opposite side, the "buffer" logic
       // creates a point where the floating element remains open, but should be
@@ -162,7 +204,8 @@ export function safePolygon(options: SafePolygonOptions = {}) {
         (side === 'left' && x >= refRect.right - 1) ||
         (side === 'right' && x <= refRect.left + 1)
       ) {
-        return close();
+        closeIfNoOpenChild();
+        return undefined;
       }
 
       // Ignore when the cursor is within the rectangular trough between the
@@ -170,223 +213,232 @@ export function safePolygon(options: SafePolygonOptions = {}) {
       // which can start beyond the ref element's edge, traversing back and
       // forth from the ref to the floating element can cause it to close. This
       // ensures it always remains open in that case.
-      let rectPoly: Point[] = [];
+      let isInsideTroughRect = false;
 
       switch (side) {
         case 'top':
-          rectPoly = [
-            [left, refRect.top + 1],
-            [left, rect.bottom - 1],
-            [right, rect.bottom - 1],
-            [right, refRect.top + 1],
-          ];
+          isInsideTroughRect = isInsideAxisAlignedRect(
+            clientX,
+            clientY,
+            left,
+            refRect.top + 1,
+            right,
+            rect.bottom - 1,
+          );
           break;
         case 'bottom':
-          rectPoly = [
-            [left, rect.top + 1],
-            [left, refRect.bottom - 1],
-            [right, refRect.bottom - 1],
-            [right, rect.top + 1],
-          ];
+          isInsideTroughRect = isInsideAxisAlignedRect(
+            clientX,
+            clientY,
+            left,
+            rect.top + 1,
+            right,
+            refRect.bottom - 1,
+          );
           break;
         case 'left':
-          rectPoly = [
-            [rect.right - 1, bottom],
-            [rect.right - 1, top],
-            [refRect.left + 1, top],
-            [refRect.left + 1, bottom],
-          ];
+          isInsideTroughRect = isInsideAxisAlignedRect(
+            clientX,
+            clientY,
+            rect.right - 1,
+            bottom,
+            refRect.left + 1,
+            top,
+          );
           break;
         case 'right':
-          rectPoly = [
-            [refRect.right - 1, bottom],
-            [refRect.right - 1, top],
-            [rect.left + 1, top],
-            [rect.left + 1, bottom],
-          ];
+          isInsideTroughRect = isInsideAxisAlignedRect(
+            clientX,
+            clientY,
+            refRect.right - 1,
+            bottom,
+            rect.left + 1,
+            top,
+          );
           break;
         default:
       }
 
-      function getPolygon([px, py]: Point): Array<Point> {
-        switch (side) {
-          case 'top': {
-            const cursorPointOne: Point = [
-              isFloatingWider
-                ? px + buffer / 2
-                : cursorLeaveFromRight
-                  ? px + buffer * 4
-                  : px - buffer * 4,
-              py + buffer + 1,
-            ];
-            const cursorPointTwo: Point = [
-              isFloatingWider
-                ? px - buffer / 2
-                : cursorLeaveFromRight
-                  ? px + buffer * 4
-                  : px - buffer * 4,
-              py + buffer + 1,
-            ];
-            const commonPoints: [Point, Point] = [
-              [
-                rect.left,
-                cursorLeaveFromRight
-                  ? rect.bottom - buffer
-                  : isFloatingWider
-                    ? rect.bottom - buffer
-                    : rect.top,
-              ],
-              [
-                rect.right,
-                cursorLeaveFromRight
-                  ? isFloatingWider
-                    ? rect.bottom - buffer
-                    : rect.top
-                  : rect.bottom - buffer,
-              ],
-            ];
-
-            return [cursorPointOne, cursorPointTwo, ...commonPoints];
-          }
-          case 'bottom': {
-            const cursorPointOne: Point = [
-              isFloatingWider
-                ? px + buffer / 2
-                : cursorLeaveFromRight
-                  ? px + buffer * 4
-                  : px - buffer * 4,
-              py - buffer,
-            ];
-            const cursorPointTwo: Point = [
-              isFloatingWider
-                ? px - buffer / 2
-                : cursorLeaveFromRight
-                  ? px + buffer * 4
-                  : px - buffer * 4,
-              py - buffer,
-            ];
-            const commonPoints: [Point, Point] = [
-              [
-                rect.left,
-                cursorLeaveFromRight
-                  ? rect.top + buffer
-                  : isFloatingWider
-                    ? rect.top + buffer
-                    : rect.bottom,
-              ],
-              [
-                rect.right,
-                cursorLeaveFromRight
-                  ? isFloatingWider
-                    ? rect.top + buffer
-                    : rect.bottom
-                  : rect.top + buffer,
-              ],
-            ];
-
-            return [cursorPointOne, cursorPointTwo, ...commonPoints];
-          }
-          case 'left': {
-            const cursorPointOne: Point = [
-              px + buffer + 1,
-              isFloatingTaller
-                ? py + buffer / 2
-                : cursorLeaveFromBottom
-                  ? py + buffer * 4
-                  : py - buffer * 4,
-            ];
-            const cursorPointTwo: Point = [
-              px + buffer + 1,
-              isFloatingTaller
-                ? py - buffer / 2
-                : cursorLeaveFromBottom
-                  ? py + buffer * 4
-                  : py - buffer * 4,
-            ];
-            const commonPoints: [Point, Point] = [
-              [
-                cursorLeaveFromBottom
-                  ? rect.right - buffer
-                  : isFloatingTaller
-                    ? rect.right - buffer
-                    : rect.left,
-                rect.top,
-              ],
-              [
-                cursorLeaveFromBottom
-                  ? isFloatingTaller
-                    ? rect.right - buffer
-                    : rect.left
-                  : rect.right - buffer,
-                rect.bottom,
-              ],
-            ];
-
-            return [...commonPoints, cursorPointOne, cursorPointTwo];
-          }
-          case 'right': {
-            const cursorPointOne: Point = [
-              px - buffer,
-              isFloatingTaller
-                ? py + buffer / 2
-                : cursorLeaveFromBottom
-                  ? py + buffer * 4
-                  : py - buffer * 4,
-            ];
-            const cursorPointTwo: Point = [
-              px - buffer,
-              isFloatingTaller
-                ? py - buffer / 2
-                : cursorLeaveFromBottom
-                  ? py + buffer * 4
-                  : py - buffer * 4,
-            ];
-            const commonPoints: [Point, Point] = [
-              [
-                cursorLeaveFromBottom
-                  ? rect.left + buffer
-                  : isFloatingTaller
-                    ? rect.left + buffer
-                    : rect.right,
-                rect.top,
-              ],
-              [
-                cursorLeaveFromBottom
-                  ? isFloatingTaller
-                    ? rect.left + buffer
-                    : rect.right
-                  : rect.left + buffer,
-                rect.bottom,
-              ],
-            ];
-
-            return [cursorPointOne, cursorPointTwo, ...commonPoints];
-          }
-          default:
-            return [];
-        }
-      }
-
-      if (isPointInPolygon([clientX, clientY], rectPoly)) {
+      if (isInsideTroughRect) {
         return undefined;
       }
 
-      if (hasLanded && !isOverReferenceRect) {
-        return close();
+      if (hasLanded && !isInsideRect(clientX, clientY, refRect)) {
+        closeIfNoOpenChild();
+        return undefined;
       }
 
-      if (!isLeave && requireIntent) {
-        const cursorSpeed = getCursorSpeed(event.clientX, event.clientY);
-        const cursorSpeedThreshold = 0.1;
-        if (cursorSpeed !== null && cursorSpeed < cursorSpeedThreshold) {
-          return close();
+      if (!isLeave && requireIntent && isCursorMovingSlowly(clientX, clientY)) {
+        closeIfNoOpenChild();
+        return undefined;
+      }
+
+      let isInsidePolygon = false;
+
+      switch (side) {
+        case 'top': {
+          const cursorXOffset = isFloatingWider ? buffer / 2 : buffer * 4;
+          const cursorPointOneX = isFloatingWider
+            ? x + cursorXOffset
+            : cursorLeaveFromRight
+              ? x + cursorXOffset
+              : x - cursorXOffset;
+          const cursorPointTwoX = isFloatingWider
+            ? x - cursorXOffset
+            : cursorLeaveFromRight
+              ? x + cursorXOffset
+              : x - cursorXOffset;
+          const cursorPointY = y + buffer + 1;
+
+          const commonYLeft = cursorLeaveFromRight
+            ? rect.bottom - buffer
+            : isFloatingWider
+              ? rect.bottom - buffer
+              : rect.top;
+          const commonYRight = cursorLeaveFromRight
+            ? isFloatingWider
+              ? rect.bottom - buffer
+              : rect.top
+            : rect.bottom - buffer;
+
+          isInsidePolygon = isPointInQuadrilateral(
+            clientX,
+            clientY,
+            cursorPointOneX,
+            cursorPointY,
+            cursorPointTwoX,
+            cursorPointY,
+            rect.left,
+            commonYLeft,
+            rect.right,
+            commonYRight,
+          );
+          break;
         }
+        case 'bottom': {
+          const cursorXOffset = isFloatingWider ? buffer / 2 : buffer * 4;
+          const cursorPointOneX = isFloatingWider
+            ? x + cursorXOffset
+            : cursorLeaveFromRight
+              ? x + cursorXOffset
+              : x - cursorXOffset;
+          const cursorPointTwoX = isFloatingWider
+            ? x - cursorXOffset
+            : cursorLeaveFromRight
+              ? x + cursorXOffset
+              : x - cursorXOffset;
+          const cursorPointY = y - buffer;
+
+          const commonYLeft = cursorLeaveFromRight
+            ? rect.top + buffer
+            : isFloatingWider
+              ? rect.top + buffer
+              : rect.bottom;
+          const commonYRight = cursorLeaveFromRight
+            ? isFloatingWider
+              ? rect.top + buffer
+              : rect.bottom
+            : rect.top + buffer;
+
+          isInsidePolygon = isPointInQuadrilateral(
+            clientX,
+            clientY,
+            cursorPointOneX,
+            cursorPointY,
+            cursorPointTwoX,
+            cursorPointY,
+            rect.left,
+            commonYLeft,
+            rect.right,
+            commonYRight,
+          );
+          break;
+        }
+        case 'left': {
+          const cursorYOffset = isFloatingTaller ? buffer / 2 : buffer * 4;
+          const cursorPointOneY = isFloatingTaller
+            ? y + cursorYOffset
+            : cursorLeaveFromBottom
+              ? y + cursorYOffset
+              : y - cursorYOffset;
+          const cursorPointTwoY = isFloatingTaller
+            ? y - cursorYOffset
+            : cursorLeaveFromBottom
+              ? y + cursorYOffset
+              : y - cursorYOffset;
+          const cursorPointX = x + buffer + 1;
+
+          const commonXTop = cursorLeaveFromBottom
+            ? rect.right - buffer
+            : isFloatingTaller
+              ? rect.right - buffer
+              : rect.left;
+          const commonXBottom = cursorLeaveFromBottom
+            ? isFloatingTaller
+              ? rect.right - buffer
+              : rect.left
+            : rect.right - buffer;
+
+          isInsidePolygon = isPointInQuadrilateral(
+            clientX,
+            clientY,
+            commonXTop,
+            rect.top,
+            commonXBottom,
+            rect.bottom,
+            cursorPointX,
+            cursorPointOneY,
+            cursorPointX,
+            cursorPointTwoY,
+          );
+          break;
+        }
+        case 'right': {
+          const cursorYOffset = isFloatingTaller ? buffer / 2 : buffer * 4;
+          const cursorPointOneY = isFloatingTaller
+            ? y + cursorYOffset
+            : cursorLeaveFromBottom
+              ? y + cursorYOffset
+              : y - cursorYOffset;
+          const cursorPointTwoY = isFloatingTaller
+            ? y - cursorYOffset
+            : cursorLeaveFromBottom
+              ? y + cursorYOffset
+              : y - cursorYOffset;
+          const cursorPointX = x - buffer;
+
+          const commonXTop = cursorLeaveFromBottom
+            ? rect.left + buffer
+            : isFloatingTaller
+              ? rect.left + buffer
+              : rect.right;
+          const commonXBottom = cursorLeaveFromBottom
+            ? isFloatingTaller
+              ? rect.left + buffer
+              : rect.right
+            : rect.left + buffer;
+
+          isInsidePolygon = isPointInQuadrilateral(
+            clientX,
+            clientY,
+            cursorPointX,
+            cursorPointOneY,
+            cursorPointX,
+            cursorPointTwoY,
+            commonXTop,
+            rect.top,
+            commonXBottom,
+            rect.bottom,
+          );
+          break;
+        }
+        default:
       }
 
-      if (!isPointInPolygon([clientX, clientY], getPolygon([x, y]))) {
-        close();
-      } else if (!hasLanded && requireIntent) {
-        timeout.start(40, close);
+      if (!isInsidePolygon) {
+        closeIfNoOpenChild();
+      } else if (!hasLanded && requireIntent && !hasOpenChildNode()) {
+        timeout.start(40, closeIfNoOpenChild);
       }
 
       return undefined;
