@@ -61,9 +61,9 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
     children: (
       <React.Fragment>
         {children}
-        <div role="presentation" style={visuallyHidden}>
-          x
-        </div>
+        <span role="presentation" style={visuallyHidden}>
+          {/* force NVDA to read the label https://github.com/mui/base-ui/issues/4184 */}x
+        </span>
       </React.Fragment>
     ),
   };
