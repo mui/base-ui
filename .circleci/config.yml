@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  code-infra: https://raw.githubusercontent.com/mui/mui-public/74232307111caed6f4d181e941df5c358f57ed28/.circleci/orbs/code-infra.yml
+  code-infra: https://raw.githubusercontent.com/mui/mui-public/b788836647750acde70e3f136f3a7f8f8d6c62bf/.circleci/orbs/code-infra.yml
 
 parameters:
   browserstack-force:
