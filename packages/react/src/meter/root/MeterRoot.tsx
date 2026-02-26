@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { MeterRootContext } from './MeterRootContext';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { formatNumberValue } from '../../utils/formatNumber';
@@ -24,6 +25,7 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
     value: valueProp,
     render,
     className,
+    children,
     ...elementProps
   } = componentProps;
 
@@ -44,6 +46,14 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
     'aria-valuenow': valueProp,
     'aria-valuetext': ariaValuetext,
     role: 'meter',
+    children: (
+      <React.Fragment>
+        {children}
+        <div role="presentation" style={visuallyHidden}>
+          x
+        </div>
+      </React.Fragment>
+    ),
   };
 
   const contextValue: MeterRootContext = React.useMemo(
