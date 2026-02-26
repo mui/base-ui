@@ -89,6 +89,35 @@ export function useHoverReferenceInteraction(
     return isTargetInsideEnabledTrigger(target, store.context.triggerElements);
   });
 
+  const isOverInactiveTrigger = useStableCallback(
+    (
+      currentDomReference: Element | null,
+      currentTarget: Element,
+      target: EventTarget | null,
+    ): boolean => {
+      const allTriggers = store.context.triggerElements;
+
+      // Fast path for normal usage where handlers are attached directly to triggers.
+      if (allTriggers.hasElement(currentTarget)) {
+        return !currentDomReference || !contains(currentDomReference, currentTarget);
+      }
+
+      // Fallback for delegated/wrapper usage where currentTarget may be outside the trigger map.
+      if (!isElement(target)) {
+        return false;
+      }
+
+      const targetElement = target as Element;
+      const isTargetTrigger =
+        allTriggers.hasElement(targetElement) ||
+        allTriggers.hasMatchingElement((trigger) => contains(trigger, targetElement));
+
+      return (
+        isTargetTrigger && (!currentDomReference || !contains(currentDomReference, targetElement))
+      );
+    },
+  );
+
   const closeWithDelay = React.useCallback(
     (event: MouseEvent, runElseBranch = true) => {
       const closeDelay = getDelay(delayRef.current, 'close', instance.pointerType);
@@ -177,14 +206,16 @@ export function useHoverReferenceInteraction(
       const openDelay = getDelay(delayRef.current, 'open', instance.pointerType);
       const triggerNode = (event.currentTarget as HTMLElement) ?? null;
       const currentDomReference = store.select('domReferenceElement');
-      const isOverInactiveTrigger =
-        !currentDomReference || !contains(currentDomReference, triggerNode);
+      const isOverInactive =
+        triggerNode == null
+          ? false
+          : isOverInactiveTrigger(currentDomReference, triggerNode, event.target);
 
       const isOpen = store.select('open');
-      const shouldOpen = !isOpen || isOverInactiveTrigger;
+      const shouldOpen = !isOpen || isOverInactive;
 
       // When moving between triggers while already open, open immediately without delay
-      if (isOverInactiveTrigger && isOpen) {
+      if (isOverInactive && isOpen) {
         store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
       } else if (openDelay) {
         instance.openChangeTimeout.start(openDelay, () => {
@@ -283,6 +314,7 @@ export function useHoverReferenceInteraction(
     handleCloseRef,
     instance,
     isActiveTrigger,
+    isOverInactiveTrigger,
     isClickLikeOpenEvent,
     isRelatedTargetInsideEnabledTrigger,
     mouseOnly,
@@ -311,20 +343,19 @@ export function useHoverReferenceInteraction(
 
         const currentDomReference = store.select('domReferenceElement');
         const currentOpen = store.select('open');
-        const isOverInactiveTrigger =
-          !currentDomReference || !contains(currentDomReference, trigger);
+        const isOverInactive = isOverInactiveTrigger(currentDomReference, trigger, event.target);
 
         if (mouseOnly && !isMouseLikePointerType(instance.pointerType)) {
           return;
         }
 
         const restMsValue = getRestMs(restMsRef.current);
-        if ((currentOpen && !isOverInactiveTrigger) || restMsValue === 0) {
+        if ((currentOpen && !isOverInactive) || restMsValue === 0) {
           return;
         }
 
         if (
-          !isOverInactiveTrigger &&
+          !isOverInactive &&
           instance.restTimeoutPending &&
           event.movementX ** 2 + event.movementY ** 2 < 2
         ) {
@@ -344,7 +375,7 @@ export function useHoverReferenceInteraction(
 
           const latestOpen = store.select('open');
 
-          if (!instance.blockMouseMove && (!latestOpen || isOverInactiveTrigger)) {
+          if (!instance.blockMouseMove && (!latestOpen || isOverInactive)) {
             store.setOpen(
               true,
               createChangeEventDetails(REASONS.triggerHover, nativeEvent, trigger),
@@ -356,7 +387,7 @@ export function useHoverReferenceInteraction(
           ReactDOM.flushSync(() => {
             handleMouseMove();
           });
-        } else if (isOverInactiveTrigger && currentOpen) {
+        } else if (isOverInactive && currentOpen) {
           handleMouseMove();
         } else {
           instance.restTimeoutPending = true;
@@ -364,5 +395,5 @@ export function useHoverReferenceInteraction(
         }
       },
     };
-  }, [enabled, instance, isClickLikeOpenEvent, mouseOnly, store, restMsRef]);
+  }, [enabled, instance, isClickLikeOpenEvent, isOverInactiveTrigger, mouseOnly, store, restMsRef]);
 }
