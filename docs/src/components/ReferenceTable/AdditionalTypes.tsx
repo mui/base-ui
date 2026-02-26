@@ -16,6 +16,12 @@ export function AdditionalTypes({
     () => true,
     () => false,
   );
+  const [canGoBack, setCanGoBack] = React.useState(false);
+  React.useEffect(() => {
+    const handleHashChange = () => setCanGoBack(true);
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
   const handleBack = React.useCallback((event: React.MouseEvent) => {
     event.preventDefault();
     history.back();
@@ -34,9 +40,9 @@ export function AdditionalTypes({
             <a
               href="#"
               className="text-sm font-normal text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
-              onClick={hydrated ? handleBack : undefined}
+              onClick={hydrated && canGoBack ? handleBack : undefined}
             >
-              {hydrated ? 'Back' : 'Hide'}
+              {hydrated && canGoBack ? 'Back' : 'Hide'}
             </a>
           </h4>
           {additionalType.data.reExportOf ? (
