@@ -82,7 +82,7 @@
     "concurrently": "9.2.1",
     "cross-env": "10.1.0",
     "docs": "workspace:^",
-    "eslint": "9.39.2",
+    "eslint": "9.39.3",
     "execa": "9.6.1",
     "globby": "16.1.0",
     "lerna": "9.0.4",
