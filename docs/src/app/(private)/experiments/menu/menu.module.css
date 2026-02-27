@@ -42,6 +42,12 @@
   margin-right: -0.25rem;
 }
 
+.TriggerRow {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
 .Positioner {
   outline: 0;
 }
@@ -73,6 +79,16 @@
   @media (prefers-color-scheme: dark) {
     outline: 1px solid var(--color-gray-300);
     outline-offset: -1px;
+  }
+}
+
+.PopupNoAnimation {
+  transition: none;
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 1;
+    transform: none;
   }
 }
 
@@ -158,6 +174,31 @@
   justify-content: space-between;
   gap: 1rem;
   padding-right: 1rem;
+}
+
+.PopupOpenAsHighlighted {
+  &[data-highlighted],
+  &[data-popup-open] {
+    z-index: 0;
+    position: relative;
+    color: var(--color-gray-50);
+  }
+
+  &[data-highlighted]::before,
+  &[data-popup-open]::before {
+    content: '';
+    z-index: -1;
+    position: absolute;
+    inset-block: 0;
+    inset-inline: 0.25rem;
+    border-radius: 0.25rem;
+    background-color: var(--color-gray-900);
+  }
+
+  &[data-disabled][data-highlighted]::before,
+  &[data-disabled][data-popup-open]::before {
+    background-color: var(--color-gray-300);
+  }
 }
 
 .Separator {

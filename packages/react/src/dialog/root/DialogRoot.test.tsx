@@ -6,6 +6,7 @@ import { Dialog } from '@base-ui/react/dialog';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { Select } from '@base-ui/react/select';
+import { NumberField } from '@base-ui/react/number-field';
 import { REASONS } from '../../utils/reasons';
 
 describe('<Dialog.Root />', () => {
@@ -742,6 +743,49 @@ describe('<Dialog.Root />', () => {
         await waitFor(() => {
           expect(screen.queryByRole('dialog')).to.equal(null);
         });
+      });
+
+      it('dismisses on first outside click after NumberField scrub interaction (pointer lock path)', async () => {
+        const originalRequestPointerLock = Element.prototype.requestPointerLock;
+        const requestPointerLockSpy = spy(() => Promise.resolve());
+
+        try {
+          Element.prototype.requestPointerLock =
+            requestPointerLockSpy as typeof originalRequestPointerLock;
+
+          await render(
+            <ContainedTriggerDialog
+              rootProps={{ defaultOpen: true, modal: false }}
+              popupProps={{
+                children: (
+                  <NumberField.Root defaultValue={100}>
+                    <NumberField.ScrubArea data-testid="scrub-area">
+                      <span>Amount</span>
+                    </NumberField.ScrubArea>
+                    <NumberField.Input aria-label="Amount" />
+                  </NumberField.Root>
+                ),
+              }}
+            />,
+          );
+
+          const scrubArea = screen.getByTestId('scrub-area');
+
+          fireEvent.pointerDown(scrubArea, { pointerType: 'mouse', button: 0 });
+          fireEvent.mouseDown(scrubArea, { button: 0 });
+          fireEvent.pointerUp(document.body, { pointerType: 'mouse', button: 0 });
+          fireEvent.mouseUp(document.body, { button: 0 });
+          await flushMicrotasks();
+
+          fireEvent.click(document.body);
+
+          await waitFor(() => {
+            expect(screen.queryByRole('dialog')).to.equal(null);
+          });
+          expect(requestPointerLockSpy.callCount).to.equal(1);
+        } finally {
+          Element.prototype.requestPointerLock = originalRequestPointerLock;
+        }
       });
     });
 

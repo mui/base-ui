@@ -1027,6 +1027,9 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           resetTouchTrackingState();
           swipeTouchProps.onTouchCancel?.(event);
         },
+        // Drawer popups use drawer-specific nested state attributes.
+        // Suppress DialogViewport's generic nested dialog attribute.
+        ['data-nested-dialog-open' as string]: undefined,
       })}
     >
       <DrawerViewportContext.Provider value={swipeProviderValue}>

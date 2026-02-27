@@ -682,7 +682,7 @@ describe('<Combobox.Value />', () => {
     });
   });
 
-  describe('itemToStringLabel prop', () => {
+  describe('prop: itemToStringLabel', () => {
     it('uses custom itemToStringLabel function', async () => {
       const customitemToStringLabel = (item: any) => {
         if (item && typeof item === 'object' && 'name' in item) {

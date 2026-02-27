@@ -12,19 +12,19 @@
     "@testing-library/jest-dom": "6.9.1",
     "@types/chai": "5.2.3",
     "@types/chai-dom": "1.11.3",
-    "@types/react": "19.2.13",
+    "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@types/sinon": "21.0.0",
     "chai": "6.2.2",
     "docs": "workspace:^",
     "es-toolkit": "1.44.0",
-    "is-wsl": "3.1.0",
+    "is-wsl": "3.1.1",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-router": "7.13.0",
     "sinon": "21.0.1",
     "util": "0.12.5",
-    "webpack": "5.105.0",
+    "webpack": "5.105.2",
     "yargs": "18.0.0"
   }
 }

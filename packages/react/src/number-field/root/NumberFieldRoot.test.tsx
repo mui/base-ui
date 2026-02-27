@@ -1721,7 +1721,7 @@ describe('<NumberField />', () => {
     });
   });
 
-  describe('inputMode', () => {
+  describe('prop: inputMode', () => {
     it('should set the inputMode to numeric', async () => {
       await render(<NumberField />);
       const input = screen.getByRole('textbox');

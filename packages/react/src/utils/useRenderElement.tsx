@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useMergedRefs, useMergedRefsN } from '@base-ui/utils/useMergedRefs';
 import { getReactElementRef } from '@base-ui/utils/getReactElementRef';
 import { mergeObjects } from '@base-ui/utils/mergeObjects';
+import { warn } from '@base-ui/utils/warn';
 import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from './types';
 import { getStateAttributesProps, StateAttributesMapping } from './getStateAttributesProps';
 import { resolveClassName } from './resolveClassName';
@@ -118,6 +119,9 @@ function evaluateRenderProp<T extends React.ElementType, S>(
 ): React.ReactElement {
   if (render) {
     if (typeof render === 'function') {
+      if (process.env.NODE_ENV !== 'production') {
+        warnIfRenderPropLooksLikeComponent(render);
+      }
       return render(props, state);
     }
     const mergedProps = mergeProps(props, render.props);
@@ -161,6 +165,27 @@ function evaluateRenderProp<T extends React.ElementType, S>(
   // Unreachable, but the typings on `useRenderElement` need to be reworked
   // to annotate it correctly.
   throw new Error('Base UI: Render element or function are not defined.');
+}
+
+function warnIfRenderPropLooksLikeComponent(renderFn: { name: string }) {
+  const functionName = renderFn.name;
+  if (functionName.length === 0) {
+    return;
+  }
+
+  const firstCharacterCode = functionName.charCodeAt(0);
+  if (firstCharacterCode < 65 || firstCharacterCode > 90) {
+    return;
+  }
+
+  warn(
+    `The \`render\` prop received a function named \`${functionName}\` that starts with an uppercase letter.`,
+    'This usually means a React component was passed directly as `render={Component}`.',
+    'Base UI calls `render` as a plain function, which can break the Rules of Hooks during reconciliation.',
+    'If this is an intentional render callback, rename it to start with a lowercase letter.',
+    'Use `render={<Component />}` or `render={(props) => <Component {...props} />}` instead.',
+    'https://base-ui.com/r/invalid-render-prop',
+  );
 }
 
 function renderTag(Tag: string, props: Record<string, any>) {
