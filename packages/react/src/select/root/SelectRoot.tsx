@@ -30,7 +30,7 @@ import { REASONS } from '../../utils/reasons';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFormContext } from '../../form/FormContext';
 import { useField } from '../../field/useField';
-import { stringifyAsValue } from '../../utils/resolveValueLabel';
+import { type Group, stringifyAsValue } from '../../utils/resolveValueLabel';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '../../utils/constants';
 import { defaultItemEquality, findItemIndex } from '../../utils/itemEquality';
 import { useValueChanged } from '../../utils/useValueChanged';
@@ -494,6 +494,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const ref = useMergedRefs(inputRef, validation.inputRef);
 
   const hasMultipleSelection = multiple && Array.isArray(value) && value.length > 0;
+  const hiddenInputName = multiple ? undefined : name;
 
   const hiddenInputs = React.useMemo(() => {
     if (!multiple || !Array.isArray(value) || !name) {
@@ -566,7 +567,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
               queueMicrotask(handleChange);
             },
           })}
-          name={multiple ? undefined : name}
+          id={generatedId && hiddenInputName == null ? `${generatedId}-hidden-input` : undefined}
+          name={hiddenInputName}
           autoComplete={autoComplete}
           value={serializedValue}
           disabled={disabled}
@@ -682,6 +684,7 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
   items?:
     | Record<string, React.ReactNode>
     | ReadonlyArray<{ label: React.ReactNode; value: any }>
+    | ReadonlyArray<Group<any>>
     | undefined;
   /**
    * When the item values are objects (`<Select.Item value={object}>`), this function converts the object value to a string representation for display in the trigger.

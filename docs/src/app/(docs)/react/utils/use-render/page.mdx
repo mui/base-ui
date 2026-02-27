@@ -135,7 +135,7 @@ function Button({ asChild, ...props }) {
 
 // Usage
 <Button asChild>
-  <a href="/contact">Contact</a>
+  <MyButton className="primary">Submit</MyButton>
 </Button>;
 ```
 
@@ -153,8 +153,14 @@ function Button({ render, ...props }) {
 }
 
 // Usage
-<Button render={<a href="/contact" />}>Contact</Button>;
+<Button render={<MyButton className="primary" />}>Submit</Button>;
 ```
+
+## Render prop and polymorphism
+
+The `render` prop is primarily designed for composing event handlers and behavioral props. In most cases it should render the same tag as the default element.
+
+Using `render` for polymorphism (rendering a different tag) requires more care, as some default props may not be valid on the new element. For example, `type="button"` is only valid on a `<button>`. Since the component can't know what element `render` will produce at render time and before hydration, props like these need an explicit signal. This is why Base UI's [Button](/react/components/button) provides a `nativeButton` prop to control which defaults are applied.
 
 ## API reference
 

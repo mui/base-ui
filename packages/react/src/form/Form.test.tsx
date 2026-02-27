@@ -193,6 +193,116 @@ describe('<Form />', () => {
       expect(screen.queryByTestId('name-error')).to.equal(null);
       expect(screen.queryByTestId('age-error')).to.equal(null);
     });
+
+    it('runs field validation on first change after Form error is set', async () => {
+      const validateSpy = spy((value: unknown) => {
+        if (value === 'abcd') {
+          return 'field error';
+        }
+        return null;
+      });
+
+      function Test() {
+        const [errors, setErrors] = React.useState<Form.Props['errors']>({});
+
+        return (
+          <Form
+            errors={errors}
+            onSubmit={(event) => {
+              event.preventDefault();
+              const formData = new FormData(event.currentTarget);
+              const name = formData.get('name') as string;
+
+              if (name === 'abcde') {
+                setErrors({ name: 'submit error' });
+              } else {
+                setErrors({});
+              }
+            }}
+          >
+            <Field.Root name="name" validate={validateSpy}>
+              <Field.Control data-testid="name" />
+              <Field.Error data-testid="name-error" />
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      const { user } = render(<Test />);
+
+      const input = screen.getByTestId('name');
+      await user.click(input);
+      await user.keyboard('abcde');
+      await user.click(screen.getByRole('button', { name: 'Submit' }));
+      expect(screen.queryByTestId('name-error')).to.not.equal(null);
+      expect(screen.getByTestId('name-error')).to.have.text('submit error');
+
+      validateSpy.resetHistory();
+
+      await user.click(input);
+      // value changes from 'abcde' to 'abcd'
+      await user.keyboard('{Backspace}');
+      expect(validateSpy.callCount).to.equal(1);
+      expect(screen.queryByTestId('name-error')).to.not.equal(null);
+      expect(screen.getByTestId('name-error')).to.have.text('field error');
+    });
+
+    it('runs field validation on change when invalid prop is true and validationMode is onChange', async () => {
+      const validateSpy = spy(() => 'field error');
+
+      function Test() {
+        return (
+          <Form errors={{ name: 'server error' }}>
+            <Field.Root name="name" invalid validate={validateSpy} validationMode="onChange">
+              <Field.Control data-testid="name" />
+              <Field.Error data-testid="name-error" />
+            </Field.Root>
+          </Form>
+        );
+      }
+
+      const { user } = render(<Test />);
+
+      const input = screen.getByTestId('name');
+      expect(screen.getByTestId('name-error')).to.have.text('server error');
+
+      await user.click(input);
+      await user.keyboard('a');
+
+      expect(validateSpy.callCount).to.equal(1);
+      expect(screen.getByTestId('name-error')).to.have.text('field error');
+      expect(input).to.have.attribute('aria-invalid', 'true');
+    });
+
+    it('does not run field validation on change for onBlur mode when invalid prop is true', async () => {
+      const validateSpy = spy(() => 'field error');
+
+      function Test() {
+        return (
+          <Form errors={{ name: 'server error' }}>
+            <Field.Root name="name" invalid validate={validateSpy} validationMode="onBlur">
+              <Field.Control data-testid="name" />
+              <Field.Error data-testid="name-error" />
+            </Field.Root>
+          </Form>
+        );
+      }
+
+      const { user } = render(<Test />);
+
+      const input = screen.getByTestId('name');
+      expect(screen.getByTestId('name-error')).to.have.text('server error');
+
+      await user.click(input);
+      await user.keyboard('a');
+      expect(validateSpy.callCount).to.equal(0);
+      expect(screen.queryByTestId('name-error')).to.equal(null);
+
+      await user.tab();
+      expect(validateSpy.callCount).to.equal(1);
+      expect(screen.getByTestId('name-error')).to.have.text('field error');
+    });
   });
 
   describe('prop: onFormSubmit', () => {
@@ -249,6 +359,32 @@ describe('<Form />', () => {
     });
   });
 
+  it('does not submit when invalid prop remains true even if validate returns null', async () => {
+    const submitSpy = spy();
+    const validateSpy = spy(() => null);
+
+    const { user } = render(
+      <Form onSubmit={submitSpy}>
+        <Field.Root name="name" invalid validate={validateSpy} validationMode="onChange">
+          <Field.Control data-testid="name" />
+          <Field.Error data-testid="name-error" />
+        </Field.Root>
+        <button type="submit">submit</button>
+      </Form>,
+    );
+
+    const input = screen.getByTestId('name');
+    await user.click(input);
+    await user.keyboard('o');
+
+    expect(validateSpy.callCount).to.equal(1);
+
+    await user.click(screen.getByText('submit'));
+
+    expect(submitSpy.callCount).to.equal(0);
+    expect(input).to.have.attribute('aria-invalid', 'true');
+  });
+
   describe('prop: noValidate', () => {
     it('should disable native validation if set to true (default)', () => {
       render(<Form data-testid="form" />);
@@ -261,7 +397,7 @@ describe('<Form />', () => {
     });
   });
 
-  describe('actionsRef', () => {
+  describe('prop: actionsRef', () => {
     it('validates the form when the `validate` method is called', async () => {
       function App() {
         const actionsRef = React.useRef<Form.Actions>(null);
@@ -295,39 +431,39 @@ describe('<Form />', () => {
 
       await expect(screen.queryAllByTestId('error').length).to.equal(2);
     });
-  });
 
-  it('validates a field when the `validate` method is called with the field name', async () => {
-    function App() {
-      const actionsRef = React.useRef<Form.Actions>(null);
-      return (
-        <div>
-          <Form actionsRef={actionsRef}>
-            <Field.Root name="username">
-              <Field.Control defaultValue="" required />
-              <Field.Error data-testid="error" />
-            </Field.Root>
-            <Field.Root name="quantity" validate={() => 'number field error'}>
-              <NumberField.Root defaultValue={5}>
-                <NumberField.Input />
-              </NumberField.Root>
-              <Field.Error data-testid="error" />
-            </Field.Root>
-            <button type="submit">submit</button>
-          </Form>
-          <button type="button" onClick={() => actionsRef.current?.validate('quantity')}>
-            validate
-          </button>
-        </div>
-      );
-    }
+    it('validates a field when the `validate` method is called with the field name', async () => {
+      function App() {
+        const actionsRef = React.useRef<Form.Actions>(null);
+        return (
+          <div>
+            <Form actionsRef={actionsRef}>
+              <Field.Root name="username">
+                <Field.Control defaultValue="" required />
+                <Field.Error data-testid="error" />
+              </Field.Root>
+              <Field.Root name="quantity" validate={() => 'number field error'}>
+                <NumberField.Root defaultValue={5}>
+                  <NumberField.Input />
+                </NumberField.Root>
+                <Field.Error data-testid="error" />
+              </Field.Root>
+              <button type="submit">submit</button>
+            </Form>
+            <button type="button" onClick={() => actionsRef.current?.validate('quantity')}>
+              validate
+            </button>
+          </div>
+        );
+      }
 
-    const { user } = await render(<App />);
+      const { user } = await render(<App />);
 
-    expect(screen.queryByTestId('error')).to.equal(null);
+      expect(screen.queryByTestId('error')).to.equal(null);
 
-    await user.click(screen.getByText('validate'));
+      await user.click(screen.getByText('validate'));
 
-    await expect(screen.queryByTestId('error')).to.have.text('number field error');
+      await expect(screen.queryByTestId('error')).to.have.text('number field error');
+    });
   });
 });
