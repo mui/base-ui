@@ -196,6 +196,8 @@ export function useHoverFloatingInteraction(
         instance.handler(event);
         return;
       }
+
+      clearPointerEvents();
       if (!isClickLikeOpenEvent()) {
         closeWithDelay(event);
       }
@@ -208,9 +210,9 @@ export function useHoverFloatingInteraction(
       entered = false;
       setTimeout(() => {
         if (!entered) {
-          tree?.events.off('floating.closed', onNodeClosed);
+          tree.events.off('floating.closed', onNodeClosed);
           store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
-          tree?.events.emit('floating.closed', event);
+          tree.events.emit('floating.closed', event);
         }
       }, 0);
     }
