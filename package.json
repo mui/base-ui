@@ -104,9 +104,9 @@
     "vite": "7.3.1",
     "vitest": "4.0.18"
   },
-  "packageManager": "pnpm@10.29.3",
+  "packageManager": "pnpm@10.30.2",
   "engines": {
-    "pnpm": "10.29.3",
+    "pnpm": "10.30.2",
     "node": ">=22.18.0"
   },
   "resolutions": {
