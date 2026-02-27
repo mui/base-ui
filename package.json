@@ -84,7 +84,7 @@
     "docs": "workspace:^",
     "eslint": "9.39.3",
     "execa": "9.6.1",
-    "globby": "16.1.0",
+    "globby": "16.1.1",
     "lerna": "9.0.4",
     "markdownlint-cli2": "0.21.0",
     "prettier": "3.8.1",
