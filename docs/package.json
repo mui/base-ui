@@ -31,7 +31,7 @@
     "clsx": "^2.1.1",
     "es-toolkit": "^1.44.0",
     "estree-util-value-to-estree": "^3.5.0",
-    "globby": "^16.1.0",
+    "globby": "^16.1.1",
     "hast": "^1.0.0",
     "hast-util-heading-rank": "^3.0.0",
     "hast-util-to-string": "^3.0.1",
