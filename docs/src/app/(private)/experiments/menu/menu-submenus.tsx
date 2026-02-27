@@ -33,72 +33,95 @@ export default function MenuSubmenus() {
     console.log(`${event.currentTarget.textContent} clicked`);
   });
 
+  const renderMenu = (
+    label: string,
+    submenuTriggerDelay?: Menu.SubmenuTrigger.Props['delay'],
+    submenuTriggerClassName: string = classes.SubmenuTrigger,
+    popupClassName: string = classes.Popup,
+  ) => (
+    <Menu.Root modal={settings.modal} disabled={settings.disabled}>
+      <Menu.Trigger
+        className={classes.Button}
+        render={triggerRender}
+        nativeButton={triggerRender === undefined}
+        openOnHover={settings.openOnHover}
+      >
+        {label} <ChevronDownIcon className={classes.ButtonIcon} />
+      </Menu.Trigger>
+      <Menu.Portal>
+        <Menu.Positioner
+          className={classes.Positioner}
+          sideOffset={8}
+          anchor={settings.customAnchor ? anchorRef : undefined}
+          side={settings.side}
+          align={settings.align}
+        >
+          <Menu.Popup
+            className={popupClassName}
+            style={{ maxHeight: 'var(--available-height)', overflowY: 'scroll' }}
+          >
+            {Array.from({ length: 50 }).map((_, submenuIndex) => (
+              <Menu.SubmenuRoot key={submenuIndex}>
+                <Menu.SubmenuTrigger
+                  className={submenuTriggerClassName}
+                  delay={submenuTriggerDelay}
+                >
+                  Submenu test index {submenuIndex + 1}
+                  <ChevronRightIcon />
+                </Menu.SubmenuTrigger>
+                <Menu.Portal>
+                  <Menu.Positioner className={classes.Positioner} sideOffset={8}>
+                    <Menu.Popup className={popupClassName}>
+                      {Array.from({ length: 12 }).map((__, itemIndex) => (
+                        <Menu.SubmenuRoot key={itemIndex}>
+                          <Menu.SubmenuTrigger
+                            className={submenuTriggerClassName}
+                            delay={submenuTriggerDelay}
+                          >
+                            Submenu test index {submenuIndex + 1} - Item {itemIndex + 1}
+                            <ChevronRightIcon />
+                          </Menu.SubmenuTrigger>
+                          <Menu.Portal>
+                            <Menu.Positioner className={classes.Positioner} sideOffset={8}>
+                              <Menu.Popup className={popupClassName}>
+                                {Array.from({ length: 8 }).map((___, nestedIndex) => (
+                                  <Menu.Item
+                                    key={nestedIndex}
+                                    className={classes.Item}
+                                    onClick={handleItemClick}
+                                  >
+                                    Nested submenu {submenuIndex + 1}.{itemIndex + 1} - Item{' '}
+                                    {nestedIndex + 1}
+                                  </Menu.Item>
+                                ))}
+                              </Menu.Popup>
+                            </Menu.Positioner>
+                          </Menu.Portal>
+                        </Menu.SubmenuRoot>
+                      ))}
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.SubmenuRoot>
+            ))}
+          </Menu.Popup>
+        </Menu.Positioner>
+      </Menu.Portal>
+    </Menu.Root>
+  );
+
   return (
     <div>
       <h1>Many adjacent submenus</h1>
-      <Menu.Root modal={settings.modal} disabled={settings.disabled}>
-        <Menu.Trigger
-          className={classes.Button}
-          render={triggerRender}
-          nativeButton={triggerRender === undefined}
-          openOnHover={settings.openOnHover}
-        >
-          Menu <ChevronDownIcon className={classes.ButtonIcon} />
-        </Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner
-            className={classes.Positioner}
-            sideOffset={8}
-            anchor={settings.customAnchor ? anchorRef : undefined}
-            side={settings.side}
-            align={settings.align}
-          >
-            <Menu.Popup
-              className={classes.Popup}
-              style={{ maxHeight: 'var(--available-height)', overflowY: 'scroll' }}
-            >
-              {Array.from({ length: 50 }).map((_, submenuIndex) => (
-                <Menu.SubmenuRoot key={submenuIndex}>
-                  <Menu.SubmenuTrigger className={classes.SubmenuTrigger}>
-                    Submenu test index {submenuIndex + 1}
-                    <ChevronRightIcon />
-                  </Menu.SubmenuTrigger>
-                  <Menu.Portal>
-                    <Menu.Positioner className={classes.Positioner} sideOffset={8}>
-                      <Menu.Popup className={classes.Popup}>
-                        {Array.from({ length: 12 }).map((__, itemIndex) => (
-                          <Menu.SubmenuRoot key={itemIndex}>
-                            <Menu.SubmenuTrigger className={classes.SubmenuTrigger}>
-                              Submenu test index {submenuIndex + 1} - Item {itemIndex + 1}
-                              <ChevronRightIcon />
-                            </Menu.SubmenuTrigger>
-                            <Menu.Portal>
-                              <Menu.Positioner className={classes.Positioner} sideOffset={8}>
-                                <Menu.Popup className={classes.Popup}>
-                                  {Array.from({ length: 8 }).map((___, nestedIndex) => (
-                                    <Menu.Item
-                                      key={nestedIndex}
-                                      className={classes.Item}
-                                      onClick={handleItemClick}
-                                    >
-                                      Nested submenu {submenuIndex + 1}.{itemIndex + 1} - Item{' '}
-                                      {nestedIndex + 1}
-                                    </Menu.Item>
-                                  ))}
-                                </Menu.Popup>
-                              </Menu.Positioner>
-                            </Menu.Portal>
-                          </Menu.SubmenuRoot>
-                        ))}
-                      </Menu.Popup>
-                    </Menu.Positioner>
-                  </Menu.Portal>
-                </Menu.SubmenuRoot>
-              ))}
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.Root>
+      <div className={classes.TriggerRow}>
+        {renderMenu('Menu')}
+        {renderMenu(
+          'Menu (submenu delay=0)',
+          0,
+          `${classes.SubmenuTrigger} ${classes.PopupOpenAsHighlighted}`,
+          `${classes.Popup} ${classes.PopupNoAnimation}`,
+        )}
+      </div>
 
       {settings.customAnchor && (
         <div className={classes.CustomAnchor} ref={anchorRef}>
