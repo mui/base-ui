@@ -45,7 +45,6 @@
 
 @import './fonts/index.css';
 @import './custom-media.css';
-@import './mdx.css';
 
 @import '../components/Code.css';
 @import '../components/CodeBlock.css';
