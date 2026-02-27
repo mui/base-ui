@@ -367,7 +367,8 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     role: 'presentation',
     ...(rootId && { 'data-id': `${rootId}-viewport` }),
     // https://accessibilityinsights.io/info-examples/web/scrollable-region-focusable/
-    ...((!hiddenState.x || !hiddenState.y) && { tabIndex: 0 }),
+    // Keep non-scrollable viewports out of tab order.
+    tabIndex: hiddenState.x && hiddenState.y ? -1 : 0,
     className: styleDisableScrollbar.className,
     style: {
       overflow: 'scroll',
