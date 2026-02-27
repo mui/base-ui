@@ -221,8 +221,8 @@ importers:
         specifier: ^8.5.6
         version: 8.5.6
       postcss-custom-media:
-        specifier: ^12.0.0
-        version: 12.0.0(postcss@8.5.6)
+        specifier: ^12.0.1
+        version: 12.0.1(postcss@8.5.6)
       postcss-import:
         specifier: ^16.1.1
         version: 16.1.1(postcss@8.5.6)
@@ -8510,8 +8510,8 @@ packages:
     resolution: {integrity: sha512-/+5VFTchJDoVj3bhoqi6UeymcD00DAwb1nJwamzPvHEszJ4FpF6SNNbUbOS8yI56qHzdV8eK0qEfOSiodkTdxg==}
     engines: {node: '>= 0.4'}
 
-  postcss-custom-media@12.0.0:
-    resolution: {integrity: sha512-jIgEvqceN6ru2uQ0f75W1g+JDi0UyECFeJKjPG7UcSkW3+03LDKH2c6h+9C0XuDTV4y2pEHmD5AJtVBq1OGnZA==}
+  postcss-custom-media@12.0.1:
+    resolution: {integrity: sha512-66syE14+VeqkUf0rRX0bvbTCbNRJF132jD+ceo8th1dap2YJEAqpdh5uG98CE3IbgHT7m9XM0GIlOazNWqQdeA==}
     engines: {node: '>=20.19.0'}
     peerDependencies:
       postcss: ^8.4
@@ -19771,7 +19771,7 @@ snapshots:
 
   possible-typed-array-names@1.1.0: {}
 
-  postcss-custom-media@12.0.0(postcss@8.5.6):
+  postcss-custom-media@12.0.1(postcss@8.5.6):
     dependencies:
       '@csstools/cascade-layer-name-parser': 3.0.0(@csstools/css-parser-algorithms@4.0.0(@csstools/css-tokenizer@4.0.0))(@csstools/css-tokenizer@4.0.0)
       '@csstools/css-parser-algorithms': 4.0.0(@csstools/css-tokenizer@4.0.0)

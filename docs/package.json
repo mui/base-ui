@@ -40,7 +40,7 @@
     "match-sorter": "^8.2.0",
     "next": "16.1.6",
     "postcss": "^8.5.6",
-    "postcss-custom-media": "^12.0.0",
+    "postcss-custom-media": "^12.0.1",
     "postcss-import": "^16.1.1",
     "radix-ui": "^1.4.3",
     "react": "^19.2.4",
