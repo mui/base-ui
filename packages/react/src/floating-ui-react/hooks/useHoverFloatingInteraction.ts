@@ -170,9 +170,12 @@ export function useHoverFloatingInteraction(
       return undefined;
     }
 
+    let entered = false;
+
     function onFloatingMouseEnter() {
       instance.openChangeTimeout.clear();
       tree?.events.off('floating.closed', onNodeClosed);
+      entered = true;
       clearPointerEvents();
     }
 
@@ -182,8 +185,15 @@ export function useHoverFloatingInteraction(
         return;
       }
 
+      if (isRelatedTargetInsideEnabledTrigger(event.relatedTarget)) {
+        // If the mouse is leaving the reference element to another trigger, don't explicitly close the popup
+        // as it will be moved.
+        return;
+      }
+
       // If the safePolygon handler is active, let it handle the close logic.
       if (instance.handler) {
+        instance.handler(event);
         return;
       }
       if (!isClickLikeOpenEvent()) {
@@ -195,9 +205,14 @@ export function useHoverFloatingInteraction(
       if (!tree || !parentId || getNodeChildren(tree.nodesRef.current, parentId).length > 0) {
         return;
       }
-      tree?.events.off('floating.closed', onNodeClosed);
-      store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
-      tree?.events.emit('floating.closed', event);
+      entered = false;
+      setTimeout(() => {
+        if (!entered) {
+          tree?.events.off('floating.closed', onNodeClosed);
+          store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
+          tree?.events.emit('floating.closed', event);
+        }
+      }, 0);
     }
 
     const floating = floatingElement;

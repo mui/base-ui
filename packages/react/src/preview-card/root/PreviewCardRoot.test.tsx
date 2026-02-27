@@ -920,7 +920,7 @@ describe('<PreviewCard.Root />', () => {
         fireEvent.mouseLeave(childPopup);
         fireEvent.mouseMove(document.body);
 
-        clock.tick(CLOSE_DELAY);
+        clock.tick(CLOSE_DELAY + 10);
         await flushMicrotasks();
 
         expect(screen.queryByTestId('child-popup')).to.equal(null);
