@@ -138,6 +138,7 @@ export function useHoverReferenceInteraction(
 
     function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
       if (!details.open) {
+        cleanupMouseMoveHandler();
         instance.openChangeTimeout.clear();
         instance.restTimeout.clear();
         instance.blockMouseMove = true;
@@ -149,7 +150,7 @@ export function useHoverReferenceInteraction(
     return () => {
       events.off('openchange', onOpenChangeLocal);
     };
-  }, [enabled, events, instance]);
+  }, [enabled, events, instance, cleanupMouseMoveHandler]);
 
   React.useEffect(() => {
     if (!enabled) {

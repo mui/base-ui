@@ -3,8 +3,9 @@ import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerDocument } from '@base-ui/utils/owner';
+
 import type { FloatingContext, FloatingRootContext } from '../types';
 import {
   getNodeChildren,
@@ -165,17 +166,17 @@ export function useHoverFloatingInteraction(
     return undefined;
   }, [enabled, open, domReferenceElement, floatingElement, instance, isHoverOpen, tree, parentId]);
 
+  const childClosedTimeout = useTimeout();
+
   React.useEffect(() => {
     if (!enabled) {
       return undefined;
     }
 
-    let entered = false;
-
     function onFloatingMouseEnter() {
       instance.openChangeTimeout.clear();
+      childClosedTimeout.clear();
       tree?.events.off('floating.closed', onNodeClosed);
-      entered = true;
       clearPointerEvents();
     }
 
@@ -207,14 +208,12 @@ export function useHoverFloatingInteraction(
       if (!tree || !parentId || getNodeChildren(tree.nodesRef.current, parentId).length > 0) {
         return;
       }
-      entered = false;
-      setTimeout(() => {
-        if (!entered) {
-          tree.events.off('floating.closed', onNodeClosed);
-          store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
-          tree.events.emit('floating.closed', event);
-        }
-      }, 0);
+      // Allow the mouseenter event to fire in case child was closed because mouse moved into parent.
+      childClosedTimeout.start(0, () => {
+        tree.events.off('floating.closed', onNodeClosed);
+        store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
+        tree.events.emit('floating.closed', event);
+      });
     }
 
     const floating = floatingElement;
@@ -245,6 +244,7 @@ export function useHoverFloatingInteraction(
     instance,
     tree,
     parentId,
+    childClosedTimeout,
   ]);
 }
 
