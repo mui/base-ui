@@ -188,9 +188,6 @@ export function useDismiss(
 
   const isReferencePressEnabled = useStableCallback(referencePress);
 
-  const trackPointerType = useStableCallback((event: PointerEvent) => {
-    currentPointerTypeRef.current = event.pointerType;
-  });
   const closeOnEscapeKeyDown = useStableCallback(
     (event: React.KeyboardEvent<Element> | KeyboardEvent) => {
       if (!open || !enabled || !escapeKey || event.key !== 'Escape') {
