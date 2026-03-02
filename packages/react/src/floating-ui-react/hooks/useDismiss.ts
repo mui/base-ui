@@ -6,6 +6,7 @@ import {
   isElement,
   isHTMLElement,
   isLastTraversableNode,
+  isShadowRoot,
   isWebKit,
 } from '@floating-ui/utils/dom';
 import { Timeout, useTimeout } from '@base-ui/utils/useTimeout';
@@ -324,9 +325,13 @@ export function useDismiss(
 
       const target = getTarget(event);
       const inertSelector = `[${createAttribute('inert')}]`;
-      const markers = ownerDocument(store.select('floatingElement')).querySelectorAll(
-        inertSelector,
+      let markers = Array.from(
+        ownerDocument(store.select('floatingElement')).querySelectorAll(inertSelector),
       );
+      const targetRoot = isElement(target) ? target.getRootNode() : null;
+      if (isShadowRoot(targetRoot)) {
+        markers = markers.concat(Array.from(targetRoot.querySelectorAll(inertSelector)));
+      }
 
       const triggers = store.context.triggerElements;
 
@@ -359,7 +364,7 @@ export function useDismiss(
         !contains(target, store.select('floatingElement')) &&
         // If the target root element contains none of the markers, then the
         // element was injected after the floating element rendered.
-        Array.from(markers).every((marker) => !contains(targetRootAncestor, marker))
+        markers.every((marker) => !contains(targetRootAncestor, marker))
       ) {
         return;
       }
