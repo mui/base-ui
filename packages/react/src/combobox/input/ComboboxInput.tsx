@@ -436,6 +436,10 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             const nativeEvent = event.nativeEvent;
 
             if (activeIndex === null) {
+              if (inline) {
+                return;
+              }
+
               // Allow form submission when no item is highlighted.
               store.state.setOpen(false, createChangeEventDetails(REASONS.none, nativeEvent));
               return;
