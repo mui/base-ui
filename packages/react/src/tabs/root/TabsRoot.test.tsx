@@ -1,10 +1,11 @@
+import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, flushMicrotasks, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
 import { Popover } from '@base-ui/react/popover';
 import { Dialog } from '@base-ui/react/dialog';
-import { Tabs } from '@base-ui/react/tabs';
+import { Tabs, TabsTab } from '@base-ui/react/tabs';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Tabs.Root />', () => {
@@ -1345,6 +1346,98 @@ describe('<Tabs.Root />', () => {
       });
 
       expect(root).to.have.attribute('data-activation-direction', 'up');
+    });
+
+    describe('programmatic value changes', () => {
+      const tabValues = [0, 1, 2] as const;
+      function ControlledTabs(
+        props: Tabs.Root.Props & {
+          onRenderCallback?: (tabActivationDirection: TabsTab.ActivationDirection) => void;
+        },
+      ) {
+        const [value, setValue] = React.useState(props.value ?? 0);
+
+        const { onRenderCallback, ...other } = props;
+
+        return (
+          <Tabs.Root data-testid="root" value={value} onValueChange={setValue} {...other}>
+            <Tabs.List>
+              {tabValues.map((tabValue) => (
+                <Tabs.Tab
+                  key={tabValue}
+                  value={tabValue}
+                  style={props.orientation === 'vertical' ? { display: 'block' } : undefined}
+                >
+                  Tab {tabValue}
+                </Tabs.Tab>
+              ))}
+            </Tabs.List>
+            {tabValues.map((tabValue) => (
+              <Tabs.Panel
+                key={tabValue}
+                value={tabValue}
+                render={(renderProps, state) => {
+                  onRenderCallback?.(state.tabActivationDirection);
+                  return <div {...renderProps}>{state.tabActivationDirection}</div>;
+                }}
+              />
+            ))}
+            <button onClick={() => setValue(0)}>Set 0</button>
+            <button onClick={() => setValue(1)}>Set 1</button>
+          </Tabs.Root>
+        );
+      }
+
+      it('should set `data-activation-direction` when value is changed programmatically with orientation=horizontal', async () => {
+        const spyFn = vi.fn();
+
+        const { user } = await render(<ControlledTabs onRenderCallback={spyFn} />);
+
+        // reset initial render calls
+        spyFn.mock.calls = [];
+
+        const root = screen.getByTestId('root');
+        expect(root).to.have.attribute('data-activation-direction', 'none');
+
+        await user.click(screen.getByText('Set 1'));
+        expect(root).to.have.attribute('data-activation-direction', 'right');
+        expect(screen.getByRole('tabpanel')).to.have.text('right');
+        expect(spyFn.mock.calls[0][0]).to.equal('right');
+
+        // reset before new render
+        spyFn.mock.calls = [];
+
+        await user.click(screen.getByText('Set 0'));
+        expect(root).to.have.attribute('data-activation-direction', 'left');
+        expect(screen.getByRole('tabpanel')).to.have.text('left');
+        expect(spyFn.mock.calls[0][0]).to.equal('left');
+      });
+
+      it('should set `data-activation-direction` when value is changed programmatically with orientation=vertical', async () => {
+        const spyFn = vi.fn();
+        const { user } = await render(
+          <ControlledTabs orientation="vertical" onRenderCallback={spyFn} />,
+        );
+
+        // reset initial render calls
+        spyFn.mock.calls = [];
+
+        const root = screen.getByTestId('root');
+        expect(root).to.have.attribute('data-activation-direction', 'none');
+
+        await user.click(screen.getByText('Set 1'));
+        expect(root).to.have.attribute('data-activation-direction', 'down');
+        expect(screen.getByRole('tabpanel')).to.have.text('down');
+        expect(spyFn.mock.calls[0][0]).to.equal('down');
+
+        // reset before new render
+        spyFn.mock.calls = [];
+
+        await user.click(screen.getByText('Set 0'));
+        expect(root).to.have.attribute('data-activation-direction', 'up');
+        expect(screen.getByRole('tabpanel')).to.have.text('up');
+        expect(spyFn.mock.calls[0][0]).to.equal('up');
+      });
     });
   });
 
