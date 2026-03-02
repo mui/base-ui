@@ -45,7 +45,6 @@
 
 @import './fonts/index.css';
 @import './custom-media.css';
-@import './mdx.css';
 
 @import '../components/Code.css';
 @import '../components/CodeBlock.css';
@@ -78,6 +77,11 @@
 
 @source '../app/(docs)/react/**/demos/**/*.{ts,tsx}';
 @source '../app/(private)/playground/**/*.{ts,tsx}';
+
+/* Temporary sources until Tailwind CSS vars are no longer used in them */
+@source './mdx-components.css';
+@source '../src/components/**/*.css';
+@source '../app/(private)/experiments/**/*.css';
 
 /* ═══ Tailwind theme ═══ */
 /* Register demo-relevant tokens so Tailwind can generate utility classes. */

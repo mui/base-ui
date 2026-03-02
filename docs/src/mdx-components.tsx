@@ -12,6 +12,7 @@ import { Link } from './components/Link';
 import { HeadingLink } from './components/HeadingLink';
 import { Subtitle } from './components/Subtitle/Subtitle';
 import { Kbd } from './components/Kbd/Kbd';
+import './css/mdx-components.css';
 
 interface MDXComponents {
   [key: string]: React.FC<any> | MDXComponents;
