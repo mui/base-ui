@@ -1,26 +1,20 @@
-html {
-  --color-background: var(--color-gray-50);
-  --color-foreground: var(--color-gray-900);
-
-  @media (prefers-color-scheme: dark) {
-    --color-background: black;
-    --color-foreground: oklch(90% 2% 264deg);
+@layer base {
+  html {
+    color-scheme: light dark;
+    background-color: var(--color-gray-50);
   }
 
-  color-scheme: light dark;
-  background-color: var(--color-gray-50);
-}
+  body {
+    font-family: system-ui;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: var(--color-background);
+    min-height: 100vh;
+  }
 
-body {
-  font-family: system-ui;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: var(--color-background);
-  min-height: 100vh;
-}
-
-html,
-body {
-  padding: 0;
-  margin: 0;
+  html,
+  body {
+    padding: 0;
+    margin: 0;
+  }
 }

@@ -19,7 +19,9 @@
     --top: -1px;
     --margin-top: 5.75rem; /* Match hero code block top */
 
-    @apply text-md;
+    font-size: var(--text-md);
+    line-height: var(--text-md--line-height);
+    letter-spacing: var(--text-md--letter-spacing);
     z-index: 1;
     position: sticky;
     top: var(--top);

@@ -910,6 +910,33 @@ describe('<Combobox.Root />', () => {
       expect(onOuterKeyDown.callCount).to.equal(1);
     });
 
+    it('keeps input value on Enter when inline and no item is highlighted', async () => {
+      const { user } = await render(
+        <Combobox.Root inline items={['Apple', 'Banana']}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.List>
+            {(item: string) => (
+              <Combobox.Item key={item} value={item}>
+                {item}
+              </Combobox.Item>
+            )}
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      await user.click(input);
+      await user.type(input, 'Ba');
+
+      expect(input).not.to.have.attribute('aria-activedescendant');
+      expect(input).to.have.value('Ba');
+
+      await user.keyboard('{Enter}');
+
+      expect(input).to.have.value('Ba');
+    });
+
     it('bubbles Escape key when list is empty and popup hidden with CSS', async () => {
       const onOuterKeyDown = spy();
 

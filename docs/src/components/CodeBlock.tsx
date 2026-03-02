@@ -39,7 +39,6 @@ export function Panel({ className, children, ...other }: React.ComponentPropsWit
         {children}
       </div>
       <GhostButton
-        className="ml-auto"
         aria-label="Copy code"
         onClick={async () => {
           const code = document.getElementById(codeId)?.textContent;
@@ -66,9 +65,7 @@ export function Panel({ className, children, ...other }: React.ComponentPropsWit
         }}
       >
         Copy
-        <span className="flex size-[14px] items-center justify-center">
-          {copyTimeout ? <CheckIcon /> : <CopyIcon />}
-        </span>
+        <span className="CodeBlockCopyIcon">{copyTimeout ? <CheckIcon /> : <CopyIcon />}</span>
       </GhostButton>
     </div>
   );
