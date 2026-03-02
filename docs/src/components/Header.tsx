@@ -6,6 +6,7 @@ import { NpmIcon } from '../icons/NpmIcon';
 import { Logo } from './Logo';
 import { SkipNav } from './SkipNav';
 import { Search } from './Search';
+import './Header.css';
 
 export const titleMap: Record<string, string> = {
   'About Base\xa0UI': 'About',

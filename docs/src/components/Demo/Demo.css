@@ -1,3 +1,5 @@
+@import 'docs/src/css/custom-media.css';
+
 @layer components {
   .DemoRoot {
     background-color: var(--color-content);

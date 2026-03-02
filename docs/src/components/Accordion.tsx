@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
 import { observeScrollableInner } from '../utils/observeScrollableInner';
+import './Accordion.css';
 
 const ARROW_UP = 'ArrowUp';
 const ARROW_DOWN = 'ArrowDown';

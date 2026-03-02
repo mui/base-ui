@@ -1,3 +1,5 @@
+@import 'docs/src/css/custom-media.css';
+
 @layer components {
   .QuickNavContainer {
     /* Quick Nav's container shouldn't have any paddings to maintain correct positioning */
