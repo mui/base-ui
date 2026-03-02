@@ -3,10 +3,16 @@ import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerDocument } from '@base-ui/utils/owner';
+
 import type { FloatingContext, FloatingRootContext } from '../types';
-import { getTarget, isMouseLikePointerType, isTargetInsideEnabledTrigger } from '../utils';
+import {
+  getNodeChildren,
+  getTarget,
+  isMouseLikePointerType,
+  isTargetInsideEnabledTrigger,
+} from '../utils';
 
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
@@ -72,24 +78,21 @@ export function useHoverFloatingInteraction(
   });
 
   const closeWithDelay = React.useCallback(
-    (event: MouseEvent, runElseBranch = true) => {
+    (event: MouseEvent) => {
       const closeDelay = getDelay(closeDelayProp, instance.pointerType);
-      if (closeDelay && !instance.handler) {
-        instance.openChangeTimeout.start(closeDelay, () =>
-          store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event)),
-        );
-      } else if (runElseBranch) {
-        instance.openChangeTimeout.clear();
+      const close = () => {
         store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
+        tree?.events.emit('floating.closed', event);
+      };
+      if (closeDelay) {
+        instance.openChangeTimeout.start(closeDelay, close);
+      } else {
+        instance.openChangeTimeout.clear();
+        close();
       }
     },
-    [closeDelayProp, store, instance],
+    [closeDelayProp, store, instance, tree],
   );
-
-  const cleanupMouseMoveHandler = useStableCallback(() => {
-    instance.unbindMouseMove();
-    instance.handler = undefined;
-  });
 
   const clearPointerEvents = useStableCallback(() => {
     if (instance.performedPointerEventsMutation) {
@@ -115,16 +118,9 @@ export function useHoverFloatingInteraction(
       instance.pointerType = undefined;
       instance.restTimeoutPending = false;
       instance.interactedInside = false;
-      cleanupMouseMoveHandler();
       clearPointerEvents();
     }
-  }, [open, instance, cleanupMouseMoveHandler, clearPointerEvents]);
-
-  React.useEffect(() => {
-    return () => {
-      cleanupMouseMoveHandler();
-    };
-  }, [cleanupMouseMoveHandler]);
+  }, [open, instance, clearPointerEvents]);
 
   React.useEffect(() => {
     return clearPointerEvents;
@@ -170,16 +166,23 @@ export function useHoverFloatingInteraction(
     return undefined;
   }, [enabled, open, domReferenceElement, floatingElement, instance, isHoverOpen, tree, parentId]);
 
+  const childClosedTimeout = useTimeout();
+
   React.useEffect(() => {
     if (!enabled) {
       return undefined;
     }
 
-    // Ensure the floating element closes after scrolling even if the pointer
-    // did not move.
-    // https://github.com/floating-ui/floating-ui/discussions/1692
-    function onScrollMouseLeave(event: MouseEvent) {
-      if (isClickLikeOpenEvent() || !dataRef.current.floatingContext || !store.select('open')) {
+    function onFloatingMouseEnter() {
+      instance.openChangeTimeout.clear();
+      childClosedTimeout.clear();
+      tree?.events.off('floating.closed', onNodeClosed);
+      clearPointerEvents();
+    }
+
+    function onFloatingMouseLeave(event: MouseEvent) {
+      if (tree && parentId && getNodeChildren(tree.nodesRef.current, parentId).length > 0) {
+        tree.events.on('floating.closed', onNodeClosed);
         return;
       }
 
@@ -190,34 +193,31 @@ export function useHoverFloatingInteraction(
       }
 
       // If the safePolygon handler is active, let it handle the close logic.
-      // The handler checks for open children in the floating tree.
       if (instance.handler) {
         instance.handler(event);
         return;
       }
 
       clearPointerEvents();
-      cleanupMouseMoveHandler();
       if (!isClickLikeOpenEvent()) {
         closeWithDelay(event);
       }
     }
 
-    function onFloatingMouseEnter(event: MouseEvent) {
-      instance.openChangeTimeout.clear();
-      clearPointerEvents();
-      instance.handler?.(event);
-    }
-
-    function onFloatingMouseLeave(event: MouseEvent) {
-      if (!isClickLikeOpenEvent()) {
-        closeWithDelay(event, false);
+    function onNodeClosed(event: MouseEvent) {
+      if (!tree || !parentId || getNodeChildren(tree.nodesRef.current, parentId).length > 0) {
+        return;
       }
+      // Allow the mouseenter event to fire in case child was closed because mouse moved into parent.
+      childClosedTimeout.start(0, () => {
+        tree.events.off('floating.closed', onNodeClosed);
+        store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
+        tree.events.emit('floating.closed', event);
+      });
     }
 
     const floating = floatingElement;
     if (floating) {
-      floating.addEventListener('mouseleave', onScrollMouseLeave);
       floating.addEventListener('mouseenter', onFloatingMouseEnter);
       floating.addEventListener('mouseleave', onFloatingMouseLeave);
       floating.addEventListener('pointerdown', handleInteractInside, true);
@@ -225,11 +225,11 @@ export function useHoverFloatingInteraction(
 
     return () => {
       if (floating) {
-        floating.removeEventListener('mouseleave', onScrollMouseLeave);
         floating.removeEventListener('mouseenter', onFloatingMouseEnter);
         floating.removeEventListener('mouseleave', onFloatingMouseLeave);
         floating.removeEventListener('pointerdown', handleInteractInside, true);
       }
+      tree?.events.off('floating.closed', onNodeClosed);
     };
   }, [
     enabled,
@@ -240,9 +240,11 @@ export function useHoverFloatingInteraction(
     isRelatedTargetInsideEnabledTrigger,
     closeWithDelay,
     clearPointerEvents,
-    cleanupMouseMoveHandler,
     handleInteractInside,
     instance,
+    tree,
+    parentId,
+    childClosedTimeout,
   ]);
 }
 

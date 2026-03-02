@@ -1,23 +1,9 @@
 'use client';
-import * as React from 'react';
 import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
 
 export default function ExampleDrawerNested() {
-  const [firstOpen, setFirstOpen] = React.useState(false);
-  const [secondOpen, setSecondOpen] = React.useState(false);
-  const [thirdOpen, setThirdOpen] = React.useState(false);
-
   return (
-    <Drawer.Root
-      open={firstOpen}
-      onOpenChange={(nextOpen) => {
-        setFirstOpen(nextOpen);
-        if (!nextOpen) {
-          setSecondOpen(false);
-          setThirdOpen(false);
-        }
-      }}
-    >
+    <Drawer.Root>
       <Drawer.Trigger className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100">
         Open drawer stack
       </Drawer.Trigger>
@@ -35,15 +21,7 @@ export default function ExampleDrawerNested() {
 
               <div className="flex items-center justify-end gap-4">
                 <div className="mr-auto">
-                  <Drawer.Root
-                    open={secondOpen}
-                    onOpenChange={(nextOpen) => {
-                      setSecondOpen(nextOpen);
-                      if (!nextOpen) {
-                        setThirdOpen(false);
-                      }
-                    }}
-                  >
+                  <Drawer.Root>
                     <Drawer.Trigger className="text-base font-medium text-blue-800 rounded px-1.5 py-0.5 -m-0.5 hover:bg-blue-800/5 active:bg-blue-800/10 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
                       Security settings
                     </Drawer.Trigger>
@@ -67,7 +45,7 @@ export default function ExampleDrawerNested() {
 
                             <div className="flex items-center justify-end gap-4">
                               <div className="mr-auto">
-                                <Drawer.Root open={thirdOpen} onOpenChange={setThirdOpen}>
+                                <Drawer.Root>
                                   <Drawer.Trigger className="text-base font-medium text-blue-800 rounded px-1.5 py-0.5 -m-0.5 hover:bg-blue-800/5 active:bg-blue-800/10 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
                                     Advanced options
                                   </Drawer.Trigger>
