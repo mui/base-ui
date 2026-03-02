@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { formatNumberValue } from '../../utils/formatNumber';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { ProgressRootContext } from './ProgressRootContext';
@@ -34,6 +35,7 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
     value,
     render,
     className,
+    children,
     ...elementProps
   } = componentProps;
 
@@ -56,6 +58,14 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
     'aria-valuenow': value ?? undefined,
     'aria-valuetext': getAriaValueText(formattedValue, value),
     role: 'progressbar',
+    children: (
+      <React.Fragment>
+        {children}
+        <span role="presentation" style={visuallyHidden}>
+          {/* force NVDA to read the label https://github.com/mui/base-ui/issues/4184 */}x
+        </span>
+      </React.Fragment>
+    ),
   };
 
   const contextValue: ProgressRootContext = React.useMemo(

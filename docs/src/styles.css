@@ -213,7 +213,7 @@
       --color-white: initial;
       --color-black: initial;
     }
-    /* These variables are exposed in "demo-theme.css" for CSS Modules demos */
+    /* These variables are exposed in "demo-data/theme/css-modules/theme.css" for CSS Modules demos */
     &:not([data-demo='css-modules']) {
       --color-blue: initial;
       --color-red: initial;
