@@ -69,7 +69,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
                                       }
                                       external={page.tags?.includes('External')}
                                     >
-                                      {page.title ? titleMap[page.title] : page.title}
+                                      {(page.title && titleMap[page.title]) || page.title}
                                       {isPreview && <SideNav.Badge>Preview</SideNav.Badge>}
                                       {isNew && !isPreview && <SideNav.Badge>New</SideNav.Badge>}
                                     </SideNav.Item>
