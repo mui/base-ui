@@ -2,6 +2,12 @@
   "name": "CalendarDayButton",
   "description": "An individual interactive day button in the calendar.\nRenders a `<button>` element.",
   "props": {
+    "focusableWhenDisabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "When `true` the item remains focusable when disabled.",
+      "detailedType": "boolean | undefined"
+    },
     "nativeButton": {
       "type": "boolean",
       "default": "true",

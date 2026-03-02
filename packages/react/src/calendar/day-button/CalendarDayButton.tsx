@@ -44,6 +44,7 @@ const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
     nativeButton,
     format = adapter.formats.dayOfMonth,
     disabled,
+    focusableWhenDisabled = false,
     ...elementProps
   } = componentProps;
 
@@ -73,6 +74,7 @@ const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
   const { getButtonProps, buttonRef } = useButton({
     disabled: isDisabled,
     native: nativeButton,
+    focusableWhenDisabled,
   });
 
   const formattedValue = React.useMemo(
@@ -81,8 +83,10 @@ const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
   );
 
   const itemMetadata = React.useMemo<UseSharedCalendarDayGridBodyItemMetadata>(
-    () => ({ focusableWhenDisabled: !isDisabled && !isOutsideCurrentMonth }),
-    [isDisabled, isOutsideCurrentMonth],
+    () => ({
+      focusableWhenDisabled: (focusableWhenDisabled || !isDisabled) && !isOutsideCurrentMonth,
+    }),
+    [focusableWhenDisabled, isDisabled, isOutsideCurrentMonth],
   );
 
   const props: React.ButtonHTMLAttributes<HTMLButtonElement> = {
@@ -159,6 +163,11 @@ export interface CalendarDayButtonProps
    * @default adapter.formats.dayOfMonth
    */
   format?: string | undefined;
+  /**
+   * When `true` the item remains focusable when disabled.
+   * @default false
+   */
+  focusableWhenDisabled?: boolean | undefined;
 }
 
 export namespace CalendarDayButton {

@@ -423,6 +423,155 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
   // (outside minDate/maxDate bounds).
   // ---------------------------------------------------------------------------
 
+  // ---------------------------------------------------------------------------
+  // focusableWhenDisabled
+  //
+  // February 2025 grid (en-US locale, weeks start Sunday), maxDate = Feb 14:
+  //   Feb 1–14  → enabled  (index 6–19)
+  //   Feb 15–28 → disabled but focusable (index 20–33)
+  //   Mar 1     → outside-month → always skipped (index 34)
+  // ---------------------------------------------------------------------------
+
+  describe('focusableWhenDisabled', () => {
+    const feb14 = adapter.date('2025-02-14', 'default');
+    const maxDate = feb14;
+    const feb15 = adapter.date('2025-02-15', 'default');
+    const feb16 = adapter.date('2025-02-16', 'default');
+
+    function renderFocusableWhenDisabledCalendar(
+      defaultDate: ReturnType<ReturnType<typeof createTemporalRenderer>['adapter']['date']>,
+      options?: {
+        minDate?: ReturnType<ReturnType<typeof createTemporalRenderer>['adapter']['date']>;
+        maxDate?: ReturnType<ReturnType<typeof createTemporalRenderer>['adapter']['date']>;
+        onValueChange?: ReturnType<typeof spy>;
+      },
+    ) {
+      return render(
+        <Calendar.Root
+          defaultVisibleDate={defaultDate}
+          minDate={options?.minDate}
+          maxDate={options?.maxDate}
+          onValueChange={options?.onValueChange}
+        >
+          <Calendar.DayGrid>
+            <Calendar.DayGridBody>
+              {(week) => (
+                <Calendar.DayGridRow value={week} key={week.toString()}>
+                  {(day) => (
+                    <Calendar.DayGridCell value={day} key={day.toString()}>
+                      <Calendar.DayButton focusableWhenDisabled />
+                    </Calendar.DayGridCell>
+                  )}
+                </Calendar.DayGridRow>
+              )}
+            </Calendar.DayGridBody>
+          </Calendar.DayGrid>
+        </Calendar.Root>,
+      );
+    }
+
+    describe('ArrowRight', () => {
+      it('should land on a disabled day when focusableWhenDisabled is true', async () => {
+        const { user } = renderFocusableWhenDisabledCalendar(adapter.startOfMonth(feb14), {
+          maxDate,
+        });
+
+        await act(async () => {
+          getDayButton(feb14).focus();
+        });
+        await user.keyboard('{ArrowRight}');
+
+        expect(getDayButton(feb15)).toHaveFocus();
+      });
+
+      it('should continue navigating from a focused disabled day', async () => {
+        const { user } = renderFocusableWhenDisabledCalendar(adapter.startOfMonth(feb14), {
+          maxDate,
+        });
+
+        await act(async () => {
+          getDayButton(feb14).focus();
+        });
+        await user.keyboard('{ArrowRight}');
+
+        expect(getDayButton(feb15)).toHaveFocus();
+
+        await user.keyboard('{ArrowRight}');
+
+        expect(getDayButton(feb16)).toHaveFocus();
+      });
+    });
+
+    describe('ArrowLeft', () => {
+      it('should land on a disabled day when navigating left', async () => {
+        const { user } = renderFocusableWhenDisabledCalendar(adapter.startOfMonth(feb16), {
+          maxDate,
+        });
+
+        await act(async () => {
+          getDayButton(feb16).focus();
+        });
+        await user.keyboard('{ArrowLeft}');
+
+        expect(getDayButton(feb15)).toHaveFocus();
+      });
+    });
+
+    describe('ArrowDown', () => {
+      it('should land on a disabled day when navigating down', async () => {
+        const feb21 = adapter.date('2025-02-21', 'default');
+
+        const { user } = renderFocusableWhenDisabledCalendar(adapter.startOfMonth(feb14), {
+          maxDate,
+        });
+
+        await act(async () => {
+          getDayButton(feb14).focus();
+        });
+        await user.keyboard('{ArrowDown}');
+
+        expect(getDayButton(feb21)).toHaveFocus();
+      });
+    });
+
+    it('should not select a day when Enter is pressed on a focused disabled day', async () => {
+      const onValueChange = spy();
+
+      const { user } = renderFocusableWhenDisabledCalendar(adapter.startOfMonth(feb14), {
+        maxDate,
+        onValueChange,
+      });
+
+      await act(async () => {
+        getDayButton(feb14).focus();
+      });
+      await user.keyboard('{ArrowRight}');
+
+      expect(getDayButton(feb15)).toHaveFocus();
+
+      await user.keyboard('{Enter}');
+
+      expect(onValueChange.callCount).to.equal(0);
+    });
+
+    it('should skip disabled days when focusableWhenDisabled is false (default)', async () => {
+      // Default renderUncontrolledCalendar does not set focusableWhenDisabled on DayButton.
+      // With maxDate = Feb 14, ArrowRight from Feb 14 should not move focus since there
+      // are no more enabled in-month days ahead and the outside-month trailing day is
+      // also skipped.
+      const { user } = renderUncontrolledCalendar(adapter.startOfMonth(feb14), undefined, {
+        maxDate,
+      });
+
+      await act(async () => {
+        getDayButton(feb14).focus();
+      });
+      await user.keyboard('{ArrowRight}');
+
+      expect(getDayButton(feb14)).toHaveFocus();
+    });
+  });
+
   describe('disabled day boundary (minDate / maxDate)', () => {
     describe('PageDown', () => {
       it('should not navigate to the next month if the same day would be after maxDate', async () => {

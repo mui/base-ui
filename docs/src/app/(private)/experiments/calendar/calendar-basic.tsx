@@ -7,7 +7,7 @@ import styles from './calendar.module.css';
 
 export default function CalendarBasic() {
   return (
-    <Calendar.Root className={styles.Root}>
+    <Calendar.Root className={styles.Root} minDate={new Date('2026-02-12')}>
       {({ visibleDate }) => (
         <React.Fragment>
           <header className={styles.Header}>
@@ -44,7 +44,7 @@ export default function CalendarBasic() {
                       key={day.toString()}
                       className={styles.DayGridCell}
                     >
-                      <Calendar.DayButton className={styles.DayButton} />
+                      <Calendar.DayButton className={styles.DayButton} focusableWhenDisabled />
                     </Calendar.DayGridCell>
                   )}
                 </Calendar.DayGridRow>
