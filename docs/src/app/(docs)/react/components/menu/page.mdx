@@ -24,19 +24,21 @@ import { Menu } from '@base-ui/react/menu';
     <Menu.Positioner>
       <Menu.Popup>
         <Menu.Arrow />
-        <Menu.Item />
-        <Menu.LinkItem />
-        <Menu.Separator />
-        <Menu.Group>
-          <Menu.GroupLabel />
-        </Menu.Group>
-        <Menu.RadioGroup>
-          <Menu.RadioItem />
-        </Menu.RadioGroup>
-        <Menu.CheckboxItem />
-        <Menu.SubmenuRoot>
-          <Menu.SubmenuTrigger />
-        </Menu.SubmenuRoot>
+        <Menu.Viewport>
+          <Menu.Item />
+          <Menu.LinkItem />
+          <Menu.Separator />
+          <Menu.Group>
+            <Menu.GroupLabel />
+          </Menu.Group>
+          <Menu.RadioGroup>
+            <Menu.RadioItem />
+          </Menu.RadioGroup>
+          <Menu.CheckboxItem />
+          <Menu.SubmenuRoot>
+            <Menu.SubmenuTrigger />
+          </Menu.SubmenuRoot>
+        </Menu.Viewport>
       </Menu.Popup>
     </Menu.Positioner>
   </Menu.Portal>
@@ -254,9 +256,11 @@ const demoMenu = Menu.createHandle<{ items: string[] }>();
     <Menu.Portal>
       <Menu.Positioner>
         <Menu.Popup>
-          {(payload?.items ?? []).map((item) => (
-            <Menu.Item key={item}>{item}</Menu.Item>
-          ))}
+          <Menu.Viewport>
+            {(payload?.items ?? []).map((item) => (
+              <Menu.Item key={item}>{item}</Menu.Item>
+            ))}
+          </Menu.Viewport>
         </Menu.Popup>
       </Menu.Positioner>
     </Menu.Portal>
@@ -274,11 +278,38 @@ import { DemoMenuDetachedTriggersControlled } from './demos/detached-triggers-co
 
 <DemoMenuDetachedTriggersControlled compact />
 
+### Animating the Menu
+
+When one menu is opened by multiple detached triggers, you can animate the menu as it moves between triggers.
+This includes animating position, size, and content.
+
+#### Position and Size
+
+To animate the menu's position, apply CSS transitions to the `left`, `right`, `top`, and `bottom` properties of the **Positioner** part.
+To animate its size, transition the `width` and `height` of the **Popup** part.
+
+#### Content
+
+The menu also supports content transitions.
+This is useful when different triggers display different content within the same menu.
+
+To enable content animations, wrap the menu content in the `<Menu.Viewport>` part.
+This part renders a `div` with `data-activation-direction` (`left`, `right`, `up`, or `down`) so you can make direction-aware animations.
+
+Inside `<Menu.Viewport>`, content is wrapped in `div`s with transition data attributes:
+
+- `data-current`: The currently visible content when no transitions are present or the incoming content.
+- `data-previous`: The outgoing content during a transition.
+
+import { DemoMenuDetachedTriggersFull } from './demos/detached-triggers-full';
+
+<DemoMenuDetachedTriggersFull />
+
 ## API reference
 
 <Reference
   component="Menu"
-  parts="Root, Trigger, Portal, Backdrop, Positioner, Popup, Arrow, Item, LinkItem, SubmenuRoot, SubmenuTrigger, Group, GroupLabel, RadioGroup, RadioItem, RadioItemIndicator, CheckboxItem, CheckboxItemIndicator, Separator"
+  parts="Root, Trigger, Portal, Backdrop, Positioner, Popup, Viewport, Arrow, Item, LinkItem, SubmenuRoot, SubmenuTrigger, Group, GroupLabel, RadioGroup, RadioItem, RadioItemIndicator, CheckboxItem, CheckboxItemIndicator, Separator"
 />
 
 export const metadata = {
