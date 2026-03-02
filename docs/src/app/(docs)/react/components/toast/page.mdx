@@ -445,6 +445,65 @@ const promise = toastManager.promise(
 );
 ```
 
+## useToastActions
+
+Returns only the action methods without subscribing to toast state.
+Use this hook in components that only need to **fire** toasts (for example, buttons) but don't need to read the `toasts` array.
+Unlike `useToastManager`, this hook will not cause the component to re-render when toasts are added, updated, or removed.
+
+```tsx title="Usage"
+const toastActions = Toast.useToastActions();
+```
+
+### Return value
+
+<PropsReferenceTable
+  type="return"
+  data={{
+    add: {
+      type: '(options: ToastManagerAddOptions) => string',
+      description: 'Add a toast to the toast list.',
+    },
+    close: {
+      type: '(toastId: string) => void',
+      description: 'Closes and removes a toast from the toast list.',
+    },
+    update: {
+      type: '(toastId: string, options: ToastManagerUpdateOptions) => void',
+      description: 'Update a toast in the toast list.',
+    },
+    promise: {
+      type: '<Value>(promise: Promise<Value>, options: ToastManagerPromiseOptions) => Promise<Value>',
+      description:
+        'Create a toast that resolves with a value, with three possible states for the toast: `loading`, `success`, and `error`.',
+    },
+  }}
+/>
+
+### When to use
+
+Use `useToastActions` when the component only needs to **dispatch** toasts:
+
+```jsx title="Example" {2,7-9}
+function SaveButton() {
+  const toastActions = Toast.useToastActions();
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        toastActions.add({
+          description: 'Changes saved!',
+        });
+      }}
+    >
+      Save
+    </button>
+  );
+}
+```
+
+Use `useToastManager` when the component needs to **read** the `toasts` array (for example, to render the toast list).
+
 export const metadata = {
   keywords: [
     'React Toast',
