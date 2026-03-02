@@ -1,21 +1,28 @@
 'use client';
 import * as React from 'react';
 import { format } from 'date-fns/format';
+import { addDays } from 'date-fns/addDays';
 import { Calendar } from '@base-ui/react/calendar';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import styles from './calendar.module.css';
 
-export default function CalendarBasic() {
+const today = new Date();
+
+export default function CalendarValidation() {
   return (
-    <Calendar.Root className={styles.Root}>
+    <Calendar.Root
+      className={styles.Root}
+      minDate={addDays(today, -3)}
+      maxDate={addDays(today, 15)}
+    >
       {({ visibleDate }) => (
         <React.Fragment>
           <header className={styles.Header}>
-            <Calendar.DecrementMonth className={styles.DecrementMonth}>
+            <Calendar.DecrementMonth className={styles.DecrementMonth} focusableWhenDisabled>
               <ChevronLeft />
             </Calendar.DecrementMonth>
             <span className={styles.HeaderLabel}>{format(visibleDate, 'MMMM yyyy')}</span>
-            <Calendar.IncrementMonth className={styles.IncrementMonth}>
+            <Calendar.IncrementMonth className={styles.IncrementMonth} focusableWhenDisabled>
               <ChevronRight />
             </Calendar.IncrementMonth>
           </header>
@@ -44,7 +51,7 @@ export default function CalendarBasic() {
                       key={day.toString()}
                       className={styles.DayGridCell}
                     >
-                      <Calendar.DayButton className={styles.DayButton} />
+                      <Calendar.DayButton className={styles.DayButton} focusableWhenDisabled />
                     </Calendar.DayGridCell>
                   )}
                 </Calendar.DayGridRow>
