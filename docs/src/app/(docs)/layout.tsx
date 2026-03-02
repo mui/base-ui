@@ -58,6 +58,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
                                 .map((page) => {
                                   const isNew = page.tags?.includes('New');
                                   const isPreview = page.tags?.includes('Preview');
+                                  const isPrivate = page.audience === 'private';
 
                                   return (
                                     <SideNav.Item
@@ -70,6 +71,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
                                       external={page.tags?.includes('External')}
                                     >
                                       {(page.title && titleMap[page.title]) || page.title}
+                                      {isPrivate && <SideNav.Badge>Private</SideNav.Badge>}
                                       {isPreview && <SideNav.Badge>Preview</SideNav.Badge>}
                                       {isNew && !isPreview && <SideNav.Badge>New</SideNav.Badge>}
                                     </SideNav.Item>

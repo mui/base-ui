@@ -66,6 +66,9 @@ export function Header({ isPublic }: { isPublic: boolean }) {
                               external={page.tags?.includes('External')}
                             >
                               {(page.title && titleMap[page.title]) || page.title}
+                              {page.audience === 'private' && (
+                                <MobileNav.Badge>Private</MobileNav.Badge>
+                              )}
                               {page.tags?.includes('New') && <MobileNav.Badge>New</MobileNav.Badge>}
                               {page.tags?.includes('Preview') && (
                                 <MobileNav.Badge>Preview</MobileNav.Badge>
