@@ -37,28 +37,17 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
   const { getTabElementBySelectedValue, orientation, tabActivationDirection, value } =
     useTabsRootContext();
 
-  const { tabsListElement } = useTabsListContext();
+  const { tabsListElement, registerIndicatorUpdateListener } = useTabsListContext();
 
   const [isMounted, setIsMounted] = React.useState(false);
-  const { value: activeTabValue } = useTabsRootContext();
 
   useOnMount(() => setIsMounted(true));
 
   const rerender = useForcedRerendering();
 
   React.useEffect(() => {
-    if (value != null && tabsListElement != null && typeof ResizeObserver !== 'undefined') {
-      const resizeObserver = new ResizeObserver(rerender);
-
-      resizeObserver.observe(tabsListElement);
-
-      return () => {
-        resizeObserver.disconnect();
-      };
-    }
-
-    return undefined;
-  }, [value, tabsListElement, rerender]);
+    return registerIndicatorUpdateListener(rerender);
+  }, [registerIndicatorUpdateListener, rerender]);
 
   let left = 0;
   let right = 0;
@@ -166,7 +155,7 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
     stateAttributesMapping,
   });
 
-  if (activeTabValue == null) {
+  if (value == null) {
     return null;
   }
 
