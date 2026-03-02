@@ -6,6 +6,7 @@ import {
   isElement,
   isHTMLElement,
   isLastTraversableNode,
+  isShadowRoot,
   isWebKit,
 } from '@floating-ui/utils/dom';
 import { Timeout, useTimeout } from '@base-ui/utils/useTimeout';
@@ -328,7 +329,7 @@ export function useDismiss(
         ownerDocument(store.select('floatingElement')).querySelectorAll(inertSelector),
       );
       const targetRoot = isElement(target) ? target.getRootNode() : null;
-      if (targetRoot instanceof ShadowRoot) {
+      if (isShadowRoot(targetRoot)) {
         markers = markers.concat(Array.from(targetRoot.querySelectorAll(inertSelector)));
       }
 
