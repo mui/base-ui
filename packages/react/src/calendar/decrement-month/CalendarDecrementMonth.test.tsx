@@ -111,6 +111,20 @@ describe('<Calendar.DecrementMonth />', () => {
       expect(button).not.to.have.attribute('disabled');
       expect(button).not.to.have.attribute('data-disabled');
     });
+
+    describe('focusableWhenDisabled', () => {
+      it('should not have disabled attribute and have aria-disabled when focusableWhenDisabled is true', () => {
+        render(
+          <Calendar.Root>
+            <Calendar.DecrementMonth disabled focusableWhenDisabled />
+          </Calendar.Root>,
+        );
+
+        const button = screen.getByRole('button');
+        expect(button).not.to.have.attribute('disabled');
+        expect(button).to.have.attribute('aria-disabled', 'true');
+      });
+    });
   });
 
   describe('press and hold', () => {

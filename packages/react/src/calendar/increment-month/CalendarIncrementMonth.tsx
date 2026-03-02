@@ -19,7 +19,14 @@ export const CalendarIncrementMonth = React.forwardRef(function CalendarIncremen
   componentProps: CalendarIncrementMonth.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { className, render, nativeButton, disabled, ...elementProps } = componentProps;
+  const {
+    className,
+    render,
+    nativeButton,
+    disabled,
+    focusableWhenDisabled = false,
+    ...elementProps
+  } = componentProps;
 
   const store = useSharedCalendarRootContext();
   const adapter = useTemporalAdapter();
@@ -36,6 +43,7 @@ export const CalendarIncrementMonth = React.forwardRef(function CalendarIncremen
   const { getButtonProps, buttonRef } = useButton({
     disabled: isDisabled,
     native: nativeButton,
+    focusableWhenDisabled,
   });
 
   const { pointerHandlers, autoChangeButtonRef } = useCalendarMonthButton({
@@ -89,7 +97,13 @@ export interface CalendarIncrementMonthState {
 }
 
 export interface CalendarIncrementMonthProps
-  extends BaseUIComponentProps<'button', CalendarIncrementMonthState>, NativeButtonProps {}
+  extends BaseUIComponentProps<'button', CalendarIncrementMonthState>, NativeButtonProps {
+  /**
+   * When `true` the button remains focusable when disabled.
+   * @default false
+   */
+  focusableWhenDisabled?: boolean | undefined;
+}
 
 export namespace CalendarIncrementMonth {
   export type State = CalendarIncrementMonthState;
