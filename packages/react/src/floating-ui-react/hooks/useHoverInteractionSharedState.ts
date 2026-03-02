@@ -20,6 +20,7 @@ export class HoverInteraction {
   handler: ((event: MouseEvent) => void) | undefined;
   blockMouseMove: boolean;
   performedPointerEventsMutation: boolean;
+  pointerEventsScopeElement: HTMLElement | SVGSVGElement | null;
   restTimeoutPending: boolean;
   openChangeTimeout: Timeout;
   restTimeout: Timeout;
@@ -31,6 +32,7 @@ export class HoverInteraction {
     this.handler = undefined;
     this.blockMouseMove = true;
     this.performedPointerEventsMutation = false;
+    this.pointerEventsScopeElement = null;
     this.restTimeoutPending = false;
     this.openChangeTimeout = new Timeout();
     this.restTimeout = new Timeout();

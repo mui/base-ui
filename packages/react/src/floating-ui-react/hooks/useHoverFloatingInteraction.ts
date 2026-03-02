@@ -96,10 +96,12 @@ export function useHoverFloatingInteraction(
 
   const clearPointerEvents = useStableCallback(() => {
     if (instance.performedPointerEventsMutation) {
-      const body = ownerDocument(floatingElement).body;
-      body.style.pointerEvents = '';
-      body.removeAttribute(safePolygonIdentifier);
+      const scopeElement =
+        instance.pointerEventsScopeElement ?? ownerDocument(floatingElement).body;
+      scopeElement.style.pointerEvents = '';
+      scopeElement.removeAttribute(safePolygonIdentifier);
       instance.performedPointerEventsMutation = false;
+      instance.pointerEventsScopeElement = null;
     }
   });
 
@@ -139,27 +141,38 @@ export function useHoverFloatingInteraction(
       floatingElement
     ) {
       instance.performedPointerEventsMutation = true;
-      const body = ownerDocument(floatingElement).body;
-      body.setAttribute(safePolygonIdentifier, '');
-
       const ref = domReferenceElement as HTMLElement | SVGSVGElement;
       const floatingEl = floatingElement;
+      const doc = ownerDocument(floatingElement);
 
       const parentFloating = tree?.nodesRef.current.find((node) => node.id === parentId)?.context
-        ?.elements.floating;
+        ?.elements.floating as HTMLElement | null;
 
       if (parentFloating) {
         parentFloating.style.pointerEvents = '';
       }
 
-      body.style.pointerEvents = 'none';
+      const defaultScopeElement = parentFloating ?? ref.closest('[data-rootownerid]') ?? doc.body;
+
+      let scopeElement = defaultScopeElement;
+
+      const scopeOverride = doc.documentElement.getAttribute('data-base-ui-safe-polygon-scope');
+      if (scopeOverride === 'body') {
+        scopeElement = doc.body;
+      }
+
+      instance.pointerEventsScopeElement = scopeElement;
+      scopeElement.setAttribute(safePolygonIdentifier, '');
+      scopeElement.style.pointerEvents = 'none';
       ref.style.pointerEvents = 'auto';
       floatingEl.style.pointerEvents = 'auto';
 
       return () => {
-        body.style.pointerEvents = '';
+        scopeElement.style.pointerEvents = '';
+        scopeElement.removeAttribute(safePolygonIdentifier);
         ref.style.pointerEvents = '';
         floatingEl.style.pointerEvents = '';
+        instance.pointerEventsScopeElement = null;
       };
     }
 

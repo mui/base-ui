@@ -1,8 +1,10 @@
 import { expect } from 'chai';
 import { fireEvent, waitFor, screen } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance } from '#test-utils';
+import { spy } from 'sinon';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Menu } from '@base-ui/react/menu';
+import { MenuStore } from '../store/MenuStore';
 
 type TextDirection = 'ltr' | 'rtl';
 
@@ -99,4 +101,59 @@ describe('<Menu.SubmenuTrigger />', () => {
       expect(submenuTrigger).to.have.attribute('tabIndex', '0');
     });
   });
+
+  it.skipIf(isJSDOM)(
+    'perf: does not fan out unrelated parent updates to sibling submenu stores',
+    async () => {
+      const notifyAllSpy = spy(MenuStore.prototype, 'notifyAll');
+
+      try {
+        const submenuCount = 24;
+
+        const { user } = await render(
+          <Menu.Root open>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  {Array.from({ length: submenuCount }).map((_, i) => (
+                    <Menu.SubmenuRoot key={i}>
+                      <Menu.SubmenuTrigger
+                        delay={0}
+                        closeDelay={0}
+                        data-testid={`submenu-trigger-${i}`}
+                      >
+                        Submenu {i}
+                      </Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner>
+                          <Menu.Popup>
+                            <Menu.Item>Item {i}.1</Menu.Item>
+                            <Menu.Item>Item {i}.2</Menu.Item>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  ))}
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>,
+        );
+
+        for (let i = 0; i < submenuCount; i += 1) {
+          // eslint-disable-next-line no-await-in-loop
+          await user.hover(screen.getByTestId(`submenu-trigger-${i}`));
+        }
+
+        for (let i = submenuCount - 1; i >= 0; i -= 1) {
+          // eslint-disable-next-line no-await-in-loop
+          await user.hover(screen.getByTestId(`submenu-trigger-${i}`));
+        }
+
+        expect(notifyAllSpy.callCount).to.equal(0);
+      } finally {
+        notifyAllSpy.restore();
+      }
+    },
+  );
 });
