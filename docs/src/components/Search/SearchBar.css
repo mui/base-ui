@@ -216,7 +216,6 @@
     gap: 0.5rem;
     height: 2rem;
     border-radius: var(--radius-md);
-    background-color: var(--color-popup);
     padding-inline: 0.75rem;
   }
 
