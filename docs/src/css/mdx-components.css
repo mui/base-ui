@@ -1,3 +1,5 @@
+@import './custom-media.css';
+
 @layer components {
   .MdInlineCode[data-inline] {
     margin-inline: 0.1em;
