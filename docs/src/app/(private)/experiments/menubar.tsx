@@ -6,7 +6,7 @@ import {
   SettingsMetadata,
   useExperimentSettings,
 } from '../../../components/Experiments/SettingsPanel';
-import '../../../demo-theme.css';
+import '../../../demo-data/theme/css-modules/theme.css';
 import menuClasses from './menu/menu.module.css';
 import classes from './menubar.module.css';
 
