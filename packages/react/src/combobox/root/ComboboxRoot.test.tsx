@@ -4428,7 +4428,7 @@ describe('<Combobox.Root />', () => {
       await user.click(trigger);
 
       const input = await screen.findByTestId('input');
-      expect(input).to.have.attribute('data-invalid', '');
+      expect(input).not.to.have.attribute('data-invalid');
     });
 
     it('clears external errors on change', async () => {
@@ -4643,6 +4643,51 @@ describe('<Combobox.Root />', () => {
         expect(trigger).to.have.attribute('id', 'x-id');
         expect(label).to.have.attribute('for', 'x-id');
       });
+    });
+
+    it('does not apply validation ARIA attributes to input inside popup', async () => {
+      const { user } = await render(
+        <Field.Root invalid>
+          <Combobox.Root>
+            <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.Input data-testid="input" />
+                  <Combobox.List>
+                    <Combobox.Item value="a">a</Combobox.Item>
+                    <Combobox.Item value="b">b</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+          <Field.Description data-testid="description" />
+          <Field.Error data-testid="error" match />
+        </Field.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      const description = screen.getByTestId('description');
+      const error = screen.getByTestId('error');
+      const triggerDescribedBy = trigger.getAttribute('aria-describedby');
+
+      expect(trigger).to.have.attribute('aria-invalid', 'true');
+      expect(triggerDescribedBy).to.contain(description.id);
+      expect(triggerDescribedBy).to.contain(error.id);
+
+      await user.click(trigger);
+
+      const input = await screen.findByTestId('input');
+
+      expect(input).not.to.have.attribute('aria-invalid');
+      expect(input).not.to.have.attribute('aria-describedby');
+      expect(input).not.to.have.attribute('data-valid');
+      expect(input).not.to.have.attribute('data-invalid');
+      expect(input).not.to.have.attribute('data-touched');
+      expect(input).not.to.have.attribute('data-dirty');
+      expect(input).not.to.have.attribute('data-filled');
+      expect(input).not.to.have.attribute('data-focused');
     });
 
     it('[data-touched]', async () => {
