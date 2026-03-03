@@ -53,7 +53,7 @@
     },
     "collisionAvoidance": {
       "type": "CollisionAvoidance",
-      "description": "Determines how to handle collisions when positioning the popup.",
+      "description": "Determines how to handle collisions when positioning the popup.\n\nIt accepts an object with the following options:\n- `side`: controls collision handling on the preferred side axis.\n- `align`: controls collision handling on the alignment axis.\n- `fallbackAxisSide`: controls fallback behavior on the perpendicular axis.\n\nDefaults:\n- `side`: `'flip'`\n- `align`: `'flip'`\n- `fallbackAxisSide`: `'end'`\n\nNote that when `side` is `'shift'`, `align` can only be `'shift'` or `'none'`.",
       "example": "```jsx\n<Positioner\n  collisionAvoidance={{\n    side: 'shift',\n    align: 'shift',\n    fallbackAxisSide: 'none',\n  }}\n/>\n```",
       "detailedType": "| {\n    side?: 'flip' | 'none'\n    align?: 'flip' | 'shift' | 'none'\n    fallbackAxisSide?: 'start' | 'end' | 'none'\n  }\n| {\n    side?: 'shift' | 'none'\n    align?: 'shift' | 'none'\n    fallbackAxisSide?: 'start' | 'end' | 'none'\n  }\n| undefined"
     },

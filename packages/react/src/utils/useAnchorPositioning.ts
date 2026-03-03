@@ -68,15 +68,23 @@ export type OffsetFunction = (data: {
 interface SideFlipMode {
   /**
    * How to avoid collisions on the side axis.
+   * - `'flip'`: If there is not enough space, place the popup on the opposite side.
+   * - `'none'`: Keep the preferred side even if it overflows.
    */
   side?: 'flip' | 'none' | undefined;
   /**
    * How to avoid collisions on the align axis.
+   * - `'flip'`: If there is not enough space, swap `'start'` and `'end'` alignment.
+   * - `'shift'`: Keep the alignment and shift the popup to fit within the boundary.
+   * - `'none'`: Keep the preferred alignment even if it overflows.
    */
   align?: 'flip' | 'shift' | 'none' | undefined;
   /**
    * If both sides on the preferred axis do not fit, determines whether to fallback
    * to a side on the perpendicular axis and which logical side to prefer.
+   * - `'start'`: Prefer the logical start side on the perpendicular axis.
+   * - `'end'`: Prefer the logical end side on the perpendicular axis.
+   * - `'none'`: Do not fallback to the perpendicular axis.
    */
   fallbackAxisSide?: 'start' | 'end' | 'none' | undefined;
 }
@@ -84,15 +92,22 @@ interface SideFlipMode {
 interface SideShiftMode {
   /**
    * How to avoid collisions on the side axis.
+   * - `'shift'`: Keep the preferred side and shift the popup to fit within the boundary.
+   * - `'none'`: Keep the preferred side even if it overflows.
    */
   side?: 'shift' | 'none' | undefined;
   /**
    * How to avoid collisions on the align axis.
+   * - `'shift'`: Keep the alignment and shift the popup to fit within the boundary.
+   * - `'none'`: Keep the preferred alignment even if it overflows.
    */
   align?: 'shift' | 'none' | undefined;
   /**
    * If both sides on the preferred axis do not fit, determines whether to fallback
    * to a side on the perpendicular axis and which logical side to prefer.
+   * - `'start'`: Prefer the logical start side on the perpendicular axis.
+   * - `'end'`: Prefer the logical end side on the perpendicular axis.
+   * - `'none'`: Do not fallback to the perpendicular axis.
    */
   fallbackAxisSide?: 'start' | 'end' | 'none' | undefined;
 }
@@ -654,6 +669,18 @@ export interface UseAnchorPositioningSharedParameters {
   disableAnchorTracking?: boolean | undefined;
   /**
    * Determines how to handle collisions when positioning the popup.
+   *
+   * It accepts an object with the following options:
+   * - `side`: controls collision handling on the preferred side axis.
+   * - `align`: controls collision handling on the alignment axis.
+   * - `fallbackAxisSide`: controls fallback behavior on the perpendicular axis.
+   *
+   * Defaults:
+   * - `side`: `'flip'`
+   * - `align`: `'flip'`
+   * - `fallbackAxisSide`: `'end'`
+   *
+   * Note that when `side` is `'shift'`, `align` can only be `'shift'` or `'none'`.
    *
    * @example
    * ```jsx
