@@ -5,11 +5,13 @@ import { Link } from 'docs/src/components/Link';
 export default function DesignEngineerPage() {
   return (
     <React.Fragment>
-      <section className="d-c">
-        <h1 className="Text size-3 bp2:size-4 gcs-1 gce-9 bp4:gce-5">Design Engineer</h1>
-        <div className="gcs-1 gce-9">
+      <section className="bui-d-c">
+        <h1 className="Text size-3 bp2:size-4 bui-gcs-1 bui-gce-9 bp4:bui-gce-5">
+          Design Engineer
+        </h1>
+        <div className="bui-gcs-1 bui-gce-9">
           <Link
-            className="Text size-2 Link d-if"
+            className="Text size-2 Link bui-d-if"
             href="https://jobs.ashbyhq.com/MUI/353c3d7c-7e58-44f7-83b0-3b87edb6bebd/application"
             skipExternalIcon
           >
@@ -33,8 +35,8 @@ export default function DesignEngineerPage() {
         </div>
       </section>
 
-      <section className="d-c">
-        <div className="d-f fd-c g-4 gcs-1 gce-9 bp2:gcs-3 bp4:gce-7">
+      <section className="bui-d-c">
+        <div className="bui-d-f bui-fd-c bui-g-4 bui-gcs-1 bui-gce-9 bp2:bui-gcs-3 bp4:bui-gce-7">
           <p className="Text size-2">
             Help us make Base UI the most intuitive, accessible, and powerful open-source UI library
             for React.
@@ -42,15 +44,15 @@ export default function DesignEngineerPage() {
         </div>
       </section>
 
-      <div className="gcs-1 gce-9 bp3:gcs-3">
+      <div className="bui-gcs-1 bui-gce-9 bp3:bui-gcs-3">
         <div className="Separator" role="separator" aria-hidden="true"></div>
       </div>
 
-      <section className="d-c">
-        <div className="gcs-1 gce-9 bp2:gce-3">
+      <section className="bui-d-c">
+        <div className="bui-gcs-1 bui-gce-9 bp2:bui-gce-3">
           <h2 className="Text size-2">About Base UI</h2>
         </div>
-        <div className="d-f fd-c g-4 gcs-1 gce-9 bp2:gcs-3 bp4:gce-7">
+        <div className="bui-d-f bui-fd-c bui-g-4 bui-gcs-1 bui-gce-9 bp2:bui-gcs-3 bp4:bui-gce-7">
           <p className="Text size-2">
             From the creators of Radix, Material UI, and Floating UI, Base UI is an unstyled React
             component library for building accessible user interfaces. Our focus is on
@@ -81,15 +83,15 @@ export default function DesignEngineerPage() {
         </div>
       </section>
 
-      <div className="gcs-1 gce-9 bp3:gcs-3">
+      <div className="bui-gcs-1 bui-gce-9 bp3:bui-gcs-3">
         <div className="Separator" role="separator" aria-hidden="true"></div>
       </div>
 
-      <section className="d-c">
-        <div className="gcs-1 gce-9 bp2:gce-3">
+      <section className="bui-d-c">
+        <div className="bui-gcs-1 bui-gce-9 bp2:bui-gce-3">
           <h2 className="Text size-2">Responsibilities</h2>
         </div>
-        <div className="d-f fd-c g-4 gcs-1 gce-9 bp2:gcs-3 bp4:gce-7">
+        <div className="bui-d-f bui-fd-c bui-g-4 bui-gcs-1 bui-gce-9 bp2:bui-gcs-3 bp4:bui-gce-7">
           <ul className="BulletList Text size-2">
             <li>Report to our OSS Engineering Manager.</li>
             <li>
@@ -125,11 +127,11 @@ export default function DesignEngineerPage() {
         </div>
       </section>
 
-      <section className="d-c">
-        <div className="gcs-1 gce-9 bp2:gce-3">
+      <section className="bui-d-c">
+        <div className="bui-gcs-1 bui-gce-9 bp2:bui-gce-3">
           <h2 className="Text size-2">Requirements</h2>
         </div>
-        <div className="d-f fd-c g-4 gcs-1 gce-9 bp2:gcs-3 bp4:gce-7">
+        <div className="bui-d-f bui-fd-c bui-g-4 bui-gcs-1 bui-gce-9 bp2:bui-gcs-3 bp4:bui-gce-7">
           <ul className="BulletList Text size-2">
             <li>We are targeting 7+ years of web development experience.</li>
             <li>
@@ -156,11 +158,11 @@ export default function DesignEngineerPage() {
         </div>
       </section>
 
-      <section className="d-c">
-        <div className="gcs-1 gce-9 bp2:gce-3">
+      <section className="bui-d-c">
+        <div className="bui-gcs-1 bui-gce-9 bp2:bui-gce-3">
           <h2 className="Text size-2">Benefits</h2>
         </div>
-        <div className="d-f fd-c g-4 gcs-1 gce-9 bp2:gcs-3 bp4:gce-7">
+        <div className="bui-d-f bui-fd-c bui-g-4 bui-gcs-1 bui-gce-9 bp2:bui-gcs-3 bp4:bui-gce-7">
           <ul className="BulletList Text size-2">
             <li>$200k–$290k USD base salary.</li>
             <li>Subsidized healthcare package (dependent on employment path and location).</li>
@@ -186,11 +188,11 @@ export default function DesignEngineerPage() {
         </div>
       </section>
 
-      <section className="d-c">
-        <div className="gcs-1 gce-9 bp2:gce-3">
+      <section className="bui-d-c">
+        <div className="bui-gcs-1 bui-gce-9 bp2:bui-gce-3">
           <h2 className="Text size-2">Application</h2>
         </div>
-        <div className="d-f fd-c g-4 gcs-1 gce-9 bp2:gcs-3 bp4:gce-7">
+        <div className="bui-d-f bui-fd-c bui-g-4 bui-gcs-1 bui-gce-9 bp2:bui-gcs-3 bp4:bui-gce-7">
           <p className="Text size-2">The hiring process will consist of 6 stages:</p>
           <ul className="BulletList Text size-2">
             <li>Resume review.</li>
@@ -202,7 +204,7 @@ export default function DesignEngineerPage() {
           </ul>
           <p className="Text size-2">
             <Link
-              className="Text size-2 Link d-if"
+              className="Text size-2 Link bui-d-if"
               href="https://jobs.ashbyhq.com/MUI/353c3d7c-7e58-44f7-83b0-3b87edb6bebd/application"
               skipExternalIcon
             >

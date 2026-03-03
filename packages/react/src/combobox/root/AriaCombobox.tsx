@@ -966,9 +966,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const role: ElementProps = React.useMemo(() => {
     const isPlainInput = inputElement?.tagName === 'INPUT';
-    const shouldApplyAria = isPlainInput || open;
+    // During SSR and initial hydration, the input ref is not available yet.
+    // Assume an input-like control so combobox ARIA attributes are present.
+    const shouldTreatAsInput = inputElement == null || isPlainInput;
+    const shouldApplyAria = shouldTreatAsInput || open;
 
-    const reference = isPlainInput
+    const reference = shouldTreatAsInput
       ? ({
           autoComplete: 'off',
           spellCheck: 'false',

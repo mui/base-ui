@@ -20,7 +20,6 @@ export class HoverInteraction {
   handler: ((event: MouseEvent) => void) | undefined;
   blockMouseMove: boolean;
   performedPointerEventsMutation: boolean;
-  unbindMouseMove: () => void;
   restTimeoutPending: boolean;
   openChangeTimeout: Timeout;
   restTimeout: Timeout;
@@ -32,7 +31,6 @@ export class HoverInteraction {
     this.handler = undefined;
     this.blockMouseMove = true;
     this.performedPointerEventsMutation = false;
-    this.unbindMouseMove = () => {};
     this.restTimeoutPending = false;
     this.openChangeTimeout = new Timeout();
     this.restTimeout = new Timeout();

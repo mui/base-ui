@@ -7,6 +7,7 @@ import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { Select } from '@base-ui/react/select';
 import { NumberField } from '@base-ui/react/number-field';
+import { ScrollArea } from '@base-ui/react/scroll-area';
 import { REASONS } from '../../utils/reasons';
 
 describe('<Dialog.Root />', () => {
@@ -297,6 +298,29 @@ describe('<Dialog.Root />', () => {
         fireEvent.click(internalBackdrop);
         await waitFor(() => {
           expect(screen.queryByRole('dialog')).to.equal(null);
+        });
+        expect(handleOpenChange.callCount).to.equal(1);
+      });
+
+      it('closing via intentional outside press with user backdrop (modal=true): works when portaled into a shadow DOM', async () => {
+        const handleOpenChange = spy();
+
+        const container = document.body.appendChild(document.createElement('div'));
+        const shadowRoot = container.attachShadow({ mode: 'open' });
+
+        await render(
+          <TestDialog
+            rootProps={{ defaultOpen: true, onOpenChange: handleOpenChange, modal: true }}
+            portalProps={{ container: shadowRoot }}
+            includeBackdrop
+          />,
+        );
+
+        const backdrop = shadowRoot.querySelector('[data-testid="backdrop"]') as HTMLElement;
+
+        fireEvent.click(backdrop);
+        await waitFor(() => {
+          expect(shadowRoot.querySelector('[role="dialog"]')).to.equal(null);
         });
         expect(handleOpenChange.callCount).to.equal(1);
       });
@@ -1092,6 +1116,54 @@ describe('<Dialog.Root />', () => {
       });
     });
   });
+
+  it.skipIf(isJSDOM)(
+    'keeps focus trapped when dialog content contains a non-scrollable scroll area',
+    async () => {
+      const { user } = await render(
+        <div>
+          <button data-testid="outside-before">Outside before</button>
+          <ContainedTriggerDialog
+            rootProps={{ defaultOpen: true, modal: 'trap-focus' }}
+            popupProps={{
+              children: (
+                <ScrollArea.Root style={{ width: 200, height: 200 }}>
+                  <ScrollArea.Viewport
+                    data-testid="viewport"
+                    style={{ width: '100%', height: '100%' }}
+                  >
+                    <div style={{ width: 100, height: 100 }}>Non-scrollable content</div>
+                  </ScrollArea.Viewport>
+                </ScrollArea.Root>
+              ),
+            }}
+            omitTrigger
+          />
+          <button data-testid="outside-after">Outside after</button>
+        </div>,
+      );
+
+      const popup = screen.getByRole('dialog');
+      const outsideBefore = screen.getByTestId('outside-before');
+      const outsideAfter = screen.getByTestId('outside-after');
+
+      await waitFor(() => {
+        expect(popup.contains(document.activeElement)).to.equal(true);
+      });
+
+      await user.keyboard('[Tab]');
+      expect(popup.contains(document.activeElement)).to.equal(true);
+
+      await user.keyboard('[Tab]');
+      expect(popup.contains(document.activeElement)).to.equal(true);
+
+      await user.keyboard('[ShiftLeft>][Tab][/ShiftLeft]');
+      expect(popup.contains(document.activeElement)).to.equal(true);
+
+      expect(outsideBefore).not.toHaveFocus();
+      expect(outsideAfter).not.toHaveFocus();
+    },
+  );
 });
 
 type TestDialogProps = {

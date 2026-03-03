@@ -1,11 +1,12 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import clsx from 'clsx';
 import NextLink from 'next/link';
 import { Dialog } from '@base-ui/react/dialog';
-import * as ReactDOM from 'react-dom';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { HEADER_HEIGHT } from './Header';
+import './MobileNav.css';
 
 const MobileNavStateCallback = React.createContext<(open: boolean) => void>(() => undefined);
 
@@ -114,7 +115,7 @@ function PopupImpl(props: React.PropsWithChildren) {
 
           <nav className="MobileNavPanel">
             {/* Reverse order to place the close button at the end of the DOM, but at sticky top visually */}
-            <div className="flex flex-col-reverse">
+            <div className="MobileNavBody">
               <div>{props.children}</div>
               <div className="MobileNavCloseContainer">
                 <Dialog.Close aria-label="Close the navigation" className="MobileNavClose">

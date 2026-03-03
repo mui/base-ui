@@ -70,7 +70,7 @@ describe('<Combobox.Root />', () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   popupConformanceTests({
     createComponent: (props) => (
@@ -91,6 +91,43 @@ describe('<Combobox.Root />', () => {
     triggerMouseAction: 'click',
     expectedPopupRole: 'listbox',
     combobox: true,
+  });
+
+  describe('server-side rendering', () => {
+    it('sets combobox aria attributes on the input', () => {
+      renderToString(
+        <Combobox.Root>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner />
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      expect(input).to.have.attribute('role', 'combobox');
+      expect(input).to.have.attribute('aria-expanded', 'false');
+      expect(input).to.have.attribute('aria-autocomplete', 'list');
+      expect(input).to.have.attribute('aria-haspopup', 'listbox');
+    });
+
+    it('sets combobox aria attributes on the trigger when input is inside popup', () => {
+      renderToString(
+        <Combobox.Root>
+          <Combobox.Trigger data-testid="trigger" />
+          <Combobox.Portal>
+            <Combobox.Positioner />
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      expect(trigger).to.have.attribute('role', 'combobox');
+      expect(trigger).to.have.attribute('aria-expanded', 'false');
+      expect(trigger).to.have.attribute('aria-haspopup', 'dialog');
+    });
   });
 
   it('does not focus input when closing via trigger click (input inside popup)', async () => {
@@ -908,6 +945,33 @@ describe('<Combobox.Root />', () => {
       await user.keyboard('{Escape}');
 
       expect(onOuterKeyDown.callCount).to.equal(1);
+    });
+
+    it('keeps input value on Enter when inline and no item is highlighted', async () => {
+      const { user } = await render(
+        <Combobox.Root inline items={['Apple', 'Banana']}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.List>
+            {(item: string) => (
+              <Combobox.Item key={item} value={item}>
+                {item}
+              </Combobox.Item>
+            )}
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      await user.click(input);
+      await user.type(input, 'Ba');
+
+      expect(input).not.to.have.attribute('aria-activedescendant');
+      expect(input).to.have.value('Ba');
+
+      await user.keyboard('{Enter}');
+
+      expect(input).to.have.value('Ba');
     });
 
     it('bubbles Escape key when list is empty and popup hidden with CSS', async () => {

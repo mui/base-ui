@@ -4,42 +4,28 @@ import { Combobox } from '@base-ui/react/combobox';
 import { Menu } from '@base-ui/react/menu';
 import { Popover } from '@base-ui/react/popover';
 import { Switch } from '@base-ui/react/switch';
+import styles from './popup-tabbing.module.css';
 
 function ExampleMenu() {
   return (
     <Menu.Root>
-      <Menu.Trigger
-        openOnHover
-        className="flex h-10 items-center justify-center gap-1.5 rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100"
-      >
-        Song <ChevronDownIcon className="-mr-1" />
+      <Menu.Trigger openOnHover className={styles.Button}>
+        Song <ChevronDownIcon />
       </Menu.Trigger>
       <Menu.Portal>
-        <Menu.Positioner className="outline-none" sideOffset={8}>
-          <Menu.Popup className="origin-[var(--transform-origin)] rounded-md bg-[canvas] py-1 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
-            <Menu.Arrow className="data-[side=bottom]:top-[-8px] data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180">
+        <Menu.Positioner className={styles.MenuPositioner} sideOffset={8}>
+          <Menu.Popup className={styles.MenuPopup}>
+            <Menu.Arrow className={styles.MenuArrow}>
               <ArrowSvg />
             </Menu.Arrow>
-            <Menu.Item className="flex cursor-default py-2 pr-8 pl-4 text-sm leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900">
-              Add to Library
-            </Menu.Item>
-            <Menu.Item className="flex cursor-default py-2 pr-8 pl-4 text-sm leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900">
-              Add to Playlist
-            </Menu.Item>
-            <Menu.Separator className="mx-4 my-1.5 h-px bg-gray-200" />
-            <Menu.Item className="flex cursor-default py-2 pr-8 pl-4 text-sm leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900">
-              Play Next
-            </Menu.Item>
-            <Menu.Item className="flex cursor-default py-2 pr-8 pl-4 text-sm leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900">
-              Play Last
-            </Menu.Item>
-            <Menu.Separator className="mx-4 my-1.5 h-px bg-gray-200" />
-            <Menu.Item className="flex cursor-default py-2 pr-8 pl-4 text-sm leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900">
-              Favorite
-            </Menu.Item>
-            <Menu.Item className="flex cursor-default py-2 pr-8 pl-4 text-sm leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900">
-              Share
-            </Menu.Item>
+            <Menu.Item className={styles.MenuItem}>Add to Library</Menu.Item>
+            <Menu.Item className={styles.MenuItem}>Add to Playlist</Menu.Item>
+            <Menu.Separator className={styles.MenuSeparator} />
+            <Menu.Item className={styles.MenuItem}>Play Next</Menu.Item>
+            <Menu.Item className={styles.MenuItem}>Play Last</Menu.Item>
+            <Menu.Separator className={styles.MenuSeparator} />
+            <Menu.Item className={styles.MenuItem}>Favorite</Menu.Item>
+            <Menu.Item className={styles.MenuItem}>Share</Menu.Item>
           </Menu.Popup>
         </Menu.Positioner>
       </Menu.Portal>
@@ -50,18 +36,13 @@ function ExampleMenu() {
 function ExamplePopoverInPopover() {
   return (
     <Popover.Root>
-      <Popover.Trigger className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
-        Inner popover
-      </Popover.Trigger>
+      <Popover.Trigger className={styles.Button}>Inner popover</Popover.Trigger>
       <Popover.Portal>
         <Popover.Positioner sideOffset={8}>
-          <Popover.Popup className="origin-[var(--transform-origin)] w-72 rounded-lg bg-[canvas] p-4 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0">
-            <div className="text-sm font-medium">Inner content</div>
-            <div className="mt-1 text-sm text-gray-600">Try Tab / Shift+Tab out of here.</div>
-            <button
-              type="button"
-              className="mt-3 inline-flex h-9 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3 text-sm font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
-            >
+          <Popover.Popup className={styles.PopoverPopupColumn}>
+            <div className={styles.InnerTitle}>Inner content</div>
+            <div className={styles.InnerDescription}>Try Tab / Shift+Tab out of here.</div>
+            <button type="button" className={styles.Button}>
               Inner button
             </button>
           </Popover.Popup>
@@ -78,38 +59,25 @@ function ExampleCombobox() {
 
   return (
     <Combobox.Root items={fruits}>
-      <div className="relative flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">
+      <div className={styles.ComboboxField}>
         <label htmlFor={id}>Choose a fruit</label>
-        <div className="relative">
-          <Combobox.Input
-            placeholder="e.g. Apple"
-            id={id}
-            className="h-10 w-64 rounded-md font-normal border border-gray-200 pl-3.5 pr-[calc(0.5rem+1.5rem)] text-base text-gray-900 bg-[canvas] focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
-          />
-          <div className="absolute right-2 bottom-0 flex h-10 items-center justify-center text-gray-600">
-            <Combobox.Trigger
-              className="flex h-10 w-6 items-center justify-center rounded bg-transparent p-0"
-              aria-label="Open popup"
-            >
-              <ChevronDownIcon className="size-4" />
+        <div className={styles.ComboboxInputWrap}>
+          <Combobox.Input placeholder="e.g. Apple" id={id} className={styles.ComboboxInput} />
+          <div className={styles.ComboboxActions}>
+            <Combobox.Trigger className={styles.ComboboxTriggerButton} aria-label="Open popup">
+              <ChevronDownIcon className={styles.ComboboxIcon} />
             </Combobox.Trigger>
           </div>
         </div>
       </div>
 
       <Combobox.Portal>
-        <Combobox.Positioner className="outline-none" sideOffset={4}>
-          <Combobox.Popup className="w-[var(--anchor-width)] max-h-[min(var(--available-height),23rem)] max-w-[var(--available-width)] origin-[var(--transform-origin)] overflow-y-auto scroll-pt-2 scroll-pb-2 overscroll-contain rounded-md bg-[canvas] py-2 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-95 data-[ending-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
-            <Combobox.Empty className="px-4 py-2 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0">
-              No fruits found.
-            </Combobox.Empty>
+        <Combobox.Positioner className={styles.MenuPositioner} sideOffset={4}>
+          <Combobox.Popup className={styles.ComboboxPopup}>
+            <Combobox.Empty className={styles.ComboboxEmpty}>No fruits found.</Combobox.Empty>
             <Combobox.List>
               {(item: string) => (
-                <Combobox.Item
-                  key={item}
-                  value={item}
-                  className="flex cursor-default py-2 pr-8 pl-4 text-base leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900"
-                >
+                <Combobox.Item key={item} value={item} className={styles.ComboboxItem}>
                   {item}
                 </Combobox.Item>
               )}
@@ -125,46 +93,38 @@ export default function PopupTabbing() {
   const [renderInsideButtons, setRenderInsideButtons] = React.useState(true);
 
   return (
-    <div className="p-6">
-      <h1 className="text-lg font-semibold text-gray-900">popup-tabbing</h1>
-      <p className="mt-1 text-sm text-gray-600">
+    <div className={styles.Page}>
+      <h1 className={styles.Title}>popup-tabbing</h1>
+      <p className={styles.Description}>
         Repros for tab order and focus handoff between nested popups.
       </p>
 
-      <label className="mt-4 flex items-center gap-2 text-sm font-medium text-gray-900">
+      <label className={styles.SwitchLabel}>
         <Switch.Root
           checked={renderInsideButtons}
           onCheckedChange={setRenderInsideButtons}
-          className="relative flex h-5 w-9 rounded-full bg-gray-200 p-px outline-1 -outline-offset-1 outline-gray-300 transition-colors focus-visible:outline-2 focus-visible:outline-blue-800 data-[checked]:bg-gray-900 data-[checked]:outline-gray-900"
+          className={styles.SwitchRoot}
         >
-          <Switch.Thumb className="h-full aspect-square rounded-full bg-white transition-transform data-[checked]:translate-x-4" />
+          <Switch.Thumb className={styles.SwitchThumb} />
         </Switch.Root>
         Render inside before/after buttons
       </label>
 
-      <div className="mt-6 space-y-10">
-        <section className="space-y-3">
-          <h2 className="text-base font-semibold text-gray-900">Combobox inside Popover</h2>
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
-            >
+      <div className={styles.Sections}>
+        <section className={styles.Section}>
+          <h2 className={styles.SectionTitle}>Combobox inside Popover</h2>
+          <div className={styles.Row}>
+            <button type="button" className={styles.Button}>
               Outside before
             </button>
 
             <Popover.Root>
-              <Popover.Trigger className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
-                Outer popover
-              </Popover.Trigger>
+              <Popover.Trigger className={styles.Button}>Outer popover</Popover.Trigger>
               <Popover.Portal>
                 <Popover.Positioner sideOffset={8}>
-                  <Popover.Popup className="origin-[var(--transform-origin)] flex flex-col gap-3 rounded-lg bg-[canvas] p-4 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0">
+                  <Popover.Popup className={styles.PopoverPopupColumn}>
                     {renderInsideButtons ? (
-                      <button
-                        type="button"
-                        className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
-                      >
+                      <button type="button" className={styles.Button}>
                         Inside before
                       </button>
                     ) : null}
@@ -172,10 +132,7 @@ export default function PopupTabbing() {
                     <ExampleCombobox />
 
                     {renderInsideButtons ? (
-                      <button
-                        type="button"
-                        className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
-                      >
+                      <button type="button" className={styles.Button}>
                         Inside after
                       </button>
                     ) : null}
@@ -184,46 +141,32 @@ export default function PopupTabbing() {
               </Popover.Portal>
             </Popover.Root>
 
-            <button
-              type="button"
-              className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
-            >
+            <button type="button" className={styles.Button}>
               Outside after
             </button>
           </div>
         </section>
 
-        <section className="space-y-3">
-          <h2 className="text-base font-semibold text-gray-900">Menu inside Popover</h2>
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
-            >
+        <section className={styles.Section}>
+          <h2 className={styles.SectionTitle}>Menu inside Popover</h2>
+          <div className={styles.Row}>
+            <button type="button" className={styles.Button}>
               Outside before
             </button>
 
             <Popover.Root>
-              <Popover.Trigger className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
-                Outer popover
-              </Popover.Trigger>
+              <Popover.Trigger className={styles.Button}>Outer popover</Popover.Trigger>
               <Popover.Portal>
                 <Popover.Positioner sideOffset={8}>
-                  <Popover.Popup className="origin-[var(--transform-origin)] flex items-center gap-3 rounded-lg bg-[canvas] p-4 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0">
+                  <Popover.Popup className={styles.PopoverPopupRow}>
                     {renderInsideButtons ? (
-                      <button
-                        type="button"
-                        className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
-                      >
+                      <button type="button" className={styles.Button}>
                         Inside before
                       </button>
                     ) : null}
                     <ExampleMenu />
                     {renderInsideButtons ? (
-                      <button
-                        type="button"
-                        className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
-                      >
+                      <button type="button" className={styles.Button}>
                         Inside after
                       </button>
                     ) : null}
@@ -232,46 +175,32 @@ export default function PopupTabbing() {
               </Popover.Portal>
             </Popover.Root>
 
-            <button
-              type="button"
-              className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
-            >
+            <button type="button" className={styles.Button}>
               Outside after
             </button>
           </div>
         </section>
 
-        <section className="space-y-3">
-          <h2 className="text-base font-semibold text-gray-900">Popover inside Popover</h2>
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
-            >
+        <section className={styles.Section}>
+          <h2 className={styles.SectionTitle}>Popover inside Popover</h2>
+          <div className={styles.Row}>
+            <button type="button" className={styles.Button}>
               Outside before
             </button>
 
             <Popover.Root>
-              <Popover.Trigger className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
-                Outer popover
-              </Popover.Trigger>
+              <Popover.Trigger className={styles.Button}>Outer popover</Popover.Trigger>
               <Popover.Portal>
                 <Popover.Positioner sideOffset={8}>
-                  <Popover.Popup className="origin-[var(--transform-origin)] flex flex-col gap-3 rounded-lg bg-[canvas] p-4 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0">
+                  <Popover.Popup className={styles.PopoverPopupColumn}>
                     {renderInsideButtons ? (
-                      <button
-                        type="button"
-                        className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
-                      >
+                      <button type="button" className={styles.Button}>
                         Inside before
                       </button>
                     ) : null}
                     <ExamplePopoverInPopover />
                     {renderInsideButtons ? (
-                      <button
-                        type="button"
-                        className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
-                      >
+                      <button type="button" className={styles.Button}>
                         Inside after
                       </button>
                     ) : null}
@@ -280,10 +209,7 @@ export default function PopupTabbing() {
               </Popover.Portal>
             </Popover.Root>
 
-            <button
-              type="button"
-              className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
-            >
+            <button type="button" className={styles.Button}>
               Outside after
             </button>
           </div>
@@ -298,15 +224,15 @@ function ArrowSvg(props: React.ComponentProps<'svg'>) {
     <svg width="20" height="10" viewBox="0 0 20 10" fill="none" {...props}>
       <path
         d="M9.66437 2.60207L4.80758 6.97318C4.07308 7.63423 3.11989 8 2.13172 8H0V10H20V8H18.5349C17.5468 8 16.5936 7.63423 15.8591 6.97318L11.0023 2.60207C10.622 2.2598 10.0447 2.25979 9.66437 2.60207Z"
-        className="fill-[canvas]"
+        className={styles.ArrowFill}
       />
       <path
         d="M8.99542 1.85876C9.75604 1.17425 10.9106 1.17422 11.6713 1.85878L16.5281 6.22989C17.0789 6.72568 17.7938 7.00001 18.5349 7.00001L15.89 7L11.0023 2.60207C10.622 2.2598 10.0447 2.2598 9.66436 2.60207L4.77734 7L2.13171 7.00001C2.87284 7.00001 3.58774 6.72568 4.13861 6.22989L8.99542 1.85876Z"
-        className="fill-gray-200 dark:fill-none"
+        className={styles.ArrowStrokeLight}
       />
       <path
         d="M10.3333 3.34539L5.47654 7.71648C4.55842 8.54279 3.36693 9 2.13172 9H0V8H2.13172C3.11989 8 4.07308 7.63423 4.80758 6.97318L9.66437 2.60207C10.0447 2.25979 10.622 2.2598 11.0023 2.60207L15.8591 6.97318C16.5936 7.63423 17.5468 8 18.5349 8H20V9H18.5349C17.2998 9 16.1083 8.54278 15.1901 7.71648L10.3333 3.34539Z"
-        className="dark:fill-gray-300"
+        className={styles.ArrowStrokeDark}
       />
     </svg>
   );
