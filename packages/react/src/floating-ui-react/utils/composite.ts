@@ -211,6 +211,51 @@ export function getGridNavigatedIndex(
     return undefined;
   }
 
+  function navigateVerticallyWithInferredRows(direction: 'up' | 'down') {
+    if (!hasDomRows || prevIndex === -1 || verticalCols <= 0) {
+      return undefined;
+    }
+
+    const lastRowStart = maxIndex - (maxIndex % verticalCols);
+    const rowStep = direction === 'up' ? -verticalCols : verticalCols;
+    const colInRow = prevIndex % verticalCols;
+
+    let rowStart = prevIndex - (prevIndex % verticalCols) + rowStep;
+    if (loopFocus) {
+      if (rowStart < 0) {
+        rowStart = lastRowStart;
+      } else if (rowStart > maxIndex) {
+        rowStart = 0;
+      }
+    }
+
+    const visited = new Set<number>();
+    while (rowStart >= 0 && rowStart <= maxIndex && !visited.has(rowStart)) {
+      visited.add(rowStart);
+      const rowEnd = Math.min(rowStart + verticalCols - 1, maxIndex);
+      for (
+        let candidate = Math.min(rowStart + colInRow, rowEnd);
+        candidate >= rowStart;
+        candidate -= 1
+      ) {
+        if (!isListIndexDisabled(listRef, candidate, disabledIndices)) {
+          return candidate;
+        }
+      }
+
+      rowStart += rowStep;
+      if (loopFocus) {
+        if (rowStart < 0) {
+          rowStart = lastRowStart;
+        } else if (rowStart > maxIndex) {
+          rowStart = 0;
+        }
+      }
+    }
+
+    return undefined;
+  }
+
   if (event.key === ARROW_UP) {
     const domBasedCandidate = navigateVertically('up');
     if (domBasedCandidate !== undefined) {
@@ -224,7 +269,10 @@ export function getGridNavigatedIndex(
         stopEvent(event);
       }
 
-      if (prevIndex === -1) {
+      const inferredRowsCandidate = navigateVerticallyWithInferredRows('up');
+      if (inferredRowsCandidate !== undefined) {
+        nextIndex = inferredRowsCandidate;
+      } else if (prevIndex === -1) {
         nextIndex = maxIndex;
       } else {
         nextIndex = findNonDisabledListIndex(listRef, {
@@ -265,7 +313,10 @@ export function getGridNavigatedIndex(
         stopEvent(event);
       }
 
-      if (prevIndex === -1) {
+      const inferredRowsCandidate = navigateVerticallyWithInferredRows('down');
+      if (inferredRowsCandidate !== undefined) {
+        nextIndex = inferredRowsCandidate;
+      } else if (prevIndex === -1) {
         nextIndex = minIndex;
       } else {
         nextIndex = findNonDisabledListIndex(listRef, {

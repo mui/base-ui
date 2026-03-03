@@ -74,13 +74,18 @@ function App(
   );
 }
 
-function VirtualizedGridRows() {
-  const TOTAL_ITEMS = 100;
+function VirtualizedGridRows({
+  totalItems = 100,
+  initialActiveIndex = 0,
+}: {
+  totalItems?: number;
+  initialActiveIndex?: number;
+}) {
   const COLUMNS = 5;
   const VISIBLE_ROWS = 3;
 
   const [open, setOpen] = React.useState(true);
-  const [activeIndex, setActiveIndex] = React.useState<number | null>(0);
+  const [activeIndex, setActiveIndex] = React.useState<number | null>(initialActiveIndex);
   const listRef = React.useRef<Array<HTMLButtonElement | null>>([]);
 
   const { refs, context } = useFloating({
@@ -101,8 +106,8 @@ function VirtualizedGridRows() {
   ]);
 
   React.useEffect(() => {
-    listRef.current.length = TOTAL_ITEMS;
-  }, []);
+    listRef.current.length = totalItems;
+  }, [totalItems]);
 
   return (
     <React.Fragment>
@@ -120,6 +125,9 @@ function VirtualizedGridRows() {
             <div key={rowIndex} role="row">
               {Array.from({ length: COLUMNS }, (_column, columnIndex) => {
                 const itemIndex = rowIndex * COLUMNS + columnIndex;
+                if (itemIndex >= totalItems) {
+                  return null;
+                }
 
                 return (
                   <button
@@ -860,6 +868,42 @@ describe('useListNavigation', () => {
         expect(screen.getByTestId('virtual-grid-active-index')).toHaveAttribute(
           'data-active-index',
           '95',
+        );
+      });
+    });
+
+    it('clamps ArrowUp to the last item in a partial last row for virtualized rows', async () => {
+      render(<VirtualizedGridRows totalItems={98} initialActiveIndex={4} />);
+
+      const reference = screen.getByTestId('virtual-grid-reference');
+      await act(async () => {
+        reference.focus();
+      });
+
+      await userEvent.keyboard('{ArrowUp}');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('virtual-grid-active-index')).toHaveAttribute(
+          'data-active-index',
+          '97',
+        );
+      });
+    });
+
+    it('clamps ArrowDown into a partial last row for virtualized rows', async () => {
+      render(<VirtualizedGridRows totalItems={98} initialActiveIndex={93} />);
+
+      const reference = screen.getByTestId('virtual-grid-reference');
+      await act(async () => {
+        reference.focus();
+      });
+
+      await userEvent.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('virtual-grid-active-index')).toHaveAttribute(
+          'data-active-index',
+          '97',
         );
       });
     });
