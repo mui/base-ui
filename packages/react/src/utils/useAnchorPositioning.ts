@@ -670,15 +670,28 @@ export interface UseAnchorPositioningSharedParameters {
   /**
    * Determines how to handle collisions when positioning the popup.
    *
-   * It accepts an object with the following options:
-   * - `side`: controls collision handling on the preferred side axis.
-   * - `align`: controls collision handling on the alignment axis.
-   * - `fallbackAxisSide`: controls fallback behavior on the perpendicular axis.
+   * `side` controls overflow on the preferred placement axis (`top`/`bottom` or `left`/`right`):
+   * - `'flip'`: keep the requested side when it fits; otherwise try the opposite side
+   *   (`top` <-> `bottom`, `left` <-> `right`).
+   * - `'shift'`: never change side; keep the requested side and move the popup within
+   *   the clipping boundary so it stays visible.
+   * - `'none'`: do not correct side-axis overflow.
    *
-   * Defaults:
-   * - `side`: `'flip'`
-   * - `align`: `'flip'`
-   * - `fallbackAxisSide`: `'end'`
+   * `align` controls overflow on the alignment axis (`start`/`center`/`end`):
+   * - `'flip'`: keep side, but swap `start` and `end` when the requested alignment overflows.
+   * - `'shift'`: keep side and requested alignment, then nudge the popup along the
+   *   alignment axis to fit.
+   * - `'none'`: do not correct alignment-axis overflow.
+   *
+   * `fallbackAxisSide` controls fallback behavior on the perpendicular axis when the
+   * preferred axis cannot fit:
+   * - `'start'`: allow perpendicular fallback and try the logical start side first
+   *   (`top` before `bottom`, or `left` before `right` in LTR).
+   * - `'end'`: allow perpendicular fallback and try the logical end side first
+   *   (`bottom` before `top`, or `right` before `left` in LTR).
+   * - `'none'`: do not fallback to the perpendicular axis.
+   *
+   * Defaults are `side: 'flip'`, `align: 'flip'`, and `fallbackAxisSide: 'end'`.
    *
    * Note that when `side` is `'shift'`, `align` can only be `'shift'` or `'none'`.
    *
