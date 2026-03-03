@@ -30,6 +30,7 @@ export const Input = React.forwardRef<HTMLInputElement, NumberField.Input.Props>
 ) {
   return (
     <NumberField.Input
+      aria-roledescription="Number field"
       ref={forwardedRef}
       className={clsx(
         'h-10 w-24 border-t border-b border-gray-200 text-center text-base text-gray-900 tabular-nums focus:z-1 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800',

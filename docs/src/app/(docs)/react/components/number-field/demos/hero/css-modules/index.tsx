@@ -16,11 +16,11 @@ export default function ExampleNumberField() {
       </NumberField.ScrubArea>
 
       <NumberField.Group className={styles.Group}>
-        <NumberField.Decrement className={styles.Decrement}>
+        <NumberField.Decrement aria-label="Decrease" className={styles.Decrement}>
           <MinusIcon />
         </NumberField.Decrement>
-        <NumberField.Input className={styles.Input} />
-        <NumberField.Increment className={styles.Increment}>
+        <NumberField.Input aria-roledescription="Number field" className={styles.Input} />
+        <NumberField.Increment aria-label="Increase" className={styles.Increment}>
           <PlusIcon />
         </NumberField.Increment>
       </NumberField.Group>

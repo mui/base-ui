@@ -20,7 +20,7 @@ import { Toast } from '@base-ui/react/toast';
 
 <Toast.Provider>
   <Toast.Portal>
-    <Toast.Viewport>
+    <Toast.Viewport aria-label="Notifications">
       {/* Stacked toasts */}
       <Toast.Root>
         <Toast.Content>
@@ -174,7 +174,7 @@ function AnchoredToasts() {
   const { toasts } = Toast.useToastManager();
   return (
     <Toast.Portal>
-      <Toast.Viewport>
+      <Toast.Viewport aria-label="Notifications">
         {toasts.map((toast) => (
           <Toast.Positioner key={toast.id} toast={toast}>
             <Toast.Root toast={toast}>{/* ... */}</Toast.Root>
@@ -189,7 +189,7 @@ function StackedToasts() {
   const { toasts } = Toast.useToastManager();
   return (
     <Toast.Portal>
-      <Toast.Viewport>
+      <Toast.Viewport aria-label="Notifications">
         {toasts.map((toast) => (
           <Toast.Root key={toast.id} toast={toast}>
             {/* ... */}

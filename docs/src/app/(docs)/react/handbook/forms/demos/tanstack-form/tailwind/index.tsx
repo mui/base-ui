@@ -290,11 +290,15 @@ function TanstackForm() {
               >
                 <Field.Label>Number of instances</Field.Label>
                 <NumberField.Group>
-                  <NumberField.Decrement>
+                  <NumberField.Decrement aria-label="Decrease">
                     <Minus className="size-4" />
                   </NumberField.Decrement>
-                  <NumberField.Input className="!w-16" onBlur={field.handleBlur} />
-                  <NumberField.Increment>
+                  <NumberField.Input
+                    aria-roledescription="Number field"
+                    className="!w-16"
+                    onBlur={field.handleBlur}
+                  />
+                  <NumberField.Increment aria-label="Increase">
                     <Plus className="size-4" />
                   </NumberField.Increment>
                 </NumberField.Group>
@@ -341,8 +345,16 @@ function TanstackForm() {
                 <Slider.Control>
                   <Slider.Track>
                     <Slider.Indicator />
-                    <Slider.Thumb index={0} onBlur={field.handleBlur} />
-                    <Slider.Thumb index={1} onBlur={field.handleBlur} />
+                    <Slider.Thumb
+                      index={0}
+                      aria-label="Minimum scaling threshold"
+                      onBlur={field.handleBlur}
+                    />
+                    <Slider.Thumb
+                      index={1}
+                      aria-label="Maximum scaling threshold"
+                      onBlur={field.handleBlur}
+                    />
                   </Slider.Track>
                 </Slider.Control>
               </Fieldset.Root>
