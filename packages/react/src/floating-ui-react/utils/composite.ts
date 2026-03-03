@@ -97,8 +97,9 @@ export function getGridNavigatedIndex(
   // row structure can be detected.
   // ---------------------------------------------------------------------------
   const rows: number[][] = [];
-  const rowIndexMap: Record<number, number> = {};
+  const rowIndexMap: number[] = [];
   let hasRoleRow = false;
+  let visibleItemCount = 0;
   {
     let currentRowEl: Element | null = null;
     let currentRowIndex = -1;
@@ -107,10 +108,14 @@ export function getGridNavigatedIndex(
       if (el == null) {
         return;
       }
+
+      visibleItemCount += 1;
+
       const rowEl = el.closest('[role="row"]');
       if (rowEl) {
         hasRoleRow = true;
       }
+
       if (rowEl !== currentRowEl || currentRowIndex === -1) {
         currentRowEl = rowEl;
         currentRowIndex += 1;
@@ -122,116 +127,80 @@ export function getGridNavigatedIndex(
   }
 
   let hasDomRows = false;
-  let visibleItemCount = 0;
   let inferredDomCols = 0;
 
-  if (hasRoleRow && rows.length > 0) {
+  if (hasRoleRow) {
     for (const row of rows) {
       const rowLength = row.length;
-      visibleItemCount += rowLength;
 
       if (rowLength > inferredDomCols) {
         inferredDomCols = rowLength;
       }
 
-      if (!hasDomRows && rowLength !== cols) {
+      if (rowLength !== cols) {
         hasDomRows = true;
       }
     }
   }
 
-  const hasVirtualizedGaps =
-    hasDomRows && visibleItemCount > 0 && visibleItemCount < listRef.current.length;
-  const verticalCols = hasDomRows && inferredDomCols > 0 ? inferredDomCols : cols;
-
-  function getLoopedRow(nextRow: number) {
-    if (!loopFocus) {
-      return nextRow;
-    }
-
-    if (nextRow < 0) {
-      if (hasVirtualizedGaps) {
-        return undefined;
-      }
-      return rows.length - 1;
-    }
-
-    if (nextRow >= rows.length) {
-      if (hasVirtualizedGaps) {
-        return undefined;
-      }
-      return 0;
-    }
-
-    return nextRow;
-  }
+  const hasVirtualizedGaps = hasDomRows && visibleItemCount < listRef.current.length;
+  const verticalCols = inferredDomCols || cols;
 
   function navigateVertically(direction: 'up' | 'down') {
     if (!hasDomRows || prevIndex === -1) {
       return undefined;
     }
+
     const currentRow = rowIndexMap[prevIndex];
     if (currentRow == null) {
       return undefined;
     }
+
     const colInRow = rows[currentRow].indexOf(prevIndex);
+    const step = direction === 'up' ? -1 : 1;
 
-    const initialNextRow = direction === 'up' ? currentRow - 1 : currentRow + 1;
-    const loopedRow = getLoopedRow(initialNextRow);
-    if (loopedRow == null) {
-      return undefined;
-    }
-    let nextRow = loopedRow;
-
-    const visited = new Set<number>();
-    while (nextRow >= 0 && nextRow < rows.length && !visited.has(nextRow)) {
-      visited.add(nextRow);
-      const targetRow = rows[nextRow];
-      if (targetRow.length === 0) {
-        nextRow = direction === 'up' ? nextRow - 1 : nextRow + 1;
-        continue;
+    for (let nextRow = currentRow + step, i = 0; i < rows.length; i += 1, nextRow += step) {
+      if (nextRow < 0 || nextRow >= rows.length) {
+        if (!loopFocus || hasVirtualizedGaps) {
+          return undefined;
+        }
+        nextRow = nextRow < 0 ? rows.length - 1 : 0;
       }
-      const clampedCol = Math.min(colInRow, targetRow.length - 1);
-      // Start from the preferred column, fallback leftwards until first
-      // enabled item is found.
-      for (let col = clampedCol; col >= 0; col -= 1) {
+
+      const targetRow = rows[nextRow];
+      for (let col = Math.min(colInRow, targetRow.length - 1); col >= 0; col -= 1) {
         const candidate = targetRow[col];
         if (!isListIndexDisabled(listRef, candidate, disabledIndices)) {
           return candidate;
         }
       }
-      // Row had no enabled items, move to next row in the same direction.
-      const rawNextRow = direction === 'up' ? nextRow - 1 : nextRow + 1;
-      const nextLoopedRow = getLoopedRow(rawNextRow);
-      if (nextLoopedRow == null) {
-        return undefined;
-      }
-      nextRow = nextLoopedRow;
     }
+
     return undefined;
   }
 
   function navigateVerticallyWithInferredRows(direction: 'up' | 'down') {
-    if (!hasDomRows || prevIndex === -1 || verticalCols <= 0) {
+    if (!hasVirtualizedGaps || prevIndex === -1) {
       return undefined;
     }
 
-    const lastRowStart = maxIndex - (maxIndex % verticalCols);
-    const rowStep = direction === 'up' ? -verticalCols : verticalCols;
     const colInRow = prevIndex % verticalCols;
+    const rowStep = direction === 'up' ? -verticalCols : verticalCols;
+    const lastRowStart = maxIndex - (maxIndex % verticalCols);
+    const rowCount = floor(maxIndex / verticalCols) + 1;
 
-    let rowStart = prevIndex - (prevIndex % verticalCols) + rowStep;
-    if (loopFocus) {
-      if (rowStart < 0) {
-        rowStart = lastRowStart;
-      } else if (rowStart > maxIndex) {
-        rowStart = 0;
+    for (
+      let rowStart = prevIndex - colInRow + rowStep, i = 0;
+      i < rowCount;
+      i += 1, rowStart += rowStep
+    ) {
+      if (rowStart < 0 || rowStart > maxIndex) {
+        if (!loopFocus) {
+          return undefined;
+        }
+        rowStart = rowStart < 0 ? lastRowStart : 0;
       }
-    }
 
-    const visited = new Set<number>();
-    while (rowStart >= 0 && rowStart <= maxIndex && !visited.has(rowStart)) {
-      visited.add(rowStart);
       const rowEnd = Math.min(rowStart + verticalCols - 1, maxIndex);
       for (
         let candidate = Math.min(rowStart + colInRow, rowEnd);
@@ -242,47 +211,44 @@ export function getGridNavigatedIndex(
           return candidate;
         }
       }
-
-      rowStart += rowStep;
-      if (loopFocus) {
-        if (rowStart < 0) {
-          rowStart = lastRowStart;
-        } else if (rowStart > maxIndex) {
-          rowStart = 0;
-        }
-      }
     }
 
     return undefined;
   }
 
+  let verticalDirection: 'up' | 'down' | undefined;
   if (event.key === ARROW_UP) {
-    const domBasedCandidate = navigateVertically('up');
-    if (domBasedCandidate !== undefined) {
-      if (stop) {
-        stopEvent(event);
-      }
-      nextIndex = domBasedCandidate;
+    verticalDirection = 'up';
+  } else if (event.key === ARROW_DOWN) {
+    verticalDirection = 'down';
+  }
+
+  if (verticalDirection) {
+    if (stop) {
+      stopEvent(event);
+    }
+
+    const verticalCandidate =
+      navigateVertically(verticalDirection) ??
+      navigateVerticallyWithInferredRows(verticalDirection);
+
+    if (verticalCandidate !== undefined) {
+      nextIndex = verticalCandidate;
+    } else if (prevIndex === -1) {
+      nextIndex = verticalDirection === 'up' ? maxIndex : minIndex;
     } else {
-      // fallback to original logic
-      if (stop) {
-        stopEvent(event);
-      }
+      nextIndex = findNonDisabledListIndex(listRef, {
+        startingIndex: prevIndex,
+        amount: verticalCols,
+        decrement: verticalDirection === 'up',
+        disabledIndices,
+      });
 
-      const inferredRowsCandidate = navigateVerticallyWithInferredRows('up');
-      if (inferredRowsCandidate !== undefined) {
-        nextIndex = inferredRowsCandidate;
-      } else if (prevIndex === -1) {
-        nextIndex = maxIndex;
-      } else {
-        nextIndex = findNonDisabledListIndex(listRef, {
-          startingIndex: nextIndex,
-          amount: verticalCols,
-          decrement: true,
-          disabledIndices,
-        });
-
-        if (loopFocus && (prevIndex - verticalCols < minIndex || nextIndex < 0)) {
+      if (loopFocus) {
+        if (
+          verticalDirection === 'up' &&
+          (prevIndex - verticalCols < minIndex || nextIndex < 0)
+        ) {
           const col = prevIndex % verticalCols;
           const maxCol = maxIndex % verticalCols;
           const offset = maxIndex - (maxCol - col);
@@ -293,39 +259,8 @@ export function getGridNavigatedIndex(
             nextIndex = maxCol > col ? offset : offset - verticalCols;
           }
         }
-      }
 
-      if (isIndexOutOfListBounds(listRef, nextIndex)) {
-        nextIndex = prevIndex;
-      }
-    }
-  }
-
-  if (event.key === ARROW_DOWN) {
-    const domBasedCandidate = navigateVertically('down');
-    if (domBasedCandidate !== undefined) {
-      if (stop) {
-        stopEvent(event);
-      }
-      nextIndex = domBasedCandidate;
-    } else {
-      if (stop) {
-        stopEvent(event);
-      }
-
-      const inferredRowsCandidate = navigateVerticallyWithInferredRows('down');
-      if (inferredRowsCandidate !== undefined) {
-        nextIndex = inferredRowsCandidate;
-      } else if (prevIndex === -1) {
-        nextIndex = minIndex;
-      } else {
-        nextIndex = findNonDisabledListIndex(listRef, {
-          startingIndex: prevIndex,
-          amount: verticalCols,
-          disabledIndices,
-        });
-
-        if (loopFocus && prevIndex + verticalCols > maxIndex) {
+        if (verticalDirection === 'down' && prevIndex + verticalCols > maxIndex) {
           nextIndex = findNonDisabledListIndex(listRef, {
             startingIndex: (prevIndex % verticalCols) - verticalCols,
             amount: verticalCols,
@@ -333,10 +268,10 @@ export function getGridNavigatedIndex(
           });
         }
       }
+    }
 
-      if (isIndexOutOfListBounds(listRef, nextIndex)) {
-        nextIndex = prevIndex;
-      }
+    if (isIndexOutOfListBounds(listRef, nextIndex)) {
+      nextIndex = prevIndex;
     }
   }
 
