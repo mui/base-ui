@@ -672,7 +672,7 @@ export interface UseAnchorPositioningSharedParameters {
    *
    * `side` controls overflow on the preferred placement axis (`top`/`bottom` or `left`/`right`):
    * - `'flip'`: keep the requested side when it fits; otherwise try the opposite side
-   *   (`top` <-> `bottom`, `left` <-> `right`).
+   *   (`top` and `bottom`, or `left` and `right`).
    * - `'shift'`: never change side; keep the requested side and move the popup within
    *   the clipping boundary so it stays visible.
    * - `'none'`: do not correct side-axis overflow.
