@@ -77,9 +77,11 @@ function App(
 function VirtualizedGridRows({
   totalItems = 100,
   initialActiveIndex = 0,
+  loopFocus = true,
 }: {
   totalItems?: number;
   initialActiveIndex?: number;
+  loopFocus?: boolean;
 }) {
   const COLUMNS = 5;
   const VISIBLE_ROWS = 3;
@@ -99,7 +101,7 @@ function VirtualizedGridRows({
       activeIndex,
       onNavigate: setActiveIndex,
       virtual: true,
-      loopFocus: true,
+      loopFocus,
       cols: 2,
       orientation: 'horizontal',
     }),
@@ -892,6 +894,42 @@ describe('useListNavigation', () => {
 
     it('clamps ArrowDown into a partial last row for virtualized rows', async () => {
       render(<VirtualizedGridRows totalItems={98} initialActiveIndex={93} />);
+
+      const reference = screen.getByTestId('virtual-grid-reference');
+      await act(async () => {
+        reference.focus();
+      });
+
+      await userEvent.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('virtual-grid-active-index')).toHaveAttribute(
+          'data-active-index',
+          '97',
+        );
+      });
+    });
+
+    it('does not wrap ArrowUp when loopFocus is false for virtualized rows', async () => {
+      render(<VirtualizedGridRows totalItems={98} initialActiveIndex={4} loopFocus={false} />);
+
+      const reference = screen.getByTestId('virtual-grid-reference');
+      await act(async () => {
+        reference.focus();
+      });
+
+      await userEvent.keyboard('{ArrowUp}');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('virtual-grid-active-index')).toHaveAttribute(
+          'data-active-index',
+          '4',
+        );
+      });
+    });
+
+    it('still clamps ArrowDown into a partial last row when loopFocus is false', async () => {
+      render(<VirtualizedGridRows totalItems={98} initialActiveIndex={93} loopFocus={false} />);
 
       const reference = screen.getByTestId('virtual-grid-reference');
       await act(async () => {
