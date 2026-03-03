@@ -245,10 +245,7 @@ export function getGridNavigatedIndex(
       });
 
       if (loopFocus) {
-        if (
-          verticalDirection === 'up' &&
-          (prevIndex - verticalCols < minIndex || nextIndex < 0)
-        ) {
+        if (verticalDirection === 'up' && (prevIndex - verticalCols < minIndex || nextIndex < 0)) {
           const col = prevIndex % verticalCols;
           const maxCol = maxIndex % verticalCols;
           const offset = maxIndex - (maxCol - col);
