@@ -70,7 +70,7 @@ describe('<Combobox.Root />', () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   popupConformanceTests({
     createComponent: (props) => (
@@ -91,6 +91,43 @@ describe('<Combobox.Root />', () => {
     triggerMouseAction: 'click',
     expectedPopupRole: 'listbox',
     combobox: true,
+  });
+
+  describe('server-side rendering', () => {
+    it('sets combobox aria attributes on the input', () => {
+      renderToString(
+        <Combobox.Root>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner />
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      expect(input).to.have.attribute('role', 'combobox');
+      expect(input).to.have.attribute('aria-expanded', 'false');
+      expect(input).to.have.attribute('aria-autocomplete', 'list');
+      expect(input).to.have.attribute('aria-haspopup', 'listbox');
+    });
+
+    it('sets combobox aria attributes on the trigger when input is inside popup', () => {
+      renderToString(
+        <Combobox.Root>
+          <Combobox.Trigger data-testid="trigger" />
+          <Combobox.Portal>
+            <Combobox.Positioner />
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      expect(trigger).to.have.attribute('role', 'combobox');
+      expect(trigger).to.have.attribute('aria-expanded', 'false');
+      expect(trigger).to.have.attribute('aria-haspopup', 'dialog');
+    });
   });
 
   it('does not focus input when closing via trigger click (input inside popup)', async () => {
