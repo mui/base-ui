@@ -279,7 +279,8 @@
   }
 
   .SearchOptionItem[data-highlighted] {
-    background: var(--color-gray-200);
+    background: var(--color-blue);
+    color: white;
   }
 
   .SearchBackdrop {
