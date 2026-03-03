@@ -2,6 +2,7 @@ import * as React from 'react';
 import clsx from 'clsx';
 import NextLink from 'next/link';
 import { ExternalLinkIcon } from 'docs/src/icons/ExternalLinkIcon';
+import './Link.css';
 
 interface LinkProps extends React.ComponentProps<typeof NextLink> {
   skipExternalIcon?: boolean;

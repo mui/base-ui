@@ -1,6 +1,7 @@
 import * as React from 'react';
 import clsx from 'clsx';
 import { MarkdownLink } from './MarkdownLink';
+import './Subtitle.css';
 
 export function Subtitle({
   className,

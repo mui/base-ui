@@ -1,3 +1,5 @@
+@import 'docs/src/css/custom-media.css';
+
 @layer components {
   .SideNavRoot {
     /* Match quick nav spacing so side nav and quick nav are visually aligned */
