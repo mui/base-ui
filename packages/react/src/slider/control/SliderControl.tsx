@@ -269,7 +269,8 @@ export const SliderControl = React.forwardRef(function SliderControl(
   });
 
   const focusThumb = useStableCallback((thumbIndex: number) => {
-    const input = thumbRefs.current?.[thumbIndex]?.querySelector<HTMLInputElement>('input[type="range"]');
+    const input =
+      thumbRefs.current?.[thumbIndex]?.querySelector<HTMLInputElement>('input[type="range"]');
     if (!input) {
       return;
     }
