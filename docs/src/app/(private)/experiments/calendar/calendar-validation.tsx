@@ -18,11 +18,11 @@ export default function CalendarValidation() {
       {({ visibleDate }) => (
         <React.Fragment>
           <header className={styles.Header}>
-            <Calendar.DecrementMonth className={styles.DecrementMonth} focusableWhenDisabled>
+            <Calendar.DecrementMonth className={styles.DecrementMonth}>
               <ChevronLeft />
             </Calendar.DecrementMonth>
             <span className={styles.HeaderLabel}>{format(visibleDate, 'MMMM yyyy')}</span>
-            <Calendar.IncrementMonth className={styles.IncrementMonth} focusableWhenDisabled>
+            <Calendar.IncrementMonth className={styles.IncrementMonth}>
               <ChevronRight />
             </Calendar.IncrementMonth>
           </header>
