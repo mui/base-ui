@@ -1,6 +1,7 @@
 'use client';
 import { usePathname } from 'next/navigation';
 import { MarkdownIcon } from '../../icons/MarkdownIcon';
+import './MarkdownLink.css';
 
 export function MarkdownLink() {
   const pathname = usePathname();

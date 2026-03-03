@@ -19,6 +19,7 @@ import { DemoFileSelector } from './DemoFileSelector';
 import { DemoCodeBlock } from './DemoCodeBlock';
 import { GhostButton } from '../GhostButton';
 import { DemoPlayground } from './DemoPlayground';
+import './Demo.css';
 
 export type DemoProps = ContentProps<{
   defaultOpen?: boolean;
