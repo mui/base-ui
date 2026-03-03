@@ -5,16 +5,16 @@ import styles from './menu.module.css';
 
 export default function MenuComplexNestingExperiment() {
   return (
-    <div className="space-y-12 p-8">
-      <h1 className="text-2xl font-bold">Menu Complex Nesting Experiments</h1>
-      <p className="text-gray-600">
+    <div className={styles.ExperimentRoot}>
+      <h1 className={styles.ExperimentTitle}>Menu Complex Nesting Experiments</h1>
+      <p className={styles.ExperimentDescription}>
         Testing how independent menus work when nested in React tree through dialogs and other
         components.
       </p>
 
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold">1. Menu → Item → Dialog → Menu</h2>
-        <p className="text-gray-600">
+      <section className={styles.Section}>
+        <h2 className={styles.SectionTitle}>1. Menu → Item → Dialog → Menu</h2>
+        <p className={styles.SectionDescription}>
           Click the menu button, select "Open Settings", then use the menu inside the dialog. The
           dialog is opened from within a menu item.
         </p>
@@ -56,21 +56,21 @@ export default function MenuComplexNestingExperiment() {
                   </Menu.Item>
 
                   <Dialog.Portal>
-                    <Dialog.Backdrop className="fixed inset-0 bg-black/50" />
-                    <Dialog.Popup className="fixed top-1/2 left-1/2 w-[500px] max-w-[90vw] -translate-x-1/2 -translate-y-1/2 transform rounded-lg bg-white p-6 shadow-xl">
-                      <Dialog.Title className="mb-4 text-xl font-semibold">
+                    <Dialog.Backdrop className={styles.DialogBackdrop} />
+                    <Dialog.Popup className={styles.DialogPopup}>
+                      <Dialog.Title className={styles.DialogTitle}>
                         Settings (Nested Dialog)
                       </Dialog.Title>
 
-                      <div className="space-y-4">
-                        <p className="text-gray-600">
+                      <div className={styles.DialogBody}>
+                        <p className={styles.DialogDescription}>
                           This dialog is nested within the menu popup. It contains an independent
                           menu.
                         </p>
 
                         {/* Menu nested within Dialog which is nested within Menu */}
-                        <div className="rounded-lg border bg-gray-50 p-4">
-                          <h3 className="mb-3 font-medium">Theme Settings</h3>
+                        <div className={styles.Card}>
+                          <h3 className={styles.CardTitle}>Theme Settings</h3>
                           <Menu.Root>
                             <Menu.Trigger className={styles.Button}>Theme Options</Menu.Trigger>
                             <Menu.Portal>
@@ -110,13 +110,9 @@ export default function MenuComplexNestingExperiment() {
                           </Menu.Root>
                         </div>
 
-                        <div className="flex justify-end space-x-2">
-                          <Dialog.Close className="rounded px-4 py-2 text-gray-600 hover:bg-gray-100">
-                            Cancel
-                          </Dialog.Close>
-                          <Dialog.Close className="bg-blue-600 hover:bg-blue-700 rounded px-4 py-2">
-                            Save
-                          </Dialog.Close>
+                        <div className={styles.DialogActions}>
+                          <Dialog.Close className={styles.DialogCancel}>Cancel</Dialog.Close>
+                          <Dialog.Close className={styles.DialogConfirm}>Save</Dialog.Close>
                         </div>
                       </div>
                     </Dialog.Popup>

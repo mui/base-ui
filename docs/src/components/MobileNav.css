@@ -66,7 +66,9 @@
     height: 100dvh;
     overflow-y: auto;
 
-    @apply text-base;
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
+    letter-spacing: var(--text-base--letter-spacing);
 
     /* Native apps don't show scrollbars on sheets like this */
     scrollbar-width: none;
@@ -151,7 +153,9 @@
   }
 
   .MobileNavHeading {
-    @apply text-lg;
+    font-size: var(--text-lg);
+    line-height: var(--text-lg--line-height);
+    letter-spacing: var(--text-lg--letter-spacing);
     font-weight: 500;
     padding-inline: var(--mobile-nav-item-padding-x);
 
@@ -221,43 +225,48 @@
     padding-inline: 2px;
     translate: 0 -3px;
   }
-}
 
-.MobileNavCloseContainer {
-  position: sticky;
-  top: 0.75rem;
-  left: 100%;
-  margin-right: 0.75rem;
-  height: 0;
-  width: fit-content;
-}
-
-.MobileNavClose {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-gray-500);
-  outline: 0;
-
-  /* Visible circle */
-  width: 1.75rem;
-  height: 1.75rem;
-  border-radius: 100%;
-  background-color: var(--color-gray-200);
-
-  /* Blur the dividers behind */
-  backdrop-filter: blur(1rem);
-
-  &:focus-visible {
-    outline: 2px solid var(--color-blue);
-    outline-offset: -1px;
+  .MobileNavCloseContainer {
+    position: sticky;
+    top: 0.75rem;
+    left: 100%;
+    margin-right: 0.75rem;
+    height: 0;
+    width: fit-content;
   }
 
-  /* Tap target */
-  &::after {
-    content: '';
-    width: 3rem;
-    height: 3rem;
-    position: absolute;
+  .MobileNavBody {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+
+  .MobileNavClose {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-gray-500);
+    outline: 0;
+
+    /* Visible circle */
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 100%;
+    background-color: var(--color-gray-200);
+
+    /* Blur the dividers behind */
+    backdrop-filter: blur(1rem);
+
+    &:focus-visible {
+      outline: 2px solid var(--color-blue);
+      outline-offset: -1px;
+    }
+
+    /* Tap target */
+    &::after {
+      content: '';
+      width: 3rem;
+      height: 3rem;
+      position: absolute;
+    }
   }
 }

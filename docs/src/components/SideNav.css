@@ -16,7 +16,9 @@
         var(--side-nav-scrollbar-thumb-width) / 2
     );
 
-    @apply text-md;
+    font-size: var(--text-md);
+    line-height: var(--text-md--line-height);
+    letter-spacing: var(--text-md--letter-spacing);
     position: sticky;
     top: 0;
 
@@ -138,16 +140,16 @@
       outline-offset: -1px;
     }
   }
-}
 
-.SideNavBadge {
-  color: var(--color-red);
-  line-height: inherit;
-  user-select: none;
-  text-transform: uppercase;
-  font-size: 0.6875rem;
-  font-weight: 500;
-  letter-spacing: 0.035em;
-  padding-inline: 2px;
-  translate: 0 -2px;
+  .SideNavBadge {
+    color: var(--color-red);
+    line-height: inherit;
+    user-select: none;
+    text-transform: uppercase;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.035em;
+    padding-inline: 2px;
+    translate: 0 -2px;
+  }
 }
