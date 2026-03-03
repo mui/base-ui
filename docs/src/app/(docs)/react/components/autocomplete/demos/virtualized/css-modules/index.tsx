@@ -5,15 +5,12 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import styles from './index.module.css';
 
 export default function ExampleVirtualizedAutocomplete() {
-  const [open, setOpen] = React.useState(false);
   const virtualizerRef = React.useRef<Virtualizer | null>(null);
 
   return (
     <Autocomplete.Root
       virtualized
       items={virtualizedItems}
-      open={open}
-      onOpenChange={setOpen}
       openOnInputClick
       itemToStringValue={getItemLabel}
       onItemHighlighted={(item, { reason, index }) => {
@@ -44,7 +41,7 @@ export default function ExampleVirtualizedAutocomplete() {
           <Autocomplete.Popup className={styles.Popup}>
             <Autocomplete.Empty className={styles.Empty}>No items found.</Autocomplete.Empty>
             <Autocomplete.List className={styles.List}>
-              <VirtualizedList open={open} virtualizerRef={virtualizerRef} />
+              <VirtualizedList virtualizerRef={virtualizerRef} />
             </Autocomplete.List>
           </Autocomplete.Popup>
         </Autocomplete.Positioner>
@@ -54,10 +51,8 @@ export default function ExampleVirtualizedAutocomplete() {
 }
 
 function VirtualizedList({
-  open,
   virtualizerRef,
 }: {
-  open: boolean;
   virtualizerRef: React.RefObject<Virtualizer | null>;
 }) {
   const filteredItems = Autocomplete.useFilteredItems<VirtualizedItem>();
@@ -65,7 +60,6 @@ function VirtualizedList({
   const scrollElementRef = React.useRef<HTMLDivElement | null>(null);
 
   const virtualizer = useVirtualizer({
-    enabled: open,
     count: filteredItems.length,
     getScrollElement: () => scrollElementRef.current,
     estimateSize: () => 32,

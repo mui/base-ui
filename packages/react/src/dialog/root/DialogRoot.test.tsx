@@ -300,6 +300,29 @@ describe('<Dialog.Root />', () => {
         });
         expect(handleOpenChange.callCount).to.equal(1);
       });
+
+      it('closing via intentional outside press with user backdrop (modal=true): works when portaled into a shadow DOM', async () => {
+        const handleOpenChange = spy();
+
+        const container = document.body.appendChild(document.createElement('div'));
+        const shadowRoot = container.attachShadow({ mode: 'open' });
+
+        await render(
+          <TestDialog
+            rootProps={{ defaultOpen: true, onOpenChange: handleOpenChange, modal: true }}
+            portalProps={{ container: shadowRoot }}
+            includeBackdrop
+          />,
+        );
+
+        const backdrop = shadowRoot.querySelector('[data-testid="backdrop"]') as HTMLElement;
+
+        fireEvent.click(backdrop);
+        await waitFor(() => {
+          expect(shadowRoot.querySelector('[role="dialog"]')).to.equal(null);
+        });
+        expect(handleOpenChange.callCount).to.equal(1);
+      });
     });
 
     it.skipIf(isJSDOM)('waits for the exit transition to finish before unmounting', async () => {

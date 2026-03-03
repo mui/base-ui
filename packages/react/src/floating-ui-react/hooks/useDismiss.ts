@@ -6,6 +6,7 @@ import {
   isElement,
   isHTMLElement,
   isLastTraversableNode,
+  isShadowRoot,
   isWebKit,
 } from '@floating-ui/utils/dom';
 import { Timeout, useTimeout } from '@base-ui/utils/useTimeout';
@@ -36,6 +37,10 @@ const bubbleHandlerKeys = {
   sloppy: 'onPointerDown',
 } as const;
 
+function alwaysFalse() {
+  return false;
+}
+
 export function normalizeProp(
   normalizable?: boolean | { escapeKey?: boolean | undefined; outsidePress?: boolean | undefined },
 ) {
@@ -63,9 +68,11 @@ export interface UseDismissProps {
    * Whether to dismiss the floating element upon pressing the reference
    * element. You likely want to ensure the `move` option in the `useHover()`
    * Hook has been disabled when this is in use.
+   *
+   * A lazy getter invoked when handling reference press events.
    * @default false
    */
-  referencePress?: boolean | undefined;
+  referencePress?: (() => boolean) | undefined;
   /**
    * The type of event to use to determine a "press".
    * - `down` is `pointerdown` on mouse input, but special iOS-like touch handling on touch input.
@@ -139,7 +146,7 @@ export function useDismiss(
     escapeKey = true,
     outsidePress: outsidePressProp = true,
     outsidePressEvent = 'sloppy',
-    referencePress = false,
+    referencePress = alwaysFalse,
     referencePressEvent = 'sloppy',
     bubbles,
     externalTree,
@@ -178,6 +185,8 @@ export function useDismiss(
 
   const isComposingRef = React.useRef(false);
   const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
+
+  const isReferencePressEnabled = useStableCallback(referencePress);
 
   const closeOnEscapeKeyDown = useStableCallback(
     (event: React.KeyboardEvent<Element> | KeyboardEvent) => {
@@ -324,9 +333,13 @@ export function useDismiss(
 
       const target = getTarget(event);
       const inertSelector = `[${createAttribute('inert')}]`;
-      const markers = ownerDocument(store.select('floatingElement')).querySelectorAll(
-        inertSelector,
+      let markers = Array.from(
+        ownerDocument(store.select('floatingElement')).querySelectorAll(inertSelector),
       );
+      const targetRoot = isElement(target) ? target.getRootNode() : null;
+      if (isShadowRoot(targetRoot)) {
+        markers = markers.concat(Array.from(targetRoot.querySelectorAll(inertSelector)));
+      }
 
       const triggers = store.context.triggerElements;
 
@@ -359,7 +372,7 @@ export function useDismiss(
         !contains(target, store.select('floatingElement')) &&
         // If the target root element contains none of the markers, then the
         // element was injected after the floating element rendered.
-        Array.from(markers).every((marker) => !contains(targetRootAncestor, marker))
+        markers.every((marker) => !contains(targetRootAncestor, marker))
       ) {
         return;
       }
@@ -693,21 +706,27 @@ export function useDismiss(
   const reference: ElementProps['reference'] = React.useMemo(
     () => ({
       onKeyDown: closeOnEscapeKeyDown,
-      ...(referencePress && {
-        [bubbleHandlerKeys[referencePressEvent]]: (event: React.SyntheticEvent) => {
-          store.setOpen(
-            false,
-            createChangeEventDetails(REASONS.triggerPress, event.nativeEvent as any),
-          );
+      [bubbleHandlerKeys[referencePressEvent]]: (event: React.SyntheticEvent) => {
+        if (!isReferencePressEnabled()) {
+          return;
+        }
+
+        store.setOpen(
+          false,
+          createChangeEventDetails(REASONS.triggerPress, event.nativeEvent as any),
+        );
+      },
+      ...(referencePressEvent !== 'intentional' && {
+        onClick(event) {
+          if (!isReferencePressEnabled()) {
+            return;
+          }
+
+          store.setOpen(false, createChangeEventDetails(REASONS.triggerPress, event.nativeEvent));
         },
-        ...(referencePressEvent !== 'intentional' && {
-          onClick(event) {
-            store.setOpen(false, createChangeEventDetails(REASONS.triggerPress, event.nativeEvent));
-          },
-        }),
       }),
     }),
-    [closeOnEscapeKeyDown, store, referencePress, referencePressEvent],
+    [closeOnEscapeKeyDown, store, referencePressEvent, isReferencePressEnabled],
   );
 
   const markPressStartedInsideReactTree = useStableCallback(

@@ -36,6 +36,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     payload,
     disabled: disabledProp,
     delay,
+    closeOnClick = true,
     closeDelay,
     id: idProp,
     ...elementProps
@@ -65,6 +66,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     store,
     {
       payload,
+      closeOnClick,
       closeDelay: closeDelayWithDefault,
     },
   );
@@ -132,6 +134,9 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
       focusProps,
       rootTriggerProps,
       {
+        onPointerDown() {
+          store.set('closeOnClick', closeOnClick);
+        },
         id: thisTriggerId,
         [TooltipTriggerDataAttributes.triggerDisabled]: disabled ? '' : undefined,
       } as React.HTMLAttributes<Element>,
@@ -173,6 +178,11 @@ export interface TooltipTriggerProps<Payload = unknown> extends BaseUIComponentP
    * @default 600
    */
   delay?: number | undefined;
+  /**
+   * Whether the tooltip should close when this trigger is clicked.
+   * @default true
+   */
+  closeOnClick?: boolean | undefined;
   /**
    * How long to wait before closing the tooltip. Specified in milliseconds.
    * @default 0

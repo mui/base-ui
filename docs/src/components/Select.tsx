@@ -14,7 +14,7 @@ export function Trigger({ className, children, ...props }: TriggerProps) {
     // Implicitly relying on <GhostButton>, keep it in sync
     <Select.Trigger data-layout="text" className="GhostButton" type={undefined} {...props}>
       <Select.Value>{children}</Select.Value>
-      <Select.Icon render={<ChevronDownIcon className="-ml-0.5" />} />
+      <Select.Icon render={<ChevronDownIcon className="bui-ml--0.5" />} />
     </Select.Trigger>
   );
 }
