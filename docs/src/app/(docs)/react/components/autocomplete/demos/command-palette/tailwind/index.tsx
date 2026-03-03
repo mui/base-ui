@@ -30,10 +30,13 @@ export default function ExampleAutocompleteCommandPalette() {
               autoHighlight="always"
               keepHighlight
             >
-              <Autocomplete.Input
-                className="w-full border-0 border-b border-gray-100 bg-transparent p-4 text-base tracking-[0.016em] text-gray-900 placeholder:text-gray-500 outline-none"
-                placeholder="Search for apps and commands..."
-              />
+              <div className="flex items-center gap-2 border-b border-gray-100 px-4 py-3">
+                <SearchIcon className="h-4 w-4 shrink-0 text-gray-500" aria-hidden />
+                <Autocomplete.Input
+                  className="w-full border-0 bg-transparent p-0 text-base tracking-[0.016em] text-gray-900 placeholder:text-gray-500 outline-none"
+                  placeholder="Search for apps and commands..."
+                />
+              </div>
               <Dialog.Close className="sr-only">Close command palette</Dialog.Close>
 
               <ScrollArea.Root className="relative flex max-h-[min(60dvh,24rem)] min-h-0 flex-[0_1_auto] overflow-hidden">
@@ -59,10 +62,10 @@ export default function ExampleAutocompleteCommandPalette() {
                                 key={item.value}
                                 value={item}
                                 onClick={handleItemClick}
-                                className="grid min-h-8 cursor-default grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-md pl-9 pr-3 text-[0.9375rem] tracking-[0.016em] font-normal leading-[1.25] select-none outline-none [scroll-margin-block:0.25rem] data-[highlighted]:bg-gray-100"
+                                className="grid min-h-8 cursor-default grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-md pl-9 pr-3 text-[0.9375rem] tracking-[0.016em] font-normal leading-[1.25] text-gray-900 select-none outline-none [scroll-margin-block:0.25rem] data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-y-0 data-[highlighted]:before:inset-x-1 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-xs data-[highlighted]:before:bg-gray-900 data-[highlighted]:[&_span:last-child]:text-gray-50 data-[highlighted]:[&_span:last-child]:opacity-80"
                               >
                                 <span className="truncate font-normal">{item.label}</span>
-                                <span className="shrink-0 whitespace-nowrap text-[0.875rem] tracking-[0.00625em] text-gray-500 data-[highlighted]:text-gray-700">
+                                <span className="shrink-0 whitespace-nowrap text-[0.875rem] tracking-[0.00625em] text-gray-500">
                                   {group.value === 'Suggestions' ? 'Application' : 'Command'}
                                 </span>
                               </Autocomplete.Item>
@@ -100,6 +103,24 @@ export default function ExampleAutocompleteCommandPalette() {
         </Dialog.Viewport>
       </Dialog.Portal>
     </Dialog.Root>
+  );
+}
+
+function SearchIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.3-4.3" />
+    </svg>
   );
 }
 

@@ -99,12 +99,27 @@
   }
 }
 
+.InputRow {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-gray-100);
+}
+
+.InputIcon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  color: var(--color-gray-500);
+}
+
 .Input {
   box-sizing: border-box;
-  padding: 1rem;
+  padding: 0;
   margin: 0;
   border: none;
-  border-bottom: 1px solid var(--color-gray-100);
   width: 100%;
   height: auto;
   border-radius: 0;
@@ -120,7 +135,6 @@
   }
 
   &:focus {
-    border-bottom-color: var(--color-gray-100);
     outline: none;
   }
 }
@@ -198,7 +212,19 @@
   font-weight: 400;
 
   &[data-highlighted] {
-    background-color: var(--color-gray-100);
+    z-index: 0;
+    position: relative;
+    color: var(--color-gray-50);
+  }
+
+  &[data-highlighted]::before {
+    content: '';
+    z-index: -1;
+    position: absolute;
+    inset-block: 0;
+    inset-inline: 0.25rem;
+    border-radius: 0.25rem;
+    background-color: var(--color-gray-900);
   }
 }
 
@@ -217,7 +243,8 @@
   white-space: nowrap;
 
   [data-highlighted] & {
-    color: var(--color-gray-700);
+    color: var(--color-gray-50);
+    opacity: 0.8;
   }
 }
 

@@ -26,10 +26,13 @@ export default function ExampleAutocompleteCommandPalette() {
               autoHighlight="always"
               keepHighlight
             >
-              <Autocomplete.Input
-                className={styles.Input}
-                placeholder="Search for apps and commands..."
-              />
+              <div className={styles.InputRow}>
+                <SearchIcon className={styles.InputIcon} aria-hidden />
+                <Autocomplete.Input
+                  className={styles.Input}
+                  placeholder="Search for apps and commands..."
+                />
+              </div>
               <Dialog.Close className={styles.VisuallyHiddenClose}>
                 Close command palette
               </Dialog.Close>
@@ -92,6 +95,24 @@ export default function ExampleAutocompleteCommandPalette() {
         </Dialog.Viewport>
       </Dialog.Portal>
     </Dialog.Root>
+  );
+}
+
+function SearchIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.3-4.3" />
+    </svg>
   );
 }
 

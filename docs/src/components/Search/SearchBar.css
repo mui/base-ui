@@ -191,7 +191,8 @@
   }
 
   .SearchBreadcrumbSeparator {
-    color: var(--color-gray-300);
+    color: currentColor;
+    opacity: 0.4;
   }
 
   .SearchScore {
@@ -278,7 +279,7 @@
   }
 
   .SearchOptionItem[data-highlighted] {
-    background: var(--color-gray-100);
+    background: var(--color-gray-200);
   }
 
   .SearchBackdrop {
