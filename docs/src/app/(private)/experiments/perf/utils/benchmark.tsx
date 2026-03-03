@@ -93,7 +93,7 @@ const Controls = React.memo(function Controls(props: {
   });
 
   return (
-    <div className="flex gap-2 items-baseline">
+    <div className={styles.controls}>
       <button
         type="button"
         onClick={() => setShowBenchmark((prev: boolean) => !prev)}

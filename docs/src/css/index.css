@@ -1,0 +1,306 @@
+/*
+ * Main stylesheet for docs/private surfaces. Also used in e2e/regression tests.
+ *
+ * This app has three separate parts, each one in a separate folder:
+ *   1. (docs): public documentation.
+ *     - Demos live inside (docs), but they follow other rules. Read below.
+ *   2. (private): mostly experiments.
+ *   3. (website): home page, careers, etc.
+ *
+ * The three parts are styled using our custom utilities and styles (except demos, read below):
+ *   - (docs) and (private) use this stylesheet.
+ *   - (website) uses its own stylesheet for now, but in the future it will also use this one.
+ *
+ * These rules apply to all parts (except demos):
+ *   - Components' CSS must be wrapped in "@layer components".
+ *   - Use component name as the prefix to avoid conflicts, e.g. ".SelectTriggerIcon".
+ *   - Prefix CSS variables with component name too, e.g. "--root-layout-padding-x".
+ *   - Use custom utility classes (./utilities) for layout and one-off styles.
+ *   - There are two reset layers:
+ *     - "@layer all" is a truly global reset (includes all demos).
+ *     - "@layer base" is Tailwind's reset (`tailwindcss/preflight`) that is reverted in non-Tailwind demos.
+ *     - We rely on both to build the docs.
+ *
+ * Demos:
+ * - Do not use our custom styles or CSS vars in demos.
+ * - Only the Tailwind demos in the (docs) use Tailwind (`app/(docs)/react/**\/tailwind\/**\/*`).
+ *   - Use only what's available in Tailwind's default theme, both classes and CSS vars.
+ */
+
+/* Extend Tailwind layers to add our global reset layer `all` */
+@layer all, base, theme, components, utilities;
+
+@import 'tailwindcss/preflight' layer(base);
+@import 'tailwindcss/theme' layer(theme);
+/* `source(none)` disables automatic detection of sources to generate Tailwind classes. Use the safelist below instead. */
+@import 'tailwindcss/utilities' layer(utilities) source(none);
+
+/* ═══ Demo-specific theme ═══ */
+/* We defined grays, red, and blue in the theme used for demos. */
+/* Uses gray scale that is roughly compatible with Tailwind's grays. */
+/* This is injected in demos when opening in a sandbox like StackBlitz. */
+@import '../demo-data/theme/css-modules/theme.css' layer(theme);
+
+/* ═══ Docs-only imports ═══ */
+
+@import './fonts/index.css';
+@import './custom-media.css';
+
+@import '../components/Code.css';
+@import '../components/CodeBlock.css';
+@import '../components/Demo/Demo.css';
+@import '../components/GhostButton.css';
+@import '../components/Header.css';
+@import '../components/HeadingLink.css';
+@import '../components/Kbd/Kbd.css';
+@import '../components/Link.css';
+@import '../components/MobileNav.css';
+@import '../components/Popup.css';
+@import '../components/QuickNav/QuickNav.css';
+@import '../components/ScrollArea.css';
+@import '../components/Select.css';
+@import '../components/SideNav.css';
+@import '../components/SkipNav.css';
+@import '../components/Subtitle/Subtitle.css';
+@import '../components/Subtitle/MarkdownLink.css';
+@import '../components/Accordion.css';
+@import '../components/Table.css';
+@import '../components/TableCode.css';
+@import '../components/DescriptionList.css';
+@import '../components/ReferenceTable/ReferenceTable.css';
+
+@import '../syntax-highlighting/index.css';
+
+@import './utilities/index.css';
+
+/* ═══ Safelist to generate Tailwind classes ═══ */
+
+@source '../app/(docs)/react/**/demos/**/*.{ts,tsx}';
+@source '../app/(private)/playground/**/*.{ts,tsx}';
+
+/* Temporary sources until Tailwind CSS vars are no longer used in them */
+@source './mdx-components.css';
+@source '../src/components/**/*.css';
+@source '../app/(private)/experiments/**/*.css';
+
+/* ═══ Tailwind theme ═══ */
+/* Register demo-relevant tokens so Tailwind can generate utility classes. */
+
+@theme {
+  /* Handy link to the default Tailwind theme: https://github.com/tailwindlabs/tailwindcss/blob/next/packages/tailwindcss/theme.css */
+
+  /* Color */
+  --color-*: initial; /* Disable all Tailwind colors to only add our own */
+  --color-white: white;
+  --color-black: black;
+
+  /* Gray, red and blue colors defined in file://../demo-data/theme/css-modules/theme.css */
+  --color-gray-50: inherit;
+  --color-gray-100: inherit;
+  --color-gray-200: inherit;
+  --color-gray-300: inherit;
+  --color-gray-400: inherit;
+  --color-gray-500: inherit;
+  --color-gray-600: inherit;
+  --color-gray-700: inherit;
+  --color-gray-800: inherit;
+  --color-gray-900: inherit;
+  --color-gray-950: inherit;
+
+  --color-blue: inherit;
+  --color-red: inherit;
+
+  --color-blue-800: var(--color-blue);
+  --color-red-800: var(--color-red);
+
+  /* Typography */
+  --font-mono: 'SF Mono', 'Menlo', 'DejaVu Sans Mono', 'Consolas', 'Inconsolata', monospace;
+  --font-sans: 'Unica 77', system-ui, sans-serif;
+
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.25rem;
+  --text-xs--letter-spacing: 0.001em;
+
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.25rem;
+  --text-sm--letter-spacing: 0.016em;
+
+  --text-base: 1rem;
+  --text-base--line-height: 1.5rem;
+  --text-base--letter-spacing: 0em;
+
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.75rem;
+  --text-lg--letter-spacing: -0.0025em;
+
+  --text-xl: 1.3125rem;
+  --text-xl--line-height: 1.625rem;
+  --text-xl--letter-spacing: -0.005em;
+
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: 1.25;
+  --text-2xl--letter-spacing: -0.0125em;
+
+  --text-3xl: 1.875rem;
+  --text-3xl--line-height: 1.2;
+  --text-3xl--letter-spacing: -0.015em;
+
+  --text-4xl: 2.25rem;
+  --text-4xl--line-height: 2.5rem;
+  --text-4xl--letter-spacing: -0.015em;
+
+  --text-5xl: 3rem;
+  --text-5xl--line-height: 1;
+  --text-5xl--letter-spacing: -0.015em;
+
+  --text-6xl: 3.75rem;
+  --text-6xl--line-height: 0.95;
+  --text-6xl--letter-spacing: -0.015em;
+}
+
+/* ═══ Demo isolation ═══ */
+/* Undo `tailwindcss/preflight` in non-Tailwind demos. */
+
+@layer base {
+  [data-demo]:not([data-demo='tailwind']) * {
+    all: revert-layer;
+  }
+
+  [data-demo='tailwind'] {
+    --text-sm--letter-spacing: 0em;
+    --text-md--letter-spacing: 0em;
+  }
+}
+
+/* ═══ Docs-only theme tokens ═══ */
+
+@layer theme {
+  :root {
+    --color-gray-75: oklch(97% 0.325% 264deg);
+
+    /* Functional colors */
+    --color-content: white;
+    --color-background: var(--color-gray-50);
+    --color-foreground: var(--color-gray-900);
+    --color-popup: white;
+    --color-gridline: oklch(91.6% 1% 264deg);
+    --color-selection: oklch(80% 50% 264deg / 25%);
+    --color-highlight: var(--color-blue);
+    --color-line-highlight: oklch(80% 50% 264deg / 10%);
+    --color-line-highlight-strong: oklch(80% 50% 264deg / 25%);
+    --color-inline-highlight: oklch(80% 50% 264deg / 15%);
+
+    /* Text colors */
+    --color-gray: var(--color-gray-600);
+    --color-navy: oklch(31% 25% 264deg);
+    --color-green: oklch(46% 30% 150deg);
+    --color-purple: oklch(40% 45% 360deg);
+    --color-violet: oklch(40% 60% 300deg);
+
+    /* Typography */
+    --text-xxs: 0.75rem;
+    --text-xxs--line-height: 1.25rem;
+    --text-xxs--letter-spacing: 0.001em;
+
+    --text-md: 0.9375rem;
+    --text-md--line-height: 1.375rem;
+    --text-md--letter-spacing: 0.016em;
+
+    /* Breakpoints (use custom-media.css where possible) */
+    --breakpoint-max-layout-width: 89rem; /* 1424px - this is a 1440px device minus 16px scrollbar */
+
+    --ease-out-fast: cubic-bezier(0.45, 1.005, 0, 1.005);
+    --ease-in-slow: cubic-bezier(0.375, 0.015, 0.545, 0.455);
+    --header-height: 3rem;
+  }
+
+  /* ═══ Dark mode overrides ═══ */
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-gray-75: oklch(19% 0.5% 264deg);
+
+      /* Functional colors */
+      --color-content: black;
+      --color-background: black;
+      --color-foreground: oklch(90% 2% 264deg);
+      --color-popup: var(--color-gray-50);
+      --color-gridline: oklch(24% 1% 264deg);
+      --color-highlight: oklch(45% 40% 264deg);
+      --color-selection: oklch(50% 50% 264deg / 40%);
+      --color-line-highlight: oklch(50% 50% 264deg / 20%);
+      --color-line-highlight-strong: oklch(50% 50% 264deg / 35%);
+      --color-inline-highlight: oklch(50% 50% 264deg / 35%);
+
+      /* Text colors */
+      --color-gray: var(--color-gray-600);
+      --color-green: oklch(75% 25% 150deg);
+      --color-navy: oklch(85% 25% 264deg);
+      --color-purple: oklch(85% 30% 360deg);
+      --color-violet: oklch(80% 60% 280deg);
+    }
+  }
+
+  /* ═══ Disable docs-specific variables in demos ═══ */
+  /* Keep this in sync with the :root block above. */
+
+  [data-demo] {
+    --color-gray-75: : initial;
+
+    --color-content: initial;
+    --color-background: initial;
+    --color-foreground: initial;
+    --color-popup: initial;
+    --color-gridline: initial;
+    --color-selection: initial;
+    --color-highlight: initial;
+    --color-line-highlight: initial;
+    --color-line-highlight-strong: initial;
+    --color-inline-highlight: initial;
+
+    --color-gray: initial;
+    --color-navy: initial;
+    --color-green: initial;
+    --color-purple: initial;
+    --color-violet: initial;
+
+    --text-xxs: initial;
+    --text-xxs--line-height: initial;
+    --text-xxs--letter-spacing: initial;
+
+    --text-md: initial;
+    --text-md--line-height: initial;
+    --text-md--letter-spacing: initial;
+
+    --ease-out-fast: initial;
+    --ease-in-slow: initial;
+    --header-height: initial;
+
+    --breakpoint-max-layout-width: initial;
+  }
+}
+
+/* ═══ Global rules ═══ */
+
+@layer all {
+  html {
+    word-break: break-word;
+  }
+
+  body {
+    font-synthesis: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Stable scrollbar */
+    overflow-y: scroll;
+  }
+
+  /* Debugging red text? You just forgot to set or inherit color in your demo. */
+  :where([data-demo]) {
+    color: red;
+  }
+  /* Controls usually have #000 text that needs to be explicitly overridden; only Tailwind reset handles it */
+  :where([data-demo]:not([data-demo='tailwind'])) :where(button, input, textarea) {
+    color: red;
+  }
+}

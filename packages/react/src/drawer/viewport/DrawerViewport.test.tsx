@@ -1,6 +1,6 @@
 import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
 import { Slider } from '@base-ui/react/slider';
-import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { createRenderer } from '#test-utils';
 
@@ -642,10 +642,10 @@ describe('<Drawer.Viewport />', () => {
       ],
     });
 
-    await flushMicrotasks();
-
-    expect(dispatched).toBe(true);
-    expect(backdrop).not.toHaveAttribute('data-swiping');
+    await waitFor(() => {
+      expect(dispatched).toBe(true);
+      expect(backdrop).not.toHaveAttribute('data-swiping');
+    });
   });
 
   it('does not block touchmove on slider thumb range inputs', async () => {
@@ -696,6 +696,245 @@ describe('<Drawer.Viewport />', () => {
 
     expect(dispatched).toBe(true);
     expect(backdrop).not.toHaveAttribute('data-swiping');
+  });
+
+  it('does not start swiping when adjusting input selection handles', async () => {
+    await render(
+      <Drawer.Root open swipeDirection="down">
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport>
+            <Drawer.Popup data-testid="popup">
+              <input data-testid="input" defaultValue="Selectable text" />
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const input = screen.getByTestId('input') as HTMLInputElement;
+    const popup = screen.getByTestId('popup');
+    const backdrop = screen.getByTestId('backdrop');
+
+    input.focus();
+    input.setSelectionRange(0, 5);
+
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => popup;
+
+    try {
+      fireEvent.touchStart(popup, {
+        touches: [
+          createTouch(popup, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      expect(backdrop).not.toHaveAttribute('data-swiping');
+
+      const dispatched = fireEvent.touchMove(popup, {
+        touches: [
+          createTouch(popup, {
+            clientX: 0,
+            clientY: 10,
+          }),
+        ],
+      });
+
+      await waitFor(() => {
+        expect(dispatched).toBe(true);
+        expect(backdrop).not.toHaveAttribute('data-swiping');
+      });
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+  });
+
+  it('does not start swiping when adjusting textarea selection handles', async () => {
+    await render(
+      <Drawer.Root open swipeDirection="down">
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport>
+            <Drawer.Popup data-testid="popup">
+              <textarea data-testid="textarea" defaultValue="Selectable text" />
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const textarea = screen.getByTestId('textarea') as HTMLTextAreaElement;
+    const popup = screen.getByTestId('popup');
+    const backdrop = screen.getByTestId('backdrop');
+
+    textarea.focus();
+    textarea.setSelectionRange(0, 5);
+
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => popup;
+
+    try {
+      fireEvent.touchStart(popup, {
+        touches: [
+          createTouch(popup, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      expect(backdrop).not.toHaveAttribute('data-swiping');
+
+      const dispatched = fireEvent.touchMove(popup, {
+        touches: [
+          createTouch(popup, {
+            clientX: 0,
+            clientY: 10,
+          }),
+        ],
+      });
+
+      await waitFor(() => {
+        expect(dispatched).toBe(true);
+        expect(backdrop).not.toHaveAttribute('data-swiping');
+      });
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+  });
+
+  it('does not start swiping when adjusting contenteditable selection handles', async () => {
+    await render(
+      <Drawer.Root open swipeDirection="down">
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport>
+            <Drawer.Popup data-testid="popup">
+              <div contentEditable suppressContentEditableWarning data-testid="editable">
+                Selectable text
+              </div>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const editable = screen.getByTestId('editable');
+    const popup = screen.getByTestId('popup');
+    const backdrop = screen.getByTestId('backdrop');
+    const selection = window.getSelection();
+    expect(selection).not.toBeNull();
+    expect(editable.firstChild).toBeTruthy();
+    if (!selection || !editable.firstChild) {
+      return;
+    }
+
+    editable.focus();
+    const range = document.createRange();
+    range.setStart(editable.firstChild, 0);
+    range.setEnd(editable.firstChild, 5);
+    selection.removeAllRanges();
+    selection.addRange(range);
+
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => popup;
+
+    try {
+      fireEvent.touchStart(popup, {
+        touches: [
+          createTouch(popup, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      expect(backdrop).not.toHaveAttribute('data-swiping');
+
+      const dispatched = fireEvent.touchMove(popup, {
+        touches: [
+          createTouch(popup, {
+            clientX: 0,
+            clientY: 10,
+          }),
+        ],
+      });
+
+      await waitFor(() => {
+        expect(dispatched).toBe(true);
+        expect(backdrop).not.toHaveAttribute('data-swiping');
+      });
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+      selection.removeAllRanges();
+    }
+  });
+
+  it('does not start swiping when adjusting regular text selection handles', async () => {
+    await render(
+      <Drawer.Root open swipeDirection="down">
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport>
+            <Drawer.Popup data-testid="popup">
+              <span data-testid="text">Selectable text</span>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const text = screen.getByTestId('text');
+    const popup = screen.getByTestId('popup');
+    const backdrop = screen.getByTestId('backdrop');
+    const selection = window.getSelection();
+    expect(selection).not.toBeNull();
+    expect(text.firstChild).toBeTruthy();
+    if (!selection || !text.firstChild) {
+      return;
+    }
+
+    const range = document.createRange();
+    range.setStart(text.firstChild, 0);
+    range.setEnd(text.firstChild, 5);
+    selection.removeAllRanges();
+    selection.addRange(range);
+
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => popup;
+
+    try {
+      fireEvent.touchStart(popup, {
+        touches: [
+          createTouch(popup, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      expect(backdrop).not.toHaveAttribute('data-swiping');
+
+      const dispatched = fireEvent.touchMove(popup, {
+        touches: [
+          createTouch(popup, {
+            clientX: 0,
+            clientY: 10,
+          }),
+        ],
+      });
+
+      await waitFor(() => {
+        expect(dispatched).toBe(true);
+        expect(backdrop).not.toHaveAttribute('data-swiping');
+      });
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+      selection.removeAllRanges();
+    }
   });
 
   it('allows touchmove when scrolling down from scroll top', async () => {

@@ -1,0 +1,95 @@
+@layer components {
+  .MdInlineCode[data-inline] {
+    margin-inline: 0.1em;
+  }
+
+  .MdH1 {
+    margin-bottom: 1rem;
+    font-size: var(--text-3xl);
+    line-height: var(--text-3xl--line-height);
+    letter-spacing: var(--text-3xl--letter-spacing);
+    font-weight: 700;
+    text-wrap: balance;
+  }
+
+  .MdH2 {
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    scroll-margin-top: 4.5rem;
+    font-size: var(--text-xl);
+    line-height: var(--text-xl--line-height);
+    letter-spacing: var(--text-xl--letter-spacing);
+    font-weight: 500;
+    text-wrap: balance;
+  }
+
+  .MdH3 {
+    margin-top: 2rem;
+    margin-bottom: 0.375rem;
+    scroll-margin-top: 4.5rem;
+    font-size: var(--text-lg);
+    line-height: var(--text-lg--line-height);
+    letter-spacing: var(--text-lg--letter-spacing);
+    font-weight: 500;
+    text-wrap: balance;
+  }
+
+  @media (--show-side-nav) {
+    .MdH2,
+    .MdH3 {
+      scroll-margin-top: 1.5rem;
+    }
+  }
+
+  .MdH4,
+  .MdH5,
+  .MdH6 {
+    margin-top: 2rem;
+    margin-bottom: 0.375rem;
+    scroll-margin-top: 1.5rem;
+    font-weight: 500;
+    text-wrap: balance;
+  }
+
+  .MdP {
+    margin-bottom: 1rem;
+  }
+
+  .MdListItem {
+    margin-bottom: 0.125rem;
+  }
+
+  .MdListItem > p {
+    margin-bottom: 0.5rem;
+  }
+
+  .MdUl {
+    margin-bottom: 1rem;
+    margin-left: 1.125rem;
+    list-style-type: disc;
+  }
+
+  .MdOl {
+    margin-bottom: 1rem;
+    margin-left: 1.75rem;
+    list-style-type: decimal;
+  }
+
+  .MdStrong {
+    font-weight: 500;
+  }
+
+  .MdTable {
+    margin-block: 1.25rem;
+  }
+
+  .MdSubtitle {
+    margin-top: -0.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .MdReferenceBlock {
+    margin-top: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+}

@@ -39,8 +39,61 @@ export const TabsList = React.forwardRef(function TabsList(
   } = useTabsRootContext();
 
   const [highlightedTabIndex, setHighlightedTabIndex] = React.useState(0);
-
   const [tabsListElement, setTabsListElement] = React.useState<HTMLElement | null>(null);
+
+  const indicatorUpdateListenersRef = React.useRef(new Set<() => void>());
+  const tabResizeObserverElementsRef = React.useRef(new Set<HTMLElement>());
+  const resizeObserverRef = React.useRef<ResizeObserver | null>(null);
+
+  const notifyIndicatorUpdateListeners = useStableCallback(() => {
+    indicatorUpdateListenersRef.current.forEach((listener) => {
+      listener();
+    });
+  });
+
+  React.useEffect(() => {
+    if (typeof ResizeObserver === 'undefined') {
+      return undefined;
+    }
+
+    const resizeObserver = new ResizeObserver(() => {
+      if (!indicatorUpdateListenersRef.current.size) {
+        return;
+      }
+      notifyIndicatorUpdateListeners();
+    });
+
+    resizeObserverRef.current = resizeObserver;
+
+    if (tabsListElement) {
+      resizeObserver.observe(tabsListElement);
+    }
+
+    tabResizeObserverElementsRef.current.forEach((element) => {
+      resizeObserver.observe(element);
+    });
+
+    return () => {
+      resizeObserver.disconnect();
+      resizeObserverRef.current = null;
+    };
+  }, [tabsListElement, notifyIndicatorUpdateListeners]);
+
+  const registerIndicatorUpdateListener = useStableCallback((listener: () => void) => {
+    indicatorUpdateListenersRef.current.add(listener);
+    return () => {
+      indicatorUpdateListenersRef.current.delete(listener);
+    };
+  });
+
+  const registerTabResizeObserverElement = useStableCallback((element: HTMLElement) => {
+    tabResizeObserverElementsRef.current.add(element);
+    resizeObserverRef.current?.observe(element);
+    return () => {
+      tabResizeObserverElementsRef.current.delete(element);
+      resizeObserverRef.current?.unobserve(element);
+    };
+  });
 
   const detectActivationDirection = useActivationDirectionDetector(
     value, // the old value
@@ -73,18 +126,20 @@ export const TabsList = React.forwardRef(function TabsList(
     () => ({
       activateOnFocus,
       highlightedTabIndex,
+      registerIndicatorUpdateListener,
+      registerTabResizeObserverElement,
       onTabActivation,
       setHighlightedTabIndex,
       tabsListElement,
-      value,
     }),
     [
       activateOnFocus,
       highlightedTabIndex,
+      registerIndicatorUpdateListener,
+      registerTabResizeObserverElement,
       onTabActivation,
       setHighlightedTabIndex,
       tabsListElement,
-      value,
     ],
   );
 
