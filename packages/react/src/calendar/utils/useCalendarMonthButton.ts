@@ -22,6 +22,7 @@ function isTouchLikePointerType(pointerType: string) {
 interface UseCalendarMonthButtonParameters {
   direction: 1 | -1;
   disabled: boolean;
+  disabledProp?: boolean | undefined;
   store: SharedCalendarStore<TemporalSupportedValue, unknown>;
   adapter: TemporalAdapter;
   monthPageSize: number;
@@ -33,7 +34,7 @@ interface UseCalendarMonthButtonParameters {
  * starts continuous navigation at a fixed interval.
  */
 export function useCalendarMonthButton(params: UseCalendarMonthButtonParameters) {
-  const { direction, disabled, store, adapter, monthPageSize } = params;
+  const { direction, disabled, disabledProp, store, adapter, monthPageSize } = params;
 
   const startTickTimeout = useTimeout();
   const tickInterval = useInterval();
@@ -87,8 +88,9 @@ export function useCalendarMonthButton(params: UseCalendarMonthButtonParameters)
 
       const wouldBeDisabled = selectors.isSetMonthButtonDisabled(
         store.state,
-        undefined,
+        disabled,
         targetDate,
+        disabledProp,
       );
       if (wouldBeDisabled) {
         return false;

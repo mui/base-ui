@@ -106,7 +106,13 @@ const isSetMonthButtonDisabledSelector = createSelector(
     isCalendarDisabled,
     disabled: boolean | undefined,
     targetDate: TemporalSupportedObject,
+    disabledProp?: boolean | undefined,
   ) => {
+    // short-circuit if the disabled prop is explicitly provided.
+    if (disabledProp !== undefined) {
+      return disabledProp;
+    }
+
     if (isCalendarDisabled || disabled) {
       return true;
     }

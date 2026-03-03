@@ -23,7 +23,7 @@ export const CalendarIncrementMonth = React.forwardRef(function CalendarIncremen
     className,
     render,
     nativeButton,
-    disabled,
+    disabled: disabledProp,
     focusableWhenDisabled = true,
     ...elementProps
   } = componentProps;
@@ -38,7 +38,13 @@ export const CalendarIncrementMonth = React.forwardRef(function CalendarIncremen
     [visibleDate, monthPageSize, adapter],
   );
 
-  const isDisabled = useStore(store, selectors.isSetMonthButtonDisabled, disabled, targetDate);
+  const isDisabled = useStore(
+    store,
+    selectors.isSetMonthButtonDisabled,
+    disabledProp,
+    targetDate,
+    disabledProp,
+  );
 
   const { getButtonProps, buttonRef } = useButton({
     disabled: isDisabled,
@@ -49,6 +55,7 @@ export const CalendarIncrementMonth = React.forwardRef(function CalendarIncremen
   const { pointerHandlers, autoChangeButtonRef } = useCalendarMonthButton({
     direction: 1,
     disabled: isDisabled,
+    disabledProp,
     store,
     adapter,
     monthPageSize,

@@ -66,8 +66,9 @@ describe('<Calendar.IncrementMonth />', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button).to.have.attribute('disabled');
+      expect(button).not.to.have.attribute('disabled');
       expect(button).to.have.attribute('data-disabled');
+      expect(button).to.have.attribute('aria-disabled', 'true');
     });
 
     it('should be disabled when the Calendar is disabled', () => {
@@ -78,8 +79,9 @@ describe('<Calendar.IncrementMonth />', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button).to.have.attribute('disabled');
+      expect(button).not.to.have.attribute('disabled');
       expect(button).to.have.attribute('data-disabled');
+      expect(button).to.have.attribute('aria-disabled', 'true');
     });
 
     it('should be disabled when the target month is after the maxDate month', () => {
@@ -93,8 +95,9 @@ describe('<Calendar.IncrementMonth />', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button).to.have.attribute('disabled');
+      expect(button).not.to.have.attribute('disabled');
       expect(button).to.have.attribute('data-disabled');
+      expect(button).to.have.attribute('aria-disabled', 'true');
     });
 
     it('should not be disabled when the target month is equal to the maxDate month', () => {
@@ -112,6 +115,38 @@ describe('<Calendar.IncrementMonth />', () => {
       expect(button).not.to.have.attribute('data-disabled');
     });
 
+    it('should not be disabled when disabled is false and the target month is after the maxDate month', () => {
+      render(
+        <Calendar.Root
+          maxDate={adapter.date('2025-01-10', 'default')}
+          visibleDate={adapter.date('2025-01-01', 'default')}
+        >
+          <Calendar.IncrementMonth disabled={false} />
+        </Calendar.Root>,
+      );
+
+      const button = screen.getByRole('button');
+      expect(button).not.to.have.attribute('disabled');
+      expect(button).not.to.have.attribute('data-disabled');
+    });
+
+    it('should navigate to the next month when disabled is false even if the target month is after the maxDate month', async () => {
+      const onVisibleDateChange = spy();
+
+      const { user } = render(
+        <Calendar.Root
+          maxDate={adapter.date('2025-01-10', 'default')}
+          visibleDate={adapter.date('2025-01-01', 'default')}
+          onVisibleDateChange={onVisibleDateChange}
+        >
+          <Calendar.IncrementMonth disabled={false} />
+        </Calendar.Root>,
+      );
+
+      await user.click(screen.getByRole('button'));
+      expect(onVisibleDateChange.callCount).to.equal(1);
+    });
+
     describe('focusableWhenDisabled', () => {
       it('should not have disabled attribute and have aria-disabled when focusableWhenDisabled is true', () => {
         render(
@@ -123,6 +158,21 @@ describe('<Calendar.IncrementMonth />', () => {
         const button = screen.getByRole('button');
         expect(button).not.to.have.attribute('disabled');
         expect(button).to.have.attribute('aria-disabled', 'true');
+      });
+
+      it('should not have disabled attribute or aria-disabled="true" when disabled is false even at the maxDate boundary', async () => {
+        render(
+          <Calendar.Root
+            maxDate={adapter.date('2025-01-10', 'default')}
+            visibleDate={adapter.date('2025-01-01', 'default')}
+          >
+            <Calendar.IncrementMonth disabled={false} />
+          </Calendar.Root>,
+        );
+
+        const button = screen.getByRole('button', { name: /next month/i });
+        expect(button).not.to.have.attribute('disabled');
+        expect(button).to.have.attribute('aria-disabled', 'false');
       });
     });
   });
@@ -210,6 +260,40 @@ describe('<Calendar.IncrementMonth />', () => {
       // Third tick would go to Apr which is after maxDate, should stop
       clock.tick(100);
       expect(onVisibleDateChange.callCount).to.equal(2);
+
+      fireEvent.pointerUp(button);
+    });
+
+    it('should continue navigating past the maxDate boundary when disabled is false', async () => {
+      const onVisibleDateChange = spy();
+      await renderWithClock(
+        <LocalizationProvider>
+          <Calendar.Root
+            defaultVisibleDate={adapter.date('2025-01-15', 'default')}
+            maxDate={adapter.date('2025-03-31', 'default')}
+            onVisibleDateChange={onVisibleDateChange}
+          >
+            <Calendar.IncrementMonth data-testid="increment" disabled={false} />
+          </Calendar.Root>
+        </LocalizationProvider>,
+      );
+
+      const button = screen.getByTestId('increment');
+
+      fireEvent.pointerDown(button);
+
+      // First tick: Jan → Feb
+      expect(onVisibleDateChange.callCount).to.equal(1);
+
+      clock.tick(400);
+
+      // Second tick: Feb → Mar
+      clock.tick(100);
+      expect(onVisibleDateChange.callCount).to.equal(2);
+
+      // Third tick: Mar → Apr — would stop at boundary without the fix
+      clock.tick(100);
+      expect(onVisibleDateChange.callCount).to.equal(3);
 
       fireEvent.pointerUp(button);
     });

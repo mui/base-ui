@@ -24,7 +24,7 @@ export const CalendarDecrementMonth = React.forwardRef(function CalendarDecremen
     className,
     render,
     nativeButton,
-    disabled,
+    disabled: disabledProp,
     focusableWhenDisabled = true,
     ...elementProps
   } = componentProps;
@@ -39,7 +39,13 @@ export const CalendarDecrementMonth = React.forwardRef(function CalendarDecremen
     [visibleDate, monthPageSize, adapter],
   );
 
-  const isDisabled = useStore(store, selectors.isSetMonthButtonDisabled, disabled, targetDate);
+  const isDisabled = useStore(
+    store,
+    selectors.isSetMonthButtonDisabled,
+    disabledProp,
+    targetDate,
+    disabledProp,
+  );
 
   const { getButtonProps, buttonRef } = useButton({
     disabled: isDisabled,
@@ -50,6 +56,7 @@ export const CalendarDecrementMonth = React.forwardRef(function CalendarDecremen
   const { pointerHandlers, autoChangeButtonRef } = useCalendarMonthButton({
     direction: -1,
     disabled: isDisabled,
+    disabledProp,
     store,
     adapter,
     monthPageSize,
