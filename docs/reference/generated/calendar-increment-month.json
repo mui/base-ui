@@ -4,7 +4,7 @@
   "props": {
     "focusableWhenDisabled": {
       "type": "boolean",
-      "default": "false",
+      "default": "true",
       "description": "When `true` the button remains focusable when disabled.",
       "detailedType": "boolean | undefined"
     },

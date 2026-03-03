@@ -25,7 +25,7 @@ export const CalendarDecrementMonth = React.forwardRef(function CalendarDecremen
     render,
     nativeButton,
     disabled,
-    focusableWhenDisabled = false,
+    focusableWhenDisabled = true,
     ...elementProps
   } = componentProps;
 
@@ -101,7 +101,7 @@ export interface CalendarDecrementMonthProps
   extends BaseUIComponentProps<'button', CalendarDecrementMonthState>, NativeButtonProps {
   /**
    * When `true` the button remains focusable when disabled.
-   * @default false
+   * @default true
    */
   focusableWhenDisabled?: boolean | undefined;
 }
