@@ -483,7 +483,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         },
         style: getThumbStyle(),
         suppressHydrationWarning: renderBeforeHydration || undefined,
-        tabIndex: -1,
       },
       elementProps,
     ],

@@ -186,6 +186,19 @@ describe('<Slider.Thumb />', () => {
   });
 
   describe('prop: tabIndex', () => {
+    it('does not apply tabIndex to the thumb element by default', async () => {
+      await render(
+        <Slider.Root defaultValue={50}>
+          <Slider.Control>
+            <Slider.Thumb data-testid="thumb" />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      expect(screen.getByTestId('thumb')).not.to.have.attribute('tabindex');
+      expect(screen.getByRole('slider')).to.have.property('tabIndex', 0);
+    });
+
     it('can be removed from the tab sequence', async () => {
       const { user } = await render(
         <Slider.Root defaultValue={50}>
