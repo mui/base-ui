@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useButton } from '../../use-button/useButton';
 import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import type { NativeButtonComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
 import { DialogHandle } from '../store/DialogHandle';
@@ -86,13 +86,21 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
 }) as DialogTrigger;
 
 export interface DialogTrigger {
-  <Payload>(
-    componentProps: DialogTriggerProps<Payload> & React.RefAttributes<HTMLElement>,
+  <
+    Payload = unknown,
+    TNativeButton extends boolean = true,
+    TElement extends React.ElementType = 'button',
+  >(
+    componentProps: DialogTriggerProps<Payload, TNativeButton, TElement> &
+      React.RefAttributes<HTMLElement>,
   ): React.JSX.Element;
 }
 
-export interface DialogTriggerProps<Payload = unknown>
-  extends NativeButtonProps, BaseUIComponentProps<'button', DialogTrigger.State> {
+export type DialogTriggerProps<
+  Payload = unknown,
+  TNativeButton extends boolean = true,
+  TElement extends React.ElementType = 'button',
+> = NativeButtonComponentProps<TNativeButton, TElement, DialogTrigger.State> & {
   /**
    * A handle to associate the trigger with a dialog.
    * Can be created with the Dialog.createHandle() method.
@@ -107,7 +115,7 @@ export interface DialogTriggerProps<Payload = unknown>
    * it is also used to specify the active trigger for the dialogs in controlled mode (with the DialogRoot `triggerId` prop).
    */
   id?: string | undefined;
-}
+};
 
 export interface DialogTriggerState {
   /**
@@ -121,6 +129,10 @@ export interface DialogTriggerState {
 }
 
 export namespace DialogTrigger {
-  export type Props<Payload = unknown> = DialogTriggerProps<Payload>;
+  export type Props<
+    Payload = unknown,
+    TNativeButton extends boolean = true,
+    TElement extends React.ElementType = 'button',
+  > = DialogTriggerProps<Payload, TNativeButton, TElement>;
   export type State = DialogTriggerState;
 }

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import { NativeButtonComponentProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import type { ToolbarRoot } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
@@ -64,15 +64,17 @@ export const ToolbarButton = React.forwardRef(function ToolbarButton(
       ]}
     />
   );
-});
+}) as ToolbarButtonComponent;
 
 export interface ToolbarButtonState extends ToolbarRoot.State {
   disabled: boolean;
   focusable: boolean;
 }
 
-export interface ToolbarButtonProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', ToolbarButton.State> {
+export type ToolbarButtonProps<
+  TNativeButton extends boolean,
+  TElement extends React.ElementType,
+> = NativeButtonComponentProps<TNativeButton, TElement, ToolbarButton.State> & {
   /**
    * When `true` the item is disabled.
    * @default false
@@ -83,9 +85,21 @@ export interface ToolbarButtonProps
    * @default true
    */
   focusableWhenDisabled?: boolean | undefined;
-}
+};
 
 export namespace ToolbarButton {
   export type State = ToolbarButtonState;
-  export type Props = ToolbarButtonProps;
+  export type Props<
+    TNativeButton extends boolean = true,
+    TElement extends React.ElementType = 'button',
+  > = ToolbarButtonProps<TNativeButton, TElement>;
 }
+
+type ToolbarButtonComponent = <
+  TNativeButton extends boolean = true,
+  TElement extends React.ElementType = 'button',
+>(
+  props: ToolbarButton.Props<TNativeButton, TElement> & {
+    ref?: React.Ref<HTMLButtonElement> | undefined;
+  },
+) => React.ReactElement | null;

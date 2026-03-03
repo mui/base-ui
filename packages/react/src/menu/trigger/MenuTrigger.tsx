@@ -29,7 +29,7 @@ import {
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import { NativeButtonComponentProps } from '../../utils/types';
 import { useButton } from '../../use-button/useButton';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 import { CompositeItem } from '../../composite/item/CompositeItem';
@@ -353,13 +353,21 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
 }) as MenuTrigger;
 
 export interface MenuTrigger {
-  <Payload>(
-    componentProps: MenuTriggerProps<Payload> & React.RefAttributes<HTMLElement>,
+  <
+    Payload = unknown,
+    TNativeButton extends boolean = true,
+    TElement extends React.ElementType = 'button',
+  >(
+    componentProps: MenuTriggerProps<Payload, TNativeButton, TElement> &
+      React.RefAttributes<HTMLElement>,
   ): React.JSX.Element;
 }
 
-export interface MenuTriggerProps<Payload = unknown>
-  extends NativeButtonProps, BaseUIComponentProps<'button', MenuTrigger.State> {
+export type MenuTriggerProps<
+  Payload = unknown,
+  TNativeButton extends boolean = true,
+  TElement extends React.ElementType = 'button',
+> = NativeButtonComponentProps<TNativeButton, TElement, MenuTrigger.State> & {
   children?: React.ReactNode;
   /**
    * Whether the component should ignore user interaction.
@@ -393,7 +401,7 @@ export interface MenuTriggerProps<Payload = unknown>
    * Whether the menu should also open when the trigger is hovered.
    */
   openOnHover?: boolean | undefined;
-}
+};
 
 export type MenuTriggerState = {
   /**
@@ -407,7 +415,11 @@ export type MenuTriggerState = {
 };
 
 export namespace MenuTrigger {
-  export type Props<Payload = unknown> = MenuTriggerProps<Payload>;
+  export type Props<
+    Payload = unknown,
+    TNativeButton extends boolean = true,
+    TElement extends React.ElementType = 'button',
+  > = MenuTriggerProps<Payload, TNativeButton, TElement>;
   export type State = MenuTriggerState;
 }
 
