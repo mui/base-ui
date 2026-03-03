@@ -23,6 +23,8 @@ import type { FieldRoot } from '../../field/root/FieldRoot';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
+import { useHydrated } from '../../utils/useHydrated';
+import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 
 const BOUNDARY_OFFSET = 2;
 const SELECTED_DELAY = 400;
@@ -60,7 +62,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     state: fieldState,
     disabled: fieldDisabled,
   } = useFieldRootContext();
-  const { labelId } = useLabelableContext();
+  const { labelId: fieldLabelId } = useLabelableContext();
   const {
     store,
     setOpen,
@@ -81,11 +83,22 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const positionerElement = useStore(store, selectors.positionerElement);
   const listElement = useStore(store, selectors.listElement);
   const rootId = useStore(store, selectors.id);
+  const selectLabelId = useStore(store, selectors.labelId);
   const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
   const shouldCheckNullItemLabel = !hasSelectedValue && open;
   const hasNullItemLabel = useStore(store, selectors.hasNullItemLabel, shouldCheckNullItemLabel);
 
   const id = idProp ?? rootId;
+  const defaultLabelId = id ? `${id}-label` : undefined;
+  const hydrated = useHydrated();
+  const ariaLabelledBy = resolveAriaLabelledBy(
+    fieldLabelId,
+    selectLabelId,
+    defaultLabelId,
+    componentProps['aria-label'],
+    hydrated,
+  );
+
   useLabelableId({ id });
 
   const positionerRef = useValueAsRef(positionerElement);
@@ -174,7 +187,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
       'aria-expanded': open ? 'true' : 'false',
       'aria-haspopup': 'listbox',
       'aria-controls': open ? ariaControlsId : undefined,
-      'aria-labelledby': labelId,
+      'aria-labelledby': ariaLabelledBy,
       'aria-readonly': readOnly || undefined,
       'aria-required': required || undefined,
       tabIndex: disabled ? -1 : 0,

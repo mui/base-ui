@@ -25,6 +25,8 @@ import { REASONS } from '../../utils/reasons';
 import { useClick, useTypeahead } from '../../floating-ui-react';
 import type { Side } from '../../utils/useAnchorPositioning';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
+import { useHydrated } from '../../utils/useHydrated';
+import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -53,7 +55,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     validationMode,
     validation,
   } = useFieldRootContext();
-  const { labelId } = useLabelableContext();
+  const { labelId: fieldLabelId } = useLabelableContext();
   const store = useComboboxRootContext();
   const { filteredItems } = useComboboxDerivedItemsContext();
 
@@ -69,6 +71,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const triggerElement = useStore(store, selectors.triggerElement);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
   const rootId = useStore(store, selectors.id);
+  const comboboxLabelId = useStore(store, selectors.labelId);
   const open = useStore(store, selectors.open);
   const selectedValue = useStore(store, selectors.selectedValue);
   const activeIndex = useStore(store, selectors.activeIndex);
@@ -86,6 +89,15 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
   useLabelableId({ id: inputInsidePopup ? idProp : undefined });
   const id = inputInsidePopup ? (idProp ?? rootId) : idProp;
+  const defaultLabelId = rootId ? `${rootId}-label` : undefined;
+  const hydrated = useHydrated();
+  const ariaLabelledBy = resolveAriaLabelledBy(
+    fieldLabelId,
+    comboboxLabelId,
+    defaultLabelId,
+    componentProps['aria-label'],
+    hydrated,
+  );
 
   const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
 
@@ -157,7 +169,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
         'aria-haspopup': inputInsidePopup ? 'dialog' : 'listbox',
         'aria-controls': open ? listElement?.id : undefined,
         'aria-required': inputInsidePopup ? required || undefined : undefined,
-        'aria-labelledby': labelId,
+        'aria-labelledby': ariaLabelledBy,
         onPointerDown: trackPointerType,
         onPointerEnter: trackPointerType,
         onFocus() {

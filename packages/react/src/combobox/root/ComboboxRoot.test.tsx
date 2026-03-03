@@ -70,7 +70,7 @@ describe('<Combobox.Root />', () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   popupConformanceTests({
     createComponent: (props) => (
@@ -91,6 +91,26 @@ describe('<Combobox.Root />', () => {
     triggerMouseAction: 'click',
     expectedPopupRole: 'listbox',
     combobox: true,
+  });
+
+  describe('server-side rendering', () => {
+    it('links Combobox.Label to trigger before hydration', () => {
+      renderToString(
+        <Combobox.Root inline>
+          <Combobox.Label data-testid="label">Food</Combobox.Label>
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Input data-testid="input" />
+        </Combobox.Root>,
+      );
+
+      const label = screen.getByTestId('label');
+      const trigger = screen.getByTestId('trigger');
+
+      expect(label.id).to.not.equal('');
+      expect(trigger.id).to.not.equal('');
+      expect(label.id).to.equal(`${trigger.id}-label`);
+      expect(trigger).to.have.attribute('aria-labelledby', label.id);
+    });
   });
 
   it('does not focus input when closing via trigger click (input inside popup)', async () => {
@@ -4663,13 +4683,68 @@ describe('<Combobox.Root />', () => {
         </Field.Root>,
       );
 
-      const label = screen.getByTestId<HTMLLabelElement>('label');
+      const label = screen.getByTestId<HTMLDivElement>('label');
       const trigger = screen.getByTestId('trigger');
 
       await waitFor(() => {
         expect(trigger).to.have.attribute('id', 'x-id');
-        expect(label).to.have.attribute('for', 'x-id');
+        expect(trigger).to.have.attribute('aria-labelledby', label.id);
       });
+    });
+
+    it('Combobox.Label links to Combobox.Trigger when input is inside popup and trigger has an explicit id', async () => {
+      await render(
+        <Combobox.Root>
+          <Combobox.Label data-testid="label">Search</Combobox.Label>
+          <Combobox.Trigger data-testid="trigger" id="x-id">
+            Open
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input />
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                  <Combobox.Item value="b">b</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const label = screen.getByTestId<HTMLDivElement>('label');
+      const trigger = screen.getByTestId('trigger');
+
+      await waitFor(() => {
+        expect(trigger).to.have.attribute('id', 'x-id');
+        expect(trigger).to.have.attribute('aria-labelledby', label.id);
+      });
+    });
+
+    it('Combobox.Label focuses trigger without opening when input is inside popup', async () => {
+      const { user } = await render(
+        <Combobox.Root>
+          <Combobox.Label data-testid="label">Search</Combobox.Label>
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input />
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                  <Combobox.Item value="b">b</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await user.click(screen.getByTestId('label'));
+
+      expect(screen.getByTestId('trigger')).toHaveFocus();
+      expect(screen.queryByRole('dialog')).to.equal(null);
     });
 
     it('does not apply validation ARIA attributes to input inside popup', async () => {
@@ -5274,6 +5349,71 @@ describe('<Combobox.Root />', () => {
         'aria-labelledby',
         screen.getByTestId('label').id,
       );
+    });
+
+    it('Combobox.Label does not label Combobox.Input and warns when input is the form control', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      await render(
+        <Combobox.Root>
+          <Combobox.Label data-testid="label" />
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner />
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await waitFor(() => {
+        expect(errorSpy.mock.calls.length).to.equal(1);
+      });
+
+      expect(errorSpy.mock.calls[0][0]).to.contain(
+        'Base UI: <Combobox.Label> labels <Combobox.Trigger> only.',
+      );
+      expect(screen.getByTestId('input')).not.to.have.attribute('aria-labelledby');
+      errorSpy.mockRestore();
+    });
+
+    it('does not set fallback aria-labelledby when no label is rendered', async () => {
+      await render(
+        <Combobox.Root>
+          <Combobox.Input data-testid="input" aria-label="Search" />
+          <Combobox.Portal>
+            <Combobox.Positioner />
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('input')).not.to.have.attribute('aria-labelledby');
+      });
+    });
+
+    it('updates Combobox.Label linkage when root id changes', async () => {
+      const { setProps } = await render(
+        <Combobox.Root id="first">
+          <Combobox.Label data-testid="label">Food</Combobox.Label>
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input />
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await setProps({ id: 'second' });
+
+      await waitFor(() => {
+        const label = screen.getByTestId('label');
+        const trigger = screen.getByTestId('trigger');
+        expect(trigger).to.have.attribute('id', 'second');
+        expect(label.id).to.equal('second-label');
+        expect(trigger).to.have.attribute('aria-labelledby', label.id);
+      });
     });
 
     it('Field.Description', async () => {

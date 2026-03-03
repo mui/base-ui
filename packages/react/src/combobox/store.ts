@@ -9,6 +9,7 @@ import type { AriaCombobox } from './root/AriaCombobox';
 
 export type State = {
   id: string | undefined;
+  labelId: string | undefined;
 
   query: string;
 
@@ -93,6 +94,7 @@ export type ComboboxStore = Store<State>;
 
 export const selectors = {
   id: createSelector((state: State) => state.id),
+  labelId: createSelector((state: State) => state.labelId),
 
   query: createSelector((state: State) => state.query),
 

@@ -24,6 +24,7 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import type { Side } from '../../utils/useAnchorPositioning';
 import { useDirection } from '../../direction-provider/DirectionContext';
+import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 
 /**
  * A text input to search for items in the list.
@@ -49,7 +50,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     validationMode,
     validation,
   } = useFieldRootContext();
-  const { labelId } = useLabelableContext();
+  const { labelId: fieldLabelId } = useLabelableContext();
   const comboboxChipsContext = useComboboxChipsContext();
   const positioning = useComboboxPositionerContext(true);
   const hasPositionerParent = Boolean(positioning);
@@ -83,6 +84,13 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
   const isInsidePopup = hasPositionerParent || inline;
   const id = useBaseUiId(idProp ?? (!isInsidePopup ? rootId : undefined));
+  const ariaLabelledBy = resolveAriaLabelledBy(
+    fieldLabelId,
+    undefined,
+    undefined,
+    componentProps['aria-label'],
+    true,
+  );
   const fieldStateForInput = hasPositionerParent ? DEFAULT_FIELD_STATE_ATTRIBUTES : fieldState;
 
   const [composingValue, setComposingValue] = React.useState<string | null>(null);
@@ -185,7 +193,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         value: componentProps.value ?? composingValue ?? inputValue,
         'aria-readonly': readOnly || undefined,
         'aria-required': required || undefined,
-        'aria-labelledby': labelId,
+        'aria-labelledby': ariaLabelledBy,
         disabled,
         readOnly,
         required: selectionMode === 'none' ? required : undefined,

@@ -28,6 +28,7 @@ export interface SliderRootContext {
   indicatorPosition: (number | undefined)[];
   inset: boolean;
   labelId?: string | undefined;
+  rootLabelId?: string | undefined;
   /**
    * The large step value of the slider when incrementing or decrementing while the shift key is held,
    * or when using Page-Up or Page-Down keys. Snaps to multiples of this value.
@@ -75,6 +76,7 @@ export interface SliderRootContext {
   setActive: (index: number) => void;
   setDragging: React.Dispatch<React.SetStateAction<boolean>>;
   setIndicatorPosition: React.Dispatch<React.SetStateAction<(number | undefined)[]>>;
+  setLabelId: React.Dispatch<React.SetStateAction<string | undefined>>;
   /**
    * Callback fired when dragging and invokes onValueChange.
    */
