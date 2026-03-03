@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import Link from 'next/link';
+import clsx from 'clsx';
 import { useSearch } from '@mui/internal-docs-infra/useSearch';
 import type {
   SearchResult,
@@ -49,14 +50,12 @@ const SearchItem = React.memo(function SearchItem({ result }: { result: SearchRe
     <React.Fragment>
       {result.title?.split(' ‣ ').map((part, i, arr) => (
         <React.Fragment key={part}>
-          <span
-            className={`flex h-full items-center ${i === arr.length - 1 ? 'truncate text-ellipsis' : 'whitespace-nowrap'}`}
-          >
+          <span className={clsx('SearchBreadcrumbPart', i === arr.length - 1 && 'last')}>
             {part}
           </span>
           {i !== arr.length - 1 && (
             <svg
-              className="text-gray-300"
+              className="SearchBreadcrumbSeparator"
               xmlns="http://www.w3.org/2000/svg"
               width="16"
               height="16"
@@ -74,20 +73,14 @@ const SearchItem = React.memo(function SearchItem({ result }: { result: SearchRe
         </React.Fragment>
       ))}
       {process.env.NODE_ENV !== 'production' && result.score && (
-        <span className="text-xs opacity-70 whitespace-nowrap ml-1.5">
-          {result.score.toFixed(2)}
-        </span>
+        <span className="SearchScore">{result.score.toFixed(2)}</span>
       )}
     </React.Fragment>
   );
 });
 
 const EmptyState = React.memo(function EmptyState() {
-  return (
-    <div className="px-3 py-6 text-center text-[0.9375rem] tracking-[0.016em] font-normal text-gray-600">
-      No results found.
-    </div>
-  );
+  return <div className="SearchEmptyState">No results found.</div>;
 });
 
 export function SearchBar({
@@ -325,13 +318,13 @@ export function SearchBar({
   // Memoized search input component
   const searchInput = React.useMemo(
     () => (
-      <div className="flex items-center gap-2 h-8 rounded-lg bg-popover px-3">
-        <Search className="h-4 w-4 shrink-0 text-gray-500" />
+      <div className="SearchInputRoot">
+        <Search className="SearchInputIcon" />
         <Autocomplete.Input
           id="search-input"
           ref={inputRef}
           placeholder="Search"
-          className="w-full border-0 bg-transparent text-base tracking-[0.016em] font-normal text-gray-900 placeholder:text-gray-500 focus:outline-none"
+          className="SearchInput"
           onKeyDownCapture={handleKeyDownCapture}
         />
       </div>
@@ -348,12 +341,9 @@ export function SearchBar({
   // Memoized render function for result groups
   const renderResultsList = React.useCallback(
     (group: SearchResults[number]) => (
-      <Autocomplete.Group key={group.group} items={group.items} className="block">
+      <Autocomplete.Group key={group.group} items={group.items} className="SearchGroup">
         {group.group !== 'Default' && (
-          <Autocomplete.GroupLabel
-            id={`search-group-${group.group}`}
-            className="m-0 flex h-8 items-center pl-3.5 text-[0.9375rem] tracking-[0.00625em] font-normal leading-none text-gray-600 select-none"
-          >
+          <Autocomplete.GroupLabel id={`search-group-${group.group}`} className="SearchGroupLabel">
             {normalizeGroup(group.group)}
           </Autocomplete.GroupLabel>
         )}
@@ -365,7 +355,7 @@ export function SearchBar({
               render={
                 <Link href={buildResultUrl(result)} onNavigate={handleItemClick} tabIndex={-1} />
               }
-              className="flex h-8 cursor-default select-none items-center rounded-lg pl-9 pr-2 text-[0.9375rem] tracking-[0.016em] font-normal leading-none outline-none data-highlighted:bg-gray-100 gap-1 text-gray-900"
+              className="SearchOptionItem"
             >
               <SearchItem result={result} />
             </Autocomplete.Item>
@@ -379,29 +369,29 @@ export function SearchBar({
   return (
     <React.Fragment>
       <Button onClick={handleOpenDialog} aria-label="Search" className={`SearchTrigger`}>
-        <Search className="h-4 w-4 text-gray-500" />
-        <div className="SearchTriggerKbd hidden lg:inline-flex lg:-mr-2">
+        <Search className="SearchTriggerIcon" />
+        <div className="SearchTriggerKbd">
           {showCmdSymbol ? (
-            <kbd className="text-lg text-gray-600">⌘</kbd>
+            <kbd className="SearchTriggerCmd">⌘</kbd>
           ) : (
             <React.Fragment>
-              <kbd className="text-xs text-gray-600">Ctrl</kbd>
-              <span className="text-xs text-gray-400">+</span>
+              <kbd className="SearchTriggerCtrl">Ctrl</kbd>
+              <span className="SearchTriggerPlus">+</span>
             </React.Fragment>
           )}
-          <kbd className="text-xs text-gray-600">K</kbd>
+          <kbd className="SearchTriggerK">K</kbd>
         </div>
       </Button>
       <Dialog.Root open={dialogOpen} onOpenChange={handleCloseDialog}>
         <Dialog.Portal>
-          <Dialog.Backdrop className="fixed inset-0 min-h-dvh bg-black opacity-20 transition-all duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0 dark:opacity-70 supports-[-webkit-touch-callout:none]:absolute" />
+          <Dialog.Backdrop className="SearchBackdrop" />
           {containedScroll ? (
-            <Dialog.Viewport className="group/dialog fixed inset-0 flex items-start justify-center overflow-hidden pt-18">
+            <Dialog.Viewport className="SearchViewportContained">
               <Dialog.Popup
                 ref={popupRef}
                 initialFocus={inputRef}
                 data-open={dialogOpen}
-                className="relative flex rounded-2xl min-h-0 max-h-[min(29.5rem,calc(100vh-6rem))] w-[min(34rem,calc(100vw-2rem))] flex-col overflow-hidden bg-white text-gray-900 outline-1 outline-black/4 shadow-[0_.5px_1px_hsl(0_0%_0%/12%),0_1px_3px_-1px_hsl(0_0%_0%/4%),0_2px_4px_-1px_hsl(0_0%_0%/4%),0_4px_8px_-2px_hsl(0_0%_0%/4%),0_12px_14px_-4px_hsl(0_0%_0%/4%),0_24px_64px_-8px_hsl(0_0%_0%/4%),0_40px_48px_-32px_hsl(0_0%_0%/4%)] transition-all duration-150 data-ending-style:scale-90 data-ending-style:opacity-0 data-ending-style:-translate-y-4 data-starting-style:scale-90 data-starting-style:opacity-0 data-starting-style:-translate-y-4 dark:bg-[oklch(20%_0.5%_264deg)] dark:outline-white/25"
+                className="SearchPopupContained"
               >
                 <Autocomplete.Root
                   items={searchResults.results}
@@ -415,18 +405,16 @@ export function SearchBar({
                   autoHighlight="always"
                   keepHighlight
                 >
-                  <div className="shrink-0 border-b border-gray-100 pt-2 px-2 pb-1.5">
-                    {searchInput}
-                  </div>
-                  <div className="flex min-h-0 flex-1">
-                    <ScrollArea.Root className="relative flex min-h-0 flex-1 overflow-hidden">
-                      <ScrollArea.Viewport className="flex-1 min-h-0 overflow-y-auto overscroll-contain scroll-pt-9 scroll-pb-2">
+                  <div className="SearchHeadContained">{searchInput}</div>
+                  <div className="SearchBody">
+                    <ScrollArea.Root className="SearchScrollAreaRoot">
+                      <ScrollArea.Viewport className="SearchScrollAreaViewport">
                         <ScrollArea.Content style={{ minWidth: '100%' }}>
                           {searchResults.results.length === 0 ? (
                             <EmptyState />
                           ) : (
                             <Autocomplete.List
-                              className="outline-0 p-2"
+                              className="SearchList"
                               onKeyDownCapture={handleKeyDownCapture}
                             >
                               {renderResultsList}
@@ -439,12 +427,9 @@ export function SearchBar({
                       </ScrollArea.Scrollbar>
                     </ScrollArea.Root>
                   </div>
-                  <div className="border-t border-gray-100 py-2 flex pl-3 pr-2 text-gray-500 text-xs">
-                    <div className={`flex items-center gap-3`}>
-                      <kbd
-                        aria-label="Enter"
-                        className="flex h-5 w-5 items-center justify-center rounded border border-gray-300 bg-gray-50 text-[10px] text-gray-600"
-                      >
+                  <div className="SearchFooter">
+                    <div className="SearchFooterHint">
+                      <kbd aria-label="Enter" className="SearchFooterEnter">
                         <CornerDownLeft size={12} />
                       </kbd>
                       <span>Go to page</span>
@@ -454,18 +439,15 @@ export function SearchBar({
               </Dialog.Popup>
             </Dialog.Viewport>
           ) : (
-            <Dialog.Viewport className="group/dialog fixed inset-0">
-              <ScrollArea.Root
-                style={{ position: undefined }}
-                className="h-full overscroll-contain group-data-ending-style/dialog:pointer-events-none"
-              >
-                <ScrollArea.Viewport className="h-full overscroll-contain group-data-ending-style/dialog:pointer-events-none">
-                  <ScrollArea.Content className="flex min-h-full items-start justify-center">
+            <Dialog.Viewport className="SearchViewportDefault">
+              <ScrollArea.Root style={{ position: undefined }} className="SearchRootScrollable">
+                <ScrollArea.Viewport className="SearchRootScrollable">
+                  <ScrollArea.Content className="SearchContentWrap">
                     <Dialog.Popup
                       ref={popupRef}
                       initialFocus={inputRef}
                       data-open={dialogOpen}
-                      className="relative mx-auto rounded-2xl mt-18 mb-18 w-[min(40rem,calc(100vw-2rem))] bg-white text-gray-900 outline-1 outline-black/4 shadow-[0_.5px_1px_hsl(0_0%_0%/12%),0_1px_3px_-1px_hsl(0_0%_0%/4%),0_2px_4px_-1px_hsl(0_0%_0%/4%),0_4px_8px_-2px_hsl(0_0%_0%/4%),0_12px_14px_-4px_hsl(0_0%_0%/4%),0_24px_64px_-8px_hsl(0_0%_0%/4%),0_40px_48px_-32px_hsl(0_0%_0%/4%)] transition-all duration-150 data-ending-style:scale-90 data-ending-style:opacity-0 data-ending-style:-translate-y-4 data-starting-style:scale-90 data-starting-style:opacity-0 data-starting-style:-translate-y-4 dark:bg-[oklch(20%_0.5%_264deg)] dark:outline-white/25"
+                      className="SearchPopupDefault"
                     >
                       <Autocomplete.Root
                         items={searchResults.results}
@@ -478,13 +460,13 @@ export function SearchBar({
                         filter={null}
                         autoHighlight
                       >
-                        <div className="border-b border-gray-100 p-2 pb-1.5">{searchInput}</div>
+                        <div className="SearchHeadDefault">{searchInput}</div>
                         <div>
                           {searchResults.results.length === 0 ? (
                             <EmptyState />
                           ) : (
                             <Autocomplete.List
-                              className="outline-0 overflow-y-auto p-2 scroll-pt-9 scroll-pb-2 overscroll-contain max-h-[min(22.5rem,var(--available-height))] rounded-b-[5px]"
+                              className="SearchListDefault"
                               onKeyDownCapture={handleKeyDownCapture}
                             >
                               {renderResultsList}

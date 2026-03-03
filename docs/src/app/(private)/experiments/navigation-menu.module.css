@@ -28,9 +28,9 @@
   border-radius: 0.375rem;
   background-color: var(--color-gray-50);
   font-family: inherit;
-  font-size: 1rem;
+  font-size: var(--text-base);
   font-weight: 500;
-  line-height: 1.5rem;
+  line-height: var(--text-base--line-height);
   color: var(--color-gray-900);
   user-select: none;
   text-decoration: none;
@@ -251,15 +251,15 @@
 
 .LinkTitle {
   margin: 0 0 4px;
-  font-size: 1rem;
+  font-size: var(--text-base);
   font-weight: 500;
-  line-height: 1.25rem;
+  line-height: var(--text-sm--line-height);
 }
 
 .LinkDescription {
   margin: 0;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
   color: var(--color-gray-500);
 }
 
@@ -301,5 +301,145 @@
 .ArrowInnerStroke {
   @media (prefers-color-scheme: dark) {
     fill: var(--color-gray-300);
+  }
+}
+
+.ActionButton {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.5rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  background: var(--color-gray-50);
+  padding: 0 0.875rem;
+  font-size: var(--text-base);
+  line-height: var(--text-base--line-height);
+  font-weight: 500;
+  color: var(--color-gray-900);
+  user-select: none;
+}
+
+@media (hover: hover) {
+  .ActionButton:hover {
+    background: var(--color-gray-100);
+  }
+}
+
+.ActionButton:active,
+.ActionButton[data-popup-open] {
+  background: var(--color-gray-100);
+}
+
+.ActionButton:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: -1px;
+}
+
+.IconActionButton {
+  width: 2.5rem;
+  padding: 0;
+}
+
+.DangerActionButton {
+  color: var(--color-red-800);
+}
+
+.Backdrop {
+  position: fixed;
+  inset: 0;
+  background: black;
+  opacity: 0.2;
+  transition: all 150ms;
+}
+
+.Backdrop[data-starting-style],
+.Backdrop[data-ending-style] {
+  opacity: 0;
+}
+
+.ModalPopup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  margin-top: -2rem;
+  width: 24rem;
+  max-width: calc(100vw - 3rem);
+  transform: translate(-50%, -50%);
+  border-radius: 0.5rem;
+  background: var(--color-gray-50);
+  padding: 1.5rem;
+  color: var(--color-gray-900);
+  outline: 1px solid var(--color-gray-200);
+  transition: all 150ms;
+}
+
+.ModalPopup[data-starting-style],
+.ModalPopup[data-ending-style] {
+  transform: translate(-50%, -50%) scale(0.9);
+  opacity: 0;
+}
+
+.ModalTitle {
+  margin: -0.375rem 0 0.25rem;
+  font-size: var(--text-lg);
+  line-height: var(--text-lg--line-height);
+  font-weight: 500;
+}
+
+.ModalDescription {
+  margin: 0 0 1.5rem;
+  font-size: var(--text-base);
+  line-height: var(--text-base--line-height);
+  color: var(--color-gray-600);
+}
+
+.ModalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.PopoverPopup {
+  transform-origin: var(--transform-origin);
+  border-radius: 0.5rem;
+  background: canvas;
+  padding: 1rem 1.5rem;
+  color: var(--color-gray-900);
+  transition:
+    transform 150ms,
+    scale 150ms,
+    opacity 150ms;
+}
+
+.PopoverPopup[data-starting-style],
+.PopoverPopup[data-ending-style] {
+  scale: 0.9;
+  opacity: 0;
+}
+
+@media (prefers-color-scheme: light) {
+  .PopoverPopup {
+    outline: 1px solid var(--color-gray-200);
+    box-shadow:
+      0 10px 15px -3px var(--color-gray-200),
+      0 4px 6px -4px var(--color-gray-200);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .Backdrop {
+    opacity: 0.7;
+  }
+
+  .ModalPopup {
+    outline: 1px solid var(--color-gray-300);
+  }
+
+  .PopoverPopup {
+    outline: 1px solid var(--color-gray-300);
+    outline-offset: -1px;
+    box-shadow: none;
   }
 }
