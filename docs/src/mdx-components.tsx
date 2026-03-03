@@ -1,5 +1,4 @@
 import * as React from 'react';
-import clsx from 'clsx';
 import * as CodeBlock from './components/CodeBlock';
 import * as Table from './components/Table';
 import * as QuickNav from './components/QuickNav/QuickNav';
@@ -9,6 +8,7 @@ import { HeadingLink } from './components/HeadingLink';
 import { Subtitle } from './components/Subtitle/Subtitle';
 import { TypeRef } from './components/TypeRef';
 import { Kbd } from './components/Kbd/Kbd';
+import './css/mdx-components.css';
 
 interface MDXComponents {
   [key: string]: React.FC<any> | MDXComponents;
@@ -17,44 +17,34 @@ interface MDXComponents {
 // Maintain spacing between MDX components here
 export const mdxComponents: MDXComponents = {
   a: Link,
-  code: (props) => (
-    <Code {...props} className={clsx('data-[inline]:mx-[0.1em]', props.className)} />
-  ),
+  code: (props) => <Code className="MdInlineCode" {...props} />,
   h1: (props) => (
     // Do not wrap heading tags in divs, that confuses Safari Reader
-    <h1 className="mb-4 text-3xl font-bold text-balance" {...props} />
+    <h1 className="MdH1" {...props} />
   ),
   h2: ({ children, id, ...otherProps }) => {
     return (
-      <h2
-        className="mt-10 mb-4 scroll-mt-18 text-xl font-medium text-balance show-side-nav:scroll-mt-6"
-        id={id}
-        {...otherProps}
-      >
+      <h2 className="MdH2" id={id} {...otherProps}>
         <HeadingLink id={id}>{children}</HeadingLink>
       </h2>
     );
   },
   h3: ({ children, id, ...otherProps }) => {
     return (
-      <h3
-        className="mt-8 mb-1.5 scroll-mt-18 text-lg font-medium text-balance show-side-nav:scroll-mt-6"
-        id={id}
-        {...otherProps}
-      >
+      <h3 className="MdH3" id={id} {...otherProps}>
         <HeadingLink id={id}>{children}</HeadingLink>
       </h3>
     );
   },
-  h4: (props) => <h4 className="mt-8 mb-1.5 scroll-mt-6 font-medium text-balance" {...props} />,
-  h5: (props) => <h5 className="mt-8 mb-1.5 scroll-mt-6 font-medium text-balance" {...props} />,
-  h6: (props) => <h6 className="mt-8 mb-1.5 scroll-mt-6 font-medium text-balance" {...props} />,
-  p: (props) => <p className="mb-4" {...props} />,
-  li: (props) => <li className="mb-0.5 [&>p]:mb-2" {...props} />,
-  ul: (props) => <ul className="mb-4 ml-4.5 list-disc" {...props} />,
-  ol: (props) => <ol className="mb-4 ml-7 list-decimal" {...props} />,
+  h4: (props) => <h4 className="MdH4" {...props} />,
+  h5: (props) => <h5 className="MdH5" {...props} />,
+  h6: (props) => <h6 className="MdH6" {...props} />,
+  p: (props) => <p className="MdP" {...props} />,
+  li: (props) => <li className="MdListItem" {...props} />,
+  ul: (props) => <ul className="MdUl" {...props} />,
+  ol: (props) => <ol className="MdOl" {...props} />,
   kbd: Kbd,
-  strong: (props) => <strong className="font-medium" {...props} />,
+  strong: (props) => <strong className="MdStrong" {...props} />,
   figure: (props) => {
     if ('data-rehype-pretty-code-figure' in props) {
       return <CodeBlock.Root {...props} />;
@@ -72,7 +62,7 @@ export const mdxComponents: MDXComponents = {
   // Don't pass the tabindex prop from shiki, most browsers
   // now handle scroll containers focus out of the box
   pre: ({ tabIndex, ...props }) => <CodeBlock.Pre {...props} />,
-  table: (props) => <Table.Root className="my-5" {...props} />,
+  table: (props) => <Table.Root className="MdTable" {...props} />,
   thead: Table.Head,
   tbody: Table.Body,
   tr: Table.Row,
@@ -88,7 +78,7 @@ export const mdxComponents: MDXComponents = {
     }
     return <meta {...props} />;
   },
-  Subtitle: (props) => <Subtitle className="-mt-2 mb-5" {...props} />,
+  Subtitle: (props) => <Subtitle className="MdSubtitle" {...props} />,
 };
 
 export const inlineMdxComponents: MDXComponents = {

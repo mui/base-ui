@@ -96,22 +96,29 @@ export function useHoverReferenceInteraction(
   const closeWithDelay = React.useCallback(
     (event: MouseEvent, runElseBranch = true) => {
       const closeDelay = getDelay(delayRef.current, 'close', instance.pointerType);
-      if (closeDelay && !instance.handler) {
-        instance.openChangeTimeout.start(closeDelay, () =>
-          store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event)),
-        );
+      if (closeDelay) {
+        instance.openChangeTimeout.start(closeDelay, () => {
+          store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
+          tree?.events.emit('floating.closed', event);
+        });
       } else if (runElseBranch) {
         instance.openChangeTimeout.clear();
         store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
+        tree?.events.emit('floating.closed', event);
       }
     },
-    [delayRef, store, instance],
+    [delayRef, store, instance, tree],
   );
 
   const cleanupMouseMoveHandler = useStableCallback(() => {
-    instance.unbindMouseMove();
+    if (!instance.handler) {
+      return;
+    }
+    const doc = ownerDocument(store.select('domReferenceElement'));
+    doc.removeEventListener('mousemove', instance.handler);
     instance.handler = undefined;
   });
+  React.useEffect(() => cleanupMouseMoveHandler, [cleanupMouseMoveHandler]);
 
   const clearPointerEvents = useStableCallback(() => {
     if (instance.performedPointerEventsMutation) {
@@ -131,6 +138,7 @@ export function useHoverReferenceInteraction(
 
     function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
       if (!details.open) {
+        cleanupMouseMoveHandler();
         instance.openChangeTimeout.clear();
         instance.restTimeout.clear();
         instance.blockMouseMove = true;
@@ -142,36 +150,7 @@ export function useHoverReferenceInteraction(
     return () => {
       events.off('openchange', onOpenChangeLocal);
     };
-  }, [enabled, events, instance]);
-
-  const handleScrollMouseLeave = useStableCallback((event: MouseEvent) => {
-    if (isClickLikeOpenEvent()) {
-      return;
-    }
-    if (!dataRef.current.floatingContext) {
-      return;
-    }
-
-    if (isRelatedTargetInsideEnabledTrigger(event.relatedTarget)) {
-      return;
-    }
-
-    const currentTrigger = triggerElementRef.current;
-
-    handleCloseRef.current?.({
-      ...dataRef.current.floatingContext,
-      tree,
-      x: event.clientX,
-      y: event.clientY,
-      onClose() {
-        clearPointerEvents();
-        cleanupMouseMoveHandler();
-        if (!isClickLikeOpenEvent() && currentTrigger === store.select('domReferenceElement')) {
-          closeWithDelay(event);
-        }
-      },
-    })(event);
-  });
+  }, [enabled, events, instance, cleanupMouseMoveHandler]);
 
   React.useEffect(() => {
     if (!enabled) {
@@ -234,7 +213,7 @@ export function useHoverReferenceInteraction(
         return;
       }
 
-      instance.unbindMouseMove();
+      cleanupMouseMoveHandler();
 
       const domReferenceElement = store.select('domReferenceElement');
       const doc = ownerDocument(domReferenceElement);
@@ -270,13 +249,8 @@ export function useHoverReferenceInteraction(
           },
         });
 
-        const handler = instance.handler;
-        handler(event);
-
-        doc.addEventListener('mousemove', handler);
-        instance.unbindMouseMove = () => {
-          doc.removeEventListener('mousemove', handler);
-        };
+        doc.addEventListener('mousemove', instance.handler);
+        instance.handler(event);
 
         return;
       }
@@ -291,14 +265,6 @@ export function useHoverReferenceInteraction(
       }
     }
 
-    function onScrollMouseLeave(event: MouseEvent) {
-      handleScrollMouseLeave(event);
-    }
-
-    if (store.select('open')) {
-      trigger.addEventListener('mouseleave', onScrollMouseLeave);
-    }
-
     if (move) {
       trigger.addEventListener('mousemove', onMouseEnter, {
         once: true,
@@ -309,8 +275,6 @@ export function useHoverReferenceInteraction(
     trigger.addEventListener('mouseleave', onMouseLeave);
 
     return () => {
-      trigger.removeEventListener('mouseleave', onScrollMouseLeave);
-
       if (move) {
         trigger.removeEventListener('mousemove', onMouseEnter);
       }
@@ -327,7 +291,6 @@ export function useHoverReferenceInteraction(
     store,
     enabled,
     handleCloseRef,
-    handleScrollMouseLeave,
     instance,
     isActiveTrigger,
     isClickLikeOpenEvent,

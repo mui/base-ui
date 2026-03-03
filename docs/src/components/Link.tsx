@@ -2,6 +2,7 @@ import * as React from 'react';
 import clsx from 'clsx';
 import NextLink from 'next/link';
 import { ExternalLinkIcon } from 'docs/src/icons/ExternalLinkIcon';
+import './Link.css';
 
 interface LinkProps extends React.ComponentProps<typeof NextLink> {
   skipExternalIcon?: boolean;
@@ -23,7 +24,7 @@ export function Link(props: LinkProps) {
         rel="noopener"
         {...rest}
         href={href}
-        className={clsx('Link mr-[0.125em] inline-flex items-center gap-[0.25em]', className)}
+        className={clsx('Link', className)}
       >
         {props.children}
         {!skipExternalIcon && <ExternalLinkIcon />}

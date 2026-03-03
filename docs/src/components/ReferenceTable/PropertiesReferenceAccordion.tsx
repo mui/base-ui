@@ -1,5 +1,4 @@
 import * as React from 'react';
-import clsx from 'clsx';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { ProcessedProperty } from '@mui/internal-docs-infra/useTypes';
 import { Link } from 'docs/src/components/Link';
@@ -26,11 +25,13 @@ export function PropertiesReferenceAccordion({ data, name: partName, ...props }:
       <span id={captionId} style={visuallyHidden} aria-hidden>
         Class properties table
       </span>
-      <Accordion.HeaderRow className={clsx('grid', TRIGGER_GRID_LAYOUT)}>
+      <Accordion.HeaderRow className="ReferenceHeaderRow">
         <Accordion.HeaderCell>Property</Accordion.HeaderCell>
-        <Accordion.HeaderCell className="max-xs:hidden">Type</Accordion.HeaderCell>
-        <Accordion.HeaderCell className="max-md:hidden">Modifiers</Accordion.HeaderCell>
-        <Accordion.HeaderCell className="max-md:hidden w-10" />
+        <Accordion.HeaderCell className="ReferenceHeaderTypeCell">Type</Accordion.HeaderCell>
+        <Accordion.HeaderCell className="PropertiesHeaderModifiersCell">
+          Modifiers
+        </Accordion.HeaderCell>
+        <Accordion.HeaderCell className="ReferenceHeaderIconCell" />
       </Accordion.HeaderRow>
       {Object.keys(data).map((name, index) => {
         const prop = data[name];
@@ -66,13 +67,15 @@ export function PropertiesReferenceAccordion({ data, name: partName, ...props }:
               id={id}
               index={index}
               aria-label={`Property: ${name}, type: ${shortTypeText}, modifiers: ${modifiersText}`}
-              className={clsx('min-h-min scroll-mt-12 p-0 md:scroll-mt-0', TRIGGER_GRID_LAYOUT)}
+              className="ReferenceTrigger"
             >
-              <Accordion.Scrollable className="px-3">
-                <TableCode className="text-navy whitespace-nowrap">{name}</TableCode>
+              <Accordion.Scrollable className="ReferenceNameCell">
+                <TableCode className="bui-ws-nw" style={{ color: 'var(--color-navy)' }}>
+                  {name}
+                </TableCode>
               </Accordion.Scrollable>
               {prop.type && (
-                <Accordion.Scrollable className="px-3 flex items-baseline text-sm leading-none break-keep whitespace-nowrap max-xs:hidden">
+                <Accordion.Scrollable className="ReferenceTypeCell">
                   {hasExpandedType ? (
                     <ReferenceTableTooltip.Root disableHoverablePopup>
                       <ReferenceTableTooltip.Trigger delay={300}>
@@ -87,12 +90,12 @@ export function PropertiesReferenceAccordion({ data, name: partName, ...props }:
                   )}
                 </Accordion.Scrollable>
               )}
-              <Accordion.Scrollable className="max-md:hidden break-keep whitespace-nowrap px-3">
-                <TableCode className="text-(--syntax-nullish)">{modifiersText}</TableCode>
+              <Accordion.Scrollable className="ReferenceDefaultCell">
+                <TableCode style={{ color: 'var(--syntax-nullish)' }}>{modifiersText}</TableCode>
               </Accordion.Scrollable>
-              <span className="flex justify-center max-xs:ml-auto max-xs:mr-3">
+              <span className="ReferenceIconWrap">
                 <svg
-                  className="AccordionIcon translate-y-px"
+                  className="AccordionIcon ReferenceIcon"
                   width="10"
                   height="10"
                   viewBox="0 0 10 10"
@@ -105,15 +108,12 @@ export function PropertiesReferenceAccordion({ data, name: partName, ...props }:
             </Accordion.Trigger>
             <Accordion.Panel>
               <Accordion.Content>
-                <DescriptionList.Root
-                  className={clsx('text-gray-600 max-xs:py-3', PANEL_GRID_LAYOUT)}
-                  aria-label="Info"
-                >
+                <DescriptionList.Root className="ReferenceContent" aria-label="Info">
                   <DescriptionList.Item>
                     <DescriptionList.Term>Name</DescriptionList.Term>
                     <DescriptionList.Details>
                       <Link href={`#${id}`}>
-                        <TableCode className="text-(--color-blue)">{name}</TableCode>
+                        <TableCode style={{ color: 'var(--color-blue)' }}>{name}</TableCode>
                       </Link>
                     </DescriptionList.Details>
                   </DescriptionList.Item>
@@ -121,7 +121,7 @@ export function PropertiesReferenceAccordion({ data, name: partName, ...props }:
                   {prop.description && (
                     <DescriptionList.Item>
                       <DescriptionList.Term separator>Description</DescriptionList.Term>
-                      <DescriptionList.Details className="**:[[role='figure']]:mt-1 **:[[role='figure']]:mb-1">
+                      <DescriptionList.Details className="ReferenceDescription">
                         {prop.description}
                       </DescriptionList.Details>
                     </DescriptionList.Item>
@@ -147,17 +147,3 @@ export function PropertiesReferenceAccordion({ data, name: partName, ...props }:
     </Accordion.Root>
   );
 }
-
-const TRIGGER_GRID_LAYOUT =
-  'xs:grid ' +
-  'xs:grid-cols-[theme(spacing.48)_1fr_theme(spacing.10)] ' +
-  'sm:grid-cols-[theme(spacing.56)_1fr_theme(spacing.10)] ' +
-  'md:grid-cols-[5fr_7fr_4.5fr_theme(spacing.10)] ';
-
-const PANEL_GRID_LAYOUT =
-  'max-xs:flex max-xs:flex-col ' +
-  'min-xs:gap-0 ' +
-  'xs:grid-cols-[theme(spacing.48)_1fr_theme(spacing.10)] ' +
-  'sm:grid-cols-[theme(spacing.56)_1fr_theme(spacing.10)] ' +
-  // 5fr+11.5fr aligns with 5fr+7fr+4.5fr above
-  'md:grid-cols-[5fr_11.5fr_theme(spacing.10)] ';

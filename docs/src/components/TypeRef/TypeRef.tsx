@@ -7,6 +7,8 @@ import { useType } from '@mui/internal-docs-infra/useType';
 import { Popup } from '../Popup';
 import { ReferenceTable } from '../ReferenceTable/ReferenceTable';
 
+import './TypeRef.css';
+
 interface TypeRefProps {
   /** The anchor href for the type documentation */
   href: string;
@@ -45,31 +47,26 @@ export function TypeRef({ href, name, className, children }: TypeRefProps) {
 
   return (
     <Popover.Root open={open} onOpenChange={setOpen}>
-      <Popover.Trigger
-        className={`${className ?? ''} cursor-pointer border-0 bg-transparent p-0 font-[inherit] text-[inherit] underline decoration-dotted decoration-[var(--color-violet)]`.trim()}
-      >
+      <Popover.Trigger className={`${className ?? ''} TypeRefTrigger`.trim()}>
         {children}
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Positioner sideOffset={8}>
-          <Popover.Popup render={<Popup className="max-w-[min(32rem,var(--available-width))]" />}>
-            <div className="flex items-center justify-between border-b border-gray-200 px-4 py-2">
-              <span className="text-sm font-medium text-gray-900">{typeData.meta.name}</span>
-              <div className="flex items-center gap-2">
+          <Popover.Popup render={<Popup className="TypeRefPopup" />}>
+            <div className="TypeRefHeader">
+              <span className="TypeRefName">{typeData.meta.name}</span>
+              <div className="TypeRefControls">
                 {typeData.meta.type !== 'raw' && (
                   <Popover.Close
                     // eslint-disable-next-line jsx-a11y/control-has-associated-label -- children provide the label
                     render={<a href={href} />}
                     nativeButton={false}
-                    className="text-xs text-gray-600 underline decoration-gray-300 hover:text-gray-900 hover:decoration-gray-500"
+                    className="TypeRefDocsLink"
                   >
                     Full docs
                   </Popover.Close>
                 )}
-                <Popover.Close
-                  aria-label="Close"
-                  className="flex size-6 cursor-pointer items-center justify-center rounded border-0 bg-transparent text-gray-500 hover:bg-gray-100 hover:text-gray-900"
-                >
+                <Popover.Close aria-label="Close" className="TypeRefClose">
                   <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
                     <path d="M1 1L7 7M7 1L1 7" stroke="currentColor" strokeWidth="1.5" />
                   </svg>
@@ -77,7 +74,7 @@ export function TypeRef({ href, name, className, children }: TypeRefProps) {
               </div>
             </div>
             {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */}
-            <div className="p-4" onClick={handleContentClick}>
+            <div className="TypeRefContent" onClick={handleContentClick}>
               {typeData.meta.type === 'raw' ? (
                 typeData.meta.data.formattedCode
               ) : (

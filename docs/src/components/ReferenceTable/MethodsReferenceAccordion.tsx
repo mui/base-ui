@@ -1,5 +1,4 @@
 import * as React from 'react';
-import clsx from 'clsx';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { ProcessedMethod } from '@mui/internal-docs-infra/useTypes';
 import { Link } from 'docs/src/components/Link';
@@ -26,10 +25,10 @@ export function MethodsReferenceAccordion({
       <span id={captionId} style={visuallyHidden} aria-hidden>
         Class methods table
       </span>
-      <Accordion.HeaderRow className={clsx('grid', TRIGGER_GRID_LAYOUT)}>
+      <Accordion.HeaderRow className="MethodsHeaderRow">
         <Accordion.HeaderCell>{methodLabel}</Accordion.HeaderCell>
-        <Accordion.HeaderCell className="max-xs:hidden">Returns</Accordion.HeaderCell>
-        <Accordion.HeaderCell className="max-md:hidden w-10" />
+        <Accordion.HeaderCell className="ReferenceHeaderTypeCell">Returns</Accordion.HeaderCell>
+        <Accordion.HeaderCell className="ReferenceHeaderIconCell" />
       </Accordion.HeaderRow>
       {Object.keys(data).map((name, index) => {
         const method = data[name];
@@ -51,13 +50,10 @@ export function MethodsReferenceAccordion({
               id={id}
               index={index}
               aria-label={`Method: ${name}, returns: ${method.returnValue ? 'value' : 'void'}`}
-              className={clsx('min-h-min scroll-mt-12 p-0 md:scroll-mt-0', TRIGGER_GRID_LAYOUT)}
+              className="MethodsTrigger"
             >
-              <Accordion.Scrollable className="px-3">
-                <code
-                  className="Code language-ts text-xs data-inline:mx-[0.1em]"
-                  data-table-code=""
-                >
+              <Accordion.Scrollable className="ReferenceNameCell">
+                <code className="Code language-ts TableCode" data-table-code="">
                   <span className="pl-en">{name}</span>
                   {'('}
                   {paramEntries.map(([paramName, param], i) => (
@@ -70,12 +66,12 @@ export function MethodsReferenceAccordion({
                   {')'}
                 </code>
               </Accordion.Scrollable>
-              <Accordion.Scrollable className="px-3 flex items-baseline text-sm leading-none break-keep whitespace-nowrap max-xs:hidden">
+              <Accordion.Scrollable className="ReferenceTypeCell">
                 {method.returnValue}
               </Accordion.Scrollable>
-              <span className="flex justify-center max-xs:ml-auto max-xs:mr-3">
+              <span className="ReferenceIconWrap">
                 <svg
-                  className="AccordionIcon translate-y-px"
+                  className="AccordionIcon ReferenceIcon"
                   width="10"
                   height="10"
                   viewBox="0 0 10 10"
@@ -88,15 +84,12 @@ export function MethodsReferenceAccordion({
             </Accordion.Trigger>
             <Accordion.Panel>
               <Accordion.Content>
-                <DescriptionList.Root
-                  className={clsx('text-gray-600 max-xs:py-3', PANEL_GRID_LAYOUT)}
-                  aria-label="Info"
-                >
+                <DescriptionList.Root className="ReferenceContent" aria-label="Info">
                   <DescriptionList.Item>
                     <DescriptionList.Term>Name</DescriptionList.Term>
                     <DescriptionList.Details>
                       <Link href={`#${id}`}>
-                        <TableCode className="text-(--color-blue)">{name}</TableCode>
+                        <TableCode style={{ color: 'var(--color-blue)' }}>{name}</TableCode>
                       </Link>
                     </DescriptionList.Details>
                   </DescriptionList.Item>
@@ -104,7 +97,7 @@ export function MethodsReferenceAccordion({
                   {method.description && (
                     <DescriptionList.Item>
                       <DescriptionList.Term separator>Description</DescriptionList.Term>
-                      <DescriptionList.Details className="**:[[role='figure']]:mt-1 **:[[role='figure']]:mb-1">
+                      <DescriptionList.Details className="ReferenceDescription">
                         {method.description}
                       </DescriptionList.Details>
                     </DescriptionList.Item>
@@ -114,21 +107,19 @@ export function MethodsReferenceAccordion({
                     <DescriptionList.Item>
                       <DescriptionList.Term separator>Parameters</DescriptionList.Term>
                       <DescriptionList.Details>
-                        <ul className="list-none p-0 m-0 space-y-2">
+                        <ul className="MethodParamList">
                           {paramEntries.map(([paramName, param]) => (
                             <li key={paramName}>
-                              <div className="flex gap-2 items-baseline">
-                                <TableCode className="text-navy">
+                              <div className="MethodParamRow">
+                                <TableCode style={{ color: 'var(--color-navy)' }}>
                                   {paramName}
                                   {param.optional && '?'}
                                 </TableCode>
-                                <span className="text-gray-500">—</span>
+                                <span className="MethodParamSep">—</span>
                                 {param.type}
                               </div>
                               {param.description && (
-                                <div className="text-gray-600 text-sm mt-1 ml-0.5">
-                                  {param.description}
-                                </div>
+                                <div className="MethodParamDesc">{param.description}</div>
                               )}
                             </li>
                           ))}
@@ -159,16 +150,3 @@ export function MethodsReferenceAccordion({
     </Accordion.Root>
   );
 }
-
-const TRIGGER_GRID_LAYOUT =
-  'xs:grid ' +
-  'xs:grid-cols-[1fr_theme(spacing.48)_theme(spacing.10)] ' +
-  'sm:grid-cols-[1fr_theme(spacing.56)_theme(spacing.10)] ' +
-  'md:grid-cols-[8fr_4fr_theme(spacing.10)] ';
-
-const PANEL_GRID_LAYOUT =
-  'max-xs:flex max-xs:flex-col ' +
-  'min-xs:gap-0 ' +
-  'xs:grid-cols-[theme(spacing.48)_1fr_theme(spacing.10)] ' +
-  'sm:grid-cols-[theme(spacing.56)_1fr_theme(spacing.10)] ' +
-  'md:grid-cols-[5fr_11.5fr_theme(spacing.10)] ';

@@ -14,9 +14,7 @@ import { AdditionalTypes } from './AdditionalTypes';
 import '../Demo/CodeHighlighting.css';
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
-  return (
-    <h4 className="mt-5 mb-3 text-base font-medium text-gray-900 dark:text-white">{children}</h4>
-  );
+  return <h4 className="ReferenceSectionHeading">{children}</h4>;
 }
 
 type ReferenceTableProps = TypesContentProps<{
@@ -33,14 +31,14 @@ export function ReferenceTable(props: ReferenceTableProps) {
         {multiple && !hideDescription && data.description && data.description}
 
         {Object.keys(data.props).length > 0 && (
-          <ReferenceAccordion name={data.name} data={data.props} className="mt-5 mb-6" />
+          <ReferenceAccordion name={data.name} data={data.props} className="ReferenceBlockSpaced" />
         )}
 
         {Object.keys(data.dataAttributes).length > 0 && (
           <AttributesReferenceTable
             name={data.name}
             data={data.dataAttributes}
-            className="mt-5 mb-6"
+            className="ReferenceBlockSpaced"
           />
         )}
 
@@ -48,7 +46,7 @@ export function ReferenceTable(props: ReferenceTableProps) {
           <CssVariablesReferenceTable
             name={data.name}
             data={data.cssVariables}
-            className="mt-5 mb-6"
+            className="ReferenceBlockSpaced"
           />
         )}
 
@@ -68,7 +66,7 @@ export function ReferenceTable(props: ReferenceTableProps) {
         {data.optionsProperties && (
           <React.Fragment>
             <SectionHeading>Parameters</SectionHeading>
-            <p className="mb-2 text-sm text-gray-600 dark:text-gray-400">
+            <p className="ReferenceSectionSubtext">
               <code>
                 <span className="pl-en">{data.optionsTypeName}</span>
               </code>
@@ -79,7 +77,7 @@ export function ReferenceTable(props: ReferenceTableProps) {
               nameLabel="Prop"
               caption="Parameter properties table"
               hideDefault
-              className="mb-6"
+              className="ReferenceBlock"
             />
           </React.Fragment>
         )}
@@ -93,7 +91,7 @@ export function ReferenceTable(props: ReferenceTableProps) {
               nameLabel="Property"
               caption="Properties table"
               hideDefault
-              className="mb-6"
+              className="ReferenceBlock"
             />
           </React.Fragment>
         )}
@@ -105,7 +103,7 @@ export function ReferenceTable(props: ReferenceTableProps) {
             <ParametersReferenceTable
               name={data.name}
               data={data.parameters}
-              className="mt-5 mb-6"
+              className="ReferenceBlockSpaced"
             />
           )}
 
@@ -113,7 +111,7 @@ export function ReferenceTable(props: ReferenceTableProps) {
           <React.Fragment>
             <SectionHeading>Return value</SectionHeading>
             {data.returnValue.typeName && (
-              <p className="mb-2 text-sm text-gray-600 dark:text-gray-400">
+              <p className="ReferenceSectionSubtext">
                 <code>
                   <span className="pl-en">{data.returnValue.typeName}</span>
                 </code>
@@ -126,13 +124,13 @@ export function ReferenceTable(props: ReferenceTableProps) {
               caption="Return value properties table"
               hideRequired
               hideDefault
-              className="mb-6"
+              className="ReferenceBlock"
             />
           </React.Fragment>
         )}
 
         {data.returnValue && data.returnValue.kind === 'simple' && (
-          <div className="mb-6">
+          <div className="ReferenceBlock">
             <SectionHeading>Return value</SectionHeading>
             {data.returnValue.type}
             {data.returnValue.detailedType && data.returnValue.detailedType}
@@ -155,7 +153,7 @@ export function ReferenceTable(props: ReferenceTableProps) {
         {data.optionsProperties && (
           <React.Fragment>
             <SectionHeading>Parameters</SectionHeading>
-            <p className="mb-2 text-sm text-gray-600 dark:text-gray-400">
+            <p className="ReferenceSectionSubtext">
               <code>
                 <span className="pl-en">{data.optionsTypeName}</span>
               </code>
@@ -166,7 +164,7 @@ export function ReferenceTable(props: ReferenceTableProps) {
               nameLabel="Prop"
               caption="Parameter properties table"
               hideDefault
-              className="mb-6"
+              className="ReferenceBlock"
             />
           </React.Fragment>
         )}
@@ -180,7 +178,7 @@ export function ReferenceTable(props: ReferenceTableProps) {
               nameLabel="Property"
               caption="Properties table"
               hideDefault
-              className="mb-6"
+              className="ReferenceBlock"
             />
           </React.Fragment>
         )}
@@ -191,7 +189,11 @@ export function ReferenceTable(props: ReferenceTableProps) {
           Object.keys(data.parameters).length > 0 && (
             <React.Fragment>
               <SectionHeading>Parameters</SectionHeading>
-              <ParametersReferenceTable name={data.name} data={data.parameters} className="mb-6" />
+              <ParametersReferenceTable
+                name={data.name}
+                data={data.parameters}
+                className="ReferenceBlock"
+              />
             </React.Fragment>
           )}
 
@@ -199,7 +201,7 @@ export function ReferenceTable(props: ReferenceTableProps) {
           <React.Fragment>
             <SectionHeading>Return value</SectionHeading>
             {data.returnValue.typeName && (
-              <p className="mb-2 text-sm text-gray-600 dark:text-gray-400">
+              <p className="ReferenceSectionSubtext">
                 <code>
                   <span className="pl-en">{data.returnValue.typeName}</span>
                 </code>
@@ -212,13 +214,13 @@ export function ReferenceTable(props: ReferenceTableProps) {
               caption="Return value properties table"
               hideRequired
               hideDefault
-              className="mb-6"
+              className="ReferenceBlock"
             />
           </React.Fragment>
         )}
 
         {data.returnValue && data.returnValue.kind === 'simple' && (
-          <div className="mb-6">
+          <div className="ReferenceBlock">
             <SectionHeading>Return value</SectionHeading>
             {data.returnValue.type}
             {data.returnValue.detailedType && data.returnValue.detailedType}
@@ -257,7 +259,7 @@ export function ReferenceTable(props: ReferenceTableProps) {
             <MethodsReferenceAccordion
               name={data.name}
               data={staticMethods}
-              className="mb-6"
+              className="ReferenceBlock"
               methodLabel="Static method"
             />
           </React.Fragment>
@@ -269,7 +271,7 @@ export function ReferenceTable(props: ReferenceTableProps) {
             <ParametersReferenceTable
               name={data.name}
               data={data.constructorParameters}
-              className="mb-6"
+              className="ReferenceBlock"
             />
           </React.Fragment>
         )}
@@ -280,7 +282,7 @@ export function ReferenceTable(props: ReferenceTableProps) {
             <PropertiesReferenceAccordion
               name={data.name}
               data={data.properties}
-              className="mb-6"
+              className="ReferenceBlock"
             />
           </React.Fragment>
         )}
@@ -288,7 +290,11 @@ export function ReferenceTable(props: ReferenceTableProps) {
         {Object.keys(instanceMethods).length > 0 && (
           <React.Fragment>
             <SectionHeading>Methods</SectionHeading>
-            <MethodsReferenceAccordion name={data.name} data={instanceMethods} className="mb-6" />
+            <MethodsReferenceAccordion
+              name={data.name}
+              data={instanceMethods}
+              className="ReferenceBlock"
+            />
           </React.Fragment>
         )}
 

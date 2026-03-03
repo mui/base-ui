@@ -1,59 +1,61 @@
-.AccordionRoot {
-  border-top: 1px solid var(--border);
-}
+@layer components {
+  .AccordionRoot {
+    border-top: 1px solid var(--border);
+  }
 
-.AccordionItem {
-  box-sizing: border-box;
-  border-bottom: 1px solid var(--border);
-}
+  .AccordionItem {
+    box-sizing: border-box;
+    border-bottom: 1px solid var(--border);
+  }
 
-.AccordionHeader {
-  margin: 0;
-}
+  .AccordionHeader {
+    margin: 0;
+  }
 
-.AccordionTrigger {
-  box-sizing: border-box;
-  position: relative;
-  display: flex;
-  width: 100%;
-  gap: 1rem;
-  align-items: center;
-  justify-content: space-between;
-  color: inherit;
-  font-family: inherit;
-  font-weight: 500;
-  background-color: transparent;
-  font-size: 1rem;
-  padding-block: 0.75rem;
-  padding-inline: 0;
-  line-height: 1.5rem;
-  border: none;
-  outline: none;
-  text-align: left;
-  -webkit-tap-highlight-color: transparent;
-}
+  .AccordionTrigger {
+    box-sizing: border-box;
+    position: relative;
+    display: flex;
+    width: 100%;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+    color: inherit;
+    font-family: inherit;
+    font-weight: 500;
+    background-color: transparent;
+    font-size: 1rem;
+    padding-block: 0.75rem;
+    padding-inline: 0;
+    line-height: 1.5rem;
+    border: none;
+    outline: none;
+    text-align: left;
+    -webkit-tap-highlight-color: transparent;
+  }
 
-.AccordionTrigger:focus-visible {
-  outline: 2px solid currentColor;
-}
+  .AccordionTrigger:focus-visible {
+    outline: 2px solid currentColor;
+  }
 
-.AccordionIconMinus {
-  display: none;
-}
+  .AccordionIconMinus {
+    display: none;
+  }
 
-.AccordionIconPlus {
-  display: block;
-}
+  .AccordionIconPlus {
+    display: block;
+  }
 
-.AccordionTrigger[data-panel-open] .AccordionIconPlus {
-  display: none;
-}
+  .AccordionTrigger[data-panel-open] .AccordionIconPlus {
+    display: none;
+  }
 
-.AccordionTrigger[data-panel-open] .AccordionIconMinus {
-  display: block;
-}
+  .AccordionTrigger[data-panel-open] .AccordionIconMinus {
+    display: block;
+  }
 
-.AccordionPanel {
-  padding-block-start: 4px;
-  padding-block-end: 12px;
+  .AccordionPanel {
+    padding-block-start: 4px;
+    padding-block-end: 12px;
+  }
 }

@@ -31,14 +31,14 @@ import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 
 ### Labeling a checkbox group
 
-A visible label for the group is created by specifying `aria-labelledby` on `<CheckboxGroup>` to reference the `id` of a sibling element that contains the group label text.
+Label the group with `aria-labelledby` and a sibling label element:
 
 ```tsx title="Using aria-labelledby to label a checkbox group"
 <div id="protocols-label">Allowed network protocols</div>
 <CheckboxGroup aria-labelledby="protocols-label">{/* ... */}</CheckboxGroup>
 ```
 
-For individual checkboxes, use an enclosing `<label>` element that wraps each `<Checkbox.Root>`. An enclosing label is announced to screen readers when focus is on the control, and ensures that clicking on any gaps between the label and checkbox still toggles it.
+An enclosing `<label>` is the simplest labeling pattern for each checkbox:
 
 ```tsx title="Using an enclosing label to label a checkbox" {1,4}
 <label>
@@ -47,40 +47,43 @@ For individual checkboxes, use an enclosing `<label>` element that wraps each `<
 </label>
 ```
 
-The [Field](/react/components/field) and [Fieldset](/react/components/fieldset) components eliminate the need to track `id` or `aria-labelledby` associations manually. They support both enclosing and sibling labeling patterns, along with a UX improvement to prevent double clicks from selecting the label text.
+### Rendering as a native button
 
-1. **Group label**: Since the group contains multiple controls, it can be labeled as a fieldset. Use [Fieldset](/react/components/fieldset) by replacing the `<Fieldset.Root>` element with `<CheckboxGroup>` via the `render` prop. `<Fieldset.Legend>` provides the visible label for the group.
-2. **Individual label**: Place each individual checkbox in `<Field.Item>`, then label it using an enclosing `<Field.Label>`. Enclosing labels ensure that clicking on any gaps between the label and checkbox still toggles it.
+By default, `<Checkbox.Root>` renders a `<span>` element to support enclosing labels. Prefer rendering each checkbox as a native button when using sibling labels (`htmlFor`/`id`).
 
-```tsx title="Using Field and Fieldset to label a checkbox group"
-<Field.Root>
-  <Fieldset.Root render={<CheckboxGroup />}>
-    <Fieldset.Legend>Allowed network protocols</Fieldset.Legend>
-    <Field.Item>
-      <Field.Label>
-        <Checkbox.Root value="http" />
+```tsx title="Sibling label pattern with a native button" "nativeButton" "render"
+<div id="protocols-label">Allowed network protocols</div>
+<CheckboxGroup aria-labelledby="protocols-label">
+  <div>
+    <label htmlFor="protocol-http">HTTP</label>
+    <Checkbox.Root id="protocol-http" value="http" nativeButton render={<button />}>
+      <Checkbox.Indicator />
+    </Checkbox.Root>
+  </div>
+</CheckboxGroup>
+```
+
+Native buttons with wrapping labels are supported by using the `render` callback to avoid invalid HTML, so the hidden input is placed outside the label:
+
+```tsx title="Render callback" {6-11}
+<div id="protocols-label">Allowed network protocols</div>
+<CheckboxGroup aria-labelledby="protocols-label">
+  <Checkbox.Root
+    value="http"
+    nativeButton
+    render={(buttonProps) => (
+      <label>
+        <button {...buttonProps} />
         HTTP
-      </Field.Label>
-    </Field.Item>
-    <Field.Item>
-      <Field.Label>
-        <Checkbox.Root value="https" />
-        HTTPS
-      </Field.Label>
-    </Field.Item>
-    <Field.Item>
-      <Field.Label>
-        <Checkbox.Root value="ssh" />
-        SSH
-      </Field.Label>
-    </Field.Item>
-  </Fieldset.Root>
-</Field.Root>
+      </label>
+    )}
+  />
+</CheckboxGroup>
 ```
 
 ### Form integration
 
-To use a checkbox group in a form, pass the checkbox group's `name` to `<Field.Root>`:
+Use [Field](/react/components/field) and [Fieldset](/react/components/fieldset) for group labeling and form integration:
 
 ```tsx title="Using Checkbox Group in a form" {2}
 <Form>

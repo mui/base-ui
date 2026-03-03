@@ -717,6 +717,55 @@ describe('<Autocomplete.Root />', () => {
     });
   });
 
+  describe('prop: filter', () => {
+    it('does not apply default filtering when filter is null', async () => {
+      interface Movie {
+        id: string;
+        title: string;
+        year: number;
+      }
+
+      const asyncResults: Movie[] = [
+        { id: '1', title: 'Pulp Fiction', year: 1994 },
+        { id: '2', title: 'The Godfather', year: 1972 },
+        { id: '3', title: 'The Dark Knight', year: 2008 },
+      ];
+
+      const { user } = await render(
+        <Autocomplete.Root
+          items={asyncResults}
+          filter={null}
+          itemToStringValue={(movie: Movie) => movie.title}
+        >
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(movie: Movie) => (
+                    <Autocomplete.Item key={movie.id} value={movie}>
+                      {movie.title}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByTestId<HTMLInputElement>('input');
+      await user.type(input, '1994');
+
+      await waitFor(() => {
+        expect(screen.getAllByRole('option')).to.have.length(3);
+      });
+      expect(screen.getByRole('option', { name: 'Pulp Fiction' })).not.to.equal(null);
+      expect(screen.getByRole('option', { name: 'The Godfather' })).not.to.equal(null);
+      expect(screen.getByRole('option', { name: 'The Dark Knight' })).not.to.equal(null);
+    });
+  });
+
   describe('prop: submitOnItemClick', () => {
     it('prevents submit on Enter when an item is highlighted by default (false)', async () => {
       let submitted = 0;

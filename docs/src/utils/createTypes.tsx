@@ -21,11 +21,7 @@ const components: MDXComponents = {
 const inlineComponents: MDXComponents = {
   ...inlineMdxComponents,
   code: (props) => (
-    <Code
-      {...props}
-      data-table-code=""
-      className={clsx(props.className, 'text-xs [&_.line]:p-0')}
-    />
+    <Code {...props} data-table-code="" className={clsx(props.className, 'TableCode')} />
   ),
   pre: PreInline,
 };

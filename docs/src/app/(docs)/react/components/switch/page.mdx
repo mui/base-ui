@@ -30,29 +30,45 @@ import { Switch } from '@base-ui/react/switch';
 
 ### Labeling a switch
 
-Label a switch using an enclosing `<label>` element that wraps `<Switch.Root>`. An enclosing label is announced to screen readers when focus is on the control, and ensures that clicking on any gaps between the label and switch still toggles the control.
+An enclosing `<label>` is the simplest labeling pattern:
 
-```tsx title="Using an enclosing label to label a switch" {1,4}
+```tsx title="Wrapping a label around a switch" {1,4}
 <label>
   <Switch.Root />
   Notifications
 </label>
 ```
 
-The [Field](/react/components/field) component eliminates the need to track `id` or `aria-label` associations manually. It supports both enclosing and sibling labeling patterns, along with a UX improvement to prevent double clicks from selecting the label text.
+### Rendering as a native button
 
-```tsx title="Using the Field component to label a switch" {2,5}
-<Field.Root>
-  <Field.Label>
-    <Switch.Root />
-    Notifications
-  </Field.Label>
-</Field.Root>
+By default, `<Switch.Root>` renders a `<span>` element to support enclosing labels. Prefer rendering the switch as a native button when using sibling labels (`htmlFor`/`id`).
+
+```tsx title="Sibling label pattern with a native button" "nativeButton" "render"
+<div>
+  <label htmlFor="notifications-switch">Notifications</label>
+  <Switch.Root id="notifications-switch" nativeButton render={<button />}>
+    <Switch.Thumb />
+  </Switch.Root>
+</div>
+```
+
+Native buttons with wrapping labels are supported by using the `render` callback to avoid invalid HTML, so the hidden input is placed outside the label:
+
+```tsx title="Render callback" {3-8}
+<Switch.Root
+  nativeButton
+  render={(buttonProps) => (
+    <label>
+      <button {...buttonProps} />
+      Notifications
+    </label>
+  )}
+/>
 ```
 
 ### Form integration
 
-To use a switch in a form, pass the switch's `name` to `<Field.Root>`:
+Use [Field](/react/components/field) to handle label associations and form integration:
 
 ```tsx title="Using Switch in a form" {2}
 <Form>

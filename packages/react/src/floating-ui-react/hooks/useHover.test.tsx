@@ -285,35 +285,23 @@ describe.skipIf(!isJSDOM)('useHover', () => {
         bubbles
         render={({ labelId, descriptionId, close }) => (
           <React.Fragment>
-            <h2 id={labelId} className="mb-2 text-2xl font-bold">
-              Parent title
-            </h2>
-            <p id={descriptionId} className="mb-2">
-              Description
-            </p>
+            <h2 id={labelId}>Parent title</h2>
+            <p id={descriptionId}>Description</p>
             <Popover
               hover
               modal={false}
               bubbles
               render={({ labelId, descriptionId, close }) => (
                 <React.Fragment>
-                  <h2 id={labelId} className="mb-2 text-2xl font-bold">
-                    Child title
-                  </h2>
-                  <p id={descriptionId} className="mb-2">
-                    Description
-                  </p>
-                  <button onClick={close} className="font-bold">
-                    Close
-                  </button>
+                  <h2 id={labelId}>Child title</h2>
+                  <p id={descriptionId}>Description</p>
+                  <button onClick={close}>Close</button>
                 </React.Fragment>
               )}
             >
               <button type="button">Open child</button>
             </Popover>
-            <button onClick={close} className="font-bold">
-              Close
-            </button>
+            <button onClick={close}>Close</button>
           </React.Fragment>
         )}
       >

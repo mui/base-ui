@@ -1,0 +1,76 @@
+@layer components {
+  .TypeRefTrigger {
+    cursor: pointer;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-decoration-color: var(--color-violet);
+  }
+
+  .TypeRefPopup {
+    max-width: min(32rem, var(--available-width));
+  }
+
+  .TypeRefHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--color-gray-200);
+    padding-inline: 1rem;
+    padding-block: 0.5rem;
+  }
+
+  .TypeRefName {
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    letter-spacing: var(--text-sm--letter-spacing);
+    font-weight: 500;
+    color: var(--color-gray-900);
+  }
+
+  .TypeRefControls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .TypeRefDocsLink {
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+    letter-spacing: var(--text-xs--letter-spacing);
+    color: var(--color-gray-600);
+    text-decoration: underline;
+    text-decoration-color: var(--color-gray-300);
+  }
+
+  .TypeRefDocsLink:hover {
+    color: var(--color-gray-900);
+    text-decoration-color: var(--color-gray-500);
+  }
+
+  .TypeRefClose {
+    display: flex;
+    width: 1.5rem;
+    height: 1.5rem;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.25rem;
+    border: 0;
+    background: transparent;
+    color: var(--color-gray-500);
+  }
+
+  .TypeRefClose:hover {
+    background-color: var(--color-gray-100);
+    color: var(--color-gray-900);
+  }
+
+  .TypeRefContent {
+    padding: 1rem;
+  }
+}

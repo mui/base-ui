@@ -6,10 +6,7 @@ import toolbarClasses from './toolbar.module.css';
 import inputClasses from '../../../(docs)/react/components/input/demos/hero/css-modules/index.module.css';
 import '../../../../demo-data/theme/css-modules/theme.css';
 
-import {
-  SettingsMetadata,
-  useExperimentSettings,
-} from '../../../../components/Experiments/SettingsPanel';
+import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
 
 const styles = {
   toolbar: toolbarClasses,

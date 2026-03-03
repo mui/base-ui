@@ -30,29 +30,45 @@ import { Checkbox } from '@base-ui/react/checkbox';
 
 ### Labeling a checkbox
 
-Label a checkbox using an enclosing `<label>` element that wraps `<Checkbox.Root>`. An enclosing label is announced to screen readers when focus is on the control, and ensures that clicking on any gaps between the label and checkbox still toggles the control.
+An enclosing `<label>` is the simplest labeling pattern:
 
-```tsx title="Using an enclosing label to label a checkbox" {1,4}
+```tsx title="Wrapping a label around a checkbox" {1,4}
 <label>
   <Checkbox.Root />
   Accept terms and conditions
 </label>
 ```
 
-The [Field](/react/components/field) component eliminates the need to track `id` or `aria-label` associations manually. It supports both enclosing and sibling labeling patterns, along with a UX improvement to prevent double clicks from selecting the label text.
+### Rendering as a native button
 
-```tsx title="Using the Field component to label a checkbox" {2,5}
-<Field.Root>
-  <Field.Label>
-    <Checkbox.Root />
-    Accept terms and conditions
-  </Field.Label>
-</Field.Root>
+By default, `<Checkbox.Root>` renders a `<span>` element to support enclosing labels. Prefer rendering the checkbox as a native button when using sibling labels (`htmlFor`/`id`).
+
+```tsx title="Sibling label pattern with a native button" "nativeButton" "render"
+<div>
+  <label htmlFor="notifications-checkbox">Enable notifications</label>
+  <Checkbox.Root id="notifications-checkbox" nativeButton render={<button />}>
+    <Checkbox.Indicator />
+  </Checkbox.Root>
+</div>
+```
+
+Native buttons with wrapping labels are supported by using the `render` callback to avoid invalid HTML, so the hidden input is placed outside the label:
+
+```tsx title="Render callback" {3-8}
+<Checkbox.Root
+  nativeButton
+  render={(buttonProps) => (
+    <label>
+      <button {...buttonProps} />
+      Enable notifications
+    </label>
+  )}
+/>
 ```
 
 ### Form integration
 
-To use a single checkbox in a form, pass the checkbox's `name` to `<Field.Root>`:
+Use [Field](/react/components/field) to handle label associations and form integration:
 
 ```tsx title="Using Checkbox in a form" {2}
 <Form>
