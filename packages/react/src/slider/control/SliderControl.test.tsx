@@ -1,3 +1,5 @@
+import { expect } from 'chai';
+import { screen } from '@mui/internal-test-utils';
 import { Slider } from '@base-ui/react/slider';
 import { createRenderer, describeConformance } from '#test-utils';
 
@@ -10,4 +12,16 @@ describe('<Slider.Control />', () => {
     },
     refInstanceof: window.HTMLDivElement,
   }));
+
+  it('does not apply a tabIndex by default', async () => {
+    await render(
+      <Slider.Root defaultValue={50}>
+        <Slider.Control data-testid="control">
+          <Slider.Thumb />
+        </Slider.Control>
+      </Slider.Root>,
+    );
+
+    expect(screen.getByTestId('control')).not.to.have.attribute('tabindex');
+  });
 });
