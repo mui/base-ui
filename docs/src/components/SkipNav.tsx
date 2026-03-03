@@ -1,5 +1,6 @@
 import * as React from 'react';
 import clsx from 'clsx';
+import './SkipNav.css';
 
 export const MAIN_CONTENT_ID = 'main-content';
 const HREF = `#${MAIN_CONTENT_ID}`;

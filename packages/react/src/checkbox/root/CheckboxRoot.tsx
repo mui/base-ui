@@ -20,6 +20,7 @@ import { useFieldItemContext } from '../../field/item/FieldItemContext';
 import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import { useAriaLabelledBy } from '../../labelable-provider/useAriaLabelledBy';
 import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
 import { CheckboxRootContext } from './CheckboxRootContext';
 import {
@@ -45,6 +46,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     checked: checkedProp,
     className,
     defaultChecked = false,
+    'aria-labelledby': ariaLabelledByProp,
     disabled: disabledProp = false,
     id: idProp,
     indeterminate = false,
@@ -175,6 +177,13 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const inputRef = React.useRef<HTMLInputElement>(null);
   const mergedInputRef = useMergedRefs(inputRefProp, inputRef, validation.inputRef);
+  const ariaLabelledBy = useAriaLabelledBy(
+    ariaLabelledByProp,
+    labelId,
+    inputRef,
+    !nativeButton,
+    inputId ?? undefined,
+  );
 
   useIsoLayoutEffect(() => {
     if (inputRef.current) {
@@ -297,7 +306,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
         'aria-checked': groupIndeterminate ? 'mixed' : checked,
         'aria-readonly': readOnly || undefined,
         'aria-required': required || undefined,
-        'aria-labelledby': labelId,
+        'aria-labelledby': ariaLabelledBy,
         [PARENT_CHECKBOX as string]: parent ? '' : undefined,
         onFocus() {
           setFocused(true);

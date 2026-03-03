@@ -368,7 +368,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     swipeThreshold({ element, direction }) {
       return getBaseSwipeThreshold(element, direction);
     },
-    canStart(position) {
+    canStart(position, details) {
       const popupElement = store.context.popupRef.current;
       if (!popupElement) {
         return false;
@@ -379,7 +379,19 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         typeof doc.elementFromPoint === 'function'
           ? doc.elementFromPoint(position.x, position.y)
           : null;
-      return !!(elementAtPoint && contains(popupElement, elementAtPoint));
+      if (!elementAtPoint || !contains(popupElement, elementAtPoint)) {
+        return false;
+      }
+
+      const nativeEvent = details.nativeEvent;
+      const touchLike =
+        'touches' in nativeEvent ||
+        ('pointerType' in nativeEvent && nativeEvent.pointerType === 'touch');
+      if (touchLike && shouldIgnoreSwipeForTextSelection(doc, popupElement)) {
+        return false;
+      }
+
+      return true;
     },
     onProgress(progress, details) {
       updateNestedSwipeActive(details);
@@ -710,8 +722,9 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     if (!rootElement) {
       return undefined;
     }
+    const resolvedRootElement: HTMLElement = rootElement;
 
-    const doc = ownerDocument(rootElement);
+    const doc = ownerDocument(resolvedRootElement);
     const win = ownerWindow(doc);
 
     function handleNativeTouchMove(event: TouchEvent) {
@@ -721,7 +734,6 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         return;
       }
 
-      const target = isElement(event.target) ? event.target : null;
       const updateTouchPosition = () => {
         touchState.lastX = touch.clientX;
         touchState.lastY = touch.clientY;
@@ -740,28 +752,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         return;
       }
 
-      let allowTouchMove = false;
-
-      // Allow the ability to adjust text selection.
-      if (target) {
-        const selection = target.ownerDocument.defaultView?.getSelection();
-        if (selection && !selection.isCollapsed && selection.containsNode(target, true)) {
-          allowTouchMove = true;
-        }
-      }
-
-      // Allow user to drag the selection handles in an input element.
-      if (target instanceof win.HTMLInputElement) {
-        const input = target;
-        if (
-          input.selectionStart != null &&
-          input.selectionEnd != null &&
-          input.selectionStart < input.selectionEnd &&
-          doc.activeElement === input
-        ) {
-          allowTouchMove = true;
-        }
-      }
+      const allowTouchMove = shouldIgnoreSwipeForTextSelection(doc, resolvedRootElement);
 
       if (allowTouchMove || !open || !mounted || nestedDrawerOpen) {
         updateTouchPosition();
@@ -1101,6 +1092,50 @@ function isRangeInput(
   win: ReturnType<typeof ownerWindow>,
 ): target is HTMLInputElement {
   return target instanceof win.HTMLInputElement && target.type === 'range';
+}
+
+function isTextSelectionControl(
+  target: EventTarget | null,
+): target is HTMLInputElement | HTMLTextAreaElement {
+  if (!isElement(target)) {
+    return false;
+  }
+
+  return target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
+}
+
+function hasExpandedSelectionWithinTarget(selection: Selection, target: Element): boolean {
+  const anchorElement = isElement(selection.anchorNode)
+    ? selection.anchorNode
+    : selection.anchorNode?.parentElement;
+  const focusElement = isElement(selection.focusNode)
+    ? selection.focusNode
+    : selection.focusNode?.parentElement;
+
+  return (
+    selection.containsNode(target, true) ||
+    contains(target, anchorElement) ||
+    contains(target, focusElement)
+  );
+}
+
+function shouldIgnoreSwipeForTextSelection(doc: Document, rootElement: HTMLElement): boolean {
+  const activeElement = doc.activeElement;
+  const activeElementWithinRoot = Boolean(activeElement && contains(rootElement, activeElement));
+
+  if (activeElementWithinRoot && isTextSelectionControl(activeElement)) {
+    const { selectionStart, selectionEnd } = activeElement;
+    if (selectionStart != null && selectionEnd != null && selectionStart < selectionEnd) {
+      return true;
+    }
+  }
+
+  const selection = doc.getSelection?.();
+  if (!selection || selection.isCollapsed) {
+    return false;
+  }
+
+  return hasExpandedSelectionWithinTarget(selection, rootElement);
 }
 
 function isEventOnRangeInput(event: TouchEvent, win: ReturnType<typeof ownerWindow>): boolean {
