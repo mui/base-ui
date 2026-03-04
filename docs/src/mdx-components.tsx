@@ -21,7 +21,7 @@ interface MDXComponents {
 // Maintain spacing between MDX components here
 export const mdxComponents: MDXComponents = {
   a: Link,
-  code: (props) => <CodeWithSyntax className="MdInlineCode" {...props} />,
+  code: CodeWithSyntax,
   h1: (props) => (
     // Do not wrap heading tags in divs, that confuses Safari Reader
     <h1 className="MdH1" {...props} />
