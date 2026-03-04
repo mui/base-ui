@@ -15,7 +15,7 @@ export default defineConfig({
             '@base-ui/react': path.join(process.cwd(), 'packages/react/src'),
             '@base-ui/utils': path.join(process.cwd(), 'packages/utils/src'),
           }),
-      './fonts': path.join(process.cwd(), '/docs/src/fonts'),
+      './fonts': path.join(process.cwd(), '/docs/src/css/fonts'),
       docs: path.join(process.cwd(), '/docs'),
       stream: null,
       zlib: null,

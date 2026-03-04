@@ -117,7 +117,7 @@
 
   &[data-starting-style],
   &[data-ending-style] {
-    transform: translateX(calc(100% - var(--bleed) + var(--viewport-padding)));
+    transform: translateX(calc(100% - var(--bleed) + var(--viewport-padding) + 2px));
     box-shadow:
       0 -16px 48px rgb(0 0 0 / 0),
       0 6px 18px rgb(0 0 0 / 0);

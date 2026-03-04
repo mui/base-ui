@@ -16,10 +16,7 @@ import { Autocomplete } from '@base-ui/react/autocomplete';
 import { z } from 'zod';
 import styles from './form.module.css';
 
-import {
-  SettingsMetadata,
-  useExperimentSettings,
-} from '../../../../components/Experiments/SettingsPanel';
+import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
 
 const fonts = [
   { value: 'sans', label: 'Sans-serif' },

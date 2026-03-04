@@ -8,6 +8,7 @@ import {
   useInteractions,
   useListNavigation,
 } from '../../src/floating-ui-react';
+import styles from './ComplexGrid.module.css';
 
 interface Props {
   orientation?: 'horizontal' | 'both';
@@ -54,7 +55,7 @@ export function Main({ orientation = 'horizontal', loopFocus = false, rtl = fals
   return (
     <React.Fragment>
       <h1>Complex Grid</h1>
-      <div className="container">
+      <div className={styles.Container}>
         <button ref={refs.setReference} type="button" {...getReferenceProps()}>
           Reference
         </button>
@@ -63,7 +64,7 @@ export function Main({ orientation = 'horizontal', loopFocus = false, rtl = fals
             <div
               ref={refs.setFloating}
               data-testid="floating"
-              className="grid gap-2"
+              className={styles.Grid}
               style={{
                 ...floatingStyles,
                 display: 'grid',
@@ -83,7 +84,7 @@ export function Main({ orientation = 'horizontal', loopFocus = false, rtl = fals
                   ref={(node) => {
                     listRef.current[index] = node;
                   }}
-                  className="border border-black disabled:opacity-20"
+                  className={styles.Item}
                   {...getItemProps()}
                 >
                   Item {index}
