@@ -45,13 +45,21 @@ Re-export of [Root](#root) props.
 
 ```typescript
 type ScrollAreaRootState = {
+  /** Whether the scroll area is being scrolled. */
   scrolling: boolean;
+  /** Whether horizontal overflow is present. */
   hasOverflowX: boolean;
+  /** Whether vertical overflow is present. */
   hasOverflowY: boolean;
+  /** Whether there is overflow on the inline start side for the horizontal axis. */
   overflowXStart: boolean;
+  /** Whether there is overflow on the inline end side for the horizontal axis. */
   overflowXEnd: boolean;
+  /** Whether there is overflow on the block start side. */
   overflowYStart: boolean;
+  /** Whether there is overflow on the block end side. */
   overflowYEnd: boolean;
+  /** Whether the scrollbar corner is hidden. */
   cornerHidden: boolean;
 };
 ```
@@ -77,13 +85,21 @@ Re-export of [Content](#content) props.
 
 ```typescript
 type ScrollAreaContentState = {
+  /** Whether the scroll area is being scrolled. */
   scrolling: boolean;
+  /** Whether horizontal overflow is present. */
   hasOverflowX: boolean;
+  /** Whether vertical overflow is present. */
   hasOverflowY: boolean;
+  /** Whether there is overflow on the inline start side for the horizontal axis. */
   overflowXStart: boolean;
+  /** Whether there is overflow on the inline end side for the horizontal axis. */
   overflowXEnd: boolean;
+  /** Whether there is overflow on the block start side. */
   overflowYStart: boolean;
+  /** Whether there is overflow on the block end side. */
   overflowYEnd: boolean;
+  /** Whether the scrollbar corner is hidden. */
   cornerHidden: boolean;
 };
 ```
@@ -130,13 +146,21 @@ Re-export of [Viewport](#viewport) props.
 
 ```typescript
 type ScrollAreaViewportState = {
+  /** Whether the scroll area is being scrolled. */
   scrolling: boolean;
+  /** Whether horizontal overflow is present. */
   hasOverflowX: boolean;
+  /** Whether vertical overflow is present. */
   hasOverflowY: boolean;
+  /** Whether there is overflow on the inline start side for the horizontal axis. */
   overflowXStart: boolean;
+  /** Whether there is overflow on the inline end side for the horizontal axis. */
   overflowXEnd: boolean;
+  /** Whether there is overflow on the block start side. */
   overflowYStart: boolean;
+  /** Whether there is overflow on the block end side. */
   overflowYEnd: boolean;
+  /** Whether the scrollbar corner is hidden. */
   cornerHidden: boolean;
 };
 ```
@@ -214,15 +238,25 @@ Re-export of [Scrollbar](#scrollbar) props.
 
 ```typescript
 type ScrollAreaScrollbarState = {
+  /** Whether the scroll area is being hovered. */
   hovering: boolean;
+  /** Whether the scroll area is being scrolled. */
   scrolling: boolean;
+  /** The orientation of the scrollbar. */
   orientation: 'vertical' | 'horizontal';
+  /** Whether horizontal overflow is present. */
   hasOverflowX: boolean;
+  /** Whether vertical overflow is present. */
   hasOverflowY: boolean;
+  /** Whether there is overflow on the inline start side for the horizontal axis. */
   overflowXStart: boolean;
+  /** Whether there is overflow on the inline end side for the horizontal axis. */
   overflowXEnd: boolean;
+  /** Whether there is overflow on the block start side. */
   overflowYStart: boolean;
+  /** Whether there is overflow on the block end side. */
   overflowYEnd: boolean;
+  /** Whether the scrollbar corner is hidden. */
   cornerHidden: boolean;
 };
 ```

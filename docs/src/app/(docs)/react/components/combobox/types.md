@@ -250,10 +250,15 @@ Re-export of [Trigger](#trigger) props.
 
 ```typescript
 type ComboboxTriggerState = {
+  /** Whether the popup is open. */
   open: boolean;
+  /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** Indicates which side the corresponding popup is positioned relative to its anchor. */
   popupSide: Side | null;
+  /** Present when the corresponding items list is empty. */
   listEmpty: boolean;
+  /** Whether the combobox doesn't have a value. */
   placeholder: boolean;
   touched: boolean;
   dirty: boolean;
@@ -325,10 +330,15 @@ Re-export of [Input](#input) props.
 
 ```typescript
 type ComboboxInputState = {
+  /** Whether the corresponding popup is open. */
   open: boolean;
+  /** Indicates which side the corresponding popup is positioned relative to its anchor. */
   popupSide: Side | null;
+  /** Present when the corresponding items list is empty. */
   listEmpty: boolean;
+  /** Whether the component should ignore user edits. */
   readOnly: boolean;
+  /** Whether the component should ignore user interaction. */
   disabled: boolean;
   touched: boolean;
   dirty: boolean;
@@ -384,7 +394,13 @@ Re-export of [Clear](#clear) props.
 ### Clear.State
 
 ```typescript
-type ComboboxClearState = { open: boolean; disabled: boolean; transitionStatus: TransitionStatus };
+type ComboboxClearState = {
+  /** Whether the popup is open. */
+  open: boolean;
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+  transitionStatus: TransitionStatus;
+};
 ```
 
 ### List
@@ -408,7 +424,10 @@ Re-export of [List](#list) props.
 ### List.State
 
 ```typescript
-type ComboboxListState = { empty: boolean };
+type ComboboxListState = {
+  /** Whether the list is empty. */
+  empty: boolean;
+};
 ```
 
 ### Portal
@@ -466,7 +485,11 @@ Re-export of [Backdrop](#backdrop) props.
 ### Backdrop.State
 
 ```typescript
-type ComboboxBackdropState = { open: boolean; transitionStatus: TransitionStatus };
+type ComboboxBackdropState = {
+  /** Whether the popup is currently open. */
+  open: boolean;
+  transitionStatus: TransitionStatus;
+};
 ```
 
 ### Positioner
@@ -555,6 +578,7 @@ Re-export of [Positioner](#positioner) props.
 
 ```typescript
 type ComboboxPositionerState = {
+  /** Whether the popup is currently open. */
   open: boolean;
   side: Side;
   align: Align;
@@ -638,7 +662,13 @@ Re-export of [Arrow](#arrow) props.
 ### Arrow.State
 
 ```typescript
-type ComboboxArrowState = { open: boolean; side: Side; align: Align; uncentered: boolean };
+type ComboboxArrowState = {
+  /** Whether the popup is currently open. */
+  open: boolean;
+  side: Side;
+  align: Align;
+  uncentered: boolean;
+};
 ```
 
 ### Item
@@ -675,7 +705,14 @@ Re-export of [Item](#item) props.
 ### Item.State
 
 ```typescript
-type ComboboxItemState = { disabled: boolean; selected: boolean; highlighted: boolean };
+type ComboboxItemState = {
+  /** Whether the item should ignore user interaction. */
+  disabled: boolean;
+  /** Whether the item is selected. */
+  selected: boolean;
+  /** Whether the item is highlighted. */
+  highlighted: boolean;
+};
 ```
 
 ### Group
@@ -746,7 +783,10 @@ Re-export of [Separator](#separator) props.
 ### Separator.State
 
 ```typescript
-type ComboboxSeparatorState = { orientation: Orientation };
+type ComboboxSeparatorState = {
+  /** The orientation of the separator. */
+  orientation: Orientation;
+};
 ```
 
 ### Status
@@ -882,7 +922,10 @@ Re-export of [Chip](#chip) props.
 ### Chip.State
 
 ```typescript
-type ComboboxChipState = { disabled: boolean };
+type ComboboxChipState = {
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+};
 ```
 
 ### ChipRemove
@@ -906,7 +949,10 @@ Re-export of [ChipRemove](#chipremove) props.
 ### ChipRemove.State
 
 ```typescript
-type ComboboxChipRemoveState = { disabled: boolean };
+type ComboboxChipRemoveState = {
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+};
 ```
 
 ### ItemIndicator
@@ -982,7 +1028,20 @@ type ComboboxFilter = {
 ### ComboboxFilterOptions
 
 ```typescript
-type ComboboxFilterOptions = { multiple?: boolean; value?: any; locale?: Intl.LocalesArgument };
+type ComboboxFilterOptions = {
+  /**
+   * Whether the combobox is in multiple selection mode.
+   * @default false
+   */
+  multiple?: boolean;
+  /** The current value of the combobox. */
+  value?: any;
+  /**
+   * The locale to use for string comparison.
+   * Defaults to the user's runtime locale.
+   */
+  locale?: Intl.LocalesArgument;
+};
 ```
 
 ## External Types

@@ -32,7 +32,10 @@ Re-export of [Button](#button) props.
 ### Button.State
 
 ```typescript
-type ButtonState = { disabled: boolean };
+type ButtonState = {
+  /** Whether the button should ignore user interaction. */
+  disabled: boolean;
+};
 ```
 
 ## Canonical Types

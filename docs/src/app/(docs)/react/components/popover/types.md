@@ -185,7 +185,12 @@ Re-export of [Trigger](#trigger) props.
 ### Trigger.State
 
 ```typescript
-type PopoverTriggerState = { disabled: boolean; open: boolean };
+type PopoverTriggerState = {
+  /** Whether the popover is currently disabled. */
+  disabled: boolean;
+  /** Whether the popover is currently open. */
+  open: boolean;
+};
 ```
 
 ### Portal
@@ -243,7 +248,11 @@ Re-export of [Backdrop](#backdrop) props.
 ### Backdrop.State
 
 ```typescript
-type PopoverBackdropState = { open: boolean; transitionStatus: TransitionStatus };
+type PopoverBackdropState = {
+  /** Whether the popover is currently open. */
+  open: boolean;
+  transitionStatus: TransitionStatus;
+};
 ```
 
 ### Positioner
@@ -333,10 +342,12 @@ Re-export of [Positioner](#positioner) props.
 
 ```typescript
 type PopoverPositionerState = {
+  /** Whether the popover is currently open. */
   open: boolean;
   side: Side;
   align: Align;
   anchorHidden: boolean;
+  /** Whether CSS transitions should be disabled. */
   instant: string | undefined;
 };
 ```
@@ -383,6 +394,7 @@ Re-export of [Popup](#popup) props.
 
 ```typescript
 type PopoverPopupState = {
+  /** Whether the popover is currently open. */
   open: boolean;
   side: Side;
   align: Align;
@@ -421,7 +433,13 @@ Re-export of [Arrow](#arrow) props.
 ### Arrow.State
 
 ```typescript
-type PopoverArrowState = { open: boolean; side: Side; align: Align; uncentered: boolean };
+type PopoverArrowState = {
+  /** Whether the popover is currently open. */
+  open: boolean;
+  side: Side;
+  align: Align;
+  uncentered: boolean;
+};
 ```
 
 ### Title
@@ -536,7 +554,9 @@ Re-export of [Viewport](#viewport) props.
 ```typescript
 type PopoverViewportState = {
   activationDirection: string | undefined;
+  /** Whether the viewport is currently transitioning between contents. */
   transitioning: boolean;
+  /** Present if animations should be instant. */
   instant: 'dismiss' | 'click' | undefined;
 };
 ```

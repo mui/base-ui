@@ -158,7 +158,10 @@ Re-export of [Trigger](#trigger) props.
 ### Trigger.State
 
 ```typescript
-type PreviewCardTriggerState = { open: boolean };
+type PreviewCardTriggerState = {
+  /** Whether the preview card is currently open. */
+  open: boolean;
+};
 ```
 
 ### Portal
@@ -216,7 +219,11 @@ Re-export of [Backdrop](#backdrop) props.
 ### Backdrop.State
 
 ```typescript
-type PreviewCardBackdropState = { open: boolean; transitionStatus: TransitionStatus };
+type PreviewCardBackdropState = {
+  /** Whether the preview card is currently open. */
+  open: boolean;
+  transitionStatus: TransitionStatus;
+};
 ```
 
 ### Positioner
@@ -304,6 +311,7 @@ Re-export of [Positioner](#positioner) props.
 
 ```typescript
 type PreviewCardPositionerState = {
+  /** Whether the preview card is currently open. */
   open: boolean;
   side: Side;
   align: Align;
@@ -344,6 +352,7 @@ Re-export of [Popup](#popup) props.
 
 ```typescript
 type PreviewCardPopupState = {
+  /** Whether the preview card is currently open. */
   open: boolean;
   side: Side;
   align: Align;
@@ -382,7 +391,13 @@ Re-export of [Arrow](#arrow) props.
 ### Arrow.State
 
 ```typescript
-type PreviewCardArrowState = { open: boolean; side: Side; align: Align; uncentered: boolean };
+type PreviewCardArrowState = {
+  /** Whether the preview card is currently open. */
+  open: boolean;
+  side: Side;
+  align: Align;
+  uncentered: boolean;
+};
 ```
 
 ### Viewport
@@ -427,6 +442,7 @@ Re-export of [Viewport](#viewport) props.
 ```typescript
 type PreviewCardViewportState = {
   activationDirection: string | undefined;
+  /** Whether the viewport is currently transitioning between contents. */
   transitioning: boolean;
   instant: 'dismiss' | 'focus' | undefined;
 };

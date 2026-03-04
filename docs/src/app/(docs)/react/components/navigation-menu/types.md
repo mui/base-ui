@@ -32,7 +32,12 @@ Re-export of [Root](#root) props.
 ### Root.State
 
 ```typescript
-type NavigationMenuRootState = { open: boolean; nested: boolean };
+type NavigationMenuRootState = {
+  /** If `true`, the popup is open. */
+  open: boolean;
+  /** Whether the navigation menu is nested. */
+  nested: boolean;
+};
 ```
 
 ### Root.Actions
@@ -162,7 +167,10 @@ Re-export of [Trigger](#trigger) props.
 ### Trigger.State
 
 ```typescript
-type NavigationMenuTriggerState = { open: boolean };
+type NavigationMenuTriggerState = {
+  /** If `true`, the popup is open and the item is active. */
+  open: boolean;
+};
 ```
 
 ### Icon
@@ -184,7 +192,10 @@ Re-export of [Icon](#icon) props.
 ### Icon.State
 
 ```typescript
-type NavigationMenuIconState = { open: boolean };
+type NavigationMenuIconState = {
+  /** Whether the navigation menu is open and the item is active. */
+  open: boolean;
+};
 ```
 
 ### List
@@ -207,7 +218,10 @@ Re-export of [List](#list) props.
 ### List.State
 
 ```typescript
-type NavigationMenuListState = { open: boolean };
+type NavigationMenuListState = {
+  /** If `true`, the popup is open. */
+  open: boolean;
+};
 ```
 
 ### Portal
@@ -265,7 +279,12 @@ Re-export of [Backdrop](#backdrop) props.
 ### Backdrop.State
 
 ```typescript
-type NavigationMenuBackdropState = { open: boolean; transitionStatus: TransitionStatus };
+type NavigationMenuBackdropState = {
+  /** If `true`, the popup is open. */
+  open: boolean;
+  /** The transition status of the popup. */
+  transitionStatus: TransitionStatus;
+};
 ```
 
 ### Positioner
@@ -356,10 +375,12 @@ Re-export of [Positioner](#positioner) props.
 
 ```typescript
 type NavigationMenuPositionerState = {
+  /** Whether the navigation menu is currently open. */
   open: boolean;
   side: Side;
   align: Align;
   anchorHidden: boolean;
+  /** Whether CSS transitions should be disabled. */
   instant: boolean;
 };
 ```
@@ -403,10 +424,15 @@ Re-export of [Popup](#popup) props.
 
 ```typescript
 type NavigationMenuPopupState = {
+  /** If `true`, the popup is open. */
   open: boolean;
+  /** The transition status of the popup. */
   transitionStatus: TransitionStatus;
+  /** The side of the anchor the popup is positioned on. */
   side: Side;
+  /** The alignment of the popup relative to the anchor. */
   align: Align;
+  /** Whether the anchor element is hidden. */
   anchorHidden: boolean;
 };
 ```
@@ -441,7 +467,13 @@ Re-export of [Arrow](#arrow) props.
 ### Arrow.State
 
 ```typescript
-type NavigationMenuArrowState = { open: boolean; side: Side; align: Align; uncentered: boolean };
+type NavigationMenuArrowState = {
+  /** Whether the popup is currently open. */
+  open: boolean;
+  side: Side;
+  align: Align;
+  uncentered: boolean;
+};
 ```
 
 ### Item
@@ -501,8 +533,11 @@ Re-export of [Content](#content) props.
 
 ```typescript
 type NavigationMenuContentState = {
+  /** If `true`, the component is open. */
   open: boolean;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
+  /** The direction of the activation. */
   activationDirection: 'left' | 'right' | 'up' | 'down' | null;
 };
 ```
@@ -558,7 +593,10 @@ Re-export of [Link](#link) props.
 ### Link.State
 
 ```typescript
-type NavigationMenuLinkState = { active: boolean };
+type NavigationMenuLinkState = {
+  /** Whether the link is the currently active page. */
+  active: boolean;
+};
 ```
 
 ## External Types

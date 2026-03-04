@@ -24,7 +24,10 @@ Re-export of [Root](#root) props.
 ### Root.State
 
 ```typescript
-type FieldsetRootState = { disabled: boolean };
+type FieldsetRootState = {
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+};
 ```
 
 ### Legend
@@ -47,7 +50,10 @@ Re-export of [Legend](#legend) props.
 ### Legend.State
 
 ```typescript
-type FieldsetLegendState = { disabled: boolean };
+type FieldsetLegendState = {
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+};
 ```
 
 ## Export Groups

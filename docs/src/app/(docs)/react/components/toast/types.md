@@ -50,10 +50,15 @@ Re-export of [Root](#root) props.
 ```typescript
 type ToastRootState = {
   transitionStatus: TransitionStatus;
+  /** Whether the toasts in the viewport are expanded. */
   expanded: boolean;
+  /** Whether the toast was removed due to exceeding the limit. */
   limited: boolean;
+  /** The type of the toast. */
   type: string | undefined;
+  /** Whether the toast is being swiped. */
   swiping: boolean;
+  /** The direction the toast is being swiped. */
   swipeDirection: 'up' | 'down' | 'left' | 'right' | undefined;
 };
 ```
@@ -62,23 +67,50 @@ type ToastRootState = {
 
 ```typescript
 type ToastRootToastObject = {
+  /** The unique identifier for the toast. */
   id: string;
+  /** The ref for the toast. */
   ref?: React.RefObject<HTMLElement | null>;
+  /** The title of the toast. */
   title?: React.ReactNode;
+  /**
+   * The type of the toast. Used to conditionally style the toast,
+   * including conditionally rendering elements based on the type.
+   */
   type?: string;
+  /** The description of the toast. */
   description?: React.ReactNode;
+  /**
+   * The amount of time (in ms) before the toast is auto dismissed.
+   * A value of `0` will prevent the toast from being dismissed automatically.
+   * @default 5000
+   */
   timeout?: number;
+  /**
+   * The priority of the toast.
+   * - `low` - The toast will be announced politely.
+   * - `high` - The toast will be announced urgently.
+   * @default 'low'
+   */
   priority?: 'low' | 'high';
+  /** The transition status of the toast. */
   transitionStatus?: 'starting' | 'ending';
+  /** Determines if the toast was closed due to the limit being reached. */
   limited?: boolean;
+  /** The height of the toast. */
   height?: number;
+  /** Callback function to be called when the toast is closed. */
   onClose?: () => void;
+  /** Callback function to be called when the toast is removed from the list after any animations are complete when closed. */
   onRemove?: () => void;
+  /** The props for the action button. */
   actionProps?: Omit<
     React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>,
     'ref'
   >;
+  /** The props forwarded to the toast positioner element when rendering anchored toasts. */
   positionerProps?: ToastManagerPositionerProps;
+  /** Custom data for the toast. */
   data?: {};
 };
 ```
@@ -269,7 +301,12 @@ Re-export of [Content](#content) props.
 ### Content.State
 
 ```typescript
-type ToastContentState = { expanded: boolean; behind: boolean };
+type ToastContentState = {
+  /** Whether the toast viewport is expanded. */
+  expanded: boolean;
+  /** Whether the toast is behind the frontmost toast in the stack. */
+  behind: boolean;
+};
 ```
 
 ### Title
@@ -298,7 +335,10 @@ Re-export of [Title](#title) props.
 ### Title.State
 
 ```typescript
-type ToastTitleState = { type: string | undefined };
+type ToastTitleState = {
+  /** The type of the toast. */
+  type: string | undefined;
+};
 ```
 
 ### Description
@@ -328,7 +368,10 @@ Re-export of [Description](#description) props.
 ### Description.State
 
 ```typescript
-type ToastDescriptionState = { type: string | undefined };
+type ToastDescriptionState = {
+  /** The type of the toast. */
+  type: string | undefined;
+};
 ```
 
 ### Close
@@ -358,7 +401,10 @@ Re-export of [Close](#close) props.
 ### Close.State
 
 ```typescript
-type ToastCloseState = { type: string | undefined };
+type ToastCloseState = {
+  /** The type of the toast. */
+  type: string | undefined;
+};
 ```
 
 ### Action
@@ -388,7 +434,10 @@ Re-export of [Action](#action) props.
 ### Action.State
 
 ```typescript
-type ToastActionState = { type: string | undefined };
+type ToastActionState = {
+  /** The type of the toast. */
+  type: string | undefined;
+};
 ```
 
 ### Viewport
@@ -423,7 +472,10 @@ Re-export of [Viewport](#viewport) props.
 ### Viewport.State
 
 ```typescript
-type ToastViewportState = { expanded: boolean };
+type ToastViewportState = {
+  /** Whether toasts are expanded in the viewport. */
+  expanded: boolean;
+};
 ```
 
 ### createToastManager
@@ -452,23 +504,50 @@ type ReturnValue = UseToastManagerReturnValue<{}>;
 
 ```typescript
 type ToastObject = {
+  /** The unique identifier for the toast. */
   id: string;
+  /** The ref for the toast. */
   ref?: React.RefObject<HTMLElement | null>;
+  /** The title of the toast. */
   title?: React.ReactNode;
+  /**
+   * The type of the toast. Used to conditionally style the toast,
+   * including conditionally rendering elements based on the type.
+   */
   type?: string;
+  /** The description of the toast. */
   description?: React.ReactNode;
+  /**
+   * The amount of time (in ms) before the toast is auto dismissed.
+   * A value of `0` will prevent the toast from being dismissed automatically.
+   * @default 5000
+   */
   timeout?: number;
+  /**
+   * The priority of the toast.
+   * - `low` - The toast will be announced politely.
+   * - `high` - The toast will be announced urgently.
+   * @default 'low'
+   */
   priority?: 'low' | 'high';
+  /** The transition status of the toast. */
   transitionStatus?: 'starting' | 'ending';
+  /** Determines if the toast was closed due to the limit being reached. */
   limited?: boolean;
+  /** The height of the toast. */
   height?: number;
+  /** Callback function to be called when the toast is closed. */
   onClose?: () => void;
+  /** Callback function to be called when the toast is removed from the list after any animations are complete when closed. */
   onRemove?: () => void;
+  /** The props for the action button. */
   actionProps?: Omit<
     React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>,
     'ref'
   >;
+  /** The props forwarded to the toast positioner element when rendering anchored toasts. */
   positionerProps?: ToastManagerPositionerProps;
+  /** Custom data for the toast. */
   data?: {};
 };
 ```
@@ -493,19 +572,42 @@ type ToastManager = {
 ```typescript
 type ToastManagerAddOptions = {
   id?: string;
+  /** The title of the toast. */
   title?: React.ReactNode;
+  /**
+   * The type of the toast. Used to conditionally style the toast,
+   * including conditionally rendering elements based on the type.
+   */
   type?: string;
+  /** The description of the toast. */
   description?: React.ReactNode;
+  /**
+   * The amount of time (in ms) before the toast is auto dismissed.
+   * A value of `0` will prevent the toast from being dismissed automatically.
+   * @default 5000
+   */
   timeout?: number;
+  /**
+   * The priority of the toast.
+   * - `low` - The toast will be announced politely.
+   * - `high` - The toast will be announced urgently.
+   * @default 'low'
+   */
   priority?: 'low' | 'high';
+  /** The transition status of the toast. */
   transitionStatus?: 'starting' | 'ending';
+  /** Callback function to be called when the toast is closed. */
   onClose?: () => void;
+  /** Callback function to be called when the toast is removed from the list after any animations are complete when closed. */
   onRemove?: () => void;
+  /** The props for the action button. */
   actionProps?: Omit<
     React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>,
     'ref'
   >;
+  /** The props forwarded to the toast positioner element when rendering anchored toasts. */
   positionerProps?: ToastManagerPositionerProps;
+  /** Custom data for the toast. */
   data?: {};
 };
 ```
@@ -520,22 +622,126 @@ type ToastManagerEvent = { action: 'add' | 'close' | 'update' | 'promise'; optio
 
 ```typescript
 type ToastManagerPositionerProps = {
+  /** An element to position the toast against. */
   anchor?: Element | null;
   style?:
     | React.CSSProperties
     | ((state: Toast.Positioner.State) => React.CSSProperties | undefined);
+  /**
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component's state.
+   */
   className?: string | ((state: Toast.Positioner.State) => string | undefined);
+  /**
+   * Which side of the anchor element to align the toast against.
+   * May automatically change to avoid collisions.
+   * @default 'top'
+   */
   side?: Side;
+  /**
+   * Determines which CSS `position` property to use.
+   * @default 'absolute'
+   */
   positionMethod?: 'absolute' | 'fixed';
+  /**
+   * Distance between the anchor and the popup in pixels.
+   * Also accepts a function that returns the distance to read the dimensions of the anchor
+   * and positioner elements, along with its side and alignment.
+   *
+   * The function takes a `data` object parameter with the following properties:
+   * - `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.
+   * - `data.positioner`: the dimensions of the positioner element with properties `width` and `height`.
+   * - `data.side`: which side of the anchor element the positioner is aligned against.
+   * - `data.align`: how the positioner is aligned relative to the specified side.
+   * @default 0
+   * @example
+   * ```jsx
+   * <Positioner
+   *   sideOffset={({ side, align, anchor, positioner }) => {
+   *     return side === 'top' || side === 'bottom'
+   *       ? anchor.height
+   *       : anchor.width;
+   *   }}
+   * />
+   * ```
+   */
   sideOffset?: number | OffsetFunction;
+  /**
+   * How to align the popup relative to the specified side.
+   * @default 'center'
+   */
   align?: Align;
+  /**
+   * Additional offset along the alignment axis in pixels.
+   * Also accepts a function that returns the offset to read the dimensions of the anchor
+   * and positioner elements, along with its side and alignment.
+   *
+   * The function takes a `data` object parameter with the following properties:
+   * - `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.
+   * - `data.positioner`: the dimensions of the positioner element with properties `width` and `height`.
+   * - `data.side`: which side of the anchor element the positioner is aligned against.
+   * - `data.align`: how the positioner is aligned relative to the specified side.
+   * @default 0
+   * @example
+   * ```jsx
+   * <Positioner
+   *   alignOffset={({ side, align, anchor, positioner }) => {
+   *     return side === 'top' || side === 'bottom'
+   *       ? anchor.width
+   *       : anchor.height;
+   *   }}
+   * />
+   * ```
+   */
   alignOffset?: number | OffsetFunction;
+  /**
+   * An element or a rectangle that delimits the area that the popup is confined to.
+   * @default 'clipping-ancestors'
+   */
   collisionBoundary?: Boundary;
+  /**
+   * Additional space to maintain from the edge of the collision boundary.
+   * @default 5
+   */
   collisionPadding?: Padding;
+  /**
+   * Whether to maintain the popup in the viewport after
+   * the anchor element was scrolled out of view.
+   * @default false
+   */
   sticky?: boolean;
+  /**
+   * Minimum distance to maintain between the arrow and the edges of the popup.
+   *
+   * Use it to prevent the arrow element from hanging out of the rounded corners of a popup.
+   * @default 5
+   */
   arrowPadding?: number;
+  /**
+   * Whether to disable the popup from tracking any layout shift of its positioning anchor.
+   * @default false
+   */
   disableAnchorTracking?: boolean;
+  /**
+   * Determines how to handle collisions when positioning the popup.
+   * @example
+   * ```jsx
+   * <Positioner
+   *   collisionAvoidance={{
+   *     side: 'shift',
+   *     align: 'shift',
+   *     fallbackAxisSide: 'none',
+   *   }}
+   * />
+   * ```
+   */
   collisionAvoidance?: CollisionAvoidance;
+  /**
+   * Allows you to replace the component's HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
+   */
   render?: ReactElement | ((props: HTMLProps, state: Toast.Positioner.State) => ReactElement);
 };
 ```
@@ -560,18 +766,40 @@ type ToastManagerPromiseOptions = {
 
 ```typescript
 type ToastManagerUpdateOptions = {
+  /** The title of the toast. */
   title?: React.ReactNode;
+  /**
+   * The type of the toast. Used to conditionally style the toast,
+   * including conditionally rendering elements based on the type.
+   */
   type?: string;
+  /** The description of the toast. */
   description?: React.ReactNode;
+  /**
+   * The amount of time (in ms) before the toast is auto dismissed.
+   * A value of `0` will prevent the toast from being dismissed automatically.
+   * @default 5000
+   */
   timeout?: number;
+  /**
+   * The priority of the toast.
+   * - `low` - The toast will be announced politely.
+   * - `high` - The toast will be announced urgently.
+   * @default 'low'
+   */
   priority?: 'low' | 'high';
+  /** Callback function to be called when the toast is closed. */
   onClose?: () => void;
+  /** Callback function to be called when the toast is removed from the list after any animations are complete when closed. */
   onRemove?: () => void;
+  /** The props for the action button. */
   actionProps?: Omit<
     React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>,
     'ref'
   >;
+  /** The props forwarded to the toast positioner element when rendering anchored toasts. */
   positionerProps?: ToastManagerPositionerProps;
+  /** Custom data for the toast. */
   data?: {};
 };
 ```

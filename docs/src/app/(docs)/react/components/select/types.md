@@ -212,10 +212,15 @@ Re-export of [Trigger](#trigger) props.
 
 ```typescript
 type SelectTriggerState = {
+  /** Whether the select popup is currently open. */
   open: boolean;
+  /** Whether the select popup is readonly. */
   readOnly: boolean;
+  /** The value of the currently selected item. */
   value: any;
+  /** Whether the select doesn't have a value. */
   placeholder: boolean;
+  /** Whether the component should ignore user interaction. */
   disabled: boolean;
   touched: boolean;
   dirty: boolean;
@@ -259,7 +264,12 @@ Re-export of [Value](#value) props.
 ### Value.State
 
 ```typescript
-type SelectValueState = { value: any; placeholder: boolean };
+type SelectValueState = {
+  /** The value of the currently selected item. */
+  value: any;
+  /** Whether the placeholder is being displayed. */
+  placeholder: boolean;
+};
 ```
 
 ### Icon
@@ -288,7 +298,10 @@ Re-export of [Icon](#icon) props.
 ### Icon.State
 
 ```typescript
-type SelectIconState = { open: boolean };
+type SelectIconState = {
+  /** Whether the select popup is currently open. */
+  open: boolean;
+};
 ```
 
 ### List
@@ -535,7 +548,13 @@ Re-export of [Arrow](#arrow) props.
 ### Arrow.State
 
 ```typescript
-type SelectArrowState = { open: boolean; side: Side | 'none'; align: Align; uncentered: boolean };
+type SelectArrowState = {
+  /** Whether the select popup is currently open. */
+  open: boolean;
+  side: Side | 'none';
+  align: Align;
+  uncentered: boolean;
+};
 ```
 
 ### Item
@@ -571,7 +590,14 @@ Re-export of [Item](#item) props.
 ### Item.State
 
 ```typescript
-type SelectItemState = { disabled: boolean; selected: boolean; highlighted: boolean };
+type SelectItemState = {
+  /** Whether the item should ignore user interaction. */
+  disabled: boolean;
+  /** Whether the item is selected. */
+  selected: boolean;
+  /** Whether the item is highlighted. */
+  highlighted: boolean;
+};
 ```
 
 ### Group
@@ -641,7 +667,10 @@ Re-export of [Separator](#separator) props.
 ### Separator.State
 
 ```typescript
-type SelectSeparatorState = { orientation: Orientation };
+type SelectSeparatorState = {
+  /** The orientation of the separator. */
+  orientation: Orientation;
+};
 ```
 
 ### ItemText

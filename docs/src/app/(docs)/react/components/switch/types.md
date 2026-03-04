@@ -53,9 +53,13 @@ Re-export of [Root](#root) props.
 
 ```typescript
 type SwitchRootState = {
+  /** Whether the switch is currently active. */
   checked: boolean;
+  /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** Whether the user should be unable to activate or deactivate the switch. */
   readOnly: boolean;
+  /** Whether the user must activate the switch before submitting a form. */
   required: boolean;
   touched: boolean;
   dirty: boolean;
@@ -75,12 +79,19 @@ type SwitchRootChangeEventReason = 'none';
 
 ```typescript
 type SwitchRootChangeEventDetails = {
+  /** The reason for the event. */
   reason: 'none';
+  /** The native event associated with the custom event. */
   event: Event;
+  /** Cancels Base UI from handling the event. */
   cancel: () => void;
+  /** Allows the event to propagate in cases where Base UI will stop the propagation. */
   allowPropagation: () => void;
+  /** Indicates whether the event has been canceled. */
   isCanceled: boolean;
+  /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
+  /** The element that triggered the event, if applicable. */
   trigger: Element | undefined;
 };
 ```
@@ -122,9 +133,13 @@ Re-export of [Thumb](#thumb) props.
 
 ```typescript
 type SwitchThumbState = {
+  /** Whether the switch is currently active. */
   checked: boolean;
+  /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** Whether the user should be unable to activate or deactivate the switch. */
   readOnly: boolean;
+  /** Whether the user must activate the switch before submitting a form. */
   required: boolean;
   touched: boolean;
   dirty: boolean;

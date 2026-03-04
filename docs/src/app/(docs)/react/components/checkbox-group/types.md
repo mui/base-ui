@@ -35,6 +35,7 @@ Re-export of [CheckboxGroup](#checkboxgroup) props.
 
 ```typescript
 type CheckboxGroupState = {
+  /** Whether the component should ignore user interaction. */
   disabled: boolean;
   touched: boolean;
   dirty: boolean;
@@ -54,12 +55,19 @@ type CheckboxGroupChangeEventReason = 'none';
 
 ```typescript
 type CheckboxGroupChangeEventDetails = {
+  /** The reason for the event. */
   reason: 'none';
+  /** The native event associated with the custom event. */
   event: Event;
+  /** Cancels Base UI from handling the event. */
   cancel: () => void;
+  /** Allows the event to propagate in cases where Base UI will stop the propagation. */
   allowPropagation: () => void;
+  /** Indicates whether the event has been canceled. */
   isCanceled: boolean;
+  /** Indicates whether the event is allowed to propagate. */
   isPropagationAllowed: boolean;
+  /** The element that triggered the event, if applicable. */
   trigger: Element | undefined;
 };
 ```

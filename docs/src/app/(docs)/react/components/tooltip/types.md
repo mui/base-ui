@@ -193,7 +193,10 @@ Re-export of [Trigger](#trigger) props.
 ### Trigger.State
 
 ```typescript
-type TooltipTriggerState = { open: boolean };
+type TooltipTriggerState = {
+  /** Whether the tooltip is currently open. */
+  open: boolean;
+};
 ```
 
 ### Portal
@@ -307,10 +310,12 @@ Re-export of [Positioner](#positioner) props.
 
 ```typescript
 type TooltipPositionerState = {
+  /** Whether the tooltip is currently open. */
   open: boolean;
   side: Side;
   align: Align;
   anchorHidden: boolean;
+  /** Whether CSS transitions should be disabled. */
   instant: string | undefined;
 };
 ```
@@ -348,6 +353,7 @@ Re-export of [Popup](#popup) props.
 
 ```typescript
 type TooltipPopupState = {
+  /** Whether the tooltip is currently open. */
   open: boolean;
   side: Side;
   align: Align;
@@ -388,6 +394,7 @@ Re-export of [Arrow](#arrow) props.
 
 ```typescript
 type TooltipArrowState = {
+  /** Whether the tooltip is currently open. */
   open: boolean;
   side: Side;
   align: Align;
@@ -438,7 +445,9 @@ Re-export of [Viewport](#viewport) props.
 ```typescript
 type TooltipViewportState = {
   activationDirection: string | undefined;
+  /** Whether the viewport is currently transitioning between contents. */
   transitioning: boolean;
+  /** Present if animations should be instant. */
   instant: 'delay' | 'dismiss' | 'focus' | undefined;
 };
 ```

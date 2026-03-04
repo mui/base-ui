@@ -153,7 +153,12 @@ Re-export of [Trigger](#trigger) props.
 ### Trigger.State
 
 ```typescript
-type AlertDialogTriggerState = { disabled: boolean; open: boolean };
+type AlertDialogTriggerState = {
+  /** Whether the dialog is currently disabled. */
+  disabled: boolean;
+  /** Whether the dialog is currently open. */
+  open: boolean;
+};
 ```
 
 ### Portal
@@ -212,7 +217,11 @@ Re-export of [Backdrop](#backdrop) props.
 ### Backdrop.State
 
 ```typescript
-type AlertDialogBackdropState = { open: boolean; transitionStatus: TransitionStatus };
+type AlertDialogBackdropState = {
+  /** Whether the dialog is currently open. */
+  open: boolean;
+  transitionStatus: TransitionStatus;
+};
 ```
 
 ### Popup
@@ -255,9 +264,12 @@ Re-export of [Popup](#popup) props.
 
 ```typescript
 type AlertDialogPopupState = {
+  /** Whether the dialog is currently open. */
   open: boolean;
   transitionStatus: TransitionStatus;
+  /** Whether the dialog is nested within a parent dialog. */
   nested: boolean;
+  /** Whether the dialog has nested dialogs open. */
   nestedDialogOpen: boolean;
 };
 ```
@@ -335,7 +347,10 @@ Re-export of [Close](#close) props.
 ### Close.State
 
 ```typescript
-type AlertDialogCloseState = { disabled: boolean };
+type AlertDialogCloseState = {
+  /** Whether the button is currently disabled. */
+  disabled: boolean;
+};
 ```
 
 ### Viewport
@@ -370,9 +385,12 @@ Re-export of [Viewport](#viewport) props.
 
 ```typescript
 type AlertDialogViewportState = {
+  /** Whether the dialog is currently open. */
   open: boolean;
   transitionStatus: TransitionStatus;
+  /** Whether the dialog is nested within another dialog. */
   nested: boolean;
+  /** Whether the dialog has nested dialogs open. */
   nestedDialogOpen: boolean;
 };
 ```

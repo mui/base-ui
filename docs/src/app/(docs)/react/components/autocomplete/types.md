@@ -242,10 +242,15 @@ Re-export of [Trigger](#trigger) props.
 
 ```typescript
 type AutocompleteTriggerState = {
+  /** Whether the popup is open. */
   open: boolean;
+  /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** Indicates which side the corresponding popup is positioned relative to its anchor. */
   popupSide: Side | null;
+  /** Present when the corresponding items list is empty. */
   listEmpty: boolean;
+  /** Whether the combobox doesn't have a value. */
   placeholder: boolean;
   touched: boolean;
   dirty: boolean;
@@ -316,10 +321,15 @@ Re-export of [Input](#input) props.
 
 ```typescript
 type AutocompleteInputState = {
+  /** Whether the corresponding popup is open. */
   open: boolean;
+  /** Indicates which side the corresponding popup is positioned relative to its anchor. */
   popupSide: Side | null;
+  /** Present when the corresponding items list is empty. */
   listEmpty: boolean;
+  /** Whether the component should ignore user edits. */
   readOnly: boolean;
+  /** Whether the component should ignore user interaction. */
   disabled: boolean;
   touched: boolean;
   dirty: boolean;
@@ -376,7 +386,9 @@ Re-export of [Clear](#clear) props.
 
 ```typescript
 type AutocompleteClearState = {
+  /** Whether the popup is open. */
   open: boolean;
+  /** Whether the component should ignore user interaction. */
   disabled: boolean;
   transitionStatus: TransitionStatus;
 };
@@ -403,7 +415,10 @@ Re-export of [List](#list) props.
 ### List.State
 
 ```typescript
-type AutocompleteListState = { empty: boolean };
+type AutocompleteListState = {
+  /** Whether the list is empty. */
+  empty: boolean;
+};
 ```
 
 ### Portal
@@ -461,7 +476,11 @@ Re-export of [Backdrop](#backdrop) props.
 ### Backdrop.State
 
 ```typescript
-type AutocompleteBackdropState = { open: boolean; transitionStatus: TransitionStatus };
+type AutocompleteBackdropState = {
+  /** Whether the popup is currently open. */
+  open: boolean;
+  transitionStatus: TransitionStatus;
+};
 ```
 
 ### Positioner
@@ -550,6 +569,7 @@ Re-export of [Positioner](#positioner) props.
 
 ```typescript
 type AutocompletePositionerState = {
+  /** Whether the popup is currently open. */
   open: boolean;
   side: Side;
   align: Align;
@@ -633,7 +653,13 @@ Re-export of [Arrow](#arrow) props.
 ### Arrow.State
 
 ```typescript
-type AutocompleteArrowState = { open: boolean; side: Side; align: Align; uncentered: boolean };
+type AutocompleteArrowState = {
+  /** Whether the popup is currently open. */
+  open: boolean;
+  side: Side;
+  align: Align;
+  uncentered: boolean;
+};
 ```
 
 ### Item
@@ -670,7 +696,14 @@ Re-export of [Item](#item) props.
 ### Item.State
 
 ```typescript
-type AutocompleteItemState = { disabled: boolean; selected: boolean; highlighted: boolean };
+type AutocompleteItemState = {
+  /** Whether the item should ignore user interaction. */
+  disabled: boolean;
+  /** Whether the item is selected. */
+  selected: boolean;
+  /** Whether the item is highlighted. */
+  highlighted: boolean;
+};
 ```
 
 ### Group
@@ -741,7 +774,10 @@ Re-export of [Separator](#separator) props.
 ### Separator.State
 
 ```typescript
-type AutocompleteSeparatorState = { orientation: Orientation };
+type AutocompleteSeparatorState = {
+  /** The orientation of the separator. */
+  orientation: Orientation;
+};
 ```
 
 ### Status
@@ -875,7 +911,13 @@ type AutocompleteFilter = {
 ### AutocompleteFilterOptions
 
 ```typescript
-type AutocompleteFilterOptions = { locale?: Intl.LocalesArgument };
+type AutocompleteFilterOptions = {
+  /**
+   * The locale to use for string comparison.
+   * Defaults to the user's runtime locale.
+   */
+  locale?: Intl.LocalesArgument;
+};
 ```
 
 ## External Types

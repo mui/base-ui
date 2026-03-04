@@ -60,11 +60,17 @@ Re-export of [Root](#root) props.
 
 ```typescript
 type NumberFieldRootState = {
+  /** The raw numeric value of the field. */
   value: number | null;
+  /** The formatted string value presented in the input element. */
   inputValue: string;
+  /** Whether the user must enter a value before submitting a form. */
   required: boolean;
+  /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** Whether the user should be unable to change the field value. */
   readOnly: boolean;
+  /** Whether the user is currently scrubbing the field. */
   scrubbing: boolean;
   touched: boolean;
   dirty: boolean;
@@ -171,11 +177,17 @@ Re-export of [Input](#input) props.
 
 ```typescript
 type NumberFieldInputState = {
+  /** The raw numeric value of the field. */
   value: number | null;
+  /** The formatted string value presented in the input element. */
   inputValue: string;
+  /** Whether the user must enter a value before submitting a form. */
   required: boolean;
+  /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** Whether the user should be unable to change the field value. */
   readOnly: boolean;
+  /** Whether the user is currently scrubbing the field. */
   scrubbing: boolean;
   touched: boolean;
   dirty: boolean;
@@ -221,11 +233,17 @@ Re-export of [Group](#group) props.
 
 ```typescript
 type NumberFieldGroupState = {
+  /** The raw numeric value of the field. */
   value: number | null;
+  /** The formatted string value presented in the input element. */
   inputValue: string;
+  /** Whether the user must enter a value before submitting a form. */
   required: boolean;
+  /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** Whether the user should be unable to change the field value. */
   readOnly: boolean;
+  /** Whether the user is currently scrubbing the field. */
   scrubbing: boolean;
   touched: boolean;
   dirty: boolean;
@@ -274,11 +292,17 @@ Re-export of [ScrubArea](#scrubarea) props.
 
 ```typescript
 type NumberFieldScrubAreaState = {
+  /** The raw numeric value of the field. */
   value: number | null;
+  /** The formatted string value presented in the input element. */
   inputValue: string;
+  /** Whether the user must enter a value before submitting a form. */
   required: boolean;
+  /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** Whether the user should be unable to change the field value. */
   readOnly: boolean;
+  /** Whether the user is currently scrubbing the field. */
   scrubbing: boolean;
   touched: boolean;
   dirty: boolean;
@@ -327,11 +351,17 @@ Re-export of [ScrubAreaCursor](#scrubareacursor) props.
 
 ```typescript
 type NumberFieldScrubAreaCursorState = {
+  /** The raw numeric value of the field. */
   value: number | null;
+  /** The formatted string value presented in the input element. */
   inputValue: string;
+  /** Whether the user must enter a value before submitting a form. */
   required: boolean;
+  /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** Whether the user should be unable to change the field value. */
   readOnly: boolean;
+  /** Whether the user is currently scrubbing the field. */
   scrubbing: boolean;
   touched: boolean;
   dirty: boolean;
@@ -378,11 +408,17 @@ Re-export of [Decrement](#decrement) props.
 
 ```typescript
 type NumberFieldDecrementState = {
+  /** The raw numeric value of the field. */
   value: number | null;
+  /** The formatted string value presented in the input element. */
   inputValue: string;
+  /** Whether the user must enter a value before submitting a form. */
   required: boolean;
+  /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** Whether the user should be unable to change the field value. */
   readOnly: boolean;
+  /** Whether the user is currently scrubbing the field. */
   scrubbing: boolean;
   touched: boolean;
   dirty: boolean;
@@ -429,11 +465,17 @@ Re-export of [Increment](#increment) props.
 
 ```typescript
 type NumberFieldIncrementState = {
+  /** The raw numeric value of the field. */
   value: number | null;
+  /** The formatted string value presented in the input element. */
   inputValue: string;
+  /** Whether the user must enter a value before submitting a form. */
   required: boolean;
+  /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** Whether the user should be unable to change the field value. */
   readOnly: boolean;
+  /** Whether the user is currently scrubbing the field. */
   scrubbing: boolean;
   touched: boolean;
   dirty: boolean;

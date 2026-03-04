@@ -50,7 +50,12 @@ type FormActions = { validate: (fieldName?: string) => void };
 ### Form.SubmitEventDetails
 
 ```typescript
-type FormSubmitEventDetails = { reason: 'none'; event: Event };
+type FormSubmitEventDetails = {
+  /** The reason for the event. */
+  reason: 'none';
+  /** The native event associated with the custom event. */
+  event: Event;
+};
 ```
 
 ### Form.SubmitEventReason

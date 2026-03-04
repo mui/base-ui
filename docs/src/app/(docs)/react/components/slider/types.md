@@ -54,14 +54,28 @@ Re-export of [Root](#root) props.
 
 ```typescript
 type SliderRootState = {
+  /** The index of the active thumb. */
   activeThumbIndex: number;
+  /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** Whether the thumb is currently being dragged. */
   dragging: boolean;
   max: number;
   min: number;
+  /**
+   * The minimum steps between values in a range slider.
+   * @default 0
+   */
   minStepsBetweenValues: number;
+  /** The component orientation. */
   orientation: Orientation;
+  /**
+   * The step increment of the slider when incrementing or decrementing. It will snap
+   * to multiples of this value. Decimal values are supported.
+   * @default 1
+   */
   step: number;
+  /** The raw number value of the slider. */
   values: number[];
   touched: boolean;
   dirty: boolean;
@@ -248,14 +262,28 @@ Re-export of [Thumb](#thumb) props.
 
 ```typescript
 type SliderThumbState = {
+  /** The index of the active thumb. */
   activeThumbIndex: number;
+  /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** Whether the thumb is currently being dragged. */
   dragging: boolean;
   max: number;
   min: number;
+  /**
+   * The minimum steps between values in a range slider.
+   * @default 0
+   */
   minStepsBetweenValues: number;
+  /** The component orientation. */
   orientation: Orientation;
+  /**
+   * The step increment of the slider when incrementing or decrementing. It will snap
+   * to multiples of this value. Decimal values are supported.
+   * @default 1
+   */
   step: number;
+  /** The raw number value of the slider. */
   values: number[];
   touched: boolean;
   dirty: boolean;
@@ -299,14 +327,28 @@ Re-export of [Control](#control) props.
 
 ```typescript
 type SliderControlState = {
+  /** The index of the active thumb. */
   activeThumbIndex: number;
+  /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** Whether the thumb is currently being dragged. */
   dragging: boolean;
   max: number;
   min: number;
+  /**
+   * The minimum steps between values in a range slider.
+   * @default 0
+   */
   minStepsBetweenValues: number;
+  /** The component orientation. */
   orientation: Orientation;
+  /**
+   * The step increment of the slider when incrementing or decrementing. It will snap
+   * to multiples of this value. Decimal values are supported.
+   * @default 1
+   */
   step: number;
+  /** The raw number value of the slider. */
   values: number[];
   touched: boolean;
   dirty: boolean;
@@ -321,7 +363,10 @@ type SliderControlState = {
 ### SliderRootChangeEventCustomProperties
 
 ```typescript
-type SliderRootChangeEventCustomProperties = { activeThumbIndex: number };
+type SliderRootChangeEventCustomProperties = {
+  /** The index of the active thumb at the time of the change. */
+  activeThumbIndex: number;
+};
 ```
 
 ### ThumbMetadata

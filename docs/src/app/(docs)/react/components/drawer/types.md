@@ -305,7 +305,12 @@ Re-export of [Trigger](#trigger) props.
 ### Trigger.State
 
 ```typescript
-type DrawerPreviewTriggerState = { disabled: boolean; open: boolean };
+type DrawerPreviewTriggerState = {
+  /** Whether the drawer is currently disabled. */
+  disabled: boolean;
+  /** Whether the drawer is currently open. */
+  open: boolean;
+};
 ```
 
 ### Portal
@@ -370,7 +375,11 @@ Re-export of [Backdrop](#backdrop) props.
 ### Backdrop.State
 
 ```typescript
-type DrawerPreviewBackdropState = { open: boolean; transitionStatus: TransitionStatus };
+type DrawerPreviewBackdropState = {
+  /** Whether the drawer is currently open. */
+  open: boolean;
+  transitionStatus: TransitionStatus;
+};
 ```
 
 ### Popup
@@ -423,13 +432,20 @@ Re-export of [Popup](#popup) props.
 
 ```typescript
 type DrawerPreviewPopupState = {
+  /** Whether the drawer is currently open. */
   open: boolean;
   transitionStatus: TransitionStatus;
+  /** Whether the active snap point is the full-height expanded state. */
   expanded: boolean;
+  /** Whether the drawer is nested within a parent drawer. */
   nested: boolean;
+  /** Whether the drawer has nested drawers open. */
   nestedDrawerOpen: boolean;
+  /** Whether a nested drawer is currently being swiped. */
   nestedDrawerSwiping: boolean;
+  /** The swipe direction used to dismiss the drawer. */
   swipeDirection: DrawerSwipeDirection;
+  /** Whether the drawer is being swiped. */
   swiping: boolean;
 };
 ```
@@ -524,7 +540,10 @@ Re-export of [Close](#close) props.
 ### Close.State
 
 ```typescript
-type DrawerPreviewCloseState = { disabled: boolean };
+type DrawerPreviewCloseState = {
+  /** Whether the button is currently disabled. */
+  disabled: boolean;
+};
 ```
 
 ### Viewport
@@ -558,9 +577,12 @@ Re-export of [Viewport](#viewport) props.
 
 ```typescript
 type DrawerPreviewViewportState = {
+  /** Whether the drawer is currently open. */
   open: boolean;
   transitionStatus: TransitionStatus;
+  /** Whether the drawer is nested within another drawer. */
   nested: boolean;
+  /** Whether the drawer has nested drawers open. */
   nestedDialogOpen: boolean;
 };
 ```
@@ -636,7 +658,10 @@ Re-export of [Indent](#indent) props.
 ### Indent.State
 
 ```typescript
-type DrawerPreviewIndentState = { active: boolean };
+type DrawerPreviewIndentState = {
+  /** Whether any drawer within the nearest <Drawer.Provider> is open. */
+  active: boolean;
+};
 ```
 
 ### IndentBackground
@@ -659,7 +684,10 @@ Re-export of [IndentBackground](#indentbackground) props.
 ### IndentBackground.State
 
 ```typescript
-type DrawerPreviewIndentBackgroundState = { active: boolean };
+type DrawerPreviewIndentBackgroundState = {
+  /** Whether any drawer within the nearest <Drawer.Provider> is open. */
+  active: boolean;
+};
 ```
 
 ## Additional Types
@@ -668,9 +696,23 @@ type DrawerPreviewIndentBackgroundState = { active: boolean };
 
 ```typescript
 type DrawerBackdropProps = {
+  /**
+   * Whether the backdrop is forced to render even when nested.
+   * @default false
+   */
   forceRender?: boolean;
   style?: React.CSSProperties | ((state: DrawerBackdropState) => React.CSSProperties | undefined);
+  /**
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component's state.
+   */
   className?: string | ((state: DrawerBackdropState) => string | undefined);
+  /**
+   * Allows you to replace the component's HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
+   */
   render?: ReactElement | ((props: HTMLProps, state: DrawerBackdropState) => ReactElement);
 };
 ```
@@ -678,16 +720,36 @@ type DrawerBackdropProps = {
 ### DrawerBackdropState
 
 ```typescript
-type DrawerBackdropState = { open: boolean; transitionStatus: TransitionStatus };
+type DrawerBackdropState = {
+  /** Whether the drawer is currently open. */
+  open: boolean;
+  transitionStatus: TransitionStatus;
+};
 ```
 
 ### DrawerCloseProps
 
 ```typescript
 type DrawerCloseProps = {
+  /**
+   * Whether the component renders a native `<button>` element when replacing it
+   * via the `render` prop.
+   * Set to `false` if the rendered element is not a button (for example, `<div>`).
+   * @default true
+   */
   nativeButton?: boolean;
   style?: React.CSSProperties | ((state: DrawerCloseState) => React.CSSProperties | undefined);
+  /**
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component's state.
+   */
   className?: string | ((state: DrawerCloseState) => string | undefined);
+  /**
+   * Allows you to replace the component's HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
+   */
   render?: ReactElement | ((props: HTMLProps, state: DrawerCloseState) => ReactElement);
 };
 ```
@@ -695,7 +757,10 @@ type DrawerCloseProps = {
 ### DrawerCloseState
 
 ```typescript
-type DrawerCloseState = { disabled: boolean };
+type DrawerCloseState = {
+  /** Whether the button is currently disabled. */
+  disabled: boolean;
+};
 ```
 
 ### DrawerContentProps
@@ -703,7 +768,17 @@ type DrawerCloseState = { disabled: boolean };
 ```typescript
 type DrawerContentProps = {
   style?: React.CSSProperties | ((state: DrawerContentState) => React.CSSProperties | undefined);
+  /**
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component's state.
+   */
   className?: string | ((state: DrawerContentState) => string | undefined);
+  /**
+   * Allows you to replace the component's HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
+   */
   render?: ReactElement | ((props: HTMLProps, state: DrawerContentState) => ReactElement);
 };
 ```
@@ -721,7 +796,17 @@ type DrawerDescriptionProps = {
   style?:
     | React.CSSProperties
     | ((state: DrawerDescriptionState) => React.CSSProperties | undefined);
+  /**
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component's state.
+   */
   className?: string | ((state: DrawerDescriptionState) => string | undefined);
+  /**
+   * Allows you to replace the component's HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
+   */
   render?: ReactElement | ((props: HTMLProps, state: DrawerDescriptionState) => ReactElement);
 };
 ```
@@ -739,7 +824,17 @@ type DrawerIndentBackgroundProps = {
   style?:
     | React.CSSProperties
     | ((state: DrawerIndentBackgroundState) => React.CSSProperties | undefined);
+  /**
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component's state.
+   */
   className?: string | ((state: DrawerIndentBackgroundState) => string | undefined);
+  /**
+   * Allows you to replace the component's HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
+   */
   render?: ReactElement | ((props: HTMLProps, state: DrawerIndentBackgroundState) => ReactElement);
 };
 ```
@@ -747,7 +842,10 @@ type DrawerIndentBackgroundProps = {
 ### DrawerIndentBackgroundState
 
 ```typescript
-type DrawerIndentBackgroundState = { active: boolean };
+type DrawerIndentBackgroundState = {
+  /** Whether any drawer within the nearest <Drawer.Provider> is open. */
+  active: boolean;
+};
 ```
 
 ### DrawerIndentProps
@@ -755,7 +853,17 @@ type DrawerIndentBackgroundState = { active: boolean };
 ```typescript
 type DrawerIndentProps = {
   style?: React.CSSProperties | ((state: DrawerIndentState) => React.CSSProperties | undefined);
+  /**
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component's state.
+   */
   className?: string | ((state: DrawerIndentState) => string | undefined);
+  /**
+   * Allows you to replace the component's HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
+   */
   render?: ReactElement | ((props: HTMLProps, state: DrawerIndentState) => ReactElement);
 };
 ```
@@ -763,23 +871,54 @@ type DrawerIndentProps = {
 ### DrawerIndentState
 
 ```typescript
-type DrawerIndentState = { active: boolean };
+type DrawerIndentState = {
+  /** Whether any drawer within the nearest <Drawer.Provider> is open. */
+  active: boolean;
+};
 ```
 
 ### DrawerPopupProps
 
 ```typescript
 type DrawerPopupProps = {
+  /**
+   * Determines the element to focus when the drawer is opened.
+   *
+   * - `false`: Do not move focus.
+   * - `true`: Move focus based on the default behavior (first tabbable element or popup).
+   * - `RefObject`: Move focus to the ref element.
+   * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).
+   *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
+   */
   initialFocus?:
     | boolean
     | React.RefObject<HTMLElement | null>
     | ((openType: InteractionType) => boolean | void | HTMLElement | null);
+  /**
+   * Determines the element to focus when the drawer is closed.
+   *
+   * - `false`: Do not move focus.
+   * - `true`: Move focus based on the default behavior (trigger or previously focused element).
+   * - `RefObject`: Move focus to the ref element.
+   * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).
+   *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
+   */
   finalFocus?:
     | boolean
     | React.RefObject<HTMLElement | null>
     | ((closeType: InteractionType) => boolean | void | HTMLElement | null);
   style?: React.CSSProperties | ((state: DrawerPopupState) => React.CSSProperties | undefined);
+  /**
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component's state.
+   */
   className?: string | ((state: DrawerPopupState) => string | undefined);
+  /**
+   * Allows you to replace the component's HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
+   */
   render?: ReactElement | ((props: HTMLProps, state: DrawerPopupState) => ReactElement);
 };
 ```
@@ -788,13 +927,20 @@ type DrawerPopupProps = {
 
 ```typescript
 type DrawerPopupState = {
+  /** Whether the drawer is currently open. */
   open: boolean;
   transitionStatus: TransitionStatus;
+  /** Whether the active snap point is the full-height expanded state. */
   expanded: boolean;
+  /** Whether the drawer is nested within a parent drawer. */
   nested: boolean;
+  /** Whether the drawer has nested drawers open. */
   nestedDrawerOpen: boolean;
+  /** Whether a nested drawer is currently being swiped. */
   nestedDrawerSwiping: boolean;
+  /** The swipe direction used to dismiss the drawer. */
   swipeDirection: DrawerSwipeDirection;
+  /** Whether the drawer is being swiped. */
   swiping: boolean;
 };
 ```
@@ -803,10 +949,25 @@ type DrawerPopupState = {
 
 ```typescript
 type DrawerPortalProps = {
+  /**
+   * Whether to keep the portal mounted in the DOM while the popup is hidden.
+   * @default false
+   */
   keepMounted?: boolean;
+  /** A parent element to render the portal element into. */
   container?: HTMLElement | ShadowRoot | React.RefObject<HTMLElement | ShadowRoot | null> | null;
   style?: React.CSSProperties | ((state: DrawerPortalState) => React.CSSProperties | undefined);
+  /**
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component's state.
+   */
   className?: string | ((state: DrawerPortalState) => string | undefined);
+  /**
+   * Allows you to replace the component's HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
+   */
   render?: ReactElement | ((props: HTMLProps, state: DrawerPortalState) => ReactElement);
 };
 ```
@@ -854,22 +1015,81 @@ type DrawerRootChangeEventReason =
 
 ```typescript
 type DrawerRootProps = {
+  /** Whether the drawer is currently open. */
   open?: boolean;
+  /**
+   * Whether the drawer is initially open.
+   *
+   * To render a controlled drawer, use the `open` prop instead.
+   * @default false
+   */
   defaultOpen?: boolean;
+  /**
+   * Determines if the drawer enters a modal state when open.
+   * - `true`: user interaction is limited to just the drawer: focus is trapped, document page scroll is locked, and pointer interactions on outside elements are disabled.
+   * - `false`: user interaction with the rest of the document is allowed.
+   * - `'trap-focus'`: focus is trapped inside the drawer, but document page scroll is not locked and pointer interactions outside of it remain enabled.
+   * @default true
+   */
   modal?: boolean | 'trap-focus';
+  /** Event handler called when the drawer is opened or closed. */
   onOpenChange?: (open: boolean, eventDetails: DrawerRoot.ChangeEventDetails) => void;
+  /** Event handler called after any animations complete when the drawer is opened or closed. */
   onOpenChangeComplete?: (open: boolean) => void;
+  /**
+   * Determines whether the drawer should close on outside clicks.
+   * @default false
+   */
   disablePointerDismissal?: boolean;
+  /**
+   * A ref to imperative actions.
+   * - `unmount`: When specified, the drawer will not be unmounted when closed.
+   * Instead, the `unmount` function must be called to unmount the drawer manually.
+   * Useful when the drawer's animation is controlled by an external library.
+   * - `close`: Closes the drawer imperatively when called.
+   */
   actionsRef?: React.RefObject<DrawerRoot.Actions | null>;
+  /**
+   * A handle to associate the drawer with a trigger.
+   * If specified, allows detached triggers to control the drawer's open state.
+   * Can be created with the Drawer.createHandle() method.
+   */
   handle?: DialogHandle<Payload>;
+  /**
+   * ID of the trigger that the drawer is associated with.
+   * This is useful in conjunction with the `open` prop to create a controlled drawer.
+   * There's no need to specify this prop when the drawer is uncontrolled (that is, when the `open` prop is not set).
+   */
   triggerId?: string | null;
+  /**
+   * ID of the trigger that the drawer is associated with.
+   * This is useful in conjunction with the `defaultOpen` prop to create an initially open drawer.
+   */
   defaultTriggerId?: string | null;
+  /** The content of the drawer. */
   children?: React.ReactNode | PayloadChildRenderFunction<Payload>;
+  /**
+   * The swipe direction used to dismiss the drawer.
+   * @default 'down'
+   */
   swipeDirection?: DrawerSwipeDirection;
+  /**
+   * Snap points used to position the drawer.
+   * Use numbers between 0 and 1 to represent fractions of the viewport height,
+   * numbers greater than 1 as pixel values, or strings in `px`/`rem` units
+   * (for example, `'148px'` or `'30rem'`).
+   */
   snapPoints?: DrawerSnapPoint[];
+  /**
+   * Disables velocity-based snap skipping so drag distance determines the next snap point.
+   * @default false
+   */
   snapToSequentialPoints?: boolean;
+  /** The currently active snap point. Use with `onSnapPointChange` to control the snap point. */
   snapPoint?: DrawerSnapPoint | null;
+  /** The initial snap point value when uncontrolled. */
   defaultSnapPoint?: DrawerSnapPoint | null;
+  /** Callback fired when the snap point changes. */
   onSnapPointChange?: (
     snapPoint: DrawerSnapPoint | null,
     eventDetails: DrawerRoot.SnapPointChangeEventDetails,
@@ -888,7 +1108,17 @@ type DrawerRootSnapPointChangeEventReason = DrawerRootChangeEventReason;
 ```typescript
 type DrawerTitleProps = {
   style?: React.CSSProperties | ((state: DrawerTitleState) => React.CSSProperties | undefined);
+  /**
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component's state.
+   */
   className?: string | ((state: DrawerTitleState) => string | undefined);
+  /**
+   * Allows you to replace the component's HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
+   */
   render?: ReactElement | ((props: HTMLProps, state: DrawerTitleState) => ReactElement);
 };
 ```
@@ -903,12 +1133,37 @@ type DrawerTitleState = {};
 
 ```typescript
 type DrawerTriggerProps = {
+  /**
+   * A handle to associate the trigger with a drawer.
+   * Can be created with the Drawer.createHandle() method.
+   */
   handle?: DrawerHandle<Payload>;
+  /** A payload to pass to the drawer when it is opened. */
   payload?: Payload;
+  /**
+   * ID of the trigger. In addition to being forwarded to the rendered element,
+   * it is also used to specify the active trigger for drawers in controlled mode (with the Drawer.Root `triggerId` prop).
+   */
   id?: string;
+  /**
+   * Whether the component renders a native `<button>` element when replacing it
+   * via the `render` prop.
+   * Set to `false` if the rendered element is not a button (for example, `<div>`).
+   * @default true
+   */
   nativeButton?: boolean;
   style?: React.CSSProperties | ((state: DrawerTriggerState) => React.CSSProperties | undefined);
+  /**
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component's state.
+   */
   className?: string | ((state: DrawerTriggerState) => string | undefined);
+  /**
+   * Allows you to replace the component's HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
+   */
   render?: ReactElement | ((props: HTMLProps, state: DrawerTriggerState) => ReactElement);
 };
 ```
@@ -916,7 +1171,12 @@ type DrawerTriggerProps = {
 ### DrawerTriggerState
 
 ```typescript
-type DrawerTriggerState = { disabled: boolean; open: boolean };
+type DrawerTriggerState = {
+  /** Whether the drawer is currently disabled. */
+  disabled: boolean;
+  /** Whether the drawer is currently open. */
+  open: boolean;
+};
 ```
 
 ### DrawerViewportProps
@@ -924,7 +1184,17 @@ type DrawerTriggerState = { disabled: boolean; open: boolean };
 ```typescript
 type DrawerViewportProps = {
   style?: React.CSSProperties | ((state: DrawerViewportState) => React.CSSProperties | undefined);
+  /**
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component's state.
+   */
   className?: string | ((state: DrawerViewportState) => string | undefined);
+  /**
+   * Allows you to replace the component's HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
+   */
   render?: ReactElement | ((props: HTMLProps, state: DrawerViewportState) => ReactElement);
 };
 ```
@@ -933,9 +1203,12 @@ type DrawerViewportProps = {
 
 ```typescript
 type DrawerViewportState = {
+  /** Whether the drawer is currently open. */
   open: boolean;
   transitionStatus: TransitionStatus;
+  /** Whether the drawer is nested within another drawer. */
   nested: boolean;
+  /** Whether the drawer has nested drawers open. */
   nestedDialogOpen: boolean;
 };
 ```

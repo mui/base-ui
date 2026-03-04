@@ -40,7 +40,12 @@ Re-export of [Root](#root) props.
 ### Root.State
 
 ```typescript
-type AccordionRootState = { value: TValue[]; disabled: boolean; orientation: Orientation };
+type AccordionRootState = {
+  value: TValue[];
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+  orientation: Orientation;
+};
 ```
 
 ### Root.ChangeEventReason
@@ -148,6 +153,7 @@ type AccordionItemState = {
   index: number;
   open: boolean;
   value: any[];
+  /** Whether the component should ignore user interaction. */
   disabled: boolean;
   orientation: Orientation;
 };
@@ -253,6 +259,7 @@ type AccordionPanelState = {
   index: number;
   open: boolean;
   value: any[];
+  /** Whether the component should ignore user interaction. */
   disabled: boolean;
   orientation: Orientation;
 };

@@ -28,7 +28,12 @@ Re-export of [Root](#root) props.
 ### Root.State
 
 ```typescript
-type CollapsibleRootState = { open: boolean; disabled: boolean };
+type CollapsibleRootState = {
+  /** Whether the collapsible panel is currently open. */
+  open: boolean;
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+};
 ```
 
 ### Root.ChangeEventReason
@@ -125,7 +130,9 @@ Re-export of [Panel](#panel) props.
 ```typescript
 type CollapsiblePanelState = {
   transitionStatus: TransitionStatus;
+  /** Whether the collapsible panel is currently open. */
   open: boolean;
+  /** Whether the component should ignore user interaction. */
   disabled: boolean;
 };
 ```

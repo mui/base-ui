@@ -213,7 +213,10 @@ Re-export of [Trigger](#trigger) props.
 ### Trigger.State
 
 ```typescript
-type ContextMenuTriggerState = { open: boolean };
+type ContextMenuTriggerState = {
+  /** Whether the context menu is currently open. */
+  open: boolean;
+};
 ```
 
 ### Portal
@@ -271,7 +274,11 @@ Re-export of [Backdrop](#backdrop) props.
 ### Backdrop.State
 
 ```typescript
-type ContextMenuBackdropState = { open: boolean; transitionStatus: TransitionStatus };
+type ContextMenuBackdropState = {
+  /** Whether the menu is currently open. */
+  open: boolean;
+  transitionStatus: TransitionStatus;
+};
 ```
 
 ### Positioner
@@ -359,6 +366,7 @@ Re-export of [Positioner](#positioner) props.
 
 ```typescript
 type ContextMenuPositionerState = {
+  /** Whether the menu is currently open. */
   open: boolean;
   side: Side;
   align: Align;
@@ -405,6 +413,7 @@ type ContextMenuPopupState = {
   transitionStatus: TransitionStatus;
   side: Side;
   align: Align;
+  /** Whether the menu is currently open. */
   open: boolean;
   nested: boolean;
   instant: 'dismiss' | 'click' | 'group' | undefined;
@@ -441,7 +450,13 @@ Re-export of [Arrow](#arrow) props.
 ### Arrow.State
 
 ```typescript
-type ContextMenuArrowState = { open: boolean; side: Side; align: Align; uncentered: boolean };
+type ContextMenuArrowState = {
+  /** Whether the menu is currently open. */
+  open: boolean;
+  side: Side;
+  align: Align;
+  uncentered: boolean;
+};
 ```
 
 ### Item
@@ -476,7 +491,12 @@ Re-export of [Item](#item) props.
 ### Item.State
 
 ```typescript
-type ContextMenuItemState = { disabled: boolean; highlighted: boolean };
+type ContextMenuItemState = {
+  /** Whether the item should ignore user interaction. */
+  disabled: boolean;
+  /** Whether the item is highlighted. */
+  highlighted: boolean;
+};
 ```
 
 ### Group
@@ -547,7 +567,10 @@ Re-export of [Separator](#separator) props.
 ### Separator.State
 
 ```typescript
-type ContextMenuSeparatorState = { orientation: Orientation };
+type ContextMenuSeparatorState = {
+  /** The orientation of the separator. */
+  orientation: Orientation;
+};
 ```
 
 ### SubmenuRoot
@@ -774,7 +797,14 @@ Re-export of [SubmenuTrigger](#submenutrigger) props.
 ### SubmenuTrigger.State
 
 ```typescript
-type ContextMenuSubmenuTriggerState = { disabled: boolean; highlighted: boolean; open: boolean };
+type ContextMenuSubmenuTriggerState = {
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+  /** Whether the item is highlighted. */
+  highlighted: boolean;
+  /** Whether the menu is currently open. */
+  open: boolean;
+};
 ```
 
 ### RadioGroup
@@ -995,7 +1025,14 @@ Re-export of [RadioItem](#radioitem) props.
 ### RadioItem.State
 
 ```typescript
-type ContextMenuRadioItemState = { disabled: boolean; highlighted: boolean; checked: boolean };
+type ContextMenuRadioItemState = {
+  /** Whether the radio item should ignore user interaction. */
+  disabled: boolean;
+  /** Whether the radio item is currently highlighted. */
+  highlighted: boolean;
+  /** Whether the radio item is currently selected. */
+  checked: boolean;
+};
 ```
 
 ### RadioItemIndicator
@@ -1030,7 +1067,9 @@ Re-export of [RadioItemIndicator](#radioitemindicator) props.
 
 ```typescript
 type ContextMenuRadioItemIndicatorState = {
+  /** Whether the radio item is currently selected. */
   checked: boolean;
+  /** Whether the component should ignore user interaction. */
   disabled: boolean;
   highlighted: boolean;
   transitionStatus: TransitionStatus;
@@ -1074,7 +1113,14 @@ Re-export of [CheckboxItem](#checkboxitem) props.
 ### CheckboxItem.State
 
 ```typescript
-type ContextMenuCheckboxItemState = { disabled: boolean; highlighted: boolean; checked: boolean };
+type ContextMenuCheckboxItemState = {
+  /** Whether the checkbox item should ignore user interaction. */
+  disabled: boolean;
+  /** Whether the checkbox item is currently highlighted. */
+  highlighted: boolean;
+  /** Whether the checkbox item is currently ticked. */
+  checked: boolean;
+};
 ```
 
 ### CheckboxItem.ChangeEventReason
@@ -1264,7 +1310,9 @@ Re-export of [CheckboxItemIndicator](#checkboxitemindicator) props.
 
 ```typescript
 type ContextMenuCheckboxItemIndicatorState = {
+  /** Whether the checkbox item is currently ticked. */
   checked: boolean;
+  /** Whether the component should ignore user interaction. */
   disabled: boolean;
   highlighted: boolean;
   transitionStatus: TransitionStatus;
@@ -1299,7 +1347,10 @@ Re-export of [LinkItem](#linkitem) props.
 ### LinkItem.State
 
 ```typescript
-type ContextMenuLinkItemState = { highlighted: boolean };
+type ContextMenuLinkItemState = {
+  /** Whether the item is highlighted. */
+  highlighted: boolean;
+};
 ```
 
 ## External Types

@@ -25,7 +25,10 @@ Re-export of [Separator](#separator) props.
 ### Separator.State
 
 ```typescript
-type SeparatorState = { orientation: Orientation };
+type SeparatorState = {
+  /** The orientation of the separator. */
+  orientation: Orientation;
+};
 ```
 
 ## External Types

@@ -47,9 +47,13 @@ Re-export of [Root](#root) props.
 
 ```typescript
 type RadioRootState = {
+  /** Whether the radio button is currently selected. */
   checked: boolean;
+  /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** Whether the user should be unable to select the radio button. */
   readOnly: boolean;
+  /** Whether the user must choose a value before submitting a form. */
   required: boolean;
   touched: boolean;
   dirty: boolean;
@@ -98,7 +102,11 @@ Re-export of [Indicator](#indicator) props.
 ### Indicator.State
 
 ```typescript
-type RadioIndicatorState = { checked: boolean; transitionStatus: TransitionStatus };
+type RadioIndicatorState = {
+  /** Whether the radio button is currently selected. */
+  checked: boolean;
+  transitionStatus: TransitionStatus;
+};
 ```
 
 ## Export Groups
