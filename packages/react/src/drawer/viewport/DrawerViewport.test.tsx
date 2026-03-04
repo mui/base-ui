@@ -147,8 +147,6 @@ describe('<Drawer.Viewport />', () => {
       </Drawer.Root>,
     );
 
-    await flushMicrotasks();
-
     const button = screen.getByTestId('button');
     const backdrop = screen.getByTestId('backdrop');
 
@@ -312,8 +310,6 @@ describe('<Drawer.Viewport />', () => {
       </Drawer.Root>,
     );
 
-    await flushMicrotasks();
-
     const button = screen.getByTestId('button');
     const backdrop = screen.getByTestId('backdrop');
 
@@ -387,8 +383,6 @@ describe('<Drawer.Viewport />', () => {
         </Drawer.Portal>
       </Drawer.Root>,
     );
-
-    await flushMicrotasks();
 
     const parentPopup = screen.getByTestId('parent-popup');
     const childPopup = screen.getByTestId('child-popup');
@@ -619,8 +613,6 @@ describe('<Drawer.Viewport />', () => {
       </Drawer.Root>,
     );
 
-    await flushMicrotasks();
-
     const range = screen.getByTestId('range');
     const backdrop = screen.getByTestId('backdrop');
 
@@ -668,8 +660,6 @@ describe('<Drawer.Viewport />', () => {
         </Drawer.Portal>
       </Drawer.Root>,
     );
-
-    await flushMicrotasks();
 
     const sliderInput = screen.getByRole('slider');
     const backdrop = screen.getByTestId('backdrop');
@@ -994,8 +984,6 @@ describe('<Drawer.Viewport />', () => {
       </Drawer.Root>,
     );
 
-    await flushMicrotasks();
-
     const scroll = screen.getByTestId('scroll');
     const backdrop = screen.getByTestId('backdrop');
     Object.defineProperty(scroll, 'scrollHeight', { value: 120, configurable: true });
@@ -1042,8 +1030,6 @@ describe('<Drawer.Viewport />', () => {
       </Drawer.Root>,
     );
 
-    await flushMicrotasks();
-
     const scroll = screen.getByTestId('scroll');
     const backdrop = screen.getByTestId('backdrop');
     Object.defineProperty(scroll, 'scrollWidth', { value: 120, configurable: true });
@@ -1089,8 +1075,6 @@ describe('<Drawer.Viewport />', () => {
         </Drawer.Portal>
       </Drawer.Root>,
     );
-
-    await flushMicrotasks();
 
     const scroll = screen.getByTestId('scroll');
     const backdrop = screen.getByTestId('backdrop');
@@ -1444,8 +1428,6 @@ describe('<Drawer.Viewport />', () => {
       </Drawer.Root>,
     );
 
-    await flushMicrotasks();
-
     const scroll = screen.getByTestId('scroll');
     const backdrop = screen.getByTestId('backdrop');
     Object.defineProperty(scroll, 'scrollHeight', { value: 120, configurable: true });
@@ -1497,8 +1479,6 @@ describe('<Drawer.Viewport />', () => {
         </Drawer.Portal>
       </Drawer.Root>,
     );
-
-    await flushMicrotasks();
 
     const scroll = screen.getByTestId('scroll');
     const backdrop = screen.getByTestId('backdrop');
@@ -1562,8 +1542,6 @@ describe('<Drawer.Viewport />', () => {
           </Drawer.Portal>
         </Drawer.Root>,
       );
-
-      await flushMicrotasks();
 
       const scroll = screen.getByTestId('scroll');
       const backdrop = screen.getByTestId('backdrop');
@@ -1801,8 +1779,6 @@ describe('<Drawer.Viewport />', () => {
       </Drawer.Root>,
     );
 
-    await flushMicrotasks();
-
     const viewport = screen.getByTestId('viewport');
     const popup = screen.getByTestId('popup');
     const backdrop = screen.getByTestId('backdrop');
@@ -1859,8 +1835,6 @@ describe('<Drawer.Viewport />', () => {
         </Drawer.Portal>
       </Drawer.Root>,
     );
-
-    await flushMicrotasks();
 
     const viewport = screen.getByTestId('viewport');
     const popup = screen.getByTestId('popup');
