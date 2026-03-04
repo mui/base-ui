@@ -10,7 +10,7 @@ import { sitemap } from 'docs/src/app/sitemap';
 import 'docs/src/css/index.css';
 import './layout.css';
 
-const isPrivate = process.env.DEPLOY_ENV !== 'production';
+const isPrivate = process.env.DEPLOY_ENV !== 'production' && process.env.DEPLOY_ENV !== 'staging';
 
 export default function Layout({ children }: React.PropsWithChildren) {
   return (
