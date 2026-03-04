@@ -37,7 +37,6 @@
   color: var(--calendar-root-color);
 }
 
-.SetMonth,
 .DecrementMonth,
 .IncrementMonth {
   border: none;

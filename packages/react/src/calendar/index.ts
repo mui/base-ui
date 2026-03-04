@@ -9,7 +9,6 @@ export type * from './day-grid-header-cell/CalendarDayGridHeaderCell';
 export type * from './day-grid-header-row/CalendarDayGridHeaderRow';
 export type * from './day-grid-row/CalendarDayGridRow';
 export type * from './day-button/CalendarDayButton';
-export type * from './set-month/CalendarSetMonth';
 export type * from './increment-month/CalendarIncrementMonth';
 export type * from './decrement-month/CalendarDecrementMonth';
 export type * from './viewport/CalendarViewport';

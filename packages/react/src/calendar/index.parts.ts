@@ -11,7 +11,6 @@ export { CalendarDayGridCell as DayGridCell } from './day-grid-cell/CalendarDayG
 export { CalendarDayButton as DayButton } from './day-button/CalendarDayButton';
 
 // Navigation
-export { CalendarSetMonth as SetMonth } from './set-month/CalendarSetMonth';
 export { CalendarDecrementMonth as DecrementMonth } from './decrement-month/CalendarDecrementMonth';
 export { CalendarIncrementMonth as IncrementMonth } from './increment-month/CalendarIncrementMonth';
 
