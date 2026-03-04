@@ -181,6 +181,8 @@
     --color-green: oklch(46% 30% 150deg);
     --color-purple: oklch(40% 45% 360deg);
     --color-violet: oklch(40% 60% 300deg);
+    --color-orange: oklch(58% 35% 55deg);
+    --color-pink: oklch(55% 45% 340deg);
 
     /* Typography */
     --text-xxs: 0.75rem;
@@ -223,6 +225,8 @@
       --color-navy: oklch(85% 25% 264deg);
       --color-purple: oklch(85% 30% 360deg);
       --color-violet: oklch(80% 60% 280deg);
+      --color-orange: oklch(78% 30% 55deg);
+      --color-pink: oklch(78% 35% 340deg);
     }
   }
 
@@ -248,6 +252,8 @@
     --color-green: initial;
     --color-purple: initial;
     --color-violet: initial;
+    --color-orange: initial;
+    --color-pink: initial;
 
     --text-xxs: initial;
     --text-xxs--line-height: initial;

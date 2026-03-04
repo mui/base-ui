@@ -1,24 +1,38 @@
 @layer components {
   .Code {
+    font-family: var(--font-mono);
     letter-spacing: normal;
+  }
 
-    /* In a code block */
-    pre & {
-      white-space: normal;
-    }
+  .Code-component {
+    color: var(--color-blue);
+    background-color: color-mix(in oklab, var(--color-blue), transparent 88%);
+    border-radius: var(--radius-sm);
+    padding-inline: 0.25em;
+  }
 
-    & [data-line] {
-      display: block;
-      white-space: pre;
-      padding-inline: 0.75rem;
-    }
+  .Code-prop {
+    color: var(--color-orange);
+  }
 
-    & [data-line]:empty {
-      height: 1lh;
-    }
+  .Code-html {
+    color: var(--color-green);
+  }
 
-    & mark {
-      display: inline-block;
-    }
+  .Code-js {
+    color: var(--color-pink);
+  }
+
+  .Code-css {
+    color: var(--color-violet);
+  }
+
+  /* Underline when inside a link */
+  a .Code,
+  .Link .Code {
+    text-decoration: underline;
+    text-decoration-color: currentColor;
+    text-underline-offset: 2px;
+    text-decoration-thickness: 1px;
   }
 }
