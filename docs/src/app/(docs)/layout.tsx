@@ -10,7 +10,7 @@ import { sitemap } from 'docs/src/app/sitemap';
 import 'docs/src/css/index.css';
 import './layout.css';
 
-const isPublic = process.env.DEPLOY_ENV === 'production';
+const isPrivate = process.env.DEPLOY_ENV !== 'production';
 
 export default function Layout({ children }: React.PropsWithChildren) {
   return (
@@ -46,7 +46,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
               <div className="RootLayoutContainer">
                 <div className="RootLayoutContent">
                   <div className="ContentLayoutRoot">
-                    <Header isPublic={isPublic} />
+                    <Header isPrivate={isPrivate} />
                     <SideNav.Root>
                       {sitemap &&
                         Object.entries(sitemap.data).map(([name, section]) => (
@@ -54,11 +54,11 @@ export default function Layout({ children }: React.PropsWithChildren) {
                             <SideNav.Heading>{name}</SideNav.Heading>
                             <SideNav.List>
                               {section.pages
-                                .filter((page) => (page.audience === 'private' ? !isPublic : true))
+                                .filter((page) => (page.audience === 'private' ? isPrivate : true))
                                 .map((page) => {
-                                  const isNew = page.tags?.includes('New');
-                                  const isPreview = page.tags?.includes('Preview');
-                                  const isPrivate = page.audience === 'private';
+                                  const isNewPage = page.tags?.includes('New');
+                                  const isPreviewPage = page.tags?.includes('Preview');
+                                  const isPrivatePage = page.audience === 'private';
 
                                   return (
                                     <SideNav.Item
@@ -71,9 +71,11 @@ export default function Layout({ children }: React.PropsWithChildren) {
                                       external={page.tags?.includes('External')}
                                     >
                                       {(page.title && titleMap[page.title]) || page.title}
-                                      {isPrivate && <SideNav.Badge>Private</SideNav.Badge>}
-                                      {isPreview && <SideNav.Badge>Preview</SideNav.Badge>}
-                                      {isNew && !isPreview && <SideNav.Badge>New</SideNav.Badge>}
+                                      {isPrivatePage && <SideNav.Badge>Private</SideNav.Badge>}
+                                      {isPreviewPage && <SideNav.Badge>Preview</SideNav.Badge>}
+                                      {isNewPage && !isPreviewPage && (
+                                        <SideNav.Badge>New</SideNav.Badge>
+                                      )}
                                     </SideNav.Item>
                                   );
                                 })}

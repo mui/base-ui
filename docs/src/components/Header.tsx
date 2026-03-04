@@ -14,7 +14,7 @@ export const titleMap: Record<string, string> = {
 
 export const HEADER_HEIGHT = 48;
 
-export function Header({ isPublic }: { isPublic: boolean }) {
+export function Header({ isPrivate }: { isPrivate: boolean }) {
   return (
     <header className="Header">
       <div className="HeaderInner">
@@ -23,7 +23,7 @@ export function Header({ isPublic }: { isPublic: boolean }) {
           <Logo aria-label="Base UI" />
         </NextLink>
         <div className="HeaderDesktopActions">
-          <Search containedScroll enableKeyboardShortcut isPublic={isPublic} />
+          <Search containedScroll enableKeyboardShortcut isPrivate={isPrivate} />
           <a
             className="HeaderLink"
             href="https://www.npmjs.com/package/@base-ui/react"
@@ -39,7 +39,7 @@ export function Header({ isPublic }: { isPublic: boolean }) {
         </div>
         <div className="HeaderMobileActions">
           <div className="HeaderMobileSearch">
-            <Search isPublic={isPublic} />
+            <Search isPrivate={isPrivate} />
           </div>
           {sitemap && (
             <MobileNav.Root>
@@ -55,7 +55,7 @@ export function Header({ isPublic }: { isPublic: boolean }) {
                       <MobileNav.Heading>{name}</MobileNav.Heading>
                       <MobileNav.List>
                         {section.pages
-                          .filter((page) => (page.audience === 'private' ? !isPublic : true))
+                          .filter((page) => (page.audience === 'private' ? isPrivate : true))
                           .map((page) => (
                             <MobileNav.Item
                               key={page.title}
@@ -70,9 +70,10 @@ export function Header({ isPublic }: { isPublic: boolean }) {
                               {page.audience === 'private' && (
                                 <MobileNav.Badge>Private</MobileNav.Badge>
                               )}
-                              {page.tags?.includes('New') && <MobileNav.Badge>New</MobileNav.Badge>}
-                              {page.tags?.includes('Preview') && (
+                              {page.tags?.includes('Preview') ? (
                                 <MobileNav.Badge>Preview</MobileNav.Badge>
+                              ) : (
+                                page.tags?.includes('New') && <MobileNav.Badge>New</MobileNav.Badge>
                               )}
                             </MobileNav.Item>
                           ))}

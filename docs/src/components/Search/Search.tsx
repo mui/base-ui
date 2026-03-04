@@ -6,18 +6,18 @@ const sitemap = () => import('../../app/sitemap');
 export function Search({
   enableKeyboardShortcut = false,
   containedScroll = false,
-  isPublic = false,
+  isPrivate = false,
 }: {
   enableKeyboardShortcut?: boolean;
   containedScroll?: boolean;
-  isPublic?: boolean;
+  isPrivate?: boolean;
 }) {
   return (
     <SearchBar
       sitemap={sitemap}
       enableKeyboardShortcut={enableKeyboardShortcut}
       containedScroll={containedScroll}
-      isPublic={isPublic}
+      isPrivate={isPrivate}
     />
   );
 }

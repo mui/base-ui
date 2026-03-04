@@ -87,12 +87,12 @@ export function SearchBar({
   sitemap: sitemapImport,
   enableKeyboardShortcut = false,
   containedScroll = false,
-  isPublic = false,
+  isPrivate = false,
 }: {
   sitemap: () => Promise<{ sitemap?: Sitemap }>;
   enableKeyboardShortcut?: boolean;
   containedScroll?: boolean;
-  isPublic?: boolean;
+  isPrivate?: boolean;
 }) {
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -125,7 +125,7 @@ export function SearchBar({
     enableStemming: true,
     includeCategoryInGroup: true,
     excludeSections: true,
-    isPublic,
+    isPrivate,
   });
 
   // Update search results when hook results change
