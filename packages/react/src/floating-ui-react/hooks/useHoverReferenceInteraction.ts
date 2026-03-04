@@ -5,12 +5,16 @@ import { isElement } from '@floating-ui/utils/dom';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument } from '@base-ui/utils/owner';
-import type { FloatingContext, FloatingRootContext } from '../types';
+import type {
+  Delay,
+  FloatingContext,
+  FloatingRootContext,
+  FloatingTreeType,
+  SafePolygonOptions,
+} from '../types';
 import { contains, isMouseLikePointerType, isTargetInsideEnabledTrigger } from '../utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import type { UseHoverProps } from './useHover';
-import { getDelay } from './useHover';
 import { useFloatingTree } from '../components/FloatingTree';
 import type { FloatingTreeStore } from '../components/FloatingTreeStore';
 import {
@@ -18,6 +22,73 @@ import {
   useHoverInteractionSharedState,
 } from './useHoverInteractionSharedState';
 import { FloatingUIOpenChangeDetails, HTMLProps } from '../../utils/types';
+
+export interface HandleCloseContext extends FloatingContext {
+  onClose: () => void;
+  tree?: FloatingTreeType | null | undefined;
+  leave?: boolean | undefined;
+}
+
+export interface HandleClose {
+  (context: HandleCloseContext): (event: MouseEvent) => void;
+  __options?: SafePolygonOptions | undefined;
+}
+
+export interface UseHoverProps {
+  /**
+   * Whether the Hook is enabled, including all internal Effects and event handlers.
+   * @default true
+   */
+  enabled?: boolean | undefined;
+  /**
+   * Accepts an event handler that runs on `mousemove` to control when the
+   * floating element closes once the cursor leaves the reference element.
+   * @default null
+   */
+  handleClose?: HandleClose | null | undefined;
+  /**
+   * Waits until the user’s cursor is at “rest” over the reference element
+   * before changing the `open` state.
+   * @default 0
+   */
+  restMs?: number | (() => number) | undefined;
+  /**
+   * Waits for the specified time when the event listener runs before changing
+   * the `open` state.
+   * @default 0
+   */
+  delay?: Delay | (() => Delay) | undefined;
+  /**
+   * Whether moving the cursor over the floating element will open it, without a
+   * regular hover event required.
+   * @default true
+   */
+  move?: boolean | undefined;
+}
+
+export function getDelay(
+  value: UseHoverProps['delay'],
+  prop: 'open' | 'close',
+  pointerType?: PointerEvent['pointerType'],
+) {
+  if (pointerType && !isMouseLikePointerType(pointerType)) {
+    return 0;
+  }
+
+  if (typeof value === 'number') {
+    return value;
+  }
+
+  if (typeof value === 'function') {
+    const result = value();
+    if (typeof result === 'number') {
+      return result;
+    }
+    return result?.[prop];
+  }
+
+  return value?.[prop];
+}
 
 export interface UseHoverReferenceInteractionProps extends UseHoverProps {
   enabled?: boolean | undefined;
@@ -51,6 +122,7 @@ export function useHoverReferenceInteraction(
   props: UseHoverReferenceInteractionProps = {},
 ): HTMLProps | undefined {
   const store = 'rootStore' in context ? context.rootStore : context;
+  const domReferenceElement = store.useState('domReferenceElement');
   const { dataRef, events } = store.context;
 
   const {
@@ -159,7 +231,7 @@ export function useHoverReferenceInteraction(
 
     const trigger =
       (triggerElementRef.current as HTMLElement | null) ??
-      (isActiveTrigger ? (store.select('domReferenceElement') as HTMLElement | null) : null);
+      (isActiveTrigger ? (domReferenceElement as HTMLElement | null) : null);
 
     if (!isElement(trigger)) {
       return undefined;
@@ -188,7 +260,7 @@ export function useHoverReferenceInteraction(
           allTriggers.hasMatchingElement((t) => contains(t, event.target as Element))) &&
         (!currentDomReference || !contains(currentDomReference, event.target as Element));
 
-      const triggerNode = (event.currentTarget as HTMLElement) ?? null;
+      const triggerNode = (event.currentTarget as HTMLElement | null) ?? undefined;
 
       const isOpen = store.select('open');
       const shouldOpen = !isOpen || isOverInactiveTrigger;
@@ -198,7 +270,14 @@ export function useHoverReferenceInteraction(
         store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
       } else if (openDelay) {
         instance.openChangeTimeout.start(openDelay, () => {
-          if (shouldOpen) {
+          const latestDomReference = store.select('domReferenceElement');
+          const shouldOpenForCurrentReference =
+            triggerElementRef.current != null
+              ? triggerElementRef.current === triggerNode
+              : !isActiveTrigger ||
+                !!(latestDomReference && contains(latestDomReference, triggerNode));
+
+          if (shouldOpen && shouldOpenForCurrentReference) {
             store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
           }
         });
@@ -215,7 +294,6 @@ export function useHoverReferenceInteraction(
 
       cleanupMouseMoveHandler();
 
-      const domReferenceElement = store.select('domReferenceElement');
       const doc = ownerDocument(domReferenceElement);
       instance.restTimeout.clear();
       instance.restTimeoutPending = false;
@@ -229,7 +307,9 @@ export function useHoverReferenceInteraction(
           instance.openChangeTimeout.clear();
         }
 
-        const currentTrigger = triggerElementRef.current;
+        const currentTrigger =
+          (triggerElementRef.current as HTMLElement | null) ??
+          (isActiveTrigger ? (store.select('domReferenceElement') as HTMLElement | null) : null);
 
         instance.handler = handleCloseRef.current({
           ...dataRef.current.floatingContext,
@@ -301,6 +381,7 @@ export function useHoverReferenceInteraction(
     triggerElementRef,
     tree,
     enabledRef,
+    domReferenceElement,
   ]);
 
   return React.useMemo<HTMLProps | undefined>(() => {

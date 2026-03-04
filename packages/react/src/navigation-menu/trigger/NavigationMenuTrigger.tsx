@@ -10,7 +10,8 @@ import {
   useClick,
   useFloatingRootContext,
   useFloatingTree,
-  useHover,
+  useHoverFloatingInteraction,
+  useHoverReferenceInteraction,
   useInteractions,
 } from '../../floating-ui-react';
 import {
@@ -31,12 +32,13 @@ import { REASONS } from '../../utils/reasons';
 import { EMPTY_ARRAY, ownerVisuallyHidden, PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
-import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import { useButton } from '../../use-button';
 import { NavigationMenuRoot } from '../root/NavigationMenuRoot';
 import { NAVIGATION_MENU_TRIGGER_IDENTIFIER } from '../utils/constants';
 import { useNavigationMenuDismissContext } from '../list/NavigationMenuDismissContext';
+import { useNavigationMenuTriggerGroupContext } from '../trigger-group/NavigationMenuTriggerGroupContext';
+import { handleNavigationMenuBlur } from '../utils/handleNavigationMenuBlur';
 
 /**
  * Opens the navigation menu popup when hovered or clicked, revealing the
@@ -77,6 +79,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const nodeId = useNavigationMenuTreeContext();
   const tree = useFloatingTree();
   const dismissProps = useNavigationMenuDismissContext();
+  const insideTriggerGroup = useNavigationMenuTriggerGroupContext();
 
   const stickIfOpenTimeout = useTimeout();
   const focusFrame = useAnimationFrame();
@@ -114,6 +117,10 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     eventDetails: NavigationMenuRoot.ChangeEventDetails,
   ) {
     const isHover = eventDetails.reason === REASONS.triggerHover;
+
+    if (insideTriggerGroup && isHover) {
+      return;
+    }
 
     if (!interactionsEnabled) {
       return;
@@ -162,11 +169,16 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     },
   });
 
-  const hover = useHover(context, {
+  const hoverProps = useHoverReferenceInteraction(context, {
+    enabled: !insideTriggerGroup,
     move: false,
     handleClose: safePolygon({ blockPointerEvents: pointerType !== 'touch' }),
     restMs: mounted && positionerElement ? 0 : delay,
     delay: { close: closeDelay },
+  });
+  useHoverFloatingInteraction(context, {
+    enabled: !insideTriggerGroup,
+    closeDelay,
   });
   const click = useClick(context, {
     enabled: interactionsEnabled,
@@ -175,12 +187,22 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   });
   useIsoLayoutEffect(() => {
     if (isActiveItem) {
-      setFloatingRootContext(context);
       prevTriggerElementRef.current = triggerElement;
-    }
-  }, [isActiveItem, context, setFloatingRootContext, prevTriggerElementRef, triggerElement]);
 
-  const { getReferenceProps } = useInteractions([hover, click]);
+      if (!insideTriggerGroup) {
+        setFloatingRootContext(context);
+      }
+    }
+  }, [
+    isActiveItem,
+    insideTriggerGroup,
+    context,
+    setFloatingRootContext,
+    prevTriggerElementRef,
+    triggerElement,
+  ]);
+
+  const { getReferenceProps } = useInteractions([click, { reference: hoverProps }]);
 
   function handleActivation(event: React.MouseEvent | React.KeyboardEvent) {
     ReactDOM.flushSync(() => {
@@ -231,8 +253,19 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   const defaultProps: HTMLProps = {
     tabIndex: 0,
-    onMouseEnter: handleActivation,
-    onClick: handleActivation,
+    onMouseEnter(event) {
+      if (insideTriggerGroup) {
+        return;
+      }
+      handleActivation(event);
+    },
+    onClick(event) {
+      if (insideTriggerGroup) {
+        allowFocusRef.current = true;
+      }
+
+      handleActivation(event);
+    },
     onPointerEnter: handleSetPointerType,
     onPointerDown: handleSetPointerType,
     'aria-expanded': isActiveItem,
@@ -248,8 +281,6 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       allowFocusRef.current = false;
     },
     onKeyDown(event) {
-      allowFocusRef.current = true;
-
       // For nested (submenu) triggers, don't intercept arrow keys that are used for
       // navigation in the parent content. The arrow keys should be handled by the
       // parent's CompositeRoot for navigating between items.
@@ -261,25 +292,22 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       const openVertical = orientation === 'vertical' && event.key === 'ArrowRight';
 
       if (openHorizontal || openVertical) {
+        allowFocusRef.current = true;
         setValue(itemValue, createChangeEventDetails(REASONS.listNavigation, event.nativeEvent));
         handleActivation(event);
         stopEvent(event);
       }
     },
     onBlur(event) {
-      if (
-        positionerElement &&
-        popupElement &&
-        isOutsideMenuEvent(
-          {
-            currentTarget: event.currentTarget,
-            relatedTarget: event.relatedTarget as HTMLElement | null,
-          },
-          { popupElement, rootRef, tree, nodeId },
-        )
-      ) {
-        setValue(null, createChangeEventDetails(REASONS.focusOut, event.nativeEvent));
-      }
+      handleNavigationMenuBlur({
+        event,
+        popupElement,
+        positionerElement,
+        rootRef,
+        tree,
+        nodeId,
+        setValue,
+      });
     },
   };
 

@@ -27,7 +27,8 @@ import {
   useFloating,
   useFloatingNodeId,
   useFloatingParentNodeId,
-  useHover,
+  useHoverFloatingInteraction,
+  useHoverReferenceInteraction,
   useInteractions,
   useRole,
 } from '../index';
@@ -1773,9 +1774,12 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
         onOpenChange: setIsOpen,
       });
 
-      const hover = useHover(context);
+      const hoverReferenceProps = useHoverReferenceInteraction(context);
+      useHoverFloatingInteraction(context);
 
-      const { getReferenceProps, getFloatingProps } = useInteractions([hover]);
+      const { getReferenceProps, getFloatingProps } = useInteractions([
+        { reference: hoverReferenceProps },
+      ]);
 
       return (
         <>
@@ -1814,9 +1818,12 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
         onOpenChange: setIsOpen,
       });
 
-      const hover = useHover(context);
+      const hoverReferenceProps = useHoverReferenceInteraction(context);
+      useHoverFloatingInteraction(context);
 
-      const { getReferenceProps, getFloatingProps } = useInteractions([hover]);
+      const { getReferenceProps, getFloatingProps } = useInteractions([
+        { reference: hoverReferenceProps },
+      ]);
 
       return (
         <>

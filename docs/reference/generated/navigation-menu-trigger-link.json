@@ -1,0 +1,35 @@
+{
+  "name": "NavigationMenuTriggerLink",
+  "description": "A link that can be placed inside `TriggerGroup` for top-level navigation.\nRenders an `<a>` element.",
+  "props": {
+    "active": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the trigger link points to the currently active page.",
+      "detailedType": "boolean | undefined"
+    },
+    "className": {
+      "type": "string | ((state: NavigationMenu.TriggerLink.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((\n    state: NavigationMenu.TriggerLink.State,\n  ) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: NavigationMenu.TriggerLink.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: NavigationMenu.TriggerLink.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: NavigationMenu.TriggerLink.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: NavigationMenu.TriggerLink.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {
+    "data-popup-open": {
+      "description": "Present when the corresponding navigation menu is open."
+    },
+    "data-active": {
+      "description": "Present when the trigger link points to the currently active page."
+    }
+  },
+  "cssVariables": {}
+}

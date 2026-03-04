@@ -51,6 +51,14 @@ import { DemoNavigationMenuNested } from './demos/nested';
 
 <DemoNavigationMenuNested compact />
 
+### Top-level links with menus
+
+To keep top-level links navigable while preserving keyboard access to submenus, use `<NavigationMenu.TriggerGroup>` with a `<NavigationMenu.TriggerLink>` for navigation and a neighboring `<NavigationMenu.Trigger>` for disclosure.
+
+import { DemoNavigationMenuTopLevelLinks } from './demos/top-level-links';
+
+<DemoNavigationMenuTopLevelLinks compact />
+
 ### Custom links
 
 The `<NavigationMenu.Link>` part can be customized to render the link from your framework using the `render` prop to enable client-side routing.
@@ -104,7 +112,7 @@ Native scrollbars are visible while transitioning content, so we recommend using
 
 <Reference
   component="NavigationMenu"
-  parts="Root, List, Item, Trigger, Icon, Content, Link, Backdrop, Portal, Positioner, Popup, Viewport, Arrow"
+  parts="Root, List, Item, TriggerGroup, TriggerLink, Trigger, Icon, Content, Link, Backdrop, Portal, Positioner, Popup, Viewport, Arrow"
 />
 
 export const metadata = {

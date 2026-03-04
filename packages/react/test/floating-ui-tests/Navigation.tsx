@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
-import { getEmptyRootContext } from '../../src/floating-ui-react/utils/getEmptyRootContext';
 import {
   flip,
   FloatingFocusManager,
@@ -14,7 +13,8 @@ import {
   useFloating,
   useFloatingNodeId,
   useFocus,
-  useHover,
+  useHoverFloatingInteraction,
+  useHoverReferenceInteraction,
   useInteractions,
 } from '../../src/floating-ui-react';
 import styles from './Navigation.module.css';
@@ -49,7 +49,6 @@ export const NavigationItem = React.forwardRef<
 >(function NavigationItem({ children, label, href, ...props }, ref) {
   const [open, setOpen] = React.useState(false);
   const hasChildren = !!children;
-  const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
 
   const nodeId = useFloatingNodeId();
 
@@ -60,11 +59,14 @@ export const NavigationItem = React.forwardRef<
     middleware: [offset(8), flip(), shift()],
     placement: 'right-start',
   });
+  const hoverReferenceProps = useHoverReferenceInteraction(context, {
+    enabled: hasChildren,
+    handleClose: safePolygon(),
+  });
+  useHoverFloatingInteraction(context, { enabled: hasChildren });
 
   const { getReferenceProps, getFloatingProps } = useInteractions([
-    useHover(hasChildren ? context : fallbackContext, {
-      handleClose: safePolygon(),
-    }),
+    { reference: hoverReferenceProps },
     useFocus(context, {
       enabled: hasChildren,
     }),

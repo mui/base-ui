@@ -1,7 +1,7 @@
 import { isElement } from '@floating-ui/utils/dom';
 import { Timeout } from '@base-ui/utils/useTimeout';
 import type { Rect, Side } from './types';
-import type { HandleClose } from './hooks/useHover';
+import type { HandleClose } from './hooks/useHoverReferenceInteraction';
 import { contains, getTarget } from './utils/element';
 import { getNodeChildren } from './utils/nodes';
 

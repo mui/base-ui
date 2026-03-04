@@ -6,10 +6,10 @@ import {
   useNavigationMenuRootContext,
   useNavigationMenuTreeContext,
 } from '../root/NavigationMenuRootContext';
-import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
+import { handleNavigationMenuBlur } from '../utils/handleNavigationMenuBlur';
 
 /**
  * A link in the navigation menu that can be used to navigate to a different page or section.
@@ -46,19 +46,15 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
       }
     },
     onBlur(event) {
-      if (
-        positionerElement &&
-        popupElement &&
-        isOutsideMenuEvent(
-          {
-            currentTarget: event.currentTarget,
-            relatedTarget: event.relatedTarget as HTMLElement | null,
-          },
-          { popupElement, rootRef, tree, nodeId },
-        )
-      ) {
-        setValue(null, createChangeEventDetails(REASONS.focusOut, event.nativeEvent));
-      }
+      handleNavigationMenuBlur({
+        event,
+        popupElement,
+        positionerElement,
+        rootRef,
+        tree,
+        nodeId,
+        setValue,
+      });
     },
   };
 

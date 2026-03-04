@@ -27,13 +27,13 @@ export interface UseClickProps {
    */
   toggle?: boolean | undefined;
   /**
-   * Whether to ignore the logic for mouse input (for example, if `useHover()`
-   * is also being used).
+   * Whether to ignore the logic for mouse input (for example, if
+   * `useHoverReferenceInteraction()` is also being used).
    * @default false
    */
   ignoreMouse?: boolean | undefined;
   /**
-   * If already open from another event such as the `useHover()` Hook,
+   * If already open from another event such as hover interactions,
    * determines whether to keep the floating element open when clicking the
    * reference element for the first time.
    * @default true

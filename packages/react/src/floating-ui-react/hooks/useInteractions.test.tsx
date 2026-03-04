@@ -7,7 +7,8 @@ import {
   useDismiss,
   useFloating,
   useFocus,
-  useHover,
+  useHoverFloatingInteraction,
+  useHoverReferenceInteraction,
   useInteractions,
   useListNavigation,
   useRole,
@@ -111,12 +112,14 @@ describe('useInteractions', () => {
 
       const listRef = React.useRef([]);
       const { context } = useFloating({ open, onOpenChange: setOpen });
+      const hoverReferenceProps = useHoverReferenceInteraction(context, { handleClose });
+      useHoverFloatingInteraction(context);
 
       // NOTE: if `ref`-related props are not memoized, this will cause
       // an infinite loop as they must be memoized externally (as done by React).
       // Other non-primitives like functions and arrays get memoized by the hooks.
       const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
-        useHover(context, { handleClose }),
+        { reference: hoverReferenceProps },
         useFocus(context),
         useClick(context),
         useRole(context),

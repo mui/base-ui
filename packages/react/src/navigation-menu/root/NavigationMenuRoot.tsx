@@ -95,7 +95,9 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   const setValue = useStableCallback(
     (nextValue: any, eventDetails: NavigationMenuRoot.ChangeEventDetails) => {
       if (!nextValue) {
-        closeReasonRef.current = eventDetails.reason;
+        if (closeReasonRef.current == null || eventDetails.reason === REASONS.escapeKey) {
+          closeReasonRef.current = eventDetails.reason;
+        }
         setActivationDirection(null);
         setFloatingRootContext(undefined);
 
@@ -120,16 +122,18 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   const handleUnmount = useStableCallback(() => {
     const doc = ownerDocument(rootRef.current);
     const activeEl = activeElement(doc);
+    const focusInsidePopup = popupElement ? contains(popupElement, activeEl) : false;
+    const focusOnBody = activeEl === doc.body;
 
     const isReturnFocusBlocked = closeReasonRef.current
       ? blockedReturnFocusReasons.has(closeReasonRef.current)
       : false;
+    const shouldForceReturnFocus = closeReasonRef.current === REASONS.escapeKey;
 
     if (
       !isReturnFocusBlocked &&
       isHTMLElement(prevTriggerElementRef.current) &&
-      (activeEl === ownerDocument(popupElement).body || contains(popupElement, activeEl)) &&
-      popupElement
+      (shouldForceReturnFocus || focusOnBody || focusInsidePopup)
     ) {
       prevTriggerElementRef.current.focus({ preventScroll: true });
       prevTriggerElementRef.current = undefined;

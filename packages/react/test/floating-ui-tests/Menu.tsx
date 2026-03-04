@@ -4,7 +4,6 @@ import * as React from 'react';
 import { useMergedRefsN } from '@base-ui/utils/useMergedRefs';
 import { CompositeList } from '../../src/composite/list/CompositeList';
 import { useCompositeListItem } from '../../src/composite/list/useCompositeListItem';
-import { getEmptyRootContext } from '../../src/floating-ui-react/utils/getEmptyRootContext';
 import {
   autoUpdate,
   flip,
@@ -21,7 +20,8 @@ import {
   useFloatingNodeId,
   useFloatingParentNodeId,
   useFloatingTree,
-  useHover,
+  useHoverFloatingInteraction,
+  useHoverReferenceInteraction,
   useInteractions,
   useListNavigation,
   useRole,
@@ -107,13 +107,14 @@ export const MenuComponent = React.forwardRef<
     ],
     whileElementsMounted: autoUpdate,
   });
-  const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
-  const hoverContext = isNested && allowHover ? context : fallbackContext;
+  const hoverEnabled = isNested && allowHover;
 
-  const hover = useHover(hoverContext, {
+  const hoverReferenceProps = useHoverReferenceInteraction(context, {
+    enabled: hoverEnabled,
     delay: { open: 75 },
     handleClose: safePolygon({ blockPointerEvents: true }),
   });
+  useHoverFloatingInteraction(context, { enabled: hoverEnabled });
   const click = useClick(context, {
     event: 'mousedown',
     toggle: !isNested || !allowHover,
@@ -137,7 +138,7 @@ export const MenuComponent = React.forwardRef<
   });
 
   const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
-    hover,
+    { reference: hoverReferenceProps },
     click,
     role,
     dismiss,

@@ -2,6 +2,8 @@ export { NavigationMenuRoot as Root } from './root/NavigationMenuRoot';
 export { NavigationMenuList as List } from './list/NavigationMenuList';
 export { NavigationMenuItem as Item } from './item/NavigationMenuItem';
 export { NavigationMenuContent as Content } from './content/NavigationMenuContent';
+export { NavigationMenuTriggerGroup as TriggerGroup } from './trigger-group/NavigationMenuTriggerGroup';
+export { NavigationMenuTriggerLink as TriggerLink } from './trigger-link/NavigationMenuTriggerLink';
 export { NavigationMenuTrigger as Trigger } from './trigger/NavigationMenuTrigger';
 export { NavigationMenuPortal as Portal } from './portal/NavigationMenuPortal';
 export { NavigationMenuPositioner as Positioner } from './positioner/NavigationMenuPositioner';
