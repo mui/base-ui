@@ -8,5 +8,5 @@ expectType<typeof REASONS.incrementPress, typeof incrementDetails.reason>(increm
 const keyboardDetails = createGenericEventDetails(REASONS.keyboard);
 expectType<typeof REASONS.keyboard, typeof keyboardDetails.reason>(keyboardDetails.reason);
 
-// @ts-expect-error reason must exist in ReasonToEventMap
+// @ts-expect-error reason must exist in REASONS
 createGenericEventDetails('invalid-reason');
