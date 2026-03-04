@@ -2,7 +2,7 @@ export {};
 
 declare global {
   interface Env {
-    NODE_ENV?: 'production';
+    NODE_ENV?: 'production' | undefined;
   }
 
   interface Process {
