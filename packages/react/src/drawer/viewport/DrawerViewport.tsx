@@ -36,6 +36,17 @@ const MAX_SWIPE_RELEASE_DURATION_MS = 360;
 const MIN_SWIPE_RELEASE_SCALAR = 0.1;
 const MAX_SWIPE_RELEASE_SCALAR = 1;
 
+interface TouchScrollState {
+  startX: number;
+  startY: number;
+  lastX: number;
+  lastY: number;
+  scrollTarget: HTMLElement | null;
+  hasCrossAxisScrollableContent: boolean;
+  allowSwipe: boolean | null;
+  preserveNativeCrossAxisScroll: boolean;
+}
+
 /**
  * A positioning container for the drawer popup that can be made scrollable.
  * Renders a `<div>` element.
@@ -69,6 +80,8 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   const nestedDrawerOpen = nestedOpenDialogCount > 0;
   const scrollAxis =
     swipeDirection === 'left' || swipeDirection === 'right' ? 'horizontal' : 'vertical';
+  const isVerticalScrollAxis = scrollAxis === 'vertical';
+  const crossScrollAxis: ScrollAxis = isVerticalScrollAxis ? 'horizontal' : 'vertical';
 
   const {
     snapPoints,
@@ -86,12 +99,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   const nestedSwipeActiveRef = React.useRef(false);
   const lastPointerTypeRef = React.useRef<React.PointerEvent['pointerType'] | ''>('');
   const ignoreNextTouchStartFromPenRef = React.useRef(false);
-  const touchScrollStateRef = React.useRef<{
-    lastX: number;
-    lastY: number;
-    scrollTarget: HTMLElement | null;
-    allowSwipe: boolean | null;
-  } | null>(null);
+  const touchScrollStateRef = React.useRef<TouchScrollState | null>(null);
 
   const snapPointRange = React.useMemo(() => {
     if (!snapPoints || snapPoints.length < 2) {
@@ -734,28 +742,32 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         return;
       }
 
-      const updateTouchPosition = () => {
-        touchState.lastX = touch.clientX;
-        touchState.lastY = touch.clientY;
-      };
+      const drawerAxisDelta = isVerticalScrollAxis
+        ? touch.clientY - touchState.lastY
+        : touch.clientX - touchState.lastX;
 
       // Preserve native range interaction by never locking touchmove for range inputs.
       if (isEventOnRangeInput(event, win)) {
         touchState.allowSwipe = false;
-        updateTouchPosition();
+        updateTouchScrollPosition(touchState, touch);
         return;
       }
 
       // Avoid blocking pinch zoom or text selection adjustments on iOS Safari.
       if (event.touches.length === 2) {
-        updateTouchPosition();
+        updateTouchScrollPosition(touchState, touch);
         return;
       }
 
       const allowTouchMove = shouldIgnoreSwipeForTextSelection(doc, resolvedRootElement);
 
       if (allowTouchMove || !open || !mounted || nestedDrawerOpen) {
-        updateTouchPosition();
+        updateTouchScrollPosition(touchState, touch);
+        return;
+      }
+
+      if (preserveNativeCrossAxisScrollOnMove(touchState, touch, isVerticalScrollAxis)) {
+        updateTouchScrollPosition(touchState, touch);
         return;
       }
 
@@ -764,7 +776,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         if (event.cancelable) {
           event.preventDefault();
         }
-        updateTouchPosition();
+        updateTouchScrollPosition(touchState, touch);
         return;
       }
 
@@ -775,14 +787,11 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         if (event.cancelable) {
           event.preventDefault();
         }
-        updateTouchPosition();
+        updateTouchScrollPosition(touchState, touch);
         return;
       }
 
-      const delta =
-        scrollAxis === 'vertical'
-          ? touch.clientY - touchState.lastY
-          : touch.clientX - touchState.lastX;
+      const delta = drawerAxisDelta;
       if (delta !== 0) {
         const canSwipeFromScrollEdge = canSwipeFromScrollEdgeOnMove(
           scrollTarget,
@@ -791,7 +800,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           delta,
         );
 
-        if (touchState.allowSwipe !== true) {
+        if (!touchState.allowSwipe) {
           if (!event.cancelable) {
             touchState.allowSwipe = false;
           } else if (canSwipeFromScrollEdge) {
@@ -805,7 +814,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         }
       }
 
-      updateTouchPosition();
+      updateTouchScrollPosition(touchState, touch);
     }
 
     doc.addEventListener('touchmove', handleNativeTouchMove, { passive: false, capture: true });
@@ -818,6 +827,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     nestedDrawerOpen,
     open,
     popupElementState,
+    isVerticalScrollAxis,
     scrollAxis,
     swipeDirection,
     viewportElement,
@@ -978,10 +988,13 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
 
           const rootElement = viewportElement ?? popupElementState;
           const target = isElement(event.target) ? event.target : null;
-          const scrollTarget =
-            rootElement && target && contains(rootElement, target)
-              ? findScrollableTouchTarget(target, rootElement, scrollAxis)
-              : null;
+          let scrollTarget: HTMLElement | null = null;
+          let hasCrossAxisScrollableContent = false;
+          if (rootElement && target && contains(rootElement, target)) {
+            scrollTarget = findScrollableTouchTarget(target, rootElement, scrollAxis);
+            hasCrossAxisScrollableContent =
+              findScrollableTouchTarget(target, rootElement, crossScrollAxis) != null;
+          }
 
           let allowSwipe: boolean | null = null;
           if (scrollTarget) {
@@ -990,10 +1003,14 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           }
 
           touchScrollStateRef.current = {
+            startX: touch.clientX,
+            startY: touch.clientY,
             lastX: touch.clientX,
             lastY: touch.clientY,
             scrollTarget,
+            hasCrossAxisScrollableContent,
             allowSwipe,
+            preserveNativeCrossAxisScroll: false,
           };
 
           swipeTouchProps.onTouchStart?.(event);
@@ -1004,7 +1021,14 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           }
 
           const touchState = touchScrollStateRef.current;
-          if (touchState?.scrollTarget && touchState.allowSwipe !== true) {
+          if (touchState?.preserveNativeCrossAxisScroll) {
+            return;
+          }
+
+          if (
+            touchState?.allowSwipe === false ||
+            (touchState?.scrollTarget != null && !touchState.allowSwipe)
+          ) {
             return;
           }
 
@@ -1149,6 +1173,41 @@ function isEventOnRangeInput(event: TouchEvent, win: ReturnType<typeof ownerWind
 
 function isReactTouchEventOnRangeInput(event: React.TouchEvent<Element>): boolean {
   return isEventOnRangeInput(event.nativeEvent, ownerWindow(event.currentTarget));
+}
+
+function updateTouchScrollPosition(touchState: TouchScrollState, touch: Touch): void {
+  touchState.lastX = touch.clientX;
+  touchState.lastY = touch.clientY;
+}
+
+function preserveNativeCrossAxisScrollOnMove(
+  touchState: TouchScrollState,
+  touch: Touch,
+  isVerticalScrollAxis: boolean,
+): boolean {
+  if (touchState.preserveNativeCrossAxisScroll) {
+    return true;
+  }
+
+  if (touchState.allowSwipe === true || !touchState.hasCrossAxisScrollableContent) {
+    return false;
+  }
+
+  const drawerAxisGestureDelta = isVerticalScrollAxis
+    ? touch.clientY - touchState.startY
+    : touch.clientX - touchState.startX;
+  const crossAxisGestureDelta = isVerticalScrollAxis
+    ? touch.clientX - touchState.startX
+    : touch.clientY - touchState.startY;
+  const absDrawerAxisGestureDelta = Math.abs(drawerAxisGestureDelta);
+  const absCrossAxisGestureDelta = Math.abs(crossAxisGestureDelta);
+
+  if (absCrossAxisGestureDelta < 6 || absCrossAxisGestureDelta <= absDrawerAxisGestureDelta + 2) {
+    return false;
+  }
+
+  touchState.preserveNativeCrossAxisScroll = true;
+  return true;
 }
 
 function hasScrollableContentOnAxis(scrollTarget: HTMLElement, axis: ScrollAxis): boolean {

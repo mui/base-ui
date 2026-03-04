@@ -2922,6 +2922,44 @@ describe('<Combobox.Root />', () => {
       expect(input).to.have.attribute('aria-activedescendant', alpha.id);
     });
 
+    it('keeps gridcell typeahead active across Space in row mode without selecting', async () => {
+      const onValueChange = spy();
+      const { user } = await render(
+        <Combobox.Root autoHighlight grid onValueChange={onValueChange}>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Row>
+                    <Combobox.Item value="new-york">new york</Combobox.Item>
+                    <Combobox.Item value="new-jersey">new jersey</Combobox.Item>
+                  </Combobox.Row>
+                  <Combobox.Row>
+                    <Combobox.Item value="old-town">old town</Combobox.Item>
+                    <Combobox.Item value="other">other</Combobox.Item>
+                  </Combobox.Row>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      await user.type(input, 'new');
+
+      const newYork = screen.getByRole('gridcell', { name: 'new york' });
+      await waitFor(() => expect(newYork).to.have.attribute('data-highlighted'));
+      expect(input).to.have.attribute('aria-activedescendant', newYork.id);
+
+      await user.type(input, ' ');
+      expect(newYork).to.have.attribute('data-highlighted');
+      expect(input).to.have.attribute('aria-activedescendant', newYork.id);
+      expect(input).to.have.value('new ');
+      expect(onValueChange.called).to.equal(false);
+    });
+
     it('retains highlight when query is cleared back to empty', async () => {
       const { user } = await render(
         <Combobox.Root items={['apple', 'banana', 'cherry']} autoHighlight>
