@@ -20,7 +20,6 @@ import { useFloatingParentNodeId, useFloatingTree } from '../components/Floating
 import {
   clearSafePolygonPointerEventsMutation,
   isInteractiveElement,
-  safePolygonIdentifier,
   useHoverInteractionSharedState,
 } from './useHoverInteractionSharedState';
 
@@ -149,7 +148,6 @@ export function useHoverFloatingInteraction(
       const scopeElement = parentFloating ?? ref.closest('[data-rootownerid]') ?? doc.body;
 
       instance.pointerEventsScopeElement = scopeElement;
-      scopeElement.setAttribute(safePolygonIdentifier, '');
       scopeElement.style.pointerEvents = 'none';
       ref.style.pointerEvents = 'auto';
       floatingEl.style.pointerEvents = 'auto';

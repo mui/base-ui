@@ -4,10 +4,8 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Timeout } from '@base-ui/utils/useTimeout';
 
 import type { ContextData, FloatingRootContext, SafePolygonOptions } from '../types';
-import { createAttribute } from '../utils/createAttribute';
 import { TYPEABLE_SELECTOR } from '../utils/constants';
 
-export const safePolygonIdentifier = createAttribute('safe-polygon');
 const interactiveSelector = `button,a,[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`;
 
 export function isInteractiveElement(element: Element | null) {
@@ -63,7 +61,6 @@ export function clearSafePolygonPointerEventsMutation(
 
   const scopeElement = instance.pointerEventsScopeElement ?? fallbackScopeElement;
   scopeElement.style.pointerEvents = '';
-  scopeElement.removeAttribute(safePolygonIdentifier);
   instance.performedPointerEventsMutation = false;
   instance.pointerEventsScopeElement = null;
 }

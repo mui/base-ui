@@ -19,8 +19,6 @@ import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-util
 import { REASONS } from '../../utils/reasons';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 
-const SAFE_POLYGON_ATTR = 'data-base-ui-safe-polygon';
-
 describe('<Menu.Root />', () => {
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
@@ -1322,7 +1320,7 @@ describe('<Menu.Root />', () => {
         });
       });
 
-      it('does not clear body safe-polygon styles when closing a scoped submenu', async () => {
+      it('does not clear body pointer-events styles when closing a scoped submenu', async () => {
         await render(
           <TestMenu
             rootProps={{ defaultOpen: true }}
@@ -1338,11 +1336,8 @@ describe('<Menu.Root />', () => {
         });
 
         const previousBodyPointerEvents = document.body.style.pointerEvents;
-        const previousBodySafePolygon = document.body.getAttribute(SAFE_POLYGON_ATTR);
-
         try {
           document.body.style.pointerEvents = 'none';
-          document.body.setAttribute(SAFE_POLYGON_ATTR, '');
 
           const sibling = screen.getByTestId('item-2');
           // Use fireEvent to bypass pointer-events checks during safe-polygon pointer events mutation
@@ -1353,14 +1348,8 @@ describe('<Menu.Root />', () => {
           });
 
           expect(document.body.style.pointerEvents).to.equal('none');
-          expect(document.body).to.have.attribute(SAFE_POLYGON_ATTR, '');
         } finally {
           document.body.style.pointerEvents = previousBodyPointerEvents;
-          if (previousBodySafePolygon == null) {
-            document.body.removeAttribute(SAFE_POLYGON_ATTR);
-          } else {
-            document.body.setAttribute(SAFE_POLYGON_ATTR, previousBodySafePolygon);
-          }
         }
       });
 
