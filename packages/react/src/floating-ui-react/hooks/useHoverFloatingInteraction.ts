@@ -168,16 +168,24 @@ export function useHoverFloatingInteraction(
       floatingEl.style.pointerEvents = 'auto';
 
       return () => {
-        scopeElement.style.pointerEvents = '';
-        scopeElement.removeAttribute(safePolygonIdentifier);
         ref.style.pointerEvents = '';
         floatingEl.style.pointerEvents = '';
-        instance.pointerEventsScopeElement = null;
+        clearPointerEvents();
       };
     }
 
     return undefined;
-  }, [enabled, open, domReferenceElement, floatingElement, instance, isHoverOpen, tree, parentId]);
+  }, [
+    enabled,
+    open,
+    domReferenceElement,
+    floatingElement,
+    instance,
+    isHoverOpen,
+    tree,
+    parentId,
+    clearPointerEvents,
+  ]);
 
   const childClosedTimeout = useTimeout();
 
