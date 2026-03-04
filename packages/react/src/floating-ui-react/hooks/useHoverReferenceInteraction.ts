@@ -14,7 +14,7 @@ import { getDelay } from './useHover';
 import { useFloatingTree } from '../components/FloatingTree';
 import type { FloatingTreeStore } from '../components/FloatingTreeStore';
 import {
-  safePolygonIdentifier,
+  clearSafePolygonPointerEventsMutation,
   useHoverInteractionSharedState,
 } from './useHoverInteractionSharedState';
 import { FloatingUIOpenChangeDetails, HTMLProps } from '../../utils/types';
@@ -121,15 +121,10 @@ export function useHoverReferenceInteraction(
   React.useEffect(() => cleanupMouseMoveHandler, [cleanupMouseMoveHandler]);
 
   const clearPointerEvents = useStableCallback(() => {
-    if (instance.performedPointerEventsMutation) {
-      const scopeElement =
-        instance.pointerEventsScopeElement ??
-        ownerDocument(store.select('domReferenceElement')).body;
-      scopeElement.style.pointerEvents = '';
-      scopeElement.removeAttribute(safePolygonIdentifier);
-      instance.performedPointerEventsMutation = false;
-      instance.pointerEventsScopeElement = null;
-    }
+    clearSafePolygonPointerEventsMutation(
+      instance,
+      ownerDocument(store.select('domReferenceElement')).body,
+    );
   });
 
   // When closing before opening, clear the delay timeouts to cancel it

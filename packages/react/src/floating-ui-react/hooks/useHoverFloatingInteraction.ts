@@ -18,6 +18,7 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import {
+  clearSafePolygonPointerEventsMutation,
   isInteractiveElement,
   safePolygonIdentifier,
   useHoverInteractionSharedState,
@@ -95,14 +96,7 @@ export function useHoverFloatingInteraction(
   );
 
   const clearPointerEvents = useStableCallback(() => {
-    if (instance.performedPointerEventsMutation) {
-      const scopeElement =
-        instance.pointerEventsScopeElement ?? ownerDocument(floatingElement).body;
-      scopeElement.style.pointerEvents = '';
-      scopeElement.removeAttribute(safePolygonIdentifier);
-      instance.performedPointerEventsMutation = false;
-      instance.pointerEventsScopeElement = null;
-    }
+    clearSafePolygonPointerEventsMutation(instance, ownerDocument(floatingElement).body);
   });
 
   const handleInteractInside = useStableCallback((event: PointerEvent) => {

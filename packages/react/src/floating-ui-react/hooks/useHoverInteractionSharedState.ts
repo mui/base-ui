@@ -53,6 +53,21 @@ export class HoverInteraction {
   };
 }
 
+export function clearSafePolygonPointerEventsMutation(
+  instance: Pick<HoverInteraction, 'performedPointerEventsMutation' | 'pointerEventsScopeElement'>,
+  fallbackScopeElement: HTMLElement,
+) {
+  if (!instance.performedPointerEventsMutation) {
+    return;
+  }
+
+  const scopeElement = instance.pointerEventsScopeElement ?? fallbackScopeElement;
+  scopeElement.style.pointerEvents = '';
+  scopeElement.removeAttribute(safePolygonIdentifier);
+  instance.performedPointerEventsMutation = false;
+  instance.pointerEventsScopeElement = null;
+}
+
 type HoverContextData = ContextData & {
   hoverInteractionState?: HoverInteraction | undefined;
 };

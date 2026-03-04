@@ -1324,7 +1324,10 @@ describe('<Menu.Root />', () => {
 
       it('does not clear body safe-polygon styles when closing a scoped submenu', async () => {
         await render(
-          <TestMenu rootProps={{ defaultOpen: true }} submenuTriggerProps={{ delay: 0, closeDelay: 0 }} />,
+          <TestMenu
+            rootProps={{ defaultOpen: true }}
+            submenuTriggerProps={{ delay: 0, closeDelay: 0 }}
+          />,
         );
 
         const submenuTrigger = screen.getByTestId('submenu-trigger');
