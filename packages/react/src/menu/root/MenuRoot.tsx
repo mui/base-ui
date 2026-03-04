@@ -191,16 +191,11 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     rootId: useId(),
   });
 
-  const {
-    openMethod,
-    triggerProps: interactionTypeProps,
-    reset: resetOpenInteractionType,
-  } = useOpenInteractionType(open);
+  const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
 
   useImplicitActiveTrigger(store);
   const { forceUnmount } = useOpenStateTransitions(open, store, () => {
     store.update({ allowMouseEnter: false, stickIfOpen: true });
-    resetOpenInteractionType();
   });
 
   const allowOutsidePressDismissalRef = React.useRef(parent.type !== 'context-menu');

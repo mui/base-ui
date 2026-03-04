@@ -425,11 +425,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const triggerRef = useValueAsRef(triggerElement);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
-  const {
-    openMethod,
-    triggerProps,
-    reset: resetOpenInteractionType,
-  } = useOpenInteractionType(open);
+  const { openMethod, triggerProps } = useOpenInteractionType(open);
 
   useField({
     id,
@@ -696,7 +692,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     setMounted(false);
     onOpenChangeComplete?.(false);
     setQueryChangedAfterOpen(false);
-    resetOpenInteractionType();
     setCloseQuery(null);
 
     if (selectionMode === 'none') {

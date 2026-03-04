@@ -332,7 +332,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
           isPressedRef.current = false;
           stopAutoChange();
           const committed = lastChangedValueRef.current ?? valueRef.current;
-          const commitReason = isIncrement ? 'increment' : 'decrement';
+          const commitReason = isIncrement ? REASONS.incrementPress : REASONS.decrementPress;
           onValueCommitted(committed, createGenericEventDetails(commitReason, event));
         },
         { once: true },
