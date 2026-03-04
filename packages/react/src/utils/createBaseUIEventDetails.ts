@@ -147,7 +147,7 @@ export function createChangeEventDetails<
 }
 
 export function createGenericEventDetails<
-  Reason extends string,
+  Reason extends keyof ReasonToEventMap,
   CustomProperties extends object = {},
 >(
   reason: Reason,
