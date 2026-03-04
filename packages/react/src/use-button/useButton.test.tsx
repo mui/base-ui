@@ -336,6 +336,28 @@ describe('useButton', () => {
       expect(handleClick).toHaveBeenCalledTimes(0);
     });
 
+    it('clicks composite switches when Space is prevented', async () => {
+      const handleClick = vi.fn();
+
+      function TestButton(props: React.HTMLAttributes<HTMLDivElement>) {
+        const { getButtonProps } = useButton({ native: false, composite: true });
+
+        return <div {...getButtonProps({ role: 'switch', tabIndex: 0, ...props })} />;
+      }
+
+      await render(
+        <TestButton onKeyDown={(event) => event.preventDefault()} onClick={handleClick} />,
+      );
+
+      const switchElement = screen.getByRole('switch');
+
+      await focusElement(switchElement);
+      expect(switchElement).toHaveFocus();
+
+      fireEvent.keyDown(switchElement, { key: ' ' });
+      expect(handleClick).toHaveBeenCalledTimes(1);
+    });
+
     it('key: Space fires keydown then click on native composite buttons', async () => {
       const handleKeyDown = vi.fn();
       const handleKeyUp = vi.fn();

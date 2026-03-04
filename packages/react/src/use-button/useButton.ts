@@ -133,9 +133,16 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
             const shouldClick = isCurrentTarget && (isNativeButton ? isButton : !isLink);
             const isEnterKey = event.key === 'Enter';
             const isSpaceKey = event.key === ' ';
+            const role = currentTarget.getAttribute('role');
+            const isTextNavigationRole =
+              role === 'menuitem' ||
+              role === 'menuitemcheckbox' ||
+              role === 'menuitemradio' ||
+              role === 'option' ||
+              role === 'gridcell';
 
             if (isCurrentTarget && isCompositeItem && isSpaceKey) {
-              if (event.defaultPrevented) {
+              if (event.defaultPrevented && isTextNavigationRole) {
                 return;
               }
 
