@@ -73,7 +73,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
                                       {(page.title && titleMap[page.title]) || page.title}
                                       {isPrivatePage && <SideNav.Badge>Private</SideNav.Badge>}
                                       {isPreviewPage && <SideNav.Badge>Preview</SideNav.Badge>}
-                                      {isNewPage && !isPreviewPage && (
+                                      {isNewPage && !isPreviewPage && !isPrivatePage && (
                                         <SideNav.Badge>New</SideNav.Badge>
                                       )}
                                     </SideNav.Item>
