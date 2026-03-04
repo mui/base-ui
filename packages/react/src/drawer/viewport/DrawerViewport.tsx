@@ -1225,6 +1225,11 @@ function preserveNativeCrossAxisScrollOnMove({
   isVerticalScrollAxis: boolean;
   crossScrollAxis: ScrollAxis;
 }): boolean {
+  if (touchState.preserveNativeCrossAxisScroll) {
+    updateTouchScrollPosition(touchState, touch);
+    return true;
+  }
+
   const drawerAxisGestureDelta = isVerticalScrollAxis
     ? touch.clientY - touchState.startY
     : touch.clientX - touchState.startX;
@@ -1246,7 +1251,7 @@ function preserveNativeCrossAxisScrollOnMove({
     absCrossAxisGestureDelta >= CROSS_AXIS_INTENT_THRESHOLD &&
     absCrossAxisGestureDelta > absDrawerAxisGestureDelta + CROSS_AXIS_INTENT_MARGIN;
 
-  if (!touchState.preserveNativeCrossAxisScroll && !shouldAllowCrossAxisScroll) {
+  if (!shouldAllowCrossAxisScroll) {
     return false;
   }
 
