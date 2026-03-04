@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  code-infra: https://raw.githubusercontent.com/mui/mui-public/c0101909662d4d3db7eed81ec210f16708dd7535/.circleci/orbs/code-infra.yml
+  code-infra: https://raw.githubusercontent.com/mui/mui-public/0eed58c5bf2f7f3bfa60887e07808b0d6b4a078b/.circleci/orbs/code-infra.yml
 
 parameters:
   browserstack-force:
@@ -23,6 +23,7 @@ default-job: &default-job
       description: The version of react to be used
       type: string
       default: << pipeline.parameters.react-version >>
+  resource_class: medium
   environment:
     # expose it globally otherwise we have to thread it from each job to the install command
     BROWSERSTACK_FORCE: << pipeline.parameters.browserstack-force >>
@@ -59,6 +60,7 @@ commands:
 jobs:
   test_unit:
     <<: *default-job
+    resource_class: large
     steps:
       - checkout
       - code-infra/install-deps:
@@ -154,7 +156,7 @@ jobs:
             exit 0
   test_browser:
     <<: *default-job
-    resource_class: 'medium+'
+    resource_class: large
     executor:
       name: code-infra/mui-node-browser
       playwright-img-version: v1.58.2-noble
@@ -171,6 +173,7 @@ jobs:
           key: << parameters.react-version >>-browser
   test_regressions:
     <<: *default-job
+    resource_class: 'medium+'
     executor:
       name: code-infra/mui-node-browser
       playwright-img-version: v1.58.2-noble
@@ -201,6 +204,7 @@ jobs:
 
   test_package:
     <<: *default-job
+    resource_class: 'medium+'
     steps:
       - checkout
       - code-infra/install-deps
@@ -223,6 +227,7 @@ jobs:
 
   test_unit_compiler:
     <<: *default-job
+    resource_class: large
     steps:
       - checkout
       - code-infra/install-deps
@@ -237,6 +242,7 @@ jobs:
 
   test_browser_compiler:
     <<: *default-job
+    resource_class: large
     executor:
       name: code-infra/mui-node-browser
       playwright-img-version: v1.58.2-noble

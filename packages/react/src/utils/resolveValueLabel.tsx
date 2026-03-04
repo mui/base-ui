@@ -3,11 +3,7 @@ import * as React from 'react';
 import { serializeValue } from './serializeValue';
 
 type ItemRecord = Record<string, React.ReactNode>;
-type ItemsInput =
-  | ItemRecord
-  | ReadonlyArray<LabeledItem>
-  | ReadonlyArray<Group<LabeledItem>>
-  | undefined;
+type ItemsInput = ItemRecord | ReadonlyArray<LabeledItem> | ReadonlyArray<Group<any>> | undefined;
 
 interface LabeledItem {
   value: any;
@@ -15,13 +11,13 @@ interface LabeledItem {
 }
 
 export interface Group<Item = any> {
-  value: unknown;
-  items: Item[];
+  [key: string]: unknown;
+  items: ReadonlyArray<Item>;
 }
 
 export function isGroupedItems(
   items: ReadonlyArray<any | Group<any>> | undefined,
-): items is Group<any>[] {
+): items is ReadonlyArray<Group<any>> {
   return (
     items != null &&
     items.length > 0 &&
@@ -39,8 +35,10 @@ export function hasNullItemLabel(items: ItemsInput): boolean {
     return items != null && 'null' in items;
   }
 
-  if (isGroupedItems(items)) {
-    for (const group of items) {
+  const arrayItems = items as ReadonlyArray<LabeledItem> | ReadonlyArray<Group<any>>;
+
+  if (isGroupedItems(arrayItems)) {
+    for (const group of arrayItems) {
       for (const item of group.items) {
         if (item && item.value == null && item.label != null) {
           return true;
@@ -50,7 +48,7 @@ export function hasNullItemLabel(items: ItemsInput): boolean {
     return false;
   }
 
-  for (const item of items) {
+  for (const item of arrayItems) {
     if (item && item.value == null && item.label != null) {
       return true;
     }
@@ -109,7 +107,10 @@ export function resolveSelectedLabel(
 
   // Items provided as array (flat or grouped)
   if (Array.isArray(items)) {
-    const flatItems: LabeledItem[] = isGroupedItems(items) ? items.flatMap((g) => g.items) : items;
+    const arrayItems = items as ReadonlyArray<LabeledItem> | ReadonlyArray<Group<any>>;
+    const flatItems: ReadonlyArray<LabeledItem> = isGroupedItems(arrayItems)
+      ? arrayItems.flatMap((group) => group.items)
+      : arrayItems;
 
     if (value == null || typeof value !== 'object') {
       const match = flatItems.find((item) => item.value === value);

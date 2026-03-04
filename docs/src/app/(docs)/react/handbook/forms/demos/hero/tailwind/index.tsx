@@ -192,7 +192,7 @@ function ExampleForm() {
       </Field.Root>
 
       <Field.Root name="storageType">
-        <Fieldset.Root render={<RadioGroup className="gap-4" defaultValue="ssd" />}>
+        <Fieldset.Root render={<RadioGroup<'ssd' | 'hdd'> className="gap-4" defaultValue="ssd" />}>
           <Fieldset.Legend className="-mt-px">Storage type</Fieldset.Legend>
           <Field.Item>
             <Field.Label>

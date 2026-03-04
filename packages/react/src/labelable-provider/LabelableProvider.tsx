@@ -14,11 +14,12 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
   props,
 ) {
   const defaultId = useBaseUiId();
+  const initialControlId = props.controlId === undefined ? defaultId : props.controlId;
 
   const [controlId, setControlIdState] = React.useState<string | null | undefined>(
-    props.initialControlId === undefined ? defaultId : props.initialControlId,
+    initialControlId,
   );
-  const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
+  const [labelId, setLabelId] = React.useState<string | undefined>(props.labelId);
   const [messageIds, setMessageIds] = React.useState<string[]>([]);
 
   const registrationsRef = useRefWithInit(() => new Map<symbol, string | null>());
@@ -98,7 +99,8 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
 };
 
 export interface LabelableProviderProps {
-  initialControlId?: string | null | undefined;
+  controlId?: string | null | undefined;
+  labelId?: string | undefined;
   children?: React.ReactNode;
 }
 

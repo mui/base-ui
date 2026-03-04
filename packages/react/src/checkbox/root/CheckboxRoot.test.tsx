@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Checkbox } from '@base-ui/react/checkbox';
 import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import { Field } from '@base-ui/react/field';
@@ -998,6 +998,54 @@ describe('<Checkbox.Root />', () => {
     fireEvent.click(checkbox);
 
     expect(checkbox).to.have.attribute('aria-checked', 'false');
+  });
+
+  it('sets `aria-labelledby` from a sibling label associated with the hidden input', async () => {
+    await render(
+      <div>
+        <label htmlFor="checkbox-input">Label</label>
+        <Checkbox.Root id="checkbox-input" />
+      </div>,
+    );
+
+    const label = screen.getByText('Label');
+    expect(label.id).not.to.equal('');
+    expect(screen.getByRole('checkbox')).to.have.attribute('aria-labelledby', label.id);
+  });
+
+  it('updates fallback `aria-labelledby` when the hidden input id changes', async () => {
+    function TestCase() {
+      const [id, setId] = React.useState('checkbox-input-a');
+
+      return (
+        <React.Fragment>
+          <label htmlFor="checkbox-input-a">Label A</label>
+          <label htmlFor="checkbox-input-b">Label B</label>
+          <Checkbox.Root id={id} />
+          <button type="button" onClick={() => setId('checkbox-input-b')}>
+            Toggle
+          </button>
+        </React.Fragment>
+      );
+    }
+
+    await render(<TestCase />);
+
+    const checkbox = screen.getByRole('checkbox');
+    const labelA = screen.getByText('Label A');
+
+    expect(labelA.id).to.not.equal('');
+    expect(checkbox).to.have.attribute('aria-labelledby', labelA.id);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+
+    await waitFor(() => {
+      const labelB = screen.getByText('Label B');
+
+      expect(labelB.id).to.not.equal('');
+      expect(labelA.id).to.not.equal(labelB.id);
+      expect(checkbox).to.have.attribute('aria-labelledby', labelB.id);
+    });
   });
 
   it('can render a native button', async () => {
