@@ -232,6 +232,45 @@ describe('<Select.Item />', () => {
     });
   });
 
+  it.skipIf(isJSDOM)(
+    'should allow pointer click after a typeahead sequence that ends with Space',
+    async () => {
+      const { user } = await render(
+        <Select.Root defaultOpen>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value data-testid="value" />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="one">Item One</Select.Item>
+                <Select.Item value="two">Item Two</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const [firstItem, secondItem] = screen.getAllByRole('option');
+
+      await act(async () => {
+        firstItem.focus();
+      });
+
+      await user.keyboard('item t ');
+
+      await waitFor(() => {
+        expect(secondItem).toHaveFocus();
+      });
+
+      await user.click(secondItem);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('value').textContent).to.equal('two');
+      });
+    },
+  );
+
   describe.skipIf(!isJSDOM)('quick selection', () => {
     const { render: renderFakeTimers, clock } = createRenderer({
       clockOptions: {
