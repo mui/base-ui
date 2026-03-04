@@ -138,11 +138,11 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
 
   const resolvedChildren = React.useMemo(() => {
     if (!React.isValidElement(children) && typeof children === 'function') {
-      return children(publicContext);
+      return children({ ...publicContext, setVisibleDate: store.setVisibleDate });
     }
 
     return children;
-  }, [children, publicContext]);
+  }, [children, publicContext, store.setVisibleDate]);
 
   // TODO: Improve localization support (right now it doesn't work well with RTL languages)
   const ariaLabel = React.useMemo(() => {

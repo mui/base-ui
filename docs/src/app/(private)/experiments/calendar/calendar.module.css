@@ -199,38 +199,3 @@
   width: 100%;
   text-align: center;
 }
-
-.YearNav {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 0 12px 8px;
-}
-
-.YearButton {
-  border: none;
-  background-color: transparent;
-  border-radius: 4px;
-  color: var(--calendar-root-color);
-  padding: 4px 6px;
-  font: inherit;
-  font-size: 0.875rem;
-
-  &:hover {
-    background-color: var(--calendar-button-hover-bg-color);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--calendar-button-focus-border-color);
-  }
-
-  &[data-disabled] {
-    pointer-events: none;
-    color: var(--calendar-cell-disabled-color);
-  }
-
-  &[aria-current='date'] {
-    font-weight: 600;
-  }
-}

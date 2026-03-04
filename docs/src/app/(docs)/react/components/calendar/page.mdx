@@ -80,6 +80,14 @@ import { DemoCalendarTimezoneDisplay } from './demos/timezone-display';
 
 <DemoCalendarTimezoneDisplay />
 
+### Month and year select
+
+Use `Calendar.useContext()` inside the calendar to read `visibleDate` and call `setVisibleDate`, enabling custom controls like `<select>` dropdowns for direct month and year navigation.
+
+import { DemoCalendarYearMonthSelect } from './demos/year-month-select';
+
+<DemoCalendarYearMonthSelect />
+
 ### Animating month changes
 
 You can use the `<Calendar.Viewport>` component to animate month transitions.
