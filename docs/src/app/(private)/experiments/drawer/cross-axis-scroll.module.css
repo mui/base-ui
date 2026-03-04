@@ -96,6 +96,7 @@
   min-height: 0;
   height: 12rem;
   overflow-y: auto;
+  overscroll-behavior: contain;
   border: 1px solid var(--color-gray-200);
   border-radius: 0.5rem;
   background: white;
@@ -113,6 +114,7 @@
 .ScrollRegionX {
   overflow-x: auto;
   overflow-y: hidden;
+  overscroll-behavior: contain;
   border: 1px solid var(--color-gray-200);
   border-radius: 0.5rem;
   background: white;
