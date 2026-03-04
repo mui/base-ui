@@ -250,6 +250,102 @@ describe('<Popover.Root />', () => {
   describe.skipIf(isJSDOM)('multiple detached triggers', () => {
     type NumberPayload = { payload: number | undefined };
 
+    async function renderHoverDetachedTriggers() {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const testPopover = Popover.createHandle<number>();
+
+      const utils = await render(
+        <div style={{ position: 'relative', width: 400, height: 200 }}>
+          <style>
+            {`
+              .positioner {
+                transition:
+                  top 120ms linear,
+                  left 120ms linear,
+                  transform 120ms linear;
+              }
+
+              .popup {
+                opacity: 1;
+                transition: opacity 250ms linear;
+              }
+
+              .popup[data-ending-style] {
+                opacity: 0;
+              }
+
+              .positioner[data-instant],
+              .popup[data-instant] {
+                transition: none;
+              }
+            `}
+          </style>
+
+          <Popover.Trigger
+            handle={testPopover}
+            payload={1}
+            openOnHover
+            delay={0}
+            closeDelay={0}
+            style={{
+              position: 'absolute',
+              top: 20,
+              left: 20,
+            }}
+          >
+            Trigger 1
+          </Popover.Trigger>
+          <Popover.Trigger
+            handle={testPopover}
+            payload={2}
+            openOnHover
+            delay={0}
+            closeDelay={0}
+            style={{
+              position: 'absolute',
+              top: 20,
+              left: 220,
+            }}
+          >
+            Trigger 2
+          </Popover.Trigger>
+
+          <Popover.Root handle={testPopover}>
+            {({ payload }: NumberPayload) => (
+              <Popover.Portal>
+                <Popover.Positioner data-testid="positioner" className="positioner">
+                  <Popover.Popup data-testid="popup" className="popup">
+                    <span data-testid="content">{payload}</span>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            )}
+          </Popover.Root>
+        </div>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      await utils.user.hover(trigger1);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).to.equal('1');
+      });
+
+      await utils.user.hover(trigger2);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).to.equal('2');
+      });
+
+      return {
+        ...utils,
+        trigger1,
+        trigger2,
+        popup: screen.getByTestId('popup'),
+      };
+    }
+
     function TriggerWithNesting({
       handle,
       nesting,
@@ -656,6 +752,53 @@ describe('<Popover.Root />', () => {
       // The popup should not have an inline scale style that would override CSS transitions
       const popup = screen.getByTestId('popup');
       expect(popup.style.scale).to.equal('');
+    });
+
+    it('clears trigger-change instant before hover close after switching triggers', async () => {
+      const { user, trigger2, popup } = await renderHoverDetachedTriggers();
+
+      // Wait for the trigger switch transition to finish and restore `trigger-change`.
+      await act(async () => {
+        await new Promise((resolve) => {
+          setTimeout(resolve, 150);
+        });
+      });
+
+      expect(screen.getByTestId('popup')).to.have.attribute('data-instant', 'trigger-change');
+
+      await user.unhover(trigger2);
+      await waitFor(() => {
+        expect(popup).to.have.attribute('data-ending-style');
+      });
+
+      expect(popup).not.to.have.attribute('data-instant');
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).to.equal(null);
+      });
+    });
+
+    it('does not restore trigger-change instant after hover close starts', async () => {
+      const { user, trigger2, popup } = await renderHoverDetachedTriggers();
+
+      await user.unhover(trigger2);
+      await waitFor(() => {
+        expect(popup).to.have.attribute('data-ending-style');
+      });
+
+      await act(async () => {
+        await new Promise((resolve) => {
+          setTimeout(resolve, 150);
+        });
+      });
+
+      expect(screen.getByTestId('popup')).to.equal(popup);
+      expect(popup).to.have.attribute('data-ending-style');
+      expect(popup).not.to.have.attribute('data-instant');
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).to.equal(null);
+      });
     });
 
     it('keeps positioning correct when conditional triggers unmount and the tree remounts', async () => {
