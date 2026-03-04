@@ -132,10 +132,15 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     const scrollTop = viewportEl.scrollTop;
     const scrollLeft = viewportEl.scrollLeft;
     const lastMeasuredViewportMetrics = lastMeasuredViewportMetricsRef.current;
+    const isFirstMeasurement = Number.isNaN(lastMeasuredViewportMetrics[0]);
     lastMeasuredViewportMetrics[0] = viewportHeight;
     lastMeasuredViewportMetrics[1] = scrollableContentHeight;
     lastMeasuredViewportMetrics[2] = viewportWidth;
     lastMeasuredViewportMetrics[3] = scrollableContentWidth;
+
+    if (isFirstMeasurement) {
+      setHasMeasuredScrollbar(true);
+    }
 
     if (scrollableContentHeight === 0 || scrollableContentWidth === 0) {
       return;
@@ -297,20 +302,8 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 
     return onVisible(viewportRef.current, () => {
       computeThumbPosition();
-      setHasMeasuredScrollbar(true);
     });
-  }, [computeThumbPosition, setHasMeasuredScrollbar, viewportRef]);
-
-  useIsoLayoutEffect(() => {
-    const viewportEl = viewportRef.current;
-    if (!viewportEl) {
-      return;
-    }
-
-    const nextHiddenState = getHiddenState(viewportEl);
-
-    setHiddenState((prevState) => mergeHiddenState(prevState, nextHiddenState));
-  }, [setHiddenState, viewportRef]);
+  }, [computeThumbPosition, viewportRef]);
 
   useIsoLayoutEffect(() => {
     // Wait for scrollbar and thumb refs after hidden-state toggles, and refresh math on direction flips.
@@ -338,7 +331,6 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
       // delivery, keep the recompute so overflow transitions stay in sync.
       if (!hasInitialized) {
         hasInitialized = true;
-        setHasMeasuredScrollbar(true);
         const lastMeasuredViewportMetrics = lastMeasuredViewportMetricsRef.current;
         if (
           lastMeasuredViewportMetrics[0] === viewport.clientHeight &&
@@ -351,7 +343,6 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
       }
 
       computeThumbPosition();
-      setHasMeasuredScrollbar(true);
     });
 
     ro.observe(viewport);
@@ -378,7 +369,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
       ro.disconnect();
       waitForAnimationsTimeout.clear();
     };
-  }, [computeThumbPosition, setHasMeasuredScrollbar, viewportRef, waitForAnimationsTimeout]);
+  }, [computeThumbPosition, viewportRef, waitForAnimationsTimeout]);
 
   function handleUserInteraction() {
     programmaticScrollRef.current = false;

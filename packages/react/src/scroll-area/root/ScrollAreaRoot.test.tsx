@@ -140,7 +140,7 @@ describe('<ScrollArea.Root />', () => {
       });
     });
 
-    it('keeps scrollbars hidden until the first ResizeObserver measurement', async () => {
+    it('shows scrollbars after mount compute before the first ResizeObserver measurement', async () => {
       await withMockResizeObserver(async (notifyResizeObserver) => {
         await render(
           <ScrollArea.Root style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}>
@@ -156,7 +156,7 @@ describe('<ScrollArea.Root />', () => {
         const verticalScrollbar = await screen.findByTestId('vertical-scrollbar');
 
         await waitFor(() => {
-          expect(getComputedStyle(verticalScrollbar).visibility).to.equal('hidden');
+          expect(getComputedStyle(verticalScrollbar).visibility).to.equal('visible');
         });
 
         await act(async () => {
@@ -169,7 +169,7 @@ describe('<ScrollArea.Root />', () => {
       });
     });
 
-    it('keeps keepMounted scrollbar track visible while thumb waits for first measurement', async () => {
+    it('shows keepMounted scrollbar track and thumb after mount compute', async () => {
       await withMockResizeObserver(async (notifyResizeObserver) => {
         await render(
           <ScrollArea.Root style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}>
@@ -191,7 +191,7 @@ describe('<ScrollArea.Root />', () => {
 
         await waitFor(() => {
           expect(getComputedStyle(verticalScrollbar).visibility).to.equal('visible');
-          expect(getComputedStyle(verticalThumb).visibility).to.equal('hidden');
+          expect(getComputedStyle(verticalThumb).visibility).to.equal('visible');
         });
 
         await act(async () => {
