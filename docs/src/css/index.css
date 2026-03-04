@@ -47,7 +47,7 @@
 @import './custom-media.css';
 
 /* TODO: Remove these component imports once we make these components' styles truly isolated and they import their own styles. */
-@import '../components/Code.css';
+@import '../components/CodeWithSyntax.css';
 @import '../components/Accordion.css';
 @import '../components/Table.css';
 @import '../components/TableCode.css';

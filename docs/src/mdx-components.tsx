@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as CodeBlock from './components/CodeBlock';
 import * as Table from './components/Table';
 import * as QuickNav from './components/QuickNav/QuickNav';
-import { Code } from './components/Code';
+import { CodeWithSyntax } from './components/CodeWithSyntax';
 import { ReferenceAccordion } from './components/ReferenceTable/ReferenceAccordion';
 import { ParametersReferenceTable } from './components/ReferenceTable/ParametersReferenceTable';
 import { ReturnValueReferenceTable } from './components/ReferenceTable/ReturnValueReferenceTable';
@@ -21,7 +21,7 @@ interface MDXComponents {
 // Maintain spacing between MDX components here
 export const mdxComponents: MDXComponents = {
   a: Link,
-  code: (props) => <Code className="MdInlineCode" {...props} />,
+  code: (props) => <CodeWithSyntax className="MdInlineCode" {...props} />,
   h1: (props) => (
     // Do not wrap heading tags in divs, that confuses Safari Reader
     <h1 className="MdH1" {...props} />
