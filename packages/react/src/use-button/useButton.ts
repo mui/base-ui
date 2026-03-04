@@ -135,11 +135,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
             const isSpaceKey = event.key === ' ';
             const role = currentTarget.getAttribute('role');
             const isTextNavigationRole =
-              role === 'menuitem' ||
-              role === 'menuitemcheckbox' ||
-              role === 'menuitemradio' ||
-              role === 'option' ||
-              role === 'gridcell';
+              role?.startsWith('menuitem') || role === 'option' || role === 'gridcell';
 
             if (isCurrentTarget && isCompositeItem && isSpaceKey) {
               if (event.defaultPrevented && isTextNavigationRole) {
