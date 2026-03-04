@@ -103,11 +103,18 @@ export function useHoverReferenceInteraction(
       }
 
       // Fallback for delegated/wrapper usage where currentTarget may be outside the trigger map.
-      if (!isTargetInsideEnabledTrigger(target, allTriggers) || !isElement(target)) {
+      if (!isElement(target)) {
         return false;
       }
 
-      return !currentDomReference || !contains(currentDomReference, target as Element);
+      const targetElement = target as Element;
+      const isTargetTrigger =
+        allTriggers.hasElement(targetElement) ||
+        allTriggers.hasMatchingElement((trigger) => contains(trigger, targetElement));
+
+      return (
+        isTargetTrigger && (!currentDomReference || !contains(currentDomReference, targetElement))
+      );
     },
   );
 

@@ -183,6 +183,11 @@ export function safePolygon(options: SafePolygonOptions = {}) {
         }
       }
 
+      // If any nested child is open, abort.
+      if (hasOpenChildNode()) {
+        return undefined;
+      }
+
       const refRect = domReference.getBoundingClientRect();
       const rect = floating.getBoundingClientRect();
       const cursorLeaveFromRight = x > rect.right - rect.width / 2;
