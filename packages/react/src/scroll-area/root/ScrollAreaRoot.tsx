@@ -217,14 +217,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
       overflowYEnd: overflowEdges.yEnd,
       cornerHidden: hiddenState.corner,
     }),
-    [
-      scrollingX,
-      scrollingY,
-      hiddenState.x,
-      hiddenState.y,
-      hiddenState.corner,
-      overflowEdges,
-    ],
+    [scrollingX, scrollingY, hiddenState.x, hiddenState.y, hiddenState.corner, overflowEdges],
   );
 
   const props: HTMLProps = {

@@ -436,14 +436,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
       overflowYEnd: overflowEdges.yEnd,
       cornerHidden: hiddenState.corner,
     }),
-    [
-      scrollingX,
-      scrollingY,
-      hiddenState.x,
-      hiddenState.y,
-      hiddenState.corner,
-      overflowEdges,
-    ],
+    [scrollingX, scrollingY, hiddenState.x, hiddenState.y, hiddenState.corner, overflowEdges],
   );
 
   const element = useRenderElement('div', componentProps, {
