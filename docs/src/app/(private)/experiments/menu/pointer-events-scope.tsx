@@ -4,8 +4,6 @@ import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
 import styles from './pointer-events-scope.module.css';
 
-type ScopeMode = 'body' | 'scoped';
-
 const menuItemCount = 240;
 const popupItemCount = 60;
 const nestedPopupItemCount = 12;
@@ -51,10 +49,7 @@ const outsideMeshNodes = Array.from({ length: outsideMeshNodeCount }, (_, index)
   };
 });
 
-const safePolygonScopeAttribute = 'data-base-ui-safe-polygon-scope';
-
 export default function PointerEventsScopeExperiment() {
-  const [mode, setMode] = React.useState<ScopeMode>('body');
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [modal, setModal] = React.useState(true);
   const [submenuItemsAreSubmenuTriggers, setSubmenuItemsAreSubmenuTriggers] = React.useState(false);
@@ -63,40 +58,11 @@ export default function PointerEventsScopeExperiment() {
   const mainMenuEntries = Math.max(1, Math.min(menuItemCount, Math.trunc(mainMenuEntryCount) || 1));
   const visibleMenuItems = menuItems.slice(0, mainMenuEntries);
 
-  React.useEffect(() => {
-    document.documentElement.setAttribute(safePolygonScopeAttribute, mode);
-    return () => {
-      document.documentElement.removeAttribute(safePolygonScopeAttribute);
-    };
-  }, [mode]);
-
   return (
     <div className={styles.root}>
       <h1>Pointer events scope benchmark (real Menu)</h1>
 
       <div className={styles.controls}>
-        <div className={styles.field}>
-          <span className={styles.fieldLabel}>Scope mode</span>
-          <div className={styles.modeGroup}>
-            <button
-              className={styles.modeButton}
-              data-active={mode === 'body'}
-              type="button"
-              onClick={() => setMode('body')}
-            >
-              body
-            </button>
-            <button
-              className={styles.modeButton}
-              data-active={mode === 'scoped'}
-              type="button"
-              onClick={() => setMode('scoped')}
-            >
-              scoped
-            </button>
-          </div>
-        </div>
-
         <div className={styles.field}>
           <span className={styles.fieldLabel}>Submenu items</span>
           <div className={styles.modeGroup}>
@@ -159,9 +125,7 @@ export default function PointerEventsScopeExperiment() {
       </div>
 
       <div className={styles.stats}>
-        <div className={styles.stat}>
-          Current mode: <strong>{mode}</strong>
-        </div>
+        <div className={styles.stat}>Scope mode: scoped</div>
         <div className={styles.stat}>Outside nodes: {outsideTileCount + outsideMeshNodeCount}</div>
         <div className={styles.stat}>Main menu entries: {mainMenuEntries}</div>
         <div className={styles.stat}>

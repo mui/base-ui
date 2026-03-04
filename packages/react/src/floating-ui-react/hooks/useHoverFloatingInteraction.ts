@@ -146,14 +146,7 @@ export function useHoverFloatingInteraction(
         parentFloating.style.pointerEvents = '';
       }
 
-      const defaultScopeElement = parentFloating ?? ref.closest('[data-rootownerid]') ?? doc.body;
-
-      let scopeElement = defaultScopeElement;
-
-      const scopeOverride = doc.documentElement.getAttribute('data-base-ui-safe-polygon-scope');
-      if (scopeOverride === 'body') {
-        scopeElement = doc.body;
-      }
+      const scopeElement = parentFloating ?? ref.closest('[data-rootownerid]') ?? doc.body;
 
       instance.pointerEventsScopeElement = scopeElement;
       scopeElement.setAttribute(safePolygonIdentifier, '');
