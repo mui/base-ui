@@ -89,133 +89,6 @@ export function getGridNavigatedIndex(
 ) {
   let nextIndex = prevIndex;
 
-  // ---------------------------------------------------------------------------
-  // Detect row structure based on DOM. This works when items are grouped inside
-  // elements that declare `role="row"` (e.g., Combobox.Row). We build a matrix
-  // where each entry is the array of item indices for that visual row. The
-  // algorithm gracefully falls back to regular `cols`-based handling when no
-  // row structure can be detected.
-  // ---------------------------------------------------------------------------
-  const rows: number[][] = [];
-  const rowIndexMap: number[] = [];
-  let hasRoleRow = false;
-  let visibleItemCount = 0;
-  {
-    let currentRowEl: Element | null = null;
-    let currentRowIndex = -1;
-
-    listRef.current.forEach((el, idx) => {
-      if (el == null) {
-        return;
-      }
-
-      visibleItemCount += 1;
-
-      const rowEl = el.closest('[role="row"]');
-      if (rowEl) {
-        hasRoleRow = true;
-      }
-
-      if (rowEl !== currentRowEl || currentRowIndex === -1) {
-        currentRowEl = rowEl;
-        currentRowIndex += 1;
-        rows[currentRowIndex] = [];
-      }
-      rows[currentRowIndex].push(idx);
-      rowIndexMap[idx] = currentRowIndex;
-    });
-  }
-
-  let hasDomRows = false;
-  let inferredDomCols = 0;
-
-  if (hasRoleRow) {
-    for (const row of rows) {
-      const rowLength = row.length;
-
-      if (rowLength > inferredDomCols) {
-        inferredDomCols = rowLength;
-      }
-
-      if (rowLength !== cols) {
-        hasDomRows = true;
-      }
-    }
-  }
-
-  const hasVirtualizedGaps = hasDomRows && visibleItemCount < listRef.current.length;
-  const verticalCols = inferredDomCols || cols;
-
-  function navigateVertically(direction: 'up' | 'down') {
-    if (!hasDomRows || prevIndex === -1) {
-      return undefined;
-    }
-
-    const currentRow = rowIndexMap[prevIndex];
-    if (currentRow == null) {
-      return undefined;
-    }
-
-    const colInRow = rows[currentRow].indexOf(prevIndex);
-    const step = direction === 'up' ? -1 : 1;
-
-    for (let nextRow = currentRow + step, i = 0; i < rows.length; i += 1, nextRow += step) {
-      if (nextRow < 0 || nextRow >= rows.length) {
-        if (!loopFocus || hasVirtualizedGaps) {
-          return undefined;
-        }
-        nextRow = nextRow < 0 ? rows.length - 1 : 0;
-      }
-
-      const targetRow = rows[nextRow];
-      for (let col = Math.min(colInRow, targetRow.length - 1); col >= 0; col -= 1) {
-        const candidate = targetRow[col];
-        if (!isListIndexDisabled(listRef, candidate, disabledIndices)) {
-          return candidate;
-        }
-      }
-    }
-
-    return undefined;
-  }
-
-  function navigateVerticallyWithInferredRows(direction: 'up' | 'down') {
-    if (!hasVirtualizedGaps || prevIndex === -1) {
-      return undefined;
-    }
-
-    const colInRow = prevIndex % verticalCols;
-    const rowStep = direction === 'up' ? -verticalCols : verticalCols;
-    const lastRowStart = maxIndex - (maxIndex % verticalCols);
-    const rowCount = floor(maxIndex / verticalCols) + 1;
-
-    for (
-      let rowStart = prevIndex - colInRow + rowStep, i = 0;
-      i < rowCount;
-      i += 1, rowStart += rowStep
-    ) {
-      if (rowStart < 0 || rowStart > maxIndex) {
-        if (!loopFocus) {
-          return undefined;
-        }
-        rowStart = rowStart < 0 ? lastRowStart : 0;
-      }
-
-      const rowEnd = Math.min(rowStart + verticalCols - 1, maxIndex);
-      for (
-        let candidate = Math.min(rowStart + colInRow, rowEnd);
-        candidate >= rowStart;
-        candidate -= 1
-      ) {
-        if (!isListIndexDisabled(listRef, candidate, disabledIndices)) {
-          return candidate;
-        }
-      }
-    }
-
-    return undefined;
-  }
-
   let verticalDirection: 'up' | 'down' | undefined;
   if (event.key === ARROW_UP) {
     verticalDirection = 'up';
@@ -224,6 +97,130 @@ export function getGridNavigatedIndex(
   }
 
   if (verticalDirection) {
+    // -------------------------------------------------------------------------
+    // Detect row structure only when handling vertical navigation. This keeps
+    // the non-vertical key paths free from row inference work.
+    // -------------------------------------------------------------------------
+    const rows: number[][] = [];
+    const rowIndexMap: number[] = [];
+    let hasRoleRow = false;
+    let visibleItemCount = 0;
+    {
+      let currentRowEl: Element | null = null;
+      let currentRowIndex = -1;
+
+      listRef.current.forEach((el, idx) => {
+        if (el == null) {
+          return;
+        }
+
+        visibleItemCount += 1;
+
+        const rowEl = el.closest('[role="row"]');
+        if (rowEl) {
+          hasRoleRow = true;
+        }
+
+        if (rowEl !== currentRowEl || currentRowIndex === -1) {
+          currentRowEl = rowEl;
+          currentRowIndex += 1;
+          rows[currentRowIndex] = [];
+        }
+        rows[currentRowIndex].push(idx);
+        rowIndexMap[idx] = currentRowIndex;
+      });
+    }
+
+    let hasDomRows = false;
+    let inferredDomCols = 0;
+
+    if (hasRoleRow) {
+      for (const row of rows) {
+        const rowLength = row.length;
+
+        if (rowLength > inferredDomCols) {
+          inferredDomCols = rowLength;
+        }
+
+        if (rowLength !== cols) {
+          hasDomRows = true;
+        }
+      }
+    }
+
+    const hasVirtualizedGaps = hasDomRows && visibleItemCount < listRef.current.length;
+    const verticalCols = inferredDomCols || cols;
+
+    const navigateVertically = (direction: 'up' | 'down') => {
+      if (!hasDomRows || prevIndex === -1) {
+        return undefined;
+      }
+
+      const currentRow = rowIndexMap[prevIndex];
+      if (currentRow == null) {
+        return undefined;
+      }
+
+      const colInRow = rows[currentRow].indexOf(prevIndex);
+      const step = direction === 'up' ? -1 : 1;
+
+      for (let nextRow = currentRow + step, i = 0; i < rows.length; i += 1, nextRow += step) {
+        if (nextRow < 0 || nextRow >= rows.length) {
+          if (!loopFocus || hasVirtualizedGaps) {
+            return undefined;
+          }
+          nextRow = nextRow < 0 ? rows.length - 1 : 0;
+        }
+
+        const targetRow = rows[nextRow];
+        for (let col = Math.min(colInRow, targetRow.length - 1); col >= 0; col -= 1) {
+          const candidate = targetRow[col];
+          if (!isListIndexDisabled(listRef, candidate, disabledIndices)) {
+            return candidate;
+          }
+        }
+      }
+
+      return undefined;
+    };
+
+    const navigateVerticallyWithInferredRows = (direction: 'up' | 'down') => {
+      if (!hasVirtualizedGaps || prevIndex === -1) {
+        return undefined;
+      }
+
+      const colInRow = prevIndex % verticalCols;
+      const rowStep = direction === 'up' ? -verticalCols : verticalCols;
+      const lastRowStart = maxIndex - (maxIndex % verticalCols);
+      const rowCount = floor(maxIndex / verticalCols) + 1;
+
+      for (
+        let rowStart = prevIndex - colInRow + rowStep, i = 0;
+        i < rowCount;
+        i += 1, rowStart += rowStep
+      ) {
+        if (rowStart < 0 || rowStart > maxIndex) {
+          if (!loopFocus) {
+            return undefined;
+          }
+          rowStart = rowStart < 0 ? lastRowStart : 0;
+        }
+
+        const rowEnd = Math.min(rowStart + verticalCols - 1, maxIndex);
+        for (
+          let candidate = Math.min(rowStart + colInRow, rowEnd);
+          candidate >= rowStart;
+          candidate -= 1
+        ) {
+          if (!isListIndexDisabled(listRef, candidate, disabledIndices)) {
+            return candidate;
+          }
+        }
+      }
+
+      return undefined;
+    };
+
     if (stop) {
       stopEvent(event);
     }

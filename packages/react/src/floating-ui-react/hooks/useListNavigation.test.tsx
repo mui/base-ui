@@ -78,10 +78,12 @@ function VirtualizedGridRows({
   totalItems = 100,
   initialActiveIndex = 0,
   loopFocus = true,
+  disabledIndices,
 }: {
   totalItems?: number;
   initialActiveIndex?: number;
   loopFocus?: boolean;
+  disabledIndices?: UseListNavigationProps['disabledIndices'];
 }) {
   const COLUMNS = 5;
   const VISIBLE_ROWS = 3;
@@ -104,6 +106,7 @@ function VirtualizedGridRows({
       loopFocus,
       cols: 2,
       orientation: 'horizontal',
+      disabledIndices,
     }),
   ]);
 
@@ -942,6 +945,26 @@ describe('useListNavigation', () => {
         expect(screen.getByTestId('virtual-grid-active-index')).toHaveAttribute(
           'data-active-index',
           '97',
+        );
+      });
+    });
+
+    it('falls back left in a partial last row when the preferred candidate is disabled', async () => {
+      render(
+        <VirtualizedGridRows totalItems={98} initialActiveIndex={93} disabledIndices={[97]} />,
+      );
+
+      const reference = screen.getByTestId('virtual-grid-reference');
+      await act(async () => {
+        reference.focus();
+      });
+
+      await userEvent.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('virtual-grid-active-index')).toHaveAttribute(
+          'data-active-index',
+          '96',
         );
       });
     });
