@@ -108,12 +108,9 @@ export function useHoverReferenceInteraction(
       }
 
       const targetElement = target as Element;
-      const isTargetTrigger =
-        allTriggers.hasElement(targetElement) ||
-        allTriggers.hasMatchingElement((trigger) => contains(trigger, targetElement));
-
       return (
-        isTargetTrigger && (!currentDomReference || !contains(currentDomReference, targetElement))
+        allTriggers.hasMatchingElement((trigger) => contains(trigger, targetElement)) &&
+        (!currentDomReference || !contains(currentDomReference, targetElement))
       );
     },
   );

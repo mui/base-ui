@@ -20,11 +20,14 @@ export interface HandleClose {
 
 type HoverDelay = number | Partial<{ open: number; close: number }>;
 
-function shouldDisableHoverDelay(pointerType?: PointerEvent['pointerType']) {
-  return pointerType != null && !isMouseLikePointerType(pointerType);
-}
+function resolveValue<T>(
+  value: T | (() => T) | undefined,
+  pointerType?: PointerEvent['pointerType'],
+): T | 0 | undefined {
+  if (pointerType != null && !isMouseLikePointerType(pointerType)) {
+    return 0;
+  }
 
-function resolveLazyValue<T>(value: T | (() => T) | undefined): T | undefined {
   if (typeof value === 'function') {
     return (value as () => T)();
   }
@@ -37,11 +40,7 @@ export function getDelay(
   prop: 'open' | 'close',
   pointerType?: PointerEvent['pointerType'],
 ) {
-  if (shouldDisableHoverDelay(pointerType)) {
-    return 0;
-  }
-
-  const result = resolveLazyValue(value);
+  const result = resolveValue(value, pointerType);
   if (typeof result === 'number') {
     return result;
   }
@@ -53,11 +52,7 @@ export function getCloseDelay(
   value: number | (() => number) | undefined,
   pointerType?: PointerEvent['pointerType'],
 ) {
-  if (shouldDisableHoverDelay(pointerType)) {
-    return 0;
-  }
-
-  return resolveLazyValue(value);
+  return resolveValue(value, pointerType);
 }
 
 export function getRestMs(value: number | (() => number)) {

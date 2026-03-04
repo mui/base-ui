@@ -165,16 +165,8 @@ export function safePolygon(options: SafePolygonOptions = {}) {
         return undefined;
       }
 
-      let hasCheckedOpenChild = false;
-      let hasOpenChild = false;
       function hasOpenChildNode() {
-        if (hasCheckedOpenChild || !tree) {
-          return hasOpenChild;
-        }
-
-        hasCheckedOpenChild = true;
-        hasOpenChild = getNodeChildren(tree.nodesRef.current, nodeId).length > 0;
-        return hasOpenChild;
+        return Boolean(tree && getNodeChildren(tree.nodesRef.current, nodeId).length > 0);
       }
 
       function closeIfNoOpenChild() {
@@ -442,7 +434,7 @@ export function safePolygon(options: SafePolygonOptions = {}) {
 
       if (!isInsidePolygon) {
         closeIfNoOpenChild();
-      } else if (!hasLanded && requireIntent && !hasOpenChildNode()) {
+      } else if (!hasLanded && requireIntent) {
         timeout.start(40, closeIfNoOpenChild);
       }
 
