@@ -9,6 +9,9 @@ import { ReferenceTable } from '../ReferenceTable/ReferenceTable';
 
 import './TypeRef.css';
 
+const EMPTY_SET = new Set<string>();
+const ActiveTypeRefContext = React.createContext<ReadonlySet<string>>(EMPTY_SET);
+
 interface TypeRefProps {
   /** The anchor href for the type documentation */
   href: string;
@@ -26,15 +29,28 @@ interface TypeRefProps {
  * rendered via `ReferenceTable`.
  *
  * Falls back to a standard anchor link when no type data is available.
+ * When rendered inside a popover for the same type (self-reference),
+ * renders a plain span instead of a nested popover.
  */
 export function TypeRef({ href, name, className, children }: TypeRefProps) {
+  const activeTypeNames = React.useContext(ActiveTypeRefContext);
   const typeData = useType(name);
   const [open, setOpen] = React.useState(false);
+  const aliases = typeData?.meta.aliases;
+  const nextActiveTypeNames = React.useMemo(
+    () => new Set([...activeTypeNames, name, ...(aliases ?? [])]),
+    [activeTypeNames, name, aliases],
+  );
   const handleContentClick = useStableCallback((event: React.MouseEvent) => {
     if ((event.target as HTMLElement).closest('a')) {
       setOpen(false);
     }
   });
+
+  // Render a plain span for circular type references (direct or through intermediaries)
+  if (activeTypeNames.has(name)) {
+    return <span className={className}>{children}</span>;
+  }
 
   // Fall back to a standard anchor if no type data is available
   if (!typeData) {
@@ -73,14 +89,16 @@ export function TypeRef({ href, name, className, children }: TypeRefProps) {
                 </Popover.Close>
               </div>
             </div>
-            {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */}
-            <div className="TypeRefContent" onClick={handleContentClick}>
-              {typeData.meta.type === 'raw' ? (
-                typeData.meta.data.formattedCode
-              ) : (
-                <ReferenceTable type={typeData.meta} additionalTypes={[]} hideDescription />
-              )}
-            </div>
+            <ActiveTypeRefContext.Provider value={nextActiveTypeNames}>
+              {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */}
+              <div className="TypeRefContent" onClick={handleContentClick}>
+                {typeData.meta.type === 'raw' ? (
+                  typeData.meta.data.formattedCode
+                ) : (
+                  <ReferenceTable type={typeData.meta} additionalTypes={[]} hideDescription />
+                )}
+              </div>
+            </ActiveTypeRefContext.Provider>
           </Popover.Popup>
         </Popover.Positioner>
       </Popover.Portal>
