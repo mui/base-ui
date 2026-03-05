@@ -41,9 +41,8 @@ export function Demo({
   ...demoProps
 }: DemoProps) {
   const collapsibleTriggerRef = React.useRef<HTMLButtonElement>(null);
-  const [codeCopied, setCodeCopied] = React.useState(false);
+  const [copyTimeout, setCopyTimeout] = React.useState<number>(0);
   const [sourceLinkCopied, setSourceLinkCopied] = React.useState(false);
-  const codeCopyResetTimeout = useTimeout();
   const sourceLinkCopyResetTimeout = useTimeout();
   const ga = useGoogleAnalytics();
   const pathname = usePathname();
@@ -66,7 +65,7 @@ export function Demo({
     }
   }, [ga, demoId, demoSlug]);
 
-  const onCodeCopied = useStableCallback(() => {
+  const onCopied = React.useCallback(() => {
     ga?.trackEvent({
       category: 'demo',
       action: 'copy',
@@ -74,12 +73,18 @@ export function Demo({
       params: { copy: demoId, slug: demoSlug || '' },
     });
 
-    setCodeCopied(true);
-    codeCopyResetTimeout.start(2000, () => setCodeCopied(false));
-  });
+    /* eslint-disable no-restricted-syntax */
+    const newTimeout = window.setTimeout(() => {
+      window.clearTimeout(newTimeout);
+      setCopyTimeout(0);
+    }, 2000);
+    window.clearTimeout(copyTimeout);
+    setCopyTimeout(newTimeout);
+    /* eslint-enable no-restricted-syntax */
+  }, [copyTimeout, ga, demoId, demoSlug]);
 
   const demo = useDemo(demoProps, {
-    copy: { onCopied: onCodeCopied },
+    copy: { onCopied },
     defaultOpen,
     export: exportOpts,
     exportCodeSandbox,
@@ -221,14 +226,7 @@ export function Demo({
                 <GhostButton aria-label="Copy code" onClick={demo.copy}>
                   Copy
                   <span className="flex size-3.5 items-center justify-center">
-                    {codeCopied ? (
-                      <CheckIcon aria-hidden="true" />
-                    ) : (
-                      <CopyIcon aria-hidden="true" />
-                    )}
-                    <span className="sr-only" aria-live="polite">
-                      {codeCopied && 'Code copied!'}
-                    </span>
+                    {copyTimeout ? <CheckIcon /> : <CopyIcon />}
                   </span>
                 </GhostButton>
 
