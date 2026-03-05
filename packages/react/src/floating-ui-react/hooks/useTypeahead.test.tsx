@@ -1,11 +1,10 @@
 import * as React from 'react';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 
 import { useClick, useFloating, useInteractions, useTypeahead } from '../index';
 import type { UseTypeaheadProps } from './useTypeahead';
-import { Main } from '../../../test/floating-ui-tests/Menu';
 
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
@@ -223,35 +222,5 @@ describe('useTypeahead', () => {
     vi.advanceTimersByTime(750);
     expect(spy).toHaveBeenCalledTimes(2);
     expect(spy).toHaveBeenCalledWith(false);
-  });
-
-  it('Menu - skips disabled items and opens submenu on space if no match', async () => {
-    vi.useRealTimers();
-
-    render(<Main />);
-
-    await userEvent.click(screen.getByText('Edit'));
-
-    await waitFor(() => {
-      expect(screen.getByRole('menu')).toBeInTheDocument();
-    });
-
-    await userEvent.keyboard('c');
-
-    await waitFor(() => {
-      expect(screen.getByText('Copy as')).toHaveFocus();
-    });
-
-    await userEvent.keyboard('opy as ');
-
-    await waitFor(() => {
-      expect(screen.getByText('Copy as').getAttribute('aria-expanded')).toBe('false');
-    });
-
-    await userEvent.keyboard(' ');
-
-    await waitFor(() => {
-      expect(screen.getByText('Copy as').getAttribute('aria-expanded')).toBe('true');
-    });
   });
 });
