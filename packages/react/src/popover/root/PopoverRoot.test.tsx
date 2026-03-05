@@ -607,9 +607,8 @@ describe('<Popover.Root />', () => {
 
           await user.tab({ shift: true });
 
-          expect(screen.getByRole('button', { name: 'Toggle' })).toHaveFocus();
-
           await waitFor(() => {
+            expect(trigger).toHaveFocus();
             expect(screen.queryByRole('listbox')).to.equal(null);
           });
         });

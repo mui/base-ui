@@ -19,7 +19,7 @@ import {
   useHoverReferenceInteraction,
   useInteractions,
 } from '../../floating-ui-react';
-import { OPEN_DELAY } from '../utils/constants';
+import { OPEN_DELAY, CLOSE_DELAY } from '../utils/constants';
 import { PopoverHandle } from '../store/PopoverHandle';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
@@ -53,7 +53,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     payload,
     openOnHover = false,
     delay = OPEN_DELAY,
-    closeDelay = 0,
+    closeDelay = CLOSE_DELAY,
     id: idProp,
     ...elementProps
   } = componentProps;
@@ -272,7 +272,7 @@ export type PopoverTriggerProps<Payload = unknown> = NativeButtonProps &
      * Specified in milliseconds.
      *
      * Requires the `openOnHover` prop.
-     * @default 0
+     * @default 100
      */
     closeDelay?: number | undefined;
   };

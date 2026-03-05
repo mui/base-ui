@@ -32,7 +32,7 @@
     },
     "closeDelay": {
       "type": "number",
-      "default": "0",
+      "default": "100",
       "description": "How long to wait before closing the popover that was opened on hover.\nSpecified in milliseconds.\n\nRequires the `openOnHover` prop.",
       "detailedType": "number | undefined"
     },
