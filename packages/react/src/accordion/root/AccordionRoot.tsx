@@ -167,11 +167,17 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
 export type AccordionValue<Value = any> = Value[];
 
 export interface AccordionRootState<Value = any> {
+  /**
+   * The current value.
+   */
   value: AccordionValue<Value>;
   /**
    * Whether the component should ignore user interaction.
    */
   disabled: boolean;
+  /**
+   * The component orientation.
+   */
   orientation: Orientation;
 }
 

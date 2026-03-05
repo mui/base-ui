@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { contains, stopEvent } from '../utils';
+import { contains, isElementVisible, stopEvent } from '../utils';
 
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 
@@ -23,6 +23,12 @@ export interface UseTypeaheadProps {
    * Callback invoked with the matching index if found as the user types.
    */
   onMatch?: ((index: number) => void) | undefined;
+  /**
+   * Optional list of item elements that correspond to `listRef` indices.
+   * When an element exists for an index, typeahead skips it if it is hidden
+   * via CSS (`display: none`).
+   */
+  elementsRef?: React.RefObject<Array<HTMLElement | null>> | undefined;
   /**
    * Callback invoked with the typing state as the user types.
    */
@@ -59,6 +65,7 @@ export function useTypeahead(
   const open = store.useState('open');
   const {
     listRef,
+    elementsRef,
     activeIndex,
     onMatch: onMatchProp,
     onTypingChange,
@@ -105,25 +112,41 @@ export function useTypeahead(
   });
 
   const onKeyDown = useStableCallback((event: React.KeyboardEvent) => {
-    function getMatchingIndex(
-      list: Array<string | null>,
-      orderedList: Array<string | null>,
-      string: string,
-    ) {
-      const str = orderedList.find(
-        (text) => text?.toLocaleLowerCase().indexOf(string.toLocaleLowerCase()) === 0,
-      );
+    function isVisible(index: number) {
+      const element = elementsRef?.current[index];
+      return !element || isElementVisible(element);
+    }
 
-      return str ? list.indexOf(str) : -1;
+    function getMatchingIndex(list: Array<string | null>, string: string, startIndex = 0) {
+      if (list.length === 0) {
+        return -1;
+      }
+
+      const normalizedStartIndex = ((startIndex % list.length) + list.length) % list.length;
+      const lowerString = string.toLocaleLowerCase();
+
+      for (let offset = 0; offset < list.length; offset += 1) {
+        const index = (normalizedStartIndex + offset) % list.length;
+        const text = list[index];
+        if (!text?.toLocaleLowerCase().startsWith(lowerString) || !isVisible(index)) {
+          continue;
+        }
+        return index;
+      }
+      return -1;
     }
 
     const listContent = listRef.current;
 
+    if (stringRef.current.length > 0 && event.key === ' ') {
+      // Space should continue the in-progress typeahead session.
+      stopEvent(event);
+      setTypingChange(true);
+    }
+
     if (stringRef.current.length > 0 && stringRef.current[0] !== ' ') {
-      if (getMatchingIndex(listContent, listContent, stringRef.current) === -1) {
+      if (getMatchingIndex(listContent, stringRef.current) === -1 && event.key !== ' ') {
         setTypingChange(false);
-      } else if (event.key === ' ') {
-        stopEvent(event);
       }
     }
 
@@ -174,12 +197,9 @@ export function useTypeahead(
     // If this is a new typing session (string is empty), base it on the current
     // selection/active item; otherwise continue from the last matched index.
     const prevIndex = isNewSession ? (selectedIndex ?? activeIndex ?? -1) : prevIndexRef.current;
+    const startIndex = (prevIndex ?? 0) + 1;
 
-    const index = getMatchingIndex(
-      listContent,
-      [...listContent.slice((prevIndex || 0) + 1), ...listContent.slice(0, (prevIndex || 0) + 1)],
-      stringRef.current,
-    );
+    const index = getMatchingIndex(listContent, stringRef.current, startIndex);
 
     if (index !== -1) {
       onMatchProp?.(index);
@@ -217,14 +237,9 @@ export function useTypeahead(
   const floating: ElementProps['floating'] = React.useMemo(() => {
     return {
       onKeyDown,
-      onKeyUp(event) {
-        if (event.key === ' ') {
-          setTypingChange(false);
-        }
-      },
       onBlur,
     };
-  }, [onKeyDown, onBlur, setTypingChange]);
+  }, [onKeyDown, onBlur]);
 
   return React.useMemo(
     () => (enabled ? { reference, floating } : {}),

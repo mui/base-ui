@@ -10,7 +10,12 @@ import {
   useCompositeListItem,
   IndexGuessBehavior,
 } from '../../composite/list/useCompositeListItem';
-import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
+import type {
+  BaseUIComponentProps,
+  BaseUIEvent,
+  HTMLProps,
+  NonNativeButtonProps,
+} from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { SelectItemContext } from './SelectItemContext';
 import { selectors } from '../store';
@@ -107,7 +112,7 @@ export const SelectItem = React.memo(
       return undefined;
     }, [hasRegistered, index, multiple, isItemEqualToValue, store, itemValue]);
 
-    const state: SelectItem.State = {
+    const state: SelectItemState = {
       disabled,
       selected,
       highlighted,
@@ -127,6 +132,7 @@ export const SelectItem = React.memo(
       disabled,
       focusableWhenDisabled: true,
       native: nativeButton,
+      composite: true,
     });
 
     function commitSelection(event: MouseEvent) {
@@ -181,9 +187,13 @@ export const SelectItem = React.memo(
           allowUnselectedMouseUp: false,
         };
       },
-      onKeyDown(event) {
+      onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
         lastKeyRef.current = event.key;
         store.set('activeIndex', index);
+
+        if (event.key === ' ' && typingRef.current) {
+          event.preventDefault();
+        }
       },
       onClick(event) {
         didPointerDownRef.current = false;
@@ -195,7 +205,7 @@ export const SelectItem = React.memo(
 
         if (
           disabled ||
-          (lastKeyRef.current === ' ' && typingRef.current) ||
+          (event.type === 'keydown' && lastKeyRef.current === ' ' && typingRef.current) ||
           (pointerTypeRef.current !== 'touch' && !highlighted)
         ) {
           return;
@@ -274,7 +284,7 @@ export interface SelectItemState {
 }
 
 export interface SelectItemProps
-  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'div', SelectItem.State>, 'id'> {
+  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'div', SelectItemState>, 'id'> {
   children?: React.ReactNode;
   /**
    * A unique value that identifies this select item.

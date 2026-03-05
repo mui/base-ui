@@ -1,43 +1,45 @@
-.Link {
-  display: inline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 4px;
-  width: fit-content;
-  color: currentColor;
-  align-items: center;
-  gap: 4px;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.Link:active {
-  background-color: var(--gray-t2);
-  color: var(--gray-s1);
-}
-
-.Link:focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: 2px;
-}
-
-.LinkArrowLine {
-  opacity: 0;
-  transition: opacity 100ms ease;
-}
-
-.LinkArrowCaret {
-  transition: transform 100ms ease;
-}
-
-@media (hover: hover) {
-  .Link:hover {
-    text-decoration: none;
+@layer components {
+  .Link {
+    display: inline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+    width: fit-content;
+    color: currentColor;
+    align-items: center;
+    gap: 4px;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  .Link:hover .LinkArrowLine {
-    opacity: 1;
+  .Link:active {
+    background-color: var(--gray-t2);
+    color: var(--gray-s1);
   }
 
-  .Link:hover .LinkArrowCaret {
-    transform: translateX(4px);
+  .Link:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+
+  .LinkArrowLine {
+    opacity: 0;
+    transition: opacity 100ms ease;
+  }
+
+  .LinkArrowCaret {
+    transition: transform 100ms ease;
+  }
+
+  @media (hover: hover) {
+    .Link:hover {
+      text-decoration: none;
+    }
+
+    .Link:hover .LinkArrowLine {
+      opacity: 1;
+    }
+
+    .Link:hover .LinkArrowCaret {
+      transform: translateX(4px);
+    }
   }
 }

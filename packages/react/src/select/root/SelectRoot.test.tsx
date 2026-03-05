@@ -11,7 +11,7 @@ import {
   reactMajor,
 } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import { spy } from 'sinon';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
@@ -721,6 +721,126 @@ describe('<Select.Root />', () => {
       const positioner = screen.getByTestId('positioner');
 
       expect(positioner.previousElementSibling).to.equal(null);
+    });
+  });
+
+  describe.skipIf(isJSDOM)('interaction type tracking (openMethod)', () => {
+    it('keeps touch interaction type when reopening quickly after close', async ({
+      onTestFinished,
+    }) => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      let nextFrameId = 0;
+      const frameCallbacks = new Map<number, FrameRequestCallback>();
+
+      const requestAnimationFrameSpy = vi
+        .spyOn(window, 'requestAnimationFrame')
+        .mockImplementation((callback: FrameRequestCallback) => {
+          nextFrameId += 1;
+          frameCallbacks.set(nextFrameId, callback);
+          return nextFrameId;
+        });
+      const cancelAnimationFrameSpy = vi
+        .spyOn(window, 'cancelAnimationFrame')
+        .mockImplementation((id: number) => {
+          frameCallbacks.delete(id);
+        });
+
+      onTestFinished(() => {
+        requestAnimationFrameSpy.mockRestore();
+        cancelAnimationFrameSpy.mockRestore();
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
+      const style = `
+        @keyframes select-close-test {
+          to {
+            opacity: 0;
+          }
+        }
+
+        .animation-test-indicator[data-ending-style] {
+          animation: select-close-test 20ms linear;
+        }
+      `;
+
+      await render(
+        <div>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
+          <Select.Root modal>
+            <Select.Trigger>Open</Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup className="animation-test-indicator">
+                  <Select.Item>Item</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </div>,
+      );
+
+      const trigger = screen.getByRole('combobox');
+
+      const isScrollLocked = () =>
+        trigger.ownerDocument.documentElement.style.overflow === 'hidden' ||
+        trigger.ownerDocument.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+        trigger.ownerDocument.body.style.overflow === 'hidden';
+
+      function fireTouchPress() {
+        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+        fireEvent.mouseDown(trigger);
+      }
+
+      function flushAnimationFrames() {
+        let iterations = 0;
+        while (frameCallbacks.size > 0) {
+          if (iterations > 20) {
+            throw new Error('Exceeded maximum animation frame flush iterations.');
+          }
+
+          const pending = Array.from(frameCallbacks.values());
+          frameCallbacks.clear();
+          pending.forEach((callback) => {
+            callback(0);
+          });
+          iterations += 1;
+        }
+      }
+
+      fireTouchPress();
+      await act(async () => {
+        flushAnimationFrames();
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).not.to.equal(null);
+      });
+
+      fireTouchPress();
+
+      await act(async () => {
+        flushAnimationFrames();
+      });
+
+      await waitFor(() => {
+        expect(trigger).to.have.attribute('aria-expanded', 'false');
+      });
+
+      // Re-open while the previous close animation is still pending.
+      fireTouchPress();
+
+      await act(async () => {
+        flushAnimationFrames();
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).not.to.equal(null);
+      });
+
+      await wait(30);
+
+      expect(isScrollLocked()).to.equal(false);
     });
   });
 
@@ -2530,6 +2650,49 @@ describe('<Select.Root />', () => {
   });
 
   describe('typeahead', () => {
+    it.skipIf(isJSDOM)(
+      'does not trigger selection when Space is pressed during text navigation',
+      async () => {
+        const handleItemClick = spy();
+        const handleValueChange = spy();
+
+        const { user } = await render(
+          <Select.Root defaultOpen onValueChange={handleValueChange}>
+            <Select.Trigger data-testid="trigger">
+              <Select.Value data-testid="value" />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="one" onClick={() => handleItemClick()}>
+                    Item One
+                  </Select.Item>
+                  <Select.Item value="two" onClick={() => handleItemClick()}>
+                    Item Two
+                  </Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>,
+        );
+
+        const options = screen.getAllByRole('option');
+
+        await act(async () => {
+          options[0].focus();
+        });
+
+        await user.keyboard('Item T');
+
+        expect(handleItemClick.called).to.equal(false);
+        expect(handleValueChange.called).to.equal(false);
+
+        await waitFor(() => {
+          expect(options[1]).toHaveFocus();
+        });
+      },
+    );
+
     it('starts from the first match after value reset (closed)', async () => {
       function App() {
         const [value, setValue] = React.useState<string | null>(null);
@@ -2561,13 +2724,13 @@ describe('<Select.Root />', () => {
       const valueEl = screen.getByTestId('value');
       const resetBtn = screen.getByTestId('reset');
 
-      act(() => trigger.focus());
+      await act(async () => trigger.focus());
       await user.keyboard('a');
       expect(valueEl.textContent).to.equal('a1');
 
       await user.click(resetBtn);
 
-      act(() => trigger.focus());
+      await act(async () => trigger.focus());
       await user.keyboard('a');
       expect(valueEl.textContent).to.equal('a1');
     });

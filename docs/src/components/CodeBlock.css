@@ -9,7 +9,8 @@
   }
 
   .CodeBlockPanel {
-    @apply text-xs;
+    font-size: var(--text-xs);
+    letter-spacing: var(--text-xs--letter-spacing);
     line-height: 1;
     background-color: var(--color-gray-50);
     background-clip: padding-box;
@@ -44,13 +45,25 @@
   }
 
   .CodeBlockPanelTitle {
-    @apply text-sm;
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    letter-spacing: var(--text-sm--letter-spacing);
     color: var(--color-gray-700);
     font-weight: 400;
   }
 
+  .CodeBlockCopyIcon {
+    display: flex;
+    width: 14px;
+    height: 14px;
+    align-items: center;
+    justify-content: center;
+  }
+
   .CodeBlockPre {
-    @apply text-xs;
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+    letter-spacing: var(--text-xs--letter-spacing);
     cursor: text;
     color: var(--color-foreground);
     background-color: var(--color-content);

@@ -190,6 +190,43 @@ describe('<Menu.CheckboxItem />', () => {
       expect(item).to.have.attribute('data-unchecked', '');
     });
 
+    it.skipIf(isJSDOM)(
+      'does not toggle when Space is pressed during an active typeahead session',
+      async () => {
+        const onCheckedChange = spy();
+        const { user } = await render(
+          <Menu.Root open>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.CheckboxItem onCheckedChange={onCheckedChange}>Item One</Menu.CheckboxItem>
+                  <Menu.CheckboxItem onCheckedChange={onCheckedChange}>Item Two</Menu.CheckboxItem>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>,
+        );
+
+        const [itemOne, itemTwo] = screen.getAllByRole('menuitemcheckbox');
+
+        await act(async () => {
+          itemOne.focus();
+        });
+
+        await user.keyboard('Item T');
+
+        await waitFor(() => {
+          expect(itemTwo).toHaveFocus();
+        });
+
+        await user.keyboard('[Space]');
+        await user.keyboard('[Space]');
+
+        expect(onCheckedChange.called).to.equal(false);
+        expect(itemTwo).to.have.attribute('aria-checked', 'false');
+      },
+    );
+
     it(`toggles the checked state when Enter is pressed`, async ({ skip }) => {
       if (isJSDOM) {
         skip();

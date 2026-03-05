@@ -72,7 +72,7 @@ export function TableCode({ children, className, printWidth = 40, ...props }: Ta
   }
 
   return (
-    <Code data-table-code="" className={clsx('text-xs', className)} {...props}>
+    <Code data-table-code="" className={clsx('TableCode', className)} {...props}>
       {children}
     </Code>
   );

@@ -1,11 +1,12 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import clsx from 'clsx';
 import NextLink from 'next/link';
 import { Dialog } from '@base-ui/react/dialog';
-import * as ReactDOM from 'react-dom';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { HEADER_HEIGHT } from './Header';
+import './MobileNav.css';
 
 const MobileNavStateCallback = React.createContext<(open: boolean) => void>(() => undefined);
 
@@ -71,13 +72,13 @@ function PopupImpl(props: React.PropsWithChildren) {
                 if (viewport.scrollTop < -32) {
                   const y = viewport.scrollTop;
                   // Scroll lock is forced during the flick down gesture to maintain
-                  // a continous blend between the native scroll inertia and our own animation
+                  // a continuous blend between the native scroll inertia and our own animation
                   setForceScrollLock(true);
 
                   viewport.addEventListener(
                     'scroll',
                     function handleNextScroll() {
-                      // ...look at whether the system's intertia scrolling is continuing the motion
+                      // ...look at whether the system's inertia scrolling is continuing the motion
                       // in the same direction. If so, the flick is strong enough to close the dialog.
                       if (viewport.scrollTop < y) {
                         // It's gonna eventually bounce back to scrollTop 0. We need to counteract this
@@ -114,7 +115,7 @@ function PopupImpl(props: React.PropsWithChildren) {
 
           <nav className="MobileNavPanel">
             {/* Reverse order to place the close button at the end of the DOM, but at sticky top visually */}
-            <div className="flex flex-col-reverse">
+            <div className="MobileNavBody">
               <div>{props.children}</div>
               <div className="MobileNavCloseContainer">
                 <Dialog.Close aria-label="Close the navigation" className="MobileNavClose">

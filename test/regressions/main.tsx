@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as ReactDOMClient from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router';
 import TestViewer from './TestViewer';
-import 'docs/src/styles.css';
+import 'docs/src/css/index.css';
 
 interface Fixture {
   Component: React.ComponentType<unknown>;

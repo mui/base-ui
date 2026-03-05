@@ -41,7 +41,7 @@ export const SelectGroup = React.forwardRef(function SelectGroup(
 });
 
 export interface SelectGroupState {}
-export interface SelectGroupProps extends BaseUIComponentProps<'div', SelectGroup.State> {}
+export interface SelectGroupProps extends BaseUIComponentProps<'div', SelectGroupState> {}
 
 export namespace SelectGroup {
   export type State = SelectGroupState;

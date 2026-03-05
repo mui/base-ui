@@ -25,7 +25,7 @@ export const TooltipArrow = React.forwardRef(function TooltipArrow(
   const { open, arrowRef, side, align, arrowUncentered, arrowStyles } =
     useTooltipPositionerContext();
 
-  const state: TooltipArrow.State = {
+  const state: TooltipArrowState = {
     open,
     side,
     align,
@@ -48,13 +48,25 @@ export interface TooltipArrowState {
    * Whether the tooltip is currently open.
    */
   open: boolean;
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
   align: Align;
+  /**
+   * Whether the arrow cannot be centered on the anchor.
+   */
   uncentered: boolean;
+  /**
+   * Whether transitions should be skipped.
+   */
   instant: 'delay' | 'dismiss' | 'focus' | undefined;
 }
 
-export interface TooltipArrowProps extends BaseUIComponentProps<'div', TooltipArrow.State> {}
+export interface TooltipArrowProps extends BaseUIComponentProps<'div', TooltipArrowState> {}
 
 export namespace TooltipArrow {
   export type State = TooltipArrowState;

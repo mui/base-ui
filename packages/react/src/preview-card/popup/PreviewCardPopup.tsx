@@ -14,7 +14,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { useHoverFloatingInteraction } from '../../floating-ui-react';
 
-const stateAttributesMapping: StateAttributesMapping<PreviewCardPopup.State> = {
+const stateAttributesMapping: StateAttributesMapping<PreviewCardPopupState> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -56,7 +56,7 @@ export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
     closeDelay: getCloseDelay,
   });
 
-  const state: PreviewCardPopup.State = {
+  const state: PreviewCardPopupState = {
     open,
     side,
     align,
@@ -79,16 +79,25 @@ export interface PreviewCardPopupState {
    * Whether the preview card is currently open.
    */
   open: boolean;
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
   align: Align;
+  /**
+   * Whether transitions should be skipped.
+   */
   instant: 'dismiss' | 'focus' | undefined;
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
 }
 
-export interface PreviewCardPopupProps extends BaseUIComponentProps<
-  'div',
-  PreviewCardPopup.State
-> {}
+export interface PreviewCardPopupProps extends BaseUIComponentProps<'div', PreviewCardPopupState> {}
 
 export namespace PreviewCardPopup {
   export type State = PreviewCardPopupState;
