@@ -181,10 +181,10 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
   return element;
 });
 
-export interface AccordionTriggerState {}
+export interface AccordionTriggerState extends AccordionItemState {}
 
 export interface AccordionTriggerProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', AccordionItemState> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', AccordionTriggerState> {}
 
 export namespace AccordionTrigger {
   export type State = AccordionTriggerState;

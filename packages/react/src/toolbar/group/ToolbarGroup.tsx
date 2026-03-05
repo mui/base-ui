@@ -45,9 +45,9 @@ export const ToolbarGroup = React.forwardRef(function ToolbarGroup(
   );
 });
 
-export interface ToolbarGroupState {}
+export interface ToolbarGroupState extends ToolbarRootState {}
 
-export interface ToolbarGroupProps extends BaseUIComponentProps<'div', ToolbarRootState> {
+export interface ToolbarGroupProps extends BaseUIComponentProps<'div', ToolbarGroupState> {
   /**
    * When `true` all toolbar items in the group are disabled.
    * @default false

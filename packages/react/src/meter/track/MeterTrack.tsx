@@ -22,9 +22,9 @@ export const MeterTrack = React.forwardRef(function MeterTrack(
   });
 });
 
-export interface MeterTrackState {}
+export interface MeterTrackState extends MeterRootState {}
 
-export interface MeterTrackProps extends BaseUIComponentProps<'div', MeterRootState> {}
+export interface MeterTrackProps extends BaseUIComponentProps<'div', MeterTrackState> {}
 
 export namespace MeterTrack {
   export type State = MeterTrackState;

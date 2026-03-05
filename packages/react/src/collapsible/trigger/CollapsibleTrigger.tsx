@@ -66,10 +66,10 @@ export const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
   return element;
 });
 
-export interface CollapsibleTriggerState {}
+export interface CollapsibleTriggerState extends CollapsibleRootState {}
 
 export interface CollapsibleTriggerProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', CollapsibleRootState> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', CollapsibleTriggerState> {}
 
 export namespace CollapsibleTrigger {
   export type State = CollapsibleTriggerState;

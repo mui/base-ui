@@ -30,9 +30,9 @@ export const AccordionHeader = React.forwardRef(function AccordionHeader(
   return element;
 });
 
-export interface AccordionHeaderState {}
+export interface AccordionHeaderState extends AccordionItemState {}
 
-export interface AccordionHeaderProps extends BaseUIComponentProps<'h3', AccordionItemState> {}
+export interface AccordionHeaderProps extends BaseUIComponentProps<'h3', AccordionHeaderState> {}
 
 export namespace AccordionHeader {
   export type State = AccordionHeaderState;

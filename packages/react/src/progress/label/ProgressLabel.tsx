@@ -45,9 +45,9 @@ export const ProgressLabel = React.forwardRef(function ProgressLabel(
   return element;
 });
 
-export interface ProgressLabelState {}
+export interface ProgressLabelState extends ProgressRootState {}
 
-export interface ProgressLabelProps extends BaseUIComponentProps<'span', ProgressRootState> {}
+export interface ProgressLabelProps extends BaseUIComponentProps<'span', ProgressLabelState> {}
 
 export namespace ProgressLabel {
   export type State = ProgressLabelState;

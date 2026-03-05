@@ -40,9 +40,9 @@ export const MeterLabel = React.forwardRef(function MeterLabel(
   });
 });
 
-export interface MeterLabelState {}
+export interface MeterLabelState extends MeterRootState {}
 
-export interface MeterLabelProps extends BaseUIComponentProps<'span', MeterRootState> {}
+export interface MeterLabelProps extends BaseUIComponentProps<'span', MeterLabelState> {}
 
 export namespace MeterLabel {
   export type State = MeterLabelState;

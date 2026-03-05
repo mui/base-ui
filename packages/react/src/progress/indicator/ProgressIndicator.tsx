@@ -51,9 +51,10 @@ export const ProgressIndicator = React.forwardRef(function ProgressIndicator(
   return element;
 });
 
-export interface ProgressIndicatorState {}
+export interface ProgressIndicatorState extends ProgressRootState {}
 
-export interface ProgressIndicatorProps extends BaseUIComponentProps<'div', ProgressRootState> {}
+export interface ProgressIndicatorProps
+  extends BaseUIComponentProps<'div', ProgressIndicatorState> {}
 
 export namespace ProgressIndicator {
   export type State = ProgressIndicatorState;

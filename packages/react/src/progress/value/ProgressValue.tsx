@@ -41,10 +41,10 @@ export const ProgressValue = React.forwardRef(function ProgressValue(
   return element;
 });
 
-export interface ProgressValueState {}
+export interface ProgressValueState extends ProgressRootState {}
 
 export interface ProgressValueProps extends Omit<
-  BaseUIComponentProps<'span', ProgressRootState>,
+  BaseUIComponentProps<'span', ProgressValueState>,
   'children'
 > {
   children?:

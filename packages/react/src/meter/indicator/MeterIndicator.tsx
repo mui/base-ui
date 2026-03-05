@@ -37,9 +37,9 @@ export const MeterIndicator = React.forwardRef(function MeterIndicator(
   });
 });
 
-export interface MeterIndicatorState {}
+export interface MeterIndicatorState extends MeterRootState {}
 
-export interface MeterIndicatorProps extends BaseUIComponentProps<'div', MeterRootState> {}
+export interface MeterIndicatorProps extends BaseUIComponentProps<'div', MeterIndicatorState> {}
 
 export namespace MeterIndicator {
   export type State = MeterIndicatorState;
