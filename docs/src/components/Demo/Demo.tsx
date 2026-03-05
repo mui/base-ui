@@ -92,23 +92,12 @@ export function Demo({
 
   const githubUrl = getGitHubDemoUrl(demoProps.url, demo.selectedVariant);
 
-  const issueUrl = `https://github.com/mui/base-ui/issues/new/choose?title=${encodeURIComponent(`[${pathname.split('/').filter(Boolean).pop()}] `)}`;
-
   const onViewSource = useStableCallback(() => {
     ga?.trackEvent({
       category: 'demo',
       action: 'open_github',
       label: demoId,
       params: { github: demoId, slug: demoSlug || '' },
-    });
-  });
-
-  const onOpenIssue = useStableCallback(() => {
-    ga?.trackEvent({
-      category: 'demo',
-      action: 'open_issue',
-      label: demoId,
-      params: { issue: demoId, slug: demoSlug || '' },
     });
   });
 
@@ -263,18 +252,6 @@ export function Demo({
                           {sourceLinkCopied && 'Link copied!'}
                         </span>
                       </Menu.Item>
-
-                      <Menu.Separator />
-
-                      <Menu.LinkItem
-                        href={issueUrl}
-                        target="_blank"
-                        rel="noopener"
-                        onClick={onOpenIssue}
-                      >
-                        <ExternalLinkIcon aria-hidden="true" className="size-3.5" />
-                        Report an issue
-                      </Menu.LinkItem>
                     </Menu.Popup>
                   </Menu.Root>
                 )}
