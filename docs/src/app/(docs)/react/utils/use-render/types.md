@@ -24,15 +24,21 @@ Renders a Base UI element.
 type ReturnValue = ReactElement | null;
 ```
 
+### useRender.State
+
+```typescript
+type useRenderState = {};
+```
+
 ### useRender.ComponentProps
 
 ```typescript
 type useRenderComponentProps<
   ElementType extends React.ElementType,
-  State = {},
+  TState = {},
   RenderFunctionProps = HTMLProps,
 > = React.ComponentPropsWithRef<ElementType> & {
-  render?: ReactElement | ((props: RenderFunctionProps, state: State) => ReactElement);
+  render?: ReactElement | ((props: RenderFunctionProps, state: TState) => ReactElement);
 };
 ```
 
@@ -49,24 +55,24 @@ type useRenderElementProps =
 
 ```typescript
 type useRenderParameters<
-  State,
+  TState,
   RenderedElementType extends Element,
   Enabled extends boolean | undefined,
 > = {
   /** The React element or a function that returns one to override the default element. */
-  render?: UseRenderRenderProp<State>;
+  render?: UseRenderRenderProp<TState>;
   /** The ref to apply to the rendered element. */
   ref?: React.Ref<RenderedElementType>[] | React.Ref<RenderedElementType>;
   /**
    * The state of the component, passed as the second argument to the `render` callback.
    * State properties are automatically converted to data-* attributes.
    */
-  state?: State;
+  state?: TState;
   /**
    * Custom mapping for converting state properties to data-* attributes.
    * @example { isActive: (value) => (value ? { 'data-is-active': '' } : null) }
    */
-  stateAttributesMapping?: StateAttributesMapping<State>;
+  stateAttributesMapping?: StateAttributesMapping<TState>;
   /**
    * Props to be spread on the rendered element.
    * They are merged with the internal props of the component, so that event handlers
@@ -269,9 +275,9 @@ type useRenderParameters<
 ### useRender.RenderProp
 
 ```typescript
-type useRenderRenderProp<State = Record<string, unknown>> =
+type useRenderRenderProp<TState = Record<string, unknown>> =
   | ReactElement
-  | ((props: React.HTMLAttributes<any>, state: State) => ReactElement);
+  | ((props: React.HTMLAttributes<any>, state: TState) => ReactElement);
 ```
 
 ### useRender.ReturnValue
@@ -542,4 +548,10 @@ type UseRenderRenderProp<State = Record<string, unknown>> =
 
 ```typescript
 type UseRenderReturnValue = ReactElement | null;
+```
+
+### UseRenderState
+
+```typescript
+type UseRenderState = {};
 ```

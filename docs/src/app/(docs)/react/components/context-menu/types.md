@@ -277,6 +277,7 @@ Re-export of [Backdrop](#backdrop) props.
 type ContextMenuBackdropState = {
   /** Whether the menu is currently open. */
   open: boolean;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
 };
 ```
@@ -368,9 +369,13 @@ Re-export of [Positioner](#positioner) props.
 type ContextMenuPositionerState = {
   /** Whether the menu is currently open. */
   open: boolean;
+  /** The side of the anchor the component is placed on. */
   side: Side;
+  /** The alignment of the component relative to the anchor. */
   align: Align;
+  /** Whether the anchor element is hidden. */
   anchorHidden: boolean;
+  /** Whether the component is nested. */
   nested: boolean;
 };
 ```
@@ -410,12 +415,17 @@ Re-export of [Popup](#popup) props.
 
 ```typescript
 type ContextMenuPopupState = {
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
+  /** The side of the anchor the component is placed on. */
   side: Side;
+  /** The alignment of the component relative to the anchor. */
   align: Align;
   /** Whether the menu is currently open. */
   open: boolean;
+  /** Whether the component is nested. */
   nested: boolean;
+  /** Whether transitions should be skipped. */
   instant: 'dismiss' | 'click' | 'group' | undefined;
 };
 ```
@@ -453,8 +463,11 @@ Re-export of [Arrow](#arrow) props.
 type ContextMenuArrowState = {
   /** Whether the menu is currently open. */
   open: boolean;
+  /** The side of the anchor the component is placed on. */
   side: Side;
+  /** The alignment of the component relative to the anchor. */
   align: Align;
+  /** Whether the arrow cannot be centered on the anchor. */
   uncentered: boolean;
 };
 ```
@@ -832,7 +845,10 @@ Re-export of [RadioGroup](#radiogroup) props.
 ### RadioGroup.State
 
 ```typescript
-type ContextMenuRadioGroupState = { disabled: boolean };
+type ContextMenuRadioGroupState = {
+  /** Whether the component is disabled. */
+  disabled: boolean;
+};
 ```
 
 ### RadioGroup.ChangeEventReason
@@ -1071,7 +1087,9 @@ type ContextMenuRadioItemIndicatorState = {
   checked: boolean;
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** Whether the item is highlighted. */
   highlighted: boolean;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
 };
 ```
@@ -1314,7 +1332,9 @@ type ContextMenuCheckboxItemIndicatorState = {
   checked: boolean;
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** Whether the item is highlighted. */
   highlighted: boolean;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
 };
 ```
@@ -1407,7 +1427,7 @@ type preventUnmountOnClose = () => void;
 - `ContextMenu.Root`: `ContextMenu.Root`, `ContextMenu.Root.State`, `ContextMenu.Root.Props`, `ContextMenu.Root.Actions`, `ContextMenu.Root.ChangeEventReason`, `ContextMenu.Root.ChangeEventDetails`
 - `ContextMenu.Trigger`: `ContextMenu.Trigger`, `ContextMenu.Trigger.State`, `ContextMenu.Trigger.Props`
 - `ContextMenu.Backdrop`: `ContextMenu.Backdrop`, `ContextMenu.Backdrop.State`, `ContextMenu.Backdrop.Props`
-- `ContextMenu.Portal`: `ContextMenu.Portal`, `ContextMenu.Portal.State`, `ContextMenu.Portal.Props`, `ContextMenu.Portal.State`, `ContextMenu.Portal.Props`
+- `ContextMenu.Portal`: `ContextMenu.Portal`, `ContextMenu.Portal.State`, `ContextMenu.Portal.Props`
 - `ContextMenu.Positioner`: `ContextMenu.Positioner`, `ContextMenu.Positioner.State`, `ContextMenu.Positioner.Props`
 - `ContextMenu.Popup`: `ContextMenu.Popup`, `ContextMenu.Popup.Props`, `ContextMenu.Popup.State`
 - `ContextMenu.Arrow`: `ContextMenu.Arrow`, `ContextMenu.Arrow.State`, `ContextMenu.Arrow.Props`
@@ -1423,7 +1443,7 @@ type preventUnmountOnClose = () => void;
 - `ContextMenu.SubmenuRoot`: `ContextMenu.SubmenuRoot`, `ContextMenu.SubmenuRoot.Props`, `ContextMenu.SubmenuRoot.State`, `ContextMenu.SubmenuRoot.ChangeEventReason`, `ContextMenu.SubmenuRoot.ChangeEventDetails`
 - `ContextMenu.SubmenuTrigger`: `ContextMenu.SubmenuTrigger`, `ContextMenu.SubmenuTrigger.Props`, `ContextMenu.SubmenuTrigger.State`
 - `ContextMenu.Separator`: `ContextMenu.Separator`, `ContextMenu.Separator.Props`, `ContextMenu.Separator.State`
-- `Default`: `ContextMenuBackdropProps`, `ContextMenuBackdropState`, `ContextMenuPortalProps`, `ContextMenuPositionerProps`, `ContextMenuPositionerState`, `ContextMenuPopupProps`, `ContextMenuPopupState`, `ContextMenuArrowProps`, `ContextMenuArrowState`, `ContextMenuGroupProps`, `ContextMenuGroupState`, `ContextMenuGroupLabelProps`, `ContextMenuGroupLabelState`, `ContextMenuItemProps`, `ContextMenuItemState`, `ContextMenuLinkItemProps`, `ContextMenuLinkItemState`, `ContextMenuCheckboxItemProps`, `ContextMenuCheckboxItemState`, `ContextMenuCheckboxItemIndicatorProps`, `ContextMenuCheckboxItemIndicatorState`, `ContextMenuRadioGroupProps`, `ContextMenuRadioGroupState`, `ContextMenuRadioItemProps`, `ContextMenuRadioItemState`, `ContextMenuRadioItemIndicatorProps`, `ContextMenuRadioItemIndicatorState`, `ContextMenuSubmenuRootProps`, `ContextMenuSubmenuRootState`, `ContextMenuSubmenuTriggerProps`, `ContextMenuSubmenuTriggerState`, `ContextMenuRootState`, `ContextMenuRootProps`, `ContextMenuRootActions`, `ContextMenuRootChangeEventReason`, `ContextMenuRootChangeEventDetails`, `ContextMenuTriggerState`, `ContextMenuTriggerProps`
+- `Default`: `ContextMenuBackdropProps`, `ContextMenuBackdropState`, `ContextMenuPortalProps`, `ContextMenuPortalState`, `ContextMenuPositionerProps`, `ContextMenuPositionerState`, `ContextMenuPopupProps`, `ContextMenuPopupState`, `ContextMenuArrowProps`, `ContextMenuArrowState`, `ContextMenuGroupProps`, `ContextMenuGroupState`, `ContextMenuGroupLabelProps`, `ContextMenuGroupLabelState`, `ContextMenuItemProps`, `ContextMenuItemState`, `ContextMenuLinkItemProps`, `ContextMenuLinkItemState`, `ContextMenuCheckboxItemProps`, `ContextMenuCheckboxItemState`, `ContextMenuCheckboxItemIndicatorProps`, `ContextMenuCheckboxItemIndicatorState`, `ContextMenuRadioGroupProps`, `ContextMenuRadioGroupState`, `ContextMenuRadioItemProps`, `ContextMenuRadioItemState`, `ContextMenuRadioItemIndicatorProps`, `ContextMenuRadioItemIndicatorState`, `ContextMenuSubmenuRootProps`, `ContextMenuSubmenuRootState`, `ContextMenuSubmenuTriggerProps`, `ContextMenuSubmenuTriggerState`, `ContextMenuRootState`, `ContextMenuRootProps`, `ContextMenuRootActions`, `ContextMenuRootChangeEventReason`, `ContextMenuRootChangeEventDetails`, `ContextMenuTriggerState`, `ContextMenuTriggerProps`
 
 ## Canonical Types
 
@@ -1438,6 +1458,7 @@ Maps `Canonical`: `Alias` — rename aliases to their canonical form for consist
 - `ContextMenu.Trigger.Props`: `ContextMenuTriggerProps`
 - `ContextMenu.Backdrop.State`: `ContextMenuBackdropState`
 - `ContextMenu.Backdrop.Props`: `ContextMenuBackdropProps`
+- `ContextMenu.Portal.State`: `ContextMenuPortalState`
 - `ContextMenu.Portal.Props`: `ContextMenuPortalProps`
 - `ContextMenu.Positioner.State`: `ContextMenuPositionerState`
 - `ContextMenu.Positioner.Props`: `ContextMenuPositionerProps`

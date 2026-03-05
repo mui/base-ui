@@ -33,6 +33,12 @@ Doesn't render its own HTML element.
 
 Re-export of [Root](#root) props.
 
+### Root.State
+
+```typescript
+type MenuRootState = {};
+```
+
 ### Root.Actions
 
 ```typescript
@@ -301,6 +307,7 @@ Re-export of [Backdrop](#backdrop) props.
 type MenuBackdropState = {
   /** Whether the menu is currently open. */
   open: boolean;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
 };
 ```
@@ -392,9 +399,13 @@ Re-export of [Positioner](#positioner) props.
 type MenuPositionerState = {
   /** Whether the menu is currently open. */
   open: boolean;
+  /** The side of the anchor the component is placed on. */
   side: Side;
+  /** The alignment of the component relative to the anchor. */
   align: Align;
+  /** Whether the anchor element is hidden. */
   anchorHidden: boolean;
+  /** Whether the component is nested. */
   nested: boolean;
 };
 ```
@@ -434,12 +445,17 @@ Re-export of [Popup](#popup) props.
 
 ```typescript
 type MenuPopupState = {
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
+  /** The side of the anchor the component is placed on. */
   side: Side;
+  /** The alignment of the component relative to the anchor. */
   align: Align;
   /** Whether the menu is currently open. */
   open: boolean;
+  /** Whether the component is nested. */
   nested: boolean;
+  /** Whether transitions should be skipped. */
   instant: 'dismiss' | 'click' | 'group' | undefined;
 };
 ```
@@ -477,8 +493,11 @@ Re-export of [Arrow](#arrow) props.
 type MenuArrowState = {
   /** Whether the menu is currently open. */
   open: boolean;
+  /** The side of the anchor the component is placed on. */
   side: Side;
+  /** The alignment of the component relative to the anchor. */
   align: Align;
+  /** Whether the arrow cannot be centered on the anchor. */
   uncentered: boolean;
 };
 ```
@@ -856,7 +875,10 @@ Re-export of [RadioGroup](#radiogroup) props.
 ### RadioGroup.State
 
 ```typescript
-type MenuRadioGroupState = { disabled: boolean };
+type MenuRadioGroupState = {
+  /** Whether the component is disabled. */
+  disabled: boolean;
+};
 ```
 
 ### RadioGroup.ChangeEventReason
@@ -1095,7 +1117,9 @@ type MenuRadioItemIndicatorState = {
   checked: boolean;
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** Whether the item is highlighted. */
   highlighted: boolean;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
 };
 ```
@@ -1338,7 +1362,9 @@ type MenuCheckboxItemIndicatorState = {
   checked: boolean;
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** Whether the item is highlighted. */
   highlighted: boolean;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
 };
 ```
@@ -1477,19 +1503,19 @@ type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => Rea
 - `Menu.Item`: `Menu.Item`, `Menu.Item.State`, `Menu.Item.Props`
 - `Menu.LinkItem`: `Menu.LinkItem`, `Menu.LinkItem.State`, `Menu.LinkItem.Props`
 - `Menu.Popup`: `Menu.Popup`, `Menu.Popup.Props`, `Menu.Popup.State`
-- `Menu.Portal`: `Menu.Portal`, `Menu.Portal.State`, `Menu.Portal.Props`, `Menu.Portal.State`, `Menu.Portal.Props`
+- `Menu.Portal`: `Menu.Portal`, `Menu.Portal.State`, `Menu.Portal.Props`
 - `Menu.Positioner`: `Menu.Positioner`, `Menu.Positioner.State`, `Menu.Positioner.Props`
 - `Menu.RadioGroup`: `Menu.RadioGroup`, `Menu.RadioGroup.Props`, `Menu.RadioGroup.State`, `Menu.RadioGroup.ChangeEventReason`, `Menu.RadioGroup.ChangeEventDetails`
 - `Menu.RadioItem`: `Menu.RadioItem`, `Menu.RadioItem.State`, `Menu.RadioItem.Props`
 - `Menu.RadioItemIndicator`: `Menu.RadioItemIndicator`, `Menu.RadioItemIndicator.Props`, `Menu.RadioItemIndicator.State`
-- `Menu.Root`: `Menu.Root`, `Menu.Root.Props`, `Menu.Root.Actions`, `Menu.Root.ChangeEventReason`, `Menu.Root.ChangeEventDetails`, `Menu.Root.Orientation`
+- `Menu.Root`: `Menu.Root`, `Menu.Root.State`, `Menu.Root.Props`, `Menu.Root.Actions`, `Menu.Root.ChangeEventReason`, `Menu.Root.ChangeEventDetails`, `Menu.Root.Orientation`
 - `Menu.SubmenuRoot`: `Menu.SubmenuRoot`, `Menu.SubmenuRoot.Props`, `Menu.SubmenuRoot.State`, `Menu.SubmenuRoot.ChangeEventReason`, `Menu.SubmenuRoot.ChangeEventDetails`
 - `Menu.Trigger`: `Menu.Trigger`, `Menu.Trigger.Props`, `Menu.Trigger.State`
 - `Menu.Separator`: `Menu.Separator`, `Menu.Separator.Props`, `Menu.Separator.State`
 - `Menu.SubmenuTrigger`: `Menu.SubmenuTrigger`, `Menu.SubmenuTrigger.Props`, `Menu.SubmenuTrigger.State`
 - `Menu.Handle`
 - `Menu.createHandle`
-- `Default`: `MenuRootProps`, `MenuRootActions`, `MenuRootChangeEventReason`, `MenuRootChangeEventDetails`, `MenuRootOrientation`, `MenuParent`, `MenuArrowState`, `MenuArrowProps`, `MenuBackdropState`, `MenuBackdropProps`, `MenuCheckboxItemState`, `MenuCheckboxItemProps`, `MenuCheckboxItemChangeEventReason`, `MenuCheckboxItemChangeEventDetails`, `MenuCheckboxItemIndicatorProps`, `MenuCheckboxItemIndicatorState`, `MenuGroupLabelProps`, `MenuGroupLabelState`, `MenuGroupProps`, `MenuGroupState`, `MenuItemState`, `MenuItemProps`, `MenuLinkItemState`, `MenuLinkItemProps`, `MenuPopupProps`, `MenuPopupState`, `MenuPortalProps`, `MenuPositionerState`, `MenuPositionerProps`, `MenuRadioGroupProps`, `MenuRadioGroupState`, `MenuRadioGroupChangeEventReason`, `MenuRadioGroupChangeEventDetails`, `MenuRadioItemState`, `MenuRadioItemProps`, `MenuRadioItemIndicatorProps`, `MenuRadioItemIndicatorState`, `MenuSubmenuRootProps`, `MenuSubmenuRootState`, `MenuSubmenuRootChangeEventReason`, `MenuSubmenuRootChangeEventDetails`, `MenuTriggerProps`, `MenuTriggerState`, `MenuSubmenuTriggerState`, `MenuSubmenuTriggerProps`
+- `Default`: `MenuRootState`, `MenuRootProps`, `MenuRootActions`, `MenuRootChangeEventReason`, `MenuRootChangeEventDetails`, `MenuRootOrientation`, `MenuParent`, `MenuArrowState`, `MenuArrowProps`, `MenuBackdropState`, `MenuBackdropProps`, `MenuCheckboxItemState`, `MenuCheckboxItemProps`, `MenuCheckboxItemChangeEventReason`, `MenuCheckboxItemChangeEventDetails`, `MenuCheckboxItemIndicatorProps`, `MenuCheckboxItemIndicatorState`, `MenuGroupLabelProps`, `MenuGroupLabelState`, `MenuGroupProps`, `MenuGroupState`, `MenuItemState`, `MenuItemProps`, `MenuLinkItemState`, `MenuLinkItemProps`, `MenuPopupProps`, `MenuPopupState`, `MenuPortalState`, `MenuPortalProps`, `MenuPositionerState`, `MenuPositionerProps`, `MenuRadioGroupProps`, `MenuRadioGroupState`, `MenuRadioGroupChangeEventReason`, `MenuRadioGroupChangeEventDetails`, `MenuRadioItemState`, `MenuRadioItemProps`, `MenuRadioItemIndicatorProps`, `MenuRadioItemIndicatorState`, `MenuSubmenuRootProps`, `MenuSubmenuRootState`, `MenuSubmenuRootChangeEventReason`, `MenuSubmenuRootChangeEventDetails`, `MenuTriggerProps`, `MenuTriggerState`, `MenuSubmenuTriggerState`, `MenuSubmenuTriggerProps`
 
 ## Canonical Types
 
@@ -1515,6 +1541,7 @@ Maps `Canonical`: `Alias` — rename aliases to their canonical form for consist
 - `Menu.LinkItem.Props`: `MenuLinkItemProps`
 - `Menu.Popup.Props`: `MenuPopupProps`
 - `Menu.Popup.State`: `MenuPopupState`
+- `Menu.Portal.State`: `MenuPortalState`
 - `Menu.Portal.Props`: `MenuPortalProps`
 - `Menu.Positioner.State`: `MenuPositionerState`
 - `Menu.Positioner.Props`: `MenuPositionerProps`
@@ -1526,6 +1553,7 @@ Maps `Canonical`: `Alias` — rename aliases to their canonical form for consist
 - `Menu.RadioItem.Props`: `MenuRadioItemProps`
 - `Menu.RadioItemIndicator.Props`: `MenuRadioItemIndicatorProps`
 - `Menu.RadioItemIndicator.State`: `MenuRadioItemIndicatorState`
+- `Menu.Root.State`: `MenuRootState`
 - `Menu.Root.Props`: `MenuRootProps`
 - `Menu.Root.Actions`: `MenuRootActions`
 - `Menu.Root.ChangeEventReason`: `MenuRootChangeEventReason`

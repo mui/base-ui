@@ -260,10 +260,15 @@ type ComboboxTriggerState = {
   listEmpty: boolean;
   /** Whether the combobox doesn't have a value. */
   placeholder: boolean;
+  /** Whether the field has been touched. */
   touched: boolean;
+  /** Whether the field value has changed from its initial value. */
   dirty: boolean;
+  /** Whether the field is valid. */
   valid: boolean | null;
+  /** Whether the field has a value. */
   filled: boolean;
+  /** Whether the field is focused. */
   focused: boolean;
 };
 ```
@@ -340,10 +345,15 @@ type ComboboxInputState = {
   readOnly: boolean;
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** Whether the field has been touched. */
   touched: boolean;
+  /** Whether the field value has changed from its initial value. */
   dirty: boolean;
+  /** Whether the field is valid. */
   valid: boolean | null;
+  /** Whether the field has a value. */
   filled: boolean;
+  /** Whether the field is focused. */
   focused: boolean;
 };
 ```
@@ -399,6 +409,7 @@ type ComboboxClearState = {
   open: boolean;
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
 };
 ```
@@ -488,6 +499,7 @@ Re-export of [Backdrop](#backdrop) props.
 type ComboboxBackdropState = {
   /** Whether the popup is currently open. */
   open: boolean;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
 };
 ```
@@ -580,9 +592,13 @@ Re-export of [Positioner](#positioner) props.
 type ComboboxPositionerState = {
   /** Whether the popup is currently open. */
   open: boolean;
+  /** The side of the anchor the component is placed on. */
   side: Side;
+  /** The alignment of the component relative to the anchor. */
   align: Align;
+  /** Whether the anchor element is hidden. */
   anchorHidden: boolean;
+  /** Whether there are no items to display. */
   empty: boolean;
 };
 ```
@@ -623,11 +639,17 @@ Re-export of [Popup](#popup) props.
 
 ```typescript
 type ComboboxPopupState = {
+  /** Whether the component is open. */
   open: boolean;
+  /** The side of the anchor the component is placed on. */
   side: Side;
+  /** The alignment of the component relative to the anchor. */
   align: Align;
+  /** Whether the anchor element is hidden. */
   anchorHidden: boolean;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
+  /** Whether there are no items to display. */
   empty: boolean;
 };
 ```
@@ -665,8 +687,11 @@ Re-export of [Arrow](#arrow) props.
 type ComboboxArrowState = {
   /** Whether the popup is currently open. */
   open: boolean;
+  /** The side of the anchor the component is placed on. */
   side: Side;
+  /** The alignment of the component relative to the anchor. */
   align: Align;
+  /** Whether the arrow cannot be centered on the anchor. */
   uncentered: boolean;
 };
 ```
@@ -855,6 +880,12 @@ If rendering a flat list, pass a function child to the `List` component instead,
 
 Re-export of [Collection](#collection) props.
 
+### Collection.State
+
+```typescript
+type ComboboxCollectionState = {};
+```
+
 ### Row
 
 Displays a single row of items in a grid list.
@@ -984,7 +1015,12 @@ Re-export of [ItemIndicator](#itemindicator) props.
 ### ItemIndicator.State
 
 ```typescript
-type ComboboxItemIndicatorState = { selected: boolean; transitionStatus: TransitionStatus };
+type ComboboxItemIndicatorState = {
+  /** Whether the item is selected. */
+  selected: boolean;
+  /** The transition status of the component. */
+  transitionStatus: TransitionStatus;
+};
 ```
 
 ### useFilter
@@ -1089,7 +1125,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Combobox.Trigger`: `Combobox.Trigger`, `Combobox.Trigger.State`, `Combobox.Trigger.Props`
 - `Combobox.List`: `Combobox.List`, `Combobox.List.State`, `Combobox.List.Props`
 - `Combobox.Status`: `Combobox.Status`, `Combobox.Status.State`, `Combobox.Status.Props`
-- `Combobox.Portal`: `Combobox.Portal`, `Combobox.Portal.State`, `Combobox.Portal.Props`, `Combobox.Portal.State`, `Combobox.Portal.Props`
+- `Combobox.Portal`: `Combobox.Portal`, `Combobox.Portal.State`, `Combobox.Portal.Props`
 - `Combobox.Backdrop`: `Combobox.Backdrop`, `Combobox.Backdrop.Props`, `Combobox.Backdrop.State`
 - `Combobox.Positioner`: `Combobox.Positioner`, `Combobox.Positioner.State`, `Combobox.Positioner.Props`
 - `Combobox.Popup`: `Combobox.Popup`, `Combobox.Popup.State`, `Combobox.Popup.Props`
@@ -1103,13 +1139,13 @@ type Orientation = 'horizontal' | 'vertical';
 - `Combobox.Chip`: `Combobox.Chip`, `Combobox.Chip.State`, `Combobox.Chip.Props`
 - `Combobox.ChipRemove`: `Combobox.ChipRemove`, `Combobox.ChipRemove.State`, `Combobox.ChipRemove.Props`
 - `Combobox.Row`: `Combobox.Row`, `Combobox.Row.State`, `Combobox.Row.Props`
-- `Combobox.Collection`: `Combobox.Collection`, `Combobox.Collection.Props`
+- `Combobox.Collection`: `Combobox.Collection`, `Combobox.Collection.State`, `Combobox.Collection.Props`
 - `Combobox.Empty`: `Combobox.Empty`, `Combobox.Empty.State`, `Combobox.Empty.Props`
 - `Combobox.Clear`: `Combobox.Clear`, `Combobox.Clear.State`, `Combobox.Clear.Props`
 - `Combobox.Separator`: `Combobox.Separator`, `Combobox.Separator.Props`, `Combobox.Separator.State`
 - `Combobox.useFilter`
 - `Combobox.useFilteredItems`
-- `Default`: `ComboboxFilter`, `ComboboxFilterOptions`, `ComboboxRootProps`, `ComboboxRootState`, `ComboboxRootActions`, `ComboboxRootChangeEventReason`, `ComboboxRootChangeEventDetails`, `ComboboxRootHighlightEventReason`, `ComboboxRootHighlightEventDetails`, `ComboboxTriggerState`, `ComboboxTriggerProps`, `ComboboxInputState`, `ComboboxInputProps`, `ComboboxPopupState`, `ComboboxPopupProps`, `ComboboxPositionerState`, `ComboboxPositionerProps`, `ComboboxListState`, `ComboboxListProps`, `ComboboxItemState`, `ComboboxItemProps`, `ComboboxItemIndicatorProps`, `ComboboxItemIndicatorState`, `ComboboxValueState`, `ComboboxValueProps`, `ComboboxIconState`, `ComboboxIconProps`, `ComboboxArrowState`, `ComboboxArrowProps`, `ComboboxBackdropProps`, `ComboboxBackdropState`, `ComboboxPortalProps`, `ComboboxEmptyState`, `ComboboxEmptyProps`, `ComboboxGroupState`, `ComboboxGroupProps`, `ComboboxGroupLabelState`, `ComboboxGroupLabelProps`, `ComboboxRowState`, `ComboboxRowProps`, `ComboboxChipsState`, `ComboboxChipsProps`, `ComboboxChipState`, `ComboboxChipProps`, `ComboboxChipRemoveState`, `ComboboxChipRemoveProps`, `ComboboxClearState`, `ComboboxClearProps`, `ComboboxStatusState`, `ComboboxStatusProps`, `ComboboxCollectionProps`
+- `Default`: `ComboboxFilter`, `ComboboxFilterOptions`, `ComboboxRootProps`, `ComboboxRootState`, `ComboboxRootActions`, `ComboboxRootChangeEventReason`, `ComboboxRootChangeEventDetails`, `ComboboxRootHighlightEventReason`, `ComboboxRootHighlightEventDetails`, `ComboboxTriggerState`, `ComboboxTriggerProps`, `ComboboxInputState`, `ComboboxInputProps`, `ComboboxPopupState`, `ComboboxPopupProps`, `ComboboxPositionerState`, `ComboboxPositionerProps`, `ComboboxListState`, `ComboboxListProps`, `ComboboxItemState`, `ComboboxItemProps`, `ComboboxItemIndicatorProps`, `ComboboxItemIndicatorState`, `ComboboxValueState`, `ComboboxValueProps`, `ComboboxIconState`, `ComboboxIconProps`, `ComboboxArrowState`, `ComboboxArrowProps`, `ComboboxBackdropProps`, `ComboboxBackdropState`, `ComboboxPortalState`, `ComboboxPortalProps`, `ComboboxEmptyState`, `ComboboxEmptyProps`, `ComboboxGroupState`, `ComboboxGroupProps`, `ComboboxGroupLabelState`, `ComboboxGroupLabelProps`, `ComboboxRowState`, `ComboboxRowProps`, `ComboboxChipsState`, `ComboboxChipsProps`, `ComboboxChipState`, `ComboboxChipProps`, `ComboboxChipRemoveState`, `ComboboxChipRemoveProps`, `ComboboxClearState`, `ComboboxClearProps`, `ComboboxStatusState`, `ComboboxStatusProps`, `ComboboxCollectionState`, `ComboboxCollectionProps`
 
 ## Canonical Types
 
@@ -1132,6 +1168,7 @@ Maps `Canonical`: `Alias` — rename aliases to their canonical form for consist
 - `Combobox.List.Props`: `ComboboxListProps`
 - `Combobox.Status.State`: `ComboboxStatusState`
 - `Combobox.Status.Props`: `ComboboxStatusProps`
+- `Combobox.Portal.State`: `ComboboxPortalState`
 - `Combobox.Portal.Props`: `ComboboxPortalProps`
 - `Combobox.Backdrop.Props`: `ComboboxBackdropProps`
 - `Combobox.Backdrop.State`: `ComboboxBackdropState`
@@ -1159,6 +1196,7 @@ Maps `Canonical`: `Alias` — rename aliases to their canonical form for consist
 - `Combobox.ChipRemove.Props`: `ComboboxChipRemoveProps`
 - `Combobox.Row.State`: `ComboboxRowState`
 - `Combobox.Row.Props`: `ComboboxRowProps`
+- `Combobox.Collection.State`: `ComboboxCollectionState`
 - `Combobox.Collection.Props`: `ComboboxCollectionProps`
 - `Combobox.Empty.State`: `ComboboxEmptyState`
 - `Combobox.Empty.Props`: `ComboboxEmptyProps`

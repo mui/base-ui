@@ -251,6 +251,7 @@ Re-export of [Backdrop](#backdrop) props.
 type PopoverBackdropState = {
   /** Whether the popover is currently open. */
   open: boolean;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
 };
 ```
@@ -344,8 +345,11 @@ Re-export of [Positioner](#positioner) props.
 type PopoverPositionerState = {
   /** Whether the popover is currently open. */
   open: boolean;
+  /** The side of the anchor the component is placed on. */
   side: Side;
+  /** The alignment of the component relative to the anchor. */
   align: Align;
+  /** Whether the anchor element is hidden. */
   anchorHidden: boolean;
   /** Whether CSS transitions should be disabled. */
   instant: string | undefined;
@@ -396,9 +400,13 @@ Re-export of [Popup](#popup) props.
 type PopoverPopupState = {
   /** Whether the popover is currently open. */
   open: boolean;
+  /** The side of the anchor the component is placed on. */
   side: Side;
+  /** The alignment of the component relative to the anchor. */
   align: Align;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
+  /** Whether transitions should be skipped. */
   instant: 'dismiss' | 'click' | undefined;
 };
 ```
@@ -436,8 +444,11 @@ Re-export of [Arrow](#arrow) props.
 type PopoverArrowState = {
   /** Whether the popover is currently open. */
   open: boolean;
+  /** The side of the anchor the component is placed on. */
   side: Side;
+  /** The alignment of the component relative to the anchor. */
   align: Align;
+  /** Whether the arrow cannot be centered on the anchor. */
   uncentered: boolean;
 };
 ```
@@ -553,6 +564,7 @@ Re-export of [Viewport](#viewport) props.
 
 ```typescript
 type PopoverViewportState = {
+  /** The activation direction of the transitioned content. */
   activationDirection: string | undefined;
   /** Whether the viewport is currently transitioning between contents. */
   transitioning: boolean;
@@ -641,7 +653,7 @@ type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
 
 - `Popover.Root`: `Popover.Root`, `Popover.Root.State`, `Popover.Root.Props`, `Popover.Root.Actions`, `Popover.Root.ChangeEventReason`, `Popover.Root.ChangeEventDetails`
 - `Popover.Trigger`: `Popover.Trigger`, `Popover.Trigger.State`, `Popover.Trigger.Props`
-- `Popover.Portal`: `Popover.Portal`, `Popover.Portal.State`, `Popover.Portal.Props`, `Popover.Portal.State`, `Popover.Portal.Props`
+- `Popover.Portal`: `Popover.Portal`, `Popover.Portal.State`, `Popover.Portal.Props`
 - `Popover.Positioner`: `Popover.Positioner`, `Popover.Positioner.State`, `Popover.Positioner.Props`
 - `Popover.Popup`: `Popover.Popup`, `Popover.Popup.State`, `Popover.Popup.Props`
 - `Popover.Arrow`: `Popover.Arrow`, `Popover.Arrow.State`, `Popover.Arrow.Props`
@@ -652,7 +664,7 @@ type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
 - `Popover.Viewport`: `Popover.Viewport`, `Popover.Viewport.Props`, `Popover.Viewport.State`
 - `Popover.createHandle`
 - `Popover.Handle`
-- `Default`: `PopoverRootState`, `PopoverRootProps`, `PopoverRootActions`, `PopoverRootChangeEventReason`, `PopoverRootChangeEventDetails`, `PopoverTriggerState`, `PopoverTriggerProps`, `PopoverPortalProps`, `PopoverPositionerState`, `PopoverPositionerProps`, `PopoverPopupState`, `PopoverPopupProps`, `PopoverArrowState`, `PopoverArrowProps`, `PopoverBackdropState`, `PopoverBackdropProps`, `PopoverTitleState`, `PopoverTitleProps`, `PopoverDescriptionState`, `PopoverDescriptionProps`, `PopoverCloseState`, `PopoverCloseProps`
+- `Default`: `PopoverRootState`, `PopoverRootProps`, `PopoverRootActions`, `PopoverRootChangeEventReason`, `PopoverRootChangeEventDetails`, `PopoverTriggerState`, `PopoverTriggerProps`, `PopoverPortalState`, `PopoverPortalProps`, `PopoverPositionerState`, `PopoverPositionerProps`, `PopoverPopupState`, `PopoverPopupProps`, `PopoverArrowState`, `PopoverArrowProps`, `PopoverBackdropState`, `PopoverBackdropProps`, `PopoverTitleState`, `PopoverTitleProps`, `PopoverDescriptionState`, `PopoverDescriptionProps`, `PopoverCloseState`, `PopoverCloseProps`, `PopoverViewportState`
 
 ## Canonical Types
 
@@ -665,6 +677,7 @@ Maps `Canonical`: `Alias` — rename aliases to their canonical form for consist
 - `Popover.Root.ChangeEventDetails`: `PopoverRootChangeEventDetails`
 - `Popover.Trigger.State`: `PopoverTriggerState`
 - `Popover.Trigger.Props`: `PopoverTriggerProps`
+- `Popover.Portal.State`: `PopoverPortalState`
 - `Popover.Portal.Props`: `PopoverPortalProps`
 - `Popover.Positioner.State`: `PopoverPositionerState`
 - `Popover.Positioner.Props`: `PopoverPositionerProps`
@@ -680,3 +693,4 @@ Maps `Canonical`: `Alias` — rename aliases to their canonical form for consist
 - `Popover.Description.Props`: `PopoverDescriptionProps`
 - `Popover.Close.State`: `PopoverCloseState`
 - `Popover.Close.Props`: `PopoverCloseProps`
+- `Popover.Viewport.State`: `PopoverViewportState`

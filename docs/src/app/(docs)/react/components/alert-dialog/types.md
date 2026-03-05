@@ -27,6 +27,12 @@ Doesn't render its own HTML element.
 
 Re-export of [Root](#root) props.
 
+### Root.State
+
+```typescript
+type AlertDialogRootState = {};
+```
+
 ### Root.Actions
 
 ```typescript
@@ -220,6 +226,7 @@ Re-export of [Backdrop](#backdrop) props.
 type AlertDialogBackdropState = {
   /** Whether the dialog is currently open. */
   open: boolean;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
 };
 ```
@@ -266,6 +273,7 @@ Re-export of [Popup](#popup) props.
 type AlertDialogPopupState = {
   /** Whether the dialog is currently open. */
   open: boolean;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
   /** Whether the dialog is nested within a parent dialog. */
   nested: boolean;
@@ -387,6 +395,7 @@ Re-export of [Viewport](#viewport) props.
 type AlertDialogViewportState = {
   /** Whether the dialog is currently open. */
   open: boolean;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
   /** Whether the dialog is nested within another dialog. */
   nested: boolean;
@@ -465,23 +474,24 @@ type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
 
 ## Export Groups
 
-- `AlertDialog.Root`: `AlertDialog.Root`, `AlertDialog.Root.Props`, `AlertDialog.Root.Actions`, `AlertDialog.Root.ChangeEventReason`, `AlertDialog.Root.ChangeEventDetails`
+- `AlertDialog.Root`: `AlertDialog.Root`, `AlertDialog.Root.State`, `AlertDialog.Root.Props`, `AlertDialog.Root.Actions`, `AlertDialog.Root.ChangeEventReason`, `AlertDialog.Root.ChangeEventDetails`
 - `AlertDialog.Backdrop`: `AlertDialog.Backdrop`, `AlertDialog.Backdrop.Props`, `AlertDialog.Backdrop.State`
 - `AlertDialog.Close`: `AlertDialog.Close`, `AlertDialog.Close.Props`, `AlertDialog.Close.State`
 - `AlertDialog.Description`: `AlertDialog.Description`, `AlertDialog.Description.Props`, `AlertDialog.Description.State`
 - `AlertDialog.Popup`: `AlertDialog.Popup`, `AlertDialog.Popup.Props`, `AlertDialog.Popup.State`
-- `AlertDialog.Portal`: `AlertDialog.Portal`, `AlertDialog.Portal.State`, `AlertDialog.Portal.Props`, `AlertDialog.Portal.State`, `AlertDialog.Portal.Props`
+- `AlertDialog.Portal`: `AlertDialog.Portal`, `AlertDialog.Portal.State`, `AlertDialog.Portal.Props`
 - `AlertDialog.Title`: `AlertDialog.Title`, `AlertDialog.Title.Props`, `AlertDialog.Title.State`
 - `AlertDialog.Trigger`: `AlertDialog.Trigger`, `AlertDialog.Trigger.Props`, `AlertDialog.Trigger.State`
 - `AlertDialog.Viewport`: `AlertDialog.Viewport`, `AlertDialog.Viewport.State`, `AlertDialog.Viewport.Props`
 - `AlertDialog.createHandle`
 - `AlertDialog.Handle`
-- `Default`: `AlertDialogBackdropProps`, `AlertDialogBackdropState`, `AlertDialogCloseProps`, `AlertDialogCloseState`, `AlertDialogDescriptionProps`, `AlertDialogDescriptionState`, `AlertDialogPopupProps`, `AlertDialogPopupState`, `AlertDialogPortalProps`, `AlertDialogTitleProps`, `AlertDialogTitleState`, `AlertDialogTriggerProps`, `AlertDialogTriggerState`, `AlertDialogViewportProps`, `AlertDialogViewportState`, `AlertDialogRootProps`, `AlertDialogRootActions`, `AlertDialogRootChangeEventReason`, `AlertDialogRootChangeEventDetails`
+- `Default`: `AlertDialogBackdropProps`, `AlertDialogBackdropState`, `AlertDialogCloseProps`, `AlertDialogCloseState`, `AlertDialogDescriptionProps`, `AlertDialogDescriptionState`, `AlertDialogPopupProps`, `AlertDialogPopupState`, `AlertDialogPortalProps`, `AlertDialogPortalState`, `AlertDialogTitleProps`, `AlertDialogTitleState`, `AlertDialogTriggerProps`, `AlertDialogTriggerState`, `AlertDialogViewportProps`, `AlertDialogViewportState`, `AlertDialogRootState`, `AlertDialogRootProps`, `AlertDialogRootActions`, `AlertDialogRootChangeEventReason`, `AlertDialogRootChangeEventDetails`
 
 ## Canonical Types
 
 Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
 
+- `AlertDialog.Root.State`: `AlertDialogRootState`
 - `AlertDialog.Root.Props`: `AlertDialogRootProps`
 - `AlertDialog.Root.Actions`: `AlertDialogRootActions`
 - `AlertDialog.Root.ChangeEventReason`: `AlertDialogRootChangeEventReason`
@@ -494,6 +504,7 @@ Maps `Canonical`: `Alias` — rename aliases to their canonical form for consist
 - `AlertDialog.Description.State`: `AlertDialogDescriptionState`
 - `AlertDialog.Popup.Props`: `AlertDialogPopupProps`
 - `AlertDialog.Popup.State`: `AlertDialogPopupState`
+- `AlertDialog.Portal.State`: `AlertDialogPortalState`
 - `AlertDialog.Portal.Props`: `AlertDialogPortalProps`
 - `AlertDialog.Title.Props`: `AlertDialogTitleProps`
 - `AlertDialog.Title.State`: `AlertDialogTitleState`

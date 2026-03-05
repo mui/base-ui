@@ -55,10 +55,15 @@ type RadioRootState = {
   readOnly: boolean;
   /** Whether the user must choose a value before submitting a form. */
   required: boolean;
+  /** Whether the field has been touched. */
   touched: boolean;
+  /** Whether the field value has changed from its initial value. */
   dirty: boolean;
+  /** Whether the field is valid. */
   valid: boolean | null;
+  /** Whether the field has a value. */
   filled: boolean;
+  /** Whether the field is focused. */
   focused: boolean;
 };
 ```
@@ -105,6 +110,7 @@ Re-export of [Indicator](#indicator) props.
 type RadioIndicatorState = {
   /** Whether the radio button is currently selected. */
   checked: boolean;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
 };
 ```

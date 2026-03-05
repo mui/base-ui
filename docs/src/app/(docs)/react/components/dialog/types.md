@@ -29,6 +29,12 @@ Doesn't render its own HTML element.
 
 Re-export of [Root](#root) props.
 
+### Root.State
+
+```typescript
+type DialogRootState = {};
+```
+
 ### Root.Actions
 
 ```typescript
@@ -222,6 +228,7 @@ Re-export of [Backdrop](#backdrop) props.
 type DialogBackdropState = {
   /** Whether the dialog is currently open. */
   open: boolean;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
 };
 ```
@@ -268,6 +275,7 @@ Re-export of [Popup](#popup) props.
 type DialogPopupState = {
   /** Whether the dialog is currently open. */
   open: boolean;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
   /** Whether the dialog is nested within a parent dialog. */
   nested: boolean;
@@ -389,6 +397,7 @@ Re-export of [Viewport](#viewport) props.
 type DialogViewportState = {
   /** Whether the dialog is currently open. */
   open: boolean;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
   /** Whether the dialog is nested within another dialog. */
   nested: boolean;
@@ -473,14 +482,14 @@ type preventUnmountOnClose = () => void;
 - `Dialog.Close`: `Dialog.Close`, `Dialog.Close.Props`, `Dialog.Close.State`
 - `Dialog.Description`: `Dialog.Description`, `Dialog.Description.Props`, `Dialog.Description.State`
 - `Dialog.Popup`: `Dialog.Popup`, `Dialog.Popup.Props`, `Dialog.Popup.State`
-- `Dialog.Portal`: `Dialog.Portal`, `Dialog.Portal.State`, `Dialog.Portal.Props`, `Dialog.Portal.State`, `Dialog.Portal.Props`
-- `Dialog.Root`: `Dialog.Root`, `Dialog.Root.Props`, `Dialog.Root.Actions`, `Dialog.Root.ChangeEventReason`, `Dialog.Root.ChangeEventDetails`
+- `Dialog.Portal`: `Dialog.Portal`, `Dialog.Portal.State`, `Dialog.Portal.Props`
+- `Dialog.Root`: `Dialog.Root`, `Dialog.Root.State`, `Dialog.Root.Props`, `Dialog.Root.Actions`, `Dialog.Root.ChangeEventReason`, `Dialog.Root.ChangeEventDetails`
 - `Dialog.Viewport`: `Dialog.Viewport`, `Dialog.Viewport.State`, `Dialog.Viewport.Props`
 - `Dialog.Title`: `Dialog.Title`, `Dialog.Title.Props`, `Dialog.Title.State`
 - `Dialog.Trigger`: `Dialog.Trigger`, `Dialog.Trigger.Props`, `Dialog.Trigger.State`
 - `Dialog.createHandle`
 - `Dialog.Handle`
-- `Default`: `DialogRootProps`, `DialogRootActions`, `DialogRootChangeEventReason`, `DialogRootChangeEventDetails`, `DialogTriggerProps`, `DialogTriggerState`, `DialogPortalProps`, `DialogPopupProps`, `DialogPopupState`, `DialogBackdropProps`, `DialogBackdropState`, `DialogTitleProps`, `DialogTitleState`, `DialogDescriptionProps`, `DialogDescriptionState`, `DialogCloseProps`, `DialogCloseState`, `DialogViewportState`, `DialogViewportProps`
+- `Default`: `DialogRootState`, `DialogRootProps`, `DialogRootActions`, `DialogRootChangeEventReason`, `DialogRootChangeEventDetails`, `DialogTriggerProps`, `DialogTriggerState`, `DialogPortalState`, `DialogPortalProps`, `DialogPopupProps`, `DialogPopupState`, `DialogBackdropProps`, `DialogBackdropState`, `DialogTitleProps`, `DialogTitleState`, `DialogDescriptionProps`, `DialogDescriptionState`, `DialogCloseProps`, `DialogCloseState`, `DialogViewportState`, `DialogViewportProps`
 
 ## Canonical Types
 
@@ -494,7 +503,9 @@ Maps `Canonical`: `Alias` — rename aliases to their canonical form for consist
 - `Dialog.Description.State`: `DialogDescriptionState`
 - `Dialog.Popup.Props`: `DialogPopupProps`
 - `Dialog.Popup.State`: `DialogPopupState`
+- `Dialog.Portal.State`: `DialogPortalState`
 - `Dialog.Portal.Props`: `DialogPortalProps`
+- `Dialog.Root.State`: `DialogRootState`
 - `Dialog.Root.Props`: `DialogRootProps`
 - `Dialog.Root.Actions`: `DialogRootActions`
 - `Dialog.Root.ChangeEventReason`: `DialogRootChangeEventReason`

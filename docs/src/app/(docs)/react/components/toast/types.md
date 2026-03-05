@@ -49,6 +49,7 @@ Re-export of [Root](#root) props.
 
 ```typescript
 type ToastRootState = {
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
   /** Whether the toasts in the viewport are expanded. */
   expanded: boolean;
@@ -131,6 +132,12 @@ Provides a context for creating and managing toasts.
 ### Provider.Props
 
 Re-export of [Provider](#provider) props.
+
+### Provider.State
+
+```typescript
+type ToastProviderState = {};
+```
 
 ### Portal
 
@@ -240,7 +247,14 @@ Re-export of [Positioner](#positioner) props.
 ### Positioner.State
 
 ```typescript
-type ToastPositionerState = { side: Side; align: Align; anchorHidden: boolean };
+type ToastPositionerState = {
+  /** The side of the anchor the component is placed on. */
+  side: Side;
+  /** The alignment of the component relative to the anchor. */
+  align: Align;
+  /** Whether the anchor element is hidden. */
+  anchorHidden: boolean;
+};
 ```
 
 ### Arrow
@@ -271,7 +285,14 @@ Re-export of [Arrow](#arrow) props.
 ### Arrow.State
 
 ```typescript
-type ToastArrowState = { side: Side; align: Align; uncentered: boolean };
+type ToastArrowState = {
+  /** The side of the anchor the component is placed on. */
+  side: Side;
+  /** The alignment of the component relative to the anchor. */
+  align: Align;
+  /** Whether the arrow cannot be centered on the anchor. */
+  uncentered: boolean;
+};
 ```
 
 ### Content
@@ -870,7 +891,7 @@ type OffsetFunction = (data: {
 
 ## Export Groups
 
-- `Toast.Provider`: `Toast.Provider`, `Toast.Provider.Props`
+- `Toast.Provider`: `Toast.Provider`, `Toast.Provider.State`, `Toast.Provider.Props`
 - `Toast.Viewport`: `Toast.Viewport`, `Toast.Viewport.State`, `Toast.Viewport.Props`
 - `Toast.Root`: `Toast.Root`, `Toast.Root.ToastObject`, `Toast.Root.State`, `Toast.Root.Props`
 - `Toast.Content`: `Toast.Content`, `Toast.Content.State`, `Toast.Content.Props`
@@ -878,17 +899,18 @@ type OffsetFunction = (data: {
 - `Toast.Title`: `Toast.Title`, `Toast.Title.State`, `Toast.Title.Props`
 - `Toast.Close`: `Toast.Close`, `Toast.Close.State`, `Toast.Close.Props`
 - `Toast.Action`: `Toast.Action`, `Toast.Action.State`, `Toast.Action.Props`
-- `Toast.Portal`: `Toast.Portal`, `Toast.Portal.State`, `Toast.Portal.Props`, `Toast.Portal.State`, `Toast.Portal.Props`
+- `Toast.Portal`: `Toast.Portal`, `Toast.Portal.State`, `Toast.Portal.Props`
 - `Toast.Positioner`: `Toast.Positioner`, `Toast.Positioner.State`, `Toast.Positioner.Props`
 - `Toast.Arrow`: `Toast.Arrow`, `Toast.Arrow.State`, `Toast.Arrow.Props`
 - `Toast.useToastManager`
 - `Toast.createToastManager`
-- `Default`: `ToastRootToastObject`, `ToastRootState`, `ToastRootProps`, `ToastProviderProps`, `ToastViewportState`, `ToastViewportProps`, `ToastContentState`, `ToastContentProps`, `ToastDescriptionState`, `ToastDescriptionProps`, `ToastTitleState`, `ToastTitleProps`, `ToastCloseState`, `ToastCloseProps`, `ToastActionState`, `ToastActionProps`, `ToastPortalProps`, `ToastPositionerState`, `ToastPositionerProps`, `ToastArrowState`, `ToastArrowProps`, `ToastObject`, `ToastManagerPositionerProps`, `UseToastManagerReturnValue`, `ToastManagerAddOptions`, `ToastManagerUpdateOptions`, `ToastManagerPromiseOptions`, `ToastManager`, `ToastManagerEvent`
+- `Default`: `ToastRootToastObject`, `ToastRootState`, `ToastRootProps`, `ToastProviderState`, `ToastProviderProps`, `ToastViewportState`, `ToastViewportProps`, `ToastContentState`, `ToastContentProps`, `ToastDescriptionState`, `ToastDescriptionProps`, `ToastTitleState`, `ToastTitleProps`, `ToastCloseState`, `ToastCloseProps`, `ToastActionState`, `ToastActionProps`, `ToastPortalState`, `ToastPortalProps`, `ToastPositionerState`, `ToastPositionerProps`, `ToastArrowState`, `ToastArrowProps`, `ToastObject`, `ToastManagerPositionerProps`, `UseToastManagerReturnValue`, `ToastManagerAddOptions`, `ToastManagerUpdateOptions`, `ToastManagerPromiseOptions`, `ToastManager`, `ToastManagerEvent`
 
 ## Canonical Types
 
 Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
 
+- `Toast.Provider.State`: `ToastProviderState`
 - `Toast.Provider.Props`: `ToastProviderProps`
 - `Toast.Viewport.State`: `ToastViewportState`
 - `Toast.Viewport.Props`: `ToastViewportProps`
@@ -905,6 +927,7 @@ Maps `Canonical`: `Alias` — rename aliases to their canonical form for consist
 - `Toast.Close.Props`: `ToastCloseProps`
 - `Toast.Action.State`: `ToastActionState`
 - `Toast.Action.Props`: `ToastActionProps`
+- `Toast.Portal.State`: `ToastPortalState`
 - `Toast.Portal.Props`: `ToastPortalProps`
 - `Toast.Positioner.State`: `ToastPositionerState`
 - `Toast.Positioner.Props`: `ToastPositionerProps`

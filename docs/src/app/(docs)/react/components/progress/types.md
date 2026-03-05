@@ -39,7 +39,10 @@ Re-export of [Root](#root) props.
 ### Root.State
 
 ```typescript
-type ProgressRootState = { status: Progress.Status };
+type ProgressRootState = {
+  /** The current status. */
+  status: Progress.Status;
+};
 ```
 
 ### Value
@@ -49,12 +52,12 @@ Renders a `<span>` element.
 
 **Value Props:**
 
-| Prop      | Type                                                                                        | Default | Description                                                                                                                                                                                   |
-| :-------- | :------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| children  | `((formattedValue: string \| null, value: number \| null) => React.ReactNode) \| null`      | -       | -                                                                                                                                                                                             |
-| className | `string \| ((state: Progress.Root.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: Progress.Root.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Progress.Root.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                         | Default | Description                                                                                                                                                                                   |
+| :-------- | :------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| children  | `((formattedValue: string \| null, value: number \| null) => React.ReactNode) \| null`       | -       | -                                                                                                                                                                                             |
+| className | `string \| ((state: Progress.Value.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Progress.Value.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Progress.Value.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Value Data Attributes:**
 
@@ -68,6 +71,15 @@ Renders a `<span>` element.
 
 Re-export of [Value](#value) props.
 
+### Value.State
+
+```typescript
+type ProgressValueState = {
+  /** The current status. */
+  status: Progress.Status;
+};
+```
+
 ### Indicator
 
 Visualizes the completion status of the task.
@@ -75,11 +87,11 @@ Renders a `<div>` element.
 
 **Indicator Props:**
 
-| Prop      | Type                                                                                        | Default | Description                                                                                                                                                                                   |
-| :-------- | :------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Progress.Root.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: Progress.Root.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Progress.Root.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                             | Default | Description                                                                                                                                                                                   |
+| :-------- | :----------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Progress.Indicator.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Progress.Indicator.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Progress.Indicator.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Indicator Data Attributes:**
 
@@ -93,6 +105,15 @@ Renders a `<div>` element.
 
 Re-export of [Indicator](#indicator) props.
 
+### Indicator.State
+
+```typescript
+type ProgressIndicatorState = {
+  /** The current status. */
+  status: Progress.Status;
+};
+```
+
 ### Track
 
 Contains the progress bar indicator.
@@ -100,11 +121,11 @@ Renders a `<div>` element.
 
 **Track Props:**
 
-| Prop      | Type                                                                                        | Default | Description                                                                                                                                                                                   |
-| :-------- | :------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Progress.Root.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: Progress.Root.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Progress.Root.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                         | Default | Description                                                                                                                                                                                   |
+| :-------- | :------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Progress.Track.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Progress.Track.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Progress.Track.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Track Data Attributes:**
 
@@ -118,6 +139,15 @@ Renders a `<div>` element.
 
 Re-export of [Track](#track) props.
 
+### Track.State
+
+```typescript
+type ProgressTrackState = {
+  /** The current status. */
+  status: Progress.Status;
+};
+```
+
 ### Label
 
 An accessible label for the progress bar.
@@ -125,11 +155,11 @@ Renders a `<span>` element.
 
 **Label Props:**
 
-| Prop      | Type                                                                                        | Default | Description                                                                                                                                                                                   |
-| :-------- | :------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Progress.Root.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: Progress.Root.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Progress.Root.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                         | Default | Description                                                                                                                                                                                   |
+| :-------- | :------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Progress.Label.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Progress.Label.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Progress.Label.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Label Data Attributes:**
 
@@ -143,6 +173,15 @@ Renders a `<span>` element.
 
 Re-export of [Label](#label) props.
 
+### Label.State
+
+```typescript
+type ProgressLabelState = {
+  /** The current status. */
+  status: Progress.Status;
+};
+```
+
 ## Additional Types
 
 ### Progress.Status
@@ -154,11 +193,11 @@ type ProgressStatus = 'indeterminate' | 'progressing' | 'complete';
 ## Export Groups
 
 - `Progress.Root`: `Progress.Root`, `Progress.Root.State`, `Progress.Root.Props`
-- `Progress.Track`: `Progress.Track`, `Progress.Track.Props`
-- `Progress.Indicator`: `Progress.Indicator`, `Progress.Indicator.Props`
-- `Progress.Value`: `Progress.Value`, `Progress.Value.Props`
-- `Progress.Label`: `Progress.Label`, `Progress.Label.Props`
-- `Default`: `Progress.Status`, `ProgressStatus`, `ProgressRootState`, `ProgressRootProps`, `ProgressIndicatorProps`, `ProgressLabelProps`, `ProgressTrackProps`, `ProgressValueProps`
+- `Progress.Track`: `Progress.Track`, `Progress.Track.State`, `Progress.Track.Props`
+- `Progress.Indicator`: `Progress.Indicator`, `Progress.Indicator.State`, `Progress.Indicator.Props`
+- `Progress.Value`: `Progress.Value`, `Progress.Value.State`, `Progress.Value.Props`
+- `Progress.Label`: `Progress.Label`, `Progress.Label.State`, `Progress.Label.Props`
+- `Default`: `Progress.Status`, `ProgressStatus`, `ProgressRootState`, `ProgressRootProps`, `ProgressIndicatorState`, `ProgressIndicatorProps`, `ProgressLabelState`, `ProgressLabelProps`, `ProgressTrackState`, `ProgressTrackProps`, `ProgressValueState`, `ProgressValueProps`
 
 ## Canonical Types
 
@@ -166,8 +205,12 @@ Maps `Canonical`: `Alias` — rename aliases to their canonical form for consist
 
 - `Progress.Root.State`: `ProgressRootState`
 - `Progress.Root.Props`: `ProgressRootProps`
+- `Progress.Track.State`: `ProgressTrackState`
 - `Progress.Track.Props`: `ProgressTrackProps`
+- `Progress.Indicator.State`: `ProgressIndicatorState`
 - `Progress.Indicator.Props`: `ProgressIndicatorProps`
+- `Progress.Value.State`: `ProgressValueState`
 - `Progress.Value.Props`: `ProgressValueProps`
+- `Progress.Label.State`: `ProgressLabelState`
 - `Progress.Label.Props`: `ProgressLabelProps`
 - `Progress.Status`: `ProgressStatus`

@@ -22,7 +22,7 @@ export const FieldValidity: React.FC<FieldValidity.Props> = function FieldValidi
   const isInvalid = combinedFieldValidityData.state.valid === false;
   const { transitionStatus } = useTransitionStatus(isInvalid);
 
-  const fieldValidityState: FieldValidity.State = React.useMemo(() => {
+  const fieldValidityState: FieldValidityState = React.useMemo(() => {
     return {
       ...combinedFieldValidityData,
       validity: combinedFieldValidityData.state,
@@ -34,7 +34,13 @@ export const FieldValidity: React.FC<FieldValidity.Props> = function FieldValidi
 };
 
 export interface FieldValidityState extends Omit<FieldValidityData, 'state'> {
+  /**
+   * The validity state.
+   */
   validity: FieldValidityData['state'];
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
 }
 
@@ -50,7 +56,7 @@ export interface FieldValidityProps {
    * </Field.Validity>
    * ```
    */
-  children: (state: FieldValidity.State) => React.ReactNode;
+  children: (state: FieldValidityState) => React.ReactNode;
 }
 
 export namespace FieldValidity {

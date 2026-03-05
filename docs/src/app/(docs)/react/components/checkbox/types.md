@@ -66,10 +66,15 @@ type CheckboxRootState = {
   required: boolean;
   /** Whether the checkbox is in a mixed state: neither ticked, nor unticked. */
   indeterminate: boolean;
+  /** Whether the field has been touched. */
   touched: boolean;
+  /** Whether the field value has changed from its initial value. */
   dirty: boolean;
+  /** Whether the field is valid. */
   valid: boolean | null;
+  /** Whether the field has a value. */
   filled: boolean;
+  /** Whether the field is focused. */
   focused: boolean;
 };
 ```
@@ -142,6 +147,7 @@ Re-export of [Indicator](#indicator) props.
 
 ```typescript
 type CheckboxIndicatorState = {
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
   /** Whether the checkbox is currently ticked. */
   checked: boolean;
@@ -153,10 +159,15 @@ type CheckboxIndicatorState = {
   required: boolean;
   /** Whether the checkbox is in a mixed state: neither ticked, nor unticked. */
   indeterminate: boolean;
+  /** Whether the field has been touched. */
   touched: boolean;
+  /** Whether the field value has changed from its initial value. */
   dirty: boolean;
+  /** Whether the field is valid. */
   valid: boolean | null;
+  /** Whether the field has a value. */
   filled: boolean;
+  /** Whether the field is focused. */
   focused: boolean;
 };
 ```

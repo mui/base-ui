@@ -250,6 +250,8 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
   );
 }
 
+export interface DrawerRootState {}
+
 export interface DrawerRootProps<Payload = unknown> {
   /**
    * Whether the drawer is currently open.
@@ -375,6 +377,7 @@ export type DrawerRootSnapPointChangeEventDetails =
   BaseUIChangeEventDetails<DrawerRootSnapPointChangeEventReason>;
 
 export namespace DrawerRoot {
+  export type State = DrawerRootState;
   export type Props<Payload = unknown> = DrawerRootProps<Payload>;
   export type Actions = DrawerRootActions;
   export type ChangeEventReason = DrawerRootChangeEventReason;

@@ -24,7 +24,10 @@ Re-export of [Root](#root) props.
 ### Root.State
 
 ```typescript
-type AvatarRootState = { imageLoadingStatus: ImageLoadingStatus };
+type AvatarRootState = {
+  /** The image loading status. */
+  imageLoadingStatus: ImageLoadingStatus;
+};
 ```
 
 ### Image
@@ -56,7 +59,9 @@ Re-export of [Image](#image) props.
 
 ```typescript
 type AvatarImageState = {
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
+  /** The image loading status. */
   imageLoadingStatus: ImageLoadingStatus;
 };
 ```
@@ -82,7 +87,10 @@ Re-export of [Fallback](#fallback) props.
 ### Fallback.State
 
 ```typescript
-type AvatarFallbackState = { imageLoadingStatus: ImageLoadingStatus };
+type AvatarFallbackState = {
+  /** The image loading status. */
+  imageLoadingStatus: ImageLoadingStatus;
+};
 ```
 
 ## Additional Types

@@ -19,6 +19,8 @@ export const DirectionProvider: React.FC<DirectionProvider.Props> = function Dir
   );
 };
 
+export interface DirectionProviderState {}
+
 export interface DirectionProviderProps {
   children?: React.ReactNode;
   /**
@@ -29,5 +31,6 @@ export interface DirectionProviderProps {
 }
 
 export namespace DirectionProvider {
+  export type State = DirectionProviderState;
   export type Props = DirectionProviderProps;
 }

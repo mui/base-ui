@@ -60,7 +60,9 @@ type SliderRootState = {
   disabled: boolean;
   /** Whether the thumb is currently being dragged. */
   dragging: boolean;
+  /** The maximum value. */
   max: number;
+  /** The minimum value. */
   min: number;
   /**
    * The minimum steps between values in a range slider.
@@ -77,10 +79,15 @@ type SliderRootState = {
   step: number;
   /** The raw number value of the slider. */
   values: number[];
+  /** Whether the field has been touched. */
   touched: boolean;
+  /** Whether the field value has changed from its initial value. */
   dirty: boolean;
+  /** Whether the field is valid. */
   valid: boolean | null;
+  /** Whether the field has a value. */
   filled: boolean;
+  /** Whether the field is focused. */
   focused: boolean;
 };
 ```
@@ -126,12 +133,12 @@ Renders an `<output>` element.
 
 **Value Props:**
 
-| Prop      | Type                                                                                      | Default | Description                                                                                                                                                                                   |
-| :-------- | :---------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| children  | `((formattedValues: string[], values: number[]) => React.ReactNode) \| null`              | -       | -                                                                                                                                                                                             |
-| className | `string \| ((state: Slider.Root.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: Slider.Root.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Slider.Root.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                       | Default | Description                                                                                                                                                                                   |
+| :-------- | :----------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| children  | `((formattedValues: string[], values: number[]) => React.ReactNode) \| null`               | -       | -                                                                                                                                                                                             |
+| className | `string \| ((state: Slider.Value.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Slider.Value.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Slider.Value.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Value Data Attributes:**
 
@@ -150,6 +157,48 @@ Renders an `<output>` element.
 
 Re-export of [Value](#value) props.
 
+### Value.State
+
+```typescript
+type SliderValueState = {
+  /** The index of the active thumb. */
+  activeThumbIndex: number;
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+  /** Whether the thumb is currently being dragged. */
+  dragging: boolean;
+  /** The maximum value. */
+  max: number;
+  /** The minimum value. */
+  min: number;
+  /**
+   * The minimum steps between values in a range slider.
+   * @default 0
+   */
+  minStepsBetweenValues: number;
+  /** The component orientation. */
+  orientation: Orientation;
+  /**
+   * The step increment of the slider when incrementing or decrementing. It will snap
+   * to multiples of this value. Decimal values are supported.
+   * @default 1
+   */
+  step: number;
+  /** The raw number value of the slider. */
+  values: number[];
+  /** Whether the field has been touched. */
+  touched: boolean;
+  /** Whether the field value has changed from its initial value. */
+  dirty: boolean;
+  /** Whether the field is valid. */
+  valid: boolean | null;
+  /** Whether the field has a value. */
+  filled: boolean;
+  /** Whether the field is focused. */
+  focused: boolean;
+};
+```
+
 ### Indicator
 
 Visualizes the current value of the slider.
@@ -157,11 +206,11 @@ Renders a `<div>` element.
 
 **Indicator Props:**
 
-| Prop      | Type                                                                                      | Default | Description                                                                                                                                                                                   |
-| :-------- | :---------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Slider.Root.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: Slider.Root.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Slider.Root.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                           | Default | Description                                                                                                                                                                                   |
+| :-------- | :--------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Slider.Indicator.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Slider.Indicator.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Slider.Indicator.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Indicator Data Attributes:**
 
@@ -180,6 +229,48 @@ Renders a `<div>` element.
 
 Re-export of [Indicator](#indicator) props.
 
+### Indicator.State
+
+```typescript
+type SliderIndicatorState = {
+  /** The index of the active thumb. */
+  activeThumbIndex: number;
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+  /** Whether the thumb is currently being dragged. */
+  dragging: boolean;
+  /** The maximum value. */
+  max: number;
+  /** The minimum value. */
+  min: number;
+  /**
+   * The minimum steps between values in a range slider.
+   * @default 0
+   */
+  minStepsBetweenValues: number;
+  /** The component orientation. */
+  orientation: Orientation;
+  /**
+   * The step increment of the slider when incrementing or decrementing. It will snap
+   * to multiples of this value. Decimal values are supported.
+   * @default 1
+   */
+  step: number;
+  /** The raw number value of the slider. */
+  values: number[];
+  /** Whether the field has been touched. */
+  touched: boolean;
+  /** Whether the field value has changed from its initial value. */
+  dirty: boolean;
+  /** Whether the field is valid. */
+  valid: boolean | null;
+  /** Whether the field has a value. */
+  filled: boolean;
+  /** Whether the field is focused. */
+  focused: boolean;
+};
+```
+
 ### Track
 
 Contains the slider indicator and represents the entire range of the slider.
@@ -187,11 +278,11 @@ Renders a `<div>` element.
 
 **Track Props:**
 
-| Prop      | Type                                                                                      | Default | Description                                                                                                                                                                                   |
-| :-------- | :---------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Slider.Root.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: Slider.Root.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Slider.Root.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                       | Default | Description                                                                                                                                                                                   |
+| :-------- | :----------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Slider.Track.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Slider.Track.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Slider.Track.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Track Data Attributes:**
 
@@ -209,6 +300,48 @@ Renders a `<div>` element.
 ### Track.Props
 
 Re-export of [Track](#track) props.
+
+### Track.State
+
+```typescript
+type SliderTrackState = {
+  /** The index of the active thumb. */
+  activeThumbIndex: number;
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+  /** Whether the thumb is currently being dragged. */
+  dragging: boolean;
+  /** The maximum value. */
+  max: number;
+  /** The minimum value. */
+  min: number;
+  /**
+   * The minimum steps between values in a range slider.
+   * @default 0
+   */
+  minStepsBetweenValues: number;
+  /** The component orientation. */
+  orientation: Orientation;
+  /**
+   * The step increment of the slider when incrementing or decrementing. It will snap
+   * to multiples of this value. Decimal values are supported.
+   * @default 1
+   */
+  step: number;
+  /** The raw number value of the slider. */
+  values: number[];
+  /** Whether the field has been touched. */
+  touched: boolean;
+  /** Whether the field value has changed from its initial value. */
+  dirty: boolean;
+  /** Whether the field is valid. */
+  valid: boolean | null;
+  /** Whether the field has a value. */
+  filled: boolean;
+  /** Whether the field is focused. */
+  focused: boolean;
+};
+```
 
 ### Thumb
 
@@ -268,7 +401,9 @@ type SliderThumbState = {
   disabled: boolean;
   /** Whether the thumb is currently being dragged. */
   dragging: boolean;
+  /** The maximum value. */
   max: number;
+  /** The minimum value. */
   min: number;
   /**
    * The minimum steps between values in a range slider.
@@ -285,10 +420,15 @@ type SliderThumbState = {
   step: number;
   /** The raw number value of the slider. */
   values: number[];
+  /** Whether the field has been touched. */
   touched: boolean;
+  /** Whether the field value has changed from its initial value. */
   dirty: boolean;
+  /** Whether the field is valid. */
   valid: boolean | null;
+  /** Whether the field has a value. */
   filled: boolean;
+  /** Whether the field is focused. */
   focused: boolean;
 };
 ```
@@ -300,11 +440,11 @@ Renders a `<div>` element.
 
 **Control Props:**
 
-| Prop      | Type                                                                                      | Default | Description                                                                                                                                                                                   |
-| :-------- | :---------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Slider.Root.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: Slider.Root.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Slider.Root.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                         | Default | Description                                                                                                                                                                                   |
+| :-------- | :------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Slider.Control.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Slider.Control.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Slider.Control.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Control Data Attributes:**
 
@@ -333,7 +473,9 @@ type SliderControlState = {
   disabled: boolean;
   /** Whether the thumb is currently being dragged. */
   dragging: boolean;
+  /** The maximum value. */
   max: number;
+  /** The minimum value. */
   min: number;
   /**
    * The minimum steps between values in a range slider.
@@ -350,10 +492,15 @@ type SliderControlState = {
   step: number;
   /** The raw number value of the slider. */
   values: number[];
+  /** Whether the field has been touched. */
   touched: boolean;
+  /** Whether the field value has changed from its initial value. */
   dirty: boolean;
+  /** Whether the field is valid. */
   valid: boolean | null;
+  /** Whether the field has a value. */
   filled: boolean;
+  /** Whether the field is focused. */
   focused: boolean;
 };
 ```
@@ -386,12 +533,12 @@ type Orientation = 'horizontal' | 'vertical';
 ## Export Groups
 
 - `Slider.Root`: `Slider.Root`, `Slider.Root.State`, `Slider.Root.Props`, `Slider.Root.ChangeEventReason`, `Slider.Root.ChangeEventDetails`, `Slider.Root.CommitEventReason`, `Slider.Root.CommitEventDetails`
-- `Slider.Value`: `Slider.Value`, `Slider.Value.Props`
+- `Slider.Value`: `Slider.Value`, `Slider.Value.State`, `Slider.Value.Props`
 - `Slider.Control`: `Slider.Control`, `Slider.Control.State`, `Slider.Control.Props`
-- `Slider.Track`: `Slider.Track`, `Slider.Track.Props`
+- `Slider.Track`: `Slider.Track`, `Slider.Track.State`, `Slider.Track.Props`
 - `Slider.Thumb`: `Slider.Thumb`, `Slider.Thumb.State`, `Slider.Thumb.Props`
-- `Slider.Indicator`: `Slider.Indicator`, `Slider.Indicator.Props`
-- `Default`: `SliderRootState`, `SliderRootProps`, `SliderRootChangeEventCustomProperties`, `SliderRootChangeEventReason`, `SliderRootChangeEventDetails`, `SliderRootCommitEventReason`, `SliderRootCommitEventDetails`, `SliderValueProps`, `SliderControlProps`, `SliderTrackProps`, `ThumbMetadata`, `SliderThumbState`, `SliderThumbProps`, `SliderIndicatorProps`
+- `Slider.Indicator`: `Slider.Indicator`, `Slider.Indicator.State`, `Slider.Indicator.Props`
+- `Default`: `SliderRootState`, `SliderRootProps`, `SliderRootChangeEventCustomProperties`, `SliderRootChangeEventReason`, `SliderRootChangeEventDetails`, `SliderRootCommitEventReason`, `SliderRootCommitEventDetails`, `SliderValueState`, `SliderValueProps`, `SliderControlState`, `SliderControlProps`, `SliderTrackState`, `SliderTrackProps`, `ThumbMetadata`, `SliderThumbState`, `SliderThumbProps`, `SliderIndicatorState`, `SliderIndicatorProps`
 
 ## Canonical Types
 
@@ -403,9 +550,13 @@ Maps `Canonical`: `Alias` — rename aliases to their canonical form for consist
 - `Slider.Root.ChangeEventDetails`: `SliderRootChangeEventDetails`
 - `Slider.Root.CommitEventReason`: `SliderRootCommitEventReason`
 - `Slider.Root.CommitEventDetails`: `SliderRootCommitEventDetails`
+- `Slider.Value.State`: `SliderValueState`
 - `Slider.Value.Props`: `SliderValueProps`
+- `Slider.Control.State`: `SliderControlState`
 - `Slider.Control.Props`: `SliderControlProps`
+- `Slider.Track.State`: `SliderTrackState`
 - `Slider.Track.Props`: `SliderTrackProps`
 - `Slider.Thumb.State`: `SliderThumbState`
 - `Slider.Thumb.Props`: `SliderThumbProps`
+- `Slider.Indicator.State`: `SliderIndicatorState`
 - `Slider.Indicator.Props`: `SliderIndicatorProps`

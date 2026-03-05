@@ -35,6 +35,12 @@ Doesn't render its own HTML element.
 
 Re-export of [Root](#root) props.
 
+### Root.State
+
+```typescript
+type DrawerPreviewRootState = {};
+```
+
 ### Root.Actions
 
 ```typescript
@@ -378,6 +384,7 @@ Re-export of [Backdrop](#backdrop) props.
 type DrawerPreviewBackdropState = {
   /** Whether the drawer is currently open. */
   open: boolean;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
 };
 ```
@@ -434,6 +441,7 @@ Re-export of [Popup](#popup) props.
 type DrawerPreviewPopupState = {
   /** Whether the drawer is currently open. */
   open: boolean;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
   /** Whether the active snap point is the full-height expanded state. */
   expanded: boolean;
@@ -579,6 +587,7 @@ Re-export of [Viewport](#viewport) props.
 type DrawerPreviewViewportState = {
   /** Whether the drawer is currently open. */
   open: boolean;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
   /** Whether the drawer is nested within another drawer. */
   nested: boolean;
@@ -723,6 +732,7 @@ type DrawerBackdropProps = {
 type DrawerBackdropState = {
   /** Whether the drawer is currently open. */
   open: boolean;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
 };
 ```
@@ -929,6 +939,7 @@ type DrawerPopupProps = {
 type DrawerPopupState = {
   /** Whether the drawer is currently open. */
   open: boolean;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
   /** Whether the active snap point is the full-height expanded state. */
   expanded: boolean;
@@ -1103,6 +1114,12 @@ type DrawerRootProps<Payload = unknown> = {
 type DrawerRootSnapPointChangeEventReason = DrawerRootChangeEventReason;
 ```
 
+### DrawerRootState
+
+```typescript
+type DrawerRootState = {};
+```
+
 ### DrawerTitleProps
 
 ```typescript
@@ -1205,6 +1222,7 @@ type DrawerViewportProps = {
 type DrawerViewportState = {
   /** Whether the drawer is currently open. */
   open: boolean;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
   /** Whether the drawer is nested within another drawer. */
   nested: boolean;
@@ -1256,13 +1274,13 @@ type preventUnmountOnClose = () => void;
 - `DrawerPreview.Popup`: `DrawerPreview.Popup`, `DrawerPreview.Popup.Props`, `DrawerPreview.Popup.State`
 - `DrawerPreview.Portal`: `DrawerPreview.Portal`, `DrawerPreview.Portal.Props`, `DrawerPreview.Portal.State`
 - `DrawerPreview.Provider`: `DrawerPreview.Provider`, `DrawerPreview.Provider.State`, `DrawerPreview.Provider.Props`
-- `DrawerPreview.Root`: `DrawerPreview.Root`, `DrawerPreview.Root.Props`, `DrawerPreview.Root.Actions`, `DrawerPreview.Root.ChangeEventReason`, `DrawerPreview.Root.ChangeEventDetails`, `DrawerPreview.Root.SnapPointChangeEventReason`, `DrawerPreview.Root.SnapPointChangeEventDetails`, `DrawerPreview.Root.SnapPoint`
+- `DrawerPreview.Root`: `DrawerPreview.Root`, `DrawerPreview.Root.State`, `DrawerPreview.Root.Props`, `DrawerPreview.Root.Actions`, `DrawerPreview.Root.ChangeEventReason`, `DrawerPreview.Root.ChangeEventDetails`, `DrawerPreview.Root.SnapPointChangeEventReason`, `DrawerPreview.Root.SnapPointChangeEventDetails`, `DrawerPreview.Root.SnapPoint`
 - `DrawerPreview.Title`: `DrawerPreview.Title`, `DrawerPreview.Title.Props`, `DrawerPreview.Title.State`
 - `DrawerPreview.Trigger`: `DrawerPreview.Trigger`, `DrawerPreview.Trigger.Props`, `DrawerPreview.Trigger.State`
 - `DrawerPreview.Viewport`: `DrawerPreview.Viewport`, `DrawerPreview.Viewport.Props`, `DrawerPreview.Viewport.State`
 - `DrawerPreview.createHandle`
 - `DrawerPreview.Handle`
-- `Default`: `DrawerRootProps`, `DrawerRootActions`, `DrawerRootChangeEventReason`, `DrawerRootChangeEventDetails`, `DrawerRootSnapPointChangeEventReason`, `DrawerRootSnapPointChangeEventDetails`, `DrawerProviderState`, `DrawerProviderProps`, `DrawerIndentState`, `DrawerIndentProps`, `DrawerIndentBackgroundState`, `DrawerIndentBackgroundProps`, `DrawerTriggerProps`, `DrawerTriggerState`, `DrawerPortalState`, `DrawerPortalProps`, `DrawerPopupProps`, `DrawerPopupState`, `DrawerContentProps`, `DrawerContentState`, `DrawerBackdropProps`, `DrawerBackdropState`, `DrawerViewportState`, `DrawerViewportProps`, `DrawerTitleProps`, `DrawerTitleState`, `DrawerDescriptionProps`, `DrawerDescriptionState`, `DrawerCloseProps`, `DrawerCloseState`
+- `Default`: `DrawerRootState`, `DrawerRootProps`, `DrawerRootActions`, `DrawerRootChangeEventReason`, `DrawerRootChangeEventDetails`, `DrawerRootSnapPointChangeEventReason`, `DrawerRootSnapPointChangeEventDetails`, `DrawerProviderState`, `DrawerProviderProps`, `DrawerIndentState`, `DrawerIndentProps`, `DrawerIndentBackgroundState`, `DrawerIndentBackgroundProps`, `DrawerTriggerProps`, `DrawerTriggerState`, `DrawerPortalState`, `DrawerPortalProps`, `DrawerPopupProps`, `DrawerPopupState`, `DrawerContentProps`, `DrawerContentState`, `DrawerBackdropProps`, `DrawerBackdropState`, `DrawerViewportState`, `DrawerViewportProps`, `DrawerTitleProps`, `DrawerTitleState`, `DrawerDescriptionProps`, `DrawerDescriptionState`, `DrawerCloseProps`, `DrawerCloseState`
 
 ## Canonical Types
 

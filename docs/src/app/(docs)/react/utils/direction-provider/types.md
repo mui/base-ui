@@ -19,6 +19,12 @@ Enables RTL behavior for Base UI components.
 
 Re-export of [DirectionProvider](#directionprovider) props.
 
+### DirectionProvider.State
+
+```typescript
+type DirectionProviderState = {};
+```
+
 ### useDirection
 
 **useDirection Return Value:**

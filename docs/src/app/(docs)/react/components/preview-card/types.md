@@ -11,17 +11,17 @@ Doesn't render its own HTML element.
 
 **Root Props:**
 
-| Prop                 | Type                                                                           | Default | Description                                                                                                                                                                                                                                                                       |
-| :------------------- | :----------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| defaultOpen          | `boolean`                                                                      | `false` | Whether the preview card is initially open. To render a controlled preview card, use the `open` prop instead.                                                                                                                                                                     |
-| open                 | `boolean`                                                                      | -       | Whether the preview card is currently open.                                                                                                                                                                                                                                       |
-| onOpenChange         | `((open: boolean, eventDetails: PreviewCard.Root.ChangeEventDetails) => void)` | -       | Event handler called when the preview card is opened or closed.                                                                                                                                                                                                                   |
-| actionsRef           | `React.RefObject<PreviewCard.Root.Actions \| null>`                            | -       | A ref to imperative actions. `unmount`: Unmounts the preview card popup.`close`: Closes the preview card imperatively when called.                                                                                                                                                |
-| defaultTriggerId     | `string \| null`                                                               | -       | ID of the trigger that the preview card is associated with.&#xA;This is useful in conjunction with the `defaultOpen` prop to create an initially open preview card.                                                                                                               |
-| handle               | `PreviewCard.Handle<Payload>`                                                  | -       | A handle to associate the preview card with a trigger.&#xA;If specified, allows external triggers to control the card's open state.&#xA;Can be created with the PreviewCard.createHandle() method.                                                                                |
-| onOpenChangeComplete | `((open: boolean) => void)`                                                    | -       | Event handler called after any animations complete when the preview card is opened or closed.                                                                                                                                                                                     |
-| triggerId            | `string \| null`                                                               | -       | ID of the trigger that the preview card is associated with.&#xA;This is useful in conjuntion with the `open` prop to create a controlled preview card.&#xA;There's no need to specify this prop when the preview card is uncontrolled (that is, when the `open` prop is not set). |
-| children             | `React.ReactNode \| PayloadChildRenderFunction<Payload>`                       | -       | The content of the preview card.&#xA;This can be a regular React node or a render function that receives the `payload` of the active trigger.                                                                                                                                     |
+| Prop                 | Type                                                                           | Default | Description                                                                                                                                                                                                                                                                        |
+| :------------------- | :----------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultOpen          | `boolean`                                                                      | `false` | Whether the preview card is initially open. To render a controlled preview card, use the `open` prop instead.                                                                                                                                                                      |
+| open                 | `boolean`                                                                      | -       | Whether the preview card is currently open.                                                                                                                                                                                                                                        |
+| onOpenChange         | `((open: boolean, eventDetails: PreviewCard.Root.ChangeEventDetails) => void)` | -       | Event handler called when the preview card is opened or closed.                                                                                                                                                                                                                    |
+| actionsRef           | `React.RefObject<PreviewCard.Root.Actions \| null>`                            | -       | A ref to imperative actions. `unmount`: Unmounts the preview card popup.`close`: Closes the preview card imperatively when called.                                                                                                                                                 |
+| defaultTriggerId     | `string \| null`                                                               | -       | ID of the trigger that the preview card is associated with.&#xA;This is useful in conjunction with the `defaultOpen` prop to create an initially open preview card.                                                                                                                |
+| handle               | `PreviewCard.Handle<Payload>`                                                  | -       | A handle to associate the preview card with a trigger.&#xA;If specified, allows external triggers to control the card's open state.&#xA;Can be created with the PreviewCard.createHandle() method.                                                                                 |
+| onOpenChangeComplete | `((open: boolean) => void)`                                                    | -       | Event handler called after any animations complete when the preview card is opened or closed.                                                                                                                                                                                      |
+| triggerId            | `string \| null`                                                               | -       | ID of the trigger that the preview card is associated with.&#xA;This is useful in conjunction with the `open` prop to create a controlled preview card.&#xA;There's no need to specify this prop when the preview card is uncontrolled (that is, when the `open` prop is not set). |
+| children             | `React.ReactNode \| PayloadChildRenderFunction<Payload>`                       | -       | The content of the preview card.&#xA;This can be a regular React node or a render function that receives the `payload` of the active trigger.                                                                                                                                      |
 
 ### Root.Props
 
@@ -222,6 +222,7 @@ Re-export of [Backdrop](#backdrop) props.
 type PreviewCardBackdropState = {
   /** Whether the preview card is currently open. */
   open: boolean;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
 };
 ```
@@ -313,9 +314,13 @@ Re-export of [Positioner](#positioner) props.
 type PreviewCardPositionerState = {
   /** Whether the preview card is currently open. */
   open: boolean;
+  /** The side of the anchor the component is placed on. */
   side: Side;
+  /** The alignment of the component relative to the anchor. */
   align: Align;
+  /** Whether the anchor element is hidden. */
   anchorHidden: boolean;
+  /** Whether transitions should be skipped. */
   instant: 'dismiss' | 'focus' | undefined;
 };
 ```
@@ -354,9 +359,13 @@ Re-export of [Popup](#popup) props.
 type PreviewCardPopupState = {
   /** Whether the preview card is currently open. */
   open: boolean;
+  /** The side of the anchor the component is placed on. */
   side: Side;
+  /** The alignment of the component relative to the anchor. */
   align: Align;
+  /** Whether transitions should be skipped. */
   instant: 'dismiss' | 'focus' | undefined;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
 };
 ```
@@ -394,8 +403,11 @@ Re-export of [Arrow](#arrow) props.
 type PreviewCardArrowState = {
   /** Whether the preview card is currently open. */
   open: boolean;
+  /** The side of the anchor the component is placed on. */
   side: Side;
+  /** The alignment of the component relative to the anchor. */
   align: Align;
+  /** Whether the arrow cannot be centered on the anchor. */
   uncentered: boolean;
 };
 ```
@@ -441,9 +453,11 @@ Re-export of [Viewport](#viewport) props.
 
 ```typescript
 type PreviewCardViewportState = {
+  /** The activation direction of the transitioned content. */
   activationDirection: string | undefined;
   /** Whether the viewport is currently transitioning between contents. */
   transitioning: boolean;
+  /** Present if animations should be instant. */
   instant: 'dismiss' | 'focus' | undefined;
 };
 ```
@@ -525,7 +539,7 @@ type OffsetFunction = (data: {
 ## Export Groups
 
 - `PreviewCard.Root`: `PreviewCard.Root`, `PreviewCard.Root.State`, `PreviewCard.Root.Props`, `PreviewCard.Root.Actions`, `PreviewCard.Root.ChangeEventReason`, `PreviewCard.Root.ChangeEventDetails`
-- `PreviewCard.Portal`: `PreviewCard.Portal`, `PreviewCard.Portal.State`, `PreviewCard.Portal.Props`, `PreviewCard.Portal.State`, `PreviewCard.Portal.Props`
+- `PreviewCard.Portal`: `PreviewCard.Portal`, `PreviewCard.Portal.State`, `PreviewCard.Portal.Props`
 - `PreviewCard.Trigger`: `PreviewCard.Trigger`, `PreviewCard.Trigger.State`, `PreviewCard.Trigger.Props`
 - `PreviewCard.Positioner`: `PreviewCard.Positioner`, `PreviewCard.Positioner.State`, `PreviewCard.Positioner.Props`
 - `PreviewCard.Popup`: `PreviewCard.Popup`, `PreviewCard.Popup.State`, `PreviewCard.Popup.Props`
@@ -534,7 +548,7 @@ type OffsetFunction = (data: {
 - `PreviewCard.Viewport`: `PreviewCard.Viewport`, `PreviewCard.Viewport.Props`, `PreviewCard.Viewport.State`
 - `PreviewCard.createHandle`
 - `PreviewCard.Handle`
-- `Default`: `PreviewCardRootState`, `PreviewCardRootProps`, `PreviewCardRootActions`, `PreviewCardRootChangeEventReason`, `PreviewCardRootChangeEventDetails`, `PreviewCardTriggerState`, `PreviewCardTriggerProps`, `PreviewCardPortalProps`, `PreviewCardPositionerState`, `PreviewCardPositionerProps`, `PreviewCardPopupState`, `PreviewCardPopupProps`, `PreviewCardArrowState`, `PreviewCardArrowProps`, `PreviewCardBackdropState`, `PreviewCardBackdropProps`
+- `Default`: `PreviewCardRootState`, `PreviewCardRootProps`, `PreviewCardRootActions`, `PreviewCardRootChangeEventReason`, `PreviewCardRootChangeEventDetails`, `PreviewCardTriggerState`, `PreviewCardTriggerProps`, `PreviewCardPortalState`, `PreviewCardPortalProps`, `PreviewCardPositionerState`, `PreviewCardPositionerProps`, `PreviewCardPopupState`, `PreviewCardPopupProps`, `PreviewCardArrowState`, `PreviewCardArrowProps`, `PreviewCardViewportState`, `PreviewCardBackdropState`, `PreviewCardBackdropProps`
 
 ## Canonical Types
 
@@ -545,6 +559,7 @@ Maps `Canonical`: `Alias` — rename aliases to their canonical form for consist
 - `PreviewCard.Root.Actions`: `PreviewCardRootActions`
 - `PreviewCard.Root.ChangeEventReason`: `PreviewCardRootChangeEventReason`
 - `PreviewCard.Root.ChangeEventDetails`: `PreviewCardRootChangeEventDetails`
+- `PreviewCard.Portal.State`: `PreviewCardPortalState`
 - `PreviewCard.Portal.Props`: `PreviewCardPortalProps`
 - `PreviewCard.Trigger.State`: `PreviewCardTriggerState`
 - `PreviewCard.Trigger.Props`: `PreviewCardTriggerProps`
@@ -556,3 +571,4 @@ Maps `Canonical`: `Alias` — rename aliases to their canonical form for consist
 - `PreviewCard.Arrow.Props`: `PreviewCardArrowProps`
 - `PreviewCard.Backdrop.State`: `PreviewCardBackdropState`
 - `PreviewCard.Backdrop.Props`: `PreviewCardBackdropProps`
+- `PreviewCard.Viewport.State`: `PreviewCardViewportState`

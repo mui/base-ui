@@ -526,7 +526,7 @@ describe('<AlertDialog.Root />', () => {
       expect(trigger).to.have.attribute('aria-expanded', 'false');
     });
 
-    it('sets the payload assosiated with the trigger', async () => {
+    it('sets the payload associated with the trigger', async () => {
       const dialog = AlertDialog.createHandle<number>();
       await render(
         <div>

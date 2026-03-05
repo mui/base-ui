@@ -41,16 +41,22 @@ Renders a `<span>` element.
 
 **Value Props:**
 
-| Prop      | Type                                                                                     | Default | Description                                                                                                                                                                                   |
-| :-------- | :--------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| children  | `((formattedValue: string, value: number) => React.ReactNode) \| null`                   | -       | -                                                                                                                                                                                             |
-| className | `string \| ((state: Meter.Root.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: Meter.Root.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Meter.Root.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                      | Default | Description                                                                                                                                                                                   |
+| :-------- | :---------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| children  | `((formattedValue: string, value: number) => React.ReactNode) \| null`                    | -       | -                                                                                                                                                                                             |
+| className | `string \| ((state: Meter.Value.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Meter.Value.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Meter.Value.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Value.Props
 
 Re-export of [Value](#value) props.
+
+### Value.State
+
+```typescript
+type MeterValueState = {};
+```
 
 ### Indicator
 
@@ -59,15 +65,21 @@ Renders a `<div>` element.
 
 **Indicator Props:**
 
-| Prop      | Type                                                                                     | Default | Description                                                                                                                                                                                   |
-| :-------- | :--------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Meter.Root.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: Meter.Root.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Meter.Root.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                          | Default | Description                                                                                                                                                                                   |
+| :-------- | :-------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Meter.Indicator.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Meter.Indicator.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Meter.Indicator.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Indicator.Props
 
 Re-export of [Indicator](#indicator) props.
+
+### Indicator.State
+
+```typescript
+type MeterIndicatorState = {};
+```
 
 ### Track
 
@@ -76,15 +88,21 @@ Renders a `<div>` element.
 
 **Track Props:**
 
-| Prop      | Type                                                                                     | Default | Description                                                                                                                                                                                   |
-| :-------- | :--------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Meter.Root.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: Meter.Root.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Meter.Root.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                      | Default | Description                                                                                                                                                                                   |
+| :-------- | :---------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Meter.Track.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Meter.Track.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Meter.Track.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Track.Props
 
 Re-export of [Track](#track) props.
+
+### Track.State
+
+```typescript
+type MeterTrackState = {};
+```
 
 ### Label
 
@@ -93,24 +111,30 @@ Renders a `<span>` element.
 
 **Label Props:**
 
-| Prop      | Type                                                                                     | Default | Description                                                                                                                                                                                   |
-| :-------- | :--------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Meter.Root.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: Meter.Root.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Meter.Root.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                      | Default | Description                                                                                                                                                                                   |
+| :-------- | :---------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Meter.Label.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Meter.Label.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Meter.Label.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Label.Props
 
 Re-export of [Label](#label) props.
 
+### Label.State
+
+```typescript
+type MeterLabelState = {};
+```
+
 ## Export Groups
 
 - `Meter.Root`: `Meter.Root`, `Meter.Root.State`, `Meter.Root.Props`
-- `Meter.Track`: `Meter.Track`, `Meter.Track.Props`
-- `Meter.Indicator`: `Meter.Indicator`, `Meter.Indicator.Props`
-- `Meter.Value`: `Meter.Value`, `Meter.Value.Props`
-- `Meter.Label`: `Meter.Label`, `Meter.Label.Props`
-- `Default`: `MeterRootState`, `MeterRootProps`, `MeterIndicatorProps`, `MeterLabelProps`, `MeterTrackProps`, `MeterValueProps`
+- `Meter.Track`: `Meter.Track`, `Meter.Track.State`, `Meter.Track.Props`
+- `Meter.Indicator`: `Meter.Indicator`, `Meter.Indicator.State`, `Meter.Indicator.Props`
+- `Meter.Value`: `Meter.Value`, `Meter.Value.State`, `Meter.Value.Props`
+- `Meter.Label`: `Meter.Label`, `Meter.Label.State`, `Meter.Label.Props`
+- `Default`: `MeterRootState`, `MeterRootProps`, `MeterIndicatorState`, `MeterIndicatorProps`, `MeterLabelState`, `MeterLabelProps`, `MeterTrackState`, `MeterTrackProps`, `MeterValueState`, `MeterValueProps`
 
 ## Canonical Types
 
@@ -118,7 +142,11 @@ Maps `Canonical`: `Alias` — rename aliases to their canonical form for consist
 
 - `Meter.Root.State`: `MeterRootState`
 - `Meter.Root.Props`: `MeterRootProps`
+- `Meter.Track.State`: `MeterTrackState`
 - `Meter.Track.Props`: `MeterTrackProps`
+- `Meter.Indicator.State`: `MeterIndicatorState`
 - `Meter.Indicator.Props`: `MeterIndicatorProps`
+- `Meter.Value.State`: `MeterValueState`
 - `Meter.Value.Props`: `MeterValueProps`
+- `Meter.Label.State`: `MeterLabelState`
 - `Meter.Label.Props`: `MeterLabelProps`

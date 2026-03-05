@@ -11,7 +11,7 @@ export const REGULAR_ITEM = {
   type: 'regular-item' as const,
 };
 
-export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnValue {
+export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnValue {
   const {
     closeOnClick,
     disabled = false,
@@ -102,7 +102,7 @@ export interface UseMenuItemParameters {
   /**
    * Additional data specific to the item type.
    */
-  itemMetadata: useMenuItem.Metadata;
+  itemMetadata: UseMenuItemMetadata;
   /**
    * The node id of the menu positioner.
    */
@@ -138,8 +138,4 @@ export interface UseMenuItemReturnValue {
   itemRef: React.RefCallback<HTMLElement> | null;
 }
 
-export namespace useMenuItem {
-  export type Parameters = UseMenuItemParameters;
-  export type Metadata = UseMenuItemMetadata;
-  export type ReturnValue = UseMenuItemReturnValue;
-}
+export interface UseMenuItemState {}

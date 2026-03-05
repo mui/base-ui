@@ -191,7 +191,10 @@ Re-export of [Thumb](#thumb) props.
 ### Thumb.State
 
 ```typescript
-type ScrollAreaThumbState = { orientation?: 'horizontal' | 'vertical' };
+type ScrollAreaThumbState = {
+  /** The component orientation. */
+  orientation?: 'horizontal' | 'vertical';
+};
 ```
 
 ### Scrollbar

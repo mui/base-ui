@@ -222,10 +222,15 @@ type SelectTriggerState = {
   placeholder: boolean;
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** Whether the field has been touched. */
   touched: boolean;
+  /** Whether the field value has changed from its initial value. */
   dirty: boolean;
+  /** Whether the field is valid. */
   valid: boolean | null;
+  /** Whether the field has a value. */
   filled: boolean;
+  /** Whether the field is focused. */
   focused: boolean;
 };
 ```
@@ -381,7 +386,12 @@ Re-export of [Backdrop](#backdrop) props.
 ### Backdrop.State
 
 ```typescript
-type SelectBackdropState = { open: boolean; transitionStatus: TransitionStatus };
+type SelectBackdropState = {
+  /** Whether the component is open. */
+  open: boolean;
+  /** The transition status of the component. */
+  transitionStatus: TransitionStatus;
+};
 ```
 
 ### Positioner
@@ -470,9 +480,13 @@ Re-export of [Positioner](#positioner) props.
 
 ```typescript
 type SelectPositionerState = {
+  /** Whether the component is open. */
   open: boolean;
+  /** The side of the anchor the component is placed on. */
   side: Side | 'none';
+  /** The alignment of the component relative to the anchor. */
   align: Align;
+  /** Whether the anchor element is hidden. */
   anchorHidden: boolean;
 };
 ```
@@ -511,9 +525,13 @@ Re-export of [Popup](#popup) props.
 
 ```typescript
 type SelectPopupState = {
+  /** The side of the anchor the component is placed on. */
   side: Side | 'none';
+  /** The alignment of the component relative to the anchor. */
   align: Align;
+  /** Whether the component is open. */
   open: boolean;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
 };
 ```
@@ -551,8 +569,11 @@ Re-export of [Arrow](#arrow) props.
 type SelectArrowState = {
   /** Whether the select popup is currently open. */
   open: boolean;
+  /** The side of the anchor the component is placed on. */
   side: Side | 'none';
+  /** The alignment of the component relative to the anchor. */
   align: Align;
+  /** Whether the arrow cannot be centered on the anchor. */
   uncentered: boolean;
 };
 ```
@@ -725,7 +746,12 @@ Re-export of [ItemIndicator](#itemindicator) props.
 ### ItemIndicator.State
 
 ```typescript
-type SelectItemIndicatorState = { selected: boolean; transitionStatus: TransitionStatus };
+type SelectItemIndicatorState = {
+  /** Whether the item is selected. */
+  selected: boolean;
+  /** The transition status of the component. */
+  transitionStatus: TransitionStatus;
+};
 ```
 
 ### ScrollUpArrow
@@ -839,7 +865,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Select.Trigger`: `Select.Trigger`, `Select.Trigger.State`, `Select.Trigger.Props`
 - `Select.Value`: `Select.Value`, `Select.Value.State`, `Select.Value.Props`
 - `Select.Icon`: `Select.Icon`, `Select.Icon.State`, `Select.Icon.Props`
-- `Select.Portal`: `Select.Portal`, `Select.Portal.State`, `Select.Portal.Props`, `Select.Portal.State`, `Select.Portal.Props`
+- `Select.Portal`: `Select.Portal`, `Select.Portal.State`, `Select.Portal.Props`
 - `Select.Backdrop`: `Select.Backdrop`, `Select.Backdrop.State`, `Select.Backdrop.Props`
 - `Select.Positioner`: `Select.Positioner`, `Select.Positioner.State`, `Select.Positioner.Props`
 - `Select.Popup`: `Select.Popup`, `Select.Popup.Props`, `Select.Popup.State`
@@ -853,7 +879,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Select.Group`: `Select.Group`, `Select.Group.State`, `Select.Group.Props`
 - `Select.GroupLabel`: `Select.GroupLabel`, `Select.GroupLabel.State`, `Select.GroupLabel.Props`
 - `Select.Separator`: `Select.Separator`, `Select.Separator.Props`, `Select.Separator.State`
-- `Default`: `SelectRootProps`, `SelectRootState`, `SelectRootActions`, `SelectRootChangeEventReason`, `SelectRootChangeEventDetails`, `SelectTriggerState`, `SelectTriggerProps`, `SelectValueState`, `SelectValueProps`, `SelectIconState`, `SelectIconProps`, `SelectPortalProps`, `SelectBackdropState`, `SelectBackdropProps`, `SelectPositionerState`, `SelectPositionerProps`, `SelectPopupProps`, `SelectPopupState`, `SelectListProps`, `SelectListState`, `SelectItemState`, `SelectItemProps`, `SelectItemIndicatorState`, `SelectItemIndicatorProps`, `SelectItemTextState`, `SelectItemTextProps`, `SelectArrowState`, `SelectArrowProps`, `SelectScrollDownArrowState`, `SelectScrollDownArrowProps`, `SelectScrollUpArrowState`, `SelectScrollUpArrowProps`, `SelectGroupState`, `SelectGroupProps`, `SelectGroupLabelState`, `SelectGroupLabelProps`
+- `Default`: `SelectRootProps`, `SelectRootState`, `SelectRootActions`, `SelectRootChangeEventReason`, `SelectRootChangeEventDetails`, `SelectTriggerState`, `SelectTriggerProps`, `SelectValueState`, `SelectValueProps`, `SelectIconState`, `SelectIconProps`, `SelectPortalState`, `SelectPortalProps`, `SelectBackdropState`, `SelectBackdropProps`, `SelectPositionerState`, `SelectPositionerProps`, `SelectPopupProps`, `SelectPopupState`, `SelectListProps`, `SelectListState`, `SelectItemState`, `SelectItemProps`, `SelectItemIndicatorState`, `SelectItemIndicatorProps`, `SelectItemTextState`, `SelectItemTextProps`, `SelectArrowState`, `SelectArrowProps`, `SelectScrollDownArrowState`, `SelectScrollDownArrowProps`, `SelectScrollUpArrowState`, `SelectScrollUpArrowProps`, `SelectGroupState`, `SelectGroupProps`, `SelectGroupLabelState`, `SelectGroupLabelProps`
 
 ## Canonical Types
 
@@ -870,6 +896,7 @@ Maps `Canonical`: `Alias` — rename aliases to their canonical form for consist
 - `Select.Value.Props`: `SelectValueProps`
 - `Select.Icon.State`: `SelectIconState`
 - `Select.Icon.Props`: `SelectIconProps`
+- `Select.Portal.State`: `SelectPortalState`
 - `Select.Portal.Props`: `SelectPortalProps`
 - `Select.Backdrop.State`: `SelectBackdropState`
 - `Select.Backdrop.Props`: `SelectBackdropProps`

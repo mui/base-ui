@@ -72,10 +72,15 @@ type NumberFieldRootState = {
   readOnly: boolean;
   /** Whether the user is currently scrubbing the field. */
   scrubbing: boolean;
+  /** Whether the field has been touched. */
   touched: boolean;
+  /** Whether the field value has changed from its initial value. */
   dirty: boolean;
+  /** Whether the field is valid. */
   valid: boolean | null;
+  /** Whether the field has a value. */
   filled: boolean;
+  /** Whether the field is focused. */
   focused: boolean;
 };
 ```
@@ -189,10 +194,15 @@ type NumberFieldInputState = {
   readOnly: boolean;
   /** Whether the user is currently scrubbing the field. */
   scrubbing: boolean;
+  /** Whether the field has been touched. */
   touched: boolean;
+  /** Whether the field value has changed from its initial value. */
   dirty: boolean;
+  /** Whether the field is valid. */
   valid: boolean | null;
+  /** Whether the field has a value. */
   filled: boolean;
+  /** Whether the field is focused. */
   focused: boolean;
 };
 ```
@@ -245,10 +255,15 @@ type NumberFieldGroupState = {
   readOnly: boolean;
   /** Whether the user is currently scrubbing the field. */
   scrubbing: boolean;
+  /** Whether the field has been touched. */
   touched: boolean;
+  /** Whether the field value has changed from its initial value. */
   dirty: boolean;
+  /** Whether the field is valid. */
   valid: boolean | null;
+  /** Whether the field has a value. */
   filled: boolean;
+  /** Whether the field is focused. */
   focused: boolean;
 };
 ```
@@ -304,10 +319,15 @@ type NumberFieldScrubAreaState = {
   readOnly: boolean;
   /** Whether the user is currently scrubbing the field. */
   scrubbing: boolean;
+  /** Whether the field has been touched. */
   touched: boolean;
+  /** Whether the field value has changed from its initial value. */
   dirty: boolean;
+  /** Whether the field is valid. */
   valid: boolean | null;
+  /** Whether the field has a value. */
   filled: boolean;
+  /** Whether the field is focused. */
   focused: boolean;
 };
 ```
@@ -363,10 +383,15 @@ type NumberFieldScrubAreaCursorState = {
   readOnly: boolean;
   /** Whether the user is currently scrubbing the field. */
   scrubbing: boolean;
+  /** Whether the field has been touched. */
   touched: boolean;
+  /** Whether the field value has changed from its initial value. */
   dirty: boolean;
+  /** Whether the field is valid. */
   valid: boolean | null;
+  /** Whether the field has a value. */
   filled: boolean;
+  /** Whether the field is focused. */
   focused: boolean;
 };
 ```
@@ -420,10 +445,15 @@ type NumberFieldDecrementState = {
   readOnly: boolean;
   /** Whether the user is currently scrubbing the field. */
   scrubbing: boolean;
+  /** Whether the field has been touched. */
   touched: boolean;
+  /** Whether the field value has changed from its initial value. */
   dirty: boolean;
+  /** Whether the field is valid. */
   valid: boolean | null;
+  /** Whether the field has a value. */
   filled: boolean;
+  /** Whether the field is focused. */
   focused: boolean;
 };
 ```
@@ -477,10 +507,15 @@ type NumberFieldIncrementState = {
   readOnly: boolean;
   /** Whether the user is currently scrubbing the field. */
   scrubbing: boolean;
+  /** Whether the field has been touched. */
   touched: boolean;
+  /** Whether the field value has changed from its initial value. */
   dirty: boolean;
+  /** Whether the field is valid. */
   valid: boolean | null;
+  /** Whether the field has a value. */
   filled: boolean;
+  /** Whether the field is focused. */
   focused: boolean;
 };
 ```

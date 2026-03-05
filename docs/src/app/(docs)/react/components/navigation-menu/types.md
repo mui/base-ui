@@ -377,8 +377,11 @@ Re-export of [Positioner](#positioner) props.
 type NavigationMenuPositionerState = {
   /** Whether the navigation menu is currently open. */
   open: boolean;
+  /** The side of the anchor the component is placed on. */
   side: Side;
+  /** The alignment of the component relative to the anchor. */
   align: Align;
+  /** Whether the anchor element is hidden. */
   anchorHidden: boolean;
   /** Whether CSS transitions should be disabled. */
   instant: boolean;
@@ -470,8 +473,11 @@ Re-export of [Arrow](#arrow) props.
 type NavigationMenuArrowState = {
   /** Whether the popup is currently open. */
   open: boolean;
+  /** The side of the anchor the component is placed on. */
   side: Side;
+  /** The alignment of the component relative to the anchor. */
   align: Align;
+  /** Whether the arrow cannot be centered on the anchor. */
   uncentered: boolean;
 };
 ```
@@ -631,7 +637,7 @@ type OffsetFunction = (data: {
 - `NavigationMenu.Item`: `NavigationMenu.Item`, `NavigationMenu.Item.State`, `NavigationMenu.Item.Props`
 - `NavigationMenu.Content`: `NavigationMenu.Content`, `NavigationMenu.Content.State`, `NavigationMenu.Content.Props`
 - `NavigationMenu.Trigger`: `NavigationMenu.Trigger`, `NavigationMenu.Trigger.State`, `NavigationMenu.Trigger.Props`
-- `NavigationMenu.Portal`: `NavigationMenu.Portal`, `NavigationMenu.Portal.State`, `NavigationMenu.Portal.Props`, `NavigationMenu.Portal.State`, `NavigationMenu.Portal.Props`
+- `NavigationMenu.Portal`: `NavigationMenu.Portal`, `NavigationMenu.Portal.State`, `NavigationMenu.Portal.Props`
 - `NavigationMenu.Positioner`: `NavigationMenu.Positioner`, `NavigationMenu.Positioner.State`, `NavigationMenu.Positioner.Props`
 - `NavigationMenu.Viewport`: `NavigationMenu.Viewport`, `NavigationMenu.Viewport.State`, `NavigationMenu.Viewport.Props`
 - `NavigationMenu.Backdrop`: `NavigationMenu.Backdrop`, `NavigationMenu.Backdrop.State`, `NavigationMenu.Backdrop.Props`
@@ -639,7 +645,7 @@ type OffsetFunction = (data: {
 - `NavigationMenu.Arrow`: `NavigationMenu.Arrow`, `NavigationMenu.Arrow.State`, `NavigationMenu.Arrow.Props`
 - `NavigationMenu.Link`: `NavigationMenu.Link`, `NavigationMenu.Link.State`, `NavigationMenu.Link.Props`
 - `NavigationMenu.Icon`: `NavigationMenu.Icon`, `NavigationMenu.Icon.State`, `NavigationMenu.Icon.Props`
-- `Default`: `NavigationMenuRootState`, `NavigationMenuRootProps`, `NavigationMenuRootActions`, `NavigationMenuRootChangeEventReason`, `NavigationMenuRootChangeEventDetails`, `NavigationMenuTriggerState`, `NavigationMenuTriggerProps`, `NavigationMenuPortalProps`, `NavigationMenuPositionerState`, `NavigationMenuPositionerProps`, `NavigationMenuViewportState`, `NavigationMenuViewportProps`, `NavigationMenuListState`, `NavigationMenuListProps`, `NavigationMenuItemState`, `NavigationMenuItemProps`, `NavigationMenuContentState`, `NavigationMenuContentProps`, `NavigationMenuPopupState`, `NavigationMenuPopupProps`, `NavigationMenuBackdropState`, `NavigationMenuBackdropProps`, `NavigationMenuArrowState`, `NavigationMenuArrowProps`, `NavigationMenuLinkState`, `NavigationMenuLinkProps`, `NavigationMenuIconState`, `NavigationMenuIconProps`
+- `Default`: `NavigationMenuRootState`, `NavigationMenuRootProps`, `NavigationMenuRootActions`, `NavigationMenuRootChangeEventReason`, `NavigationMenuRootChangeEventDetails`, `NavigationMenuTriggerState`, `NavigationMenuTriggerProps`, `NavigationMenuPortalState`, `NavigationMenuPortalProps`, `NavigationMenuPositionerState`, `NavigationMenuPositionerProps`, `NavigationMenuViewportState`, `NavigationMenuViewportProps`, `NavigationMenuListState`, `NavigationMenuListProps`, `NavigationMenuItemState`, `NavigationMenuItemProps`, `NavigationMenuContentState`, `NavigationMenuContentProps`, `NavigationMenuPopupState`, `NavigationMenuPopupProps`, `NavigationMenuBackdropState`, `NavigationMenuBackdropProps`, `NavigationMenuArrowState`, `NavigationMenuArrowProps`, `NavigationMenuLinkState`, `NavigationMenuLinkProps`, `NavigationMenuIconState`, `NavigationMenuIconProps`
 
 ## Canonical Types
 
@@ -658,6 +664,7 @@ Maps `Canonical`: `Alias` — rename aliases to their canonical form for consist
 - `NavigationMenu.Content.Props`: `NavigationMenuContentProps`
 - `NavigationMenu.Trigger.State`: `NavigationMenuTriggerState`
 - `NavigationMenu.Trigger.Props`: `NavigationMenuTriggerProps`
+- `NavigationMenu.Portal.State`: `NavigationMenuPortalState`
 - `NavigationMenu.Portal.Props`: `NavigationMenuPortalProps`
 - `NavigationMenu.Positioner.State`: `NavigationMenuPositionerState`
 - `NavigationMenu.Positioner.Props`: `NavigationMenuPositionerProps`

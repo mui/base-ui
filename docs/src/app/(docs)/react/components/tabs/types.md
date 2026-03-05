@@ -36,7 +36,9 @@ Re-export of [Root](#root) props.
 
 ```typescript
 type TabsRootState = {
+  /** The component orientation. */
   orientation: Tabs.Root.Orientation;
+  /** The direction used for tab activation. */
   tabActivationDirection: Tabs.Tab.ActivationDirection;
 };
 ```
@@ -105,7 +107,9 @@ Re-export of [List](#list) props.
 
 ```typescript
 type TabsListState = {
+  /** The component orientation. */
   orientation: Tabs.Root.Orientation;
+  /** The direction used for tab activation. */
   tabActivationDirection: Tabs.Tab.ActivationDirection;
 };
 ```
@@ -144,9 +148,13 @@ Re-export of [Panel](#panel) props.
 
 ```typescript
 type TabsPanelState = {
+  /** Whether the component is hidden. */
   hidden: boolean;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
+  /** The component orientation. */
   orientation: Tabs.Root.Orientation;
+  /** The direction used for tab activation. */
   tabActivationDirection: Tabs.Tab.ActivationDirection;
 };
 ```
@@ -197,9 +205,13 @@ Re-export of [Indicator](#indicator) props.
 
 ```typescript
 type TabsIndicatorState = {
+  /** The active tab position. */
   activeTabPosition: Tabs.Tab.Position | null;
+  /** The active tab size. */
   activeTabSize: Tabs.Tab.Size | null;
+  /** The component orientation. */
   orientation: Tabs.Root.Orientation;
+  /** The direction used for tab activation. */
   tabActivationDirection: Tabs.Tab.ActivationDirection;
 };
 ```
@@ -239,7 +251,9 @@ Re-export of [Tab](#tab) props.
 type TabsTabState = {
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** Whether the component is active. */
   active: boolean;
+  /** The component orientation. */
   orientation: Tabs.Root.Orientation;
 };
 ```

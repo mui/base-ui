@@ -37,10 +37,15 @@ Re-export of [CheckboxGroup](#checkboxgroup) props.
 type CheckboxGroupState = {
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** Whether the field has been touched. */
   touched: boolean;
+  /** Whether the field value has changed from its initial value. */
   dirty: boolean;
+  /** Whether the field is valid. */
   valid: boolean | null;
+  /** Whether the field has a value. */
   filled: boolean;
+  /** Whether the field is focused. */
   focused: boolean;
 };
 ```

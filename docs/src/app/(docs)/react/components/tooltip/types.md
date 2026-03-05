@@ -160,6 +160,12 @@ once a tooltip becomes visible, the adjacent tooltips will be shown instantly.
 
 Re-export of [Provider](#provider) props.
 
+### Provider.State
+
+```typescript
+type TooltipProviderState = {};
+```
+
 ### Trigger
 
 An element to attach the tooltip to.
@@ -312,8 +318,11 @@ Re-export of [Positioner](#positioner) props.
 type TooltipPositionerState = {
   /** Whether the tooltip is currently open. */
   open: boolean;
+  /** The side of the anchor the component is placed on. */
   side: Side;
+  /** The alignment of the component relative to the anchor. */
   align: Align;
+  /** Whether the anchor element is hidden. */
   anchorHidden: boolean;
   /** Whether CSS transitions should be disabled. */
   instant: string | undefined;
@@ -355,9 +364,13 @@ Re-export of [Popup](#popup) props.
 type TooltipPopupState = {
   /** Whether the tooltip is currently open. */
   open: boolean;
+  /** The side of the anchor the component is placed on. */
   side: Side;
+  /** The alignment of the component relative to the anchor. */
   align: Align;
+  /** Whether transitions should be skipped. */
   instant: 'delay' | 'focus' | 'dismiss' | undefined;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
 };
 ```
@@ -396,9 +409,13 @@ Re-export of [Arrow](#arrow) props.
 type TooltipArrowState = {
   /** Whether the tooltip is currently open. */
   open: boolean;
+  /** The side of the anchor the component is placed on. */
   side: Side;
+  /** The alignment of the component relative to the anchor. */
   align: Align;
+  /** Whether the arrow cannot be centered on the anchor. */
   uncentered: boolean;
+  /** Whether transitions should be skipped. */
   instant: 'delay' | 'dismiss' | 'focus' | undefined;
 };
 ```
@@ -444,6 +461,7 @@ Re-export of [Viewport](#viewport) props.
 
 ```typescript
 type TooltipViewportState = {
+  /** The activation direction of the transitioned content. */
   activationDirection: string | undefined;
   /** Whether the viewport is currently transitioning between contents. */
   transitioning: boolean;
@@ -530,15 +548,15 @@ type OffsetFunction = (data: {
 
 - `Tooltip.Root`: `Tooltip.Root`, `Tooltip.Root.State`, `Tooltip.Root.Props`, `Tooltip.Root.Actions`, `Tooltip.Root.ChangeEventReason`, `Tooltip.Root.ChangeEventDetails`
 - `Tooltip.Trigger`: `Tooltip.Trigger`, `Tooltip.Trigger.State`, `Tooltip.Trigger.Props`
-- `Tooltip.Portal`: `Tooltip.Portal`, `Tooltip.Portal.State`, `Tooltip.Portal.Props`, `Tooltip.Portal.State`, `Tooltip.Portal.Props`
+- `Tooltip.Portal`: `Tooltip.Portal`, `Tooltip.Portal.State`, `Tooltip.Portal.Props`
 - `Tooltip.Positioner`: `Tooltip.Positioner`, `Tooltip.Positioner.State`, `Tooltip.Positioner.Props`
 - `Tooltip.Popup`: `Tooltip.Popup`, `Tooltip.Popup.State`, `Tooltip.Popup.Props`
 - `Tooltip.Arrow`: `Tooltip.Arrow`, `Tooltip.Arrow.State`, `Tooltip.Arrow.Props`
-- `Tooltip.Provider`: `Tooltip.Provider`, `Tooltip.Provider.Props`
+- `Tooltip.Provider`: `Tooltip.Provider`, `Tooltip.Provider.State`, `Tooltip.Provider.Props`
 - `Tooltip.Viewport`: `Tooltip.Viewport`, `Tooltip.Viewport.Props`, `Tooltip.Viewport.State`
 - `Tooltip.createHandle`
 - `Tooltip.Handle`
-- `Default`: `TooltipProviderProps`, `TooltipRootState`, `TooltipRootProps`, `TooltipRootActions`, `TooltipRootChangeEventReason`, `TooltipRootChangeEventDetails`, `TooltipTriggerState`, `TooltipTriggerProps`, `TooltipPortalProps`, `TooltipPositionerState`, `TooltipPositionerProps`, `TooltipPopupState`, `TooltipPopupProps`, `TooltipArrowState`, `TooltipArrowProps`
+- `Default`: `TooltipProviderState`, `TooltipProviderProps`, `TooltipRootState`, `TooltipRootProps`, `TooltipRootActions`, `TooltipRootChangeEventReason`, `TooltipRootChangeEventDetails`, `TooltipTriggerState`, `TooltipTriggerProps`, `TooltipPortalState`, `TooltipPortalProps`, `TooltipPositionerState`, `TooltipPositionerProps`, `TooltipPopupState`, `TooltipPopupProps`, `TooltipViewportState`, `TooltipArrowState`, `TooltipArrowProps`
 
 ## Canonical Types
 
@@ -551,6 +569,7 @@ Maps `Canonical`: `Alias` — rename aliases to their canonical form for consist
 - `Tooltip.Root.ChangeEventDetails`: `TooltipRootChangeEventDetails`
 - `Tooltip.Trigger.State`: `TooltipTriggerState`
 - `Tooltip.Trigger.Props`: `TooltipTriggerProps`
+- `Tooltip.Portal.State`: `TooltipPortalState`
 - `Tooltip.Portal.Props`: `TooltipPortalProps`
 - `Tooltip.Positioner.State`: `TooltipPositionerState`
 - `Tooltip.Positioner.Props`: `TooltipPositionerProps`
@@ -558,4 +577,6 @@ Maps `Canonical`: `Alias` — rename aliases to their canonical form for consist
 - `Tooltip.Popup.Props`: `TooltipPopupProps`
 - `Tooltip.Arrow.State`: `TooltipArrowState`
 - `Tooltip.Arrow.Props`: `TooltipArrowProps`
+- `Tooltip.Provider.State`: `TooltipProviderState`
 - `Tooltip.Provider.Props`: `TooltipProviderProps`
+- `Tooltip.Viewport.State`: `TooltipViewportState`

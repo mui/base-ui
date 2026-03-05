@@ -34,7 +34,12 @@ Re-export of [Root](#root) props.
 ### Root.State
 
 ```typescript
-type ToolbarRootState = { disabled: boolean; orientation: Toolbar.Root.Orientation };
+type ToolbarRootState = {
+  /** Whether the component is disabled. */
+  disabled: boolean;
+  /** The component orientation. */
+  orientation: Toolbar.Root.Orientation;
+};
 ```
 
 ### Root.Orientation
@@ -81,8 +86,11 @@ Re-export of [Input](#input) props.
 
 ```typescript
 type ToolbarInputState = {
+  /** Whether the component is disabled. */
   disabled: boolean;
+  /** Whether the component remains focusable when disabled. */
   focusable: boolean;
+  /** The component orientation. */
   orientation: Toolbar.Root.Orientation;
 };
 ```
@@ -94,12 +102,12 @@ Renders a `<div>` element.
 
 **Group Props:**
 
-| Prop      | Type                                                                                       | Default | Description                                                                                                                                                                                   |
-| :-------- | :----------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| disabled  | `boolean`                                                                                  | `false` | When `true` all toolbar items in the group are disabled.                                                                                                                                      |
-| className | `string \| ((state: Toolbar.Root.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: Toolbar.Root.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Toolbar.Root.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                        | Default | Description                                                                                                                                                                                   |
+| :-------- | :------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| disabled  | `boolean`                                                                                   | `false` | When `true` all toolbar items in the group are disabled.                                                                                                                                      |
+| className | `string \| ((state: Toolbar.Group.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Toolbar.Group.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Toolbar.Group.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Group Data Attributes:**
 
@@ -112,6 +120,17 @@ Renders a `<div>` element.
 
 Re-export of [Group](#group) props.
 
+### Group.State
+
+```typescript
+type ToolbarGroupState = {
+  /** Whether the component is disabled. */
+  disabled: boolean;
+  /** The component orientation. */
+  orientation: Toolbar.Root.Orientation;
+};
+```
+
 ### Separator
 
 A separator element accessible to screen readers.
@@ -119,12 +138,12 @@ Renders a `<div>` element.
 
 **Separator Props:**
 
-| Prop        | Type                                                                                            | Default | Description                                                                                                                                                                                   |
-| :---------- | :---------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| orientation | `Toolbar.Root.Orientation`                                                                      | -       | -                                                                                                                                                                                             |
-| className   | `string \| ((state: Toolbar.Separator.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style       | `React.CSSProperties \| ((state: Toolbar.Separator.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
-| render      | `ReactElement \| ((props: HTMLProps, state: Toolbar.Separator.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop        | Type                                                                                            | Default        | Description                                                                                                                                                                                   |
+| :---------- | :---------------------------------------------------------------------------------------------- | :------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| orientation | `Orientation`                                                                                   | `'horizontal'` | The orientation of the separator.                                                                                                                                                             |
+| className   | `string \| ((state: Toolbar.Separator.State) => string \| undefined)`                           | -              | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style       | `React.CSSProperties \| ((state: Toolbar.Separator.State) => React.CSSProperties \| undefined)` | -              | -                                                                                                                                                                                             |
+| render      | `ReactElement \| ((props: HTMLProps, state: Toolbar.Separator.State) => ReactElement)`          | -              | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Separator Data Attributes:**
 
@@ -139,7 +158,10 @@ Re-export of [Separator](#separator) props.
 ### Separator.State
 
 ```typescript
-type ToolbarSeparatorState = { orientation: Toolbar.Root.Orientation };
+type ToolbarSeparatorState = {
+  /** The orientation of the separator. */
+  orientation: Orientation;
+};
 ```
 
 ### Button
@@ -174,8 +196,11 @@ Re-export of [Button](#button) props.
 
 ```typescript
 type ToolbarButtonState = {
+  /** Whether the component is disabled. */
   disabled: boolean;
+  /** Whether the component remains focusable when disabled. */
   focusable: boolean;
+  /** The component orientation. */
   orientation: Toolbar.Root.Orientation;
 };
 ```
@@ -206,7 +231,10 @@ Re-export of [Link](#link) props.
 ### Link.State
 
 ```typescript
-type ToolbarLinkState = { orientation: Toolbar.Root.Orientation };
+type ToolbarLinkState = {
+  /** The component orientation. */
+  orientation: Toolbar.Root.Orientation;
+};
 ```
 
 ## Additional Types
@@ -219,24 +247,25 @@ type ToolbarOrientation = 'horizontal' | 'vertical';
 
 ## Export Groups
 
-- `Toolbar.Separator`: `Toolbar.Separator`, `Toolbar.Separator.Props`, `Toolbar.Separator.State`
+- `Toolbar.Separator`: `Toolbar.Separator`, `Toolbar.Separator.State`, `Toolbar.Separator.Props`
 - `Toolbar.Root`: `Toolbar.Root`, `Toolbar.Root.ItemMetadata`, `Toolbar.Root.Orientation`, `Toolbar.Root.State`, `Toolbar.Root.Props`
-- `Toolbar.Group`: `Toolbar.Group`, `Toolbar.Group.Props`
+- `Toolbar.Group`: `Toolbar.Group`, `Toolbar.Group.State`, `Toolbar.Group.Props`
 - `Toolbar.Button`: `Toolbar.Button`, `Toolbar.Button.State`, `Toolbar.Button.Props`
 - `Toolbar.Link`: `Toolbar.Link`, `Toolbar.Link.State`, `Toolbar.Link.Props`
 - `Toolbar.Input`: `Toolbar.Input`, `Toolbar.Input.State`, `Toolbar.Input.Props`
-- `Default`: `Toolbar.Orientation`, `Orientation`, `ToolbarRootItemMetadata`, `ToolbarRootOrientation`, `ToolbarRootState`, `ToolbarRootProps`, `ToolbarGroupProps`, `ToolbarButtonState`, `ToolbarButtonProps`, `ToolbarLinkState`, `ToolbarLinkProps`, `ToolbarInputState`, `ToolbarInputProps`, `ToolbarSeparatorProps`, `ToolbarSeparatorState`
+- `Default`: `Toolbar.Orientation`, `Orientation`, `ToolbarRootItemMetadata`, `ToolbarRootOrientation`, `ToolbarRootState`, `ToolbarRootProps`, `ToolbarGroupState`, `ToolbarGroupProps`, `ToolbarButtonState`, `ToolbarButtonProps`, `ToolbarLinkState`, `ToolbarLinkProps`, `ToolbarInputState`, `ToolbarInputProps`, `ToolbarSeparatorState`, `ToolbarSeparatorProps`
 
 ## Canonical Types
 
 Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
 
-- `Toolbar.Separator.Props`: `ToolbarSeparatorProps`
 - `Toolbar.Separator.State`: `ToolbarSeparatorState`
+- `Toolbar.Separator.Props`: `ToolbarSeparatorProps`
 - `Toolbar.Root.ItemMetadata`: `ToolbarRootItemMetadata`
 - `Toolbar.Root.Orientation`: `ToolbarRootOrientation`
 - `Toolbar.Root.State`: `ToolbarRootState`
 - `Toolbar.Root.Props`: `ToolbarRootProps`
+- `Toolbar.Group.State`: `ToolbarGroupState`
 - `Toolbar.Group.Props`: `ToolbarGroupProps`
 - `Toolbar.Button.State`: `ToolbarButtonState`
 - `Toolbar.Button.Props`: `ToolbarButtonProps`

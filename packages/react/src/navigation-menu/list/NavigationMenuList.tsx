@@ -44,7 +44,7 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
 
   const dismissProps = floatingRootContext ? dismiss : undefined;
 
-  const state: NavigationMenuList.State = {
+  const state: NavigationMenuListState = {
     open,
   };
 
@@ -111,7 +111,7 @@ export interface NavigationMenuListState {
 
 export interface NavigationMenuListProps extends BaseUIComponentProps<
   'ul',
-  NavigationMenuList.State
+  NavigationMenuListState
 > {}
 
 export namespace NavigationMenuList {

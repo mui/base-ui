@@ -71,6 +71,8 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
   );
 }
 
+export interface AlertDialogRootState {}
+
 export interface AlertDialogRootProps<Payload = unknown> extends Omit<
   DialogRoot.Props<Payload>,
   'modal' | 'disablePointerDismissal' | 'onOpenChange' | 'actionsRef' | 'handle'
@@ -106,6 +108,7 @@ export type AlertDialogRootChangeEventDetails =
   };
 
 export namespace AlertDialogRoot {
+  export type State = AlertDialogRootState;
   export type Props<Payload = unknown> = AlertDialogRootProps<Payload>;
   export type Actions = AlertDialogRootActions;
   export type ChangeEventReason = AlertDialogRootChangeEventReason;

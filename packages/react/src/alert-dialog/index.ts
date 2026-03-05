@@ -18,7 +18,10 @@ export type {
   DialogPopupProps as AlertDialogPopupProps,
   DialogPopupState as AlertDialogPopupState,
 } from '../dialog/popup/DialogPopup';
-export type { DialogPortalProps as AlertDialogPortalProps } from '../dialog/portal/DialogPortal';
+export type {
+  DialogPortalProps as AlertDialogPortalProps,
+  DialogPortalState as AlertDialogPortalState,
+} from '../dialog/portal/DialogPortal';
 export type {
   DialogTitleProps as AlertDialogTitleProps,
   DialogTitleState as AlertDialogTitleState,

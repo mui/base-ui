@@ -518,9 +518,11 @@ Re-export of [Root](#root) props.
 
 \`\`\`typescript
 type AccordionRootState<TValue = any> = {
+  /** The current value. */
   value: TValue[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** The component orientation. */
   orientation: Orientation;
 };
 \`\`\`
@@ -568,12 +570,12 @@ Renders a \`<button>\` element.
 
 **Trigger Props:**
 
-| Prop         | Type                                                                                         | Default | Description                                                                                                                                                                                   |
-| :----------- | :------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| nativeButton | \`boolean\`                                                                                    | \`true\`  | Whether the component renders a native \`<button>\` element when replacing it&#xA;via the \`render\` prop.&#xA;Set to \`false\` if the rendered element is not a button (for example, \`<div>\`).     |
-| className    | \`string \\| ((state: Accordion.Item.State) => string \\| undefined)\`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style        | \`React.CSSProperties \\| ((state: Accordion.Item.State) => React.CSSProperties \\| undefined)\` | -       | -                                                                                                                                                                                             |
-| render       | \`ReactElement \\| ((props: HTMLProps, state: Accordion.Item.State) => ReactElement)\`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a \`ReactElement\` or a function that returns the element to render. |
+| Prop         | Type                                                                                            | Default | Description                                                                                                                                                                                   |
+| :----------- | :---------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| nativeButton | \`boolean\`                                                                                       | \`true\`  | Whether the component renders a native \`<button>\` element when replacing it&#xA;via the \`render\` prop.&#xA;Set to \`false\` if the rendered element is not a button (for example, \`<div>\`).     |
+| className    | \`string \\| ((state: Accordion.Trigger.State) => string \\| undefined)\`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style        | \`React.CSSProperties \\| ((state: Accordion.Trigger.State) => React.CSSProperties \\| undefined)\` | -       | -                                                                                                                                                                                             |
+| render       | \`ReactElement \\| ((props: HTMLProps, state: Accordion.Trigger.State) => ReactElement)\`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a \`ReactElement\` or a function that returns the element to render. |
 
 **Trigger Data Attributes:**
 
@@ -585,6 +587,23 @@ Renders a \`<button>\` element.
 ### Trigger.Props
 
 Re-export of [Trigger](#trigger) props.
+
+### Trigger.State
+
+\`\`\`typescript
+type AccordionTriggerState = {
+  /** The item index. */
+  index: number;
+  /** Whether the component is open. */
+  open: boolean;
+  /** The current value. */
+  value: any[];
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+  /** The component orientation. */
+  orientation: Orientation;
+};
+\`\`\`
 
 ### Item
 
@@ -627,11 +646,15 @@ Re-export of [Item](#item) props.
 
 \`\`\`typescript
 type AccordionItemState = {
+  /** The item index. */
   index: number;
+  /** Whether the component is open. */
   open: boolean;
+  /** The current value. */
   value: any[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** The component orientation. */
   orientation: Orientation;
 };
 \`\`\`
@@ -673,11 +696,11 @@ Renders an \`<h3>\` element.
 
 **Header Props:**
 
-| Prop      | Type                                                                                         | Default | Description                                                                                                                                                                                   |
-| :-------- | :------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | \`string \\| ((state: Accordion.Item.State) => string \\| undefined)\`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | \`React.CSSProperties \\| ((state: Accordion.Item.State) => React.CSSProperties \\| undefined)\` | -       | -                                                                                                                                                                                             |
-| render    | \`ReactElement \\| ((props: HTMLProps, state: Accordion.Item.State) => ReactElement)\`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a \`ReactElement\` or a function that returns the element to render. |
+| Prop      | Type                                                                                           | Default | Description                                                                                                                                                                                   |
+| :-------- | :--------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | \`string \\| ((state: Accordion.Header.State) => string \\| undefined)\`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | \`React.CSSProperties \\| ((state: Accordion.Header.State) => React.CSSProperties \\| undefined)\` | -       | -                                                                                                                                                                                             |
+| render    | \`ReactElement \\| ((props: HTMLProps, state: Accordion.Header.State) => ReactElement)\`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a \`ReactElement\` or a function that returns the element to render. |
 
 **Header Data Attributes:**
 
@@ -690,6 +713,23 @@ Renders an \`<h3>\` element.
 ### Header.Props
 
 Re-export of [Header](#header) props.
+
+### Header.State
+
+\`\`\`typescript
+type AccordionHeaderState = {
+  /** The item index. */
+  index: number;
+  /** Whether the component is open. */
+  open: boolean;
+  /** The current value. */
+  value: any[];
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+  /** The component orientation. */
+  orientation: Orientation;
+};
+\`\`\`
 
 ### Panel
 
@@ -732,12 +772,17 @@ Re-export of [Panel](#panel) props.
 
 \`\`\`typescript
 type AccordionPanelState = {
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
+  /** The item index. */
   index: number;
+  /** Whether the component is open. */
   open: boolean;
+  /** The current value. */
   value: any[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** The component orientation. */
   orientation: Orientation;
 };
 \`\`\`
@@ -762,10 +807,10 @@ type Orientation = 'horizontal' | 'vertical';
 
 - \`Accordion.Root\`: \`Accordion.Root\`, \`Accordion.Root.Value\`, \`Accordion.Root.State\`, \`Accordion.Root.Props\`, \`Accordion.Root.ChangeEventReason\`, \`Accordion.Root.ChangeEventDetails\`
 - \`Accordion.Item\`: \`Accordion.Item\`, \`Accordion.Item.State\`, \`Accordion.Item.Props\`, \`Accordion.Item.ChangeEventReason\`, \`Accordion.Item.ChangeEventDetails\`
-- \`Accordion.Header\`: \`Accordion.Header\`, \`Accordion.Header.Props\`
-- \`Accordion.Trigger\`: \`Accordion.Trigger\`, \`Accordion.Trigger.Props\`
+- \`Accordion.Header\`: \`Accordion.Header\`, \`Accordion.Header.State\`, \`Accordion.Header.Props\`
+- \`Accordion.Trigger\`: \`Accordion.Trigger\`, \`Accordion.Trigger.State\`, \`Accordion.Trigger.Props\`
 - \`Accordion.Panel\`: \`Accordion.Panel\`, \`Accordion.Panel.State\`, \`Accordion.Panel.Props\`
-- \`Default\`: \`AccordionValue\`, \`AccordionRootState\`, \`AccordionRootProps\`, \`AccordionRootChangeEventReason\`, \`AccordionRootChangeEventDetails\`, \`AccordionItemState\`, \`AccordionItemProps\`, \`AccordionItemChangeEventReason\`, \`AccordionItemChangeEventDetails\`, \`AccordionHeaderProps\`, \`AccordionTriggerProps\`, \`AccordionPanelState\`, \`AccordionPanelProps\`
+- \`Default\`: \`AccordionValue\`, \`AccordionRootState\`, \`AccordionRootProps\`, \`AccordionRootChangeEventReason\`, \`AccordionRootChangeEventDetails\`, \`AccordionItemState\`, \`AccordionItemProps\`, \`AccordionItemChangeEventReason\`, \`AccordionItemChangeEventDetails\`, \`AccordionHeaderState\`, \`AccordionHeaderProps\`, \`AccordionTriggerState\`, \`AccordionTriggerProps\`, \`AccordionPanelState\`, \`AccordionPanelProps\`
 
 ## Canonical Types
 
@@ -779,7 +824,9 @@ Maps \`Canonical\`: \`Alias\` — rename aliases to their canonical form for con
 - \`Accordion.Item.Props\`: \`AccordionItemProps\`
 - \`Accordion.Item.ChangeEventReason\`: \`AccordionItemChangeEventReason\`
 - \`Accordion.Item.ChangeEventDetails\`: \`AccordionItemChangeEventDetails\`
+- \`Accordion.Header.State\`: \`AccordionHeaderState\`
 - \`Accordion.Header.Props\`: \`AccordionHeaderProps\`
+- \`Accordion.Trigger.State\`: \`AccordionTriggerState\`
 - \`Accordion.Trigger.Props\`: \`AccordionTriggerProps\`
 - \`Accordion.Panel.State\`: \`AccordionPanelState\`
 - \`Accordion.Panel.Props\`: \`AccordionPanelProps\`
@@ -921,6 +968,12 @@ Enables RTL behavior for Base UI components.
 ### DirectionProvider.Props
 
 Re-export of [DirectionProvider](#directionprovider) props.
+
+### DirectionProvider.State
+
+\`\`\`typescript
+type DirectionProviderState = {};
+\`\`\`
 
 ### useDirection
 

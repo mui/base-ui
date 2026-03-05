@@ -73,12 +73,12 @@ Renders a `<button>` element.
 
 **Trigger Props:**
 
-| Prop         | Type                                                                                           | Default | Description                                                                                                                                                                                   |
-| :----------- | :--------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| nativeButton | `boolean`                                                                                      | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (for example, `<div>`).     |
-| className    | `string \| ((state: Collapsible.Root.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style        | `React.CSSProperties \| ((state: Collapsible.Root.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
-| render       | `ReactElement \| ((props: HTMLProps, state: Collapsible.Root.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop         | Type                                                                                              | Default | Description                                                                                                                                                                                   |
+| :----------- | :------------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| nativeButton | `boolean`                                                                                         | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (for example, `<div>`).     |
+| className    | `string \| ((state: Collapsible.Trigger.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style        | `React.CSSProperties \| ((state: Collapsible.Trigger.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render       | `ReactElement \| ((props: HTMLProps, state: Collapsible.Trigger.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Trigger Data Attributes:**
 
@@ -89,6 +89,17 @@ Renders a `<button>` element.
 ### Trigger.Props
 
 Re-export of [Trigger](#trigger) props.
+
+### Trigger.State
+
+```typescript
+type CollapsibleTriggerState = {
+  /** Whether the collapsible panel is currently open. */
+  open: boolean;
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+};
+```
 
 ### Panel
 
@@ -129,6 +140,7 @@ Re-export of [Panel](#panel) props.
 
 ```typescript
 type CollapsiblePanelState = {
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
   /** Whether the collapsible panel is currently open. */
   open: boolean;
@@ -140,9 +152,9 @@ type CollapsiblePanelState = {
 ## Export Groups
 
 - `Collapsible.Root`: `Collapsible.Root`, `Collapsible.Root.State`, `Collapsible.Root.Props`, `Collapsible.Root.ChangeEventReason`, `Collapsible.Root.ChangeEventDetails`
-- `Collapsible.Trigger`: `Collapsible.Trigger`, `Collapsible.Trigger.Props`
+- `Collapsible.Trigger`: `Collapsible.Trigger`, `Collapsible.Trigger.State`, `Collapsible.Trigger.Props`
 - `Collapsible.Panel`: `Collapsible.Panel`, `Collapsible.Panel.State`, `Collapsible.Panel.Props`
-- `Default`: `CollapsibleRootState`, `CollapsibleRootProps`, `CollapsibleRootChangeEventReason`, `CollapsibleRootChangeEventDetails`, `CollapsibleTriggerProps`, `CollapsiblePanelState`, `CollapsiblePanelProps`
+- `Default`: `CollapsibleRootState`, `CollapsibleRootProps`, `CollapsibleRootChangeEventReason`, `CollapsibleRootChangeEventDetails`, `CollapsibleTriggerState`, `CollapsibleTriggerProps`, `CollapsiblePanelState`, `CollapsiblePanelProps`
 
 ## Canonical Types
 
@@ -152,6 +164,7 @@ Maps `Canonical`: `Alias` — rename aliases to their canonical form for consist
 - `Collapsible.Root.Props`: `CollapsibleRootProps`
 - `Collapsible.Root.ChangeEventReason`: `CollapsibleRootChangeEventReason`
 - `Collapsible.Root.ChangeEventDetails`: `CollapsibleRootChangeEventDetails`
+- `Collapsible.Trigger.State`: `CollapsibleTriggerState`
 - `Collapsible.Trigger.Props`: `CollapsibleTriggerProps`
 - `Collapsible.Panel.State`: `CollapsiblePanelState`
 - `Collapsible.Panel.Props`: `CollapsiblePanelProps`

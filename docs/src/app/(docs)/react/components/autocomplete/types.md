@@ -252,10 +252,15 @@ type AutocompleteTriggerState = {
   listEmpty: boolean;
   /** Whether the combobox doesn't have a value. */
   placeholder: boolean;
+  /** Whether the field has been touched. */
   touched: boolean;
+  /** Whether the field value has changed from its initial value. */
   dirty: boolean;
+  /** Whether the field is valid. */
   valid: boolean | null;
+  /** Whether the field has a value. */
   filled: boolean;
+  /** Whether the field is focused. */
   focused: boolean;
 };
 ```
@@ -331,10 +336,15 @@ type AutocompleteInputState = {
   readOnly: boolean;
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** Whether the field has been touched. */
   touched: boolean;
+  /** Whether the field value has changed from its initial value. */
   dirty: boolean;
+  /** Whether the field is valid. */
   valid: boolean | null;
+  /** Whether the field has a value. */
   filled: boolean;
+  /** Whether the field is focused. */
   focused: boolean;
 };
 ```
@@ -390,6 +400,7 @@ type AutocompleteClearState = {
   open: boolean;
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
 };
 ```
@@ -479,6 +490,7 @@ Re-export of [Backdrop](#backdrop) props.
 type AutocompleteBackdropState = {
   /** Whether the popup is currently open. */
   open: boolean;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
 };
 ```
@@ -571,9 +583,13 @@ Re-export of [Positioner](#positioner) props.
 type AutocompletePositionerState = {
   /** Whether the popup is currently open. */
   open: boolean;
+  /** The side of the anchor the component is placed on. */
   side: Side;
+  /** The alignment of the component relative to the anchor. */
   align: Align;
+  /** Whether the anchor element is hidden. */
   anchorHidden: boolean;
+  /** Whether there are no items to display. */
   empty: boolean;
 };
 ```
@@ -614,11 +630,17 @@ Re-export of [Popup](#popup) props.
 
 ```typescript
 type AutocompletePopupState = {
+  /** Whether the component is open. */
   open: boolean;
+  /** The side of the anchor the component is placed on. */
   side: Side;
+  /** The alignment of the component relative to the anchor. */
   align: Align;
+  /** Whether the anchor element is hidden. */
   anchorHidden: boolean;
+  /** The transition status of the component. */
   transitionStatus: TransitionStatus;
+  /** Whether there are no items to display. */
   empty: boolean;
 };
 ```
@@ -656,8 +678,11 @@ Re-export of [Arrow](#arrow) props.
 type AutocompleteArrowState = {
   /** Whether the popup is currently open. */
   open: boolean;
+  /** The side of the anchor the component is placed on. */
   side: Side;
+  /** The alignment of the component relative to the anchor. */
   align: Align;
+  /** Whether the arrow cannot be centered on the anchor. */
   uncentered: boolean;
 };
 ```
@@ -846,6 +871,12 @@ If rendering a flat list, pass a function child to the `List` component instead,
 
 Re-export of [Collection](#collection) props.
 
+### Collection.State
+
+```typescript
+type AutocompleteCollectionState = {};
+```
+
 ### Row
 
 Displays a single row of items in a grid list.
@@ -967,7 +998,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Autocomplete.Clear`: `Autocomplete.Clear`, `Autocomplete.Clear.State`, `Autocomplete.Clear.Props`
 - `Autocomplete.List`: `Autocomplete.List`, `Autocomplete.List.State`, `Autocomplete.List.Props`
 - `Autocomplete.Status`: `Autocomplete.Status`, `Autocomplete.Status.State`, `Autocomplete.Status.Props`
-- `Autocomplete.Portal`: `Autocomplete.Portal`, `Autocomplete.Portal.State`, `Autocomplete.Portal.Props`, `Autocomplete.Portal.State`, `Autocomplete.Portal.Props`
+- `Autocomplete.Portal`: `Autocomplete.Portal`, `Autocomplete.Portal.State`, `Autocomplete.Portal.Props`
 - `Autocomplete.Backdrop`: `Autocomplete.Backdrop`, `Autocomplete.Backdrop.Props`, `Autocomplete.Backdrop.State`
 - `Autocomplete.Positioner`: `Autocomplete.Positioner`, `Autocomplete.Positioner.State`, `Autocomplete.Positioner.Props`
 - `Autocomplete.Popup`: `Autocomplete.Popup`, `Autocomplete.Popup.State`, `Autocomplete.Popup.Props`
@@ -976,12 +1007,12 @@ type Orientation = 'horizontal' | 'vertical';
 - `Autocomplete.GroupLabel`: `Autocomplete.GroupLabel`, `Autocomplete.GroupLabel.State`, `Autocomplete.GroupLabel.Props`
 - `Autocomplete.Item`: `Autocomplete.Item`, `Autocomplete.Item.State`, `Autocomplete.Item.Props`
 - `Autocomplete.Row`: `Autocomplete.Row`, `Autocomplete.Row.State`, `Autocomplete.Row.Props`
-- `Autocomplete.Collection`: `Autocomplete.Collection`, `Autocomplete.Collection.Props`
+- `Autocomplete.Collection`: `Autocomplete.Collection`, `Autocomplete.Collection.State`, `Autocomplete.Collection.Props`
 - `Autocomplete.Empty`: `Autocomplete.Empty`, `Autocomplete.Empty.State`, `Autocomplete.Empty.Props`
 - `Autocomplete.Separator`: `Autocomplete.Separator`, `Autocomplete.Separator.Props`, `Autocomplete.Separator.State`
 - `Autocomplete.useFilter`
 - `Autocomplete.useFilteredItems`
-- `Default`: `AutocompleteTriggerProps`, `AutocompleteTriggerState`, `AutocompleteInputProps`, `AutocompleteInputState`, `AutocompleteIconProps`, `AutocompleteIconState`, `AutocompleteClearProps`, `AutocompleteClearState`, `AutocompletePopupProps`, `AutocompletePopupState`, `AutocompletePositionerProps`, `AutocompletePositionerState`, `AutocompleteListProps`, `AutocompleteListState`, `AutocompleteItemProps`, `AutocompleteItemState`, `AutocompleteRowProps`, `AutocompleteRowState`, `AutocompleteArrowProps`, `AutocompleteArrowState`, `AutocompleteBackdropProps`, `AutocompleteBackdropState`, `AutocompletePortalProps`, `AutocompleteGroupProps`, `AutocompleteGroupState`, `AutocompleteGroupLabelProps`, `AutocompleteGroupLabelState`, `AutocompleteEmptyProps`, `AutocompleteEmptyState`, `AutocompleteStatusProps`, `AutocompleteStatusState`, `AutocompleteCollectionProps`, `AutocompleteFilter`, `AutocompleteFilterOptions`, `AutocompleteRootState`, `AutocompleteRootActions`, `AutocompleteRootChangeEventReason`, `AutocompleteRootChangeEventDetails`, `AutocompleteRootHighlightEventReason`, `AutocompleteRootHighlightEventDetails`, `AutocompleteRootProps`, `AutocompleteValueState`, `AutocompleteValueProps`
+- `Default`: `AutocompleteTriggerProps`, `AutocompleteTriggerState`, `AutocompleteInputProps`, `AutocompleteInputState`, `AutocompleteIconProps`, `AutocompleteIconState`, `AutocompleteClearProps`, `AutocompleteClearState`, `AutocompletePopupProps`, `AutocompletePopupState`, `AutocompletePositionerProps`, `AutocompletePositionerState`, `AutocompleteListProps`, `AutocompleteListState`, `AutocompleteItemProps`, `AutocompleteItemState`, `AutocompleteRowProps`, `AutocompleteRowState`, `AutocompleteArrowProps`, `AutocompleteArrowState`, `AutocompleteBackdropProps`, `AutocompleteBackdropState`, `AutocompletePortalProps`, `AutocompletePortalState`, `AutocompleteGroupProps`, `AutocompleteGroupState`, `AutocompleteGroupLabelProps`, `AutocompleteGroupLabelState`, `AutocompleteEmptyProps`, `AutocompleteEmptyState`, `AutocompleteStatusProps`, `AutocompleteStatusState`, `AutocompleteCollectionProps`, `AutocompleteFilter`, `AutocompleteFilterOptions`, `AutocompleteRootState`, `AutocompleteRootActions`, `AutocompleteRootChangeEventReason`, `AutocompleteRootChangeEventDetails`, `AutocompleteRootHighlightEventReason`, `AutocompleteRootHighlightEventDetails`, `AutocompleteRootProps`, `AutocompleteValueState`, `AutocompleteValueProps`
 
 ## Canonical Types
 
@@ -1008,6 +1039,7 @@ Maps `Canonical`: `Alias` — rename aliases to their canonical form for consist
 - `Autocomplete.List.Props`: `AutocompleteListProps`
 - `Autocomplete.Status.State`: `AutocompleteStatusState`
 - `Autocomplete.Status.Props`: `AutocompleteStatusProps`
+- `Autocomplete.Portal.State`: `AutocompletePortalState`
 - `Autocomplete.Portal.Props`: `AutocompletePortalProps`
 - `Autocomplete.Backdrop.Props`: `AutocompleteBackdropProps`
 - `Autocomplete.Backdrop.State`: `AutocompleteBackdropState`
