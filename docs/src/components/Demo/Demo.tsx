@@ -236,12 +236,12 @@ export function Demo({
                         rel="noopener"
                         onClick={onViewSource}
                       >
-                        <GitHubIcon aria-hidden="true" className="size-3.5" />
+                        <GitHubIcon aria-hidden="true" className="DemoIconSize" />
                         View source on GitHub
                       </Menu.LinkItem>
 
                       <Menu.Item closeOnClick={false} onClick={onCopySourceLink}>
-                        <span className="flex size-3.5 items-center justify-center">
+                        <span className="DemoCopyIconWrap">
                           {sourceLinkCopied ? (
                             <CheckIcon aria-hidden="true" />
                           ) : (
