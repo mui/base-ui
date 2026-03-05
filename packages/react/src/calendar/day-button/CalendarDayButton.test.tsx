@@ -217,6 +217,52 @@ describe('<Calendar.DayButton />', () => {
       expect(button).not.to.have.attribute('aria-selected', 'true');
       expect(button).not.to.have.attribute('data-selected');
     });
+
+    it('should update the selected state when the controlled value changes', () => {
+      const dateA = adapter.date('2025-02-04', 'default');
+      const dateB = adapter.date('2025-02-07', 'default');
+
+      const { rerender } = render(
+        <Calendar.Root visibleDate={adapter.startOfMonth(dateA)} value={dateA}>
+          <Calendar.DayGrid>
+            <Calendar.DayGridBody>
+              <Calendar.DayGridRow value={adapter.startOfWeek(dateA)}>
+                <Calendar.DayGridCell value={dateA}>
+                  <Calendar.DayButton />
+                </Calendar.DayGridCell>
+                <Calendar.DayGridCell value={dateB}>
+                  <Calendar.DayButton />
+                </Calendar.DayGridCell>
+              </Calendar.DayGridRow>
+            </Calendar.DayGridBody>
+          </Calendar.DayGrid>
+        </Calendar.Root>,
+      );
+
+      const buttons = screen.getAllByRole('button');
+      expect(buttons[0]).to.have.attribute('aria-selected', 'true');
+      expect(buttons[1]).not.to.have.attribute('aria-selected', 'true');
+
+      rerender(
+        <Calendar.Root visibleDate={adapter.startOfMonth(dateA)} value={dateB}>
+          <Calendar.DayGrid>
+            <Calendar.DayGridBody>
+              <Calendar.DayGridRow value={adapter.startOfWeek(dateA)}>
+                <Calendar.DayGridCell value={dateA}>
+                  <Calendar.DayButton />
+                </Calendar.DayGridCell>
+                <Calendar.DayGridCell value={dateB}>
+                  <Calendar.DayButton />
+                </Calendar.DayGridCell>
+              </Calendar.DayGridRow>
+            </Calendar.DayGridBody>
+          </Calendar.DayGrid>
+        </Calendar.Root>,
+      );
+
+      expect(buttons[0]).not.to.have.attribute('aria-selected', 'true');
+      expect(buttons[1]).to.have.attribute('aria-selected', 'true');
+    });
   });
 
   describe('disabled state', () => {

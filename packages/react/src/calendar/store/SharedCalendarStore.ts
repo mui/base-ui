@@ -102,6 +102,7 @@ export class SharedCalendarStore<TValue extends TemporalSupportedValue, TError> 
           oldValueProp !== undefined &&
           !this.state.adapter.isEqual(newValueProp, oldValueProp)
         ) {
+          this.set('value', newValueProp);
           const visibleDate = this.valueManager.getActiveDateFromValue(newValueProp);
           if (this.state.adapter.isValid(visibleDate)) {
             this.setVisibleDate(visibleDate, undefined, undefined, REASONS.valuePropChange, true);
