@@ -184,7 +184,7 @@ const publicContextSelector = createSelectorMemoized(visibleDateSelector, (visib
 }));
 
 const getMonthKey = (adapter: TemporalAdapter, date: TemporalSupportedObject) =>
-  adapter.formatByString(date, `${adapter.formats.monthPadded}-${adapter.formats.yearPadded}`);
+  `${adapter.getYear(date)}-${adapter.getMonth(date)}`;
 
 const getDateKey = (adapter: TemporalAdapter, date: TemporalSupportedObject) =>
   adapter.format(date, 'localizedNumericDate');
