@@ -81,7 +81,7 @@ export const mdxComponents: MDXComponents = {
   Subtitle: (props) => <Subtitle className="MdSubtitle" {...props} />,
 };
 
-export const inlineMdxComponents: MDXComponents = {
+export const mdxComponentsInline: MDXComponents = {
   ...mdxComponents,
   p: (props) => props.children,
 };

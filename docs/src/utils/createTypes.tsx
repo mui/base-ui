@@ -4,7 +4,7 @@ import {
 } from '@mui/internal-docs-infra/abstractCreateTypes';
 import clsx from 'clsx';
 import { ReferenceTable } from '../components/ReferenceTable/ReferenceTable';
-import { mdxComponents, inlineMdxComponents } from '../mdx-components';
+import { mdxComponents, mdxComponentsInline } from '../mdx-components';
 import { CodeBlockPrecomputed } from '../components/CodeBlockPrecomputed';
 import { PreInline } from '../components/CodeBlock';
 import { Code } from '../components/Code';
@@ -19,7 +19,7 @@ const components: MDXComponents = {
 };
 
 const inlineComponents: MDXComponents = {
-  ...inlineMdxComponents,
+  ...mdxComponentsInline,
   code: (props) => (
     <Code {...props} data-table-code="" className={clsx(props.className, 'TableCode')} />
   ),
