@@ -11,9 +11,9 @@ import { CopyIcon } from '../icons/CopyIcon';
 import { CheckIcon } from '../icons/CheckIcon';
 
 const PACKAGE_MANAGERS = [
+  { value: 'pnpm', label: 'pnpm', command: 'add' },
   { value: 'npm', label: 'npm', command: 'i' },
   { value: 'yarn', label: 'yarn', command: 'add' },
-  { value: 'pnpm', label: 'pnpm', command: 'add' },
   { value: 'bun', label: 'bun', command: 'add' },
 ] as const;
 
