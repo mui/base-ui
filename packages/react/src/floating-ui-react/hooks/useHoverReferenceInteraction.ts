@@ -14,8 +14,10 @@ import { getDelay } from './useHover';
 import { useFloatingTree } from '../components/FloatingTree';
 import type { FloatingTreeStore } from '../components/FloatingTreeStore';
 import {
+  recordHoverClose,
   safePolygonIdentifier,
   useHoverInteractionSharedState,
+  wasHoverClosedRecently,
 } from './useHoverInteractionSharedState';
 import { FloatingUIOpenChangeDetails, HTMLProps } from '../../utils/types';
 
@@ -41,6 +43,16 @@ function getRestMs(value: number | (() => number)) {
 }
 
 const EMPTY_REF: Readonly<React.RefObject<Element | null>> = { current: null };
+function shouldIgnoreDelayAfterTriggerSwitch(
+  instance: ReturnType<typeof useHoverInteractionSharedState>,
+  isOpen: boolean,
+) {
+  if (isOpen) {
+    return false;
+  }
+
+  return wasHoverClosedRecently(instance);
+}
 
 /**
  * Provides hover interactions that should be attached to reference or trigger
@@ -98,11 +110,13 @@ export function useHoverReferenceInteraction(
       const closeDelay = getDelay(delayRef.current, 'close', instance.pointerType);
       if (closeDelay) {
         instance.openChangeTimeout.start(closeDelay, () => {
+          recordHoverClose(instance);
           store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
           tree?.events.emit('floating.closed', event);
         });
       } else if (runElseBranch) {
         instance.openChangeTimeout.clear();
+        recordHoverClose(instance);
         store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
         tree?.events.emit('floating.closed', event);
       }
@@ -192,11 +206,13 @@ export function useHoverReferenceInteraction(
 
       const isOpen = store.select('open');
       const shouldOpen = !isOpen || isOverInactiveTrigger;
+      // If a hover-popup was closed recently, skip open delay.
+      const shouldIgnoreDelay = shouldIgnoreDelayAfterTriggerSwitch(instance, isOpen);
 
       // When moving between triggers while already open, open immediately without delay
       if (isOverInactiveTrigger && isOpen) {
         store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
-      } else if (openDelay) {
+      } else if (openDelay && !shouldIgnoreDelay) {
         instance.openChangeTimeout.start(openDelay, () => {
           if (shouldOpen) {
             store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
@@ -322,6 +338,7 @@ export function useHoverReferenceInteraction(
         const currentDomReference = store.select('domReferenceElement');
         const allTriggers = store.context.triggerElements;
         const currentOpen = store.select('open');
+        const shouldIgnoreDelay = shouldIgnoreDelayAfterTriggerSwitch(instance, currentOpen);
 
         const isOverInactiveTrigger =
           (allTriggers.hasElement(event.target as Element) ||
@@ -370,6 +387,8 @@ export function useHoverReferenceInteraction(
             handleMouseMove();
           });
         } else if (isOverInactiveTrigger && currentOpen) {
+          handleMouseMove();
+        } else if (shouldIgnoreDelay) {
           handleMouseMove();
         } else {
           instance.restTimeoutPending = true;

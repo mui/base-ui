@@ -19,6 +19,7 @@ import { REASONS } from '../../utils/reasons';
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import {
   isInteractiveElement,
+  recordHoverClose,
   safePolygonIdentifier,
   useHoverInteractionSharedState,
 } from './useHoverInteractionSharedState';
@@ -81,6 +82,7 @@ export function useHoverFloatingInteraction(
     (event: MouseEvent) => {
       const closeDelay = getDelay(closeDelayProp, instance.pointerType);
       const close = () => {
+        recordHoverClose(instance);
         store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
         tree?.events.emit('floating.closed', event);
       };
@@ -211,6 +213,7 @@ export function useHoverFloatingInteraction(
       // Allow the mouseenter event to fire in case child was closed because mouse moved into parent.
       childClosedTimeout.start(0, () => {
         tree.events.off('floating.closed', onNodeClosed);
+        recordHoverClose(instance);
         store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
         tree.events.emit('floating.closed', event);
       });

@@ -9,6 +9,8 @@ import { TYPEABLE_SELECTOR } from '../utils/constants';
 
 export const safePolygonIdentifier = createAttribute('safe-polygon');
 const interactiveSelector = `button,a,[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`;
+export const HOVER_CLOSE_UNSET = -1;
+export const HOVER_SWITCH_GRACE_MS = 400;
 
 export function isInteractiveElement(element: Element | null) {
   return element ? Boolean(element.closest(interactiveSelector)) : false;
@@ -21,6 +23,7 @@ export class HoverInteraction {
   blockMouseMove: boolean;
   performedPointerEventsMutation: boolean;
   restTimeoutPending: boolean;
+  lastHoverCloseTime: number;
   openChangeTimeout: Timeout;
   restTimeout: Timeout;
   handleCloseOptions: SafePolygonOptions | undefined;
@@ -32,6 +35,8 @@ export class HoverInteraction {
     this.blockMouseMove = true;
     this.performedPointerEventsMutation = false;
     this.restTimeoutPending = false;
+    // `HOVER_CLOSE_UNSET` means no hover-close has occurred yet.
+    this.lastHoverCloseTime = HOVER_CLOSE_UNSET;
     this.openChangeTimeout = new Timeout();
     this.restTimeout = new Timeout();
     this.handleCloseOptions = undefined;
@@ -66,4 +71,22 @@ export function useHoverInteractionSharedState(store: FloatingRootContext): Hove
   useOnMount(data.hoverInteractionState.disposeEffect);
 
   return data.hoverInteractionState;
+}
+
+export function recordHoverClose(instance: HoverInteraction, now = performance.now()): void {
+  instance.lastHoverCloseTime = now;
+}
+
+export function wasHoverClosedRecently(
+  instance: HoverInteraction,
+  now = performance.now(),
+  thresholdMs = HOVER_SWITCH_GRACE_MS,
+): boolean {
+  // Used by hover-open flows to suppress delay during quick handoffs
+  // (trigger-to-trigger or popup-to-trigger).
+  if (instance.lastHoverCloseTime === HOVER_CLOSE_UNSET) {
+    return false;
+  }
+
+  return now - instance.lastHoverCloseTime <= thresholdMs;
 }
