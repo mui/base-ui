@@ -5,6 +5,7 @@
     color: var(--color-blue);
   }
 
+  /* Variants */
   .Code-component {
     color: var(--color-blue);
     background-color: color-mix(in oklab, var(--color-blue), transparent 88%);
@@ -28,7 +29,7 @@
     color: var(--color-violet);
   }
 
-  /* Underline when inside a link */
+  /* Inside a link */
   a .Code,
   .Link .Code {
     text-decoration: underline;
