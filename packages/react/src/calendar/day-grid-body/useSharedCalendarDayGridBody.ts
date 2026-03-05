@@ -69,7 +69,7 @@ export function useSharedCalendarDayGridBody(
   const disabledIndices = React.useMemo(() => {
     const output: number[] = [];
     for (const itemMetadata of itemMap.values()) {
-      if (itemMetadata?.index != null && !itemMetadata.focusableWhenDisabled) {
+      if (itemMetadata?.index != null && !itemMetadata.focusable) {
         output.push(itemMetadata.index);
       }
     }
@@ -127,7 +127,7 @@ export function useSharedCalendarDayGridBody(
     const newItems = Array.from(newMap.keys()) as HTMLElement[];
     const newDisabledIndices: number[] = [];
     for (const meta of newMap.values()) {
-      if (meta?.index != null && !meta.focusableWhenDisabled) {
+      if (meta?.index != null && !meta.focusable) {
         newDisabledIndices.push(meta.index);
       }
     }
@@ -336,7 +336,7 @@ export interface UseSharedCalendarDayGridBodyParameters {
 }
 
 export interface UseSharedCalendarDayGridBodyItemMetadata {
-  focusableWhenDisabled?: boolean | undefined;
+  focusable?: boolean | undefined;
 }
 
 export interface UseSharedCalendarDayGridBodyReturnValue {

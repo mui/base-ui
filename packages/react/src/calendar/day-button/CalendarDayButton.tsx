@@ -84,7 +84,7 @@ const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
 
   const itemMetadata = React.useMemo<UseSharedCalendarDayGridBodyItemMetadata>(
     () => ({
-      focusableWhenDisabled: (focusableWhenDisabled || !isDisabled) && !isOutsideCurrentMonth,
+      focusable: (focusableWhenDisabled || !isDisabled) && !isOutsideCurrentMonth,
     }),
     [focusableWhenDisabled, isDisabled, isOutsideCurrentMonth],
   );
