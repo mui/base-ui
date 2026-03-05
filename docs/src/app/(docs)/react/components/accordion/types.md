@@ -40,7 +40,7 @@ Re-export of [Root](#root) props.
 ### Root.State
 
 ```typescript
-type AccordionRootState = {
+type AccordionRootState<TValue = any> = {
   value: TValue[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
@@ -81,7 +81,7 @@ type AccordionRootChangeEventDetails =
 ### Root.Value
 
 ```typescript
-type AccordionRootValue = TValue[];
+type AccordionRootValue<TValue = any> = TValue[];
 ```
 
 ### Trigger
@@ -270,7 +270,7 @@ type AccordionPanelState = {
 ### AccordionValue
 
 ```typescript
-type AccordionValue = Value[];
+type AccordionValue<Value = any> = Value[];
 ```
 
 ## External Types

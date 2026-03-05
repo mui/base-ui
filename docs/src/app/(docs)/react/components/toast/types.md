@@ -66,7 +66,7 @@ type ToastRootState = {
 ### Root.ToastObject
 
 ```typescript
-type ToastRootToastObject = {
+type ToastRootToastObject<Data extends {} = any> = {
   /** The unique identifier for the toast. */
   id: string;
   /** The ref for the toast. */
@@ -111,7 +111,7 @@ type ToastRootToastObject = {
   /** The props forwarded to the toast positioner element when rendering anchored toasts. */
   positionerProps?: ToastManagerPositionerProps;
   /** Custom data for the toast. */
-  data?: {};
+  data?: Data;
 };
 ```
 
@@ -503,7 +503,7 @@ type ReturnValue = UseToastManagerReturnValue<{}>;
 ### ToastObject
 
 ```typescript
-type ToastObject = {
+type ToastObject<Data extends {}> = {
   /** The unique identifier for the toast. */
   id: string;
   /** The ref for the toast. */
@@ -548,21 +548,21 @@ type ToastObject = {
   /** The props forwarded to the toast positioner element when rendering anchored toasts. */
   positionerProps?: ToastManagerPositionerProps;
   /** Custom data for the toast. */
-  data?: {};
+  data?: Data;
 };
 ```
 
 ### ToastManager
 
 ```typescript
-type ToastManager = {
+type ToastManager<Data extends {} = any> = {
   ' subscribe': (listener: (data: ToastManagerEvent) => void) => () => void;
-  add: (options: ToastManagerAddOptions<{}>) => string;
+  add: <T extends Data = Data>(options: ToastManagerAddOptions<T>) => string;
   close: (id: string) => void;
-  update: (id: string, updates: ToastManagerUpdateOptions<{}>) => void;
-  promise: (
+  update: <T extends Data = Data>(id: string, updates: ToastManagerUpdateOptions<T>) => void;
+  promise: <Value, T extends Data = Data>(
     promiseValue: Promise<Value>,
-    options: ToastManagerPromiseOptions<Value, {}>,
+    options: ToastManagerPromiseOptions<Value, T>,
   ) => Promise<Value>;
 };
 ```
@@ -570,7 +570,7 @@ type ToastManager = {
 ### ToastManagerAddOptions
 
 ```typescript
-type ToastManagerAddOptions = {
+type ToastManagerAddOptions<Data extends {}> = {
   id?: string;
   /** The title of the toast. */
   title?: React.ReactNode;
@@ -608,7 +608,7 @@ type ToastManagerAddOptions = {
   /** The props forwarded to the toast positioner element when rendering anchored toasts. */
   positionerProps?: ToastManagerPositionerProps;
   /** Custom data for the toast. */
-  data?: {};
+  data?: Data;
 };
 ```
 
@@ -620,7 +620,7 @@ type ToastManagerEvent = { action: 'add' | 'close' | 'update' | 'promise'; optio
 
 ### ToastManagerPositionerProps
 
-```typescript
+````typescript
 type ToastManagerPositionerProps = {
   /** An element to position the toast against. */
   anchor?: Element | null;
@@ -744,28 +744,28 @@ type ToastManagerPositionerProps = {
    */
   render?: ReactElement | ((props: HTMLProps, state: Toast.Positioner.State) => ReactElement);
 };
-```
+````
 
 ### ToastManagerPromiseOptions
 
 ```typescript
-type ToastManagerPromiseOptions = {
-  loading: string | ToastManagerUpdateOptions<{}>;
+type ToastManagerPromiseOptions<Value, Data extends {}> = {
+  loading: string | ToastManagerUpdateOptions<Data>;
   success:
     | string
-    | ToastManagerUpdateOptions<{}>
-    | ((result: Value) => string | ToastManagerUpdateOptions<{}>);
+    | ToastManagerUpdateOptions<Data>
+    | ((result: Value) => string | ToastManagerUpdateOptions<Data>);
   error:
     | string
-    | ToastManagerUpdateOptions<{}>
-    | ((error: any) => string | ToastManagerUpdateOptions<{}>);
+    | ToastManagerUpdateOptions<Data>
+    | ((error: any) => string | ToastManagerUpdateOptions<Data>);
 };
 ```
 
 ### ToastManagerUpdateOptions
 
 ```typescript
-type ToastManagerUpdateOptions = {
+type ToastManagerUpdateOptions<Data extends {}> = {
   /** The title of the toast. */
   title?: React.ReactNode;
   /**
@@ -800,21 +800,21 @@ type ToastManagerUpdateOptions = {
   /** The props forwarded to the toast positioner element when rendering anchored toasts. */
   positionerProps?: ToastManagerPositionerProps;
   /** Custom data for the toast. */
-  data?: {};
+  data?: Data;
 };
 ```
 
 ### UseToastManagerReturnValue
 
 ```typescript
-type UseToastManagerReturnValue = {
-  toasts: ToastObject<{}>[];
-  add: (options: ToastManagerAddOptions<{}>) => string;
+type UseToastManagerReturnValue<Data extends {} = any> = {
+  toasts: ToastObject<Data>[];
+  add: <T extends Data = Data>(options: ToastManagerAddOptions<T>) => string;
   close: (toastId: string) => void;
-  update: (toastId: string, options: ToastManagerUpdateOptions<{}>) => void;
-  promise: (
+  update: <T extends Data = Data>(toastId: string, options: ToastManagerUpdateOptions<T>) => void;
+  promise: <Value, T extends Data = Data>(
     promise: Promise<Value>,
-    options: ToastManagerPromiseOptions<Value, {}>,
+    options: ToastManagerPromiseOptions<Value, T>,
   ) => Promise<Value>;
 };
 ```

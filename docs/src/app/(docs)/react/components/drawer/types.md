@@ -1014,7 +1014,7 @@ type DrawerRootChangeEventReason =
 ### DrawerRootProps
 
 ```typescript
-type DrawerRootProps = {
+type DrawerRootProps<Payload = unknown> = {
   /** Whether the drawer is currently open. */
   open?: boolean;
   /**
@@ -1132,7 +1132,7 @@ type DrawerTitleState = {};
 ### DrawerTriggerProps
 
 ```typescript
-type DrawerTriggerProps = {
+type DrawerTriggerProps<Payload = unknown> = {
   /**
    * A handle to associate the trigger with a drawer.
    * Can be created with the Drawer.createHandle() method.

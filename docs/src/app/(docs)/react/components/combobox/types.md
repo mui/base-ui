@@ -1019,9 +1019,9 @@ type ReturnValue = T[];
 
 ```typescript
 type ComboboxFilter = {
-  contains: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
-  startsWith: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
-  endsWith: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
+  contains: <Item>(item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
+  startsWith: <Item>(item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
+  endsWith: <Item>(item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
 };
 ```
 

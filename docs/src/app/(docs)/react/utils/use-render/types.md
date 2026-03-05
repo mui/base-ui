@@ -27,7 +27,11 @@ type ReturnValue = ReactElement | null;
 ### useRender.ComponentProps
 
 ```typescript
-type useRenderComponentProps = React.ComponentPropsWithRef<React.ElementType> & {
+type useRenderComponentProps<
+  ElementType extends React.ElementType,
+  State = {},
+  RenderFunctionProps = HTMLProps,
+> = React.ComponentPropsWithRef<ElementType> & {
   render?: ReactElement | ((props: RenderFunctionProps, state: State) => ReactElement);
 };
 ```
@@ -44,11 +48,15 @@ type useRenderElementProps =
 ### useRender.Parameters
 
 ```typescript
-type useRenderParameters = {
+type useRenderParameters<
+  State,
+  RenderedElementType extends Element,
+  Enabled extends boolean | undefined,
+> = {
   /** The React element or a function that returns one to override the default element. */
   render?: UseRenderRenderProp<State>;
   /** The ref to apply to the rendered element. */
-  ref?: React.Ref<Element>[] | React.Ref<Element>;
+  ref?: React.Ref<RenderedElementType>[] | React.Ref<RenderedElementType>;
   /**
    * The state of the component, passed as the second argument to the `render` callback.
    * State properties are automatically converted to data-* attributes.
@@ -261,7 +269,7 @@ type useRenderParameters = {
 ### useRender.RenderProp
 
 ```typescript
-type useRenderRenderProp =
+type useRenderRenderProp<State = Record<string, unknown>> =
   | ReactElement
   | ((props: React.HTMLAttributes<any>, state: State) => ReactElement);
 ```
@@ -277,13 +285,17 @@ type useRenderReturnValue = ReactElement | null;
 ### HTMLProps
 
 ```typescript
-type HTMLProps = React.HTMLAttributes<T> & { ref?: React.Ref<T> };
+type HTMLProps<T = any> = React.HTMLAttributes<T> & { ref?: React.Ref<T> };
 ```
 
 ### UseRenderComponentProps
 
 ```typescript
-type UseRenderComponentProps = React.ComponentPropsWithRef<React.ElementType> & {
+type UseRenderComponentProps<
+  ElementType extends React.ElementType,
+  State = {},
+  RenderFunctionProps = HTMLProps,
+> = React.ComponentPropsWithRef<ElementType> & {
   render?: ReactElement | ((props: RenderFunctionProps, state: State) => ReactElement);
 };
 ```
@@ -300,11 +312,15 @@ type UseRenderElementProps =
 ### UseRenderParameters
 
 ```typescript
-type UseRenderParameters = {
+type UseRenderParameters<
+  State,
+  RenderedElementType extends Element,
+  Enabled extends boolean | undefined,
+> = {
   /** The React element or a function that returns one to override the default element. */
   render?: UseRenderRenderProp<State>;
   /** The ref to apply to the rendered element. */
-  ref?: React.Ref<Element> | React.Ref<Element>[];
+  ref?: React.Ref<RenderedElementType> | React.Ref<RenderedElementType>[];
   /**
    * The state of the component, passed as the second argument to the `render` callback.
    * State properties are automatically converted to data-* attributes.
@@ -517,7 +533,7 @@ type UseRenderParameters = {
 ### UseRenderRenderProp
 
 ```typescript
-type UseRenderRenderProp =
+type UseRenderRenderProp<State = Record<string, unknown>> =
   | ReactElement
   | ((props: React.HTMLAttributes<any>, state: State) => ReactElement);
 ```
