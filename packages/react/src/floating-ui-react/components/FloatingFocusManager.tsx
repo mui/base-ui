@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { tabbable, isTabbable, focusable, type FocusableElement } from 'tabbable';
-import { getComputedStyle, getNodeName, isHTMLElement } from '@floating-ui/utils/dom';
+import { getNodeName, isHTMLElement } from '@floating-ui/utils/dom';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -28,6 +28,7 @@ import {
   isOutsideEvent,
   getNextTabbable,
   getPreviousTabbable,
+  isElementVisible,
   isTypeableElement,
 } from '../utils';
 import type { FloatingContext, FloatingRootContext } from '../types';
@@ -112,7 +113,7 @@ function isFocusable(element: Element | null) {
     return element.checkVisibility();
   }
 
-  return getComputedStyle(element).display !== 'none';
+  return isElementVisible(element);
 }
 
 function handleTabIndex(
@@ -292,8 +293,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const tree = useFloatingTree(externalTree);
   const portalContext = usePortalContext();
 
-  const startDismissButtonRef = React.useRef<HTMLButtonElement>(null);
-  const endDismissButtonRef = React.useRef<HTMLButtonElement>(null);
   const preventReturnFocusRef = React.useRef(false);
   const isPointerDownRef = React.useRef(false);
   const pointerDownOutsideRef = React.useRef(false);
@@ -638,22 +637,34 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       isTypeableCombobox(node.context?.elements.domReference || null),
     )?.context?.elements.domReference;
 
-    const insideElements = [
+    const controlInsideElements = [
       floating,
-      rootAncestorComboboxDomReference,
       ...portalNodes,
-      startDismissButtonRef.current,
-      endDismissButtonRef.current,
       beforeGuardRef.current,
       afterGuardRef.current,
       portalContext?.beforeOutsideRef.current,
       portalContext?.afterOutsideRef.current,
+    ];
+    const insideElements = [
+      ...controlInsideElements,
+      rootAncestorComboboxDomReference,
       resolveRef(previousFocusableElement),
       resolveRef(nextFocusableElement),
       isUntrappedTypeableCombobox ? domReference : null,
     ].filter((x): x is Element => x != null);
 
-    return markOthers(insideElements, modal || isUntrappedTypeableCombobox);
+    const ariaHiddenCleanup = markOthers(insideElements, {
+      ariaHidden: modal || isUntrappedTypeableCombobox,
+      mark: false,
+    });
+
+    const markerInsideElements = [floating, ...portalNodes].filter((x): x is Element => x != null);
+    const markerCleanup = markOthers(markerInsideElements);
+
+    return () => {
+      markerCleanup();
+      ariaHiddenCleanup();
+    };
   }, [
     open,
     disabled,

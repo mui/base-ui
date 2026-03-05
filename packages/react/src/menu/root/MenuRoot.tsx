@@ -191,16 +191,11 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     rootId: useId(),
   });
 
-  const {
-    openMethod,
-    triggerProps: interactionTypeProps,
-    reset: resetOpenInteractionType,
-  } = useOpenInteractionType(open);
+  const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
 
   useImplicitActiveTrigger(store);
   const { forceUnmount } = useOpenStateTransitions(open, store, () => {
     store.update({ allowMouseEnter: false, stickIfOpen: true });
-    resetOpenInteractionType();
   });
 
   const allowOutsidePressDismissalRef = React.useRef(parent.type !== 'context-menu');
@@ -471,6 +466,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   const typeahead = useTypeahead(floatingRootContext, {
     listRef: store.context.itemLabels,
+    elementsRef: store.context.itemDomElements,
     activeIndex,
     resetMs: TYPEAHEAD_RESET_MS,
     onMatch: (index) => {

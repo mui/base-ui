@@ -41,6 +41,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
     activateOnFocus,
     highlightedTabIndex,
     onTabActivation,
+    registerTabResizeObserverElement,
     setHighlightedTabIndex,
     tabsListElement,
   } = useTabsListContext();
@@ -62,6 +63,16 @@ export const TabsTab = React.forwardRef(function TabsTab(
   const active = value === activeTabValue;
 
   const isNavigatingRef = React.useRef(false);
+  const tabElementRef = React.useRef<HTMLElement | null>(null);
+
+  React.useEffect(() => {
+    const tabElement = tabElementRef.current;
+    if (!tabElement) {
+      return undefined;
+    }
+
+    return registerTabResizeObserverElement(tabElement);
+  }, [registerTabResizeObserverElement]);
 
   // Keep the highlighted item in sync with the currently active tab
   // when the value prop changes externally (controlled mode)
@@ -173,7 +184,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [forwardedRef, buttonRef, compositeRef],
+    ref: [forwardedRef, buttonRef, compositeRef, tabElementRef],
     props: [
       compositeProps,
       {
