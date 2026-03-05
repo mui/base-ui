@@ -5,7 +5,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
- * Groups the fieldset legend and the associated fields.
+ * Groups a shared legend with related controls.
  * Renders a `<fieldset>` element.
  *
  * Documentation: [Base UI Fieldset](https://base-ui.com/react/components/fieldset)
@@ -15,7 +15,6 @@ export const FieldsetRoot = React.forwardRef(function FieldsetRoot(
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const { render, className, disabled = false, ...elementProps } = componentProps;
-
   const [legendId, setLegendId] = React.useState<string | undefined>(undefined);
 
   const state: FieldsetRoot.State = {

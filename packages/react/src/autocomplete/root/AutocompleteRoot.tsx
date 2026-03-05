@@ -80,13 +80,11 @@ export function AutocompleteRoot<ItemValue>(
 
   const collator = useCoreFilter();
 
-  const baseFilter: typeof other.filter = React.useMemo(() => {
-    if (other.filter) {
+  const baseFilter = React.useMemo<Exclude<typeof other.filter, undefined>>(() => {
+    if (other.filter !== undefined) {
       return other.filter;
     }
-    return (item, query, toString) => {
-      return collator.contains(stringifyAsLabel(item, toString), query);
-    };
+    return collator.contains;
   }, [other.filter, collator]);
 
   const resolvedQuery = String(isControlled ? value : internalValue).trim();
@@ -94,12 +92,15 @@ export function AutocompleteRoot<ItemValue>(
   // In "both", wrap filtering to use only the typed value, ignoring the inline value.
   const resolvedFilter: typeof other.filter = React.useMemo(() => {
     if (mode !== 'both') {
-      return staticItems ? null : other.filter;
+      return staticItems ? null : baseFilter;
+    }
+    if (baseFilter === null) {
+      return null;
     }
     return (item, _query, toString) => {
       return baseFilter(item, resolvedQuery, toString);
     };
-  }, [baseFilter, mode, other.filter, resolvedQuery, staticItems]);
+  }, [baseFilter, mode, resolvedQuery, staticItems]);
 
   const handleItemHighlighted = useStableCallback(
     (highlightedValue: any, eventDetails: AriaCombobox.HighlightEventDetails) => {
@@ -164,6 +165,7 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
   | 'defaultInputValue' // defaultValue
   | 'onInputValueChange' // onValueChange
   | 'autoComplete' // mode
+  | 'formAutoComplete'
   | 'itemToStringLabel' // itemToStringValue
   // Custom JSDoc
   | 'autoHighlight'
@@ -171,6 +173,7 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
   | 'highlightItemOnHover'
   | 'actionsRef'
   | 'onOpenChange'
+  | 'openOnInputClick'
 > {
   /**
    * Controls how the autocomplete behaves with respect to list filtering and inline autocompletion.
@@ -180,14 +183,14 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
    * - `none`: items are static (not filtered), and the input value will not change based on the active item.
    * @default 'list'
    */
-  mode?: ('list' | 'both' | 'inline' | 'none') | undefined;
+  mode?: 'list' | 'both' | 'inline' | 'none' | undefined;
   /**
    * Whether the first matching item is highlighted automatically.
    * - `true`: highlight after the user types and keep the highlight while the query changes.
    * - `'always'`: always highlight the first item.
    * @default false
    */
-  autoHighlight?: (boolean | 'always') | undefined;
+  autoHighlight?: boolean | 'always' | undefined;
   /**
    * Whether the highlighted item should be preserved when the pointer leaves the list.
    * @default false
@@ -258,6 +261,11 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
         eventDetails: AutocompleteRootHighlightEventDetails,
       ) => void)
     | undefined;
+  /**
+   * Whether the popup opens when clicking the input.
+   * @default false
+   */
+  openOnInputClick?: boolean | undefined;
 }
 
 export namespace AutocompleteRoot {

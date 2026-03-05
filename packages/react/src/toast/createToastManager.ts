@@ -9,8 +9,8 @@ import type {
 /**
  * Creates a new toast manager.
  */
-export function createToastManager(): ToastManager {
-  const listeners: ((data: ToastManagerEvent) => void)[] = [];
+export function createToastManager<Data extends object = any>(): ToastManager<Data> {
+  const listeners = new Set<(data: ToastManagerEvent) => void>();
 
   function emit(data: ToastManagerEvent) {
     listeners.forEach((listener) => listener(data));
@@ -20,18 +20,15 @@ export function createToastManager(): ToastManager {
     // This should be private aside from ToastProvider needing to access it.
     // https://x.com/drosenwasser/status/1816947740032872664
     ' subscribe': function subscribe(listener: (data: ToastManagerEvent) => void) {
-      listeners.push(listener);
+      listeners.add(listener);
       return () => {
-        const index = listeners.indexOf(listener);
-        if (index !== -1) {
-          listeners.splice(index, 1);
-        }
+        listeners.delete(listener);
       };
     },
 
-    add<Data extends object>(options: ToastManagerAddOptions<Data>): string {
+    add<T extends Data = Data>(options: ToastManagerAddOptions<T>): string {
       const id = options.id || generateId('toast');
-      const toastToAdd: ToastObject<Data> = {
+      const toastToAdd: ToastObject<T> = {
         ...options,
         id,
         transitionStatus: 'starting',
@@ -52,7 +49,7 @@ export function createToastManager(): ToastManager {
       });
     },
 
-    update<Data extends object>(id: string, updates: ToastManagerUpdateOptions<Data>): void {
+    update<T extends Data = Data>(id: string, updates: ToastManagerUpdateOptions<T>): void {
       emit({
         action: 'update',
         options: {
@@ -62,9 +59,9 @@ export function createToastManager(): ToastManager {
       });
     },
 
-    promise<Value, Data extends object>(
+    promise<Value, T extends Data = Data>(
       promiseValue: Promise<Value>,
-      options: ToastManagerPromiseOptions<Value, Data>,
+      options: ToastManagerPromiseOptions<Value, T>,
     ): Promise<Value> {
       let handledPromise = promiseValue;
 
@@ -84,14 +81,14 @@ export function createToastManager(): ToastManager {
   };
 }
 
-export interface ToastManager {
+export interface ToastManager<Data extends object = any> {
   ' subscribe': (listener: (data: ToastManagerEvent) => void) => () => void;
-  add: <Data extends object>(options: ToastManagerAddOptions<Data>) => string;
+  add: <T extends Data = Data>(options: ToastManagerAddOptions<T>) => string;
   close: (id: string) => void;
-  update: <Data extends object>(id: string, updates: ToastManagerUpdateOptions<Data>) => void;
-  promise: <Value, Data extends object>(
+  update: <T extends Data = Data>(id: string, updates: ToastManagerUpdateOptions<T>) => void;
+  promise: <Value, T extends Data = Data>(
     promiseValue: Promise<Value>,
-    options: ToastManagerPromiseOptions<Value, Data>,
+    options: ToastManagerPromiseOptions<Value, T>,
   ) => Promise<Value>;
 }
 

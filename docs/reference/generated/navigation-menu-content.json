@@ -11,6 +11,12 @@
       "type": "CSSProperties | ((state: NavigationMenu.Content.State) => CSSProperties | undefined)",
       "detailedType": "| React.CSSProperties\n| ((\n    state: NavigationMenu.Content.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
+    "keepMounted": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether to keep the content mounted in the DOM while the popup is closed.\nEnsures the content is present during server-side rendering for web crawlers.",
+      "detailedType": "boolean | undefined"
+    },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: NavigationMenu.Content.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",

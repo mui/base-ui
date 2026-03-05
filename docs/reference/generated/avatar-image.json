@@ -8,20 +8,27 @@
       "detailedType": "((status: ImageLoadingStatus) => void) | undefined"
     },
     "className": {
-      "type": "string | ((state: Avatar.Root.State) => string | undefined)",
+      "type": "string | ((state: Avatar.Image.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: Avatar.Root.State) => string | undefined)"
+      "detailedType": "| string\n| ((state: Avatar.Image.State) => string | undefined)"
     },
     "style": {
-      "type": "CSSProperties | ((state: Avatar.Root.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((state: Avatar.Root.State) => CSSProperties | undefined)\n| undefined"
+      "type": "CSSProperties | ((state: Avatar.Image.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Avatar.Image.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Avatar.Root.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Avatar.Image.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Avatar.Root.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Avatar.Image.State,\n  ) => ReactElement)"
     }
   },
-  "dataAttributes": {},
+  "dataAttributes": {
+    "data-starting-style": {
+      "description": "Present when the image is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the image is animating out."
+    }
+  },
   "cssVariables": {}
 }

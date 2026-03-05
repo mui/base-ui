@@ -1,9 +1,25 @@
+@import 'docs/src/css/custom-media.css';
+
 @layer components {
   .DemoRoot {
     background-color: var(--color-content);
     border: 1px solid var(--color-gray-200);
     border-radius: var(--radius-md);
     margin-bottom: calc(var(--spacing) * 6);
+  }
+
+  .DemoPlaygroundExternalLink {
+    position: absolute;
+    top: 0.75rem;
+    right: 1.125rem;
+  }
+
+  .DemoCopyIconWrap {
+    display: flex;
+    width: 0.875rem;
+    height: 0.875rem;
+    align-items: center;
+    justify-content: center;
   }
 
   .DemoPlayground {
@@ -46,7 +62,9 @@
   }
 
   .DemoToolbar {
-    @apply text-xs;
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+    letter-spacing: var(--text-xs--letter-spacing);
     white-space: nowrap;
     color: var(--color-gray);
     background-color: var(--color-gray-50);
@@ -81,7 +99,7 @@
   .DemoToolbarActions {
     position: relative;
     /* Apply sticky only on wider viewports to avoid actions taking up most of it */
-    @media (min-width: 768px) {
+    @media (min-width: 48rem) {
       position: sticky;
       padding-left: 1rem;
     }
@@ -226,20 +244,48 @@
   }
 
   .DemoSourceBrowser {
-    @apply text-xs;
-    padding: 0.5rem 0.75rem;
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+    letter-spacing: var(--text-xs--letter-spacing);
     cursor: text;
+    display: flex;
 
-    & code {
+    & pre {
       /* Different fonts may introduce vertical align issues */
-      display: block;
+      display: flex;
       /* Make sure selection highlight spans full container width in Safari */
       flex-grow: 1;
+    }
+
+    & code {
+      padding: 0.5rem 0;
+    }
+
+    & code .frame {
+      display: block;
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+    }
+
+    & code .frame[data-lined] {
+      display: block;
+      white-space: normal;
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    * code .frame[data-lined] .line {
+      display: block;
+      white-space: pre;
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
     }
   }
 
   .DemoCollapseButton {
-    @apply text-xs;
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+    letter-spacing: var(--text-xs--letter-spacing);
     background-color: var(--color-gray-50);
     cursor: default;
     width: 100%;

@@ -47,11 +47,13 @@ const attr = createAttribute('portal');
 export interface UseFloatingPortalNodeProps {
   ref?: React.Ref<HTMLDivElement> | undefined;
   container?:
-    | (HTMLElement | ShadowRoot | null | React.RefObject<HTMLElement | ShadowRoot | null>)
+    | HTMLElement
+    | ShadowRoot
+    | null
+    | React.RefObject<HTMLElement | ShadowRoot | null>
     | undefined;
   componentProps?: useRenderElement.ComponentProps<any> | undefined;
   elementProps?: React.HTMLAttributes<HTMLDivElement> | undefined;
-  elementState?: Record<string, unknown> | undefined;
 }
 
 export interface UseFloatingPortalNodeResult {
@@ -62,13 +64,7 @@ export interface UseFloatingPortalNodeResult {
 export function useFloatingPortalNode(
   props: UseFloatingPortalNodeProps = {},
 ): UseFloatingPortalNodeResult {
-  const {
-    ref,
-    container: containerProp,
-    componentProps = EMPTY_OBJECT,
-    elementProps,
-    elementState,
-  } = props;
+  const { ref, container: containerProp, componentProps = EMPTY_OBJECT, elementProps } = props;
 
   const uniqueId = useId();
   const portalContext = usePortalContext();
@@ -128,7 +124,6 @@ export function useFloatingPortalNode(
 
   const portalElement = useRenderElement('div', componentProps, {
     ref: [ref, setPortalNodeRef],
-    state: elementState,
     props: [
       {
         id: uniqueId,

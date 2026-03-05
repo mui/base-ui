@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import type { Coords, HiddenState, OverflowEdges, ScrollAreaRoot, Size } from './ScrollAreaRoot';
 
@@ -6,6 +7,8 @@ export interface ScrollAreaRootContext {
   setCornerSize: React.Dispatch<React.SetStateAction<Size>>;
   thumbSize: Size;
   setThumbSize: React.Dispatch<React.SetStateAction<Size>>;
+  hasMeasuredScrollbar: boolean;
+  setHasMeasuredScrollbar: React.Dispatch<React.SetStateAction<boolean>>;
   touchModality: boolean;
   hovering: boolean;
   setHovering: React.Dispatch<React.SetStateAction<boolean>>;

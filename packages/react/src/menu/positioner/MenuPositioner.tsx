@@ -13,6 +13,7 @@ import { CompositeList } from '../../composite/list/CompositeList';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useMenuPortalContext } from '../portal/MenuPortalContext';
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
+import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
@@ -58,6 +59,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const open = store.useState('open');
   const modal = store.useState('modal');
   const triggerElement = store.useState('activeTriggerElement');
+  const transitionStatus = store.useState('transitionStatus');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const floatingNodeId = store.useState('floatingNodeId');
   const floatingParentNodeId = store.useState('floatingParentNodeId');
@@ -233,7 +235,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     state,
     stateAttributesMapping: popupStateMapping,
     ref: [forwardedRef, store.useStateSetter('positionerElement')],
-    props: [positionerProps, elementProps],
+    props: [positionerProps, getDisabledMountTransitionStyles(transitionStatus), elementProps],
   });
 
   const shouldRenderBackdrop =

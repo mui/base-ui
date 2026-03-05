@@ -9,18 +9,320 @@ import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import { Switch } from '@base-ui/react/switch';
 import { Slider } from '@base-ui/react/slider';
 import { Field } from '@base-ui/react/field';
-import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import {
+  act,
+  fireEvent,
+  flushMicrotasks,
+  reactMajor,
+  screen,
+  waitFor,
+} from '@mui/internal-test-utils';
+import { vi } from 'vitest';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { LabelableProvider } from '../../labelable-provider';
 
 describe('<Field.Root />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
+  const { render: renderStrict } = createRenderer({ strict: true });
 
   describeConformance(<Field.Root />, () => ({
     refInstanceof: window.HTMLDivElement,
     render,
   }));
+
+  it('updates label association when replacing one control with another', async () => {
+    function TestCase() {
+      const [showB, setShowB] = React.useState(false);
+
+      return (
+        <React.Fragment>
+          <Field.Root>
+            <Field.Label>Label</Field.Label>
+            {showB ? (
+              <Field.Control key="b" id="control-b" />
+            ) : (
+              <Field.Control key="a" id="control-a" />
+            )}
+          </Field.Root>
+          <button type="button" onClick={() => setShowB(true)}>
+            Toggle
+          </button>
+        </React.Fragment>
+      );
+    }
+
+    await render(<TestCase />);
+
+    const label = screen.getByText('Label');
+    expect(label).to.have.attribute('for', 'control-a');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+
+    await waitFor(() => {
+      expect(label).to.have.attribute('for', 'control-b');
+    });
+  });
+
+  it('preserves null initial control ids', async () => {
+    await render(
+      <Field.Root>
+        <LabelableProvider controlId={null}>
+          <Field.Label>Label</Field.Label>
+          <Field.Control data-testid="control" />
+        </LabelableProvider>
+      </Field.Root>,
+    );
+
+    const label = screen.getByText('Label');
+    const control = screen.getByTestId('control');
+
+    expect(label).not.to.have.attribute('for');
+    expect(control.getAttribute('id')).to.not.equal(null);
+  });
+
+  it('updates label associations when the control id changes', async () => {
+    function TestCase() {
+      const [controlId, setControlId] = React.useState('control-a');
+
+      return (
+        <React.Fragment>
+          <Field.Root>
+            <Field.Label>Label</Field.Label>
+            <Field.Control id={controlId} />
+          </Field.Root>
+          <button type="button" onClick={() => setControlId('control-b')}>
+            Change
+          </button>
+        </React.Fragment>
+      );
+    }
+
+    await render(<TestCase />);
+
+    const label = screen.getByText('Label');
+
+    expect(label).to.have.attribute('for', 'control-a');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Change' }));
+
+    await waitFor(() => {
+      expect(label).to.have.attribute('for', 'control-b');
+    });
+  });
+
+  it('falls back to a generated id when the control id is removed', async () => {
+    function TestCase() {
+      const [controlId, setControlId] = React.useState<string | undefined>('control-a');
+
+      return (
+        <React.Fragment>
+          <Field.Root>
+            <Field.Label>Label</Field.Label>
+            <Field.Control id={controlId} />
+          </Field.Root>
+          <button type="button" onClick={() => setControlId(undefined)}>
+            Clear
+          </button>
+        </React.Fragment>
+      );
+    }
+
+    await render(<TestCase />);
+
+    const label = screen.getByText('Label');
+    const control = screen.getByRole('textbox');
+
+    expect(label).to.have.attribute('for', 'control-a');
+    expect(control).to.have.attribute('id', 'control-a');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
+
+    await waitFor(() => {
+      const updatedControl = screen.getByRole('textbox');
+      const updatedId = updatedControl.getAttribute('id') ?? '';
+
+      expect(updatedId).to.not.equal('');
+      expect(updatedId).to.not.equal('control-a');
+      expect(label).to.have.attribute('for', updatedId);
+    });
+  });
+
+  it.skipIf(isJSDOM)('does not set `aria-labelledby` during SSR when Field.Label is absent', () => {
+    renderToString(
+      <Field.Root>
+        <Select.Root>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value placeholder="Pick one" />
+          </Select.Trigger>
+        </Select.Root>
+      </Field.Root>,
+    );
+
+    expect(screen.getByTestId('trigger')).to.not.have.attribute('aria-labelledby');
+  });
+
+  it.skipIf(isJSDOM)(
+    'keeps `aria-labelledby` valid when toggling from Checkbox.Root to Select.Root after hydration',
+    async () => {
+      function TestCase() {
+        const [showSelect, setShowSelect] = React.useState(false);
+
+        return (
+          <React.Fragment>
+            <Field.Root>
+              <Field.Label nativeLabel={false} render={<div />} data-testid="label">
+                Label
+              </Field.Label>
+              {showSelect ? (
+                <Select.Root>
+                  <Select.Trigger data-testid="trigger">
+                    <Select.Value placeholder="Pick one" />
+                  </Select.Trigger>
+                </Select.Root>
+              ) : (
+                <Checkbox.Root data-testid="checkbox" />
+              )}
+            </Field.Root>
+            <button type="button" onClick={() => setShowSelect((prev) => !prev)}>
+              Toggle
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      const { hydrate } = renderToString(<TestCase />);
+      const label = screen.getByTestId('label');
+      const checkbox = screen.getByTestId('checkbox');
+
+      expect(label.id).to.not.equal('');
+      expect(checkbox).to.not.have.attribute('aria-labelledby');
+
+      hydrate();
+      await waitFor(() => {
+        expect(screen.getByTestId('checkbox')).to.have.attribute('aria-labelledby', label.id);
+      });
+      fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).to.have.attribute('aria-labelledby', label.id);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+
+      const checkboxAfterToggle = screen.getByTestId('checkbox');
+      expect(checkboxAfterToggle).to.have.attribute('aria-labelledby', label.id);
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'removes `aria-labelledby` when Field.Label is removed after hydration',
+    async () => {
+      function TestCase() {
+        const [showLabel, setShowLabel] = React.useState(true);
+
+        return (
+          <React.Fragment>
+            <Field.Root>
+              {showLabel ? (
+                <Field.Label nativeLabel={false} render={<div />} data-testid="label">
+                  Label
+                </Field.Label>
+              ) : null}
+              <Select.Root>
+                <Select.Trigger data-testid="trigger">
+                  <Select.Value placeholder="Pick one" />
+                </Select.Trigger>
+              </Select.Root>
+            </Field.Root>
+            <button type="button" onClick={() => setShowLabel(false)}>
+              Remove Label
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      const { hydrate } = renderToString(<TestCase />);
+      const label = screen.getByTestId('label');
+      const trigger = screen.getByTestId('trigger');
+
+      expect(trigger).to.not.have.attribute('aria-labelledby');
+
+      hydrate();
+      await waitFor(() => {
+        expect(screen.getByTestId('trigger')).to.have.attribute('aria-labelledby', label.id);
+      });
+      fireEvent.click(screen.getByRole('button', { name: 'Remove Label' }));
+
+      expect(screen.queryByTestId('label')).to.equal(null);
+      expect(screen.getByTestId('trigger')).to.not.have.attribute('aria-labelledby');
+    },
+  );
+
+  it.skipIf(reactMajor < 19)(
+    'does not loop when a control is unmounted and remounted',
+    async () => {
+      const errorSpy = vi
+        .spyOn(console, 'error')
+        .mockName('console.error')
+        .mockImplementation(() => {});
+
+      try {
+        type ActivityProps = {
+          mode: 'visible' | 'hidden';
+          children: React.ReactNode;
+        };
+
+        const Activity = (React as typeof React & { Activity: React.ComponentType<ActivityProps> })
+          .Activity;
+
+        function TestCase() {
+          const [showSelect, setShowSelect] = React.useState(true);
+
+          return (
+            <React.Fragment>
+              <Field.Root>
+                <Field.Label nativeLabel={false} render={<div />}>
+                  Label
+                </Field.Label>
+                <Activity mode={showSelect ? 'visible' : 'hidden'}>
+                  <Select.Root>
+                    <Select.Trigger>
+                      <Select.Value placeholder="Select a model" />
+                    </Select.Trigger>
+                    <Select.Portal>
+                      <Select.Positioner>
+                        <Select.Popup>
+                          <Select.Item value="model">Model</Select.Item>
+                        </Select.Popup>
+                      </Select.Positioner>
+                    </Select.Portal>
+                  </Select.Root>
+                </Activity>
+              </Field.Root>
+              <Checkbox.Root
+                checked={!showSelect}
+                onCheckedChange={(checked) => {
+                  setShowSelect(!checked);
+                }}
+              />
+            </React.Fragment>
+          );
+        }
+
+        await renderStrict(<TestCase />);
+
+        const checkbox = screen.getByRole('checkbox');
+
+        fireEvent.click(checkbox);
+        fireEvent.click(checkbox);
+
+        expect(errorSpy.mock.calls.length).to.equal(0);
+      } finally {
+        errorSpy.mockRestore();
+      }
+    },
+  );
 
   describe('prop: disabled', () => {
     it('should add data-disabled style hook to all components', async () => {
@@ -131,8 +433,12 @@ describe('<Field.Root />', () => {
 
           <Field.Root name="checkbox-group">
             <CheckboxGroup defaultValue={['apple', 'banana']}>
-              <Checkbox.Root value="apple" />
-              <Checkbox.Root value="banana" />
+              <Field.Item>
+                <Checkbox.Root value="apple" />
+              </Field.Item>
+              <Field.Item>
+                <Checkbox.Root value="banana" />
+              </Field.Item>
             </CheckboxGroup>
           </Field.Root>
 
@@ -918,7 +1224,7 @@ describe('<Field.Root />', () => {
     });
   });
 
-  describe('actionsRef', () => {
+  describe('prop: actionsRef', () => {
     it('validates the field when the `validate` method is called', async () => {
       function App() {
         const actionsRef = React.useRef<Field.Root.Actions>(null);

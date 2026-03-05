@@ -125,6 +125,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     highlighted,
     id: thisTriggerId,
     store,
+    typingRef: parentMenuStore.context.typingRef,
     nativeButton,
     itemMetadata,
     nodeId: menuPositionerContext?.nodeId,
@@ -184,9 +185,24 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   return element;
 });
 
+export interface MenuSubmenuTriggerState {
+  /**
+   * Whether the component should ignore user interaction.
+   */
+  disabled: boolean;
+  /**
+   * Whether the item is highlighted.
+   */
+  highlighted: boolean;
+  /**
+   * Whether the menu is currently open.
+   */
+  open: boolean;
+}
+
 export interface MenuSubmenuTriggerProps
-  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuSubmenuTrigger.State> {
-  onClick?: React.MouseEventHandler<HTMLElement> | undefined;
+  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuSubmenuTriggerState> {
+  onClick?: BaseUIComponentProps<'div', MenuSubmenuTriggerState>['onClick'] | undefined;
   /**
    * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
@@ -219,21 +235,6 @@ export interface MenuSubmenuTriggerProps
    * Whether the menu should also open when the trigger is hovered.
    */
   openOnHover?: boolean | undefined;
-}
-
-export interface MenuSubmenuTriggerState {
-  /**
-   * Whether the component should ignore user interaction.
-   */
-  disabled: boolean;
-  /**
-   * Whether the item is highlighted.
-   */
-  highlighted: boolean;
-  /**
-   * Whether the menu is currently open.
-   */
-  open: boolean;
 }
 
 export namespace MenuSubmenuTrigger {

@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { ReactStore } from '@base-ui/utils/store';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';

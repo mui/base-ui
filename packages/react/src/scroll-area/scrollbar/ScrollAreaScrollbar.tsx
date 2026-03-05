@@ -44,6 +44,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
     handlePointerUp,
     rootId,
     thumbSize,
+    hasMeasuredScrollbar,
   } = useScrollAreaRootContext();
 
   const state: ScrollAreaScrollbar.State = {
@@ -63,6 +64,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
   };
 
   const direction = useDirection();
+  const hideTrackUntilMeasured = !hasMeasuredScrollbar && !keepMounted;
 
   React.useEffect(() => {
     const viewportEl = viewportRef.current;
@@ -190,6 +192,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
       touchAction: 'none',
       WebkitUserSelect: 'none',
       userSelect: 'none',
+      visibility: hideTrackUntilMeasured ? 'hidden' : undefined,
       ...(orientation === 'vertical' && {
         top: 0,
         bottom: `var(${ScrollAreaRootCssVars.scrollAreaCornerHeight})`,
@@ -245,7 +248,7 @@ export interface ScrollAreaScrollbarProps extends BaseUIComponentProps<
    * Whether the scrollbar controls vertical or horizontal scroll.
    * @default 'vertical'
    */
-  orientation?: ('vertical' | 'horizontal') | undefined;
+  orientation?: 'vertical' | 'horizontal' | undefined;
   /**
    * Whether to keep the HTML element in the DOM when the viewport isn’t scrollable.
    * @default false

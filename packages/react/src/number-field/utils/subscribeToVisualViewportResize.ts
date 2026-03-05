@@ -4,7 +4,7 @@ import { ownerWindow } from '@base-ui/utils/owner';
 // scale with the content on pinch-zoom.
 export function subscribeToVisualViewportResize(
   element: Element,
-  visualScaleRef: React.MutableRefObject<number>,
+  visualScaleRef: React.RefObject<number>,
 ) {
   const vV = ownerWindow(element).visualViewport;
 

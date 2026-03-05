@@ -26,20 +26,41 @@ describe('<RadioGroup />', () => {
     });
   });
 
-  it('should call onValueChange when an item is clicked', async () => {
-    const handleChange = spy();
-    await render(
-      <RadioGroup onValueChange={handleChange}>
-        <Radio.Root value="a" data-testid="item" />
-      </RadioGroup>,
-    );
+  describe('prop: onValueChange', () => {
+    it('should call onValueChange when an item is clicked', async () => {
+      const handleChange = spy();
+      await render(
+        <RadioGroup onValueChange={handleChange}>
+          <Radio.Root value="a" data-testid="item" />
+        </RadioGroup>,
+      );
 
-    const item = screen.getByTestId('item');
+      const item = screen.getByTestId('item');
 
-    fireEvent.click(item);
+      fireEvent.click(item);
 
-    expect(handleChange.callCount).to.equal(1);
-    expect(handleChange.firstCall.args[0]).to.equal('a');
+      expect(handleChange.callCount).to.equal(1);
+      expect(handleChange.firstCall.args[0]).to.equal('a');
+    });
+
+    it('should report keyboard modifier event properties when calling onCheckedChange', async () => {
+      const handleChange = spy((value, eventDetails) => eventDetails);
+
+      const { user } = await render(
+        <RadioGroup onValueChange={handleChange}>
+          <Radio.Root value="a" data-testid="item" />
+        </RadioGroup>,
+      );
+
+      const item = screen.getByTestId('item');
+
+      await user.keyboard('{Shift>}');
+      await user.click(item);
+      await user.keyboard('{/Shift}');
+
+      expect(handleChange.callCount).to.equal(1);
+      expect(handleChange.firstCall.returnValue.event.shiftKey).to.equal(true);
+    });
   });
 
   describe('prop: disabled', () => {

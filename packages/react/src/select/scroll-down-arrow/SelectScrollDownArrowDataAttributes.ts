@@ -22,5 +22,5 @@ export enum SelectScrollDownArrowDataAttributes {
    * Indicates which side the popup is positioned relative to the trigger.
    * @type {'none' | 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'}
    */
-  side = 'data-side',
+  side = CommonPopupDataAttributes.side,
 }

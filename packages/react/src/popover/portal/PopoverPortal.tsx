@@ -27,7 +27,7 @@ export const PopoverPortal = React.forwardRef(function PopoverPortal(
 
   return (
     <PopoverPortalContext.Provider value={keepMounted}>
-      <FloatingPortal ref={forwardedRef} {...portalProps} renderGuards={false} />
+      <FloatingPortal ref={forwardedRef} {...portalProps} />
     </PopoverPortalContext.Provider>
   );
 });

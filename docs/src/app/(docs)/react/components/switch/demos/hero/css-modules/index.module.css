@@ -8,6 +8,7 @@
 }
 
 .Switch {
+  box-sizing: border-box;
   position: relative;
   display: flex;
   appearance: none;

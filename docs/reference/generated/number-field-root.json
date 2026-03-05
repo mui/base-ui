@@ -19,13 +19,19 @@
     },
     "onValueChange": {
       "type": "((value: number | null, eventDetails: NumberField.Root.ChangeEventDetails) => void)",
-      "description": "Callback fired when the number value changes.\n\nThe `eventDetails.reason` indicates what triggered the change:\n- `'input-change'` for parseable typing or programmatic text updates\n- `'input-clear'` when the field becomes empty\n- `'input-blur'` when formatting or clamping occurs on blur\n- `'input-paste'` for paste interactions\n- `'keyboard'` for keyboard input\n- `'increment-press'` / `'decrement-press'` for button presses on the increment and decrement controls\n- `'wheel'` for wheel-based scrubbing\n- `'scrub'` for scrub area drags",
+      "description": "Callback fired when the number value changes.\n\nThe `eventDetails.reason` indicates what triggered the change:\n- `'input-change'` for parseable typing or programmatic text updates\n- `'input-clear'` when the field becomes empty\n- `'input-blur'` when formatting (and clamping, if enabled) occurs on blur\n- `'input-paste'` for paste interactions\n- `'keyboard'` for keyboard input\n- `'increment-press'` / `'decrement-press'` for button presses on the increment and decrement controls\n- `'wheel'` for wheel-based scrubbing\n- `'scrub'` for scrub area drags",
       "detailedType": "| ((\n    value: number | null,\n    eventDetails: NumberField.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "onValueCommitted": {
       "type": "((value: number | null, eventDetails: NumberField.Root.CommitEventDetails) => void)",
       "description": "Callback function that is fired when the value is committed.\nIt runs later than `onValueChange`, when:\n- The input is blurred after typing a value.\n- The pointer is released after scrubbing or pressing the increment/decrement buttons.\n\nIt runs simultaneously with `onValueChange` when interacting with the keyboard.\n\n**Warning**: This is a generic event not a change event.",
       "detailedType": "| ((\n    value: number | null,\n    eventDetails: NumberField.Root.CommitEventDetails,\n  ) => void)\n| undefined"
+    },
+    "allowOutOfRange": {
+      "type": "boolean",
+      "default": "false",
+      "description": "When true, direct text entry may be outside the `min`/`max` range without clamping,\nso native range underflow/overflow validation can occur.\nStep-based interactions (keyboard arrows, buttons, wheel, scrub) still clamp.",
+      "detailedType": "boolean | undefined"
     },
     "locale": {
       "type": "Intl.LocalesArgument",
