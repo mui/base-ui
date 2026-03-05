@@ -1320,6 +1320,39 @@ describe('<Menu.Root />', () => {
         });
       });
 
+      it('does not clear body pointer-events styles when closing a scoped submenu', async () => {
+        await render(
+          <TestMenu
+            rootProps={{ defaultOpen: true }}
+            submenuTriggerProps={{ delay: 0, closeDelay: 0 }}
+          />,
+        );
+
+        const submenuTrigger = screen.getByTestId('submenu-trigger');
+        await userEvent.hover(submenuTrigger);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('submenu')).not.to.equal(null);
+        });
+
+        const previousBodyPointerEvents = document.body.style.pointerEvents;
+        try {
+          document.body.style.pointerEvents = 'none';
+
+          const sibling = screen.getByTestId('item-2');
+          // Use fireEvent to bypass pointer-events checks during safe-polygon pointer events mutation
+          fireEvent.mouseMove(sibling);
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('submenu')).to.equal(null);
+          });
+
+          expect(document.body.style.pointerEvents).to.equal('none');
+        } finally {
+          document.body.style.pointerEvents = previousBodyPointerEvents;
+        }
+      });
+
       it('should not close when submenu is hovered after root menu is hovered', async () => {
         await render(
           <TestMenu
