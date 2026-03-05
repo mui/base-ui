@@ -46,7 +46,8 @@ export interface ProgressValueProps extends Omit<
   'children'
 > {
   children?:
-    | (null | ((formattedValue: string | null, value: number | null) => React.ReactNode))
+    | null
+    | ((formattedValue: string | null, value: number | null) => React.ReactNode)
     | undefined;
 }
 

@@ -152,7 +152,8 @@ export interface ElementProps {
   reference?: React.HTMLProps<Element> | undefined;
   floating?: React.HTMLProps<HTMLElement> | undefined;
   item?:
-    | (React.HTMLProps<HTMLElement> | ((props: ExtendedUserProps) => React.HTMLProps<HTMLElement>))
+    | React.HTMLProps<HTMLElement>
+    | ((props: ExtendedUserProps) => React.HTMLProps<HTMLElement>)
     | undefined;
   trigger?: React.HTMLProps<Element> | undefined;
 }
@@ -185,11 +186,11 @@ export interface UseFloatingOptions extends Omit<UsePositionOptions, 'elements'>
         /**
          * Externally passed reference element. Store in state.
          */
-        reference?: (ReferenceType | null) | undefined;
+        reference?: ReferenceType | null | undefined;
         /**
          * Externally passed floating element. Store in state.
          */
-        floating?: (HTMLElement | null) | undefined;
+        floating?: HTMLElement | null | undefined;
       }
     | undefined;
   /**

@@ -31,7 +31,7 @@ export const Control = React.forwardRef<HTMLInputElement, Field.Control.Props>(
       <Field.Control
         ref={forwardedRef}
         className={clsx(
-          'h-10 w-full max-w-xs rounded-md bg-[canvas] border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800',
+          'h-10 w-full max-w-xs rounded-md bg-[canvas] border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800',
           className,
         )}
         {...props}

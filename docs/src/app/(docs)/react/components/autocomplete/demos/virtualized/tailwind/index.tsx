@@ -4,15 +4,12 @@ import { Autocomplete } from '@base-ui/react/autocomplete';
 import { useVirtualizer } from '@tanstack/react-virtual';
 
 export default function ExampleVirtualizedAutocomplete() {
-  const [open, setOpen] = React.useState(false);
   const virtualizerRef = React.useRef<Virtualizer | null>(null);
 
   return (
     <Autocomplete.Root
       virtualized
       items={virtualizedItems}
-      open={open}
-      onOpenChange={setOpen}
       openOnInputClick
       itemToStringValue={getItemLabel}
       onItemHighlighted={(item, { reason, index }) => {
@@ -35,17 +32,17 @@ export default function ExampleVirtualizedAutocomplete() {
     >
       <label className="flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">
         Search 10,000 items
-        <Autocomplete.Input className="bg-[canvas] h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800" />
+        <Autocomplete.Input className="bg-[canvas] h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800" />
       </label>
 
       <Autocomplete.Portal>
-        <Autocomplete.Positioner className="outline-none" sideOffset={4}>
+        <Autocomplete.Positioner className="outline-hidden" sideOffset={4}>
           <Autocomplete.Popup className="w-[var(--anchor-width)] max-h-[min(22rem,var(--available-height))] max-w-[var(--available-width)] rounded-md bg-[canvas] text-gray-900 outline-1 outline-gray-200 shadow-lg shadow-gray-200 dark:-outline-offset-1 dark:outline-gray-300">
             <Autocomplete.Empty className="px-4 py-4 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0">
               No items found.
             </Autocomplete.Empty>
             <Autocomplete.List className="p-0">
-              <VirtualizedList open={open} virtualizerRef={virtualizerRef} />
+              <VirtualizedList virtualizerRef={virtualizerRef} />
             </Autocomplete.List>
           </Autocomplete.Popup>
         </Autocomplete.Positioner>
@@ -55,10 +52,8 @@ export default function ExampleVirtualizedAutocomplete() {
 }
 
 function VirtualizedList({
-  open,
   virtualizerRef,
 }: {
-  open: boolean;
   virtualizerRef: React.RefObject<Virtualizer | null>;
 }) {
   const filteredItems = Autocomplete.useFilteredItems<VirtualizedItem>();
@@ -66,7 +61,6 @@ function VirtualizedList({
   const scrollElementRef = React.useRef<HTMLDivElement | null>(null);
 
   const virtualizer = useVirtualizer({
-    enabled: open,
     count: filteredItems.length,
     getScrollElement: () => scrollElementRef.current,
     estimateSize: () => 32,
@@ -116,7 +110,7 @@ function VirtualizedList({
               data-index={virtualItem.index}
               ref={virtualizer.measureElement}
               value={item}
-              className="flex cursor-default py-2 pr-8 pl-4 text-base leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded data-[highlighted]:before:bg-gray-900"
+              className="flex cursor-default py-2 pr-8 pl-4 text-base leading-4 outline-hidden select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900"
               aria-setsize={filteredItems.length}
               aria-posinset={virtualItem.index + 1}
               style={{
