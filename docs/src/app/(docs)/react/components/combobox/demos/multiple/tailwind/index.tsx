@@ -65,6 +65,7 @@ export default function ExampleMultipleCombobox() {
                 </Combobox.Item>
               )}
             </Combobox.List>
+            <Combobox.Close visuallyHidden aria-label="Dismiss popup" />
           </Combobox.Popup>
         </Combobox.Positioner>
       </Combobox.Portal>

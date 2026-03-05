@@ -5,6 +5,7 @@ export type * from './arrow/MenuArrow';
 export type * from './backdrop/MenuBackdrop';
 export type * from './checkbox-item/MenuCheckboxItem';
 export type * from './checkbox-item-indicator/MenuCheckboxItemIndicator';
+export type * from './close/MenuClose';
 export type * from './group-label/MenuGroupLabel';
 export type * from './group/MenuGroup';
 export type * from './item/MenuItem';

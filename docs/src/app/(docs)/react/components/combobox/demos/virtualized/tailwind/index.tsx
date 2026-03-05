@@ -43,6 +43,7 @@ export default function ExampleVirtualizedCombobox() {
             <Combobox.List className="p-0">
               <VirtualizedList virtualizerRef={virtualizerRef} />
             </Combobox.List>
+            <Combobox.Close visuallyHidden aria-label="Dismiss popup" />
           </Combobox.Popup>
         </Combobox.Positioner>
       </Combobox.Portal>

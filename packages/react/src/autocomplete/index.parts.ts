@@ -5,6 +5,7 @@ export { ComboboxTrigger as Trigger } from '../combobox/trigger/ComboboxTrigger'
 export { ComboboxInput as Input } from '../combobox/input/ComboboxInput';
 export { ComboboxIcon as Icon } from '../combobox/icon/ComboboxIcon';
 export { ComboboxClear as Clear } from '../combobox/clear/ComboboxClear';
+export { ComboboxClose as Close } from '../combobox/close/ComboboxClose';
 export { ComboboxList as List } from '../combobox/list/ComboboxList';
 export { ComboboxStatus as Status } from '../combobox/status/ComboboxStatus';
 export { ComboboxPortal as Portal } from '../combobox/portal/ComboboxPortal';

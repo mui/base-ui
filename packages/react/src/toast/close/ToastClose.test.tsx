@@ -54,4 +54,21 @@ describe('<Toast.Close />', () => {
 
     expect(screen.queryByTestId('title')).to.equal(null);
   });
+
+  describe('prop: visuallyHidden', () => {
+    it('supports the `visuallyHidden` prop', async () => {
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <Toast.Root toast={toast}>
+              <Toast.Close visuallyHidden aria-label="Close toast" />
+            </Toast.Root>
+          </Toast.Viewport>
+        </Toast.Provider>,
+      );
+
+      const closeButton = screen.getByLabelText('Close toast', { selector: 'button' });
+      expect(closeButton.style.position).to.equal('fixed');
+    });
+  });
 });

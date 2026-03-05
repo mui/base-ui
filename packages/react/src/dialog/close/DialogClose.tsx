@@ -6,6 +6,7 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types'
 import { useButton } from '../../use-button';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
+import { getCloseButtonStyle } from '../../utils/closePart';
 
 /**
  * A button that closes the dialog.
@@ -22,6 +23,7 @@ export const DialogClose = React.forwardRef(function DialogClose(
     className,
     disabled = false,
     nativeButton = true,
+    visuallyHidden = false,
     ...elementProps
   } = componentProps;
 
@@ -44,12 +46,22 @@ export const DialogClose = React.forwardRef(function DialogClose(
   return useRenderElement('button', componentProps, {
     state,
     ref: [forwardedRef, buttonRef],
-    props: [{ onClick: handleClick }, elementProps, getButtonProps],
+    props: [
+      { style: getCloseButtonStyle(visuallyHidden), onClick: handleClick },
+      elementProps,
+      getButtonProps,
+    ],
   });
 });
 
 export interface DialogCloseProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', DialogClose.State> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', DialogClose.State> {
+  /**
+   * Whether the close button should be visually hidden.
+   * @default false
+   */
+  visuallyHidden?: boolean | undefined;
+}
 
 export interface DialogCloseState {
   /**

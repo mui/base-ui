@@ -8,6 +8,7 @@ import { type Group, hasNullItemLabel, stringifyAsValue } from '../utils/resolve
 export type State = {
   id: string | undefined;
   modal: boolean;
+  closePartCount: number;
   multiple: boolean;
 
   items:
@@ -47,6 +48,7 @@ export type SelectStore = Store<State>;
 export const selectors = {
   id: createSelector((state: State) => state.id),
   modal: createSelector((state: State) => state.modal),
+  hasClosePart: createSelector((state: State) => state.closePartCount > 0),
   multiple: createSelector((state: State) => state.multiple),
 
   items: createSelector((state: State) => state.items),

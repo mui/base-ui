@@ -49,6 +49,7 @@ export default function ExampleFuzzyMatchingAutocomplete() {
                 </Autocomplete.Item>
               )}
             </Autocomplete.List>
+            <Autocomplete.Close visuallyHidden aria-label="Dismiss popup" />
           </Autocomplete.Popup>
         </Autocomplete.Positioner>
       </Autocomplete.Portal>

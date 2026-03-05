@@ -38,6 +38,7 @@ export default function ExampleGroupAutocomplete() {
                 </Autocomplete.Group>
               )}
             </Autocomplete.List>
+            <Autocomplete.Close visuallyHidden aria-label="Dismiss popup" />
           </Autocomplete.Popup>
         </Autocomplete.Positioner>
       </Autocomplete.Portal>

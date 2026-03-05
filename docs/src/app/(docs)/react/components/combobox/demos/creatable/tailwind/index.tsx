@@ -194,6 +194,7 @@ export default function ExampleCreatableCombobox() {
                   )
                 }
               </Combobox.List>
+              <Combobox.Close visuallyHidden aria-label="Dismiss popup" />
             </Combobox.Popup>
           </Combobox.Positioner>
         </Combobox.Portal>
