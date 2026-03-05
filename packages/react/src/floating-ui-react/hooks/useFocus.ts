@@ -32,7 +32,7 @@ export interface UseFocusProps {
    * Waits for the specified time before opening.
    * @default undefined
    */
-  delay?: (number | (() => number | undefined)) | undefined;
+  delay?: number | (() => number | undefined) | undefined;
 }
 
 /**

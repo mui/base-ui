@@ -42,7 +42,7 @@ export interface UseTypeaheadProps {
    * The index of the selected item in the list, if available.
    * @default null
    */
-  selectedIndex?: (number | null) | undefined;
+  selectedIndex?: number | null | undefined;
 }
 
 /**
@@ -119,11 +119,18 @@ export function useTypeahead(
 
     const listContent = listRef.current;
 
+    if (stringRef.current.length > 0 && event.key === ' ') {
+      // Space should continue the in-progress typeahead session.
+      stopEvent(event);
+      setTypingChange(true);
+    }
+
     if (stringRef.current.length > 0 && stringRef.current[0] !== ' ') {
-      if (getMatchingIndex(listContent, listContent, stringRef.current) === -1) {
+      if (
+        getMatchingIndex(listContent, listContent, stringRef.current) === -1 &&
+        event.key !== ' '
+      ) {
         setTypingChange(false);
-      } else if (event.key === ' ') {
-        stopEvent(event);
       }
     }
 
@@ -217,14 +224,9 @@ export function useTypeahead(
   const floating: ElementProps['floating'] = React.useMemo(() => {
     return {
       onKeyDown,
-      onKeyUp(event) {
-        if (event.key === ' ') {
-          setTypingChange(false);
-        }
-      },
       onBlur,
     };
-  }, [onKeyDown, onBlur, setTypingChange]);
+  }, [onKeyDown, onBlur]);
 
   return React.useMemo(
     () => (enabled ? { reference, floating } : {}),

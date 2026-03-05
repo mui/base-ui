@@ -658,6 +658,20 @@ describe('<NumberField />', () => {
       expect(onValueCommitted.lastCall.args[0]).to.equal(0);
       expect(input).to.have.value('0');
     });
+
+    it('includes the correct reason for increment and decrement button presses', async () => {
+      const onValueCommitted = spy();
+      await render(<NumberField defaultValue={0} onValueCommitted={onValueCommitted} />);
+
+      const inc = screen.getByLabelText('Increase');
+      const dec = screen.getByLabelText('Decrease');
+
+      fireEvent.click(inc);
+      expect(onValueCommitted.lastCall.args[1].reason).to.equal(REASONS.incrementPress);
+
+      fireEvent.click(dec);
+      expect(onValueCommitted.lastCall.args[1].reason).to.equal(REASONS.decrementPress);
+    });
   });
 
   describe('prop: disabled', () => {
@@ -1721,7 +1735,7 @@ describe('<NumberField />', () => {
     });
   });
 
-  describe('inputMode', () => {
+  describe('prop: inputMode', () => {
     it('should set the inputMode to numeric', async () => {
       await render(<NumberField />);
       const input = screen.getByRole('textbox');

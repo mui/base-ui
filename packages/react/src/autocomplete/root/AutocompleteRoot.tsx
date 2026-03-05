@@ -80,8 +80,8 @@ export function AutocompleteRoot<ItemValue>(
 
   const collator = useCoreFilter();
 
-  const baseFilter: typeof other.filter = React.useMemo(() => {
-    if (other.filter) {
+  const baseFilter = React.useMemo<Exclude<typeof other.filter, undefined>>(() => {
+    if (other.filter !== undefined) {
       return other.filter;
     }
     return collator.contains;
@@ -93,6 +93,9 @@ export function AutocompleteRoot<ItemValue>(
   const resolvedFilter: typeof other.filter = React.useMemo(() => {
     if (mode !== 'both') {
       return staticItems ? null : baseFilter;
+    }
+    if (baseFilter === null) {
+      return null;
     }
     return (item, _query, toString) => {
       return baseFilter(item, resolvedQuery, toString);
@@ -180,14 +183,14 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
    * - `none`: items are static (not filtered), and the input value will not change based on the active item.
    * @default 'list'
    */
-  mode?: ('list' | 'both' | 'inline' | 'none') | undefined;
+  mode?: 'list' | 'both' | 'inline' | 'none' | undefined;
   /**
    * Whether the first matching item is highlighted automatically.
    * - `true`: highlight after the user types and keep the highlight while the query changes.
    * - `'always'`: always highlight the first item.
    * @default false
    */
-  autoHighlight?: (boolean | 'always') | undefined;
+  autoHighlight?: boolean | 'always' | undefined;
   /**
    * Whether the highlighted item should be preserved when the pointer leaves the list.
    * @default false

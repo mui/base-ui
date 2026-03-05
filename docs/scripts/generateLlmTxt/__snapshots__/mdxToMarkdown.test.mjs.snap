@@ -23,7 +23,7 @@ export default function ExampleAccordion() {
     <Accordion.Root className="flex w-96 max-w-[calc(100vw-8rem)] flex-col justify-center text-gray-900">
       <Accordion.Item className="border-b border-gray-200">
         <Accordion.Header>
-          <Accordion.Trigger className="group relative flex w-full items-baseline justify-between gap-4 bg-gray-50 py-2 pr-1 pl-3 text-left font-medium hover:bg-gray-100 focus-visible:z-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800">
+          <Accordion.Trigger className="group relative flex w-full items-baseline justify-between gap-4 bg-gray-50 py-2 pr-1 pl-3 text-left font-medium hover:bg-gray-100 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800">
             What is Base UI?
             <PlusIcon className="mr-2 size-3 shrink-0 transition-all ease-out group-data-[panel-open]:scale-110 group-data-[panel-open]:rotate-45" />
           </Accordion.Trigger>
@@ -38,7 +38,7 @@ export default function ExampleAccordion() {
 
       <Accordion.Item className="border-b border-gray-200">
         <Accordion.Header>
-          <Accordion.Trigger className="group relative flex w-full items-baseline justify-between gap-4 bg-gray-50 py-2 pr-1 pl-3 text-left font-medium hover:bg-gray-100 focus-visible:z-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800">
+          <Accordion.Trigger className="group relative flex w-full items-baseline justify-between gap-4 bg-gray-50 py-2 pr-1 pl-3 text-left font-medium hover:bg-gray-100 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800">
             How do I get started?
             <PlusIcon className="mr-2 size-3 shrink-0 transition-all ease-out group-data-[panel-open]:scale-110 group-data-[panel-open]:rotate-45" />
           </Accordion.Trigger>
@@ -53,7 +53,7 @@ export default function ExampleAccordion() {
 
       <Accordion.Item className="border-b border-gray-200">
         <Accordion.Header>
-          <Accordion.Trigger className="group relative flex w-full items-baseline justify-between gap-4 bg-gray-50 py-2 pr-1 pl-3 text-left font-medium hover:bg-gray-100 focus-visible:z-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800">
+          <Accordion.Trigger className="group relative flex w-full items-baseline justify-between gap-4 bg-gray-50 py-2 pr-1 pl-3 text-left font-medium hover:bg-gray-100 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800">
             Can I use it for my project?
             <PlusIcon className="mr-2 size-3 shrink-0 transition-all ease-out group-data-[panel-open]:scale-110 group-data-[panel-open]:rotate-45" />
           </Accordion.Trigger>
@@ -272,7 +272,7 @@ export default function ExampleAccordion() {
     >
       <Accordion.Item className="border-b border-gray-200">
         <Accordion.Header>
-          <Accordion.Trigger className="group relative flex w-full items-baseline justify-between gap-4 bg-gray-50 py-2 pr-1 pl-3 text-left font-medium hover:bg-gray-100 focus-visible:z-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800">
+          <Accordion.Trigger className="group relative flex w-full items-baseline justify-between gap-4 bg-gray-50 py-2 pr-1 pl-3 text-left font-medium hover:bg-gray-100 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800">
             What is Base UI?
             <PlusIcon className="mr-2 size-3 shrink-0 transition-all ease-out group-data-[panel-open]:scale-110 group-data-[panel-open]:rotate-45" />
           </Accordion.Trigger>
@@ -287,7 +287,7 @@ export default function ExampleAccordion() {
 
       <Accordion.Item className="border-b border-gray-200">
         <Accordion.Header>
-          <Accordion.Trigger className="group relative flex w-full items-baseline justify-between gap-4 bg-gray-50 py-2 pr-1 pl-3 text-left font-medium hover:bg-gray-100 focus-visible:z-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800">
+          <Accordion.Trigger className="group relative flex w-full items-baseline justify-between gap-4 bg-gray-50 py-2 pr-1 pl-3 text-left font-medium hover:bg-gray-100 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800">
             How do I get started?
             <PlusIcon className="mr-2 size-3 shrink-0 transition-all ease-out group-data-[panel-open]:scale-110 group-data-[panel-open]:rotate-45" />
           </Accordion.Trigger>
@@ -302,7 +302,7 @@ export default function ExampleAccordion() {
 
       <Accordion.Item className="border-b border-gray-200">
         <Accordion.Header>
-          <Accordion.Trigger className="group relative flex w-full items-baseline justify-between gap-4 bg-gray-50 py-2 pr-1 pl-3 text-left font-medium hover:bg-gray-100 focus-visible:z-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800">
+          <Accordion.Trigger className="group relative flex w-full items-baseline justify-between gap-4 bg-gray-50 py-2 pr-1 pl-3 text-left font-medium hover:bg-gray-100 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800">
             Can I use it for my project?
             <PlusIcon className="mr-2 size-3 shrink-0 transition-all ease-out group-data-[panel-open]:scale-110 group-data-[panel-open]:rotate-45" />
           </Accordion.Trigger>
@@ -488,20 +488,20 @@ Renders a \`<div>\` element.
 
 **Root Props:**
 
-| Prop             | Type                                                                                | Default      | Description                                                                                                                                                                                                |
-| :--------------- | :---------------------------------------------------------------------------------- | :----------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| defaultValue     | \`any[]\`                                                                             | -            | The uncontrolled value of the item(s) that should be initially expanded.To render a controlled accordion, use the \`value\` prop instead.                                                                    |
-| value            | \`any[]\`                                                                             | -            | The controlled value of the item(s) that should be expanded.To render an uncontrolled accordion, use the \`defaultValue\` prop instead.                                                                      |
-| onValueChange    | \`((value: any[], eventDetails: Accordion.Root.ChangeEventDetails) => void)\`         | -            | Event handler called when an accordion item is expanded or collapsed.&#xA;Provides the new value as an argument.                                                                                           |
-| hiddenUntilFound | \`boolean\`                                                                           | \`false\`      | Allows the browser’s built-in page search to find and expand the panel contents.Overrides the \`keepMounted\` prop and uses \`hidden="until-found"\`&#xA;to hide the element without removing it from the DOM. |
-| loopFocus        | \`boolean\`                                                                           | \`true\`       | Whether to loop keyboard focus back to the first item&#xA;when the end of the list is reached while using the arrow keys.                                                                                  |
-| multiple         | \`boolean\`                                                                           | \`false\`      | Whether multiple items can be open at the same time.                                                                                                                                                       |
-| disabled         | \`boolean\`                                                                           | \`false\`      | Whether the component should ignore user interaction.                                                                                                                                                      |
-| orientation      | \`Orientation\`                                                                       | \`'vertical'\` | The visual orientation of the accordion.&#xA;Controls whether roving focus uses left/right or up/down arrow keys.                                                                                          |
-| className        | \`string \\| ((state: Accordion.Root.State) => string \\| undefined)\`                  | -            | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                                   |
-| style            | \`CSSProperties \\| ((state: Accordion.Root.State) => CSSProperties \\| undefined)\`    | -            | -                                                                                                                                                                                                          |
-| keepMounted      | \`boolean\`                                                                           | \`false\`      | Whether to keep the element in the DOM while the panel is closed.&#xA;This prop is ignored when \`hiddenUntilFound\` is used.                                                                                |
-| render           | \`ReactElement \\| ((props: HTMLProps, state: Accordion.Root.State) => ReactElement)\` | -            | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a \`ReactElement\` or a function that returns the element to render.               |
+| Prop             | Type                                                                                       | Default      | Description                                                                                                                                                                                                |
+| :--------------- | :----------------------------------------------------------------------------------------- | :----------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultValue     | \`Value[]\`                                                                                  | -            | The uncontrolled value of the item(s) that should be initially expanded.To render a controlled accordion, use the \`value\` prop instead.                                                                    |
+| value            | \`Value[]\`                                                                                  | -            | The controlled value of the item(s) that should be expanded.To render an uncontrolled accordion, use the \`defaultValue\` prop instead.                                                                      |
+| onValueChange    | \`((value: Value[], eventDetails: Accordion.Root.ChangeEventDetails) => void)\`              | -            | Event handler called when an accordion item is expanded or collapsed.&#xA;Provides the new value as an argument.                                                                                           |
+| hiddenUntilFound | \`boolean\`                                                                                  | \`false\`      | Allows the browser’s built-in page search to find and expand the panel contents.Overrides the \`keepMounted\` prop and uses \`hidden="until-found"\`&#xA;to hide the element without removing it from the DOM. |
+| loopFocus        | \`boolean\`                                                                                  | \`true\`       | Whether to loop keyboard focus back to the first item&#xA;when the end of the list is reached while using the arrow keys.                                                                                  |
+| multiple         | \`boolean\`                                                                                  | \`false\`      | Whether multiple items can be open at the same time.                                                                                                                                                       |
+| disabled         | \`boolean\`                                                                                  | \`false\`      | Whether the component should ignore user interaction.                                                                                                                                                      |
+| orientation      | \`Orientation\`                                                                              | \`'vertical'\` | The visual orientation of the accordion.&#xA;Controls whether roving focus uses left/right or up/down arrow keys.                                                                                          |
+| className        | \`string \\| ((state: Accordion.Root.State<Value>) => string \\| undefined)\`                  | -            | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                                   |
+| style            | \`CSSProperties \\| ((state: Accordion.Root.State<Value>) => CSSProperties \\| undefined)\`    | -            | -                                                                                                                                                                                                          |
+| keepMounted      | \`boolean\`                                                                                  | \`false\`      | Whether to keep the element in the DOM while the panel is closed.&#xA;This prop is ignored when \`hiddenUntilFound\` is used.                                                                                |
+| render           | \`ReactElement \\| ((props: HTMLProps, state: Accordion.Root.State<Value>) => ReactElement)\` | -            | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a \`ReactElement\` or a function that returns the element to render.               |
 
 **Root Data Attributes:**
 
@@ -643,9 +643,9 @@ export default function ExampleDirectionProvider() {
       <DirectionProvider direction="rtl">
         <Slider.Root defaultValue={25}>
           <Slider.Control className="flex w-56 items-center py-3">
-            <Slider.Track className="relative h-1 w-full rounded bg-gray-200 shadow-[inset_0_0_0_1px] shadow-gray-200">
-              <Slider.Indicator className="rounded bg-gray-700" />
-              <Slider.Thumb className="size-4 rounded-full bg-white outline outline-1 outline-gray-300 has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-blue-800" />
+            <Slider.Track className="relative h-1 w-full rounded-sm bg-gray-200 shadow-[inset_0_0_0_1px] shadow-gray-200">
+              <Slider.Indicator className="rounded-sm bg-gray-700" />
+              <Slider.Thumb className="size-4 rounded-full bg-white outline-1 outline-gray-300 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-blue-800" />
             </Slider.Track>
           </Slider.Control>
         </Slider.Root>

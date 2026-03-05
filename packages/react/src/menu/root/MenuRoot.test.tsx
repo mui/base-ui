@@ -12,6 +12,7 @@ import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Menu } from '@base-ui/react/menu';
 import { Dialog } from '@base-ui/react/dialog';
+import { AlertDialog } from '@base-ui/react/alert-dialog';
 import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
 import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
@@ -145,13 +146,7 @@ describe('<Menu.Root />', () => {
       });
 
       describe('text navigation', () => {
-        it('changes the highlighted item', async ({ skip }) => {
-          if (isJSDOM) {
-            // useMenuPopup Text navigation match menu items using HTMLElement.innerText
-            // innerText is not supported by JSDOM
-            skip();
-          }
-
+        it.skipIf(isJSDOM)('changes the highlighted item', async () => {
           const itemElements = [
             <Menu.Item key="aa">Aa</Menu.Item>,
             <Menu.Item key="ba">Ba</Menu.Item>,
@@ -186,69 +181,61 @@ describe('<Menu.Root />', () => {
           expect(screen.getByText('Cd')).to.have.attribute('tabindex', '0');
         });
 
-        it('changes the highlighted item using text navigation on label prop', async ({ skip }) => {
-          if (!isJSDOM) {
-            // This test is very flaky in real browsers
-            skip();
-          }
+        it.skipIf(!isJSDOM)(
+          'changes the highlighted item using text navigation on label prop',
+          async () => {
+            const itemElements = [
+              <Menu.Item key="1" label="Aa">
+                1
+              </Menu.Item>,
+              <Menu.Item key="2" label="Ba">
+                2
+              </Menu.Item>,
+              <Menu.Item key="3" label="Bb">
+                3
+              </Menu.Item>,
+              <Menu.Item key="4" label="Ca">
+                4
+              </Menu.Item>,
+            ];
 
-          const itemElements = [
-            <Menu.Item key="1" label="Aa">
-              1
-            </Menu.Item>,
-            <Menu.Item key="2" label="Ba">
-              2
-            </Menu.Item>,
-            <Menu.Item key="3" label="Bb">
-              3
-            </Menu.Item>,
-            <Menu.Item key="4" label="Ca">
-              4
-            </Menu.Item>,
-          ];
+            const { user } = await render(<TestMenu popupProps={{ children: itemElements }} />);
 
-          const { user } = await render(<TestMenu popupProps={{ children: itemElements }} />);
+            const trigger = screen.getByRole('button', { name: 'Toggle' });
+            await user.click(trigger);
+            const items = screen.getAllByRole('menuitem');
+            await flushMicrotasks();
 
-          const trigger = screen.getByRole('button', { name: 'Toggle' });
-          await user.click(trigger);
-          const items = screen.getAllByRole('menuitem');
-          await flushMicrotasks();
+            await user.keyboard('b');
+            await waitFor(() => {
+              expect(items[1]).toHaveFocus();
+            });
 
-          await user.keyboard('b');
-          await waitFor(() => {
-            expect(items[1]).toHaveFocus();
-          });
+            await waitFor(() => {
+              expect(items[1]).to.have.attribute('tabindex', '0');
+            });
 
-          await waitFor(() => {
-            expect(items[1]).to.have.attribute('tabindex', '0');
-          });
+            await user.keyboard('b');
+            await waitFor(() => {
+              expect(items[2]).toHaveFocus();
+            });
 
-          await user.keyboard('b');
-          await waitFor(() => {
-            expect(items[2]).toHaveFocus();
-          });
+            await waitFor(() => {
+              expect(items[2]).to.have.attribute('tabindex', '0');
+            });
 
-          await waitFor(() => {
-            expect(items[2]).to.have.attribute('tabindex', '0');
-          });
+            await user.keyboard('b');
+            await waitFor(() => {
+              expect(items[2]).toHaveFocus();
+            });
 
-          await user.keyboard('b');
-          await waitFor(() => {
-            expect(items[2]).toHaveFocus();
-          });
+            await waitFor(() => {
+              expect(items[2]).to.have.attribute('tabindex', '0');
+            });
+          },
+        );
 
-          await waitFor(() => {
-            expect(items[2]).to.have.attribute('tabindex', '0');
-          });
-        });
-
-        it('skips the non-stringifiable items', async ({ skip }) => {
-          if (isJSDOM) {
-            // useMenuPopup Text navigation match menu items using HTMLElement.innerText
-            // innerText is not supported by JSDOM
-            skip();
-          }
-
+        it.skipIf(isJSDOM)('skips the non-stringifiable items', async () => {
           const itemElements = [
             <Menu.Item key="aa">Aa</Menu.Item>,
             <Menu.Item key="ba">Ba</Menu.Item>,
@@ -284,13 +271,7 @@ describe('<Menu.Root />', () => {
           expect(screen.getByText('Bc')).to.have.attribute('tabindex', '0');
         });
 
-        it('navigate to options with diacritic characters', async ({ skip }) => {
-          if (isJSDOM) {
-            // useMenuPopup Text navigation match menu items using HTMLElement.innerText
-            // innerText is not supported by JSDOM
-            skip();
-          }
-
+        it.skipIf(isJSDOM)('navigate to options with diacritic characters', async () => {
           const itemElements = [
             <Menu.Item key="aa">Aa</Menu.Item>,
             <Menu.Item key="ba">Ba</Menu.Item>,
@@ -321,78 +302,200 @@ describe('<Menu.Root />', () => {
           expect(screen.getByText('Bą')).to.have.attribute('tabindex', '0');
         });
 
-        it('navigate to next options that begin with diacritic characters', async ({ skip }) => {
-          if (isJSDOM) {
-            // useMenuPopup Text navigation match menu items using HTMLElement.innerText
-            // innerText is not supported by JSDOM
-            skip();
-          }
+        it.skipIf(isJSDOM)(
+          'navigate to next options that begin with diacritic characters',
+          async () => {
+            const itemElements = [
+              <Menu.Item key="aa">Aa</Menu.Item>,
+              <Menu.Item key="ąa">ąa</Menu.Item>,
+              <Menu.Item key="ąb">ąb</Menu.Item>,
+              <Menu.Item key="ąc">ąc</Menu.Item>,
+            ];
 
-          const itemElements = [
-            <Menu.Item key="aa">Aa</Menu.Item>,
-            <Menu.Item key="ąa">ąa</Menu.Item>,
-            <Menu.Item key="ąb">ąb</Menu.Item>,
-            <Menu.Item key="ąc">ąc</Menu.Item>,
-          ];
+            const { user } = await render(
+              <TestMenu rootProps={{ open: true }} popupProps={{ children: itemElements }} />,
+            );
 
-          const { user } = await render(
-            <TestMenu rootProps={{ open: true }} popupProps={{ children: itemElements }} />,
-          );
+            const items = screen.getAllByRole('menuitem');
 
-          const items = screen.getAllByRole('menuitem');
+            await act(async () => {
+              items[0].focus();
+            });
+
+            await user.keyboard('ą');
+            await waitFor(() => {
+              expect(screen.getByText('ąa')).toHaveFocus();
+            });
+            expect(screen.getByText('ąa')).to.have.attribute('tabindex', '0');
+          },
+        );
+
+        it.skipIf(isJSDOM)(
+          'does not trigger the onClick event when Space is pressed during text navigation',
+          async () => {
+            const handleClick = spy();
+
+            const itemElements = [
+              <Menu.Item key="one" onClick={() => handleClick()}>
+                Item One
+              </Menu.Item>,
+              <Menu.Item key="two" onClick={() => handleClick()}>
+                Item Two
+              </Menu.Item>,
+              <Menu.Item key="three" onClick={() => handleClick()}>
+                Item Three
+              </Menu.Item>,
+            ];
+
+            const { user } = await render(
+              <TestMenu rootProps={{ open: true }} popupProps={{ children: itemElements }} />,
+            );
+
+            const items = screen.getAllByRole('menuitem');
+
+            await act(async () => {
+              items[0].focus();
+            });
+
+            await user.keyboard('Item T');
+
+            expect(handleClick.called).to.equal(false);
+
+            await waitFor(() => {
+              expect(items[1]).toHaveFocus();
+            });
+          },
+        );
+
+        it.skipIf(isJSDOM)(
+          'does not open a submenu when pressing Space during a typeahead session',
+          async () => {
+            const { user } = await render(
+              <TestMenu
+                rootProps={{ open: true }}
+                popupProps={{
+                  children: (
+                    <Menu.SubmenuRoot>
+                      <Menu.SubmenuTrigger data-testid="submenu-trigger">
+                        Add to Playlist
+                      </Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner>
+                          <Menu.Popup data-testid="submenu">
+                            <Menu.Item>Add now</Menu.Item>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  ),
+                }}
+              />,
+            );
+
+            const submenuTrigger = screen.getByTestId('submenu-trigger');
+
+            await act(async () => {
+              submenuTrigger.focus();
+            });
+
+            await user.keyboard('Add to p');
+
+            await waitFor(() => {
+              expect(submenuTrigger).toHaveFocus();
+            });
+
+            await user.keyboard('[Space]');
+            expect(screen.queryByTestId('submenu')).to.equal(null);
+
+            await user.keyboard('[Space]');
+            expect(screen.queryByTestId('submenu')).to.equal(null);
+          },
+        );
+
+        it('opens a focused submenu trigger with Space when not typing', async () => {
+          const { user } = await render(<TestMenu rootProps={{ open: true }} />);
+
+          const submenuTrigger = screen.getByTestId('submenu-trigger');
 
           await act(async () => {
-            items[0].focus();
+            submenuTrigger.focus();
           });
 
-          await user.keyboard('ą');
-          await waitFor(() => {
-            expect(screen.getByText('ąa')).toHaveFocus();
-          });
-          expect(screen.getByText('ąa')).to.have.attribute('tabindex', '0');
+          await user.keyboard('[Space]');
+          expect(screen.queryByTestId('submenu')).not.to.equal(null);
         });
 
-        it('does not trigger the onClick event when Space is pressed during text navigation', async ({
-          skip,
-        }) => {
-          if (isJSDOM) {
-            // useMenuPopup Text navigation match menu items using HTMLElement.innerText
-            // innerText is not supported by JSDOM
-            skip();
-          }
+        it.skipIf(isJSDOM)(
+          'matches "Item 2" after "Item " currently matches "Item 1"',
+          async () => {
+            const { user } = await render(
+              <TestMenu
+                rootProps={{ open: true }}
+                popupProps={{
+                  children: (
+                    <React.Fragment>
+                      <Menu.Item>Item 1</Menu.Item>
+                      <Menu.Item data-testid="item-2">Item 2</Menu.Item>
+                      <Menu.Item>Item 3</Menu.Item>
+                    </React.Fragment>
+                  ),
+                }}
+              />,
+            );
 
-          const handleClick = spy();
+            const item1 = screen.getByRole('menuitem', { name: 'Item 1' });
+            const item2 = screen.getByTestId('item-2');
 
-          const itemElements = [
-            <Menu.Item key="one" onClick={() => handleClick()}>
-              Item One
-            </Menu.Item>,
-            <Menu.Item key="two" onClick={() => handleClick()}>
-              Item Two
-            </Menu.Item>,
-            <Menu.Item key="three" onClick={() => handleClick()}>
-              Item Three
-            </Menu.Item>,
-          ];
+            await act(async () => {
+              item1.focus();
+            });
 
-          const { user } = await render(
-            <TestMenu rootProps={{ open: true }} popupProps={{ children: itemElements }} />,
-          );
+            await user.keyboard('Item 2');
+            expect(item2).toHaveFocus();
+          },
+        );
 
-          const items = screen.getAllByRole('menuitem');
+        it.skipIf(isJSDOM)(
+          'matches a submenu trigger label after a space + numeric suffix',
+          async () => {
+            const { user } = await render(
+              <TestMenu
+                rootProps={{ open: true }}
+                popupProps={{
+                  children: (
+                    <React.Fragment>
+                      <Menu.Item>Item 1</Menu.Item>
+                      <Menu.SubmenuRoot>
+                        <Menu.SubmenuTrigger data-testid="submenu-trigger">
+                          Item 2
+                        </Menu.SubmenuTrigger>
+                        <Menu.Portal>
+                          <Menu.Positioner>
+                            <Menu.Popup data-testid="submenu">
+                              <Menu.Item>Nested 2.1</Menu.Item>
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.SubmenuRoot>
+                      <Menu.Item>Item 3</Menu.Item>
+                    </React.Fragment>
+                  ),
+                }}
+              />,
+            );
 
-          await act(async () => {
-            items[0].focus();
-          });
+            const item1 = screen.getByRole('menuitem', { name: 'Item 1' });
+            const submenuTrigger = screen.getByTestId('submenu-trigger');
 
-          await user.keyboard('Item T');
+            await act(async () => {
+              item1.focus();
+            });
 
-          expect(handleClick.called).to.equal(false);
-
-          await waitFor(() => {
-            expect(items[1]).toHaveFocus();
-          });
-        });
+            await user.keyboard('Item 2');
+            expect(submenuTrigger).toHaveFocus();
+            expect(screen.queryByTestId('submenu')).to.equal(null);
+          },
+        );
       });
     });
 
@@ -614,6 +717,69 @@ describe('<Menu.Root />', () => {
           expect(screen.queryByTestId('dialog-popup')).not.to.equal(null);
         });
       });
+
+      it.skipIf(isJSDOM)(
+        'keeps focus in a nested alert dialog popup when the pointer leaves the triggering menu item',
+        async () => {
+          function MenuWithNestedAlertDialog() {
+            return (
+              <Menu.Root>
+                <Menu.Trigger data-testid="menu-trigger">Open Menu</Menu.Trigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup data-testid="menu-popup">
+                      <Menu.Item>Item 1</Menu.Item>
+                      <AlertDialog.Root>
+                        <Menu.Item
+                          render={<AlertDialog.Trigger />}
+                          closeOnClick={false}
+                          nativeButton
+                          data-testid="alert-dialog-trigger"
+                        >
+                          Open Alert Dialog
+                        </Menu.Item>
+                        <AlertDialog.Portal>
+                          <AlertDialog.Backdrop data-testid="alert-dialog-backdrop" />
+                          <AlertDialog.Popup data-testid="alert-dialog-popup">
+                            <AlertDialog.Close data-testid="alert-dialog-close">
+                              Close
+                            </AlertDialog.Close>
+                          </AlertDialog.Popup>
+                        </AlertDialog.Portal>
+                      </AlertDialog.Root>
+                      <Menu.Item>Item 2</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            );
+          }
+
+          const { user } = await render(<MenuWithNestedAlertDialog />);
+
+          await user.click(screen.getByTestId('menu-trigger'));
+
+          const alertDialogTrigger = await screen.findByTestId('alert-dialog-trigger');
+          await user.click(alertDialogTrigger);
+
+          const menuPopup = screen.getByTestId('menu-popup');
+          const alertDialogPopup = await screen.findByTestId('alert-dialog-popup');
+
+          await waitFor(() => {
+            expect(alertDialogPopup.contains(document.activeElement)).to.equal(true);
+          });
+
+          fireEvent.pointerLeave(alertDialogTrigger, {
+            pointerType: 'mouse',
+            relatedTarget: document.body,
+          });
+
+          await waitFor(() => {
+            expect(alertDialogPopup.contains(document.activeElement)).to.equal(true);
+          });
+          expect(menuPopup.contains(document.activeElement)).to.equal(false);
+        },
+      );
     });
 
     describe('focus management', () => {
@@ -694,30 +860,28 @@ describe('<Menu.Root />', () => {
         expect(button).toHaveFocus();
       });
 
-      it('focuses the trigger after the menu is closed but not unmounted', async ({ skip }) => {
-        if (isJSDOM) {
-          // TODO: this stopped working in vitest JSDOM mode
-          skip();
-        }
+      it.skipIf(isJSDOM)(
+        'focuses the trigger after the menu is closed but not unmounted',
+        async () => {
+          const { user } = await render(
+            <div>
+              <input type="text" />
+              <TestMenu portalProps={{ keepMounted: true }} />
+              <input type="text" />
+            </div>,
+          );
 
-        const { user } = await render(
-          <div>
-            <input type="text" />
-            <TestMenu portalProps={{ keepMounted: true }} />
-            <input type="text" />
-          </div>,
-        );
+          const button = screen.getByRole('button', { name: 'Toggle' });
+          await user.click(button);
 
-        const button = screen.getByRole('button', { name: 'Toggle' });
-        await user.click(button);
+          const menuItem = await screen.findAllByRole('menuitem');
+          await user.click(menuItem[0]);
 
-        const menuItem = await screen.findAllByRole('menuitem');
-        await user.click(menuItem[0]);
-
-        await waitFor(() => {
-          expect(button).toHaveFocus();
-        });
-      });
+          await waitFor(() => {
+            expect(button).toHaveFocus();
+          });
+        },
+      );
     });
 
     describe('prop: closeParentOnEsc', () => {
@@ -1336,7 +1500,7 @@ describe('<Menu.Root />', () => {
     describe.skipIf(isJSDOM)('mouse interaction', () => {
       afterEach(async () => {
         const { cleanup } = await import('vitest-browser-react');
-        cleanup();
+        await cleanup();
       });
 
       it('triggers a menu item and closes the menu on click, drag, release', async () => {
@@ -1408,7 +1572,7 @@ describe('<Menu.Root />', () => {
           </Menu.Item>,
         ];
 
-        vbrRender(
+        await vbrRender(
           <div>
             <TestMenu
               rootProps={{ onOpenChange: openChangeSpy }}

@@ -4,6 +4,7 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { isAndroid } from '@base-ui/utils/detectBrowser';
+import { useId } from '@base-ui/utils/useId';
 import {
   DrawerRootContext,
   type DrawerNestedSwipeProgressStore,
@@ -268,7 +269,7 @@ export interface DrawerRootProps<Payload = unknown> {
    * - `'trap-focus'`: focus is trapped inside the drawer, but document page scroll is not locked and pointer interactions outside of it remain enabled.
    * @default true
    */
-  modal?: (boolean | 'trap-focus') | undefined;
+  modal?: boolean | 'trap-focus' | undefined;
   /**
    * Event handler called when the drawer is opened or closed.
    */
@@ -301,12 +302,12 @@ export interface DrawerRootProps<Payload = unknown> {
    * This is useful in conjunction with the `open` prop to create a controlled drawer.
    * There's no need to specify this prop when the drawer is uncontrolled (i.e. when the `open` prop is not set).
    */
-  triggerId?: (string | null) | undefined;
+  triggerId?: string | null | undefined;
   /**
    * ID of the trigger that the drawer is associated with.
    * This is useful in conjunction with the `defaultOpen` prop to create an initially open drawer.
    */
-  defaultTriggerId?: (string | null) | undefined;
+  defaultTriggerId?: string | null | undefined;
   /**
    * The content of the drawer.
    */
@@ -414,7 +415,7 @@ function createNestedSwipeProgressStore(): NestedSwipeProgressStore {
 }
 
 function DrawerProviderReporter() {
-  const drawerId = React.useId();
+  const drawerId = useId();
 
   const providerContext = useDrawerProviderContext(true);
   const dialogRootContext = useDialogRootContext(false);
@@ -426,7 +427,7 @@ function DrawerProviderReporter() {
   const isTopmost = nestedOpenDialogCount === 0;
 
   React.useEffect(() => {
-    if (!providerContext) {
+    if (!providerContext || drawerId == null) {
       return undefined;
     }
 
@@ -436,6 +437,10 @@ function DrawerProviderReporter() {
   }, [drawerId, providerContext]);
 
   React.useEffect(() => {
+    if (drawerId == null) {
+      return;
+    }
+
     providerContext?.setDrawerOpen(drawerId, open);
   }, [drawerId, open, providerContext]);
 

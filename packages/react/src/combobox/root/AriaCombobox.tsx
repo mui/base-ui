@@ -425,11 +425,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const triggerRef = useValueAsRef(triggerElement);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
-  const {
-    openMethod,
-    triggerProps,
-    reset: resetOpenInteractionType,
-  } = useOpenInteractionType(open);
+  const { openMethod, triggerProps } = useOpenInteractionType(open);
 
   useField({
     id,
@@ -461,9 +457,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const setIndices = useStableCallback(
     (options: {
-      activeIndex?: (number | null) | undefined;
-      selectedIndex?: (number | null) | undefined;
-      type?: ('none' | 'keyboard' | 'pointer') | undefined;
+      activeIndex?: number | null | undefined;
+      selectedIndex?: number | null | undefined;
+      type?: 'none' | 'keyboard' | 'pointer' | undefined;
     }) => {
       store.update(options);
       const type: AriaCombobox.HighlightEventReason = options.type || 'none';
@@ -696,7 +692,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     setMounted(false);
     onOpenChangeComplete?.(false);
     setQueryChangedAfterOpen(false);
-    resetOpenInteractionType();
     setCloseQuery(null);
 
     if (selectionMode === 'none') {
@@ -966,9 +961,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const role: ElementProps = React.useMemo(() => {
     const isPlainInput = inputElement?.tagName === 'INPUT';
-    const shouldApplyAria = isPlainInput || open;
+    // During SSR and initial hydration, the input ref is not available yet.
+    // Assume an input-like control so combobox ARIA attributes are present.
+    const shouldTreatAsInput = inputElement == null || isPlainInput;
+    const shouldApplyAria = shouldTreatAsInput || open;
 
-    const reference = isPlainInput
+    const reference = shouldTreatAsInput
       ? ({
           autoComplete: 'off',
           spellCheck: 'false',
@@ -1351,7 +1349,7 @@ interface ComboboxRootProps<ItemValue> {
    * - `'always'`: highlight the first item as soon as the list opens.
    * @default false
    */
-  autoHighlight?: (boolean | 'always') | undefined;
+  autoHighlight?: boolean | 'always' | undefined;
   /**
    * Whether the highlighted item should be preserved when the pointer leaves the list.
    * @default false
@@ -1418,25 +1416,23 @@ interface ComboboxRootProps<ItemValue> {
    * The items to be displayed in the list.
    * Can be either a flat array of items or an array of groups with items.
    */
-  items?: (readonly any[] | readonly Group<any>[]) | undefined;
+  items?: readonly any[] | readonly Group<any>[] | undefined;
   /**
    * Filtered items to display in the list.
    * When provided, the list will use these items instead of filtering the `items` prop internally.
    * Use when you want to control filtering logic externally with the `useFilter()` hook.
    */
-  filteredItems?: (readonly any[] | readonly Group<any>[]) | undefined;
+  filteredItems?: readonly any[] | readonly Group<any>[] | undefined;
   /**
    * Filter function used to match items vs input query.
    */
   filter?:
-    | (
-        | null
-        | ((
-            itemValue: ItemValue,
-            query: string,
-            itemToString?: (itemValue: ItemValue) => string,
-          ) => boolean)
-      )
+    | null
+    | ((
+        itemValue: ItemValue,
+        query: string,
+        itemToString?: (itemValue: ItemValue) => string,
+      ) => boolean)
     | undefined;
   /**
    * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.
@@ -1483,7 +1479,7 @@ interface ComboboxRootProps<ItemValue> {
    * - `none`: items are static (not filtered), and the input value will not change based on the active item.
    * @default 'list'
    */
-  autoComplete?: ('list' | 'both' | 'inline' | 'none') | undefined;
+  autoComplete?: 'list' | 'both' | 'inline' | 'none' | undefined;
   /**
    * Provides a hint to the browser for autofill on the hidden input element.
    * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/autocomplete
@@ -1526,7 +1522,7 @@ export type AriaComboboxProps<
    *
    * To render a controlled combobox, use the `selectedValue` prop instead.
    */
-  defaultSelectedValue?: (ComboboxItemValueType<Value, Mode> | null) | undefined;
+  defaultSelectedValue?: ComboboxItemValueType<Value, Mode> | null | undefined;
   /**
    * Callback fired when the selected value of the combobox changes.
    */

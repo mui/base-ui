@@ -24,16 +24,10 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const modal = store.useState('modal');
   const popupElement = store.useState('popupElement');
 
-  const {
-    openMethod,
-    triggerProps,
-    reset: resetOpenInteractionType,
-  } = useOpenInteractionType(open);
+  const { openMethod, triggerProps } = useOpenInteractionType(open);
 
   useImplicitActiveTrigger(store);
-  const { forceUnmount } = useOpenStateTransitions(open, store, () => {
-    resetOpenInteractionType();
-  });
+  const { forceUnmount } = useOpenStateTransitions(open, store);
 
   const createDialogEventDetails = useStableCallback((reason: DialogRoot.ChangeEventReason) => {
     const details: DialogRoot.ChangeEventDetails =
@@ -171,7 +165,7 @@ export interface UseDialogRootParameters {
   actionsRef?: DialogRoot.Props['actionsRef'] | undefined;
   parentContext?: DialogStore<unknown>['context'] | undefined;
   onOpenChange: DialogRoot.Props['onOpenChange'];
-  triggerIdProp?: (string | null) | undefined;
+  triggerIdProp?: string | null | undefined;
 }
 
 export type UseDialogRootReturnValue = void;

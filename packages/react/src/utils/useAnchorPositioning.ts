@@ -69,32 +69,32 @@ interface SideFlipMode {
   /**
    * How to avoid collisions on the side axis.
    */
-  side?: ('flip' | 'none') | undefined;
+  side?: 'flip' | 'none' | undefined;
   /**
    * How to avoid collisions on the align axis.
    */
-  align?: ('flip' | 'shift' | 'none') | undefined;
+  align?: 'flip' | 'shift' | 'none' | undefined;
   /**
    * If both sides on the preferred axis do not fit, determines whether to fallback
    * to a side on the perpendicular axis and which logical side to prefer.
    */
-  fallbackAxisSide?: ('start' | 'end' | 'none') | undefined;
+  fallbackAxisSide?: 'start' | 'end' | 'none' | undefined;
 }
 
 interface SideShiftMode {
   /**
    * How to avoid collisions on the side axis.
    */
-  side?: ('shift' | 'none') | undefined;
+  side?: 'shift' | 'none' | undefined;
   /**
    * How to avoid collisions on the align axis.
    */
-  align?: ('shift' | 'none') | undefined;
+  align?: 'shift' | 'none' | undefined;
   /**
    * If both sides on the preferred axis do not fit, determines whether to fallback
    * to a side on the perpendicular axis and which logical side to prefer.
    */
-  fallbackAxisSide?: ('start' | 'end' | 'none') | undefined;
+  fallbackAxisSide?: 'start' | 'end' | 'none' | undefined;
 }
 
 export type CollisionAvoidance = SideFlipMode | SideShiftMode;
@@ -308,12 +308,19 @@ export function useAnchorPositioning(
   middleware.push(
     size({
       ...commonCollisionProps,
-      apply({ elements: { floating }, rects: { reference }, availableWidth, availableHeight }) {
+      apply({ elements: { floating }, availableWidth, availableHeight, rects }) {
         const floatingStyle = floating.style;
         floatingStyle.setProperty('--available-width', `${availableWidth}px`);
         floatingStyle.setProperty('--available-height', `${availableHeight}px`);
-        floatingStyle.setProperty('--anchor-width', `${reference.width}px`);
-        floatingStyle.setProperty('--anchor-height', `${reference.height}px`);
+
+        // Snap anchor dimensions to device pixels to ensure the popup's visual width matches the anchor's one.
+        const dpr = window.devicePixelRatio || 1;
+        const { x, y, width, height } = rects.reference;
+        const anchorWidth = (Math.round((x + width) * dpr) - Math.round(x * dpr)) / dpr;
+        const anchorHeight = (Math.round((y + height) * dpr) - Math.round(y * dpr)) / dpr;
+
+        floatingStyle.setProperty('--anchor-width', `${anchorWidth}px`);
+        floatingStyle.setProperty('--anchor-height', `${anchorHeight}px`);
       },
     }),
     arrow(
@@ -545,19 +552,17 @@ export interface UseAnchorPositioningSharedParameters {
    * By default, the popup will be positioned against the trigger.
    */
   anchor?:
-    | (
-        | Element
-        | null
-        | VirtualElement
-        | React.RefObject<Element | null>
-        | (() => Element | VirtualElement | null)
-      )
+    | Element
+    | null
+    | VirtualElement
+    | React.RefObject<Element | null>
+    | (() => Element | VirtualElement | null)
     | undefined;
   /**
    * Determines which CSS `position` property to use.
    * @default 'absolute'
    */
-  positionMethod?: ('absolute' | 'fixed') | undefined;
+  positionMethod?: 'absolute' | 'fixed' | undefined;
   /**
    * Which side of the anchor element to align the popup against.
    * May automatically change to avoid collisions.
@@ -588,7 +593,7 @@ export interface UseAnchorPositioningSharedParameters {
    *
    * @default 0
    */
-  sideOffset?: (number | OffsetFunction) | undefined;
+  sideOffset?: number | OffsetFunction | undefined;
   /**
    * How to align the popup relative to the specified side.
    * @default 'center'
@@ -618,7 +623,7 @@ export interface UseAnchorPositioningSharedParameters {
    *
    * @default 0
    */
-  alignOffset?: (number | OffsetFunction) | undefined;
+  alignOffset?: number | OffsetFunction | undefined;
   /**
    * An element or a rectangle that delimits the area that the popup is confined to.
    * @default 'clipping-ancestors'
@@ -667,7 +672,7 @@ export interface UseAnchorPositioningSharedParameters {
 
 export interface UseAnchorPositioningParameters extends useAnchorPositioning.SharedParameters {
   keepMounted?: boolean | undefined;
-  trackCursorAxis?: ('none' | 'x' | 'y' | 'both') | undefined;
+  trackCursorAxis?: 'none' | 'x' | 'y' | 'both' | undefined;
   floatingRootContext?: FloatingRootContext | undefined;
   mounted: boolean;
   disableAnchorTracking: boolean;

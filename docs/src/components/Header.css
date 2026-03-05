@@ -1,6 +1,10 @@
+@import 'docs/src/css/custom-media.css';
+
 @layer components {
   .Header {
-    @apply text-md;
+    font-size: var(--text-md);
+    line-height: var(--text-md--line-height);
+    letter-spacing: var(--text-md--letter-spacing);
     position: absolute;
     left: 0;
     top: 0;
@@ -101,5 +105,68 @@
       outline: 2px solid var(--color-blue);
       outline-offset: -1px;
     }
+  }
+
+  .HeaderDesktopActions {
+    display: none;
+    gap: 1.5rem;
+
+    @media (--lg) {
+      display: flex;
+    }
+  }
+
+  .HeaderMobileActions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    @media (--lg) {
+      display: none;
+    }
+  }
+
+  .HeaderMobileSearch {
+    display: flex;
+    padding-inline: 1rem;
+  }
+
+  .HeaderNavTrigger {
+    white-space: nowrap;
+  }
+
+  .HeaderNavTriggerBars {
+    display: flex;
+    width: 1rem;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .HeaderNavTriggerBars::before,
+  .HeaderNavTriggerBars::after {
+    content: '';
+    display: block;
+    width: 0.875rem;
+    height: 2px;
+    background-color: currentColor;
+  }
+
+  .HeaderResourceRow {
+    display: flex;
+    flex: 1;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+
+  .HeaderVersion {
+    font-size: var(--text-md);
+    line-height: var(--text-md--line-height);
+    letter-spacing: var(--text-md--letter-spacing);
+    color: var(--color-gray-600);
+  }
+
+  .HeaderGitHubIcon {
+    margin-top: -2px;
   }
 }

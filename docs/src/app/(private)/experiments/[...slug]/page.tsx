@@ -3,10 +3,10 @@ import { notFound } from 'next/navigation';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { globby } from 'globby';
-import { Sidebar } from 'docs/src/components/Experiments/Sidebar';
-import { ExperimentRoot } from 'docs/src/components/Experiments/ExperimentRoot';
-import classes from 'docs/src/components/Experiments/ExperimentRoot.module.css';
-import { ExperimentSettingsProvider } from 'docs/src/components/Experiments/SettingsPanel';
+import { Sidebar } from '../_components/Sidebar';
+import { ExperimentRoot } from '../_components/ExperimentRoot';
+import classes from '../_components/ExperimentRoot.module.css';
+import { ExperimentSettingsProvider } from '../_components/SettingsPanel';
 
 const currentDirectory = dirname(fileURLToPath(import.meta.url));
 const experimentsRootDirectory = resolve(currentDirectory, '..');
@@ -48,9 +48,12 @@ export default async function Page(props: Props) {
 }
 
 export async function generateStaticParams() {
-  const files = await globby(['**/*.tsx', '!infra/**/*', '!**/page.tsx', '!**/layout.tsx'], {
-    cwd: experimentsRootDirectory,
-  });
+  const files = await globby(
+    ['**/*.tsx', '!infra/**/*', '!**/page.tsx', '!**/layout.tsx', '!_components/**/*'],
+    {
+      cwd: experimentsRootDirectory,
+    },
+  );
 
   return files
     .filter((file) => file.split('/').length <= 2)
