@@ -116,19 +116,19 @@
 .Link {
   outline: 0;
   color: var(--color-blue);
-  text-decoration-line: none;
+  text-decoration-line: underline;
   text-decoration-thickness: 1px;
   text-decoration-color: color-mix(in oklab, var(--color-blue), transparent 40%);
   text-underline-offset: 2px;
 
   @media (hover: hover) {
     &:hover {
-      text-decoration-line: underline;
+      text-decoration-color: var(--color-blue);
     }
   }
 
   &[data-popup-open] {
-    text-decoration-line: underline;
+    text-decoration-color: var(--color-blue);
   }
 
   &:focus-visible {

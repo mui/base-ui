@@ -27,7 +27,7 @@ describe('<Menu.LinkItem />', () => {
       return <div data-testid="location">{location.pathname}</div>;
     }
 
-    it.skipIf(isJSDOM)('react-router <Link>', async () => {
+    it.skipIf(isJSDOM)('react-router <Link> activates with Enter and Space', async () => {
       const { user } = await render(
         <MemoryRouter initialEntries={['/']}>
           <Routes>
@@ -85,6 +85,83 @@ describe('<Menu.LinkItem />', () => {
       expect(screen.getByText(/page one/i)).not.to.equal(null);
 
       expect(locationDisplay).to.have.text('/');
+
+      act(() => {
+        link2.focus();
+      });
+
+      await waitFor(() => {
+        expect(link2).toHaveFocus();
+      });
+
+      await user.keyboard('[Space]');
+
+      expect(locationDisplay).to.have.text('/two');
+
+      expect(screen.getByText(/page two/i)).not.to.equal(null);
+
+      act(() => {
+        link1.focus();
+      });
+
+      await waitFor(() => {
+        expect(link1).toHaveFocus();
+      });
+
+      await user.keyboard('[Space]');
+
+      expect(screen.getByText(/page one/i)).not.to.equal(null);
+
+      expect(locationDisplay).to.have.text('/');
     });
+
+    it.skipIf(isJSDOM)(
+      'does not navigate when Space is pressed during an active typeahead session',
+      async () => {
+        const { user } = await render(
+          <MemoryRouter initialEntries={['/']}>
+            <Routes>
+              <Route path="/" element={<One />} />
+              <Route path="/two" element={<Two />} />
+            </Routes>
+
+            <LocationDisplay />
+
+            <Menu.Root open>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.LinkItem render={<Link to="/" />}>Item One</Menu.LinkItem>
+                    <Menu.LinkItem render={<Link to="/two" />}>Item Two</Menu.LinkItem>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </MemoryRouter>,
+        );
+
+        const [link1, link2] = screen.getAllByRole('menuitem');
+        const locationDisplay = screen.getByTestId('location');
+
+        act(() => {
+          link1.focus();
+        });
+
+        await waitFor(() => {
+          expect(link1).toHaveFocus();
+        });
+
+        await user.keyboard('Item T');
+
+        await waitFor(() => {
+          expect(link2).toHaveFocus();
+        });
+
+        expect(locationDisplay).to.have.text('/');
+
+        await user.keyboard('[Space]');
+        expect(locationDisplay).to.have.text('/');
+      },
+    );
   });
 });

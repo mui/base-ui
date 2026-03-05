@@ -21,6 +21,12 @@
   gap: 8px;
 }
 
+.controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+}
+
 .button {
   box-sizing: border-box;
   display: flex;

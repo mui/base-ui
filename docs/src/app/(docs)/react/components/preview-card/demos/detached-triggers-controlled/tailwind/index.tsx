@@ -67,7 +67,7 @@ export default function PreviewCardDetachedTriggersControlledDemo() {
         <p className="m-0 text-base leading-6 text-gray-900 text-balance">
           Discover{' '}
           <PreviewCard.Trigger
-            className="text-blue-800 no-underline decoration-blue-800/60 decoration-1 underline-offset-2 outline-0 hover:underline data-[popup-open]:underline focus-visible:rounded-[2px] focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-blue-800"
+            className="text-blue-800 underline decoration-blue-800/60 decoration-1 underline-offset-2 outline-0 hover:decoration-blue-800 data-[popup-open]:decoration-blue-800 focus-visible:rounded-[2px] focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-blue-800"
             handle={demoPreviewCard}
             href="https://en.wikipedia.org/wiki/Typography"
             id="trigger-1"
@@ -77,7 +77,7 @@ export default function PreviewCardDetachedTriggersControlledDemo() {
           </PreviewCard.Trigger>
           ,{' '}
           <PreviewCard.Trigger
-            className="text-blue-800 no-underline decoration-blue-800/60 decoration-1 underline-offset-2 outline-0 hover:underline data-[popup-open]:underline focus-visible:rounded-[2px] focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-blue-800"
+            className="text-blue-800 underline decoration-blue-800/60 decoration-1 underline-offset-2 outline-0 hover:decoration-blue-800 data-[popup-open]:decoration-blue-800 focus-visible:rounded-[2px] focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-blue-800"
             handle={demoPreviewCard}
             href="https://en.wikipedia.org/wiki/Industrial_design"
             id="trigger-2"
@@ -87,7 +87,7 @@ export default function PreviewCardDetachedTriggersControlledDemo() {
           </PreviewCard.Trigger>
           , or{' '}
           <PreviewCard.Trigger
-            className="text-blue-800 no-underline decoration-blue-800/60 decoration-1 underline-offset-2 outline-0 hover:underline data-[popup-open]:underline focus-visible:rounded-[2px] focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-blue-800"
+            className="text-blue-800 underline decoration-blue-800/60 decoration-1 underline-offset-2 outline-0 hover:decoration-blue-800 data-[popup-open]:decoration-blue-800 focus-visible:rounded-[2px] focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-blue-800"
             handle={demoPreviewCard}
             href="https://en.wikipedia.org/wiki/Art"
             id="trigger-3"

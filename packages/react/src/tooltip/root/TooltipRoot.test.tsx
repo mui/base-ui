@@ -822,6 +822,26 @@ describe('<Tooltip.Root />', () => {
         expect(screen.queryByText('Content')).to.equal(null);
       });
 
+      it('should open when the trigger was clicked before delay duration and closeOnClick is false', async () => {
+        await render(<TestTooltip triggerProps={{ closeOnClick: false }} />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        clock.tick(OPEN_DELAY / 2);
+
+        fireEvent.click(trigger);
+
+        clock.tick(OPEN_DELAY / 2);
+
+        await flushMicrotasks();
+
+        expect(screen.getByText('Content')).not.to.equal(null);
+      });
+
       it('should close when the trigger is clicked after delay duration', async () => {
         await render(<TestTooltip />);
 
@@ -840,6 +860,26 @@ describe('<Tooltip.Root />', () => {
         fireEvent.click(trigger);
 
         expect(screen.queryByText('Content')).to.equal(null);
+      });
+
+      it('should not close when the trigger is clicked after delay duration and closeOnClick is false', async () => {
+        await render(<TestTooltip triggerProps={{ closeOnClick: false }} />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        clock.tick(OPEN_DELAY);
+
+        await flushMicrotasks();
+
+        expect(screen.getByText('Content')).not.to.equal(null);
+
+        fireEvent.click(trigger);
+
+        expect(screen.getByText('Content')).not.to.equal(null);
       });
     });
   });

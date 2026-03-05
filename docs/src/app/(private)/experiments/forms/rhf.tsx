@@ -16,10 +16,7 @@ import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import styles from './form.module.css';
 import { CheckIcon, ChevronUpDownIcon, HorizontalRuleIcon } from './_icons';
 
-import {
-  SettingsMetadata,
-  useExperimentSettings,
-} from '../../../../components/Experiments/SettingsPanel';
+import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
 
 interface Settings {
   validationMode: Mode;

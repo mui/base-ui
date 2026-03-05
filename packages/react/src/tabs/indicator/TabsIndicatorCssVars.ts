@@ -25,7 +25,7 @@ export enum TabsIndicatorCssVars {
    */
   activeTabWidth = '--active-tab-width',
   /**
-   * Indicates the width of the tab if it is active.
+   * Indicates the height of the tab if it is active.
    * @type {number}
    */
   activeTabHeight = '--active-tab-height',

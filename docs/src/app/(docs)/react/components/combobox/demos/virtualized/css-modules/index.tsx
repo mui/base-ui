@@ -5,15 +5,12 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import styles from './index.module.css';
 
 export default function ExampleVirtualizedCombobox() {
-  const [open, setOpen] = React.useState(false);
   const virtualizerRef = React.useRef<Virtualizer | null>(null);
 
   return (
     <Combobox.Root
       virtualized
       items={virtualizedItems}
-      open={open}
-      onOpenChange={setOpen}
       itemToStringLabel={getItemLabel}
       onItemHighlighted={(item, { reason, index }) => {
         const virtualizer = virtualizerRef.current;
@@ -43,7 +40,7 @@ export default function ExampleVirtualizedCombobox() {
           <Combobox.Popup className={styles.Popup}>
             <Combobox.Empty className={styles.Empty}>No items found.</Combobox.Empty>
             <Combobox.List className={styles.List}>
-              <VirtualizedList open={open} virtualizerRef={virtualizerRef} />
+              <VirtualizedList virtualizerRef={virtualizerRef} />
             </Combobox.List>
           </Combobox.Popup>
         </Combobox.Positioner>
@@ -53,10 +50,8 @@ export default function ExampleVirtualizedCombobox() {
 }
 
 function VirtualizedList({
-  open,
   virtualizerRef,
 }: {
-  open: boolean;
   virtualizerRef: React.RefObject<Virtualizer | null>;
 }) {
   const filteredItems = Combobox.useFilteredItems<VirtualizedItem>();
@@ -64,7 +59,6 @@ function VirtualizedList({
   const scrollElementRef = React.useRef<HTMLDivElement | null>(null);
 
   const virtualizer = useVirtualizer({
-    enabled: open,
     count: filteredItems.length,
     getScrollElement: () => scrollElementRef.current,
     estimateSize: () => 32,

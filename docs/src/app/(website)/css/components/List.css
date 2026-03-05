@@ -1,14 +1,16 @@
-.List {
-  box-sizing: border-box;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
+@layer components {
+  .List {
+    box-sizing: border-box;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
 
-.ListItem {
-  border-bottom-width: 1px;
-  border-bottom-style: solid;
-  border-bottom-color: var(--border);
-  padding-block-start: 12px;
-  padding-block-end: 12px;
+  .ListItem {
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    border-bottom-color: var(--border);
+    padding-block-start: 12px;
+    padding-block-end: 12px;
+  }
 }

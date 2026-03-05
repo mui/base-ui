@@ -25,9 +25,9 @@ export async function AttributesReferenceTable({
 }: AttributesReferenceTableProps) {
   return (
     <React.Fragment>
-      <Accordion.Root {...props} className={clsx(props.className, 'xs:hidden')}>
+      <Accordion.Root {...props} className={clsx(props.className, 'bp0:bui-d-n')}>
         <Accordion.HeaderRow>
-          <Accordion.HeaderCell className="pl-[0.75rem]">Attribute</Accordion.HeaderCell>
+          <Accordion.HeaderCell className="bui-pl-3">Attribute</Accordion.HeaderCell>
         </Accordion.HeaderRow>
         {Object.keys(data).map(async (name, index) => {
           const attribute = data[name];
@@ -49,9 +49,9 @@ export async function AttributesReferenceTable({
               }}
             >
               <Accordion.Trigger index={index}>
-                <TableCode className="text-navy">{name}</TableCode>
+                <TableCode style={{ color: 'var(--color-navy)' }}>{name}</TableCode>
                 <svg
-                  className="AccordionIcon ml-auto mr-1"
+                  className="AccordionIcon bui-ml-a bui-mr-1"
                   width="10"
                   height="10"
                   viewBox="0 0 10 10"
@@ -62,7 +62,7 @@ export async function AttributesReferenceTable({
                 </svg>
               </Accordion.Trigger>
               <Accordion.Panel>
-                <Accordion.Content className="flex flex-col gap-3 p-4 text-md text-pretty">
+                <Accordion.Content className="ReferenceCompactPanel">
                   <AttributeDescription />
                 </Accordion.Content>
               </Accordion.Panel>
@@ -70,19 +70,17 @@ export async function AttributesReferenceTable({
           );
         })}
       </Accordion.Root>
-      <Table.Root {...props} className={clsx('hidden xs:block', props.className)}>
+      <Table.Root {...props} className={clsx('bui-d-n', 'bp0:bui-d-b', props.className)}>
         <Table.Head>
           <Table.Row>
             {/* widths must match the props table grid layout */}
-            <Table.ColumnHeader className="w-full xs:w-48 sm:w-56 md:w-[calc(5/16.5*100%)]">
-              Attribute
-            </Table.ColumnHeader>
-            <Table.ColumnHeader className="xs:w-2/3 md:w-[calc(11.5/16.5*100%)]">
-              <span className="sr-only xs:not-sr-only xs:contents">Description</span>
+            <Table.ColumnHeader className="ReferenceWideNameColumn">Attribute</Table.ColumnHeader>
+            <Table.ColumnHeader className="ReferenceWideDescriptionColumn">
+              Description
             </Table.ColumnHeader>
             {/* A cell to maintain a layout consistent with the props table */}
-            <Table.ColumnHeader className="w-10 max-xs:hidden" aria-hidden>
-              <span className="invisible">{'-'}</span>
+            <Table.ColumnHeader className="bui-w-10" aria-hidden>
+              <span className="bui-v-h">{'-'}</span>
             </Table.ColumnHeader>
           </Table.Row>
         </Table.Head>
@@ -98,7 +96,9 @@ export async function AttributesReferenceTable({
             return (
               <Table.Row key={name}>
                 <Table.RowHeader>
-                  <TableCode className="text-navy">{name}</TableCode>
+                  <TableCode className="bui-ws-nw" style={{ color: 'var(--color-navy)' }}>
+                    {name}
+                  </TableCode>
                 </Table.RowHeader>
                 <Table.Cell colSpan={2}>
                   <AttributeDescription />
