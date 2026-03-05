@@ -2,6 +2,7 @@
   .Code {
     font-family: var(--font-mono);
     letter-spacing: normal;
+    color: var(--color-blue);
   }
 
   .Code-component {
