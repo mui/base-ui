@@ -19,7 +19,7 @@ import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 import { contains, getFloatingFocusElement } from '../../floating-ui-react/utils';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button';
-import type { FieldRoot } from '../../field/root/FieldRoot';
+import type { FieldRootState } from '../../field/root/FieldRoot';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
@@ -28,7 +28,7 @@ const BOUNDARY_OFFSET = 2;
 const SELECTED_DELAY = 400;
 const UNSELECTED_DELAY = 200;
 
-const stateAttributesMapping: StateAttributesMapping<SelectTrigger.State> = {
+const stateAttributesMapping: StateAttributesMapping<SelectTriggerState> = {
   ...pressableTriggerOpenStateMapping,
   ...fieldValidityMapping,
   value: () => null,
@@ -267,7 +267,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   // <Toolbar.Button render={<Select.Trigger />} />
   props.role = 'combobox';
 
-  const state: SelectTrigger.State = {
+  const state: SelectTriggerState = {
     ...fieldState,
     open,
     disabled,
@@ -284,7 +284,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   });
 });
 
-export interface SelectTriggerState extends FieldRoot.State {
+export interface SelectTriggerState extends FieldRootState {
   /**
    * Whether the select popup is currently open.
    */
@@ -304,9 +304,11 @@ export interface SelectTriggerState extends FieldRoot.State {
 }
 
 export interface SelectTriggerProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', SelectTrigger.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', SelectTriggerState> {
   children?: React.ReactNode;
-  /** Whether the component should ignore user interaction. */
+  /**
+   * Whether the component should ignore user interaction.
+   */
   disabled?: boolean | undefined;
 }
 

@@ -64,7 +64,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     },
   });
 
-  const state: SelectScrollArrow.State = {
+  const state: SelectScrollArrowState = {
     direction,
     visible,
     side,
@@ -206,15 +206,27 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 });
 
 export interface SelectScrollArrowState {
+  /**
+   * The direction of the element.
+   */
   direction: 'up' | 'down';
+  /**
+   * Whether the element is visible.
+   */
   visible: boolean;
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side | 'none';
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
 }
 
 export interface SelectScrollArrowProps extends BaseUIComponentProps<
   'div',
-  SelectScrollArrow.State
+  SelectScrollArrowState
 > {
   direction: 'up' | 'down';
   /**
