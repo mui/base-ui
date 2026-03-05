@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { CodeWithSyntax } from 'docs/src/components/CodeWithSyntax';
+import { Code } from 'docs/src/components/Code';
 import { releases } from 'docs/src/data/releases';
 import './ReleaseTimeline.css';
 
@@ -17,15 +17,7 @@ function renderHighlight(text: string): React.ReactNode {
   const parts = text.split(/`([^`]+)`/);
   return parts.length === 1
     ? text
-    : parts.map((part, i) =>
-        i % 2 === 1 ? (
-          <CodeWithSyntax key={i} data-inline style={{ color: 'var(--syntax-default)' }}>
-            {part}
-          </CodeWithSyntax>
-        ) : (
-          part
-        ),
-      );
+    : parts.map((part, i) => (i % 2 === 1 ? <Code key={i}>{part}</Code> : part));
 }
 
 export function ReleaseTimeline() {
