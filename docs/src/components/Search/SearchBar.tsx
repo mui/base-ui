@@ -18,6 +18,8 @@ import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
 import { stringToUrl } from '../QuickNav/rehypeSlug.mjs';
 import './SearchBar.css';
 
+const showPrivatePages = process.env.SHOW_PRIVATE_PAGES === 'true';
+
 // Semver pattern to detect version headings (e.g., v1.0.0, v1.0.0-rc.0)
 // Used to match the behavior of rehypeConcatHeadings on the Releases page
 const SEMVER_PATTERN =
@@ -87,12 +89,10 @@ export function SearchBar({
   sitemap: sitemapImport,
   enableKeyboardShortcut = false,
   containedScroll = false,
-  isPrivate = false,
 }: {
   sitemap: () => Promise<{ sitemap?: Sitemap }>;
   enableKeyboardShortcut?: boolean;
   containedScroll?: boolean;
-  isPrivate?: boolean;
 }) {
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -125,7 +125,7 @@ export function SearchBar({
     enableStemming: true,
     includeCategoryInGroup: true,
     excludeSections: true,
-    isPrivate,
+    showPrivatePages,
   });
 
   // Update search results when hook results change

@@ -10,7 +10,7 @@ import { sitemap } from 'docs/src/app/sitemap';
 import 'docs/src/css/index.css';
 import './layout.css';
 
-const isPrivate = process.env.DEPLOY_ENV !== 'production' && process.env.DEPLOY_ENV !== 'staging';
+const showPrivatePages = process.env.SHOW_PRIVATE_PAGES === 'true';
 
 export default function Layout({ children }: React.PropsWithChildren) {
   return (
@@ -46,7 +46,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
               <div className="RootLayoutContainer">
                 <div className="RootLayoutContent">
                   <div className="ContentLayoutRoot">
-                    <Header isPrivate={isPrivate} />
+                    <Header />
                     <SideNav.Root>
                       {sitemap &&
                         Object.entries(sitemap.data).map(([name, section]) => (
@@ -54,7 +54,9 @@ export default function Layout({ children }: React.PropsWithChildren) {
                             <SideNav.Heading>{name}</SideNav.Heading>
                             <SideNav.List>
                               {section.pages
-                                .filter((page) => (page.audience === 'private' ? isPrivate : true))
+                                .filter((page) =>
+                                  page.audience === 'private' ? showPrivatePages : true,
+                                )
                                 .map((page) => {
                                   const isNewPage = page.tags?.includes('New');
                                   const isPreviewPage = page.tags?.includes('Preview');

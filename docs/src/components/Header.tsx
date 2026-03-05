@@ -14,7 +14,9 @@ export const titleMap: Record<string, string> = {
 
 export const HEADER_HEIGHT = 48;
 
-export function Header({ isPrivate }: { isPrivate: boolean }) {
+const showPrivatePages = process.env.SHOW_PRIVATE_PAGES === 'true';
+
+export function Header() {
   return (
     <header className="Header">
       <div className="HeaderInner">
@@ -23,7 +25,7 @@ export function Header({ isPrivate }: { isPrivate: boolean }) {
           <Logo aria-label="Base UI" />
         </NextLink>
         <div className="HeaderDesktopActions">
-          <Search containedScroll enableKeyboardShortcut isPrivate={isPrivate} />
+          <Search containedScroll enableKeyboardShortcut />
           <a
             className="HeaderLink"
             href="https://www.npmjs.com/package/@base-ui/react"
@@ -39,7 +41,7 @@ export function Header({ isPrivate }: { isPrivate: boolean }) {
         </div>
         <div className="HeaderMobileActions">
           <div className="HeaderMobileSearch">
-            <Search isPrivate={isPrivate} />
+            <Search />
           </div>
           {sitemap && (
             <MobileNav.Root>
@@ -55,7 +57,7 @@ export function Header({ isPrivate }: { isPrivate: boolean }) {
                       <MobileNav.Heading>{name}</MobileNav.Heading>
                       <MobileNav.List>
                         {section.pages
-                          .filter((page) => (page.audience === 'private' ? isPrivate : true))
+                          .filter((page) => (page.audience === 'private' ? showPrivatePages : true))
                           .map((page) => (
                             <MobileNav.Item
                               key={page.title}
