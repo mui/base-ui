@@ -47,8 +47,11 @@ export interface ButtonState {
   disabled: boolean;
 }
 
+export type ButtonPreventableEvents = useButton.PreventableEvents;
+
 export interface ButtonProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', ButtonState> {
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', ButtonState, ButtonPreventableEvents> {
   /**
    * Whether the button should be focusable when disabled.
    * @default false
@@ -57,6 +60,7 @@ export interface ButtonProps
 }
 
 export namespace Button {
+  export type PreventableEvents = ButtonPreventableEvents;
   export type State = ButtonState;
   export type Props = ButtonProps;
 }

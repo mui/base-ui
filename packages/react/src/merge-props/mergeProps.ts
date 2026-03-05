@@ -3,10 +3,11 @@ import { mergeObjects } from '@base-ui/utils/mergeObjects';
 import type { BaseUIEvent, WithBaseUIEvent } from '../utils/types';
 
 type ElementType = React.ElementType;
-type PropsOf<T extends React.ElementType> = WithBaseUIEvent<React.ComponentPropsWithRef<T>>;
-type InputProps<T extends React.ElementType> =
-  | PropsOf<T>
-  | ((otherProps: PropsOf<T>) => PropsOf<T>)
+type PropsOf<T extends React.ElementType, PE extends string = string> =
+  WithBaseUIEvent<React.ComponentPropsWithRef<T>, PE>;
+type InputProps<T extends React.ElementType, PE extends string = string> =
+  | PropsOf<T, PE>
+  | ((otherProps: PropsOf<T, PE>) => PropsOf<T, PE>)
   | undefined;
 
 const EMPTY_PROPS = {};
@@ -41,25 +42,28 @@ const EMPTY_PROPS = {};
  * @returns The merged props.
  * @public
  */
-export function mergeProps<T extends ElementType>(
-  a: InputProps<T>,
-  b: InputProps<T>,
-  c: InputProps<T>,
-  d: InputProps<T>,
-  e: InputProps<T>,
-): PropsOf<T>;
-export function mergeProps<T extends ElementType>(
-  a: InputProps<T>,
-  b: InputProps<T>,
-  c: InputProps<T>,
-  d: InputProps<T>,
-): PropsOf<T>;
-export function mergeProps<T extends ElementType>(
-  a: InputProps<T>,
-  b: InputProps<T>,
-  c: InputProps<T>,
-): PropsOf<T>;
-export function mergeProps<T extends ElementType>(a: InputProps<T>, b: InputProps<T>): PropsOf<T>;
+export function mergeProps<T extends ElementType, PE extends string = string>(
+  a: InputProps<T, PE>,
+  b: InputProps<T, PE>,
+  c: InputProps<T, PE>,
+  d: InputProps<T, PE>,
+  e: InputProps<T, PE>,
+): PropsOf<T, PE>;
+export function mergeProps<T extends ElementType, PE extends string = string>(
+  a: InputProps<T, PE>,
+  b: InputProps<T, PE>,
+  c: InputProps<T, PE>,
+  d: InputProps<T, PE>,
+): PropsOf<T, PE>;
+export function mergeProps<T extends ElementType, PE extends string = string>(
+  a: InputProps<T, PE>,
+  b: InputProps<T, PE>,
+  c: InputProps<T, PE>,
+): PropsOf<T, PE>;
+export function mergeProps<T extends ElementType, PE extends string = string>(
+  a: InputProps<T, PE>,
+  b: InputProps<T, PE>,
+): PropsOf<T, PE>;
 export function mergeProps(a: any, b: any, c?: any, d?: any, e?: any) {
   // We need to mutably own `merged`
   let merged = { ...resolvePropsGetter(a, EMPTY_PROPS) };
@@ -94,12 +98,14 @@ export function mergeProps(a: any, b: any, c?: any, d?: any, e?: any) {
  * @see mergeProps
  * @public
  */
-export function mergePropsN<T extends ElementType>(props: InputProps<T>[]): PropsOf<T> {
+export function mergePropsN<T extends ElementType, PE extends string = string>(
+  props: InputProps<T, PE>[],
+): PropsOf<T, PE> {
   if (props.length === 0) {
-    return EMPTY_PROPS as PropsOf<T>;
+    return EMPTY_PROPS as PropsOf<T, PE>;
   }
   if (props.length === 1) {
-    return resolvePropsGetter(props[0], EMPTY_PROPS) as PropsOf<T>;
+    return resolvePropsGetter(props[0], EMPTY_PROPS) as PropsOf<T, PE>;
   }
 
   // We need to mutably own `merged`
@@ -109,11 +115,11 @@ export function mergePropsN<T extends ElementType>(props: InputProps<T>[]): Prop
     merged = mergeOne(merged, props[i]);
   }
 
-  return merged as PropsOf<T>;
+  return merged as PropsOf<T, PE>;
 }
 
-function mergeOne<T extends ElementType>(merged: Record<string, any>, inputProps: InputProps<T>) {
-  if (isPropsGetter(inputProps)) {
+function mergeOne(merged: Record<string, any>, inputProps: Record<string, any> | Function | undefined) {
+  if (typeof inputProps === 'function') {
     return inputProps(merged);
   }
   return mutablyMergeInto(merged, inputProps);
@@ -122,9 +128,9 @@ function mergeOne<T extends ElementType>(merged: Record<string, any>, inputProps
 /**
  * Merges two sets of props. In case of conflicts, the external props take precedence.
  */
-function mutablyMergeInto<T extends ElementType>(
+function mutablyMergeInto(
   mergedProps: Record<string, any>,
-  externalProps: React.ComponentPropsWithRef<T> | undefined,
+  externalProps: Record<string, any> | undefined,
 ) {
   if (!externalProps) {
     return mergedProps;
@@ -173,21 +179,15 @@ function isEventHandler(key: string, value: unknown) {
   );
 }
 
-function isPropsGetter<T extends React.ComponentType>(
-  inputProps: InputProps<T>,
-): inputProps is (props: PropsOf<T>) => PropsOf<T> {
-  return typeof inputProps === 'function';
-}
-
-function resolvePropsGetter<T extends ElementType>(
-  inputProps: InputProps<ElementType>,
-  previousProps: PropsOf<T>,
+function resolvePropsGetter(
+  inputProps: Record<string, any> | Function | undefined,
+  previousProps: Record<string, any>,
 ) {
-  if (isPropsGetter(inputProps)) {
+  if (typeof inputProps === 'function') {
     return inputProps(previousProps);
   }
 
-  return inputProps ?? (EMPTY_PROPS as PropsOf<T>);
+  return inputProps ?? EMPTY_PROPS;
 }
 
 function mergeEventHandlers(ourHandler: Function | undefined, theirHandler: Function | undefined) {
@@ -246,3 +246,22 @@ export function mergeClassNames(
 function isSyntheticEvent(event: unknown): event is React.SyntheticEvent {
   return event != null && typeof event === 'object' && 'nativeEvent' in event;
 }
+
+/**
+ * Use with `satisfies` on the internal props object of a `mergeProps` call
+ * to verify at compile time that all declared preventable event handlers are present.
+ *
+ * @example
+ * ```tsx
+ * mergeProps<'button', MyComponent.PreventableEvents>(
+ *   {
+ *     onFocus() { ... },
+ *     onBlur() { ... },
+ *   } satisfies RequiredHandlers<MyComponent.OwnPreventableEvents>,
+ *   elementProps,
+ *   getButtonProps,
+ * )
+ * ```
+ * @public
+ */
+export type RequiredHandlers<PE extends string> = { [K in PE]: Function } & Record<string, unknown>;

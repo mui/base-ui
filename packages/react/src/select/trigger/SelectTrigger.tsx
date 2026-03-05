@@ -17,7 +17,7 @@ import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { selectors } from '../store';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 import { contains, getFloatingFocusElement } from '../../floating-ui-react/utils';
-import { mergeProps } from '../../merge-props';
+import { mergeProps, type RequiredHandlers } from '../../merge-props';
 import { useButton } from '../../use-button';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -166,20 +166,20 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     return listElement?.id ?? getFloatingFocusElement(positionerElement)?.id;
   }, [listElement, positionerElement]);
 
-  const props: HTMLProps = mergeProps<'button'>(
+  const props: HTMLProps = mergeProps<'button', SelectTrigger.PreventableEvents>(
     triggerProps,
     {
       id,
       role: 'combobox',
-      'aria-expanded': open ? 'true' : 'false',
-      'aria-haspopup': 'listbox',
+      'aria-expanded': open ? ('true' as const) : ('false' as const),
+      'aria-haspopup': 'listbox' as const,
       'aria-controls': open ? ariaControlsId : undefined,
       'aria-labelledby': labelId,
       'aria-readonly': readOnly || undefined,
       'aria-required': required || undefined,
       tabIndex: disabled ? -1 : 0,
       ref: mergedRef,
-      onFocus(event) {
+      onFocus(event: React.FocusEvent) {
         setFocused(true);
 
         // The popup element shouldn't obscure the focused trigger.
@@ -196,7 +196,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
           store.set('forceMount', true);
         });
       },
-      onBlur(event) {
+      onBlur(event: React.FocusEvent) {
         // If focus is moving into the popup, don't count it as a blur.
         if (contains(positionerElement, event.relatedTarget)) {
           return;
@@ -215,7 +215,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
       onKeyDown() {
         keyboardActiveRef.current = true;
       },
-      onMouseDown(event) {
+      onMouseDown(event: React.MouseEvent) {
         if (open) {
           return;
         }
@@ -257,7 +257,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
           doc.addEventListener('mouseup', handleMouseUp, { once: true });
         });
       },
-    },
+    } satisfies RequiredHandlers<SelectTrigger.OwnPreventableEvents>,
     validation.getValidationProps,
     elementProps,
     getButtonProps,
@@ -303,14 +303,35 @@ export interface SelectTriggerState extends FieldRoot.State {
   placeholder: boolean;
 }
 
+/**
+ * Event handlers that SelectTrigger itself defines in its mergeProps literal object.
+ */
+export type SelectTriggerOwnPreventableEvents =
+  | 'onFocus'
+  | 'onBlur'
+  | 'onPointerMove'
+  | 'onKeyDown'
+  | 'onMouseDown';
+
+/**
+ * All preventable event handlers (own + from useButton).
+ */
+export type SelectTriggerPreventableEvents =
+  | SelectTriggerOwnPreventableEvents
+  | useButton.PreventableEvents;
+
 export interface SelectTriggerProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', SelectTrigger.State> {
+  extends
+    NativeButtonProps,
+    BaseUIComponentProps<'button', SelectTriggerState, SelectTriggerPreventableEvents> {
   children?: React.ReactNode;
   /** Whether the component should ignore user interaction. */
   disabled?: boolean | undefined;
 }
 
 export namespace SelectTrigger {
+  export type OwnPreventableEvents = SelectTriggerOwnPreventableEvents;
+  export type PreventableEvents = SelectTriggerPreventableEvents;
   export type State = SelectTriggerState;
   export type Props = SelectTriggerProps;
 }

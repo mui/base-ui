@@ -20,22 +20,32 @@ type WithPreventBaseUIHandler<T> = T extends (event: infer E) => any
     : T;
 
 /**
- * Adds a `preventBaseUIHandler` method to all event handlers.
+ * Adds a `preventBaseUIHandler` method to event handlers whose key is in `PE`.
+ * - `string` (default): all event handlers get `preventBaseUIHandler` — backward compatible.
+ * - A concrete union (e.g. `'onClick' | 'onKeyDown'`): only those handlers get `preventBaseUIHandler`.
+ * - `never`: no handlers get `preventBaseUIHandler`.
  */
-export type WithBaseUIEvent<T> = {
-  [K in keyof T]: WithPreventBaseUIHandler<T[K]>;
+export type WithBaseUIEvent<T, PE extends string = string> = {
+  [K in keyof T]: K extends PE ? WithPreventBaseUIHandler<T[K]> : T[K];
 };
 
 /**
  * Props shared by all Base UI components.
  * Contains `className` (string or callback taking the component's state as an argument) and `render` (function to customize rendering).
+ *
+ * @template PreventableEvents Union of event handler keys (e.g. `'onClick' | 'onKeyDown'`) for which
+ *   `event.preventBaseUIHandler()` is available.
+ *   - `string` (default): all events get `preventBaseUIHandler` — backward compatibility for non-migrated components.
+ *   - `never`: no events get `preventBaseUIHandler` — for components with no internal event handlers.
+ *   - A concrete union: only those events get `preventBaseUIHandler`.
  */
 export type BaseUIComponentProps<
   ElementType extends React.ElementType,
   State,
+  PreventableEvents extends string = string,
   RenderFunctionProps = HTMLProps,
 > = Omit<
-  WithBaseUIEvent<React.ComponentPropsWithRef<ElementType>>,
+  WithBaseUIEvent<React.ComponentPropsWithRef<ElementType>, PreventableEvents>,
   'className' | 'color' | 'defaultValue' | 'defaultChecked'
 > & {
   /**
