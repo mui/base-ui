@@ -24,5 +24,16 @@
         text-decoration-color: var(--color-blue);
       }
     }
+
+    /* Code handles its own text decoration when inside a Link */
+    &:has(> .Code) {
+      text-decoration: none;
+    }
+
+    @media (hover: hover) {
+      &:has(> .Code):hover {
+        text-decoration: none;
+      }
+    }
   }
 }

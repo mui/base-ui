@@ -8,10 +8,10 @@
 
   /* Variants */
   .Code-component {
+    padding: 0.125em 0.2em;
+    border-radius: 2px;
     color: var(--color-blue);
-    background-color: color-mix(in oklab, var(--color-blue), transparent 88%);
-    border-radius: var(--radius-sm);
-    padding-inline: 0.25em;
+    background-color: var(--color-inline-highlight);
   }
 
   .Code-prop {
@@ -31,11 +31,36 @@
   }
 
   /* Inside a link */
-  a .Code,
-  .Link .Code {
+  .Link > .Code {
     text-decoration: underline;
-    text-decoration-color: currentColor;
+    text-decoration-color: color-mix(in oklab, currentColor, transparent);
     text-underline-offset: 2px;
     text-decoration-thickness: 1px;
+  }
+
+  .Link > .Code-component + svg {
+    color: var(--color-blue);
+  }
+
+  .Link > .Code-prop + svg {
+    color: var(--color-orange);
+  }
+
+  .Link > .Code-html + svg {
+    color: var(--color-green);
+  }
+
+  .Link > .Code-js + svg {
+    color: var(--color-purple);
+  }
+
+  .Link > .Code-css + svg {
+    color: var(--color-violet);
+  }
+
+  @media (hover: hover) {
+    .Link:hover > .Code {
+      text-decoration-color: currentColor;
+    }
   }
 }
