@@ -22,7 +22,10 @@ interface MDXComponents {
 // Maintain spacing between MDX components here
 export const mdxComponents: MDXComponents = {
   a: Link,
-  code: CodeWithSyntax,
+  // Render a different component for <code> tags that need syntax highlighting (e.g. inside prop tables).
+  // When [data-language] is present, it means the <code> tag was tokenized by rehype-pretty-code.
+  code: (props) =>
+    props['data-language'] !== undefined ? <CodeWithSyntax {...props} /> : <Code {...props} />,
   h1: (props) => (
     // Do not wrap heading tags in divs, that confuses Safari Reader
     <h1 className="MdH1" {...props} />

@@ -2,7 +2,7 @@ import * as React from 'react';
 import clsx from 'clsx';
 import { createMdxComponent } from 'docs/src/mdx/createMdxComponent';
 import { inlineMdxComponents } from 'docs/src/mdx-components';
-import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting';
+import { rehypeSyntaxHighlightingWithInlineCode } from 'docs/src/syntax-highlighting';
 import type { AttributeDef } from './types';
 import * as Table from '../Table';
 import * as Accordion from '../Accordion';
@@ -14,7 +14,7 @@ interface AttributesReferenceTableProps extends React.ComponentProps<typeof Tabl
 }
 
 const CREATE_MDX_OPTIONS = {
-  rehypePlugins: rehypeSyntaxHighlighting,
+  rehypePlugins: rehypeSyntaxHighlightingWithInlineCode,
   useMDXComponents: () => inlineMdxComponents,
 };
 
