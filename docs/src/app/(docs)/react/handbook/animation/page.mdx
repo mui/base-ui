@@ -9,8 +9,9 @@ Base UI components can be animated using CSS transitions, CSS animations, or Ja
 
 Use the following Base UI attributes for creating transitions when a component becomes visible or hidden:
 
-- `[data-starting-style]` corresponds to the initial style to transition from.
-- `[data-ending-style]` corresponds to the final style to transition to.
+- <Code variant="css">[data-starting-style]</Code> corresponds to the initial style to transition
+  from.
+- <Code variant="css">[data-ending-style]</Code> corresponds to the final style to transition to.
 
 Transitions are recommended over CSS animations, because a transition can be smoothly cancelled midway.
 For example, if the user closes a popup before it finishes opening, with CSS transitions it will smoothly animate to its closed state without any abrupt changes.
@@ -37,8 +38,10 @@ For example, if the user closes a popup before it finishes opening, with CSS tra
 
 Use the following Base UI attributes for creating CSS animations when a component becomes visible or hidden:
 
-- `[data-open]` corresponds to the style applied when a component becomes visible.
-- `[data-closed]` corresponds to the style applied before a component becomes hidden.
+- <Code variant="css">[data-open]</Code> corresponds to the style applied when a component becomes
+  visible.
+- <Code variant="css">[data-closed]</Code> corresponds to the style applied before a component
+  becomes hidden.
 
 ```css title="popover.css"
 @keyframes scaleIn {
@@ -76,15 +79,15 @@ Use the following Base UI attributes for creating CSS animations when a compone
 
 JavaScript animation libraries such as [Motion](https://motion.dev) require control of the mounting and unmounting lifecycle of components in order for exit animations to play.
 
-Base UI relies on [`element.getAnimations()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/getAnimations) to detect if animations have finished on an element. When using Motion, `opacity` animations are reflected in `element.getAnimations()`, so Base UI automatically waits for the animation finish before unmounting the component. If `opacity` isn't part of your animation (such as in a translating drawer component), you should still animate it using a value close to `1` (such as `opacity: 0.9999`), so that Base UI can detect the animation.
+Base UI relies on [<Code variant="js">element.getAnimations()</Code>](https://developer.mozilla.org/en-US/docs/Web/API/Element/getAnimations) to detect if animations have finished on an element. When using Motion, <Code variant="css">opacity</Code> animations are reflected in <Code variant="js">element.getAnimations()</Code>, so Base UI automatically waits for the animation finish before unmounting the component. If <Code variant="css">opacity</Code> isn't part of your animation (such as in a translating drawer component), you should still animate it using a value close to <Code variant="css">1</Code> (such as <Code variant="css">opacity: 0.9999</Code>), so that Base UI can detect the animation.
 
 ### Animating components unmounted from DOM when closed with Motion
 
 Most popup components like Popover, Dialog, Tooltip, and Menu are unmounted from the DOM when they are closed by default. To animate them with Motion:
 
-- Make the component controlled with the `open` prop so `<AnimatePresence>` can see the state as a child
-- Specify `keepMounted` on the `<Portal>` part
-- Use the `render` prop to compose the `<Popup>` with `motion.div`
+- Make the component controlled with the <Code variant="prop">open</Code> prop so <Code variant="component">AnimatePresence</Code> can see the state as a child
+- Specify <Code variant="prop">keepMounted</Code> on the <Code variant="component">Portal</Code> part
+- Use the <Code variant="prop">render</Code> prop to compose the <Code variant="component">Popup</Code> with <Code variant="component">motion.div</Code>
 
 import { DemoAnimatedPopoverMotionKeepMountedFalse } from './demos/animated-popover-motion-keep-mounted-false';
 
@@ -123,10 +126,10 @@ function App() {
 
 ### Animating components kept in DOM when closed with Motion
 
-Components that specify `keepMounted` remain rendered in the DOM when they are closed. These elements need a different approach to be animated with Motion:
+Components that specify <Code variant="prop">keepMounted</Code> remain rendered in the DOM when they are closed. These elements need a different approach to be animated with Motion:
 
-- Use the `render` prop to compose the `<Popup>` with `motion.div`
-- Animate the properties based on the `open` state, avoiding `<AnimatePresence>`
+- Use the <Code variant="prop">render</Code> prop to compose the <Code variant="component">Popup</Code> with <Code variant="component">motion.div</Code>
+- Animate the properties based on the <Code variant="prop">open</Code> state, avoiding <Code variant="component">AnimatePresence</Code>
 
 import { DemoAnimatedPopoverMotionKeepMountedTrue } from './demos/animated-popover-motion-keep-mounted-true';
 
@@ -170,7 +173,7 @@ import { DemoAnimatedSelectMotion } from './demos/animated-select-motion';
 
 ### Manual unmounting
 
-For full control, you can manually unmount the component when it's closed once animations have finished using an `actionsRef` passed to the `<Root>`:
+For full control, you can manually unmount the component when it's closed once animations have finished using an <Code variant="prop">actionsRef</Code> passed to the <Code variant="component">Root</Code>:
 
 ```jsx title="manual-unmount.tsx" "actionsRef"
 function App() {
