@@ -11,7 +11,7 @@ import {
 import { mergeDateAndTime } from '../../utils/temporal/date-helpers';
 import { CalendarNavigationDirection, SharedCalendarState as State } from './SharedCalendarState';
 import { selectors } from './selectors';
-import { REASONS } from '../../utils/reasons';
+import { BaseUIEventReasons, REASONS } from '../../utils/reasons';
 
 export interface SharedCalendarStoreContext<TValue extends TemporalSupportedValue, TError> {
   onValueChange?:
@@ -104,7 +104,7 @@ export class SharedCalendarStore<TValue extends TemporalSupportedValue, TError> 
         ) {
           const visibleDate = this.valueManager.getActiveDateFromValue(newValueProp);
           if (this.state.adapter.isValid(visibleDate)) {
-            this.setVisibleDate(visibleDate, undefined, undefined, REASONS.monthChange, true);
+            this.setVisibleDate(visibleDate, undefined, undefined, REASONS.valuePropChange, true);
           }
         }
       },
@@ -145,7 +145,7 @@ export class SharedCalendarStore<TValue extends TemporalSupportedValue, TError> 
       return;
     }
 
-    const eventDetails = createChangeEventDetails(reason ?? 'day-press', nativeEvent, trigger);
+    const eventDetails = createChangeEventDetails(reason ?? REASONS.dayPress, nativeEvent, trigger);
 
     this.context.onVisibleDateChange?.(visibleDate, eventDetails);
     if (!eventDetails.isCanceled && this.state.visibleDateProp === undefined) {
@@ -225,7 +225,7 @@ export class SharedCalendarStore<TValue extends TemporalSupportedValue, TError> 
       inputTimezone == null ? newValue : this.state.manager.setTimezone(newValue, inputTimezone);
 
     const eventDetails = createChangeEventDetails(
-      'day-press',
+      REASONS.dayPress,
       event.nativeEvent,
       event.currentTarget,
       {
@@ -393,7 +393,11 @@ export interface CalendarValueChangeHandlerContext<TError> {
   getValidationError: () => TError;
 }
 
-export type CalendarChangeEventReason = 'day-press' | 'month-change' | 'keyboard';
+export type CalendarChangeEventReason =
+  | BaseUIEventReasons['monthChange']
+  | BaseUIEventReasons['valuePropChange']
+  | BaseUIEventReasons['dayPress']
+  | BaseUIEventReasons['keyboard'];
 
 export type CalendarValueChangeEventDetails<TError> = BaseUIChangeEventDetails<
   CalendarChangeEventReason,
