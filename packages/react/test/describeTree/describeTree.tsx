@@ -16,6 +16,7 @@ export interface DescribeTreeRendererUtils {
   getFocusedItemId: () => string | null;
   getItemRoot: (id: string) => HTMLElement;
   getItemCheckboxInput: (id: string) => HTMLInputElement;
+  getItemExpansionTrigger: (id: string) => HTMLElement | null;
   getItemLabel: (id: string) => HTMLElement | null;
   getItemLabelInput: (id: string) => HTMLInputElement | null;
   isItemExpanded: (id: string) => boolean;
@@ -80,6 +81,11 @@ function getUtils(result: BaseUIRenderResult): DescribeTreeRendererUtils {
     return checkbox;
   };
 
+  const getItemExpansionTrigger = (id: string): HTMLElement | null => {
+    const item = getItemRoot(id);
+    return item.querySelector<HTMLElement>('button');
+  };
+
   const getItemLabel = (id: string): HTMLElement | null => {
     const item = getItemRoot(id);
     return item.querySelector<HTMLElement>('span');
@@ -105,6 +111,7 @@ function getUtils(result: BaseUIRenderResult): DescribeTreeRendererUtils {
     getFocusedItemId,
     getItemRoot,
     getItemCheckboxInput,
+    getItemExpansionTrigger,
     getItemLabel,
     getItemLabelInput,
     isItemExpanded,
@@ -152,13 +159,13 @@ export function describeTree(
           items={treeItems}
           actionsRef={actionsRef}
           isItemDisabled={isItemDisabled}
-          checkboxSelection={checkboxSelection}
           getItemId={getItemId}
           {...(customGetItemChildren ? { getItemChildren: customGetItemChildren } : {})}
           {...other}
         >
           {(item: TreeItemModel) => (
-            <Tree.Item key={item.id} data-testid={item.id}>
+            <Tree.Item key={item.id} data-testid={item.id} clickToSelect={!checkboxSelection}>
+              <Tree.ItemExpansionTrigger />
               {checkboxSelection && <Tree.ItemCheckbox />}
               <Tree.ItemLabel />
             </Tree.Item>

@@ -29,7 +29,7 @@ export const TreeItem = React.forwardRef(function TreeItem(
   componentProps: TreeItem.Props,
   forwardedRef: React.ForwardedRef<HTMLLIElement>,
 ) {
-  const { className, render, clickToExpand = true, ...elementProps } = componentProps;
+  const { className, render, clickToExpand = true, clickToSelect = true, ...elementProps } = componentProps;
 
   const store = useTreeRootContext();
   const { itemId } = useTreeItemContext();
@@ -55,7 +55,7 @@ export const TreeItem = React.forwardRef(function TreeItem(
         role: 'treeitem',
         ...ariaProps,
         onClick: (event: React.MouseEvent) => {
-          store.itemEventHandlers.onClick(event, itemId, clickToExpand);
+          store.itemEventHandlers.onClick(event, itemId, clickToExpand, clickToSelect);
         },
         onFocus: (event: React.FocusEvent) => {
           store.itemEventHandlers.onFocus(event, itemId);
@@ -89,6 +89,12 @@ export interface TreeItemProps extends BaseUIComponentProps<'li', TreeItemState>
    * @default true
    */
   clickToExpand?: boolean | undefined;
+  /**
+   * If `true`, clicking the item toggles selection.
+   * Set to `false` when using `Tree.ItemCheckbox` so that only the checkbox triggers selection.
+   * @default true
+   */
+  clickToSelect?: boolean | undefined;
 }
 
 export namespace TreeItem {

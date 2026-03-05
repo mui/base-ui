@@ -37,7 +37,6 @@ export interface TreeStoreParameters {
   onSelectedItemsChange?: ((selectedItems: TreeItemId | null | TreeItemId[]) => void) | undefined;
   onItemSelectionToggle?: ((itemId: TreeItemId, isSelected: boolean) => void) | undefined;
   multiSelect?: boolean | undefined;
-  checkboxSelection?: boolean | undefined;
   disableSelection?: boolean | undefined;
   selectionPropagation?:
     | { parents?: boolean | undefined; descendants?: boolean | undefined }
@@ -117,7 +116,6 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
           (parameters.multiSelect ? [] : null),
         disableSelection: parameters.disableSelection ?? false,
         multiSelect: parameters.multiSelect ?? false,
-        checkboxSelection: parameters.checkboxSelection ?? false,
         selectionPropagation: parameters.selectionPropagation ?? {},
         focusedItemId: null,
         disabledItemsFocusable: parameters.disabledItemsFocusable ?? false,
@@ -915,12 +913,12 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
   };
 
   public readonly itemEventHandlers = {
-    onClick: (event: React.MouseEvent, itemId: TreeItemId, clickToExpand: boolean) => {
+    onClick: (event: React.MouseEvent, itemId: TreeItemId, clickToExpand: boolean, clickToSelect: boolean) => {
       this.context.onItemClick(event, itemId);
 
       // Handle selection
       if (!this.state.disableSelection && selectors.canItemBeSelected(this.state, itemId)) {
-        if (!this.state.checkboxSelection) {
+        if (clickToSelect) {
           const isMulti = this.state.multiSelect;
           if (isMulti && (event.ctrlKey || event.metaKey)) {
             this.setItemSelection({

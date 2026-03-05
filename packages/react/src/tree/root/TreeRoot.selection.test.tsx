@@ -376,34 +376,6 @@ describeTree('TreeRoot - Selection', ({ render }) => {
   });
 
   describe('checkbox interaction', () => {
-    describe('render checkbox when needed', () => {
-      it('should not render a checkbox when checkboxSelection is not defined', async () => {
-        const view = await render({
-          items: [{ id: '1' }],
-        });
-
-        expect(view.getItemRoot('1').querySelector('input[type="checkbox"]')).to.equal(null);
-      });
-
-      it('should not render a checkbox when checkboxSelection is false', async () => {
-        const view = await render({
-          checkboxSelection: false,
-          items: [{ id: '1' }],
-        });
-
-        expect(view.getItemRoot('1').querySelector('input[type="checkbox"]')).to.equal(null);
-      });
-
-      it('should render a checkbox when checkboxSelection is true', async () => {
-        const view = await render({
-          checkboxSelection: true,
-          items: [{ id: '1' }],
-        });
-
-        expect(view.getItemRoot('1').querySelector('input[type="checkbox"]')).not.to.equal(null);
-      });
-    });
-
     describe('single selection', () => {
       it('should not change selection when clicking on an item', async () => {
         const view = await render({

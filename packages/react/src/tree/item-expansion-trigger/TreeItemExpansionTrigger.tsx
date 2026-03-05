@@ -56,6 +56,7 @@ export const TreeItemExpansionTrigger = React.forwardRef(function TreeItemExpans
       elementProps,
     ],
     stateAttributesMapping,
+    enabled: propsFromState.expandable,
   });
 });
 

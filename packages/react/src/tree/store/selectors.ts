@@ -134,10 +134,6 @@ export const isMultiSelectEnabled = createSelector(
   (state: TreeState): boolean => state.multiSelect,
 );
 
-export const isCheckboxSelectionEnabled = createSelector(
-  (state: TreeState): boolean => state.checkboxSelection,
-);
-
 export const isSelectionDisabled = createSelector(
   (state: TreeState): boolean => state.disableSelection,
 );
@@ -463,7 +459,6 @@ export const selectors = {
   flatList,
   isItemSelected,
   isMultiSelectEnabled,
-  isCheckboxSelectionEnabled,
   isSelectionDisabled,
   canItemBeSelected,
   checkboxSelectionStatus,

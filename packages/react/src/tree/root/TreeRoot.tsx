@@ -36,7 +36,6 @@ export const TreeRoot = React.forwardRef(function TreeRoot(
     defaultSelectedItems,
     onSelectedItemsChange,
     multiSelect,
-    checkboxSelection,
     disableSelection,
     selectionPropagation,
     // Item accessors
@@ -71,7 +70,6 @@ export const TreeRoot = React.forwardRef(function TreeRoot(
         defaultSelectedItems,
         onSelectedItemsChange,
         multiSelect,
-        checkboxSelection,
         disableSelection,
         selectionPropagation,
         getItemId,
@@ -93,7 +91,6 @@ export const TreeRoot = React.forwardRef(function TreeRoot(
   store.useSyncedValues({
     disableSelection: disableSelection ?? false,
     multiSelect: multiSelect ?? false,
-    checkboxSelection: checkboxSelection ?? false,
     selectionPropagation: selectionPropagation ?? {},
     disabledItemsFocusable: disabledItemsFocusable ?? false,
   });

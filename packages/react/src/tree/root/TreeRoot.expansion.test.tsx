@@ -189,6 +189,29 @@ describeTree('TreeRoot - Expansion', ({ render }) => {
     });
   });
 
+  describe('Tree.ItemExpansionTrigger', () => {
+    it('should not render the expansion trigger for items without children', async () => {
+      const view = await render({
+        items: [{ id: '1', children: [{ id: '1.1' }] }, { id: '2' }],
+      });
+
+      expect(view.getItemExpansionTrigger('1')).to.not.equal(null);
+      expect(view.getItemExpansionTrigger('2')).to.equal(null);
+    });
+
+    it('should render the expansion trigger for items with children', async () => {
+      const view = await render({
+        items: [
+          { id: '1', children: [{ id: '1.1' }] },
+          { id: '2', children: [{ id: '2.1' }] },
+        ],
+      });
+
+      expect(view.getItemExpansionTrigger('1')).to.not.equal(null);
+      expect(view.getItemExpansionTrigger('2')).to.not.equal(null);
+    });
+  });
+
   describe('setItemExpansion API method', () => {
     it('should expand a collapsed item', async () => {
       const view = await render({

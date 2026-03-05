@@ -67,8 +67,6 @@ export interface TreeState {
   disableSelection: boolean;
   /** Whether multiple items can be selected */
   multiSelect: boolean;
-  /** Whether checkbox-based selection is enabled */
-  checkboxSelection: boolean;
   /** How selection propagates through the tree hierarchy */
   selectionPropagation: SelectionPropagation;
 
