@@ -7,12 +7,7 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerDocument } from '@base-ui/utils/owner';
 
 import type { FloatingContext, FloatingRootContext } from '../types';
-import {
-  getNodeChildren,
-  getTarget,
-  isMouseLikePointerType,
-  isTargetInsideEnabledTrigger,
-} from '../utils';
+import { getNodeChildren, getTarget, isTargetInsideEnabledTrigger } from '../utils';
 
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
@@ -22,6 +17,7 @@ import {
   isInteractiveElement,
   useHoverInteractionSharedState,
 } from './useHoverInteractionSharedState';
+import { getDelay } from './useHoverShared';
 
 export type UseHoverFloatingInteractionProps = {
   /**
@@ -37,8 +33,6 @@ export type UseHoverFloatingInteractionProps = {
    */
   closeDelay?: number | (() => number) | undefined;
 };
-
-const clickLikeEvents = new Set(['click', 'mousedown']);
 
 /**
  * Provides hover interactions that should be attached to the floating element.
@@ -65,7 +59,8 @@ export function useHoverFloatingInteraction(
       return true;
     }
 
-    return dataRef.current.openEvent ? clickLikeEvents.has(dataRef.current.openEvent.type) : false;
+    const openEventType = dataRef.current.openEvent?.type;
+    return openEventType === 'click' || openEventType === 'mousedown';
   });
 
   const isHoverOpen = useStableCallback(() => {
@@ -79,7 +74,7 @@ export function useHoverFloatingInteraction(
 
   const closeWithDelay = React.useCallback(
     (event: MouseEvent) => {
-      const closeDelay = getDelay(closeDelayProp, instance.pointerType);
+      const closeDelay = getDelay(closeDelayProp, 'close', instance.pointerType);
       const close = () => {
         store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
         tree?.events.emit('floating.closed', event);
@@ -252,19 +247,4 @@ export function useHoverFloatingInteraction(
     parentId,
     childClosedTimeout,
   ]);
-}
-
-export function getDelay(
-  value: number | (() => number),
-  pointerType?: PointerEvent['pointerType'],
-) {
-  if (pointerType && !isMouseLikePointerType(pointerType)) {
-    return 0;
-  }
-
-  if (typeof value === 'function') {
-    return value();
-  }
-
-  return value;
 }
