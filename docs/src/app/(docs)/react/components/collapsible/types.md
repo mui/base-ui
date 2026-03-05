@@ -45,25 +45,21 @@ type CollapsibleRootChangeEventReason = 'trigger-press' | 'none';
 ### Root.ChangeEventDetails
 
 ```typescript
-type CollapsibleRootChangeEventDetails =
-  | {
-      reason: 'trigger-press';
-      event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'none';
-      event: Event;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    };
+type CollapsibleRootChangeEventDetails = (
+  | { reason: 'trigger-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
+  | { reason: 'none'; event: Event }
+) & {
+  /** Cancels Base UI from handling the event. */
+  cancel: () => void;
+  /** Allows the event to propagate in cases where Base UI will stop the propagation. */
+  allowPropagation: () => void;
+  /** Indicates whether the event has been canceled. */
+  isCanceled: boolean;
+  /** Indicates whether the event is allowed to propagate. */
+  isPropagationAllowed: boolean;
+  /** The element that triggered the event, if applicable. */
+  trigger: Element | undefined;
+};
 ```
 
 ### Trigger

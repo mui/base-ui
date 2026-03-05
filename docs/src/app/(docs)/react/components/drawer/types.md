@@ -65,97 +65,29 @@ type DrawerPreviewRootChangeEventReason =
 ### Root.ChangeEventDetails
 
 ```typescript
-type DrawerPreviewRootChangeEventDetails =
-  | {
-      reason: 'trigger-press';
-      event: KeyboardEvent | MouseEvent | TouchEvent | PointerEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'outside-press';
-      event: MouseEvent | TouchEvent | PointerEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'escape-key';
-      event: KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'close-press';
-      event: KeyboardEvent | MouseEvent | PointerEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'focus-out';
-      event: FocusEvent | KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'imperative-action';
-      event: Event;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'none';
-      event: Event;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'close-watcher';
-      event: Event;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'swipe';
-      event: TouchEvent | PointerEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    };
+type DrawerPreviewRootChangeEventDetails = (
+  | { reason: 'trigger-press'; event: KeyboardEvent | MouseEvent | TouchEvent | PointerEvent }
+  | { reason: 'outside-press'; event: MouseEvent | TouchEvent | PointerEvent }
+  | { reason: 'escape-key'; event: KeyboardEvent }
+  | { reason: 'close-press'; event: KeyboardEvent | MouseEvent | PointerEvent }
+  | { reason: 'focus-out'; event: FocusEvent | KeyboardEvent }
+  | { reason: 'imperative-action'; event: Event }
+  | { reason: 'none'; event: Event }
+  | { reason: 'close-watcher'; event: Event }
+  | { reason: 'swipe'; event: TouchEvent | PointerEvent }
+) & {
+  /** Cancels Base UI from handling the event. */
+  cancel: () => void;
+  /** Allows the event to propagate in cases where Base UI will stop the propagation. */
+  allowPropagation: () => void;
+  /** Indicates whether the event has been canceled. */
+  isCanceled: boolean;
+  /** Indicates whether the event is allowed to propagate. */
+  isPropagationAllowed: boolean;
+  /** The element that triggered the event, if applicable. */
+  trigger: Element | undefined;
+  preventUnmountOnClose: preventUnmountOnClose;
+};
 ```
 
 ### Root.SnapPoint
@@ -167,88 +99,28 @@ type DrawerPreviewRootSnapPoint = number | string;
 ### Root.SnapPointChangeEventDetails
 
 ```typescript
-type DrawerPreviewRootSnapPointChangeEventDetails =
-  | {
-      reason: 'trigger-press';
-      event: KeyboardEvent | MouseEvent | TouchEvent | PointerEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'outside-press';
-      event: MouseEvent | TouchEvent | PointerEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'escape-key';
-      event: KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'close-press';
-      event: KeyboardEvent | MouseEvent | PointerEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'focus-out';
-      event: FocusEvent | KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'imperative-action';
-      event: Event;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'none';
-      event: Event;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'close-watcher';
-      event: Event;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'swipe';
-      event: TouchEvent | PointerEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    };
+type DrawerPreviewRootSnapPointChangeEventDetails = (
+  | { reason: 'trigger-press'; event: KeyboardEvent | MouseEvent | TouchEvent | PointerEvent }
+  | { reason: 'outside-press'; event: MouseEvent | TouchEvent | PointerEvent }
+  | { reason: 'escape-key'; event: KeyboardEvent }
+  | { reason: 'close-press'; event: KeyboardEvent | MouseEvent | PointerEvent }
+  | { reason: 'focus-out'; event: FocusEvent | KeyboardEvent }
+  | { reason: 'imperative-action'; event: Event }
+  | { reason: 'none'; event: Event }
+  | { reason: 'close-watcher'; event: Event }
+  | { reason: 'swipe'; event: TouchEvent | PointerEvent }
+) & {
+  /** Cancels Base UI from handling the event. */
+  cancel: () => void;
+  /** Allows the event to propagate in cases where Base UI will stop the propagation. */
+  allowPropagation: () => void;
+  /** Indicates whether the event has been canceled. */
+  isCanceled: boolean;
+  /** Indicates whether the event is allowed to propagate. */
+  isPropagationAllowed: boolean;
+  /** The element that triggered the event, if applicable. */
+  trigger: Element | undefined;
+};
 ```
 
 ### Root.SnapPointChangeEventReason

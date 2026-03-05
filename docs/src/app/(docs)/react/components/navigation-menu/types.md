@@ -63,79 +63,27 @@ type NavigationMenuRootChangeEventReason =
 ### Root.ChangeEventDetails
 
 ```typescript
-type NavigationMenuRootChangeEventDetails =
-  | {
-      reason: 'trigger-press';
-      event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'trigger-hover';
-      event: MouseEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'outside-press';
-      event: MouseEvent | PointerEvent | TouchEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'list-navigation';
-      event: KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'focus-out';
-      event: KeyboardEvent | FocusEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'escape-key';
-      event: KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'link-press';
-      event: MouseEvent | PointerEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'none';
-      event: Event;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    };
+type NavigationMenuRootChangeEventDetails = (
+  | { reason: 'trigger-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
+  | { reason: 'trigger-hover'; event: MouseEvent }
+  | { reason: 'outside-press'; event: MouseEvent | PointerEvent | TouchEvent }
+  | { reason: 'list-navigation'; event: KeyboardEvent }
+  | { reason: 'focus-out'; event: KeyboardEvent | FocusEvent }
+  | { reason: 'escape-key'; event: KeyboardEvent }
+  | { reason: 'link-press'; event: MouseEvent | PointerEvent }
+  | { reason: 'none'; event: Event }
+) & {
+  /** Cancels Base UI from handling the event. */
+  cancel: () => void;
+  /** Allows the event to propagate in cases where Base UI will stop the propagation. */
+  allowPropagation: () => void;
+  /** Indicates whether the event has been canceled. */
+  isCanceled: boolean;
+  /** Indicates whether the event is allowed to propagate. */
+  isPropagationAllowed: boolean;
+  /** The element that triggered the event, if applicable. */
+  trigger: Element | undefined;
+};
 ```
 
 ### Trigger

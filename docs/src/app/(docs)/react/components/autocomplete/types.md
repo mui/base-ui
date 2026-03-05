@@ -83,106 +83,30 @@ type AutocompleteRootChangeEventReason =
 ### Root.ChangeEventDetails
 
 ```typescript
-type AutocompleteRootChangeEventDetails =
-  | {
-      reason: 'none';
-      event: Event;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'trigger-press';
-      event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'outside-press';
-      event: MouseEvent | PointerEvent | TouchEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'item-press';
-      event: MouseEvent | PointerEvent | KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'escape-key';
-      event: KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'list-navigation';
-      event: KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'focus-out';
-      event: KeyboardEvent | FocusEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'input-change';
-      event: Event | InputEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'input-clear';
-      event: Event | FocusEvent | InputEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'clear-press';
-      event: MouseEvent | PointerEvent | KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'chip-remove-press';
-      event: MouseEvent | PointerEvent | KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    };
+type AutocompleteRootChangeEventDetails = (
+  | { reason: 'none'; event: Event }
+  | { reason: 'trigger-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
+  | { reason: 'outside-press'; event: MouseEvent | PointerEvent | TouchEvent }
+  | { reason: 'item-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'escape-key'; event: KeyboardEvent }
+  | { reason: 'list-navigation'; event: KeyboardEvent }
+  | { reason: 'focus-out'; event: KeyboardEvent | FocusEvent }
+  | { reason: 'input-change'; event: Event | InputEvent }
+  | { reason: 'input-clear'; event: Event | FocusEvent | InputEvent }
+  | { reason: 'clear-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'chip-remove-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+) & {
+  /** Cancels Base UI from handling the event. */
+  cancel: () => void;
+  /** Allows the event to propagate in cases where Base UI will stop the propagation. */
+  allowPropagation: () => void;
+  /** Indicates whether the event has been canceled. */
+  isCanceled: boolean;
+  /** Indicates whether the event is allowed to propagate. */
+  isPropagationAllowed: boolean;
+  /** The element that triggered the event, if applicable. */
+  trigger: Element | undefined;
+};
 ```
 
 ### Root.HighlightEventReason
@@ -195,9 +119,9 @@ type AutocompleteRootHighlightEventReason = 'keyboard' | 'pointer' | 'none';
 
 ```typescript
 type AutocompleteRootHighlightEventDetails =
-  | BaseUIGenericEventDetail<'none', { index: number }>
-  | BaseUIGenericEventDetail<'keyboard', { index: number }>
-  | BaseUIGenericEventDetail<'pointer', { index: number }>;
+  | { reason: 'none'; event: Event; index: number }
+  | { reason: 'keyboard'; event: KeyboardEvent; index: number }
+  | { reason: 'pointer'; event: PointerEvent; index: number };
 ```
 
 ### Trigger

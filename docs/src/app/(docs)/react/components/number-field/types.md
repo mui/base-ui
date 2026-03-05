@@ -104,17 +104,30 @@ type NumberFieldRootChangeEventReason =
 ### Root.ChangeEventDetails
 
 ```typescript
-type NumberFieldRootChangeEventDetails =
-  | BaseUIChangeEventDetail<'input-change', ChangeEventCustomProperties>
-  | BaseUIChangeEventDetail<'input-clear', ChangeEventCustomProperties>
-  | BaseUIChangeEventDetail<'input-blur', ChangeEventCustomProperties>
-  | BaseUIChangeEventDetail<'input-paste', ChangeEventCustomProperties>
-  | BaseUIChangeEventDetail<'keyboard', ChangeEventCustomProperties>
-  | BaseUIChangeEventDetail<'increment-press', ChangeEventCustomProperties>
-  | BaseUIChangeEventDetail<'decrement-press', ChangeEventCustomProperties>
-  | BaseUIChangeEventDetail<'wheel', ChangeEventCustomProperties>
-  | BaseUIChangeEventDetail<'scrub', ChangeEventCustomProperties>
-  | BaseUIChangeEventDetail<'none', ChangeEventCustomProperties>;
+type NumberFieldRootChangeEventDetails = (
+  | { reason: 'input-change'; event: InputEvent | Event }
+  | { reason: 'input-clear'; event: InputEvent | Event | FocusEvent }
+  | { reason: 'input-blur'; event: FocusEvent }
+  | { reason: 'input-paste'; event: ClipboardEvent }
+  | { reason: 'keyboard'; event: KeyboardEvent }
+  | { reason: 'increment-press'; event: PointerEvent | MouseEvent | TouchEvent }
+  | { reason: 'decrement-press'; event: PointerEvent | MouseEvent | TouchEvent }
+  | { reason: 'wheel'; event: WheelEvent }
+  | { reason: 'scrub'; event: PointerEvent }
+  | { reason: 'none'; event: Event }
+) & {
+  /** Cancels Base UI from handling the event. */
+  cancel: () => void;
+  /** Allows the event to propagate in cases where Base UI will stop the propagation. */
+  allowPropagation: () => void;
+  /** Indicates whether the event has been canceled. */
+  isCanceled: boolean;
+  /** Indicates whether the event is allowed to propagate. */
+  isPropagationAllowed: boolean;
+  /** The element that triggered the event, if applicable. */
+  trigger: Element | undefined;
+  direction?: Direction;
+};
 ```
 
 ### Root.CommitEventReason
@@ -518,6 +531,14 @@ type NumberFieldIncrementState = {
   /** Whether the field is focused. */
   focused: boolean;
 };
+```
+
+## External Types
+
+### Direction
+
+```typescript
+type Direction = -1 | 1;
 ```
 
 ## Export Groups

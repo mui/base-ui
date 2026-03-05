@@ -101,12 +101,26 @@ type SliderRootChangeEventReason = 'input-change' | 'track-press' | 'drag' | 'ke
 ### Root.ChangeEventDetails
 
 ```typescript
-type SliderRootChangeEventDetails =
-  | BaseUIChangeEventDetail<'none', SliderRootChangeEventCustomProperties>
-  | BaseUIChangeEventDetail<'input-change', SliderRootChangeEventCustomProperties>
-  | BaseUIChangeEventDetail<'track-press', SliderRootChangeEventCustomProperties>
-  | BaseUIChangeEventDetail<'drag', SliderRootChangeEventCustomProperties>
-  | BaseUIChangeEventDetail<'keyboard', SliderRootChangeEventCustomProperties>;
+type SliderRootChangeEventDetails = (
+  | { reason: 'none'; event: Event }
+  | { reason: 'input-change'; event: Event | InputEvent }
+  | { reason: 'track-press'; event: PointerEvent | MouseEvent | TouchEvent }
+  | { reason: 'drag'; event: PointerEvent | TouchEvent }
+  | { reason: 'keyboard'; event: KeyboardEvent }
+) & {
+  /** Cancels Base UI from handling the event. */
+  cancel: () => void;
+  /** Allows the event to propagate in cases where Base UI will stop the propagation. */
+  allowPropagation: () => void;
+  /** Indicates whether the event has been canceled. */
+  isCanceled: boolean;
+  /** Indicates whether the event is allowed to propagate. */
+  isPropagationAllowed: boolean;
+  /** The element that triggered the event, if applicable. */
+  trigger: Element | undefined;
+  /** The index of the active thumb at the time of the change. */
+  activeThumbIndex: number;
+};
 ```
 
 ### Root.CommitEventReason

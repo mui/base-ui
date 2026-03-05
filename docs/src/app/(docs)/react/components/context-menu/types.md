@@ -66,124 +66,32 @@ type ContextMenuRootChangeEventReason =
 ### Root.ChangeEventDetails
 
 ```typescript
-type ContextMenuRootChangeEventDetails =
-  | {
-      reason: 'trigger-hover';
-      event: MouseEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'trigger-focus';
-      event: FocusEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'trigger-press';
-      event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'outside-press';
-      event: MouseEvent | PointerEvent | TouchEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'focus-out';
-      event: FocusEvent | KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'list-navigation';
-      event: KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'escape-key';
-      event: KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'item-press';
-      event: MouseEvent | PointerEvent | KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'close-press';
-      event: MouseEvent | PointerEvent | KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'sibling-open';
-      event: Event;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'cancel-open';
-      event: MouseEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'imperative-action';
-      event: Event;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    }
-  | {
-      reason: 'none';
-      event: Event;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-    };
+type ContextMenuRootChangeEventDetails = (
+  | { reason: 'trigger-hover'; event: MouseEvent }
+  | { reason: 'trigger-focus'; event: FocusEvent }
+  | { reason: 'trigger-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
+  | { reason: 'outside-press'; event: MouseEvent | PointerEvent | TouchEvent }
+  | { reason: 'focus-out'; event: FocusEvent | KeyboardEvent }
+  | { reason: 'list-navigation'; event: KeyboardEvent }
+  | { reason: 'escape-key'; event: KeyboardEvent }
+  | { reason: 'item-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'close-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'sibling-open'; event: Event }
+  | { reason: 'cancel-open'; event: MouseEvent }
+  | { reason: 'imperative-action'; event: Event }
+  | { reason: 'none'; event: Event }
+) & {
+  /** Cancels Base UI from handling the event. */
+  cancel: () => void;
+  /** Allows the event to propagate in cases where Base UI will stop the propagation. */
+  allowPropagation: () => void;
+  /** Indicates whether the event has been canceled. */
+  isCanceled: boolean;
+  /** Indicates whether the event is allowed to propagate. */
+  isPropagationAllowed: boolean;
+  /** The element that triggered the event, if applicable. */
+  trigger: Element | undefined;
+};
 ```
 
 ### Trigger
@@ -642,137 +550,33 @@ type ContextMenuSubmenuRootChangeEventReason =
 ### SubmenuRoot.ChangeEventDetails
 
 ```typescript
-type ContextMenuSubmenuRootChangeEventDetails =
-  | {
-      reason: 'trigger-hover';
-      event: MouseEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'trigger-focus';
-      event: FocusEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'trigger-press';
-      event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'outside-press';
-      event: MouseEvent | PointerEvent | TouchEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'focus-out';
-      event: FocusEvent | KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'list-navigation';
-      event: KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'escape-key';
-      event: KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'item-press';
-      event: MouseEvent | PointerEvent | KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'close-press';
-      event: MouseEvent | PointerEvent | KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'sibling-open';
-      event: Event;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'cancel-open';
-      event: MouseEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'imperative-action';
-      event: Event;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'none';
-      event: Event;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    };
+type ContextMenuSubmenuRootChangeEventDetails = (
+  | { reason: 'trigger-hover'; event: MouseEvent }
+  | { reason: 'trigger-focus'; event: FocusEvent }
+  | { reason: 'trigger-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
+  | { reason: 'outside-press'; event: MouseEvent | PointerEvent | TouchEvent }
+  | { reason: 'focus-out'; event: FocusEvent | KeyboardEvent }
+  | { reason: 'list-navigation'; event: KeyboardEvent }
+  | { reason: 'escape-key'; event: KeyboardEvent }
+  | { reason: 'item-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'close-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'sibling-open'; event: Event }
+  | { reason: 'cancel-open'; event: MouseEvent }
+  | { reason: 'imperative-action'; event: Event }
+  | { reason: 'none'; event: Event }
+) & {
+  /** Cancels Base UI from handling the event. */
+  cancel: () => void;
+  /** Allows the event to propagate in cases where Base UI will stop the propagation. */
+  allowPropagation: () => void;
+  /** Indicates whether the event has been canceled. */
+  isCanceled: boolean;
+  /** Indicates whether the event is allowed to propagate. */
+  isPropagationAllowed: boolean;
+  /** The element that triggered the event, if applicable. */
+  trigger: Element | undefined;
+  preventUnmountOnClose: preventUnmountOnClose;
+};
 ```
 
 ### SubmenuTrigger
@@ -873,137 +677,33 @@ type ContextMenuRadioGroupChangeEventReason =
 ### RadioGroup.ChangeEventDetails
 
 ```typescript
-type ContextMenuRadioGroupChangeEventDetails =
-  | {
-      reason: 'trigger-hover';
-      event: MouseEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'trigger-focus';
-      event: FocusEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'trigger-press';
-      event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'outside-press';
-      event: MouseEvent | PointerEvent | TouchEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'focus-out';
-      event: FocusEvent | KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'list-navigation';
-      event: KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'escape-key';
-      event: KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'item-press';
-      event: MouseEvent | PointerEvent | KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'close-press';
-      event: MouseEvent | PointerEvent | KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'sibling-open';
-      event: Event;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'cancel-open';
-      event: MouseEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'imperative-action';
-      event: Event;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'none';
-      event: Event;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    };
+type ContextMenuRadioGroupChangeEventDetails = (
+  | { reason: 'trigger-hover'; event: MouseEvent }
+  | { reason: 'trigger-focus'; event: FocusEvent }
+  | { reason: 'trigger-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
+  | { reason: 'outside-press'; event: MouseEvent | PointerEvent | TouchEvent }
+  | { reason: 'focus-out'; event: FocusEvent | KeyboardEvent }
+  | { reason: 'list-navigation'; event: KeyboardEvent }
+  | { reason: 'escape-key'; event: KeyboardEvent }
+  | { reason: 'item-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'close-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'sibling-open'; event: Event }
+  | { reason: 'cancel-open'; event: MouseEvent }
+  | { reason: 'imperative-action'; event: Event }
+  | { reason: 'none'; event: Event }
+) & {
+  /** Cancels Base UI from handling the event. */
+  cancel: () => void;
+  /** Allows the event to propagate in cases where Base UI will stop the propagation. */
+  allowPropagation: () => void;
+  /** Indicates whether the event has been canceled. */
+  isCanceled: boolean;
+  /** Indicates whether the event is allowed to propagate. */
+  isPropagationAllowed: boolean;
+  /** The element that triggered the event, if applicable. */
+  trigger: Element | undefined;
+  preventUnmountOnClose: preventUnmountOnClose;
+};
 ```
 
 ### RadioItem
@@ -1163,137 +863,33 @@ type ContextMenuCheckboxItemChangeEventReason =
 ### CheckboxItem.ChangeEventDetails
 
 ```typescript
-type ContextMenuCheckboxItemChangeEventDetails =
-  | {
-      reason: 'trigger-hover';
-      event: MouseEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'trigger-focus';
-      event: FocusEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'trigger-press';
-      event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'outside-press';
-      event: MouseEvent | PointerEvent | TouchEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'focus-out';
-      event: FocusEvent | KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'list-navigation';
-      event: KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'escape-key';
-      event: KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'item-press';
-      event: MouseEvent | PointerEvent | KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'close-press';
-      event: MouseEvent | PointerEvent | KeyboardEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'sibling-open';
-      event: Event;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'cancel-open';
-      event: MouseEvent;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'imperative-action';
-      event: Event;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    }
-  | {
-      reason: 'none';
-      event: Event;
-      cancel: () => void;
-      allowPropagation: () => void;
-      isCanceled: boolean;
-      isPropagationAllowed: boolean;
-      trigger: Element | undefined;
-      preventUnmountOnClose: preventUnmountOnClose;
-    };
+type ContextMenuCheckboxItemChangeEventDetails = (
+  | { reason: 'trigger-hover'; event: MouseEvent }
+  | { reason: 'trigger-focus'; event: FocusEvent }
+  | { reason: 'trigger-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
+  | { reason: 'outside-press'; event: MouseEvent | PointerEvent | TouchEvent }
+  | { reason: 'focus-out'; event: FocusEvent | KeyboardEvent }
+  | { reason: 'list-navigation'; event: KeyboardEvent }
+  | { reason: 'escape-key'; event: KeyboardEvent }
+  | { reason: 'item-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'close-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'sibling-open'; event: Event }
+  | { reason: 'cancel-open'; event: MouseEvent }
+  | { reason: 'imperative-action'; event: Event }
+  | { reason: 'none'; event: Event }
+) & {
+  /** Cancels Base UI from handling the event. */
+  cancel: () => void;
+  /** Allows the event to propagate in cases where Base UI will stop the propagation. */
+  allowPropagation: () => void;
+  /** Indicates whether the event has been canceled. */
+  isCanceled: boolean;
+  /** Indicates whether the event is allowed to propagate. */
+  isPropagationAllowed: boolean;
+  /** The element that triggered the event, if applicable. */
+  trigger: Element | undefined;
+  preventUnmountOnClose: preventUnmountOnClose;
+};
 ```
 
 ### CheckboxItemIndicator
