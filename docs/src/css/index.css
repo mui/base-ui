@@ -99,7 +99,8 @@
   --color-red-800: var(--color-red);
 
   /* Typography */
-  --font-mono: 'SF Mono', 'Menlo', 'DejaVu Sans Mono', 'Consolas', 'Inconsolata', monospace;
+  --font-mono:
+    'Test Söhne Mono', 'SF Mono', 'Menlo', 'DejaVu Sans Mono', 'Consolas', 'Inconsolata', monospace;
   --font-sans: 'Unica 77', system-ui, sans-serif;
 
   --text-xs: 0.8125rem;
