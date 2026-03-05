@@ -10,7 +10,6 @@ import { formatNumber } from '../../utils/formatNumber';
 import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { valueToPercent } from '../../utils/valueToPercent';
 import {
   ARROW_DOWN,
   ARROW_UP,
@@ -102,6 +101,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     getAriaValueText: getAriaValueTextProp,
     id: idProp,
     index: indexProp,
+    initialPosition,
     inputRef: inputRefProp,
     onBlur: onBlurProp,
     onFocus: onFocusProp,
@@ -125,6 +125,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     labelId,
     largeStep,
     locale,
+    mapValueToPosition,
     max,
     min,
     minStepsBetweenValues,
@@ -171,7 +172,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const index = !range ? 0 : (indexProp ?? compositeIndex);
   const last = index === sliderValues.length - 1;
   const thumbValue = sliderValues[index];
-  const thumbValuePercent = valueToPercent(thumbValue, min, max);
+  const relativePosition = mapValueToPosition(thumbValue);
 
   const [isMounted, setIsMounted] = React.useState(false);
   const [positionPercent, setPositionPercent] = React.useState<number | undefined>();
@@ -194,8 +195,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     // the total travel distance adjusted to account for the thumb size
     const controlSize = controlRect[side] - thumbRect[side];
     // px distance from the starting edge (inline-start or bottom) to the thumb center
-    const thumbOffsetFromControlEdge =
-      thumbRect[side] / 2 + (controlSize * thumbValuePercent) / 100;
+    const thumbOffsetFromControlEdge = thumbRect[side] / 2 + controlSize * relativePosition;
     const nextPositionPercent = (thumbOffsetFromControlEdge / controlRect[side]) * 100;
     setPositionPercent(nextPositionPercent);
     if (index === 0) {
@@ -215,7 +215,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     if (inset) {
       getInsetPosition();
     }
-  }, [getInsetPosition, inset, thumbValuePercent]);
+  }, [getInsetPosition, inset, relativePosition]);
 
   const getThumbStyle = React.useCallback(() => {
     const startEdge = vertical ? 'bottom' : 'insetInlineStart';
@@ -233,13 +233,13 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     }
 
     if (!inset) {
-      if (!Number.isFinite(thumbValuePercent)) {
+      if (!Number.isFinite(relativePosition)) {
         return visuallyHidden;
       }
 
       return {
         position: 'absolute',
-        [startEdge]: `${thumbValuePercent}%`,
+        [startEdge]: `${relativePosition * 100}%`,
         [crossOffsetProperty]: '50%',
         translate: `${(vertical || !rtl ? -1 : 1) * 50}% ${(vertical ? 1 : -1) * 50}%`,
         zIndex,
@@ -268,7 +268,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     renderBeforeHydration,
     rtl,
     safeLastUsedThumbIndex,
-    thumbValuePercent,
+    relativePosition,
     vertical,
   ]);
 
@@ -279,6 +279,8 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const inputProps = mergeProps<'input'>(
     {
+      ['data-initial-position' as string]:
+        !isMounted && renderBeforeHydration ? initialPosition : undefined,
       'aria-label':
         typeof getAriaLabelProp === 'function' ? getAriaLabelProp(index) : ariaLabelProp,
       'aria-labelledby': ariaLabelledByProp ?? labelId,
@@ -520,6 +522,14 @@ export interface SliderThumbProps extends Omit<
    * Optional tab index attribute forwarded to the `input`.
    */
   tabIndex?: number | undefined;
+  /**
+   * The relative initial position of the thumb along the control represented
+   * by a number between 0–1.
+   * This is required to support server-side rendering when using a non-linear
+   * scale and `thumbAlignment="edge"`. The value is typically the return value
+   * from calling your `scale.valueToPosition` function with the initial value.
+   */
+  initialPosition?: number | undefined;
 }
 
 export namespace SliderThumb {
