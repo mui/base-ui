@@ -195,9 +195,11 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       if (event.target && triggerElement && triggerElement !== event.target) {
         const delay = store.select('closeDelay');
         if (delay > 0) {
-          closeTimeout.start(delay, () => {
-            store.setOpen(false, createChangeEventDetails(REASONS.siblingOpen));
-          });
+          if (!closeTimeout.isStarted()) {
+            closeTimeout.start(delay, () => {
+              store.setOpen(false, createChangeEventDetails(REASONS.siblingOpen));
+            });
+          }
         } else {
           store.setOpen(false, createChangeEventDetails(REASONS.siblingOpen));
         }
