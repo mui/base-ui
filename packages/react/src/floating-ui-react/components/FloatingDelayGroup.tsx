@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useTimeout, Timeout } from '@base-ui/utils/useTimeout';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 
-import { getDelay } from '../hooks/useHover';
+import { getDelay } from '../hooks/useHoverShared';
 import type { FloatingRootContext, Delay, FloatingContext } from '../types';
 import {
   BaseUIChangeEventDetails,

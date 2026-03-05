@@ -128,7 +128,26 @@ export class MenuStore<Payload> extends ReactStore<
       this.unsubscribeParentListener?.();
 
       if (parent.type === 'menu') {
+        let rootId = parent.store.select('rootId');
+        let floatingTreeRoot = parent.store.select('floatingTreeRoot');
+        let keyboardEventRelay = parent.store.select('keyboardEventRelay');
+
         this.unsubscribeParentListener = parent.store.subscribe(() => {
+          const nextRootId = parent.store.select('rootId');
+          const nextFloatingTreeRoot = parent.store.select('floatingTreeRoot');
+          const nextKeyboardEventRelay = parent.store.select('keyboardEventRelay');
+
+          if (
+            rootId === nextRootId &&
+            floatingTreeRoot === nextFloatingTreeRoot &&
+            keyboardEventRelay === nextKeyboardEventRelay
+          ) {
+            return;
+          }
+
+          rootId = nextRootId;
+          floatingTreeRoot = nextFloatingTreeRoot;
+          keyboardEventRelay = nextKeyboardEventRelay;
           this.notifyAll();
         });
 
