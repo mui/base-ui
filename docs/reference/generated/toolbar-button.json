@@ -5,7 +5,7 @@
     "focusableWhenDisabled": {
       "type": "boolean",
       "default": "true",
-      "description": "When `true` the item remains focuseable when disabled.",
+      "description": "When `true` the item remains focusable when disabled.",
       "detailedType": "boolean | undefined"
     },
     "nativeButton": {
