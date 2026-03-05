@@ -63,11 +63,7 @@ export function TypeRef({ href, name, className, children }: TypeRefProps) {
 
   return (
     <Popover.Root open={open} onOpenChange={setOpen}>
-      <Popover.Trigger
-        openOnHover
-        delay={200}
-        className={`${className ?? ''} TypeRefTrigger`.trim()}
-      >
+      <Popover.Trigger className={`${className ?? ''} TypeRefTrigger`.trim()}>
         {children}
       </Popover.Trigger>
       <Popover.Portal>
