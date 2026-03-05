@@ -17,7 +17,7 @@ import {
   isInteractiveElement,
   useHoverInteractionSharedState,
 } from './useHoverInteractionSharedState';
-import { getCloseDelay } from './useHoverShared';
+import { getDelay } from './useHoverShared';
 
 export type UseHoverFloatingInteractionProps = {
   /**
@@ -74,7 +74,7 @@ export function useHoverFloatingInteraction(
 
   const closeWithDelay = React.useCallback(
     (event: MouseEvent) => {
-      const closeDelay = getCloseDelay(closeDelayProp, instance.pointerType);
+      const closeDelay = getDelay(closeDelayProp, 'close', instance.pointerType);
       const close = () => {
         store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
         tree?.events.emit('floating.closed', event);

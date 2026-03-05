@@ -48,13 +48,6 @@ export function getDelay(
   return result?.[prop];
 }
 
-export function getCloseDelay(
-  value: number | (() => number) | undefined,
-  pointerType?: PointerEvent['pointerType'],
-) {
-  return resolveValue(value, pointerType);
-}
-
 export function getRestMs(value: number | (() => number)) {
   if (typeof value === 'function') {
     return value();
