@@ -4,6 +4,7 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useInterval } from '@base-ui/utils/useInterval';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerWindow } from '@base-ui/utils/owner';
+import { REASONS } from '../../utils/reasons';
 import type { TemporalAdapter } from '../../types/temporal-adapter';
 import type { SharedCalendarStore } from '../store/SharedCalendarStore';
 import type { TemporalSupportedValue } from '../../types/temporal';
@@ -22,6 +23,7 @@ function isTouchLikePointerType(pointerType: string) {
 interface UseCalendarMonthButtonParameters {
   direction: 1 | -1;
   disabled: boolean;
+  disabledProp?: boolean | undefined;
   store: SharedCalendarStore<TemporalSupportedValue, unknown>;
   adapter: TemporalAdapter;
   monthPageSize: number;
@@ -33,7 +35,7 @@ interface UseCalendarMonthButtonParameters {
  * starts continuous navigation at a fixed interval.
  */
 export function useCalendarMonthButton(params: UseCalendarMonthButtonParameters) {
-  const { direction, disabled, store, adapter, monthPageSize } = params;
+  const { direction, disabled, disabledProp, store, adapter, monthPageSize } = params;
 
   const startTickTimeout = useTimeout();
   const tickInterval = useInterval();
@@ -87,14 +89,20 @@ export function useCalendarMonthButton(params: UseCalendarMonthButtonParameters)
 
       const wouldBeDisabled = selectors.isSetMonthButtonDisabled(
         store.state,
-        undefined,
+        disabled,
         targetDate,
+        disabledProp,
       );
       if (wouldBeDisabled) {
         return false;
       }
 
-      store.setVisibleDate(targetDate, triggerNativeEvent, button ?? undefined, 'month-change');
+      store.setVisibleDate(
+        targetDate,
+        triggerNativeEvent,
+        button ?? undefined,
+        REASONS.monthChange,
+      );
       return true;
     }
 

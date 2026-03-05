@@ -20,7 +20,6 @@ import { Calendar } from '@base-ui/react/calendar';
 <Calendar.Root>
   <Calendar.DecrementMonth />
   <Calendar.IncrementMonth />
-  <Calendar.SetMonth />
   <Calendar.DayGrid>
     <Calendar.DayGridHeader>
       <Calendar.DayGridHeaderRow>
@@ -48,6 +47,15 @@ import { DemoCalendarValidation } from './demos/validation';
 
 <DemoCalendarValidation />
 
+### Lazy loading
+
+You can render custom content inside `<Calendar.DayButton>` and use `Calendar.useContext()` to
+react to month changes — for example, to lazily load per-day data.
+
+import { DemoCalendarLazyLoading } from './demos/lazy-loading';
+
+<DemoCalendarLazyLoading />
+
 ### Display week numbers
 
 You can use `useWeekList()` and `useDayList()` hooks to build a calendar with additional DOM elements, like week numbers.
@@ -72,6 +80,14 @@ import { DemoCalendarTimezoneDisplay } from './demos/timezone-display';
 
 <DemoCalendarTimezoneDisplay />
 
+### Month and year select
+
+Use `Calendar.useContext()` inside the calendar to read `visibleDate` and call `setVisibleDate`, enabling custom controls like `<select>` dropdowns for direct month and year navigation.
+
+import { DemoCalendarYearMonthSelect } from './demos/year-month-select';
+
+<DemoCalendarYearMonthSelect />
+
 ### Animating month changes
 
 You can use the `<Calendar.Viewport>` component to animate month transitions.
@@ -93,7 +109,7 @@ import { DemoCalendarAnimationMotion } from './demos/animation-motion';
 
 <Reference
   component="Calendar"
-  parts="Root, DayGrid, DayGridHeader, DayGridHeaderCell, DayGridBody, DayGridRow, DayGridCell, DayButton, SetMonth, DecrementMonth, IncrementMonth, Viewport"
+  parts="Root, DayGrid, DayGridHeader, DayGridHeaderCell, DayGridBody, DayGridRow, DayGridCell, DayButton, DecrementMonth, IncrementMonth, Viewport"
 />
 
 export const metadata = {

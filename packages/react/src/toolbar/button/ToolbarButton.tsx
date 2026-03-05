@@ -79,7 +79,7 @@ export interface ToolbarButtonProps
    */
   disabled?: boolean | undefined;
   /**
-   * When `true` the item remains focuseable when disabled.
+   * When `true` the item remains focusable when disabled.
    * @default true
    */
   focusableWhenDisabled?: boolean | undefined;

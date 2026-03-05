@@ -107,7 +107,13 @@ const isSetMonthButtonDisabledSelector = createSelector(
     isCalendarDisabled,
     disabled: boolean | undefined,
     targetDate: TemporalSupportedObject,
+    disabledProp?: boolean | undefined,
   ) => {
+    // short-circuit if the disabled prop is explicitly provided.
+    if (disabledProp !== undefined) {
+      return disabledProp;
+    }
+
     if (isCalendarDisabled || disabled) {
       return true;
     }
@@ -179,7 +185,7 @@ const publicContextSelector = createSelectorMemoized(visibleDateSelector, (visib
 }));
 
 const getMonthKey = (adapter: TemporalAdapter, date: TemporalSupportedObject) =>
-  adapter.formatByString(date, `${adapter.formats.monthPadded}-${adapter.formats.yearPadded}`);
+  `${adapter.getYear(date)}-${adapter.getMonth(date)}`;
 
 const getDateKey = (adapter: TemporalAdapter, date: TemporalSupportedObject) =>
   adapter.format(date, 'localizedNumericDate');

@@ -8,6 +8,7 @@ import { useButton } from '../../use-button';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { selectors } from '../store';
 import { useCalendarMonthButton } from '../utils/useCalendarMonthButton';
+import { REASONS } from '../../utils/reasons';
 
 /**
  * Displays an element to navigate to the next month in the calendar.
@@ -19,7 +20,14 @@ export const CalendarIncrementMonth = React.forwardRef(function CalendarIncremen
   componentProps: CalendarIncrementMonth.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { className, render, nativeButton, disabled, ...elementProps } = componentProps;
+  const {
+    className,
+    render,
+    nativeButton,
+    disabled: disabledProp,
+    focusableWhenDisabled = true,
+    ...elementProps
+  } = componentProps;
 
   const store = useSharedCalendarRootContext();
   const adapter = useTemporalAdapter();
@@ -31,16 +39,24 @@ export const CalendarIncrementMonth = React.forwardRef(function CalendarIncremen
     [visibleDate, monthPageSize, adapter],
   );
 
-  const isDisabled = useStore(store, selectors.isSetMonthButtonDisabled, disabled, targetDate);
+  const isDisabled = useStore(
+    store,
+    selectors.isSetMonthButtonDisabled,
+    disabledProp,
+    targetDate,
+    disabledProp,
+  );
 
   const { getButtonProps, buttonRef } = useButton({
     disabled: isDisabled,
     native: nativeButton,
+    focusableWhenDisabled,
   });
 
   const { pointerHandlers, autoChangeButtonRef } = useCalendarMonthButton({
     direction: 1,
     disabled: isDisabled,
+    disabledProp,
     store,
     adapter,
     monthPageSize,
@@ -68,7 +84,7 @@ export const CalendarIncrementMonth = React.forwardRef(function CalendarIncremen
             targetDate,
             event.nativeEvent,
             event.currentTarget as HTMLElement,
-            'month-change',
+            REASONS.monthChange,
           );
         },
         ...pointerHandlers,
@@ -89,7 +105,13 @@ export interface CalendarIncrementMonthState {
 }
 
 export interface CalendarIncrementMonthProps
-  extends BaseUIComponentProps<'button', CalendarIncrementMonthState>, NativeButtonProps {}
+  extends BaseUIComponentProps<'button', CalendarIncrementMonthState>, NativeButtonProps {
+  /**
+   * When `true` the button remains focusable when disabled.
+   * @default true
+   */
+  focusableWhenDisabled?: boolean | undefined;
+}
 
 export namespace CalendarIncrementMonth {
   export type State = CalendarIncrementMonthState;

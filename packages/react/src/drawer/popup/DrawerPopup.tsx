@@ -183,8 +183,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
       return;
     }
 
-    const scrollHeight = popupElement.scrollHeight;
-    const nextHeight = scrollHeight > 0 ? Math.min(offsetHeight, scrollHeight) : offsetHeight;
+    const nextHeight = offsetHeight;
     if (nextHeight === popupHeightRef.current) {
       return;
     }

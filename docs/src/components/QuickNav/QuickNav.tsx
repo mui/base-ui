@@ -3,6 +3,7 @@ import * as React from 'react';
 import clsx from 'clsx';
 import { usePathname } from 'next/navigation';
 import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
+import './QuickNav.css';
 
 export function Container({ className, ...props }: React.ComponentProps<'div'>) {
   return <div className={clsx('QuickNavContainer', className)} {...props} />;

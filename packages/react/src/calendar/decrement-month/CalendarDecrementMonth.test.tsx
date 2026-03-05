@@ -66,8 +66,9 @@ describe('<Calendar.DecrementMonth />', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button).to.have.attribute('disabled');
+      expect(button).not.to.have.attribute('disabled');
       expect(button).to.have.attribute('data-disabled');
+      expect(button).to.have.attribute('aria-disabled', 'true');
     });
 
     it('should be disabled when the calendar is disabled', () => {
@@ -78,8 +79,9 @@ describe('<Calendar.DecrementMonth />', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button).to.have.attribute('disabled');
+      expect(button).not.to.have.attribute('disabled');
       expect(button).to.have.attribute('data-disabled');
+      expect(button).to.have.attribute('aria-disabled', 'true');
     });
 
     it('should be disabled when the target month is before the minDate month', () => {
@@ -93,8 +95,9 @@ describe('<Calendar.DecrementMonth />', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button).to.have.attribute('disabled');
+      expect(button).not.to.have.attribute('disabled');
       expect(button).to.have.attribute('data-disabled');
+      expect(button).to.have.attribute('aria-disabled', 'true');
     });
 
     it('should not be disabled when the target month is equal to the minDate month', () => {
@@ -111,17 +114,81 @@ describe('<Calendar.DecrementMonth />', () => {
       expect(button).not.to.have.attribute('disabled');
       expect(button).not.to.have.attribute('data-disabled');
     });
+
+    it('should not be disabled when disabled is false and the target month is before the minDate month', () => {
+      render(
+        <Calendar.Root
+          minDate={adapter.date('2025-01-10', 'default')}
+          visibleDate={adapter.date('2025-01-01', 'default')}
+        >
+          <Calendar.DecrementMonth disabled={false} />
+        </Calendar.Root>,
+      );
+
+      const button = screen.getByRole('button');
+      expect(button).not.to.have.attribute('disabled');
+      expect(button).to.have.attribute('aria-disabled', 'false');
+    });
+
+    it('should navigate to the previous month when disabled is false even if the target month is before the minDate month', async () => {
+      const onVisibleDateChange = spy();
+
+      const { user } = render(
+        <Calendar.Root
+          minDate={adapter.date('2025-01-10', 'default')}
+          visibleDate={adapter.date('2025-01-01', 'default')}
+          onVisibleDateChange={onVisibleDateChange}
+        >
+          <Calendar.DecrementMonth disabled={false} />
+        </Calendar.Root>,
+      );
+
+      await user.click(screen.getByRole('button'));
+      expect(onVisibleDateChange.callCount).to.equal(1);
+    });
+
+    describe('focusableWhenDisabled', () => {
+      it('should not have disabled attribute and have aria-disabled when focusableWhenDisabled is true', () => {
+        render(
+          <Calendar.Root>
+            <Calendar.DecrementMonth disabled />
+          </Calendar.Root>,
+        );
+
+        const button = screen.getByRole('button');
+        expect(button).not.to.have.attribute('disabled');
+        expect(button).to.have.attribute('aria-disabled', 'true');
+      });
+
+      it('should not have disabled attribute or aria-disabled="true" when disabled is false even at the minDate boundary', () => {
+        render(
+          <Calendar.Root
+            minDate={adapter.date('2025-01-10', 'default')}
+            visibleDate={adapter.date('2025-01-01', 'default')}
+          >
+            <Calendar.DecrementMonth disabled={false} />
+          </Calendar.Root>,
+        );
+
+        const button = screen.getByRole('button');
+        expect(button).not.to.have.attribute('data-disabled');
+        expect(button).to.have.attribute('aria-disabled', 'false');
+      });
+    });
   });
 
   describe('press and hold', () => {
     const { render: renderWithClock, clock } = createRenderer();
     clock.withFakeTimers();
 
-    function renderCalendar(props: Record<string, any> = {}) {
+    function renderCalendar(
+      props: Record<string, any> = {},
+      buttonProps: Record<string, any> = {},
+    ) {
       return renderWithClock(
         <LocalizationProvider>
           <Calendar.Root defaultVisibleDate={adapter.date('2025-06-15', 'default')} {...props}>
-            <Calendar.DecrementMonth data-testid="decrement" />
+            <Calendar.DecrementMonth data-testid="decrement" {...buttonProps} />
           </Calendar.Root>
         </LocalizationProvider>,
       );
@@ -196,6 +263,37 @@ describe('<Calendar.DecrementMonth />', () => {
       // Third tick would go to Dec 2024 which is before minDate, should stop
       clock.tick(100);
       expect(onVisibleDateChange.callCount).to.equal(2);
+
+      fireEvent.pointerUp(button);
+    });
+
+    it('should continue navigating past the minDate boundary when disabled is false', async () => {
+      const onVisibleDateChange = spy();
+      await renderCalendar(
+        {
+          defaultVisibleDate: adapter.date('2025-03-15', 'default'),
+          minDate: adapter.date('2025-01-01', 'default'),
+          onVisibleDateChange,
+        },
+        { disabled: false },
+      );
+
+      const button = screen.getByRole('button', { name: /previous month/i });
+
+      fireEvent.pointerDown(button);
+
+      // First tick: Mar → Feb
+      expect(onVisibleDateChange.callCount).to.equal(1);
+
+      clock.tick(400);
+
+      // Second tick: Feb → Jan
+      clock.tick(100);
+      expect(onVisibleDateChange.callCount).to.equal(2);
+
+      // Third tick: Jan → Dec 2024 — would stop at boundary without the fix
+      clock.tick(100);
+      expect(onVisibleDateChange.callCount).to.equal(3);
 
       fireEvent.pointerUp(button);
     });

@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { act, screen, fireEvent } from '@mui/internal-test-utils';
+import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { spy } from 'sinon';
 import { Calendar } from '@base-ui/react/calendar';
 import { createTemporalRenderer, describeConformance } from '#test-utils';
 
@@ -315,59 +314,6 @@ describe('<Calendar.DayGridBody />', () => {
 
       // Check that February (02) days are rendered - February 2025 has 28 days
       expect(screen.getAllByTestId('month-02').length).to.equal(28);
-    });
-  });
-
-  describe('keyboard navigation', () => {
-    function renderCalendarWithDayGrid(
-      onVisibleDateChange: ReturnType<typeof spy>,
-      date: ReturnType<ReturnType<typeof createTemporalRenderer>['adapter']['date']>,
-    ) {
-      return render(
-        <Calendar.Root visibleDate={date} onVisibleDateChange={onVisibleDateChange}>
-          <Calendar.DayGrid>
-            <Calendar.DayGridBody data-testid="grid-body">
-              {(week) => (
-                <Calendar.DayGridRow value={week} key={week.toString()}>
-                  {(day) => (
-                    <Calendar.DayGridCell value={day} key={day.toString()}>
-                      <Calendar.DayButton />
-                    </Calendar.DayGridCell>
-                  )}
-                </Calendar.DayGridRow>
-              )}
-            </Calendar.DayGridBody>
-          </Calendar.DayGrid>
-        </Calendar.Root>,
-      );
-    }
-
-    it("should call onVisibleDateChange with reason 'keyboard' when pressing PageDown", () => {
-      const onVisibleDateChange = spy();
-      const date = adapter.date('2025-02-15', 'default');
-
-      renderCalendarWithDayGrid(onVisibleDateChange, date);
-
-      const [firstDayButton] = screen.getAllByRole('button');
-      act(() => firstDayButton.focus());
-      fireEvent.keyDown(firstDayButton, { key: 'PageDown' });
-
-      expect(onVisibleDateChange.callCount).to.equal(1);
-      expect(onVisibleDateChange.firstCall.args[1].reason).to.equal('keyboard');
-    });
-
-    it("should call onVisibleDateChange with reason 'keyboard' when pressing PageUp", () => {
-      const onVisibleDateChange = spy();
-      const date = adapter.date('2025-02-15', 'default');
-
-      renderCalendarWithDayGrid(onVisibleDateChange, date);
-
-      const [firstDayButton] = screen.getAllByRole('button');
-      act(() => firstDayButton.focus());
-      fireEvent.keyDown(firstDayButton, { key: 'PageUp' });
-
-      expect(onVisibleDateChange.callCount).to.equal(1);
-      expect(onVisibleDateChange.firstCall.args[1].reason).to.equal('keyboard');
     });
   });
 });

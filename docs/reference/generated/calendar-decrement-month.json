@@ -2,6 +2,12 @@
   "name": "CalendarDecrementMonth",
   "description": "Displays an element to navigate to the previous month in the calendar.\nRenders a `<button>` element.",
   "props": {
+    "focusableWhenDisabled": {
+      "type": "boolean",
+      "default": "true",
+      "description": "When `true` the button remains focusable when disabled.",
+      "detailedType": "boolean | undefined"
+    },
     "nativeButton": {
       "type": "boolean",
       "default": "true",

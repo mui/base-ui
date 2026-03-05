@@ -129,7 +129,7 @@
   }
 
   &[data-ending-style] {
-    transform: translateY(max(100dvh, 100%));
+    transform: translateY(calc(max(100dvh, 100%) + 2px));
     transition-duration: 350ms;
     transition-timing-function: cubic-bezier(0.375, 0.015, 0.545, 0.455);
   }

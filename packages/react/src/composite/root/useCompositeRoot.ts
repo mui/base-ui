@@ -234,7 +234,9 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
           nextIndex = cellMap[
             getGridNavigatedIndex(
-              cellMap.map((itemIndex) => (itemIndex ? elementsRef.current[itemIndex] : null)),
+              cellMap.map((itemIndex) =>
+                itemIndex != null ? elementsRef.current[itemIndex] : null,
+              ),
               {
                 event,
                 orientation,
