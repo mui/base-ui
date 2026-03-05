@@ -4,7 +4,7 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useAvatarRootContext } from '../root/AvatarRootContext';
-import type { AvatarRoot } from '../root/AvatarRoot';
+import type { AvatarRootState } from '../root/AvatarRoot';
 import { avatarStateAttributesMapping } from '../root/stateAttributesMapping';
 
 /**
@@ -45,9 +45,9 @@ export const AvatarFallback = React.forwardRef(function AvatarFallback(
   return element;
 });
 
-export interface AvatarFallbackState extends AvatarRoot.State {}
+export interface AvatarFallbackState extends AvatarRootState {}
 
-export interface AvatarFallbackProps extends BaseUIComponentProps<'span', AvatarFallback.State> {
+export interface AvatarFallbackProps extends BaseUIComponentProps<'span', AvatarFallbackState> {
   /**
    * How long to wait before showing the fallback. Specified in milliseconds.
    */

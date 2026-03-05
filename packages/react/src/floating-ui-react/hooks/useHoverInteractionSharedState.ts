@@ -4,10 +4,8 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Timeout } from '@base-ui/utils/useTimeout';
 
 import type { ContextData, FloatingRootContext, SafePolygonOptions } from '../types';
-import { createAttribute } from '../utils/createAttribute';
 import { TYPEABLE_SELECTOR } from '../utils/constants';
 
-export const safePolygonIdentifier = createAttribute('safe-polygon');
 const interactiveSelector = `button,a,[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`;
 export const HOVER_CLOSE_UNSET = -1;
 export const HOVER_SWITCH_GRACE_MS = 400;
@@ -22,6 +20,7 @@ export class HoverInteraction {
   handler: ((event: MouseEvent) => void) | undefined;
   blockMouseMove: boolean;
   performedPointerEventsMutation: boolean;
+  pointerEventsScopeElement: HTMLElement | SVGSVGElement | null;
   restTimeoutPending: boolean;
   lastHoverCloseTime: number;
   openChangeTimeout: Timeout;
@@ -34,6 +33,7 @@ export class HoverInteraction {
     this.handler = undefined;
     this.blockMouseMove = true;
     this.performedPointerEventsMutation = false;
+    this.pointerEventsScopeElement = null;
     this.restTimeoutPending = false;
     // `HOVER_CLOSE_UNSET` means no hover-close has occurred yet.
     this.lastHoverCloseTime = HOVER_CLOSE_UNSET;
@@ -54,6 +54,20 @@ export class HoverInteraction {
   disposeEffect = () => {
     return this.dispose;
   };
+}
+
+export function clearSafePolygonPointerEventsMutation(
+  instance: Pick<HoverInteraction, 'performedPointerEventsMutation' | 'pointerEventsScopeElement'>,
+  fallbackScopeElement: HTMLElement,
+) {
+  if (!instance.performedPointerEventsMutation) {
+    return;
+  }
+
+  const scopeElement = instance.pointerEventsScopeElement ?? fallbackScopeElement;
+  scopeElement.style.pointerEvents = '';
+  instance.performedPointerEventsMutation = false;
+  instance.pointerEventsScopeElement = null;
 }
 
 type HoverContextData = ContextData & {

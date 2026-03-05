@@ -16,9 +16,12 @@ import { HorizontalMenu } from '../../../test/floating-ui-tests/MenuOrientation'
 /* eslint-disable testing-library/no-unnecessary-act */
 
 function App(
-  inProps: Omit<Partial<UseListNavigationProps>, 'listRef'> & { disableFirstItem?: boolean } = {},
+  inProps: Omit<Partial<UseListNavigationProps>, 'listRef'> & {
+    disableFirstItem?: boolean;
+    hideFirstItem?: boolean;
+  } = {},
 ) {
-  const { disableFirstItem, ...props } = inProps;
+  const { disableFirstItem, hideFirstItem, ...props } = inProps;
   const [open, setOpen] = React.useState(false);
   const listRef = React.useRef<Array<HTMLLIElement | null>>([]);
   const [activeIndex, setActiveIndex] = React.useState<null | number>(null);
@@ -51,6 +54,7 @@ function App(
                 data-testid={`item-${index}`}
                 aria-selected={activeIndex === index}
                 key={string}
+                style={hideFirstItem && index === 0 ? { display: 'none' } : undefined}
                 tabIndex={-1}
                 aria-disabled={
                   (disableFirstItem && index === 0) ||
@@ -79,11 +83,13 @@ function VirtualizedGridRows({
   initialActiveIndex = 0,
   loopFocus = true,
   disabledIndices,
+  hiddenIndices,
 }: {
   totalItems?: number;
   initialActiveIndex?: number;
   loopFocus?: boolean;
   disabledIndices?: UseListNavigationProps['disabledIndices'];
+  hiddenIndices?: number[];
 }) {
   const COLUMNS = 5;
   const VISIBLE_ROWS = 3;
@@ -139,6 +145,7 @@ function VirtualizedGridRows({
                     key={itemIndex}
                     type="button"
                     role="gridcell"
+                    style={hiddenIndices?.includes(itemIndex) ? { display: 'none' } : undefined}
                     data-active={activeIndex === itemIndex ? '' : undefined}
                     {...getItemProps({
                       ref(node: HTMLButtonElement | null) {
@@ -254,6 +261,21 @@ describe('useListNavigation', () => {
     fireEvent.keyDown(screen.getByRole('menu'), { key: 'ArrowUp' });
     await waitFor(() => {
       expect(screen.getByTestId('item-0')).toHaveFocus();
+    });
+  });
+
+  it('skips items hidden with CSS in navigation', async () => {
+    render(<App hideFirstItem loopFocus disabledIndices={[]} />);
+
+    fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('item-1')).toHaveFocus();
+    });
+
+    fireEvent.keyDown(screen.getByRole('menu'), { key: 'ArrowUp' });
+    await waitFor(() => {
+      expect(screen.getByTestId('item-2')).toHaveFocus();
     });
   });
 
@@ -965,6 +987,24 @@ describe('useListNavigation', () => {
         expect(screen.getByTestId('virtual-grid-active-index')).toHaveAttribute(
           'data-active-index',
           '96',
+        );
+      });
+    });
+
+    it('falls back left when the preferred candidate is hidden', async () => {
+      render(<VirtualizedGridRows initialActiveIndex={9} hiddenIndices={[14]} />);
+
+      const reference = screen.getByTestId('virtual-grid-reference');
+      await act(async () => {
+        reference.focus();
+      });
+
+      await userEvent.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('virtual-grid-active-index')).toHaveAttribute(
+          'data-active-index',
+          '13',
         );
       });
     });

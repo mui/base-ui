@@ -36,10 +36,7 @@ export const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
 
 export interface SelectGroupLabelState {}
 
-export interface SelectGroupLabelProps extends BaseUIComponentProps<
-  'div',
-  SelectGroupLabel.State
-> {}
+export interface SelectGroupLabelProps extends BaseUIComponentProps<'div', SelectGroupLabelState> {}
 
 export namespace SelectGroupLabel {
   export type State = SelectGroupLabelState;
