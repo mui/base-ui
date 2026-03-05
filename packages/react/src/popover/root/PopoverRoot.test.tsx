@@ -345,6 +345,40 @@ describe('<Popover.Root />', () => {
 
         expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
       });
+
+      it('does not reuse hover-close grace after a click open/close cycle', async () => {
+        await render(
+          <TestPopover triggerProps={{ openOnHover: true, delay: OPEN_DELAY_MS, closeDelay: 0 }} />,
+        );
+
+        const anchor = screen.getByRole('button', { name: 'Toggle' });
+
+        await openAfterDelay(anchor);
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+
+        // Seed grace window with a hover close.
+        fireEvent.mouseLeave(anchor);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).to.equal(null);
+
+        // Click open/close should clear hover grace state.
+        clock.tick(PATIENT_CLICK_THRESHOLD);
+        fireEvent.click(anchor);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+
+        clock.tick(PATIENT_CLICK_THRESHOLD);
+        fireEvent.click(anchor);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).to.equal(null);
+
+        await hoverTrigger(anchor);
+        expect(screen.queryByTestId('popover-popup')).to.equal(null);
+
+        clock.tick(OPEN_DELAY_MS);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+      });
     });
 
     describe('prop: closeDelay', () => {

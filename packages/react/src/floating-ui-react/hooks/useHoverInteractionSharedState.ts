@@ -91,6 +91,10 @@ export function recordHoverClose(instance: HoverInteraction, now = performance.n
   instance.lastHoverCloseTime = now;
 }
 
+export function clearRecentHoverClose(instance: HoverInteraction): void {
+  instance.lastHoverCloseTime = HOVER_CLOSE_UNSET;
+}
+
 export function wasHoverClosedRecently(
   instance: HoverInteraction,
   now = performance.now(),

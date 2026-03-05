@@ -12,6 +12,7 @@ import { REASONS } from '../../utils/reasons';
 import { useFloatingTree } from '../components/FloatingTree';
 import type { FloatingTreeStore } from '../components/FloatingTreeStore';
 import {
+  clearRecentHoverClose,
   clearSafePolygonPointerEventsMutation,
   recordHoverClose,
   useHoverInteractionSharedState,
@@ -168,6 +169,10 @@ export function useHoverReferenceInteraction(
     }
 
     function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
+      if (details.reason !== REASONS.triggerHover) {
+        clearRecentHoverClose(instance);
+      }
+
       if (!details.open) {
         cleanupMouseMoveHandler();
         instance.openChangeTimeout.clear();
