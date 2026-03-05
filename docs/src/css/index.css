@@ -53,6 +53,7 @@
 @import '../components/TableCode.css';
 @import '../components/DescriptionList.css';
 @import '../components/ReferenceTable/ReferenceTable.css';
+@import '../components/Menu.css';
 
 @import '../syntax-highlighting/index.css';
 
