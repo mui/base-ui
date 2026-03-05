@@ -66,8 +66,8 @@ export function InstallationBlock(props: InstallationBlockProps) {
   });
 
   return (
-    <div role="figure" aria-label="Installation command" className="CodeBlockRoot">
-      <Tabs.Root value={value} onValueChange={handleValueChange}>
+    <Tabs.Root value={value} onValueChange={handleValueChange}>
+      <div role="figure" aria-label="Installation command" className="CodeBlockRoot">
         <div className="CodeBlockPanel">
           <Tabs.List className="InstallationBlockTabsList" aria-label="Package manager">
             {PACKAGE_MANAGERS.map((pm) => (
@@ -111,7 +111,7 @@ export function InstallationBlock(props: InstallationBlockProps) {
             </pre>
           </Tabs.Panel>
         ))}
-      </Tabs.Root>
-    </div>
+      </div>
+    </Tabs.Root>
   );
 }
