@@ -691,7 +691,8 @@ export interface UseAnchorPositioningSharedParameters {
    *   (`bottom` before `top`, or `right` before `left` in LTR).
    * - `'none'`: do not fallback to the perpendicular axis.
    *
-   * Note that when `side` is `'shift'`, `align` can only be `'shift'` or `'none'`.
+   * When `side` is `'shift'`, explicitly setting `align` only supports `'shift'` or `'none'`.
+   * If `align` is omitted, it defaults to `'flip'`.
    *
    * @example
    * ```jsx
