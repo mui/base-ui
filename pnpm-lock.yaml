@@ -691,8 +691,8 @@ importers:
         specifier: ^4.21.0
         version: 4.21.0
       typescript-api-extractor:
-        specifier: 1.0.0-alpha.13
-        version: 1.0.0-alpha.13(typescript@5.9.3)
+        specifier: 1.0.0-beta.0
+        version: 1.0.0-beta.0(typescript@5.9.3)
       yargs:
         specifier: ^18.0.0
         version: 18.0.0
@@ -6677,6 +6677,7 @@ packages:
   git-raw-commits@3.0.0:
     resolution: {integrity: sha512-b5OHmZ3vAgGrDn/X0kS+9qCfNKWe4K/jFnhwzVWWg0/k5eLa3060tZShrRg8Dja5kPc+YjS0Gc6y7cRr44Lpjw==}
     engines: {node: '>=14'}
+    deprecated: This package is no longer maintained. For the JavaScript API, please use @conventional-changelog/git-client instead.
     hasBin: true
 
   git-remote-origin-url@2.0.0:
@@ -6686,6 +6687,7 @@ packages:
   git-semver-tags@5.0.1:
     resolution: {integrity: sha512-hIvOeZwRbQ+7YEUmCkHqo8FOLQZCEn18yevLHADlFPZY02KJGsu5FZt9YW/lybfK2uhWFI7Qg/07LekJiTv7iA==}
     engines: {node: '>=14'}
+    deprecated: This package is no longer maintained. For the JavaScript API, please use @conventional-changelog/git-client instead.
     hasBin: true
 
   git-up@7.0.0:
@@ -9732,8 +9734,8 @@ packages:
   typedarray@0.0.6:
     resolution: {integrity: sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==}
 
-  typescript-api-extractor@1.0.0-alpha.13:
-    resolution: {integrity: sha512-vMn26RR+SisBu3t0E0n7odikrw/+C+5al52q6JwmiMEhUhLVgkO747BiwGhSTmedwjC6ACFFFHa9bytoQQhZ4w==}
+  typescript-api-extractor@1.0.0-beta.0:
+    resolution: {integrity: sha512-FAF+ZYnaw0w8Cabje0FE/FytRpxJklX+cev7liqIGaudWe6gJhFwSEHExIvGnroNzHelheedjd1/kvoh0C9f2g==}
     engines: {node: '>=22'}
     peerDependencies:
       typescript: ^5.8
@@ -21374,7 +21376,7 @@ snapshots:
 
   typedarray@0.0.6: {}
 
-  typescript-api-extractor@1.0.0-alpha.13(typescript@5.9.3):
+  typescript-api-extractor@1.0.0-beta.0(typescript@5.9.3):
     dependencies:
       es-toolkit: 1.44.0
       typescript: 5.9.3
