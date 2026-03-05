@@ -1,6 +1,6 @@
 @layer components {
   .TypeRefTrigger {
-    cursor: pointer;
+    cursor: default;
     border: 0;
     background: transparent;
     padding: 0;
@@ -66,6 +66,47 @@
     background: var(--color-gray-100);
     padding: 0.0625rem 0.25rem;
     border-radius: 0.1875rem;
+  }
+
+  .TypeRefInfoArrow {
+    &[data-side='bottom'] {
+      top: -8px;
+    }
+
+    &[data-side='left'] {
+      right: -13px;
+      transform: rotate(90deg);
+    }
+
+    &[data-side='right'] {
+      left: -13px;
+      transform: rotate(-90deg);
+    }
+
+    &[data-side='top'] {
+      bottom: -8px;
+      transform: rotate(180deg);
+    }
+  }
+
+  .TypeRefInfoArrowFill {
+    fill: var(--color-popup);
+  }
+
+  .TypeRefInfoArrowStroke {
+    fill: var(--color-gray-200);
+  }
+
+  .TypeRefInfoArrowStrokeDark {
+    @media (prefers-color-scheme: dark) {
+      fill: var(--color-gray-300);
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .TypeRefInfoArrowStroke {
+      fill: none;
+    }
   }
 
   .TypeRefDocsLink {
