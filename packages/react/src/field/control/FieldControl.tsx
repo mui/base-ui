@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { FieldRoot } from '../root/FieldRoot';
+import { type FieldRootState } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
@@ -59,7 +59,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 
-  const state: FieldControl.State = {
+  const state: FieldControlState = {
     ...fieldState,
     disabled,
   };
@@ -149,9 +149,9 @@ export const FieldControl = React.forwardRef(function FieldControl(
   return element;
 });
 
-export type FieldControlState = FieldRoot.State;
+export interface FieldControlState extends FieldRootState {}
 
-export interface FieldControlProps extends BaseUIComponentProps<'input', FieldControl.State> {
+export interface FieldControlProps extends BaseUIComponentProps<'input', FieldControlState> {
   /**
    * Callback fired when the `value` changes. Use when controlled.
    */

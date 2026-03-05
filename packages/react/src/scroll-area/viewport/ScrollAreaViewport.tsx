@@ -15,7 +15,7 @@ import { clamp } from '../../utils/clamp';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { onVisible } from '../utils/onVisible';
 import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
-import type { HiddenState, ScrollAreaRoot } from '../root/ScrollAreaRoot';
+import type { HiddenState, ScrollAreaRootState } from '../root/ScrollAreaRoot';
 import { ScrollAreaViewportCssVars } from './ScrollAreaViewportCssVars';
 import { normalizeScrollOffset } from '../utils/scrollEdges';
 
@@ -416,7 +416,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     onKeyDown: handleUserInteraction,
   };
 
-  const viewportState: ScrollAreaViewport.State = React.useMemo(
+  const viewportState: ScrollAreaViewportState = React.useMemo(
     () => ({
       scrolling: scrollingX || scrollingY,
       hasOverflowX: !hiddenState.x,
@@ -453,10 +453,10 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 
 export interface ScrollAreaViewportProps extends BaseUIComponentProps<
   'div',
-  ScrollAreaViewport.State
+  ScrollAreaViewportState
 > {}
 
-export interface ScrollAreaViewportState extends ScrollAreaRoot.State {}
+export interface ScrollAreaViewportState extends ScrollAreaRootState {}
 
 export namespace ScrollAreaViewport {
   export type Props = ScrollAreaViewportProps;

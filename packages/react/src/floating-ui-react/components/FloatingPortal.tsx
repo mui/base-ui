@@ -16,7 +16,10 @@ import {
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { createAttribute } from '../utils/createAttribute';
-import { useRenderElement } from '../../utils/useRenderElement';
+import {
+  useRenderElement,
+  type UseRenderElementComponentProps,
+} from '../../utils/useRenderElement';
 import { EMPTY_OBJECT, ownerVisuallyHidden } from '../../utils/constants';
 import type { BaseUIComponentProps } from '../../utils/types';
 
@@ -52,7 +55,7 @@ export interface UseFloatingPortalNodeProps {
     | null
     | React.RefObject<HTMLElement | ShadowRoot | null>
     | undefined;
-  componentProps?: useRenderElement.ComponentProps<any> | undefined;
+  componentProps?: UseRenderElementComponentProps<any> | undefined;
   elementProps?: React.HTMLAttributes<HTMLDivElement> | undefined;
 }
 
@@ -279,8 +282,11 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
   );
 });
 
+export interface FloatingPortalState {}
+
 export namespace FloatingPortal {
-  export interface Props<State> extends BaseUIComponentProps<'div', State> {
+  export type State = FloatingPortalState;
+  export interface Props<TState> extends BaseUIComponentProps<'div', TState> {
     /**
      * A parent element to render the portal element into.
      */

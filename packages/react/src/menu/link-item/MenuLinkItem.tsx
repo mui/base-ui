@@ -61,7 +61,7 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
     return mergeProps<'a'>(commonProps, externalProps, getButtonProps);
   }
 
-  const state: MenuLinkItem.State = React.useMemo(
+  const state: MenuLinkItemState = React.useMemo(
     () => ({
       highlighted,
     }),
@@ -82,7 +82,7 @@ export interface MenuLinkItemState {
   highlighted: boolean;
 }
 
-export interface MenuLinkItemProps extends BaseUIComponentProps<'a', MenuLinkItem.State> {
+export interface MenuLinkItemProps extends BaseUIComponentProps<'a', MenuLinkItemState> {
   /**
    * Overrides the text label to use when the item is matched during keyboard text navigation.
    */

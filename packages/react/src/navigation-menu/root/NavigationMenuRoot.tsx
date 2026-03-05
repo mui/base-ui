@@ -259,7 +259,7 @@ function TreeContext(props: {
 
   const { open } = useNavigationMenuRootContext();
 
-  const state: NavigationMenuRoot.State = {
+  const state: NavigationMenuRootState = {
     open,
     nested,
   };
@@ -290,7 +290,7 @@ export interface NavigationMenuRootState {
 
 export interface NavigationMenuRootProps extends BaseUIComponentProps<
   'nav',
-  NavigationMenuRoot.State
+  NavigationMenuRootState
 > {
   /**
    * A ref to imperative actions.
