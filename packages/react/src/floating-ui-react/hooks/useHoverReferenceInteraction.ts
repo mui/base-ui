@@ -58,6 +58,7 @@ export function useHoverReferenceInteraction(
   props: UseHoverReferenceInteractionProps = {},
 ): HTMLProps | undefined {
   const store = 'rootStore' in context ? context.rootStore : context;
+  const open = store.useState('open');
   const { dataRef, events } = store.context;
 
   const {
@@ -160,6 +161,14 @@ export function useHoverReferenceInteraction(
       ownerDocument(store.select('domReferenceElement')).body,
     );
   });
+
+  React.useEffect(() => {
+    if (open) {
+      // Programmatic/controlled `open` updates may not emit `openchange`.
+      // Clear stale grace once any new open cycle starts.
+      clearRecentHoverClose(instance);
+    }
+  }, [instance, open]);
 
   // When closing before opening, clear the delay timeouts to cancel it
   // from showing.

@@ -379,6 +379,51 @@ describe('<Popover.Root />', () => {
         await flushMicrotasks();
         expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
       });
+
+      it('does not reuse hover-close grace after a controlled programmatic open/close cycle', async () => {
+        function Test() {
+          const [open, setOpen] = React.useState(false);
+
+          return (
+            <React.Fragment>
+              <button onClick={() => setOpen(true)}>Programmatic open</button>
+              <button onClick={() => setOpen(false)}>Programmatic close</button>
+              <TestPopover
+                rootProps={{ open, onOpenChange: setOpen }}
+                triggerProps={{ openOnHover: true, delay: OPEN_DELAY_MS, closeDelay: 0 }}
+              />
+            </React.Fragment>
+          );
+        }
+
+        await render(<Test />);
+
+        const anchor = screen.getByRole('button', { name: 'Toggle' });
+        const openButton = screen.getByRole('button', { name: 'Programmatic open' });
+        const closeButton = screen.getByRole('button', { name: 'Programmatic close' });
+
+        await openAfterDelay(anchor);
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+
+        fireEvent.mouseLeave(anchor);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).to.equal(null);
+
+        fireEvent.click(openButton);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+
+        fireEvent.click(closeButton);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).to.equal(null);
+
+        await hoverTrigger(anchor);
+        expect(screen.queryByTestId('popover-popup')).to.equal(null);
+
+        clock.tick(OPEN_DELAY_MS);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+      });
     });
 
     describe('prop: closeDelay', () => {
