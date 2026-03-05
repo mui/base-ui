@@ -287,37 +287,6 @@ describe('SharedCalendarStore - visibleDate', () => {
     });
   });
 
-  describe('skipIfAlreadyVisible parameter', () => {
-    it('should not update visibleDate when skipIfAlreadyVisible is true and no day grids are registered', () => {
-      const onVisibleDateChange = spy();
-      const store = createStore(adapter, {
-        defaultVisibleDate: adapter.date('2025-02-01', 'default'),
-        onVisibleDateChange,
-      });
-      const newVisibleDate = adapter.date('2025-03-01', 'default');
-
-      (store as any).isDateCellVisible = () => true; // Mock to simulate that the date is already visible
-      store.setVisibleDate(newVisibleDate, undefined, undefined, undefined, true);
-
-      // Should not update because skipIfAlreadyVisible is true and isDateCellVisible returns true
-      expect(onVisibleDateChange.callCount).to.equal(0);
-    });
-
-    it('should update visibleDate when skipIfAlreadyVisible is false regardless of visibility', () => {
-      const onVisibleDateChange = spy();
-      const store = createStore(adapter, {
-        defaultVisibleDate: adapter.date('2025-02-01', 'default'),
-        onVisibleDateChange,
-      });
-      const newVisibleDate = adapter.date('2025-03-01', 'default');
-
-      store.setVisibleDate(newVisibleDate);
-
-      expect(onVisibleDateChange.callCount).to.equal(1);
-      expect(adapter.isEqual(store.state.visibleDate, newVisibleDate)).to.equal(true);
-    });
-  });
-
   describe('visibleDate synchronization with value', () => {
     it('should update visibleDate when controlled value changes to a valid date', () => {
       const onVisibleDateChange = spy();

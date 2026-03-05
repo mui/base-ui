@@ -44,8 +44,6 @@ export function useSharedCalendarDayGridBody(
     return offset === 0 ? visibleMonth : adapter.addMonths(visibleMonth, offset);
   }, [adapter, visibleMonth, offset]);
 
-  React.useEffect(() => store.registerDayGrid(month), [store, month]);
-
   const getWeekList = useCalendarWeekList();
   const weeks = React.useMemo(
     () => getWeekList({ date: month, amount: fixedWeekNumber ?? 'end-of-month' }),

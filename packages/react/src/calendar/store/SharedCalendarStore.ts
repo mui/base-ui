@@ -34,8 +34,6 @@ export class SharedCalendarStore<TValue extends TemporalSupportedValue, TError> 
 > {
   private valueManager: ValueManager<TValue>;
 
-  private dayGrids: Record<number, TemporalSupportedObject> = {};
-
   private currentMonthDayGrid: Record<number, TemporalSupportedObject[]> = {};
 
   private nextGridId = 0;
@@ -104,8 +102,11 @@ export class SharedCalendarStore<TValue extends TemporalSupportedValue, TError> 
         ) {
           this.set('value', newValueProp);
           const visibleDate = this.valueManager.getActiveDateFromValue(newValueProp);
-          if (this.state.adapter.isValid(visibleDate)) {
-            this.setVisibleDate(visibleDate, undefined, undefined, REASONS.valuePropChange, true);
+          if (
+            this.state.adapter.isValid(visibleDate) &&
+            !this.state.adapter.isSameMonth(visibleDate, this.state.visibleDate)
+          ) {
+            this.setVisibleDate(visibleDate, undefined, undefined, REASONS.valuePropChange);
           }
         }
       },
@@ -140,12 +141,7 @@ export class SharedCalendarStore<TValue extends TemporalSupportedValue, TError> 
     nativeEvent?: Event,
     trigger?: HTMLElement,
     reason?: CalendarChangeEventReason,
-    skipIfAlreadyVisible?: boolean,
   ) => {
-    if (skipIfAlreadyVisible && this.isDateCellVisible(visibleDate)) {
-      return;
-    }
-
     const eventDetails = createChangeEventDetails(reason ?? REASONS.dayPress, nativeEvent, trigger);
 
     this.context.onVisibleDateChange?.(visibleDate, eventDetails);
@@ -181,19 +177,6 @@ export class SharedCalendarStore<TValue extends TemporalSupportedValue, TError> 
       selectedDate: cleanSelectedDate,
       referenceDate,
     });
-  };
-
-  /**
-   * Registers a day grid.
-   */
-  public registerDayGrid = (month: TemporalSupportedObject) => {
-    this.nextGridId += 1;
-    const id = this.nextGridId;
-    this.dayGrids[id] = month;
-
-    return () => {
-      delete this.dayGrids[id];
-    };
   };
 
   public getCurrentMonthDayGrid = () => {
@@ -242,19 +225,6 @@ export class SharedCalendarStore<TValue extends TemporalSupportedValue, TError> 
     if (!eventDetails.isCanceled && this.state.valueProp === undefined) {
       this.set('value', newValueWithInputTimezone);
     }
-  }
-
-  /**
-   * Checks whether the given date is visible in any of the registered day grids.
-   */
-  private isDateCellVisible(date: TemporalSupportedObject) {
-    if (Object.values(this.dayGrids).length > 0) {
-      return Object.values(this.dayGrids).every(
-        (month) => !this.state.adapter.isSameMonth(date, month),
-      );
-    }
-
-    return false;
   }
 
   /**
