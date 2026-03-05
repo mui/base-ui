@@ -2,11 +2,6 @@
   .CodeWithSyntax {
     letter-spacing: normal;
 
-    /* Inline code */
-    &[data-inline] {
-      margin-inline: 0.1em;
-    }
-
     /* In a code block */
     pre & {
       white-space: normal;
