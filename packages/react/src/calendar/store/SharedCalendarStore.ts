@@ -38,6 +38,8 @@ export class SharedCalendarStore<TValue extends TemporalSupportedValue, TError> 
 
   private currentMonthDayGrid: Record<number, TemporalSupportedObject[]> = {};
 
+  private nextGridId = 0;
+
   constructor(
     parameters: SharedCalendarStoreParameters<TValue, TError>,
     adapter: TemporalAdapter,
@@ -184,7 +186,8 @@ export class SharedCalendarStore<TValue extends TemporalSupportedValue, TError> 
    * Registers a day grid.
    */
   public registerDayGrid = (month: TemporalSupportedObject) => {
-    const id = Math.random();
+    this.nextGridId += 1;
+    const id = this.nextGridId;
     this.dayGrids[id] = month;
 
     return () => {
