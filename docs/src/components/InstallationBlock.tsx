@@ -40,7 +40,6 @@ export function InstallationBlock(props: InstallationBlockProps) {
 
   const codeRef = React.useRef<HTMLPreElement>(null);
   const timeout = useTimeout();
-  const titleId = React.useId();
 
   useIsoLayoutEffect(() => {
     if (PACKAGE_MANAGERS.some((pm) => pm.value === globalPreference)) {
@@ -67,13 +66,9 @@ export function InstallationBlock(props: InstallationBlockProps) {
   });
 
   return (
-    <div role="figure" aria-labelledby={titleId} className="CodeBlockRoot">
+    <div role="figure" aria-label="Installation command" className="CodeBlockRoot">
       <Tabs.Root value={value} onValueChange={handleValueChange}>
         <div className="CodeBlockPanel">
-          <div id={titleId} className="CodeBlockPanelTitle">
-            Terminal
-          </div>
-
           <Tabs.List className="InstallationBlockTabsList" aria-label="Package manager">
             {PACKAGE_MANAGERS.map((pm) => (
               <Tabs.Tab key={pm.value} value={pm.value} className="InstallationBlockTab">
@@ -82,9 +77,9 @@ export function InstallationBlock(props: InstallationBlockProps) {
             ))}
           </Tabs.List>
 
-          <GhostButton className="ml-auto" aria-label="Copy code" onClick={handleCopy}>
+          <GhostButton className="ml-auto" onClick={handleCopy}>
             Copy
-            <span className="flex size-3.5 items-center justify-center">
+            <span className="flex size-3.5 items-center justify-center" aria-hidden>
               {copied ? <CheckIcon /> : <CopyIcon />}
             </span>
           </GhostButton>
