@@ -190,24 +190,6 @@ function transformJsx() {
               node.attributes?.find((attr) => attr.name === 'package')?.value || '@base-ui/react';
 
             const nodes = [
-              mdx.paragraph(
-                'Use the package manager detected from the project lock file. If no lock file exists, use pnpm.',
-              ),
-
-              {
-                type: 'list',
-                ordered: false,
-                children: [
-                  'pnpm-lock.yaml → pnpm',
-                  'bun.lock → bun',
-                  'yarn.lock → yarn',
-                  'package-lock.json → npm',
-                ].map((item) => ({
-                  type: 'listItem',
-                  children: [mdx.paragraph(item)],
-                })),
-              },
-
               mdx.heading(3, 'pnpm'),
               mdx.code(`pnpm add ${pkg}`, 'bash'),
 
