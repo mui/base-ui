@@ -180,10 +180,9 @@
     --color-gray: var(--color-gray-600);
     --color-navy: oklch(31% 25% 264deg);
     --color-green: oklch(46% 30% 150deg);
-    --color-purple: oklch(40% 45% 360deg);
+    --color-purple: oklch(63% 0.3 325.49deg);
     --color-violet: oklch(40% 60% 300deg);
-    --color-orange: oklch(58% 35% 55deg);
-    --color-pink: oklch(55% 45% 340deg);
+    --color-orange: oklch(64% 0.19 42.55deg);
 
     /* Typography */
     --text-xxs: 0.75rem;
@@ -224,10 +223,9 @@
       --color-gray: var(--color-gray-600);
       --color-green: oklch(75% 25% 150deg);
       --color-navy: oklch(85% 25% 264deg);
-      --color-purple: oklch(85% 30% 360deg);
+      --color-purple: oklch(72% 38% 325deg);
       --color-violet: oklch(80% 60% 280deg);
-      --color-orange: oklch(78% 30% 55deg);
-      --color-pink: oklch(78% 35% 340deg);
+      --color-orange: oklch(76% 38% 55deg);
     }
   }
 
