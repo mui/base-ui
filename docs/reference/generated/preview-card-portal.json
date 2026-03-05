@@ -10,7 +10,7 @@
     "className": {
       "type": "string | ((state: PreviewCard.Portal.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((\n    state: PreviewCard.Portal.State,\n  ) => string | undefined)"
+      "detailedType": "| string\n| ((state: PreviewCard.Portal.State) => string | undefined)"
     },
     "style": {
       "type": "CSSProperties | ((state: PreviewCard.Portal.State) => CSSProperties | undefined)",
