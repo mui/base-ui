@@ -4,6 +4,7 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useInterval } from '@base-ui/utils/useInterval';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerWindow } from '@base-ui/utils/owner';
+import { REASONS } from '../../utils/reasons';
 import type { TemporalAdapter } from '../../types/temporal-adapter';
 import type { SharedCalendarStore } from '../store/SharedCalendarStore';
 import type { TemporalSupportedValue } from '../../types/temporal';
@@ -96,7 +97,12 @@ export function useCalendarMonthButton(params: UseCalendarMonthButtonParameters)
         return false;
       }
 
-      store.setVisibleDate(targetDate, triggerNativeEvent, button ?? undefined, 'month-change');
+      store.setVisibleDate(
+        targetDate,
+        triggerNativeEvent,
+        button ?? undefined,
+        REASONS.monthChange,
+      );
       return true;
     }
 

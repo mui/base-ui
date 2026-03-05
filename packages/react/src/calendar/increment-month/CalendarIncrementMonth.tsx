@@ -8,6 +8,7 @@ import { useButton } from '../../use-button';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { selectors } from '../store';
 import { useCalendarMonthButton } from '../utils/useCalendarMonthButton';
+import { REASONS } from '../../utils/reasons';
 
 /**
  * Displays an element to navigate to the next month in the calendar.
@@ -83,7 +84,7 @@ export const CalendarIncrementMonth = React.forwardRef(function CalendarIncremen
             targetDate,
             event.nativeEvent,
             event.currentTarget as HTMLElement,
-            'month-change',
+            REASONS.monthChange,
           );
         },
         ...pointerHandlers,

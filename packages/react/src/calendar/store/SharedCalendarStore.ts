@@ -11,6 +11,7 @@ import {
 import { mergeDateAndTime } from '../../utils/temporal/date-helpers';
 import { CalendarNavigationDirection, SharedCalendarState as State } from './SharedCalendarState';
 import { selectors } from './selectors';
+import { REASONS } from '../../utils/reasons';
 
 export interface SharedCalendarStoreContext<TValue extends TemporalSupportedValue, TError> {
   onValueChange?:
@@ -101,7 +102,7 @@ export class SharedCalendarStore<TValue extends TemporalSupportedValue, TError> 
         ) {
           const visibleDate = this.valueManager.getActiveDateFromValue(newValueProp);
           if (this.state.adapter.isValid(visibleDate)) {
-            this.setVisibleDate(visibleDate, undefined, undefined, 'month-change', true);
+            this.setVisibleDate(visibleDate, undefined, undefined, REASONS.monthChange, true);
           }
         }
       },

@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
+import { REASONS } from '../../utils/reasons';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import { SharedCalendarDayGridBodyContext } from './SharedCalendarDayGridBodyContext';
 import { BaseUIEvent, HTMLProps } from '../../utils/types';
@@ -212,7 +213,7 @@ export function useSharedCalendarDayGridBody(
           adapter.addMonths(visibleMonth, decrement ? -amount : amount),
           event.nativeEvent,
           event.currentTarget as HTMLElement,
-          'keyboard',
+          REASONS.keyboard,
         );
         executeAfterItemMapUpdate.current = (newMap: typeof itemMap) => {
           const newGridDays: TemporalSupportedObject[] = Object.values(
@@ -274,7 +275,7 @@ export function useSharedCalendarDayGridBody(
         targetMonth,
         event.nativeEvent,
         event.currentTarget as HTMLElement,
-        'keyboard',
+        REASONS.keyboard,
       );
 
       executeAfterItemMapUpdate.current = (newMap: typeof itemMap) => {
