@@ -14,7 +14,7 @@ import { getDelay } from './useHover';
 import { useFloatingTree } from '../components/FloatingTree';
 import type { FloatingTreeStore } from '../components/FloatingTreeStore';
 import {
-  safePolygonIdentifier,
+  clearSafePolygonPointerEventsMutation,
   useHoverInteractionSharedState,
 } from './useHoverInteractionSharedState';
 import { FloatingUIOpenChangeDetails, HTMLProps } from '../../utils/types';
@@ -121,12 +121,10 @@ export function useHoverReferenceInteraction(
   React.useEffect(() => cleanupMouseMoveHandler, [cleanupMouseMoveHandler]);
 
   const clearPointerEvents = useStableCallback(() => {
-    if (instance.performedPointerEventsMutation) {
-      const body = ownerDocument(store.select('domReferenceElement')).body;
-      body.style.pointerEvents = '';
-      body.removeAttribute(safePolygonIdentifier);
-      instance.performedPointerEventsMutation = false;
-    }
+    clearSafePolygonPointerEventsMutation(
+      instance,
+      ownerDocument(store.select('domReferenceElement')).body,
+    );
   });
 
   // When closing before opening, clear the delay timeouts to cancel it
@@ -181,14 +179,11 @@ export function useHoverReferenceInteraction(
 
       const openDelay = getDelay(delayRef.current, 'open', instance.pointerType);
       const currentDomReference = store.select('domReferenceElement');
-      const allTriggers = store.context.triggerElements;
+      const triggerNode = (event.currentTarget as HTMLElement) ?? null;
 
       const isOverInactiveTrigger =
-        (allTriggers.hasElement(event.target as Element) ||
-          allTriggers.hasMatchingElement((t) => contains(t, event.target as Element))) &&
-        (!currentDomReference || !contains(currentDomReference, event.target as Element));
-
-      const triggerNode = (event.currentTarget as HTMLElement) ?? null;
+        triggerNode != null &&
+        (!currentDomReference || !contains(currentDomReference, triggerNode));
 
       const isOpen = store.select('open');
       const shouldOpen = !isOpen || isOverInactiveTrigger;

@@ -18,8 +18,8 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import {
+  clearSafePolygonPointerEventsMutation,
   isInteractiveElement,
-  safePolygonIdentifier,
   useHoverInteractionSharedState,
 } from './useHoverInteractionSharedState';
 
@@ -95,12 +95,7 @@ export function useHoverFloatingInteraction(
   );
 
   const clearPointerEvents = useStableCallback(() => {
-    if (instance.performedPointerEventsMutation) {
-      const body = ownerDocument(floatingElement).body;
-      body.style.pointerEvents = '';
-      body.removeAttribute(safePolygonIdentifier);
-      instance.performedPointerEventsMutation = false;
-    }
+    clearSafePolygonPointerEventsMutation(instance, ownerDocument(floatingElement).body);
   });
 
   const handleInteractInside = useStableCallback((event: PointerEvent) => {
@@ -139,32 +134,43 @@ export function useHoverFloatingInteraction(
       floatingElement
     ) {
       instance.performedPointerEventsMutation = true;
-      const body = ownerDocument(floatingElement).body;
-      body.setAttribute(safePolygonIdentifier, '');
-
       const ref = domReferenceElement as HTMLElement | SVGSVGElement;
       const floatingEl = floatingElement;
+      const doc = ownerDocument(floatingElement);
 
       const parentFloating = tree?.nodesRef.current.find((node) => node.id === parentId)?.context
-        ?.elements.floating;
+        ?.elements.floating as HTMLElement | null;
 
       if (parentFloating) {
         parentFloating.style.pointerEvents = '';
       }
 
-      body.style.pointerEvents = 'none';
+      const scopeElement = parentFloating ?? ref.closest('[data-rootownerid]') ?? doc.body;
+
+      instance.pointerEventsScopeElement = scopeElement;
+      scopeElement.style.pointerEvents = 'none';
       ref.style.pointerEvents = 'auto';
       floatingEl.style.pointerEvents = 'auto';
 
       return () => {
-        body.style.pointerEvents = '';
         ref.style.pointerEvents = '';
         floatingEl.style.pointerEvents = '';
+        clearPointerEvents();
       };
     }
 
     return undefined;
-  }, [enabled, open, domReferenceElement, floatingElement, instance, isHoverOpen, tree, parentId]);
+  }, [
+    enabled,
+    open,
+    domReferenceElement,
+    floatingElement,
+    instance,
+    isHoverOpen,
+    tree,
+    parentId,
+    clearPointerEvents,
+  ]);
 
   const childClosedTimeout = useTimeout();
 
