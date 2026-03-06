@@ -30,7 +30,7 @@ importers:
         version: link:test
       '@mui/internal-code-infra':
         specifier: 0.0.4-canary.0
-        version: 0.0.4-canary.0(@next/eslint-plugin-next@16.1.6)(@types/node@22.18.13)(eslint-import-resolver-node@0.3.9)(eslint-plugin-import-x@4.16.1(@typescript-eslint/utils@8.56.1(eslint@10.0.2(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint@10.0.2(jiti@2.6.1)))(eslint@10.0.2(jiti@2.6.1))(postcss@8.5.6)(prettier@3.8.1)(stylelint@17.3.0(typescript@5.9.3))(typescript@5.9.3)(vitest@4.0.18)
+        version: 0.0.4-canary.0(@next/eslint-plugin-next@16.1.6)(@types/node@22.18.13)(eslint-import-resolver-node@0.3.9)(eslint-plugin-import-x@4.16.1(@typescript-eslint/utils@8.56.1(eslint@10.0.2(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint@10.0.2(jiti@2.6.1)))(eslint@10.0.2(jiti@2.6.1))(postcss@8.5.6)(prettier@3.8.1)(stylelint@17.4.0(typescript@5.9.3))(typescript@5.9.3)(vitest@4.0.18)
       '@mui/internal-netlify-cache':
         specifier: 0.0.3-canary.0
         version: 0.0.3-canary.0
@@ -122,11 +122,11 @@ importers:
         specifier: 14.2.5
         version: 14.2.5
       stylelint:
-        specifier: 17.3.0
-        version: 17.3.0(typescript@5.9.3)
+        specifier: 17.4.0
+        version: 17.4.0(typescript@5.9.3)
       stylelint-config-tailwindcss:
         specifier: 1.0.1
-        version: 1.0.1(stylelint@17.3.0(typescript@5.9.3))(tailwindcss@4.2.1)
+        version: 1.0.1(stylelint@17.4.0(typescript@5.9.3))(tailwindcss@4.2.1)
       tailwindcss:
         specifier: 4.2.1
         version: 4.2.1
@@ -5346,10 +5346,6 @@ packages:
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
 
-  balanced-match@3.0.1:
-    resolution: {integrity: sha512-vjtV3hiLqYDNRoiAv0zC4QaGAMPomEoq83PRmYIofPswwZurCeWR5LByXm7SyoL0Zh5+2z0+HC7jG8gSZJUh0w==}
-    engines: {node: '>= 16'}
-
   balanced-match@4.0.3:
     resolution: {integrity: sha512-1pHv8LX9CpKut1Zp4EXey7Z8OfH11ONNH6Dhi2WDUt31VVZFXZzKwXcysBgqSumFCmR+0dqjMK5v5JiFHzi0+g==}
     engines: {node: 20 || >=22}
@@ -5795,9 +5791,9 @@ packages:
     resolution: {integrity: sha512-x8dy3RnvYdlUcPOjkEHqozhiwzKNSq7GcPuXFbnyMOCHxX8V3OgIg/pYuabl2sbUPfIJaeAQB7PMOK8DFIdoRA==}
     engines: {node: '>=12'}
 
-  css-functions-list@3.2.3:
-    resolution: {integrity: sha512-IQOkD3hbR5KrN93MtcYuad6YPuTSUhntLHDuLEbFWE+ff2/XSZNdZG+LcbbIW5AXKg/WFIfYItIzVoHngHXZzA==}
-    engines: {node: '>=12 || >=16'}
+  css-functions-list@3.3.3:
+    resolution: {integrity: sha512-8HFEBPKhOpJPEPu70wJJetjKta86Gw9+CCyCnB3sui2qQfOvRyqBy4IKLKKAwdMpWb2lHXWk9Wb4Z6AmaUT1Pg==}
+    engines: {node: '>=12'}
 
   css-select@5.2.2:
     resolution: {integrity: sha512-TizTzUddG/xYLA3NXodFM0fSbNizXjOKhqiQQwvhlspadZokn1KDy0NZFS0wuEubIYAV5/c1/lAr0TaaFXEXzw==}
@@ -7438,9 +7434,6 @@ packages:
   kind-of@6.0.3:
     resolution: {integrity: sha512-dcS1ul+9tmeD95T+x28/ehLgd9mENa3LsvDTtzm3vyBEO7RPptvAD+t44WVXaUjTBRcrpFeFlC8WCruUR456hw==}
     engines: {node: '>=0.10.0'}
-
-  known-css-properties@0.37.0:
-    resolution: {integrity: sha512-JCDrsP4Z1Sb9JwG0aJ8Eo2r7k4Ou5MwmThS/6lcIe1ICyb7UBJKGRIUUdqc2ASdE/42lgz6zFUnzAIhtXnBVrQ==}
 
   language-subtag-registry@0.3.23:
     resolution: {integrity: sha512-0K65Lea881pHotoGEa5gDlMxt3pctLi2RplBb7Ezh4rRdLEOtgi7n4EwK9lamnUCkKBqaeKRVebTq6BAxSkpXQ==}
@@ -9452,8 +9445,8 @@ packages:
       stylelint: '>=13.13.1'
       tailwindcss: '>=2.2.16'
 
-  stylelint@17.3.0:
-    resolution: {integrity: sha512-1POV91lcEMhj6SLVaOeA0KlS9yattS+qq+cyWqP/nYzWco7K5jznpGH1ExngvPlTM9QF1Kjd2bmuzJu9TH2OcA==}
+  stylelint@17.4.0:
+    resolution: {integrity: sha512-3kQ2/cHv3Zt8OBg+h2B8XCx9evEABQIrv4hh3uXahGz/ZEHrTR80zxBiK2NfXNaSoyBzxO1pjsz1Vhdzwn5XSw==}
     engines: {node: '>=20.19.0'}
     hasBin: true
 
@@ -12610,7 +12603,7 @@ snapshots:
       - tsx
       - yaml
 
-  '@mui/internal-code-infra@0.0.4-canary.0(@next/eslint-plugin-next@16.1.6)(@types/node@22.18.13)(eslint-import-resolver-node@0.3.9)(eslint-plugin-import-x@4.16.1(@typescript-eslint/utils@8.56.1(eslint@10.0.2(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint@10.0.2(jiti@2.6.1)))(eslint@10.0.2(jiti@2.6.1))(postcss@8.5.6)(prettier@3.8.1)(stylelint@17.3.0(typescript@5.9.3))(typescript@5.9.3)(vitest@4.0.18)':
+  '@mui/internal-code-infra@0.0.4-canary.0(@next/eslint-plugin-next@16.1.6)(@types/node@22.18.13)(eslint-import-resolver-node@0.3.9)(eslint-plugin-import-x@4.16.1(@typescript-eslint/utils@8.56.1(eslint@10.0.2(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint@10.0.2(jiti@2.6.1)))(eslint@10.0.2(jiti@2.6.1))(postcss@8.5.6)(prettier@3.8.1)(stylelint@17.4.0(typescript@5.9.3))(typescript@5.9.3)(vitest@4.0.18)':
     dependencies:
       '@argos-ci/core': 4.5.0
       '@babel/cli': 7.28.6(@babel/core@7.29.0)
@@ -12678,7 +12671,7 @@ snapshots:
       remark-rehype: 11.1.2
       resolve-pkg-maps: 1.0.0
       semver: 7.7.4
-      stylelint-config-standard: 40.0.0(stylelint@17.3.0(typescript@5.9.3))
+      stylelint-config-standard: 40.0.0(stylelint@17.4.0(typescript@5.9.3))
       typescript-eslint: 8.56.1(eslint@10.0.2(jiti@2.6.1))(typescript@5.9.3)
       unified: 11.0.5
       yargs: 18.0.0
@@ -15953,8 +15946,6 @@ snapshots:
 
   balanced-match@1.0.2: {}
 
-  balanced-match@3.0.1: {}
-
   balanced-match@4.0.3: {}
 
   base64-js@1.5.1: {}
@@ -16440,7 +16431,7 @@ snapshots:
     dependencies:
       type-fest: 1.4.0
 
-  css-functions-list@3.2.3: {}
+  css-functions-list@3.3.3: {}
 
   css-select@5.2.2:
     dependencies:
@@ -18333,8 +18324,6 @@ snapshots:
       '@keyv/serialize': 1.1.1
 
   kind-of@6.0.3: {}
-
-  known-css-properties@0.37.0: {}
 
   language-subtag-registry@0.3.23: {}
 
@@ -21061,21 +21050,21 @@ snapshots:
       '@babel/core': 7.29.0
       babel-plugin-macros: 3.1.0
 
-  stylelint-config-recommended@18.0.0(stylelint@17.3.0(typescript@5.9.3)):
+  stylelint-config-recommended@18.0.0(stylelint@17.4.0(typescript@5.9.3)):
     dependencies:
-      stylelint: 17.3.0(typescript@5.9.3)
+      stylelint: 17.4.0(typescript@5.9.3)
 
-  stylelint-config-standard@40.0.0(stylelint@17.3.0(typescript@5.9.3)):
+  stylelint-config-standard@40.0.0(stylelint@17.4.0(typescript@5.9.3)):
     dependencies:
-      stylelint: 17.3.0(typescript@5.9.3)
-      stylelint-config-recommended: 18.0.0(stylelint@17.3.0(typescript@5.9.3))
+      stylelint: 17.4.0(typescript@5.9.3)
+      stylelint-config-recommended: 18.0.0(stylelint@17.4.0(typescript@5.9.3))
 
-  stylelint-config-tailwindcss@1.0.1(stylelint@17.3.0(typescript@5.9.3))(tailwindcss@4.2.1):
+  stylelint-config-tailwindcss@1.0.1(stylelint@17.4.0(typescript@5.9.3))(tailwindcss@4.2.1):
     dependencies:
-      stylelint: 17.3.0(typescript@5.9.3)
+      stylelint: 17.4.0(typescript@5.9.3)
       tailwindcss: 4.2.1
 
-  stylelint@17.3.0(typescript@5.9.3):
+  stylelint@17.4.0(typescript@5.9.3):
     dependencies:
       '@csstools/css-calc': 3.1.1(@csstools/css-parser-algorithms@4.0.0(@csstools/css-tokenizer@4.0.0))(@csstools/css-tokenizer@4.0.0)
       '@csstools/css-parser-algorithms': 4.0.0(@csstools/css-tokenizer@4.0.0)
@@ -21084,10 +21073,9 @@ snapshots:
       '@csstools/media-query-list-parser': 5.0.0(@csstools/css-parser-algorithms@4.0.0(@csstools/css-tokenizer@4.0.0))(@csstools/css-tokenizer@4.0.0)
       '@csstools/selector-resolve-nested': 4.0.0(postcss-selector-parser@7.1.1)
       '@csstools/selector-specificity': 6.0.0(postcss-selector-parser@7.1.1)
-      balanced-match: 3.0.1
       colord: 2.9.3
       cosmiconfig: 9.0.0(typescript@5.9.3)
-      css-functions-list: 3.2.3
+      css-functions-list: 3.3.3
       css-tree: 3.1.0
       debug: 4.4.3
       fast-glob: 3.3.3
@@ -21101,7 +21089,6 @@ snapshots:
       import-meta-resolve: 4.2.0
       imurmurhash: 0.1.4
       is-plain-object: 5.0.0
-      known-css-properties: 0.37.0
       mathml-tag-names: 4.0.0
       meow: 14.0.0
       micromatch: 4.0.8
