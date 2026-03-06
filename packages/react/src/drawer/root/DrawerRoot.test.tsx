@@ -884,6 +884,9 @@ describe('<Drawer.Root />', () => {
         // onOpenChange should still be called so the parent knows about the dismiss intent
         expect(handleOpenChange).toHaveBeenCalledWith(false, expect.anything());
 
+        // Wait for the rAF that reverts the controlled dismiss
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+
         // The drawer should remain open without data-swipe-dismiss
         expect(popup).not.toHaveAttribute('data-swipe-dismiss');
         expect(backdrop).not.toHaveAttribute('data-swipe-dismiss');
