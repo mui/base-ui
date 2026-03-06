@@ -20,11 +20,11 @@ import {
 import { vi } from 'vitest';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { LabelableProvider } from '../../labelable-provider';
 
 describe('<Field.Root />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
   const { render: renderStrict } = createRenderer({ strict: true });
 
   describeConformance(<Field.Root />, () => ({
@@ -68,7 +68,7 @@ describe('<Field.Root />', () => {
   it('preserves null initial control ids', async () => {
     await render(
       <Field.Root>
-        <LabelableProvider initialControlId={null}>
+        <LabelableProvider controlId={null}>
           <Field.Label>Label</Field.Label>
           <Field.Control data-testid="control" />
         </LabelableProvider>
@@ -148,6 +148,116 @@ describe('<Field.Root />', () => {
       expect(label).to.have.attribute('for', updatedId);
     });
   });
+
+  it.skipIf(isJSDOM)('does not set `aria-labelledby` during SSR when Field.Label is absent', () => {
+    renderToString(
+      <Field.Root>
+        <Select.Root>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value placeholder="Pick one" />
+          </Select.Trigger>
+        </Select.Root>
+      </Field.Root>,
+    );
+
+    expect(screen.getByTestId('trigger')).to.not.have.attribute('aria-labelledby');
+  });
+
+  it.skipIf(isJSDOM)(
+    'keeps `aria-labelledby` valid when toggling from Checkbox.Root to Select.Root after hydration',
+    async () => {
+      function TestCase() {
+        const [showSelect, setShowSelect] = React.useState(false);
+
+        return (
+          <React.Fragment>
+            <Field.Root>
+              <Field.Label nativeLabel={false} render={<div />} data-testid="label">
+                Label
+              </Field.Label>
+              {showSelect ? (
+                <Select.Root>
+                  <Select.Trigger data-testid="trigger">
+                    <Select.Value placeholder="Pick one" />
+                  </Select.Trigger>
+                </Select.Root>
+              ) : (
+                <Checkbox.Root data-testid="checkbox" />
+              )}
+            </Field.Root>
+            <button type="button" onClick={() => setShowSelect((prev) => !prev)}>
+              Toggle
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      const { hydrate } = renderToString(<TestCase />);
+      const label = screen.getByTestId('label');
+      const checkbox = screen.getByTestId('checkbox');
+
+      expect(label.id).to.not.equal('');
+      expect(checkbox).to.not.have.attribute('aria-labelledby');
+
+      hydrate();
+      await waitFor(() => {
+        expect(screen.getByTestId('checkbox')).to.have.attribute('aria-labelledby', label.id);
+      });
+      fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).to.have.attribute('aria-labelledby', label.id);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+
+      const checkboxAfterToggle = screen.getByTestId('checkbox');
+      expect(checkboxAfterToggle).to.have.attribute('aria-labelledby', label.id);
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'removes `aria-labelledby` when Field.Label is removed after hydration',
+    async () => {
+      function TestCase() {
+        const [showLabel, setShowLabel] = React.useState(true);
+
+        return (
+          <React.Fragment>
+            <Field.Root>
+              {showLabel ? (
+                <Field.Label nativeLabel={false} render={<div />} data-testid="label">
+                  Label
+                </Field.Label>
+              ) : null}
+              <Select.Root>
+                <Select.Trigger data-testid="trigger">
+                  <Select.Value placeholder="Pick one" />
+                </Select.Trigger>
+              </Select.Root>
+            </Field.Root>
+            <button type="button" onClick={() => setShowLabel(false)}>
+              Remove Label
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      const { hydrate } = renderToString(<TestCase />);
+      const label = screen.getByTestId('label');
+      const trigger = screen.getByTestId('trigger');
+
+      expect(trigger).to.not.have.attribute('aria-labelledby');
+
+      hydrate();
+      await waitFor(() => {
+        expect(screen.getByTestId('trigger')).to.have.attribute('aria-labelledby', label.id);
+      });
+      fireEvent.click(screen.getByRole('button', { name: 'Remove Label' }));
+
+      expect(screen.queryByTestId('label')).to.equal(null);
+      expect(screen.getByTestId('trigger')).to.not.have.attribute('aria-labelledby');
+    },
+  );
 
   it.skipIf(reactMajor < 19)(
     'does not loop when a control is unmounted and remounted',

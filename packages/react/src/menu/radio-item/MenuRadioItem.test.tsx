@@ -188,6 +188,45 @@ describe('<Menu.RadioItem />', () => {
       });
     });
 
+    it.skipIf(isJSDOM)(
+      'does not select when Space is pressed during an active typeahead session',
+      async () => {
+        const onValueChange = spy();
+        const { user } = await render(
+          <Menu.Root open>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.RadioGroup defaultValue={0} onValueChange={onValueChange}>
+                    <Menu.RadioItem value={1}>Item One</Menu.RadioItem>
+                    <Menu.RadioItem value={2}>Item Two</Menu.RadioItem>
+                  </Menu.RadioGroup>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>,
+        );
+
+        const [itemOne, itemTwo] = screen.getAllByRole('menuitemradio');
+
+        await act(async () => {
+          itemOne.focus();
+        });
+
+        await user.keyboard('Item T');
+
+        await waitFor(() => {
+          expect(itemTwo).toHaveFocus();
+        });
+
+        await user.keyboard('[Space]');
+        await user.keyboard('[Space]');
+
+        expect(onValueChange.called).to.equal(false);
+        expect(itemTwo).to.have.attribute('aria-checked', 'false');
+      },
+    );
+
     it('calls `onValueChange` when the item is clicked', async () => {
       const onValueChange = spy();
       const { user } = await render(

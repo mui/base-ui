@@ -33,7 +33,7 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
   const nodeId = useNavigationMenuTreeContext();
   const tree = useFloatingTree();
 
-  const state: NavigationMenuLink.State = {
+  const state: NavigationMenuLinkState = {
     active,
   };
 
@@ -83,7 +83,7 @@ export interface NavigationMenuLinkState {
 
 export interface NavigationMenuLinkProps extends BaseUIComponentProps<
   'a',
-  NavigationMenuLink.State
+  NavigationMenuLinkState
 > {
   /**
    * Whether the link is the currently active page.

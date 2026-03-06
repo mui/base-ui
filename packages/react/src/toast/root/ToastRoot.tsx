@@ -17,7 +17,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { ToastRootCssVars } from './ToastRootCssVars';
 
-const stateAttributesMapping: StateAttributesMapping<ToastRoot.State> = {
+const stateAttributesMapping: StateAttributesMapping<ToastRootState> = {
   ...transitionStatusMapping,
   swipeDirection(value) {
     return value ? { 'data-swipe-direction': value } : null;
@@ -551,7 +551,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     ],
   );
 
-  const state: ToastRoot.State = {
+  const state: ToastRootState = {
     transitionStatus: toast.transitionStatus,
     expanded,
     limited: toast.limited || false,
@@ -572,19 +572,32 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
 
 export type ToastRootToastObject<Data extends object = any> = ToastObjectType<Data>;
 export interface ToastRootState {
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
-  /** Whether the toasts in the viewport are expanded. */
+  /**
+   * Whether the toasts in the viewport are expanded.
+   */
   expanded: boolean;
-  /** Whether the toast was removed due to exceeding the limit. */
+  /**
+   * Whether the toast was removed due to exceeding the limit.
+   */
   limited: boolean;
-  /** The type of the toast. */
+  /**
+   * The type of the toast.
+   */
   type: string | undefined;
-  /** Whether the toast is being swiped. */
+  /**
+   * Whether the toast is being swiped.
+   */
   swiping: boolean;
-  /** The direction the toast is being swiped. */
+  /**
+   * The direction the toast is being swiped.
+   */
   swipeDirection: 'up' | 'down' | 'left' | 'right' | undefined;
 }
-export interface ToastRootProps extends BaseUIComponentProps<'div', ToastRoot.State> {
+export interface ToastRootProps extends BaseUIComponentProps<'div', ToastRootState> {
   /**
    * The toast to render.
    */

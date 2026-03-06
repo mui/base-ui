@@ -1,0 +1,5 @@
+@layer base {
+  body:has(.experiments-layout-root) {
+    position: relative;
+  }
+}

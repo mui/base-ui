@@ -10,7 +10,7 @@ import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useField } from '../field/useField';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
 import { fieldValidityMapping } from '../field/utils/constants';
-import type { FieldRoot } from '../field/root/FieldRoot';
+import type { FieldRootState } from '../field/root/FieldRoot';
 import { useFieldsetRootContext } from '../fieldset/root/FieldsetRootContext';
 import { useFormContext } from '../form/FormContext';
 import { useLabelableContext } from '../labelable-provider/LabelableContext';
@@ -176,7 +176,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
 
   const ariaLabelledby = elementProps['aria-labelledby'] ?? labelId ?? fieldsetContext?.legendId;
 
-  const state: RadioGroup.State = {
+  const state: RadioGroupState = {
     ...fieldState,
     disabled: disabled ?? false,
     required: required ?? false,
@@ -262,7 +262,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
   <Value>(props: RadioGroup.Props<Value>): React.JSX.Element;
 };
 
-export interface RadioGroupState extends FieldRoot.State {
+export interface RadioGroupState extends FieldRootState {
   /**
    * Whether the user should be unable to select a different radio button in the group.
    */
@@ -274,7 +274,7 @@ export interface RadioGroupState extends FieldRoot.State {
 }
 
 export interface RadioGroupProps<Value = any> extends Omit<
-  BaseUIComponentProps<'div', RadioGroup.State>,
+  BaseUIComponentProps<'div', RadioGroupState>,
   'value'
 > {
   /**

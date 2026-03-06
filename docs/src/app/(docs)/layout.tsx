@@ -7,7 +7,7 @@ import * as QuickNav from 'docs/src/components/QuickNav/QuickNav';
 import { Header, titleMap } from 'docs/src/components/Header';
 import { MAIN_CONTENT_ID } from 'docs/src/components/SkipNav';
 import { sitemap } from 'docs/src/app/sitemap';
-import 'docs/src/styles.css';
+import 'docs/src/css/index.css';
 import './layout.css';
 
 export default function Layout({ children }: React.PropsWithChildren) {
@@ -17,21 +17,21 @@ export default function Layout({ children }: React.PropsWithChildren) {
       <head>
         <link
           rel="preload"
-          href={new URL('../../fonts/regular.woff2', import.meta.url).toString()}
+          href={new URL('../../css/fonts/regular.woff2', import.meta.url).toString()}
           as="font"
           type="font/woff2"
           crossOrigin="anonymous"
         />
         <link
           rel="preload"
-          href={new URL('../../fonts/medium.woff2', import.meta.url).toString()}
+          href={new URL('../../css/fonts/medium.woff2', import.meta.url).toString()}
           as="font"
           type="font/woff2"
           crossOrigin="anonymous"
         />
         <link
           rel="preload"
-          href={new URL('../../fonts/bold.woff2', import.meta.url).toString()}
+          href={new URL('../../css/fonts/bold.woff2', import.meta.url).toString()}
           as="font"
           type="font/woff2"
           crossOrigin="anonymous"

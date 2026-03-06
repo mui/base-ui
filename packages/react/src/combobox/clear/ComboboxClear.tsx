@@ -15,7 +15,7 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
-const stateAttributesMapping: StateAttributesMapping<ComboboxClear.State> = {
+const stateAttributesMapping: StateAttributesMapping<ComboboxClearState> = {
   ...transitionStatusMapping,
   ...triggerOpenStateMapping,
 };
@@ -67,7 +67,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
 
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(visible);
 
-  const state: ComboboxClear.State = {
+  const state: ComboboxClearState = {
     disabled,
     open,
     transitionStatus,
@@ -149,11 +149,14 @@ export interface ComboboxClearState {
    * Whether the component should ignore user interaction.
    */
   disabled: boolean;
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
 }
 
 export interface ComboboxClearProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', ComboboxClear.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', ComboboxClearState> {
   /**
    * Whether the component should ignore user interaction.
    * @default false

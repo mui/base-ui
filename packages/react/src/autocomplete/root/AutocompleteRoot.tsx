@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { AriaCombobox } from '../../combobox/root/AriaCombobox';
+import { AriaCombobox, type AriaComboboxState } from '../../combobox/root/AriaCombobox';
 import { useCoreFilter } from '../../combobox/root/utils/useFilter';
 import { stringifyAsLabel } from '../../utils/resolveValueLabel';
 import { REASONS } from '../../utils/reasons';
@@ -80,8 +80,8 @@ export function AutocompleteRoot<ItemValue>(
 
   const collator = useCoreFilter();
 
-  const baseFilter: typeof other.filter = React.useMemo(() => {
-    if (other.filter) {
+  const baseFilter = React.useMemo<Exclude<typeof other.filter, undefined>>(() => {
+    if (other.filter !== undefined) {
       return other.filter;
     }
     return collator.contains;
@@ -93,6 +93,9 @@ export function AutocompleteRoot<ItemValue>(
   const resolvedFilter: typeof other.filter = React.useMemo(() => {
     if (mode !== 'both') {
       return staticItems ? null : baseFilter;
+    }
+    if (baseFilter === null) {
+      return null;
     }
     return (item, _query, toString) => {
       return baseFilter(item, resolvedQuery, toString);
@@ -136,7 +139,7 @@ export function AutocompleteRoot<ItemValue>(
   );
 }
 
-export type AutocompleteRootState = AriaCombobox.State;
+export interface AutocompleteRootState extends AriaComboboxState {}
 
 export interface AutocompleteRootActions {
   unmount: () => void;

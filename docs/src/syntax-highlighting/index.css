@@ -1,56 +1,60 @@
-:root {
-  --syntax-default: var(--color-foreground);
-  --syntax-comment: var(--color-gray);
-  --syntax-constant: var(--color-blue);
-  --syntax-entity: var(--color-violet);
-  --syntax-parameter: var(--color-navy);
-  --syntax-tag: var(--color-green);
-  --syntax-keyword: var(--color-red);
-  --syntax-string: var(--color-navy);
-  --syntax-variable: var(--color-red);
-  --syntax-invalid: var(--color-red);
-}
-
-[data-language='css'] {
-  --syntax-variable: var(--color-navy);
-
-  /* Target CSS property names – ugly but works */
-  & [style='color: var(--syntax-constant)']:first-child,
-  & [style='color:var(--syntax-constant)']:first-child {
-    --syntax-constant: var(--color-foreground);
+@layer theme {
+  :root {
+    --syntax-default: var(--color-foreground);
+    --syntax-comment: var(--color-gray);
+    --syntax-constant: var(--color-blue);
+    --syntax-entity: var(--color-violet);
+    --syntax-parameter: var(--color-navy);
+    --syntax-tag: var(--color-green);
+    --syntax-keyword: var(--color-red);
+    --syntax-string: var(--color-navy);
+    --syntax-variable: var(--color-red);
+    --syntax-invalid: var(--color-red);
   }
 }
 
-/* Collapse most colors to blue for inline code */
-[data-inline],
-[data-highlighted-chars] {
-  --syntax-default: var(--color-blue);
-  --syntax-entity: var(--color-blue);
-  --syntax-parameter: var(--color-blue);
-  --syntax-variable: var(--color-blue);
-  --syntax-keyword: var(--color-blue);
-  --syntax-string: var(--color-blue);
-  --syntax-nullish: var(--color-blue);
-}
+@layer components {
+  [data-language='css'] {
+    --syntax-variable: var(--color-navy);
 
-/* Recover some of the syntax highlighting colors in tables */
-[data-table-code] {
-  --syntax-default: var(--color-foreground);
-  --syntax-entity: var(--color-violet);
-  --syntax-keyword: var(--color-red);
-  --syntax-string: var(--color-navy);
-  --syntax-nullish: var(--color-gray-500);
-}
+    /* Target CSS property names – ugly but works */
+    & [style='color: var(--syntax-constant)']:first-child,
+    & [style='color:var(--syntax-constant)']:first-child {
+      --syntax-constant: var(--color-foreground);
+    }
+  }
 
-[data-highlighted-line] {
-  background-color: var(--color-line-highlight);
-}
+  /* Collapse most colors to blue for inline code */
+  [data-inline],
+  [data-highlighted-chars] {
+    --syntax-default: var(--color-blue);
+    --syntax-entity: var(--color-blue);
+    --syntax-parameter: var(--color-blue);
+    --syntax-variable: var(--color-blue);
+    --syntax-keyword: var(--color-blue);
+    --syntax-string: var(--color-blue);
+    --syntax-nullish: var(--color-blue);
+  }
 
-[data-highlighted-line-id='strong'] {
-  background-color: var(--color-line-highlight-strong);
-}
+  /* Recover some of the syntax highlighting colors in tables */
+  [data-table-code] {
+    --syntax-default: var(--color-foreground);
+    --syntax-entity: var(--color-violet);
+    --syntax-keyword: var(--color-red);
+    --syntax-string: var(--color-navy);
+    --syntax-nullish: var(--color-gray-500);
+  }
 
-[data-highlighted-chars] {
-  color: var(--syntax-default);
-  background-color: var(--color-inline-highlight);
+  [data-highlighted-line] {
+    background-color: var(--color-line-highlight);
+  }
+
+  [data-highlighted-line-id='strong'] {
+    background-color: var(--color-line-highlight-strong);
+  }
+
+  [data-highlighted-chars] {
+    color: var(--syntax-default);
+    background-color: var(--color-inline-highlight);
+  }
 }
