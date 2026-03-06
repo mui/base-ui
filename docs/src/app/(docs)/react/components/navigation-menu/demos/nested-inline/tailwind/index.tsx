@@ -200,11 +200,11 @@ const submenuTriggerClassName =
   'focus-visible:-outline-offset-1 focus-visible:outline-blue-800';
 
 const submenuContentClassName =
-  'h-full translate-x-0 p-7 min-[700px]:p-8 min-[700px]:blur-0 transition-[opacity,transform,filter] duration-[var(--duration)] ease-[var(--easing)] ' +
+  'h-full translate-x-0 p-7 min-[700px]:p-8 min-[700px]:blur-0 transition-[opacity,transform,filter] duration-[var(--duration)] ease-[var(--easing)] min-[700px]:duration-[calc(var(--duration)*1.35)] min-[700px]:ease-[cubic-bezier(0.16,1,0.3,1)] ' +
   'data-[starting-style]:opacity-0 data-[starting-style]:data-[activation-direction=left]:translate-x-[-50%] data-[starting-style]:data-[activation-direction=right]:translate-x-[50%] ' +
   'data-[ending-style]:opacity-0 data-[ending-style]:data-[activation-direction=left]:translate-x-[50%] data-[ending-style]:data-[activation-direction=right]:translate-x-[-50%] ' +
-  'min-[700px]:data-[starting-style]:data-[activation-direction=up]:translate-y-[-100px] min-[700px]:data-[starting-style]:data-[activation-direction=down]:translate-y-[100px] min-[700px]:data-[starting-style]:blur-[2px] ' +
-  'min-[700px]:data-[ending-style]:data-[activation-direction=up]:translate-y-[100px] min-[700px]:data-[ending-style]:data-[activation-direction=down]:translate-y-[-100px] min-[700px]:data-[ending-style]:blur-[2px]';
+  'min-[700px]:data-[starting-style]:data-[activation-direction=up]:translate-y-[-72px] min-[700px]:data-[starting-style]:data-[activation-direction=down]:translate-y-[72px] min-[700px]:data-[starting-style]:blur-[2px] ' +
+  'min-[700px]:data-[ending-style]:data-[activation-direction=up]:translate-y-[72px] min-[700px]:data-[ending-style]:data-[activation-direction=down]:translate-y-[-72px] min-[700px]:data-[ending-style]:blur-[2px]';
 
 const linkCardClassName =
   'box-border block rounded-lg bg-transparent px-2 py-3 no-underline text-inherit ' +

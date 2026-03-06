@@ -383,24 +383,26 @@
     padding: 2rem;
     transform: translateY(0);
     filter: blur(0);
+    transition-duration: calc(var(--duration) * 1.35);
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 
     &[data-starting-style] {
       &[data-activation-direction='up'] {
-        transform: translateY(-100px);
+        transform: translateY(-72px);
       }
 
       &[data-activation-direction='down'] {
-        transform: translateY(100px);
+        transform: translateY(72px);
       }
     }
 
     &[data-ending-style] {
       &[data-activation-direction='up'] {
-        transform: translateY(100px);
+        transform: translateY(72px);
       }
 
       &[data-activation-direction='down'] {
-        transform: translateY(-100px);
+        transform: translateY(-72px);
       }
     }
 
