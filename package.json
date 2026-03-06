@@ -89,7 +89,7 @@
     "markdownlint-cli2": "0.21.0",
     "prettier": "3.8.1",
     "pretty-quick": "4.2.2",
-    "publint": "0.3.17",
+    "publint": "0.3.18",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "remark-mdx": "3.1.1",
