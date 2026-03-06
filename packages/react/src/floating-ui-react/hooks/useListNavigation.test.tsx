@@ -16,9 +16,12 @@ import { HorizontalMenu } from '../../../test/floating-ui-tests/MenuOrientation'
 /* eslint-disable testing-library/no-unnecessary-act */
 
 function App(
-  inProps: Omit<Partial<UseListNavigationProps>, 'listRef'> & { disableFirstItem?: boolean } = {},
+  inProps: Omit<Partial<UseListNavigationProps>, 'listRef'> & {
+    disableFirstItem?: boolean;
+    hideFirstItem?: boolean;
+  } = {},
 ) {
-  const { disableFirstItem, ...props } = inProps;
+  const { disableFirstItem, hideFirstItem, ...props } = inProps;
   const [open, setOpen] = React.useState(false);
   const listRef = React.useRef<Array<HTMLLIElement | null>>([]);
   const [activeIndex, setActiveIndex] = React.useState<null | number>(null);
@@ -51,6 +54,7 @@ function App(
                 data-testid={`item-${index}`}
                 aria-selected={activeIndex === index}
                 key={string}
+                style={hideFirstItem && index === 0 ? { display: 'none' } : undefined}
                 tabIndex={-1}
                 aria-disabled={
                   (disableFirstItem && index === 0) ||
@@ -70,6 +74,94 @@ function App(
           </ul>
         </div>
       )}
+    </React.Fragment>
+  );
+}
+
+function VirtualizedGridRows({
+  totalItems = 100,
+  initialActiveIndex = 0,
+  loopFocus = true,
+  disabledIndices,
+  hiddenIndices,
+}: {
+  totalItems?: number;
+  initialActiveIndex?: number;
+  loopFocus?: boolean;
+  disabledIndices?: UseListNavigationProps['disabledIndices'];
+  hiddenIndices?: number[];
+}) {
+  const COLUMNS = 5;
+  const VISIBLE_ROWS = 3;
+
+  const [open, setOpen] = React.useState(true);
+  const [activeIndex, setActiveIndex] = React.useState<number | null>(initialActiveIndex);
+  const listRef = React.useRef<Array<HTMLButtonElement | null>>([]);
+
+  const { refs, context } = useFloating({
+    open,
+    onOpenChange: setOpen,
+  });
+
+  const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
+    useListNavigation(context, {
+      listRef,
+      activeIndex,
+      onNavigate: setActiveIndex,
+      virtual: true,
+      loopFocus,
+      cols: 2,
+      orientation: 'horizontal',
+      disabledIndices,
+    }),
+  ]);
+
+  React.useEffect(() => {
+    listRef.current.length = totalItems;
+  }, [totalItems]);
+
+  return (
+    <React.Fragment>
+      <input
+        data-testid="virtual-grid-reference"
+        {...getReferenceProps({ ref: refs.setReference })}
+      />
+      {open && (
+        <div
+          role="grid"
+          data-testid="virtual-grid-floating"
+          {...getFloatingProps({ ref: refs.setFloating })}
+        >
+          {Array.from({ length: VISIBLE_ROWS }, (_row, rowIndex) => (
+            <div key={rowIndex} role="row">
+              {Array.from({ length: COLUMNS }, (_column, columnIndex) => {
+                const itemIndex = rowIndex * COLUMNS + columnIndex;
+                if (itemIndex >= totalItems) {
+                  return null;
+                }
+
+                return (
+                  <button
+                    key={itemIndex}
+                    type="button"
+                    role="gridcell"
+                    style={hiddenIndices?.includes(itemIndex) ? { display: 'none' } : undefined}
+                    data-active={activeIndex === itemIndex ? '' : undefined}
+                    {...getItemProps({
+                      ref(node: HTMLButtonElement | null) {
+                        listRef.current[itemIndex] = node;
+                      },
+                    })}
+                  >
+                    {itemIndex}
+                  </button>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      )}
+      <span data-testid="virtual-grid-active-index" data-active-index={activeIndex ?? ''} />
     </React.Fragment>
   );
 }
@@ -169,6 +261,21 @@ describe('useListNavigation', () => {
     fireEvent.keyDown(screen.getByRole('menu'), { key: 'ArrowUp' });
     await waitFor(() => {
       expect(screen.getByTestId('item-0')).toHaveFocus();
+    });
+  });
+
+  it('skips items hidden with CSS in navigation', async () => {
+    render(<App hideFirstItem loopFocus disabledIndices={[]} />);
+
+    fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('item-1')).toHaveFocus();
+    });
+
+    fireEvent.keyDown(screen.getByRole('menu'), { key: 'ArrowUp' });
+    await waitFor(() => {
+      expect(screen.getByTestId('item-2')).toHaveFocus();
     });
   });
 
@@ -294,7 +401,7 @@ describe('useListNavigation', () => {
     expect(screen.getByTestId('active-index').textContent).toBe('0');
   });
 
-  describe('loop', () => {
+  describe('prop: loopFocus', () => {
     it('ArrowDown looping', async () => {
       render(<App loopFocus />);
 
@@ -348,7 +455,7 @@ describe('useListNavigation', () => {
     });
   });
 
-  describe('orientation', () => {
+  describe('prop: orientation', () => {
     it('navigates down on ArrowRight', async () => {
       render(<App orientation="horizontal" />);
 
@@ -402,7 +509,7 @@ describe('useListNavigation', () => {
     });
   });
 
-  describe('rtl', () => {
+  describe('prop: rtl', () => {
     it('navigates down on ArrowLeft', async () => {
       render(<App rtl orientation="horizontal" />);
 
@@ -456,8 +563,8 @@ describe('useListNavigation', () => {
     });
   });
 
-  describe('focusItemOnOpen', () => {
-    it('true click', async () => {
+  describe('prop: focusItemOnOpen', () => {
+    it('focuses the first item on click when true', async () => {
       render(<App focusItemOnOpen />);
       fireEvent.click(screen.getByRole('button'));
       await waitFor(() => {
@@ -465,7 +572,7 @@ describe('useListNavigation', () => {
       });
     });
 
-    it('false click', async () => {
+    it('does not focus the first item on click when false', async () => {
       render(<App focusItemOnOpen={false} />);
       fireEvent.click(screen.getByRole('button'));
       await waitFor(() => {
@@ -474,8 +581,8 @@ describe('useListNavigation', () => {
     });
   });
 
-  describe('selectedIndex', () => {
-    it('scrollIntoView on open', async ({ onTestFinished }) => {
+  describe('prop: selectedIndex', () => {
+    it('scrolls the selected item into view on open', async ({ onTestFinished }) => {
       const requestAnimationFrame = vi
         .spyOn(window, 'requestAnimationFrame')
         .mockImplementation(() => 0);
@@ -499,7 +606,7 @@ describe('useListNavigation', () => {
   });
 
   describe('allowEscape + virtual', () => {
-    it('true', async () => {
+    it('when true', async () => {
       render(<App allowEscape virtual loopFocus />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
       expect(screen.getByTestId('item-0').getAttribute('aria-selected')).toBe('true');
@@ -516,7 +623,7 @@ describe('useListNavigation', () => {
       await flushMicrotasks();
     });
 
-    it('false', async () => {
+    it('when false', async () => {
       render(<App allowEscape={false} virtual loopFocus />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
       expect(screen.getByTestId('item-0').getAttribute('aria-selected')).toBe('true');
@@ -536,35 +643,35 @@ describe('useListNavigation', () => {
     });
   });
 
-  describe('openOnArrowKeyDown', () => {
-    it('true ArrowDown', async () => {
+  describe('prop: openOnArrowKeyDown', () => {
+    it('opens on ArrowDown when true', async () => {
       render(<App openOnArrowKeyDown />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
       expect(screen.getByRole('menu')).toBeInTheDocument();
       await flushMicrotasks();
     });
 
-    it('true ArrowUp', async () => {
+    it('opens on ArrowUp when true', async () => {
       render(<App openOnArrowKeyDown />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowUp' });
       expect(screen.getByRole('menu')).toBeInTheDocument();
       await flushMicrotasks();
     });
 
-    it('false ArrowDown', () => {
+    it('does not open on ArrowDown when false', () => {
       render(<App openOnArrowKeyDown={false} />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
       expect(screen.queryByRole('menu')).not.toBeInTheDocument();
     });
 
-    it('false ArrowUp', () => {
+    it('does not open on ArrowUp when false', () => {
       render(<App openOnArrowKeyDown={false} />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowUp' });
       expect(screen.queryByRole('menu')).not.toBeInTheDocument();
     });
   });
 
-  describe('disabledIndices', () => {
+  describe('prop: disabledIndices', () => {
     it('indices are skipped in focus order', async () => {
       render(<App disabledIndices={[0]} />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
@@ -578,7 +685,7 @@ describe('useListNavigation', () => {
     });
   });
 
-  describe('focusOnHover', () => {
+  describe('prop: focusItemOnHover', () => {
     it('true - focuses item on hover and syncs the active index', async () => {
       const spy = vi.fn();
       render(<App onNavigate={(index) => spy(index)} />);
@@ -772,6 +879,134 @@ describe('useListNavigation', () => {
       fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowLeft' });
       expect(screen.getAllByRole('option')[46]).toHaveFocus();
       await flushMicrotasks();
+    });
+
+    it('wraps ArrowUp to the last row in the full list for virtualized rows', async () => {
+      render(<VirtualizedGridRows />);
+
+      const reference = screen.getByTestId('virtual-grid-reference');
+      await act(async () => {
+        reference.focus();
+      });
+
+      await userEvent.keyboard('{ArrowUp}');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('virtual-grid-active-index')).toHaveAttribute(
+          'data-active-index',
+          '95',
+        );
+      });
+    });
+
+    it('clamps ArrowUp to the last item in a partial last row for virtualized rows', async () => {
+      render(<VirtualizedGridRows totalItems={98} initialActiveIndex={4} />);
+
+      const reference = screen.getByTestId('virtual-grid-reference');
+      await act(async () => {
+        reference.focus();
+      });
+
+      await userEvent.keyboard('{ArrowUp}');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('virtual-grid-active-index')).toHaveAttribute(
+          'data-active-index',
+          '97',
+        );
+      });
+    });
+
+    it('clamps ArrowDown into a partial last row for virtualized rows', async () => {
+      render(<VirtualizedGridRows totalItems={98} initialActiveIndex={93} />);
+
+      const reference = screen.getByTestId('virtual-grid-reference');
+      await act(async () => {
+        reference.focus();
+      });
+
+      await userEvent.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('virtual-grid-active-index')).toHaveAttribute(
+          'data-active-index',
+          '97',
+        );
+      });
+    });
+
+    it('does not wrap ArrowUp when loopFocus is false for virtualized rows', async () => {
+      render(<VirtualizedGridRows totalItems={98} initialActiveIndex={4} loopFocus={false} />);
+
+      const reference = screen.getByTestId('virtual-grid-reference');
+      await act(async () => {
+        reference.focus();
+      });
+
+      await userEvent.keyboard('{ArrowUp}');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('virtual-grid-active-index')).toHaveAttribute(
+          'data-active-index',
+          '4',
+        );
+      });
+    });
+
+    it('still clamps ArrowDown into a partial last row when loopFocus is false', async () => {
+      render(<VirtualizedGridRows totalItems={98} initialActiveIndex={93} loopFocus={false} />);
+
+      const reference = screen.getByTestId('virtual-grid-reference');
+      await act(async () => {
+        reference.focus();
+      });
+
+      await userEvent.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('virtual-grid-active-index')).toHaveAttribute(
+          'data-active-index',
+          '97',
+        );
+      });
+    });
+
+    it('falls back left in a partial last row when the preferred candidate is disabled', async () => {
+      render(
+        <VirtualizedGridRows totalItems={98} initialActiveIndex={93} disabledIndices={[97]} />,
+      );
+
+      const reference = screen.getByTestId('virtual-grid-reference');
+      await act(async () => {
+        reference.focus();
+      });
+
+      await userEvent.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('virtual-grid-active-index')).toHaveAttribute(
+          'data-active-index',
+          '96',
+        );
+      });
+    });
+
+    it('falls back left when the preferred candidate is hidden', async () => {
+      render(<VirtualizedGridRows initialActiveIndex={9} hiddenIndices={[14]} />);
+
+      const reference = screen.getByTestId('virtual-grid-reference');
+      await act(async () => {
+        reference.focus();
+      });
+
+      await userEvent.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('virtual-grid-active-index')).toHaveAttribute(
+          'data-active-index',
+          '13',
+        );
+      });
     });
   });
 

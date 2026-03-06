@@ -9,7 +9,7 @@ import { ScrollAreaRootCssVars } from '../root/ScrollAreaRootCssVars';
 import { ScrollAreaScrollbarCssVars } from './ScrollAreaScrollbarCssVars';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
-import type { ScrollAreaRoot } from '../root/ScrollAreaRoot';
+import type { ScrollAreaRootState } from '../root/ScrollAreaRoot';
 
 /**
  * A vertical or horizontal scrollbar for the scroll area.
@@ -44,9 +44,10 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
     handlePointerUp,
     rootId,
     thumbSize,
+    hasMeasuredScrollbar,
   } = useScrollAreaRootContext();
 
-  const state: ScrollAreaScrollbar.State = {
+  const state: ScrollAreaScrollbarState = {
     hovering,
     scrolling: {
       horizontal: scrollingX,
@@ -63,6 +64,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
   };
 
   const direction = useDirection();
+  const hideTrackUntilMeasured = !hasMeasuredScrollbar && !keepMounted;
 
   React.useEffect(() => {
     const viewportEl = viewportRef.current;
@@ -190,6 +192,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
       touchAction: 'none',
       WebkitUserSelect: 'none',
       userSelect: 'none',
+      visibility: hideTrackUntilMeasured ? 'hidden' : undefined,
       ...(orientation === 'vertical' && {
         top: 0,
         bottom: `var(${ScrollAreaRootCssVars.scrollAreaCornerHeight})`,
@@ -228,24 +231,30 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
   );
 });
 
-export interface ScrollAreaScrollbarState extends ScrollAreaRoot.State {
-  /** Whether the scroll area is being hovered. */
+export interface ScrollAreaScrollbarState extends ScrollAreaRootState {
+  /**
+   * Whether the scroll area is being hovered.
+   */
   hovering: boolean;
-  /** Whether the scroll area is being scrolled. */
+  /**
+   * Whether the scroll area is being scrolled.
+   */
   scrolling: boolean;
-  /** The orientation of the scrollbar. */
+  /**
+   * The orientation of the scrollbar.
+   */
   orientation: 'vertical' | 'horizontal';
 }
 
 export interface ScrollAreaScrollbarProps extends BaseUIComponentProps<
   'div',
-  ScrollAreaScrollbar.State
+  ScrollAreaScrollbarState
 > {
   /**
    * Whether the scrollbar controls vertical or horizontal scroll.
    * @default 'vertical'
    */
-  orientation?: ('vertical' | 'horizontal') | undefined;
+  orientation?: 'vertical' | 'horizontal' | undefined;
   /**
    * Whether to keep the HTML element in the DOM when the viewport isn’t scrollable.
    * @default false

@@ -72,88 +72,64 @@ describe('<Avatar.Fallback />', () => {
     });
   });
 
-  describe.skipIf(isJSDOM)('animations', () => {
-    afterEach(() => {
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
-    });
-
-    it('triggers enter animation via data-starting-style when mounting', async () => {
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
+  it.skipIf(!isJSDOM)(
+    'keeps fallback mounted and image unmounted while the image is loading',
+    async () => {
       const useImageLoadingStatusMock = useImageLoadingStatus as Mock;
-      useImageLoadingStatusMock.mockImplementation((src) => (src ? 'loaded' : 'error'));
-
-      let transitionFinished = false;
-      function notifyTransitionFinished() {
-        transitionFinished = true;
-      }
-
-      const style = `
-        .animation-test-fallback {
-          transition: opacity 1ms;
-        }
-
-        .animation-test-fallback[data-starting-style],
-        .animation-test-fallback[data-ending-style] {
-          opacity: 0;
-        }
-      `;
+      useImageLoadingStatusMock.mockImplementation((src) => (src ? 'loading' : 'error'));
 
       function Test() {
-        const [showImage, setShowImage] = React.useState(true);
+        const [showImage, setShowImage] = React.useState(false);
 
-        function handleShowFallback() {
-          setShowImage(false);
+        function handleShowImage() {
+          setShowImage(true);
         }
 
         return (
           <div>
-            {/* eslint-disable-next-line react/no-danger */}
-            <style dangerouslySetInnerHTML={{ __html: style }} />
-            <button onClick={handleShowFallback}>Show fallback</button>
+            <button onClick={handleShowImage}>Show image</button>
             <Avatar.Root>
-              <Avatar.Image src={showImage ? 'avatar.png' : undefined} />
-              <Avatar.Fallback
-                className="animation-test-fallback"
-                data-testid="fallback"
-                onTransitionEnd={notifyTransitionFinished}
-              >
-                AC
-              </Avatar.Fallback>
+              <Avatar.Image data-testid="image" src={showImage ? 'avatar.png' : undefined} />
+              <Avatar.Fallback data-testid="fallback">AC</Avatar.Fallback>
             </Avatar.Root>
           </div>
         );
       }
 
       const { user } = await render(<Test />);
-      await waitFor(() => {
-        expect(screen.queryByTestId('fallback')).to.equal(null);
-      });
 
-      await user.click(screen.getByText('Show fallback'));
-
-      await waitFor(() => {
-        expect(transitionFinished).to.equal(true);
-      });
-
+      expect(screen.queryByTestId('image')).to.equal(null);
       expect(screen.getByTestId('fallback')).not.to.equal(null);
+
+      await user.click(screen.getByText('Show image'));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('image')).to.equal(null);
+        expect(screen.getByTestId('fallback')).not.to.equal(null);
+      });
+    },
+  );
+
+  describe.skipIf(isJSDOM)('regression', () => {
+    afterEach(() => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
     });
 
-    it('applies data-ending-style before unmount', async () => {
+    it('keeps only one of image or fallback mounted when switching to image', async () => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
       const useImageLoadingStatusMock = useImageLoadingStatus as Mock;
       useImageLoadingStatusMock.mockImplementation((src) => (src ? 'loaded' : 'error'));
 
       const style = `
-        @keyframes test-anim {
+        @keyframes test-exit {
           to {
             opacity: 0;
           }
         }
 
         .animation-test-fallback[data-ending-style] {
-          animation: test-anim 1ms;
+          animation: test-exit 2s;
         }
       `;
 
@@ -170,7 +146,7 @@ describe('<Avatar.Fallback />', () => {
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <button onClick={handleShowImage}>Show image</button>
             <Avatar.Root>
-              <Avatar.Image src={showImage ? 'avatar.png' : undefined} />
+              <Avatar.Image data-testid="image" src={showImage ? 'avatar.png' : undefined} />
               <Avatar.Fallback className="animation-test-fallback" data-testid="fallback">
                 AC
               </Avatar.Fallback>
@@ -180,17 +156,14 @@ describe('<Avatar.Fallback />', () => {
       }
 
       const { user } = await render(<Test />);
+
+      expect(screen.queryByTestId('image')).to.equal(null);
       expect(screen.getByTestId('fallback')).not.to.equal(null);
 
       await user.click(screen.getByText('Show image'));
 
       await waitFor(() => {
-        const fallback = screen.queryByTestId('fallback');
-        expect(fallback).not.to.equal(null);
-        expect(fallback).to.have.attribute('data-ending-style');
-      });
-
-      await waitFor(() => {
+        expect(screen.queryByTestId('image')).not.to.equal(null);
         expect(screen.queryByTestId('fallback')).to.equal(null);
       });
     });

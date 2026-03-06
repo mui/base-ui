@@ -68,33 +68,48 @@ export type OffsetFunction = (data: {
 interface SideFlipMode {
   /**
    * How to avoid collisions on the side axis.
+   * - `'flip'`: If there is not enough space, place the popup on the opposite side.
+   * - `'none'`: Keep the preferred side even if it overflows.
    */
-  side?: ('flip' | 'none') | undefined;
+  side?: 'flip' | 'none' | undefined;
   /**
    * How to avoid collisions on the align axis.
+   * - `'flip'`: If there is not enough space, swap `'start'` and `'end'` alignment.
+   * - `'shift'`: Keep the alignment and shift the popup to fit within the boundary.
+   * - `'none'`: Keep the preferred alignment even if it overflows.
    */
-  align?: ('flip' | 'shift' | 'none') | undefined;
+  align?: 'flip' | 'shift' | 'none' | undefined;
   /**
    * If both sides on the preferred axis do not fit, determines whether to fallback
    * to a side on the perpendicular axis and which logical side to prefer.
+   * - `'start'`: Prefer the logical start side on the perpendicular axis.
+   * - `'end'`: Prefer the logical end side on the perpendicular axis.
+   * - `'none'`: Do not fallback to the perpendicular axis.
    */
-  fallbackAxisSide?: ('start' | 'end' | 'none') | undefined;
+  fallbackAxisSide?: 'start' | 'end' | 'none' | undefined;
 }
 
 interface SideShiftMode {
   /**
    * How to avoid collisions on the side axis.
+   * - `'shift'`: Keep the preferred side and shift the popup to fit within the boundary.
+   * - `'none'`: Keep the preferred side even if it overflows.
    */
-  side?: ('shift' | 'none') | undefined;
+  side?: 'shift' | 'none' | undefined;
   /**
    * How to avoid collisions on the align axis.
+   * - `'shift'`: Keep the alignment and shift the popup to fit within the boundary.
+   * - `'none'`: Keep the preferred alignment even if it overflows.
    */
-  align?: ('shift' | 'none') | undefined;
+  align?: 'shift' | 'none' | undefined;
   /**
    * If both sides on the preferred axis do not fit, determines whether to fallback
    * to a side on the perpendicular axis and which logical side to prefer.
+   * - `'start'`: Prefer the logical start side on the perpendicular axis.
+   * - `'end'`: Prefer the logical end side on the perpendicular axis.
+   * - `'none'`: Do not fallback to the perpendicular axis.
    */
-  fallbackAxisSide?: ('start' | 'end' | 'none') | undefined;
+  fallbackAxisSide?: 'start' | 'end' | 'none' | undefined;
 }
 
 export type CollisionAvoidance = SideFlipMode | SideShiftMode;
@@ -104,8 +119,8 @@ export type CollisionAvoidance = SideFlipMode | SideShiftMode;
  * `useFloating` hook.
  */
 export function useAnchorPositioning(
-  params: useAnchorPositioning.Parameters,
-): useAnchorPositioning.ReturnValue {
+  params: UseAnchorPositioningParameters,
+): UseAnchorPositioningReturnValue {
   const {
     // Public parameters
     anchor,
@@ -308,12 +323,19 @@ export function useAnchorPositioning(
   middleware.push(
     size({
       ...commonCollisionProps,
-      apply({ elements: { floating }, rects: { reference }, availableWidth, availableHeight }) {
+      apply({ elements: { floating }, availableWidth, availableHeight, rects }) {
         const floatingStyle = floating.style;
         floatingStyle.setProperty('--available-width', `${availableWidth}px`);
         floatingStyle.setProperty('--available-height', `${availableHeight}px`);
-        floatingStyle.setProperty('--anchor-width', `${reference.width}px`);
-        floatingStyle.setProperty('--anchor-height', `${reference.height}px`);
+
+        // Snap anchor dimensions to device pixels to ensure the popup's visual width matches the anchor's one.
+        const dpr = window.devicePixelRatio || 1;
+        const { x, y, width, height } = rects.reference;
+        const anchorWidth = (Math.round((x + width) * dpr) - Math.round(x * dpr)) / dpr;
+        const anchorHeight = (Math.round((y + height) * dpr) - Math.round(y * dpr)) / dpr;
+
+        floatingStyle.setProperty('--anchor-width', `${anchorWidth}px`);
+        floatingStyle.setProperty('--anchor-height', `${anchorHeight}px`);
       },
     }),
     arrow(
@@ -545,19 +567,17 @@ export interface UseAnchorPositioningSharedParameters {
    * By default, the popup will be positioned against the trigger.
    */
   anchor?:
-    | (
-        | Element
-        | null
-        | VirtualElement
-        | React.RefObject<Element | null>
-        | (() => Element | VirtualElement | null)
-      )
+    | Element
+    | null
+    | VirtualElement
+    | React.RefObject<Element | null>
+    | (() => Element | VirtualElement | null)
     | undefined;
   /**
    * Determines which CSS `position` property to use.
    * @default 'absolute'
    */
-  positionMethod?: ('absolute' | 'fixed') | undefined;
+  positionMethod?: 'absolute' | 'fixed' | undefined;
   /**
    * Which side of the anchor element to align the popup against.
    * May automatically change to avoid collisions.
@@ -588,7 +608,7 @@ export interface UseAnchorPositioningSharedParameters {
    *
    * @default 0
    */
-  sideOffset?: (number | OffsetFunction) | undefined;
+  sideOffset?: number | OffsetFunction | undefined;
   /**
    * How to align the popup relative to the specified side.
    * @default 'center'
@@ -618,7 +638,7 @@ export interface UseAnchorPositioningSharedParameters {
    *
    * @default 0
    */
-  alignOffset?: (number | OffsetFunction) | undefined;
+  alignOffset?: number | OffsetFunction | undefined;
   /**
    * An element or a rectangle that delimits the area that the popup is confined to.
    * @default 'clipping-ancestors'
@@ -650,6 +670,30 @@ export interface UseAnchorPositioningSharedParameters {
   /**
    * Determines how to handle collisions when positioning the popup.
    *
+   * `side` controls overflow on the preferred placement axis (`top`/`bottom` or `left`/`right`):
+   * - `'flip'`: keep the requested side when it fits; otherwise try the opposite side
+   *   (`top` and `bottom`, or `left` and `right`).
+   * - `'shift'`: never change side; keep the requested side and move the popup within
+   *   the clipping boundary so it stays visible.
+   * - `'none'`: do not correct side-axis overflow.
+   *
+   * `align` controls overflow on the alignment axis (`start`/`center`/`end`):
+   * - `'flip'`: keep side, but swap `start` and `end` when the requested alignment overflows.
+   * - `'shift'`: keep side and requested alignment, then nudge the popup along the
+   *   alignment axis to fit.
+   * - `'none'`: do not correct alignment-axis overflow.
+   *
+   * `fallbackAxisSide` controls fallback behavior on the perpendicular axis when the
+   * preferred axis cannot fit:
+   * - `'start'`: allow perpendicular fallback and try the logical start side first
+   *   (`top` before `bottom`, or `left` before `right` in LTR).
+   * - `'end'`: allow perpendicular fallback and try the logical end side first
+   *   (`bottom` before `top`, or `right` before `left` in LTR).
+   * - `'none'`: do not fallback to the perpendicular axis.
+   *
+   * When `side` is `'shift'`, explicitly setting `align` only supports `'shift'` or `'none'`.
+   * If `align` is omitted, it defaults to `'flip'`.
+   *
    * @example
    * ```jsx
    * <Positioner
@@ -665,9 +709,9 @@ export interface UseAnchorPositioningSharedParameters {
   collisionAvoidance?: CollisionAvoidance | undefined;
 }
 
-export interface UseAnchorPositioningParameters extends useAnchorPositioning.SharedParameters {
+export interface UseAnchorPositioningParameters extends UseAnchorPositioningSharedParameters {
   keepMounted?: boolean | undefined;
-  trackCursorAxis?: ('none' | 'x' | 'y' | 'both') | undefined;
+  trackCursorAxis?: 'none' | 'x' | 'y' | 'both' | undefined;
   floatingRootContext?: FloatingRootContext | undefined;
   mounted: boolean;
   disableAnchorTracking: boolean;
@@ -694,8 +738,4 @@ export interface UseAnchorPositioningReturnValue {
   update: () => void;
 }
 
-export namespace useAnchorPositioning {
-  export type SharedParameters = UseAnchorPositioningSharedParameters;
-  export type Parameters = UseAnchorPositioningParameters;
-  export type ReturnValue = UseAnchorPositioningReturnValue;
-}
+export interface UseAnchorPositioningState {}

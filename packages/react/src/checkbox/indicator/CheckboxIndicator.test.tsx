@@ -64,7 +64,7 @@ describe('<Checkbox.Indicator />', () => {
     expect(indicator).to.have.attribute('data-extra-prop', 'Lorem ipsum');
   });
 
-  describe('keepMounted prop', () => {
+  describe('prop: keepMounted', () => {
     it('should keep indicator mounted when unchecked', async () => {
       await render(
         <Checkbox.Root>

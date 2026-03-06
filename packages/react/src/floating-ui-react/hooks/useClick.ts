@@ -20,7 +20,7 @@ export interface UseClickProps {
    * Keyboard clicks work as normal.
    * @default 'click'
    */
-  event?: ('click' | 'mousedown' | 'mousedown-only') | undefined;
+  event?: 'click' | 'mousedown' | 'mousedown-only' | undefined;
   /**
    * Whether to toggle the open state with repeated clicks.
    * @default true
@@ -48,7 +48,7 @@ export interface UseClickProps {
    * The reason for the click.
    * @default REASONS.triggerPress
    */
-  reason?: (typeof REASONS.triggerPress | typeof REASONS.inputPress) | undefined;
+  reason?: typeof REASONS.triggerPress | typeof REASONS.inputPress | undefined;
 }
 
 /**

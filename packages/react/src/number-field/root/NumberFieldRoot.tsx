@@ -13,7 +13,7 @@ import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { isIOS } from '@base-ui/utils/detectBrowser';
 import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import type { FieldRoot } from '../../field/root/FieldRoot';
+import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
@@ -332,7 +332,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
           isPressedRef.current = false;
           stopAutoChange();
           const committed = lastChangedValueRef.current ?? valueRef.current;
-          const commitReason = isIncrement ? 'increment' : 'decrement';
+          const commitReason = isIncrement ? REASONS.incrementPress : REASONS.decrementPress;
           onValueCommitted(committed, createGenericEventDetails(commitReason, event));
         },
         { once: true },
@@ -452,7 +452,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     [allowWheelScrub, incrementValue, disabled, readOnly, largeStep, step, getStepAmount],
   );
 
-  const state: NumberFieldRoot.State = React.useMemo(
+  const state: NumberFieldRootState = React.useMemo(
     () => ({
       ...fieldState,
       disabled,
@@ -622,7 +622,7 @@ export interface NumberFieldRootProps extends Omit<
    * Specify `step="any"` to always disable step validation.
    * @default 1
    */
-  step?: (number | 'any') | undefined;
+  step?: number | 'any' | undefined;
   /**
    * The large step value of the input element when incrementing while the shift key is held. Snaps
    * to multiples of this value.
@@ -651,7 +651,7 @@ export interface NumberFieldRootProps extends Omit<
   /**
    * The raw numeric value of the field.
    */
-  value?: (number | null) | undefined;
+  value?: number | null | undefined;
   /**
    * The uncontrolled value of the field when it’s initially rendered.
    *
@@ -713,7 +713,7 @@ export interface NumberFieldRootProps extends Omit<
   inputRef?: React.Ref<HTMLInputElement> | undefined;
 }
 
-export interface NumberFieldRootState extends FieldRoot.State {
+export interface NumberFieldRootState extends FieldRootState {
   /**
    * The raw numeric value of the field.
    */

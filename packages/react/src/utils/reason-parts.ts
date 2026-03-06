@@ -22,6 +22,7 @@ export const inputPress = 'input-press' as const;
 
 export const focusOut = 'focus-out' as const;
 export const escapeKey = 'escape-key' as const;
+export const closeWatcher = 'close-watcher' as const;
 export const listNavigation = 'list-navigation' as const;
 export const keyboard = 'keyboard' as const;
 
@@ -36,5 +37,6 @@ export const disabled = 'disabled' as const;
 export const missing = 'missing' as const;
 export const initial = 'initial' as const;
 export const imperativeAction = 'imperative-action' as const;
+export const swipe = 'swipe' as const;
 
 export const windowResize = 'window-resize' as const;

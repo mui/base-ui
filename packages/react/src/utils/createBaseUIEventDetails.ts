@@ -26,11 +26,13 @@ interface ReasonToEventMap {
 
   [REASONS.focusOut]: FocusEvent | KeyboardEvent;
   [REASONS.escapeKey]: KeyboardEvent;
+  [REASONS.closeWatcher]: Event;
   [REASONS.listNavigation]: KeyboardEvent;
   [REASONS.keyboard]: KeyboardEvent;
 
   [REASONS.pointer]: PointerEvent;
   [REASONS.drag]: PointerEvent | TouchEvent;
+  [REASONS.swipe]: PointerEvent | TouchEvent;
   [REASONS.wheel]: WheelEvent;
   [REASONS.scrub]: PointerEvent;
 
@@ -145,7 +147,7 @@ export function createChangeEventDetails<
 }
 
 export function createGenericEventDetails<
-  Reason extends string,
+  Reason extends keyof ReasonToEventMap,
   CustomProperties extends object = {},
 >(
   reason: Reason,

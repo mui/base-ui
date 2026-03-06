@@ -17,6 +17,7 @@ import {
   useHover,
   useInteractions,
 } from '../../src/floating-ui-react';
+import styles from './Navigation.module.css';
 
 interface SubItemProps {
   label: string;
@@ -29,7 +30,7 @@ export const NavigationSubItem = React.forwardRef<
   SubItemProps & React.HTMLProps<HTMLAnchorElement>
 >(function NavigationSubItem({ label, href, ...props }, ref) {
   return (
-    <a {...props} ref={ref} href={href} className="NavigationItem">
+    <a {...props} ref={ref} href={href} className={styles.SubItem}>
       {label}
     </a>
   );
@@ -80,7 +81,7 @@ export const NavigationItem = React.forwardRef<
         <a
           href={href}
           ref={mergedReferenceRef}
-          className="bg-slate-100 my-1 flex w-48 items-center justify-between rounded p-2"
+          className={styles.Item}
           {...getReferenceProps(props)}
         >
           {label}
@@ -92,14 +93,14 @@ export const NavigationItem = React.forwardRef<
             <div
               data-testid="subnavigation"
               ref={refs.setFloating}
-              className="bg-slate-100 flex flex-col overflow-y-auto rounded px-4 py-2 backdrop-blur-sm outline-none"
+              className={styles.Subnav}
               style={floatingStyles}
               {...getFloatingProps()}
             >
               <button type="button" onClick={() => setOpen(false)}>
                 Close
               </button>
-              <ul className="flex flex-col">{children}</ul>
+              <ul className={styles.SubnavList}>{children}</ul>
             </div>
           </FloatingFocusManager>
         )}
@@ -115,8 +116,8 @@ interface NavigationProps {
 /** @internal */
 export function Navigation(props: NavigationProps) {
   return (
-    <nav className="Navigation">
-      <ul className="NavigationList">{props.children}</ul>
+    <nav>
+      <ul>{props.children}</ul>
     </nav>
   );
 }
@@ -125,8 +126,8 @@ export function Navigation(props: NavigationProps) {
 export function Main() {
   return (
     <React.Fragment>
-      <h1 className="mb-8 text-5xl font-bold">Navigation</h1>
-      <div className="border-slate-400 mb-4 grid h-[20rem] place-items-center rounded border lg:w-[40rem]">
+      <h1 className={styles.Heading}>Navigation</h1>
+      <div className={styles.Container}>
         <Navigation>
           <NavigationItem label="Home" href="#" />
           <NavigationItem label="Product" href="#">

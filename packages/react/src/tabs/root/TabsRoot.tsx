@@ -287,7 +287,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     value,
   ]);
 
-  const state: TabsRoot.State = {
+  const state: TabsRootState = {
     orientation,
     tabActivationDirection,
   };
@@ -309,11 +309,17 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 export type TabsRootOrientation = BaseOrientation;
 
 export interface TabsRootState {
+  /**
+   * The component orientation.
+   */
   orientation: TabsRoot.Orientation;
+  /**
+   * The direction used for tab activation.
+   */
   tabActivationDirection: TabsTab.ActivationDirection;
 }
 
-export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRoot.State> {
+export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRootState> {
   /**
    * The value of the currently active `Tab`. Use when the component is controlled.
    * When the value is `null`, no Tab will be active.

@@ -34,7 +34,7 @@ import { useCSPContext } from '../../csp-provider/CSPContext';
 
 const SCROLL_EPS_PX = 1;
 
-const stateAttributesMapping: StateAttributesMapping<SelectPopup.State> = {
+const stateAttributesMapping: StateAttributesMapping<SelectPopupState> = {
   ...popupStateMapping,
   ...transitionStatusMapping,
 };
@@ -223,7 +223,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     },
   });
 
-  const state: SelectPopup.State = {
+  const state: SelectPopupState = {
     open,
     transitionStatus,
     side,
@@ -529,7 +529,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   );
 });
 
-export interface SelectPopupProps extends BaseUIComponentProps<'div', SelectPopup.State> {
+export interface SelectPopupProps extends BaseUIComponentProps<'div', SelectPopupState> {
   children?: React.ReactNode;
   /**
    * Determines the element to focus when the select popup is closed.
@@ -541,18 +541,28 @@ export interface SelectPopupProps extends BaseUIComponentProps<'div', SelectPopu
    *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
    */
   finalFocus?:
-    | (
-        | boolean
-        | React.RefObject<HTMLElement | null>
-        | ((closeType: InteractionType) => boolean | HTMLElement | null | void)
-      )
+    | boolean
+    | React.RefObject<HTMLElement | null>
+    | ((closeType: InteractionType) => boolean | HTMLElement | null | void)
     | undefined;
 }
 
 export interface SelectPopupState {
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side | 'none';
+  /**
+   * The alignment of the component relative to the anchor.
+   */
   align: Align;
+  /**
+   * Whether the component is open.
+   */
   open: boolean;
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
 }
 

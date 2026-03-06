@@ -37,7 +37,7 @@ import { CompositeMetadata } from '../list/CompositeList';
 import { HTMLProps } from '../../utils/types';
 
 export interface UseCompositeRootParameters {
-  orientation?: ('horizontal' | 'vertical' | 'both') | undefined;
+  orientation?: 'horizontal' | 'vertical' | 'both' | undefined;
   cols?: number | undefined;
   loopFocus?: boolean | undefined;
   highlightedIndex?: number | undefined;
