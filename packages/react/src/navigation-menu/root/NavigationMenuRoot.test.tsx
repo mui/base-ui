@@ -368,9 +368,11 @@ function TestNavigationMenuWithKeepMountedContent() {
   );
 }
 
-function TestNavigationMenuWithScopedPopupExitAnimation(props: {
-  onOpenChangeComplete?: NavigationMenu.Root.Props['onOpenChangeComplete'];
-} = {}) {
+function TestNavigationMenuWithScopedPopupExitAnimation(
+  props: {
+    onOpenChangeComplete?: NavigationMenu.Root.Props['onOpenChangeComplete'];
+  } = {},
+) {
   const { onOpenChangeComplete } = props;
   const style = `
     .test-navigation-menu-popup {
@@ -1843,50 +1845,47 @@ describe('<NavigationMenu.Root />', () => {
         });
       });
 
-      it.skipIf(isJSDOM)(
-        'closes on the short exit path after switching content',
-        async () => {
-          const animationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
-          globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      it.skipIf(isJSDOM)('closes on the short exit path after switching content', async () => {
+        const animationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
-          try {
-            const onOpenChangeComplete = spy();
-            const { user } = await render(
-              <TestNavigationMenuWithScopedPopupExitAnimation
-                onOpenChangeComplete={onOpenChangeComplete}
-              />,
-            );
+        try {
+          const onOpenChangeComplete = spy();
+          const { user } = await render(
+            <TestNavigationMenuWithScopedPopupExitAnimation
+              onOpenChangeComplete={onOpenChangeComplete}
+            />,
+          );
 
-            await user.click(screen.getByTestId('trigger-product'));
-            await flushMicrotasks();
+          await user.click(screen.getByTestId('trigger-product'));
+          await flushMicrotasks();
 
-            await user.click(screen.getByTestId('trigger-learn'));
-            await flushMicrotasks();
+          await user.click(screen.getByTestId('trigger-learn'));
+          await flushMicrotasks();
 
-            const popupRoot = screen.getByTestId('popup-root');
+          const popupRoot = screen.getByTestId('popup-root');
 
-            await waitFor(() => {
-              const hasRunningAnimations = popupRoot
-                .getAnimations()
-                .some((animation) => animation.playState !== 'finished');
-              expect(hasRunningAnimations).to.equal(false);
-            });
+          await waitFor(() => {
+            const hasRunningAnimations = popupRoot
+              .getAnimations()
+              .some((animation) => animation.playState !== 'finished');
+            expect(hasRunningAnimations).to.equal(false);
+          });
 
-            const closeStart = performance.now();
-            fireEvent.keyDown(screen.getByTestId('trigger-learn'), { key: 'Escape' });
-            await flushMicrotasks();
+          const closeStart = performance.now();
+          fireEvent.keyDown(screen.getByTestId('trigger-learn'), { key: 'Escape' });
+          await flushMicrotasks();
 
-            await waitFor(() => {
-              expect(onOpenChangeComplete.callCount).to.equal(1);
-              expect(onOpenChangeComplete.firstCall.args[0]).to.equal(false);
-            });
+          await waitFor(() => {
+            expect(onOpenChangeComplete.callCount).to.equal(1);
+            expect(onOpenChangeComplete.firstCall.args[0]).to.equal(false);
+          });
 
-            expect(performance.now() - closeStart).to.be.lessThan(325);
-          } finally {
-            globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
-          }
-        },
-      );
+          expect(performance.now() - closeStart).to.be.lessThan(325);
+        } finally {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
+        }
+      });
 
       it('does not collapse popup size to zero on close if a measurement temporarily returns 0', async () => {
         await render(<TestInlineNestedNavigationMenuWithDynamicContent />);
