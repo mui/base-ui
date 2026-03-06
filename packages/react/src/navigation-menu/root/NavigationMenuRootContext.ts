@@ -14,6 +14,8 @@ export interface NavigationMenuRootContext {
   setPopupElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
   positionerElement: HTMLElement | null;
   setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
+  listElement: HTMLElement | null;
+  setListElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
   viewportElement: HTMLElement | null;
   setViewportElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
   viewportTargetElement: HTMLElement | null;

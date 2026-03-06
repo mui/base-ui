@@ -89,38 +89,36 @@ export interface SafePolygonOptions extends HandleCloseOptions {}
 export function safePolygon(options: SafePolygonOptions = {}) {
   const { buffer = 0.5, blockPointerEvents = false, requireIntent = true } = options;
 
-  const timeout = new Timeout();
+  const fn: HandleClose = ({ x, y, placement, elements, onClose, nodeId, tree }) => {
+    const side = placement?.split('-')[0] as Side | undefined;
+    const timeout = new Timeout();
+    let hasLanded = false;
+    let lastX: number | null = null;
+    let lastY: number | null = null;
+    let lastCursorTime = typeof performance !== 'undefined' ? performance.now() : 0;
 
-  let hasLanded = false;
-  let lastX: number | null = null;
-  let lastY: number | null = null;
-  let lastCursorTime = typeof performance !== 'undefined' ? performance.now() : 0;
+    function isCursorMovingSlowly(nextX: number, nextY: number) {
+      const currentTime = performance.now();
+      const elapsedTime = currentTime - lastCursorTime;
 
-  function isCursorMovingSlowly(nextX: number, nextY: number) {
-    const currentTime = performance.now();
-    const elapsedTime = currentTime - lastCursorTime;
+      if (lastX === null || lastY === null || elapsedTime === 0) {
+        lastX = nextX;
+        lastY = nextY;
+        lastCursorTime = currentTime;
+        return false;
+      }
 
-    if (lastX === null || lastY === null || elapsedTime === 0) {
+      const deltaX = nextX - lastX;
+      const deltaY = nextY - lastY;
+      const distanceSquared = deltaX * deltaX + deltaY * deltaY;
+      const thresholdSquared = elapsedTime * elapsedTime * CURSOR_SPEED_THRESHOLD_SQUARED;
+
       lastX = nextX;
       lastY = nextY;
       lastCursorTime = currentTime;
-      return false;
+
+      return distanceSquared < thresholdSquared;
     }
-
-    const deltaX = nextX - lastX;
-    const deltaY = nextY - lastY;
-    const distanceSquared = deltaX * deltaX + deltaY * deltaY;
-    const thresholdSquared = elapsedTime * elapsedTime * CURSOR_SPEED_THRESHOLD_SQUARED;
-
-    lastX = nextX;
-    lastY = nextY;
-    lastCursorTime = currentTime;
-
-    return distanceSquared < thresholdSquared;
-  }
-
-  const fn: HandleClose = ({ x, y, placement, elements, onClose, nodeId, tree }) => {
-    const side = placement?.split('-')[0] as Side | undefined;
 
     function close() {
       timeout.clear();
