@@ -200,7 +200,7 @@ const submenuTriggerClassName =
   'focus-visible:-outline-offset-1 focus-visible:outline-blue-800';
 
 const submenuContentClassName =
-  'h-full translate-x-0 p-7 min-[700px]:p-8 min-[700px]:blur-0 transition-[opacity,transform,filter] duration-[600ms] ease-[cubic-bezier(0.45,1.005,0,1.005)] ' +
+  'h-full translate-x-0 p-7 min-[700px]:p-8 min-[700px]:blur-0 transition-[opacity,transform,filter] duration-[var(--duration)] ease-[var(--easing)] ' +
   'data-[starting-style]:opacity-0 data-[starting-style]:data-[activation-direction=left]:translate-x-[-50%] data-[starting-style]:data-[activation-direction=right]:translate-x-[50%] ' +
   'data-[ending-style]:opacity-0 data-[ending-style]:data-[activation-direction=left]:translate-x-[50%] data-[ending-style]:data-[activation-direction=right]:translate-x-[-50%] ' +
   'min-[700px]:data-[starting-style]:data-[activation-direction=up]:translate-y-[-100px] min-[700px]:data-[starting-style]:data-[activation-direction=down]:translate-y-[100px] min-[700px]:data-[starting-style]:blur-[2px] ' +
