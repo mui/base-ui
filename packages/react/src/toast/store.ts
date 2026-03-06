@@ -243,8 +243,8 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     const { limit, toasts } = this.state;
 
     if (closeAll) {
-      toasts.forEach((toast) => {
-        toast.onClose?.();
+      toasts.forEach((item) => {
+        item.onClose?.();
       });
       this.timers.forEach((timer) => {
         timer.timeout?.clear();
