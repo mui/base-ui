@@ -161,50 +161,100 @@ import { DemoAutocompleteVirtualized } from './demos/virtualized';
 
 ## API reference
 
-<Reference component="Autocomplete" parts="Root, Value" />
-<Reference
-  component="Combobox"
-  as="Autocomplete"
-  parts="Input, Trigger, Icon, Clear, List, Portal, Backdrop, Positioner, Popup, Arrow, Status, Empty, Collection, Row, Item, Group, GroupLabel, Separator"
-/>
+import { TypesAutocomplete } from './types';
 
-## useFilter
+### Root
+
+<TypesAutocomplete.Root />
+
+### Value
+
+<TypesAutocomplete.Value />
+
+### Input
+
+<TypesAutocomplete.Input />
+
+### Trigger
+
+<TypesAutocomplete.Trigger />
+
+### Icon
+
+<TypesAutocomplete.Icon />
+
+### Clear
+
+<TypesAutocomplete.Clear />
+
+### List
+
+<TypesAutocomplete.List />
+
+### Portal
+
+<TypesAutocomplete.Portal />
+
+### Backdrop
+
+<TypesAutocomplete.Backdrop />
+
+### Positioner
+
+<TypesAutocomplete.Positioner />
+
+### Popup
+
+<TypesAutocomplete.Popup />
+
+### Arrow
+
+<TypesAutocomplete.Arrow />
+
+### Status
+
+<TypesAutocomplete.Status />
+
+### Empty
+
+<TypesAutocomplete.Empty />
+
+### Collection
+
+<TypesAutocomplete.Collection />
+
+### Row
+
+<TypesAutocomplete.Row />
+
+### Item
+
+<TypesAutocomplete.Item />
+
+### Group
+
+<TypesAutocomplete.Group />
+
+### GroupLabel
+
+<TypesAutocomplete.GroupLabel />
+
+### Separator
+
+<TypesAutocomplete.Separator />
+
+### useFilter
 
 Matches items against a query using `Intl.Collator` for robust string matching.
 This hook is used when externally filtering items.
 
-### Input parameters
+<TypesAutocomplete.useFilter hideDescription />
 
-Accepts all `Intl.CollatorOptions`, plus the following option:
+### useFilteredItems
 
-<PropsReferenceTable
-  data={{
-    locale: {
-      type: 'Intl.LocalesArgument',
-      description: 'The locale to use for string comparison.',
-    },
-  }}
-/>
+Returns the internally filtered items when called inside `<Autocomplete.Root>`.
 
-### Return value
-
-<PropsReferenceTable
-  type="return"
-  data={{
-    contains: {
-      type: '(itemValue: any, query: string) => boolean',
-      description: 'Returns whether the item matches the query anywhere.',
-    },
-    startsWith: {
-      type: '(itemValue: any, query: string) => boolean',
-      description: 'Returns whether the item starts with the query.',
-    },
-    endsWith: {
-      type: '(itemValue: any, query: string) => boolean',
-      description: 'Returns whether the item ends with the query.',
-    },
-  }}
-/>
+<TypesAutocomplete.useFilteredItems hideDescription />
 
 export const metadata = {
   keywords: [
@@ -224,19 +274,3 @@ export const metadata = {
     'Base UI',
   ],
 };
-
-## useFilteredItems
-
-Returns the internally filtered items when called inside `<Autocomplete.Root>`.
-
-### Return value
-
-<PropsReferenceTable
-  type="return"
-  data={{
-    filteredItems: {
-      type: 'any[]',
-      description: 'The filtered items.',
-    },
-  }}
-/>

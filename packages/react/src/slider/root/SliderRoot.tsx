@@ -469,7 +469,7 @@ export interface SliderRootProps<
   Value extends number | readonly number[] = number | readonly number[],
 > extends BaseUIComponentProps<'div', SliderRootState> {
   /**
-   * The uncontrolled value of the slider when it’s initially rendered.
+   * The uncontrolled value of the slider when it's initially rendered.
    *
    * To render a controlled slider, use the `value` prop instead.
    */

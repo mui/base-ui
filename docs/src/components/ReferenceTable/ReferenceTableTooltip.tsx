@@ -2,9 +2,7 @@ import { Tooltip } from '@base-ui/react/tooltip';
 import { Popup as BasePopup } from '../Popup';
 import './ReferenceTableTooltip.css';
 
-export function Trigger(props: Tooltip.Trigger.Props) {
-  return <Tooltip.Trigger {...props} />;
-}
+export { Trigger } from './ReferenceTableTooltipTrigger';
 
 export function Root(props: Tooltip.Root.Props) {
   return <Tooltip.Root {...props} />;

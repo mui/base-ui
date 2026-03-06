@@ -1,24 +1,16 @@
 import * as React from 'react';
 import clsx from 'clsx';
-import { createMdxComponent } from 'docs/src/mdx/createMdxComponent';
-import { inlineMdxComponents } from 'docs/src/mdx-components';
-import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting';
-import type { AttributeDef } from './types';
+import { ProcessedEnumMember } from '@mui/internal-docs-infra/useTypes';
 import * as Table from '../Table';
 import * as Accordion from '../Accordion';
 import { TableCode } from '../TableCode';
 
 interface AttributesReferenceTableProps extends React.ComponentProps<typeof Table.Root> {
-  data: Record<string, AttributeDef>;
+  data: Record<string, ProcessedEnumMember>;
   name?: string;
 }
 
-const CREATE_MDX_OPTIONS = {
-  rehypePlugins: rehypeSyntaxHighlighting,
-  useMDXComponents: () => inlineMdxComponents,
-};
-
-export async function AttributesReferenceTable({
+export function AttributesReferenceTable({
   data,
   name: partName,
   ...props
@@ -29,13 +21,8 @@ export async function AttributesReferenceTable({
         <Accordion.HeaderRow>
           <Accordion.HeaderCell className="bui-pl-3">Attribute</Accordion.HeaderCell>
         </Accordion.HeaderRow>
-        {Object.keys(data).map(async (name, index) => {
+        {Object.keys(data).map((name, index) => {
           const attribute = data[name];
-
-          const AttributeDescription = await createMdxComponent(
-            attribute.description,
-            CREATE_MDX_OPTIONS,
-          );
 
           return (
             <Accordion.Item
@@ -63,7 +50,7 @@ export async function AttributesReferenceTable({
               </Accordion.Trigger>
               <Accordion.Panel>
                 <Accordion.Content className="ReferenceCompactPanel">
-                  <AttributeDescription />
+                  {attribute.description}
                 </Accordion.Content>
               </Accordion.Panel>
             </Accordion.Item>
@@ -85,13 +72,8 @@ export async function AttributesReferenceTable({
           </Table.Row>
         </Table.Head>
         <Table.Body>
-          {Object.keys(data).map(async (name) => {
+          {Object.keys(data).map((name) => {
             const attribute = data[name];
-
-            const AttributeDescription = await createMdxComponent(
-              attribute.description,
-              CREATE_MDX_OPTIONS,
-            );
 
             return (
               <Table.Row key={name}>
@@ -100,9 +82,7 @@ export async function AttributesReferenceTable({
                     {name}
                   </TableCode>
                 </Table.RowHeader>
-                <Table.Cell colSpan={2}>
-                  <AttributeDescription />
-                </Table.Cell>
+                <Table.Cell colSpan={2}>{attribute.description}</Table.Cell>
               </Table.Row>
             );
           })}

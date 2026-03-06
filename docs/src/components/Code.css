@@ -7,18 +7,33 @@
       white-space: normal;
     }
 
-    & [data-line] {
+    & [data-line],
+    & .line {
       display: block;
       white-space: pre;
       padding-inline: 0.75rem;
     }
 
-    & [data-line]:empty {
+    & [data-line]:empty,
+    & .line:empty {
       height: 1lh;
     }
 
     & mark {
       display: inline-block;
+    }
+
+    & a {
+      text-decoration: underline;
+      text-decoration-color: color-mix(in oklab, currentColor, transparent 60%);
+      text-underline-offset: 2px;
+      text-decoration-thickness: 1px;
+
+      @media (hover: hover) {
+        &:hover {
+          text-decoration-color: currentColor;
+        }
+      }
     }
   }
 }
