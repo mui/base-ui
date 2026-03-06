@@ -119,7 +119,7 @@ export default function ExampleNavigationMenu() {
             ['--easing' as string]: 'cubic-bezier(0.22, 1, 0.36, 1)',
           }}
         >
-          <NavigationMenu.Popup className="data-[ending-style]:easing-[ease] relative h-[var(--popup-height)] w-[var(--popup-width)] origin-[var(--transform-origin)] rounded-lg bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 transition-[opacity,transform,translate,scale,width,height] duration-[var(--duration)] ease-[var(--easing)] data-[ending-style]:transition-[opacity,transform,translate,scale] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:outline-gray-300">
+          <NavigationMenu.Popup className="data-[ending-style]:easing-[ease] relative h-[var(--popup-height)] w-[var(--popup-width)] origin-[var(--transform-origin)] rounded-lg bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 transition-[opacity,scale,width,height] duration-[var(--duration)] ease-[var(--easing)] data-[ending-style]:transition-[opacity,scale] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:outline-gray-300">
             <NavigationMenu.Arrow className="hidden transition-[left] duration-[var(--duration)] ease-[var(--easing)] min-[700px]:flex data-[side=bottom]:top-[-8px] data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180">
               <ArrowSvg />
             </NavigationMenu.Arrow>
@@ -181,8 +181,8 @@ const triggerClassName =
 
 const sharedContentClassName =
   'h-full w-[calc(100vw_-_40px)] ' +
-  'transition-[opacity,transform,translate] duration-[var(--duration)] ease-[cubic-bezier(0.4,0,0.2,1)] ' +
-  'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 ' +
+  'transition-[opacity,translate] duration-[var(--duration)] ease-[cubic-bezier(0.4,0,0.2,1)] ' +
+  'data-[starting-style]:data-[activation-direction=left]:opacity-0 data-[starting-style]:data-[activation-direction=right]:opacity-0 data-[ending-style]:opacity-0 ' +
   'data-[ending-style]:duration-[calc(var(--duration)*0.5)] data-[ending-style]:ease-[ease] ' +
   'data-[starting-style]:data-[activation-direction=left]:translate-x-[-2rem] ' +
   'data-[starting-style]:data-[activation-direction=right]:translate-x-[2rem] ' +
@@ -200,10 +200,10 @@ const submenuTriggerClassName =
   'focus-visible:-outline-offset-1 focus-visible:outline-blue-800';
 
 const submenuContentClassName =
-  'h-full translate-x-0 p-7 min-[700px]:p-8 min-[700px]:blur-0 transition-[opacity,transform,filter] duration-[var(--duration)] ease-[var(--easing)] min-[700px]:duration-[calc(var(--duration)*1.35)] min-[700px]:ease-[cubic-bezier(0.16,1,0.3,1)] ' +
-  'data-[starting-style]:opacity-0 data-[starting-style]:data-[activation-direction=left]:translate-x-[-50%] data-[starting-style]:data-[activation-direction=right]:translate-x-[50%] ' +
+  'h-full translate-x-0 p-7 min-[700px]:p-8 min-[700px]:blur-0 transition-[opacity,translate,filter] duration-[var(--duration)] ease-[var(--easing)] min-[700px]:duration-[calc(var(--duration)*1.35)] min-[700px]:ease-[cubic-bezier(0.16,1,0.3,1)] ' +
+  'data-[starting-style]:data-[activation-direction=left]:opacity-0 data-[starting-style]:data-[activation-direction=right]:opacity-0 data-[starting-style]:data-[activation-direction=left]:translate-x-[-50%] data-[starting-style]:data-[activation-direction=right]:translate-x-[50%] ' +
   'data-[ending-style]:opacity-0 data-[ending-style]:data-[activation-direction=left]:translate-x-[50%] data-[ending-style]:data-[activation-direction=right]:translate-x-[-50%] ' +
-  'min-[700px]:data-[starting-style]:data-[activation-direction=up]:translate-y-[-72px] min-[700px]:data-[starting-style]:data-[activation-direction=down]:translate-y-[72px] min-[700px]:data-[starting-style]:blur-[2px] ' +
+  'min-[700px]:data-[starting-style]:data-[activation-direction=up]:opacity-0 min-[700px]:data-[starting-style]:data-[activation-direction=down]:opacity-0 min-[700px]:data-[starting-style]:data-[activation-direction=up]:translate-y-[-72px] min-[700px]:data-[starting-style]:data-[activation-direction=down]:translate-y-[72px] min-[700px]:data-[starting-style]:blur-[2px] ' +
   'min-[700px]:data-[ending-style]:data-[activation-direction=up]:translate-y-[72px] min-[700px]:data-[ending-style]:data-[activation-direction=down]:translate-y-[-72px] min-[700px]:data-[ending-style]:blur-[2px]';
 
 const linkCardClassName =
