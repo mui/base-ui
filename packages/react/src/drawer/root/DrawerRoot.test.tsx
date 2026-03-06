@@ -2,7 +2,7 @@ import * as React from 'react';
 import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
 import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
-import { createRenderer, isJSDOM } from '#test-utils';
+import { createRenderer, isJSDOM, waitSingleFrame } from '#test-utils';
 import { REASONS } from '../../utils/reasons';
 import { useDrawerRootContext } from './DrawerRootContext';
 
@@ -884,8 +884,11 @@ describe('<Drawer.Root />', () => {
         // onOpenChange should still be called so the parent knows about the dismiss intent
         expect(handleOpenChange).toHaveBeenCalledWith(false, expect.anything());
 
-        // Wait for the rAF that reverts the controlled dismiss
-        await new Promise(requestAnimationFrame);
+        // The controlled reopen happens in rAF outside fireEvent's implicit act scope.
+        // Wrap the frame wait in act to avoid React act warnings.
+        await act(async () => {
+          await waitSingleFrame();
+        });
 
         // The drawer should remain open without data-swipe-dismiss
         expect(popup).not.toHaveAttribute('data-swipe-dismiss');
