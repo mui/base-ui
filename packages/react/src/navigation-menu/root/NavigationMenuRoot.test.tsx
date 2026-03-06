@@ -219,6 +219,114 @@ function TestDeeplyNestedNavigationMenu() {
   );
 }
 
+function TestNestedNavigationMenuWithCloseOnClick(props: {
+  onValueChange?: NavigationMenu.Root.Props['onValueChange'];
+}) {
+  return (
+    <NavigationMenu.Root onValueChange={props.onValueChange}>
+      <NavigationMenu.List>
+        <NavigationMenu.Item value="item-1">
+          <NavigationMenu.Trigger data-testid="trigger-1">Item 1</NavigationMenu.Trigger>
+
+          <NavigationMenu.Content data-testid="popup-1">
+            <NavigationMenu.Link href="#link-1" closeOnClick>
+              Link 1
+            </NavigationMenu.Link>
+            <NavigationMenu.Root>
+              <NavigationMenu.List>
+                <NavigationMenu.Item value="nested-item-1">
+                  <NavigationMenu.Trigger data-testid="nested-trigger-1">
+                    Nested Item 1
+                  </NavigationMenu.Trigger>
+                  <NavigationMenu.Content data-testid="nested-popup-1">
+                    <NavigationMenu.Link
+                      href="#nested-link-1"
+                      closeOnClick
+                      data-testid="nested-link-1"
+                    >
+                      Nested Link 1
+                    </NavigationMenu.Link>
+                  </NavigationMenu.Content>
+                </NavigationMenu.Item>
+              </NavigationMenu.List>
+
+              <NavigationMenu.Portal>
+                <NavigationMenu.Positioner side="right">
+                  <NavigationMenu.Popup>
+                    <NavigationMenu.Viewport />
+                  </NavigationMenu.Popup>
+                </NavigationMenu.Positioner>
+              </NavigationMenu.Portal>
+            </NavigationMenu.Root>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+      </NavigationMenu.List>
+
+      <NavigationMenu.Portal>
+        <NavigationMenu.Positioner>
+          <NavigationMenu.Popup>
+            <NavigationMenu.Viewport />
+          </NavigationMenu.Popup>
+        </NavigationMenu.Positioner>
+      </NavigationMenu.Portal>
+    </NavigationMenu.Root>
+  );
+}
+
+function TestDeeplyNestedNavigationMenuWithCloseOnClick() {
+  return (
+    <NavigationMenu.Root>
+      <NavigationMenu.List>
+        <NavigationMenu.Item value="item-1">
+          <NavigationMenu.Trigger data-testid="trigger-1">Item 1</NavigationMenu.Trigger>
+
+          <NavigationMenu.Content data-testid="content-1">
+            <NavigationMenu.Root defaultValue="level2-item-1">
+              <NavigationMenu.List>
+                <NavigationMenu.Item value="level2-item-1">
+                  <NavigationMenu.Trigger data-testid="level2-trigger-1">
+                    Level 2 Item 1
+                  </NavigationMenu.Trigger>
+                  <NavigationMenu.Content data-testid="level2-content-1">
+                    <NavigationMenu.Root defaultValue="level3-item-1">
+                      <NavigationMenu.List>
+                        <NavigationMenu.Item value="level3-item-1">
+                          <NavigationMenu.Trigger data-testid="level3-trigger-1">
+                            Level 3 Item 1
+                          </NavigationMenu.Trigger>
+                          <NavigationMenu.Content data-testid="level3-content-1">
+                            <NavigationMenu.Link
+                              href="#level3-link-1"
+                              closeOnClick
+                              data-testid="level3-link-1"
+                            >
+                              Level 3 Link 1
+                            </NavigationMenu.Link>
+                          </NavigationMenu.Content>
+                        </NavigationMenu.Item>
+                      </NavigationMenu.List>
+                      <NavigationMenu.Viewport />
+                    </NavigationMenu.Root>
+                  </NavigationMenu.Content>
+                </NavigationMenu.Item>
+              </NavigationMenu.List>
+              <NavigationMenu.Viewport />
+            </NavigationMenu.Root>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+      </NavigationMenu.List>
+
+      <NavigationMenu.Portal>
+        <NavigationMenu.Positioner>
+          <NavigationMenu.Popup>
+            <NavigationMenu.Viewport />
+          </NavigationMenu.Popup>
+        </NavigationMenu.Positioner>
+      </NavigationMenu.Portal>
+    </NavigationMenu.Root>
+  );
+}
+
 function TestNavigationMenuWithDialog() {
   return (
     <NavigationMenu.Root>
@@ -852,6 +960,89 @@ describe('<NavigationMenu.Root />', () => {
       expect(nestedPopup2).not.to.equal(null);
       expect(nestedTrigger2).to.have.attribute('aria-expanded', 'true');
       expect(nestedTrigger1).to.have.attribute('aria-expanded', 'false');
+    });
+
+    it('closes the parent menu when a nested link with closeOnClick is clicked', async () => {
+      const { user } = await render(<TestNestedNavigationMenuWithCloseOnClick />);
+      const trigger1 = screen.getByTestId('trigger-1');
+
+      await user.click(trigger1);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+      });
+
+      const popup1 = screen.getByTestId('popup-1');
+      const nestedTrigger1 = within(popup1).getByTestId('nested-trigger-1');
+
+      fireEvent.mouseEnter(nestedTrigger1);
+      fireEvent.mouseMove(nestedTrigger1);
+      clock.tick(OPEN_DELAY);
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('nested-popup-1')).not.to.equal(null);
+
+      const nestedLink = screen.getByTestId('nested-link-1');
+      await user.click(nestedLink);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('nested-popup-1')).to.equal(null);
+      });
+      expect(screen.queryByTestId('popup-1')).to.equal(null);
+      expect(trigger1).to.have.attribute('aria-expanded', 'false');
+    });
+
+    it('calls onValueChange on the parent root when nested closeOnClick link is clicked', async () => {
+      const onValueChange = spy();
+      const { user } = await render(
+        <TestNestedNavigationMenuWithCloseOnClick onValueChange={onValueChange} />,
+      );
+      const trigger1 = screen.getByTestId('trigger-1');
+
+      await user.click(trigger1);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+      });
+
+      const popup1 = screen.getByTestId('popup-1');
+      const nestedTrigger1 = within(popup1).getByTestId('nested-trigger-1');
+
+      fireEvent.mouseEnter(nestedTrigger1);
+      fireEvent.mouseMove(nestedTrigger1);
+      clock.tick(OPEN_DELAY);
+      await flushMicrotasks();
+
+      const nestedLink = screen.getByTestId('nested-link-1');
+      await user.click(nestedLink);
+
+      await waitFor(() => {
+        expect(onValueChange.lastCall.args[0]).to.equal(null);
+      });
+    });
+
+    it('closes all levels when a deeply nested link with closeOnClick is clicked', async () => {
+      const { user } = await render(<TestDeeplyNestedNavigationMenuWithCloseOnClick />);
+      const trigger1 = screen.getByTestId('trigger-1');
+
+      await user.click(trigger1);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('content-1')).not.to.equal(null);
+      });
+
+      expect(screen.queryByTestId('level2-content-1')).not.to.equal(null);
+      expect(screen.queryByTestId('level3-content-1')).not.to.equal(null);
+
+      const level3Link = screen.getByTestId('level3-link-1');
+      await user.click(level3Link);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('level3-content-1')).to.equal(null);
+      });
+      expect(screen.queryByTestId('level2-content-1')).to.equal(null);
+      expect(screen.queryByTestId('content-1')).to.equal(null);
+      expect(trigger1).to.have.attribute('aria-expanded', 'false');
     });
 
     describe('inline nested viewport', () => {
