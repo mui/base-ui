@@ -282,7 +282,8 @@ const toastManager = Toast.useToastManager();
     },
     close: {
       type: '(toastId?: string) => void',
-      description: 'Closes and removes a toast from the toast list. If no ID is passed, all toasts will be closed.',
+      description:
+        'Closes and removes a toast from the toast list. If no ID is passed, all toasts will be closed.',
     },
     update: {
       type: '(toastId: string, options: ToastManagerUpdateOptions) => void',
