@@ -367,6 +367,25 @@ function mockResizeObserver() {
   };
 }
 
+/**
+ * Sets up `elementFromPoint` and `ResizeObserver` mocks for swipe-dismiss tests.
+ * Returns a cleanup function that restores originals.
+ */
+function setupSwipeTestEnv() {
+  const originalElementFromPoint = document.elementFromPoint;
+  const restoreResizeObserver = mockResizeObserver();
+  return {
+    /** Call after rendering to point `elementFromPoint` at the given element. */
+    pointAt(element: Element) {
+      document.elementFromPoint = () => element;
+    },
+    cleanup() {
+      document.elementFromPoint = originalElementFromPoint;
+      restoreResizeObserver();
+    },
+  };
+}
+
 function SnapPointResetCase() {
   const snapPoints = ['100px', '300px', 1];
   const [open, setOpen] = React.useState(true);
@@ -815,8 +834,7 @@ describe('<Drawer.Root />', () => {
   });
 
   it.skipIf(isJSDOM)('clears swipe-dismiss styles when swipe close is canceled', async () => {
-    const originalElementFromPoint = document.elementFromPoint;
-    const restoreResizeObserver = mockResizeObserver();
+    const env = setupSwipeTestEnv();
 
     try {
       await render(<CanceledSwipeCloseCase />);
@@ -828,7 +846,7 @@ describe('<Drawer.Root />', () => {
 
       Object.defineProperty(popup, 'offsetHeight', { value: 200, configurable: true });
 
-      document.elementFromPoint = () => popup;
+      env.pointAt(popup);
 
       await simulateTimedDownSwipe(viewport, 100, 250, 1000, 1010, 1040);
 
@@ -839,8 +857,7 @@ describe('<Drawer.Root />', () => {
       expect(popup).toHaveAttribute('data-open', '');
       expect(popup.style.getPropertyValue('--drawer-swipe-movement-y')).toBe('0px');
     } finally {
-      document.elementFromPoint = originalElementFromPoint;
-      restoreResizeObserver();
+      env.cleanup();
     }
   });
 
@@ -848,9 +865,7 @@ describe('<Drawer.Root />', () => {
     'does not dismiss a controlled drawer via swipe when open is always true',
     async () => {
       const handleOpenChange = vi.fn();
-
-      const originalElementFromPoint = document.elementFromPoint;
-      const restoreResizeObserver = mockResizeObserver();
+      const env = setupSwipeTestEnv();
 
       try {
         await render(<ControlledAlwaysOpenCase onOpenChange={handleOpenChange} />);
@@ -862,7 +877,7 @@ describe('<Drawer.Root />', () => {
 
         Object.defineProperty(popup, 'offsetHeight', { value: 200, configurable: true });
 
-        document.elementFromPoint = () => popup;
+        env.pointAt(popup);
 
         await simulateTimedDownSwipe(viewport, 100, 250, 1000, 1010, 1040);
 
@@ -875,8 +890,7 @@ describe('<Drawer.Root />', () => {
         expect(popup).not.toHaveAttribute('data-ending-style');
         expect(popup).toHaveAttribute('data-open', '');
       } finally {
-        document.elementFromPoint = originalElementFromPoint;
-        restoreResizeObserver();
+        env.cleanup();
       }
     },
   );
@@ -884,8 +898,7 @@ describe('<Drawer.Root />', () => {
   it.skipIf(isJSDOM)(
     'does not restore snap point when a controlled swipe close is accepted by the parent',
     async () => {
-      const originalElementFromPoint = document.elementFromPoint;
-      const restoreResizeObserver = mockResizeObserver();
+      const env = setupSwipeTestEnv();
 
       try {
         await render(<ControlledSwipeCloseSnapPointCase />);
@@ -894,13 +907,12 @@ describe('<Drawer.Root />', () => {
         const viewport = screen.getByTestId('viewport');
         const popup = screen.getByTestId('popup');
 
-        document.elementFromPoint = () => popup;
+        env.pointAt(popup);
 
         await simulateTimedDownSwipe(viewport, 100, 260, 1000, 1010, 1040);
         expect(screen.getByTestId('active-snap').textContent).toBe('100px');
       } finally {
-        document.elementFromPoint = originalElementFromPoint;
-        restoreResizeObserver();
+        env.cleanup();
       }
     },
   );
@@ -908,8 +920,7 @@ describe('<Drawer.Root />', () => {
   it.skipIf(isJSDOM)(
     'restores snap point and swipe offsets when swipe close is canceled',
     async () => {
-      const originalElementFromPoint = document.elementFromPoint;
-      const restoreResizeObserver = mockResizeObserver();
+      const env = setupSwipeTestEnv();
 
       try {
         await render(<CanceledSwipeCloseSnapPointCase />);
@@ -918,7 +929,7 @@ describe('<Drawer.Root />', () => {
         const viewport = screen.getByTestId('viewport');
         const popup = screen.getByTestId('popup');
 
-        document.elementFromPoint = () => popup;
+        env.pointAt(popup);
 
         await simulateTimedDownSwipe(viewport, 100, 260, 1000, 1010, 1040);
 
@@ -928,8 +939,7 @@ describe('<Drawer.Root />', () => {
         expect(popup).not.toHaveAttribute('data-ending-style');
         expect(popup.style.getPropertyValue('--drawer-swipe-movement-y')).toBe('0px');
       } finally {
-        document.elementFromPoint = originalElementFromPoint;
-        restoreResizeObserver();
+        env.cleanup();
       }
     },
   );
@@ -937,8 +947,7 @@ describe('<Drawer.Root />', () => {
   it.skipIf(isJSDOM)(
     'allows dragging past a snap point when snapToSequentialPoints is enabled',
     async () => {
-      const originalElementFromPoint = document.elementFromPoint;
-      const restoreResizeObserver = mockResizeObserver();
+      const env = setupSwipeTestEnv();
 
       const useFakeTimers = isJSDOM;
       if (useFakeTimers) {
@@ -952,7 +961,7 @@ describe('<Drawer.Root />', () => {
         const viewport = screen.getByTestId('viewport');
         const popup = screen.getByTestId('popup');
 
-        document.elementFromPoint = () => popup;
+        env.pointAt(popup);
 
         const startTime = 1000;
         const moveTime = 1010;
@@ -965,8 +974,7 @@ describe('<Drawer.Root />', () => {
         if (useFakeTimers) {
           vi.useRealTimers();
         }
-        document.elementFromPoint = originalElementFromPoint;
-        restoreResizeObserver();
+        env.cleanup();
       }
     },
   );
@@ -974,8 +982,7 @@ describe('<Drawer.Root />', () => {
   it.skipIf(isJSDOM)(
     'advances to the next snap point on fast flicks when snapToSequentialPoints is enabled',
     async () => {
-      const originalElementFromPoint = document.elementFromPoint;
-      const restoreResizeObserver = mockResizeObserver();
+      const env = setupSwipeTestEnv();
 
       const useFakeTimers = isJSDOM;
       if (useFakeTimers) {
@@ -989,7 +996,7 @@ describe('<Drawer.Root />', () => {
         const viewport = screen.getByTestId('viewport');
         const popup = screen.getByTestId('popup');
 
-        document.elementFromPoint = () => popup;
+        env.pointAt(popup);
 
         const startTime = 2000;
         const moveTime = 2010;
@@ -1002,17 +1009,14 @@ describe('<Drawer.Root />', () => {
         if (useFakeTimers) {
           vi.useRealTimers();
         }
-        document.elementFromPoint = originalElementFromPoint;
-        restoreResizeObserver();
+        env.cleanup();
       }
     },
   );
 
   it.skipIf(isJSDOM)('keeps the drawer open on low-velocity swipes near a snap point', async () => {
     const handleOpenChange = vi.fn();
-
-    const originalElementFromPoint = document.elementFromPoint;
-    const restoreResizeObserver = mockResizeObserver();
+    const env = setupSwipeTestEnv();
 
     const useFakeTimers = isJSDOM;
     if (useFakeTimers) {
@@ -1026,7 +1030,7 @@ describe('<Drawer.Root />', () => {
       const viewport = screen.getByTestId('viewport');
       const popup = screen.getByTestId('popup');
 
-      document.elementFromPoint = () => popup;
+      env.pointAt(popup);
 
       const startTime = 1000;
       const moveTime = 1005;
@@ -1041,8 +1045,7 @@ describe('<Drawer.Root />', () => {
       if (useFakeTimers) {
         vi.useRealTimers();
       }
-      document.elementFromPoint = originalElementFromPoint;
-      restoreResizeObserver();
+      env.cleanup();
     }
   });
 
@@ -1050,9 +1053,7 @@ describe('<Drawer.Root />', () => {
     'keeps the drawer open when the release velocity reverses during an upward swipe',
     async () => {
       const handleOpenChange = vi.fn();
-
-      const originalElementFromPoint = document.elementFromPoint;
-      const restoreResizeObserver = mockResizeObserver();
+      const env = setupSwipeTestEnv();
 
       const useFakeTimers = isJSDOM;
       if (useFakeTimers) {
@@ -1066,7 +1067,7 @@ describe('<Drawer.Root />', () => {
         const viewport = screen.getByTestId('viewport');
         const popup = screen.getByTestId('popup');
 
-        document.elementFromPoint = () => popup;
+        env.pointAt(popup);
 
         const startTime = 1000;
         const nudgeTime = 1003;
@@ -1087,8 +1088,7 @@ describe('<Drawer.Root />', () => {
         if (useFakeTimers) {
           vi.useRealTimers();
         }
-        document.elementFromPoint = originalElementFromPoint;
-        restoreResizeObserver();
+        env.cleanup();
       }
     },
   );

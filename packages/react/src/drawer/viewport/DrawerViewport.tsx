@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isElement } from '@floating-ui/utils/dom';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { DialogViewport } from '../../dialog/viewport/DialogViewport';
@@ -82,7 +83,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   const [swipeRelease, setSwipeRelease] = React.useState<number | null>(null);
   const pendingSwipeCloseSnapPointRef = React.useRef<typeof activeSnapPoint>(undefined);
   const resetSwipeRef = React.useRef<(() => void) | null>(null);
-  const controlledDismissRafRef = React.useRef<number | null>(null);
+  const controlledDismissFrame = useAnimationFrame();
 
   const nestedSwipeActiveRef = React.useRef(false);
   const lastPointerTypeRef = React.useRef<React.PointerEvent['pointerType'] | ''>('');
@@ -705,8 +706,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
       // drawer will close without animation when the parent eventually sets open={false}.
       if (store.select('open')) {
         const savedEvent = event;
-        controlledDismissRafRef.current = requestAnimationFrame(() => {
-          controlledDismissRafRef.current = null;
+        controlledDismissFrame.request(() => {
           if (store.select('open')) {
             // Parent rejected: revert animation and restore snap point.
             const pendingSnapPoint = pendingSwipeCloseSnapPointRef.current;
@@ -736,14 +736,6 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   const swipeTouchProps = swipe.getTouchProps();
   const resetSwipe = swipe.reset;
   resetSwipeRef.current = resetSwipe;
-
-  React.useEffect(() => {
-    return () => {
-      if (controlledDismissRafRef.current !== null) {
-        cancelAnimationFrame(controlledDismissRafRef.current);
-      }
-    };
-  }, []);
 
   React.useEffect(() => {
     const rootElement = viewportElement ?? popupElementState;
