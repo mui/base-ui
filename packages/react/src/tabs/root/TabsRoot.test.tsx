@@ -579,6 +579,31 @@ describe('<Tabs.Root />', () => {
       expect(tabs[1]).to.have.attribute('aria-selected', 'true');
     });
 
+    it('does not call onValueChange on initial render when all tabs are disabled', async () => {
+      const handleChange = spy();
+
+      await render(
+        <Tabs.Root onValueChange={handleChange}>
+          <Tabs.List>
+            <Tabs.Tab value={0} disabled>
+              Tab 0
+            </Tabs.Tab>
+            <Tabs.Tab value={1} disabled>
+              Tab 1
+            </Tabs.Tab>
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      await flushMicrotasks();
+
+      expect(handleChange.callCount).to.equal(0);
+
+      const tabs = screen.getAllByRole('tab');
+      expect(tabs[0]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[1]).to.have.attribute('aria-selected', 'false');
+    });
+
     it('does not call onValueChange on initial render when defaultValue is provided', async () => {
       const handleChange = spy();
 

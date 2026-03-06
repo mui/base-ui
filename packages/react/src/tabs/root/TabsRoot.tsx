@@ -259,6 +259,12 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       return;
     }
 
+    if (isAutomaticDefault && fallbackValue === null) {
+      setValue(fallbackValue);
+      setTabActivationDirection('none');
+      return;
+    }
+
     // Determine the appropriate reason based on context:
     // - 'initial': First automatic selection (no value/defaultValue provided)
     // - 'disabled': Tab became disabled after initial render
@@ -283,6 +289,8 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     isControlled,
     onValueChange,
     selectedTabMetadata,
+    setTabActivationDirection,
+    setValue,
     tabMap,
     value,
   ]);
