@@ -2,7 +2,7 @@ import * as React from 'react';
 import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { describe, expect, it } from 'vitest';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Drawer.Popup />', () => {
   const { render } = createRenderer();
@@ -44,4 +44,46 @@ describe('<Drawer.Popup />', () => {
       expect(screen.getByTestId('popup-input')).not.toHaveFocus();
     });
   });
+
+  it.skipIf(isJSDOM)(
+    'includes border size in frontmost height CSS variable for nested drawers',
+    async () => {
+      await render(
+        <Drawer.Root open>
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup data-testid="parent-popup">
+                <Drawer.Root open>
+                  <Drawer.Portal>
+                    <Drawer.Viewport>
+                      <Drawer.Popup
+                        data-testid="child-popup"
+                        style={{
+                          height: 100,
+                          borderTop: '2px solid transparent',
+                          borderBottom: '2px solid transparent',
+                        }}
+                      >
+                        <div style={{ height: 10 }}>Child drawer</div>
+                      </Drawer.Popup>
+                    </Drawer.Viewport>
+                  </Drawer.Portal>
+                </Drawer.Root>
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>,
+      );
+
+      const parentPopup = screen.getByTestId('parent-popup');
+      const childPopup = screen.getByTestId('child-popup');
+
+      await waitFor(() => {
+        expect(childPopup.offsetHeight).toBeGreaterThan(childPopup.scrollHeight);
+        expect(parentPopup.style.getPropertyValue('--drawer-frontmost-height')).toBe(
+          `${childPopup.offsetHeight}px`,
+        );
+      });
+    },
+  );
 });

@@ -65,7 +65,7 @@ export default function ExampleNavigationMenu() {
                         ['--easing' as string]: 'cubic-bezier(0.22, 1, 0.36, 1)',
                       }}
                     >
-                      <NavigationMenu.Popup className="data-[ending-style]:easing-[ease] relative h-[var(--popup-height)] w-[300px] origin-[var(--transform-origin)] rounded-lg bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 transition-[opacity,transform,width,height,scale,translate] duration-[var(--duration)] ease-[var(--easing)] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 min-[500px]:w-[var(--popup-width)] dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
+                      <NavigationMenu.Popup className="data-[ending-style]:easing-[ease] relative h-[var(--popup-height)] w-[var(--popup-width)] origin-[var(--transform-origin)] rounded-lg bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[opacity,transform,width,height,scale,translate] duration-[var(--duration)] ease-[var(--easing)] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
                         <NavigationMenu.Viewport className="relative h-full w-full overflow-hidden" />
                       </NavigationMenu.Popup>
                     </NavigationMenu.Positioner>
@@ -156,7 +156,7 @@ const triggerClassName =
   'focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 focus-visible:relative';
 
 const contentClassName =
-  'w-[calc(100vw_-_40px)] h-full p-6 min-[32rem]:w-max min-[32rem]:min-w-[400px] min-[32rem]:w-max ' +
+  'w-[calc(100vw_-_40px)] h-full p-6 [@media(min-width:32rem)]:w-max [@media(min-width:32rem)]:min-w-[400px] ' +
   'transition-[opacity,transform,translate] duration-[var(--duration)] ease-[var(--easing)] ' +
   'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 ' +
   'data-[starting-style]:data-[activation-direction=left]:translate-x-[-50%] ' +

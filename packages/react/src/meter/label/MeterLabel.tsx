@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useMeterRootContext } from '../root/MeterRootContext';
-import type { MeterRoot } from '../root/MeterRoot';
+import type { MeterRootState } from '../root/MeterRoot';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 
@@ -30,12 +30,21 @@ export const MeterLabel = React.forwardRef(function MeterLabel(
 
   return useRenderElement('span', componentProps, {
     ref: forwardedRef,
-    props: [{ id }, elementProps],
+    props: [
+      {
+        id,
+        role: 'presentation',
+      },
+      elementProps,
+    ],
   });
 });
 
-export interface MeterLabelProps extends BaseUIComponentProps<'span', MeterRoot.State> {}
+export interface MeterLabelState extends MeterRootState {}
+
+export interface MeterLabelProps extends BaseUIComponentProps<'span', MeterLabelState> {}
 
 export namespace MeterLabel {
+  export type State = MeterLabelState;
   export type Props = MeterLabelProps;
 }

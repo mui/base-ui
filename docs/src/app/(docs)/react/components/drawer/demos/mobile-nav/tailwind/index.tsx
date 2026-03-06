@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import NextLink from 'next/link';
 import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 
@@ -31,10 +30,10 @@ export default function ExampleDrawerMobileNav() {
           >
             <ScrollArea.Viewport className="box-border h-full overscroll-contain touch-auto">
               <ScrollArea.Content className="flex min-h-full items-end justify-center pt-8 md:py-16 md:px-16">
-                <Drawer.Popup className="group box-border w-full max-w-[42rem] outline-none transition-transform duration-[800ms] ease-[cubic-bezier(0.45,1.005,0,1.005)] [transform:translateY(var(--drawer-swipe-movement-y))] data-[swiping]:select-none data-[ending-style]:[transform:translateY(max(100dvh,100%))] data-[ending-style]:duration-[350ms] data-[ending-style]:ease-[cubic-bezier(0.375,0.015,0.545,0.455)]">
+                <Drawer.Popup className="group box-border w-full max-w-[42rem] outline-none transition-transform duration-[800ms] ease-[cubic-bezier(0.45,1.005,0,1.005)] [transform:translateY(var(--drawer-swipe-movement-y))] data-[swiping]:select-none data-[ending-style]:[transform:translateY(calc(max(100dvh,100%)+2px))] data-[ending-style]:duration-[350ms] data-[ending-style]:ease-[cubic-bezier(0.375,0.015,0.545,0.455)]">
                   <nav
                     aria-label="Navigation"
-                    className="relative flex flex-col rounded-t-2xl bg-gray-50 px-6 pt-4 pb-6 text-gray-900 shadow-[0_10px_64px_-10px_rgb(36_40_52/20%),0_0.25px_0_1px_var(--color-gray-200)] outline outline-1 outline-gray-200 transition-shadow duration-[350ms] ease-[cubic-bezier(0.375,0.015,0.545,0.455)] group-data-[ending-style]:shadow-[0_10px_64px_-10px_rgb(36_40_52/0%),0_0.25px_0_1px_rgb(0_0_0/0%)] dark:outline-gray-300 dark:shadow-[0_0_0_1px_var(--color-gray-200)] dark:group-data-[ending-style]:shadow-[0_0_0_1px_rgb(0_0_0/0%)] md:rounded-xl"
+                    className="relative flex flex-col rounded-t-2xl bg-gray-50 px-6 pt-4 pb-6 text-gray-900 shadow-[0_10px_64px_-10px_rgb(36_40_52/20%),0_0.25px_0_1px_oklch(12%_9%_264deg/7%)] outline outline-1 outline-gray-200 transition-shadow duration-[350ms] ease-[cubic-bezier(0.375,0.015,0.545,0.455)] group-data-[ending-style]:shadow-[0_10px_64px_-10px_rgb(36_40_52/0%),0_0.25px_0_1px_rgb(0_0_0/0%)] dark:outline-gray-300 dark:shadow-[0_0_0_1px_oklch(29%_0.75%_264deg/80%)] dark:group-data-[ending-style]:shadow-[0_0_0_1px_rgb(0_0_0/0%)] md:rounded-xl"
                   >
                     <div className="mb-3 grid grid-cols-[1fr_auto_1fr] items-center">
                       <div aria-hidden className="h-9 w-9" />
@@ -67,12 +66,12 @@ export default function ExampleDrawerMobileNav() {
                         <ul className="grid list-none gap-1 p-0 m-0">
                           {ITEMS.map((item) => (
                             <li key={item.label} className="flex">
-                              <NextLink
+                              <a
                                 className="w-full rounded-xl bg-gray-100 px-4 py-3 text-gray-900 no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:-outline-offset-1"
                                 href={item.href}
                               >
                                 {item.label}
-                              </NextLink>
+                              </a>
                             </li>
                           ))}
                         </ul>
@@ -80,12 +79,12 @@ export default function ExampleDrawerMobileNav() {
                         <ul aria-label="Long list" className="mt-6 grid list-none gap-1 p-0 m-0">
                           {LONG_LIST.map((item) => (
                             <li key={item.label} className="flex">
-                              <NextLink
+                              <a
                                 className="w-full rounded-xl bg-gray-100 px-4 py-3 text-gray-900 no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:-outline-offset-1"
                                 href={item.href}
                               >
                                 {item.label}
-                              </NextLink>
+                              </a>
                             </li>
                           ))}
                         </ul>

@@ -5,7 +5,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useProgressRootContext } from '../root/ProgressRootContext';
 import { progressStateAttributesMapping } from '../root/stateAttributesMapping';
-import type { ProgressRoot } from '../root/ProgressRoot';
+import type { ProgressRootState } from '../root/ProgressRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
@@ -35,6 +35,7 @@ export const ProgressLabel = React.forwardRef(function ProgressLabel(
     props: [
       {
         id,
+        role: 'presentation',
       },
       elementProps,
     ],
@@ -44,8 +45,11 @@ export const ProgressLabel = React.forwardRef(function ProgressLabel(
   return element;
 });
 
-export interface ProgressLabelProps extends BaseUIComponentProps<'span', ProgressRoot.State> {}
+export interface ProgressLabelState extends ProgressRootState {}
+
+export interface ProgressLabelProps extends BaseUIComponentProps<'span', ProgressLabelState> {}
 
 export namespace ProgressLabel {
+  export type State = ProgressLabelState;
   export type Props = ProgressLabelProps;
 }

@@ -7,7 +7,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { getTarget } from '../../floating-ui-react/utils';
-import { FieldRoot } from '../root/FieldRoot';
+import type { FieldRootState } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { fieldValidityMapping } from '../utils/constants';
@@ -29,9 +29,10 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
 
   const fieldRootContext = useFieldRootContext(false);
 
-  const { controlId, setLabelId, labelId } = useLabelableContext();
+  const { controlId, setLabelId, labelId: contextLabelId } = useLabelableContext();
 
-  const id = useBaseUiId(idProp);
+  const generatedLabelId = useBaseUiId(idProp);
+  const labelId = idProp ?? contextLabelId ?? generatedLabelId;
 
   const labelRef = React.useRef<HTMLElement | null>(null);
 
@@ -92,14 +93,12 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
   }
 
   useIsoLayoutEffect(() => {
-    if (id) {
-      setLabelId(id);
-    }
+    setLabelId(labelId);
 
     return () => {
       setLabelId(undefined);
     };
-  }, [id, setLabelId]);
+  }, [labelId, setLabelId]);
 
   const element = useRenderElement('label', componentProps, {
     ref: [forwardedRef, labelRef],
@@ -125,9 +124,9 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
   return element;
 });
 
-export type FieldLabelState = FieldRoot.State;
+export interface FieldLabelState extends FieldRootState {}
 
-export interface FieldLabelProps extends BaseUIComponentProps<'label', FieldLabel.State> {
+export interface FieldLabelProps extends BaseUIComponentProps<'label', FieldLabelState> {
   /**
    * Whether the component renders a native `<label>` element when replacing it via the `render` prop.
    * Set to `false` if the rendered element is not a label (e.g. `<div>`).

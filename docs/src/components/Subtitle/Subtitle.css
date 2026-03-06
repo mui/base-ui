@@ -1,11 +1,20 @@
-.Subtitle {
-  @apply text-lg;
-  text-wrap: pretty;
-  color: var(--color-gray);
-  margin-bottom: 1.25rem;
-  gap: 0.5rem;
+@layer components {
+  .Subtitle {
+    display: flex;
+    flex-direction: column;
+    align-items: baseline;
+    justify-content: space-between;
+    font-size: var(--text-lg);
+    line-height: var(--text-lg--line-height);
+    letter-spacing: var(--text-lg--letter-spacing);
+    text-wrap: pretty;
+    color: var(--color-gray);
+    margin-bottom: 1.25rem;
+    gap: 0.5rem;
 
-  @media (min-width: 768px) {
-    gap: 2rem;
+    @media (min-width: 48rem) {
+      flex-direction: row;
+      gap: 2rem;
+    }
   }
 }

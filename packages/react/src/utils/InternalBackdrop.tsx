@@ -45,6 +45,8 @@ export const InternalBackdrop = React.forwardRef(function InternalBackdrop(
   );
 });
 
+export interface InternalBackdropState {}
+
 export interface InternalBackdropProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * The element to cut out of the backdrop.
@@ -54,5 +56,6 @@ export interface InternalBackdropProps extends React.HTMLAttributes<HTMLDivEleme
 }
 
 export namespace InternalBackdrop {
+  export type State = InternalBackdropState;
   export type Props = InternalBackdropProps;
 }

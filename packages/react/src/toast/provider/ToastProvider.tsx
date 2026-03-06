@@ -60,6 +60,8 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
   return <ToastContext.Provider value={store}>{children}</ToastContext.Provider>;
 };
 
+export interface ToastProviderState {}
+
 export interface ToastProviderProps {
   children?: React.ReactNode;
   /**
@@ -81,5 +83,6 @@ export interface ToastProviderProps {
 }
 
 export namespace ToastProvider {
+  export type State = ToastProviderState;
   export type Props = ToastProviderProps;
 }
