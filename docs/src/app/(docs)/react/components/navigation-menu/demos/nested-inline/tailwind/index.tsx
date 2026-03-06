@@ -181,7 +181,7 @@ const triggerClassName =
 
 const sharedContentClassName =
   'h-full w-[calc(100vw_-_40px)] ' +
-  'transition-[opacity,translate] duration-[var(--duration)] ease-[cubic-bezier(0.4,0,0.2,1)] ' +
+  'transition-[opacity,translate] duration-[calc(var(--duration)*0.5),var(--duration)] ease-[ease,cubic-bezier(0.4,0,0.2,1)] ' +
   'data-[starting-style]:data-[activation-direction=left]:opacity-0 data-[starting-style]:data-[activation-direction=right]:opacity-0 data-[ending-style]:opacity-0 ' +
   'data-[ending-style]:duration-[calc(var(--duration)*0.5)] data-[ending-style]:ease-[ease] ' +
   'data-[starting-style]:data-[activation-direction=left]:translate-x-[-2rem] ' +
