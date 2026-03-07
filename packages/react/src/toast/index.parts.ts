@@ -11,4 +11,5 @@ export { ToastPositioner as Positioner } from './positioner/ToastPositioner';
 export { ToastArrow as Arrow } from './arrow/ToastArrow';
 
 export { useToastManager } from './useToastManager';
+export { useToastActions } from './useToastActions';
 export { createToastManager } from './createToastManager';

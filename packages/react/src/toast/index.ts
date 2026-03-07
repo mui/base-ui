@@ -12,4 +12,5 @@ export type * from './portal/ToastPortal';
 export type * from './positioner/ToastPositioner';
 export type * from './arrow/ToastArrow';
 export type * from './useToastManager';
+export type * from './useToastActions';
 export type * from './createToastManager';
