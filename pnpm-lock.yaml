@@ -188,8 +188,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       es-toolkit:
-        specifier: ^1.44.0
-        version: 1.45.0
+        specifier: ^1.45.1
+        version: 1.45.1
       estree-util-value-to-estree:
         specifier: ^3.5.0
         version: 3.5.0
@@ -682,8 +682,8 @@ importers:
         specifier: ^17.0.35
         version: 17.0.35
       es-toolkit:
-        specifier: ^1.44.0
-        version: 1.45.0
+        specifier: ^1.45.1
+        version: 1.45.1
       rimraf:
         specifier: ^6.1.3
         version: 6.1.3
@@ -6114,6 +6114,9 @@ packages:
 
   es-toolkit@1.45.0:
     resolution: {integrity: sha512-RArCX+Zea16+R1jg4mH223Z8p/ivbJjIkU3oC6ld2bdUfmDxiCkFYSi9zLOR2anucWJUeH4Djnzgd0im0nD3dw==}
+
+  es-toolkit@1.45.1:
+    resolution: {integrity: sha512-/jhoOj/Fx+A+IIyDNOvO3TItGmlMKhtX8ISAHKE90c4b/k1tqaqEZ+uUqfpU8DMnW5cgNJv606zS55jGvza0Xw==}
 
   esast-util-from-estree@2.0.0:
     resolution: {integrity: sha512-4CyanoAudUSBAn5K13H4JhsMH6L9ZP7XbLVe/dKybkxMO7eDyLsT8UHl9TRNrU2Gr9nz+FovfSIjuXWJ81uVwQ==}
@@ -12640,7 +12643,7 @@ snapshots:
       clipboardy: 5.3.0
       content-type: 1.0.5
       env-ci: 11.2.0
-      es-toolkit: 1.45.0
+      es-toolkit: 1.45.1
       eslint: 10.0.2(jiti@2.6.1)
       eslint-config-prettier: 10.1.8(eslint@10.0.2(jiti@2.6.1))
       eslint-import-resolver-typescript: 4.4.4(eslint-plugin-import-x@4.16.1(@typescript-eslint/utils@8.56.1(eslint@10.0.2(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint@10.0.2(jiti@2.6.1)))(eslint-plugin-import@2.32.0(eslint@10.0.2(jiti@2.6.1)))(eslint@10.0.2(jiti@2.6.1))
@@ -12735,7 +12738,7 @@ snapshots:
       chai: 6.2.2
       chai-dom: 1.12.1(chai@6.2.2)
       dom-accessibility-api: 0.7.1
-      es-toolkit: 1.45.0
+      es-toolkit: 1.45.1
       format-util: 1.0.5
       jsdom: 27.4.0
       prop-types: 15.8.1
@@ -16779,6 +16782,8 @@ snapshots:
       is-symbol: 1.1.1
 
   es-toolkit@1.45.0: {}
+
+  es-toolkit@1.45.1: {}
 
   esast-util-from-estree@2.0.0:
     dependencies:
@@ -21364,7 +21369,7 @@ snapshots:
 
   typescript-api-extractor@1.0.0-alpha.13(typescript@5.9.3):
     dependencies:
-      es-toolkit: 1.45.0
+      es-toolkit: 1.45.1
       typescript: 5.9.3
 
   typescript-eslint@8.56.1(eslint@10.0.2(jiti@2.6.1))(typescript@5.9.3):
