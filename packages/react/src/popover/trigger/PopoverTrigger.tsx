@@ -32,7 +32,7 @@ import {
 } from '../../floating-ui-react/utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import { useTriggerDataForwarding } from '../../utils/popups';
+import { useTriggerDataForwarding, getInlineRectHoverCoords } from '../../utils/popups';
 
 /**
  * A button that opens the popover.
@@ -134,6 +134,8 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     [openReason],
   );
 
+  const inlineRectCoordsRef = store.context.inlineRectCoordsRef;
+
   const element = useRenderElement('button', componentProps, {
     state,
     ref: [buttonRef, forwardedRef, registerTrigger, triggerElementRef],
@@ -141,7 +143,19 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
       localProps.getReferenceProps(),
       hoverProps,
       rootTriggerProps,
-      { [CLICK_TRIGGER_IDENTIFIER as string]: '', id: thisTriggerId },
+      {
+        [CLICK_TRIGGER_IDENTIFIER as string]: '',
+        id: thisTriggerId,
+        onFocus() {
+          inlineRectCoordsRef.current = undefined;
+        },
+        onMouseMove(event: React.MouseEvent<Element>) {
+          if (isOpenedByThisTrigger) {
+            return;
+          }
+          inlineRectCoordsRef.current = getInlineRectHoverCoords(event);
+        },
+      },
       elementProps,
       getButtonProps,
     ],
