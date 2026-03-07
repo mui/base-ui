@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useType } from '@mui/internal-docs-infra/useType';
+import type { TypeRefProps } from '@mui/internal-docs-infra/useType';
 import { Popup } from '../Popup';
 import { ReferenceTable } from '../ReferenceTable/ReferenceTable';
 
@@ -11,17 +12,6 @@ import './TypeRef.css';
 
 const EMPTY_SET = new Set<string>();
 const ActiveTypeRefContext = React.createContext<ReadonlySet<string>>(EMPTY_SET);
-
-interface TypeRefProps {
-  /** The anchor href for the type documentation */
-  href: string;
-  /** The matched identifier name (e.g., "Trigger", "Accordion.Trigger") */
-  name: string;
-  /** Optional CSS class name(s) inherited from the syntax highlighting span */
-  className?: string;
-  /** The rendered text content */
-  children: React.ReactNode;
-}
 
 /**
  * Renders a type reference as an interactive element.

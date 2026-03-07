@@ -7,6 +7,7 @@ import { Link } from './components/Link';
 import { HeadingLink } from './components/HeadingLink';
 import { Subtitle } from './components/Subtitle/Subtitle';
 import { TypeRef } from './components/TypeRef';
+import { TypePropRef } from './components/TypePropRef';
 import { Kbd } from './components/Kbd/Kbd';
 import './css/mdx-components.css';
 
@@ -71,6 +72,7 @@ export const mdxComponents: MDXComponents = {
   td: Table.Cell,
   // Custom components
   TypeRef,
+  TypePropRef,
   QuickNav,
   Meta: (props: React.ComponentProps<'meta'>) => {
     if (props.name === 'description' && String(props.content).length > 170) {
