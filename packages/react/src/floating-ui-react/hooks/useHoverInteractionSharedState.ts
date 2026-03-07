@@ -7,6 +7,8 @@ import type { ContextData, FloatingRootContext, SafePolygonOptions } from '../ty
 import { TYPEABLE_SELECTOR } from '../utils/constants';
 
 const interactiveSelector = `button,a,[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`;
+export const HOVER_CLOSE_UNSET = -1;
+export const HOVER_SWITCH_GRACE_MS = 400;
 
 export function isInteractiveElement(element: Element | null) {
   return element ? Boolean(element.closest(interactiveSelector)) : false;
@@ -20,6 +22,7 @@ export class HoverInteraction {
   performedPointerEventsMutation: boolean;
   pointerEventsScopeElement: HTMLElement | SVGSVGElement | null;
   restTimeoutPending: boolean;
+  lastHoverCloseTime: number;
   openChangeTimeout: Timeout;
   restTimeout: Timeout;
   handleCloseOptions: SafePolygonOptions | undefined;
@@ -32,6 +35,8 @@ export class HoverInteraction {
     this.performedPointerEventsMutation = false;
     this.pointerEventsScopeElement = null;
     this.restTimeoutPending = false;
+    // `HOVER_CLOSE_UNSET` means no hover-close has occurred yet.
+    this.lastHoverCloseTime = HOVER_CLOSE_UNSET;
     this.openChangeTimeout = new Timeout();
     this.restTimeout = new Timeout();
     this.handleCloseOptions = undefined;
@@ -80,4 +85,26 @@ export function useHoverInteractionSharedState(store: FloatingRootContext): Hove
   useOnMount(data.hoverInteractionState.disposeEffect);
 
   return data.hoverInteractionState;
+}
+
+export function recordHoverClose(instance: HoverInteraction, now = performance.now()): void {
+  instance.lastHoverCloseTime = now;
+}
+
+export function clearRecentHoverClose(instance: HoverInteraction): void {
+  instance.lastHoverCloseTime = HOVER_CLOSE_UNSET;
+}
+
+export function wasHoverClosedRecently(
+  instance: HoverInteraction,
+  now = performance.now(),
+  thresholdMs = HOVER_SWITCH_GRACE_MS,
+): boolean {
+  // Used by hover-open flows to suppress delay during quick handoffs
+  // (trigger-to-trigger or popup-to-trigger).
+  if (instance.lastHoverCloseTime === HOVER_CLOSE_UNSET) {
+    return false;
+  }
+
+  return now - instance.lastHoverCloseTime <= thresholdMs;
 }

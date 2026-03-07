@@ -15,6 +15,7 @@ import { useFloatingParentNodeId, useFloatingTree } from '../components/Floating
 import {
   clearSafePolygonPointerEventsMutation,
   isInteractiveElement,
+  recordHoverClose,
   useHoverInteractionSharedState,
 } from './useHoverInteractionSharedState';
 import { getDelay } from './useHoverShared';
@@ -72,21 +73,23 @@ export function useHoverFloatingInteraction(
     return isTargetInsideEnabledTrigger(target, store.context.triggerElements);
   });
 
+  const closeHoverPopup = useStableCallback((event: MouseEvent) => {
+    recordHoverClose(instance);
+    store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
+    tree?.events.emit('floating.closed', event);
+  });
+
   const closeWithDelay = React.useCallback(
     (event: MouseEvent) => {
       const closeDelay = getDelay(closeDelayProp, 'close', instance.pointerType);
-      const close = () => {
-        store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
-        tree?.events.emit('floating.closed', event);
-      };
       if (closeDelay) {
-        instance.openChangeTimeout.start(closeDelay, close);
+        instance.openChangeTimeout.start(closeDelay, () => closeHoverPopup(event));
       } else {
         instance.openChangeTimeout.clear();
-        close();
+        closeHoverPopup(event);
       }
     },
-    [closeDelayProp, store, instance, tree],
+    [closeDelayProp, closeHoverPopup, instance],
   );
 
   const clearPointerEvents = useStableCallback(() => {
@@ -212,8 +215,7 @@ export function useHoverFloatingInteraction(
       // Allow the mouseenter event to fire in case child was closed because mouse moved into parent.
       childClosedTimeout.start(0, () => {
         tree.events.off('floating.closed', onNodeClosed);
-        store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
-        tree.events.emit('floating.closed', event);
+        closeHoverPopup(event);
       });
     }
 
@@ -240,6 +242,7 @@ export function useHoverFloatingInteraction(
     isClickLikeOpenEvent,
     isRelatedTargetInsideEnabledTrigger,
     closeWithDelay,
+    closeHoverPopup,
     clearPointerEvents,
     handleInteractInside,
     instance,

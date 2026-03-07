@@ -292,9 +292,9 @@ describe('<Popover.Trigger />', () => {
     });
 
     it('should keep the popover open when re-hovered and clicked within the patient threshold', async () => {
-      await render(
+      await renderFakeTimers(
         <Popover.Root>
-          <Popover.Trigger openOnHover delay={100}>
+          <Popover.Trigger openOnHover delay={100} closeDelay={0}>
             Open
           </Popover.Trigger>
           <Popover.Portal>
@@ -318,8 +318,15 @@ describe('<Popover.Trigger />', () => {
       clock.tick(PATIENT_CLICK_THRESHOLD);
 
       fireEvent.mouseLeave(trigger);
+      await flushMicrotasks();
+
+      expect(screen.queryByText('Content')).to.equal(null);
+
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
+      await flushMicrotasks();
+
+      expect(screen.getByText('Content')).not.to.equal(null);
 
       fireEvent.click(trigger);
       expect(screen.getByText('Content')).not.to.equal(null);
