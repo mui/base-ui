@@ -1,24 +1,66 @@
 @layer components {
   .Code {
+    font-family: var(--font-mono);
+    font-size: 0.95em;
     letter-spacing: normal;
+    color: var(--color-blue);
+  }
 
-    /* In a code block */
-    pre & {
-      white-space: normal;
-    }
+  /* Variants */
+  .Code-component {
+    padding: 0.125em 0.2em;
+    border-radius: 2px;
+    color: var(--color-blue);
+    background-color: var(--color-inline-highlight);
+  }
 
-    & [data-line] {
-      display: block;
-      white-space: pre;
-      padding-inline: 0.75rem;
-    }
+  .Code-prop {
+    color: var(--color-orange);
+  }
 
-    & [data-line]:empty {
-      height: 1lh;
-    }
+  .Code-html {
+    color: var(--color-green);
+  }
 
-    & mark {
-      display: inline-block;
+  .Code-js {
+    color: var(--color-purple);
+  }
+
+  .Code-css {
+    color: var(--color-violet);
+  }
+
+  /* Inside a link */
+  .Link > .Code {
+    text-decoration: underline;
+    text-decoration-color: color-mix(in oklab, currentColor, transparent);
+    text-underline-offset: 2px;
+    text-decoration-thickness: 1px;
+  }
+
+  .Link > .Code-component + svg {
+    color: var(--color-blue);
+  }
+
+  .Link > .Code-prop + svg {
+    color: var(--color-orange);
+  }
+
+  .Link > .Code-html + svg {
+    color: var(--color-green);
+  }
+
+  .Link > .Code-js + svg {
+    color: var(--color-purple);
+  }
+
+  .Link > .Code-css + svg {
+    color: var(--color-violet);
+  }
+
+  @media (hover: hover) {
+    .Link:hover > .Code {
+      text-decoration-color: currentColor;
     }
   }
 }

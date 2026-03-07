@@ -335,17 +335,26 @@ globalThis.highlighter ??= await createHighlighter({
 /** @type {Awaited<ReturnType<typeof import('shiki').createHighlighter>> } */
 export const highlighter = globalThis.highlighter;
 
+const rehypePrettyCodeOptions = {
+  getHighlighter: () => globalThis.highlighter,
+  grid: false,
+  theme: 'base-ui',
+  defaultLang: 'tsx',
+};
+
 /** @type {import('unified').PluggableList} */
 export const rehypeSyntaxHighlighting = [
-  [
-    rehypePrettyCode,
-    {
-      getHighlighter: () => globalThis.highlighter,
-      grid: false,
-      theme: 'base-ui',
-      defaultLang: 'tsx',
-    },
-  ],
+  [rehypePrettyCode, { ...rehypePrettyCodeOptions, bypassInlineCode: true }],
+  rehypePrettierIgnore,
+  rehypeJsxExpressions,
+];
+
+/**
+ * Same as rehypeSyntaxHighlighting but tokenizes inline code (for reference table MDX).
+ * @type {import('unified').PluggableList}
+ */
+export const rehypeSyntaxHighlightingWithInlineCode = [
+  [rehypePrettyCode, { ...rehypePrettyCodeOptions, bypassInlineCode: false }],
   rehypePrettierIgnore,
   rehypeJsxExpressions,
   rehypeInlineCode,

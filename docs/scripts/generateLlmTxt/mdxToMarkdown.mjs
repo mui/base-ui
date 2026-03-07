@@ -140,6 +140,12 @@ function transformJsx() {
             return visit.CONTINUE;
           }
 
+          case 'Code': {
+            const text = mdx.textContent(node);
+            parent.children.splice(index, 1, { type: 'inlineCode', value: text });
+            return [visit.SKIP, index];
+          }
+
           case 'Subtitle': {
             parent.children.splice(index, 1);
             return visit.CONTINUE;

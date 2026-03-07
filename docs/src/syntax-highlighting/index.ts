@@ -1,1 +1,5 @@
-export { highlighter, rehypeSyntaxHighlighting } from './index.mjs';
+export {
+  highlighter,
+  rehypeSyntaxHighlighting,
+  rehypeSyntaxHighlightingWithInlineCode,
+} from './index.mjs';

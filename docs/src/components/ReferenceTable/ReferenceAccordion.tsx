@@ -2,7 +2,7 @@ import * as React from 'react';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { createMdxComponent } from 'docs/src/mdx/createMdxComponent';
 import { inlineMdxComponents, mdxComponents } from 'docs/src/mdx-components';
-import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting';
+import { rehypeSyntaxHighlightingWithInlineCode } from 'docs/src/syntax-highlighting';
 import { Link } from 'docs/src/components/Link';
 import * as Accordion from '../Accordion';
 import * as DescriptionList from '../DescriptionList';
@@ -125,14 +125,14 @@ export async function ReferenceAccordion({
         );
 
         const PropType = await createMdxComponent(`\`${displayType}\``, {
-          rehypePlugins: rehypeSyntaxHighlighting,
+          rehypePlugins: rehypeSyntaxHighlightingWithInlineCode,
           useMDXComponents: () => ({ ...inlineMdxComponents, code: TableCode }),
         });
 
         const PropDetailedType = await createMdxComponent(
           `\`\`\`ts\n${detailedDisplayType}\n\`\`\``,
           {
-            rehypePlugins: rehypeSyntaxHighlighting,
+            rehypePlugins: rehypeSyntaxHighlightingWithInlineCode,
             useMDXComponents: () => ({
               ...inlineMdxComponents,
               figure: 'figure',
@@ -146,7 +146,7 @@ export async function ReferenceAccordion({
         const hasExpandedType = Boolean(prop.detailedType);
 
         const ShortPropType = await createMdxComponent(`\`${shortPropTypeName}\``, {
-          rehypePlugins: rehypeSyntaxHighlighting,
+          rehypePlugins: rehypeSyntaxHighlightingWithInlineCode,
           useMDXComponents: () => ({
             ...inlineMdxComponents,
             code: (codeProps: TableCodeProps) => (
@@ -156,20 +156,20 @@ export async function ReferenceAccordion({
         });
 
         const PropDefault = await createMdxComponent(`\`${prop.default}\``, {
-          rehypePlugins: rehypeSyntaxHighlighting,
+          rehypePlugins: rehypeSyntaxHighlightingWithInlineCode,
           useMDXComponents: () => ({ ...inlineMdxComponents, code: TableCode }),
         });
 
         const PropDescription = prop.description
           ? await createMdxComponent(prop.description, {
-              rehypePlugins: rehypeSyntaxHighlighting,
+              rehypePlugins: rehypeSyntaxHighlightingWithInlineCode,
               useMDXComponents: () => ({ ...mdxComponents, p: 'p' }),
             })
           : null;
 
         const ExampleSnippet = prop.example
           ? await createMdxComponent(prop.example, {
-              rehypePlugins: rehypeSyntaxHighlighting,
+              rehypePlugins: rehypeSyntaxHighlightingWithInlineCode,
               useMDXComponents: () => inlineMdxComponents,
             })
           : null;
