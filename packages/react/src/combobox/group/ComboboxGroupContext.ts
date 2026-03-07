@@ -9,6 +9,7 @@ export interface ComboboxGroupContext {
    * collections to render group-specific items.
    */
   items?: readonly any[] | undefined;
+  registerVisibleItem?: () => () => void;
 }
 
 export const ComboboxGroupContext = React.createContext<ComboboxGroupContext | undefined>(
