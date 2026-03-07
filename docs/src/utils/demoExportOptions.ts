@@ -42,6 +42,63 @@ const tailwindNote = `
 <!-- Inject classes used so that Tailwind loaded from the CDN can pre-render them. -->
 <!-- This is for the CodeSandbox example only. You don't need this in your app. -->
 `;
+
+function addClassNames(classNames: Set<string>, classes: string) {
+  classes.split(/\s+/).forEach((className) => {
+    if (className) {
+      classNames.add(className);
+    }
+  });
+}
+
+function escapeRegex(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function getStringConstantValue(file: string, variableName: string) {
+  const variableDeclarationRegex = new RegExp(
+    `\\b(?:const|let|var)\\s+${escapeRegex(variableName)}\\s*=\\s*([\\\`"'])([\\s\\S]*?)\\1`,
+    'g',
+  );
+
+  for (const match of file.matchAll(variableDeclarationRegex)) {
+    const value = match[2];
+    if (!value.includes('${')) {
+      return value;
+    }
+  }
+
+  return null;
+}
+
+function collectTailwindClassNames(file: string, classNames: Set<string>) {
+  const classNameLiterals = file.matchAll(/className="(.+?)"/gs);
+  for (const match of classNameLiterals) {
+    addClassNames(classNames, match[1]);
+  }
+
+  const classNameReferences = new Set<string>();
+  const classNameIdentifierMatches = file.matchAll(/className=\{([A-Za-z_$][A-Za-z0-9_$]*)\}/g);
+  for (const match of classNameIdentifierMatches) {
+    classNameReferences.add(match[1]);
+  }
+
+  classNameReferences.forEach((classNameReference) => {
+    const classNameValue = getStringConstantValue(file, classNameReference);
+    if (classNameValue) {
+      addClassNames(classNames, classNameValue);
+    }
+  });
+}
+
+function escapeHtmlAttribute(value: string) {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('"', '&quot;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;');
+}
+
 const htmlHeadWithTailwind: ExportConfig['headTemplate'] = ({ variant }) => {
   let head = tailwindSetup;
 
@@ -69,18 +126,12 @@ const htmlHeadWithTailwind: ExportConfig['headTemplate'] = ({ variant }) => {
       return;
     }
 
-    const cssClasses = file.matchAll(/className="(.+?)"/gs);
-    for (const match of cssClasses) {
-      const classes = match[1];
-      classes.split(' ').forEach((className) => {
-        classNames.add(className);
-      });
-    }
+    collectTailwindClassNames(file, classNames);
   });
 
   if (classNames.size > 0) {
     head += tailwindNote;
-    head += `<meta name="custom" class="${Array.from(classNames).join(' ')}" />`;
+    head += `<meta name="custom" class="${escapeHtmlAttribute(Array.from(classNames).join(' '))}" />`;
   }
 
   return head;
