@@ -161,8 +161,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.2.14)(react@19.2.4)
       '@mui/internal-docs-infra':
-        specifier: 0.4.1-canary.10
-        version: 0.4.1-canary.10(@types/react@19.2.14)(next@16.1.6(@babel/core@7.29.0)(@playwright/test@1.58.2)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(prettier@3.8.1)(react@19.2.4)
+        specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@14be503
+        version: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@14be503(@types/react@19.2.14)(next@16.1.6(@babel/core@7.29.0)(@playwright/test@1.58.2)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(prettier@3.8.1)(react@19.2.4)
       '@next/mdx':
         specifier: ^16.1.6
         version: 16.1.6(@mdx-js/loader@3.1.1(webpack@5.105.3))(@mdx-js/react@3.1.1(@types/react@19.2.14)(react@19.2.4))
@@ -2484,6 +2484,24 @@ packages:
 
   '@mui/internal-docs-infra@0.4.1-canary.10':
     resolution: {integrity: sha512-kbXY/Wjoi9enzE5UtgWnhWLMRwi18aAZPCQDkQIWhOtfTzyU0Oe5tPB/VCc0ro4MAsuEHYS5A3YwtsF0i4T6nA==}
+    engines: {node: '>=22.12.0'}
+    hasBin: true
+    peerDependencies:
+      '@types/react': 19.2.14
+      next: ^15.0.0 || ^16.0.0
+      prettier: ^3.0.0
+      react: ^17.0.0 || ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      next:
+        optional: true
+      prettier:
+        optional: true
+
+  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@14be503':
+    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@14be503}
+    version: 0.5.0
     engines: {node: '>=22.12.0'}
     hasBin: true
     peerDependencies:
@@ -12688,6 +12706,40 @@ snapshots:
       - vitest
 
   '@mui/internal-docs-infra@0.4.1-canary.10(@types/react@19.2.14)(next@16.1.6(@babel/core@7.29.0)(@playwright/test@1.58.2)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(prettier@3.8.1)(react@19.2.4)':
+    dependencies:
+      '@babel/runtime': 7.28.6
+      '@babel/standalone': 7.29.1
+      '@orama/orama': 3.1.18
+      '@orama/plugin-qps': 3.1.18
+      '@orama/stemmers': 3.1.18
+      '@orama/stopwords': 3.1.18
+      '@wooorm/starry-night': 3.9.0
+      chalk: 5.6.2
+      clipboard-copy: 4.0.1
+      fflate: 0.8.2
+      hast-util-to-jsx-runtime: 2.3.6
+      hast-util-to-text: 4.0.2
+      jsondiffpatch: 0.7.3
+      kebab-case: 2.0.2
+      lz-string: 1.5.0
+      path-module: 0.1.2
+      proper-lockfile: 4.1.2
+      react: 19.2.4
+      remark-mdx: 3.1.1
+      remark-parse: 11.0.0
+      uint8-to-base64: 0.2.1
+      unified: 11.0.5
+      unist-util-visit: 5.1.0
+      vscode-oniguruma: 2.0.1
+      yargs: 18.0.0
+    optionalDependencies:
+      '@types/react': 19.2.14
+      next: 16.1.6(@babel/core@7.29.0)(@playwright/test@1.58.2)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      prettier: 3.8.1
+    transitivePeerDependencies:
+      - supports-color
+
+  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@14be503(@types/react@19.2.14)(next@16.1.6(@babel/core@7.29.0)(@playwright/test@1.58.2)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(prettier@3.8.1)(react@19.2.4)':
     dependencies:
       '@babel/runtime': 7.28.6
       '@babel/standalone': 7.29.1
