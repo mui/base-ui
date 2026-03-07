@@ -54,10 +54,10 @@
       "detailedType": "| ((\n    open: boolean,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "autoHighlight": {
-      "type": "boolean",
+      "type": "boolean | 'always'",
       "default": "false",
-      "description": "Whether the first matching item is highlighted automatically while filtering.",
-      "detailedType": "boolean | undefined"
+      "description": "Whether the first matching item is highlighted automatically.\n- `true`: highlight after the user types and keep the highlight while the query changes.\n- `'always'`: highlight the first item as soon as the list opens.",
+      "detailedType": "boolean | 'always' | undefined"
     },
     "highlightItemOnHover": {
       "type": "boolean",

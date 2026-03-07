@@ -74,10 +74,12 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
    */
   autoComplete?: string | undefined;
   /**
-   * Whether the first matching item is highlighted automatically while filtering.
+   * Whether the first matching item is highlighted automatically.
+   * - `true`: highlight after the user types and keep the highlight while the query changes.
+   * - `'always'`: highlight the first item as soon as the list opens.
    * @default false
    */
-  autoHighlight?: boolean | undefined;
+  autoHighlight?: boolean | 'always' | undefined;
   /**
    * Whether moving the pointer over items should highlight them.
    * Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.
