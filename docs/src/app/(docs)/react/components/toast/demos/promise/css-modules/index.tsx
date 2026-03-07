@@ -8,7 +8,7 @@ export default function PromiseToastExample() {
     <Toast.Provider>
       <PromiseDemo />
       <Toast.Portal>
-        <Toast.Viewport className={styles.Viewport}>
+        <Toast.Viewport aria-label="Notifications" className={styles.Viewport}>
           <ToastList />
         </Toast.Viewport>
       </Toast.Portal>

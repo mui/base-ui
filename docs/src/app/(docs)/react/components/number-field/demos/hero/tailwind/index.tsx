@@ -15,11 +15,20 @@ export default function ExampleNumberField() {
       </NumberField.ScrubArea>
 
       <NumberField.Group className="flex">
-        <NumberField.Decrement className="flex size-10 items-center justify-center rounded-tl-md rounded-bl-md border border-gray-200 bg-gray-50 bg-clip-padding text-gray-900 select-none hover:bg-gray-100 active:bg-gray-100">
+        <NumberField.Decrement
+          aria-label="Decrease"
+          className="flex size-10 items-center justify-center rounded-tl-md rounded-bl-md border border-gray-200 bg-gray-50 bg-clip-padding text-gray-900 select-none hover:bg-gray-100 active:bg-gray-100"
+        >
           <MinusIcon />
         </NumberField.Decrement>
-        <NumberField.Input className="h-10 w-24 border-t border-b border-gray-200 text-center text-base text-gray-900 tabular-nums focus:z-1 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800" />
-        <NumberField.Increment className="flex size-10 items-center justify-center rounded-tr-md rounded-br-md border border-gray-200 bg-gray-50 bg-clip-padding text-gray-900 select-none hover:bg-gray-100 active:bg-gray-100">
+        <NumberField.Input
+          aria-roledescription="Number field"
+          className="h-10 w-24 border-t border-b border-gray-200 text-center text-base text-gray-900 tabular-nums focus:z-1 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+        />
+        <NumberField.Increment
+          aria-label="Increase"
+          className="flex size-10 items-center justify-center rounded-tr-md rounded-br-md border border-gray-200 bg-gray-50 bg-clip-padding text-gray-900 select-none hover:bg-gray-100 active:bg-gray-100"
+        >
           <PlusIcon />
         </NumberField.Increment>
       </NumberField.Group>

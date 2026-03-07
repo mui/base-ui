@@ -80,6 +80,7 @@ To prevent Base UI from handling a React event like `onClick`, you can use the 
 
 ```tsx title="Prevent Base UI's default behavior"
 <NumberField.Input
+  aria-roledescription="Number field"
   onPaste={(event) => {
     event.preventBaseUIHandler();
   }}

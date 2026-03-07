@@ -36,7 +36,10 @@ export function ToastProvider(props: { children: React.ReactNode }) {
     <Toast.Provider limit={1}>
       {props.children}
       <Toast.Portal>
-        <Toast.Viewport className="fixed z-10 top-auto right-[1rem] bottom-[1rem] mx-auto flex w-[250px] sm:right-[2rem] sm:bottom-[2rem] sm:w-[360px]">
+        <Toast.Viewport
+          aria-label="Notifications"
+          className="fixed z-10 top-auto right-[1rem] bottom-[1rem] mx-auto flex w-[250px] sm:right-[2rem] sm:bottom-[2rem] sm:w-[360px]"
+        >
           <Toasts />
         </Toast.Viewport>
       </Toast.Portal>

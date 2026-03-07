@@ -240,11 +240,16 @@ function ReactHookForm() {
             <NumberField.Root value={value} min={1} max={64} onValueChange={onChange}>
               <Field.Label>Number of instances</Field.Label>
               <NumberField.Group>
-                <NumberField.Decrement>
+                <NumberField.Decrement aria-label="Decrease">
                   <Minus className="size-4" />
                 </NumberField.Decrement>
-                <NumberField.Input className="!w-16" ref={ref} onBlur={onBlur} />
-                <NumberField.Increment>
+                <NumberField.Input
+                  aria-roledescription="Number field"
+                  className="!w-16"
+                  ref={ref}
+                  onBlur={onBlur}
+                />
+                <NumberField.Increment aria-label="Increase">
                   <Plus className="size-4" />
                 </NumberField.Increment>
               </NumberField.Group>
@@ -286,8 +291,13 @@ function ReactHookForm() {
               <Slider.Control>
                 <Slider.Track>
                   <Slider.Indicator />
-                  <Slider.Thumb index={0} onBlur={onBlur} inputRef={ref} />
-                  <Slider.Thumb index={1} onBlur={onBlur} />
+                  <Slider.Thumb
+                    index={0}
+                    aria-label="Minimum scaling threshold"
+                    onBlur={onBlur}
+                    inputRef={ref}
+                  />
+                  <Slider.Thumb index={1} aria-label="Maximum scaling threshold" onBlur={onBlur} />
                 </Slider.Track>
               </Slider.Control>
             </Fieldset.Root>
