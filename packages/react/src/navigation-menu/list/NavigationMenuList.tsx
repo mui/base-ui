@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useDismiss } from '../../floating-ui-react';
+import { useDismiss, useHoverFloatingInteraction } from '../../floating-ui-react';
 import { getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
@@ -23,12 +23,27 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const { orientation, open, floatingRootContext, positionerElement, value, nested } =
-    useNavigationMenuRootContext();
+  const {
+    orientation,
+    open,
+    floatingRootContext,
+    positionerElement,
+    setListElement,
+    value,
+    closeDelay,
+    viewportElement,
+    nested,
+  } = useNavigationMenuRootContext();
 
   const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
   const context = floatingRootContext || fallbackContext;
   const interactionsEnabled = positionerElement ? true : !value;
+  const hoverInteractionsEnabled = positionerElement || viewportElement ? true : !value;
+
+  useHoverFloatingInteraction(context, {
+    enabled: Boolean(floatingRootContext) && hoverInteractionsEnabled,
+    closeDelay,
+  });
 
   const dismiss = useDismiss(context, {
     enabled: interactionsEnabled,
@@ -73,7 +88,7 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
   // handler that blocks propagation so arrow keys can reach the parent CompositeRoot.
   const element = useRenderElement('ul', componentProps, {
     state,
-    ref: forwardedRef,
+    ref: [forwardedRef, setListElement],
     props,
     enabled: nested,
   });
@@ -92,7 +107,7 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
         render={render}
         className={className}
         state={state}
-        refs={[forwardedRef]}
+        refs={[forwardedRef, setListElement]}
         props={props}
         loopFocus={false}
         orientation={orientation}

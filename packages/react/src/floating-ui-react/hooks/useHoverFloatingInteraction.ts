@@ -13,6 +13,7 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import {
+  applySafePolygonPointerEventsMutation,
   clearSafePolygonPointerEventsMutation,
   isInteractiveElement,
   useHoverInteractionSharedState,
@@ -90,7 +91,7 @@ export function useHoverFloatingInteraction(
   );
 
   const clearPointerEvents = useStableCallback(() => {
-    clearSafePolygonPointerEventsMutation(instance, ownerDocument(floatingElement).body);
+    clearSafePolygonPointerEventsMutation(instance);
   });
 
   const handleInteractInside = useStableCallback((event: PointerEvent) => {
@@ -128,7 +129,6 @@ export function useHoverFloatingInteraction(
       isElement(domReferenceElement) &&
       floatingElement
     ) {
-      instance.performedPointerEventsMutation = true;
       const ref = domReferenceElement as HTMLElement | SVGSVGElement;
       const floatingEl = floatingElement;
       const doc = ownerDocument(floatingElement);
@@ -140,16 +140,19 @@ export function useHoverFloatingInteraction(
         parentFloating.style.pointerEvents = '';
       }
 
-      const scopeElement = parentFloating ?? ref.closest('[data-rootownerid]') ?? doc.body;
+      const scopeElement =
+        instance.pointerEventsScopeElement ??
+        parentFloating ??
+        (ref.closest('[data-rootownerid]') as HTMLElement | SVGSVGElement | null) ??
+        doc.body;
 
-      instance.pointerEventsScopeElement = scopeElement;
-      scopeElement.style.pointerEvents = 'none';
-      ref.style.pointerEvents = 'auto';
-      floatingEl.style.pointerEvents = 'auto';
+      applySafePolygonPointerEventsMutation(instance, {
+        scopeElement,
+        referenceElement: ref,
+        floatingElement: floatingEl,
+      });
 
       return () => {
-        ref.style.pointerEvents = '';
-        floatingEl.style.pointerEvents = '';
         clearPointerEvents();
       };
     }
