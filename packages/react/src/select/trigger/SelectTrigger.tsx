@@ -23,7 +23,6 @@ import type { FieldRootState } from '../../field/root/FieldRoot';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
-import { useHydrated } from '../../utils/useHydrated';
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 
 const BOUNDARY_OFFSET = 2;
@@ -89,15 +88,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const hasNullItemLabel = useStore(store, selectors.hasNullItemLabel, shouldCheckNullItemLabel);
 
   const id = idProp ?? rootId;
-  const defaultLabelId = id ? `${id}-label` : undefined;
-  const hydrated = useHydrated();
-  const ariaLabelledBy = resolveAriaLabelledBy(
-    fieldLabelId,
-    selectLabelId,
-    defaultLabelId,
-    componentProps['aria-label'],
-    hydrated,
-  );
+  const ariaLabelledBy = resolveAriaLabelledBy(fieldLabelId, selectLabelId);
 
   useLabelableId({ id });
 

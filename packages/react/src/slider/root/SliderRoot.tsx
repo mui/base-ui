@@ -25,6 +25,7 @@ import { useField } from '../../field/useField';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFormContext } from '../../form/FormContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import { resolveAriaLabelledBy, getDefaultLabelId } from '../../utils/resolveAriaLabelledBy';
 import { asc } from '../utils/asc';
 import { getSliderValue } from '../utils/getSliderValue';
 import { validateMinimumDistance } from '../utils/validateMinimumDistance';
@@ -86,7 +87,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   } = componentProps;
 
   const id = useBaseUiId(idProp);
-  const defaultLabelId = id ? `${id}-label` : undefined;
+  const defaultLabelId = getDefaultLabelId(id);
   const onValueChange = useStableCallback(
     onValueChangeProp as (
       value: number | number[],
@@ -113,14 +114,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   } = useFieldRootContext();
   const { labelId: fieldLabelId } = useLabelableContext();
   const [labelId, setLabelId] = React.useState<string | undefined>();
-  const [isHydrated, setIsHydrated] = React.useState(false);
 
-  useIsoLayoutEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
-  const ariaLabelledby =
-    ariaLabelledByProp ?? fieldLabelId ?? labelId ?? (!isHydrated ? defaultLabelId : undefined);
+  const ariaLabelledby = ariaLabelledByProp ?? resolveAriaLabelledBy(fieldLabelId, labelId);
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 

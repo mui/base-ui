@@ -129,7 +129,7 @@ describe('<Combobox.Root />', () => {
       expect(trigger).to.have.attribute('aria-haspopup', 'dialog');
     });
 
-    it('links Combobox.Label to trigger before hydration', () => {
+    it('does not link Combobox.Label to trigger before hydration', () => {
       renderToString(
         <Combobox.Root inline>
           <Combobox.Label data-testid="label">Food</Combobox.Label>
@@ -143,8 +143,7 @@ describe('<Combobox.Root />', () => {
 
       expect(label.id).to.not.equal('');
       expect(trigger.id).to.not.equal('');
-      expect(label.id).to.equal(`${trigger.id}-label`);
-      expect(trigger).to.have.attribute('aria-labelledby', label.id);
+      expect(trigger).not.to.have.attribute('aria-labelledby');
     });
   });
 

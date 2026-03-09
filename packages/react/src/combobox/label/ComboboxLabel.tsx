@@ -9,6 +9,7 @@ import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { fieldValidityMapping } from '../../field/utils/constants';
 import { useLabel } from '../../labelable-provider/useLabel';
+import { getDefaultLabelId } from '../../utils/resolveAriaLabelledBy';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { selectors } from '../store';
 
@@ -34,7 +35,7 @@ export const ComboboxLabel = React.forwardRef(function ComboboxLabel(
   const triggerElement = useStore(store, selectors.triggerElement);
   const inputElement = useStore(store, selectors.inputElement);
   const rootId = useStore(store, selectors.id);
-  const defaultLabelId = rootId ? `${rootId}-label` : undefined;
+  const defaultLabelId = getDefaultLabelId(rootId);
 
   const localControlId = triggerElement?.id ?? (inputInsidePopup ? rootId : undefined);
 

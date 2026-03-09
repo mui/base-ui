@@ -84,13 +84,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
   const isInsidePopup = hasPositionerParent || inline;
   const id = useBaseUiId(idProp ?? (!isInsidePopup ? rootId : undefined));
-  const ariaLabelledBy = resolveAriaLabelledBy(
-    fieldLabelId,
-    undefined,
-    undefined,
-    componentProps['aria-label'],
-    true,
-  );
+  const ariaLabelledBy = resolveAriaLabelledBy(fieldLabelId, undefined);
   const fieldStateForInput = hasPositionerParent ? DEFAULT_FIELD_STATE_ATTRIBUTES : fieldState;
 
   const [composingValue, setComposingValue] = React.useState<string | null>(null);

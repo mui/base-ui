@@ -51,7 +51,7 @@ describe('<Select.Root />', () => {
   });
 
   describe('server-side rendering', () => {
-    it('links Select.Label to trigger before hydration', () => {
+    it('does not link Select.Label before hydration', () => {
       renderToString(
         <Select.Root>
           <Select.Label data-testid="label">Font</Select.Label>
@@ -66,8 +66,7 @@ describe('<Select.Root />', () => {
 
       expect(label.id).not.to.equal('');
       expect(trigger.id).not.to.equal('');
-      expect(label.id).to.equal(`${trigger.id}-label`);
-      expect(trigger).to.have.attribute('aria-labelledby', label.id);
+      expect(trigger).not.to.have.attribute('aria-labelledby');
     });
   });
 

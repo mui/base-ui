@@ -7,6 +7,7 @@ import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { fieldValidityMapping } from '../../field/utils/constants';
 import { useLabel } from '../../labelable-provider/useLabel';
+import { getDefaultLabelId } from '../../utils/resolveAriaLabelledBy';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { selectors } from '../store';
 
@@ -30,7 +31,7 @@ export const SelectLabel = React.forwardRef(function SelectLabel(
 
   const triggerElement = useStore(store, selectors.triggerElement);
   const rootId = useStore(store, selectors.id);
-  const defaultLabelId = rootId ? `${rootId}-label` : undefined;
+  const defaultLabelId = getDefaultLabelId(rootId);
 
   const labelProps = useLabel({
     id: defaultLabelId,

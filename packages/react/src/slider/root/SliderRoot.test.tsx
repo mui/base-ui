@@ -88,7 +88,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
   }));
 
   describe('server-side rendering', () => {
-    it('links Slider.Label before hydration', () => {
+    it('does not link Slider.Label before hydration', () => {
       renderToString(
         <Slider.Root defaultValue={30} data-testid="root">
           <Slider.Label data-testid="label">Volume</Slider.Label>
@@ -106,9 +106,8 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
 
       expect(label.id).to.not.equal('');
       expect(root.id).to.not.equal('');
-      expect(label.id).to.equal(`${root.id}-label`);
-      expect(root).to.have.attribute('aria-labelledby', label.id);
-      expect(slider).to.have.attribute('aria-labelledby', label.id);
+      expect(root).not.to.have.attribute('aria-labelledby');
+      expect(slider).not.to.have.attribute('aria-labelledby');
     });
   });
 

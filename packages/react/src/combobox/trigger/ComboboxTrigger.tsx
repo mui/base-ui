@@ -25,7 +25,6 @@ import { REASONS } from '../../utils/reasons';
 import { useClick, useTypeahead } from '../../floating-ui-react';
 import type { Side } from '../../utils/useAnchorPositioning';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
-import { useHydrated } from '../../utils/useHydrated';
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 
 const BOUNDARY_OFFSET = 2;
@@ -89,15 +88,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
   useLabelableId({ id: inputInsidePopup ? idProp : undefined });
   const id = inputInsidePopup ? (idProp ?? rootId) : idProp;
-  const defaultLabelId = rootId ? `${rootId}-label` : undefined;
-  const hydrated = useHydrated();
-  const ariaLabelledBy = resolveAriaLabelledBy(
-    fieldLabelId,
-    comboboxLabelId,
-    defaultLabelId,
-    componentProps['aria-label'],
-    hydrated,
-  );
+  const ariaLabelledBy = resolveAriaLabelledBy(fieldLabelId, comboboxLabelId);
 
   const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
 
