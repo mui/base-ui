@@ -20,15 +20,36 @@ import {
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { setSharedFixedSize } from '../utils/setFixedSize';
+import { getCssDimensions } from '../../utils/getCssDimensions';
 import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
+import { NavigationMenuPopupCssVars } from '../popup/NavigationMenuPopupCssVars';
+import { NavigationMenuPositionerCssVars } from '../positioner/NavigationMenuPositionerCssVars';
 
 const blockedReturnFocusReasons = new Set<string>([
   REASONS.triggerHover,
   REASONS.outsidePress,
   REASONS.focusOut,
 ]);
+
+function setSharedFixedSize(popupElement: HTMLElement, positionerElement: HTMLElement) {
+  const { width, height } = getCssDimensions(popupElement);
+
+  if (width === 0 || height === 0) {
+    return;
+  }
+
+  popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${width}px`);
+  popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${height}px`);
+  positionerElement.style.setProperty(
+    NavigationMenuPositionerCssVars.positionerWidth,
+    `${width}px`,
+  );
+  positionerElement.style.setProperty(
+    NavigationMenuPositionerCssVars.positionerHeight,
+    `${height}px`,
+  );
+}
 
 /**
  * Groups all parts of the navigation menu.
