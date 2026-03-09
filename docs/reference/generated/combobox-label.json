@@ -1,6 +1,6 @@
 {
   "name": "ComboboxLabel",
-  "description": "An accessible label that is automatically associated with the combobox input or trigger.\nRenders a `<div>` element.",
+  "description": "An accessible label that is automatically associated with the combobox trigger.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | ((state: Field.Root.State) => string | undefined)",
