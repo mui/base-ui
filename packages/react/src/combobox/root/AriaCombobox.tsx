@@ -167,6 +167,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const single = selectionMode === 'single';
   const hasInputValue = inputValueProp !== undefined || defaultInputValueProp !== undefined;
   const hasItems = items !== undefined;
+  const hasMappedItems = hasItems && getValueFromItem !== undefined;
   const hasFilteredItemsProp = filteredItemsProp !== undefined;
   const isGrouped = isGroupedItems(items);
 
@@ -203,15 +204,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   }, [getValueFromItem, itemToStringLabel]);
 
   const flatItemValues: readonly any[] = React.useMemo(() => {
-    if (!hasItems) {
+    if (!hasMappedItems) {
       return EMPTY_ARRAY;
     }
 
-    return getValueFromItem ? flatItems.map((item) => getValueFromItem(item)) : flatItems;
-  }, [flatItems, getValueFromItem, hasItems]);
+    return flatItems.map((item) => getValueFromItem(item));
+  }, [flatItems, getValueFromItem, hasMappedItems]);
 
   const selectedValueToIndex = React.useMemo(() => {
-    if (!hasItems || isItemEqualToValue !== defaultItemEquality) {
+    if (!hasMappedItems || isItemEqualToValue !== defaultItemEquality) {
       return null;
     }
 
@@ -226,7 +227,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     });
 
     return valueToIndex;
-  }, [flatItemValues, hasItems, isItemEqualToValue]);
+  }, [flatItemValues, hasMappedItems, isItemEqualToValue]);
 
   function resolveSelectedLabelAsString(
     value: any,
@@ -251,16 +252,20 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         return findItemIndex(allValuesRef.current, value, isItemEqualToValue);
       }
 
+      if (!hasMappedItems) {
+        return findItemIndex(flatItems, value, isItemEqualToValue);
+      }
+
       return (
         selectedValueToIndex?.get(value) ?? findItemIndex(flatItemValues, value, isItemEqualToValue)
       );
     },
-    [flatItemValues, hasItems, isItemEqualToValue, selectedValueToIndex],
+    [flatItemValues, flatItems, hasItems, hasMappedItems, isItemEqualToValue, selectedValueToIndex],
   );
 
   function resolveSelectedInputLabel(value: any): string {
-    if (!getValueFromItem || !hasItems) {
-      return resolveSelectedLabelAsString(value, itemToStringLabel);
+    if (!hasMappedItems) {
+      return stringifyAsLabel(value, itemToStringLabel);
     }
 
     const index = findSelectedIndex(value);
