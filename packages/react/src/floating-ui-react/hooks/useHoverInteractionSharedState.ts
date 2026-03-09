@@ -2,6 +2,8 @@
 import { useOnMount } from '@base-ui/utils/useOnMount';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Timeout } from '@base-ui/utils/useTimeout';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 
 import type { ContextData, FloatingRootContext, SafePolygonOptions } from '../types';
 import { TYPEABLE_SELECTOR } from '../utils/constants';
@@ -89,6 +91,28 @@ export function useHoverInteractionSharedState(store: FloatingRootContext): Hove
 
 export function recordHoverClose(instance: HoverInteraction, now = performance.now()): void {
   instance.lastHoverCloseTime = now;
+}
+
+export function closeHoverPopup(
+  store: FloatingRootContext,
+  instance: HoverInteraction,
+  event: MouseEvent,
+  isHoverOpen: boolean,
+): boolean {
+  if (!store.select('open')) {
+    return false;
+  }
+
+  const eventDetails = createChangeEventDetails(REASONS.triggerHover, event);
+  store.setOpen(false, eventDetails);
+
+  // Canceled requests or non-hover closes should not seed handoff grace.
+  if (eventDetails.isCanceled || !isHoverOpen) {
+    return false;
+  }
+
+  recordHoverClose(instance);
+  return true;
 }
 
 export function clearRecentHoverClose(instance: HoverInteraction): void {

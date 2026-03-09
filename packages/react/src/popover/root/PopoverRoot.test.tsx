@@ -424,6 +424,54 @@ describe('<Popover.Root />', () => {
         await flushMicrotasks();
         expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
       });
+
+      it('does not seed hover-close grace when a hover close is canceled', async () => {
+        function Test() {
+          const [open, setOpen] = React.useState(false);
+
+          return (
+            <React.Fragment>
+              <button onClick={() => setOpen(false)}>Programmatic close</button>
+              <TestPopover
+                rootProps={{
+                  open,
+                  onOpenChange: (nextOpen, eventDetails) => {
+                    if (!nextOpen) {
+                      eventDetails.cancel();
+                      return;
+                    }
+                    setOpen(nextOpen);
+                  },
+                }}
+                triggerProps={{ openOnHover: true, delay: OPEN_DELAY_MS, closeDelay: 0 }}
+              />
+            </React.Fragment>
+          );
+        }
+
+        await render(<Test />);
+
+        const anchor = screen.getByRole('button', { name: 'Toggle' });
+        const closeButton = screen.getByRole('button', { name: 'Programmatic close' });
+
+        await openAfterDelay(anchor);
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+
+        fireEvent.mouseLeave(anchor);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+
+        fireEvent.click(closeButton);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).to.equal(null);
+
+        await hoverTrigger(anchor);
+        expect(screen.queryByTestId('popover-popup')).to.equal(null);
+
+        clock.tick(OPEN_DELAY_MS);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+      });
     });
 
     describe('prop: closeDelay', () => {
@@ -452,6 +500,24 @@ describe('<Popover.Root />', () => {
         clock.tick(50);
 
         expect(screen.queryByText('Content')).to.equal(null);
+      });
+
+      it('does not emit a close change when popup mouseleaves while already closed', async () => {
+        const onOpenChange = spy();
+
+        await render(
+          <TestPopover
+            rootProps={{ onOpenChange }}
+            triggerProps={{ openOnHover: true, closeDelay: 100 }}
+            portalProps={{ keepMounted: true }}
+          />,
+        );
+
+        const popup = screen.getByTestId('popover-popup');
+        fireEvent.mouseLeave(popup);
+        await flushMicrotasks();
+
+        expect(onOpenChange.callCount).to.equal(0);
       });
     });
 

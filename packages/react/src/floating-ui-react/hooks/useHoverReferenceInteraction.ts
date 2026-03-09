@@ -12,9 +12,9 @@ import { REASONS } from '../../utils/reasons';
 import { useFloatingTree } from '../components/FloatingTree';
 import type { FloatingTreeStore } from '../components/FloatingTreeStore';
 import {
+  closeHoverPopup as closeHoverPopupShared,
   clearRecentHoverClose,
   clearSafePolygonPointerEventsMutation,
-  recordHoverClose,
   useHoverInteractionSharedState,
   wasHoverClosedRecently,
 } from './useHoverInteractionSharedState';
@@ -96,14 +96,20 @@ export function useHoverReferenceInteraction(
     return openEventType === 'click' || openEventType === 'mousedown';
   });
 
+  const isHoverOpen = useStableCallback(() => {
+    const openEventType = dataRef.current.openEvent?.type;
+    return openEventType?.includes('mouse') === true && openEventType !== 'mousedown';
+  });
+
   const isRelatedTargetInsideEnabledTrigger = useStableCallback((target: EventTarget | null) => {
     return isTargetInsideEnabledTrigger(target, store.context.triggerElements);
   });
 
   const closeHoverPopup = useStableCallback((event: MouseEvent) => {
-    recordHoverClose(instance);
-    store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
-    tree?.events.emit('floating.closed', event);
+    // Emit tree close only when a hover-close was actually committed.
+    if (closeHoverPopupShared(store, instance, event, isHoverOpen())) {
+      tree?.events.emit('floating.closed', event);
+    }
   });
 
   const isOverInactiveTrigger = useStableCallback(
@@ -134,6 +140,11 @@ export function useHoverReferenceInteraction(
 
   const closeWithDelay = React.useCallback(
     (event: MouseEvent, runElseBranch = true) => {
+      if (!store.select('open')) {
+        instance.openChangeTimeout.clear();
+        return;
+      }
+
       const closeDelay = getDelay(delayRef.current, 'close', instance.pointerType);
       if (closeDelay) {
         instance.openChangeTimeout.start(closeDelay, () => closeHoverPopup(event));
@@ -142,7 +153,7 @@ export function useHoverReferenceInteraction(
         closeHoverPopup(event);
       }
     },
-    [closeHoverPopup, delayRef, instance],
+    [closeHoverPopup, delayRef, instance, store],
   );
 
   const cleanupMouseMoveHandler = useStableCallback(() => {

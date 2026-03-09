@@ -319,7 +319,7 @@ describe('<Popover.Root />', () => {
               <Popover.Portal>
                 <Popover.Positioner data-testid="positioner" className="positioner">
                   <Popover.Popup data-testid="popup" className="popup">
-                    {React.isValidElement(popupChildren) &&
+                    {React.isValidElement<{ 'data-testid'?: string }>(popupChildren) &&
                     popupChildren.props['data-testid'] === 'content' ? (
                       React.cloneElement(
                         popupChildren as React.ReactElement<{ children?: React.ReactNode }>,

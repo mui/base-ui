@@ -9,13 +9,11 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import type { FloatingContext, FloatingRootContext } from '../types';
 import { getNodeChildren, getTarget, isTargetInsideEnabledTrigger } from '../utils';
 
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import {
+  closeHoverPopup as closeHoverPopupShared,
   clearSafePolygonPointerEventsMutation,
   isInteractiveElement,
-  recordHoverClose,
   useHoverInteractionSharedState,
 } from './useHoverInteractionSharedState';
 import { getDelay } from './useHoverShared';
@@ -66,7 +64,7 @@ export function useHoverFloatingInteraction(
 
   const isHoverOpen = useStableCallback(() => {
     const type = dataRef.current.openEvent?.type;
-    return type?.includes('mouse') && type !== 'mousedown';
+    return type?.includes('mouse') === true && type !== 'mousedown';
   });
 
   const isRelatedTargetInsideEnabledTrigger = useStableCallback((target: EventTarget | null) => {
@@ -74,13 +72,19 @@ export function useHoverFloatingInteraction(
   });
 
   const closeHoverPopup = useStableCallback((event: MouseEvent) => {
-    recordHoverClose(instance);
-    store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
-    tree?.events.emit('floating.closed', event);
+    // Emit tree close only when a hover-close was actually committed.
+    if (closeHoverPopupShared(store, instance, event, isHoverOpen())) {
+      tree?.events.emit('floating.closed', event);
+    }
   });
 
   const closeWithDelay = React.useCallback(
     (event: MouseEvent) => {
+      if (!store.select('open')) {
+        instance.openChangeTimeout.clear();
+        return;
+      }
+
       const closeDelay = getDelay(closeDelayProp, 'close', instance.pointerType);
       if (closeDelay) {
         instance.openChangeTimeout.start(closeDelay, () => closeHoverPopup(event));
@@ -89,7 +93,7 @@ export function useHoverFloatingInteraction(
         closeHoverPopup(event);
       }
     },
-    [closeDelayProp, closeHoverPopup, instance],
+    [closeDelayProp, closeHoverPopup, instance, store],
   );
 
   const clearPointerEvents = useStableCallback(() => {
