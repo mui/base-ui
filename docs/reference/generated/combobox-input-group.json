@@ -2,12 +2,6 @@
   "name": "ComboboxInputGroup",
   "description": "A wrapper for the input and its associated controls.\nRenders a `<div>` element.",
   "props": {
-    "disabled": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether the component should ignore user interaction.",
-      "detailedType": "boolean | undefined"
-    },
     "className": {
       "type": "string | ((state: Combobox.InputGroup.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",

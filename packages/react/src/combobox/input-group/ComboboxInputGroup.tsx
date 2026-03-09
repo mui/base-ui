@@ -22,7 +22,7 @@ export const ComboboxInputGroup = React.forwardRef(function ComboboxInputGroup(
   componentProps: ComboboxInputGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, disabled: disabledProp = false, ...elementProps } = componentProps;
+  const { render, className, ...elementProps } = componentProps;
 
   const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
   const store = useComboboxRootContext();
@@ -40,7 +40,7 @@ export const ComboboxInputGroup = React.forwardRef(function ComboboxInputGroup(
   const highlightedByKeyboard = useStore(store, selectors.highlightedByKeyboard);
 
   const popupSide = mounted && positionerElement ? popupSideValue : null;
-  const disabled = fieldDisabled || comboboxDisabled || disabledProp;
+  const disabled = fieldDisabled || comboboxDisabled;
   const listEmpty = filteredItems.length === 0;
   const placeholder = selectionMode === 'none' ? false : !hasSelectedValue;
   const highlighted = !open || (highlightedByKeyboard ? !hasActiveIndex : true);
@@ -102,13 +102,7 @@ export interface ComboboxInputGroupState extends FieldRoot.State {
 export interface ComboboxInputGroupProps extends BaseUIComponentProps<
   'div',
   ComboboxInputGroup.State
-> {
-  /**
-   * Whether the component should ignore user interaction.
-   * @default false
-   */
-  disabled?: boolean | undefined;
-}
+> {}
 
 export namespace ComboboxInputGroup {
   export type State = ComboboxInputGroupState;
