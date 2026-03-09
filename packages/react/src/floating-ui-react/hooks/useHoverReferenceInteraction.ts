@@ -16,7 +16,7 @@ import {
   useHoverInteractionSharedState,
 } from './useHoverInteractionSharedState';
 import type { HandleClose, HandleCloseContextBase } from './useHoverShared';
-import { getDelay, getRestMs } from './useHoverShared';
+import { getDelay, getRestMs, isClickLikeOpenEvent as isClickLikeOpenEventShared } from './useHoverShared';
 import { FloatingUIOpenChangeDetails, HTMLProps } from '../../utils/types';
 
 export interface UseHoverReferenceInteractionProps {
@@ -79,12 +79,7 @@ export function useHoverReferenceInteraction(
   }
 
   const isClickLikeOpenEvent = useStableCallback(() => {
-    if (instance.interactedInside) {
-      return true;
-    }
-
-    const openEventType = dataRef.current.openEvent?.type;
-    return openEventType === 'click' || openEventType === 'mousedown';
+    return isClickLikeOpenEventShared(dataRef.current.openEvent?.type, instance.interactedInside);
   });
 
   const isRelatedTargetInsideEnabledTrigger = useStableCallback((target: EventTarget | null) => {

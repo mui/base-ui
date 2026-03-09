@@ -148,10 +148,6 @@ function TestInlineNestedNavigationMenu(props: { nestedDefaultValue?: string | n
   );
 }
 
-function TestInlineNestedNavigationMenuWithoutDefaultValue() {
-  return <TestInlineNestedNavigationMenu nestedDefaultValue={null} />;
-}
-
 function TestInlineNestedNavigationMenuWithDynamicContent({
   initialContentStage = 0,
 }: {
@@ -605,30 +601,17 @@ function TestDeeplyNestedNavigationMenu() {
   );
 }
 
-function TestNavigationMenuWithDialog() {
+function TestNavigationMenuWithNestedPopup(props: {
+  children: React.ReactNode;
+}) {
+  const { children } = props;
   return (
     <NavigationMenu.Root>
       <NavigationMenu.List>
         <NavigationMenu.Item value="item-1">
           <NavigationMenu.Trigger data-testid="trigger-1">Item 1</NavigationMenu.Trigger>
 
-          <NavigationMenu.Content data-testid="popup-1">
-            <Dialog.Root>
-              <Dialog.Trigger data-testid="dialog-trigger">Open dialog</Dialog.Trigger>
-              <Dialog.Portal>
-                <Dialog.Popup
-                  data-testid="dialog-popup"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                  }}
-                >
-                  <button type="button" data-testid="dialog-button">
-                    Dialog button
-                  </button>
-                </Dialog.Popup>
-              </Dialog.Portal>
-            </Dialog.Root>
-          </NavigationMenu.Content>
+          <NavigationMenu.Content data-testid="popup-1">{children}</NavigationMenu.Content>
         </NavigationMenu.Item>
       </NavigationMenu.List>
 
@@ -643,43 +626,49 @@ function TestNavigationMenuWithDialog() {
   );
 }
 
+function TestNavigationMenuWithDialog() {
+  return (
+    <TestNavigationMenuWithNestedPopup>
+      <Dialog.Root>
+        <Dialog.Trigger data-testid="dialog-trigger">Open dialog</Dialog.Trigger>
+        <Dialog.Portal>
+          <Dialog.Popup
+            data-testid="dialog-popup"
+            onClick={(event) => {
+              event.stopPropagation();
+            }}
+          >
+            <button type="button" data-testid="dialog-button">
+              Dialog button
+            </button>
+          </Dialog.Popup>
+        </Dialog.Portal>
+      </Dialog.Root>
+    </TestNavigationMenuWithNestedPopup>
+  );
+}
+
 function TestNavigationMenuWithPopover() {
   return (
-    <NavigationMenu.Root>
-      <NavigationMenu.List>
-        <NavigationMenu.Item value="item-1">
-          <NavigationMenu.Trigger data-testid="trigger-1">Item 1</NavigationMenu.Trigger>
-
-          <NavigationMenu.Content data-testid="popup-1">
-            <Popover.Root>
-              <Popover.Trigger data-testid="popover-trigger">Open popover</Popover.Trigger>
-              <Popover.Portal>
-                <Popover.Positioner>
-                  <Popover.Popup
-                    data-testid="popover-popup"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                    }}
-                  >
-                    <button type="button" data-testid="popover-button">
-                      Popover button
-                    </button>
-                  </Popover.Popup>
-                </Popover.Positioner>
-              </Popover.Portal>
-            </Popover.Root>
-          </NavigationMenu.Content>
-        </NavigationMenu.Item>
-      </NavigationMenu.List>
-
-      <NavigationMenu.Portal>
-        <NavigationMenu.Positioner>
-          <NavigationMenu.Popup>
-            <NavigationMenu.Viewport />
-          </NavigationMenu.Popup>
-        </NavigationMenu.Positioner>
-      </NavigationMenu.Portal>
-    </NavigationMenu.Root>
+    <TestNavigationMenuWithNestedPopup>
+      <Popover.Root>
+        <Popover.Trigger data-testid="popover-trigger">Open popover</Popover.Trigger>
+        <Popover.Portal>
+          <Popover.Positioner>
+            <Popover.Popup
+              data-testid="popover-popup"
+              onClick={(event) => {
+                event.stopPropagation();
+              }}
+            >
+              <button type="button" data-testid="popover-button">
+                Popover button
+              </button>
+            </Popover.Popup>
+          </Popover.Positioner>
+        </Popover.Portal>
+      </Popover.Root>
+    </TestNavigationMenuWithNestedPopup>
   );
 }
 
@@ -1424,7 +1413,7 @@ describe('<NavigationMenu.Root />', () => {
     });
 
     it('keeps parent menu open when hovering inline nested triggers without defaultValue', async () => {
-      await render(<TestInlineNestedNavigationMenuWithoutDefaultValue />);
+        await render(<TestInlineNestedNavigationMenu nestedDefaultValue={null} />);
       const trigger1 = screen.getByTestId('trigger-1');
 
       fireEvent.mouseEnter(trigger1);

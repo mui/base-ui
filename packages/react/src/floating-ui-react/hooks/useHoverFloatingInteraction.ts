@@ -18,7 +18,7 @@ import {
   isInteractiveElement,
   useHoverInteractionSharedState,
 } from './useHoverInteractionSharedState';
-import { getDelay } from './useHoverShared';
+import { getDelay, isClickLikeOpenEvent as isClickLikeOpenEventShared } from './useHoverShared';
 
 export type UseHoverFloatingInteractionProps = {
   /**
@@ -56,12 +56,7 @@ export function useHoverFloatingInteraction(
   const parentId = useFloatingParentNodeId();
 
   const isClickLikeOpenEvent = useStableCallback(() => {
-    if (instance.interactedInside) {
-      return true;
-    }
-
-    const openEventType = dataRef.current.openEvent?.type;
-    return openEventType === 'click' || openEventType === 'mousedown';
+    return isClickLikeOpenEventShared(dataRef.current.openEvent?.type, instance.interactedInside);
   });
 
   const isHoverOpen = useStableCallback(() => {
