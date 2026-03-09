@@ -190,6 +190,28 @@ const invalidStringItemToValue: NonNullable<
 
 <Combobox.Root
   items={objectItems}
+  defaultValue="a"
+  getValueFromItem={(item) => item.value}
+  filter={(item, query, itemToString) => {
+    item.label;
+    // @ts-expect-error - item is the raw item shape when `items` are provided
+    item.toUpperCase();
+    return itemToString?.(item)?.startsWith(query) ?? false;
+  }}
+/>;
+
+<Combobox.Root
+  defaultValue="a"
+  filter={(item, query, itemToString) => {
+    item.toUpperCase();
+    // @ts-expect-error - primitive values do not expose item fields
+    item.label;
+    return itemToString?.(item)?.startsWith(query) ?? false;
+  }}
+/>;
+
+<Combobox.Root
+  items={objectItems}
   defaultValue={objectItems[0]}
   itemToStringLabel={(item) => {
     return item.label;
@@ -393,7 +415,7 @@ interface SelectProps<
   Data extends OptionData = any,
   Multiple extends boolean | undefined = false,
 > extends Omit<
-  Combobox.Root.Props<Option['value'], Multiple>,
+  Combobox.Root.Props<Option['value'], Multiple, Option<Data>[] | GroupedOptions<Data>>,
   'isItemEqualToValue' | 'getValueFromItem' | 'items' | 'children'
 > {
   items: Option<Data>[] | GroupedOptions<Data>;

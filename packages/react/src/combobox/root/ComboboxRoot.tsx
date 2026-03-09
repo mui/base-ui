@@ -75,6 +75,11 @@ type GetValueFromItemFn<Value, Items extends readonly any[] | readonly Group<any
   item: ItemFromItemsProp<NonNullable<Items>>,
 ) => Value;
 
+type FilterItemFromItemsProp<
+  Value,
+  Items extends readonly any[] | readonly Group<any>[] | undefined,
+> = [Items] extends [undefined] ? Value : ItemFromItemsProp<NonNullable<Items>>;
+
 type ShouldRequireGetValueFromItem<
   Value,
   Items extends readonly any[] | readonly Group<any>[] | undefined,
@@ -119,6 +124,7 @@ export type ComboboxRootProps<
   | 'autoComplete'
   | 'formAutoComplete'
   | 'submitOnItemClick'
+  | 'filter'
   | 'autoHighlight'
   | 'keepHighlight'
   | 'highlightItemOnHover'
@@ -164,6 +170,17 @@ export type ComboboxRootProps<
    * Can be either a flat array of items or an array of groups with items.
    */
   items?: Items | undefined;
+  /**
+   * Filter function used to match items vs input query.
+   */
+  filter?:
+    | null
+    | ((
+        itemValue: FilterItemFromItemsProp<Value, Items>,
+        query: string,
+        itemToString?: ((itemValue: FilterItemFromItemsProp<Value, Items>) => string) | undefined,
+      ) => boolean)
+    | undefined;
   /**
    * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.
    * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.

@@ -76,9 +76,9 @@
       "detailedType": "string | undefined"
     },
     "filter": {
-      "type": "((itemValue: Value, query: string, itemToString: ((itemValue: Value) => string) | undefined) => boolean) | null",
+      "type": "((itemValue: Value | GroupItem | Item | any, query: string, itemToString: ((itemValue: Value | GroupItem | Item | any) => string) | undefined) => boolean) | null",
       "description": "Filter function used to match items vs input query.",
-      "detailedType": "| ((\n    itemValue: Value,\n    query: string,\n    itemToString:\n      | ((itemValue: Value) => string)\n      | undefined,\n  ) => boolean)\n| null\n| undefined"
+      "detailedType": "| ((\n    itemValue: Value | GroupItem | Item | any,\n    query: string,\n    itemToString:\n      | ((\n          itemValue: Value | GroupItem | Item | any,\n        ) => string)\n      | undefined,\n  ) => boolean)\n| null\n| undefined"
     },
     "filteredItems": {
       "type": "any[] | Group[]",
