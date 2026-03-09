@@ -152,8 +152,12 @@ function TestInlineNestedNavigationMenuWithoutDefaultValue() {
   return <TestInlineNestedNavigationMenu nestedDefaultValue={null} />;
 }
 
-function TestInlineNestedNavigationMenuWithDynamicContent() {
-  const [showExtraContent, setShowExtraContent] = React.useState(false);
+function TestInlineNestedNavigationMenuWithDynamicContent({
+  initialContentStage = 0,
+}: {
+  initialContentStage?: number;
+} = {}) {
+  const [contentStage, setContentStage] = React.useState(initialContentStage);
 
   return (
     <NavigationMenu.Root>
@@ -174,12 +178,12 @@ function TestInlineNestedNavigationMenuWithDynamicContent() {
                       type="button"
                       data-testid="insert-content"
                       onClick={() => {
-                        setShowExtraContent(true);
+                        setContentStage((prev) => Math.min(prev + 1, 2));
                       }}
                     >
                       Insert content
                     </button>
-                    {showExtraContent && (
+                    {contentStage >= 1 && (
                       <div data-testid="extra-content">
                         <NavigationMenu.Link href="#nested-link-1">
                           Nested Link 1
@@ -189,6 +193,16 @@ function TestInlineNestedNavigationMenuWithDynamicContent() {
                         </NavigationMenu.Link>
                         <NavigationMenu.Link href="#nested-link-3">
                           Nested Link 3
+                        </NavigationMenu.Link>
+                      </div>
+                    )}
+                    {contentStage >= 2 && (
+                      <div data-testid="extra-content-2">
+                        <NavigationMenu.Link href="#nested-link-4">
+                          Nested Link 4
+                        </NavigationMenu.Link>
+                        <NavigationMenu.Link href="#nested-link-5">
+                          Nested Link 5
                         </NavigationMenu.Link>
                       </div>
                     )}
@@ -1845,6 +1859,112 @@ describe('<NavigationMenu.Root />', () => {
           if (typeof originalResizeObserver === 'function') {
             globalThis.ResizeObserver = originalResizeObserver;
           }
+        }
+      });
+
+      it('keeps inline mutation resize interruptible when content updates again mid-transition', async () => {
+        const previousAnimationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        try {
+          await render(
+            <TestInlineNestedNavigationMenuWithDynamicContent initialContentStage={1} />,
+          );
+          const trigger1 = screen.getByTestId('trigger-1');
+
+          fireEvent.click(trigger1);
+          await flushMicrotasks();
+
+          const popupRoot = screen.getByTestId('popup-root');
+          const positioner = screen.getByTestId('positioner');
+          const animations = mockAnimations(popupRoot);
+
+          const popupWidth = 250;
+          const popupHeightValues = [190, 260];
+          let popupHeight = 260;
+
+          Object.defineProperty(popupRoot, 'offsetWidth', {
+            configurable: true,
+            get: () => popupWidth,
+          });
+          Object.defineProperty(popupRoot, 'offsetHeight', {
+            configurable: true,
+            get: () => {
+              const nextHeight = popupHeightValues.shift();
+              if (nextHeight != null) {
+                popupHeight = nextHeight;
+              }
+
+              return popupHeight;
+            },
+          });
+
+          popupRoot.style.setProperty('--popup-width', '250px');
+          popupRoot.style.setProperty('--popup-height', '220px');
+          positioner.style.setProperty('--positioner-width', '250px');
+          positioner.style.setProperty('--positioner-height', '220px');
+
+          animations.start();
+          fireEvent.click(screen.getByTestId('insert-content'));
+          await flushMicrotasks();
+
+          expect(screen.getByTestId('extra-content-2')).not.to.equal(null);
+          expect(positioner.style.getPropertyValue('--positioner-height')).to.equal('190px');
+
+          await act(async () => {
+            animations.finish();
+            await flushMicrotasks();
+          });
+
+          await waitFor(() => {
+            expect(positioner.style.getPropertyValue('--positioner-height')).to.equal('260px');
+            expect(popupRoot.style.getPropertyValue('--popup-height')).to.equal('auto');
+          });
+        } finally {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
+        }
+      });
+
+      it('updates popup sizing when the window is resized while the popup is open', async () => {
+        const restoreResizeObserver = mockResizeObserver();
+
+        try {
+          await render(<TestNavigationMenuWithKeepMountedContent />);
+
+          const popupRoot = screen.getByTestId('popup-root');
+          const positioner = screen.getByTestId('positioner');
+
+          let popupWidth = 675;
+          let popupHeight = 220;
+
+          Object.defineProperty(popupRoot, 'offsetWidth', {
+            configurable: true,
+            get: () => popupWidth,
+          });
+          Object.defineProperty(popupRoot, 'offsetHeight', {
+            configurable: true,
+            get: () => popupHeight,
+          });
+
+          popupRoot.style.setProperty('--popup-width', 'auto');
+          popupRoot.style.setProperty('--popup-height', 'auto');
+          positioner.style.setProperty('--positioner-width', '675px');
+          positioner.style.setProperty('--positioner-height', '220px');
+
+          popupWidth = 500;
+          popupHeight = 180;
+
+          fireEvent(window, new Event('resize'));
+          await flushMicrotasks();
+
+          await waitFor(() => {
+            expect(popupRoot.style.getPropertyValue('--popup-width')).to.equal('auto');
+            expect(popupRoot.style.getPropertyValue('--popup-height')).to.equal('auto');
+            expect(positioner.style.getPropertyValue('--positioner-width')).to.equal('500px');
+            expect(positioner.style.getPropertyValue('--positioner-height')).to.equal('180px');
+          });
+        } finally {
+          restoreResizeObserver();
         }
       });
 
