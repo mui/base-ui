@@ -153,11 +153,13 @@ export class PopoverStore<Payload> extends ReactStore<
       this.update(updatedState);
     };
 
-    if (isHover) {
-      // Clear stale trigger-switch instant state before hover updates are flushed.
-      // Otherwise the first close render can inherit `trigger-change` and skip the exit animation.
+    if (isHover || !nextOpen) {
+      // Clear stale trigger-switch instant state before hover updates or any close render are flushed.
+      // Otherwise the first closing frame can inherit `trigger-change` and skip the exit animation.
       this.set('instantType', undefined);
+    }
 
+    if (isHover) {
       // Only allow "patient" clicks to close the popover if it's open.
       // If they clicked within 500ms of the popover opening, keep it open.
       this.set('stickIfOpen', true);
