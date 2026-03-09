@@ -40,9 +40,9 @@ function TestNavigationMenu(props: NavigationMenu.Root.Props) {
   );
 }
 
-function TestNestedNavigationMenu() {
+function TestNestedNavigationMenu(props: NavigationMenu.Root.Props = {}) {
   return (
-    <NavigationMenu.Root>
+    <NavigationMenu.Root {...props}>
       <NavigationMenu.List>
         <NavigationMenu.Item value="item-1">
           <NavigationMenu.Trigger data-testid="trigger-1">Item 1</NavigationMenu.Trigger>
@@ -62,7 +62,7 @@ function TestNestedNavigationMenu() {
               </NavigationMenu.List>
 
               <NavigationMenu.Portal>
-                <NavigationMenu.Positioner side="right">
+                <NavigationMenu.Positioner side="right" data-testid="nested-positioner">
                   <NavigationMenu.Popup>
                     <NavigationMenu.Viewport />
                   </NavigationMenu.Popup>
@@ -81,7 +81,7 @@ function TestNestedNavigationMenu() {
       </NavigationMenu.List>
 
       <NavigationMenu.Portal>
-        <NavigationMenu.Positioner>
+        <NavigationMenu.Positioner data-testid="top-level-positioner">
           <NavigationMenu.Popup>
             <NavigationMenu.Viewport />
           </NavigationMenu.Popup>
@@ -1443,6 +1443,41 @@ describe('<NavigationMenu.Root />', () => {
       expect(trigger1).to.have.attribute('aria-expanded', 'true');
       expect(screen.getByTestId('nested-popup-2')).not.to.equal(null);
       expect(nestedTrigger2).to.have.attribute('aria-expanded', 'true');
+    });
+
+    it('closes the parent menu after a nested submenu closes on delayed hover-out', async () => {
+      const closeDelay = 200;
+
+      await render(<TestNestedNavigationMenu closeDelay={closeDelay} />);
+      const trigger1 = screen.getByTestId('trigger-1');
+
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
+      clock.tick(OPEN_DELAY);
+      await flushMicrotasks();
+
+      const popup1 = screen.getByTestId('popup-1');
+      const nestedTrigger1 = within(popup1).getByTestId('nested-trigger-1');
+      const topLevelPositioner = screen.getByTestId('top-level-positioner');
+
+      fireEvent.mouseEnter(nestedTrigger1);
+      fireEvent.mouseMove(nestedTrigger1);
+      clock.tick(OPEN_DELAY);
+      await flushMicrotasks();
+
+      const nestedPopup1 = screen.getByTestId('nested-popup-1');
+      const nestedPositioner = screen.getByTestId('nested-positioner');
+      expect(nestedPopup1).not.to.equal(null);
+
+      fireEvent.mouseLeave(nestedTrigger1);
+      fireEvent.mouseLeave(nestedPositioner);
+      fireEvent.mouseLeave(topLevelPositioner);
+      clock.tick(closeDelay);
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('nested-popup-1')).to.equal(null);
+      expect(screen.queryByTestId('popup-1')).to.equal(null);
+      expect(trigger1).to.have.attribute('aria-expanded', 'false');
     });
 
     describe('inline nested viewport', () => {
