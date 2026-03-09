@@ -20,7 +20,7 @@ import {
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { setFixedSize } from '../utils/setFixedSize';
+import { setSharedFixedSize } from '../utils/setFixedSize';
 import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 
@@ -100,8 +100,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
         setFloatingRootContext(undefined);
 
         if (positionerElement && popupElement) {
-          setFixedSize(popupElement, 'popup');
-          setFixedSize(positionerElement, 'positioner');
+          setSharedFixedSize(popupElement, positionerElement);
         }
       }
 
@@ -322,12 +321,12 @@ export interface NavigationMenuRootProps extends BaseUIComponentProps<
     | ((value: any, eventDetails: NavigationMenuRoot.ChangeEventDetails) => void)
     | undefined;
   /**
-   * How long to wait before opening the navigation menu. Specified in milliseconds.
+   * How long to wait before opening the navigation popup. Specified in milliseconds.
    * @default 50
    */
   delay?: number | undefined;
   /**
-   * How long to wait before closing the navigation menu. Specified in milliseconds.
+   * How long to wait before closing the navigation popup. Specified in milliseconds.
    * @default 50
    */
   closeDelay?: number | undefined;
