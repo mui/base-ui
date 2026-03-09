@@ -112,7 +112,7 @@ export const SelectItem = React.memo(
       return undefined;
     }, [hasRegistered, index, multiple, isItemEqualToValue, store, itemValue]);
 
-    const state: SelectItem.State = {
+    const state: SelectItemState = {
       disabled,
       selected,
       highlighted,
@@ -284,7 +284,7 @@ export interface SelectItemState {
 }
 
 export interface SelectItemProps
-  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'div', SelectItem.State>, 'id'> {
+  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'div', SelectItemState>, 'id'> {
   children?: React.ReactNode;
   /**
    * A unique value that identifies this select item.

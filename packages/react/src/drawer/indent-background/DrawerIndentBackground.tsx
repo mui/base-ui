@@ -5,7 +5,7 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
 
-const stateAttributesMapping: StateAttributesMapping<DrawerIndentBackground.State> = {
+const stateAttributesMapping: StateAttributesMapping<DrawerIndentBackgroundState> = {
   active(value): Record<string, string> | null {
     if (value) {
       return { 'data-active': '' };
@@ -29,7 +29,7 @@ export const DrawerIndentBackground = React.forwardRef(function DrawerIndentBack
   const providerContext = useDrawerProviderContext(true);
   const active = providerContext?.active ?? false;
 
-  const state: DrawerIndentBackground.State = {
+  const state: DrawerIndentBackgroundState = {
     active,
   };
 
@@ -50,7 +50,7 @@ export interface DrawerIndentBackgroundState {
 
 export interface DrawerIndentBackgroundProps extends BaseUIComponentProps<
   'div',
-  DrawerIndentBackground.State
+  DrawerIndentBackgroundState
 > {}
 
 export namespace DrawerIndentBackground {

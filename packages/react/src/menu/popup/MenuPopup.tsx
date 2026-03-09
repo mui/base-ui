@@ -19,7 +19,7 @@ import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { COMPOSITE_KEYS } from '../../composite/composite';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 
-const stateAttributesMapping: StateAttributesMapping<MenuPopup.State> = {
+const stateAttributesMapping: StateAttributesMapping<MenuPopupState> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -89,7 +89,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     closeDelay,
   });
 
-  const state: MenuPopup.State = {
+  const state: MenuPopupState = {
     transitionStatus,
     side,
     align,
@@ -147,7 +147,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   );
 });
 
-export interface MenuPopupProps extends BaseUIComponentProps<'div', MenuPopup.State> {
+export interface MenuPopupProps extends BaseUIComponentProps<'div', MenuPopupState> {
   children?: React.ReactNode;
   /**
    * @ignore
@@ -169,17 +169,32 @@ export interface MenuPopupProps extends BaseUIComponentProps<'div', MenuPopup.St
     | undefined;
 }
 
-export type MenuPopupState = {
+export interface MenuPopupState {
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
   align: Align;
   /**
    * Whether the menu is currently open.
    */
   open: boolean;
+  /**
+   * Whether the component is nested.
+   */
   nested: boolean;
+  /**
+   * Whether transitions should be skipped.
+   */
   instant: 'dismiss' | 'click' | 'group' | undefined;
-};
+}
 
 export namespace MenuPopup {
   export type Props = MenuPopupProps;

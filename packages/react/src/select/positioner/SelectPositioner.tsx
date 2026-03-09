@@ -9,7 +9,12 @@ import { useSelectRootContext, useSelectFloatingContext } from '../root/SelectRo
 import { CompositeList } from '../../composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import { useAnchorPositioning, type Align, type Side } from '../../utils/useAnchorPositioning';
+import {
+  useAnchorPositioning,
+  type Align,
+  type Side,
+  type UseAnchorPositioningSharedParameters,
+} from '../../utils/useAnchorPositioning';
 import { SelectPositionerContext } from './SelectPositionerContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -143,7 +148,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     };
   }, [open, mounted, positionerStyles]);
 
-  const state: SelectPositioner.State = {
+  const state: SelectPositionerState = {
     open,
     side: renderedSide,
     align: positioning.align,
@@ -255,16 +260,26 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 });
 
 export interface SelectPositionerState {
+  /**
+   * Whether the component is open.
+   */
   open: boolean;
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side | 'none';
+  /**
+   * The alignment of the component relative to the anchor.
+   */
   align: Align;
+  /**
+   * Whether the anchor element is hidden.
+   */
   anchorHidden: boolean;
 }
 
 export interface SelectPositionerProps
-  extends
-    useAnchorPositioning.SharedParameters,
-    BaseUIComponentProps<'div', SelectPositioner.State> {
+  extends UseAnchorPositioningSharedParameters, BaseUIComponentProps<'div', SelectPositionerState> {
   /**
    * Whether the positioner overlaps the trigger so the selected item's text is aligned with the trigger's value text. This only applies to mouse input and is automatically disabled if there is not enough space.
    * @default true

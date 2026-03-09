@@ -172,6 +172,8 @@ function sortByDocumentPosition(a: Element, b: Element) {
 
 function disableEslintWarning(_: any) {}
 
+export interface CompositeListState {}
+
 export interface CompositeListProps<Metadata> {
   children: React.ReactNode;
   /**
@@ -188,5 +190,6 @@ export interface CompositeListProps<Metadata> {
 }
 
 export namespace CompositeList {
+  export type State = CompositeListState;
   export type Props<Metadata> = CompositeListProps<Metadata>;
 }

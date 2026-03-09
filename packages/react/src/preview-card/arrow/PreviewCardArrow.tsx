@@ -23,7 +23,7 @@ export const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = usePreviewCardPositionerContext();
   const open = store.useState('open');
 
-  const state: PreviewCardArrow.State = {
+  const state: PreviewCardArrowState = {
     open,
     side,
     align,
@@ -45,15 +45,21 @@ export interface PreviewCardArrowState {
    * Whether the preview card is currently open.
    */
   open: boolean;
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
   align: Align;
+  /**
+   * Whether the arrow cannot be centered on the anchor.
+   */
   uncentered: boolean;
 }
 
-export interface PreviewCardArrowProps extends BaseUIComponentProps<
-  'div',
-  PreviewCardArrow.State
-> {}
+export interface PreviewCardArrowProps extends BaseUIComponentProps<'div', PreviewCardArrowState> {}
 
 export namespace PreviewCardArrow {
   export type State = PreviewCardArrowState;

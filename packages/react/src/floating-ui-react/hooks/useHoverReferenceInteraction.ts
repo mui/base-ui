@@ -5,22 +5,30 @@ import { isElement } from '@floating-ui/utils/dom';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument } from '@base-ui/utils/owner';
-import type { FloatingContext, FloatingRootContext } from '../types';
+import type { Delay, FloatingContext, FloatingRootContext } from '../types';
 import { contains, isMouseLikePointerType, isTargetInsideEnabledTrigger } from '../utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import type { UseHoverProps } from './useHover';
-import { getDelay } from './useHover';
 import { useFloatingTree } from '../components/FloatingTree';
 import type { FloatingTreeStore } from '../components/FloatingTreeStore';
 import {
-  safePolygonIdentifier,
+  clearSafePolygonPointerEventsMutation,
   useHoverInteractionSharedState,
 } from './useHoverInteractionSharedState';
+import type { HandleClose, HandleCloseContextBase } from './useHoverShared';
+import {
+  getDelay,
+  getRestMs,
+  isClickLikeOpenEvent as isClickLikeOpenEventShared,
+} from './useHoverShared';
 import { FloatingUIOpenChangeDetails, HTMLProps } from '../../utils/types';
 
-export interface UseHoverReferenceInteractionProps extends UseHoverProps {
+export interface UseHoverReferenceInteractionProps {
   enabled?: boolean | undefined;
+  handleClose?: HandleClose | null | undefined;
+  restMs?: number | (() => number) | undefined;
+  delay?: Delay | (() => Delay) | undefined;
+  move?: boolean | undefined;
   mouseOnly?: boolean | undefined;
   externalTree?: FloatingTreeStore | undefined;
   /**
@@ -31,13 +39,7 @@ export interface UseHoverReferenceInteractionProps extends UseHoverProps {
    */
   isActiveTrigger?: boolean | undefined;
   triggerElementRef?: Readonly<React.RefObject<Element | null>> | undefined;
-}
-
-function getRestMs(value: number | (() => number)) {
-  if (typeof value === 'function') {
-    return value();
-  }
-  return value;
+  getHandleCloseContext?: (() => HandleCloseContextBase | null) | undefined;
 }
 
 const EMPTY_REF: Readonly<React.RefObject<Element | null>> = { current: null };
@@ -63,6 +65,7 @@ export function useHoverReferenceInteraction(
     triggerElementRef = EMPTY_REF,
     externalTree,
     isActiveTrigger = true,
+    getHandleCloseContext,
   } = props;
 
   const tree = useFloatingTree(externalTree);
@@ -80,18 +83,38 @@ export function useHoverReferenceInteraction(
   }
 
   const isClickLikeOpenEvent = useStableCallback(() => {
-    if (instance.interactedInside) {
-      return true;
-    }
-
-    return dataRef.current.openEvent
-      ? ['click', 'mousedown'].includes(dataRef.current.openEvent.type)
-      : false;
+    return isClickLikeOpenEventShared(dataRef.current.openEvent?.type, instance.interactedInside);
   });
 
   const isRelatedTargetInsideEnabledTrigger = useStableCallback((target: EventTarget | null) => {
     return isTargetInsideEnabledTrigger(target, store.context.triggerElements);
   });
+
+  const isOverInactiveTrigger = useStableCallback(
+    (
+      currentDomReference: Element | null,
+      currentTarget: Element,
+      target: EventTarget | null,
+    ): boolean => {
+      const allTriggers = store.context.triggerElements;
+
+      // Fast path for normal usage where handlers are attached directly to triggers.
+      if (allTriggers.hasElement(currentTarget)) {
+        return !currentDomReference || !contains(currentDomReference, currentTarget);
+      }
+
+      // Fallback for delegated/wrapper usage where currentTarget may be outside the trigger map.
+      if (!isElement(target)) {
+        return false;
+      }
+
+      const targetElement = target as Element;
+      return (
+        allTriggers.hasMatchingElement((trigger) => contains(trigger, targetElement)) &&
+        (!currentDomReference || !contains(currentDomReference, targetElement))
+      );
+    },
+  );
 
   const closeWithDelay = React.useCallback(
     (event: MouseEvent, runElseBranch = true) => {
@@ -121,12 +144,7 @@ export function useHoverReferenceInteraction(
   React.useEffect(() => cleanupMouseMoveHandler, [cleanupMouseMoveHandler]);
 
   const clearPointerEvents = useStableCallback(() => {
-    if (instance.performedPointerEventsMutation) {
-      const body = ownerDocument(store.select('domReferenceElement')).body;
-      body.style.pointerEvents = '';
-      body.removeAttribute(safePolygonIdentifier);
-      instance.performedPointerEventsMutation = false;
-    }
+    clearSafePolygonPointerEventsMutation(instance);
   });
 
   // When closing before opening, clear the delay timeouts to cancel it
@@ -175,26 +193,24 @@ export function useHoverReferenceInteraction(
 
       // Only rest delay is set; there's no fallback delay.
       // This will be handled by `onMouseMove`.
-      if (getRestMs(restMsRef.current) > 0 && !getDelay(delayRef.current, 'open')) {
+      const restMsValue = getRestMs(restMsRef.current);
+      if (restMsValue > 0 && !getDelay(delayRef.current, 'open')) {
         return;
       }
 
       const openDelay = getDelay(delayRef.current, 'open', instance.pointerType);
-      const currentDomReference = store.select('domReferenceElement');
-      const allTriggers = store.context.triggerElements;
-
-      const isOverInactiveTrigger =
-        (allTriggers.hasElement(event.target as Element) ||
-          allTriggers.hasMatchingElement((t) => contains(t, event.target as Element))) &&
-        (!currentDomReference || !contains(currentDomReference, event.target as Element));
-
       const triggerNode = (event.currentTarget as HTMLElement) ?? null;
+      const currentDomReference = store.select('domReferenceElement');
+      const isOverInactive =
+        triggerNode == null
+          ? false
+          : isOverInactiveTrigger(currentDomReference, triggerNode, event.target);
 
       const isOpen = store.select('open');
-      const shouldOpen = !isOpen || isOverInactiveTrigger;
+      const shouldOpen = !isOpen || isOverInactive;
 
       // When moving between triggers while already open, open immediately without delay
-      if (isOverInactiveTrigger && isOpen) {
+      if (isOverInactive && isOpen) {
         store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
       } else if (openDelay) {
         instance.openChangeTimeout.start(openDelay, () => {
@@ -220,11 +236,15 @@ export function useHoverReferenceInteraction(
       instance.restTimeout.clear();
       instance.restTimeoutPending = false;
 
-      if (isRelatedTargetInsideEnabledTrigger(event.relatedTarget)) {
+      const handleCloseContextBase = dataRef.current.floatingContext ?? getHandleCloseContext?.();
+
+      const ignoreRelatedTargetTrigger = isRelatedTargetInsideEnabledTrigger(event.relatedTarget);
+
+      if (ignoreRelatedTargetTrigger) {
         return;
       }
 
-      if (handleCloseRef.current && dataRef.current.floatingContext) {
+      if (handleCloseRef.current && handleCloseContextBase) {
         if (!store.select('open')) {
           instance.openChangeTimeout.clear();
         }
@@ -232,7 +252,7 @@ export function useHoverReferenceInteraction(
         const currentTrigger = triggerElementRef.current;
 
         instance.handler = handleCloseRef.current({
-          ...dataRef.current.floatingContext,
+          ...handleCloseContextBase,
           tree,
           x: event.clientX,
           y: event.clientY,
@@ -293,6 +313,7 @@ export function useHoverReferenceInteraction(
     handleCloseRef,
     instance,
     isActiveTrigger,
+    isOverInactiveTrigger,
     isClickLikeOpenEvent,
     isRelatedTargetInsideEnabledTrigger,
     mouseOnly,
@@ -301,6 +322,7 @@ export function useHoverReferenceInteraction(
     triggerElementRef,
     tree,
     enabledRef,
+    getHandleCloseContext,
   ]);
 
   return React.useMemo<HTMLProps | undefined>(() => {
@@ -320,24 +342,20 @@ export function useHoverReferenceInteraction(
         const trigger = event.currentTarget as HTMLElement;
 
         const currentDomReference = store.select('domReferenceElement');
-        const allTriggers = store.context.triggerElements;
         const currentOpen = store.select('open');
-
-        const isOverInactiveTrigger =
-          (allTriggers.hasElement(event.target as Element) ||
-            allTriggers.hasMatchingElement((t) => contains(t, event.target as Element))) &&
-          (!currentDomReference || !contains(currentDomReference, event.target as Element));
+        const isOverInactive = isOverInactiveTrigger(currentDomReference, trigger, event.target);
 
         if (mouseOnly && !isMouseLikePointerType(instance.pointerType)) {
           return;
         }
 
-        if ((currentOpen && !isOverInactiveTrigger) || getRestMs(restMsRef.current) === 0) {
+        const restMsValue = getRestMs(restMsRef.current);
+        if ((currentOpen && !isOverInactive) || restMsValue === 0) {
           return;
         }
 
         if (
-          !isOverInactiveTrigger &&
+          !isOverInactive &&
           instance.restTimeoutPending &&
           event.movementX ** 2 + event.movementY ** 2 < 2
         ) {
@@ -357,7 +375,7 @@ export function useHoverReferenceInteraction(
 
           const latestOpen = store.select('open');
 
-          if (!instance.blockMouseMove && (!latestOpen || isOverInactiveTrigger)) {
+          if (!instance.blockMouseMove && (!latestOpen || isOverInactive)) {
             store.setOpen(
               true,
               createChangeEventDetails(REASONS.triggerHover, nativeEvent, trigger),
@@ -369,13 +387,13 @@ export function useHoverReferenceInteraction(
           ReactDOM.flushSync(() => {
             handleMouseMove();
           });
-        } else if (isOverInactiveTrigger && currentOpen) {
+        } else if (isOverInactive && currentOpen) {
           handleMouseMove();
         } else {
           instance.restTimeoutPending = true;
-          instance.restTimeout.start(getRestMs(restMsRef.current), handleMouseMove);
+          instance.restTimeout.start(restMsValue, handleMouseMove);
         }
       },
     };
-  }, [enabled, instance, isClickLikeOpenEvent, mouseOnly, store, restMsRef]);
+  }, [enabled, instance, isClickLikeOpenEvent, isOverInactiveTrigger, mouseOnly, store, restMsRef]);
 }

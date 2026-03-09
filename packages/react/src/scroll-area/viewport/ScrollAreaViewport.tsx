@@ -15,13 +15,14 @@ import { clamp } from '../../utils/clamp';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { onVisible } from '../utils/onVisible';
 import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
-import type { ScrollAreaRoot } from '../root/ScrollAreaRoot';
+import type { HiddenState, ScrollAreaRootState } from '../root/ScrollAreaRoot';
 import { ScrollAreaViewportCssVars } from './ScrollAreaViewportCssVars';
 import { normalizeScrollOffset } from '../utils/scrollEdges';
 
 // Module-level flag to ensure we only register the CSS properties once,
 // regardless of how many Scroll Area components are mounted.
 let scrollAreaOverflowVarsRegistered = false;
+const HAS_RESIZE_OBSERVER = typeof ResizeObserver !== 'undefined';
 
 /**
  * Removes inheritance of the scroll area overflow CSS variables, which
@@ -89,6 +90,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     rootId,
     setHiddenState,
     hiddenState,
+    setHasMeasuredScrollbar,
     handleScroll,
     setHovering,
     setOverflowEdges,
@@ -101,6 +103,12 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   const direction = useDirection();
 
   const programmaticScrollRef = React.useRef(true);
+  const lastMeasuredViewportMetricsRef = React.useRef<[number, number, number, number]>([
+    NaN,
+    NaN,
+    NaN,
+    NaN,
+  ]);
 
   const scrollEndTimeout = useTimeout();
   const waitForAnimationsTimeout = useTimeout();
@@ -123,13 +131,24 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     const viewportWidth = viewportEl.clientWidth;
     const scrollTop = viewportEl.scrollTop;
     const scrollLeft = viewportEl.scrollLeft;
+    const lastMeasuredViewportMetrics = lastMeasuredViewportMetricsRef.current;
+    const isFirstMeasurement = Number.isNaN(lastMeasuredViewportMetrics[0]);
+    lastMeasuredViewportMetrics[0] = viewportHeight;
+    lastMeasuredViewportMetrics[1] = scrollableContentHeight;
+    lastMeasuredViewportMetrics[2] = viewportWidth;
+    lastMeasuredViewportMetrics[3] = scrollableContentWidth;
+
+    if (isFirstMeasurement) {
+      setHasMeasuredScrollbar(true);
+    }
 
     if (scrollableContentHeight === 0 || scrollableContentWidth === 0) {
       return;
     }
 
-    const scrollbarYHidden = viewportHeight >= scrollableContentHeight;
-    const scrollbarXHidden = viewportWidth >= scrollableContentWidth;
+    const nextHiddenState = getHiddenState(viewportEl);
+    const scrollbarYHidden = nextHiddenState.y;
+    const scrollbarXHidden = nextHiddenState.x;
     const ratioX = viewportWidth / scrollableContentWidth;
     const ratioY = viewportHeight / scrollableContentHeight;
     const maxScrollLeft = Math.max(0, scrollableContentWidth - viewportWidth);
@@ -248,23 +267,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
       }
     }
 
-    setHiddenState((prevState) => {
-      const cornerHidden = scrollbarYHidden || scrollbarXHidden;
-
-      if (
-        prevState.y === scrollbarYHidden &&
-        prevState.x === scrollbarXHidden &&
-        prevState.corner === cornerHidden
-      ) {
-        return prevState;
-      }
-
-      return {
-        y: scrollbarYHidden,
-        x: scrollbarXHidden,
-        corner: cornerHidden,
-      };
-    });
+    setHiddenState((prevState) => mergeHiddenState(prevState, nextHiddenState));
 
     const nextOverflowEdges = {
       xStart: !scrollbarXHidden && scrollLeftFromStart > overflowEdgeThreshold.xStart,
@@ -293,18 +296,17 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 
     removeCSSVariableInheritance();
 
-    let hasInitialized = false;
+    if (HAS_RESIZE_OBSERVER) {
+      return undefined;
+    }
+
     return onVisible(viewportRef.current, () => {
-      if (!hasInitialized) {
-        hasInitialized = true;
-        return;
-      }
       computeThumbPosition();
     });
   }, [computeThumbPosition, viewportRef]);
 
   useIsoLayoutEffect(() => {
-    // Wait for scrollbar-related refs to be set
+    // Wait for scrollbar and thumb refs after hidden-state toggles, and refresh math on direction flips.
     queueMicrotask(computeThumbPosition);
   }, [computeThumbPosition, hiddenState, direction]);
 
@@ -318,18 +320,28 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 
   React.useEffect(() => {
     const viewport = viewportRef.current;
-    if (typeof ResizeObserver === 'undefined' || !viewport) {
+    if (!HAS_RESIZE_OBSERVER || !viewport) {
       return undefined;
     }
 
     let hasInitialized = false;
     const ro = new ResizeObserver(() => {
-      // ResizeObserver fires once upon observing, so we skip the initial call
-      // to avoid double-calculating the thumb position on mount.
+      // Avoid duplicate mount-time recompute when observer data matches what the mount
+      // scheduling pass already measured. If dimensions changed before the first observer
+      // delivery, keep the recompute so overflow transitions stay in sync.
       if (!hasInitialized) {
         hasInitialized = true;
-        return;
+        const lastMeasuredViewportMetrics = lastMeasuredViewportMetricsRef.current;
+        if (
+          lastMeasuredViewportMetrics[0] === viewport.clientHeight &&
+          lastMeasuredViewportMetrics[1] === viewport.scrollHeight &&
+          lastMeasuredViewportMetrics[2] === viewport.clientWidth &&
+          lastMeasuredViewportMetrics[3] === viewport.scrollWidth
+        ) {
+          return;
+        }
       }
+
       computeThumbPosition();
     });
 
@@ -404,7 +416,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     onKeyDown: handleUserInteraction,
   };
 
-  const viewportState: ScrollAreaViewport.State = React.useMemo(
+  const viewportState: ScrollAreaViewportState = React.useMemo(
     () => ({
       scrolling: scrollingX || scrollingY,
       hasOverflowX: !hiddenState.x,
@@ -441,12 +453,35 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 
 export interface ScrollAreaViewportProps extends BaseUIComponentProps<
   'div',
-  ScrollAreaViewport.State
+  ScrollAreaViewportState
 > {}
 
-export interface ScrollAreaViewportState extends ScrollAreaRoot.State {}
+export interface ScrollAreaViewportState extends ScrollAreaRootState {}
 
 export namespace ScrollAreaViewport {
   export type Props = ScrollAreaViewportProps;
   export type State = ScrollAreaViewportState;
+}
+
+function getHiddenState(viewport: HTMLElement): HiddenState {
+  const y = viewport.clientHeight >= viewport.scrollHeight;
+  const x = viewport.clientWidth >= viewport.scrollWidth;
+
+  return {
+    y,
+    x,
+    corner: y || x,
+  };
+}
+
+function mergeHiddenState(prevState: HiddenState, nextState: HiddenState) {
+  if (
+    prevState.y === nextState.y &&
+    prevState.x === nextState.x &&
+    prevState.corner === nextState.corner
+  ) {
+    return prevState;
+  }
+
+  return nextState;
 }

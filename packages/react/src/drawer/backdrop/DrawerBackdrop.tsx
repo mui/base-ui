@@ -10,7 +10,7 @@ import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { DrawerPopupCssVars } from '../popup/DrawerPopupCssVars';
 import { DrawerBackdropCssVars } from './DrawerBackdropCssVars';
 
-const stateAttributesMapping: StateAttributesMapping<DrawerBackdrop.State> = {
+const stateAttributesMapping: StateAttributesMapping<DrawerBackdropState> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -33,7 +33,7 @@ export const DrawerBackdrop = React.forwardRef(function DrawerBackdrop(
   const mounted = store.useState('mounted');
   const transitionStatus = store.useState('transitionStatus');
 
-  const state: DrawerBackdrop.State = {
+  const state: DrawerBackdropState = {
     open,
     transitionStatus,
   };
@@ -60,7 +60,7 @@ export const DrawerBackdrop = React.forwardRef(function DrawerBackdrop(
   });
 });
 
-export interface DrawerBackdropProps extends BaseUIComponentProps<'div', DrawerBackdrop.State> {
+export interface DrawerBackdropProps extends BaseUIComponentProps<'div', DrawerBackdropState> {
   /**
    * Whether the backdrop is forced to render even when nested.
    * @default false
@@ -73,6 +73,9 @@ export interface DrawerBackdropState {
    * Whether the drawer is currently open.
    */
   open: boolean;
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
 }
 

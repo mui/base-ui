@@ -8,8 +8,8 @@ import type { BaseUIEventReasons } from '../utils/reasons';
 const EMPTY: string[] = [];
 
 export function useCheckboxGroupParent(
-  params: useCheckboxGroupParent.Parameters,
-): useCheckboxGroupParent.ReturnValue {
+  params: UseCheckboxGroupParentParameters,
+): UseCheckboxGroupParentReturnValue {
   const { allValues = EMPTY, value = EMPTY, onValueChange: onValueChangeProp } = params;
 
   const uncontrolledStateRef = React.useRef(value);
@@ -23,7 +23,7 @@ export function useCheckboxGroupParent(
 
   const onValueChange = useStableCallback(onValueChangeProp);
 
-  const getParentProps: useCheckboxGroupParent.ReturnValue['getParentProps'] = React.useCallback(
+  const getParentProps: UseCheckboxGroupParentReturnValue['getParentProps'] = React.useCallback(
     () => ({
       id,
       indeterminate,
@@ -74,7 +74,7 @@ export function useCheckboxGroupParent(
     [allValues, checked, id, indeterminate, onValueChange, status, value.length],
   );
 
-  const getChildProps: useCheckboxGroupParent.ReturnValue['getChildProps'] = React.useCallback(
+  const getChildProps: UseCheckboxGroupParentReturnValue['getChildProps'] = React.useCallback(
     (childValue: string) => ({
       checked: value.includes(childValue),
       onCheckedChange(nextChecked, eventDetails) {
@@ -138,7 +138,4 @@ export interface UseCheckboxGroupParentReturnValue {
   };
 }
 
-export namespace useCheckboxGroupParent {
-  export type Parameters = UseCheckboxGroupParentParameters;
-  export type ReturnValue = UseCheckboxGroupParentReturnValue;
-}
+export interface UseCheckboxGroupParentState {}

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { tabbable, isTabbable, focusable, type FocusableElement } from 'tabbable';
-import { getComputedStyle, getNodeName, isHTMLElement } from '@floating-ui/utils/dom';
+import { getNodeName, isHTMLElement } from '@floating-ui/utils/dom';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -28,6 +28,7 @@ import {
   isOutsideEvent,
   getNextTabbable,
   getPreviousTabbable,
+  isElementVisible,
   isTypeableElement,
 } from '../utils';
 import type { FloatingContext, FloatingRootContext } from '../types';
@@ -112,7 +113,7 @@ function isFocusable(element: Element | null) {
     return element.checkVisibility();
   }
 
-  return getComputedStyle(element).display !== 'none';
+  return isElementVisible(element);
 }
 
 function handleTabIndex(
@@ -236,7 +237,7 @@ export interface FloatingFocusManagerProps {
   previousFocusableElement?: HTMLElement | React.RefObject<HTMLElement | null> | null | undefined;
   /**
    * Ref to the focus guard preceding the floating element content.
-   * Can be useful to focus the popup progammatically.
+   * Can be useful to focus the popup programmatically.
    */
   beforeContentFocusGuardRef?: React.RefObject<HTMLSpanElement | null> | undefined;
   /**
