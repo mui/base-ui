@@ -944,14 +944,25 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
   });
 
+  const floatingDomReference = inputInsidePopup ? triggerElement : inputElement;
+  const floatingPositionReference = inputInsidePopup
+    ? triggerElement
+    : (inputGroupElement ?? inputElement);
+
   const floatingRootContext = useFloatingRootContext({
     open: inline ? true : open,
     onOpenChange: setOpen,
     elements: {
-      reference: inputInsidePopup ? triggerElement : (inputGroupElement ?? inputElement),
+      reference: floatingDomReference,
       floating: positionerElement,
     },
   });
+
+  useIsoLayoutEffect(() => {
+    if (floatingRootContext.state.positionReference !== floatingPositionReference) {
+      floatingRootContext.set('positionReference', floatingPositionReference);
+    }
+  }, [floatingRootContext, floatingPositionReference]);
 
   let ariaHasPopup: 'grid' | 'listbox' | undefined;
   let ariaExpanded: 'true' | 'false' | undefined;
