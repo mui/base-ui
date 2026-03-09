@@ -27,7 +27,6 @@ export type State = {
 
   activeIndex: number | null;
   selectedIndex: number | null;
-  highlightedByKeyboard: boolean;
 
   popupProps: HTMLProps;
   inputProps: HTMLProps;
@@ -129,8 +128,6 @@ export const selectors = {
 
   activeIndex: createSelector((state: State) => state.activeIndex),
   selectedIndex: createSelector((state: State) => state.selectedIndex),
-  hasActiveIndex: createSelector((state: State) => state.activeIndex !== null),
-  highlightedByKeyboard: createSelector((state: State) => state.highlightedByKeyboard),
   isActive: createSelector((state: State, index: number) => state.activeIndex === index),
   isSelected: createSelector((state: State, itemValue: any) => {
     const comparer = state.isItemEqualToValue;

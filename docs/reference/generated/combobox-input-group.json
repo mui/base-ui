@@ -31,9 +31,6 @@
     "data-pressed": {
       "description": "Present when the input group is pressed."
     },
-    "data-highlighted": {
-      "description": "Present when the input group is highlighted."
-    },
     "data-disabled": {
       "description": "Present when the component is disabled."
     },

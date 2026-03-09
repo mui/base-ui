@@ -36,14 +36,11 @@ export const ComboboxInputGroup = React.forwardRef(function ComboboxInputGroup(
   const readOnly = useStore(store, selectors.readOnly);
   const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
   const selectionMode = useStore(store, selectors.selectionMode);
-  const hasActiveIndex = useStore(store, selectors.hasActiveIndex);
-  const highlightedByKeyboard = useStore(store, selectors.highlightedByKeyboard);
 
   const popupSide = mounted && positionerElement ? popupSideValue : null;
   const disabled = fieldDisabled || comboboxDisabled;
   const listEmpty = filteredItems.length === 0;
   const placeholder = selectionMode === 'none' ? false : !hasSelectedValue;
-  const highlighted = !open || (highlightedByKeyboard ? !hasActiveIndex : true);
 
   const state: ComboboxInputGroup.State = {
     ...fieldState,
@@ -53,7 +50,6 @@ export const ComboboxInputGroup = React.forwardRef(function ComboboxInputGroup(
     popupSide,
     listEmpty,
     placeholder,
-    highlighted,
   };
 
   const setInputGroupElement = useStableCallback((element: HTMLDivElement | null) => {
@@ -93,10 +89,6 @@ export interface ComboboxInputGroupState extends FieldRoot.State {
    * Whether the combobox doesn't have a value.
    */
   placeholder: boolean;
-  /**
-   * Whether the input group is highlighted.
-   */
-  highlighted: boolean;
 }
 
 export interface ComboboxInputGroupProps extends BaseUIComponentProps<

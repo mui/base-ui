@@ -33,10 +33,6 @@
     outline-offset: -1px;
   }
 
-  &[data-highlighted]:focus-within {
-    outline-width: 2px;
-  }
-
   @media (min-width: 500px) {
     width: 20rem;
   }

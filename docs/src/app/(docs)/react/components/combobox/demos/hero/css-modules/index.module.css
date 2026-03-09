@@ -11,10 +11,6 @@
     outline-offset: -1px;
   }
 
-  &[data-highlighted]:focus-within {
-    outline-width: 2px;
-  }
-
   &:has(.Clear) .Input {
     padding-right: calc(0.5rem + 1.5rem * 2);
   }

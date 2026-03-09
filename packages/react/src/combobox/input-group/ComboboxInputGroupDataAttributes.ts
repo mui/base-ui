@@ -52,8 +52,4 @@ export enum ComboboxInputGroupDataAttributes {
    * Present when the combobox doesn't have a value.
    */
   placeholder = 'data-placeholder',
-  /**
-   * Present when the input group is highlighted.
-   */
-  highlighted = 'data-highlighted',
 }

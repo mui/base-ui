@@ -91,7 +91,6 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
   function trackPointerType(event: React.PointerEvent) {
     currentPointerTypeRef.current = event.pointerType;
-    store.state.keyboardActiveRef.current = false;
   }
 
   const domReference = floatingRootContext.useState('domReferenceElement');
@@ -252,8 +251,6 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           if (disabled || readOnly) {
             return;
           }
-
-          store.state.keyboardActiveRef.current = true;
 
           if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
             stopEvent(event);
