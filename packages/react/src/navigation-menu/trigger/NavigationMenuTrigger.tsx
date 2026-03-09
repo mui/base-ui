@@ -84,6 +84,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     afterInsideRef,
     beforeInsideRef,
     prevTriggerElementRef,
+    currentContentRef,
     delay,
     closeDelay,
     orientation,
@@ -97,7 +98,6 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   const stickIfOpenTimeout = useTimeout();
   const focusFrame = useAnimationFrame();
-  const mutationFrame = useAnimationFrame();
   const resizeFrame = useAnimationFrame();
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
@@ -124,13 +124,12 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   React.useEffect(() => {
     if (!open) {
       stickIfOpenTimeout.clear();
-      mutationFrame.cancel();
       resizeFrame.cancel();
       animationAbortControllerRef.current?.abort();
       animationAbortControllerRef.current = null;
       setPointerType('');
     }
-  }, [stickIfOpenTimeout, open, mutationFrame, resizeFrame]);
+  }, [stickIfOpenTimeout, open, resizeFrame]);
 
   React.useEffect(() => {
     if (!mounted) {
@@ -165,7 +164,10 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   }, [popupElement]);
 
   React.useEffect(() => {
+    const observedElement = currentContentRef.current;
+
     if (
+      !observedElement ||
       !popupElement ||
       !positionerElement ||
       !isActiveItem ||
@@ -181,50 +183,39 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         return;
       }
 
-      mutationFrame.cancel();
       resizeFrame.cancel();
-      mutationFrame.request(() => {
-        if (!popupElement || !positionerElement) {
-          return;
-        }
+      clearFixedSizes(popupElement, positionerElement);
 
-        clearFixedSizes(popupElement, positionerElement);
+      const nextSize = getFixedSize(popupElement, 'popup', previousSize);
 
-        const nextSize = getFixedSize(popupElement, 'popup', previousSize);
+      if (nextSize.width === 0 || nextSize.height === 0) {
+        return;
+      }
 
-        if (nextSize.width === 0 || nextSize.height === 0) {
-          return;
-        }
+      prevSizeRef.current = nextSize;
+      setSharedFixedSize(popupElement, positionerElement, previousSize);
 
-        prevSizeRef.current = nextSize;
-        setSharedFixedSize(popupElement, positionerElement, previousSize);
+      resizeFrame.request(() => {
+        setSharedFixedSize(popupElement, positionerElement, nextSize);
 
-        resizeFrame.request(() => {
-          setSharedFixedSize(popupElement, positionerElement, nextSize);
+        animationAbortControllerRef.current?.abort();
+        const abortController = new AbortController();
+        animationAbortControllerRef.current = abortController;
 
-          animationAbortControllerRef.current?.abort();
-          const abortController = new AbortController();
-          animationAbortControllerRef.current = abortController;
+        runOnceAnimationsFinish(() => {
+          if (!popupElement) {
+            return;
+          }
 
-          runOnceAnimationsFinish(() => {
-            if (!popupElement) {
-              return;
-            }
-
-            popupElement.style.setProperty('--popup-width', 'auto');
-            popupElement.style.setProperty('--popup-height', 'auto');
-          }, abortController.signal);
-        });
+          popupElement.style.setProperty('--popup-width', 'auto');
+          popupElement.style.setProperty('--popup-height', 'auto');
+        }, abortController.signal);
       });
     };
 
     const mutationObserver = new MutationObserver(runResizeTransition);
 
-    // Trigger an initial measurement on activation. This covers trigger switches where
-    // content mutations happen before this observer instance starts observing.
-    runResizeTransition();
-
-    mutationObserver.observe(popupElement, {
+    mutationObserver.observe(observedElement, {
       childList: true,
       subtree: true,
       characterData: true,
@@ -232,18 +223,18 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
     return () => {
       mutationObserver.disconnect();
-      mutationFrame.cancel();
       resizeFrame.cancel();
       animationAbortControllerRef.current?.abort();
       animationAbortControllerRef.current = null;
     };
   }, [
+    currentContentRef,
     popupElement,
     positionerElement,
     isActiveItem,
-    mutationFrame,
     resizeFrame,
     runOnceAnimationsFinish,
+    value,
   ]);
 
   React.useEffect(() => {
@@ -311,6 +302,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       floating: hoverFloatingElement,
     },
   });
+
   const hoverInteractionState = useHoverInteractionSharedState(context);
 
   React.useEffect(() => {

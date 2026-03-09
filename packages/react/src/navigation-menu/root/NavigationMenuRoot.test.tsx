@@ -501,6 +501,20 @@ function mockAnimations(element: HTMLElement) {
   };
 }
 
+function mockResizeObserver() {
+  const originalResizeObserver = globalThis.ResizeObserver;
+
+  globalThis.ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  } as unknown as typeof ResizeObserver;
+
+  return () => {
+    globalThis.ResizeObserver = originalResizeObserver;
+  };
+}
+
 function TestDeeplyNestedNavigationMenu() {
   return (
     <NavigationMenu.Root>
@@ -1813,13 +1827,9 @@ describe('<NavigationMenu.Root />', () => {
       });
 
       it('updates popup sizing immediately when switching to a keepMounted trigger', async () => {
-        const originalResizeObserver = globalThis.ResizeObserver;
+        const restoreResizeObserver = mockResizeObserver();
         const previousAnimationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
         globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-        if (typeof originalResizeObserver === 'function') {
-          globalThis.ResizeObserver = undefined as unknown as typeof ResizeObserver;
-        }
 
         try {
           await render(<TestNavigationMenuWithKeepMountedContent />);
@@ -1851,17 +1861,8 @@ describe('<NavigationMenu.Root />', () => {
           fireEvent.click(screen.getByTestId('trigger-learn'));
           await flushMicrotasks();
 
-          expect(positioner.style.getPropertyValue('--positioner-width')).to.equal('675px');
-          expect(positioner.style.getPropertyValue('--positioner-height')).to.equal('220px');
-
-          await waitFor(() => {
-            expect(parseInt(positioner.style.getPropertyValue('--positioner-width'), 10)).to.equal(
-              500,
-            );
-            expect(parseInt(positioner.style.getPropertyValue('--positioner-height'), 10)).to.equal(
-              180,
-            );
-          });
+          expect(positioner.style.getPropertyValue('--positioner-width')).to.equal('500px');
+          expect(positioner.style.getPropertyValue('--positioner-height')).to.equal('180px');
 
           await act(async () => {
             animations.finish();
@@ -1876,9 +1877,7 @@ describe('<NavigationMenu.Root />', () => {
           });
         } finally {
           globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
-          if (typeof originalResizeObserver === 'function') {
-            globalThis.ResizeObserver = originalResizeObserver;
-          }
+          restoreResizeObserver();
         }
       });
 
