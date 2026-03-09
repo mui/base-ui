@@ -56,6 +56,10 @@ export function useHoverFloatingInteraction(
   const parentId = useFloatingParentNodeId();
 
   const isClickLikeOpenEvent = useStableCallback(() => {
+    if (instance.interactedInside) {
+      return true;
+    }
+
     const openEventType = dataRef.current.openEvent?.type;
     return openEventType === 'click' || openEventType === 'mousedown';
   });
@@ -97,7 +101,7 @@ export function useHoverFloatingInteraction(
       return;
     }
 
-    instance.interactedInside = true;
+    instance.interactedInside = target?.closest('[aria-haspopup]') != null;
   });
 
   useIsoLayoutEffect(() => {

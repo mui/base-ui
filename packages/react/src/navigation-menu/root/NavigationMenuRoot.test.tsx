@@ -1272,6 +1272,28 @@ describe('<NavigationMenu.Root />', () => {
   });
 
   describe('nested popups', () => {
+    it('keeps a hover-open menu open when pointerdown happens on a nested dialog trigger', async () => {
+      const { user } = await render(<TestNavigationMenuWithDialog />);
+      const trigger = screen.getByTestId('trigger-1');
+
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+      clock.tick(OPEN_DELAY);
+      await flushMicrotasks();
+
+      const popup = screen.getByTestId('popup-1');
+      const dialogTrigger = screen.getByTestId('dialog-trigger');
+
+      fireEvent.pointerDown(dialogTrigger, { pointerType: 'mouse' });
+      fireEvent.mouseLeave(popup);
+
+      await user.click(dialogTrigger);
+
+      expect(await screen.findByTestId('dialog-popup')).not.to.equal(null);
+      expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+      expect(trigger).to.have.attribute('aria-expanded', 'true');
+    });
+
     it('keeps the menu open when interacting with a nested dialog', async () => {
       const { user } = await render(<TestNavigationMenuWithDialog />);
       const trigger = screen.getByTestId('trigger-1');
