@@ -35,8 +35,8 @@ importers:
         specifier: 0.0.3-canary.0
         version: 0.0.3-canary.0
       '@mui/internal-test-utils':
-        specifier: 2.0.18-canary.9
-        version: 2.0.18-canary.9(@playwright/test@1.58.2)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(@vitest/utils@4.0.18)(chai@6.2.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vite@7.3.1(@types/node@22.18.13)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(vitest@4.0.18)
+        specifier: 2.0.18-canary.11
+        version: 2.0.18-canary.11(@playwright/test@1.58.2)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(@vitest/utils@4.0.18)(chai@6.2.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vite@7.3.1(@types/node@22.18.13)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(vitest@4.0.18)
       '@next/eslint-plugin-next':
         specifier: 16.1.6
         version: 16.1.6
@@ -2502,8 +2502,8 @@ packages:
   '@mui/internal-netlify-cache@0.0.3-canary.0':
     resolution: {integrity: sha512-5QPmAEpzgMTNe6djyApxiczzDUDy71iRk19w0EFfzknDo3hzz4DmFvaSFXUrEDk2KUDlVwdZ7qhODMbHB88hcw==}
 
-  '@mui/internal-test-utils@2.0.18-canary.9':
-    resolution: {integrity: sha512-/UJQaSZWRthCw+zcQV9l6VMcFr9QRvLBZeavOcpus4+OvRqjJT6F+Om1w4Vj6vrPgCiN6RhvPabKRQiaBoIuqQ==}
+  '@mui/internal-test-utils@2.0.18-canary.11':
+    resolution: {integrity: sha512-WoZxDqX2l8UKH4cicibL9lOTvfEEYkh0pnVNtrqq2jL7lc6jRiqY+0wn/2HXUs1huRKNvBIDSNHnVfYKFL6K3A==}
     peerDependencies:
       '@emotion/cache': '11'
       '@emotion/react': '11'
@@ -12726,7 +12726,7 @@ snapshots:
 
   '@mui/internal-netlify-cache@0.0.3-canary.0': {}
 
-  '@mui/internal-test-utils@2.0.18-canary.9(@playwright/test@1.58.2)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(@vitest/utils@4.0.18)(chai@6.2.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vite@7.3.1(@types/node@22.18.13)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(vitest@4.0.18)':
+  '@mui/internal-test-utils@2.0.18-canary.11(@playwright/test@1.58.2)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(@vitest/utils@4.0.18)(chai@6.2.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vite@7.3.1(@types/node@22.18.13)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(vitest@4.0.18)':
     dependencies:
       '@babel/runtime': 7.28.6
       '@playwright/test': 1.58.2
@@ -12744,7 +12744,6 @@ snapshots:
       prop-types: 15.8.1
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
-      sinon: 21.0.1
       vitest-fail-on-console: 0.10.1(@vitest/utils@4.0.18)(vite@7.3.1(@types/node@22.18.13)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(vitest@4.0.18)
     transitivePeerDependencies:
       - '@noble/hashes'

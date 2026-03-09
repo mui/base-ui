@@ -23,6 +23,8 @@ export class HoverInteraction {
   blockMouseMove: boolean;
   performedPointerEventsMutation: boolean;
   pointerEventsScopeElement: HTMLElement | SVGSVGElement | null;
+  pointerEventsReferenceElement: HTMLElement | SVGSVGElement | null;
+  pointerEventsFloatingElement: HTMLElement | null;
   restTimeoutPending: boolean;
   lastHoverCloseTime: number;
   openChangeTimeout: Timeout;
@@ -36,6 +38,8 @@ export class HoverInteraction {
     this.blockMouseMove = true;
     this.performedPointerEventsMutation = false;
     this.pointerEventsScopeElement = null;
+    this.pointerEventsReferenceElement = null;
+    this.pointerEventsFloatingElement = null;
     this.restTimeoutPending = false;
     // `HOVER_CLOSE_UNSET` means no hover-close has occurred yet.
     this.lastHoverCloseTime = HOVER_CLOSE_UNSET;
@@ -58,18 +62,47 @@ export class HoverInteraction {
   };
 }
 
-export function clearSafePolygonPointerEventsMutation(
-  instance: Pick<HoverInteraction, 'performedPointerEventsMutation' | 'pointerEventsScopeElement'>,
-  fallbackScopeElement: HTMLElement,
-) {
+type PointerEventsMutationState = Pick<
+  HoverInteraction,
+  | 'performedPointerEventsMutation'
+  | 'pointerEventsScopeElement'
+  | 'pointerEventsReferenceElement'
+  | 'pointerEventsFloatingElement'
+>;
+
+export function clearSafePolygonPointerEventsMutation(instance: PointerEventsMutationState) {
   if (!instance.performedPointerEventsMutation) {
     return;
   }
 
-  const scopeElement = instance.pointerEventsScopeElement ?? fallbackScopeElement;
-  scopeElement.style.pointerEvents = '';
+  instance.pointerEventsScopeElement?.style.removeProperty('pointer-events');
+  instance.pointerEventsReferenceElement?.style.removeProperty('pointer-events');
+  instance.pointerEventsFloatingElement?.style.removeProperty('pointer-events');
   instance.performedPointerEventsMutation = false;
   instance.pointerEventsScopeElement = null;
+  instance.pointerEventsReferenceElement = null;
+  instance.pointerEventsFloatingElement = null;
+}
+
+export function applySafePolygonPointerEventsMutation(
+  instance: PointerEventsMutationState,
+  options: {
+    scopeElement: HTMLElement | SVGSVGElement;
+    referenceElement: HTMLElement | SVGSVGElement;
+    floatingElement: HTMLElement;
+  },
+) {
+  const { scopeElement, referenceElement, floatingElement } = options;
+
+  clearSafePolygonPointerEventsMutation(instance);
+  instance.performedPointerEventsMutation = true;
+  instance.pointerEventsScopeElement = scopeElement;
+  instance.pointerEventsReferenceElement = referenceElement;
+  instance.pointerEventsFloatingElement = floatingElement;
+
+  scopeElement.style.pointerEvents = 'none';
+  referenceElement.style.pointerEvents = 'auto';
+  floatingElement.style.pointerEvents = 'auto';
 }
 
 type HoverContextData = ContextData & {

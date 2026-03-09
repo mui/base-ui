@@ -18,8 +18,12 @@ import {
   useHoverInteractionSharedState,
   wasHoverClosedRecently,
 } from './useHoverInteractionSharedState';
-import type { HandleClose } from './useHoverShared';
-import { getDelay, getRestMs } from './useHoverShared';
+import type { HandleClose, HandleCloseContextBase } from './useHoverShared';
+import {
+  getDelay,
+  getRestMs,
+  isClickLikeOpenEvent as isClickLikeOpenEventShared,
+} from './useHoverShared';
 import { FloatingUIOpenChangeDetails, HTMLProps } from '../../utils/types';
 
 export interface UseHoverReferenceInteractionProps {
@@ -38,6 +42,7 @@ export interface UseHoverReferenceInteractionProps {
    */
   isActiveTrigger?: boolean | undefined;
   triggerElementRef?: Readonly<React.RefObject<Element | null>> | undefined;
+  getHandleCloseContext?: (() => HandleCloseContextBase | null) | undefined;
 }
 
 const EMPTY_REF: Readonly<React.RefObject<Element | null>> = { current: null };
@@ -71,6 +76,7 @@ export function useHoverReferenceInteraction(
     triggerElementRef = EMPTY_REF,
     externalTree,
     isActiveTrigger = true,
+    getHandleCloseContext,
   } = props;
 
   const tree = useFloatingTree(externalTree);
@@ -88,12 +94,7 @@ export function useHoverReferenceInteraction(
   }
 
   const isClickLikeOpenEvent = useStableCallback(() => {
-    if (instance.interactedInside) {
-      return true;
-    }
-
-    const openEventType = dataRef.current.openEvent?.type;
-    return openEventType === 'click' || openEventType === 'mousedown';
+    return isClickLikeOpenEventShared(dataRef.current.openEvent?.type, instance.interactedInside);
   });
 
   const isHoverOpen = useStableCallback(() => {
@@ -167,10 +168,7 @@ export function useHoverReferenceInteraction(
   React.useEffect(() => cleanupMouseMoveHandler, [cleanupMouseMoveHandler]);
 
   const clearPointerEvents = useStableCallback(() => {
-    clearSafePolygonPointerEventsMutation(
-      instance,
-      ownerDocument(store.select('domReferenceElement')).body,
-    );
+    clearSafePolygonPointerEventsMutation(instance);
   });
 
   React.useEffect(() => {
@@ -276,11 +274,15 @@ export function useHoverReferenceInteraction(
       instance.restTimeout.clear();
       instance.restTimeoutPending = false;
 
-      if (isRelatedTargetInsideEnabledTrigger(event.relatedTarget)) {
+      const handleCloseContextBase = dataRef.current.floatingContext ?? getHandleCloseContext?.();
+
+      const ignoreRelatedTargetTrigger = isRelatedTargetInsideEnabledTrigger(event.relatedTarget);
+
+      if (ignoreRelatedTargetTrigger) {
         return;
       }
 
-      if (handleCloseRef.current && dataRef.current.floatingContext) {
+      if (handleCloseRef.current && handleCloseContextBase) {
         if (!store.select('open')) {
           instance.openChangeTimeout.clear();
         }
@@ -288,7 +290,7 @@ export function useHoverReferenceInteraction(
         const currentTrigger = triggerElementRef.current;
 
         instance.handler = handleCloseRef.current({
-          ...dataRef.current.floatingContext,
+          ...handleCloseContextBase,
           tree,
           x: event.clientX,
           y: event.clientY,
@@ -358,6 +360,7 @@ export function useHoverReferenceInteraction(
     triggerElementRef,
     tree,
     enabledRef,
+    getHandleCloseContext,
   ]);
 
   return React.useMemo<HTMLProps | undefined>(() => {

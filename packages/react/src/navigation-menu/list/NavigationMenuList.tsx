@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useDismiss } from '../../floating-ui-react';
+import { useDismiss, useHoverFloatingInteraction } from '../../floating-ui-react';
 import { getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
@@ -23,12 +23,26 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const { orientation, open, floatingRootContext, positionerElement, value, nested } =
-    useNavigationMenuRootContext();
+  const {
+    orientation,
+    open,
+    floatingRootContext,
+    positionerElement,
+    value,
+    closeDelay,
+    viewportElement,
+    nested,
+  } = useNavigationMenuRootContext();
 
   const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
   const context = floatingRootContext || fallbackContext;
   const interactionsEnabled = positionerElement ? true : !value;
+  const hoverInteractionsEnabled = positionerElement || viewportElement ? true : !value;
+
+  useHoverFloatingInteraction(context, {
+    enabled: Boolean(floatingRootContext) && hoverInteractionsEnabled,
+    closeDelay,
+  });
 
   const dismiss = useDismiss(context, {
     enabled: interactionsEnabled,

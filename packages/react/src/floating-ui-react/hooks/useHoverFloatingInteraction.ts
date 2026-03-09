@@ -12,11 +12,12 @@ import { getNodeChildren, getTarget, isTargetInsideEnabledTrigger } from '../uti
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import {
   closeHoverPopup as closeHoverPopupShared,
+  applySafePolygonPointerEventsMutation,
   clearSafePolygonPointerEventsMutation,
   isInteractiveElement,
   useHoverInteractionSharedState,
 } from './useHoverInteractionSharedState';
-import { getDelay } from './useHoverShared';
+import { getDelay, isClickLikeOpenEvent as isClickLikeOpenEventShared } from './useHoverShared';
 
 export type UseHoverFloatingInteractionProps = {
   /**
@@ -54,12 +55,7 @@ export function useHoverFloatingInteraction(
   const parentId = useFloatingParentNodeId();
 
   const isClickLikeOpenEvent = useStableCallback(() => {
-    if (instance.interactedInside) {
-      return true;
-    }
-
-    const openEventType = dataRef.current.openEvent?.type;
-    return openEventType === 'click' || openEventType === 'mousedown';
+    return isClickLikeOpenEventShared(dataRef.current.openEvent?.type, instance.interactedInside);
   });
 
   const isHoverOpen = useStableCallback(() => {
@@ -97,7 +93,7 @@ export function useHoverFloatingInteraction(
   );
 
   const clearPointerEvents = useStableCallback(() => {
-    clearSafePolygonPointerEventsMutation(instance, ownerDocument(floatingElement).body);
+    clearSafePolygonPointerEventsMutation(instance);
   });
 
   const handleInteractInside = useStableCallback((event: PointerEvent) => {
@@ -107,7 +103,7 @@ export function useHoverFloatingInteraction(
       return;
     }
 
-    instance.interactedInside = true;
+    instance.interactedInside = target?.closest('[aria-haspopup]') != null;
   });
 
   useIsoLayoutEffect(() => {
@@ -135,7 +131,6 @@ export function useHoverFloatingInteraction(
       isElement(domReferenceElement) &&
       floatingElement
     ) {
-      instance.performedPointerEventsMutation = true;
       const ref = domReferenceElement as HTMLElement | SVGSVGElement;
       const floatingEl = floatingElement;
       const doc = ownerDocument(floatingElement);
@@ -147,16 +142,20 @@ export function useHoverFloatingInteraction(
         parentFloating.style.pointerEvents = '';
       }
 
-      const scopeElement = parentFloating ?? ref.closest('[data-rootownerid]') ?? doc.body;
+      const scopeElement =
+        instance.handleCloseOptions?.getScope?.() ??
+        instance.pointerEventsScopeElement ??
+        parentFloating ??
+        (ref.closest('[data-rootownerid]') as HTMLElement | SVGSVGElement | null) ??
+        doc.body;
 
-      instance.pointerEventsScopeElement = scopeElement;
-      scopeElement.style.pointerEvents = 'none';
-      ref.style.pointerEvents = 'auto';
-      floatingEl.style.pointerEvents = 'auto';
+      applySafePolygonPointerEventsMutation(instance, {
+        scopeElement,
+        referenceElement: ref,
+        floatingElement: floatingEl,
+      });
 
       return () => {
-        ref.style.pointerEvents = '';
-        floatingEl.style.pointerEvents = '';
         clearPointerEvents();
       };
     }
