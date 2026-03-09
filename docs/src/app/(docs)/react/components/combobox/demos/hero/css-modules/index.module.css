@@ -7,7 +7,7 @@
   background-color: canvas;
 
   &:focus-within {
-    outline: 1px solid var(--color-blue);
+    outline: 2px solid var(--color-blue);
     outline-offset: -1px;
   }
 

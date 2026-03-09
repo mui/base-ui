@@ -110,7 +110,7 @@ export default function ExampleAsyncSingleCombobox() {
     >
       <div className="relative flex flex-col gap-1 text-sm font-medium leading-5 text-gray-900">
         <label htmlFor={id}>Assign reviewer</label>
-        <Combobox.InputGroup className="relative box-content h-10 w-[16rem] rounded-md border border-gray-200 bg-[canvas] focus-within:outline focus-within:outline-1 focus-within:-outline-offset-1 focus-within:outline-blue-800 md:w-[20rem] [&>input]:pr-[calc(0.5rem+1.5rem)] has-[.combobox-clear]:[&>input]:pr-[calc(0.5rem+1.5rem*2)]">
+        <Combobox.InputGroup className="relative box-content h-10 w-[16rem] rounded-md border border-gray-200 bg-[canvas] focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-blue-800 md:w-[20rem] [&>input]:pr-[calc(0.5rem+1.5rem)] has-[.combobox-clear]:[&>input]:pr-[calc(0.5rem+1.5rem*2)]">
           <Combobox.Input
             id={id}
             placeholder="e.g. Michael"

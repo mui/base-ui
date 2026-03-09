@@ -135,7 +135,7 @@ export default function ExampleAsyncMultipleCombobox() {
         <label className="inline-flex text-inherit" htmlFor={id}>
           Assign reviewers
         </label>
-        <Combobox.InputGroup className="relative flex min-h-10 w-[16rem] rounded-md border border-gray-200 bg-[canvas] px-1.5 py-1 focus-within:outline focus-within:outline-1 focus-within:-outline-offset-1 focus-within:outline-blue-800 md:w-[20rem]">
+        <Combobox.InputGroup className="relative flex min-h-10 w-[16rem] rounded-md border border-gray-200 bg-[canvas] px-1.5 py-1 focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-blue-800 md:w-[20rem]">
           <Combobox.Chips className="flex w-full flex-wrap items-center gap-1">
             <Combobox.Value>
               {(value: DirectoryUser[]) => (
