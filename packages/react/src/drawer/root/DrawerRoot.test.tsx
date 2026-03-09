@@ -1,6 +1,12 @@
 import * as React from 'react';
 import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
-import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import {
+  act,
+  fireEvent,
+  flushMicrotasks,
+  ignoreActWarnings,
+  screen,
+} from '@mui/internal-test-utils';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { createRenderer, isJSDOM, waitSingleFrame } from '#test-utils';
 import { REASONS } from '../../utils/reasons';
@@ -866,6 +872,7 @@ describe('<Drawer.Root />', () => {
     async () => {
       const handleOpenChange = vi.fn();
       const env = setupSwipeTestEnv();
+      ignoreActWarnings();
 
       try {
         await render(<ControlledAlwaysOpenCase onOpenChange={handleOpenChange} />);
