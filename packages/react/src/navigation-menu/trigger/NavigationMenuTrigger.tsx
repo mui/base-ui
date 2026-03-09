@@ -42,6 +42,7 @@ import { REASONS } from '../../utils/reasons';
 import { EMPTY_ARRAY, ownerVisuallyHidden, PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { TransitionStatusDataAttributes } from '../../utils/stateAttributesMapping';
 import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import { useButton } from '../../use-button';
@@ -78,6 +79,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     setFloatingRootContext,
     popupElement,
     viewportElement,
+    transitionStatus,
     rootRef,
     beforeOutsideRef,
     afterOutsideRef,
@@ -98,6 +100,8 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   const stickIfOpenTimeout = useTimeout();
   const focusFrame = useAnimationFrame();
+  const mutationFrame = useAnimationFrame();
+  const resizeFrame = useAnimationFrame();
   const sizeFrame1 = useAnimationFrame();
   const sizeFrame2 = useAnimationFrame();
 
@@ -136,6 +140,39 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, 'auto');
   }
 
+  function clearFixedSizes() {
+    if (!popupElement || !positionerElement) {
+      return;
+    }
+
+    popupElement.style.removeProperty(NavigationMenuPopupCssVars.popupWidth);
+    popupElement.style.removeProperty(NavigationMenuPopupCssVars.popupHeight);
+    positionerElement.style.removeProperty(NavigationMenuPositionerCssVars.positionerWidth);
+    positionerElement.style.removeProperty(NavigationMenuPositionerCssVars.positionerHeight);
+  }
+
+  function setSharedFixedSizes(width: number, height: number) {
+    if (!popupElement || !positionerElement) {
+      return;
+    }
+
+    popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${width}px`);
+    popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${height}px`);
+    positionerElement.style.setProperty(
+      NavigationMenuPositionerCssVars.positionerWidth,
+      `${width}px`,
+    );
+    positionerElement.style.setProperty(
+      NavigationMenuPositionerCssVars.positionerHeight,
+      `${height}px`,
+    );
+  }
+
+  function scheduleAutoSizeReset() {
+    animationAbortControllerRef.current = new AbortController();
+    runOnceAnimationsFinish(setAutoSizes, animationAbortControllerRef.current.signal);
+  }
+
   const handleValueChange = useStableCallback(
     (
       currentWidth: number,
@@ -150,10 +187,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
       const { syncPositioner = false } = options;
 
-      popupElement.style.removeProperty(NavigationMenuPopupCssVars.popupWidth);
-      popupElement.style.removeProperty(NavigationMenuPopupCssVars.popupHeight);
-      positionerElement.style.removeProperty(NavigationMenuPositionerCssVars.positionerWidth);
-      positionerElement.style.removeProperty(NavigationMenuPositionerCssVars.positionerHeight);
+      clearFixedSizes();
 
       const { width, height } = getCssDimensions(popupElement);
       const measuredWidth = width || prevSizeRef.current.width;
@@ -194,8 +228,47 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         }
 
         sizeFrame2.request(() => {
-          animationAbortControllerRef.current = new AbortController();
-          runOnceAnimationsFinish(setAutoSizes, animationAbortControllerRef.current.signal);
+          scheduleAutoSizeReset();
+        });
+      });
+    },
+  );
+
+  const handleInterruptedMutationResize = useStableCallback(
+    (currentWidth: number, currentHeight: number) => {
+      if (!popupElement || !positionerElement) {
+        return;
+      }
+
+      sizeFrame1.cancel();
+      sizeFrame2.cancel();
+      mutationFrame.cancel();
+      animationAbortControllerRef.current?.abort();
+      animationAbortControllerRef.current = null;
+
+      if (currentWidth === 0 || currentHeight === 0) {
+        return;
+      }
+
+      setSharedFixedSizes(currentWidth, currentHeight);
+
+      mutationFrame.request(() => {
+        mutationFrame.request(() => {
+          clearFixedSizes();
+
+          const { width, height } = getCssDimensions(popupElement);
+          const measuredWidth = width || currentWidth || prevSizeRef.current.width;
+          const measuredHeight = height || currentHeight || prevSizeRef.current.height;
+
+          setSharedFixedSizes(currentWidth, currentHeight);
+
+          sizeFrame1.request(() => {
+            setSharedFixedSizes(measuredWidth, measuredHeight);
+
+            sizeFrame2.request(() => {
+              scheduleAutoSizeReset();
+            });
+          });
         });
       });
     },
@@ -211,10 +284,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     animationAbortControllerRef.current?.abort();
     animationAbortControllerRef.current = null;
 
-    popupElement.style.removeProperty(NavigationMenuPopupCssVars.popupWidth);
-    popupElement.style.removeProperty(NavigationMenuPopupCssVars.popupHeight);
-    positionerElement.style.removeProperty(NavigationMenuPositionerCssVars.positionerWidth);
-    positionerElement.style.removeProperty(NavigationMenuPositionerCssVars.positionerHeight);
+    clearFixedSizes();
 
     const { width, height } = getCssDimensions(popupElement);
 
@@ -260,13 +330,15 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   React.useEffect(() => {
     if (!open) {
       stickIfOpenTimeout.clear();
+      mutationFrame.cancel();
+      resizeFrame.cancel();
       sizeFrame1.cancel();
       sizeFrame2.cancel();
       animationAbortControllerRef.current?.abort();
       animationAbortControllerRef.current = null;
       setPointerType('');
     }
-  }, [stickIfOpenTimeout, open, sizeFrame1, sizeFrame2]);
+  }, [stickIfOpenTimeout, open, mutationFrame, resizeFrame, sizeFrame1, sizeFrame2]);
 
   React.useEffect(() => {
     if (!mounted) {
@@ -299,12 +371,18 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     }
 
     const win = ownerWindow(positionerElement);
-    win.addEventListener('resize', syncCurrentSize);
+    function handleResize() {
+      resizeFrame.cancel();
+      resizeFrame.request(syncCurrentSize);
+    }
+
+    win.addEventListener('resize', handleResize);
 
     return () => {
-      win.removeEventListener('resize', syncCurrentSize);
+      resizeFrame.cancel();
+      win.removeEventListener('resize', handleResize);
     };
-  }, [open, isActiveItem, popupElement, positionerElement, syncCurrentSize]);
+  }, [open, isActiveItem, popupElement, positionerElement, resizeFrame, syncCurrentSize]);
 
   React.useEffect(() => {
     const observedElement = currentContentRef.current;
@@ -319,9 +397,22 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     }
 
     const mutationObserver = new MutationObserver(() => {
-      animationAbortControllerRef.current?.abort();
+      if (
+        transitionStatus === 'starting' ||
+        popupElement.hasAttribute(TransitionStatusDataAttributes.startingStyle)
+      ) {
+        syncCurrentSize();
+        return;
+      }
+
       const { size, syncPositioner } = getMutationBaseline();
-      handleValueChange(size.width, size.height, { syncPositioner });
+
+      if (syncPositioner) {
+        handleInterruptedMutationResize(size.width, size.height);
+        return;
+      }
+
+      handleValueChange(size.width, size.height);
     });
 
     mutationObserver.observe(observedElement, {
@@ -333,7 +424,16 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     return () => {
       mutationObserver.disconnect();
     };
-  }, [currentContentRef, popupElement, isActiveItem, getMutationBaseline, handleValueChange]);
+  }, [
+    currentContentRef,
+    popupElement,
+    isActiveItem,
+    transitionStatus,
+    getMutationBaseline,
+    handleInterruptedMutationResize,
+    handleValueChange,
+    syncCurrentSize,
+  ]);
 
   React.useEffect(() => {
     if (isActiveItem && open && popupElement && allowFocusRef.current) {
@@ -350,9 +450,28 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   useIsoLayoutEffect(() => {
     if (isActiveItemRef.current && open && popupElement) {
+      const hasNestedMenu = currentContentRef.current?.querySelector('[data-nested]') != null;
+
+      if (transitionStatus === 'starting' && hasNestedMenu) {
+        mutationFrame.request(syncCurrentSize);
+        return () => {
+          mutationFrame.cancel();
+        };
+      }
+
       handleValueChange(0, 0);
     }
-  }, [isActiveItemRef, open, popupElement, handleValueChange]);
+    return undefined;
+  }, [
+    currentContentRef,
+    handleValueChange,
+    isActiveItemRef,
+    mutationFrame,
+    open,
+    popupElement,
+    syncCurrentSize,
+    transitionStatus,
+  ]);
 
   function handleOpenChange(
     nextOpen: boolean,

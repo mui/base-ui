@@ -138,8 +138,8 @@ function TestInlineNestedNavigationMenu(props: { nestedDefaultValue?: string | n
       </NavigationMenu.List>
 
       <NavigationMenu.Portal>
-        <NavigationMenu.Positioner>
-          <NavigationMenu.Popup>
+        <NavigationMenu.Positioner data-testid="positioner">
+          <NavigationMenu.Popup data-testid="popup-root">
             <NavigationMenu.Viewport />
           </NavigationMenu.Popup>
         </NavigationMenu.Positioner>
@@ -1859,6 +1859,61 @@ describe('<NavigationMenu.Root />', () => {
           if (typeof originalResizeObserver === 'function') {
             globalThis.ResizeObserver = originalResizeObserver;
           }
+        }
+      });
+
+      it('does not animate popup sizing when nested default content mounts during opening', async () => {
+        const previousAnimationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        try {
+          await render(<TestInlineNestedNavigationMenu />);
+          const trigger1 = screen.getByTestId('trigger-1');
+
+          fireEvent.click(trigger1);
+
+          const popupRoot = screen.getByTestId('popup-root');
+          const positioner = screen.getByTestId('positioner');
+
+          const popupWidthValues = [250, 250];
+          const popupHeightValues = [120, 220];
+          let popupWidth = 250;
+          let popupHeight = 220;
+
+          Object.defineProperty(popupRoot, 'offsetWidth', {
+            configurable: true,
+            get: () => {
+              const nextWidth = popupWidthValues.shift();
+              if (nextWidth != null) {
+                popupWidth = nextWidth;
+              }
+
+              return popupWidth;
+            },
+          });
+          Object.defineProperty(popupRoot, 'offsetHeight', {
+            configurable: true,
+            get: () => {
+              const nextHeight = popupHeightValues.shift();
+              if (nextHeight != null) {
+                popupHeight = nextHeight;
+              }
+
+              return popupHeight;
+            },
+          });
+
+          await flushMicrotasks();
+
+          expect(screen.getByTestId('nested-popup-1')).not.to.equal(null);
+          await waitFor(() => {
+            expect(popupRoot.style.getPropertyValue('--popup-width')).to.equal('auto');
+            expect(popupRoot.style.getPropertyValue('--popup-height')).to.equal('auto');
+            expect(positioner.style.getPropertyValue('--positioner-width')).to.equal('250px');
+            expect(positioner.style.getPropertyValue('--positioner-height')).to.equal('220px');
+          });
+        } finally {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
         }
       });
 
