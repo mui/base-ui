@@ -9,6 +9,7 @@ import { getNodeChildren } from './utils/nodes';
 
 const CURSOR_SPEED_THRESHOLD = 0.1;
 const CURSOR_SPEED_THRESHOLD_SQUARED = CURSOR_SPEED_THRESHOLD * CURSOR_SPEED_THRESHOLD;
+const POLYGON_BUFFER = 0.5;
 
 function hasIntersectingEdge(
   pointX: number,
@@ -87,40 +88,38 @@ export interface SafePolygonOptions extends HandleCloseOptions {}
  * @see https://floating-ui.com/docs/useHover#safepolygon
  */
 export function safePolygon(options: SafePolygonOptions = {}) {
-  const { buffer = 0.5, blockPointerEvents = false, requireIntent = true } = options;
-
+  const { blockPointerEvents = false } = options;
   const timeout = new Timeout();
-
-  let hasLanded = false;
-  let lastX: number | null = null;
-  let lastY: number | null = null;
-  let lastCursorTime = typeof performance !== 'undefined' ? performance.now() : 0;
-
-  function isCursorMovingSlowly(nextX: number, nextY: number) {
-    const currentTime = performance.now();
-    const elapsedTime = currentTime - lastCursorTime;
-
-    if (lastX === null || lastY === null || elapsedTime === 0) {
-      lastX = nextX;
-      lastY = nextY;
-      lastCursorTime = currentTime;
-      return false;
-    }
-
-    const deltaX = nextX - lastX;
-    const deltaY = nextY - lastY;
-    const distanceSquared = deltaX * deltaX + deltaY * deltaY;
-    const thresholdSquared = elapsedTime * elapsedTime * CURSOR_SPEED_THRESHOLD_SQUARED;
-
-    lastX = nextX;
-    lastY = nextY;
-    lastCursorTime = currentTime;
-
-    return distanceSquared < thresholdSquared;
-  }
 
   const fn: HandleClose = ({ x, y, placement, elements, onClose, nodeId, tree }) => {
     const side = placement?.split('-')[0] as Side | undefined;
+    let hasLanded = false;
+    let lastX: number | null = null;
+    let lastY: number | null = null;
+    let lastCursorTime = typeof performance !== 'undefined' ? performance.now() : 0;
+
+    function isCursorMovingSlowly(nextX: number, nextY: number) {
+      const currentTime = performance.now();
+      const elapsedTime = currentTime - lastCursorTime;
+
+      if (lastX === null || lastY === null || elapsedTime === 0) {
+        lastX = nextX;
+        lastY = nextY;
+        lastCursorTime = currentTime;
+        return false;
+      }
+
+      const deltaX = nextX - lastX;
+      const deltaY = nextY - lastY;
+      const distanceSquared = deltaX * deltaX + deltaY * deltaY;
+      const thresholdSquared = elapsedTime * elapsedTime * CURSOR_SPEED_THRESHOLD_SQUARED;
+
+      lastX = nextX;
+      lastY = nextY;
+      lastCursorTime = currentTime;
+
+      return distanceSquared < thresholdSquared;
+    }
 
     function close() {
       timeout.clear();
@@ -265,7 +264,7 @@ export function safePolygon(options: SafePolygonOptions = {}) {
         return undefined;
       }
 
-      if (!isLeave && requireIntent && isCursorMovingSlowly(clientX, clientY)) {
+      if (!isLeave && isCursorMovingSlowly(clientX, clientY)) {
         closeIfNoOpenChild();
         return undefined;
       }
@@ -274,7 +273,7 @@ export function safePolygon(options: SafePolygonOptions = {}) {
 
       switch (side) {
         case 'top': {
-          const cursorXOffset = isFloatingWider ? buffer / 2 : buffer * 4;
+          const cursorXOffset = isFloatingWider ? POLYGON_BUFFER / 2 : POLYGON_BUFFER * 4;
           const cursorPointOneX = isFloatingWider
             ? x + cursorXOffset
             : cursorLeaveFromRight
@@ -285,18 +284,18 @@ export function safePolygon(options: SafePolygonOptions = {}) {
             : cursorLeaveFromRight
               ? x + cursorXOffset
               : x - cursorXOffset;
-          const cursorPointY = y + buffer + 1;
+          const cursorPointY = y + POLYGON_BUFFER + 1;
 
           const commonYLeft = cursorLeaveFromRight
-            ? rect.bottom - buffer
+            ? rect.bottom - POLYGON_BUFFER
             : isFloatingWider
-              ? rect.bottom - buffer
+              ? rect.bottom - POLYGON_BUFFER
               : rect.top;
           const commonYRight = cursorLeaveFromRight
             ? isFloatingWider
-              ? rect.bottom - buffer
+              ? rect.bottom - POLYGON_BUFFER
               : rect.top
-            : rect.bottom - buffer;
+            : rect.bottom - POLYGON_BUFFER;
 
           isInsidePolygon = isPointInQuadrilateral(
             clientX,
@@ -313,7 +312,7 @@ export function safePolygon(options: SafePolygonOptions = {}) {
           break;
         }
         case 'bottom': {
-          const cursorXOffset = isFloatingWider ? buffer / 2 : buffer * 4;
+          const cursorXOffset = isFloatingWider ? POLYGON_BUFFER / 2 : POLYGON_BUFFER * 4;
           const cursorPointOneX = isFloatingWider
             ? x + cursorXOffset
             : cursorLeaveFromRight
@@ -324,18 +323,18 @@ export function safePolygon(options: SafePolygonOptions = {}) {
             : cursorLeaveFromRight
               ? x + cursorXOffset
               : x - cursorXOffset;
-          const cursorPointY = y - buffer;
+          const cursorPointY = y - POLYGON_BUFFER;
 
           const commonYLeft = cursorLeaveFromRight
-            ? rect.top + buffer
+            ? rect.top + POLYGON_BUFFER
             : isFloatingWider
-              ? rect.top + buffer
+              ? rect.top + POLYGON_BUFFER
               : rect.bottom;
           const commonYRight = cursorLeaveFromRight
             ? isFloatingWider
-              ? rect.top + buffer
+              ? rect.top + POLYGON_BUFFER
               : rect.bottom
-            : rect.top + buffer;
+            : rect.top + POLYGON_BUFFER;
 
           isInsidePolygon = isPointInQuadrilateral(
             clientX,
@@ -352,7 +351,7 @@ export function safePolygon(options: SafePolygonOptions = {}) {
           break;
         }
         case 'left': {
-          const cursorYOffset = isFloatingTaller ? buffer / 2 : buffer * 4;
+          const cursorYOffset = isFloatingTaller ? POLYGON_BUFFER / 2 : POLYGON_BUFFER * 4;
           const cursorPointOneY = isFloatingTaller
             ? y + cursorYOffset
             : cursorLeaveFromBottom
@@ -363,18 +362,18 @@ export function safePolygon(options: SafePolygonOptions = {}) {
             : cursorLeaveFromBottom
               ? y + cursorYOffset
               : y - cursorYOffset;
-          const cursorPointX = x + buffer + 1;
+          const cursorPointX = x + POLYGON_BUFFER + 1;
 
           const commonXTop = cursorLeaveFromBottom
-            ? rect.right - buffer
+            ? rect.right - POLYGON_BUFFER
             : isFloatingTaller
-              ? rect.right - buffer
+              ? rect.right - POLYGON_BUFFER
               : rect.left;
           const commonXBottom = cursorLeaveFromBottom
             ? isFloatingTaller
-              ? rect.right - buffer
+              ? rect.right - POLYGON_BUFFER
               : rect.left
-            : rect.right - buffer;
+            : rect.right - POLYGON_BUFFER;
 
           isInsidePolygon = isPointInQuadrilateral(
             clientX,
@@ -391,7 +390,7 @@ export function safePolygon(options: SafePolygonOptions = {}) {
           break;
         }
         case 'right': {
-          const cursorYOffset = isFloatingTaller ? buffer / 2 : buffer * 4;
+          const cursorYOffset = isFloatingTaller ? POLYGON_BUFFER / 2 : POLYGON_BUFFER * 4;
           const cursorPointOneY = isFloatingTaller
             ? y + cursorYOffset
             : cursorLeaveFromBottom
@@ -402,18 +401,18 @@ export function safePolygon(options: SafePolygonOptions = {}) {
             : cursorLeaveFromBottom
               ? y + cursorYOffset
               : y - cursorYOffset;
-          const cursorPointX = x - buffer;
+          const cursorPointX = x - POLYGON_BUFFER;
 
           const commonXTop = cursorLeaveFromBottom
-            ? rect.left + buffer
+            ? rect.left + POLYGON_BUFFER
             : isFloatingTaller
-              ? rect.left + buffer
+              ? rect.left + POLYGON_BUFFER
               : rect.right;
           const commonXBottom = cursorLeaveFromBottom
             ? isFloatingTaller
-              ? rect.left + buffer
+              ? rect.left + POLYGON_BUFFER
               : rect.right
-            : rect.left + buffer;
+            : rect.left + POLYGON_BUFFER;
 
           isInsidePolygon = isPointInQuadrilateral(
             clientX,
@@ -434,7 +433,7 @@ export function safePolygon(options: SafePolygonOptions = {}) {
 
       if (!isInsidePolygon) {
         closeIfNoOpenChild();
-      } else if (!hasLanded && requireIntent) {
+      } else if (!hasLanded) {
         timeout.start(40, closeIfNoOpenChild);
       }
 
