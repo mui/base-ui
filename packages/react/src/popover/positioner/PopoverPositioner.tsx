@@ -5,7 +5,12 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
-import { useAnchorPositioning, type Side, type Align } from '../../utils/useAnchorPositioning';
+import {
+  useAnchorPositioning,
+  type Side,
+  type Align,
+  type UseAnchorPositioningSharedParameters,
+} from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { usePopoverPortalContext } from '../portal/PopoverPortalContext';
@@ -140,7 +145,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     return undefined;
   }, [domReference, runOnceAnimationsFinish, store]);
 
-  const state: PopoverPositioner.State = {
+  const state: PopoverPositionerState = {
     open,
     side: positioner.side,
     align: positioner.align,
@@ -181,8 +186,17 @@ export interface PopoverPositionerState {
    * Whether the popover is currently open.
    */
   open: boolean;
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
   align: Align;
+  /**
+   * Whether the anchor element is hidden.
+   */
   anchorHidden: boolean;
   /**
    * Whether CSS transitions should be disabled.
@@ -192,8 +206,8 @@ export interface PopoverPositionerState {
 
 export interface PopoverPositionerProps
   extends
-    useAnchorPositioning.SharedParameters,
-    BaseUIComponentProps<'div', PopoverPositioner.State> {}
+    UseAnchorPositioningSharedParameters,
+    BaseUIComponentProps<'div', PopoverPositionerState> {}
 
 export namespace PopoverPositioner {
   export type State = PopoverPositionerState;

@@ -27,7 +27,7 @@ function isTouchLikePointerType(pointerType: string) {
   return pointerType === 'touch' || pointerType === 'pen';
 }
 
-export function useNumberFieldButton(params: useNumberFieldButton.Parameters) {
+export function useNumberFieldButton(params: UseNumberFieldButtonParameters) {
   const {
     allowInputSyncRef,
     disabled,
@@ -261,7 +261,4 @@ export interface UseNumberFieldButtonReturnValue {
   props: HTMLProps;
 }
 
-export namespace useNumberFieldButton {
-  export type Parameters = UseNumberFieldButtonParameters;
-  export type ReturnValue = UseNumberFieldButtonReturnValue;
-}
+export interface UseNumberFieldButtonState {}

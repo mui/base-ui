@@ -11,7 +11,12 @@ import {
   useComboboxDerivedItemsContext,
 } from '../root/ComboboxRootContext';
 import { ComboboxPositionerContext } from './ComboboxPositionerContext';
-import { type Side, type Align, useAnchorPositioning } from '../../utils/useAnchorPositioning';
+import {
+  type Side,
+  type Align,
+  useAnchorPositioning,
+  type UseAnchorPositioningSharedParameters,
+} from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useComboboxPortalContext } from '../portal/ComboboxPortalContext';
@@ -101,7 +106,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     };
   }, [open, mounted, positioning.positionerStyles]);
 
-  const state: ComboboxPositioner.State = {
+  const state: ComboboxPositionerState = {
     open,
     side: positioning.side,
     align: positioning.align,
@@ -160,16 +165,28 @@ export interface ComboboxPositionerState {
    * Whether the popup is currently open.
    */
   open: boolean;
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
   align: Align;
+  /**
+   * Whether the anchor element is hidden.
+   */
   anchorHidden: boolean;
+  /**
+   * Whether there are no items to display.
+   */
   empty: boolean;
 }
 
 export interface ComboboxPositionerProps
   extends
-    useAnchorPositioning.SharedParameters,
-    BaseUIComponentProps<'div', ComboboxPositioner.State> {}
+    UseAnchorPositioningSharedParameters,
+    BaseUIComponentProps<'div', ComboboxPositionerState> {}
 
 export namespace ComboboxPositioner {
   export type State = ComboboxPositionerState;

@@ -43,7 +43,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
           store.promiseToast(options.promise, options);
         } else if (action === 'update' && id) {
           store.updateToast(id, options);
-        } else if (action === 'close' && id) {
+        } else if (action === 'close') {
           store.closeToast(id);
         } else {
           store.addToast(options);
@@ -59,6 +59,8 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
 
   return <ToastContext.Provider value={store}>{children}</ToastContext.Provider>;
 };
+
+export interface ToastProviderState {}
 
 export interface ToastProviderProps {
   children?: React.ReactNode;
@@ -81,5 +83,6 @@ export interface ToastProviderProps {
 }
 
 export namespace ToastProvider {
+  export type State = ToastProviderState;
   export type Props = ToastProviderProps;
 }

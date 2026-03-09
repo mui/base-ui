@@ -6,7 +6,12 @@ import { FloatingNode } from '../../floating-ui-react';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
-import { useAnchorPositioning, type Align, type Side } from '../../utils/useAnchorPositioning';
+import {
+  useAnchorPositioning,
+  type Align,
+  type Side,
+  type UseAnchorPositioningSharedParameters,
+} from '../../utils/useAnchorPositioning';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
@@ -240,7 +245,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     return undefined;
   }, [domReference, runOnceAnimationsFinish, store]);
 
-  const state: MenuPositioner.State = {
+  const state: MenuPositionerState = {
     open,
     side: positioner.side,
     align: positioner.align,
@@ -319,9 +324,21 @@ export interface MenuPositionerState {
    * Whether the menu is currently open.
    */
   open: boolean;
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
   align: Align;
+  /**
+   * Whether the anchor element is hidden.
+   */
   anchorHidden: boolean;
+  /**
+   * Whether the component is nested.
+   */
   nested: boolean;
   /**
    * Whether CSS transitions should be disabled.
@@ -330,9 +347,7 @@ export interface MenuPositionerState {
 }
 
 export interface MenuPositionerProps
-  extends
-    useAnchorPositioning.SharedParameters,
-    BaseUIComponentProps<'div', MenuPositioner.State> {}
+  extends UseAnchorPositioningSharedParameters, BaseUIComponentProps<'div', MenuPositionerState> {}
 
 export namespace MenuPositioner {
   export type State = MenuPositionerState;

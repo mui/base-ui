@@ -23,7 +23,7 @@ export const PopoverArrow = React.forwardRef(function PopoverArrow(
   const open = store.useState('open');
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = usePopoverPositionerContext();
 
-  const state: PopoverArrow.State = {
+  const state: PopoverArrowState = {
     open,
     side,
     align,
@@ -45,12 +45,21 @@ export interface PopoverArrowState {
    * Whether the popover is currently open.
    */
   open: boolean;
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
   align: Align;
+  /**
+   * Whether the arrow cannot be centered on the anchor.
+   */
   uncentered: boolean;
 }
 
-export interface PopoverArrowProps extends BaseUIComponentProps<'div', PopoverArrow.State> {}
+export interface PopoverArrowProps extends BaseUIComponentProps<'div', PopoverArrowState> {}
 
 export namespace PopoverArrow {
   export type State = PopoverArrowState;

@@ -95,7 +95,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends s
     },
   );
 
-  const state: ToggleGroup.State = { disabled, multiple, orientation };
+  const state: ToggleGroupState = { disabled, multiple, orientation };
 
   const contextValue: ToggleGroupContext<Value> = React.useMemo(
     () => ({
@@ -164,7 +164,7 @@ export interface ToggleGroupState {
 
 export interface ToggleGroupProps<Value extends string> extends BaseUIComponentProps<
   'div',
-  ToggleGroup.State
+  ToggleGroupState
 > {
   /**
    * The open state of the toggle group represented by an array of
