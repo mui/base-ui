@@ -601,9 +601,7 @@ function TestDeeplyNestedNavigationMenu() {
   );
 }
 
-function TestNavigationMenuWithNestedPopup(props: {
-  children: React.ReactNode;
-}) {
+function TestNavigationMenuWithNestedPopup(props: { children: React.ReactNode }) {
   const { children } = props;
   return (
     <NavigationMenu.Root>
@@ -1413,7 +1411,7 @@ describe('<NavigationMenu.Root />', () => {
     });
 
     it('keeps parent menu open when hovering inline nested triggers without defaultValue', async () => {
-        await render(<TestInlineNestedNavigationMenu nestedDefaultValue={null} />);
+      await render(<TestInlineNestedNavigationMenu nestedDefaultValue={null} />);
       const trigger1 = screen.getByTestId('trigger-1');
 
       fireEvent.mouseEnter(trigger1);

@@ -61,9 +61,6 @@ export function getRestMs(value: number | (() => number)) {
   return value;
 }
 
-export function isClickLikeOpenEvent(
-  openEventType: string | undefined,
-  interactedInside: boolean,
-) {
+export function isClickLikeOpenEvent(openEventType: string | undefined, interactedInside: boolean) {
   return interactedInside || openEventType === 'click' || openEventType === 'mousedown';
 }

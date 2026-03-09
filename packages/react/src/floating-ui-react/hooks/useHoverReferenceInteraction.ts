@@ -16,7 +16,11 @@ import {
   useHoverInteractionSharedState,
 } from './useHoverInteractionSharedState';
 import type { HandleClose, HandleCloseContextBase } from './useHoverShared';
-import { getDelay, getRestMs, isClickLikeOpenEvent as isClickLikeOpenEventShared } from './useHoverShared';
+import {
+  getDelay,
+  getRestMs,
+  isClickLikeOpenEvent as isClickLikeOpenEventShared,
+} from './useHoverShared';
 import { FloatingUIOpenChangeDetails, HTMLProps } from '../../utils/types';
 
 export interface UseHoverReferenceInteractionProps {
