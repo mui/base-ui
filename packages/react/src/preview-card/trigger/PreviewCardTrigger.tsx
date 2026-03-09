@@ -80,7 +80,7 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
   const state: PreviewCardTriggerState = { open: isOpenedByThisTrigger };
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
-  const inlineRectTriggerProps = getInlineRectTriggerProps<HTMLAnchorElement>(
+  const inlineRectTriggerProps = getInlineRectTriggerProps(
     inlineRectCoordsRef,
     isOpenedByThisTrigger,
   );

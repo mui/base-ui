@@ -127,10 +127,10 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
   const inlineRectCoordsRef = store.context.inlineRectCoordsRef;
-  const inlineRectTriggerProps = getInlineRectTriggerProps<HTMLButtonElement>(
+  const inlineRectTriggerProps = getInlineRectTriggerProps(
     inlineRectCoordsRef,
     isOpenedByThisTrigger,
-  ) as React.HTMLAttributes<Element>;
+  );
 
   const element = useRenderElement('button', componentProps, {
     state,

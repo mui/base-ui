@@ -135,7 +135,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   );
 
   const inlineRectCoordsRef = store.context.inlineRectCoordsRef;
-  const inlineRectTriggerProps = getInlineRectTriggerProps<HTMLElement>(
+  const inlineRectTriggerProps = getInlineRectTriggerProps(
     inlineRectCoordsRef,
     isOpenedByThisTrigger,
   );

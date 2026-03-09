@@ -43,15 +43,15 @@ export function getInlineRectHoverCoords(
   };
 }
 
-export function getInlineRectTriggerProps<TElement extends Element = Element>(
+export function getInlineRectTriggerProps(
   coordsRef: React.MutableRefObject<InlineRectCoords | undefined>,
   isOpen: boolean,
-): Pick<React.DOMAttributes<TElement>, 'onFocus' | 'onMouseMove'> {
+): Pick<React.HTMLAttributes<Element>, 'onFocus' | 'onMouseMove'> {
   return {
-    onFocus(_event: React.FocusEvent<TElement>) {
+    onFocus() {
       coordsRef.current = undefined;
     },
-    onMouseMove(event: React.MouseEvent<TElement>) {
+    onMouseMove(event: React.MouseEvent<Element>) {
       if (isOpen) {
         return;
       }
