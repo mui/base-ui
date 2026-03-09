@@ -28,6 +28,7 @@ export function createSingleSelectionCollatorFilter(
   collatorFilter: Filter,
   itemToStringLabel?: (item: any) => string,
   selectedValue?: any,
+  selectedValueToString?: (selectedValue: any) => string,
 ) {
   return (item: any, query: string) => {
     if (item == null) {
@@ -39,7 +40,9 @@ export function createSingleSelectionCollatorFilter(
 
     const itemString = stringifyAsLabel(item, itemToStringLabel);
     const selectedString =
-      selectedValue != null ? stringifyAsLabel(selectedValue, itemToStringLabel) : '';
+      selectedValue != null
+        ? stringifyAsLabel(selectedValue, selectedValueToString ?? itemToStringLabel)
+        : '';
 
     // Handle case-insensitive matching consistently
     if (

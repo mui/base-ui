@@ -5797,6 +5797,20 @@ describe('<Combobox.Root />', () => {
       },
     ];
 
+    interface PersonItem {
+      id: string;
+      name: string;
+    }
+
+    const personItems: PersonItem[] = [
+      { id: 'alice', name: 'Alice' },
+      { id: 'bob', name: 'Bob' },
+      { id: 'charlie', name: 'Charlie' },
+    ];
+
+    const getPersonLabel = (value: string) =>
+      personItems.find((item) => item.id === value)?.name ?? value;
+
     it('derives input value from matching item label on first mount (single)', async () => {
       await render(
         <Combobox.Root items={items} defaultValue="banana" getValueFromItem={(item) => item.value}>
@@ -5955,6 +5969,120 @@ describe('<Combobox.Root />', () => {
       });
 
       expect(onValueChange.lastCall.args[0]).to.equal('banana');
+    });
+
+    it('filters non-default item shapes using labels derived from mapped primitive values', async () => {
+      const { user } = await render(
+        <Combobox.Root
+          items={personItems}
+          getValueFromItem={(item) => item.id}
+          itemToStringLabel={getPersonLabel}
+        >
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: PersonItem) => (
+                    <Combobox.Item key={item.id} value={item.id}>
+                      {item.name}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await user.click(screen.getByRole('combobox'));
+      await user.keyboard('Bo');
+
+      await waitFor(() => {
+        expect(screen.queryByRole('option', { name: 'Bob' })).not.to.equal(null);
+      });
+
+      expect(screen.queryByRole('option', { name: 'Alice' })).to.equal(null);
+      expect(screen.queryByRole('option', { name: 'Charlie' })).to.equal(null);
+    });
+
+    it('passes derived item labels to custom filter functions when getValueFromItem is set', async () => {
+      const { user } = await render(
+        <Combobox.Root
+          items={personItems}
+          getValueFromItem={(item) => item.id}
+          itemToStringLabel={getPersonLabel}
+          filter={(item, query, itemToString) =>
+            itemToString?.(item)?.toLowerCase().includes(query.toLowerCase()) ?? false
+          }
+        >
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: PersonItem) => (
+                    <Combobox.Item key={item.id} value={item.id}>
+                      {item.name}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await user.click(screen.getByRole('combobox'));
+      await user.keyboard('Bo');
+
+      await waitFor(() => {
+        expect(screen.queryByRole('option', { name: 'Bob' })).not.to.equal(null);
+      });
+
+      expect(screen.queryByRole('option', { name: 'Alice' })).to.equal(null);
+      expect(screen.queryByRole('option', { name: 'Charlie' })).to.equal(null);
+    });
+
+    it('uses derived item labels in closed trigger typeahead for non-default item shapes', async () => {
+      const onValueChange = spy();
+      const { user } = await render(
+        <Combobox.Root
+          items={personItems}
+          getValueFromItem={(item) => item.id}
+          itemToStringLabel={getPersonLabel}
+          onValueChange={onValueChange}
+        >
+          <Combobox.Trigger data-testid="people-trigger">
+            <Combobox.Value />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: PersonItem) => (
+                    <Combobox.Item key={item.id} value={item.id}>
+                      {item.name}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('people-trigger');
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('b');
+
+      await waitFor(() => {
+        expect(onValueChange.callCount).to.be.greaterThan(0);
+      });
+
+      expect(onValueChange.lastCall.args[0]).to.equal('bob');
     });
 
     it('normalizes clicked object item values through getValueFromItem', async () => {
