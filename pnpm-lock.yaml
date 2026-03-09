@@ -161,8 +161,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.2.14)(react@19.2.4)
       '@mui/internal-docs-infra':
-        specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@14be503
-        version: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@14be503(@types/react@19.2.14)(next@16.1.6(@babel/core@7.29.0)(@playwright/test@1.58.2)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(prettier@3.8.1)(react@19.2.4)
+        specifier: 0.5.1-canary.0
+        version: 0.5.1-canary.0(@types/react@19.2.14)(next@16.1.6(@babel/core@7.29.0)(@playwright/test@1.58.2)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(prettier@3.8.1)(react@19.2.4)
       '@next/mdx':
         specifier: ^16.1.6
         version: 16.1.6(@mdx-js/loader@3.1.1(webpack@5.105.2))(@mdx-js/react@3.1.1(@types/react@19.2.14)(react@19.2.4))
@@ -2499,9 +2499,8 @@ packages:
       prettier:
         optional: true
 
-  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@14be503':
-    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@14be503}
-    version: 0.5.0
+  '@mui/internal-docs-infra@0.5.1-canary.0':
+    resolution: {integrity: sha512-CpMV7ZyJrv6CUcIsEXG9gU7/nrRFwZazH2Ga/a/i+f/lrR6Lq3rJI+ZHQm4XZWDIfWX/2KjGHApCGqlgJuCqJw==}
     engines: {node: '>=22.12.0'}
     hasBin: true
     peerDependencies:
@@ -12747,7 +12746,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@14be503(@types/react@19.2.14)(next@16.1.6(@babel/core@7.29.0)(@playwright/test@1.58.2)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(prettier@3.8.1)(react@19.2.4)':
+  '@mui/internal-docs-infra@0.5.1-canary.0(@types/react@19.2.14)(next@16.1.6(@babel/core@7.29.0)(@playwright/test@1.58.2)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(prettier@3.8.1)(react@19.2.4)':
     dependencies:
       '@babel/runtime': 7.28.6
       '@babel/standalone': 7.29.1
