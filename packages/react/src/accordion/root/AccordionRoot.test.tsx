@@ -536,7 +536,7 @@ describe('<Accordion.Root />', () => {
       } triggers`, async () => {
         const onOpenChange = spy();
 
-        await render(
+        const { user } = await render(
           <Accordion.Root>
             <Accordion.Item onOpenChange={onOpenChange}>
               <Accordion.Header>
@@ -553,6 +553,9 @@ describe('<Accordion.Root />', () => {
         );
 
         const trigger = screen.getByRole('button');
+
+        await user.keyboard('[Tab]');
+        expect(trigger).toHaveFocus();
 
         fireEvent.keyDown(trigger, { key: ' ' });
         expect(trigger).to.have.attribute('aria-expanded', 'true');
