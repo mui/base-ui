@@ -1,4 +1,4 @@
-import { screen } from '@mui/internal-test-utils';
+import { fireEvent, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
@@ -525,6 +525,54 @@ describe('<Accordion.Root />', () => {
 
         await user.keyboard('[ArrowDown]');
         expect(trigger2).toHaveFocus();
+      });
+    });
+  });
+
+  describe('keyboard activation timing', () => {
+    [true, false].forEach((isNativeButton) => {
+      it(`opens and closes on Space keydown when rendering ${
+        isNativeButton ? 'interactive' : 'non-interactive'
+      } triggers`, async () => {
+        const onOpenChange = spy();
+
+        await render(
+          <Accordion.Root>
+            <Accordion.Item onOpenChange={onOpenChange}>
+              <Accordion.Header>
+                <Accordion.Trigger
+                  nativeButton={isNativeButton}
+                  render={isNativeButton ? undefined : <span />}
+                >
+                  Trigger 1
+                </Accordion.Trigger>
+              </Accordion.Header>
+              <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
+            </Accordion.Item>
+          </Accordion.Root>,
+        );
+
+        const trigger = screen.getByRole('button');
+
+        fireEvent.keyDown(trigger, { key: ' ' });
+        expect(trigger).to.have.attribute('aria-expanded', 'true');
+        expect(screen.queryByText(PANEL_CONTENT_1)).not.to.equal(null);
+        expect(onOpenChange.callCount).to.equal(1);
+        expect(onOpenChange.firstCall.args[0]).to.equal(true);
+
+        fireEvent.keyUp(trigger, { key: ' ' });
+        expect(trigger).to.have.attribute('aria-expanded', 'true');
+        expect(onOpenChange.callCount).to.equal(1);
+
+        fireEvent.keyDown(trigger, { key: ' ' });
+        expect(trigger).to.have.attribute('aria-expanded', 'false');
+        expect(screen.queryByText(PANEL_CONTENT_1)).to.equal(null);
+        expect(onOpenChange.callCount).to.equal(2);
+        expect(onOpenChange.secondCall.args[0]).to.equal(false);
+
+        fireEvent.keyUp(trigger, { key: ' ' });
+        expect(trigger).to.have.attribute('aria-expanded', 'false');
+        expect(onOpenChange.callCount).to.equal(2);
       });
     });
   });
