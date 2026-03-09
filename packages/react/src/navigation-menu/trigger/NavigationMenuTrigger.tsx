@@ -102,14 +102,13 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const focusFrame = useAnimationFrame();
   const mutationFrame = useAnimationFrame();
   const resizeFrame = useAnimationFrame();
-  const sizeFrame1 = useAnimationFrame();
-  const sizeFrame2 = useAnimationFrame();
+  const sizeFrame = useAnimationFrame();
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
-  const triggerElementRef = React.useRef<HTMLElement | null>(null);
   const [stickIfOpen, setStickIfOpen] = React.useState(true);
   const [pointerType, setPointerType] = React.useState<'mouse' | 'touch' | 'pen' | ''>('');
 
+  const triggerElementRef = React.useRef<HTMLElement | null>(null);
   const allowFocusRef = React.useRef(false);
   const prevSizeRef = React.useRef(DEFAULT_SIZE);
   const animationAbortControllerRef = React.useRef<AbortController | null>(null);
@@ -209,7 +208,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         `${syncPositioner ? currentHeight : measuredHeight}px`,
       );
 
-      sizeFrame1.request(() => {
+      sizeFrame.request(() => {
         popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${measuredWidth}px`);
         popupElement.style.setProperty(
           NavigationMenuPopupCssVars.popupHeight,
@@ -227,9 +226,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
           );
         }
 
-        sizeFrame2.request(() => {
-          scheduleAutoSizeReset();
-        });
+        scheduleAutoSizeReset();
       });
     },
   );
@@ -240,8 +237,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         return;
       }
 
-      sizeFrame1.cancel();
-      sizeFrame2.cancel();
+      sizeFrame.cancel();
       mutationFrame.cancel();
       animationAbortControllerRef.current?.abort();
       animationAbortControllerRef.current = null;
@@ -262,12 +258,9 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
           setSharedFixedSizes(currentWidth, currentHeight);
 
-          sizeFrame1.request(() => {
+          sizeFrame.request(() => {
             setSharedFixedSizes(measuredWidth, measuredHeight);
-
-            sizeFrame2.request(() => {
-              scheduleAutoSizeReset();
-            });
+            scheduleAutoSizeReset();
           });
         });
       });
@@ -279,8 +272,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       return;
     }
 
-    sizeFrame1.cancel();
-    sizeFrame2.cancel();
+    sizeFrame.cancel();
     animationAbortControllerRef.current?.abort();
     animationAbortControllerRef.current = null;
 
@@ -332,13 +324,12 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       stickIfOpenTimeout.clear();
       mutationFrame.cancel();
       resizeFrame.cancel();
-      sizeFrame1.cancel();
-      sizeFrame2.cancel();
+      sizeFrame.cancel();
       animationAbortControllerRef.current?.abort();
       animationAbortControllerRef.current = null;
       setPointerType('');
     }
-  }, [stickIfOpenTimeout, open, mutationFrame, resizeFrame, sizeFrame1, sizeFrame2]);
+  }, [stickIfOpenTimeout, open, mutationFrame, resizeFrame, sizeFrame]);
 
   React.useEffect(() => {
     if (!mounted) {
@@ -453,9 +444,9 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       const hasNestedMenu = currentContentRef.current?.querySelector('[data-nested]') != null;
 
       if (transitionStatus === 'starting' && hasNestedMenu) {
-        mutationFrame.request(syncCurrentSize);
+        sizeFrame.request(syncCurrentSize);
         return () => {
-          mutationFrame.cancel();
+          sizeFrame.cancel();
         };
       }
 
@@ -466,9 +457,9 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     currentContentRef,
     handleValueChange,
     isActiveItemRef,
-    mutationFrame,
     open,
     popupElement,
+    sizeFrame,
     syncCurrentSize,
     transitionStatus,
   ]);
