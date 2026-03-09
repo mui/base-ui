@@ -9,18 +9,18 @@
       "detailedType": "'horizontal' | 'vertical' | undefined"
     },
     "className": {
-      "type": "string | ((state: SeparatorState) => string | undefined)",
+      "type": "string | ((state: Toolbar.Separator.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: SeparatorState) => string | undefined)"
+      "detailedType": "| string\n| ((state: Toolbar.Separator.State) => string | undefined)"
     },
     "style": {
-      "type": "CSSProperties | ((state: SeparatorState) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((state: SeparatorState) => CSSProperties | undefined)\n| undefined"
+      "type": "CSSProperties | ((state: Toolbar.Separator.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Toolbar.Separator.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: SeparatorState) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Toolbar.Separator.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: SeparatorState,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Toolbar.Separator.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

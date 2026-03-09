@@ -3,7 +3,7 @@ import * as React from 'react';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useFocusableWhenDisabled } from '../../utils/useFocusableWhenDisabled';
 import { ARROW_LEFT, ARROW_RIGHT, stopEvent } from '../../composite/composite';
-import type { ToolbarRoot } from '../root/ToolbarRoot';
+import type { ToolbarRootState } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 import { useToolbarGroupContext } from '../group/ToolbarGroupContext';
 import { CompositeItem } from '../../composite/item/CompositeItem';
@@ -41,7 +41,7 @@ export const ToolbarInput = React.forwardRef(function ToolbarInput(
     isNativeButton: false,
   });
 
-  const state: ToolbarInput.State = {
+  const state: ToolbarInputState = {
     disabled,
     orientation,
     focusable: focusableWhenDisabled,
@@ -78,12 +78,18 @@ export const ToolbarInput = React.forwardRef(function ToolbarInput(
   );
 });
 
-export interface ToolbarInputState extends ToolbarRoot.State {
+export interface ToolbarInputState extends ToolbarRootState {
+  /**
+   * Whether the component is disabled.
+   */
   disabled: boolean;
+  /**
+   * Whether the component remains focusable when disabled.
+   */
   focusable: boolean;
 }
 
-export interface ToolbarInputProps extends BaseUIComponentProps<'input', ToolbarInput.State> {
+export interface ToolbarInputProps extends BaseUIComponentProps<'input', ToolbarInputState> {
   /**
    * When `true` the item is disabled.
    * @default false

@@ -4,7 +4,7 @@ import type { Orientation } from '../../utils/types';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import type { UseFieldValidationReturnValue } from '../../field/root/useFieldValidation';
 import type { ThumbMetadata } from '../thumb/SliderThumb';
-import type { SliderRoot } from './SliderRoot';
+import type { SliderRoot, SliderRootState } from './SliderRoot';
 
 export interface SliderRootContext {
   /**
@@ -79,7 +79,7 @@ export interface SliderRootContext {
    * Callback fired when dragging and invokes onValueChange.
    */
   setValue: (newValue: number | number[], details?: SliderRoot.ChangeEventDetails) => void;
-  state: SliderRoot.State;
+  state: SliderRootState;
   /**
    * The step increment of the slider when incrementing or decrementing. It will snap
    * to multiples of this value. Decimal values are supported.

@@ -84,7 +84,7 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
     return nextIndex;
   }
 
-  const state: ComboboxChip.State = {
+  const state: ComboboxChipState = {
     disabled,
   };
 
@@ -149,7 +149,7 @@ export interface ComboboxChipState {
   disabled: boolean;
 }
 
-export interface ComboboxChipProps extends BaseUIComponentProps<'div', ComboboxChip.State> {}
+export interface ComboboxChipProps extends BaseUIComponentProps<'div', ComboboxChipState> {}
 
 export namespace ComboboxChip {
   export type State = ComboboxChipState;

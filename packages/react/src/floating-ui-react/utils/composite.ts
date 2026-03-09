@@ -1,4 +1,5 @@
 import { floor } from '@floating-ui/utils';
+import { getComputedStyle } from '@floating-ui/utils/dom';
 
 import type { Dimensions } from '../types';
 import { stopEvent } from './event';
@@ -471,11 +472,13 @@ export function isListIndexDisabled(
   index: number,
   disabledIndices?: DisabledIndices,
 ) {
-  if (typeof disabledIndices === 'function') {
-    return disabledIndices(index);
-  }
-  if (disabledIndices) {
-    return disabledIndices.includes(index);
+  const isExplicitlyDisabled =
+    typeof disabledIndices === 'function'
+      ? disabledIndices(index)
+      : (disabledIndices?.includes(index) ?? false);
+
+  if (isExplicitlyDisabled) {
+    return true;
   }
 
   const element = list[index];
@@ -483,5 +486,16 @@ export function isListIndexDisabled(
     return false;
   }
 
-  return element.hasAttribute('disabled') || element.getAttribute('aria-disabled') === 'true';
+  if (!isElementVisible(element)) {
+    return true;
+  }
+
+  return (
+    !disabledIndices &&
+    (element.hasAttribute('disabled') || element.getAttribute('aria-disabled') === 'true')
+  );
+}
+
+export function isElementVisible(element: Element) {
+  return getComputedStyle(element).display !== 'none';
 }

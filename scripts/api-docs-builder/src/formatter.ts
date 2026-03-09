@@ -237,11 +237,11 @@ export function formatType(
       return t;
     });
 
-    const formattedMemeberTypes = uniq(
+    const formattedMemberTypes = uniq(
       orderMembers(flattenedMemberTypes).map((t) => formatType(t, removeUndefined)),
     );
 
-    return formattedMemeberTypes.join(' | ');
+    return formattedMemberTypes.join(' | ');
   }
 
   if (type instanceof tae.IntersectionNode) {
