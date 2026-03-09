@@ -12,7 +12,7 @@
     "rootDir": "./src",
     "outDir": "build/esm",
     "lib": ["ES2022", "DOM"],
-    "types": []
+    "types": ["@mui/internal-code-infra/build-env"]
   },
   "include": ["src/**/*.ts*", "src/**/*.tsx"],
   "exclude": ["src/**/*.spec.ts*", "src/**/*.test.ts*"]

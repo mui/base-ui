@@ -11,7 +11,7 @@
     "noEmit": false,
     "rootDir": "./src",
     "outDir": "build/esm",
-    "types": []
+    "types": ["@mui/internal-code-infra/build-env"]
   },
   "include": ["src/**/*.ts*"],
   "exclude": ["src/**/*.spec.ts*", "src/**/*.test.ts*"],
