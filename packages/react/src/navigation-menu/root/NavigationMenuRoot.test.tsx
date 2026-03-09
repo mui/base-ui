@@ -1904,12 +1904,18 @@ describe('<NavigationMenu.Root />', () => {
           positioner.style.setProperty('--positioner-width', '250px');
           positioner.style.setProperty('--positioner-height', '220px');
 
+          const setPropertySpy = spy(positioner.style, 'setProperty');
+
           animations.start();
           fireEvent.click(screen.getByTestId('insert-content'));
           await flushMicrotasks();
 
           expect(screen.getByTestId('extra-content-2')).not.to.equal(null);
-          expect(positioner.style.getPropertyValue('--positioner-height')).to.equal('190px');
+          expect(
+            setPropertySpy
+              .getCalls()
+              .some((call) => call.args[0] === '--positioner-height' && call.args[1] === '190px'),
+          ).to.equal(true);
 
           await act(async () => {
             animations.finish();
@@ -1920,6 +1926,8 @@ describe('<NavigationMenu.Root />', () => {
             expect(positioner.style.getPropertyValue('--positioner-height')).to.equal('260px');
             expect(popupRoot.style.getPropertyValue('--popup-height')).to.equal('auto');
           });
+
+          setPropertySpy.restore();
         } finally {
           globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
         }
