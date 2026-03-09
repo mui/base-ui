@@ -46,7 +46,7 @@ import { HTMLProps } from '../../utils/types';
 import { useValueChanged } from '../../utils/useValueChanged';
 import { NOOP } from '../../utils/noop';
 import {
-  resolveSelectedLabelString,
+  resolveSelectedLabel,
   stringifyAsLabel,
   stringifyAsValue,
   Group,
@@ -210,57 +210,71 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     return getValueFromItem ? flatItems.map((item) => getValueFromItem(item)) : flatItems;
   }, [flatItems, getValueFromItem, hasItems]);
 
-  const selectedValueLookup = React.useMemo(() => {
+  const selectedValueToIndex = React.useMemo(() => {
     if (!hasItems || isItemEqualToValue !== defaultItemEquality) {
       return null;
     }
 
-    const itemByValue = new Map<any, any>();
-    const indexByValue = new Map<any, number>();
+    const valueToIndex = new Map<any, number>();
 
     flatItemValues.forEach((itemValue, index) => {
-      if (itemValue === undefined || itemByValue.has(itemValue)) {
+      if (itemValue === undefined || valueToIndex.has(itemValue)) {
         return;
       }
 
-      itemByValue.set(itemValue, flatItems[index]);
-      indexByValue.set(itemValue, index);
+      valueToIndex.set(itemValue, index);
     });
 
-    return { itemByValue, indexByValue };
-  }, [flatItems, flatItemValues, hasItems, isItemEqualToValue]);
+    return valueToIndex;
+  }, [flatItemValues, hasItems, isItemEqualToValue]);
 
-  function findMatchingItem(value: any) {
-    if (!hasItems) {
-      return undefined;
+  function resolveSelectedLabelAsString(
+    value: any,
+    selectedItemToStringLabel?: (item: any) => string,
+  ): string {
+    const label = resolveSelectedLabel(value, items, selectedItemToStringLabel);
+
+    if (label == null || typeof label === 'boolean') {
+      return '';
     }
 
-    if (selectedValueLookup) {
-      return selectedValueLookup.itemByValue.get(value);
+    if (typeof label === 'string' || typeof label === 'number') {
+      return String(label);
     }
 
-    const index = findItemIndex(flatItemValues, value, isItemEqualToValue);
-    return index === -1 ? undefined : flatItems[index];
+    return stringifyAsLabel(value);
   }
+
+  const findSelectedIndex = React.useCallback(
+    (value: any) => {
+      if (!hasItems) {
+        return findItemIndex(allValuesRef.current, value, isItemEqualToValue);
+      }
+
+      return (
+        selectedValueToIndex?.get(value) ?? findItemIndex(flatItemValues, value, isItemEqualToValue)
+      );
+    },
+    [flatItemValues, hasItems, isItemEqualToValue, selectedValueToIndex],
+  );
 
   function resolveSelectedInputLabel(value: any): string {
     if (!getValueFromItem || !hasItems) {
-      return resolveSelectedLabelString(value, items, itemToStringLabel);
+      return resolveSelectedLabelAsString(value, itemToStringLabel);
     }
 
-    const matchingItem = findMatchingItem(value);
+    const index = findSelectedIndex(value);
 
-    if (matchingItem !== undefined) {
+    if (index !== -1) {
       if (itemToStringLabel && value != null) {
         return itemToStringLabel(value) ?? '';
       }
 
-      return stringifyAsLabel(matchingItem, itemToStringForItem);
+      return stringifyAsLabel(flatItems[index], itemToStringForItem);
     }
 
-    return resolveSelectedLabelString(
+    return resolveSelectedLabelAsString(
       value,
-      items,
       value && typeof value === 'object' ? itemToStringLabel : undefined,
     );
   }
@@ -859,57 +873,26 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         return;
       }
 
-      const findSelectedIndex = (value: any) => {
-        if (!items) {
-          return findItemIndex(allValuesRef.current, value, isItemEqualToValue);
-        }
+      const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
+      const nextSelectedIndex = multiple
+        ? findSelectedIndex(currentValue[currentValue.length - 1])
+        : findSelectedIndex(selectedValue);
 
-        if (selectedValueLookup) {
-          return selectedValueLookup.indexByValue.get(value) ?? -1;
-        }
-
-        return findItemIndex(flatItemValues, value, isItemEqualToValue);
-      };
-
-      if (multiple) {
-        const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
-        const lastValue = currentValue[currentValue.length - 1];
-        const lastIndex = findSelectedIndex(lastValue);
-        setIndices({ selectedIndex: lastIndex === -1 ? null : lastIndex });
-      } else {
-        const index = findSelectedIndex(selectedValue);
-        setIndices({ selectedIndex: index === -1 ? null : index });
-      }
+      setIndices({ selectedIndex: nextSelectedIndex === -1 ? null : nextSelectedIndex });
     },
-    [
-      open,
-      selectedValue,
-      items,
-      selectionMode,
-      multiple,
-      setIndices,
-      flatItemValues,
-      isItemEqualToValue,
-      selectedValueLookup,
-    ],
+    [findSelectedIndex, multiple, open, selectedValue, selectionMode, setIndices],
   );
-
-  const flatFilteredItemValues: readonly any[] = React.useMemo(() => {
-    if (!hasItems) {
-      return EMPTY_ARRAY;
-    }
-
-    return getValueFromItem
-      ? flatFilteredItems.map((item) => getValueFromItem(item))
-      : flatFilteredItems;
-  }, [flatFilteredItems, getValueFromItem, hasItems]);
 
   useIsoLayoutEffect(() => {
     if (items) {
-      valuesRef.current = flatFilteredItemValues as Value[];
+      valuesRef.current = (
+        getValueFromItem
+          ? flatFilteredItems.map((item) => getValueFromItem(item))
+          : flatFilteredItems
+      ) as Value[];
       listRef.current.length = flatFilteredItems.length;
     }
-  }, [flatFilteredItemValues, flatFilteredItems.length, items]);
+  }, [flatFilteredItems, getValueFromItem, items]);
 
   useIsoLayoutEffect(() => {
     const pendingHighlight = pendingQueryHighlightRef.current;
@@ -928,11 +911,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       return;
     }
 
-    const shouldUseFlatFilteredItems = hasItems || hasFilteredItemsProp;
-    let candidateItems = valuesRef.current;
-    if (shouldUseFlatFilteredItems) {
-      candidateItems = hasItems ? flatFilteredItemValues : flatFilteredItems;
-    }
+    const candidateItems =
+      hasItems || !hasFilteredItemsProp ? valuesRef.current : flatFilteredItems;
     const storeActiveIndex = store.state.activeIndex;
 
     if (storeActiveIndex == null) {
@@ -985,7 +965,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     hasFilteredItemsProp,
     hasItems,
     flatFilteredItems,
-    flatFilteredItemValues,
     inline,
     open,
     store,

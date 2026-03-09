@@ -47,13 +47,11 @@ type ComboboxValueType<Value, Multiple extends boolean | undefined> = Multiple e
   : Value;
 
 type ItemFromItemsProp<Items extends readonly any[] | readonly Group<any>[] | undefined> =
-  Items extends readonly (infer Item)[]
-    ? Item extends { items: readonly (infer GroupItem)[] }
-      ? GroupItem
-      : Item extends { items: (infer GroupItem)[] }
-        ? GroupItem
-        : Item
-    : never;
+  Items extends readonly Group<infer Item>[]
+    ? Item
+    : Items extends readonly (infer Item)[]
+      ? Item
+      : never;
 
 type IsAny<T> = 0 extends 1 & T ? true : false;
 

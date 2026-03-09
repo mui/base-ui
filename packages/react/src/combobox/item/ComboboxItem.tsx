@@ -66,20 +66,10 @@ export const ComboboxItem = React.memo(
     let index = indexProp;
     if (index == null) {
       if (virtualized) {
-        if (hasItems && getValueFromItem) {
-          const mappedIndex = findItemIndex(
-            flatFilteredItems,
-            itemValue,
-            isItemEqualToValue,
-            getValueFromItem,
-          );
-          index =
-            mappedIndex > -1
-              ? mappedIndex
-              : findItemIndex(flatFilteredItems, itemValueProp, isItemEqualToValue);
-        } else {
-          index = findItemIndex(flatFilteredItems, itemValueProp, isItemEqualToValue);
-        }
+        index =
+          hasItems && getValueFromItem
+            ? findItemIndex(flatFilteredItems, itemValue, isItemEqualToValue, getValueFromItem)
+            : findItemIndex(flatFilteredItems, itemValue, isItemEqualToValue);
       } else {
         index = listItem.index;
       }
