@@ -79,10 +79,6 @@ export function useHoverReferenceInteraction(
   }
 
   const isClickLikeOpenEvent = useStableCallback(() => {
-    if (instance.interactedInside) {
-      return true;
-    }
-
     const openEventType = dataRef.current.openEvent?.type;
     return openEventType === 'click' || openEventType === 'mousedown';
   });

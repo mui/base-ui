@@ -873,6 +873,28 @@ describe('<NavigationMenu.Root />', () => {
       });
     });
 
+    it('closes after pointerdown on a link in a hover-open popup when pointer leaves', async () => {
+      const { user } = await render(<TestNavigationMenu />);
+      const trigger1 = screen.getByTestId('trigger-1');
+
+      await user.hover(trigger1);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+      });
+
+      const popup1 = screen.getByTestId('popup-1');
+      const link1 = within(popup1).getByText('Link 1');
+
+      await user.hover(link1);
+      fireEvent.pointerDown(link1, { pointerType: 'mouse' });
+      await user.unhover(link1);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup-1')).to.equal(null);
+      });
+    });
+
     it('does not close menu when clicking a different trigger with mouse', async () => {
       await render(<TestNavigationMenu />);
       const trigger1 = screen.getByTestId('trigger-1');
