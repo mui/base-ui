@@ -43,6 +43,24 @@ export function getInlineRectHoverCoords(
   };
 }
 
+export function getInlineRectTriggerProps<TElement extends Element = Element>(
+  coordsRef: React.MutableRefObject<InlineRectCoords | undefined>,
+  isOpen: boolean,
+): Pick<React.DOMAttributes<TElement>, 'onFocus' | 'onMouseMove'> {
+  return {
+    onFocus(_event: React.FocusEvent<TElement>) {
+      coordsRef.current = undefined;
+    },
+    onMouseMove(event: React.MouseEvent<TElement>) {
+      if (isOpen) {
+        return;
+      }
+
+      coordsRef.current = getInlineRectHoverCoords(event);
+    },
+  };
+}
+
 /**
  * Creates an inline middleware that positions the floating element relative to the
  * hovered rect of a wrapped inline element (e.g., a multi-line link).
