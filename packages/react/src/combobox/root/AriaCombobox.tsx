@@ -243,18 +243,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     return index === -1 ? undefined : flatItems[index];
   }
 
-  function findSelectedIndex(value: any): number {
-    if (!items) {
-      return findItemIndex(allValuesRef.current, value, isItemEqualToValue);
-    }
-
-    if (selectedValueLookup) {
-      return selectedValueLookup.indexByValue.get(value) ?? -1;
-    }
-
-    return findItemIndex(flatItemValues, value, isItemEqualToValue);
-  }
-
   function resolveSelectedInputLabel(value: any): string {
     if (!getValueFromItem || !hasItems) {
       return resolveSelectedLabelString(value, items, itemToStringLabel);
@@ -432,7 +420,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     filterQuery,
     limit,
     filter,
-    itemToStringLabel,
     flatItems,
   ]);
 
@@ -872,6 +859,18 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         return;
       }
 
+      const findSelectedIndex = (value: any) => {
+        if (!items) {
+          return findItemIndex(allValuesRef.current, value, isItemEqualToValue);
+        }
+
+        if (selectedValueLookup) {
+          return selectedValueLookup.indexByValue.get(value) ?? -1;
+        }
+
+        return findItemIndex(flatItemValues, value, isItemEqualToValue);
+      };
+
       if (multiple) {
         const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
         const lastValue = currentValue[currentValue.length - 1];
@@ -930,11 +929,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
 
     const shouldUseFlatFilteredItems = hasItems || hasFilteredItemsProp;
-    const candidateItems = shouldUseFlatFilteredItems
-      ? hasItems
-        ? flatFilteredItemValues
-        : flatFilteredItems
-      : valuesRef.current;
+    let candidateItems = valuesRef.current;
+    if (shouldUseFlatFilteredItems) {
+      candidateItems = hasItems ? flatFilteredItemValues : flatFilteredItems;
+    }
     const storeActiveIndex = store.state.activeIndex;
 
     if (storeActiveIndex == null) {
