@@ -5,7 +5,7 @@ import type { ContentProps } from '@mui/internal-docs-infra/CodeHighlighter/type
 import { useCode } from '@mui/internal-docs-infra/useCode';
 import * as CodeBlock from './CodeBlock';
 
-export function CodeBlockContent(props: ContentProps<object>) {
+export function CodeBlockPreComputedContent(props: ContentProps<object>) {
   const code = useCode(props);
 
   return (

@@ -5,8 +5,8 @@ import {
 import clsx from 'clsx';
 import { ReferenceTable } from '../components/ReferenceTable/ReferenceTable';
 import { mdxComponents, mdxComponentsInline } from '../mdx-components';
-import { CodeBlockPrecomputed } from '../components/CodeBlockPrecomputed';
 import { PreInline } from '../components/CodeBlock';
+import { CodeBlockPreComputed } from '../components/CodeBlock/CodeBlockPreComputed';
 import { Code } from '../components/Code';
 
 interface MDXComponents {
@@ -15,7 +15,7 @@ interface MDXComponents {
 
 const components: MDXComponents = {
   ...mdxComponents,
-  pre: CodeBlockPrecomputed,
+  pre: CodeBlockPreComputed,
 };
 
 const inlineComponents: MDXComponents = {

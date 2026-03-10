@@ -4,10 +4,10 @@ import copy from 'clipboard-copy';
 import clsx from 'clsx';
 import { usePathname } from 'next/navigation';
 import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
-import * as ScrollArea from './ScrollArea';
-import { CopyIcon } from '../icons/CopyIcon';
-import { CheckIcon } from '../icons/CheckIcon';
-import { GhostButton } from './GhostButton';
+import * as ScrollArea from '../ScrollArea';
+import { CopyIcon } from '../../icons/CopyIcon';
+import { CheckIcon } from '../../icons/CheckIcon';
+import { GhostButton } from '../GhostButton';
 import './CodeBlock.css';
 
 const CodeBlockContext = React.createContext({ codeId: '', titleId: '' });
