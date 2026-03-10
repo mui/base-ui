@@ -297,5 +297,70 @@ describe('<Calendar.DecrementMonth />', () => {
 
       fireEvent.pointerUp(button);
     });
+
+    describe('touch (Android)', () => {
+      it('should navigate once on a quick touch tap', async () => {
+        const onVisibleDateChange = spy();
+        await renderCalendar({ onVisibleDateChange });
+
+        const button = screen.getByTestId('decrement');
+
+        // Simulate a quick touch tap: pointerdown then immediate pointerup
+        fireEvent.pointerDown(button, { pointerType: 'touch' });
+        fireEvent.pointerUp(button, { pointerType: 'touch' });
+
+        // Quick tap: auto-change should not have started (released before 50ms)
+        expect(onVisibleDateChange.callCount).to.equal(0);
+
+        // The browser fires a synthesized click after touch up; this should trigger navigation
+        fireEvent.click(button, { detail: 1 });
+        expect(onVisibleDateChange.callCount).to.equal(1);
+      });
+
+      it('should navigate continuously on touch hold and ignore the synthesized click after release', async () => {
+        const onVisibleDateChange = spy();
+        await renderCalendar({ onVisibleDateChange });
+
+        const button = screen.getByTestId('decrement');
+
+        fireEvent.pointerDown(button, { pointerType: 'touch' });
+
+        // Wait past the TOUCH_TIMEOUT (50ms) to confirm it's an intentional hold
+        clock.tick(50);
+
+        // First tick fires immediately after intent confirmed
+        expect(onVisibleDateChange.callCount).to.equal(1);
+
+        // Wait for initial delay (400ms) and one tick
+        clock.tick(400);
+        clock.tick(100);
+        expect(onVisibleDateChange.callCount).to.equal(2);
+
+        fireEvent.pointerUp(button, { pointerType: 'touch' });
+
+        // The browser fires a synthesized click after touch hold; it must be suppressed
+        fireEvent.click(button, { detail: 1 });
+        expect(onVisibleDateChange.callCount).to.equal(2);
+      });
+
+      it('should not start auto-change when the touch moves more than 8px (scroll gesture)', async () => {
+        const onVisibleDateChange = spy();
+        await renderCalendar({ onVisibleDateChange });
+
+        const button = screen.getByTestId('decrement');
+
+        fireEvent.pointerDown(button, { pointerType: 'touch', clientX: 0, clientY: 0 });
+
+        // Move pointer by 9px — exceeds the 8px scroll threshold
+        fireEvent.pointerMove(button, { pointerType: 'touch', clientX: 9, clientY: 0 });
+
+        clock.tick(50);
+
+        // Auto-change should not have started due to scroll detection
+        expect(onVisibleDateChange.callCount).to.equal(0);
+
+        fireEvent.pointerUp(button, { pointerType: 'touch' });
+      });
+    });
   });
 });

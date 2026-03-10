@@ -54,7 +54,7 @@ export const CalendarDecrementMonth = React.forwardRef(function CalendarDecremen
     focusableWhenDisabled,
   });
 
-  const { pointerHandlers, autoChangeButtonRef } = useCalendarMonthButton({
+  const { pointerHandlers, autoChangeButtonRef, shouldSkipClick } = useCalendarMonthButton({
     direction: -1,
     disabled: isDisabled,
     disabledProp,
@@ -76,9 +76,7 @@ export const CalendarDecrementMonth = React.forwardRef(function CalendarDecremen
         tabIndex: 0,
         'aria-label': monthPageSize > 1 ? 'Previous months' : 'Previous month',
         onClick(event) {
-          // Skip for pointer clicks — onPointerDown already handled the first navigation.
-          // Keep for keyboard activation (Enter/Space) where detail === 0.
-          if (isDisabled || event.detail !== 0) {
+          if (isDisabled || shouldSkipClick(event)) {
             return;
           }
           store.setVisibleDate(
