@@ -14,6 +14,8 @@ export const titleMap: Record<string, string> = {
 
 export const HEADER_HEIGHT = 48;
 
+const showPrivatePages = process.env.SHOW_PRIVATE_PAGES === 'true';
+
 export function Header() {
   return (
     <header className="Header">
@@ -50,36 +52,33 @@ export function Header() {
               <MobileNav.Portal>
                 <MobileNav.Backdrop />
                 <MobileNav.Popup>
-                  {Object.entries(
-                    sitemap.data as Record<
-                      string,
-                      {
-                        title?: string;
-                        prefix?: string;
-                        pages: { title: string; tags?: string[]; path: string }[];
-                      }
-                    >,
-                  ).map(([name, section]) => (
+                  {Object.entries(sitemap.data).map(([name, section]) => (
                     <MobileNav.Section key={name}>
                       <MobileNav.Heading>{name}</MobileNav.Heading>
                       <MobileNav.List>
-                        {section.pages.map((page) => (
-                          <MobileNav.Item
-                            key={page.title}
-                            href={
-                              page.path.startsWith('./')
-                                ? `${section.prefix}${page.path.replace(/^\.\//, '').replace(/\/page\.mdx$/, '')}`
-                                : page.path
-                            }
-                            external={page.tags?.includes('External')}
-                          >
-                            {titleMap[page.title] || page.title}
-                            {page.tags?.includes('New') && <MobileNav.Badge>New</MobileNav.Badge>}
-                            {page.tags?.includes('Preview') && (
-                              <MobileNav.Badge>Preview</MobileNav.Badge>
-                            )}
-                          </MobileNav.Item>
-                        ))}
+                        {section.pages
+                          .filter((page) => (page.audience === 'private' ? showPrivatePages : true))
+                          .map((page) => (
+                            <MobileNav.Item
+                              key={page.title}
+                              href={
+                                page.path.startsWith('./')
+                                  ? `${section.prefix}${page.path.replace(/^\.\//, '').replace(/\/page\.mdx$/, '')}`
+                                  : page.path
+                              }
+                              external={page.tags?.includes('External')}
+                            >
+                              {(page.title && titleMap[page.title]) || page.title}
+                              {page.audience === 'private' && (
+                                <MobileNav.Badge>Private</MobileNav.Badge>
+                              )}
+                              {page.tags?.includes('Preview') ? (
+                                <MobileNav.Badge>Preview</MobileNav.Badge>
+                              ) : (
+                                page.tags?.includes('New') && <MobileNav.Badge>New</MobileNav.Badge>
+                              )}
+                            </MobileNav.Item>
+                          ))}
                       </MobileNav.List>
                     </MobileNav.Section>
                   ))}
