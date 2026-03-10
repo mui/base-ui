@@ -86,6 +86,7 @@
 
 .DayGridBody {
   grid-row: 2;
+  grid-column: 1;
   transform: translateX(0);
   opacity: 1;
 
@@ -114,22 +115,22 @@
 
   &[data-navigation-direction='next'][data-current] {
     &[data-starting-style] {
-      transform: translateX(0);
+      transform: translateX(100%);
       opacity: 0;
     }
     &[data-ending-style] {
-      transform: translateX(-100%);
+      transform: translateX(0);
       opacity: 1;
     }
   }
 
   &[data-navigation-direction='previous'][data-previous] {
     &[data-starting-style] {
-      transform: translateX(-100%);
+      transform: translateX(0);
       opacity: 1;
     }
     &[data-ending-style] {
-      transform: translateX(0);
+      transform: translateX(100%);
       opacity: 0;
     }
   }
