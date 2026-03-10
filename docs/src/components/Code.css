@@ -25,7 +25,7 @@
 
     & a {
       text-decoration: underline;
-      text-decoration-color: color-mix(in oklab, currentColor, transparent 60%);
+      text-decoration-color: color-mix(in oklab, currentColor, transparent);
       text-underline-offset: 2px;
       text-decoration-thickness: 1px;
 
