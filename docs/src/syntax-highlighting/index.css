@@ -34,6 +34,9 @@
     --syntax-keyword: var(--color-blue);
     --syntax-string: var(--color-blue);
     --syntax-nullish: var(--color-blue);
+
+    /* Force color for parts of the inline code that don't have an explicit color */
+    color: var(--color-blue);
   }
 
   /* Recover some of the syntax highlighting colors in tables */
