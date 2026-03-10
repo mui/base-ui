@@ -72,7 +72,6 @@
   .TypeRefContent {
     flex: 1;
     min-height: 0;
-    padding-top: 0.25rem;
     overflow: auto;
     scrollbar-width: auto;
   }
