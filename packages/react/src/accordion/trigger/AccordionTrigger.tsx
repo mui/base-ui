@@ -68,6 +68,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
     disabled,
     focusableWhenDisabled: true,
     native: nativeButton,
+    composite: true,
   });
 
   const { accordionItemRefs, direction, loopFocus, orientation } = useAccordionRootContext();
@@ -91,6 +92,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
       'aria-controls': open ? panelId : undefined,
       'aria-expanded': open,
       id,
+      tabIndex: 0,
       onClick: handleTrigger,
       onKeyDown(event: React.KeyboardEvent) {
         if (!SUPPORTED_KEYS.has(event.key)) {
