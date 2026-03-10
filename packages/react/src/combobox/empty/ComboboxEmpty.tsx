@@ -6,11 +6,15 @@ import {
   useComboboxDerivedItemsContext,
   useComboboxRootContext,
 } from '../root/ComboboxRootContext';
+import { useInitialLiveRegionTextMutation } from '../utils/useInitialLiveRegionTextMutation';
 
 /**
  * Renders its children only when the list is empty.
  * Requires the `items` prop on the root component.
  * Announces changes politely to screen readers.
+ * To announce updates reliably, keep this element mounted instead of conditionally
+ * hiding or removing it with `display: none`, `hidden`, or `aria-hidden`; prefer
+ * CSS such as `:empty` to conditionally apply layout styles when it has no content.
  * Renders a `<div>` element.
  */
 export const ComboboxEmpty = React.forwardRef(function ComboboxEmpty(
@@ -21,17 +25,18 @@ export const ComboboxEmpty = React.forwardRef(function ComboboxEmpty(
 
   const { filteredItems } = useComboboxDerivedItemsContext();
   const store = useComboboxRootContext();
+  const emptyRef = useInitialLiveRegionTextMutation<HTMLDivElement>();
 
   const children = filteredItems.length === 0 ? childrenProp : null;
 
   return useRenderElement('div', componentProps, {
-    ref: [forwardedRef, store.state.emptyRef],
+    ref: [forwardedRef, store.state.emptyRef, emptyRef],
     props: [
       {
-        children,
         role: 'status',
         'aria-live': 'polite',
         'aria-atomic': true,
+        children,
       },
       elementProps,
     ],

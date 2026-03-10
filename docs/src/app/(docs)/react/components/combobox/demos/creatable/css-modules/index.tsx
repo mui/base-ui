@@ -160,7 +160,9 @@ export default function ExampleCreatableCombobox() {
         <Combobox.Portal>
           <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
             <Combobox.Popup className={styles.Popup}>
-              <Combobox.Empty className={styles.Empty}>No labels found.</Combobox.Empty>
+              <Combobox.Empty>
+                <div className={styles.Empty}>No labels found.</div>
+              </Combobox.Empty>
               <Combobox.List>
                 {(item: LabelItem) =>
                   item.creatable ? (
