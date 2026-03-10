@@ -74,6 +74,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   } = componentProps;
 
   const nested = useFloatingParentNodeId() != null;
+  const parentRootContext = useNavigationMenuRootContext(true);
 
   const [value, setValueUnwrapped] = useControlled({
     controlled: valueParam,
@@ -135,6 +136,10 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
       }
 
       setValueUnwrapped(nextValue);
+
+      if (nested && !nextValue && eventDetails.reason === REASONS.linkPress && parentRootContext) {
+        parentRootContext.setValue(null, eventDetails);
+      }
     },
   );
 
