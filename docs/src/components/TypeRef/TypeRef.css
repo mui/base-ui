@@ -10,6 +10,25 @@
     text-decoration-style: dotted;
     text-decoration-color: var(--color-violet);
     text-underline-offset: 2px;
+    transition:
+      text-decoration-color 120ms ease,
+      color 120ms ease;
+  }
+
+  .TypeRefTrigger:hover {
+    color: var(--color-violet);
+    text-decoration-color: var(--color-violet);
+  }
+
+  .TypeRefTrigger:focus-visible {
+    outline: 2px solid var(--color-violet);
+    outline-offset: 2px;
+    border-radius: 0.125rem;
+  }
+
+  .TypeRefTrigger:active {
+    color: var(--color-violet);
+    text-decoration-color: var(--color-violet);
   }
 
   .TypeRefPopup {
@@ -34,93 +53,6 @@
     letter-spacing: var(--text-sm--letter-spacing);
     font-weight: 500;
     color: var(--color-gray-900);
-  }
-
-  .TypeRefInfoButton {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: 0;
-    background: transparent;
-    padding: 0;
-    cursor: pointer;
-    color: var(--color-gray-400);
-  }
-
-  .TypeRefInfoButton:hover {
-    color: var(--color-gray-600);
-  }
-
-  .TypeRefInfoPopup {
-    max-width: 20rem;
-    padding: 0.5rem 0.75rem;
-    font-size: var(--text-xs);
-    line-height: var(--text-xs--line-height);
-    letter-spacing: var(--text-xs--letter-spacing);
-    color: var(--color-gray-700);
-    overflow: visible;
-  }
-
-  .TypeRefInfoCode {
-    font-size: inherit;
-    background: var(--color-gray-100);
-    padding: 0.0625rem 0.25rem;
-    border-radius: 0.1875rem;
-  }
-
-  .TypeRefInfoArrow {
-    &[data-side='bottom'] {
-      top: -8px;
-    }
-
-    &[data-side='left'] {
-      right: -13px;
-      transform: rotate(90deg);
-    }
-
-    &[data-side='right'] {
-      left: -13px;
-      transform: rotate(-90deg);
-    }
-
-    &[data-side='top'] {
-      bottom: -8px;
-      transform: rotate(180deg);
-    }
-  }
-
-  .TypeRefInfoArrowFill {
-    fill: var(--color-popup);
-  }
-
-  .TypeRefInfoArrowStroke {
-    fill: var(--color-gray-200);
-  }
-
-  .TypeRefInfoArrowStrokeDark {
-    @media (prefers-color-scheme: dark) {
-      fill: var(--color-gray-300);
-    }
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .TypeRefInfoArrowStroke {
-      fill: none;
-    }
-  }
-
-  .TypeRefDocsLink {
-    font-size: var(--text-xs);
-    line-height: var(--text-xs--line-height);
-    letter-spacing: var(--text-xs--letter-spacing);
-    color: var(--color-gray-600);
-    text-decoration: underline;
-    text-decoration-color: var(--color-gray-300);
-  }
-
-  .TypeRefDocsLink:hover {
-    color: var(--color-gray-900);
-    text-decoration-color: var(--color-gray-500);
   }
 
   .TypeRefArrow {

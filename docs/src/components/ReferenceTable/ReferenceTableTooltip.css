@@ -13,6 +13,10 @@
     text-wrap: pretty;
   }
 
+  .ReferenceTooltipContent .TypeRefTrigger {
+    text-decoration: none;
+  }
+
   .ReferenceTooltipArrow {
     &[data-side='bottom'] {
       top: -8px;

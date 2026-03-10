@@ -51,6 +51,14 @@ export function TypeRef({ href, name, className, children }: TypeRefProps) {
     );
   }
 
+  if (typeData.meta.type !== 'raw') {
+    return (
+      <a href={href} className={className}>
+        {children}
+      </a>
+    );
+  }
+
   return (
     <Popover.Root open={open} onOpenChange={setOpen}>
       <Popover.Trigger className={`${className ?? ''} TypeRefTrigger`.trim()}>
@@ -76,65 +84,7 @@ export function TypeRef({ href, name, className, children }: TypeRefProps) {
               </svg>
             </Popover.Arrow>
             <div className="TypeRefHeader">
-              <span className="TypeRefName">
-                {typeData.meta.name}
-                {aliases && aliases.length > 0 && (
-                  <Popover.Root>
-                    <Popover.Trigger openOnHover className="TypeRefInfoButton">
-                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                        <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.25" />
-                        <text
-                          x="8"
-                          y="12"
-                          textAnchor="middle"
-                          fill="currentColor"
-                          fontSize="10"
-                          fontWeight="500"
-                          fontFamily="inherit"
-                        >
-                          ?
-                        </text>
-                      </svg>
-                    </Popover.Trigger>
-                    <Popover.Portal>
-                      <Popover.Positioner side="right" sideOffset={6}>
-                        <Popover.Popup render={<Popup className="TypeRefInfoPopup" />}>
-                          <Popover.Arrow className="TypeRefInfoArrow">
-                            <svg width="20" height="10" viewBox="0 0 20 10" fill="none">
-                              <path
-                                d="M9.66437 2.60207L4.80758 6.97318C4.07308 7.63423 3.11989 8 2.13172 8H0V10H20V8H18.5349C17.5468 8 16.5936 7.63423 15.8591 6.97318L11.0023 2.60207C10.622 2.2598 10.0447 2.25979 9.66437 2.60207Z"
-                                className="TypeRefInfoArrowFill"
-                              />
-                              <path
-                                d="M8.99542 1.85876C9.75604 1.17425 10.9106 1.17422 11.6713 1.85878L16.5281 6.22989C17.0789 6.72568 17.7938 7.00001 18.5349 7.00001L15.89 7L11.0023 2.60207C10.622 2.2598 10.0447 2.2598 9.66436 2.60207L4.77734 7L2.13171 7.00001C2.87284 7.00001 3.58774 6.72568 4.13861 6.22989L8.99542 1.85876Z"
-                                className="TypeRefInfoArrowStroke"
-                              />
-                              <path
-                                d="M10.3333 3.34539L5.47654 7.71648C4.55842 8.54279 3.36693 9 2.13172 9H0V8H2.13172C3.11989 8 4.07308 7.63423 4.80758 6.97318L9.66437 2.60207C10.0447 2.25979 10.622 2.2598 11.0023 2.60207L15.8591 6.97318C16.5936 7.63423 17.5468 8 18.5349 8H20V9H18.5349C17.2998 9 16.1083 8.54278 15.1901 7.71648L10.3333 3.34539Z"
-                                className="TypeRefInfoArrowStrokeDark"
-                              />
-                            </svg>
-                          </Popover.Arrow>
-                          <span>
-                            Both <code className="TypeRefInfoCode">{typeData.meta.name}</code> and{' '}
-                            <code className="TypeRefInfoCode">{aliases[0]}</code> refer to the same
-                            type. Use the dotted form when{' '}
-                            <code className="TypeRefInfoCode">
-                              {typeData.meta.name.split('.')[0]}
-                            </code>{' '}
-                            is already imported, or the standalone type otherwise.
-                          </span>
-                        </Popover.Popup>
-                      </Popover.Positioner>
-                    </Popover.Portal>
-                  </Popover.Root>
-                )}
-              </span>
-              {typeData.meta.type !== 'raw' && (
-                <a href={href} className="TypeRefDocsLink">
-                  Full docs
-                </a>
-              )}
+              <span className="TypeRefName">{typeData.meta.name}</span>
             </div>
             <ActiveTypeRefContext.Provider value={nextActiveTypeNames}>
               {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */}
