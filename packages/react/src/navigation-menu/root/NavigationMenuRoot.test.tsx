@@ -1670,6 +1670,7 @@ describe('<NavigationMenu.Root />', () => {
       expect(screen.queryByTestId('content-1')).to.equal(null);
       expect(trigger1).to.have.attribute('aria-expanded', 'false');
     });
+
     describe('inline nested viewport', () => {
       it('renders viewport content correctly for inline nested menu', async () => {
         await render(<TestInlineNestedNavigationMenu />);
