@@ -32,8 +32,14 @@
   }
 
   .TypeRefPopup {
-    max-width: min(32rem, var(--available-width));
+    max-width: min(36rem, var(--available-width));
     overflow: visible;
+  }
+
+  .TypeRefInner {
+    display: flex;
+    flex-direction: column;
+    max-height: var(--available-height, none);
   }
 
   .TypeRefHeader {
@@ -41,7 +47,8 @@
     align-items: center;
     justify-content: space-between;
     padding-inline: 1rem;
-    padding-block: 0.5rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0;
   }
 
   .TypeRefName {
@@ -97,8 +104,20 @@
   }
 
   .TypeRefContent {
-    padding: 0.25rem 1rem 1rem;
+    flex: 1;
+    min-height: 0;
+    padding-top: 0.25rem;
     overflow: auto;
-    max-height: var(--available-height, none);
+    scrollbar-width: auto;
+  }
+
+  .TypeRefPopup .ScrollAreaViewport {
+    padding-inline: 1rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .TypeRefContent::-webkit-scrollbar {
+    width: 0.75rem;
+    height: 0.75rem;
   }
 }
