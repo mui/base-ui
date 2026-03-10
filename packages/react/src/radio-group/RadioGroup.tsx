@@ -10,7 +10,7 @@ import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useField } from '../field/useField';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
 import { fieldValidityMapping } from '../field/utils/constants';
-import type { FieldRoot } from '../field/root/FieldRoot';
+import type { FieldRootState } from '../field/root/FieldRoot';
 import { useFieldsetRootContext } from '../fieldset/root/FieldsetRootContext';
 import { useFormContext } from '../form/FormContext';
 import { useLabelableContext } from '../labelable-provider/LabelableContext';
@@ -27,8 +27,8 @@ const MODIFIER_KEYS = [SHIFT];
  *
  * Documentation: [Base UI Radio Group](https://base-ui.com/react/components/radio)
  */
-export const RadioGroup = React.forwardRef(function RadioGroup(
-  componentProps: RadioGroup.Props,
+export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
+  componentProps: RadioGroup.Props<Value>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -77,7 +77,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
   const onValueChange = useStableCallback(onValueChangeProp);
 
   const setCheckedValue = useStableCallback(
-    (value: unknown, eventDetails: RadioGroup.ChangeEventDetails) => {
+    (value: Value, eventDetails: RadioGroup.ChangeEventDetails) => {
       onValueChange(value, eventDetails);
 
       if (eventDetails.isCanceled) {
@@ -176,14 +176,14 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
 
   const ariaLabelledby = elementProps['aria-labelledby'] ?? labelId ?? fieldsetContext?.legendId;
 
-  const state: RadioGroup.State = {
+  const state: RadioGroupState = {
     ...fieldState,
     disabled: disabled ?? false,
     required: required ?? false,
     readOnly: readOnly ?? false,
   };
 
-  const contextValue: RadioGroupContext = React.useMemo(
+  const contextValue: RadioGroupContext<Value> = React.useMemo(
     () => ({
       ...fieldState,
       checkedValue,
@@ -258,9 +258,11 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
       />
     </RadioGroupContext.Provider>
   );
-});
+}) as {
+  <Value>(props: RadioGroup.Props<Value>): React.JSX.Element;
+};
 
-export interface RadioGroupState extends FieldRoot.State {
+export interface RadioGroupState extends FieldRootState {
   /**
    * Whether the user should be unable to select a different radio button in the group.
    */
@@ -271,8 +273,8 @@ export interface RadioGroupState extends FieldRoot.State {
   required: boolean;
 }
 
-export interface RadioGroupProps extends Omit<
-  BaseUIComponentProps<'div', RadioGroup.State>,
+export interface RadioGroupProps<Value = any> extends Omit<
+  BaseUIComponentProps<'div', RadioGroupState>,
   'value'
 > {
   /**
@@ -299,17 +301,17 @@ export interface RadioGroupProps extends Omit<
    *
    * To render an uncontrolled radio group, use the `defaultValue` prop instead.
    */
-  value?: any;
+  value?: Value | undefined;
   /**
    * The uncontrolled value of the radio button that should be initially selected.
    *
    * To render a controlled radio group, use the `value` prop instead.
    */
-  defaultValue?: any;
+  defaultValue?: Value | undefined;
   /**
    * Callback fired when the value changes.
    */
-  onValueChange?: ((value: any, eventDetails: RadioGroup.ChangeEventDetails) => void) | undefined;
+  onValueChange?: ((value: Value, eventDetails: RadioGroup.ChangeEventDetails) => void) | undefined;
   /**
    * A ref to access the hidden input element.
    */
@@ -322,7 +324,7 @@ export type RadioGroupChangeEventDetails = BaseUIChangeEventDetails<RadioGroup.C
 
 export namespace RadioGroup {
   export type State = RadioGroupState;
-  export type Props = RadioGroupProps;
+  export type Props<TValue = any> = RadioGroupProps<TValue>;
   export type ChangeEventReason = RadioGroupChangeEventReason;
   export type ChangeEventDetails = RadioGroupChangeEventDetails;
 }

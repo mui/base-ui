@@ -1,4 +1,6 @@
+import * as React from 'react';
 import { expect } from 'chai';
+import { spy } from 'sinon';
 import { Tabs } from '@base-ui/react/tabs';
 import { waitFor, screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
@@ -201,6 +203,195 @@ describe('<Tabs.Indicator />', () => {
       await waitFor(() => {
         assertBubblePositionVariables(bubble, tabList, activeTab);
       });
+    });
+
+    it('updates position when a different tab resizes', async () => {
+      await render(
+        <Tabs.Root value={2}>
+          <Tabs.List
+            data-testid="tab-list"
+            style={{ width: '300px', display: 'flex', overflow: 'hidden' }}
+          >
+            <Tabs.Tab data-testid="first-tab" value={1} style={{ width: '100px', flexShrink: 0 }}>
+              One
+            </Tabs.Tab>
+            <Tabs.Tab value={2} style={{ width: '100px', flexShrink: 0 }}>
+              Two
+            </Tabs.Tab>
+            <Tabs.Tab value={3} style={{ width: '100px', flexShrink: 0 }}>
+              Three
+            </Tabs.Tab>
+            <Tabs.Indicator data-testid="bubble" />
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      const bubble = screen.getByTestId('bubble');
+      const tabList = screen.getByTestId('tab-list');
+      const firstTab = screen.getByTestId('first-tab');
+      const activeTab = screen.getAllByRole('tab')[1];
+
+      await waitFor(() => {
+        assertBubblePositionVariables(bubble, tabList, activeTab);
+      });
+
+      firstTab.setAttribute('style', 'width: 140px; flex-shrink: 0;');
+
+      await waitFor(() => {
+        assertBubblePositionVariables(bubble, tabList, activeTab);
+      });
+    });
+
+    it('updates position when a new tab is inserted and then resized', async () => {
+      function TestTabs({ insertedTabWidth }: { insertedTabWidth: number | null }) {
+        return (
+          <Tabs.Root value={2}>
+            <Tabs.List
+              data-testid="tab-list"
+              style={{ width: '320px', display: 'flex', overflow: 'hidden' }}
+            >
+              {insertedTabWidth != null && (
+                <Tabs.Tab
+                  data-testid="inserted-tab"
+                  value={0}
+                  style={{ width: `${insertedTabWidth}px`, flexShrink: 0 }}
+                >
+                  Inserted
+                </Tabs.Tab>
+              )}
+              <Tabs.Tab value={1} style={{ width: '100px', flexShrink: 0 }}>
+                One
+              </Tabs.Tab>
+              <Tabs.Tab value={2} style={{ width: '100px', flexShrink: 0 }}>
+                Two
+              </Tabs.Tab>
+              <Tabs.Tab value={3} style={{ width: '100px', flexShrink: 0 }}>
+                Three
+              </Tabs.Tab>
+              <Tabs.Indicator data-testid="bubble" />
+            </Tabs.List>
+          </Tabs.Root>
+        );
+      }
+
+      const { setProps } = await render(<TestTabs insertedTabWidth={null} />);
+
+      const bubble = screen.getByTestId('bubble');
+      const tabList = screen.getByTestId('tab-list');
+
+      await waitFor(() => {
+        assertBubblePositionVariables(bubble, tabList, screen.getByRole('tab', { selected: true }));
+      });
+
+      await setProps({ insertedTabWidth: 60 });
+
+      const insertedTab = screen.getByTestId('inserted-tab');
+
+      await waitFor(() => {
+        assertBubblePositionVariables(bubble, tabList, screen.getByRole('tab', { selected: true }));
+      });
+
+      insertedTab.setAttribute('style', 'width: 120px; flex-shrink: 0;');
+
+      await waitFor(() => {
+        assertBubblePositionVariables(bubble, tabList, screen.getByRole('tab', { selected: true }));
+      });
+    });
+
+    it('updates all indicators when a different tab resizes', async () => {
+      await render(
+        <Tabs.Root value={2}>
+          <Tabs.List
+            data-testid="tab-list"
+            style={{ width: '300px', display: 'flex', overflow: 'hidden' }}
+          >
+            <Tabs.Tab data-testid="first-tab" value={1} style={{ width: '100px', flexShrink: 0 }}>
+              One
+            </Tabs.Tab>
+            <Tabs.Tab value={2} style={{ width: '100px', flexShrink: 0 }}>
+              Two
+            </Tabs.Tab>
+            <Tabs.Tab value={3} style={{ width: '100px', flexShrink: 0 }}>
+              Three
+            </Tabs.Tab>
+            <Tabs.Indicator data-testid="bubble-1" />
+            <Tabs.Indicator data-testid="bubble-2" />
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      const bubble1 = screen.getByTestId('bubble-1');
+      const bubble2 = screen.getByTestId('bubble-2');
+      const tabList = screen.getByTestId('tab-list');
+      const firstTab = screen.getByTestId('first-tab');
+      const activeTab = screen.getAllByRole('tab')[1];
+
+      await waitFor(() => {
+        assertBubblePositionVariables(bubble1, tabList, activeTab);
+        assertBubblePositionVariables(bubble2, tabList, activeTab);
+      });
+
+      firstTab.setAttribute('style', 'width: 140px; flex-shrink: 0;');
+
+      await waitFor(() => {
+        assertBubblePositionVariables(bubble1, tabList, activeTab);
+        assertBubblePositionVariables(bubble2, tabList, activeTab);
+      });
+    });
+
+    it('perf: single tab resize does not fan out excessive indicator rerenders', async () => {
+      const renderIndicatorSpy = spy();
+
+      const LoggingIndicator = React.forwardRef(function LoggingIndicator(
+        props: any & { renderSpy: () => void },
+        ref: React.ForwardedRef<HTMLSpanElement>,
+      ) {
+        const { renderSpy, state, ...other } = props;
+        renderSpy();
+        return <span {...other} ref={ref} />;
+      });
+
+      await render(
+        <Tabs.Root value={50}>
+          <Tabs.List
+            data-testid="tab-list"
+            style={{ width: '1200px', display: 'flex', overflow: 'hidden' }}
+          >
+            {Array.from({ length: 100 }, (_, i) => (
+              <Tabs.Tab
+                data-testid={`tab-${i + 1}`}
+                key={i}
+                value={i + 1}
+                style={{ width: '120px', flexShrink: 0 }}
+              >
+                {i + 1}
+              </Tabs.Tab>
+            ))}
+            <Tabs.Indicator
+              data-testid="bubble"
+              render={<LoggingIndicator renderSpy={renderIndicatorSpy} />}
+            />
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      const bubble = screen.getByTestId('bubble');
+      const tabList = screen.getByTestId('tab-list');
+
+      await waitFor(() => {
+        assertBubblePositionVariables(bubble, tabList, screen.getByRole('tab', { selected: true }));
+      });
+
+      const firstTab = screen.getByTestId('tab-1');
+      const initialRenderCount = renderIndicatorSpy.callCount;
+      firstTab.setAttribute('style', 'width: 180px; flex-shrink: 0;');
+
+      await waitFor(() => {
+        assertBubblePositionVariables(bubble, tabList, screen.getByRole('tab', { selected: true }));
+      });
+
+      // React strict mode doubles render calls in tests.
+      expect(renderIndicatorSpy.callCount - initialRenderCount).to.be.lessThan(5);
     });
   });
 });

@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { isMac } from '@base-ui/utils/detectBrowser';
 import { HTMLProps } from '../../utils/types';
 import { MenuStore } from '../store/MenuStore';
 import { REASONS } from '../../utils/reasons';
@@ -28,6 +29,10 @@ export interface UseMenuItemCommonPropsParameters {
    */
   store: MenuStore<any>;
   /**
+   * Whether a typeahead session is in progress.
+   */
+  typingRef?: React.RefObject<boolean> | undefined;
+  /**
    * Ref to the item element.
    */
   itemRef: React.RefObject<HTMLElement | null>;
@@ -40,10 +45,11 @@ export interface UseMenuItemCommonPropsParameters {
 
 /**
  * Returns common props shared by all menu item types.
- * This hook extracts the shared logic for id, role, tabIndex, onMouseMove, onClick, and onMouseUp handlers.
+ * This hook extracts the shared logic for id, role, tabIndex, onKeyDown,
+ * onMouseMove, onClick, and onMouseUp handlers.
  */
 export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters): HTMLProps {
-  const { closeOnClick, highlighted, id, nodeId, store, itemRef, itemMetadata } = params;
+  const { closeOnClick, highlighted, id, nodeId, store, typingRef, itemRef, itemMetadata } = params;
 
   const { events: menuEvents } = store.useState('floatingTreeRoot');
   const contextMenuContext = useContextMenuRootContext(true);
@@ -54,6 +60,11 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
       id,
       role: 'menuitem' as const,
       tabIndex: highlighted ? 0 : -1,
+      onKeyDown(event: React.KeyboardEvent) {
+        if (event.key === ' ' && typingRef?.current) {
+          event.preventDefault();
+        }
+      },
       onMouseMove(event: React.MouseEvent) {
         if (!nodeId) {
           return;
@@ -83,6 +94,12 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
           ) {
             return;
           }
+
+          // On non-macOS platforms, this mouseup belongs to the right-click gesture
+          // that opened the context menu, so it must not activate an item.
+          if (isContextMenu && !isMac && event.button === 2) {
+            return;
+          }
         }
 
         if (
@@ -105,6 +122,7 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
       menuEvents,
       nodeId,
       store,
+      typingRef,
       itemRef,
       contextMenuContext,
       isContextMenu,
@@ -113,6 +131,4 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
   );
 }
 
-export namespace useMenuItemCommonProps {
-  export type Parameters = UseMenuItemCommonPropsParameters;
-}
+export interface UseMenuItemCommonPropsState {}

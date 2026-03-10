@@ -5,7 +5,12 @@ import { FloatingNode } from '../../floating-ui-react';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
-import { useAnchorPositioning, type Align, type Side } from '../../utils/useAnchorPositioning';
+import {
+  useAnchorPositioning,
+  type Align,
+  type Side,
+  type UseAnchorPositioningSharedParameters,
+} from '../../utils/useAnchorPositioning';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
@@ -13,6 +18,7 @@ import { CompositeList } from '../../composite/list/CompositeList';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useMenuPortalContext } from '../portal/MenuPortalContext';
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
+import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
@@ -58,6 +64,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const open = store.useState('open');
   const modal = store.useState('modal');
   const triggerElement = store.useState('activeTriggerElement');
+  const transitionStatus = store.useState('transitionStatus');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const floatingNodeId = store.useState('floatingNodeId');
   const floatingParentNodeId = store.useState('floatingParentNodeId');
@@ -202,7 +209,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     floatingTreeRoot.events.emit('menuopenchange', eventDetails);
   }, [floatingTreeRoot.events, open, store, floatingNodeId, floatingParentNodeId]);
 
-  const state: MenuPositioner.State = {
+  const state: MenuPositionerState = {
     open,
     side: positioner.side,
     align: positioner.align,
@@ -233,7 +240,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     state,
     stateAttributesMapping: popupStateMapping,
     ref: [forwardedRef, store.useStateSetter('positionerElement')],
-    props: [positionerProps, elementProps],
+    props: [positionerProps, getDisabledMountTransitionStyles(transitionStatus), elementProps],
   });
 
   const shouldRenderBackdrop =
@@ -280,16 +287,26 @@ export interface MenuPositionerState {
    * Whether the menu is currently open.
    */
   open: boolean;
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
   align: Align;
+  /**
+   * Whether the anchor element is hidden.
+   */
   anchorHidden: boolean;
+  /**
+   * Whether the component is nested.
+   */
   nested: boolean;
 }
 
 export interface MenuPositionerProps
-  extends
-    useAnchorPositioning.SharedParameters,
-    BaseUIComponentProps<'div', MenuPositioner.State> {}
+  extends UseAnchorPositioningSharedParameters, BaseUIComponentProps<'div', MenuPositionerState> {}
 
 export namespace MenuPositioner {
   export type State = MenuPositionerState;

@@ -98,6 +98,8 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
   );
 }
 
+export interface CompositeRootState {}
+
 export interface CompositeRootProps<Metadata, State extends Record<string, any>> extends Pick<
   BaseUIComponentProps<'div', State>,
   'render' | 'className' | 'children'
@@ -107,7 +109,7 @@ export interface CompositeRootProps<Metadata, State extends Record<string, any>>
   stateAttributesMapping?: StateAttributesMapping<State> | undefined;
   refs?: React.Ref<HTMLElement | null>[] | undefined;
   tag?: keyof React.JSX.IntrinsicElements | undefined;
-  orientation?: ('horizontal' | 'vertical' | 'both') | undefined;
+  orientation?: 'horizontal' | 'vertical' | 'both' | undefined;
   cols?: number | undefined;
   loopFocus?: boolean | undefined;
   highlightedIndex?: number | undefined;
@@ -124,8 +126,9 @@ export interface CompositeRootProps<Metadata, State extends Record<string, any>>
 }
 
 export namespace CompositeRoot {
-  export type Props<Metadata, State extends Record<string, any>> = CompositeRootProps<
+  export type State = CompositeRootState;
+  export type Props<Metadata, TState extends Record<string, any>> = CompositeRootProps<
     Metadata,
-    State
+    TState
   >;
 }

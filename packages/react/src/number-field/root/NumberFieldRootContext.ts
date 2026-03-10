@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { Timeout } from '@base-ui/utils/useTimeout';
-import type { NumberFieldRoot } from './NumberFieldRoot';
+import type { NumberFieldRoot, NumberFieldRootState } from './NumberFieldRoot';
 import { EventWithOptionalKeyState } from '../utils/types';
 import type { IncrementValueParameters } from '../utils/types';
 
@@ -40,7 +40,7 @@ export interface NumberFieldRootContext {
   locale: Intl.LocalesArgument;
   isScrubbing: boolean;
   setIsScrubbing: React.Dispatch<React.SetStateAction<boolean>>;
-  state: NumberFieldRoot.State;
+  state: NumberFieldRootState;
   onValueCommitted: (
     value: number | null,
     eventDetails: NumberFieldRoot.CommitEventDetails,

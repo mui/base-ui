@@ -18,4 +18,9 @@ export enum PopoverViewportDataAttributes {
    * Indicates that the viewport is currently transitioning between old and new content.
    */
   transitioning = 'data-transitioning',
+  /**
+   * Present if animations should be instant.
+   * @type {'dismiss' | 'click'}
+   */
+  instant = 'data-instant',
 }

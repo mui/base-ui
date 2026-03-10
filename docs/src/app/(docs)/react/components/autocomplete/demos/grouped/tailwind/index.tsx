@@ -8,12 +8,12 @@ export default function ExampleGroupAutocomplete() {
         Select a tag
         <Autocomplete.Input
           placeholder="e.g. feature"
-          className="bg-[canvas] h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+          className="bg-[canvas] h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
         />
       </label>
 
       <Autocomplete.Portal>
-        <Autocomplete.Positioner className="outline-none" sideOffset={4}>
+        <Autocomplete.Positioner className="outline-hidden" sideOffset={4}>
           <Autocomplete.Popup className="w-[var(--anchor-width)] max-h-[22.5rem] max-w-[var(--available-width)] rounded-lg bg-[canvas] text-gray-900 outline-1 outline-gray-200 shadow-lg shadow-gray-200 dark:outline-gray-300 dark:shadow-none">
             <Autocomplete.Empty className="px-4 py-2 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0">
               No tags found.
@@ -28,7 +28,7 @@ export default function ExampleGroupAutocomplete() {
                     {(tag: Tag) => (
                       <Autocomplete.Item
                         key={tag.id}
-                        className="flex cursor-default items-center gap-2 py-2 pr-8 pl-4 text-base leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900"
+                        className="flex cursor-default items-center gap-2 py-2 pr-8 pl-4 text-base leading-4 outline-hidden select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-xs data-[highlighted]:before:bg-gray-900"
                         value={tag}
                       >
                         {tag.label}

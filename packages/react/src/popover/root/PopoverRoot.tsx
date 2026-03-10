@@ -67,16 +67,11 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   store.useContextCallback('onOpenChange', onOpenChange);
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
-  const {
-    openMethod,
-    triggerProps: interactionTypeTriggerProps,
-    reset: resetOpenInteractionType,
-  } = useOpenInteractionType(open);
+  const { openMethod, triggerProps: interactionTypeTriggerProps } = useOpenInteractionType(open);
 
   useImplicitActiveTrigger(store);
   const { forceUnmount } = useOpenStateTransitions(open, store, () => {
     store.update({ stickIfOpen: true, openChangeReason: null });
-    resetOpenInteractionType();
   });
 
   useScrollLock(
@@ -226,18 +221,18 @@ export interface PopoverRootProps<Payload = unknown> {
    * - `'trap-focus'`: focus is trapped inside the popover, but document page scroll is not locked and pointer interactions outside of it remain enabled.
    * @default false
    */
-  modal?: (boolean | 'trap-focus') | undefined;
+  modal?: boolean | 'trap-focus' | undefined;
   /**
    * ID of the trigger that the popover is associated with.
    * This is useful in conjunction with the `open` prop to create a controlled popover.
    * There's no need to specify this prop when the popover is uncontrolled (i.e. when the `open` prop is not set).
    */
-  triggerId?: (string | null) | undefined;
+  triggerId?: string | null | undefined;
   /**
    * ID of the trigger that the popover is associated with.
    * This is useful in conjunction with the `defaultOpen` prop to create an initially open popover.
    */
-  defaultTriggerId?: (string | null) | undefined;
+  defaultTriggerId?: string | null | undefined;
   /**
    * A handle to associate the popover with a trigger.
    * If specified, allows external triggers to control the popover's open state.

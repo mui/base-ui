@@ -2,7 +2,7 @@
 import * as React from 'react';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useToastRootContext } from '../root/ToastRootContext';
-import { useToastContext } from '../provider/ToastProviderContext';
+import { useToastProviderContext } from '../provider/ToastProviderContext';
 import { useButton } from '../../use-button/useButton';
 import { useRenderElement } from '../../utils/useRenderElement';
 
@@ -18,8 +18,9 @@ export const ToastClose = React.forwardRef(function ToastClose(
 ) {
   const { render, className, disabled, nativeButton = true, ...elementProps } = componentProps;
 
-  const { close, expanded } = useToastContext();
+  const store = useToastProviderContext();
   const { toast } = useToastRootContext();
+  const expanded = store.useState('expanded');
 
   const [hasFocus, setHasFocus] = React.useState(false);
 
@@ -28,7 +29,7 @@ export const ToastClose = React.forwardRef(function ToastClose(
     native: nativeButton,
   });
 
-  const state: ToastClose.State = {
+  const state: ToastCloseState = {
     type: toast.type,
   };
 
@@ -39,7 +40,7 @@ export const ToastClose = React.forwardRef(function ToastClose(
       {
         'aria-hidden': !expanded && !hasFocus,
         onClick() {
-          close(toast.id);
+          store.closeToast(toast.id);
         },
         onFocus() {
           setHasFocus(true);
@@ -64,7 +65,7 @@ export interface ToastCloseState {
 }
 
 export interface ToastCloseProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', ToastClose.State> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', ToastCloseState> {}
 
 export namespace ToastClose {
   export type State = ToastCloseState;

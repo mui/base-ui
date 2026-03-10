@@ -29,7 +29,7 @@ import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { getMidpoint } from '../utils/getMidpoint';
 import { getSliderValue } from '../utils/getSliderValue';
 import { roundValueToStep } from '../utils/roundValueToStep';
-import type { SliderRoot } from '../root/SliderRoot';
+import type { SliderRootState } from '../root/SliderRoot';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import { SliderThumbDataAttributes } from './SliderThumbDataAttributes';
@@ -467,10 +467,10 @@ export interface ThumbMetadata {
   inputId: LabelableContext['controlId'];
 }
 
-export interface SliderThumbState extends SliderRoot.State {}
+export interface SliderThumbState extends SliderRootState {}
 
 export interface SliderThumbProps extends Omit<
-  BaseUIComponentProps<'div', SliderThumb.State>,
+  BaseUIComponentProps<'div', SliderThumbState>,
   'onBlur' | 'onFocus'
 > {
   /**
@@ -481,13 +481,14 @@ export interface SliderThumbProps extends Omit<
   /**
    * A function which returns a string value for the [`aria-label`](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-label) attribute of the `input`.
    */
-  getAriaLabel?: (((index: number) => string) | null) | undefined;
+  getAriaLabel?: ((index: number) => string) | null | undefined;
   /**
    * A function which returns a string value for the [`aria-valuetext`](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-valuetext) attribute of the `input`.
    * This is important for screen reader users.
    */
   getAriaValueText?:
-    | (((formattedValue: string, value: number, index: number) => string) | null)
+    | ((formattedValue: string, value: number, index: number) => string)
+    | null
     | undefined;
   /**
    * The index of the thumb which corresponds to the index of its value in the

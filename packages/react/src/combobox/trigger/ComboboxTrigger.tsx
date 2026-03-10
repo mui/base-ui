@@ -19,7 +19,7 @@ import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { stopEvent, contains, getTarget } from '../../floating-ui-react/utils';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
-import type { FieldRoot } from '../../field/root/FieldRoot';
+import type { FieldRootState } from '../../field/root/FieldRoot';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { useClick, useTypeahead } from '../../floating-ui-react';
@@ -93,7 +93,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     currentPointerTypeRef.current = event.pointerType;
   }
 
-  const domReference = floatingRootContext.select('domReferenceElement');
+  const domReference = floatingRootContext.useState('domReferenceElement');
 
   // Update the floating root context to use the trigger element when it differs from the current reference.
   // This ensures useClick and useTypeahead attach handlers to the correct element.
@@ -129,7 +129,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     disabled,
   });
 
-  const state: ComboboxTrigger.State = {
+  const state: ComboboxTriggerState = {
     ...fieldState,
     open,
     disabled,
@@ -271,7 +271,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   return element;
 });
 
-export interface ComboboxTriggerState extends FieldRoot.State {
+export interface ComboboxTriggerState extends FieldRootState {
   /**
    * Whether the popup is open.
    */
@@ -295,7 +295,7 @@ export interface ComboboxTriggerState extends FieldRoot.State {
 }
 
 export interface ComboboxTriggerProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', ComboboxTrigger.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', ComboboxTriggerState> {
   /**
    * Whether the component should ignore user interaction.
    * @default false

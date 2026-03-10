@@ -18,8 +18,8 @@ export interface Dimensions {
 }
 
 export function useCollapsibleRoot(
-  parameters: useCollapsibleRoot.Parameters,
-): useCollapsibleRoot.ReturnValue {
+  parameters: UseCollapsibleRootParameters,
+): UseCollapsibleRootReturnValue {
   const { open: openParam, defaultOpen, onOpenChange, disabled } = parameters;
 
   const isControlled = openParam !== undefined;
@@ -219,7 +219,4 @@ export interface UseCollapsibleRootReturnValue {
   width: number | undefined;
 }
 
-export namespace useCollapsibleRoot {
-  export type Parameters = UseCollapsibleRootParameters;
-  export type ReturnValue = UseCollapsibleRootReturnValue;
-}
+export interface UseCollapsibleRootState {}

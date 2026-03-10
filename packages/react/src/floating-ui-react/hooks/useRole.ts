@@ -11,16 +11,10 @@ type ComponentRole = 'select' | 'label' | 'combobox';
 
 export interface UseRoleProps {
   /**
-   * Whether the Hook is enabled, including all internal Effects and event
-   * handlers.
-   * @default true
-   */
-  enabled?: boolean | undefined;
-  /**
    * The role of the floating element.
    * @default 'dialog'
    */
-  role?: (AriaRole | ComponentRole) | undefined;
+  role?: AriaRole | ComponentRole | undefined;
 }
 
 const componentRoleToAriaRoleMap = new Map<AriaRole | ComponentRole, AriaRole | false>([
@@ -44,7 +38,7 @@ export function useRole(
   const domReference = store.useState('domReferenceElement');
   const floatingElement = store.useState('floatingElement');
 
-  const { enabled = true, role = 'dialog' } = props;
+  const { role = 'dialog' } = props;
 
   const defaultReferenceId = useId();
   const referenceId = domReference?.id || defaultReferenceId;
@@ -134,7 +128,7 @@ export function useRole(
   );
 
   return React.useMemo(
-    () => (enabled ? { reference, floating, item, trigger } : {}),
-    [enabled, reference, floating, trigger, item],
+    () => ({ reference, floating, item, trigger }),
+    [reference, floating, trigger, item],
   );
 }

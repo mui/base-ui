@@ -1,35 +1,46 @@
 // Modified to add conditional `aria-hidden` support:
 // https://github.com/theKashey/aria-hidden/blob/9220c8f4a4fd35f63bee5510a9f41a37264382d4/src/index.ts
-import { getNodeName } from '@floating-ui/utils/dom';
-import { getDocument } from './element';
+import { getNodeName, isShadowRoot } from '@floating-ui/utils/dom';
+import { ownerDocument } from '@base-ui/utils/owner';
 
 type Undo = () => void;
+
+interface MarkOthersOptions {
+  ariaHidden?: boolean | undefined;
+  inert?: boolean | undefined;
+  mark?: boolean | undefined;
+  markerIgnoreElements?: Element[] | undefined;
+}
 
 const counters = {
   inert: new WeakMap<Element, number>(),
   'aria-hidden': new WeakMap<Element, number>(),
-  none: new WeakMap<Element, number>(),
 };
 
-function getCounterMap(control: 'inert' | 'aria-hidden' | null) {
-  if (control === 'inert') {
-    return counters.inert;
-  }
-  if (control === 'aria-hidden') {
-    return counters['aria-hidden'];
-  }
-  return counters.none;
-}
+const markerName = 'data-base-ui-inert';
+type ControlAttribute = keyof typeof counters;
 
-let uncontrolledElementsSet = new WeakSet<Element>();
-let markerMap: Record<string, WeakMap<Element, number>> = {};
+const uncontrolledElementsSets: Record<ControlAttribute, WeakSet<Element>> = {
+  inert: new WeakSet<Element>(),
+  'aria-hidden': new WeakSet<Element>(),
+};
+let markerCounterMap = new WeakMap<Element, number>();
 let lockCount = 0;
+
+function getUncontrolledElementsSet(controlAttribute: ControlAttribute) {
+  return uncontrolledElementsSets[controlAttribute];
+}
 
 export const supportsInert = (): boolean =>
   typeof HTMLElement !== 'undefined' && 'inert' in HTMLElement.prototype;
 
-const unwrapHost = (node: Element | ShadowRoot): Element | null =>
-  node && ((node as ShadowRoot).host || unwrapHost(node.parentNode as Element));
+function unwrapHost(node: Node | null): Element | null {
+  if (!node) {
+    return null;
+  }
+
+  return isShadowRoot(node) ? node.host : unwrapHost(node.parentNode);
+}
 
 const correctElements = (parent: HTMLElement, targets: Element[]): Element[] =>
   targets
@@ -48,75 +59,117 @@ const correctElements = (parent: HTMLElement, targets: Element[]): Element[] =>
     })
     .filter((x): x is Element => x != null);
 
+const buildKeepSet = (targets: Element[]): Set<Node> => {
+  const keep = new Set<Node>();
+
+  targets.forEach((target) => {
+    let node: Node | null = target;
+    while (node && !keep.has(node)) {
+      keep.add(node);
+      node = node.parentNode;
+    }
+  });
+
+  return keep;
+};
+
+const collectOutsideElements = (
+  root: HTMLElement,
+  keepElements: Set<Node>,
+  stopElements: Set<Node>,
+): Element[] => {
+  const outside: Element[] = [];
+
+  const walk = (parent: Element | null) => {
+    if (!parent || stopElements.has(parent)) {
+      return;
+    }
+
+    Array.from(parent.children).forEach((node: Element) => {
+      if (getNodeName(node) === 'script') {
+        return;
+      }
+
+      if (keepElements.has(node)) {
+        walk(node);
+      } else {
+        outside.push(node);
+      }
+    });
+  };
+
+  walk(root);
+
+  return outside;
+};
+
 function applyAttributeToOthers(
   uncorrectedAvoidElements: Element[],
   body: HTMLElement,
   ariaHidden: boolean,
   inert: boolean,
+  { mark = true, markerIgnoreElements = [] }: MarkOthersOptions,
 ): Undo {
-  const markerName = 'data-base-ui-inert';
   // eslint-disable-next-line no-nested-ternary
   const controlAttribute = inert ? 'inert' : ariaHidden ? 'aria-hidden' : null;
+  let counterMap: WeakMap<Element, number> | null = null;
+  let uncontrolledElementsSet: WeakSet<Element> | null = null;
   const avoidElements = correctElements(body, uncorrectedAvoidElements);
-  const elementsToKeep = new Set<Node>();
-  const elementsToStop = new Set<Node>(avoidElements);
+  const markerIgnoreTargets = mark ? correctElements(body, markerIgnoreElements) : [];
+  const markerIgnoreSet = new Set<Node>(markerIgnoreTargets);
+  const markerTargets = mark
+    ? collectOutsideElements(
+        body,
+        buildKeepSet(avoidElements),
+        new Set<Node>(avoidElements),
+      ).filter((target) => !markerIgnoreSet.has(target))
+    : [];
   const hiddenElements: Element[] = [];
+  const markedElements: Element[] = [];
 
-  if (!markerMap[markerName]) {
-    markerMap[markerName] = new WeakMap();
-  }
+  if (controlAttribute) {
+    const map = counters[controlAttribute];
+    const currentUncontrolledElementsSet = getUncontrolledElementsSet(controlAttribute);
+    uncontrolledElementsSet = currentUncontrolledElementsSet;
+    counterMap = map;
+    const ariaLiveElements = correctElements(
+      body,
+      Array.from(body.querySelectorAll('[aria-live]')),
+    );
+    const controlElements = avoidElements.concat(ariaLiveElements);
+    const controlTargets = collectOutsideElements(
+      body,
+      buildKeepSet(controlElements),
+      new Set<Node>(controlElements),
+    );
 
-  const markerCounter = markerMap[markerName];
+    controlTargets.forEach((node) => {
+      const attr = node.getAttribute(controlAttribute);
+      const alreadyHidden = attr !== null && attr !== 'false';
+      const counterValue = (map.get(node) || 0) + 1;
 
-  avoidElements.forEach(keep);
-  deep(body);
-  elementsToKeep.clear();
+      map.set(node, counterValue);
+      hiddenElements.push(node);
 
-  function keep(el: Node | undefined) {
-    if (!el || elementsToKeep.has(el)) {
-      return;
-    }
-
-    elementsToKeep.add(el);
-    if (el.parentNode) {
-      keep(el.parentNode);
-    }
-  }
-
-  function deep(parent: Element | null) {
-    if (!parent || elementsToStop.has(parent)) {
-      return;
-    }
-
-    [].forEach.call(parent.children, (node: Element) => {
-      if (getNodeName(node) === 'script') {
-        return;
+      if (counterValue === 1 && alreadyHidden) {
+        currentUncontrolledElementsSet.add(node);
       }
 
-      if (elementsToKeep.has(node)) {
-        deep(node);
-      } else {
-        const attr = controlAttribute ? node.getAttribute(controlAttribute) : null;
-        const alreadyHidden = attr !== null && attr !== 'false';
-        const counterMap = getCounterMap(controlAttribute);
-        const counterValue = (counterMap.get(node) || 0) + 1;
-        const markerValue = (markerCounter.get(node) || 0) + 1;
+      if (!alreadyHidden) {
+        node.setAttribute(controlAttribute, controlAttribute === 'inert' ? '' : 'true');
+      }
+    });
+  }
 
-        counterMap.set(node, counterValue);
-        markerCounter.set(node, markerValue);
-        hiddenElements.push(node);
+  if (mark) {
+    markerTargets.forEach((node) => {
+      const markerValue = (markerCounterMap.get(node) || 0) + 1;
 
-        if (counterValue === 1 && alreadyHidden) {
-          uncontrolledElementsSet.add(node);
-        }
+      markerCounterMap.set(node, markerValue);
+      markedElements.push(node);
 
-        if (markerValue === 1) {
-          node.setAttribute(markerName, '');
-        }
-
-        if (!alreadyHidden && controlAttribute) {
-          node.setAttribute(controlAttribute, controlAttribute === 'inert' ? '' : 'true');
-        }
+      if (markerValue === 1) {
+        node.setAttribute(markerName, '');
       }
     });
   }
@@ -124,46 +177,51 @@ function applyAttributeToOthers(
   lockCount += 1;
 
   return () => {
-    hiddenElements.forEach((element) => {
-      const counterMap = getCounterMap(controlAttribute);
-      const currentCounterValue = counterMap.get(element) || 0;
-      const counterValue = currentCounterValue - 1;
-      const markerValue = (markerCounter.get(element) || 0) - 1;
+    if (counterMap) {
+      hiddenElements.forEach((element) => {
+        const currentCounterValue = counterMap.get(element) || 0;
+        const counterValue = currentCounterValue - 1;
+        counterMap.set(element, counterValue);
 
-      counterMap.set(element, counterValue);
-      markerCounter.set(element, markerValue);
+        if (!counterValue) {
+          if (!uncontrolledElementsSet?.has(element) && controlAttribute) {
+            element.removeAttribute(controlAttribute);
+          }
 
-      if (!counterValue) {
-        if (!uncontrolledElementsSet.has(element) && controlAttribute) {
-          element.removeAttribute(controlAttribute);
+          uncontrolledElementsSet?.delete(element);
         }
+      });
+    }
 
-        uncontrolledElementsSet.delete(element);
-      }
+    if (mark) {
+      markedElements.forEach((element) => {
+        const markerValue = (markerCounterMap.get(element) || 0) - 1;
 
-      if (!markerValue) {
-        element.removeAttribute(markerName);
-      }
-    });
+        markerCounterMap.set(element, markerValue);
+
+        if (!markerValue) {
+          element.removeAttribute(markerName);
+        }
+      });
+    }
 
     lockCount -= 1;
 
     if (!lockCount) {
       counters.inert = new WeakMap();
       counters['aria-hidden'] = new WeakMap();
-      counters.none = new WeakMap();
-      uncontrolledElementsSet = new WeakSet();
-      markerMap = {};
+      uncontrolledElementsSets.inert = new WeakSet();
+      uncontrolledElementsSets['aria-hidden'] = new WeakSet();
+      markerCounterMap = new WeakMap();
     }
   };
 }
 
-export function markOthers(avoidElements: Element[], ariaHidden = false, inert = false): Undo {
-  const body = getDocument(avoidElements[0]).body;
-  return applyAttributeToOthers(
-    avoidElements.concat(Array.from(body.querySelectorAll('[aria-live]'))),
-    body,
-    ariaHidden,
-    inert,
-  );
+export function markOthers(avoidElements: Element[], options: MarkOthersOptions = {}): Undo {
+  const { ariaHidden = false, inert = false, mark = true, markerIgnoreElements = [] } = options;
+  const body = ownerDocument(avoidElements[0]).body;
+  return applyAttributeToOthers(avoidElements, body, ariaHidden, inert, {
+    mark,
+    markerIgnoreElements,
+  });
 }

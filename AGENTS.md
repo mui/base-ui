@@ -23,6 +23,8 @@ This repository contains the source code and documentation for Base UI: a headl
 
 - Do not randomly cast (for example `as any`) if there are no type errors without doing so. Run `pnpm typescript` to verify types.
 - Ensure your changes pass linting - run `pnpm eslint`.
+- Ensure your styles pass stylelint - run `pnpm stylelint`.
+- Ensure your markdown passes markdownlint - run `pnpm markdownlint`.
 - Ensure your changes are formatted correctly - run `pnpm prettier`.
 - When you change a public component API (props or JSDoc), run `pnpm docs:api`.
 
@@ -30,6 +32,7 @@ This repository contains the source code and documentation for Base UI: a headl
 
 - Run tests in JSDOM env with `pnpm test:jsdom {name} --no-watch` such as `pnpm test:jsdom NumberField --no-watch` or `pnpm test:jsdom parse --no-watch`.
 - Run tests in Chromium env with `pnpm test:chromium {name} --no-watch` such as `pnpm test:chromium NumberField --no-watch` or `pnpm test:jsdom parse --no-watch`.
+- Do not call `await flushMicrotasks()` directly after `await render(...)` when there are no interactions or state changes between them; `render` is already awaited, so that immediate flush is unnecessary.
 - If you made changes to the source code, ensure you verify your changes by running tests (see above), and writing new tests where applicable. If tests require the browser because, for example, they require layout measurements, restrict it to the Chromium env by using `it.skipIf(isJSDOM)` or `describe.skipIf(isJSDOM)` (search other tests for example usage if unsure).
 - Follow the established conventions in existing tests. Each file/component is tested with the filename `name.test.tsx`. For example, `PopoverRoot.test.tsx` is next to its source file `PopoverRoot.tsx`.
 - Tests use `vitest`'s `expect()` and `fn()`, do not assume they have methods of other libraries' APIs. Search existing tests for example usage if unsure. The repository is transitioning from `chai` and `sinon`, prefer `vitest` native functions for all new code.
