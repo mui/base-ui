@@ -9,7 +9,7 @@ export function CodeBlockContent(props: ContentProps<object>) {
   const code = useCode(props);
 
   return (
-    <div className="w-full">
+    <div className="bui-w-full">
       <CodeBlock.Pre>{code.selectedFile}</CodeBlock.Pre>
     </div>
   );
