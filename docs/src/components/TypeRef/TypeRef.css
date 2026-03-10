@@ -8,20 +8,11 @@
     color: inherit;
     text-decoration: underline;
     text-decoration-style: dotted;
-    text-decoration-color: var(--color-violet);
+    text-decoration-color: color-mix(in oklab, var(--color-violet), transparent);
     text-underline-offset: 2px;
-    transition:
-      text-decoration-color 120ms ease,
-      color 120ms ease;
   }
 
   .TypeRefTrigger:hover {
-    color: var(--color-violet);
-    text-decoration-color: var(--color-violet);
-  }
-
-  .TypeRefTrigger:active {
-    color: var(--color-violet);
     text-decoration-color: var(--color-violet);
   }
 
