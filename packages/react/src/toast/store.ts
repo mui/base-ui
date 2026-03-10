@@ -236,15 +236,10 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
   closeToast = (toastId?: string) => {
     const closeAll = toastId === undefined;
     const { limit, toasts } = this.state;
-
-    const callOnClose = (toast: ToastObject<any>) => {
-      if (toast.transitionStatus !== 'ending') {
-        toast.onClose?.();
-      }
-    };
+    let toastsToClose: ToastObject<any>[];
 
     if (closeAll) {
-      toasts.forEach(callOnClose);
+      toastsToClose = toasts;
       this.timers.forEach((timer) => {
         timer.timeout?.clear();
       });
@@ -254,7 +249,7 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
       if (!toast) {
         return;
       }
-      callOnClose(toast);
+      toastsToClose = [toast];
       const timer = this.timers.get(toastId);
       if (timer?.timeout) {
         timer.timeout.clear();
@@ -275,14 +270,20 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
       return item.limited !== isLimited ? { ...item, limited: isLimited } : item;
     });
 
-    this.handleFocusManagement(toastId);
-
     const updates: Partial<State> = { toasts: newToasts };
     if (closeAll || toasts.length === 1) {
       updates.hovering = false;
       updates.focused = false;
     }
     this.update(updates);
+
+    toastsToClose.forEach((toast) => {
+      if (toast.transitionStatus !== 'ending') {
+        toast.onClose?.();
+      }
+    });
+
+    this.handleFocusManagement(toastId);
   };
 
   promiseToast = <Value, Data extends object>(

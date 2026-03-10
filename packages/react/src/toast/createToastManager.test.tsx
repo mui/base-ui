@@ -676,7 +676,9 @@ describe.skipIf(!isJSDOM)('createToastManager', () => {
 
     it('does not call onClose when closing toasts that are already ending', async () => {
       const toastManager = Toast.createToastManager();
-      const onCloseSpy1 = spy();
+      const onCloseSpy1 = spy(() => {
+        toastManager.close();
+      });
       const onCloseSpy2 = spy();
       let toastId1: string;
 
@@ -694,7 +696,6 @@ describe.skipIf(!isJSDOM)('createToastManager', () => {
 
       function close() {
         toastManager.close(toastId1);
-        toastManager.close();
       }
 
       function Buttons() {
