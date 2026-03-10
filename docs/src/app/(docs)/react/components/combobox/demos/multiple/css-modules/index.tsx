@@ -43,7 +43,9 @@ export default function ExampleMultipleCombobox() {
       <Combobox.Portal>
         <Combobox.Positioner className={styles.Positioner} sideOffset={4} anchor={containerRef}>
           <Combobox.Popup className={styles.Popup}>
-            <Combobox.Empty className={styles.Empty}>No languages found.</Combobox.Empty>
+            <Combobox.Empty>
+              <div className={styles.Empty}>No languages found.</div>
+            </Combobox.Empty>
             <Combobox.List>
               {(language: ProgrammingLanguage) => (
                 <Combobox.Item key={language.id} className={styles.Item} value={language}>

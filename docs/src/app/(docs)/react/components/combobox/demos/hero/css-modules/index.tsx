@@ -25,7 +25,9 @@ export default function ExampleCombobox() {
       <Combobox.Portal>
         <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
           <Combobox.Popup className={styles.Popup}>
-            <Combobox.Empty className={styles.Empty}>No fruits found.</Combobox.Empty>
+            <Combobox.Empty>
+              <div className={styles.Empty}>No fruits found.</div>
+            </Combobox.Empty>
             <Combobox.List className={styles.List}>
               {(item: Fruit) => (
                 <Combobox.Item key={item.value} value={item} className={styles.Item}>

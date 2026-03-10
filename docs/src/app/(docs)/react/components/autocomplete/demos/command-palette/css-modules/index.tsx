@@ -37,8 +37,8 @@ export default function ExampleAutocompleteCommandPalette() {
               <ScrollArea.Root className={styles.ListArea}>
                 <ScrollArea.Viewport className={styles.ListViewport}>
                   <ScrollArea.Content className={styles.ListContent}>
-                    <Autocomplete.Empty className={styles.Empty}>
-                      No results found.
+                    <Autocomplete.Empty>
+                      <div className={styles.Empty}>No results found.</div>
                     </Autocomplete.Empty>
 
                     <Autocomplete.List className={styles.List}>

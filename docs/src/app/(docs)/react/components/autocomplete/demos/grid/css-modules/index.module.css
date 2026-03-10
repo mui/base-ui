@@ -270,7 +270,7 @@
   opacity: 1;
 }
 
-.Empty:not(:empty) {
+.Empty {
   box-sizing: border-box;
   padding: 0.5rem 1rem 1rem;
   font-size: 0.925rem;

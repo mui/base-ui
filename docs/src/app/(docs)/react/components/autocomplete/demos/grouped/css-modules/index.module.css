@@ -124,7 +124,7 @@
   background-color: var(--color-gray-200);
 }
 
-.Empty:not(:empty) {
+.Empty {
   box-sizing: border-box;
   padding: 1rem;
   font-size: 0.925rem;

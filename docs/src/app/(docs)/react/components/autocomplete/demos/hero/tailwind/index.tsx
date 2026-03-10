@@ -15,8 +15,8 @@ export default function ExampleAutocomplete() {
       <Autocomplete.Portal>
         <Autocomplete.Positioner className="outline-hidden" sideOffset={4}>
           <Autocomplete.Popup className="w-[var(--anchor-width)] max-h-[23rem] max-w-[var(--available-width)] rounded-md bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
-            <Autocomplete.Empty className="p-4 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0">
-              No tags found.
+            <Autocomplete.Empty>
+              <div className="p-4 text-[0.925rem] leading-4 text-gray-600">No tags found.</div>
             </Autocomplete.Empty>
             <Autocomplete.List className="outline-0 overflow-y-auto scroll-py-[0.5rem] py-2 overscroll-contain max-h-[min(23rem,var(--available-height))] data-[empty]:p-0">
               {(tag: Tag) => (
