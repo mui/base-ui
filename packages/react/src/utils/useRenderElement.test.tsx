@@ -276,29 +276,16 @@ describe('useRenderElement', () => {
     });
 
     it('does not throw when className is provided with minimal props', async () => {
-      // This would throw "Cannot add property className, object is not extensible"
-      // if outProps were the frozen EMPTY_OBJECT
       const { container } = await render(<MinimalComponent className="test-class" />);
       expect(container.firstElementChild).to.not.equal(null);
+      expect(container.firstElementChild).to.have.attribute('class', 'test-class');
     });
 
     it('does not throw when style is provided with minimal props', async () => {
-      // This would throw "Cannot add property style, object is not extensible"
-      // if outProps were the frozen EMPTY_OBJECT
       const { container } = await render(<MinimalComponent style={{ color: 'red' }} />);
       expect(container.firstElementChild).to.not.equal(null);
-    });
-
-    it('renders correctly with className when using minimal props', async () => {
-      const { container } = await render(<MinimalComponent className="custom-class" />);
-      const element = container.firstElementChild;
-      expect(element).to.have.attribute('class', 'custom-class');
-    });
-
-    it('renders correctly with style when using minimal props', async () => {
-      const { container } = await render(<MinimalComponent style={{ color: 'rgb(255, 0, 0)' }} />);
       const element = container.firstElementChild as HTMLElement;
-      expect(element.style.color).to.equal('rgb(255, 0, 0)');
+      expect(element.style.color).to.equal('red');
     });
   });
 });
