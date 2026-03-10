@@ -131,7 +131,7 @@ export const isItemSelected = createSelector(selectedItemsSet, (set, itemId: Tre
 );
 
 export const isMultiSelectEnabled = createSelector(
-  (state: TreeState): boolean => state.multiSelect,
+  (state: TreeState): boolean => state.multiple,
 );
 
 export const isSelectionDisabled = createSelector(
@@ -342,6 +342,7 @@ export const itemProps = createSelectorMemoized(
 
     return {
       'aria-expanded': meta.expandable ? expanded : undefined,
+      'aria-selected': canBeSelected ? selectionStatus === 'checked' : undefined,
       'aria-checked': ariaChecked,
       'aria-level': meta.depth + 1,
       'aria-setsize': siblings.length,
@@ -349,6 +350,7 @@ export const itemProps = createSelectorMemoized(
       'aria-disabled': disabled || undefined,
       tabIndex: isDefaultFocusable ? 0 : -1,
       state: {
+        itemId,
         expanded,
         expandable: meta.expandable,
         selected: selectionStatus === 'checked',

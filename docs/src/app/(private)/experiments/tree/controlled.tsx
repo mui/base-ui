@@ -76,7 +76,7 @@ export default function ControlledTree() {
           onExpandedItemsChange={setExpandedItems}
           selectedItems={selectedItems}
           onSelectedItemsChange={(v) => setSelectedItems(v as TreeItemId[])}
-          multiSelect
+          multiple
           className={styles.tree}
         >
           {(item) => (

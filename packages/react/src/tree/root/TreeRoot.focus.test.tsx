@@ -108,7 +108,7 @@ describeTree('TreeRoot - Focus', ({ render }) => {
       const view = await render({
         items: [{ id: '1' }, { id: '2' }, { id: '3' }],
         selectedItems: ['2', '3'],
-        multiSelect: true,
+        multiple: true,
       });
 
       expect(view.getItemRoot('1').tabIndex).to.equal(-1);
@@ -130,7 +130,7 @@ describeTree('TreeRoot - Focus', ({ render }) => {
       const view = await render({
         items: [{ id: '1' }, { id: '2', children: [{ id: '2.1' }, { id: '2.2' }] }],
         selectedItems: ['2.1', '2.2'],
-        multiSelect: true,
+        multiple: true,
       });
 
       expect(view.getItemRoot('1').tabIndex).to.equal(0);

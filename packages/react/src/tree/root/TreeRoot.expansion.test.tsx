@@ -69,6 +69,7 @@ describeTree('TreeRoot - Expansion', ({ render }) => {
 
       expect(onExpandedItemsChange.callCount).to.equal(1);
       expect(onExpandedItemsChange.lastCall.args[0]).to.deep.equal(['1']);
+      expect(onExpandedItemsChange.lastCall.args[1]).to.have.property('reason', 'item-press');
     });
 
     it('should call onExpandedItemsChange when expanding an item (add to non-empty list)', async () => {
@@ -87,6 +88,7 @@ describeTree('TreeRoot - Expansion', ({ render }) => {
 
       expect(onExpandedItemsChange.callCount).to.equal(1);
       expect(onExpandedItemsChange.lastCall.args[0]).to.deep.equal(['2', '1']);
+      expect(onExpandedItemsChange.lastCall.args[1]).to.have.property('reason', 'item-press');
     });
 
     it('should call onExpandedItemsChange when collapsing an item', async () => {
@@ -105,6 +107,42 @@ describeTree('TreeRoot - Expansion', ({ render }) => {
 
       expect(onExpandedItemsChange.callCount).to.equal(1);
       expect(onExpandedItemsChange.lastCall.args[0]).to.deep.equal([]);
+      expect(onExpandedItemsChange.lastCall.args[1]).to.have.property('reason', 'item-press');
+    });
+
+    it('should not expand when onExpandedItemsChange cancels the event', async () => {
+      const onExpandedItemsChange = spy((_expandedItems: string[], eventDetails: any) => {
+        eventDetails.cancel();
+      });
+
+      const view = await render({
+        items: [{ id: '1', children: [{ id: '1.1' }] }],
+        onExpandedItemsChange,
+      });
+
+      fireEvent.click(view.getItemRoot('1'));
+
+      expect(onExpandedItemsChange.callCount).to.equal(1);
+      expect(view.isItemExpanded('1')).to.equal(false);
+    });
+
+    it('should pass reason "imperative-action" when using setItemExpansion', async () => {
+      const onExpandedItemsChange = spy();
+
+      const view = await render({
+        items: [{ id: '1', children: [{ id: '1.1' }] }],
+        onExpandedItemsChange,
+      });
+
+      act(() => {
+        view.actionsRef.current!.setItemExpansion('1', true);
+      });
+
+      expect(onExpandedItemsChange.callCount).to.equal(1);
+      expect(onExpandedItemsChange.lastCall.args[1]).to.have.property(
+        'reason',
+        'imperative-action',
+      );
     });
   });
 

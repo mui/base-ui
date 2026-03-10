@@ -1,8 +1,10 @@
-export enum TreeItemDataAttributes {
+export enum TreeCheckboxItemDataAttributes {
   itemId = 'data-item-id',
   expanded = 'data-expanded',
   collapsed = 'data-collapsed',
-  selected = 'data-selected',
+  checked = 'data-checked',
+  unchecked = 'data-unchecked',
+  indeterminate = 'data-indeterminate',
   focused = 'data-focused',
   disabled = 'data-disabled',
   editing = 'data-editing',

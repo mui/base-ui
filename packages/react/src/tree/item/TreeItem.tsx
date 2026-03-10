@@ -11,6 +11,9 @@ const EXPANDED_HOOK = { [TreeItemDataAttributes.expanded]: '' };
 const COLLAPSED_HOOK = { [TreeItemDataAttributes.collapsed]: '' };
 
 const stateAttributesMapping = {
+  itemId(v: string) {
+    return { [TreeItemDataAttributes.itemId]: v };
+  },
   expanded(v: boolean) {
     return v ? EXPANDED_HOOK : COLLAPSED_HOOK;
   },
@@ -35,8 +38,9 @@ export const TreeItem = React.forwardRef(function TreeItem(
   const { itemId } = useTreeItemContext();
   const propsFromState = store.useState('itemProps', itemId);
 
-  const { state, ...ariaProps } = propsFromState ?? {
+  const { state, 'aria-checked': ariaChecked, ...ariaProps } = propsFromState ?? {
     state: {
+      itemId: '',
       expanded: false,
       expandable: false,
       selected: false,
@@ -54,6 +58,12 @@ export const TreeItem = React.forwardRef(function TreeItem(
       {
         role: 'treeitem',
         ...ariaProps,
+        onMouseDown: (event: React.MouseEvent) => {
+          // Prevent text selection when using modifier keys for multi-select
+          if (event.shiftKey || event.ctrlKey || event.metaKey || state.disabled) {
+            event.preventDefault();
+          }
+        },
         onClick: (event: React.MouseEvent) => {
           store.itemEventHandlers.onClick(event, itemId, clickToExpand, clickToSelect);
         },
@@ -74,6 +84,7 @@ export const TreeItem = React.forwardRef(function TreeItem(
 });
 
 export interface TreeItemState {
+  itemId: string;
   expanded: boolean;
   expandable: boolean;
   selected: boolean;

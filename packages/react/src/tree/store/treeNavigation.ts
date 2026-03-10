@@ -1,5 +1,6 @@
 import type { TreeState, TreeItemId, TreeItemMeta } from './types';
 import { TREE_VIEW_ROOT_PARENT_ID } from './types';
+import { isItemExpanded } from './selectors';
 
 function canItemBeFocused(state: TreeState, itemId: TreeItemId): boolean {
   const meta = state.itemMetaLookup[itemId];
@@ -21,10 +22,6 @@ function isItemDisabledInternal(state: TreeState, itemId: TreeItemId): boolean {
     return isItemDisabledInternal(state, meta.parentId);
   }
   return false;
-}
-
-function isItemExpanded(state: TreeState, itemId: TreeItemId): boolean {
-  return state.expandedItems.indexOf(itemId) !== -1;
 }
 
 function isItemExpandable(state: TreeState, itemId: TreeItemId): boolean {
@@ -272,7 +269,7 @@ export const getNonDisabledItemsInRange = (
   };
 
   const [first, last] = findOrderInTremauxTree(state, itemAId, itemBId);
-  const items = [first];
+  const items = isItemDisabledInternal(state, first) ? [] : [first];
   let current = first;
 
   while (current !== last) {

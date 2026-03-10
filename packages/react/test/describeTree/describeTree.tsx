@@ -47,25 +47,25 @@ function getUtils(result: BaseUIRenderResult): DescribeTreeRendererUtils {
 
   const getAllTreeItemIds = () =>
     Array.from(result.container.querySelectorAll('[role="treeitem"]')).map(
-      (item) => (item as HTMLElement).dataset.testid!,
+      (item) => (item as HTMLElement).dataset.itemId!,
     );
 
   const getFocusedItemId = () => {
     // First check for an item with the data-focused attribute (set by the store)
     const focusedItem = result.container.querySelector('[role="treeitem"][data-focused]');
     if (focusedItem) {
-      return (focusedItem as HTMLElement).dataset.testid!;
+      return (focusedItem as HTMLElement).dataset.itemId!;
     }
     // Fall back to document.activeElement
     const activeElement = document.activeElement;
     if (!activeElement || activeElement.getAttribute('role') !== 'treeitem') {
       return null;
     }
-    return (activeElement as HTMLElement).dataset.testid!;
+    return (activeElement as HTMLElement).dataset.itemId!;
   };
 
   const getItemRoot = (id: string) => {
-    const item = result.container.querySelector(`[data-testid="${id}"]`);
+    const item = result.container.querySelector(`[data-item-id="${id}"]`);
     if (!item) {
       throw new Error(`Could not find item with id "${id}"`);
     }
@@ -98,12 +98,23 @@ function getUtils(result: BaseUIRenderResult): DescribeTreeRendererUtils {
 
   const isItemExpanded = (id: string) => getItemRoot(id).getAttribute('aria-expanded') === 'true';
 
-  const isItemSelected = (id: string) => getItemRoot(id).getAttribute('aria-checked') === 'true';
+  const isItemSelected = (id: string) => {
+    const item = getItemRoot(id);
+    // Tree.CheckboxItem uses aria-checked, Tree.Item uses aria-selected
+    return (
+      item.getAttribute('aria-checked') === 'true' ||
+      item.getAttribute('aria-selected') === 'true'
+    );
+  };
 
   const getSelectedTreeItems = () =>
     Array.from(result.container.querySelectorAll('[role="treeitem"]'))
-      .filter((item) => item.getAttribute('aria-checked') === 'true')
-      .map((item) => (item as HTMLElement).dataset.testid!);
+      .filter(
+        (item) =>
+          item.getAttribute('aria-checked') === 'true' ||
+          item.getAttribute('aria-selected') === 'true',
+      )
+      .map((item) => (item as HTMLElement).dataset.itemId!);
 
   return {
     getRoot,
@@ -163,13 +174,20 @@ export function describeTree(
           {...(customGetItemChildren ? { getItemChildren: customGetItemChildren } : {})}
           {...other}
         >
-          {(item: TreeItemModel) => (
-            <Tree.Item key={item.id} data-testid={item.id} clickToSelect={!checkboxSelection}>
-              <Tree.ItemExpansionTrigger />
-              {checkboxSelection && <Tree.ItemCheckbox />}
-              <Tree.ItemLabel />
-            </Tree.Item>
-          )}
+          {(item: TreeItemModel) =>
+            checkboxSelection ? (
+              <Tree.CheckboxItem key={item.id}>
+                <Tree.CheckboxItemIndicator />
+                <Tree.ItemExpansionTrigger />
+                <Tree.ItemLabel />
+              </Tree.CheckboxItem>
+            ) : (
+              <Tree.Item key={item.id}>
+                <Tree.ItemExpansionTrigger />
+                <Tree.ItemLabel />
+              </Tree.Item>
+            )
+          }
         </Tree.Root>
       );
 

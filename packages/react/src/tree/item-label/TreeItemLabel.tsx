@@ -68,8 +68,10 @@ export const TreeItemLabel = React.forwardRef(function TreeItemLabel(
           event.stopPropagation();
           if (event.key === 'Enter') {
             store.updateItemLabel(itemId, editingValue);
+            store.focusItem(itemId);
           } else if (event.key === 'Escape') {
             store.setEditedItem(null);
+            store.focusItem(itemId);
           }
         }}
         {...(elementProps as React.InputHTMLAttributes<HTMLInputElement>)}

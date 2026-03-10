@@ -8,7 +8,15 @@ import { TreeRootContext } from './TreeRootContext';
 import { TreeItemContext, type TreeItemContextValue } from '../item/TreeItemContext';
 import { TreeStore, type TreeStoreParameters } from '../store/TreeStore';
 import { selectors } from '../store/selectors';
-import type { TreeItemModel, TreeRootActions } from '../store/types';
+import type {
+  TreeItemModel,
+  TreeRootActions,
+  TreeRootExpansionChangeEventReason,
+  TreeRootExpansionChangeEventDetails,
+  TreeRootSelectionChangeEventReason,
+  TreeRootSelectionChangeEventDetails,
+} from '../store/types';
+import { EMPTY_OBJECT } from '../../utils/constants';
 
 /**
  * Groups all parts of the tree.
@@ -35,7 +43,7 @@ export const TreeRoot = React.forwardRef(function TreeRoot(
     selectedItems,
     defaultSelectedItems,
     onSelectedItemsChange,
-    multiSelect,
+    multiple,
     disableSelection,
     selectionPropagation,
     // Item accessors
@@ -69,7 +77,7 @@ export const TreeRoot = React.forwardRef(function TreeRoot(
         selectedItems,
         defaultSelectedItems,
         onSelectedItemsChange,
-        multiSelect,
+        multiple,
         disableSelection,
         selectionPropagation,
         getItemId,
@@ -82,6 +90,7 @@ export const TreeRoot = React.forwardRef(function TreeRoot(
         onItemFocus,
         onItemClick,
         onItemLabelChange,
+        rootRef,
       }),
   ).current;
 
@@ -90,8 +99,8 @@ export const TreeRoot = React.forwardRef(function TreeRoot(
   store.useControlledProp('selectedItems', selectedItems);
   store.useSyncedValues({
     disableSelection: disableSelection ?? false,
-    multiSelect: multiSelect ?? false,
-    selectionPropagation: selectionPropagation ?? {},
+    multiple: multiple ?? false,
+    selectionPropagation: selectionPropagation ?? EMPTY_OBJECT,
     disabledItemsFocusable: disabledItemsFocusable ?? false,
   });
   store.useContextCallback('onExpandedItemsChange', onExpandedItemsChange);
@@ -99,11 +108,6 @@ export const TreeRoot = React.forwardRef(function TreeRoot(
   store.useContextCallback('onItemFocus', onItemFocus);
   store.useContextCallback('onItemClick', onItemClick);
   store.useContextCallback('onItemLabelChange', onItemLabelChange);
-
-  // Sync root ref to store context
-  React.useEffect(() => {
-    (store.context as any).rootRef = rootRef;
-  });
 
   // Rebuild items state when items prop changes
   const isFirstRender = React.useRef(true);
@@ -129,7 +133,7 @@ export const TreeRoot = React.forwardRef(function TreeRoot(
     props: [
       {
         role: 'tree',
-        'aria-multiselectable': multiSelect ?? false,
+        'aria-multiselectable': multiple || undefined,
         children: flatItemIds.map((itemId) => {
           // eslint-disable-next-line react/jsx-no-constructed-context-values -- unique per item
           const contextValue: TreeItemContextValue = { itemId };
@@ -172,4 +176,8 @@ export namespace TreeRoot {
   export type State = TreeRootState;
   export type Props = TreeRootProps;
   export type Actions = TreeRootActions;
+  export type ExpansionChangeEventReason = TreeRootExpansionChangeEventReason;
+  export type ExpansionChangeEventDetails = TreeRootExpansionChangeEventDetails;
+  export type SelectionChangeEventReason = TreeRootSelectionChangeEventReason;
+  export type SelectionChangeEventDetails = TreeRootSelectionChangeEventDetails;
 }

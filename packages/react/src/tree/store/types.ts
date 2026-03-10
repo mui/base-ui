@@ -1,3 +1,6 @@
+import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
+
 export type TreeItemId = string;
 
 /**
@@ -42,6 +45,22 @@ export interface LazyLoadedItemsState {
 
 export const TREE_VIEW_ROOT_PARENT_ID = '__ROOT__';
 
+export type TreeRootExpansionChangeEventReason =
+  | typeof REASONS.itemPress
+  | typeof REASONS.keyboard
+  | typeof REASONS.imperativeAction;
+
+export type TreeRootExpansionChangeEventDetails =
+  BaseUIChangeEventDetails<TreeRootExpansionChangeEventReason>;
+
+export type TreeRootSelectionChangeEventReason =
+  | typeof REASONS.itemPress
+  | typeof REASONS.keyboard
+  | typeof REASONS.imperativeAction;
+
+export type TreeRootSelectionChangeEventDetails =
+  BaseUIChangeEventDetails<TreeRootSelectionChangeEventReason>;
+
 /**
  * The full store state for the Tree component.
  */
@@ -66,7 +85,7 @@ export interface TreeState {
   /** Whether selection is entirely disabled */
   disableSelection: boolean;
   /** Whether multiple items can be selected */
-  multiSelect: boolean;
+  multiple: boolean;
   /** How selection propagates through the tree hierarchy */
   selectionPropagation: SelectionPropagation;
 
@@ -94,8 +113,14 @@ export interface TreeState {
  */
 export interface TreeStoreContext {
   // Callbacks wired via useContextCallback
-  onExpandedItemsChange: (expandedItems: TreeItemId[]) => void;
-  onSelectedItemsChange: (selectedItems: TreeItemId | null | TreeItemId[]) => void;
+  onExpandedItemsChange: (
+    expandedItems: TreeItemId[],
+    details: TreeRootExpansionChangeEventDetails,
+  ) => void;
+  onSelectedItemsChange: (
+    selectedItems: TreeItemId | null | TreeItemId[],
+    details: TreeRootSelectionChangeEventDetails,
+  ) => void;
   onItemFocus: (itemId: TreeItemId) => void;
   onItemClick: (event: React.MouseEvent, itemId: TreeItemId) => void;
   onItemLabelChange: (itemId: TreeItemId, newLabel: string) => void;

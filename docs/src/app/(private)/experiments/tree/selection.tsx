@@ -8,7 +8,7 @@ import { SettingsMetadata, useExperimentSettings } from '../_components/Settings
 interface Settings extends Record<string, boolean> {}
 
 export const settingsMetadata: SettingsMetadata<Settings> = {
-  multiSelect: {
+  multiple: {
     type: 'boolean',
     label: 'Multi-select',
     default: true,
@@ -91,7 +91,7 @@ export default function SelectionTree() {
       <Tree.Root
         items={items}
         defaultExpandedItems={['frontend', 'react']}
-        multiSelect={settings.multiSelect}
+        multiple={settings.multiple}
         selectionPropagation={{
           parents: settings.propagateToParents,
           descendants: settings.propagateToDescendants,

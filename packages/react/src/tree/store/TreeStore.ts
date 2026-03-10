@@ -7,9 +7,15 @@ import type {
   TreeItemModel,
   TreeItemMeta,
   TreeRootActions,
+  TreeRootExpansionChangeEventReason,
+  TreeRootExpansionChangeEventDetails,
+  TreeRootSelectionChangeEventReason,
+  TreeRootSelectionChangeEventDetails,
 } from './types';
 import { TREE_VIEW_ROOT_PARENT_ID } from './types';
 import { selectors } from './selectors';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import {
   getFirstNavigableItem,
   getLastNavigableItem,
@@ -28,15 +34,22 @@ export interface TreeStoreParameters {
   // Expansion
   expandedItems?: readonly TreeItemId[] | undefined;
   defaultExpandedItems?: readonly TreeItemId[] | undefined;
-  onExpandedItemsChange?: ((expandedItems: TreeItemId[]) => void) | undefined;
+  onExpandedItemsChange?:
+    | ((expandedItems: TreeItemId[], eventDetails: TreeRootExpansionChangeEventDetails) => void)
+    | undefined;
   onItemExpansionToggle?: ((itemId: TreeItemId, isExpanded: boolean) => void) | undefined;
 
   // Selection
   selectedItems?: TreeItemId | null | readonly TreeItemId[] | undefined;
   defaultSelectedItems?: TreeItemId | null | readonly TreeItemId[] | undefined;
-  onSelectedItemsChange?: ((selectedItems: TreeItemId | null | TreeItemId[]) => void) | undefined;
+  onSelectedItemsChange?:
+    | ((
+        selectedItems: TreeItemId | null | TreeItemId[],
+        eventDetails: TreeRootSelectionChangeEventDetails,
+      ) => void)
+    | undefined;
   onItemSelectionToggle?: ((itemId: TreeItemId, isSelected: boolean) => void) | undefined;
-  multiSelect?: boolean | undefined;
+  multiple?: boolean | undefined;
   disableSelection?: boolean | undefined;
   selectionPropagation?:
     | { parents?: boolean | undefined; descendants?: boolean | undefined }
@@ -59,6 +72,7 @@ export interface TreeStoreParameters {
   onItemLabelChange?: ((itemId: TreeItemId, newLabel: string) => void) | undefined;
   isRtl?: boolean | undefined;
   treeId?: string | undefined;
+  rootRef: React.RefObject<HTMLElement | null>;
 }
 
 function getLookupFromArray(array: string[]): Record<string, true> {
@@ -113,9 +127,9 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
         selectedItems:
           parameters.selectedItems ??
           parameters.defaultSelectedItems ??
-          (parameters.multiSelect ? [] : null),
+          (parameters.multiple ? [] : null),
         disableSelection: parameters.disableSelection ?? false,
-        multiSelect: parameters.multiSelect ?? false,
+        multiple: parameters.multiple ?? false,
         selectionPropagation: parameters.selectionPropagation ?? {},
         focusedItemId: null,
         disabledItemsFocusable: parameters.disabledItemsFocusable ?? false,
@@ -137,7 +151,7 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
         isItemEditable: parameters.isItemEditable ?? false,
         fetchChildren: undefined,
         isRtl: parameters.isRtl ?? false,
-        rootRef: React.createRef(),
+        rootRef: parameters.rootRef,
       },
       selectors,
     );
@@ -266,17 +280,27 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
   // Expansion
   // ===========================================================================
 
-  public setItemExpansion(itemId: TreeItemId, shouldBeExpanded?: boolean) {
+  public setItemExpansion(
+    itemId: TreeItemId,
+    shouldBeExpanded: boolean | undefined,
+    reason: TreeRootExpansionChangeEventReason,
+    event?: Event,
+  ) {
     const isExpandedBefore = selectors.isItemExpanded(this.state, itemId);
     const cleanShouldBeExpanded = shouldBeExpanded ?? !isExpandedBefore;
     if (isExpandedBefore === cleanShouldBeExpanded) {
       return;
     }
 
-    this.applyItemExpansion(itemId, cleanShouldBeExpanded);
+    this.applyItemExpansion(itemId, cleanShouldBeExpanded, reason, event);
   }
 
-  public applyItemExpansion(itemId: TreeItemId, shouldBeExpanded: boolean) {
+  public applyItemExpansion(
+    itemId: TreeItemId,
+    shouldBeExpanded: boolean,
+    reason: TreeRootExpansionChangeEventReason,
+    event?: Event,
+  ) {
     const oldExpanded = this.state.expandedItems;
     let newExpanded: TreeItemId[];
     if (shouldBeExpanded) {
@@ -285,11 +309,19 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
       newExpanded = oldExpanded.filter((id) => id !== itemId);
     }
 
+    const details = createChangeEventDetails(reason, event);
+    this.context.onExpandedItemsChange(newExpanded, details);
+    if (details.isCanceled) {
+      return;
+    }
     this.set('expandedItems', newExpanded);
-    this.context.onExpandedItemsChange(newExpanded);
   }
 
-  public expandAllSiblings(itemId: TreeItemId) {
+  public expandAllSiblings(
+    itemId: TreeItemId,
+    reason: TreeRootExpansionChangeEventReason,
+    event?: Event,
+  ) {
     const meta = selectors.itemMeta(this.state, itemId);
     if (meta == null) {
       return;
@@ -304,8 +336,12 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
 
     if (diff.length > 0) {
       const newExpanded = [...this.state.expandedItems, ...diff];
+      const details = createChangeEventDetails(reason, event);
+      this.context.onExpandedItemsChange(newExpanded, details);
+      if (details.isCanceled) {
+        return;
+      }
       this.set('expandedItems', newExpanded);
-      this.context.onExpandedItemsChange(newExpanded);
     }
   }
 
@@ -315,10 +351,12 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
 
   private setSelectedItems(
     newModel: TreeItemId[] | TreeItemId | null,
+    reason: TreeRootSelectionChangeEventReason,
+    event?: Event,
     additionalItemsToPropagate?: TreeItemId[],
   ) {
     const oldModel = this.state.selectedItems;
-    const isMulti = this.state.multiSelect;
+    const isMulti = this.state.multiple;
 
     let cleanModel: TreeItemId[] | TreeItemId | null;
 
@@ -335,8 +373,12 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
       cleanModel = newModel;
     }
 
+    const details = createChangeEventDetails(reason, event);
+    this.context.onSelectedItemsChange(cleanModel as TreeItemId | null | TreeItemId[], details);
+    if (details.isCanceled) {
+      return;
+    }
     this.set('selectedItems', cleanModel);
-    this.context.onSelectedItemsChange(cleanModel as TreeItemId | null | TreeItemId[]);
   }
 
   private propagateSelection(
@@ -441,16 +483,20 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
     itemId,
     keepExistingSelection = false,
     shouldBeSelected,
+    reason,
+    event,
   }: {
     itemId: TreeItemId;
     keepExistingSelection?: boolean | undefined;
     shouldBeSelected?: boolean | undefined;
+    reason: TreeRootSelectionChangeEventReason;
+    event?: Event | undefined;
   }) {
     if (this.state.disableSelection) {
       return;
     }
 
-    const isMulti = this.state.multiSelect;
+    const isMulti = this.state.multiple;
     let newSelected: TreeItemId[] | TreeItemId | null;
 
     if (keepExistingSelection) {
@@ -473,44 +519,61 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
       newSelected = isMulti ? [itemId] : itemId;
     }
 
-    this.setSelectedItems(newSelected, [itemId]);
+    this.setSelectedItems(newSelected, reason, event, [itemId]);
     this.lastSelectedItem = itemId;
     this.lastSelectedRange = {};
   }
 
-  public selectAllNavigableItems() {
-    if (!this.state.multiSelect) {
+  public selectAllNavigableItems(reason: TreeRootSelectionChangeEventReason, event?: Event) {
+    if (!this.state.multiple) {
       return;
     }
 
     const navigableItems = getAllNavigableItems(this.state);
-    this.setSelectedItems(navigableItems);
+    this.setSelectedItems(navigableItems, reason, event);
     this.lastSelectedRange = getLookupFromArray(navigableItems);
   }
 
-  public expandSelectionRange(itemId: TreeItemId) {
+  public expandSelectionRange(
+    itemId: TreeItemId,
+    reason: TreeRootSelectionChangeEventReason,
+    event?: Event,
+  ) {
     if (this.lastSelectedItem != null) {
       const [start, end] = findOrderInTremauxTree(this.state, itemId, this.lastSelectedItem);
-      this.selectRange([start, end]);
+      this.selectRange([start, end], reason, event);
     }
   }
 
-  public selectRangeFromStartToItem(itemId: TreeItemId) {
+  public selectRangeFromStartToItem(
+    itemId: TreeItemId,
+    reason: TreeRootSelectionChangeEventReason,
+    event?: Event,
+  ) {
     const firstItem = getFirstNavigableItem(this.state);
     if (firstItem != null) {
-      this.selectRange([firstItem, itemId]);
+      this.selectRange([firstItem, itemId], reason, event);
     }
   }
 
-  public selectRangeFromItemToEnd(itemId: TreeItemId) {
+  public selectRangeFromItemToEnd(
+    itemId: TreeItemId,
+    reason: TreeRootSelectionChangeEventReason,
+    event?: Event,
+  ) {
     const lastItem = getLastNavigableItem(this.state);
     if (lastItem != null) {
-      this.selectRange([itemId, lastItem]);
+      this.selectRange([itemId, lastItem], reason, event);
     }
   }
 
-  public selectItemFromArrowNavigation(currentItem: TreeItemId, nextItem: TreeItemId) {
-    if (!this.state.multiSelect) {
+  public selectItemFromArrowNavigation(
+    currentItem: TreeItemId,
+    nextItem: TreeItemId,
+    reason: TreeRootSelectionChangeEventReason,
+    event?: Event,
+  ) {
+    if (!this.state.multiple) {
       return;
     }
 
@@ -534,11 +597,15 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
       }
     }
 
-    this.setSelectedItems(newSelectedItems);
+    this.setSelectedItems(newSelectedItems, reason, event);
   }
 
-  private selectRange([start, end]: [TreeItemId, TreeItemId]) {
-    if (!this.state.multiSelect) {
+  private selectRange(
+    [start, end]: [TreeItemId, TreeItemId],
+    reason: TreeRootSelectionChangeEventReason,
+    event?: Event,
+  ) {
+    if (!this.state.multiple) {
       return;
     }
 
@@ -559,7 +626,7 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
     const itemsToAdd = range.filter((id) => !selectedItemsLookup[id]);
     newSelectedItems = newSelectedItems.concat(itemsToAdd);
 
-    this.setSelectedItems(newSelectedItems);
+    this.setSelectedItems(newSelectedItems, reason, event);
     this.lastSelectedRange = getLookupFromArray(range);
   }
 
@@ -607,11 +674,11 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
   public updateItemLabel(itemId: TreeItemId, newLabel: string) {
     const newItemMetaLookup = { ...this.state.itemMetaLookup };
     newItemMetaLookup[itemId] = { ...newItemMetaLookup[itemId], label: newLabel };
-    this.set('itemMetaLookup', newItemMetaLookup);
 
     const newItemModelLookup = { ...this.state.itemModelLookup };
     newItemModelLookup[itemId] = { ...newItemModelLookup[itemId], label: newLabel };
-    this.set('itemModelLookup', newItemModelLookup);
+
+    this.update({ itemMetaLookup: newItemMetaLookup, itemModelLookup: newItemModelLookup });
 
     this.context.onItemLabelChange(itemId, newLabel);
     this.setEditedItem(null);
@@ -626,7 +693,7 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
     if (!rootElement) {
       return null;
     }
-    return rootElement.querySelector(`[data-testid="${itemId}"]`);
+    return rootElement.querySelector(`[data-item-id="${itemId}"]`);
   }
 
   // ===========================================================================
@@ -678,7 +745,10 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
       const checkedItems: Record<TreeItemId, true> = {};
       let currentItemId: TreeItemId = query.length > 1 ? itemId : getNextItem(itemId);
       while (matchingItemId == null && !checkedItems[currentItemId]) {
-        if (this.labelMap[currentItemId]?.startsWith(query)) {
+        if (
+          this.labelMap[currentItemId]?.startsWith(query) &&
+          selectors.canItemBeFocused(this.state, currentItemId)
+        ) {
           matchingItemId = currentItemId;
         } else {
           checkedItems[currentItemId] = true;
@@ -714,19 +784,21 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
 
     const ctrlPressed = event.ctrlKey || event.metaKey;
     const key = event.key;
-    const isMulti = this.state.multiSelect;
+    const isMulti = this.state.multiple;
 
     switch (true) {
       // Select the item when pressing "Space"
       case key === ' ' && this.canToggleItemSelection(itemId): {
         event.preventDefault();
         if (isMulti && event.shiftKey) {
-          this.expandSelectionRange(itemId);
+          this.expandSelectionRange(itemId, REASONS.keyboard, event.nativeEvent);
         } else {
           this.setItemSelection({
             itemId,
             keepExistingSelection: isMulti,
             shouldBeSelected: undefined,
+            reason: REASONS.keyboard,
+            event: event.nativeEvent,
           });
         }
         break;
@@ -737,14 +809,23 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
         if (this.isItemEditable(itemId) && !selectors.isItemBeingEdited(this.state, itemId)) {
           this.setEditedItem(itemId);
         } else if (this.canToggleItemExpansion(itemId)) {
-          this.setItemExpansion(itemId);
+          this.setItemExpansion(itemId, undefined, REASONS.keyboard, event.nativeEvent);
           event.preventDefault();
         } else if (this.canToggleItemSelection(itemId)) {
           if (isMulti) {
             event.preventDefault();
-            this.setItemSelection({ itemId, keepExistingSelection: true });
+            this.setItemSelection({
+              itemId,
+              keepExistingSelection: true,
+              reason: REASONS.keyboard,
+              event: event.nativeEvent,
+            });
           } else if (!selectors.isItemSelected(this.state, itemId)) {
-            this.setItemSelection({ itemId });
+            this.setItemSelection({
+              itemId,
+              reason: REASONS.keyboard,
+              event: event.nativeEvent,
+            });
             event.preventDefault();
           }
         }
@@ -758,7 +839,12 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
           event.preventDefault();
           this.focusItem(nextItem);
           if (isMulti && event.shiftKey && this.canToggleItemSelection(nextItem)) {
-            this.selectItemFromArrowNavigation(itemId, nextItem);
+            this.selectItemFromArrowNavigation(
+              itemId,
+              nextItem,
+              REASONS.keyboard,
+              event.nativeEvent,
+            );
           }
         }
         break;
@@ -771,7 +857,12 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
           event.preventDefault();
           this.focusItem(prevItem);
           if (isMulti && event.shiftKey && this.canToggleItemSelection(prevItem)) {
-            this.selectItemFromArrowNavigation(itemId, prevItem);
+            this.selectItemFromArrowNavigation(
+              itemId,
+              prevItem,
+              REASONS.keyboard,
+              event.nativeEvent,
+            );
           }
         }
         break;
@@ -790,7 +881,7 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
             event.preventDefault();
           }
         } else if (this.canToggleItemExpansion(itemId)) {
-          this.setItemExpansion(itemId);
+          this.setItemExpansion(itemId, undefined, REASONS.keyboard, event.nativeEvent);
           event.preventDefault();
         }
         break;
@@ -803,7 +894,7 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
           return;
         }
         if (this.canToggleItemExpansion(itemId) && selectors.isItemExpanded(this.state, itemId)) {
-          this.setItemExpansion(itemId);
+          this.setItemExpansion(itemId, undefined, REASONS.keyboard, event.nativeEvent);
           event.preventDefault();
         } else {
           const parent = selectors.itemParentId(this.state, itemId);
@@ -818,7 +909,7 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
       // Home: focus first item
       case key === 'Home': {
         if (this.canToggleItemSelection(itemId) && isMulti && ctrlPressed && event.shiftKey) {
-          this.selectRangeFromStartToItem(itemId);
+          this.selectRangeFromStartToItem(itemId, REASONS.keyboard, event.nativeEvent);
         } else {
           const firstItem = getFirstNavigableItem(this.state);
           if (firstItem) {
@@ -832,7 +923,7 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
       // End: focus last item
       case key === 'End': {
         if (this.canToggleItemSelection(itemId) && isMulti && ctrlPressed && event.shiftKey) {
-          this.selectRangeFromItemToEnd(itemId);
+          this.selectRangeFromItemToEnd(itemId, REASONS.keyboard, event.nativeEvent);
         } else {
           const lastItem = getLastNavigableItem(this.state);
           if (lastItem) {
@@ -845,7 +936,7 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
 
       // Expand all siblings
       case key === '*': {
-        this.expandAllSiblings(itemId);
+        this.expandAllSiblings(itemId, REASONS.keyboard, event.nativeEvent);
         event.preventDefault();
         break;
       }
@@ -855,7 +946,7 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
         ctrlPressed &&
         isMulti &&
         !this.state.disableSelection: {
-        this.selectAllNavigableItems();
+        this.selectAllNavigableItems(REASONS.keyboard, event.nativeEvent);
         event.preventDefault();
         break;
       }
@@ -916,31 +1007,80 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
     onClick: (event: React.MouseEvent, itemId: TreeItemId, clickToExpand: boolean, clickToSelect: boolean) => {
       this.context.onItemClick(event, itemId);
 
+      // Handle focus - disabled items cannot be focused by mouse click
+      if (!selectors.isItemDisabled(this.state, itemId)) {
+        this.set('focusedItemId', itemId);
+      }
+
       // Handle selection
       if (!this.state.disableSelection && selectors.canItemBeSelected(this.state, itemId)) {
         if (clickToSelect) {
-          const isMulti = this.state.multiSelect;
+          const isMulti = this.state.multiple;
           if (isMulti && (event.ctrlKey || event.metaKey)) {
             this.setItemSelection({
               itemId,
               keepExistingSelection: true,
+              reason: REASONS.itemPress,
+              event: event.nativeEvent,
             });
-          } else if (isMulti && event.shiftKey) {
-            this.expandSelectionRange(itemId);
-          } else {
-            this.setItemSelection({ itemId, shouldBeSelected: true });
+            return;
           }
+          if (isMulti && event.shiftKey) {
+            this.expandSelectionRange(itemId, REASONS.itemPress, event.nativeEvent);
+            return;
+          }
+          this.setItemSelection({
+            itemId,
+            shouldBeSelected: true,
+            reason: REASONS.itemPress,
+            event: event.nativeEvent,
+          });
         }
       }
 
-      // Handle expansion
+      // Handle expansion (skipped for multi-select modifier clicks via early return above)
       if (clickToExpand && this.canToggleItemExpansion(itemId)) {
-        this.setItemExpansion(itemId);
+        this.setItemExpansion(itemId, undefined, REASONS.itemPress, event.nativeEvent);
       }
+    },
+    onFocus: (_event: React.FocusEvent, itemId: TreeItemId) => {
+      if (selectors.canItemBeFocused(this.state, itemId)) {
+        this.set('focusedItemId', itemId);
+        this.context.onItemFocus(itemId);
+      }
+    },
+  };
+
+  public readonly checkboxItemEventHandlers = {
+    onClick: (event: React.MouseEvent, itemId: TreeItemId, clickToExpand: boolean) => {
+      this.context.onItemClick(event, itemId);
 
       // Handle focus - disabled items cannot be focused by mouse click
       if (!selectors.isItemDisabled(this.state, itemId)) {
         this.set('focusedItemId', itemId);
+      }
+
+      // Handle selection (checkbox behavior: always toggle, keep existing in multi)
+      if (selectors.canItemBeSelected(this.state, itemId)) {
+        const isMulti = this.state.multiple;
+
+        if (isMulti && event.shiftKey) {
+          this.expandSelectionRange(itemId, REASONS.itemPress, event.nativeEvent);
+          return;
+        }
+
+        this.setItemSelection({
+          itemId,
+          keepExistingSelection: isMulti,
+          reason: REASONS.itemPress,
+          event: event.nativeEvent,
+        });
+        return;
+      }
+
+      // Handle expansion (only when selection was not toggled)
+      if (clickToExpand && this.canToggleItemExpansion(itemId)) {
+        this.setItemExpansion(itemId, undefined, REASONS.itemPress, event.nativeEvent);
       }
     },
     onFocus: (_event: React.FocusEvent, itemId: TreeItemId) => {
@@ -957,15 +1097,17 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
         return;
       }
 
-      const isMulti = this.state.multiSelect;
+      const isMulti = this.state.multiple;
       const shiftKey = (event.nativeEvent as MouseEvent).shiftKey ?? false;
 
       if (isMulti && shiftKey) {
-        this.expandSelectionRange(itemId);
+        this.expandSelectionRange(itemId, REASONS.itemPress, event.nativeEvent);
       } else {
         this.setItemSelection({
           itemId,
           keepExistingSelection: isMulti,
+          reason: REASONS.itemPress,
+          event: event.nativeEvent,
         });
       }
     },
@@ -974,7 +1116,7 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
   public readonly expansionTriggerEventHandlers = {
     onClick: (event: React.MouseEvent, itemId: TreeItemId) => {
       event.stopPropagation();
-      this.setItemExpansion(itemId);
+      this.setItemExpansion(itemId, undefined, REASONS.itemPress, event.nativeEvent);
     },
   };
 
@@ -992,9 +1134,14 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
       getParentId: (itemId) => selectors.itemParentId(this.state, itemId),
       isItemExpanded: (itemId) => selectors.isItemExpanded(this.state, itemId),
       isItemSelected: (itemId) => selectors.isItemSelected(this.state, itemId),
-      setItemExpansion: (itemId, isExpanded) => this.setItemExpansion(itemId, isExpanded),
+      setItemExpansion: (itemId, isExpanded) =>
+        this.setItemExpansion(itemId, isExpanded, REASONS.imperativeAction),
       setItemSelection: (itemId, isSelected) =>
-        this.setItemSelection({ itemId, shouldBeSelected: isSelected }),
+        this.setItemSelection({
+          itemId,
+          shouldBeSelected: isSelected,
+          reason: REASONS.imperativeAction,
+        }),
       setEditedItem: (itemId) => this.setEditedItem(itemId),
       updateItemLabel: (itemId, newLabel) => this.updateItemLabel(itemId, newLabel),
     };

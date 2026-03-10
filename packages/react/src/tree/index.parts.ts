@@ -2,6 +2,8 @@ export { TreeRoot as Root } from './root/TreeRoot';
 export { TreeItem as Item } from './item/TreeItem';
 export { TreeItemExpansionTrigger as ItemExpansionTrigger } from './item-expansion-trigger/TreeItemExpansionTrigger';
 export { TreeItemCheckbox as ItemCheckbox } from './item-checkbox/TreeItemCheckbox';
+export { TreeCheckboxItem as CheckboxItem } from './checkbox-item/TreeCheckboxItem';
+export { TreeCheckboxItemIndicator as CheckboxItemIndicator } from './checkbox-item-indicator/TreeCheckboxItemIndicator';
 export { TreeItemLabel as ItemLabel } from './item-label/TreeItemLabel';
 export { TreeItemGroupIndicator as ItemGroupIndicator } from './item-group-indicator/TreeItemGroupIndicator';
 export { TreeItemLoadingIndicator as ItemLoadingIndicator } from './item-loading-indicator/TreeItemLoadingIndicator';
