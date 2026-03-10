@@ -673,30 +673,6 @@ importers:
         specifier: 7.3.1
         version: 7.3.1(@types/node@22.18.13)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
 
-  scripts/api-docs-builder:
-    dependencies:
-      '@mui/internal-docs-infra':
-        specifier: 0.6.1-canary.1
-        version: 0.6.1-canary.1(@types/react@19.2.14)(next@16.1.6(@babel/core@7.29.0)(@playwright/test@1.58.2)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(prettier@3.8.1)(react@19.2.4)
-      '@types/yargs':
-        specifier: ^17.0.35
-        version: 17.0.35
-      es-toolkit:
-        specifier: ^1.45.1
-        version: 1.45.1
-      rimraf:
-        specifier: ^6.1.3
-        version: 6.1.3
-      tsx:
-        specifier: ^4.21.0
-        version: 4.21.0
-      typescript-api-extractor:
-        specifier: 1.0.0-alpha.13
-        version: 1.0.0-alpha.13(typescript@5.9.3)
-      yargs:
-        specifier: ^18.0.0
-        version: 18.0.0
-
   test:
     devDependencies:
       '@base-ui/react':
@@ -2480,23 +2456,6 @@ packages:
       '@typescript/native-preview':
         optional: true
       typescript:
-        optional: true
-
-  '@mui/internal-docs-infra@0.6.1-canary.1':
-    resolution: {integrity: sha512-WryMTOGTOaF+85xSPe4ht2siwRRnnwdmgjk9ioXhv7lqxO4QY0dM72989XutiwqEaewTuMk6ZfK/FTmhYzISjQ==}
-    engines: {node: '>=22.12.0'}
-    hasBin: true
-    peerDependencies:
-      '@types/react': 19.2.14
-      next: ^15.0.0 || ^16.0.0
-      prettier: ^3.0.0
-      react: ^17.0.0 || ^18.0.0 || ^19.0.0
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-      next:
-        optional: true
-      prettier:
         optional: true
 
   '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@43131fd':
@@ -9759,12 +9718,6 @@ packages:
   typedarray@0.0.6:
     resolution: {integrity: sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==}
 
-  typescript-api-extractor@1.0.0-alpha.13:
-    resolution: {integrity: sha512-vMn26RR+SisBu3t0E0n7odikrw/+C+5al52q6JwmiMEhUhLVgkO747BiwGhSTmedwjC6ACFFFHa9bytoQQhZ4w==}
-    engines: {node: '>=22'}
-    peerDependencies:
-      typescript: ^5.8
-
   typescript-api-extractor@https://pkg.pr.new/typescript-api-extractor@18b8382:
     resolution: {tarball: https://pkg.pr.new/typescript-api-extractor@18b8382}
     version: 1.0.0-beta.0
@@ -12726,40 +12679,6 @@ snapshots:
       - stylelint
       - supports-color
       - vitest
-
-  '@mui/internal-docs-infra@0.6.1-canary.1(@types/react@19.2.14)(next@16.1.6(@babel/core@7.29.0)(@playwright/test@1.58.2)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(prettier@3.8.1)(react@19.2.4)':
-    dependencies:
-      '@babel/runtime': 7.28.6
-      '@babel/standalone': 7.29.1
-      '@orama/orama': 3.1.18
-      '@orama/plugin-qps': 3.1.18
-      '@orama/stemmers': 3.1.18
-      '@orama/stopwords': 3.1.18
-      '@wooorm/starry-night': 3.9.0
-      chalk: 5.6.2
-      clipboard-copy: 4.0.1
-      fflate: 0.8.2
-      hast-util-to-jsx-runtime: 2.3.6
-      hast-util-to-text: 4.0.2
-      jsondiffpatch: 0.7.3
-      kebab-case: 2.0.2
-      lz-string: 1.5.0
-      path-module: 0.1.2
-      proper-lockfile: 4.1.2
-      react: 19.2.4
-      remark-mdx: 3.1.1
-      remark-parse: 11.0.0
-      uint8-to-base64: 0.2.1
-      unified: 11.0.5
-      unist-util-visit: 5.1.0
-      vscode-oniguruma: 2.0.1
-      yargs: 18.0.0
-    optionalDependencies:
-      '@types/react': 19.2.14
-      next: 16.1.6(@babel/core@7.29.0)(@playwright/test@1.58.2)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      prettier: 3.8.1
-    transitivePeerDependencies:
-      - supports-color
 
   '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@43131fd(@types/react@19.2.14)(next@16.1.6(@babel/core@7.29.0)(@playwright/test@1.58.2)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(prettier@3.8.1)(react@19.2.4)(typescript@5.9.3)':
     dependencies:
@@ -21450,11 +21369,6 @@ snapshots:
       reflect.getprototypeof: 1.0.10
 
   typedarray@0.0.6: {}
-
-  typescript-api-extractor@1.0.0-alpha.13(typescript@5.9.3):
-    dependencies:
-      es-toolkit: 1.45.1
-      typescript: 5.9.3
 
   typescript-api-extractor@https://pkg.pr.new/typescript-api-extractor@18b8382(typescript@5.9.3):
     dependencies:
