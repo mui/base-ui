@@ -31,15 +31,12 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-inline: 1rem;
-    padding-top: 0.75rem;
+    padding-inline: 1.25rem;
+    padding-top: 1rem;
     padding-bottom: 0;
   }
 
   .TypeRefName {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
     font-size: var(--text-sm);
     line-height: var(--text-sm--line-height);
     letter-spacing: var(--text-sm--letter-spacing);
@@ -97,8 +94,8 @@
   }
 
   .TypeRefPopup .ScrollAreaViewport {
-    padding-inline: 1rem;
-    padding-bottom: 0.75rem;
+    padding-inline: 1.25rem;
+    padding-bottom: 1rem;
   }
 
   .TypeRefContent::-webkit-scrollbar {
