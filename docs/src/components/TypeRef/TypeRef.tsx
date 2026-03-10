@@ -84,9 +84,7 @@ export function TypeRef({ href, name, className, children }: TypeRefProps) {
               <PopoverArrowSvg />
             </Popover.Arrow>
             <div className="TypeRefInner">
-              <div className="TypeRefHeader">
-                <span className="TypeRefName">{typeData.meta.name}</span>
-              </div>
+              <Popover.Title className="bui-sr-only">{typeData.meta.name}</Popover.Title>
               <ActiveTypeRefContext.Provider value={nextActiveTypeNames}>
                 <div className="TypeRefContent">
                   {typeData.meta.type === 'raw' ? (
