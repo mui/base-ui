@@ -41,6 +41,13 @@ import { DemoLocalizationProviderNesting } from './demos/nesting';
 
 <Reference component="LocalizationProvider" />
 
-export const metadata = {
-  keywords: ['Localization', 'Locale', 'Temporal', 'Date Fns', 'Base UI'],
-};
+export const metadata =
+  /** @type {import('@mui/internal-docs-infra/createSitemap/types').NextMetadata} */ ({
+    keywords: ['Localization', 'Locale', 'Temporal', 'Date Fns', 'Base UI'],
+    robots: {
+      index: false,
+    },
+    other: {
+      audience: 'private',
+    },
+  });

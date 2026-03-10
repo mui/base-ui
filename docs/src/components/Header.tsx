@@ -14,7 +14,9 @@ export const titleMap: Record<string, string> = {
 
 export const HEADER_HEIGHT = 48;
 
-export function Header({ isProduction }: { isProduction: boolean }) {
+const showPrivatePages = process.env.SHOW_PRIVATE_PAGES === 'true';
+
+export function Header() {
   return (
     <header className="Header">
       <div className="HeaderInner">
@@ -55,7 +57,7 @@ export function Header({ isProduction }: { isProduction: boolean }) {
                       <MobileNav.Heading>{name}</MobileNav.Heading>
                       <MobileNav.List>
                         {section.pages
-                          .filter((page) => (page.tags?.includes('Private') ? !isProduction : true))
+                          .filter((page) => (page.audience === 'private' ? showPrivatePages : true))
                           .map((page) => (
                             <MobileNav.Item
                               key={page.title}
@@ -66,10 +68,14 @@ export function Header({ isProduction }: { isProduction: boolean }) {
                               }
                               external={page.tags?.includes('External')}
                             >
-                              {(page.title !== undefined && titleMap[page.title]) || page.title}
-                              {page.tags?.includes('New') && <MobileNav.Badge>New</MobileNav.Badge>}
-                              {page.tags?.includes('Preview') && (
+                              {(page.title && titleMap[page.title]) || page.title}
+                              {page.audience === 'private' && (
+                                <MobileNav.Badge>Private</MobileNav.Badge>
+                              )}
+                              {page.tags?.includes('Preview') ? (
                                 <MobileNav.Badge>Preview</MobileNav.Badge>
+                              ) : (
+                                page.tags?.includes('New') && <MobileNav.Badge>New</MobileNav.Badge>
                               )}
                             </MobileNav.Item>
                           ))}

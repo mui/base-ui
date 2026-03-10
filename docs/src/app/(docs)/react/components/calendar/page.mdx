@@ -112,14 +112,21 @@ import { DemoCalendarAnimationMotion } from './demos/animation-motion';
   parts="Root, DayGrid, DayGridHeader, DayGridHeaderCell, DayGridBody, DayGridRow, DayGridCell, DayButton, DecrementMonth, IncrementMonth, Viewport"
 />
 
-export const metadata = {
-  keywords: [
-    'React Calendar',
-    'React Date Picker',
-    'React Date Calendar',
-    'Calendar',
-    'Date Picker',
-    'Temporal',
-    'Base UI',
-  ],
-};
+export const metadata =
+  /** @type {import('@mui/internal-docs-infra/createSitemap/types').NextMetadata} */ ({
+    keywords: [
+      'React Calendar',
+      'React Date Picker',
+      'React Date Calendar',
+      'Calendar',
+      'Date Picker',
+      'Temporal',
+      'Base UI',
+    ],
+    robots: {
+      index: false,
+    },
+    other: {
+      audience: 'private',
+    },
+  });
