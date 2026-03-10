@@ -190,22 +190,31 @@ export function useSharedCalendarDayGridBody(
         }
 
         const targetDate = adapter.addMonths(currentDay, decrement ? -amount : amount);
+        const targetMonth = adapter.addMonths(visibleMonth, decrement ? -amount : amount);
 
         const { minDate, maxDate } = store.state;
         // Check if the target date would be within min/max bounds
+        let dateValidationError: ReturnType<typeof validateDate> = null;
         if (minDate != null || maxDate != null) {
-          const validationError = validateDate({
+          dateValidationError = validateDate({
             adapter,
             value: targetDate,
             validationProps: { minDate, maxDate },
           });
-          if (validationError != null) {
-            return;
+          if (dateValidationError != null) {
+            // Block navigation only if the entire target month is outside the valid range.
+            // If the month has some valid days, navigate and let focusItemFromMap find the nearest one.
+            if (
+              (maxDate != null && adapter.isAfter(adapter.startOfMonth(targetMonth), maxDate)) ||
+              (minDate != null && adapter.isBefore(adapter.endOfMonth(targetMonth), minDate))
+            ) {
+              return;
+            }
           }
         }
 
         store.setVisibleDate(
-          adapter.addMonths(visibleMonth, decrement ? -amount : amount),
+          targetMonth,
           event.nativeEvent,
           event.currentTarget as HTMLElement,
           REASONS.keyboard,
@@ -228,7 +237,16 @@ export function useSharedCalendarDayGridBody(
               adapter.getMonth(day) === targetMonthValue &&
               adapter.getYear(day) === targetYearValue,
           );
-          focusItemFromMap(newMap, sameDayInNewMonthIndex, eventKey === PAGE_UP, 1);
+          // When the target day is disabled, find the nearest valid day in the right direction:
+          // beyond maxDate → search backward for the last valid day;
+          // before minDate → search forward for the first valid day.
+          let searchDecrement = eventKey === PAGE_UP;
+          if (dateValidationError === 'after-max-date') {
+            searchDecrement = true;
+          } else if (dateValidationError === 'before-min-date') {
+            searchDecrement = false;
+          }
+          focusItemFromMap(newMap, sameDayInNewMonthIndex, searchDecrement, 1);
         };
 
         break;

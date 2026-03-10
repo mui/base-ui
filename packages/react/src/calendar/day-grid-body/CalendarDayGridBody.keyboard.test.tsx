@@ -606,6 +606,28 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
       });
     });
 
+    it('should find the closest day to navigate to the next month if the same day would be after maxDate', async () => {
+      const onVisibleDateChange = spy();
+
+      const { user } = renderUncontrolledCalendar(
+        adapter.startOfMonth(mar31),
+        onVisibleDateChange,
+        {
+          maxDate: apr7,
+        },
+      );
+
+      await act(async () => {
+        getDayButton(mar31).focus();
+      });
+      await user.keyboard('[PageDown]');
+
+      expect(onVisibleDateChange.callCount).to.equal(1);
+      expect(onVisibleDateChange.firstCall.args[1].reason).to.equal('keyboard');
+      expect(onVisibleDateChange.firstCall.args[0]).toEqual(adapter.startOfMonth(apr7));
+      expect(getDayButton(apr7)).toHaveFocus();
+    });
+
     describe('PageUp', () => {
       it('should not navigate to the previous month if the same day would be before minDate', async () => {
         const onVisibleDateChange = spy();
@@ -625,6 +647,28 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
 
         expect(onVisibleDateChange.callCount).to.equal(0);
         expect(getDayButton(feb15)).toHaveFocus();
+      });
+
+      it('should find the closest day to navigate to the previous month if the same day would be before minDate', async () => {
+        const onVisibleDateChange = spy();
+
+        const { user } = renderUncontrolledCalendar(
+          adapter.startOfMonth(aug7),
+          onVisibleDateChange,
+          {
+            minDate: jul25,
+          },
+        );
+
+        await act(async () => {
+          getDayButton(aug7).focus();
+        });
+        await user.keyboard('[PageUp]');
+
+        expect(onVisibleDateChange.callCount).to.equal(1);
+        expect(onVisibleDateChange.firstCall.args[1].reason).to.equal('keyboard');
+        expect(onVisibleDateChange.firstCall.args[0]).toEqual(adapter.startOfMonth(jul25));
+        expect(getDayButton(jul25)).toHaveFocus();
       });
     });
 
