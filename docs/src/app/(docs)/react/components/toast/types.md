@@ -579,7 +579,7 @@ type ToastObject<Data extends {}> = {
 type ToastManager<Data extends {} = any> = {
   ' subscribe': (listener: (data: ToastManagerEvent) => void) => () => void;
   add: <T extends Data = Data>(options: ToastManagerAddOptions<T>) => string;
-  close: (id: string) => void;
+  close: (id?: string) => void;
   update: <T extends Data = Data>(id: string, updates: ToastManagerUpdateOptions<T>) => void;
   promise: <Value, T extends Data = Data>(
     promiseValue: Promise<Value>,
@@ -855,7 +855,7 @@ type ToastManagerUpdateOptions<Data extends {}> = {
 type UseToastManagerReturnValue<Data extends {} = any> = {
   toasts: ToastObject<Data>[];
   add: <T extends Data = Data>(options: ToastManagerAddOptions<T>) => string;
-  close: (toastId: string) => void;
+  close: (toastId?: string) => void;
   update: <T extends Data = Data>(toastId: string, options: ToastManagerUpdateOptions<T>) => void;
   promise: <Value, T extends Data = Data>(
     promise: Promise<Value>,

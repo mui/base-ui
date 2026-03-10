@@ -571,6 +571,50 @@ type DrawerPreviewIndentBackgroundState = {
 };
 ```
 
+### SwipeArea
+
+An invisible area that listens for swipe gestures to open the drawer.
+Renders a `<div>` element.
+
+**SwipeArea Props:**
+
+| Prop           | Type                                                                                         | Default | Description                                                                                                                                                                                   |
+| :------------- | :------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| swipeDirection | `DrawerSwipeDirection`                                                                       | -       | The swipe direction that opens the drawer.&#xA;Defaults to the opposite of `Drawer.Root` `swipeDirection`.                                                                                    |
+| disabled       | `boolean`                                                                                    | `false` | Whether the swipe area is disabled.                                                                                                                                                           |
+| className      | `string \| ((state: DrawerSwipeAreaState) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style          | `React.CSSProperties \| ((state: DrawerSwipeAreaState) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render         | `ReactElement \| ((props: HTMLProps, state: DrawerSwipeAreaState) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+**SwipeArea Data Attributes:**
+
+| Attribute            | Type                                  | Description                              |
+| :------------------- | :------------------------------------ | :--------------------------------------- |
+| data-open            | -                                     | Present when the drawer is open.         |
+| data-closed          | -                                     | Present when the drawer is closed.       |
+| data-disabled        | -                                     | Present when the swipe area is disabled. |
+| data-swipe-direction | `'up' \| 'down' \| 'left' \| 'right'` | Indicates the swipe direction.           |
+| data-swiping         | -                                     | Present when the drawer is being swiped. |
+
+### SwipeArea.Props
+
+Re-export of [SwipeArea](#swipearea) props.
+
+### SwipeArea.State
+
+```typescript
+type DrawerPreviewSwipeAreaState = {
+  /** Whether the drawer is currently open. */
+  open: boolean;
+  /** Whether the swipe area is currently being swiped. */
+  swiping: boolean;
+  /** The swipe direction that opens the drawer. */
+  swipeDirection: SwipeDirection;
+  /** Whether the swipe area is disabled. */
+  disabled: boolean;
+};
+```
+
 ## Additional Types
 
 ### DrawerBackdropProps
@@ -992,6 +1036,51 @@ type DrawerRootSnapPointChangeEventReason = DrawerRootChangeEventReason;
 type DrawerRootState = {};
 ```
 
+### DrawerSwipeAreaProps
+
+```typescript
+type DrawerSwipeAreaProps = {
+  /**
+   * Whether the swipe area is disabled.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * The swipe direction that opens the drawer.
+   * Defaults to the opposite of `Drawer.Root` `swipeDirection`.
+   */
+  swipeDirection?: DrawerSwipeDirection;
+  style?: React.CSSProperties | ((state: DrawerSwipeAreaState) => React.CSSProperties | undefined);
+  /**
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component's state.
+   */
+  className?: string | ((state: DrawerSwipeAreaState) => string | undefined);
+  /**
+   * Allows you to replace the component's HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
+   */
+  render?: ReactElement | ((props: HTMLProps, state: DrawerSwipeAreaState) => ReactElement);
+};
+```
+
+### DrawerSwipeAreaState
+
+```typescript
+type DrawerSwipeAreaState = {
+  /** Whether the drawer is currently open. */
+  open: boolean;
+  /** Whether the swipe area is currently being swiped. */
+  swiping: boolean;
+  /** The swipe direction that opens the drawer. */
+  swipeDirection: SwipeDirection;
+  /** Whether the swipe area is disabled. */
+  disabled: boolean;
+};
+```
+
 ### DrawerTitleProps
 
 ```typescript
@@ -1135,6 +1224,12 @@ type DrawerSnapPoint = number | string;
 type preventUnmountOnClose = () => void;
 ```
 
+### SwipeDirection
+
+```typescript
+type SwipeDirection = 'up' | 'down' | 'left' | 'right';
+```
+
 ## Export Groups
 
 - `DrawerPreview.Backdrop`: `DrawerPreview.Backdrop`, `DrawerPreview.Backdrop.Props`, `DrawerPreview.Backdrop.State`
@@ -1147,12 +1242,13 @@ type preventUnmountOnClose = () => void;
 - `DrawerPreview.Portal`: `DrawerPreview.Portal`, `DrawerPreview.Portal.Props`, `DrawerPreview.Portal.State`
 - `DrawerPreview.Provider`: `DrawerPreview.Provider`, `DrawerPreview.Provider.State`, `DrawerPreview.Provider.Props`
 - `DrawerPreview.Root`: `DrawerPreview.Root`, `DrawerPreview.Root.State`, `DrawerPreview.Root.Props`, `DrawerPreview.Root.Actions`, `DrawerPreview.Root.ChangeEventReason`, `DrawerPreview.Root.ChangeEventDetails`, `DrawerPreview.Root.SnapPointChangeEventReason`, `DrawerPreview.Root.SnapPointChangeEventDetails`, `DrawerPreview.Root.SnapPoint`
+- `DrawerPreview.SwipeArea`: `DrawerPreview.SwipeArea`, `DrawerPreview.SwipeArea.Props`, `DrawerPreview.SwipeArea.State`
 - `DrawerPreview.Title`: `DrawerPreview.Title`, `DrawerPreview.Title.Props`, `DrawerPreview.Title.State`
 - `DrawerPreview.Trigger`: `DrawerPreview.Trigger`, `DrawerPreview.Trigger.Props`, `DrawerPreview.Trigger.State`
 - `DrawerPreview.Viewport`: `DrawerPreview.Viewport`, `DrawerPreview.Viewport.Props`, `DrawerPreview.Viewport.State`
 - `DrawerPreview.createHandle`
 - `DrawerPreview.Handle`
-- `Default`: `DrawerRootState`, `DrawerRootProps`, `DrawerRootActions`, `DrawerRootChangeEventReason`, `DrawerRootChangeEventDetails`, `DrawerRootSnapPointChangeEventReason`, `DrawerRootSnapPointChangeEventDetails`, `DrawerProviderState`, `DrawerProviderProps`, `DrawerIndentState`, `DrawerIndentProps`, `DrawerIndentBackgroundState`, `DrawerIndentBackgroundProps`, `DrawerTriggerProps`, `DrawerTriggerState`, `DrawerPortalState`, `DrawerPortalProps`, `DrawerPopupProps`, `DrawerPopupState`, `DrawerContentProps`, `DrawerContentState`, `DrawerBackdropProps`, `DrawerBackdropState`, `DrawerViewportState`, `DrawerViewportProps`, `DrawerTitleProps`, `DrawerTitleState`, `DrawerDescriptionProps`, `DrawerDescriptionState`, `DrawerCloseProps`, `DrawerCloseState`
+- `Default`: `DrawerRootState`, `DrawerRootProps`, `DrawerRootActions`, `DrawerRootChangeEventReason`, `DrawerRootChangeEventDetails`, `DrawerRootSnapPointChangeEventReason`, `DrawerRootSnapPointChangeEventDetails`, `DrawerProviderState`, `DrawerProviderProps`, `DrawerIndentState`, `DrawerIndentProps`, `DrawerIndentBackgroundState`, `DrawerIndentBackgroundProps`, `DrawerTriggerProps`, `DrawerTriggerState`, `DrawerPortalState`, `DrawerPortalProps`, `DrawerPopupProps`, `DrawerPopupState`, `DrawerSwipeAreaProps`, `DrawerSwipeAreaState`, `DrawerContentProps`, `DrawerContentState`, `DrawerBackdropProps`, `DrawerBackdropState`, `DrawerViewportState`, `DrawerViewportProps`, `DrawerTitleProps`, `DrawerTitleState`, `DrawerDescriptionProps`, `DrawerDescriptionState`, `DrawerCloseProps`, `DrawerCloseState`
 
 ## Canonical Types
 

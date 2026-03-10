@@ -28,6 +28,7 @@ import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
   <Drawer.Indent>
     <Drawer.Root>
       <Drawer.Trigger />
+      <Drawer.SwipeArea />
       <Drawer.Portal>
         <Drawer.Backdrop />
         <Drawer.Viewport>
@@ -162,6 +163,14 @@ You can build a full-screen mobile navigation sheet using Drawer parts, includin
 import { DemoDrawerMobileNav } from './demos/mobile-nav';
 
 <DemoDrawerMobileNav />
+
+### Swipe to open
+
+Place `<Drawer.SwipeArea>` along the edge of the viewport to enable swipe-to-open gestures.
+
+import { DemoDrawerSwipeArea } from './demos/swipe-area';
+
+<DemoDrawerSwipeArea />
 
 ### Action sheet with separate destructive action
 
@@ -328,6 +337,10 @@ import { TypesDrawer } from './types';
 
 <TypesDrawer.Trigger />
 
+### SwipeArea
+
+<TypesDrawer.SwipeArea />
+
 ### Portal
 
 <TypesDrawer.Portal />
@@ -362,7 +375,7 @@ import { TypesDrawer } from './types';
 
 ### Handle
 
-<TypesDrawer.Handle />
+# <TypesDrawer.Handle />
 
 export const metadata = {
   keywords: [

@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isElement } from '@floating-ui/utils/dom';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { DialogViewport } from '../../dialog/viewport/DialogViewport';
@@ -99,6 +100,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   const [swipeRelease, setSwipeRelease] = React.useState<number | null>(null);
   const pendingSwipeCloseSnapPointRef = React.useRef<typeof activeSnapPoint>(undefined);
   const resetSwipeRef = React.useRef<(() => void) | null>(null);
+  const controlledDismissFrame = useAnimationFrame();
 
   const nestedSwipeActiveRef = React.useRef(false);
   const lastPointerTypeRef = React.useRef<React.PointerEvent['pointerType'] | ''>('');
@@ -716,6 +718,36 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         pendingSwipeCloseSnapPointRef.current = undefined;
         resetSwipeRef.current?.();
         clearSwipeRelease();
+        return;
+      }
+
+      // In controlled mode, the effective open state may not have changed yet
+      // (openProp takes precedence over state.open). Proceed optimistically with the
+      // dismiss animation — React's Scheduler flushes before the next rAF, so we can
+      // reliably check whether the parent accepted or rejected the close.
+      // Note: if onOpenChange is asynchronous (e.g., closes the drawer after a network
+      // call), the rAF check will see open === true, revert the animation, and the
+      // drawer will close without animation when the parent eventually sets open={false}.
+      if (store.select('open')) {
+        const savedEvent = event;
+        controlledDismissFrame.request(() => {
+          if (store.select('open')) {
+            // Parent rejected: revert animation and restore snap point.
+            const pendingSnapPoint = pendingSwipeCloseSnapPointRef.current;
+            if (pendingSnapPoint !== undefined) {
+              setActiveSnapPoint?.(
+                pendingSnapPoint,
+                createChangeEventDetails(REASONS.swipe, savedEvent),
+              );
+            }
+            pendingSwipeCloseSnapPointRef.current = undefined;
+            clearSwipeRelease();
+            resetSwipeRef.current?.();
+          } else {
+            // Parent accepted: clean up the ref.
+            pendingSwipeCloseSnapPointRef.current = undefined;
+          }
+        });
         return;
       }
 
