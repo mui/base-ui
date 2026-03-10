@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { FloatingNode } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
@@ -79,6 +80,16 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
       }
     },
   });
+
+  // When a content re-enters while still mounted (e.g. switching top-level triggers
+  // back before the exit animation completes), the DOM element hasn't changed so the
+  // callback ref won't fire again. Ensure the shared ref is updated so the
+  // MutationObserver in the trigger watches the correct content element.
+  useIsoLayoutEffect(() => {
+    if (open && ref.current) {
+      currentContentRef.current = ref.current;
+    }
+  }, [open, currentContentRef]);
 
   const state: NavigationMenuContentState = {
     open,
