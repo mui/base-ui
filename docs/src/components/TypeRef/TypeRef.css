@@ -7,9 +7,10 @@
     font: inherit;
     color: inherit;
     text-decoration: underline;
+    text-decoration-thickness: 1px;
     text-decoration-style: dotted;
     text-decoration-color: color-mix(in oklab, var(--color-violet), transparent);
-    text-underline-offset: 2px;
+    text-underline-offset: 3px;
   }
 
   .TypeRefTrigger:hover {
