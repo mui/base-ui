@@ -204,9 +204,6 @@ export function useSharedCalendarDayGridBody(
           }
         }
 
-        const dayOfMonth = adapter.getDate(currentDay);
-        const currentMonth = adapter.getMonth(currentDay);
-        const currentYear = adapter.getYear(currentDay);
         store.setVisibleDate(
           adapter.addMonths(visibleMonth, decrement ? -amount : amount),
           event.nativeEvent,
@@ -220,11 +217,16 @@ export function useSharedCalendarDayGridBody(
             .flat()
             // Sort the days to ensure they are in the chronological order
             .sort((a, b) => adapter.getTime(a) - adapter.getTime(b));
-          // Try to find the same day in the new month
+          // Find the target date in the new month's grid. Use targetDate (already clamped
+          // by addMonths) so that e.g. Jan 31 + 1 month correctly finds Feb 28.
+          const targetDayOfMonth = adapter.getDate(targetDate);
+          const targetMonthValue = adapter.getMonth(targetDate);
+          const targetYearValue = adapter.getYear(targetDate);
           const sameDayInNewMonthIndex = newGridDays.findIndex(
             (day) =>
-              adapter.getDate(day) === dayOfMonth &&
-              (adapter.getMonth(day) !== currentMonth || adapter.getYear(day) !== currentYear),
+              adapter.getDate(day) === targetDayOfMonth &&
+              adapter.getMonth(day) === targetMonthValue &&
+              adapter.getYear(day) === targetYearValue,
           );
           focusItemFromMap(newMap, sameDayInNewMonthIndex, eventKey === PAGE_UP, 1);
         };

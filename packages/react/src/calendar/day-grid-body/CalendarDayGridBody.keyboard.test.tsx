@@ -84,6 +84,24 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
       expect(onVisibleDateChange.firstCall.args[0]).toEqual(adapter.startOfMonth(newDate));
       expect(getDayButton(newDate)).toHaveFocus();
     });
+
+    it('should find the nearest day to focus in the next month when same day does not exist', async () => {
+      const jan31 = adapter.date('2025-01-31', 'default');
+      const onVisibleDateChange = spy();
+
+      const { user } = renderUncontrolledCalendar(jan31, onVisibleDateChange);
+
+      await act(async () => {
+        getDayButton(jan31).focus();
+      });
+      await user.keyboard('[PageDown]');
+
+      expect(onVisibleDateChange.callCount).to.equal(1);
+      expect(onVisibleDateChange.firstCall.args[1].reason).to.equal('keyboard');
+      const newDate = adapter.addMonths(jan31, 1);
+      expect(onVisibleDateChange.firstCall.args[0]).toEqual(adapter.startOfMonth(newDate));
+      expect(getDayButton(newDate)).toHaveFocus();
+    });
   });
 
   describe('PageUp', () => {
@@ -101,7 +119,24 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
       expect(onVisibleDateChange.firstCall.args[1].reason).to.equal('keyboard');
       const newDate = adapter.addMonths(feb15, -1);
       expect(onVisibleDateChange.firstCall.args[0]).toEqual(adapter.startOfMonth(newDate));
-      expect(getDayButton(adapter.addMonths(feb15, -1))).toHaveFocus();
+      expect(getDayButton(newDate)).toHaveFocus();
+    });
+
+    it('should find the nearest day to focus in the previous month when same day does not exist', async () => {
+      const onVisibleDateChange = spy();
+
+      const { user } = renderUncontrolledCalendar(mar31, onVisibleDateChange);
+
+      await act(async () => {
+        getDayButton(mar31).focus();
+      });
+      await user.keyboard('[PageUp]');
+
+      expect(onVisibleDateChange.callCount).to.equal(1);
+      expect(onVisibleDateChange.firstCall.args[1].reason).to.equal('keyboard');
+      const newDate = adapter.addMonths(mar31, -1);
+      expect(onVisibleDateChange.firstCall.args[0]).toEqual(adapter.startOfMonth(newDate));
+      expect(getDayButton(newDate)).toHaveFocus();
     });
   });
 
