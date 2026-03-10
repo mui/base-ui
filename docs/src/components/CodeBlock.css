@@ -83,9 +83,10 @@
   }
 
   .CodeBlockPreBackground {
-    background-color: var(--color-content);
-    padding: 0.5rem 0;
+    padding: 0.5rem;
+    border: 1px solid var(--color-gray-200);
     border-radius: var(--radius-md);
+    background-color: var(--color-content);
   }
 
   .CodeBlockPreContainer {
