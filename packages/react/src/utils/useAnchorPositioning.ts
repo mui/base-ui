@@ -119,8 +119,8 @@ export type CollisionAvoidance = SideFlipMode | SideShiftMode;
  * `useFloating` hook.
  */
 export function useAnchorPositioning(
-  params: useAnchorPositioning.Parameters,
-): useAnchorPositioning.ReturnValue {
+  params: UseAnchorPositioningParameters,
+): UseAnchorPositioningReturnValue {
   const {
     // Public parameters
     anchor,
@@ -709,7 +709,7 @@ export interface UseAnchorPositioningSharedParameters {
   collisionAvoidance?: CollisionAvoidance | undefined;
 }
 
-export interface UseAnchorPositioningParameters extends useAnchorPositioning.SharedParameters {
+export interface UseAnchorPositioningParameters extends UseAnchorPositioningSharedParameters {
   keepMounted?: boolean | undefined;
   trackCursorAxis?: 'none' | 'x' | 'y' | 'both' | undefined;
   floatingRootContext?: FloatingRootContext | undefined;
@@ -738,8 +738,4 @@ export interface UseAnchorPositioningReturnValue {
   update: () => void;
 }
 
-export namespace useAnchorPositioning {
-  export type SharedParameters = UseAnchorPositioningSharedParameters;
-  export type Parameters = UseAnchorPositioningParameters;
-  export type ReturnValue = UseAnchorPositioningReturnValue;
-}
+export interface UseAnchorPositioningState {}

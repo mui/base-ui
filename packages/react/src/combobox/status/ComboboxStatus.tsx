@@ -29,7 +29,7 @@ export const ComboboxStatus = React.forwardRef(function ComboboxStatus(
 
 export interface ComboboxStatusState {}
 
-export interface ComboboxStatusProps extends BaseUIComponentProps<'div', ComboboxStatus.State> {}
+export interface ComboboxStatusProps extends BaseUIComponentProps<'div', ComboboxStatusState> {}
 
 export namespace ComboboxStatus {
   export type State = ComboboxStatusState;

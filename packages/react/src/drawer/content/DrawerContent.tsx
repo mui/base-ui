@@ -24,7 +24,7 @@ export const DrawerContent = React.forwardRef(function DrawerContent(
   });
 });
 
-export interface DrawerContentProps extends BaseUIComponentProps<'div', DrawerContent.State> {}
+export interface DrawerContentProps extends BaseUIComponentProps<'div', DrawerContentState> {}
 export interface DrawerContentState {}
 
 export namespace DrawerContent {

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { FieldRoot } from '../root/FieldRoot';
+import { type FieldRootState } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { fieldValidityMapping } from '../utils/constants';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -49,7 +49,9 @@ export const FieldItem = React.forwardRef(function FieldItem(
   );
 });
 
-export interface FieldItemProps extends BaseUIComponentProps<'div', FieldItem.State> {
+export interface FieldItemState extends FieldRootState {}
+
+export interface FieldItemProps extends BaseUIComponentProps<'div', FieldItemState> {
   /**
    * Whether the wrapped control should ignore user interaction.
    * The `disabled` prop on `<Field.Root>` takes precedence over this.
@@ -59,6 +61,6 @@ export interface FieldItemProps extends BaseUIComponentProps<'div', FieldItem.St
 }
 
 export namespace FieldItem {
-  export type State = FieldRoot.State;
+  export type State = FieldItemState;
   export type Props = FieldItemProps;
 }
