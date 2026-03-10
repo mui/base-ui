@@ -36,6 +36,21 @@ function createMouseEvent(
   } as unknown as React.MouseEvent<Element>;
 }
 
+function createMiddlewareState(
+  trigger: Element,
+  placement: string,
+  referenceRect: { x: number; y: number; width: number; height: number },
+) {
+  return {
+    placement,
+    elements: { reference: trigger },
+    rects: {
+      reference: referenceRect,
+      floating: { x: 0, y: 0, width: 20, height: 10 },
+    },
+  };
+}
+
 describe('inlineRect', () => {
   it('returns undefined when there is only one rect', () => {
     const rects: RectLike[] = [{ left: 0, top: 0, right: 10, bottom: 10, width: 10, height: 10 }];
@@ -108,7 +123,7 @@ describe('inlineRect', () => {
     });
   });
 
-  it('creates inline middleware options that offset based on stored coords', () => {
+  it('creates inline middleware rects that offset based on stored coords', async () => {
     const rects: RectLike[] = [
       { left: 0, top: 0, right: 10, bottom: 10, width: 10, height: 10 },
       { left: 0, top: 20, right: 10, bottom: 30, width: 10, height: 10 },
@@ -119,44 +134,66 @@ describe('inlineRect', () => {
     };
 
     const middleware = createInlineMiddleware(coordsRef);
-    const [options] = middleware.options as [
-      (state: { elements: { reference: Element } }) => { x?: number; y?: number },
-    ];
 
-    expect(typeof options).toBe('function');
-    expect(options({ elements: { reference: trigger } })).toEqual({
-      x: rects[1].left + 2,
-      y: rects[1].top + 3,
+    expect(
+      await middleware.fn?.(
+        createMiddlewareState(trigger, 'bottom', { x: 0, y: 0, width: 10, height: 10 }) as never,
+      ),
+    ).toEqual({
+      reset: {
+        rects: {
+          reference: {
+            x: rects[1].left,
+            y: rects[0].top,
+            width: rects[1].width,
+            height: rects[1].bottom - rects[0].top,
+          },
+          floating: { x: 0, y: 0, width: 20, height: 10 },
+        },
+      },
     });
   });
 
-  it('returns an empty object when coords are missing', () => {
+  it('uses the side-aligned rect when coords are missing', async () => {
     const rects: RectLike[] = [{ left: 0, top: 0, right: 10, bottom: 10, width: 10, height: 10 }];
     const trigger = createTrigger(rects);
     const coordsRef: React.RefObject<InlineRectCoords | undefined> = { current: undefined };
 
     const middleware = createInlineMiddleware(coordsRef);
-    const [options] = middleware.options as [
-      (state: { elements: { reference: Element } }) => { x?: number; y?: number },
-    ];
 
-    expect(typeof options).toBe('function');
-    expect(options({ elements: { reference: trigger } })).toEqual({});
+    expect(
+      await middleware.fn?.(createMiddlewareState(trigger, 'bottom', { x: 0, y: 0, width: 10, height: 10 }) as never),
+    ).toEqual({});
   });
 
-  it('returns an empty object when the rect index is out of range', () => {
-    const rects: RectLike[] = [{ left: 0, top: 0, right: 10, bottom: 10, width: 10, height: 10 }];
+  it('returns an empty object when the rect index is out of range', async () => {
+    const rects: RectLike[] = [
+      { left: 0, top: 0, right: 10, bottom: 10, width: 10, height: 10 },
+      { left: 0, top: 20, right: 10, bottom: 30, width: 10, height: 10 },
+    ];
     const trigger = createTrigger(rects);
     const coordsRef: React.RefObject<InlineRectCoords | undefined> = {
       current: { rectIndex: 2, x: 1, y: 1 },
     };
 
     const middleware = createInlineMiddleware(coordsRef);
-    const [options] = middleware.options as [
-      (state: { elements: { reference: Element } }) => { x?: number; y?: number },
-    ];
 
-    expect(typeof options).toBe('function');
-    expect(options({ elements: { reference: trigger } })).toEqual({});
+    expect(
+      await middleware.fn?.(
+        createMiddlewareState(trigger, 'bottom', { x: 0, y: 0, width: 10, height: 10 }) as never,
+      ),
+    ).toEqual({
+      reset: {
+        rects: {
+          reference: {
+            x: rects[1].left,
+            y: rects[0].top,
+            width: rects[1].width,
+            height: rects[1].bottom - rects[0].top,
+          },
+          floating: { x: 0, y: 0, width: 20, height: 10 },
+        },
+      },
+    });
   });
 });

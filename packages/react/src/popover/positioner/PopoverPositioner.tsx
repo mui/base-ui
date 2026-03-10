@@ -21,7 +21,6 @@ import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
-import { createInlineMiddleware } from '../../utils/popups';
 
 /**
  * Positions the popover against the trigger.
@@ -70,8 +69,6 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   const runOnceAnimationsFinish = useAnimationsFinished(positionerElement, false, false);
 
-  const inlineRectCoordsRef = store.context.inlineRectCoordsRef;
-
   const positioning = useAnchorPositioning({
     anchor,
     floatingRootContext,
@@ -90,7 +87,6 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     nodeId,
     collisionAvoidance,
     adaptiveOrigin: hasViewport ? adaptiveOrigin : undefined,
-    inline: createInlineMiddleware(inlineRectCoordsRef),
   });
 
   const defaultProps: HTMLProps = React.useMemo(() => {
