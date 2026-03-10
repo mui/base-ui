@@ -38,7 +38,6 @@ export const createTypes = createTypesFactory({
   inlineComponents,
   typeRefComponent: 'TypeRef',
   typePropRefComponent: 'TypePropRef',
-  linkProps: 'shallow',
 });
 
 /**
@@ -54,5 +53,4 @@ export const createMultipleTypes = createMultipleTypesFactory({
   inlineComponents,
   typeRefComponent: 'TypeRef',
   typePropRefComponent: 'TypePropRef',
-  linkProps: 'shallow',
 });
