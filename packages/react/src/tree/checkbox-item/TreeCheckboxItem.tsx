@@ -50,77 +50,23 @@ export const TreeCheckboxItem = React.forwardRef(function TreeCheckboxItem(
 
   const store = useTreeRootContext();
   const { itemId } = useTreeItemContext();
-  const propsFromState = store.useState('itemProps', itemId);
-
-  const {
-    state: itemState,
-    'aria-selected': _ariaSelected,
-    ...ariaProps
-  } = propsFromState ?? {
-    state: {
-      itemId: '',
-      expanded: false,
-      expandable: false,
-      selected: false,
-      focused: false,
-      disabled: false,
-      editing: false,
-      depth: 0,
-    },
-  };
-
-  const checkboxState = store.useState('checkboxProps', itemId);
-
-  const state: TreeCheckboxItem.State = {
-    itemId: itemState.itemId,
-    expanded: itemState.expanded,
-    expandable: itemState.expandable,
-    checked: checkboxState.checked,
-    unchecked: !checkboxState.checked && !checkboxState.indeterminate,
-    indeterminate: checkboxState.indeterminate,
-    focused: itemState.focused,
-    disabled: itemState.disabled,
-    editing: itemState.editing,
-    depth: itemState.depth,
-  };
+  const { props: itemProps, state } = store.useState('checkboxItemPropsAndState', itemId);
 
   const checkboxItemContext = React.useMemo(
     () => ({
-      checked: checkboxState.checked,
-      indeterminate: checkboxState.indeterminate,
-      disabled: checkboxState.disabled,
+      checked: state.checked,
+      indeterminate: state.indeterminate,
+      disabled: state.disabled,
     }),
-    [checkboxState.checked, checkboxState.indeterminate, checkboxState.disabled],
+    [state.checked, state.indeterminate, state.disabled],
   );
 
   const element = useRenderElement('li', componentProps, {
     state,
     ref: forwardedRef,
-    props: [
-      {
-        role: 'treeitem',
-        ...ariaProps,
-        onMouseDown: (event: React.MouseEvent) => {
-          // Prevent text selection when using modifier keys for multi-select
-          if (event.shiftKey || event.ctrlKey || event.metaKey || itemState.disabled) {
-            event.preventDefault();
-          }
-        },
-        onClick: (event: React.MouseEvent) => {
-          store.checkboxItemEventHandlers.onClick(event, itemId);
-        },
-        onFocus: (event: React.FocusEvent) => {
-          store.checkboxItemEventHandlers.onFocus(event, itemId);
-        },
-      } as React.HTMLAttributes<HTMLLIElement>,
-      elementProps,
-    ],
+    props: [itemProps, store.checkboxItemEventHandlers, elementProps],
     stateAttributesMapping,
   });
-
-  if (propsFromState == null) {
-    return null;
-  }
 
   return (
     <TreeCheckboxItemContext.Provider value={checkboxItemContext}>

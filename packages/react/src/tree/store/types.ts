@@ -61,6 +61,16 @@ export interface LazyLoadedItemsState {
 
 export const TREE_VIEW_ROOT_PARENT_ID = '__ROOT__';
 
+/**
+ * The computed lookup tables derived from the items prop and accessor functions.
+ */
+export interface TreeItemsState {
+  itemModelLookup: Record<TreeItemId, TreeItemModel>;
+  itemMetaLookup: Record<TreeItemId, TreeItemMeta>;
+  itemOrderedChildrenIdsLookup: Record<string, TreeItemId[]>;
+  itemChildrenIndexesLookup: Record<string, Record<TreeItemId, number>>;
+}
+
 export type TreeRootExpansionChangeEventReason =
   | typeof REASONS.itemPress
   | typeof REASONS.keyboard
@@ -81,48 +91,96 @@ export type TreeRootSelectionChangeEventDetails =
  * The full store state for the Tree component.
  */
 export interface TreeState {
-  // === Items ===
-  /** Model of each item as provided via the items prop */
-  itemModelLookup: Record<TreeItemId, TreeItemModel>;
-  /** Metadata derived from processing items */
-  itemMetaLookup: Record<TreeItemId, TreeItemMeta>;
-  /** Ordered children IDs for each parent. Key '__ROOT__' = root-level items */
-  itemOrderedChildrenIdsLookup: Record<string, TreeItemId[]>;
-  /** Index of each child within its parent's children array */
-  itemChildrenIndexesLookup: Record<string, Record<TreeItemId, number>>;
-
-  // === Expansion ===
-  /** IDs of currently expanded items */
+  /**
+   * Whether the entire tree is disabled
+   */
+  disabled: boolean;
+  /**
+   * The raw items prop from the user
+   */
+  items: readonly TreeItemModel[];
+  /**
+   * Overlay for inline label edits — applied on top of computed metadata
+   */
+  itemLabelOverrides: Record<TreeItemId, string>;
+  /**
+   * Overlay for imperative disabled changes — applied on top of computed metadata
+   */
+  itemDisabledOverrides: Record<TreeItemId, boolean>;
+  /**
+   * IDs of currently expanded items
+   */
   expandedItems: readonly TreeItemId[];
-  /** Whether clicking anywhere on an item row toggles expansion */
+  /**
+   * Whether clicking anywhere on an item row toggles expansion
+   */
   expandOnClick: boolean;
-
-  // === Selection ===
-  /** Currently selected items. string | null for single, string[] for multi */
+  /**
+   * Currently selected items.
+   * - string | null when selectionMode is 'single'
+   * - string[] when selectionMode is 'multiple'
+   * - null when selectionMode is 'none'
+   */
   selectedItems: TreeItemId | null | readonly TreeItemId[];
-  /** The selection mode of the tree */
+  /**
+   * The selection mode of the tree
+   */
   selectionMode: TreeSelectionMode;
-  /** Whether at least one item must remain selected */
+  /**
+   * Whether at least one item must remain selected
+   */
   disallowEmptySelection: boolean;
-  /** How selection propagates through the tree hierarchy */
+  /**
+   * How selection propagates through the tree hierarchy
+   */
   selectionPropagation: SelectionPropagation;
-
-  // === Focus ===
-  /** The currently focused item ID, or null */
+  /**
+   * The currently focused item ID, or null
+   */
   focusedItemId: TreeItemId | null;
-  /** Whether disabled items can receive focus */
+  /**
+   * Whether disabled items can receive focus
+   */
   itemFocusableWhenDisabled: boolean;
-
-  // === Label editing ===
-  /** The ID of the item currently being edited, or null */
+  /**
+   * The ID of the item currently being edited, or null
+   */
   editedItemId: TreeItemId | null;
-
-  // === Lazy loading ===
-  /** Lazy loading state. undefined when lazy loading is not in use */
+  /**
+   * Lazy loading state. undefined when lazy loading is not in use
+   */
   lazyLoadedItems: LazyLoadedItemsState | undefined;
-
-  // === Identity ===
-  /** User-provided tree ID for accessibility */
+  /**
+   * Extracts the ID from an item model
+   */
+  getItemId: (item: TreeItemModel) => TreeItemId;
+  /**
+   * Extracts the label from an item model
+   */
+  getItemLabel: (item: TreeItemModel) => string;
+  /**
+   * Extracts the children from an item model
+   */
+  getItemChildren: (item: TreeItemModel) => TreeItemModel[] | undefined;
+  /**
+   * Whether an item is disabled
+   */
+  isItemDisabled: (item: TreeItemModel) => boolean;
+  /**
+   * Whether an item's selection is disabled
+   */
+  isItemSelectionDisabled: (item: TreeItemModel) => boolean;
+  /**
+   * Whether an item is editable
+   */
+  isItemEditable: ((item: TreeItemModel) => boolean) | boolean;
+  /**
+   * Whether the tree is in a right-to-left direction
+   */
+  isRtl: boolean;
+  /**
+   * User-provided tree ID for accessibility
+   */
   treeId: string | undefined;
 }
 
@@ -145,19 +203,8 @@ export interface TreeStoreContext {
   onItemClick: (event: React.MouseEvent, itemId: TreeItemId) => void;
   onItemLabelChange: (itemId: TreeItemId, newLabel: string) => void;
 
-  // Item configuration callbacks
-  getItemId: (item: TreeItemModel) => TreeItemId;
-  getItemLabel: (item: TreeItemModel) => string;
-  getItemChildren: (item: TreeItemModel) => TreeItemModel[] | undefined;
-  isItemDisabled: (item: TreeItemModel) => boolean;
-  isItemSelectionDisabled: (item: TreeItemModel) => boolean;
-  isItemEditable: ((item: TreeItemModel) => boolean) | boolean;
-
   // Lazy loading
   fetchChildren: ((parentId: TreeItemId | null) => Promise<TreeItemModel[]>) | undefined;
-
-  // RTL
-  isRtl: boolean;
 
   // DOM ref for the tree root element
   rootRef: React.RefObject<HTMLElement | null>;
@@ -178,5 +225,6 @@ export interface TreeRootActions {
   setItemExpansion: (itemId: TreeItemId, isExpanded: boolean) => void;
   setItemSelection: (itemId: TreeItemId, isSelected: boolean) => void;
   setEditedItem: (itemId: TreeItemId | null) => void;
+  setIsItemDisabled: (itemId: TreeItemId, isDisabled: boolean) => void;
   updateItemLabel: (itemId: TreeItemId, newLabel: string) => void;
 }

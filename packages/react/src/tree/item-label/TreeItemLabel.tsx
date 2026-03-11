@@ -29,12 +29,16 @@ export const TreeItemLabel = React.forwardRef(function TreeItemLabel(
 
   const [editingValue, setEditingValue] = React.useState('');
 
-  // Track the label at the time editing starts
+  // Track the label at the time editing starts.
+  // The ref is only mutated inside an effect so that an interrupted concurrent
+  // render cannot cause the setState on the next retry to be skipped.
   const prevEditing = React.useRef(false);
-  if (propsFromState.editing && !prevEditing.current) {
-    setEditingValue(propsFromState.label);
-  }
-  prevEditing.current = propsFromState.editing;
+  React.useEffect(() => {
+    if (propsFromState.editing && !prevEditing.current) {
+      setEditingValue(propsFromState.label);
+    }
+    prevEditing.current = propsFromState.editing;
+  }, [propsFromState.editing, propsFromState.label]);
 
   const state: TreeItemLabel.State = {
     editing: propsFromState.editing,

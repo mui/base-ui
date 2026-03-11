@@ -2,6 +2,7 @@
   list-style: none;
   padding: 0.25rem;
   margin: 0;
+  width: 18rem;
   color: var(--color-gray-900);
   border: 1px solid var(--color-gray-200);
   border-radius: 0.5rem;
@@ -121,11 +122,22 @@
   white-space: nowrap;
 }
 
+.PlaceholderItem {
+  display: none;
+}
+
+.Icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  color: var(--color-gray-500);
+}
+
 .Spinner {
   display: inline-block;
-  width: 0.875rem;
-  height: 0.875rem;
-  border: 2px solid var(--color-gray-200);
+  width: 0.75rem;
+  height: 0.75rem;
+  border: 1.5px solid var(--color-gray-200);
   border-top-color: var(--color-gray-500);
   border-radius: 50%;
   animation: spin 0.6s linear infinite;
@@ -138,30 +150,3 @@
   }
 }
 
-.LoadingText {
-  color: var(--color-gray-500);
-  font-size: 0.875rem;
-}
-
-.ErrorText {
-  color: var(--color-red-700, #b91c1c);
-  font-size: 0.875rem;
-}
-
-.RetryButton {
-  margin-left: 0.25rem;
-  padding: 0.125rem 0.5rem;
-  font-size: 0.75rem;
-  line-height: 1.5;
-  border: 1px solid var(--color-gray-300);
-  border-radius: 0.25rem;
-  background: var(--color-content);
-  color: var(--color-gray-700);
-  cursor: pointer;
-
-  @media (hover: hover) {
-    &:hover {
-      background: var(--color-gray-100);
-    }
-  }
-}

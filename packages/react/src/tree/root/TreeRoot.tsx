@@ -1,14 +1,17 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
+import { useOnMount } from '@base-ui/utils/useOnMount';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useDirection } from '../../direction-provider/DirectionContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { TreeRootContext } from './TreeRootContext';
 import { TreeItemContext, type TreeItemContextValue } from '../item/TreeItemContext';
 import { TreeStore, type TreeStoreParameters } from '../store/TreeStore';
 import { selectors } from '../store/selectors';
 import type {
+  TreeItemId,
   TreeItemModel,
   TreeRootActions,
   TreeRootExpansionChangeEventReason,
@@ -18,6 +21,29 @@ import type {
   TreeSelectionMode,
 } from '../store/types';
 import { EMPTY_OBJECT } from '../../utils/constants';
+
+const defaultGetItemId = (item: TreeItemModel) => item.id;
+const defaultGetItemLabel = (item: TreeItemModel) => item.label;
+const defaultGetItemChildren = (item: TreeItemModel) => item.children;
+const defaultIsItemDisabled = () => false;
+const defaultIsItemSelectionDisabled = () => false;
+
+function TreeItemModelProvider(props: {
+  store: TreeStore;
+  itemId: TreeItemId;
+  children: (item: TreeItemModel) => React.ReactNode;
+}) {
+  const model = useStore(props.store, selectors.itemModel, props.itemId);
+  const contextValue: TreeItemContextValue = React.useMemo(
+    () => ({ itemId: props.itemId }),
+    [props.itemId],
+  );
+  return (
+    <TreeItemContext.Provider value={contextValue}>
+      {props.children(model)}
+    </TreeItemContext.Provider>
+  );
+}
 
 /**
  * Groups all parts of the tree.
@@ -33,6 +59,7 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
     className,
     render,
     // Data
+    disabled,
     items,
     children,
     // Expansion
@@ -68,11 +95,14 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
     ...elementProps
   } = componentProps;
 
+  const direction = useDirection();
+
   const rootRef = React.useRef<HTMLUListElement>(null);
 
   const store = useRefWithInit(
     () =>
       new TreeStore<Mode>({
+        disabled,
         items,
         expandedItems,
         defaultExpandedItems,
@@ -96,20 +126,38 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
         onItemFocus,
         onItemClick,
         onItemLabelChange,
+        isRtl: direction === 'rtl',
         rootRef,
       }),
   ).current;
 
+  useOnMount(store.mountEffect);
+
   // Sync controlled props
   store.useControlledProp('expandedItems', expandedItems);
   store.useControlledProp('selectedItems', selectedItems as any);
+  const getItemIdFn = getItemId ?? defaultGetItemId;
+  const getItemLabelFn = getItemLabel ?? defaultGetItemLabel;
+  const getItemChildrenFn = getItemChildren ?? defaultGetItemChildren;
+  const isItemDisabledFn = isItemDisabled ?? defaultIsItemDisabled;
+  const isItemSelectionDisabledFn = isItemSelectionDisabled ?? defaultIsItemSelectionDisabled;
   store.useSyncedValues({
+    disabled: disabled ?? false,
+    items,
     expandOnClick: expandOnClick ?? false,
     selectionMode: selectionMode ?? 'single',
     disallowEmptySelection: disallowEmptySelection ?? false,
     selectionPropagation: selectionPropagation ?? EMPTY_OBJECT,
     itemFocusableWhenDisabled: itemFocusableWhenDisabled ?? false,
+    getItemId: getItemIdFn,
+    getItemLabel: getItemLabelFn,
+    getItemChildren: getItemChildrenFn,
+    isItemDisabled: isItemDisabledFn,
+    isItemSelectionDisabled: isItemSelectionDisabledFn,
+    isItemEditable: isItemEditable ?? false,
+    isRtl: direction === 'rtl',
   });
+
   store.useContextCallback('onExpandedItemsChange', onExpandedItemsChange);
   store.useContextCallback('onItemExpansionToggle', onItemExpansionToggle);
   store.useContextCallback('onSelectedItemsChange', onSelectedItemsChange as any);
@@ -118,23 +166,15 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
   store.useContextCallback('onItemClick', onItemClick);
   store.useContextCallback('onItemLabelChange', onItemLabelChange);
 
-  // Rebuild items state when items prop changes
-  const isFirstRender = React.useRef(true);
-  React.useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    store.rebuildItemsState(items);
-  }, [store, items]);
-
   // Expose imperative actions
   React.useImperativeHandle(actionsRef, () => store.getActions(), [store]);
 
   // Get flat list of visible items
   const flatItemIds = useStore(store, selectors.flatList);
 
-  const state: TreeRoot.State = {};
+  const state: TreeRoot.State = {
+    disabled: disabled ?? false,
+  };
 
   const element = useRenderElement('ul', componentProps, {
     state,
@@ -143,16 +183,11 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
       {
         role: 'tree',
         'aria-multiselectable': selectionMode === 'multiple' || undefined,
-        children: flatItemIds.map((itemId) => {
-          // eslint-disable-next-line react/jsx-no-constructed-context-values -- unique per item
-          const contextValue: TreeItemContextValue = { itemId };
-          const model = store.state.itemModelLookup[itemId];
-          return (
-            <TreeItemContext.Provider key={itemId} value={contextValue}>
-              {(children as (item: TreeItemModel) => React.ReactNode)(model)}
-            </TreeItemContext.Provider>
-          );
-        }),
+        children: flatItemIds.map((itemId) => (
+          <TreeItemModelProvider key={itemId} store={store} itemId={itemId}>
+            {children as (item: TreeItemModel) => React.ReactNode}
+          </TreeItemModelProvider>
+        )),
         onFocus: store.rootEventHandlers.onFocus,
         onBlur: store.rootEventHandlers.onBlur,
         onKeyDown: store.rootEventHandlers.onKeyDown,
@@ -168,7 +203,9 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
   ): React.JSX.Element;
 };
 
-export interface TreeRootState {}
+export interface TreeRootState {
+  disabled: boolean;
+}
 
 export interface TreeRootProps<Mode extends TreeSelectionMode | undefined = undefined>
   extends

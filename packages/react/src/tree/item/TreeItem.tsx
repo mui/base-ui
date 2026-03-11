@@ -38,49 +38,14 @@ export const TreeItem = React.forwardRef(function TreeItem(
 
   const store = useTreeRootContext();
   const { itemId } = useTreeItemContext();
-  const propsFromState = store.useState('itemProps', itemId);
-
-  const { state, 'aria-checked': ariaChecked, ...ariaProps } = propsFromState ?? {
-    state: {
-      itemId: '',
-      expanded: false,
-      expandable: false,
-      selected: false,
-      focused: false,
-      disabled: false,
-      editing: false,
-      depth: 0,
-    },
-  };
+  const { props: itemProps, state } = store.useState('itemPropsAndState', itemId);
 
   const element = useRenderElement('li', componentProps, {
     state,
     ref: forwardedRef,
-    props: [
-      {
-        role: 'treeitem',
-        ...ariaProps,
-        onMouseDown: (event: React.MouseEvent) => {
-          // Prevent text selection when using modifier keys for multi-select
-          if (event.shiftKey || event.ctrlKey || event.metaKey || state.disabled) {
-            event.preventDefault();
-          }
-        },
-        onClick: (event: React.MouseEvent) => {
-          store.itemEventHandlers.onClick(event, itemId);
-        },
-        onFocus: (event: React.FocusEvent) => {
-          store.itemEventHandlers.onFocus(event, itemId);
-        },
-      } as React.HTMLAttributes<HTMLLIElement>,
-      elementProps,
-    ],
+    props: [itemProps, store.itemEventHandlers, elementProps],
     stateAttributesMapping,
   });
-
-  if (propsFromState == null) {
-    return null;
-  }
 
   return element;
 });

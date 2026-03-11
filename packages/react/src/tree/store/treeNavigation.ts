@@ -1,54 +1,30 @@
 import type { TreeState, TreeItemId, TreeItemMeta } from './types';
-import { TREE_VIEW_ROOT_PARENT_ID } from './types';
-import { isItemExpanded } from './selectors';
+import { selectors } from './selectors';
+
+const isItemExpanded = selectors.isItemExpanded;
 
 function canItemBeFocused(state: TreeState, itemId: TreeItemId): boolean {
-  const meta = state.itemMetaLookup[itemId];
-  if (!meta) {
-    return false;
-  }
-  return state.itemFocusableWhenDisabled || !isItemDisabledInternal(state, itemId);
-}
-
-function isItemDisabledInternal(state: TreeState, itemId: TreeItemId): boolean {
-  const meta = state.itemMetaLookup[itemId];
-  if (!meta) {
-    return false;
-  }
-  if (meta.disabled) {
-    return true;
-  }
-  if (meta.parentId != null) {
-    return isItemDisabledInternal(state, meta.parentId);
-  }
-  return false;
+  return selectors.canItemBeFocused(state, itemId);
 }
 
 function isItemExpandable(state: TreeState, itemId: TreeItemId): boolean {
-  return state.itemMetaLookup[itemId]?.expandable ?? false;
+  return selectors.itemMeta(state, itemId)?.expandable ?? false;
 }
 
 function itemOrderedChildrenIds(state: TreeState, itemId: TreeItemId | null): TreeItemId[] {
-  return state.itemOrderedChildrenIdsLookup[itemId ?? TREE_VIEW_ROOT_PARENT_ID] ?? [];
+  return selectors.itemOrderedChildrenIds(state, itemId);
 }
 
 function itemIndex(state: TreeState, itemId: TreeItemId): number {
-  const meta = state.itemMetaLookup[itemId];
-  if (!meta) {
-    return -1;
-  }
-  return state.itemChildrenIndexesLookup[meta.parentId ?? TREE_VIEW_ROOT_PARENT_ID]?.[itemId] ?? -1;
+  return selectors.itemIndex(state, itemId);
 }
 
 function itemMeta(state: TreeState, itemId: TreeItemId | null): TreeItemMeta | null {
-  if (itemId == null) {
-    return null;
-  }
-  return state.itemMetaLookup[itemId] ?? null;
+  return selectors.itemMeta(state, itemId);
 }
 
 function itemParentId(state: TreeState, itemId: TreeItemId): TreeItemId | null {
-  return state.itemMetaLookup[itemId]?.parentId ?? null;
+  return selectors.itemParentId(state, itemId);
 }
 
 const getLastNavigableItemInArray = (state: TreeState, items: TreeItemId[]) => {
@@ -269,12 +245,12 @@ export const getNonDisabledItemsInRange = (
   };
 
   const [first, last] = findOrderInTremauxTree(state, itemAId, itemBId);
-  const items = isItemDisabledInternal(state, first) ? [] : [first];
+  const items = selectors.isItemDisabled(state, first) ? [] : [first];
   let current = first;
 
   while (current !== last) {
     current = getNextItem(current);
-    if (!isItemDisabledInternal(state, current)) {
+    if (!selectors.isItemDisabled(state, current)) {
       items.push(current);
     }
   }

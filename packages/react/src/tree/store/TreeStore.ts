@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { ReactStore } from '@base-ui/utils/store';
+import { TimeoutManager } from '@base-ui/utils/TimeoutManager';
 import type {
   TreeState,
   TreeStoreContext,
@@ -14,7 +15,6 @@ import type {
   TreeSelectedItemsType,
   TreeSelectionMode,
 } from './types';
-import { TREE_VIEW_ROOT_PARENT_ID } from './types';
 import { selectors } from './selectors';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
@@ -31,6 +31,11 @@ import {
 const TYPEAHEAD_TIMEOUT = 500;
 
 export interface TreeStoreParameters<Mode extends TreeSelectionMode | undefined = undefined> {
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean | undefined;
   items: readonly TreeItemModel[];
 
   // Expansion
@@ -120,25 +125,26 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
   // Typeahead
   private typeaheadQuery = '';
 
-  private typeaheadTimeout: ReturnType<typeof setTimeout> | null = null;
+  private timeoutManager = new TimeoutManager();
 
   private labelMap: Record<string, string> = {};
 
   constructor(parameters: TreeStoreParameters<Mode>) {
-    const itemsState = TreeStore.buildItemsState(
-      parameters.items,
-      parameters.getItemId ?? ((item) => item.id),
-      parameters.getItemLabel ?? ((item) => item.label),
-      parameters.getItemChildren ?? ((item) => item.children),
-      parameters.isItemDisabled ?? (() => false),
-      parameters.isItemSelectionDisabled ?? (() => false),
-    );
-
     const selectionMode: TreeSelectionMode = parameters.selectionMode ?? 'single';
+    const getItemId = parameters.getItemId ?? ((item: TreeItemModel) => item.id);
+    const getItemLabel = parameters.getItemLabel ?? ((item: TreeItemModel) => item.label);
+    const getItemChildren =
+      parameters.getItemChildren ?? ((item: TreeItemModel) => item.children);
+    const isItemDisabled = parameters.isItemDisabled ?? (() => false);
+    const isItemSelectionDisabled = parameters.isItemSelectionDisabled ?? (() => false);
+    const isItemEditable = parameters.isItemEditable ?? false;
 
     super(
       {
-        ...itemsState,
+        disabled: parameters.disabled ?? false,
+        items: parameters.items,
+        itemLabelOverrides: {},
+        itemDisabledOverrides: {},
         expandedItems: parameters.expandedItems ?? parameters.defaultExpandedItems ?? [],
         expandOnClick: parameters.expandOnClick ?? false,
         selectedItems:
@@ -153,6 +159,13 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
         editedItemId: null,
         lazyLoadedItems: undefined,
         treeId: parameters.treeId,
+        getItemId,
+        getItemLabel,
+        getItemChildren,
+        isItemDisabled,
+        isItemSelectionDisabled,
+        isItemEditable,
+        isRtl: parameters.isRtl ?? false,
       },
       {
         onExpandedItemsChange: parameters.onExpandedItemsChange ?? (() => {}),
@@ -164,43 +177,42 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
         onItemFocus: parameters.onItemFocus ?? (() => {}),
         onItemClick: parameters.onItemClick ?? (() => {}),
         onItemLabelChange: parameters.onItemLabelChange ?? (() => {}),
-        getItemId: parameters.getItemId ?? ((item) => item.id),
-        getItemLabel: parameters.getItemLabel ?? ((item) => item.label),
-        getItemChildren: parameters.getItemChildren ?? ((item) => item.children),
-        isItemDisabled: parameters.isItemDisabled ?? (() => false),
-        isItemSelectionDisabled: parameters.isItemSelectionDisabled ?? (() => false),
-        isItemEditable: parameters.isItemEditable ?? false,
         fetchChildren: undefined,
-        isRtl: parameters.isRtl ?? false,
         rootRef: parameters.rootRef,
       },
       selectors,
     );
 
     // Build initial label map
-    this.labelMap = this.createLabelMap(itemsState.itemMetaLookup);
+    this.labelMap = this.createLabelMap(selectors.itemMetaLookup(this.state));
 
     // Observe items changes to keep focus valid and update label map
     let previousState = this.state;
+    let previousMetaLookup = selectors.itemMetaLookup(this.state);
     this.subscribe((newState) => {
-      if (newState.itemMetaLookup === previousState.itemMetaLookup) {
+      const newMetaLookup = selectors.itemMetaLookup(newState);
+      if (newMetaLookup === previousMetaLookup) {
         previousState = newState;
         return;
       }
 
-      this.labelMap = this.createLabelMap(newState.itemMetaLookup);
+      this.labelMap = this.createLabelMap(newMetaLookup);
 
       // If focused item was removed, focus the closest neighbor
       const focusedId = newState.focusedItemId;
-      if (focusedId != null && !newState.itemMetaLookup[focusedId]) {
-        const checkItemInNewTree = (itemId: TreeItemId | null) =>
-          itemId == null || !newState.itemMetaLookup[itemId] ? null : itemId;
+      if (focusedId != null && !newMetaLookup[focusedId]) {
+        // Use previousState for navigation since the focused item still exists there.
+        // Then verify the candidate still exists in the new state.
+        let candidate =
+          getNextNavigableItem(previousState, focusedId) ??
+          getPreviousNavigableItem(previousState, focusedId);
 
-        // Use previous state for navigation (to find neighbors of removed item)
-        const itemToFocusId =
-          checkItemInNewTree(getNextNavigableItem(previousState, focusedId)) ??
-          checkItemInNewTree(getPreviousNavigableItem(previousState, focusedId)) ??
-          getFirstNavigableItem(newState);
+        // If the candidate was also removed, fall back to the first navigable item in the new state
+        if (candidate != null && !newMetaLookup[candidate]) {
+          candidate = null;
+        }
+
+        const itemToFocusId = candidate ?? getFirstNavigableItem(newState);
 
         if (itemToFocusId == null) {
           this.set('focusedItemId', null);
@@ -210,91 +222,8 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
       }
 
       previousState = newState;
+      previousMetaLookup = newMetaLookup;
     });
-  }
-
-  // ===========================================================================
-  // Items management
-  // ===========================================================================
-
-  public static buildItemsState(
-    items: readonly TreeItemModel[],
-    getItemId: (item: TreeItemModel) => TreeItemId,
-    getItemLabel: (item: TreeItemModel) => string,
-    getItemChildren: (item: TreeItemModel) => TreeItemModel[] | undefined,
-    isItemDisabled: (item: TreeItemModel) => boolean,
-    isItemSelectionDisabled: (item: TreeItemModel) => boolean,
-  ): Pick<
-    TreeState,
-    | 'itemModelLookup'
-    | 'itemMetaLookup'
-    | 'itemOrderedChildrenIdsLookup'
-    | 'itemChildrenIndexesLookup'
-  > {
-    const itemMetaLookup: Record<TreeItemId, TreeItemMeta> = {};
-    const itemModelLookup: Record<TreeItemId, TreeItemModel> = {};
-    const itemOrderedChildrenIdsLookup: Record<string, TreeItemId[]> = {};
-    const itemChildrenIndexesLookup: Record<string, Record<TreeItemId, number>> = {};
-
-    function processSiblings(
-      siblings: readonly TreeItemModel[],
-      parentId: TreeItemId | null,
-      depth: number,
-    ) {
-      const parentKey = parentId ?? TREE_VIEW_ROOT_PARENT_ID;
-      const orderedChildrenIds: TreeItemId[] = [];
-      const childrenIndexes: Record<TreeItemId, number> = {};
-
-      for (let i = 0; i < siblings.length; i += 1) {
-        const item = siblings[i];
-        const itemId = getItemId(item);
-        const children = getItemChildren(item);
-        const expandable = !!children && children.length > 0;
-
-        orderedChildrenIds.push(itemId);
-        childrenIndexes[itemId] = i;
-
-        itemModelLookup[itemId] = item;
-        itemMetaLookup[itemId] = {
-          id: itemId,
-          parentId,
-          depth,
-          expandable,
-          disabled: isItemDisabled(item),
-          selectable: !isItemSelectionDisabled(item),
-          label: getItemLabel(item),
-        };
-
-        if (children && children.length > 0) {
-          processSiblings(children, itemId, depth + 1);
-        }
-      }
-
-      itemOrderedChildrenIdsLookup[parentKey] = orderedChildrenIds;
-      itemChildrenIndexesLookup[parentKey] = childrenIndexes;
-    }
-
-    processSiblings(items, null, 0);
-
-    return {
-      itemMetaLookup,
-      itemModelLookup,
-      itemOrderedChildrenIdsLookup,
-      itemChildrenIndexesLookup,
-    };
-  }
-
-  public rebuildItemsState(items: readonly TreeItemModel[]) {
-    const newState = TreeStore.buildItemsState(
-      items,
-      this.context.getItemId,
-      this.context.getItemLabel,
-      this.context.getItemChildren,
-      this.context.isItemDisabled,
-      this.context.isItemSelectionDisabled,
-    );
-
-    this.update(newState);
   }
 
   // ===========================================================================
@@ -676,11 +605,16 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
     // Add items in new range that are selectable
     const selectedItemsLookup = getLookupFromArray(newSelectedItems);
     const range = getNonDisabledItemsInRange(this.state, start, end).filter((id) => {
-      const meta = this.state.itemMetaLookup[id];
+      const meta = selectors.itemMeta(this.state, id);
       return meta?.selectable !== false;
     });
     const itemsToAdd = range.filter((id) => !selectedItemsLookup[id]);
     newSelectedItems = newSelectedItems.concat(itemsToAdd);
+
+    // Prevent empty selection when disallowEmptySelection is true
+    if (this.state.disallowEmptySelection && newSelectedItems.length === 0) {
+      return;
+    }
 
     this.setSelectedItems(newSelectedItems, reason, event);
     this.lastSelectedRange = getLookupFromArray(range);
@@ -705,9 +639,9 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
     }
 
     if (isItemVisible) {
+      // Calling .focus() synchronously triggers the onFocus handler,
+      // which already updates focusedItemId and calls onItemFocus.
       this.getItemDOMElement(itemId)?.focus();
-      this.set('focusedItemId', itemId);
-      this.context.onItemFocus(itemId);
     }
   }
 
@@ -737,16 +671,23 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
   }
 
   public updateItemLabel(itemId: TreeItemId, newLabel: string) {
-    const newItemMetaLookup = { ...this.state.itemMetaLookup };
-    newItemMetaLookup[itemId] = { ...newItemMetaLookup[itemId], label: newLabel };
-
-    const newItemModelLookup = { ...this.state.itemModelLookup };
-    newItemModelLookup[itemId] = { ...newItemModelLookup[itemId], label: newLabel };
-
-    this.update({ itemMetaLookup: newItemMetaLookup, itemModelLookup: newItemModelLookup });
+    this.update({
+      itemLabelOverrides: { ...this.state.itemLabelOverrides, [itemId]: newLabel },
+    });
 
     this.context.onItemLabelChange(itemId, newLabel);
     this.setEditedItem(null);
+  }
+
+  public setIsItemDisabled(itemId: TreeItemId, isDisabled: boolean) {
+    const meta = selectors.itemMeta(this.state, itemId);
+    if (!meta || meta.disabled === isDisabled) {
+      return;
+    }
+
+    this.update({
+      itemDisabledOverrides: { ...this.state.itemDisabledOverrides, [itemId]: isDisabled },
+    });
   }
 
   // ===========================================================================
@@ -777,11 +718,11 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
   }
 
   private isItemEditable(itemId: TreeItemId): boolean {
-    const { isItemEditable } = this.context;
+    const { isItemEditable } = this.state;
     if (typeof isItemEditable === 'boolean') {
       return isItemEditable;
     }
-    const model = this.state.itemModelLookup[itemId];
+    const model = selectors.itemModel(this.state, itemId);
     return model ? isItemEditable(model) : false;
   }
 
@@ -934,8 +875,8 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
       }
 
       // ArrowRight: expand or focus first child
-      case (key === 'ArrowRight' && !this.context.isRtl) ||
-        (key === 'ArrowLeft' && this.context.isRtl): {
+      case (key === 'ArrowRight' && !this.state.isRtl) ||
+        (key === 'ArrowLeft' && this.state.isRtl): {
         if (ctrlPressed) {
           return;
         }
@@ -953,8 +894,8 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
       }
 
       // ArrowLeft: collapse or focus parent
-      case (key === 'ArrowLeft' && !this.context.isRtl) ||
-        (key === 'ArrowRight' && this.context.isRtl): {
+      case (key === 'ArrowLeft' && !this.state.isRtl) ||
+        (key === 'ArrowRight' && this.state.isRtl): {
         if (ctrlPressed) {
           return;
         }
@@ -1007,10 +948,7 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
       }
 
       // Ctrl+A: select all
-      case String.fromCharCode(event.keyCode) === 'A' &&
-        ctrlPressed &&
-        isMulti &&
-        this.state.selectionMode !== 'none': {
+      case event.key.toUpperCase() === 'A' && ctrlPressed && isMulti: {
         this.selectAllNavigableItems(REASONS.keyboard, event.nativeEvent);
         event.preventDefault();
         break;
@@ -1018,10 +956,6 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
 
       // Type-ahead
       case !ctrlPressed && !event.shiftKey && isPrintableKey(key): {
-        if (this.typeaheadTimeout) {
-          clearTimeout(this.typeaheadTimeout);
-        }
-
         const matchingItem = this.getFirstItemMatchingTypeaheadQuery(itemId, key);
         if (matchingItem != null) {
           this.focusItem(matchingItem);
@@ -1030,9 +964,9 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
           this.typeaheadQuery = '';
         }
 
-        this.typeaheadTimeout = setTimeout(() => {
+        this.timeoutManager.startTimeout('typeahead', TYPEAHEAD_TIMEOUT, () => {
           this.typeaheadQuery = '';
-        }, TYPEAHEAD_TIMEOUT);
+        });
         break;
       }
 
@@ -1068,8 +1002,26 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
     },
   };
 
+  private getItemIdFromEvent(event: React.SyntheticEvent): TreeItemId | null {
+    return (event.currentTarget as HTMLElement).getAttribute('data-item-id');
+  }
+
   public readonly itemEventHandlers = {
-    onClick: (event: React.MouseEvent, itemId: TreeItemId) => {
+    onMouseDown: (event: React.MouseEvent) => {
+      const itemId = this.getItemIdFromEvent(event);
+      if (!itemId) {
+        return;
+      }
+      // Prevent text selection when using modifier keys for multi-select
+      if (event.shiftKey || event.ctrlKey || event.metaKey || selectors.isItemDisabled(this.state, itemId)) {
+        event.preventDefault();
+      }
+    },
+    onClick: (event: React.MouseEvent) => {
+      const itemId = this.getItemIdFromEvent(event);
+      if (!itemId) {
+        return;
+      }
       this.context.onItemClick(event, itemId);
 
       // Handle focus - disabled items cannot be focused by mouse click
@@ -1106,8 +1058,15 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
         this.setItemExpansion(itemId, undefined, REASONS.itemPress, event.nativeEvent);
       }
     },
-    onFocus: (_event: React.FocusEvent, itemId: TreeItemId) => {
-      if (selectors.canItemBeFocused(this.state, itemId)) {
+    onFocus: (event: React.FocusEvent) => {
+      const itemId = this.getItemIdFromEvent(event);
+      if (!itemId) {
+        return;
+      }
+      if (
+        selectors.canItemBeFocused(this.state, itemId) &&
+        this.state.focusedItemId !== itemId
+      ) {
         this.set('focusedItemId', itemId);
         this.context.onItemFocus(itemId);
       }
@@ -1115,7 +1074,21 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
   };
 
   public readonly checkboxItemEventHandlers = {
-    onClick: (event: React.MouseEvent, itemId: TreeItemId) => {
+    onMouseDown: (event: React.MouseEvent) => {
+      const itemId = this.getItemIdFromEvent(event);
+      if (!itemId) {
+        return;
+      }
+      // Prevent text selection when using modifier keys for multi-select
+      if (event.shiftKey || event.ctrlKey || event.metaKey || selectors.isItemDisabled(this.state, itemId)) {
+        event.preventDefault();
+      }
+    },
+    onClick: (event: React.MouseEvent) => {
+      const itemId = this.getItemIdFromEvent(event);
+      if (!itemId) {
+        return;
+      }
       this.context.onItemClick(event, itemId);
 
       // Handle focus - disabled items cannot be focused by mouse click
@@ -1145,8 +1118,15 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
         this.setItemExpansion(itemId, undefined, REASONS.itemPress, event.nativeEvent);
       }
     },
-    onFocus: (_event: React.FocusEvent, itemId: TreeItemId) => {
-      if (selectors.canItemBeFocused(this.state, itemId)) {
+    onFocus: (event: React.FocusEvent) => {
+      const itemId = this.getItemIdFromEvent(event);
+      if (!itemId) {
+        return;
+      }
+      if (
+        selectors.canItemBeFocused(this.state, itemId) &&
+        this.state.focusedItemId !== itemId
+      ) {
         this.set('focusedItemId', itemId);
         this.context.onItemFocus(itemId);
       }
@@ -1161,13 +1141,23 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
   };
 
   // ===========================================================================
+  // Lifecycle
+  // ===========================================================================
+
+  public mountEffect = () => {
+    return () => {
+      this.timeoutManager.clearAll();
+    };
+  };
+
+  // ===========================================================================
   // Actions (exposed via actionsRef)
   // ===========================================================================
 
   public getActions(): TreeRootActions {
     return {
       focusItem: (itemId) => this.focusItem(itemId),
-      getItem: (itemId) => this.state.itemModelLookup[itemId],
+      getItem: (itemId) => selectors.itemModel(this.state, itemId),
       getItemDOMElement: (itemId) => this.getItemDOMElement(itemId),
       getItemOrderedChildrenIds: (itemId) => selectors.itemOrderedChildrenIds(this.state, itemId),
       getItemTree: () => this.getItemTree(),
@@ -1183,13 +1173,14 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
           reason: REASONS.imperativeAction,
         }),
       setEditedItem: (itemId) => this.setEditedItem(itemId),
+      setIsItemDisabled: (itemId, isDisabled) => this.setIsItemDisabled(itemId, isDisabled),
       updateItemLabel: (itemId, newLabel) => this.updateItemLabel(itemId, newLabel),
     };
   }
 
   private getItemTree(): TreeItemModel[] {
     const getItemFromItemId = (itemId: TreeItemId): TreeItemModel => {
-      const item = this.state.itemModelLookup[itemId];
+      const item = selectors.itemModel(this.state, itemId);
       const itemToMutate = { ...item };
       const childrenIds = selectors.itemOrderedChildrenIds(this.state, itemId);
       if (childrenIds.length > 0) {

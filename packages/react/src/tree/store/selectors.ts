@@ -1,48 +1,119 @@
 import { createSelector, createSelectorMemoized } from '@base-ui/utils/store';
-import type { TreeState, TreeItemId, TreeItemMeta } from './types';
+import { EMPTY_ARRAY } from '@base-ui/utils/empty';
+import type { TreeState, TreeItemId, TreeItemMeta, TreeItemsState } from './types';
 import { TREE_VIEW_ROOT_PARENT_ID } from './types';
+import { buildItemsState } from './buildItemsState';
 
-const EMPTY_CHILDREN: TreeItemId[] = [];
-
-// =============================================================================
-// Internal selectors (used by composite selectors and store methods)
-// =============================================================================
-
-export const itemMetaLookup = createSelector((state: TreeState) => state.itemMetaLookup);
-
-export const itemMeta = createSelector(
-  (state: TreeState, itemId: TreeItemId | null): TreeItemMeta | null =>
-    state.itemMetaLookup[itemId ?? TREE_VIEW_ROOT_PARENT_ID] ?? null,
+/**
+ * Intermediate selector: bundles all accessor functions into a single memoized object.
+ * This avoids exceeding the max arity of createSelectorMemoized (5 inputs + combiner).
+ */
+const itemAccessorsSelector = createSelectorMemoized(
+  (state: TreeState) => state.getItemId,
+  (state: TreeState) => state.getItemLabel,
+  (state: TreeState) => state.getItemChildren,
+  (state: TreeState) => state.isItemDisabled,
+  (state: TreeState) => state.isItemSelectionDisabled,
+  (getItemId, getItemLabel, getItemChildren, isItemDisabled, isItemSelectionDisabled) => ({
+    getItemId,
+    getItemLabel,
+    getItemChildren,
+    isItemDisabled,
+    isItemSelectionDisabled,
+  }),
 );
 
-export const itemModel = createSelector(
-  (state: TreeState, itemId: TreeItemId) => state.itemModelLookup[itemId],
+/**
+ * Core computation: builds all 4 lookup tables from items + accessors.
+ * Recomputed only when items or accessor functions change.
+ */
+const rawItemsStateSelector = createSelectorMemoized(
+  (state: TreeState) => state.items,
+  itemAccessorsSelector,
+  (items, acc): TreeItemsState =>
+    buildItemsState(
+      items,
+      acc.getItemId,
+      acc.getItemLabel,
+      acc.getItemChildren,
+      acc.isItemDisabled,
+      acc.isItemSelectionDisabled,
+    ),
 );
 
-export const itemOrderedChildrenIds = createSelector(
+/**
+ * Item meta lookup with label and disabled overrides applied.
+ */
+const itemMetaLookupSelector = createSelectorMemoized(
+  rawItemsStateSelector,
+  (state: TreeState) => state.itemLabelOverrides,
+  (state: TreeState) => state.itemDisabledOverrides,
+  (raw, labelOverrides, disabledOverrides) => {
+    const hasLabelOverrides = Object.keys(labelOverrides).length > 0;
+    const hasDisabledOverrides = Object.keys(disabledOverrides).length > 0;
+    if (!hasLabelOverrides && !hasDisabledOverrides) {
+      return raw.itemMetaLookup;
+    }
+    const result = { ...raw.itemMetaLookup };
+    for (const [id, label] of Object.entries(labelOverrides)) {
+      if (result[id]) {
+        result[id] = { ...result[id], label };
+      }
+    }
+    for (const [id, disabled] of Object.entries(disabledOverrides)) {
+      if (result[id]) {
+        result[id] = { ...result[id], disabled };
+      }
+    }
+    return result;
+  },
+);
+
+/**
+ * Item model lookup with label overrides applied.
+ */
+const itemModelLookupSelector = createSelectorMemoized(
+  rawItemsStateSelector,
+  (state: TreeState) => state.itemLabelOverrides,
+  (raw, labelOverrides) => {
+    if (Object.keys(labelOverrides).length === 0) {
+      return raw.itemModelLookup;
+    }
+    const result = { ...raw.itemModelLookup };
+    for (const [id, label] of Object.entries(labelOverrides)) {
+      if (result[id]) {
+        result[id] = { ...result[id], label };
+      }
+    }
+    return result;
+  },
+);
+
+/**
+ * Ordered children IDs lookup — no overrides needed (structure is unchanged).
+ */
+const itemOrderedChildrenIdsLookupSelector = createSelector(
+  (state: TreeState) => rawItemsStateSelector(state).itemOrderedChildrenIdsLookup,
+);
+
+/**
+ * Children indexes lookup — no overrides needed (structure is unchanged).
+ */
+const itemChildrenIndexesLookupSelector = createSelector(
+  (state: TreeState) => rawItemsStateSelector(state).itemChildrenIndexesLookup,
+);
+
+const itemOrderedChildrenIdsSelector = createSelector(
   (state: TreeState, itemId: TreeItemId | null): TreeItemId[] =>
-    state.itemOrderedChildrenIdsLookup[itemId ?? TREE_VIEW_ROOT_PARENT_ID] ?? EMPTY_CHILDREN,
+    itemOrderedChildrenIdsLookupSelector(state)[itemId ?? TREE_VIEW_ROOT_PARENT_ID] ?? EMPTY_ARRAY,
 );
 
-export const itemIndex = createSelector((state: TreeState, itemId: TreeItemId): number => {
-  const meta = state.itemMetaLookup[itemId];
-  if (!meta) {
-    return -1;
+const isItemDisabledSelector = createSelector((state: TreeState, itemId: TreeItemId): boolean => {
+  if (state.disabled) {
+    return true;
   }
-  return state.itemChildrenIndexesLookup[meta.parentId ?? TREE_VIEW_ROOT_PARENT_ID]?.[itemId] ?? -1;
-});
-
-export const itemParentId = createSelector(
-  (state: TreeState, itemId: TreeItemId): TreeItemId | null =>
-    state.itemMetaLookup[itemId]?.parentId ?? null,
-);
-
-export const itemDepth = createSelector(
-  (state: TreeState, itemId: TreeItemId): number => state.itemMetaLookup[itemId]?.depth ?? 0,
-);
-
-export const isItemDisabled = createSelector((state: TreeState, itemId: TreeItemId): boolean => {
-  const meta = state.itemMetaLookup[itemId];
+  const metaLookup = itemMetaLookupSelector(state);
+  const meta = metaLookup[itemId];
   if (!meta) {
     return false;
   }
@@ -50,65 +121,22 @@ export const isItemDisabled = createSelector((state: TreeState, itemId: TreeItem
     return true;
   }
   if (meta.parentId != null) {
-    return isItemDisabled(state, meta.parentId);
+    return isItemDisabledSelector(state, meta.parentId);
   }
   return false;
 });
 
-export const canItemBeFocused = createSelector(
-  (state: TreeState, itemId: TreeItemId): boolean =>
-    state.itemFocusableWhenDisabled || !isItemDisabled(state, itemId),
-);
-
-// === Expansion selectors ===
-
-const expandedItemsSet = createSelectorMemoized(
+const expandedItemsSetSelector = createSelectorMemoized(
   (state: TreeState) => state.expandedItems,
   (expandedItems): Set<TreeItemId> => new Set(expandedItems),
 );
 
-export const isItemExpanded = createSelector(
-  expandedItemsSet,
+const isItemExpandedSelector = createSelector(
+  expandedItemsSetSelector,
   (expandedSet, itemId: TreeItemId): boolean => expandedSet.has(itemId),
 );
 
-export const isItemExpandable = createSelector(
-  (state: TreeState, itemId: TreeItemId): boolean =>
-    state.itemMetaLookup[itemId]?.expandable ?? false,
-);
-
-/**
- * Computes the flat list of visible items.
- * Only expanded items have their children included.
- * This is the core of the flat DOM rendering.
- */
-export const flatList = createSelectorMemoized(
-  (state: TreeState) => state.itemOrderedChildrenIdsLookup,
-  expandedItemsSet,
-  (childrenLookup, expandedSet): TreeItemId[] => {
-    const result: TreeItemId[] = [];
-
-    const appendChildren = (parentId: string) => {
-      const children = childrenLookup[parentId];
-      if (!children) {
-        return;
-      }
-      for (const childId of children) {
-        result.push(childId);
-        if (expandedSet.has(childId)) {
-          appendChildren(childId);
-        }
-      }
-    };
-
-    appendChildren(TREE_VIEW_ROOT_PARENT_ID);
-    return result;
-  },
-);
-
-// === Selection selectors ===
-
-const selectedItemsNormalized = createSelectorMemoized(
+const selectedItemsNormalizedSelector = createSelectorMemoized(
   (state: TreeState) => state.selectedItems,
   (raw): readonly TreeItemId[] => {
     if (Array.isArray(raw)) {
@@ -121,42 +149,41 @@ const selectedItemsNormalized = createSelectorMemoized(
   },
 );
 
-const selectedItemsSet = createSelectorMemoized(
-  selectedItemsNormalized,
+const selectedItemsSetSelector = createSelectorMemoized(
+  selectedItemsNormalizedSelector,
   (items): Set<TreeItemId> => new Set(items),
 );
 
-export const isItemSelected = createSelector(selectedItemsSet, (set, itemId: TreeItemId): boolean =>
-  set.has(itemId),
+const isItemSelectedSelector = createSelector(
+  selectedItemsSetSelector,
+  (set, itemId: TreeItemId): boolean => set.has(itemId),
 );
 
-export const isMultiSelectEnabled = createSelector(
-  (state: TreeState): boolean => state.selectionMode === 'multiple',
-);
-
-export const isSelectionDisabled = createSelector(
+const isSelectionDisabledSelector = createSelector(
   (state: TreeState): boolean => state.selectionMode === 'none',
 );
 
-export const canItemBeSelected = createSelector((state: TreeState, itemId: TreeItemId): boolean => {
-  if (state.selectionMode === 'none') {
-    return false;
-  }
-  const meta = state.itemMetaLookup[itemId];
-  if (!meta) {
-    return false;
-  }
-  if (!meta.selectable) {
-    return false;
-  }
-  return !isItemDisabled(state, itemId);
-});
+const canItemBeSelectedSelector = createSelector(
+  (state: TreeState, itemId: TreeItemId): boolean => {
+    if (state.selectionMode === 'none') {
+      return false;
+    }
+    const meta = itemMetaLookupSelector(state)[itemId];
+    if (!meta) {
+      return false;
+    }
+    if (!meta.selectable) {
+      return false;
+    }
+    return !isItemDisabledSelector(state, itemId);
+  },
+);
 
 export type CheckboxSelectionStatus = 'checked' | 'indeterminate' | 'empty';
 
-export const checkboxSelectionStatus = createSelector(
+const checkboxSelectionStatusSelector = createSelector(
   (state: TreeState, itemId: TreeItemId): CheckboxSelectionStatus => {
-    if (isItemSelected(state, itemId)) {
+    if (isItemSelectedSelector(state, itemId)) {
       return 'checked';
     }
 
@@ -165,7 +192,7 @@ export const checkboxSelectionStatus = createSelector(
 
     const traverseDescendants = (idToTraverse: TreeItemId) => {
       if (idToTraverse !== itemId) {
-        if (isItemSelected(state, idToTraverse)) {
+        if (isItemSelectedSelector(state, idToTraverse)) {
           hasSelectedDescendant = true;
         } else {
           hasUnSelectedDescendant = true;
@@ -176,7 +203,7 @@ export const checkboxSelectionStatus = createSelector(
         return;
       }
 
-      const children = itemOrderedChildrenIds(state, idToTraverse);
+      const children = itemOrderedChildrenIdsSelector(state, idToTraverse);
       for (const childId of children) {
         traverseDescendants(childId);
       }
@@ -203,26 +230,16 @@ export const checkboxSelectionStatus = createSelector(
   },
 );
 
-export const selectionPropagationRules = createSelector(
-  (state: TreeState) => state.selectionPropagation,
-);
-
-// === Focus selectors ===
-
-export const focusedItemId = createSelector(
-  (state: TreeState): TreeItemId | null => state.focusedItemId,
-);
-
-export const isItemFocused = createSelector(
+const isItemFocusedSelector = createSelector(
   (state: TreeState, itemId: TreeItemId): boolean => state.focusedItemId === itemId,
 );
 
-export const defaultFocusableItemId = createSelectorMemoized(
-  selectedItemsNormalized,
-  expandedItemsSet,
-  (state: TreeState) => state.itemMetaLookup,
+const defaultFocusableItemIdSelector = createSelectorMemoized(
+  selectedItemsNormalizedSelector,
+  expandedItemsSetSelector,
+  itemMetaLookupSelector,
   (state: TreeState) => state.itemFocusableWhenDisabled,
-  (state: TreeState) => state.itemOrderedChildrenIdsLookup,
+  itemOrderedChildrenIdsLookupSelector,
   (
     selectedItems,
     expandedSet,
@@ -264,224 +281,285 @@ export const defaultFocusableItemId = createSelectorMemoized(
   },
 );
 
-// === Label editing selectors ===
-
-export const isItemBeingEdited = createSelector(
+const isItemBeingEditedSelector = createSelector(
   (state: TreeState, itemId: TreeItemId): boolean => state.editedItemId === itemId,
 );
 
-export const editedItemId = createSelector(
-  (state: TreeState): TreeItemId | null => state.editedItemId,
-);
-
-// === Lazy loading selectors ===
-
-export const isItemLoading = createSelector(
-  (state: TreeState, itemId: TreeItemId | null): boolean =>
-    state.lazyLoadedItems?.loading[itemId ?? TREE_VIEW_ROOT_PARENT_ID] ?? false,
-);
-
-export const itemError = createSelector(
-  (state: TreeState, itemId: TreeItemId | null): Error | undefined =>
-    state.lazyLoadedItems?.errors[itemId ?? TREE_VIEW_ROOT_PARENT_ID],
-);
-
-// =============================================================================
-// Composite selectors — one per component part
-// =============================================================================
-
-/**
- * Tree.Item — returns all props and state for the item element.
- */
-export const itemProps = createSelectorMemoized(
-  (state: TreeState, itemId: TreeItemId) => state.itemMetaLookup[itemId],
-  (state: TreeState, itemId: TreeItemId) => isItemExpanded(state, itemId),
-  (state: TreeState, itemId: TreeItemId) => checkboxSelectionStatus(state, itemId),
-  (state: TreeState, itemId: TreeItemId) => isItemFocused(state, itemId),
-  (state: TreeState, itemId: TreeItemId) => isItemDisabled(state, itemId),
-  (state: TreeState, itemId: TreeItemId) => isItemBeingEdited(state, itemId),
-  (state: TreeState, itemId: TreeItemId) => canItemBeSelected(state, itemId),
-  (state: TreeState) => state.focusedItemId,
-  defaultFocusableItemId,
-  (state: TreeState) => state.itemOrderedChildrenIdsLookup,
-  (state: TreeState) => state.itemChildrenIndexesLookup,
-  (
-    meta,
-    expanded,
-    selectionStatus,
-    focused,
-    disabled,
-    editing,
-    canBeSelected,
-    currentFocusedId,
-    defaultFocusableId,
-    childrenLookup,
-    indexesLookup,
-    itemId: TreeItemId,
-  ) => {
-    if (!meta) {
-      return null;
-    }
-
-    // Compute ARIA checked
-    let ariaChecked: React.AriaAttributes['aria-checked'];
-    if (!canBeSelected) {
-      ariaChecked = undefined;
-    } else if (selectionStatus === 'checked') {
-      ariaChecked = true;
-    } else if (selectionStatus === 'indeterminate') {
-      ariaChecked = 'mixed';
-    } else {
-      ariaChecked = false;
-    }
-
-    // Compute set size and position
-    const parentKey = meta.parentId ?? TREE_VIEW_ROOT_PARENT_ID;
-    const siblings = childrenLookup[parentKey] ?? [];
-    const posInSet = (indexesLookup[parentKey]?.[itemId] ?? 0) + 1;
-
-    // Compute tabindex
-    const isDefaultFocusable =
-      currentFocusedId != null ? currentFocusedId === itemId : defaultFocusableId === itemId;
-
-    return {
-      'aria-expanded': meta.expandable ? expanded : undefined,
-      'aria-selected': canBeSelected ? selectionStatus === 'checked' : undefined,
-      'aria-checked': ariaChecked,
-      'aria-level': meta.depth + 1,
-      'aria-setsize': siblings.length,
-      'aria-posinset': posInSet,
-      'aria-disabled': disabled || undefined,
-      tabIndex: isDefaultFocusable ? 0 : -1,
-      state: {
-        itemId,
-        expanded,
-        expandable: meta.expandable,
-        selected: selectionStatus === 'checked',
-        focused,
-        disabled,
-        editing,
-        depth: meta.depth,
-      },
-    };
-  },
-);
-
-/**
- * Tree.CheckboxItem / Tree.CheckboxItemIndicator — returns checkbox state.
- */
-export const checkboxProps = createSelectorMemoized(
-  (state: TreeState, itemId: TreeItemId) => checkboxSelectionStatus(state, itemId),
-  (state: TreeState, itemId: TreeItemId) => canItemBeSelected(state, itemId),
+const isItemDefaultFocusableSelector = createSelector(
   (state: TreeState, itemId: TreeItemId): boolean => {
-    if (state.selectionMode === 'none') {
-      return true;
+    const currentFocusedId = state.focusedItemId;
+    if (currentFocusedId != null) {
+      return currentFocusedId === itemId;
     }
-    const meta = state.itemMetaLookup[itemId];
-    return meta != null && !meta.selectable;
+    return defaultFocusableItemIdSelector(state) === itemId;
   },
-  (selectionStatus, canBeSelected, hidden, _itemId: TreeItemId) => ({
-    checked: selectionStatus === 'checked',
-    indeterminate: selectionStatus === 'indeterminate',
-    disabled: !canBeSelected,
-    hidden,
-  }),
 );
 
-/**
- * Tree.ItemLabel — returns label state.
- */
-export const labelProps = createSelectorMemoized(
-  (state: TreeState, itemId: TreeItemId) => state.itemMetaLookup[itemId]?.label ?? '',
-  (state: TreeState, itemId: TreeItemId) => state.editedItemId === itemId,
-  (label, editing, _itemId: TreeItemId) => ({
-    label,
-    editing,
-  }),
-);
+const itemSiblingsCountSelector = createSelector((state: TreeState, itemId: TreeItemId): number => {
+  const meta = itemMetaLookupSelector(state)[itemId];
+  if (!meta) {
+    return 0;
+  }
+  const parentKey = meta.parentId ?? TREE_VIEW_ROOT_PARENT_ID;
+  return itemOrderedChildrenIdsLookupSelector(state)[parentKey]?.length ?? 0;
+});
 
-/**
- * Tree.ItemExpansionTrigger — returns expansion trigger state.
- */
-export const expansionTriggerProps = createSelectorMemoized(
-  (state: TreeState, itemId: TreeItemId) => state.itemMetaLookup[itemId],
-  (state: TreeState, itemId: TreeItemId) => isItemExpanded(state, itemId),
-  (meta, expanded, _itemId: TreeItemId) => ({
-    expanded,
-    expandable: meta?.expandable ?? false,
-  }),
-);
-
-/**
- * Tree.ItemGroupIndicator — returns group indicator state.
- */
-export const groupIndicatorProps = createSelectorMemoized(
-  (state: TreeState, itemId: TreeItemId) => state.itemMetaLookup[itemId],
-  (state: TreeState, itemId: TreeItemId) => isItemExpanded(state, itemId),
-  (meta, expanded, _itemId: TreeItemId) => ({
-    expanded,
-    expandable: meta?.expandable ?? false,
-  }),
-);
-
-/**
- * Tree.ItemLoadingIndicator — returns loading state.
- */
-export const loadingIndicatorProps = createSelectorMemoized(
-  (state: TreeState, itemId: TreeItemId) => state.lazyLoadedItems?.loading[itemId] ?? false,
-  (loading, _itemId: TreeItemId) => ({
-    loading,
-  }),
-);
-
-/**
- * Tree.ItemErrorIndicator — returns error state.
- */
-export const errorIndicatorProps = createSelectorMemoized(
-  (state: TreeState, itemId: TreeItemId) => state.lazyLoadedItems?.errors[itemId],
-  (error, _itemId: TreeItemId) => ({
-    error,
-    hasError: error != null,
-  }),
-);
-
-// =============================================================================
-// Aggregated selectors object for use with ReactStore
-// =============================================================================
+const itemPositionInSetSelector = createSelector((state: TreeState, itemId: TreeItemId): number => {
+  const meta = itemMetaLookupSelector(state)[itemId];
+  if (!meta) {
+    return 1;
+  }
+  const parentKey = meta.parentId ?? TREE_VIEW_ROOT_PARENT_ID;
+  return (itemChildrenIndexesLookupSelector(state)[parentKey]?.[itemId] ?? 0) + 1;
+});
 
 export const selectors = {
-  // Internal
-  itemMetaLookup,
-  itemMeta,
-  itemModel,
-  itemOrderedChildrenIds,
-  itemIndex,
-  itemParentId,
-  itemDepth,
-  isItemDisabled,
-  canItemBeFocused,
-  isItemExpanded,
-  isItemExpandable,
-  flatList,
-  isItemSelected,
-  isMultiSelectEnabled,
-  isSelectionDisabled,
-  canItemBeSelected,
-  checkboxSelectionStatus,
-  selectionPropagationRules,
-  focusedItemId,
-  isItemFocused,
-  defaultFocusableItemId,
-  isItemBeingEdited,
-  editedItemId,
-  isItemLoading,
-  itemError,
-  // Composite (one per part)
-  itemProps,
-  checkboxProps,
-  labelProps,
-  expansionTriggerProps,
-  groupIndicatorProps,
-  loadingIndicatorProps,
-  errorIndicatorProps,
+  itemMetaLookup: itemMetaLookupSelector,
+  itemMeta: createSelector(
+    (state: TreeState, itemId: TreeItemId | null): TreeItemMeta | null =>
+      itemMetaLookupSelector(state)[itemId ?? TREE_VIEW_ROOT_PARENT_ID] ?? null,
+  ),
+  itemModel: createSelector(
+    (state: TreeState, itemId: TreeItemId) => itemModelLookupSelector(state)[itemId],
+  ),
+  itemOrderedChildrenIds: itemOrderedChildrenIdsSelector,
+  itemIndex: createSelector((state: TreeState, itemId: TreeItemId): number => {
+    const meta = itemMetaLookupSelector(state)[itemId];
+    if (!meta) {
+      return -1;
+    }
+    return (
+      itemChildrenIndexesLookupSelector(state)[meta.parentId ?? TREE_VIEW_ROOT_PARENT_ID]?.[
+        itemId
+      ] ?? -1
+    );
+  }),
+  itemParentId: createSelector(
+    (state: TreeState, itemId: TreeItemId): TreeItemId | null =>
+      itemMetaLookupSelector(state)[itemId]?.parentId ?? null,
+  ),
+  itemDepth: createSelector(
+    (state: TreeState, itemId: TreeItemId): number =>
+      itemMetaLookupSelector(state)[itemId]?.depth ?? 0,
+  ),
+  isItemDisabled: isItemDisabledSelector,
+  canItemBeFocused: createSelector(
+    (state: TreeState, itemId: TreeItemId): boolean =>
+      state.itemFocusableWhenDisabled || !isItemDisabledSelector(state, itemId),
+  ),
+  isItemExpanded: isItemExpandedSelector,
+  isItemExpandable: createSelector(
+    (state: TreeState, itemId: TreeItemId): boolean =>
+      itemMetaLookupSelector(state)[itemId]?.expandable ?? false,
+  ),
+  flatList: createSelectorMemoized(
+    itemOrderedChildrenIdsLookupSelector,
+    expandedItemsSetSelector,
+    (childrenLookup, expandedSet): TreeItemId[] => {
+      const result: TreeItemId[] = [];
+
+      const appendChildren = (parentId: string) => {
+        const children = childrenLookup[parentId];
+        if (!children) {
+          return;
+        }
+        for (const childId of children) {
+          result.push(childId);
+          if (expandedSet.has(childId)) {
+            appendChildren(childId);
+          }
+        }
+      };
+
+      appendChildren(TREE_VIEW_ROOT_PARENT_ID);
+      return result;
+    },
+  ),
+  isItemSelected: isItemSelectedSelector,
+  isMultiSelectEnabled: createSelector(
+    (state: TreeState): boolean => state.selectionMode === 'multiple',
+  ),
+  isSelectionDisabled: isSelectionDisabledSelector,
+  canItemBeSelected: canItemBeSelectedSelector,
+  checkboxSelectionStatus: checkboxSelectionStatusSelector,
+  selectionPropagationRules: createSelector((state: TreeState) => state.selectionPropagation),
+  focusedItemId: createSelector((state: TreeState): TreeItemId | null => state.focusedItemId),
+  isItemFocused: isItemFocusedSelector,
+  defaultFocusableItemId: defaultFocusableItemIdSelector,
+  isItemBeingEdited: isItemBeingEditedSelector,
+  editedItemId: createSelector((state: TreeState): TreeItemId | null => state.editedItemId),
+  isItemLoading: createSelector(
+    (state: TreeState, itemId: TreeItemId | null): boolean =>
+      state.lazyLoadedItems?.loading[itemId ?? TREE_VIEW_ROOT_PARENT_ID] ?? false,
+  ),
+  itemError: createSelector(
+    (state: TreeState, itemId: TreeItemId | null): Error | undefined =>
+      state.lazyLoadedItems?.errors[itemId ?? TREE_VIEW_ROOT_PARENT_ID],
+  ),
+  itemPropsAndState: createSelectorMemoized(
+    (state: TreeState, itemId: TreeItemId) => itemMetaLookupSelector(state)[itemId],
+    (state: TreeState, itemId: TreeItemId) => isItemExpandedSelector(state, itemId),
+    (state: TreeState, itemId: TreeItemId) => isItemSelectedSelector(state, itemId),
+    (state: TreeState, itemId: TreeItemId) => isItemFocusedSelector(state, itemId),
+    (state: TreeState, itemId: TreeItemId) => isItemDisabledSelector(state, itemId),
+    (state: TreeState, itemId: TreeItemId) => isItemBeingEditedSelector(state, itemId),
+    (state: TreeState, itemId: TreeItemId) => canItemBeSelectedSelector(state, itemId),
+    isSelectionDisabledSelector,
+    (state: TreeState, itemId: TreeItemId) => isItemDefaultFocusableSelector(state, itemId),
+    (state: TreeState, itemId: TreeItemId) => itemSiblingsCountSelector(state, itemId),
+    (state: TreeState, itemId: TreeItemId) => itemPositionInSetSelector(state, itemId),
+    (
+      meta,
+      expanded,
+      isSelected,
+      focused,
+      disabled,
+      editing,
+      canBeSelected,
+      selectionDisabled,
+      isDefaultFocusable,
+      siblingsCount,
+      posInSet,
+      itemId: TreeItemId,
+    ) => {
+      if (!meta) {
+        throw new Error(`Base UI: Could not find the item metadata for item with id "${itemId}".`);
+      }
+
+      // Per WAI-ARIA, when selection is supported, all focusable treeitems
+      // must have aria-selected set to true or false.
+      // Only omit it entirely when the tree doesn't support selection at all.
+      const ariaSelected = selectionDisabled || !canBeSelected ? undefined : isSelected;
+
+      return {
+        props: {
+          role: 'treeitem' as const,
+          'aria-expanded': meta.expandable ? expanded : undefined,
+          'aria-selected': ariaSelected,
+          'aria-level': meta.depth + 1,
+          'aria-setsize': siblingsCount,
+          'aria-posinset': posInSet,
+          'aria-disabled': disabled || undefined,
+          tabIndex: isDefaultFocusable ? 0 : -1,
+        },
+        state: {
+          itemId,
+          expanded,
+          expandable: meta.expandable,
+          selected: isSelected,
+          focused,
+          disabled,
+          editing,
+          depth: meta.depth,
+        },
+      };
+    },
+  ),
+  checkboxItemPropsAndState: createSelectorMemoized(
+    (state: TreeState, itemId: TreeItemId) => itemMetaLookupSelector(state)[itemId],
+    (state: TreeState, itemId: TreeItemId) => isItemExpandedSelector(state, itemId),
+    (state: TreeState, itemId: TreeItemId) => isItemFocusedSelector(state, itemId),
+    (state: TreeState, itemId: TreeItemId) => isItemDisabledSelector(state, itemId),
+    (state: TreeState, itemId: TreeItemId) => isItemBeingEditedSelector(state, itemId),
+    (state: TreeState, itemId: TreeItemId) => canItemBeSelectedSelector(state, itemId),
+    (state: TreeState, itemId: TreeItemId) => checkboxSelectionStatusSelector(state, itemId),
+    (state: TreeState, itemId: TreeItemId) => isItemDefaultFocusableSelector(state, itemId),
+    (state: TreeState, itemId: TreeItemId) => itemSiblingsCountSelector(state, itemId),
+    (state: TreeState, itemId: TreeItemId) => itemPositionInSetSelector(state, itemId),
+    (
+      meta,
+      expanded,
+      focused,
+      disabled,
+      editing,
+      canBeSelected,
+      checkboxStatus,
+      isDefaultFocusable,
+      siblingsCount,
+      posInSet,
+      itemId: TreeItemId,
+    ) => {
+      if (!meta) {
+        throw new Error(`Base UI: Could not find the item metadata for item with id "${itemId}".`);
+      }
+
+      // Compute aria-checked from checkbox selection status.
+      // The expensive checkboxSelectionStatus traversal only runs for TreeCheckboxItem,
+      // not for every TreeItem in the tree.
+      const checked = checkboxStatus === 'checked';
+      const indeterminate = checkboxStatus === 'indeterminate';
+      let ariaChecked: boolean | 'mixed' | undefined;
+      if (!canBeSelected) {
+        ariaChecked = undefined;
+      } else if (checked) {
+        ariaChecked = true;
+      } else if (indeterminate) {
+        ariaChecked = 'mixed';
+      } else {
+        ariaChecked = false;
+      }
+
+      return {
+        props: {
+          role: 'treeitem' as const,
+          'aria-expanded': meta.expandable ? expanded : undefined,
+          'aria-checked': ariaChecked,
+          'aria-level': meta.depth + 1,
+          'aria-setsize': siblingsCount,
+          'aria-posinset': posInSet,
+          'aria-disabled': disabled || undefined,
+          tabIndex: isDefaultFocusable ? 0 : -1,
+        },
+        state: {
+          itemId,
+          expanded,
+          expandable: meta.expandable,
+          checked,
+          unchecked: !checked && !indeterminate,
+          indeterminate,
+          focused,
+          disabled,
+          editing,
+          depth: meta.depth,
+        },
+      };
+    },
+  ),
+  labelProps: createSelectorMemoized(
+    (state: TreeState, itemId: TreeItemId) => itemMetaLookupSelector(state)[itemId]?.label ?? '',
+    (state: TreeState, itemId: TreeItemId) => state.editedItemId === itemId,
+    (label, editing, _itemId: TreeItemId) => ({
+      label,
+      editing,
+    }),
+  ),
+  expansionTriggerProps: createSelectorMemoized(
+    (state: TreeState, itemId: TreeItemId) => itemMetaLookupSelector(state)[itemId],
+    (state: TreeState, itemId: TreeItemId) => isItemExpandedSelector(state, itemId),
+    (meta, expanded, _itemId: TreeItemId) => ({
+      expanded,
+      expandable: meta?.expandable ?? false,
+    }),
+  ),
+  groupIndicatorProps: createSelectorMemoized(
+    (state: TreeState, itemId: TreeItemId) => itemMetaLookupSelector(state)[itemId],
+    (state: TreeState, itemId: TreeItemId) => isItemExpandedSelector(state, itemId),
+    (meta, expanded, _itemId: TreeItemId) => ({
+      expanded,
+      expandable: meta?.expandable ?? false,
+    }),
+  ),
+  loadingIndicatorProps: createSelectorMemoized(
+    (state: TreeState, itemId: TreeItemId) => state.lazyLoadedItems?.loading[itemId] ?? false,
+    (loading, _itemId: TreeItemId) => ({
+      loading,
+    }),
+  ),
+  errorIndicatorProps: createSelectorMemoized(
+    (state: TreeState, itemId: TreeItemId) => state.lazyLoadedItems?.errors[itemId],
+    (error, _itemId: TreeItemId) => ({
+      error,
+      hasError: error != null,
+    }),
+  ),
 };

@@ -21,27 +21,29 @@ const INITIAL_ITEMS: TreeItemModel[] = [
   createFolder('documents', 'Documents'),
   createFolder('photos', 'Photos'),
   createFolder('music', 'Music'),
-  createFolder('system', 'System'),
+  { id: 'notes', label: 'Notes.txt' },
 ];
 
 // Simulated server data
 const SERVER_DATA: Record<string, TreeItemModel[]> = {
   documents: [
-    { id: 'resume.pdf', label: 'resume.pdf' },
-    { id: 'cover-letter.docx', label: 'cover-letter.docx' },
-    { id: 'notes.txt', label: 'notes.txt' },
+    { id: 'resume', label: 'Resume.pdf' },
+    { id: 'cover-letter', label: 'Cover Letter.docx' },
+    createFolder('invoices', 'Invoices'),
   ],
-  photos: [createFolder('vacation', 'vacation'), { id: 'profile.jpg', label: 'profile.jpg' }],
-  vacation: [
-    { id: 'beach.jpg', label: 'beach.jpg' },
-    { id: 'sunset.png', label: 'sunset.png' },
+  invoices: [
+    { id: 'invoice-q1', label: 'Invoice_Q1.pdf' },
+    { id: 'invoice-q2', label: 'Invoice_Q2.pdf' },
   ],
-  music: [{ id: 'playlist.m3u', label: 'playlist.m3u' }, createFolder('favorites', 'favorites')],
-  favorites: [
-    { id: 'song1.mp3', label: 'song1.mp3' },
-    { id: 'song2.mp3', label: 'song2.mp3' },
+  photos: [
+    { id: 'sunset', label: 'Sunset.jpg' },
+    { id: 'mountains', label: 'Mountains.png' },
+    { id: 'family-dinner', label: 'Family Dinner.jpg' },
   ],
-  // 'system' is intentionally missing to simulate an error
+  music: [
+    { id: 'blue-in-green', label: 'Blue in Green.mp3' },
+    { id: 'moonlight-sonata', label: 'Moonlight Sonata.flac' },
+  ],
 };
 
 function fetchChildren(parentId: string): Promise<TreeItemModel[]> {
@@ -91,35 +93,20 @@ function replaceChildren(
 export default function ExampleTreeLazyLoading() {
   const [items, setItems] = React.useState<TreeItemModel[]>(INITIAL_ITEMS);
   const [loadingItems, setLoadingItems] = React.useState<Set<string>>(() => new Set());
-  const [errorItems, setErrorItems] = React.useState<Map<string, string>>(() => new Map());
+
   const expandedItemsRef = React.useRef<string[]>([]);
 
   const loadChildren = React.useCallback((parentId: string) => {
     setLoadingItems((prev) => new Set(prev).add(parentId));
-    setErrorItems((prev) => {
-      const next = new Map(prev);
-      next.delete(parentId);
-      return next;
-    });
 
-    fetchChildren(parentId).then(
-      (children) => {
-        setItems((prev) => replaceChildren(prev, parentId, children));
-        setLoadingItems((prev) => {
-          const next = new Set(prev);
-          next.delete(parentId);
-          return next;
-        });
-      },
-      (error: Error) => {
-        setLoadingItems((prev) => {
-          const next = new Set(prev);
-          next.delete(parentId);
-          return next;
-        });
-        setErrorItems((prev) => new Map(prev).set(parentId, error.message));
-      },
-    );
+    fetchChildren(parentId).then((children) => {
+      setItems((prev) => replaceChildren(prev, parentId, children));
+      setLoadingItems((prev) => {
+        const next = new Set(prev);
+        next.delete(parentId);
+        return next;
+      });
+    });
   }, []);
 
   const handleExpandedItemsChange = React.useCallback(
@@ -144,45 +131,33 @@ export default function ExampleTreeLazyLoading() {
     >
       {(item) => {
         if (item.placeholder) {
-          const parentId = item.placeholderParentId as string;
-
-          if (errorItems.has(parentId) && !loadingItems.has(parentId)) {
-            return (
-              <Tree.Item className={styles.Item} >
-                <span className={styles.ErrorText}>Failed to load</span>
-                <button
-                  type="button"
-                  className={styles.RetryButton}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    loadChildren(parentId);
-                  }}
-                >
-                  Retry
-                </button>
-              </Tree.Item>
-            );
-          }
-
-          return (
-            <Tree.Item className={styles.Item} >
-              <span className={styles.Spinner} />
-              <span className={styles.LoadingText}>Loading…</span>
-            </Tree.Item>
-          );
+          return <Tree.Item className={styles.PlaceholderItem} />;
         }
+
+        const isLoading = loadingItems.has(item.id);
 
         return (
           <Tree.Item className={styles.Item}>
             <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
               <ChevronIcon />
             </Tree.ItemExpansionTrigger>
+            {isLoading ? (
+              <SpinnerIcon />
+            ) : item.children ? (
+              <FolderIcon className={styles.Icon} />
+            ) : (
+              <FileIcon className={styles.Icon} />
+            )}
             <Tree.ItemLabel className={styles.Label} />
           </Tree.Item>
         );
       }}
     </Tree.Root>
   );
+}
+
+function SpinnerIcon() {
+  return <span className={styles.Spinner} />;
 }
 
 function ChevronIcon(props: React.ComponentProps<'svg'>) {
@@ -196,6 +171,22 @@ function ChevronIcon(props: React.ComponentProps<'svg'>) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
+    </svg>
+  );
+}
+
+function FolderIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg viewBox="0 0 16 16" fill="currentColor" {...props}>
+      <path d="M1 3.5A1.5 1.5 0 012.5 2h3.879a1.5 1.5 0 011.06.44l1.122 1.12A1.5 1.5 0 009.62 4H13.5A1.5 1.5 0 0115 5.5v7a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 011 12.5v-9z" />
+    </svg>
+  );
+}
+
+function FileIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg viewBox="0 0 16 16" fill="currentColor" {...props}>
+      <path d="M4 1.5A1.5 1.5 0 015.5 0h4.379a1.5 1.5 0 011.06.44l2.122 2.12A1.5 1.5 0 0113.5 3.5V14.5A1.5 1.5 0 0112 16H5.5A1.5 1.5 0 014 14.5v-13z" />
     </svg>
   );
 }
