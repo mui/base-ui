@@ -43,10 +43,11 @@ function getInjectedClassAttribute(headTemplate: string) {
 }
 
 describe('exportOpts Tailwind class injection', () => {
-  it('injects classes referenced via className constants', () => {
+  it('injects classes referenced via concatenated className constants', () => {
     const source = `
       const popupClassName =
-        "data-[starting-style]:opacity-0 transition-transform duration-300";
+        "data-[starting-style]:opacity-0 transition-transform " +
+        "duration-300";
 
       export default function Demo() {
         return <div className={popupClassName}>Demo</div>;
@@ -61,7 +62,44 @@ describe('exportOpts Tailwind class injection', () => {
     expect(classes).toContain('duration-300');
   });
 
-  it('injects classes from extra files referenced via className constants', () => {
+  it('injects classes from derived template literals referenced via className constants', () => {
+    const source = `
+      const sharedClassName =
+        "transition-transform duration-300";
+      const popupClassName = \`\${sharedClassName} data-[starting-style]:opacity-0\`;
+
+      export default function Demo() {
+        return <div className={popupClassName}>Demo</div>;
+      }
+    `;
+
+    const headTemplate = getTailwindHeadTemplate(source);
+    const classes = getInjectedClasses(headTemplate);
+
+    expect(classes).toContain('transition-transform');
+    expect(classes).toContain('duration-300');
+    expect(classes).toContain('data-[starting-style]:opacity-0');
+  });
+
+  it('injects classes from inline template expressions that reference constants', () => {
+    const source = `
+      const itemClassName =
+        "transition-transform duration-300";
+
+      export default function Demo() {
+        return <div className={\`\${itemClassName} text-red-600\`}>Demo</div>;
+      }
+    `;
+
+    const headTemplate = getTailwindHeadTemplate(source);
+    const classes = getInjectedClasses(headTemplate);
+
+    expect(classes).toContain('transition-transform');
+    expect(classes).toContain('duration-300');
+    expect(classes).toContain('text-red-600');
+  });
+
+  it('injects classes from extra files referenced via derived className constants', () => {
     const headTemplate = getTailwindHeadTemplate(
       `
         export default function Demo() {
@@ -71,7 +109,8 @@ describe('exportOpts Tailwind class injection', () => {
       {
         'Extra.tsx': {
           source: `
-            const contentClassName = "data-[ending-style]:opacity-0 translate-x-2";
+            const sharedClassName = "data-[ending-style]:opacity-0";
+            const contentClassName = \`\${sharedClassName} translate-x-2\`;
 
             export function Extra() {
               return <div className={contentClassName}>Extra</div>;
