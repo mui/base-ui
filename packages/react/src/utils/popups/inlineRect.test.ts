@@ -162,7 +162,9 @@ describe('inlineRect', () => {
     const middleware = createInlineMiddleware(coordsRef);
 
     expect(
-      await middleware.fn?.(createMiddlewareState(trigger, 'bottom', { x: 0, y: 0, width: 10, height: 10 }) as never),
+      await middleware.fn?.(
+        createMiddlewareState(trigger, 'bottom', { x: 0, y: 0, width: 10, height: 10 }) as never,
+      ),
     ).toEqual({});
   });
 

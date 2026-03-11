@@ -326,5 +326,4 @@ describe('<Popover.Positioner />', () => {
 
     expect(positioner.getBoundingClientRect()).to.include(final);
   });
-
 });

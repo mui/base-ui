@@ -106,10 +106,7 @@ function getInlineReferenceRect(
     return (
       clientRects.find(
         (rect) =>
-          x > rect.left - 2 &&
-          x < rect.right + 2 &&
-          y > rect.top - 2 &&
-          y < rect.bottom + 2,
+          x > rect.left - 2 && x < rect.right + 2 && y > rect.top - 2 && y < rect.bottom + 2,
       ) || fallback
     );
   }
