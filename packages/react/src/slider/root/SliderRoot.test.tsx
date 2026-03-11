@@ -2451,6 +2451,26 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(screen.getByRole('slider')).toHaveFocus();
     });
 
+    it('Slider.Label does not focus a thumb on click for range sliders', async () => {
+      const { user } = await render(
+        <Slider.Root defaultValue={[20, 80]}>
+          <Slider.Label data-testid="label">Price range</Slider.Label>
+          <Slider.Control>
+            <Slider.Track>
+              <Slider.Thumb aria-label="Minimum price" />
+              <Slider.Thumb aria-label="Maximum price" />
+            </Slider.Track>
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      await user.click(screen.getByTestId('label'));
+
+      const [minimumSlider, maximumSlider] = screen.getAllByRole('slider');
+      expect(minimumSlider).not.toHaveFocus();
+      expect(maximumSlider).not.toHaveFocus();
+    });
+
     it('does not set aria-labelledby when getAriaLabel is provided', async () => {
       await render(
         <Slider.Root defaultValue={[20, 80]}>

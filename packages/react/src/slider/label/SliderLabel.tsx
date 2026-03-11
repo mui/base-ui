@@ -35,7 +35,8 @@ export const SliderLabel = React.forwardRef(function SliderLabel(
       }
     }
 
-    const fallbackInput = controlRef.current?.querySelector('input[type="range"]');
+    const fallbackInputs = controlRef.current?.querySelectorAll('input[type="range"]');
+    const fallbackInput = fallbackInputs?.length === 1 ? fallbackInputs[0] : null;
     if (isHTMLElement(fallbackInput)) {
       focusElementWithVisible(fallbackInput);
     }
