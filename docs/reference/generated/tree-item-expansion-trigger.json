@@ -18,9 +18,15 @@
     }
   },
   "dataAttributes": {
-    "data-collapsed": {},
-    "data-expandable": {},
-    "data-expanded": {}
+    "data-collapsed": {
+      "description": "Present when the item is collapsed."
+    },
+    "data-expandable": {
+      "description": "Present when the item has children and can be expanded."
+    },
+    "data-expanded": {
+      "description": "Present when the item is expanded."
+    }
   },
   "cssVariables": {}
 }

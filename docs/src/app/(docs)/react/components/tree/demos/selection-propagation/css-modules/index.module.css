@@ -1,3 +1,31 @@
+.Demo {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.Controls {
+  display: flex;
+  gap: 1rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: var(--color-gray-900);
+
+  & legend {
+    padding: 0 0.25rem;
+    font-weight: 600;
+  }
+}
+
+.ControlLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  cursor: pointer;
+}
+
 .Tree {
   list-style: none;
   padding: 0.25rem;
@@ -114,6 +142,47 @@
   }
 }
 
+.CheckboxIndicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  border: 1px solid var(--color-gray-400);
+  border-radius: 0.25rem;
+  color: white;
+  background: transparent;
+
+  & svg {
+    width: 0.75rem;
+    height: 0.75rem;
+    display: none;
+  }
+
+  &[data-checked] {
+    background: var(--color-blue);
+    border-color: var(--color-blue);
+  }
+
+  &[data-indeterminate] {
+    background: var(--color-blue);
+    border-color: var(--color-blue);
+  }
+}
+
+.CheckIcon {
+  .CheckboxIndicator[data-checked] & {
+    display: block;
+  }
+}
+
+.MinusIcon {
+  .CheckboxIndicator[data-indeterminate] & {
+    display: block;
+  }
+}
+
 .Label {
   flex: 1;
   min-width: 0;
@@ -121,42 +190,3 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
-.Icon {
-  width: 1rem;
-  height: 1rem;
-  flex-shrink: 0;
-  color: var(--color-gray-500);
-
-  /* Hide icon when loading indicator is visible (sibling selector) */
-  [data-loading] ~ & {
-    display: none;
-  }
-}
-
-.Spinner {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1rem;
-  height: 1rem;
-  flex-shrink: 0;
-
-  &::after {
-    content: '';
-    display: block;
-    width: 0.75rem;
-    height: 0.75rem;
-    border: 1.5px solid var(--color-gray-200);
-    border-top-color: var(--color-gray-500);
-    border-radius: 50%;
-    animation: spin 0.6s linear infinite;
-  }
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-

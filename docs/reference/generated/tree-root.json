@@ -9,101 +9,147 @@
     },
     "defaultExpandedItems": {
       "type": "string[]",
+      "default": "[]",
+      "description": "The items that are initially expanded.\n\nTo render a controlled tree, use the `expandedItems` prop instead.",
       "detailedType": "string[] | undefined"
     },
     "defaultSelectedItems": {
       "type": "string[] | string | any | null",
+      "default": "[]",
+      "description": "The items that are initially selected.\n\nTo render a controlled tree, use the `selectedItems` prop instead.",
       "detailedType": "string[] | string | any | null | undefined"
     },
     "disallowEmptySelection": {
       "type": "boolean",
+      "default": "false",
+      "description": "Whether the tree disallows having no selected item.\nWhen `true`, at least one item must remain selected at all times.",
+      "detailedType": "boolean | undefined"
+    },
+    "expandOnClick": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether clicking anywhere on an item row toggles expansion.\nWhen `false`, only `Tree.ItemExpansionTrigger` can expand items.",
       "detailedType": "boolean | undefined"
     },
     "expandedItems": {
       "type": "string[]",
+      "description": "The expanded items.\n\nTo render an uncontrolled tree, use the `defaultExpandedItems` prop instead.",
       "detailedType": "string[] | undefined"
     },
     "getItemChildren": {
       "type": "((item: Tree.Item.Model) => Tree.Item.Model[] | undefined)",
+      "default": "(item) => item.children",
+      "description": "Used to determine the children of a given item.",
       "detailedType": "| ((item: Tree.Item.Model) => Tree.Item.Model[] | undefined)\n| undefined"
     },
     "getItemId": {
       "type": "((item: Tree.Item.Model) => string)",
+      "default": "(item) => item.id",
+      "description": "Used to determine the id of a given item.",
       "detailedType": "((item: Tree.Item.Model) => string) | undefined"
     },
     "getItemLabel": {
       "type": "((item: Tree.Item.Model) => string)",
+      "default": "(item) => item.label",
+      "description": "Used to determine the string label of a given item.",
       "detailedType": "((item: Tree.Item.Model) => string) | undefined"
     },
     "isItemDisabled": {
       "type": "((item: Tree.Item.Model) => boolean)",
+      "default": "() => false",
+      "description": "Used to determine if a given item should be disabled.",
       "detailedType": "((item: Tree.Item.Model) => boolean) | undefined"
     },
     "isItemEditable": {
       "type": "boolean | ((item: Tree.Item.Model) => boolean)",
+      "default": "false",
+      "description": "Used to determine if a given item should be editable.\nIf a boolean is provided, all items will be editable or non-editable.",
       "detailedType": "| boolean\n| ((item: Tree.Item.Model) => boolean)\n| undefined"
     },
     "isItemSelectionDisabled": {
       "type": "((item: Tree.Item.Model) => boolean)",
+      "default": "() => false",
+      "description": "Used to determine if a given item should have selection disabled.",
       "detailedType": "((item: Tree.Item.Model) => boolean) | undefined"
-    },
-    "isRtl": {
-      "type": "boolean",
-      "detailedType": "boolean | undefined"
     },
     "itemFocusableWhenDisabled": {
       "type": "boolean",
+      "default": "false",
+      "description": "Whether disabled items should be focusable.",
       "detailedType": "boolean | undefined"
     },
     "items": {
       "type": "Tree.Item.Model[]",
-      "required": true
+      "required": true,
+      "description": "The items to render.\nEach item must have a unique identifier."
+    },
+    "lazyLoading": {
+      "type": "TreeLazyLoading",
+      "description": "The lazy loading plugin instance, used to load items on demand when expanding a parent item.",
+      "detailedType": "| {\n    attach: attach\n    onBeforeExpand: onBeforeExpand\n    updateItemChildren: updateItemChildren\n    destroy: destroy\n  }\n| undefined"
     },
     "onExpandedItemsChange": {
       "type": "((expandedItems: string[], eventDetails: Tree.Root.ExpansionChangeEventDetails) => void)",
+      "description": "Event handler called when items are expanded or collapsed.",
       "detailedType": "| ((\n    expandedItems: string[],\n    eventDetails: Tree.Root.ExpansionChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "onItemClick": {
-      "type": "((event: MouseEvent, itemId: string) => void)",
-      "detailedType": "| ((event: MouseEvent, itemId: string) => void)\n| undefined"
+      "type": "((itemId: string, details: Tree.Item.ClickEventDetails) => void)",
+      "description": "Event handler called when an item is clicked.",
+      "detailedType": "| ((\n    itemId: string,\n    details: Tree.Item.ClickEventDetails,\n  ) => void)\n| undefined"
     },
     "onItemExpansionToggle": {
-      "type": "((itemId: string, isExpanded: boolean) => void)",
-      "detailedType": "| ((itemId: string, isExpanded: boolean) => void)\n| undefined"
+      "type": "((itemId: string, isExpanded: boolean, details: Tree.Item.ExpansionToggleEventDetails) => void)",
+      "description": "Event handler called when an item is expanded or collapsed.",
+      "detailedType": "| ((\n    itemId: string,\n    isExpanded: boolean,\n    details: Tree.Item.ExpansionToggleEventDetails,\n  ) => void)\n| undefined"
     },
     "onItemFocus": {
-      "type": "((itemId: string) => void)",
-      "detailedType": "((itemId: string) => void) | undefined"
+      "type": "((itemId: string, details: Tree.Item.FocusEventDetails) => void)",
+      "description": "Event handler called when an item is focused.",
+      "detailedType": "| ((\n    itemId: string,\n    details: Tree.Item.FocusEventDetails,\n  ) => void)\n| undefined"
     },
     "onItemLabelChange": {
-      "type": "((itemId: string, newLabel: string) => void)",
-      "detailedType": "| ((itemId: string, newLabel: string) => void)\n| undefined"
+      "type": "((itemId: string, newLabel: string, details: Tree.ItemLabel.ChangeEventDetails) => void)",
+      "description": "Event handler called when the label of an item changes.",
+      "detailedType": "| ((\n    itemId: string,\n    newLabel: string,\n    details: Tree.ItemLabel.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "onItemSelectionToggle": {
-      "type": "((itemId: string, isSelected: boolean) => void)",
-      "detailedType": "| ((itemId: string, isSelected: boolean) => void)\n| undefined"
+      "type": "((itemId: string, isSelected: boolean, details: Tree.Item.SelectionToggleEventDetails) => void)",
+      "description": "Event handler called when an item is selected or deselected.",
+      "detailedType": "| ((\n    itemId: string,\n    isSelected: boolean,\n    details: Tree.Item.SelectionToggleEventDetails,\n  ) => void)\n| undefined"
     },
     "onSelectedItemsChange": {
       "type": "((selectedItems: string[] | string | any | null, eventDetails: Tree.Root.SelectionChangeEventDetails) => void)",
+      "description": "Event handler called when the selected items change.",
       "detailedType": "| ((\n    selectedItems: string[] | string | any | null,\n    eventDetails: Tree.Root.SelectionChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "selectedItems": {
       "type": "string[] | string | any | null",
+      "description": "The selected items.\n\nTo render an uncontrolled tree, use the `defaultSelectedItems` prop instead.",
       "detailedType": "string[] | string | any | null | undefined"
     },
     "selectionMode": {
       "type": "TreeSelectionMode | undefined",
+      "description": "The selection mode of the tree.\nUse `'single'` for single selection, `'multiple'` for multiple selection.",
       "detailedType": "TreeSelectionMode | undefined"
     },
     "selectionPropagation": {
       "type": "{ parents?: boolean, descendants?: boolean }",
+      "default": "{ parents: false, descendants: false }",
+      "description": "When `selectionPropagation.descendants` is set to `true`:\n- Selecting a parent selects all its descendants automatically.\n- Deselecting a parent deselects all its descendants automatically.\n\nWhen `selectionPropagation.parents` is set to `true`:\n- Selecting all descendants of a parent selects the parent automatically.\n- Deselecting a descendant of a selected parent deselects the parent automatically.",
       "detailedType": "| { parents?: boolean; descendants?: boolean }\n| undefined"
     },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the component should ignore user interaction.",
+      "detailedType": "boolean | undefined"
+    },
     "children": {
-      "type": "((item: Tree.Item.Model) => ReactNode)",
+      "type": "((item: Tree.Item.Model) => ReactNode) | ReactNode",
       "required": true,
-      "description": "The render function for each tree item.\nCalled with the item model for each visible item.",
-      "detailedType": "(item: Tree.Item.Model) => ReactNode"
+      "description": "The render function for each tree item, or a `Tree.AnimatedItemList` element\nfor animated expand/collapse transitions.",
+      "detailedType": "| ((item: Tree.Item.Model) => ReactNode)\n| React.ReactNode"
     },
     "className": {
       "type": "string | ((state: Tree.Root.State) => string | undefined)",
@@ -121,6 +167,9 @@
     }
   },
   "dataAttributes": {
+    "data-disabled": {
+      "description": "Present when the tree is disabled."
+    },
     "data-tree": {
       "description": "Present on the root element."
     }

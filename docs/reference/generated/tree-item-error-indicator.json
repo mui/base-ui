@@ -18,7 +18,9 @@
     }
   },
   "dataAttributes": {
-    "data-error": {}
+    "data-error": {
+      "description": "Present when the item has an error."
+    }
   },
   "cssVariables": {}
 }

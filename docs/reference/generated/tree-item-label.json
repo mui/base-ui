@@ -18,7 +18,9 @@
     }
   },
   "dataAttributes": {
-    "data-editing": {}
+    "data-editing": {
+      "description": "Present when the item's label is being edited."
+    }
   },
   "cssVariables": {}
 }

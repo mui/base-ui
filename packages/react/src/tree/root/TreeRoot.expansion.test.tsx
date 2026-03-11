@@ -164,6 +164,8 @@ describeTree('TreeRoot - Expansion', ({ render }) => {
       expect(onItemExpansionToggle.callCount).to.equal(1);
       expect(onItemExpansionToggle.lastCall.args[0]).to.equal('1');
       expect(onItemExpansionToggle.lastCall.args[1]).to.equal(true);
+      expect(onItemExpansionToggle.lastCall.args[2]).to.have.property('reason', 'item-press');
+      expect(onItemExpansionToggle.lastCall.args[2]).to.have.property('event');
     });
 
     it('should call onItemExpansionToggle when collapsing an item', async () => {
@@ -180,6 +182,7 @@ describeTree('TreeRoot - Expansion', ({ render }) => {
       expect(onItemExpansionToggle.callCount).to.equal(1);
       expect(onItemExpansionToggle.lastCall.args[0]).to.equal('1');
       expect(onItemExpansionToggle.lastCall.args[1]).to.equal(false);
+      expect(onItemExpansionToggle.lastCall.args[2]).to.have.property('reason', 'item-press');
     });
 
     it('should not call onItemExpansionToggle when the expansion is canceled', async () => {
@@ -212,6 +215,10 @@ describeTree('TreeRoot - Expansion', ({ render }) => {
       expect(onItemExpansionToggle.callCount).to.equal(1);
       expect(onItemExpansionToggle.lastCall.args[0]).to.equal('1');
       expect(onItemExpansionToggle.lastCall.args[1]).to.equal(true);
+      expect(onItemExpansionToggle.lastCall.args[2]).to.have.property(
+        'reason',
+        'imperative-action',
+      );
     });
 
     it('should not call onItemExpansionToggle when expanding an already expanded item via API', async () => {

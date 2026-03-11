@@ -24,10 +24,18 @@
     }
   },
   "dataAttributes": {
-    "data-checked": {},
-    "data-unchecked": {},
-    "data-disabled": {},
-    "data-indeterminate": {}
+    "data-checked": {
+      "description": "Present when the checkbox item is checked."
+    },
+    "data-unchecked": {
+      "description": "Present when the checkbox item is not checked."
+    },
+    "data-disabled": {
+      "description": "Present when the checkbox item is disabled."
+    },
+    "data-indeterminate": {
+      "description": "Present when the checkbox item is in an indeterminate state."
+    }
   },
   "cssVariables": {}
 }

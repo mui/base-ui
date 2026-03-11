@@ -216,7 +216,9 @@ describeTree('TreeRoot - Focus', ({ render }) => {
       });
 
       expect(onItemFocus.callCount).to.equal(1);
-      expect(onItemFocus.lastCall.lastArg).to.equal('1');
+      expect(onItemFocus.lastCall.args[0]).to.equal('1');
+      expect(onItemFocus.lastCall.args[1]).to.have.property('reason', 'keyboard');
+      expect(onItemFocus.lastCall.args[1]).to.have.property('event');
     });
   });
 

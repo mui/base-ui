@@ -18,7 +18,9 @@
     }
   },
   "dataAttributes": {
-    "data-loading": {}
+    "data-loading": {
+      "description": "Present when the item is loading."
+    }
   },
   "cssVariables": {}
 }

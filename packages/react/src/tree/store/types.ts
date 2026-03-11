@@ -1,4 +1,7 @@
-import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import type {
+  BaseUIChangeEventDetails,
+  BaseUIGenericEventDetails,
+} from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 
 export type TreeItemId = string;
@@ -59,6 +62,21 @@ export interface LazyLoadedItemsState {
   errors: Record<string, Error | undefined>;
 }
 
+/**
+ * Sparse per-item metadata patches applied on top of computed metadata.
+ * Only the fields that are actually overridden are present.
+ */
+export type ItemMetaPatches = Record<TreeItemId, Partial<Pick<TreeItemMeta, 'label' | 'disabled'>>>;
+
+/**
+ * Lazy-loaded tree structure additions.
+ * Contains children arrays keyed by parent ID and expandability hints.
+ */
+export interface LazyItemsState {
+  children: Record<string, TreeItemModel[]>;
+  expandable: Record<TreeItemId, boolean>;
+}
+
 export const TREE_VIEW_ROOT_PARENT_ID = '__ROOT__';
 
 /**
@@ -87,6 +105,30 @@ export type TreeRootSelectionChangeEventReason =
 export type TreeRootSelectionChangeEventDetails =
   BaseUIChangeEventDetails<TreeRootSelectionChangeEventReason>;
 
+export type TreeItemFocusEventReason =
+  | typeof REASONS.itemPress
+  | typeof REASONS.keyboard
+  | typeof REASONS.imperativeAction;
+
+export type TreeItemFocusEventDetails = BaseUIGenericEventDetails<TreeItemFocusEventReason>;
+
+export type TreeItemClickEventReason = typeof REASONS.itemPress;
+
+export type TreeItemClickEventDetails = BaseUIGenericEventDetails<TreeItemClickEventReason>;
+
+export type TreeItemLabelChangeEventReason =
+  | typeof REASONS.keyboard
+  | typeof REASONS.imperativeAction;
+
+export type TreeItemLabelChangeEventDetails =
+  BaseUIGenericEventDetails<TreeItemLabelChangeEventReason>;
+
+export type TreeItemExpansionToggleEventDetails =
+  BaseUIGenericEventDetails<TreeRootExpansionChangeEventReason>;
+
+export type TreeItemSelectionToggleEventDetails =
+  BaseUIGenericEventDetails<TreeRootSelectionChangeEventReason>;
+
 /**
  * The full store state for the Tree component.
  */
@@ -100,13 +142,10 @@ export interface TreeState {
    */
   items: readonly TreeItemModel[];
   /**
-   * Overlay for inline label edits — applied on top of computed metadata
+   * Sparse per-item metadata patches (label edits, imperative disabled).
+   * Applied on top of the computed items state in selectors.
    */
-  itemLabelOverrides: Record<TreeItemId, string>;
-  /**
-   * Overlay for imperative disabled changes — applied on top of computed metadata
-   */
-  itemDisabledOverrides: Record<TreeItemId, boolean>;
+  itemMetaPatches: ItemMetaPatches;
   /**
    * IDs of currently expanded items
    */
@@ -147,6 +186,11 @@ export interface TreeState {
    */
   editedItemId: TreeItemId | null;
   /**
+   * Lazy-loaded tree structure additions.
+   * Contains children arrays keyed by parent ID and expandability hints.
+   */
+  lazyItems: LazyItemsState;
+  /**
    * Lazy loading state. undefined when lazy loading is not in use
    */
   lazyLoadedItems: LazyLoadedItemsState | undefined;
@@ -175,13 +219,28 @@ export interface TreeState {
    */
   isItemEditable: ((item: TreeItemModel) => boolean) | boolean;
   /**
-   * Whether the tree is in a right-to-left direction
+   * The layout direction of the tree
    */
-  isRtl: boolean;
+  direction: 'ltr' | 'rtl';
   /**
    * User-provided tree ID for accessibility
    */
   treeId: string | undefined;
+  /**
+   * Whether group transitions (expand/collapse animation) are enabled.
+   */
+  enableGroupTransition: boolean;
+  /**
+   * Map of item IDs that are currently animating their children group.
+   * Key: parent item ID, Value: animation direction and affected children.
+   */
+  animatingGroups: Record<
+    TreeItemId,
+    {
+      type: 'expanding' | 'collapsing';
+      childIds: TreeItemId[];
+    }
+  >;
 }
 
 /**
@@ -197,14 +256,23 @@ export interface TreeStoreContext {
     selectedItems: TreeItemId | null | TreeItemId[],
     details: TreeRootSelectionChangeEventDetails,
   ) => void;
-  onItemExpansionToggle: (itemId: TreeItemId, isExpanded: boolean) => void;
-  onItemSelectionToggle: (itemId: TreeItemId, isSelected: boolean) => void;
-  onItemFocus: (itemId: TreeItemId) => void;
-  onItemClick: (event: React.MouseEvent, itemId: TreeItemId) => void;
-  onItemLabelChange: (itemId: TreeItemId, newLabel: string) => void;
-
-  // Lazy loading
-  fetchChildren: ((parentId: TreeItemId | null) => Promise<TreeItemModel[]>) | undefined;
+  onItemExpansionToggle: (
+    itemId: TreeItemId,
+    isExpanded: boolean,
+    details: TreeItemExpansionToggleEventDetails,
+  ) => void;
+  onItemSelectionToggle: (
+    itemId: TreeItemId,
+    isSelected: boolean,
+    details: TreeItemSelectionToggleEventDetails,
+  ) => void;
+  onItemFocus: (itemId: TreeItemId, details: TreeItemFocusEventDetails) => void;
+  onItemClick: (itemId: TreeItemId, details: TreeItemClickEventDetails) => void;
+  onItemLabelChange: (
+    itemId: TreeItemId,
+    newLabel: string,
+    details: TreeItemLabelChangeEventDetails,
+  ) => void;
 
   // DOM ref for the tree root element
   rootRef: React.RefObject<HTMLElement | null>;
@@ -227,4 +295,17 @@ export interface TreeRootActions {
   setEditedItem: (itemId: TreeItemId | null) => void;
   setIsItemDisabled: (itemId: TreeItemId, isDisabled: boolean) => void;
   updateItemLabel: (itemId: TreeItemId, newLabel: string) => void;
+  updateItemChildren: (itemId: TreeItemId | null) => Promise<void>;
 }
+
+/**
+ * An entry in the flat list that can be either a regular item or a group transition wrapper.
+ */
+export type FlatListEntry =
+  | { type: 'item'; itemId: TreeItemId }
+  | {
+      type: 'group-transition';
+      parentId: TreeItemId;
+      childIds: TreeItemId[];
+      animation: 'expanding' | 'collapsing';
+    };

@@ -169,6 +169,8 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       expect(onItemSelectionToggle.callCount).to.equal(1);
       expect(onItemSelectionToggle.lastCall.args[0]).to.equal('1');
       expect(onItemSelectionToggle.lastCall.args[1]).to.equal(true);
+      expect(onItemSelectionToggle.lastCall.args[2]).to.have.property('reason', 'item-press');
+      expect(onItemSelectionToggle.lastCall.args[2]).to.have.property('event');
     });
 
     it('should call onItemSelectionToggle when un-selecting an item (multi selection)', async () => {
@@ -185,6 +187,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       expect(onItemSelectionToggle.callCount).to.equal(1);
       expect(onItemSelectionToggle.lastCall.args[0]).to.equal('1');
       expect(onItemSelectionToggle.lastCall.args[1]).to.equal(false);
+      expect(onItemSelectionToggle.lastCall.args[2]).to.have.property('reason', 'item-press');
     });
 
     it('should not call onItemSelectionToggle when the selection is canceled', async () => {
@@ -217,6 +220,10 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       expect(onItemSelectionToggle.callCount).to.equal(1);
       expect(onItemSelectionToggle.lastCall.args[0]).to.equal('1');
       expect(onItemSelectionToggle.lastCall.args[1]).to.equal(true);
+      expect(onItemSelectionToggle.lastCall.args[2]).to.have.property(
+        'reason',
+        'imperative-action',
+      );
     });
 
     it('should call onItemSelectionToggle for each changed item when selecting replaces previous selection (single select)', async () => {

@@ -33,7 +33,28 @@ import { Tree } from '@base-ui/react/tree';
 </Tree.Root>;
 ```
 
+For animated expand/collapse, wrap the item render function in `Tree.AnimatedItemList`:
+
+```jsx title="Animated anatomy"
+<Tree.Root>
+  <Tree.AnimatedItemList renderGroupTransition={<div />}>
+    <Tree.Item>
+      <Tree.ItemExpansionTrigger />
+      <Tree.ItemLabel />
+    </Tree.Item>
+  </Tree.AnimatedItemList>
+</Tree.Root>;
+```
+
 ## Examples
+
+### Selection propagation
+
+Use `selectionPropagation` to automatically propagate selection changes through the tree hierarchy. When `descendants` is enabled, selecting a parent selects all its children. When `parents` is enabled, a parent becomes selected when all its children are selected. Toggle the checkboxes below to see how each option affects selection behavior.
+
+import { DemoTreeSelectionPropagation } from './demos/selection-propagation';
+
+<DemoTreeSelectionPropagation compact />
 
 ### Checkbox items
 
@@ -44,6 +65,14 @@ import { Tree } from '@base-ui/react/tree';
 import { DemoTreeCheckboxItems } from './demos/checkbox-items';
 
 <DemoTreeCheckboxItems compact />
+
+### Animated expand/collapse
+
+Enable smooth height transitions when expanding and collapsing tree items using `Tree.AnimatedItemList`. Wrap your item render function inside this part and provide a `renderGroupTransition` element to control the animation wrapper. The wrapper exposes `--tree-group-height`, `data-starting-style`, and `data-ending-style` for CSS-based animations.
+
+import { DemoTreeAnimated } from './demos/animated';
+
+<DemoTreeAnimated compact />
 
 ### Lazy loading
 
@@ -57,5 +86,5 @@ import { DemoTreeLazyLoading } from './demos/lazy-loading';
 
 <Reference
   component="Tree"
-  parts="Root, Item, CheckboxItem, CheckboxItemIndicator, ItemLabel, ItemExpansionTrigger, ItemGroupIndicator, ItemLoadingIndicator, ItemErrorIndicator"
+  parts="Root, AnimatedItemList, Item, CheckboxItem, CheckboxItemIndicator, ItemLabel, ItemExpansionTrigger, ItemGroupIndicator, ItemLoadingIndicator, ItemErrorIndicator"
 />

@@ -201,6 +201,7 @@ describeTree('TreeRoot - Label Editing', ({ render }) => {
       expect(onItemLabelChange.callCount).to.equal(1);
       expect(onItemLabelChange.lastCall.args[0]).to.equal('1');
       expect(onItemLabelChange.lastCall.args[1]).to.equal('new value');
+      expect(onItemLabelChange.lastCall.args[2]).to.have.property('reason', 'keyboard');
     });
 
     it('should not call onItemLabelChange when canceling a label edit', async () => {

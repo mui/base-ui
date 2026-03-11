@@ -7,11 +7,9 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { TreeRootContext } from './TreeRootContext';
-import { TreeItemContext, type TreeItemContextValue } from '../item/TreeItemContext';
 import { TreeStore, type TreeStoreParameters } from '../store/TreeStore';
 import { selectors } from '../store/selectors';
 import type {
-  TreeItemId,
   TreeItemModel,
   TreeRootActions,
   TreeRootExpansionChangeEventReason,
@@ -19,31 +17,23 @@ import type {
   TreeRootSelectionChangeEventReason,
   TreeRootSelectionChangeEventDetails,
   TreeSelectionMode,
+  TreeItemFocusEventReason,
+  TreeItemFocusEventDetails,
+  TreeItemClickEventReason,
+  TreeItemClickEventDetails,
+  TreeItemLabelChangeEventReason,
+  TreeItemLabelChangeEventDetails,
+  TreeItemExpansionToggleEventDetails,
+  TreeItemSelectionToggleEventDetails,
 } from '../store/types';
 import { EMPTY_OBJECT } from '../../utils/constants';
+import { TreeItemModelProvider } from '../utils/TreeItemModelProvider';
 
 const defaultGetItemId = (item: TreeItemModel) => item.id;
 const defaultGetItemLabel = (item: TreeItemModel) => item.label;
 const defaultGetItemChildren = (item: TreeItemModel) => item.children;
 const defaultIsItemDisabled = () => false;
 const defaultIsItemSelectionDisabled = () => false;
-
-function TreeItemModelProvider(props: {
-  store: TreeStore;
-  itemId: TreeItemId;
-  children: (item: TreeItemModel) => React.ReactNode;
-}) {
-  const model = useStore(props.store, selectors.itemModel, props.itemId);
-  const contextValue: TreeItemContextValue = React.useMemo(
-    () => ({ itemId: props.itemId }),
-    [props.itemId],
-  );
-  return (
-    <TreeItemContext.Provider value={contextValue}>
-      {props.children(model)}
-    </TreeItemContext.Provider>
-  );
-}
 
 /**
  * Groups all parts of the tree.
@@ -88,6 +78,8 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
     onItemFocus,
     // Actions
     actionsRef,
+    // Plugins
+    lazyLoading,
     // Other
     onItemClick,
     onItemLabelChange,
@@ -126,8 +118,9 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
         onItemFocus,
         onItemClick,
         onItemLabelChange,
-        isRtl: direction === 'rtl',
+        direction,
         rootRef,
+        lazyLoading,
       }),
   ).current;
 
@@ -155,7 +148,7 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
     isItemDisabled: isItemDisabledFn,
     isItemSelectionDisabled: isItemSelectionDisabledFn,
     isItemEditable: isItemEditable ?? false,
-    isRtl: direction === 'rtl',
+    direction,
   });
 
   store.useContextCallback('onExpandedItemsChange', onExpandedItemsChange);
@@ -172,6 +165,19 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
   // Get flat list of visible items
   const flatItemIds = useStore(store, selectors.flatList);
 
+  const renderChildren = React.useMemo(() => {
+    if (typeof children !== 'function') {
+      // AnimatedItemList (or other ReactNode) handles its own rendering
+      return children;
+    }
+
+    return flatItemIds.map((itemId) => (
+      <TreeItemModelProvider key={itemId} store={store} itemId={itemId}>
+        {children}
+      </TreeItemModelProvider>
+    ));
+  }, [flatItemIds, store, children]);
+
   const state: TreeRoot.State = {
     disabled: disabled ?? false,
   };
@@ -183,11 +189,7 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
       {
         role: 'tree',
         'aria-multiselectable': selectionMode === 'multiple' || undefined,
-        children: flatItemIds.map((itemId) => (
-          <TreeItemModelProvider key={itemId} store={store} itemId={itemId}>
-            {children as (item: TreeItemModel) => React.ReactNode}
-          </TreeItemModelProvider>
-        )),
+        children: renderChildren,
         onFocus: store.rootEventHandlers.onFocus,
         onBlur: store.rootEventHandlers.onBlur,
         onKeyDown: store.rootEventHandlers.onKeyDown,
@@ -213,12 +215,12 @@ export interface TreeRootState {
 export interface TreeRootProps<Mode extends TreeSelectionMode | undefined = undefined>
   extends
     Omit<BaseUIComponentProps<'ul', TreeRootState>, 'children'>,
-    Omit<TreeStoreParameters<Mode>, 'treeId' | 'rootRef'> {
+    Omit<TreeStoreParameters<Mode>, 'treeId' | 'rootRef' | 'direction'> {
   /**
-   * The render function for each tree item.
-   * Called with the item model for each visible item.
+   * The render function for each tree item, or a `Tree.AnimatedItemList` element
+   * for animated expand/collapse transitions.
    */
-  children: (item: TreeItemModel) => React.ReactNode;
+  children: ((item: TreeItemModel) => React.ReactNode) | React.ReactNode;
   /**
    * A ref to imperative actions on the tree.
    */
@@ -233,4 +235,12 @@ export namespace TreeRoot {
   export type ExpansionChangeEventDetails = TreeRootExpansionChangeEventDetails;
   export type SelectionChangeEventReason = TreeRootSelectionChangeEventReason;
   export type SelectionChangeEventDetails = TreeRootSelectionChangeEventDetails;
+  export type ItemExpansionToggleEventDetails = TreeItemExpansionToggleEventDetails;
+  export type ItemSelectionToggleEventDetails = TreeItemSelectionToggleEventDetails;
+  export type ItemFocusEventReason = TreeItemFocusEventReason;
+  export type ItemFocusEventDetails = TreeItemFocusEventDetails;
+  export type ItemClickEventReason = TreeItemClickEventReason;
+  export type ItemClickEventDetails = TreeItemClickEventDetails;
+  export type ItemLabelChangeEventReason = TreeItemLabelChangeEventReason;
+  export type ItemLabelChangeEventDetails = TreeItemLabelChangeEventDetails;
 }

@@ -1,0 +1,21 @@
+{
+  "name": "TreeItemModelProvider",
+  "props": {
+    "itemId": {
+      "type": "string",
+      "required": true
+    },
+    "store": {
+      "type": "TreeStore",
+      "required": true,
+      "detailedType": "{}"
+    },
+    "children": {
+      "type": "((item: Tree.Item.Model) => ReactNode)",
+      "required": true,
+      "detailedType": "(item: Tree.Item.Model) => ReactNode"
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

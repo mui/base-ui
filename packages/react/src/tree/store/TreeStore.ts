@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { ReactStore } from '@base-ui/utils/store';
+import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { TimeoutManager } from '@base-ui/utils/TimeoutManager';
 import type {
   TreeState,
@@ -14,9 +15,19 @@ import type {
   TreeRootSelectionChangeEventDetails,
   TreeSelectedItemsType,
   TreeSelectionMode,
+  TreeItemFocusEventReason,
+  TreeItemExpansionToggleEventDetails,
+  TreeItemSelectionToggleEventDetails,
+  TreeItemFocusEventDetails,
+  TreeItemClickEventDetails,
+  TreeItemLabelChangeEventDetails,
+  TreeItemLabelChangeEventReason,
 } from './types';
 import { selectors } from './selectors';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import {
+  createChangeEventDetails,
+  createGenericEventDetails,
+} from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import {
   getFirstNavigableItem,
@@ -36,10 +47,23 @@ export interface TreeStoreParameters<Mode extends TreeSelectionMode | undefined 
    * @default false
    */
   disabled?: boolean | undefined;
+  /**
+   * The items to render.
+   * Each item must have a unique identifier.
+   */
   items: readonly TreeItemModel[];
-
-  // Expansion
+  /**
+   * The expanded items.
+   *
+   * To render an uncontrolled tree, use the `defaultExpandedItems` prop instead.
+   */
   expandedItems?: readonly TreeItemId[] | undefined;
+  /**
+   * The items that are initially expanded.
+   *
+   * To render a controlled tree, use the `expandedItems` prop instead.
+   * @default []
+   */
   defaultExpandedItems?: readonly TreeItemId[] | undefined;
   /**
    * Whether clicking anywhere on an item row toggles expansion.
@@ -47,51 +71,152 @@ export interface TreeStoreParameters<Mode extends TreeSelectionMode | undefined 
    * @default false
    */
   expandOnClick?: boolean | undefined;
+  /**
+   * Event handler called when items are expanded or collapsed.
+   */
   onExpandedItemsChange?:
     | ((expandedItems: TreeItemId[], eventDetails: TreeRootExpansionChangeEventDetails) => void)
     | undefined;
-  onItemExpansionToggle?: ((itemId: TreeItemId, isExpanded: boolean) => void) | undefined;
-
-  // Selection
+  /**
+   * Event handler called when an item is expanded or collapsed.
+   */
+  onItemExpansionToggle?:
+    | ((
+        itemId: TreeItemId,
+        isExpanded: boolean,
+        details: TreeItemExpansionToggleEventDetails,
+      ) => void)
+    | undefined;
+  /**
+   * The selected items.
+   *
+   * To render an uncontrolled tree, use the `defaultSelectedItems` prop instead.
+   */
   selectedItems?:
     | TreeSelectedItemsType<Mode>
     | (Mode extends 'multiple' ? never : null)
     | undefined;
+  /**
+   * The items that are initially selected.
+   *
+   * To render a controlled tree, use the `selectedItems` prop instead.
+   * @default []
+   */
   defaultSelectedItems?:
     | TreeSelectedItemsType<Mode>
     | (Mode extends 'multiple' ? never : null)
     | undefined;
+  /**
+   * Event handler called when the selected items change.
+   */
   onSelectedItemsChange?:
     | ((
         selectedItems: TreeSelectedItemsType<Mode> | (Mode extends 'multiple' ? never : null),
         eventDetails: TreeRootSelectionChangeEventDetails,
       ) => void)
     | undefined;
-  onItemSelectionToggle?: ((itemId: TreeItemId, isSelected: boolean) => void) | undefined;
+  /**
+   * Event handler called when an item is selected or deselected.
+   */
+  onItemSelectionToggle?:
+    | ((
+        itemId: TreeItemId,
+        isSelected: boolean,
+        details: TreeItemSelectionToggleEventDetails,
+      ) => void)
+    | undefined;
+  /**
+   * The selection mode of the tree.
+   * Use `'single'` for single selection, `'multiple'` for multiple selection.
+   */
   selectionMode?: Mode | undefined;
+  /**
+   * Whether the tree disallows having no selected item.
+   * When `true`, at least one item must remain selected at all times.
+   * @default false
+   */
   disallowEmptySelection?: boolean | undefined;
+  /**
+   * When `selectionPropagation.descendants` is set to `true`:
+   * - Selecting a parent selects all its descendants automatically.
+   * - Deselecting a parent deselects all its descendants automatically.
+   *
+   * When `selectionPropagation.parents` is set to `true`:
+   * - Selecting all descendants of a parent selects the parent automatically.
+   * - Deselecting a descendant of a selected parent deselects the parent automatically.
+   *
+   * @default { parents: false, descendants: false }
+   */
   selectionPropagation?:
     | { parents?: boolean | undefined; descendants?: boolean | undefined }
     | undefined;
-
-  // Focus
+  /**
+   * Whether disabled items should be focusable.
+   * @default false
+   */
   itemFocusableWhenDisabled?: boolean | undefined;
-  onItemFocus?: ((itemId: TreeItemId) => void) | undefined;
-
-  // Item accessors
+  /**
+   * Event handler called when an item is focused.
+   */
+  onItemFocus?: ((itemId: TreeItemId, details: TreeItemFocusEventDetails) => void) | undefined;
+  /**
+   * Used to determine the id of a given item.
+   * @default (item) => item.id
+   */
   getItemId?: ((item: TreeItemModel) => TreeItemId) | undefined;
+  /**
+   * Used to determine the string label of a given item.
+   * @default (item) => item.label
+   */
   getItemLabel?: ((item: TreeItemModel) => string) | undefined;
+  /**
+   * Used to determine the children of a given item.
+   * @default (item) => item.children
+   */
   getItemChildren?: ((item: TreeItemModel) => TreeItemModel[] | undefined) | undefined;
+  /**
+   * Used to determine if a given item should be disabled.
+   * @default () => false
+   */
   isItemDisabled?: ((item: TreeItemModel) => boolean) | undefined;
+  /**
+   * Used to determine if a given item should have selection disabled.
+   * @default () => false
+   */
   isItemSelectionDisabled?: ((item: TreeItemModel) => boolean) | undefined;
+  /**
+   * Used to determine if a given item should be editable.
+   * If a boolean is provided, all items will be editable or non-editable.
+   * @default false
+   */
   isItemEditable?: boolean | ((item: TreeItemModel) => boolean) | undefined;
-
-  // Other
-  onItemClick?: ((event: React.MouseEvent, itemId: TreeItemId) => void) | undefined;
-  onItemLabelChange?: ((itemId: TreeItemId, newLabel: string) => void) | undefined;
-  isRtl?: boolean | undefined;
+  /**
+   * Event handler called when an item is clicked.
+   */
+  onItemClick?: ((itemId: TreeItemId, details: TreeItemClickEventDetails) => void) | undefined;
+  /**
+   * Event handler called when the label of an item changes.
+   */
+  onItemLabelChange?:
+    | ((itemId: TreeItemId, newLabel: string, details: TreeItemLabelChangeEventDetails) => void)
+    | undefined;
+  /**
+   * The direction of the tree layout.
+   */
+  direction: 'ltr' | 'rtl';
+  /**
+   * This prop is used to help implement the accessibility logic.
+   * If you don't provide this prop, it falls back to a randomly generated id.
+   */
   treeId?: string | undefined;
+  /**
+   * A ref to the root element of the tree.
+   */
   rootRef: React.RefObject<HTMLElement | null>;
+  /**
+   * The lazy loading plugin instance, used to load items on demand when expanding a parent item.
+   */
+  lazyLoading?: TreeLazyLoading | undefined;
 }
 
 function getLookupFromArray(array: string[]): Record<string, true> {
@@ -116,7 +241,25 @@ function isPrintableKey(key: string): boolean {
   return key.length === 1 && !!key.match(/\S/);
 }
 
-export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> extends ReactStore<TreeState, TreeStoreContext, typeof selectors> {
+export interface TreeLazyLoading {
+  attach(store: TreeStore): void;
+  onBeforeExpand(
+    itemId: TreeItemId,
+    reason: TreeRootExpansionChangeEventReason,
+    event?: Event,
+  ): Promise<void>;
+  updateItemChildren(itemId: TreeItemId | null): Promise<void>;
+  destroy(): void;
+}
+
+export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> extends ReactStore<
+  TreeState,
+  TreeStoreContext,
+  typeof selectors
+> {
+  // Focus reason tracking — default to 'keyboard' since tab focus is keyboard-like
+  private lastFocusReason: TreeItemFocusEventReason = REASONS.keyboard;
+
   // Selection tracking
   private lastSelectedItem: TreeItemId | null = null;
 
@@ -129,12 +272,13 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
 
   private labelMap: Record<string, string> = {};
 
+  public lazyLoading: TreeLazyLoading | undefined;
+
   constructor(parameters: TreeStoreParameters<Mode>) {
     const selectionMode: TreeSelectionMode = parameters.selectionMode ?? 'single';
     const getItemId = parameters.getItemId ?? ((item: TreeItemModel) => item.id);
     const getItemLabel = parameters.getItemLabel ?? ((item: TreeItemModel) => item.label);
-    const getItemChildren =
-      parameters.getItemChildren ?? ((item: TreeItemModel) => item.children);
+    const getItemChildren = parameters.getItemChildren ?? ((item: TreeItemModel) => item.children);
     const isItemDisabled = parameters.isItemDisabled ?? (() => false);
     const isItemSelectionDisabled = parameters.isItemSelectionDisabled ?? (() => false);
     const isItemEditable = parameters.isItemEditable ?? false;
@@ -143,17 +287,17 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
       {
         disabled: parameters.disabled ?? false,
         items: parameters.items,
-        itemLabelOverrides: {},
-        itemDisabledOverrides: {},
-        expandedItems: parameters.expandedItems ?? parameters.defaultExpandedItems ?? [],
+        itemMetaPatches: {},
+        lazyItems: { children: EMPTY_OBJECT, expandable: EMPTY_OBJECT },
+        expandedItems: parameters.expandedItems ?? parameters.defaultExpandedItems ?? EMPTY_ARRAY,
         expandOnClick: parameters.expandOnClick ?? false,
         selectedItems:
           parameters.selectedItems ??
           parameters.defaultSelectedItems ??
-          (selectionMode === 'multiple' ? [] : null),
+          (selectionMode === 'multiple' ? EMPTY_ARRAY : null),
         selectionMode,
         disallowEmptySelection: parameters.disallowEmptySelection ?? false,
-        selectionPropagation: parameters.selectionPropagation ?? {},
+        selectionPropagation: parameters.selectionPropagation ?? EMPTY_OBJECT,
         focusedItemId: null,
         itemFocusableWhenDisabled: parameters.itemFocusableWhenDisabled ?? false,
         editedItemId: null,
@@ -165,7 +309,9 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
         isItemDisabled,
         isItemSelectionDisabled,
         isItemEditable,
-        isRtl: parameters.isRtl ?? false,
+        direction: parameters.direction,
+        enableGroupTransition: false,
+        animatingGroups: EMPTY_OBJECT,
       },
       {
         onExpandedItemsChange: parameters.onExpandedItemsChange ?? (() => {}),
@@ -177,11 +323,16 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
         onItemFocus: parameters.onItemFocus ?? (() => {}),
         onItemClick: parameters.onItemClick ?? (() => {}),
         onItemLabelChange: parameters.onItemLabelChange ?? (() => {}),
-        fetchChildren: undefined,
         rootRef: parameters.rootRef,
       },
       selectors,
     );
+
+    // Wire lazy loading plugin
+    this.lazyLoading = parameters.lazyLoading;
+    if (this.lazyLoading) {
+      this.lazyLoading.attach(this);
+    }
 
     // Build initial label map
     this.labelMap = this.createLabelMap(selectors.itemMetaLookup(this.state));
@@ -198,7 +349,11 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
 
       this.labelMap = this.createLabelMap(newMetaLookup);
 
-      // If focused item was removed, focus the closest neighbor
+      // If focused item was removed, focus the closest neighbor.
+      // The focus call is deferred with requestAnimationFrame because this
+      // subscription fires synchronously on state change, before React has
+      // committed the new DOM. Calling .focus() immediately could target an
+      // element that hasn't been inserted yet, silently losing focus.
       const focusedId = newState.focusedItemId;
       if (focusedId != null && !newMetaLookup[focusedId]) {
         // Use previousState for navigation since the focused item still exists there.
@@ -217,7 +372,9 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
         if (itemToFocusId == null) {
           this.set('focusedItemId', null);
         } else {
-          this.focusItem(itemToFocusId);
+          requestAnimationFrame(() => {
+            this.focusItem(itemToFocusId);
+          });
         }
       }
 
@@ -239,6 +396,18 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
     const isExpandedBefore = selectors.isItemExpanded(this.state, itemId);
     const cleanShouldBeExpanded = shouldBeExpanded ?? !isExpandedBefore;
     if (isExpandedBefore === cleanShouldBeExpanded) {
+      return;
+    }
+
+    // If lazy loading is active and we're expanding an item with no loaded children,
+    // defer expansion to the plugin (it will call applyItemExpansion on success).
+    if (
+      this.lazyLoading &&
+      cleanShouldBeExpanded &&
+      selectors.isItemExpandable(this.state, itemId) &&
+      selectors.itemOrderedChildrenIds(this.state, itemId).length === 0
+    ) {
+      this.lazyLoading.onBeforeExpand(itemId, reason, event);
       return;
     }
 
@@ -264,8 +433,66 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
     if (details.isCanceled) {
       return;
     }
+
+    if (this.state.enableGroupTransition) {
+      // Collect visible descendants using the appropriate expanded state
+      const childIds = this.getVisibleDescendants(
+        itemId,
+        shouldBeExpanded ? newExpanded : oldExpanded,
+      );
+
+      if (childIds.length > 0) {
+        this.set('animatingGroups', {
+          ...this.state.animatingGroups,
+          [itemId]: {
+            type: shouldBeExpanded ? 'expanding' : 'collapsing',
+            childIds,
+          },
+        });
+      }
+    }
+
     this.set('expandedItems', newExpanded);
-    this.context.onItemExpansionToggle(itemId, shouldBeExpanded);
+    this.context.onItemExpansionToggle(
+      itemId,
+      shouldBeExpanded,
+      createGenericEventDetails(reason, event),
+    );
+  }
+
+  /**
+   * Collects visible descendants of an item given a specific set of expanded items.
+   * Used to determine which items will appear/disappear during expand/collapse.
+   */
+  private getVisibleDescendants(
+    itemId: TreeItemId,
+    expandedItems: readonly TreeItemId[],
+  ): TreeItemId[] {
+    const expandedSet = new Set(expandedItems);
+    const childrenLookup = selectors.itemOrderedChildrenIds;
+    const result: TreeItemId[] = [];
+
+    const walk = (parentId: TreeItemId) => {
+      const children = childrenLookup(this.state, parentId) ?? [];
+      for (const childId of children) {
+        result.push(childId);
+        if (expandedSet.has(childId)) {
+          walk(childId);
+        }
+      }
+    };
+
+    walk(itemId);
+    return result;
+  }
+
+  /**
+   * Called when a group transition animation completes.
+   * Removes the animating group entry, causing the wrapper to be removed from the DOM.
+   */
+  public completeGroupTransition(parentId: TreeItemId) {
+    const { [parentId]: removedGroup, ...rest } = this.state.animatingGroups;
+    this.set('animatingGroups', rest);
   }
 
   public expandAllSiblings(
@@ -294,7 +521,11 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
       }
       this.set('expandedItems', newExpanded);
       for (const expandedItemId of diff) {
-        this.context.onItemExpansionToggle(expandedItemId, true);
+        this.context.onItemExpansionToggle(
+          expandedItemId,
+          true,
+          createGenericEventDetails(reason, event),
+        );
       }
     }
   }
@@ -337,14 +568,15 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
     // Fire onItemSelectionToggle for each item whose selection state changed
     const normalizedOld = new Set(normalizeSelectedItems(oldModel));
     const normalizedNew = new Set(normalizeSelectedItems(cleanModel));
+    const selectionDetails = createGenericEventDetails(reason, event);
     for (const itemId of normalizedNew) {
       if (!normalizedOld.has(itemId)) {
-        this.context.onItemSelectionToggle(itemId, true);
+        this.context.onItemSelectionToggle(itemId, true, selectionDetails);
       }
     }
     for (const itemId of normalizedOld) {
       if (!normalizedNew.has(itemId)) {
-        this.context.onItemSelectionToggle(itemId, false);
+        this.context.onItemSelectionToggle(itemId, false, selectionDetails);
       }
     }
   }
@@ -670,12 +902,19 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
     this.set('editedItemId', itemId);
   }
 
-  public updateItemLabel(itemId: TreeItemId, newLabel: string) {
+  public updateItemLabel(
+    itemId: TreeItemId,
+    newLabel: string,
+    reason: TreeItemLabelChangeEventReason = REASONS.keyboard,
+  ) {
     this.update({
-      itemLabelOverrides: { ...this.state.itemLabelOverrides, [itemId]: newLabel },
+      itemMetaPatches: {
+        ...this.state.itemMetaPatches,
+        [itemId]: { ...this.state.itemMetaPatches[itemId], label: newLabel },
+      },
     });
 
-    this.context.onItemLabelChange(itemId, newLabel);
+    this.context.onItemLabelChange(itemId, newLabel, createGenericEventDetails(reason));
     this.setEditedItem(null);
   }
 
@@ -686,7 +925,10 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
     }
 
     this.update({
-      itemDisabledOverrides: { ...this.state.itemDisabledOverrides, [itemId]: isDisabled },
+      itemMetaPatches: {
+        ...this.state.itemMetaPatches,
+        [itemId]: { ...this.state.itemMetaPatches[itemId], disabled: isDisabled },
+      },
     });
   }
 
@@ -875,8 +1117,8 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
       }
 
       // ArrowRight: expand or focus first child
-      case (key === 'ArrowRight' && !this.state.isRtl) ||
-        (key === 'ArrowLeft' && this.state.isRtl): {
+      case (key === 'ArrowRight' && this.state.direction !== 'rtl') ||
+        (key === 'ArrowLeft' && this.state.direction === 'rtl'): {
         if (ctrlPressed) {
           return;
         }
@@ -894,8 +1136,8 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
       }
 
       // ArrowLeft: collapse or focus parent
-      case (key === 'ArrowLeft' && !this.state.isRtl) ||
-        (key === 'ArrowRight' && this.state.isRtl): {
+      case (key === 'ArrowLeft' && this.state.direction !== 'rtl') ||
+        (key === 'ArrowRight' && this.state.direction === 'rtl'): {
         if (ctrlPressed) {
           return;
         }
@@ -1013,7 +1255,12 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
         return;
       }
       // Prevent text selection when using modifier keys for multi-select
-      if (event.shiftKey || event.ctrlKey || event.metaKey || selectors.isItemDisabled(this.state, itemId)) {
+      if (
+        event.shiftKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        selectors.isItemDisabled(this.state, itemId)
+      ) {
         event.preventDefault();
       }
     },
@@ -1022,10 +1269,14 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
       if (!itemId) {
         return;
       }
-      this.context.onItemClick(event, itemId);
+      this.context.onItemClick(
+        itemId,
+        createGenericEventDetails(REASONS.itemPress, event.nativeEvent),
+      );
 
       // Handle focus - disabled items cannot be focused by mouse click
       if (!selectors.isItemDisabled(this.state, itemId)) {
+        this.lastFocusReason = REASONS.itemPress;
         this.set('focusedItemId', itemId);
       }
 
@@ -1063,12 +1314,13 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
       if (!itemId) {
         return;
       }
-      if (
-        selectors.canItemBeFocused(this.state, itemId) &&
-        this.state.focusedItemId !== itemId
-      ) {
+      if (selectors.canItemBeFocused(this.state, itemId) && this.state.focusedItemId !== itemId) {
         this.set('focusedItemId', itemId);
-        this.context.onItemFocus(itemId);
+        this.context.onItemFocus(
+          itemId,
+          createGenericEventDetails(this.lastFocusReason, event.nativeEvent),
+        );
+        this.lastFocusReason = REASONS.keyboard;
       }
     },
   };
@@ -1080,7 +1332,12 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
         return;
       }
       // Prevent text selection when using modifier keys for multi-select
-      if (event.shiftKey || event.ctrlKey || event.metaKey || selectors.isItemDisabled(this.state, itemId)) {
+      if (
+        event.shiftKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        selectors.isItemDisabled(this.state, itemId)
+      ) {
         event.preventDefault();
       }
     },
@@ -1089,10 +1346,14 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
       if (!itemId) {
         return;
       }
-      this.context.onItemClick(event, itemId);
+      this.context.onItemClick(
+        itemId,
+        createGenericEventDetails(REASONS.itemPress, event.nativeEvent),
+      );
 
       // Handle focus - disabled items cannot be focused by mouse click
       if (!selectors.isItemDisabled(this.state, itemId)) {
+        this.lastFocusReason = REASONS.itemPress;
         this.set('focusedItemId', itemId);
       }
 
@@ -1123,12 +1384,13 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
       if (!itemId) {
         return;
       }
-      if (
-        selectors.canItemBeFocused(this.state, itemId) &&
-        this.state.focusedItemId !== itemId
-      ) {
+      if (selectors.canItemBeFocused(this.state, itemId) && this.state.focusedItemId !== itemId) {
         this.set('focusedItemId', itemId);
-        this.context.onItemFocus(itemId);
+        this.context.onItemFocus(
+          itemId,
+          createGenericEventDetails(this.lastFocusReason, event.nativeEvent),
+        );
+        this.lastFocusReason = REASONS.keyboard;
       }
     },
   };
@@ -1141,12 +1403,36 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
   };
 
   // ===========================================================================
+  // Lazy loading helpers (called by the plugin)
+  // ===========================================================================
+
+  public setItemChildrenOverride(parentId: string, children: TreeItemModel[]) {
+    this.set('lazyItems', {
+      ...this.state.lazyItems,
+      children: { ...this.state.lazyItems.children, [parentId]: children },
+    });
+  }
+
+  public removeChildrenOverride(parentId: string) {
+    const { [parentId]: _, ...rest } = this.state.lazyItems.children;
+    this.set('lazyItems', { ...this.state.lazyItems, children: rest });
+  }
+
+  public setItemExpandableOverrides(overrides: Record<TreeItemId, boolean>) {
+    this.set('lazyItems', {
+      ...this.state.lazyItems,
+      expandable: { ...this.state.lazyItems.expandable, ...overrides },
+    });
+  }
+
+  // ===========================================================================
   // Lifecycle
   // ===========================================================================
 
   public mountEffect = () => {
     return () => {
       this.timeoutManager.clearAll();
+      this.lazyLoading?.destroy();
     };
   };
 
@@ -1156,7 +1442,10 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
 
   public getActions(): TreeRootActions {
     return {
-      focusItem: (itemId) => this.focusItem(itemId),
+      focusItem: (itemId) => {
+        this.lastFocusReason = REASONS.imperativeAction;
+        this.focusItem(itemId);
+      },
       getItem: (itemId) => selectors.itemModel(this.state, itemId),
       getItemDOMElement: (itemId) => this.getItemDOMElement(itemId),
       getItemOrderedChildrenIds: (itemId) => selectors.itemOrderedChildrenIds(this.state, itemId),
@@ -1174,7 +1463,17 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
         }),
       setEditedItem: (itemId) => this.setEditedItem(itemId),
       setIsItemDisabled: (itemId, isDisabled) => this.setIsItemDisabled(itemId, isDisabled),
-      updateItemLabel: (itemId, newLabel) => this.updateItemLabel(itemId, newLabel),
+      updateItemLabel: (itemId, newLabel) =>
+        this.updateItemLabel(itemId, newLabel, REASONS.imperativeAction),
+      updateItemChildren: (itemId) => {
+        if (!this.lazyLoading) {
+          throw new Error(
+            'Base UI Tree: updateItemChildren requires a lazyLoading plugin. ' +
+              'Pass a lazyLoading prop to Tree.Root created via Tree.useLazyLoading().',
+          );
+        }
+        return this.lazyLoading.updateItemChildren(itemId);
+      },
     };
   }
 

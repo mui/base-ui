@@ -1,13 +1,7 @@
 {
   "name": "TreeCheckboxItem",
-  "description": "A tree item that uses a checkbox for selection.\nRenders a `<li>` element.",
+  "description": "A tree item that uses toggle selection behavior with checkbox semantics.\nClicking toggles the item's selection without affecting other items.\nRenders a `<li>` element.",
   "props": {
-    "clickToExpand": {
-      "type": "boolean",
-      "default": "true",
-      "description": "If `true`, clicking the item toggles expansion when no `Tree.ItemExpansionTrigger` is used.",
-      "detailedType": "boolean | undefined"
-    },
     "className": {
       "type": "string | ((state: Tree.CheckboxItem.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
@@ -24,17 +18,39 @@
     }
   },
   "dataAttributes": {
-    "data-checked": {},
-    "data-unchecked": {},
-    "data-disabled": {},
-    "data-collapsed": {},
-    "data-depth": {},
-    "data-editing": {},
-    "data-expandable": {},
-    "data-expanded": {},
-    "data-focused": {},
-    "data-indeterminate": {},
-    "data-item-id": {}
+    "data-checked": {
+      "description": "Present when the item is checked."
+    },
+    "data-unchecked": {
+      "description": "Present when the item is not checked."
+    },
+    "data-disabled": {
+      "description": "Present when the item is disabled."
+    },
+    "data-collapsed": {
+      "description": "Present when the item is collapsed."
+    },
+    "data-depth": {
+      "description": "The depth of the item in the tree hierarchy."
+    },
+    "data-editing": {
+      "description": "Present when the item's label is being edited."
+    },
+    "data-expandable": {
+      "description": "Present when the item has children and can be expanded."
+    },
+    "data-expanded": {
+      "description": "Present when the item is expanded."
+    },
+    "data-focused": {
+      "description": "Present when the item is focused."
+    },
+    "data-indeterminate": {
+      "description": "Present when the item is in an indeterminate state."
+    },
+    "data-item-id": {
+      "description": "The id of the item."
+    }
   },
   "cssVariables": {}
 }
