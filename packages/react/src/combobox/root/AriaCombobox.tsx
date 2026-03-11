@@ -383,6 +383,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         listElement: null,
         triggerElement: null,
         inputElement: null,
+        inputGroupElement: null,
         popupSide: null,
         openMethod: null,
         inputInsidePopup: true,
@@ -420,6 +421,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const listElement = useStore(store, selectors.listElement);
   const triggerElement = useStore(store, selectors.triggerElement);
   const inputElement = useStore(store, selectors.inputElement);
+  const inputGroupElement = useStore(store, selectors.inputGroupElement);
   const inline = useStore(store, selectors.inline);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
 
@@ -464,7 +466,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }) => {
       store.update(options);
       const type: AriaCombobox.HighlightEventReason = options.type || 'none';
-
       if (options.activeIndex === undefined) {
         return;
       }
@@ -1016,7 +1017,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       return (
         !contains(triggerElement, target) &&
         !contains(clearRef.current, target) &&
-        !contains(chipsContainerRef.current, target)
+        !contains(chipsContainerRef.current, target) &&
+        !contains(inputGroupElement, target)
       );
     },
   });

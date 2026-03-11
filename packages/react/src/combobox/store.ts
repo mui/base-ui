@@ -37,6 +37,7 @@ export type State = {
   listElement: HTMLElement | null;
   triggerElement: HTMLElement | null;
   inputElement: HTMLInputElement | null;
+  inputGroupElement: HTMLDivElement | null;
   popupSide: Side | null;
 
   openMethod: InteractionType | null;
@@ -152,6 +153,7 @@ export const selectors = {
   listElement: createSelector((state: State) => state.listElement),
   triggerElement: createSelector((state: State) => state.triggerElement),
   inputElement: createSelector((state: State) => state.inputElement),
+  inputGroupElement: createSelector((state: State) => state.inputGroupElement),
   popupSide: createSelector((state: State) => state.popupSide),
 
   openMethod: createSelector((state: State) => state.openMethod),
