@@ -88,23 +88,27 @@ export function TreeGroupTransition(props: TreeGroupTransitionInternalProps) {
     dataAttributes[TransitionStatusDataAttributes.endingStyle] = '';
   }
 
-  const element = useRenderElement('div', { render }, {
-    state,
-    ref: panelRef,
-    props: [
-      {
-        role: 'presentation',
-        children,
-        style: {
-          overflow: 'hidden',
-          ...((height !== undefined && {
-            ['--tree-group-height' as string]: `${height}px`,
-          }) as React.CSSProperties),
+  const element = useRenderElement(
+    'div',
+    { render },
+    {
+      state,
+      ref: panelRef,
+      props: [
+        {
+          role: 'presentation',
+          children,
+          style: {
+            overflow: 'hidden',
+            ...((height !== undefined && {
+              ['--tree-group-height' as string]: `${height}px`,
+            }) as React.CSSProperties),
+          },
+          ...dataAttributes,
         },
-        ...dataAttributes,
-      },
-    ],
-  });
+      ],
+    },
+  );
 
   return element;
 }
@@ -116,7 +120,13 @@ export interface TreeGroupTransitionState {
 interface TreeGroupTransitionInternalProps {
   parentId: string;
   animation: 'expanding' | 'collapsing';
-  render?: React.ReactElement | ((props: React.HTMLAttributes<any> & React.RefAttributes<any>, state: TreeGroupTransitionState) => React.ReactElement);
+  render?:
+    | React.ReactElement
+    | ((
+        props: React.HTMLAttributes<any> & React.RefAttributes<any>,
+        state: TreeGroupTransitionState,
+      ) => React.ReactElement)
+    | undefined;
   children: React.ReactNode;
 }
 

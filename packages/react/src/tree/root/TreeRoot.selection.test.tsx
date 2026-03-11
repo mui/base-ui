@@ -238,7 +238,9 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       fireEvent.click(view.getItemRoot('2'));
       expect(onItemSelectionToggle.callCount).to.equal(2);
 
-      const calls = onItemSelectionToggle.getCalls().map((call: any) => [call.args[0], call.args[1]]);
+      const calls = onItemSelectionToggle
+        .getCalls()
+        .map((call: any) => [call.args[0], call.args[1]]);
       expect(calls).to.deep.include.members([
         ['2', true],
         ['1', false],
@@ -500,10 +502,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       it('should not crash when selecting multiple items in a deeply nested tree', async () => {
         const view = await render({
           selectionMode: 'multiple',
-          items: [
-            { id: '1', children: [{ id: '1.1', children: [{ id: '1.1.1' }] }] },
-            { id: '2' },
-          ],
+          items: [{ id: '1', children: [{ id: '1.1', children: [{ id: '1.1.1' }] }] }, { id: '2' }],
           defaultExpandedItems: ['1', '1.1'],
         });
 

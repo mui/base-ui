@@ -2,8 +2,7 @@
 import * as React from 'react';
 import type { TreeItemId, TreeItemModel } from '../store/types';
 import { TREE_VIEW_ROOT_PARENT_ID } from '../store/types';
-import type { TreeLazyLoading } from '../store/TreeStore';
-import type { TreeStore } from '../store/TreeStore';
+import type { TreeLazyLoading, TreeStore } from '../store/TreeStore';
 import { selectors } from '../store/selectors';
 import { NestedDataManager } from './NestedDataManager';
 import type { DataSourceCache } from './cache';
@@ -323,6 +322,7 @@ export function useLazyLoading(config: UseTreeLazyLoadingConfig): TreeLazyLoadin
   }
 
   // Keep cache in sync
+  // eslint-disable-next-line dot-notation
   pluginRef.current['cache'] = config.cache;
 
   return pluginRef.current;

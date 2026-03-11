@@ -29,7 +29,10 @@ export class NestedDataManager {
 
   private maxConcurrentRequests: number;
 
-  constructor(delegate: NestedDataManagerDelegate, maxConcurrentRequests = MAX_CONCURRENT_REQUESTS) {
+  constructor(
+    delegate: NestedDataManagerDelegate,
+    maxConcurrentRequests = MAX_CONCURRENT_REQUESTS,
+  ) {
     this.delegate = delegate;
     this.maxConcurrentRequests = maxConcurrentRequests;
   }

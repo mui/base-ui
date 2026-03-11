@@ -72,8 +72,10 @@ export const TreeCheckboxItemIndicator = React.forwardRef(function TreeCheckboxI
   return element;
 });
 
-export interface TreeCheckboxItemIndicatorProps
-  extends BaseUIComponentProps<'span', TreeCheckboxItemIndicator.State> {
+export interface TreeCheckboxItemIndicatorProps extends BaseUIComponentProps<
+  'span',
+  TreeCheckboxItemIndicator.State
+> {
   /**
    * Whether to keep the HTML element in the DOM when the checkbox item is not checked.
    * @default false

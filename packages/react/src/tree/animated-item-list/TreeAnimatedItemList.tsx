@@ -4,7 +4,10 @@ import { useStore } from '@base-ui/utils/store';
 import { useTreeRootContext } from '../root/TreeRootContext';
 import { selectors } from '../store/selectors';
 import type { TreeItemModel } from '../store/types';
-import { TreeGroupTransition, type TreeGroupTransitionState } from '../group-transition/TreeGroupTransition';
+import {
+  TreeGroupTransition,
+  type TreeGroupTransitionState,
+} from '../group-transition/TreeGroupTransition';
 import { TreeItemModelProvider } from '../utils/TreeItemModelProvider';
 
 /**

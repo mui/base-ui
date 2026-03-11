@@ -54,9 +54,7 @@ export default function SelectionTree() {
     <div className={styles.wrapper}>
       <div>
         <h3 className={styles.heading}>Selection</h3>
-        <p className={styles.description}>
-          Click to select items. Hold Ctrl/Cmd for multi-select.
-        </p>
+        <p className={styles.description}>Click to select items. Hold Ctrl/Cmd for multi-select.</p>
       </div>
       <Tree.Root
         items={items}
@@ -80,7 +78,14 @@ export default function SelectionTree() {
 function ChevronIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg viewBox="0 0 12 12" fill="currentColor" {...props}>
-      <path d="M4.5 2L8.5 6L4.5 10" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M4.5 2L8.5 6L4.5 10"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }

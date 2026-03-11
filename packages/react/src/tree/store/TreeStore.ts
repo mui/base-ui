@@ -1414,7 +1414,7 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
   }
 
   public removeChildrenOverride(parentId: string) {
-    const { [parentId]: _, ...rest } = this.state.lazyItems.children;
+    const { [parentId]: removed, ...rest } = this.state.lazyItems.children;
     this.set('lazyItems', { ...this.state.lazyItems, children: rest });
   }
 

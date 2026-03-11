@@ -6,7 +6,7 @@ type DataSourceCacheDefaultConfig = {
    * After this time the cache entry will become stale and the next query will result in cache miss.
    * @default 300_000 (5 minutes)
    */
-  ttl?: number;
+  ttl?: number | undefined;
 };
 
 export interface DataSourceCache {

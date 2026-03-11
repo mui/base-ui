@@ -92,8 +92,7 @@ function getUtils(result: BaseUIRenderResult): DescribeTreeRendererUtils {
     const item = getItemRoot(id);
     // Tree.CheckboxItem uses aria-checked, Tree.Item uses aria-selected
     return (
-      item.getAttribute('aria-checked') === 'true' ||
-      item.getAttribute('aria-selected') === 'true'
+      item.getAttribute('aria-checked') === 'true' || item.getAttribute('aria-selected') === 'true'
     );
   };
 

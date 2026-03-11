@@ -6,7 +6,7 @@ import styles from './tree.module.css';
 
 function generateItems(depth: number, breadth: number, prefix = ''): TreeItemModel[] {
   const items: TreeItemModel[] = [];
-  for (let i = 0; i < breadth; i++) {
+  for (let i = 0; i < breadth; i += 1) {
     const id = prefix ? `${prefix}-${i}` : `item-${i}`;
     const item: TreeItemModel = {
       id,
@@ -34,10 +34,7 @@ const items: TreeItemModel[] = [
 const totalCount = countItems(items);
 
 function countItems(list: TreeItemModel[]): number {
-  return list.reduce(
-    (acc, item) => acc + 1 + (item.children ? countItems(item.children) : 0),
-    0,
-  );
+  return list.reduce((acc, item) => acc + 1 + (item.children ? countItems(item.children) : 0), 0);
 }
 
 export default function LargeTree() {
@@ -66,7 +63,7 @@ export default function LargeTree() {
         className={styles.tree}
         style={{ maxHeight: 500, overflow: 'auto' }}
       >
-        {(item) => (
+        {(_item) => (
           <Tree.Item className={styles.item}>
             <Tree.ItemExpansionTrigger className={styles.expansionTrigger}>
               <ChevronIcon />
@@ -82,7 +79,14 @@ export default function LargeTree() {
 function ChevronIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg viewBox="0 0 12 12" fill="currentColor" {...props}>
-      <path d="M4.5 2L8.5 6L4.5 10" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M4.5 2L8.5 6L4.5 10"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }

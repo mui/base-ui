@@ -46,7 +46,8 @@ function TreeWithLazyLoading(
   const { items, config, actionsRef, ...other } = props;
   const lazyLoading = Tree.useLazyLoading({
     fetchChildren: config?.fetchChildren ?? mockFetchChildren,
-    getChildrenCount: config?.getChildrenCount ?? ((item: TreeItemModel) => (item as ItemType).childrenCount ?? 0),
+    getChildrenCount:
+      config?.getChildrenCount ?? ((item: TreeItemModel) => (item as ItemType).childrenCount ?? 0),
     cache: config?.cache,
   });
 
@@ -312,6 +313,7 @@ describe('TreeRoot - Lazy Loading', () => {
       fireEvent.click(getItemRoot(container, '1'));
 
       // Loading indicator should be visible
+      // eslint-disable-next-line testing-library/no-container
       const loadingIndicator = container.querySelector('[data-testid="loading-indicator"]');
       expect(loadingIndicator).to.not.equal(null);
 
@@ -320,6 +322,7 @@ describe('TreeRoot - Lazy Loading', () => {
         resolvePromise!([{ id: '1-1', label: '1-1' }]);
       });
 
+      // eslint-disable-next-line testing-library/no-container
       const loadingAfter = container.querySelector('[data-testid="loading-indicator"]');
       expect(loadingAfter).to.equal(null);
     });
@@ -332,8 +335,9 @@ describe('TreeRoot - Lazy Loading', () => {
       fireEvent.click(getItemRoot(container, '1'));
       await awaitMockFetch();
 
-      const loadingIndicator = container.querySelector('[data-testid="loading-indicator"]');
-      expect(loadingIndicator).to.equal(null);
+      // eslint-disable-next-line testing-library/no-container
+      const loadingIndicator2 = container.querySelector('[data-testid="loading-indicator"]');
+      expect(loadingIndicator2).to.equal(null);
     });
   });
 
@@ -355,6 +359,7 @@ describe('TreeRoot - Lazy Loading', () => {
       fireEvent.click(getItemRoot(container, '1'));
       await awaitMockFetch();
 
+      // eslint-disable-next-line testing-library/no-container
       const errorIndicator = container.querySelector('[data-testid="error-indicator"]');
       expect(errorIndicator).to.not.equal(null);
     });
@@ -383,12 +388,14 @@ describe('TreeRoot - Lazy Loading', () => {
       // First attempt — fails
       fireEvent.click(getItemRoot(container, '1'));
       await awaitMockFetch();
+      // eslint-disable-next-line testing-library/no-container
       expect(container.querySelector('[data-testid="error-indicator"]')).to.not.equal(null);
 
       // Retry — succeeds
       shouldFail = false;
       fireEvent.click(getItemRoot(container, '1'));
       await awaitMockFetch();
+      // eslint-disable-next-line testing-library/no-container
       expect(container.querySelector('[data-testid="error-indicator"]')).to.equal(null);
     });
   });
@@ -492,7 +499,7 @@ describe('TreeRoot - Lazy Loading', () => {
 
     it('should handle rapid expand/collapse without race conditions', async () => {
       let resolvePromise: ((value: ItemType[]) => void) | null = null;
-      const delayedFetchChildren = async (parentId?: string): Promise<ItemType[]> =>
+      const delayedFetchChildren = async (_parentId?: string): Promise<ItemType[]> =>
         new Promise((resolve) => {
           resolvePromise = resolve;
         });

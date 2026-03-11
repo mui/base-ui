@@ -99,18 +99,10 @@ export default function ControlledTree() {
           >
             Expand all
           </button>
-          <button
-            type="button"
-            onClick={() => setExpandedItems([])}
-            style={{ fontSize: '0.8rem' }}
-          >
+          <button type="button" onClick={() => setExpandedItems([])} style={{ fontSize: '0.8rem' }}>
             Collapse all
           </button>
-          <button
-            type="button"
-            onClick={() => setSelectedItems([])}
-            style={{ fontSize: '0.8rem' }}
-          >
+          <button type="button" onClick={() => setSelectedItems([])} style={{ fontSize: '0.8rem' }}>
             Clear selection
           </button>
         </div>
@@ -129,7 +121,14 @@ export default function ControlledTree() {
 function ChevronIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg viewBox="0 0 12 12" fill="currentColor" {...props}>
-      <path d="M4.5 2L8.5 6L4.5 10" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M4.5 2L8.5 6L4.5 10"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }

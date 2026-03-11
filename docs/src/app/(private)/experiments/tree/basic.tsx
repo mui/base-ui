@@ -67,12 +67,8 @@ export default function BasicTree() {
           Click items or use the arrow to expand/collapse. Keyboard navigation supported.
         </p>
       </div>
-      <Tree.Root
-        items={items}
-        defaultExpandedItems={['documents']}
-        className={styles.tree}
-      >
-        {(item) => (
+      <Tree.Root items={items} defaultExpandedItems={['documents']} className={styles.tree}>
+        {(_item) => (
           <Tree.Item className={styles.item}>
             <Tree.ItemExpansionTrigger className={styles.expansionTrigger}>
               <ChevronIcon />
@@ -91,7 +87,14 @@ export default function BasicTree() {
 function ChevronIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg viewBox="0 0 12 12" fill="currentColor" {...props}>
-      <path d="M4.5 2L8.5 6L4.5 10" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M4.5 2L8.5 6L4.5 10"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
