@@ -12,19 +12,11 @@ const items: TreeItemModel[] = [
       { id: 'resume', label: 'Resume.pdf' },
       { id: 'cover-letter', label: 'Cover Letter.docx' },
       {
-        id: 'projects',
-        label: 'Projects',
+        id: 'invoices',
+        label: 'Invoices',
         children: [
-          { id: 'project-a', label: 'Project A' },
-          { id: 'project-b', label: 'Project B' },
-          {
-            id: 'project-c',
-            label: 'Project C',
-            children: [
-              { id: 'src', label: 'src' },
-              { id: 'readme', label: 'README.md' },
-            ],
-          },
+          { id: 'invoice-q1', label: 'Invoice_Q1.pdf' },
+          { id: 'invoice-q2', label: 'Invoice_Q2.pdf' },
         ],
       },
     ],
@@ -33,17 +25,17 @@ const items: TreeItemModel[] = [
     id: 'photos',
     label: 'Photos',
     children: [
-      { id: 'vacation', label: 'Vacation' },
-      { id: 'family', label: 'Family' },
+      { id: 'sunset', label: 'Sunset.jpg' },
+      { id: 'mountains', label: 'Mountains.png' },
+      { id: 'family-dinner', label: 'Family Dinner.jpg' },
     ],
   },
   {
     id: 'music',
     label: 'Music',
     children: [
-      { id: 'rock', label: 'Rock' },
-      { id: 'jazz', label: 'Jazz' },
-      { id: 'classical', label: 'Classical' },
+      { id: 'blue-in-green', label: 'Blue in Green.mp3' },
+      { id: 'moonlight-sonata', label: 'Moonlight Sonata.flac' },
     ],
   },
   { id: 'notes', label: 'Notes.txt' },
@@ -53,7 +45,7 @@ export default function ExampleTreeCheckboxItems() {
   return (
     <Tree.Root
       items={items}
-      defaultExpandedItems={['documents', 'projects']}
+      defaultExpandedItems={['documents']}
       multiple
       selectionPropagation={{
         parents: true,
