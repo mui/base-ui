@@ -328,12 +328,11 @@ describe('<PreviewCard.Positioner />', () => {
 
       expect(triggerRects.length).to.be.greaterThan(1);
 
-      // Hover over the second line (need to move mouse first to capture the rect)
+      // Enter over the second line so opening on hover uses the correct inline rect.
       const secondLineRect = triggerRects[1];
       const secondLineCenterX = secondLineRect.left + secondLineRect.width / 2;
       const secondLineCenterY = secondLineRect.top + secondLineRect.height / 2;
 
-      // Move mouse to trigger the onMouseMove handler before hovering
       await user.pointer([
         { target: document.body },
         {
@@ -341,8 +340,6 @@ describe('<PreviewCard.Positioner />', () => {
           coords: { clientX: secondLineCenterX, clientY: secondLineCenterY },
         },
       ]);
-
-      await user.hover(trigger);
 
       const positioner = screen.getByTestId('positioner');
       await waitFor(() => {

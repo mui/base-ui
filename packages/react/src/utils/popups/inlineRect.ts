@@ -182,17 +182,24 @@ export function getInlineRectHoverCoords(
 export function getInlineRectTriggerProps(
   coordsRef: React.MutableRefObject<InlineRectCoords | undefined>,
   isOpen: boolean,
-): Pick<React.HTMLAttributes<Element>, 'onFocus' | 'onMouseMove'> {
+): Pick<React.HTMLAttributes<Element>, 'onFocus' | 'onMouseEnter' | 'onMouseMove'> {
+  function updateCoords(event: React.MouseEvent<Element>) {
+    coordsRef.current = getInlineRectHoverCoords(event);
+  }
+
   return {
     onFocus() {
       coordsRef.current = undefined;
+    },
+    onMouseEnter(event: React.MouseEvent<Element>) {
+      updateCoords(event);
     },
     onMouseMove(event: React.MouseEvent<Element>) {
       if (isOpen) {
         return;
       }
 
-      coordsRef.current = getInlineRectHoverCoords(event);
+      updateCoords(event);
     },
   };
 }

@@ -1,42 +1,222 @@
 import * as React from 'react';
 import { PreviewCard } from '@base-ui/react/preview-card';
+import { Tooltip } from '@base-ui/react/tooltip';
 import styles from './inline-positioning.module.css';
 
-export default function ExamplePreviewCard() {
+const previewCards = {
+  classicalProportion: {
+    href: 'https://en.wikipedia.org/wiki/Proportion_(architecture)',
+    title: 'Classical proportion',
+    summary:
+      'A compact reference for ratios, page blocks, and the calm geometry that still shapes editorial layouts.',
+    artwork: 'linear-gradient(135deg, #efe5d3 0%, #d9c7a5 48%, #b88b4a 100%)',
+  },
+  opticalSizing: {
+    href: 'https://en.wikipedia.org/wiki/Optical_size',
+    title: 'Optical sizing',
+    summary:
+      'Type tuned for its rendered size keeps counters open, joins sturdy, and rhythm readable at small scales.',
+    artwork: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 48%, #60a5fa 100%)',
+  },
+  newspaperSystems: {
+    href: 'https://en.wikipedia.org/wiki/Newspaper_design',
+    title: 'Newspaper systems',
+    summary:
+      'Narrow columns and tightly controlled measures make wrapped inline anchors especially easy to inspect.',
+    artwork: 'linear-gradient(135deg, #e5e7eb 0%, #d1d5db 52%, #9ca3af 100%)',
+  },
+  marginAlignment: {
+    href: 'https://en.wikipedia.org/wiki/Hanging_punctuation',
+    title: 'Optical margin alignment',
+    summary:
+      'Hanging punctuation keeps the text edge visually straight even when commas and quotes sit outside the block.',
+    artwork: 'linear-gradient(135deg, #fce7f3 0%, #fbcfe8 52%, #f472b6 100%)',
+  },
+  captionRhythm: {
+    href: 'https://en.wikipedia.org/wiki/Grid_(graphic_design)',
+    title: 'Caption rhythm',
+    summary:
+      'Captions and asides often contain the longest inline references in a layout, which makes them a useful wrap case.',
+    artwork: 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 48%, #4ade80 100%)',
+  },
+  joinedFragments: {
+    href: 'https://en.wikipedia.org/wiki/Line_wrap_and_word_wrap',
+    title: 'Joined fragments',
+    summary:
+      'Two neighboring inline references should still track the hovered line even when they meet at punctuation.',
+    artwork: 'linear-gradient(135deg, #ede9fe 0%, #ddd6fe 48%, #8b5cf6 100%)',
+  },
+  pairedReferences: {
+    href: 'https://en.wikipedia.org/wiki/Microtypography',
+    title: 'Paired references',
+    summary:
+      'This case helps inspect how a second link behaves when it starts exactly where another wrapped trigger ends.',
+    artwork: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 52%, #f59e0b 100%)',
+  },
+} as const;
+
+const tooltips = {
+  caption: {
+    href: 'https://en.wikipedia.org/wiki/Caption',
+    description: 'A short, single-line tooltip target with no wrapping.',
+  },
+  annotation: {
+    href: 'https://en.wikipedia.org/wiki/Annotation',
+    description:
+      'A longer inline annotation meant to wrap and anchor to the hovered line instead of the whole block.',
+  },
+  widows: {
+    href: 'https://en.wikipedia.org/wiki/Widows_and_orphans',
+    description:
+      'A punctuation-adjacent link that should still behave like a normal inline trigger.',
+  },
+  orphans: {
+    href: 'https://en.wikipedia.org/wiki/Widows_and_orphans',
+    description:
+      'A neighboring tooltip target separated only by a comma and a little inline space.',
+  },
+  softWrap: {
+    href: 'https://developer.mozilla.org/en-US/docs/Web/CSS/overflow-wrap',
+    description:
+      'A slash-joined link that lets you inspect the first half of a conjoined inline pair.',
+  },
+  conjoined: {
+    href: 'https://developer.mozilla.org/en-US/docs/Web/CSS/word-break',
+    description:
+      'The second half of the slash-joined pair, useful for inspecting adjacent wrapped links.',
+  },
+  neighboring: {
+    href: 'https://developer.mozilla.org/en-US/docs/Web/API/Element/getClientRects',
+    description:
+      'A final long case that can wrap while sitting next to punctuation and earlier inline targets.',
+  },
+} as const;
+
+export default function InlinePositioningExperiment() {
+  return (
+    <div className={styles.Experiment}>
+      <section className={styles.Section}>
+        <p className={styles.SectionLabel}>Preview Cards</p>
+        <p className={styles.Paragraph}>
+          Editors still bounce between{' '}
+          <PreviewCardLink {...previewCards.classicalProportion}>
+            classical proportion
+          </PreviewCardLink>
+          , <PreviewCardLink {...previewCards.opticalSizing}>optical sizing</PreviewCardLink>, and{' '}
+          <PreviewCardLink {...previewCards.newspaperSystems}>
+            newspaper systems that deliberately wrap across several carefully measured lines
+          </PreviewCardLink>
+          . They also compare{' '}
+          <PreviewCardLink {...previewCards.marginAlignment}>
+            optical margin alignment
+          </PreviewCardLink>{' '}
+          with{' '}
+          <PreviewCardLink {...previewCards.captionRhythm}>
+            caption rhythms that keep long annotations moving into the next line
+          </PreviewCardLink>
+          , while slash-joined references like{' '}
+          <PreviewCardLink {...previewCards.joinedFragments}>
+            joined inline fragments that want to wrap awkwardly
+          </PreviewCardLink>
+          /
+          <PreviewCardLink {...previewCards.pairedReferences}>
+            paired references that continue immediately after the slash
+          </PreviewCardLink>{' '}
+          make it easier to inspect conjoining inline cases.
+        </p>
+      </section>
+
+      <Tooltip.Provider delay={0}>
+        <section className={styles.Section}>
+          <p className={styles.SectionLabel}>Tooltips</p>
+          <p className={styles.Paragraph}>
+            The tooltip paragraph mixes a short{' '}
+            <TooltipLink {...tooltips.caption}>caption</TooltipLink>, a longer{' '}
+            <TooltipLink {...tooltips.annotation}>
+              annotation that can spill across more than one line inside this narrow measure
+            </TooltipLink>
+            , punctuation-adjacent hints like <TooltipLink {...tooltips.widows}>widows</TooltipLink>
+            , <TooltipLink {...tooltips.orphans}>orphans</TooltipLink>, and a slash-joined pair of{' '}
+            <TooltipLink {...tooltips.softWrap}>soft-wrap targeting</TooltipLink>/
+            <TooltipLink {...tooltips.conjoined}>
+              conjoined fragments that continue with no separating space
+            </TooltipLink>
+            . It finishes with{' '}
+            <TooltipLink {...tooltips.neighboring}>
+              neighboring inline links that can both wrap and still need the correct hovered line
+            </TooltipLink>
+            .
+          </p>
+        </section>
+      </Tooltip.Provider>
+    </div>
+  );
+}
+
+interface PreviewCardLinkProps {
+  href: string;
+  title: string;
+  summary: string;
+  artwork: string;
+  children: React.ReactNode;
+}
+
+function PreviewCardLink(props: PreviewCardLinkProps) {
+  const { href, title, summary, artwork, children } = props;
+
   return (
     <PreviewCard.Root>
-      <p className={styles.Paragraph}>
-        The principles of good{' '}
-        <PreviewCard.Trigger
-          className={styles.Link}
-          href="https://en.wikipedia.org/wiki/Typography"
-        >
-          typography that remain into
-        </PreviewCard.Trigger>{' '}
-        the digital age.
-      </p>
-
+      <PreviewCard.Trigger className={styles.Link} closeDelay={0} delay={0} href={href}>
+        {children}
+      </PreviewCard.Trigger>
       <PreviewCard.Portal>
         <PreviewCard.Positioner sideOffset={8}>
-          <PreviewCard.Popup className={styles.Popup}>
+          <PreviewCard.Popup className={styles.PreviewPopup}>
             <PreviewCard.Arrow className={styles.Arrow}>
               <ArrowSvg />
             </PreviewCard.Arrow>
-            <img
-              width="448"
-              height="300"
-              className={styles.Image}
-              src="https://images.unsplash.com/photo-1619615391095-dfa29e1672ef?q=80&w=448&h=300"
-              alt="Station Hofplein signage in Rotterdam, Netherlands"
-            />
-            <p className={styles.Summary}>
-              <strong>Typography</strong> is the art and science of arranging type to make written
-              language clear, visually appealing, and effective in communication.
-            </p>
+            <div className={styles.Artwork} style={{ background: artwork }}>
+              <span className={styles.ArtworkLabel}>{title}</span>
+            </div>
+            <div className={styles.CardBody}>
+              <p className={styles.CardTitle}>{title}</p>
+              <p className={styles.Summary}>{summary}</p>
+            </div>
           </PreviewCard.Popup>
         </PreviewCard.Positioner>
       </PreviewCard.Portal>
     </PreviewCard.Root>
+  );
+}
+
+interface TooltipLinkProps {
+  href: string;
+  description: string;
+  children: React.ReactNode;
+}
+
+function TooltipLink(props: TooltipLinkProps) {
+  const { href, description, children } = props;
+
+  return (
+    <Tooltip.Root>
+      <Tooltip.Trigger
+        className={styles.Link}
+        closeDelay={0}
+        delay={0}
+        render={<a href={href}>{children}</a>}
+      />
+      <Tooltip.Portal>
+        <Tooltip.Positioner sideOffset={10}>
+          <Tooltip.Popup className={styles.TooltipPopup}>
+            <Tooltip.Arrow className={styles.Arrow}>
+              <ArrowSvg />
+            </Tooltip.Arrow>
+            <p className={styles.TooltipText}>{description}</p>
+          </Tooltip.Popup>
+        </Tooltip.Positioner>
+      </Tooltip.Portal>
+    </Tooltip.Root>
   );
 }
 

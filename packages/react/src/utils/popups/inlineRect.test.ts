@@ -103,6 +103,24 @@ describe('inlineRect', () => {
     });
   });
 
+  it('updates stored coords on mouse enter before opening', () => {
+    const rects: RectLike[] = [
+      { left: 0, top: 0, right: 10, bottom: 10, width: 10, height: 10 },
+      { left: 0, top: 20, right: 10, bottom: 30, width: 10, height: 10 },
+    ];
+    const trigger = createTrigger(rects);
+    const coordsRef: React.MutableRefObject<InlineRectCoords | undefined> = { current: undefined };
+    const event = createMouseEvent(trigger, 5, 25);
+
+    getInlineRectTriggerProps(coordsRef, true).onMouseEnter?.(event);
+
+    expect(coordsRef.current).toEqual({
+      rectIndex: 1,
+      x: 5,
+      y: 5,
+    });
+  });
+
   it('does not update stored coords on mouse move while open', () => {
     const rects: RectLike[] = [
       { left: 0, top: 0, right: 10, bottom: 10, width: 10, height: 10 },

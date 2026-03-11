@@ -1,29 +1,51 @@
+.Experiment {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  padding: clamp(3rem, 8vw, 6rem) 1.5rem 5rem;
+}
+
+.Section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 32rem;
+}
+
+.SectionLabel {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-gray-500);
+}
+
 .Paragraph {
   margin: 0;
+  max-width: 30rem;
   font-size: 1rem;
-  line-height: 1.5rem;
+  line-height: 1.7;
   color: var(--color-gray-900);
-  text-wrap: balance;
-  max-width: 20rem;
-  margin-top: 10rem;
+  text-wrap: pretty;
 }
 
 .Link {
   outline: 0;
   color: var(--color-blue);
-  text-decoration-line: none;
+  text-decoration-line: underline;
   text-decoration-thickness: 1px;
   text-decoration-color: color-mix(in oklab, var(--color-blue), transparent 40%);
   text-underline-offset: 2px;
 
   @media (hover: hover) {
     &:hover {
-      text-decoration-line: underline;
+      text-decoration-color: var(--color-blue);
     }
   }
 
   &[data-popup-open] {
-    text-decoration-line: underline;
+    text-decoration-color: var(--color-blue);
   }
 
   &:focus-visible {
@@ -33,13 +55,9 @@
   }
 }
 
-.Popup {
+.PreviewPopup,
+.TooltipPopup {
   box-sizing: border-box;
-  width: 240px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 0.5rem;
   border-radius: 0.5rem;
   background-color: canvas;
   transform-origin: var(--transform-origin);
@@ -64,6 +82,19 @@
     outline: 1px solid var(--color-gray-300);
     outline-offset: -1px;
   }
+}
+
+.PreviewPopup {
+  width: 256px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.65rem;
+}
+
+.TooltipPopup {
+  max-width: 220px;
+  padding: 0.45rem 0.6rem;
 }
 
 .Arrow {
@@ -106,17 +137,52 @@
   }
 }
 
-.Image {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 0.25rem;
+.Artwork {
+  min-height: 126px;
+  border-radius: 0.375rem;
+  display: flex;
+  align-items: flex-end;
+  padding: 0.75rem;
+}
+
+.ArtworkLabel {
+  display: inline-flex;
+  padding: 0.2rem 0.45rem;
+  border-radius: 999px;
+  background-color: color-mix(in oklab, white, transparent 25%);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(24 24 27 / 0.88);
+}
+
+.CardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.CardTitle {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.2;
+  font-weight: 600;
+  color: var(--color-gray-900);
 }
 
 .Summary {
   margin: 0;
   font-size: 0.875rem;
-  line-height: 1.25rem;
-  color: var(--color-gray-900);
+  line-height: 1.35;
+  color: var(--color-gray-700);
+  text-wrap: pretty;
+}
+
+.TooltipText {
+  margin: 0;
+  font-size: 0.825rem;
+  line-height: 1.35;
+  color: var(--color-gray-800);
   text-wrap: pretty;
 }
