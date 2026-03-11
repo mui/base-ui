@@ -1,4 +1,5 @@
 'use client';
+import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import { selectors } from '../store';
@@ -11,5 +12,8 @@ export function useCalendarContext(): CalendarContext {
   const store = useSharedCalendarRootContext();
   const calendarPublicContext = useStore(store, selectors.publicContext);
 
-  return { ...calendarPublicContext, setVisibleDate: store.setVisibleDate };
+  return React.useMemo(
+    () => ({ ...calendarPublicContext, setVisibleDate: store.setVisibleDate }),
+    [calendarPublicContext, store.setVisibleDate],
+  );
 }
