@@ -62,7 +62,9 @@ export class NestedDataManager {
 
   public queue = async (ids: TreeItemId[]) => {
     for (const id of ids) {
-      this.queuedRequests.add(id);
+      if (!this.pendingRequests.has(id)) {
+        this.queuedRequests.add(id);
+      }
     }
     await this.processQueue();
   };

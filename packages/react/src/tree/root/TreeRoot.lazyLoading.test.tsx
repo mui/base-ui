@@ -221,6 +221,12 @@ describe('TreeRoot - Lazy Loading', () => {
     });
 
     it('should allow mixing props.items and fetched items on mount', async () => {
+      let resolveItem2: ((value: ItemType[]) => void) | null = null;
+      const controlledFetch = (_parentId?: string): Promise<ItemType[]> =>
+        new Promise((resolve) => {
+          resolveItem2 = resolve;
+        });
+
       const { container } = await render(
         <TreeWithLazyLoading
           items={[
@@ -234,14 +240,19 @@ describe('TreeRoot - Lazy Loading', () => {
           ]}
           defaultExpandedItems={['1', '2']}
           getItemChildren={(item: TreeItemModel) => (item as ItemType).children}
+          config={{ fetchChildren: controlledFetch }}
         />,
       );
 
+      // Item 1 has inline children available immediately; item 2 is still loading
       expect(isItemExpanded(container, '1')).to.equal(true);
       expect(isItemExpanded(container, '2')).to.equal(true);
       expect(getAllTreeItemIds(container)).to.deep.equal(['1', '1-1', '2']);
 
-      await awaitMockFetch();
+      // Resolve item 2's fetch
+      await act(async () => {
+        resolveItem2!([{ id: '2-1', label: '2-1' }]);
+      });
       expect(isItemExpanded(container, '1')).to.equal(true);
       expect(isItemExpanded(container, '2')).to.equal(true);
       expect(getAllTreeItemIds(container)).to.deep.equal(['1', '1-1', '2', '2-1']);

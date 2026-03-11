@@ -328,11 +328,8 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
       selectors,
     );
 
-    // Wire lazy loading plugin
+    // Wire lazy loading plugin (attach is called in mountEffect)
     this.lazyLoading = parameters.lazyLoading;
-    if (this.lazyLoading) {
-      this.lazyLoading.attach(this);
-    }
 
     // Build initial label map
     this.labelMap = this.createLabelMap(selectors.itemMetaLookup(this.state));
@@ -1430,6 +1427,11 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
   // ===========================================================================
 
   public mountEffect = () => {
+    // Attach lazy loading plugin on mount rather than in the constructor.
+    // This correctly handles React Strict Mode's unmount/remount cycle:
+    // destroy() nullifies the store reference, and attach() restores it.
+    this.lazyLoading?.attach(this);
+
     return () => {
       this.timeoutManager.clearAll();
       this.lazyLoading?.destroy();

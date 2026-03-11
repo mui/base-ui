@@ -102,6 +102,9 @@ class LazyLoadingPlugin implements TreeLazyLoading {
     }
 
     const fetchChildrenIfExpanded = async (parentIds: TreeItemId[]): Promise<void> => {
+      if (!this.store) {
+        return;
+      }
       const expandedItems = parentIds.filter((id) =>
         selectors.isItemExpanded(this.store!.state, id),
       );
@@ -113,6 +116,9 @@ class LazyLoadingPlugin implements TreeLazyLoading {
       );
       if (itemsToLazyLoad.length > 0) {
         await this.fetchItems(itemsToLazyLoad);
+      }
+      if (!this.store) {
+        return;
       }
       const childrenIds = expandedItems.flatMap((id) =>
         selectors.itemOrderedChildrenIds(this.store!.state, id),
