@@ -93,10 +93,6 @@ function isItemExpanded(container: HTMLElement, id: string): boolean {
   return getItemRoot(container, id).getAttribute('aria-expanded') === 'true';
 }
 
-// =============================================================================
-// Tests migrated from MUI X TreeViewLazyLoadingPlugin.test.tsx
-// =============================================================================
-
 describe('TreeRoot - Lazy Loading', () => {
   describe('interaction', () => {
     it('should load children when expanding an item', async () => {

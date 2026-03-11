@@ -89,5 +89,11 @@
   "89": "Base UI: <PreviewCard.Trigger> must be either used within a <PreviewCard.Root> component or provided with a handle.",
   "90": "Base UI: DrawerRootContext is missing. Drawer parts must be placed within <Drawer.Root>.",
   "91": "Base UI: DrawerProviderContext is missing. Use <Drawer.Provider>.",
-  "92": "Base UI: DrawerViewportContext is missing. Drawer parts must be placed within <Drawer.Viewport>."
+  "92": "Base UI: DrawerViewportContext is missing. Drawer parts must be placed within <Drawer.Viewport>.",
+  "93": "Base UI: TreeCheckboxItemContext is missing. Tree checkbox item parts must be placed within <Tree.CheckboxItem>.",
+  "94": "Base UI: TreeItemContext is missing. Tree item parts must be placed within <Tree.Item>.",
+  "95": "Base UI: TreeRootContext is missing. Tree parts must be placed within <Tree.Root>.",
+  "96": "Base UI Tree: updateItemChildren requires a lazyLoading plugin. Pass a lazyLoading prop to Tree.Root created via Tree.useLazyLoading().",
+  "97": "Base UI: Could not find the item metadata for item with id \"%s\".",
+  "98": "Base UI: Invalid range - unable to find a path between the two items. This may occur if the items are not in the same tree or the tree structure is invalid. Verify that both items exist in the tree."
 }
