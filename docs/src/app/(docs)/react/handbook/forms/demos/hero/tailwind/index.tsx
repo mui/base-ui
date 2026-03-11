@@ -149,11 +149,11 @@ function ExampleForm() {
         <NumberField.Root defaultValue={undefined} min={1} max={64} required>
           <Field.Label>Number of instances</Field.Label>
           <NumberField.Group>
-            <NumberField.Decrement>
+            <NumberField.Decrement aria-label="Decrease">
               <Minus className="size-4" />
             </NumberField.Decrement>
-            <NumberField.Input className="!w-16" />
-            <NumberField.Increment>
+            <NumberField.Input aria-roledescription="Number field" className="!w-16" />
+            <NumberField.Increment aria-label="Increase">
               <Plus className="size-4" />
             </NumberField.Increment>
           </NumberField.Group>
@@ -184,8 +184,8 @@ function ExampleForm() {
           <Slider.Control>
             <Slider.Track>
               <Slider.Indicator />
-              <Slider.Thumb index={0} />
-              <Slider.Thumb index={1} />
+              <Slider.Thumb index={0} aria-label="Minimum scaling threshold" />
+              <Slider.Thumb index={1} aria-label="Maximum scaling threshold" />
             </Slider.Track>
           </Slider.Control>
         </Fieldset.Root>

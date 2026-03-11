@@ -93,7 +93,7 @@ function AnchoredToasts() {
   const { toasts } = Toast.useToastManager();
   return (
     <Toast.Portal>
-      <Toast.Viewport className="outline-0">
+      <Toast.Viewport aria-label="Notifications" className="outline-0">
         {toasts.map((toast) => (
           <Toast.Positioner
             key={toast.id}
@@ -122,7 +122,10 @@ function StackedToasts() {
   const { toasts } = Toast.useToastManager();
   return (
     <Toast.Portal>
-      <Toast.Viewport className="fixed z-10 top-auto right-[1rem] bottom-[1rem] mx-auto flex w-[250px] sm:right-[2rem] sm:bottom-[2rem] sm:w-[300px]">
+      <Toast.Viewport
+        aria-label="Notifications"
+        className="fixed z-10 top-auto right-[1rem] bottom-[1rem] mx-auto flex w-[250px] sm:right-[2rem] sm:bottom-[2rem] sm:w-[300px]"
+      >
         {toasts.map((toast) => (
           <Toast.Root
             key={toast.id}

@@ -8,7 +8,7 @@ export default function ExampleToast() {
     <Toast.Provider>
       <ToastButton />
       <Toast.Portal>
-        <Toast.Viewport className={styles.Viewport}>
+        <Toast.Viewport aria-label="Notifications" className={styles.Viewport}>
           <ToastList />
         </Toast.Viewport>
       </Toast.Portal>
