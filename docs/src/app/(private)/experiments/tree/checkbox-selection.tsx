@@ -49,28 +49,35 @@ const items: TreeItemModel[] = [
   },
 ];
 
-export default function SelectionTree() {
+export default function CheckboxSelectionTree() {
   return (
     <div className={styles.wrapper}>
       <div>
-        <h3 className={styles.heading}>Selection</h3>
+        <h3 className={styles.heading}>Checkbox selection</h3>
         <p className={styles.description}>
-          Click to select items. Hold Ctrl/Cmd for multi-select.
+          Use checkboxes to select. Shift+click for range selection.
         </p>
       </div>
       <Tree.Root
         items={items}
         defaultExpandedItems={['frontend', 'react']}
         multiple
+        selectionPropagation={{
+          parents: true,
+          descendants: true,
+        }}
         className={styles.tree}
       >
         {() => (
-          <Tree.Item className={styles.item}>
+          <Tree.CheckboxItem className={styles.item}>
             <Tree.ItemExpansionTrigger className={styles.expansionTrigger}>
               <ChevronIcon />
             </Tree.ItemExpansionTrigger>
+            <Tree.CheckboxItemIndicator className={styles.checkboxIndicator} keepMounted>
+              <CheckIcon />
+            </Tree.CheckboxItemIndicator>
             <Tree.ItemLabel className={styles.label} />
-          </Tree.Item>
+          </Tree.CheckboxItem>
         )}
       </Tree.Root>
     </div>
@@ -81,6 +88,14 @@ function ChevronIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg viewBox="0 0 12 12" fill="currentColor" {...props}>
       <path d="M4.5 2L8.5 6L4.5 10" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function CheckIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg viewBox="0 0 12 12" fill="currentColor" {...props}>
+      <path d="M9.854 3.146a.5.5 0 010 .708l-4.5 4.5a.5.5 0 01-.708 0l-2-2a.5.5 0 01.708-.708L5 7.293l4.146-4.147a.5.5 0 01.708 0z" />
     </svg>
   );
 }

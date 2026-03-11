@@ -120,12 +120,41 @@
   white-space: nowrap;
 }
 
-.checkbox {
-  accent-color: var(--color-blue);
-  width: 14px;
-  height: 14px;
-  cursor: pointer;
+.checkboxIndicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
   flex-shrink: 0;
+  border: 1px solid var(--color-gray-400);
+  border-radius: 4px;
+  color: white;
+  background: transparent;
+
+  & svg {
+    width: 12px;
+    height: 12px;
+    opacity: 0;
+  }
+
+  &[data-checked] {
+    background: var(--color-blue);
+    border-color: var(--color-blue);
+
+    & svg {
+      opacity: 1;
+    }
+  }
+
+  &[data-indeterminate] {
+    background: var(--color-blue);
+    border-color: var(--color-blue);
+
+    & svg {
+      opacity: 1;
+    }
+  }
 }
 
 .item input:not([type='checkbox']) {

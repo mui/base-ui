@@ -57,7 +57,7 @@
     },
     "items": {
       "type": "Tree.Item.Model[]",
-      "detailedType": "Tree.Item.Model[] | undefined"
+      "required": true
     },
     "multiple": {
       "type": "boolean | undefined",
@@ -91,10 +91,6 @@
       "type": "((selectedItems: string[] | string | any | null, eventDetails: Tree.Root.SelectionChangeEventDetails) => void)",
       "detailedType": "| ((\n    selectedItems: string[] | string | any | null,\n    eventDetails: Tree.Root.SelectionChangeEventDetails,\n  ) => void)\n| undefined"
     },
-    "rootRef": {
-      "type": "RefObject<HTMLElement | null>",
-      "detailedType": "React.RefObject<HTMLElement | null> | undefined"
-    },
     "selectedItems": {
       "type": "string[] | string | any | null",
       "detailedType": "string[] | string | any | null | undefined"
@@ -105,8 +101,9 @@
     },
     "children": {
       "type": "((item: Tree.Item.Model) => ReactNode)",
+      "required": true,
       "description": "The render function for each tree item.\nCalled with the item model for each visible item.",
-      "detailedType": "((item: Tree.Item.Model) => ReactNode) | undefined"
+      "detailedType": "(item: Tree.Item.Model) => ReactNode"
     },
     "className": {
       "type": "string | ((state: Tree.Root.State) => string | undefined)",

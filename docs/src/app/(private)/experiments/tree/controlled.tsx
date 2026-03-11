@@ -79,14 +79,16 @@ export default function ControlledTree() {
           multiple
           className={styles.tree}
         >
-          {(item) => (
-            <Tree.Item className={styles.item} clickToSelect={false}>
+          {() => (
+            <Tree.CheckboxItem className={styles.item}>
               <Tree.ItemExpansionTrigger className={styles.expansionTrigger}>
                 <ChevronIcon />
               </Tree.ItemExpansionTrigger>
-              <Tree.ItemCheckbox className={styles.checkbox} />
+              <Tree.CheckboxItemIndicator className={styles.checkboxIndicator} keepMounted>
+                <CheckIcon />
+              </Tree.CheckboxItemIndicator>
               <Tree.ItemLabel className={styles.label} />
-            </Tree.Item>
+            </Tree.CheckboxItem>
           )}
         </Tree.Root>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -128,6 +130,14 @@ function ChevronIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg viewBox="0 0 12 12" fill="currentColor" {...props}>
       <path d="M4.5 2L8.5 6L4.5 10" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function CheckIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg viewBox="0 0 12 12" fill="currentColor" {...props}>
+      <path d="M9.854 3.146a.5.5 0 010 .708l-4.5 4.5a.5.5 0 01-.708 0l-2-2a.5.5 0 01.708-.708L5 7.293l4.146-4.147a.5.5 0 01.708 0z" />
     </svg>
   );
 }

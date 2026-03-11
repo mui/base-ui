@@ -24,15 +24,13 @@ import { EMPTY_OBJECT } from '../../utils/constants';
  *
  * Documentation: [Base UI Tree](https://base-ui.com/react/components/tree)
  */
-export function TreeRoot<Multiple extends boolean | undefined = false>(
-  componentProps: TreeRoot.Props<Multiple> & { ref?: React.Ref<HTMLUListElement> },
-) {
-  const forwardedRef = componentProps.ref ?? null;
+export const TreeRoot = React.forwardRef(function TreeRoot<
+  Multiple extends boolean | undefined = false,
+>(componentProps: TreeRoot.Props<Multiple>, forwardedRef: React.ForwardedRef<HTMLUListElement>) {
   const {
     // Rendering props
     className,
     render,
-    ref: _ref,
     // Data
     items,
     children,
@@ -70,15 +68,15 @@ export function TreeRoot<Multiple extends boolean | undefined = false>(
 
   const store = useRefWithInit(
     () =>
-      new TreeStore({
+      new TreeStore<Multiple>({
         items,
         expandedItems,
         defaultExpandedItems,
         onExpandedItemsChange,
-        selectedItems: selectedItems as any,
-        defaultSelectedItems: defaultSelectedItems as any,
-        onSelectedItemsChange: onSelectedItemsChange as any,
-        multiple: multiple as boolean | undefined,
+        selectedItems,
+        defaultSelectedItems,
+        onSelectedItemsChange,
+        multiple,
         disableSelection,
         selectionPropagation,
         getItemId,
@@ -154,14 +152,18 @@ export function TreeRoot<Multiple extends boolean | undefined = false>(
   });
 
   return <TreeRootContext.Provider value={store}>{element}</TreeRootContext.Provider>;
-}
+}) as {
+  <Multiple extends boolean | undefined = false>(
+    props: TreeRoot.Props<Multiple>,
+  ): React.JSX.Element;
+};
 
 export interface TreeRootState {}
 
 export interface TreeRootProps<Multiple extends boolean | undefined = false>
   extends
     Omit<BaseUIComponentProps<'ul', TreeRootState>, 'children'>,
-    Omit<TreeStoreParameters<Multiple>, 'treeId'> {
+    Omit<TreeStoreParameters<Multiple>, 'treeId' | 'rootRef'> {
   /**
    * The render function for each tree item.
    * Called with the item model for each visible item.

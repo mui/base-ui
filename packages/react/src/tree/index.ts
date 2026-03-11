@@ -3,7 +3,6 @@ export * as Tree from './index.parts';
 export type * from './root/TreeRoot';
 export type * from './item/TreeItem';
 export type * from './item-expansion-trigger/TreeItemExpansionTrigger';
-export type * from './item-checkbox/TreeItemCheckbox';
 export type * from './checkbox-item/TreeCheckboxItem';
 export type * from './checkbox-item-indicator/TreeCheckboxItemIndicator';
 export type * from './item-label/TreeItemLabel';

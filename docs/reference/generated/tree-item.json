@@ -11,7 +11,7 @@
     "clickToSelect": {
       "type": "boolean",
       "default": "true",
-      "description": "If `true`, clicking the item toggles selection.\nSet to `false` when using `Tree.ItemCheckbox` so that only the checkbox triggers selection.",
+      "description": "If `true`, clicking the item toggles selection.",
       "detailedType": "boolean | undefined"
     },
     "className": {

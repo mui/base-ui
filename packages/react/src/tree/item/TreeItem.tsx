@@ -102,7 +102,6 @@ export interface TreeItemProps extends BaseUIComponentProps<'li', TreeItemState>
   clickToExpand?: boolean | undefined;
   /**
    * If `true`, clicking the item toggles selection.
-   * Set to `false` when using `Tree.ItemCheckbox` so that only the checkbox triggers selection.
    * @default true
    */
   clickToSelect?: boolean | undefined;

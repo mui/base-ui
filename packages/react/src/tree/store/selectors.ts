@@ -368,7 +368,7 @@ export const itemProps = createSelectorMemoized(
 );
 
 /**
- * Tree.ItemCheckbox — returns checkbox state.
+ * Tree.CheckboxItem / Tree.CheckboxItemIndicator — returns checkbox state.
  */
 export const checkboxProps = createSelectorMemoized(
   (state: TreeState, itemId: TreeItemId) => checkboxSelectionStatus(state, itemId),

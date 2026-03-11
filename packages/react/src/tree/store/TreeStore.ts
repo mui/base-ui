@@ -104,7 +104,7 @@ function isPrintableKey(key: string): boolean {
   return key.length === 1 && !!key.match(/\S/);
 }
 
-export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof selectors> {
+export class TreeStore<Multiple extends boolean | undefined = false> extends ReactStore<TreeState, TreeStoreContext, typeof selectors> {
   // Selection tracking
   private lastSelectedItem: TreeItemId | null = null;
 
@@ -117,7 +117,7 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
 
   private labelMap: Record<string, string> = {};
 
-  constructor(parameters: TreeStoreParameters) {
+  constructor(parameters: TreeStoreParameters<Multiple>) {
     const itemsState = TreeStore.buildItemsState(
       parameters.items,
       parameters.getItemId ?? ((item) => item.id),
@@ -1114,28 +1114,6 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
       if (selectors.canItemBeFocused(this.state, itemId)) {
         this.set('focusedItemId', itemId);
         this.context.onItemFocus(itemId);
-      }
-    },
-  };
-
-  public readonly checkboxEventHandlers = {
-    onChange: (event: React.ChangeEvent<HTMLInputElement>, itemId: TreeItemId) => {
-      if (!selectors.canItemBeSelected(this.state, itemId)) {
-        return;
-      }
-
-      const isMulti = this.state.multiple;
-      const shiftKey = (event.nativeEvent as MouseEvent).shiftKey ?? false;
-
-      if (isMulti && shiftKey) {
-        this.expandSelectionRange(itemId, REASONS.itemPress, event.nativeEvent);
-      } else {
-        this.setItemSelection({
-          itemId,
-          keepExistingSelection: isMulti,
-          reason: REASONS.itemPress,
-          event: event.nativeEvent,
-        });
       }
     },
   };

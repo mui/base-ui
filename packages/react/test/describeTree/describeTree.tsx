@@ -15,7 +15,6 @@ export interface DescribeTreeRendererUtils {
   getAllTreeItemIds: () => string[];
   getFocusedItemId: () => string | null;
   getItemRoot: (id: string) => HTMLElement;
-  getItemCheckboxInput: (id: string) => HTMLInputElement;
   getItemExpansionTrigger: (id: string) => HTMLElement | null;
   getItemLabel: (id: string) => HTMLElement | null;
   getItemLabelInput: (id: string) => HTMLInputElement | null;
@@ -72,15 +71,6 @@ function getUtils(result: BaseUIRenderResult): DescribeTreeRendererUtils {
     return item as HTMLElement;
   };
 
-  const getItemCheckboxInput = (id: string) => {
-    const item = getItemRoot(id);
-    const checkbox = item.querySelector<HTMLInputElement>('input[type="checkbox"]');
-    if (!checkbox) {
-      throw new Error(`Could not find checkbox for item "${id}"`);
-    }
-    return checkbox;
-  };
-
   const getItemExpansionTrigger = (id: string): HTMLElement | null => {
     const item = getItemRoot(id);
     return item.querySelector<HTMLElement>('button');
@@ -121,7 +111,6 @@ function getUtils(result: BaseUIRenderResult): DescribeTreeRendererUtils {
     getAllTreeItemIds,
     getFocusedItemId,
     getItemRoot,
-    getItemCheckboxInput,
     getItemExpansionTrigger,
     getItemLabel,
     getItemLabelInput,
