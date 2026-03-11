@@ -184,8 +184,8 @@ function ExampleForm() {
           <Slider.Control>
             <Slider.Track>
               <Slider.Indicator />
-              <Slider.Thumb index={0} />
-              <Slider.Thumb index={1} />
+              <Slider.Thumb index={0} aria-label="Minimum threshold" />
+              <Slider.Thumb index={1} aria-label="Maximum threshold" />
             </Slider.Track>
           </Slider.Control>
         </Fieldset.Root>

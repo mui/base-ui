@@ -286,8 +286,13 @@ function ReactHookForm() {
               <Slider.Control>
                 <Slider.Track>
                   <Slider.Indicator />
-                  <Slider.Thumb index={0} onBlur={onBlur} inputRef={ref} />
-                  <Slider.Thumb index={1} onBlur={onBlur} />
+                  <Slider.Thumb
+                    index={0}
+                    aria-label="Minimum threshold"
+                    onBlur={onBlur}
+                    inputRef={ref}
+                  />
+                  <Slider.Thumb index={1} aria-label="Maximum threshold" onBlur={onBlur} />
                 </Slider.Track>
               </Slider.Control>
             </Fieldset.Root>

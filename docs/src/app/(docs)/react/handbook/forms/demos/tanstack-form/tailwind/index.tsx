@@ -341,8 +341,16 @@ function TanstackForm() {
                 <Slider.Control>
                   <Slider.Track>
                     <Slider.Indicator />
-                    <Slider.Thumb index={0} onBlur={field.handleBlur} />
-                    <Slider.Thumb index={1} onBlur={field.handleBlur} />
+                    <Slider.Thumb
+                      index={0}
+                      aria-label="Minimum threshold"
+                      onBlur={field.handleBlur}
+                    />
+                    <Slider.Thumb
+                      index={1}
+                      aria-label="Maximum threshold"
+                      onBlur={field.handleBlur}
+                    />
                   </Slider.Track>
                 </Slider.Control>
               </Fieldset.Root>

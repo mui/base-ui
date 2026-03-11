@@ -89,7 +89,7 @@ A visible label can be created using `<Slider.Label>`:
 
 For a multi-thumb range slider with a visible label, add `aria-label` on each `<Slider.Thumb>` to distinguish them:
 
-```tsx title="Labeling multi-thumb range sliders" {5-6}
+```tsx title="Labeling multi-thumb range sliders" {6-7}
 <Slider.Root defaultValue={[25, 75]}>
   <Slider.Label>Price range</Slider.Label>
   <Slider.Control>
@@ -102,9 +102,27 @@ For a multi-thumb range slider with a visible label, add `aria-label` on each `<
 </Slider.Root>
 ```
 
-For grouped multi-thumb range sliders, [Fieldset](/react/components/fieldset) can be used by replacing the `<Fieldset.Root>` element with `<Slider.Root>` via the `render` prop. `<Fieldset.Legend>` provides the visible label for the group:
+### Form integration
 
-```tsx title="Using Fieldset to label a multi-thumb slider" {2,3,7-8}
+To use a slider in a form, pass the slider `name` to `<Slider.Root>`:
+
+```tsx title="Using Slider in a form" {2}
+<Form>
+  <Slider.Root name="volume">
+    <Slider.Label>Volume</Slider.Label>
+    <Slider.Control>
+      <Slider.Track>
+        <Slider.Indicator />
+        <Slider.Thumb />
+      </Slider.Track>
+    </Slider.Control>
+  </Slider.Root>
+</Form>
+```
+
+For grouped multi-thumb range sliders in forms, [Fieldset](/react/components/fieldset) can provide the shared visible label while each thumb keeps its own `aria-label`:
+
+```tsx title="Using Fieldset with a multi-thumb slider" {2,3,7-8}
 <Field.Root>
   <Fieldset.Root render={<Slider.Root />}>
     <Fieldset.Legend>Price range</Fieldset.Legend>
@@ -117,24 +135,6 @@ For grouped multi-thumb range sliders, [Fieldset](/react/components/fieldset) ca
     </Slider.Control>
   </Fieldset.Root>
 </Field.Root>
-```
-
-### Form integration
-
-To use a slider in a form, pass the slider `name` to `<Slider.Root>`:
-
-```tsx title="Using Slider in a form" {3}
-<Form>
-  <Slider.Root name="volume">
-    <Slider.Label>Volume</Slider.Label>
-    <Slider.Control>
-      <Slider.Track>
-        <Slider.Indicator />
-        <Slider.Thumb />
-      </Slider.Track>
-    </Slider.Control>
-  </Slider.Root>
-</Form>
 ```
 
 ## API reference

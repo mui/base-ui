@@ -15,21 +15,23 @@ Form controls must have an accessible name in order to be recognized by assistiv
 
 ### Labeling by control
 
-#### Input and binary controls
+Choose the labeling pattern based on which element acts as the form control.
+
+#### Input controls
 
 Use `<Field.Label>` or a native `<label>` to label the following controls:
 
 - `Input`
 - `NumberField`
 - `Autocomplete`
-- `Combobox` (default pattern)
+- `Combobox` (input outside popup)
 - `Checkbox`
 - `Radio`
 - `Switch`
 
 #### Trigger-based controls
 
-- `Combobox` (when `<Combobox.Input>` is inside the popup): use `<Combobox.Label>`.
+- `Combobox` (input inside popup): use `<Combobox.Label>`.
 - `Select`: use `<Select.Label>`.
 - `Slider`: use `<Slider.Label>`. For multi-thumb sliders, also add an `aria-label` on each
   `<Slider.Thumb>` to distinguish the thumbs.
@@ -37,6 +39,8 @@ Use `<Field.Label>` or a native `<label>` to label the following controls:
 #### Fallback
 
 If no visible label is rendered, provide `aria-label` on the actual form control.
+
+### Describing the control
 
 `<Field.Description>` automatically assigns an accessible description:
 
@@ -84,6 +88,8 @@ import { Switch } from '@base-ui/react/switch';
 </Field.Root>;
 ```
 
+### Labeling control groups
+
 Compose `<Fieldset>` when a single label applies to multiple controls, such as a range slider with multiple thumbs or a section that combines several inputs. For checkbox and radio groups, keep the group label in `<Fieldset.Legend>` and wrap each option with `<Field.Item>`:
 
 ```tsx {10-11, 18, 22-23, 26} title="Composing range slider and radio group with fieldset"
@@ -100,8 +106,8 @@ import { Slider } from '@base-ui/react/slider';
       <Fieldset.Legend>Price range</Fieldset.Legend>
       <Slider.Control>
         <Slider.Track>
-          <Slider.Thumb />
-          <Slider.Thumb />
+          <Slider.Thumb aria-label="Minimum price" />
+          <Slider.Thumb aria-label="Maximum price" />
         </Slider.Track>
       </Slider.Control>
     </Fieldset.Root>
