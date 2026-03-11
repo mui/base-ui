@@ -29,6 +29,21 @@ Use `<Field.Label>` or a native `<label>` to label the following controls:
 - `Radio`
 - `Switch`
 
+You can implicitly label `<Checkbox>`, `<Radio>` and `<Switch>` components by enclosing them with `<Field.Label>`:
+
+```tsx title="Implicitly labeling a switch"
+import { Field } from '@base-ui/react/field';
+import { Switch } from '@base-ui/react/switch';
+
+<Field.Root>
+  <Field.Label>
+    <Switch.Root />
+    Developer mode
+  </Field.Label>
+  <Field.Description>Enables extra tools for web developers</Field.Description>
+</Field.Root>;
+```
+
 #### Trigger-based controls
 
 - `Combobox` (input inside popup): use `<Combobox.Label>`.
@@ -71,21 +86,6 @@ import { Slider } from '@base-ui/react/slider';
     </Slider.Root>
   </Field.Root>
 </Form>;
-```
-
-You can implicitly label `<Checkbox>`, `<Radio>` and `<Switch>` components by enclosing them with `<Field.Label>`:
-
-```tsx title="Implicitly labeling a switch"
-import { Field } from '@base-ui/react/field';
-import { Switch } from '@base-ui/react/switch';
-
-<Field.Root>
-  <Field.Label>
-    <Switch.Root />
-    Developer mode
-  </Field.Label>
-  <Field.Description>Enables extra tools for web developers</Field.Description>
-</Field.Root>;
 ```
 
 ### Labeling control groups
