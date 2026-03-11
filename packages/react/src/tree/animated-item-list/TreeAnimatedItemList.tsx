@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { useTreeRootContext } from '../root/TreeRootContext';
 import { selectors } from '../store/selectors';
 import type { TreeItemModel } from '../store/types';
@@ -17,8 +18,8 @@ import { TreeItemModelProvider } from '../utils/TreeItemModelProvider';
  *
  * Documentation: [Base UI Tree](https://base-ui.com/react/components/tree)
  */
-export function TreeAnimatedItemList(props: TreeAnimatedItemList.Props) {
-  const { children, renderGroupTransition } = props;
+export function TreeAnimatedItemList(componentProps: TreeAnimatedItemList.Props) {
+  const { children, renderGroupTransition } = componentProps;
   const store = useTreeRootContext();
 
   // Signal to the store that animation is enabled
@@ -31,37 +32,38 @@ export function TreeAnimatedItemList(props: TreeAnimatedItemList.Props) {
 
   const flatListEntries = useStore(store, selectors.flatListWithGroupTransitions);
 
-  return (
-    <React.Fragment>
-      {flatListEntries.map((entry) => {
-        if (entry.type === 'item') {
-          return (
-            <TreeItemModelProvider key={entry.itemId} store={store} itemId={entry.itemId}>
-              {children}
-            </TreeItemModelProvider>
-          );
-        }
+  return flatListEntries.map((entry) => {
+    if (entry.type === 'item') {
+      return (
+        <TreeItemModelProvider key={entry.itemId} store={store} itemId={entry.itemId}>
+          {children}
+        </TreeItemModelProvider>
+      );
+    }
 
-        return (
-          <TreeGroupTransition
-            key={`group-${entry.parentId}`}
-            parentId={entry.parentId}
-            animation={entry.animation}
-            render={renderGroupTransition}
-          >
-            {entry.childIds.map((childId) => (
-              <TreeItemModelProvider key={childId} store={store} itemId={childId}>
-                {children}
-              </TreeItemModelProvider>
-            ))}
-          </TreeGroupTransition>
-        );
-      })}
-    </React.Fragment>
-  );
+    return (
+      <TreeGroupTransition
+        key={`group-${entry.parentId}`}
+        parentId={entry.parentId}
+        animation={entry.animation}
+        render={renderGroupTransition}
+      >
+        {entry.childIds.map((childId) => (
+          <TreeItemModelProvider key={childId} store={store} itemId={childId}>
+            {children}
+          </TreeItemModelProvider>
+        ))}
+      </TreeGroupTransition>
+    );
+  });
 }
 
-export interface TreeAnimatedItemListProps {
+export interface TreeAnimatedItemListState {}
+
+export interface TreeAnimatedItemListProps extends Omit<
+  BaseUIComponentProps<'div', TreeAnimatedItemListState>,
+  'children'
+> {
   /**
    * The render function for each tree item.
    * Called with the item model for each visible item.
@@ -91,4 +93,5 @@ export interface TreeAnimatedItemListProps {
 
 export namespace TreeAnimatedItemList {
   export type Props = TreeAnimatedItemListProps;
+  export type State = TreeAnimatedItemListState;
 }

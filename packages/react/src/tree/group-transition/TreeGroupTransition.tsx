@@ -3,10 +3,24 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
-import { TransitionStatusDataAttributes } from '../../utils/stateAttributesMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useTreeRootContext } from '../root/TreeRootContext';
 import { TreeGroupTransitionDataAttributes } from './TreeGroupTransitionDataAttributes';
+import type { TransitionStatus } from '../../utils/useTransitionStatus';
+
+interface TreeGroupTransitionInternalState extends TreeGroupTransitionState {
+  parentId: string;
+  transitionStatus: TransitionStatus;
+}
+
+const groupTransitionStateAttributesMapping: StateAttributesMapping<TreeGroupTransitionInternalState> =
+  {
+    animation: () => null,
+    parentId: (value) => ({ [TreeGroupTransitionDataAttributes.parentId]: value }),
+    ...transitionStatusMapping,
+  };
 
 /**
  * A temporary wrapper rendered around a group of tree items during
@@ -17,8 +31,13 @@ import { TreeGroupTransitionDataAttributes } from './TreeGroupTransitionDataAttr
  *
  * @internal
  */
-export function TreeGroupTransition(props: TreeGroupTransitionInternalProps) {
-  const { parentId, animation, render, children } = props;
+export function TreeGroupTransition(componentProps: TreeGroupTransitionInternalProps) {
+  const {
+    parentId,
+    animation,
+    // Props forwarded to the DOM element
+    ...elementProps
+  } = componentProps;
   const store = useTreeRootContext();
 
   const panelRef = React.useRef<HTMLDivElement>(null);
@@ -75,40 +94,34 @@ export function TreeGroupTransition(props: TreeGroupTransitionInternalProps) {
     };
   }, [transitionReady, runOnceAnimationsFinish, parentId, store]);
 
-  const state: TreeGroupTransitionState = { animation };
-
-  const dataAttributes: Record<string, string> = {
-    [TreeGroupTransitionDataAttributes.parentId]: parentId,
-  };
-
+  let transitionStatus: TransitionStatus;
   if (isExpanding && !transitionReady) {
-    dataAttributes[TransitionStatusDataAttributes.startingStyle] = '';
-  }
-  if (!isExpanding && transitionReady) {
-    dataAttributes[TransitionStatusDataAttributes.endingStyle] = '';
+    transitionStatus = 'starting';
+  } else if (!isExpanding && transitionReady) {
+    transitionStatus = 'ending';
+  } else {
+    transitionStatus = undefined;
   }
 
-  const element = useRenderElement(
-    'div',
-    { render },
-    {
-      state,
-      ref: panelRef,
-      props: [
-        {
-          role: 'presentation',
-          children,
-          style: {
-            overflow: 'hidden',
-            ...((height !== undefined && {
-              ['--tree-group-height' as string]: `${height}px`,
-            }) as React.CSSProperties),
-          },
-          ...dataAttributes,
+  const state: TreeGroupTransitionInternalState = { animation, parentId, transitionStatus };
+
+  const element = useRenderElement('div', componentProps, {
+    state,
+    ref: panelRef,
+    props: [
+      {
+        role: 'presentation',
+        style: {
+          overflow: 'hidden',
+          ...((height !== undefined && {
+            ['--tree-group-height' as string]: `${height}px`,
+          }) as React.CSSProperties),
         },
-      ],
-    },
-  );
+      },
+      elementProps,
+    ],
+    stateAttributesMapping: groupTransitionStateAttributesMapping,
+  });
 
   return element;
 }
