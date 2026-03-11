@@ -67,6 +67,27 @@ export interface UsePopupViewportResult {
   state: PopupViewportState;
 }
 
+const SANITIZED_CLONE_MARKER: unique symbol = Symbol('base-ui-popup-viewport-sanitized-clone');
+
+const ID_REFERENCE_ATTRIBUTES = [
+  'for',
+  'form',
+  'headers',
+  'list',
+  'aria-activedescendant',
+  'aria-controls',
+  'aria-describedby',
+  'aria-details',
+  'aria-errormessage',
+  'aria-flowto',
+  'aria-labelledby',
+  'aria-owns',
+] as const;
+
+type SanitizedCloneElement = HTMLElement & {
+  [SANITIZED_CLONE_MARKER]?: true | undefined;
+};
+
 /**
  * Builds morphing viewport containers for popups that animate between trigger-based content.
  * Handles previous-content snapshots, auto-resize, and state attributes for transitions.
@@ -243,6 +264,7 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
       return;
     }
 
+    sanitizeClonedSubtree(previousContentNode);
     container.replaceChildren(...Array.from(previousContentNode.childNodes));
   }, [previousContentNode]);
 
@@ -331,6 +353,44 @@ function calculateRelativePosition(from: Element, to: Element): Offset {
     horizontal: toCenter.x - fromCenter.x,
     vertical: toCenter.y - fromCenter.y,
   };
+}
+
+function sanitizeClonedSubtree(root: HTMLElement) {
+  const markedRoot = root as SanitizedCloneElement;
+  if (markedRoot[SANITIZED_CLONE_MARKER]) {
+    return;
+  }
+
+  if (root.hasAttribute('id')) {
+    root.removeAttribute('id');
+  }
+
+  for (const attribute of ID_REFERENCE_ATTRIBUTES) {
+    if (root.hasAttribute(attribute)) {
+      root.removeAttribute(attribute);
+    }
+  }
+
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
+  let currentNode = walker.nextNode();
+
+  while (currentNode) {
+    const element = currentNode as HTMLElement;
+
+    if (element.hasAttribute('id')) {
+      element.removeAttribute('id');
+    }
+
+    for (const attribute of ID_REFERENCE_ATTRIBUTES) {
+      if (element.hasAttribute(attribute)) {
+        element.removeAttribute(attribute);
+      }
+    }
+
+    currentNode = walker.nextNode();
+  }
+
+  markedRoot[SANITIZED_CLONE_MARKER] = true;
 }
 
 /**

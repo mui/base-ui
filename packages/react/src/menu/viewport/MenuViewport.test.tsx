@@ -272,6 +272,90 @@ describe('<Menu.Viewport />', () => {
       });
     });
 
+    it('does not leave duplicate ids in the previous menu subtree during transitions', async () => {
+      const { user } = await render(
+        <div>
+          <style>
+            {`
+              [data-transitioning] [data-previous] {
+                animation: slide-out 0.2s ease-out forwards;
+              }
+              [data-transitioning] [data-current] {
+                animation: slide-in 0.2s ease-out forwards;
+              }
+              @keyframes slide-out {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(-30%); opacity: 0; }
+              }
+              @keyframes slide-in {
+                from { transform: translateX(30%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+              }
+            `}
+          </style>
+          <Menu.Root>
+            {({ payload }) => (
+              <React.Fragment>
+                <Menu.Trigger payload="library" data-testid="trigger1">
+                  Trigger 1
+                </Menu.Trigger>
+                <Menu.Trigger payload="playback" data-testid="trigger2">
+                  Trigger 2
+                </Menu.Trigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup>
+                      <Menu.Viewport>
+                        {payload === 'library' ? (
+                          <Menu.Group>
+                            <Menu.GroupLabel>Library</Menu.GroupLabel>
+                            <Menu.Item>Item 1</Menu.Item>
+                          </Menu.Group>
+                        ) : null}
+                        {payload === 'playback' ? (
+                          <Menu.Group>
+                            <Menu.GroupLabel>Playback</Menu.GroupLabel>
+                            <Menu.Item>Item 2</Menu.Item>
+                          </Menu.Group>
+                        ) : null}
+                      </Menu.Viewport>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </React.Fragment>
+            )}
+          </Menu.Root>
+        </div>,
+      );
+
+      await user.click(screen.getByTestId('trigger1'));
+      await waitFor(() => {
+        expect(screen.getByText('Library')).toBeVisible();
+      });
+
+      await user.click(screen.getByTestId('trigger2'));
+
+      let previousContainer: HTMLElement | null = null;
+      await waitFor(() => {
+        previousContainer = document.querySelector('[data-previous]');
+        expect(previousContainer).not.to.equal(null);
+      });
+
+      expect(previousContainer!.querySelectorAll('[id]')).to.have.length(0);
+
+      const currentGroup = document.querySelector('[data-current] [role="group"]');
+      expect(currentGroup).not.to.equal(null);
+
+      const labelledBy = currentGroup!.getAttribute('aria-labelledby');
+      expect(labelledBy).not.to.equal(null);
+
+      const labelledElement = document.getElementById(labelledBy!);
+      expect(labelledElement).not.to.equal(null);
+      expect(labelledElement!.textContent).to.equal('Playback');
+
+      expect(document.querySelectorAll(`[id="${labelledBy!}"]`)).to.have.length(1);
+    });
+
     it.each([
       {
         name: 'should calculate "right down" direction',
