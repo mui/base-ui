@@ -7,6 +7,7 @@ import { useFieldRootContext } from '../root/FieldRootContext';
 import { fieldValidityMapping } from '../utils/constants';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { useLabel } from '../../labelable-provider/useLabel';
 
 /**
@@ -22,12 +23,12 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
   const { render, className, id: idProp, nativeLabel = true, ...elementProps } = componentProps;
 
   const fieldRootContext = useFieldRootContext(false);
+  const { labelId } = useLabelableContext();
 
   const labelRef = React.useRef<HTMLElement | null>(null);
   const labelProps = useLabel({
-    id: idProp,
+    id: labelId ?? idProp,
     native: nativeLabel,
-    useContextLabelId: true,
   });
 
   if (process.env.NODE_ENV !== 'production') {

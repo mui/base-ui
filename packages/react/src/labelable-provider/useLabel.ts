@@ -14,12 +14,10 @@ export function useLabel(params: UseLabelParameters = {}): UseLabelReturnValue {
     native = false,
     setLabelId: setLabelIdProp,
     focusControl: focusControlProp,
-    useContextLabelId = false,
   } = params;
 
   const {
     controlId: contextControlId,
-    labelId: contextLabelId,
     setLabelId: setContextLabelId,
   } = useLabelableContext();
 
@@ -31,7 +29,6 @@ export function useLabel(params: UseLabelParameters = {}): UseLabelReturnValue {
   const id = useRegisteredLabelId(idProp, syncLabelId);
 
   const resolvedControlId = contextControlId ?? fallbackControlId;
-  const renderedId = useContextLabelId ? (contextLabelId ?? id) : id;
 
   function focusControl(event: React.MouseEvent) {
     if (focusControlProp) {
@@ -69,12 +66,12 @@ export function useLabel(params: UseLabelParameters = {}): UseLabelReturnValue {
 
   return native
     ? {
-        id: renderedId,
+        id,
         htmlFor: resolvedControlId ?? undefined,
         onMouseDown: handleInteraction,
       }
     : {
-        id: renderedId,
+        id,
         onClick: handleInteraction,
         onPointerDown(event: React.PointerEvent) {
           event.preventDefault();
@@ -104,11 +101,6 @@ export interface UseLabelParameters {
   focusControl?:
     | ((event: React.MouseEvent, controlId: string | null | undefined) => void)
     | undefined;
-  /**
-   * Whether to use the current context label id as the rendered id.
-   * @default false
-   */
-  useContextLabelId?: boolean | undefined;
 }
 
 export type UseLabelReturnValue = React.HTMLAttributes<any> & React.LabelHTMLAttributes<any>;
