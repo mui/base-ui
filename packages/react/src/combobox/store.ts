@@ -51,6 +51,8 @@ export type State = {
   popupRef: React.RefObject<HTMLDivElement | null>;
   emptyRef: React.RefObject<HTMLDivElement | null>;
   inputRef: React.RefObject<HTMLInputElement | null>;
+  startDismissRef: React.RefObject<HTMLSpanElement | null>;
+  endDismissRef: React.RefObject<HTMLSpanElement | null>;
   keyboardActiveRef: React.RefObject<boolean>;
   chipsContainerRef: React.RefObject<HTMLDivElement | null>;
   clearRef: React.RefObject<HTMLButtonElement | null>;
