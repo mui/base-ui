@@ -61,7 +61,7 @@ export default function CheckboxSelectionTree() {
       <Tree.Root
         items={items}
         defaultExpandedItems={['frontend', 'react']}
-        multiple
+        selectionMode="multiple"
         selectionPropagation={{
           parents: true,
           descendants: true,

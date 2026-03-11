@@ -57,7 +57,7 @@ export const isItemDisabled = createSelector((state: TreeState, itemId: TreeItem
 
 export const canItemBeFocused = createSelector(
   (state: TreeState, itemId: TreeItemId): boolean =>
-    state.disabledItemsFocusable || !isItemDisabled(state, itemId),
+    state.itemFocusableWhenDisabled || !isItemDisabled(state, itemId),
 );
 
 // === Expansion selectors ===
@@ -131,15 +131,15 @@ export const isItemSelected = createSelector(selectedItemsSet, (set, itemId: Tre
 );
 
 export const isMultiSelectEnabled = createSelector(
-  (state: TreeState): boolean => state.multiple,
+  (state: TreeState): boolean => state.selectionMode === 'multiple',
 );
 
 export const isSelectionDisabled = createSelector(
-  (state: TreeState): boolean => state.disableSelection,
+  (state: TreeState): boolean => state.selectionMode === 'none',
 );
 
 export const canItemBeSelected = createSelector((state: TreeState, itemId: TreeItemId): boolean => {
-  if (state.disableSelection) {
+  if (state.selectionMode === 'none') {
     return false;
   }
   const meta = state.itemMetaLookup[itemId];
@@ -221,7 +221,7 @@ export const defaultFocusableItemId = createSelectorMemoized(
   selectedItemsNormalized,
   expandedItemsSet,
   (state: TreeState) => state.itemMetaLookup,
-  (state: TreeState) => state.disabledItemsFocusable,
+  (state: TreeState) => state.itemFocusableWhenDisabled,
   (state: TreeState) => state.itemOrderedChildrenIdsLookup,
   (
     selectedItems,
@@ -374,7 +374,7 @@ export const checkboxProps = createSelectorMemoized(
   (state: TreeState, itemId: TreeItemId) => checkboxSelectionStatus(state, itemId),
   (state: TreeState, itemId: TreeItemId) => canItemBeSelected(state, itemId),
   (state: TreeState, itemId: TreeItemId): boolean => {
-    if (state.disableSelection) {
+    if (state.selectionMode === 'none') {
       return true;
     }
     const meta = state.itemMetaLookup[itemId];

@@ -12,6 +12,7 @@ import type {
   TreeRootSelectionChangeEventReason,
   TreeRootSelectionChangeEventDetails,
   TreeSelectedItemsType,
+  TreeSelectionMode,
 } from './types';
 import { TREE_VIEW_ROOT_PARENT_ID } from './types';
 import { selectors } from './selectors';
@@ -29,7 +30,7 @@ import {
 
 const TYPEAHEAD_TIMEOUT = 500;
 
-export interface TreeStoreParameters<Multiple extends boolean | undefined = false> {
+export interface TreeStoreParameters<Mode extends TreeSelectionMode | undefined = undefined> {
   items: readonly TreeItemModel[];
 
   // Expansion
@@ -42,28 +43,28 @@ export interface TreeStoreParameters<Multiple extends boolean | undefined = fals
 
   // Selection
   selectedItems?:
-    | TreeSelectedItemsType<Multiple>
-    | (Multiple extends true ? never : null)
+    | TreeSelectedItemsType<Mode>
+    | (Mode extends 'multiple' ? never : null)
     | undefined;
   defaultSelectedItems?:
-    | TreeSelectedItemsType<Multiple>
-    | (Multiple extends true ? never : null)
+    | TreeSelectedItemsType<Mode>
+    | (Mode extends 'multiple' ? never : null)
     | undefined;
   onSelectedItemsChange?:
     | ((
-        selectedItems: TreeSelectedItemsType<Multiple> | (Multiple extends true ? never : null),
+        selectedItems: TreeSelectedItemsType<Mode> | (Mode extends 'multiple' ? never : null),
         eventDetails: TreeRootSelectionChangeEventDetails,
       ) => void)
     | undefined;
   onItemSelectionToggle?: ((itemId: TreeItemId, isSelected: boolean) => void) | undefined;
-  multiple?: Multiple | undefined;
-  disableSelection?: boolean | undefined;
+  selectionMode?: Mode | undefined;
+  disallowEmptySelection?: boolean | undefined;
   selectionPropagation?:
     | { parents?: boolean | undefined; descendants?: boolean | undefined }
     | undefined;
 
   // Focus
-  disabledItemsFocusable?: boolean | undefined;
+  itemFocusableWhenDisabled?: boolean | undefined;
   onItemFocus?: ((itemId: TreeItemId) => void) | undefined;
 
   // Item accessors
@@ -104,7 +105,7 @@ function isPrintableKey(key: string): boolean {
   return key.length === 1 && !!key.match(/\S/);
 }
 
-export class TreeStore<Multiple extends boolean | undefined = false> extends ReactStore<TreeState, TreeStoreContext, typeof selectors> {
+export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> extends ReactStore<TreeState, TreeStoreContext, typeof selectors> {
   // Selection tracking
   private lastSelectedItem: TreeItemId | null = null;
 
@@ -117,7 +118,7 @@ export class TreeStore<Multiple extends boolean | undefined = false> extends Rea
 
   private labelMap: Record<string, string> = {};
 
-  constructor(parameters: TreeStoreParameters<Multiple>) {
+  constructor(parameters: TreeStoreParameters<Mode>) {
     const itemsState = TreeStore.buildItemsState(
       parameters.items,
       parameters.getItemId ?? ((item) => item.id),
@@ -127,6 +128,8 @@ export class TreeStore<Multiple extends boolean | undefined = false> extends Rea
       parameters.isItemSelectionDisabled ?? (() => false),
     );
 
+    const selectionMode: TreeSelectionMode = parameters.selectionMode ?? 'single';
+
     super(
       {
         ...itemsState,
@@ -134,12 +137,12 @@ export class TreeStore<Multiple extends boolean | undefined = false> extends Rea
         selectedItems:
           parameters.selectedItems ??
           parameters.defaultSelectedItems ??
-          (parameters.multiple ? [] : null),
-        disableSelection: parameters.disableSelection ?? false,
-        multiple: parameters.multiple ?? false,
+          (selectionMode === 'multiple' ? [] : null),
+        selectionMode,
+        disallowEmptySelection: parameters.disallowEmptySelection ?? false,
         selectionPropagation: parameters.selectionPropagation ?? {},
         focusedItemId: null,
-        disabledItemsFocusable: parameters.disabledItemsFocusable ?? false,
+        itemFocusableWhenDisabled: parameters.itemFocusableWhenDisabled ?? false,
         editedItemId: null,
         lazyLoadedItems: undefined,
         treeId: parameters.treeId,
@@ -149,6 +152,8 @@ export class TreeStore<Multiple extends boolean | undefined = false> extends Rea
         onSelectedItemsChange:
           (parameters.onSelectedItemsChange as TreeStoreContext['onSelectedItemsChange']) ??
           (() => {}),
+        onItemExpansionToggle: parameters.onItemExpansionToggle ?? (() => {}),
+        onItemSelectionToggle: parameters.onItemSelectionToggle ?? (() => {}),
         onItemFocus: parameters.onItemFocus ?? (() => {}),
         onItemClick: parameters.onItemClick ?? (() => {}),
         onItemLabelChange: parameters.onItemLabelChange ?? (() => {}),
@@ -324,6 +329,7 @@ export class TreeStore<Multiple extends boolean | undefined = false> extends Rea
       return;
     }
     this.set('expandedItems', newExpanded);
+    this.context.onItemExpansionToggle(itemId, shouldBeExpanded);
   }
 
   public expandAllSiblings(
@@ -351,6 +357,9 @@ export class TreeStore<Multiple extends boolean | undefined = false> extends Rea
         return;
       }
       this.set('expandedItems', newExpanded);
+      for (const expandedItemId of diff) {
+        this.context.onItemExpansionToggle(expandedItemId, true);
+      }
     }
   }
 
@@ -365,7 +374,7 @@ export class TreeStore<Multiple extends boolean | undefined = false> extends Rea
     additionalItemsToPropagate?: TreeItemId[],
   ) {
     const oldModel = this.state.selectedItems;
-    const isMulti = this.state.multiple;
+    const isMulti = this.state.selectionMode === 'multiple';
 
     let cleanModel: TreeItemId[] | TreeItemId | null;
 
@@ -388,6 +397,20 @@ export class TreeStore<Multiple extends boolean | undefined = false> extends Rea
       return;
     }
     this.set('selectedItems', cleanModel);
+
+    // Fire onItemSelectionToggle for each item whose selection state changed
+    const normalizedOld = new Set(normalizeSelectedItems(oldModel));
+    const normalizedNew = new Set(normalizeSelectedItems(cleanModel));
+    for (const itemId of normalizedNew) {
+      if (!normalizedOld.has(itemId)) {
+        this.context.onItemSelectionToggle(itemId, true);
+      }
+    }
+    for (const itemId of normalizedOld) {
+      if (!normalizedNew.has(itemId)) {
+        this.context.onItemSelectionToggle(itemId, false);
+      }
+    }
   }
 
   private propagateSelection(
@@ -510,11 +533,11 @@ export class TreeStore<Multiple extends boolean | undefined = false> extends Rea
     reason: TreeRootSelectionChangeEventReason;
     event?: Event | undefined;
   }) {
-    if (this.state.disableSelection) {
+    if (this.state.selectionMode === 'none') {
       return;
     }
 
-    const isMulti = this.state.multiple;
+    const isMulti = this.state.selectionMode === 'multiple';
     let newSelected: TreeItemId[] | TreeItemId | null;
 
     if (keepExistingSelection) {
@@ -537,13 +560,21 @@ export class TreeStore<Multiple extends boolean | undefined = false> extends Rea
       newSelected = isMulti ? [itemId] : itemId;
     }
 
+    // Prevent empty selection when disallowEmptySelection is true
+    if (this.state.disallowEmptySelection) {
+      const normalizedNew = normalizeSelectedItems(newSelected);
+      if (normalizedNew.length === 0) {
+        return;
+      }
+    }
+
     this.setSelectedItems(newSelected, reason, event, [itemId]);
     this.lastSelectedItem = itemId;
     this.lastSelectedRange = {};
   }
 
   public selectAllNavigableItems(reason: TreeRootSelectionChangeEventReason, event?: Event) {
-    if (!this.state.multiple) {
+    if (this.state.selectionMode !== 'multiple') {
       return;
     }
 
@@ -591,7 +622,7 @@ export class TreeStore<Multiple extends boolean | undefined = false> extends Rea
     reason: TreeRootSelectionChangeEventReason,
     event?: Event,
   ) {
-    if (!this.state.multiple) {
+    if (this.state.selectionMode !== 'multiple') {
       return;
     }
 
@@ -623,7 +654,7 @@ export class TreeStore<Multiple extends boolean | undefined = false> extends Rea
     reason: TreeRootSelectionChangeEventReason,
     event?: Event,
   ) {
-    if (!this.state.multiple) {
+    if (this.state.selectionMode !== 'multiple') {
       return;
     }
 
@@ -720,7 +751,7 @@ export class TreeStore<Multiple extends boolean | undefined = false> extends Rea
     if (!rootElement) {
       return null;
     }
-    return rootElement.querySelector(`[data-item-id="${itemId}"]`);
+    return rootElement.querySelector(`[data-item-id="${CSS.escape(itemId)}"]`);
   }
 
   // ===========================================================================
@@ -811,7 +842,7 @@ export class TreeStore<Multiple extends boolean | undefined = false> extends Rea
 
     const ctrlPressed = event.ctrlKey || event.metaKey;
     const key = event.key;
-    const isMulti = this.state.multiple;
+    const isMulti = this.state.selectionMode === 'multiple';
 
     switch (true) {
       // Select the item when pressing "Space"
@@ -972,7 +1003,7 @@ export class TreeStore<Multiple extends boolean | undefined = false> extends Rea
       case String.fromCharCode(event.keyCode) === 'A' &&
         ctrlPressed &&
         isMulti &&
-        !this.state.disableSelection: {
+        this.state.selectionMode !== 'none': {
         this.selectAllNavigableItems(REASONS.keyboard, event.nativeEvent);
         event.preventDefault();
         break;
@@ -1040,9 +1071,9 @@ export class TreeStore<Multiple extends boolean | undefined = false> extends Rea
       }
 
       // Handle selection
-      if (!this.state.disableSelection && selectors.canItemBeSelected(this.state, itemId)) {
+      if (this.state.selectionMode !== 'none' && selectors.canItemBeSelected(this.state, itemId)) {
         if (clickToSelect) {
-          const isMulti = this.state.multiple;
+          const isMulti = this.state.selectionMode === 'multiple';
           if (isMulti && (event.ctrlKey || event.metaKey)) {
             this.setItemSelection({
               itemId,
@@ -1089,7 +1120,7 @@ export class TreeStore<Multiple extends boolean | undefined = false> extends Rea
 
       // Handle selection (checkbox behavior: always toggle, keep existing in multi)
       if (selectors.canItemBeSelected(this.state, itemId)) {
-        const isMulti = this.state.multiple;
+        const isMulti = this.state.selectionMode === 'multiple';
 
         if (isMulti && event.shiftKey) {
           this.expandSelectionRange(itemId, REASONS.itemPress, event.nativeEvent);

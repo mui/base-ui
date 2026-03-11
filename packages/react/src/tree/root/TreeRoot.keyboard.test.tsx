@@ -70,10 +70,10 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         expect(view.getFocusedItemId()).to.equal('3');
       });
 
-      it('should not skip disabled items if disabledItemsFocusable={true}', async () => {
+      it('should not skip disabled items if itemFocusableWhenDisabled={true}', async () => {
         const view = await render({
           items: [{ id: '1' }, { id: '2', disabled: true }, { id: '3' }],
-          disabledItemsFocusable: true,
+          itemFocusableWhenDisabled: true,
         });
 
         act(() => {
@@ -197,10 +197,10 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         expect(view.getFocusedItemId()).to.equal('1');
       });
 
-      it('should not skip disabled items if disabledItemsFocusable={true}', async () => {
+      it('should not skip disabled items if itemFocusableWhenDisabled={true}', async () => {
         const view = await render({
           items: [{ id: '1' }, { id: '2', disabled: true }, { id: '3' }],
-          disabledItemsFocusable: true,
+          itemFocusableWhenDisabled: true,
         });
 
         act(() => {
@@ -276,10 +276,10 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         expect(view.getFocusedItemId()).to.equal('1.1');
       });
 
-      it('should not expand an item with children if it is collapsed but disabled even if disabledItemsFocusable={true}', async () => {
+      it('should not expand an item with children if it is collapsed but disabled even if itemFocusableWhenDisabled={true}', async () => {
         const view = await render({
           items: [{ id: '1', disabled: true, children: [{ id: '1.1' }] }],
-          disabledItemsFocusable: true,
+          itemFocusableWhenDisabled: true,
         });
 
         act(() => {
@@ -370,11 +370,11 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         expect(view.getFocusedItemId()).to.equal('1');
       });
 
-      it('should not collapse an item with children if it is collapsed but disabled even if disabledItemsFocusable={true}', async () => {
+      it('should not collapse an item with children if it is collapsed but disabled even if itemFocusableWhenDisabled={true}', async () => {
         const view = await render({
           items: [{ id: '1', disabled: true, children: [{ id: '1.1' }] }],
           defaultExpandedItems: ['1'],
-          disabledItemsFocusable: true,
+          itemFocusableWhenDisabled: true,
         });
 
         act(() => {
@@ -525,10 +525,10 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         expect(view.isItemExpanded('1')).to.equal(false);
       });
 
-      it('should not expand an item with children if it is collapsed but disabled even if disabledItemsFocusable={true}', async () => {
+      it('should not expand an item with children if it is collapsed but disabled even if itemFocusableWhenDisabled={true}', async () => {
         const view = await render({
           items: [{ id: '1', disabled: true, children: [{ id: '1.1' }] }],
-          disabledItemsFocusable: true,
+          itemFocusableWhenDisabled: true,
         });
 
         act(() => {
@@ -571,7 +571,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         it('should not select the focused item when Space is pressed and disableSelection={true}', async () => {
           const view = await render({
             items: [{ id: '1' }, { id: '2' }],
-            disableSelection: true,
+            selectionMode: 'none',
           });
 
           act(() => {
@@ -593,10 +593,10 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
           expect(view.isItemSelected('1')).to.equal(false);
         });
 
-        it('should not select the focused item when Space is pressed and the item is disabled even if disabledItemsFocusable={true}', async () => {
+        it('should not select the focused item when Space is pressed and the item is disabled even if itemFocusableWhenDisabled={true}', async () => {
           const view = await render({
             items: [{ id: '1', disabled: true }, { id: '2' }],
-            disabledItemsFocusable: true,
+            itemFocusableWhenDisabled: true,
           });
 
           act(() => {
@@ -636,7 +636,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         it('should not select the focused item when Enter is pressed and disableSelection={true}', async () => {
           const view = await render({
             items: [{ id: '1' }, { id: '2' }],
-            disableSelection: true,
+            selectionMode: 'none',
           });
 
           act(() => {
@@ -646,10 +646,10 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
           expect(view.isItemSelected('1')).to.equal(false);
         });
 
-        it('should not select the focused item when Enter is pressed and the item is disabled even if disabledItemsFocusable={true}', async () => {
+        it('should not select the focused item when Enter is pressed and the item is disabled even if itemFocusableWhenDisabled={true}', async () => {
           const view = await render({
             items: [{ id: '1', disabled: true }, { id: '2' }],
-            disabledItemsFocusable: true,
+            itemFocusableWhenDisabled: true,
           });
 
           act(() => {
@@ -666,7 +666,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         it('should select the focused item without un-selecting the other selected items when Space is pressed', async () => {
           const view = await render({
             items: [{ id: '1' }, { id: '2' }],
-            multiple: true,
+            selectionMode: 'multiple',
             defaultSelectedItems: ['1'],
           });
 
@@ -680,7 +680,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         it('should un-select the focused item when Space is pressed', async () => {
           const view = await render({
             items: [{ id: '1' }, { id: '2' }],
-            multiple: true,
+            selectionMode: 'multiple',
             defaultSelectedItems: ['1', '2'],
           });
 
@@ -694,7 +694,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         it('should select the focused item without un-selecting the other selected items when Space is pressed while holding Ctrl', async () => {
           const view = await render({
             items: [{ id: '1' }, { id: '2' }],
-            multiple: true,
+            selectionMode: 'multiple',
             defaultSelectedItems: ['1'],
           });
 
@@ -708,7 +708,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         it('should un-select the focused item when Space is pressed while holding Ctrl', async () => {
           const view = await render({
             items: [{ id: '1' }, { id: '2' }],
-            multiple: true,
+            selectionMode: 'multiple',
             defaultSelectedItems: ['1', '2'],
           });
 
@@ -722,8 +722,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         it('should not select the focused item when Space is pressed and disableSelection={true}', async () => {
           const view = await render({
             items: [{ id: '1' }, { id: '2' }],
-            multiple: true,
-            disableSelection: true,
+            selectionMode: 'none',
           });
 
           act(() => {
@@ -736,7 +735,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         it('should not select the focused item when Space is pressed and the item is disabled', async () => {
           const view = await render({
             items: [{ id: '1', disabled: true }, { id: '2' }],
-            multiple: true,
+            selectionMode: 'multiple',
           });
 
           act(() => {
@@ -746,11 +745,11 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
           expect(view.getSelectedTreeItems()).to.deep.equal([]);
         });
 
-        it('should not select the focused item when Space is pressed and the item is disabled even if disabledItemsFocusable={true}', async () => {
+        it('should not select the focused item when Space is pressed and the item is disabled even if itemFocusableWhenDisabled={true}', async () => {
           const view = await render({
             items: [{ id: '1', disabled: true }, { id: '2' }],
-            multiple: true,
-            disabledItemsFocusable: true,
+            selectionMode: 'multiple',
+            itemFocusableWhenDisabled: true,
           });
 
           act(() => {
@@ -763,7 +762,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         it('should expand the selection range when Space is pressed while holding Shift', async () => {
           const view = await render({
             items: [{ id: '1' }, { id: '2' }, { id: '3' }],
-            multiple: true,
+            selectionMode: 'multiple',
           });
 
           act(() => {
@@ -784,7 +783,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         it('should expand the selection range when ArrowDown is pressed while holding Shift from a selected item', async () => {
           const view = await render({
             items: [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }],
-            multiple: true,
+            selectionMode: 'multiple',
             defaultSelectedItems: ['2'],
           });
 
@@ -798,7 +797,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         it('should not un-select the item below the focused item when ArrowDown is pressed while holding Shift from a selected item', async () => {
           const view = await render({
             items: [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }],
-            multiple: true,
+            selectionMode: 'multiple',
             defaultSelectedItems: ['2', '3'],
           });
 
@@ -812,7 +811,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         it('should un-select the focused item when ArrowDown is pressed while holding Shift and the item below have been selected in the same range', async () => {
           const view = await render({
             items: [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }],
-            multiple: true,
+            selectionMode: 'multiple',
             defaultSelectedItems: ['3'],
           });
 
@@ -829,8 +828,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         it('should not select any item when ArrowDown is pressed while holding Shift and disabledSelection={true}', async () => {
           const view = await render({
             items: [{ id: '1' }, { id: '2' }],
-            multiple: true,
-            disableSelection: true,
+            selectionMode: 'none',
           });
 
           act(() => {
@@ -843,7 +841,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         it('should select the next non-disabled item when ArrowDown is pressed while holding Shift', async () => {
           const view = await render({
             items: [{ id: '1' }, { id: '2', disabled: true }, { id: '3' }],
-            multiple: true,
+            selectionMode: 'multiple',
             defaultSelectedItems: ['1'],
           });
 
@@ -854,11 +852,11 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
           expect(view.getSelectedTreeItems()).to.deep.equal(['1', '3']);
         });
 
-        it('should not select the next item when ArrowDown is pressed while holding Shift if the next item is disabled and disabledItemsFocusable={true}', async () => {
+        it('should not select the next item when ArrowDown is pressed while holding Shift if the next item is disabled and itemFocusableWhenDisabled={true}', async () => {
           const view = await render({
             items: [{ id: '1' }, { id: '2', disabled: true }, { id: '3' }],
-            multiple: true,
-            disabledItemsFocusable: true,
+            selectionMode: 'multiple',
+            itemFocusableWhenDisabled: true,
             defaultSelectedItems: ['1'],
           });
 
@@ -870,11 +868,11 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
           expect(view.getFocusedItemId()).to.equal('2');
         });
 
-        it('should select the next item when ArrowDown is pressed while holding Shift if the focused item is disabled and disabledItemsFocusable={true}', async () => {
+        it('should select the next item when ArrowDown is pressed while holding Shift if the focused item is disabled and itemFocusableWhenDisabled={true}', async () => {
           const view = await render({
             items: [{ id: '1', disabled: true }, { id: '2' }, { id: '3' }],
-            multiple: true,
-            disabledItemsFocusable: true,
+            selectionMode: 'multiple',
+            itemFocusableWhenDisabled: true,
           });
 
           act(() => {
@@ -889,7 +887,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         it('should expand the selection range when ArrowUp is pressed while holding Shift from a selected item', async () => {
           const view = await render({
             items: [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }],
-            multiple: true,
+            selectionMode: 'multiple',
             defaultSelectedItems: ['3'],
           });
 
@@ -903,7 +901,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         it('should not un-select the item above the focused item when ArrowUp is pressed while holding Shift from a selected item', async () => {
           const view = await render({
             items: [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }],
-            multiple: true,
+            selectionMode: 'multiple',
             defaultSelectedItems: ['2', '3'],
           });
 
@@ -917,7 +915,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         it('should un-select the focused item when ArrowUp is pressed while holding Shift and the item above have been selected in the same range', async () => {
           const view = await render({
             items: [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }],
-            multiple: true,
+            selectionMode: 'multiple',
             defaultSelectedItems: ['2'],
           });
 
@@ -934,8 +932,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         it('should not select any item when ArrowUp is pressed while holding Shift and disabledSelection={true}', async () => {
           const view = await render({
             items: [{ id: '1' }, { id: '2' }],
-            multiple: true,
-            disableSelection: true,
+            selectionMode: 'none',
           });
 
           act(() => {
@@ -948,7 +945,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         it('should select the next non-disabled item when ArrowUp is pressed while holding Shift', async () => {
           const view = await render({
             items: [{ id: '1' }, { id: '2', disabled: true }, { id: '3' }],
-            multiple: true,
+            selectionMode: 'multiple',
             defaultSelectedItems: ['3'],
           });
 
@@ -959,11 +956,11 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
           expect(view.getSelectedTreeItems()).to.deep.equal(['1', '3']);
         });
 
-        it('should not select the next item when ArrowUp is pressed while holding Shift if the next item is disabled and disabledItemsFocusable={true}', async () => {
+        it('should not select the next item when ArrowUp is pressed while holding Shift if the next item is disabled and itemFocusableWhenDisabled={true}', async () => {
           const view = await render({
             items: [{ id: '1' }, { id: '2', disabled: true }, { id: '3' }],
-            multiple: true,
-            disabledItemsFocusable: true,
+            selectionMode: 'multiple',
+            itemFocusableWhenDisabled: true,
             defaultSelectedItems: ['3'],
           });
 
@@ -975,11 +972,11 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
           expect(view.getFocusedItemId()).to.equal('2');
         });
 
-        it('should select the previous item when ArrowUp is pressed while holding Shift if the focused item is disabled and disabledItemsFocusable={true}', async () => {
+        it('should select the previous item when ArrowUp is pressed while holding Shift if the focused item is disabled and itemFocusableWhenDisabled={true}', async () => {
           const view = await render({
             items: [{ id: '1' }, { id: '2' }, { id: '3', disabled: true }],
-            multiple: true,
-            disabledItemsFocusable: true,
+            selectionMode: 'multiple',
+            itemFocusableWhenDisabled: true,
           });
 
           act(() => {
@@ -994,7 +991,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         it('should select the focused item and all the items above when Home is pressed while holding Shift + Ctrl', async () => {
           const view = await render({
             items: [{ id: '1' }, { id: '2', children: [{ id: '2.1' }] }, { id: '3' }, { id: '4' }],
-            multiple: true,
+            selectionMode: 'multiple',
             defaultExpandedItems: ['2'],
           });
 
@@ -1012,8 +1009,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         it('should not select any item when Home is pressed while holding Shift + Ctrl and disableSelection={true}', async () => {
           const view = await render({
             items: [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }],
-            multiple: true,
-            disableSelection: true,
+            selectionMode: 'none',
           });
 
           act(() => {
@@ -1035,7 +1031,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
               { id: '3' },
               { id: '4' },
             ],
-            multiple: true,
+            selectionMode: 'multiple',
             defaultExpandedItems: ['2'],
           });
 
@@ -1055,7 +1051,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         it('should select the focused item and all the items below when End is pressed while holding Shift + Ctrl', async () => {
           const view = await render({
             items: [{ id: '1' }, { id: '2', children: [{ id: '2.1' }] }, { id: '3' }, { id: '4' }],
-            multiple: true,
+            selectionMode: 'multiple',
             defaultExpandedItems: ['2'],
           });
 
@@ -1073,8 +1069,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         it('should not select any item when End is pressed while holding Shift + Ctrl and disableSelection={true}', async () => {
           const view = await render({
             items: [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }],
-            multiple: true,
-            disableSelection: true,
+            selectionMode: 'none',
           });
 
           act(() => {
@@ -1096,7 +1091,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
               { id: '3', disabled: true, children: [{ id: '3.1' }] },
               { id: '4' },
             ],
-            multiple: true,
+            selectionMode: 'multiple',
             defaultExpandedItems: ['2'],
           });
 
@@ -1116,7 +1111,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         it('should select all items when Ctrl + A is pressed', async () => {
           const view = await render({
             items: [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }],
-            multiple: true,
+            selectionMode: 'multiple',
           });
 
           act(() => {
@@ -1133,8 +1128,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         it('should not select any item when Ctrl + A is pressed and disableSelection={true}', async () => {
           const view = await render({
             items: [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }],
-            multiple: true,
-            disableSelection: true,
+            selectionMode: 'none',
           });
 
           act(() => {
@@ -1156,7 +1150,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
               { id: '3' },
               { id: '4' },
             ],
-            multiple: true,
+            selectionMode: 'multiple',
           });
 
           act(() => {
@@ -1175,7 +1169,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         it('should select the focused item without un-selecting the other selected items when Enter is pressed', async () => {
           const view = await render({
             items: [{ id: '1' }, { id: '2' }],
-            multiple: true,
+            selectionMode: 'multiple',
             defaultSelectedItems: ['1'],
           });
 
@@ -1189,7 +1183,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         it('should un-select the focused item when Enter is pressed', async () => {
           const view = await render({
             items: [{ id: '1' }, { id: '2' }],
-            multiple: true,
+            selectionMode: 'multiple',
             defaultSelectedItems: ['1', '2'],
           });
 
@@ -1333,7 +1327,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
       expect(view.getFocusedItemId()).to.equal('1');
     });
 
-    it('should work on disabled item when disabledItemsFocusable={true}', async () => {
+    it('should work on disabled item when itemFocusableWhenDisabled={true}', async () => {
       const view = await render({
         items: [
           { id: '1', label: 'one', disabled: true },
@@ -1341,7 +1335,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
           { id: '3', label: 'three', disabled: true },
           { id: '4', label: 'four', disabled: true },
         ],
-        disabledItemsFocusable: true,
+        itemFocusableWhenDisabled: true,
       });
 
       act(() => {
@@ -1353,7 +1347,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
       expect(view.getFocusedItemId()).to.equal('2');
     });
 
-    it('should not move focus on disabled item when disabledItemsFocusable={false}', async () => {
+    it('should not move focus on disabled item when itemFocusableWhenDisabled={false}', async () => {
       const view = await render({
         items: [
           { id: '1', label: 'one', disabled: true },
@@ -1361,7 +1355,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
           { id: '3', label: 'three', disabled: true },
           { id: '4', label: 'four', disabled: true },
         ],
-        disabledItemsFocusable: false,
+        itemFocusableWhenDisabled: false,
       });
 
       act(() => {
@@ -1493,7 +1487,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
     it('should not select non-selectable items with Shift+ArrowDown in multi selection', async () => {
       const view = await render({
         items: [{ id: '1' }, { id: '2' }, { id: '3' }],
-        multiple: true,
+        selectionMode: 'multiple',
         defaultSelectedItems: ['1'],
         isItemSelectionDisabled: (item: any) => item.id === '2',
       });
@@ -1509,7 +1503,7 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
     it('should not select non-selectable items with Shift+ArrowUp in multi selection', async () => {
       const view = await render({
         items: [{ id: '1' }, { id: '2' }, { id: '3' }],
-        multiple: true,
+        selectionMode: 'multiple',
         defaultSelectedItems: ['3'],
         isItemSelectionDisabled: (item: any) => item.id === '2',
       });

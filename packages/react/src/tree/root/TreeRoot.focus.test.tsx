@@ -4,7 +4,7 @@ import { act, fireEvent } from '@mui/internal-test-utils';
 import { describeTree } from '../../../test/describeTree';
 
 /**
- * All tests related to keyboard navigation (e.g.: type-ahead when using `props.disabledItemsFocusable`)
+ * All tests related to keyboard navigation (e.g.: type-ahead when using `props.itemFocusableWhenDisabled`)
  * are located in the `TreeRoot.keyboard.test.tsx` file.
  */
 describeTree('TreeRoot - Focus', ({ render }) => {
@@ -220,12 +220,12 @@ describeTree('TreeRoot - Focus', ({ render }) => {
     });
   });
 
-  describe('disabledItemsFocusable prop', () => {
+  describe('itemFocusableWhenDisabled prop', () => {
     describe('disabledItemFocusable={false}', () => {
       it('should prevent focus by mouse', async () => {
         const view = await render({
           items: [{ id: '1', disabled: true }],
-          disabledItemsFocusable: false,
+          itemFocusableWhenDisabled: false,
         });
 
         fireEvent.click(view.getItemRoot('1'));
@@ -235,7 +235,7 @@ describeTree('TreeRoot - Focus', ({ render }) => {
       it('should set tabIndex={-1} on the disabled item and tabIndex={0} on the first non-disabled item', async () => {
         const view = await render({
           items: [{ id: '1', disabled: true }, { id: '2' }, { id: '3' }],
-          disabledItemsFocusable: false,
+          itemFocusableWhenDisabled: false,
         });
 
         expect(view.getItemRoot('1').tabIndex).to.equal(-1);
@@ -248,7 +248,7 @@ describeTree('TreeRoot - Focus', ({ render }) => {
       it('should prevent focus by mouse', async () => {
         const view = await render({
           items: [{ id: '1', disabled: true }],
-          disabledItemsFocusable: true,
+          itemFocusableWhenDisabled: true,
         });
 
         fireEvent.click(view.getItemRoot('1'));
@@ -258,7 +258,7 @@ describeTree('TreeRoot - Focus', ({ render }) => {
       it('should set tabIndex={0} on the disabled item and tabIndex={-1} on the other items', async () => {
         const view = await render({
           items: [{ id: '1', disabled: true }, { id: '2' }, { id: '3' }],
-          disabledItemsFocusable: true,
+          itemFocusableWhenDisabled: true,
         });
 
         expect(view.getItemRoot('1').tabIndex).to.equal(0);

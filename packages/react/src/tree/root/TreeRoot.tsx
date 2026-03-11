@@ -15,6 +15,7 @@ import type {
   TreeRootExpansionChangeEventDetails,
   TreeRootSelectionChangeEventReason,
   TreeRootSelectionChangeEventDetails,
+  TreeSelectionMode,
 } from '../store/types';
 import { EMPTY_OBJECT } from '../../utils/constants';
 
@@ -25,8 +26,8 @@ import { EMPTY_OBJECT } from '../../utils/constants';
  * Documentation: [Base UI Tree](https://base-ui.com/react/components/tree)
  */
 export const TreeRoot = React.forwardRef(function TreeRoot<
-  Multiple extends boolean | undefined = false,
->(componentProps: TreeRoot.Props<Multiple>, forwardedRef: React.ForwardedRef<HTMLUListElement>) {
+  Mode extends TreeSelectionMode | undefined = undefined,
+>(componentProps: TreeRoot.Props<Mode>, forwardedRef: React.ForwardedRef<HTMLUListElement>) {
   const {
     // Rendering props
     className,
@@ -38,12 +39,14 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
     expandedItems,
     defaultExpandedItems,
     onExpandedItemsChange,
+    onItemExpansionToggle,
     // Selection
     selectedItems,
     defaultSelectedItems,
     onSelectedItemsChange,
-    multiple,
-    disableSelection,
+    onItemSelectionToggle,
+    selectionMode,
+    disallowEmptySelection,
     selectionPropagation,
     // Item accessors
     getItemId,
@@ -53,7 +56,7 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
     isItemSelectionDisabled,
     isItemEditable,
     // Focus
-    disabledItemsFocusable,
+    itemFocusableWhenDisabled,
     onItemFocus,
     // Actions
     actionsRef,
@@ -68,16 +71,18 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
 
   const store = useRefWithInit(
     () =>
-      new TreeStore<Multiple>({
+      new TreeStore<Mode>({
         items,
         expandedItems,
         defaultExpandedItems,
         onExpandedItemsChange,
+        onItemExpansionToggle,
         selectedItems,
         defaultSelectedItems,
         onSelectedItemsChange,
-        multiple,
-        disableSelection,
+        onItemSelectionToggle,
+        selectionMode,
+        disallowEmptySelection,
         selectionPropagation,
         getItemId,
         getItemLabel,
@@ -85,7 +90,7 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
         isItemDisabled,
         isItemSelectionDisabled,
         isItemEditable,
-        disabledItemsFocusable,
+        itemFocusableWhenDisabled,
         onItemFocus,
         onItemClick,
         onItemLabelChange,
@@ -97,13 +102,15 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
   store.useControlledProp('expandedItems', expandedItems);
   store.useControlledProp('selectedItems', selectedItems as any);
   store.useSyncedValues({
-    disableSelection: disableSelection ?? false,
-    multiple: (multiple ?? false) as boolean,
+    selectionMode: selectionMode ?? 'single',
+    disallowEmptySelection: disallowEmptySelection ?? false,
     selectionPropagation: selectionPropagation ?? EMPTY_OBJECT,
-    disabledItemsFocusable: disabledItemsFocusable ?? false,
+    itemFocusableWhenDisabled: itemFocusableWhenDisabled ?? false,
   });
   store.useContextCallback('onExpandedItemsChange', onExpandedItemsChange);
+  store.useContextCallback('onItemExpansionToggle', onItemExpansionToggle);
   store.useContextCallback('onSelectedItemsChange', onSelectedItemsChange as any);
+  store.useContextCallback('onItemSelectionToggle', onItemSelectionToggle);
   store.useContextCallback('onItemFocus', onItemFocus);
   store.useContextCallback('onItemClick', onItemClick);
   store.useContextCallback('onItemLabelChange', onItemLabelChange);
@@ -132,7 +139,7 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
     props: [
       {
         role: 'tree',
-        'aria-multiselectable': multiple || undefined,
+        'aria-multiselectable': selectionMode === 'multiple' || undefined,
         children: flatItemIds.map((itemId) => {
           // eslint-disable-next-line react/jsx-no-constructed-context-values -- unique per item
           const contextValue: TreeItemContextValue = { itemId };
@@ -153,17 +160,17 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
 
   return <TreeRootContext.Provider value={store}>{element}</TreeRootContext.Provider>;
 }) as {
-  <Multiple extends boolean | undefined = false>(
-    props: TreeRoot.Props<Multiple>,
+  <Mode extends TreeSelectionMode | undefined = undefined>(
+    props: TreeRoot.Props<Mode>,
   ): React.JSX.Element;
 };
 
 export interface TreeRootState {}
 
-export interface TreeRootProps<Multiple extends boolean | undefined = false>
+export interface TreeRootProps<Mode extends TreeSelectionMode | undefined = undefined>
   extends
     Omit<BaseUIComponentProps<'ul', TreeRootState>, 'children'>,
-    Omit<TreeStoreParameters<Multiple>, 'treeId' | 'rootRef'> {
+    Omit<TreeStoreParameters<Mode>, 'treeId' | 'rootRef'> {
   /**
    * The render function for each tree item.
    * Called with the item model for each visible item.
@@ -177,7 +184,7 @@ export interface TreeRootProps<Multiple extends boolean | undefined = false>
 
 export namespace TreeRoot {
   export type State = TreeRootState;
-  export type Props<Multiple extends boolean | undefined = false> = TreeRootProps<Multiple>;
+  export type Props<Mode extends TreeSelectionMode | undefined = undefined> = TreeRootProps<Mode>;
   export type Actions = TreeRootActions;
   export type ExpansionChangeEventReason = TreeRootExpansionChangeEventReason;
   export type ExpansionChangeEventDetails = TreeRootExpansionChangeEventDetails;

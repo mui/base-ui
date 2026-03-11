@@ -146,6 +146,85 @@ describeTree('TreeRoot - Expansion', ({ render }) => {
     });
   });
 
+  describe('onItemExpansionToggle prop', () => {
+    it('should call onItemExpansionToggle when expanding an item', async () => {
+      const onItemExpansionToggle = spy();
+
+      const view = await render({
+        items: [{ id: '1', children: [{ id: '1.1' }] }],
+        onItemExpansionToggle,
+      });
+
+      fireEvent.click(view.getItemRoot('1'));
+      expect(onItemExpansionToggle.callCount).to.equal(1);
+      expect(onItemExpansionToggle.lastCall.args[0]).to.equal('1');
+      expect(onItemExpansionToggle.lastCall.args[1]).to.equal(true);
+    });
+
+    it('should call onItemExpansionToggle when collapsing an item', async () => {
+      const onItemExpansionToggle = spy();
+
+      const view = await render({
+        items: [{ id: '1', children: [{ id: '1.1' }] }],
+        defaultExpandedItems: ['1'],
+        onItemExpansionToggle,
+      });
+
+      fireEvent.click(view.getItemRoot('1'));
+      expect(onItemExpansionToggle.callCount).to.equal(1);
+      expect(onItemExpansionToggle.lastCall.args[0]).to.equal('1');
+      expect(onItemExpansionToggle.lastCall.args[1]).to.equal(false);
+    });
+
+    it('should not call onItemExpansionToggle when the expansion is canceled', async () => {
+      const onItemExpansionToggle = spy();
+
+      const view = await render({
+        items: [{ id: '1', children: [{ id: '1.1' }] }],
+        onItemExpansionToggle,
+        onExpandedItemsChange: (_expandedItems: string[], eventDetails: any) => {
+          eventDetails.cancel();
+        },
+      });
+
+      fireEvent.click(view.getItemRoot('1'));
+      expect(onItemExpansionToggle.callCount).to.equal(0);
+    });
+
+    it('should call onItemExpansionToggle when using the setItemExpansion imperative API', async () => {
+      const onItemExpansionToggle = spy();
+
+      const view = await render({
+        items: [{ id: '1', children: [{ id: '1.1' }] }],
+        onItemExpansionToggle,
+      });
+
+      act(() => {
+        view.actionsRef.current!.setItemExpansion('1', true);
+      });
+
+      expect(onItemExpansionToggle.callCount).to.equal(1);
+      expect(onItemExpansionToggle.lastCall.args[0]).to.equal('1');
+      expect(onItemExpansionToggle.lastCall.args[1]).to.equal(true);
+    });
+
+    it('should not call onItemExpansionToggle when expanding an already expanded item via API', async () => {
+      const onItemExpansionToggle = spy();
+
+      const view = await render({
+        items: [{ id: '1', children: [{ id: '1.1' }] }],
+        defaultExpandedItems: ['1'],
+        onItemExpansionToggle,
+      });
+
+      act(() => {
+        view.actionsRef.current!.setItemExpansion('1', true);
+      });
+
+      expect(onItemExpansionToggle.callCount).to.equal(0);
+    });
+  });
+
   describe('item click interaction', () => {
     it('should expand collapsed item when clicking on an item', async () => {
       const view = await render({

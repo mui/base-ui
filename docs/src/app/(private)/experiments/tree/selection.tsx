@@ -61,7 +61,7 @@ export default function SelectionTree() {
       <Tree.Root
         items={items}
         defaultExpandedItems={['frontend', 'react']}
-        multiple
+        selectionMode="multiple"
         className={styles.tree}
       >
         {() => (

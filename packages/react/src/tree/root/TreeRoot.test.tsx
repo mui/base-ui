@@ -37,7 +37,7 @@ describeTree('TreeRoot - Items', ({ render }) => {
 
       const view = await render({
         items: [{ id: '1' }, { id: '2' }, { id: '3' }],
-        multiple: true,
+        selectionMode: 'multiple',
         onSelectedItemsChange,
       });
 

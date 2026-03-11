@@ -46,7 +46,7 @@ export default function ExampleTreeCheckboxItems() {
     <Tree.Root
       items={items}
       defaultExpandedItems={['documents']}
-      multiple
+      selectionMode="multiple"
       selectionPropagation={{
         parents: true,
         descendants: true,

@@ -4,13 +4,20 @@ import { REASONS } from '../../utils/reasons';
 export type TreeItemId = string;
 
 /**
- * Conditional type that narrows the selected items type based on the `multiple` prop.
- * When `Multiple` is `true`, the type is `TreeItemId[]`.
- * When `Multiple` is `false` or `undefined`, the type is `TreeItemId`.
+ * The selection mode of the tree.
+ * - `'none'`: Selection is disabled.
+ * - `'single'`: Only one item can be selected at a time.
+ * - `'multiple'`: Multiple items can be selected.
  */
-export type TreeSelectedItemsType<Multiple extends boolean | undefined> = Multiple extends true
-  ? TreeItemId[]
-  : TreeItemId;
+export type TreeSelectionMode = 'none' | 'single' | 'multiple';
+
+/**
+ * Conditional type that narrows the selected items type based on the `selectionMode` prop.
+ * When `Mode` is `'multiple'`, the type is `TreeItemId[]`.
+ * Otherwise, the type is `TreeItemId`.
+ */
+export type TreeSelectedItemsType<Mode extends TreeSelectionMode | undefined> =
+  Mode extends 'multiple' ? TreeItemId[] : TreeItemId;
 
 /**
  * The shape of an item as provided by the user in the `items` prop.
@@ -91,10 +98,10 @@ export interface TreeState {
   // === Selection ===
   /** Currently selected items. string | null for single, string[] for multi */
   selectedItems: TreeItemId | null | readonly TreeItemId[];
-  /** Whether selection is entirely disabled */
-  disableSelection: boolean;
-  /** Whether multiple items can be selected */
-  multiple: boolean;
+  /** The selection mode of the tree */
+  selectionMode: TreeSelectionMode;
+  /** Whether at least one item must remain selected */
+  disallowEmptySelection: boolean;
   /** How selection propagates through the tree hierarchy */
   selectionPropagation: SelectionPropagation;
 
@@ -102,7 +109,7 @@ export interface TreeState {
   /** The currently focused item ID, or null */
   focusedItemId: TreeItemId | null;
   /** Whether disabled items can receive focus */
-  disabledItemsFocusable: boolean;
+  itemFocusableWhenDisabled: boolean;
 
   // === Label editing ===
   /** The ID of the item currently being edited, or null */
@@ -130,6 +137,8 @@ export interface TreeStoreContext {
     selectedItems: TreeItemId | null | TreeItemId[],
     details: TreeRootSelectionChangeEventDetails,
   ) => void;
+  onItemExpansionToggle: (itemId: TreeItemId, isExpanded: boolean) => void;
+  onItemSelectionToggle: (itemId: TreeItemId, isSelected: boolean) => void;
   onItemFocus: (itemId: TreeItemId) => void;
   onItemClick: (event: React.MouseEvent, itemId: TreeItemId) => void;
   onItemLabelChange: (itemId: TreeItemId, newLabel: string) => void;

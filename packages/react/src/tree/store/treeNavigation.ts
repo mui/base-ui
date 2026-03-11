@@ -7,7 +7,7 @@ function canItemBeFocused(state: TreeState, itemId: TreeItemId): boolean {
   if (!meta) {
     return false;
   }
-  return state.disabledItemsFocusable || !isItemDisabledInternal(state, itemId);
+  return state.itemFocusableWhenDisabled || !isItemDisabledInternal(state, itemId);
 }
 
 function isItemDisabledInternal(state: TreeState, itemId: TreeItemId): boolean {
