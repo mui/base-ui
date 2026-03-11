@@ -86,8 +86,8 @@
   "dependencies": {
     "@babel/runtime": "^7.28.6",
     "@base-ui/utils": "workspace:*",
-    "@floating-ui/react-dom": "^2.1.7",
-    "@floating-ui/utils": "^0.2.10",
+    "@floating-ui/react-dom": "^2.1.8",
+    "@floating-ui/utils": "^0.2.11",
     "tabbable": "^6.4.0",
     "use-sync-external-store": "^1.6.0"
   },
