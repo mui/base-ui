@@ -11,11 +11,45 @@
 
 Import the component and assemble its parts:
 
-TODO
+```jsx title="Anatomy"
+import { Tree } from '@base-ui/react/tree';
+
+<Tree.Root>
+  <Tree.Item>
+    <Tree.ItemExpansionTrigger />
+    <Tree.ItemGroupIndicator />
+    <Tree.ItemLabel />
+    <Tree.ItemLoadingIndicator />
+    <Tree.ItemErrorIndicator />
+  </Tree.Item>
+  <Tree.CheckboxItem>
+    <Tree.ItemExpansionTrigger />
+    <Tree.CheckboxItemIndicator />
+    <Tree.ItemGroupIndicator />
+    <Tree.ItemLabel />
+    <Tree.ItemLoadingIndicator />
+    <Tree.ItemErrorIndicator />
+  </Tree.CheckboxItem>
+</Tree.Root>;
+```
 
 ## Examples
 
-TODO
+### Checkbox items
+
+Use the `<Tree.CheckboxItem>` part to create tree items that can be checked or unchecked. Selection propagates to parent and descendant items.
+
+import { DemoTreeCheckboxItems } from './demos/checkbox-items';
+
+<DemoTreeCheckboxItems compact />
+
+### Lazy loading
+
+Load tree items on demand when a parent node is expanded. This is useful for large data sets where loading the entire tree upfront would be expensive.
+
+import { DemoTreeLazyLoading } from './demos/lazy-loading';
+
+<DemoTreeLazyLoading compact />
 
 ## API reference
 
