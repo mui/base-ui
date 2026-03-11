@@ -4755,7 +4755,7 @@ describe('<Combobox.Root />', () => {
         </Field.Root>,
       );
 
-      const label = screen.getByTestId<HTMLDivElement>('label');
+      const label = screen.getByTestId<HTMLLabelElement>('label');
       const trigger = screen.getByTestId('trigger');
 
       await waitFor(() => {
