@@ -43,15 +43,22 @@ export interface UseHoverReferenceInteractionProps {
   isActiveTrigger?: boolean | undefined;
   triggerElementRef?: Readonly<React.RefObject<Element | null>> | undefined;
   getHandleCloseContext?: (() => HandleCloseContextBase | null) | undefined;
+  /**
+   * Reopens instantly for this many milliseconds after a committed hover close.
+   * Useful for trigger-to-trigger and popup-to-trigger handoffs.
+   * @default undefined
+   */
+  hoverCloseGracePeriod?: number | undefined;
 }
 
 const EMPTY_REF: Readonly<React.RefObject<Element | null>> = { current: null };
 function shouldIgnoreOpenDelayAfterHoverClose(
   instance: ReturnType<typeof useHoverInteractionSharedState>,
   isOpen: boolean,
+  hoverCloseGracePeriod: number | undefined,
 ) {
   // Applies to quick handoffs like trigger->trigger and popup->trigger.
-  return !isOpen && wasHoverClosedRecently(instance);
+  return !isOpen && wasHoverClosedRecently(instance, performance.now(), hoverCloseGracePeriod);
 }
 
 /**
@@ -77,6 +84,7 @@ export function useHoverReferenceInteraction(
     externalTree,
     isActiveTrigger = true,
     getHandleCloseContext,
+    hoverCloseGracePeriod,
   } = props;
 
   const tree = useFloatingTree(externalTree);
@@ -108,7 +116,7 @@ export function useHoverReferenceInteraction(
 
   const closeHoverPopup = useStableCallback((event: MouseEvent) => {
     // Emit tree close only when a hover-close was actually committed.
-    if (closeHoverPopupShared(store, instance, event, isHoverOpen())) {
+    if (closeHoverPopupShared(store, instance, event, isHoverOpen(), hoverCloseGracePeriod)) {
       tree?.events.emit('floating.closed', event);
     }
   });
@@ -245,7 +253,11 @@ export function useHoverReferenceInteraction(
       const isOpen = store.select('open');
       const shouldOpen = !isOpen || isOverInactive;
       // If a hover-popup was closed recently, skip open delay.
-      const shouldIgnoreDelay = shouldIgnoreOpenDelayAfterHoverClose(instance, isOpen);
+      const shouldIgnoreDelay = shouldIgnoreOpenDelayAfterHoverClose(
+        instance,
+        isOpen,
+        hoverCloseGracePeriod,
+      );
 
       // When moving between triggers while already open, open immediately without delay
       if (isOverInactive && isOpen) {
@@ -361,6 +373,7 @@ export function useHoverReferenceInteraction(
     tree,
     enabledRef,
     getHandleCloseContext,
+    hoverCloseGracePeriod,
   ]);
 
   return React.useMemo<HTMLProps | undefined>(() => {
@@ -381,7 +394,11 @@ export function useHoverReferenceInteraction(
 
         const currentDomReference = store.select('domReferenceElement');
         const currentOpen = store.select('open');
-        const shouldIgnoreDelay = shouldIgnoreOpenDelayAfterHoverClose(instance, currentOpen);
+        const shouldIgnoreDelay = shouldIgnoreOpenDelayAfterHoverClose(
+          instance,
+          currentOpen,
+          hoverCloseGracePeriod,
+        );
         const isOverInactive = isOverInactiveTrigger(currentDomReference, trigger, event.target);
 
         if (mouseOnly && !isMouseLikePointerType(instance.pointerType)) {
@@ -436,5 +453,14 @@ export function useHoverReferenceInteraction(
         }
       },
     };
-  }, [enabled, instance, isClickLikeOpenEvent, isOverInactiveTrigger, mouseOnly, store, restMsRef]);
+  }, [
+    enabled,
+    hoverCloseGracePeriod,
+    instance,
+    isClickLikeOpenEvent,
+    isOverInactiveTrigger,
+    mouseOnly,
+    store,
+    restMsRef,
+  ]);
 }

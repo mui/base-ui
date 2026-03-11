@@ -32,6 +32,12 @@ export type UseHoverFloatingInteractionProps = {
    * @default 0
    */
   closeDelay?: number | (() => number) | undefined;
+  /**
+   * Reopens instantly for this many milliseconds after a committed hover close.
+   * Useful for trigger-to-trigger and popup-to-trigger handoffs.
+   * @default undefined
+   */
+  hoverCloseGracePeriod?: number | undefined;
 };
 
 /**
@@ -47,7 +53,7 @@ export function useHoverFloatingInteraction(
   const domReferenceElement = store.useState('domReferenceElement');
   const { dataRef } = store.context;
 
-  const { enabled = true, closeDelay: closeDelayProp = 0 } = parameters;
+  const { enabled = true, closeDelay: closeDelayProp = 0, hoverCloseGracePeriod } = parameters;
 
   const instance = useHoverInteractionSharedState(store);
 
@@ -69,7 +75,7 @@ export function useHoverFloatingInteraction(
 
   const closeHoverPopup = useStableCallback((event: MouseEvent) => {
     // Emit tree close only when a hover-close was actually committed.
-    if (closeHoverPopupShared(store, instance, event, isHoverOpen())) {
+    if (closeHoverPopupShared(store, instance, event, isHoverOpen(), hoverCloseGracePeriod)) {
       tree?.events.emit('floating.closed', event);
     }
   });

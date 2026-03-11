@@ -10,7 +10,6 @@ import { TYPEABLE_SELECTOR } from '../utils/constants';
 
 const interactiveSelector = `button,a,[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`;
 export const HOVER_CLOSE_UNSET = -1;
-export const HOVER_SWITCH_GRACE_MS = 400;
 
 export function isInteractiveElement(element: Element | null) {
   return element ? Boolean(element.closest(interactiveSelector)) : false;
@@ -131,6 +130,7 @@ export function closeHoverPopup(
   instance: HoverInteraction,
   event: MouseEvent,
   isHoverOpen: boolean,
+  hoverCloseGracePeriod?: number,
 ): boolean {
   if (!store.select('open')) {
     return false;
@@ -144,7 +144,10 @@ export function closeHoverPopup(
     return false;
   }
 
-  recordHoverClose(instance);
+  if (hoverCloseGracePeriod != null && hoverCloseGracePeriod > 0) {
+    recordHoverClose(instance);
+  }
+
   return true;
 }
 
@@ -155,11 +158,15 @@ export function clearRecentHoverClose(instance: HoverInteraction): void {
 export function wasHoverClosedRecently(
   instance: HoverInteraction,
   now = performance.now(),
-  thresholdMs = HOVER_SWITCH_GRACE_MS,
+  thresholdMs?: number,
 ): boolean {
   // Used by hover-open flows to suppress delay during quick handoffs
   // (trigger-to-trigger or popup-to-trigger).
-  if (instance.lastHoverCloseTime === HOVER_CLOSE_UNSET) {
+  if (
+    thresholdMs == null ||
+    thresholdMs <= 0 ||
+    instance.lastHoverCloseTime === HOVER_CLOSE_UNSET
+  ) {
     return false;
   }
 
