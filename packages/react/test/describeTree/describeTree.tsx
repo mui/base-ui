@@ -64,7 +64,7 @@ function getUtils(result: BaseUIRenderResult): DescribeTreeRendererUtils {
   };
 
   const getItemRoot = (id: string) => {
-    const item = result.container.querySelector(`[data-item-id="${id}"]`);
+    const item = result.container.querySelector(`[data-item-id="${CSS.escape(id)}"]`);
     if (!item) {
       throw new Error(`Could not find item with id "${id}"`);
     }

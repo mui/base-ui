@@ -42,6 +42,9 @@ export const TreeItemLoadingIndicator = React.forwardRef(function TreeItemLoadin
 });
 
 export interface TreeItemLoadingIndicatorState {
+  /**
+   * Whether the item is currently loading its children.
+   */
   loading: boolean;
 }
 

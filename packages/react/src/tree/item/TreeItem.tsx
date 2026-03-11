@@ -51,13 +51,37 @@ export const TreeItem = React.forwardRef(function TreeItem(
 });
 
 export interface TreeItemState {
+  /**
+   * The id of the item.
+   */
   itemId: string;
+  /**
+   * Whether the item is currently expanded.
+   */
   expanded: boolean;
+  /**
+   * Whether the item has children and can be expanded.
+   */
   expandable: boolean;
+  /**
+   * Whether the item is currently selected.
+   */
   selected: boolean;
+  /**
+   * Whether the item is currently focused.
+   */
   focused: boolean;
+  /**
+   * Whether the component should ignore user interaction.
+   */
   disabled: boolean;
+  /**
+   * Whether the item's label is being edited.
+   */
   editing: boolean;
+  /**
+   * The depth of the item in the tree hierarchy.
+   */
   depth: number;
 }
 

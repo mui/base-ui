@@ -87,6 +87,9 @@ export const TreeItemLabel = React.forwardRef(function TreeItemLabel(
 });
 
 export interface TreeItemLabelState {
+  /**
+   * Whether the item's label is being edited.
+   */
   editing: boolean;
 }
 

@@ -42,6 +42,9 @@ export const TreeItemErrorIndicator = React.forwardRef(function TreeItemErrorInd
 });
 
 export interface TreeItemErrorIndicatorState {
+  /**
+   * Whether the item has an error.
+   */
   hasError: boolean;
 }
 

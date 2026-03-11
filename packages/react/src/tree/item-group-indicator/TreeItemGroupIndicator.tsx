@@ -47,7 +47,13 @@ export const TreeItemGroupIndicator = React.forwardRef(function TreeItemGroupInd
 });
 
 export interface TreeItemGroupIndicatorState {
+  /**
+   * Whether the item is currently expanded.
+   */
   expanded: boolean;
+  /**
+   * Whether the item has children and can be expanded.
+   */
   expandable: boolean;
 }
 

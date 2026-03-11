@@ -131,6 +131,20 @@ describeTree('TreeRoot - Items', ({ render }) => {
       expect(onItemClick.lastCall.args[1]).to.equal('1');
     });
 
+    it('should call onItemClick with the correct id when the item id contains special characters', async () => {
+      const onItemClick = spy();
+      const specialId = 'item "with" special\\chars/[and](more)';
+
+      const view = await render({
+        items: [{ id: specialId }],
+        onItemClick,
+      });
+
+      fireEvent.click(view.getItemRoot(specialId));
+      expect(onItemClick.callCount).to.equal(1);
+      expect(onItemClick.lastCall.args[1]).to.equal(specialId);
+    });
+
     it('should not call onItemClick for the ancestors of the clicked item', async () => {
       const onItemClick = spy();
 

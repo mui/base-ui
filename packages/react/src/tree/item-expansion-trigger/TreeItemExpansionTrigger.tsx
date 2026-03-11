@@ -61,7 +61,13 @@ export const TreeItemExpansionTrigger = React.forwardRef(function TreeItemExpans
 });
 
 export interface TreeItemExpansionTriggerState {
+  /**
+   * Whether the item is currently expanded.
+   */
   expanded: boolean;
+  /**
+   * Whether the item has children and can be expanded.
+   */
   expandable: boolean;
 }
 

@@ -204,6 +204,9 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
 };
 
 export interface TreeRootState {
+  /**
+   * Whether the component should ignore user interaction.
+   */
   disabled: boolean;
 }
 
