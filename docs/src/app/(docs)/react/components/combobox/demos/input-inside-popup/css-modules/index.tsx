@@ -1,16 +1,13 @@
 'use client';
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
-import { Field } from '@base-ui/react/field';
 import styles from './index.module.css';
 
 export default function ExamplePopoverCombobox() {
   return (
-    <Field.Root className={styles.Field}>
-      <Field.Label className={styles.Label} nativeLabel={false} render={<div />}>
-        Country
-      </Field.Label>
+    <div className={styles.Field}>
       <Combobox.Root items={countries}>
+        <Combobox.Label className={styles.Label}>Country</Combobox.Label>
         <Combobox.Trigger className={styles.Trigger}>
           <Combobox.Value
             placeholder={<span className={styles.Placeholder}>Select country</span>}
@@ -40,7 +37,7 @@ export default function ExamplePopoverCombobox() {
           </Combobox.Positioner>
         </Combobox.Portal>
       </Combobox.Root>
-    </Field.Root>
+    </div>
   );
 }
 
