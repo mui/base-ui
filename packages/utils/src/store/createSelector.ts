@@ -13,24 +13,24 @@ const reselectCreateSelector = createSelectorCreator({
 type Fn = (...args: any[]) => any;
 type SelectorWithArgs = ReturnType<typeof reselectCreateSelector> & { selectorArgs: any[3] };
 /**
- * Checks if a function type has any optional or default parameters.
- * Default parameters break memoization because `Function.length` ignores them,
- * causing incorrect `argsLength` calculation in `createSelectorMemoized`.
+ * The NoOptionalParams type is a utility type that checks if a function has optional or default parameters.
+ * If the function has optional or default parameters, it returns a string literal type with an error message.
+ * Otherwise, it returns the original function type.
+ *
+ * This is used to enforce that the combiner function passed to createSelector does not have optional or default parameters,
+ * as memoization relies on the Function.length property, which does not account for optional or default parameters.
  */
-type HasOptionalParams<F extends (...args: any[]) => any> =
-  Parameters<F> extends Required<Parameters<F>> ? false : true;
+type NoOptionalParams<F extends Fn> =
+  Parameters<F> extends Required<Parameters<F>>
+    ? F
+    : 'Combiner cannot have optional or default parameters because memoization relies on Function.length';
 
 export type CreateSelectorFunction = <
   const Args extends any[],
   const Selectors extends ReadonlyArray<Selector<any>>,
   const Combiner extends (...args: readonly [...ReturnTypes<Selectors>, ...Args]) => any,
 >(
-  ...items: HasOptionalParams<Combiner> extends true
-    ? [
-        ...Selectors,
-        error: 'Combiner cannot have optional or default parameters as they break memoization via Function.length',
-      ]
-    : [...Selectors, Combiner]
+  ...items: [...Selectors, NoOptionalParams<Combiner>]
 ) => (
   ...args: Selectors['length'] extends 0
     ? MergeParams<ReturnTypes<Selectors>, Parameters<Combiner>>
