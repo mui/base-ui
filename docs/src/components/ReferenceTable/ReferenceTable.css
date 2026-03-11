@@ -293,7 +293,8 @@
     scroll-margin-top: 3rem;
   }
 
-  .AdditionalTypeWrapper:target {
+  .AdditionalTypeWrapper:target,
+  .AdditionalTypeWrapper[data-shown='true'] {
     display: block;
   }
 
@@ -309,6 +310,10 @@
     letter-spacing: var(--text-sm--letter-spacing);
     font-weight: 400;
     color: var(--color-gray-500);
+  }
+
+  .AdditionalTypeBackLink[data-hidden='true'] {
+    display: none;
   }
 
   .AdditionalTypeBackLink:hover {

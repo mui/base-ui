@@ -19,6 +19,7 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
 
 type ReferenceTableProps = TypesContentProps<{
   hideDescription?: boolean;
+  showAdditionalTypes?: string[];
 }>;
 
 export function ReferenceTable(props: ReferenceTableProps) {
@@ -299,7 +300,11 @@ export function ReferenceTable(props: ReferenceTableProps) {
         )}
 
         {additionalTypes && additionalTypes.length > 0 && (
-          <AdditionalTypes data={additionalTypes} multiple={multiple} />
+          <AdditionalTypes
+            data={additionalTypes}
+            multiple={multiple}
+            show={props.showAdditionalTypes}
+          />
         )}
       </React.Fragment>
     );
@@ -309,7 +314,11 @@ export function ReferenceTable(props: ReferenceTableProps) {
   return (
     <React.Fragment>
       {additionalTypes && additionalTypes.length > 0 && (
-        <AdditionalTypes data={additionalTypes} multiple={multiple} />
+        <AdditionalTypes
+          data={additionalTypes}
+          multiple={multiple}
+          show={props.showAdditionalTypes}
+        />
       )}
     </React.Fragment>
   );

@@ -7,9 +7,11 @@ import * as CodeBlock from '../CodeBlock';
 export function AdditionalTypes({
   data,
   multiple,
+  show,
 }: {
   data: ProcessedTypesMeta[];
   multiple?: boolean;
+  show?: string[];
 }) {
   const rawTypes = data.filter((t) => t.type === 'raw');
   const hydrated = React.useSyncExternalStore(
@@ -31,12 +33,22 @@ export function AdditionalTypes({
   return (
     <React.Fragment>
       {rawTypes.map((additionalType) => (
-        <div key={additionalType.name} id={additionalType.slug} className="AdditionalTypeWrapper">
+        <div
+          key={additionalType.name}
+          id={additionalType.slug}
+          className="AdditionalTypeWrapper"
+          data-shown={
+            additionalType.slug && show?.includes(additionalType.slug) ? 'true' : undefined
+          }
+        >
           <h4 className="ReferenceSectionHeading AdditionalTypeHeading">
             {additionalType.name}
             <a
               href="#"
               className="AdditionalTypeBackLink"
+              data-hidden={
+                additionalType.slug && show?.includes(additionalType.slug) ? 'true' : undefined
+              }
               onClick={hydrated && canGoBack ? handleBack : undefined}
             >
               {hydrated && canGoBack ? 'Back' : 'Hide'}
