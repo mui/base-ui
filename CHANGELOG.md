@@ -1,5 +1,148 @@
 # Versions
 
+## v1.3.0
+
+_Mar 12, 2026_
+
+### General Changes
+
+-  Warn when rendering a component function directly (#4077) by @atomiks
+-  Reset `openMethod` on close transition (#4128) by @atomiks
+-  Fire Space activation on `keydown` for composite widgets (#4053) by @atomiks
+-  Skip CSS-hidden composite items in keyboard navigation (#4195) by @atomiks
+-  Remove old demo theme file (#4175) by @aarongarciah
+-  Optimize useHover hooks and safePolygon hot paths (#4199) by @atomiks
+-  Snap `--anchor-width/height` to device pixel grid (#4082) by @flaviendelangle
+-  Fix outside press dismissal when component is portaled into shadow DOM (#4230) by @dmitri-gb
+-  Fix nested hoverable popups (#4206) by @dmitri-gb
+-  Apply `data-base-ui-inert` to highest level node (#3955) by @atomiks
+-  Fix portable types (#4058) by @cgatian
+
+### Accordion
+
+-  Add generic `Value` typing  (#4138) by @atomiks
+
+### Autocomplete
+
+-  Respect `null` filter prop (#4117) by @atomiks
+-  Add `InputGroup` part (#3745) by @atomiks
+
+### Avatar
+
+-  Remove fallback transition logic and premature image display (#4110) by @atomiks
+
+### Button
+
+-  Avoid checking disabled twice in `onKeyDown` and `onKeyUp` (#4132) by @flaviendelangle
+
+### Checkbox
+
+-  Add automatic `aria-labelledby` support (#4142) by @atomiks
+
+### Combobox
+
+-  Avoid field attrs on input when inside popup (#4154) by @atomiks
+-  Preserve inline input on Enter without highlight (#4235) by @atomiks
+-  Fix combobox attributes during SSR (#4179) by @atomiks
+-  Fix virtualized grid arrow navigation wrapping (#4164) by @atomiks
+-  Add `InputGroup` part (#3745) by @atomiks
+-  Add visually hidden close button support with improved modal focus trapping (#4084) by @atomiks
+-  Add `Label` parts (#4167) by @atomiks
+
+### Context Menu
+
+-  Ignore context menu mouseup on non-Mac platforms (#3944) by @atomiks
+
+### Drawer
+
+-  Fix React 17 support (#4178) by @atomiks
+-  Include border in frontmost height variable (#4202) by @atomiks
+-  Improve touch selection (#4104) by @atomiks
+-  Preserve cross-axis scrolling during touch gestures (#4187) by @atomiks
+-  Prevent dismiss through swipe when the component is controlled (#4133) by @flaviendelangle
+-  Restore SwipeArea component (#4102) by @atomiks
+-  Disable inheritance for swipe CSS vars (#4099) by @atomiks
+
+### Field
+
+-  Fix field validation with simultaneous Form errors or invalid prop (#4112) by @mj12albert
+
+### Menu
+
+-  Prevent `pointerleave` from stealing dialog focus (#4125) by @atomiks
+-  Optimize submenu hover pointer-events (#4231) by @atomiks
+-  Fix `closeDelay` not applied on `Menu.SubmenuTrigger` (#4134) by @flaviendelangle
+
+### Meter
+
+-  Fix label announcements in NVDA (#4200) by @mj12albert
+
+### Navigation Menu
+
+-  Fix StackBlitz demo styling  (#3974) by @CiscoFran10
+-  Fix nested inline menu support (#4198) by @atomiks
+-  Fix nested hover close propagation (#4285) by @atomiks
+-  Close parent menus when nested link with `closeOnClick` is clicked (#4276) by @CiscoFran10
+
+### Number Field
+
+-  Fixed incorrect reason value in `onValueCommitted` (#4259) by @jijiseong
+
+### Popover
+
+-  Add visually hidden close button support with improved modal focus trapping (#4084) by @atomiks
+-  Fix nested hoverable popups (#3798) by @flaviendelangle
+
+### Preview Card
+
+-  Fix nested hoverable popups (#3798) by @flaviendelangle
+
+### Progress
+
+-  Fix label announcements in NVDA (#4200) by @mj12albert
+
+### Radio Group
+
+-  Add automatic `aria-labelledby` support (#4142) by @atomiks
+
+### Scroll Area
+
+-  Fix focus trap with non-scrollable viewport (#4220) by @atomiks
+-  Fix remount thumb size (#4107) by @atomiks
+
+### Select
+
+-  Fix hidden input id fallback (#4135) by @atomiks
+-  Fix `Value` placeholder not rendered with Record items (#4137) by @vcode-sh
+-  Fire onClick during drag-to-select (#3969) by @obeattie
+-  Fix `items` type definition for groups (#3884) by @aarongarciah
+-  Fix `alignItemWithTrigger` fallback with browser zoom (#4292) by @atomiks
+-  Add `Label` parts (#4167) by @atomiks
+
+### Slider
+
+-  Add `Label` parts (#4167) by @atomiks
+-  Remove validation commit on `touchend` (#4091) by @jijiseong
+
+### Switch
+
+-  Add automatic `aria-labelledby` support (#4142) by @atomiks
+
+### Tabs
+
+-  Re-render indicator position on tab resize (#4165) by @atomiks
+
+### Toast
+
+-  Enable closing all toasts (#3979) by @chuganzy
+-  Prevent duplicate `onClose` calls for ending toasts (#4280) by @chuganzy
+
+### Tooltip
+
+-  Add `closeOnClick` prop (#4140) by @atomiks
+
+All contributors of this release in alphabetical order : @aarongarciah, @atomiks, @cgatian, @chuganzy, @CiscoFran10, @dmitri-gb, @flaviendelangle, @jijiseong, @mj12albert, @obeattie, @vcode-sh
+
 ## v1.2.0
 
 _Feb 12, 2026_
