@@ -36,7 +36,7 @@ export class SharedCalendarStore<TValue extends TemporalSupportedValue, TError> 
 
   private currentMonthDayGrid: Record<number, TemporalSupportedObject[]> = {};
 
-  private nextGridId = 0;
+  private sortedCurrentMonthDaysCache: TemporalSupportedObject[] | null = null;
 
   constructor(
     parameters: SharedCalendarStoreParameters<TValue, TError>,
@@ -184,6 +184,19 @@ export class SharedCalendarStore<TValue extends TemporalSupportedValue, TError> 
   };
 
   /**
+   * Returns a flat, chronologically sorted array of all days in the current month's grid.
+   * The result is cached and only recomputed when the grid changes.
+   */
+  public getSortedCurrentMonthDays = (): TemporalSupportedObject[] => {
+    if (this.sortedCurrentMonthDaysCache == null) {
+      this.sortedCurrentMonthDaysCache = Object.values(this.currentMonthDayGrid)
+        .flat()
+        .sort((a, b) => this.state.adapter.getTime(a) - this.state.adapter.getTime(b));
+    }
+    return this.sortedCurrentMonthDaysCache;
+  };
+
+  /**
    * Registers the current month's day grid row/week.
    */
   public registerCurrentMonthDayGrid = (
@@ -193,9 +206,11 @@ export class SharedCalendarStore<TValue extends TemporalSupportedValue, TError> 
     const weekTime = this.state.adapter.getTime(week);
     if (this.currentMonthDayGrid[weekTime] == null) {
       this.currentMonthDayGrid[weekTime] = days;
+      this.sortedCurrentMonthDaysCache = null;
     }
     return () => {
       delete this.currentMonthDayGrid[weekTime];
+      this.sortedCurrentMonthDaysCache = null;
     };
   };
 

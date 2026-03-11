@@ -188,9 +188,7 @@ export function useSharedCalendarDayGridBody(
         if (event.shiftKey) {
           amount = 12;
         }
-        const gridDays = Object.values(store.getCurrentMonthDayGrid())
-          .flat() // Sort the days to ensure they are in the chronological order
-          .sort((a, b) => adapter.getTime(a) - adapter.getTime(b));
+        const gridDays = store.getSortedCurrentMonthDays();
         const currentDay = gridDays[highlightedIndex];
         if (!currentDay) {
           return;
@@ -227,12 +225,7 @@ export function useSharedCalendarDayGridBody(
           REASONS.keyboard,
         );
         executeAfterItemMapUpdate.current = (newMap: typeof itemMap) => {
-          const newGridDays: TemporalSupportedObject[] = Object.values(
-            store.getCurrentMonthDayGrid(),
-          )
-            .flat()
-            // Sort the days to ensure they are in the chronological order
-            .sort((a, b) => adapter.getTime(a) - adapter.getTime(b));
+          const newGridDays = store.getSortedCurrentMonthDays();
           // Find the target date in the new month's grid. Use targetDate (already clamped
           // by addMonths) so that e.g. Jan 31 + 1 month correctly finds Feb 28.
           const targetDayOfMonth = adapter.getDate(targetDate);
