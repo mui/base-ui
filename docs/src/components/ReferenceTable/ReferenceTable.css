@@ -289,16 +289,12 @@
   /* ---- Additional types ---- */
 
   .AdditionalTypeWrapper {
-    visibility: hidden;
-    height: 0;
-    overflow: hidden;
+    display: none;
     scroll-margin-top: 3rem;
   }
 
   .AdditionalTypeWrapper:target {
-    visibility: visible;
-    height: auto;
-    overflow: visible;
+    display: block;
   }
 
   .AdditionalTypeHeading {
