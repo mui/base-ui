@@ -199,6 +199,68 @@ describe('<Combobox.Root />', () => {
     });
   });
 
+  it('does not aria-hide the input group when the input is outside the popup', async () => {
+    const { user } = await render(
+      <Combobox.Root items={['apple', 'banana']}>
+        <Combobox.InputGroup data-testid="group">
+          <Combobox.Input data-testid="input" />
+          <Combobox.Trigger>Open</Combobox.Trigger>
+        </Combobox.InputGroup>
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="apple">apple</Combobox.Item>
+                <Combobox.Item value="banana">banana</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByTestId('input');
+    const group = screen.getByTestId('group');
+
+    await user.click(input);
+    expect(await screen.findByRole('listbox')).not.to.equal(null);
+    await flushMicrotasks();
+
+    expect(input).toHaveFocus();
+    expect(group).not.to.have.attribute('aria-hidden', 'true');
+  });
+
+  it('dismisses the popup when clicking a plain wrapper around the input', async () => {
+    const { user } = await render(
+      <Combobox.Root items={['apple', 'banana']}>
+        <div style={{ padding: 10 }}>
+          <span data-testid="pad">padding</span>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Trigger>Open</Combobox.Trigger>
+        </div>
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="apple">apple</Combobox.Item>
+                <Combobox.Item value="banana">banana</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Open' }));
+    expect(await screen.findByRole('listbox')).not.to.equal(null);
+
+    await user.click(screen.getByTestId('pad'));
+
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox')).to.equal(null);
+    });
+  });
+
   it('does not cause infinite re-renders when items becomes undefined', async () => {
     const { rerender } = await render(
       <Combobox.Root items={[]} defaultOpen>
