@@ -10,6 +10,8 @@ import { sitemap } from 'docs/src/app/sitemap';
 import 'docs/src/css/index.css';
 import './layout.css';
 
+const showPrivatePages = process.env.SHOW_PRIVATE_PAGES === 'true';
+
 export default function Layout({ children }: React.PropsWithChildren) {
   return (
     // Use suppressHydrationWarning to avoid https://github.com/facebook/react/issues/24430
@@ -47,45 +49,38 @@ export default function Layout({ children }: React.PropsWithChildren) {
                     <Header />
                     <SideNav.Root>
                       {sitemap &&
-                        Object.entries(
-                          sitemap.data as Record<
-                            string,
-                            {
-                              title?: string;
-                              prefix?: string;
-                              pages: {
-                                title: string;
-                                tags?: string[];
-                                isNew?: boolean;
-                                isPreview?: boolean;
-                                path: string;
-                              }[];
-                            }
-                          >,
-                        ).map(([name, section]) => (
+                        Object.entries(sitemap.data).map(([name, section]) => (
                           <SideNav.Section key={name}>
                             <SideNav.Heading>{name}</SideNav.Heading>
                             <SideNav.List>
-                              {section.pages.map((page) => {
-                                const isNew = page.isNew ?? page.tags?.includes('New');
-                                const isPreview = page.isPreview ?? page.tags?.includes('Preview');
+                              {section.pages
+                                .filter((page) =>
+                                  page.audience === 'private' ? showPrivatePages : true,
+                                )
+                                .map((page) => {
+                                  const isNewPage = page.tags?.includes('New');
+                                  const isPreviewPage = page.tags?.includes('Preview');
+                                  const isPrivatePage = page.audience === 'private';
 
-                                return (
-                                  <SideNav.Item
-                                    key={page.title}
-                                    href={
-                                      page.path.startsWith('./')
-                                        ? `${section.prefix}${page.path.replace(/^\.\//, '').replace(/\/page\.mdx$/, '')}`
-                                        : page.path
-                                    }
-                                    external={page.tags?.includes('External')}
-                                  >
-                                    {titleMap[page.title] || page.title}
-                                    {isPreview && <SideNav.Badge>Preview</SideNav.Badge>}
-                                    {isNew && !isPreview && <SideNav.Badge>New</SideNav.Badge>}
-                                  </SideNav.Item>
-                                );
-                              })}
+                                  return (
+                                    <SideNav.Item
+                                      key={page.title}
+                                      href={
+                                        page.path.startsWith('./')
+                                          ? `${section.prefix}${page.path.replace(/^\.\//, '').replace(/\/page\.mdx$/, '')}`
+                                          : page.path
+                                      }
+                                      external={page.tags?.includes('External')}
+                                    >
+                                      {(page.title && titleMap[page.title]) || page.title}
+                                      {isPrivatePage && <SideNav.Badge>Private</SideNav.Badge>}
+                                      {isPreviewPage && <SideNav.Badge>Preview</SideNav.Badge>}
+                                      {isNewPage && !isPreviewPage && !isPrivatePage && (
+                                        <SideNav.Badge>New</SideNav.Badge>
+                                      )}
+                                    </SideNav.Item>
+                                  );
+                                })}
                             </SideNav.List>
                           </SideNav.Section>
                         ))}
