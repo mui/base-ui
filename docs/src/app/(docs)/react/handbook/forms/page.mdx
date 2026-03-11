@@ -13,11 +13,7 @@ import { DemoBaseUIForm } from './demos/hero';
 
 Form controls must have an accessible name in order to be recognized by assistive technologies. Use the label strategy below for each control type.
 
-### Labeling by control
-
-Choose the labeling pattern based on which element acts as the form control.
-
-#### Input controls
+### Input controls
 
 Use `<Field.Label>` or a native `<label>` to label the following controls:
 
@@ -44,14 +40,14 @@ import { Switch } from '@base-ui/react/switch';
 </Field.Root>;
 ```
 
-#### Trigger-based controls
+### Trigger-based controls
 
 - `Combobox` (input inside popup): use `<Combobox.Label>`.
 - `Select`: use `<Select.Label>`.
 - `Slider`: use `<Slider.Label>`. For multi-thumb sliders, also add an `aria-label` on each
   `<Slider.Thumb>` to distinguish the thumbs.
 
-#### Fallback
+### Fallback
 
 If no visible label is rendered, provide `aria-label` on the actual form control.
 
