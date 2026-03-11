@@ -65,6 +65,21 @@ function SelectedIndexProbe() {
   );
 }
 
+function isElementOrAncestorInert(element: HTMLElement) {
+  let current: HTMLElement | null = element;
+  while (current) {
+    if (
+      current.getAttribute('aria-hidden') === 'true' ||
+      current.hasAttribute('inert') ||
+      current.hasAttribute('data-base-ui-inert')
+    ) {
+      return true;
+    }
+    current = current.parentElement;
+  }
+  return false;
+}
+
 describe('<Combobox.Root />', () => {
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
@@ -272,6 +287,156 @@ describe('<Combobox.Root />', () => {
         </Combobox.Portal>
       </Combobox.Root>,
     );
+  });
+
+  it('hides the trigger when popup is open with input outside the popup', async () => {
+    const { user } = await render(
+      <div>
+        <button data-testid="outside">Outside</button>
+        <Combobox.Root items={['Apple', 'Banana']}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>
+      </div>,
+    );
+
+    await user.click(screen.getByTestId('input'));
+
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox')).not.to.equal(null);
+    });
+
+    const outside = screen.getByTestId('outside');
+    const trigger = screen.getByTestId('trigger');
+
+    await waitFor(() => {
+      expect(isElementOrAncestorInert(outside)).to.equal(true);
+    });
+
+    expect(isElementOrAncestorInert(trigger)).to.equal(true);
+  });
+
+  it('does not render the start dismiss button while closed', async () => {
+    await render(
+      <Combobox.Root items={['Apple', 'Banana']}>
+        <Combobox.Input data-testid="input" />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup data-testid="popup">
+              <Combobox.List>
+                {(item: string) => (
+                  <Combobox.Item key={item} value={item}>
+                    {item}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    expect(screen.queryByRole('button', { name: 'Dismiss' })).to.equal(null);
+  });
+
+  it('renders internal dismiss buttons before the input and after the popup', async () => {
+    const { user } = await render(
+      <div>
+        <button data-testid="outside">Outside</button>
+        <Combobox.Root defaultOpen modal items={['Apple', 'Banana']}>
+          <Combobox.Trigger>Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup data-testid="popup" aria-label="Demo">
+                <Combobox.Input aria-label="Combobox input" />
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>
+      </div>,
+    );
+
+    const popup = screen.getByTestId('popup');
+    const input = screen.getByRole('combobox', { name: 'Combobox input' });
+    const [startDismissButton, endDismissButton] = screen.getAllByRole('button', {
+      name: 'Dismiss',
+    });
+    const outside = screen.getByTestId('outside');
+
+    expect(input.previousElementSibling).to.equal(startDismissButton);
+    expect(popup.nextElementSibling).to.equal(endDismissButton);
+    expect(startDismissButton).not.to.have.attribute('tabindex');
+    expect(endDismissButton).not.to.have.attribute('tabindex');
+
+    await waitFor(() => {
+      expect(isElementOrAncestorInert(outside)).to.equal(true);
+    });
+
+    await user.click(endDismissButton);
+
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox')).to.equal(null);
+    });
+  });
+
+  it('renders an internal dismiss button for the input-outside-popup pattern', async () => {
+    const { user } = await render(
+      <Combobox.Root items={['Apple', 'Banana']}>
+        <Combobox.Input data-testid="input" />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup data-testid="popup">
+              <Combobox.List>
+                {(item: string) => (
+                  <Combobox.Item key={item} value={item}>
+                    {item}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    await user.click(screen.getByTestId('input'));
+
+    const popup = await screen.findByTestId('popup');
+    const input = screen.getByTestId('input');
+    const [startDismissButton, endDismissButton] = screen.getAllByRole('button', {
+      name: 'Dismiss',
+    });
+
+    expect(input.previousElementSibling).to.equal(startDismissButton);
+    expect(popup.nextElementSibling).to.equal(endDismissButton);
+    expect(startDismissButton).not.to.have.attribute('tabindex');
+    expect(endDismissButton).not.to.have.attribute('tabindex');
+
+    await user.click(startDismissButton);
+
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox')).to.equal(null);
+    });
   });
 
   describe('selection behavior', () => {
