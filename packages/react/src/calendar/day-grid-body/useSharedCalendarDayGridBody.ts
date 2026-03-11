@@ -9,6 +9,7 @@ import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdap
 import { TemporalSupportedObject } from '../../types/temporal';
 import { useCalendarWeekList } from '../use-week-list/useCalendarWeekList';
 import { selectors } from '../store';
+import { areArraysEqual } from '../../utils/areArraysEqual';
 import { CompositeMetadata } from '../../composite/list/CompositeList';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { findNonDisabledListIndex, isListIndexDisabled } from '../../floating-ui-react/utils';
@@ -64,6 +65,8 @@ export function useSharedCalendarDayGridBody(
 
   const items = React.useMemo(() => Array.from(itemMap.keys()) as HTMLElement[], [itemMap]);
 
+  const prevDisabledIndicesRef = React.useRef<number[]>([]);
+
   const disabledIndices = React.useMemo(() => {
     const output: number[] = [];
     for (const itemMetadata of itemMap.values()) {
@@ -71,6 +74,10 @@ export function useSharedCalendarDayGridBody(
         output.push(itemMetadata.index);
       }
     }
+    if (areArraysEqual(prevDisabledIndicesRef.current, output)) {
+      return prevDisabledIndicesRef.current;
+    }
+    prevDisabledIndicesRef.current = output;
     return output;
   }, [itemMap]);
 
