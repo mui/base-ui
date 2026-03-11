@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { act } from '@mui/internal-test-utils';
 import { createRenderer, type BaseUIRenderResult } from '../createRenderer';
 import { Tree } from '../../src/tree';
 import type { TreeItemModel, TreeRootActions } from '../../src/tree/store/types';
@@ -187,6 +188,14 @@ export function describeTree(
         setItems: async (newItems: readonly DescribeTreeItem[]) => {
           await result.setProps({
             items: customGetItemChildren ? (newItems as any) : convertItems(newItems),
+          });
+          // Flush requestAnimationFrame callbacks scheduled during the render
+          // (e.g., focus management moves focus when the focused item is removed).
+          // In browser mode, act() does not flush rAF callbacks automatically.
+          await act(async () => {
+            await new Promise<void>((resolve) => {
+              requestAnimationFrame(() => resolve());
+            });
           });
         },
         ...getUtils(result),
