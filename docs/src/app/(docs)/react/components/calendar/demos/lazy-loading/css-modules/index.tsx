@@ -89,7 +89,7 @@ function CalendarContent() {
             {(day) => (
               <Calendar.DayGridHeaderCell
                 value={day}
-                key={day.toString()}
+                key={day.getTime()}
                 className={clsx(styles.DayGridHeaderCell, indexStyles.DayGridHeaderCell)}
               />
             )}
@@ -97,7 +97,7 @@ function CalendarContent() {
         </Calendar.DayGridHeader>
         <Calendar.DayGridBody className={styles.DayGridBody}>
           {(week) => (
-            <Calendar.DayGridRow value={week} key={week.toString()} className={styles.DayGridRow}>
+            <Calendar.DayGridRow value={week} key={week.getTime()} className={styles.DayGridRow}>
               {(day) => {
                 const dateKey = format(day, 'yyyy-MM-dd');
                 const inCurrentMonth = dateKey.startsWith(monthKey);
@@ -110,7 +110,7 @@ function CalendarContent() {
                 return (
                   <Calendar.DayGridCell
                     value={day}
-                    key={day.toString()}
+                    key={day.getTime()}
                     className={styles.DayGridCell}
                   >
                     <Calendar.DayButton className={clsx(styles.DayButton, indexStyles.DayButton)}>

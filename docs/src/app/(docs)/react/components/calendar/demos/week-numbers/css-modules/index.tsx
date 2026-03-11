@@ -39,7 +39,7 @@ export default function CalendarWithWeekNumbers() {
                 {getDayList({ date: startOfWeek(new Date()), amount: 7 }).map((day) => (
                   <Calendar.DayGridHeaderCell
                     value={day}
-                    key={day.toString()}
+                    key={day.getTime()}
                     className={styles.DayGridHeaderCell}
                   />
                 ))}
@@ -52,7 +52,7 @@ export default function CalendarWithWeekNumbers() {
               }).map((week) => (
                 <Calendar.DayGridRow
                   value={week}
-                  key={week.toString()}
+                  key={week.getTime()}
                   className={styles.DayGridRow}
                 >
                   <th
@@ -65,7 +65,7 @@ export default function CalendarWithWeekNumbers() {
                   {getDayList({ date: week, amount: 7 }).map((day) => (
                     <Calendar.DayGridCell
                       value={day}
-                      key={day.toString()}
+                      key={day.getTime()}
                       className={styles.DayGridCell}
                     >
                       <Calendar.DayButton className={styles.DayButton} />

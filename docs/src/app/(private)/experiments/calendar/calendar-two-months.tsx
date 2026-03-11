@@ -40,7 +40,7 @@ function DayGrid(props: { offset: 0 | 1 }) {
           {(day) => (
             <Calendar.DayGridHeaderCell
               value={day}
-              key={day.toString()}
+              key={day.getTime()}
               className={styles.DayGridHeaderCell}
             />
           )}
@@ -48,9 +48,9 @@ function DayGrid(props: { offset: 0 | 1 }) {
       </Calendar.DayGridHeader>
       <Calendar.DayGridBody className={styles.DayGridBody} offset={offset}>
         {(week) => (
-          <Calendar.DayGridRow value={week} key={week.toString()} className={styles.DayGridRow}>
+          <Calendar.DayGridRow value={week} key={week.getTime()} className={styles.DayGridRow}>
             {(day) => (
-              <Calendar.DayGridCell value={day} key={day.toString()} className={styles.DayGridCell}>
+              <Calendar.DayGridCell value={day} key={day.getTime()} className={styles.DayGridCell}>
                 <Calendar.DayButton className={styles.DayButton} />
               </Calendar.DayGridCell>
             )}

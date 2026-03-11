@@ -30,7 +30,7 @@ describe('<Calendar.DayGridBody />', () => {
           <Calendar.DayGrid>
             <Calendar.DayGridBody>
               {(week) => (
-                <Calendar.DayGridRow value={week} key={week.toString()} data-testid="week-row" />
+                <Calendar.DayGridRow value={week} key={week.getTime()} data-testid="week-row" />
               )}
             </Calendar.DayGridBody>
           </Calendar.DayGrid>
@@ -50,7 +50,7 @@ describe('<Calendar.DayGridBody />', () => {
           <Calendar.DayGrid>
             <Calendar.DayGridBody>
               {(week) => (
-                <Calendar.DayGridRow value={week} key={week.toString()} data-testid="week-row" />
+                <Calendar.DayGridRow value={week} key={week.getTime()} data-testid="week-row" />
               )}
             </Calendar.DayGridBody>
           </Calendar.DayGrid>
@@ -70,7 +70,7 @@ describe('<Calendar.DayGridBody />', () => {
           <Calendar.DayGrid>
             <Calendar.DayGridBody>
               {(week) => (
-                <Calendar.DayGridRow value={week} key={week.toString()} data-testid="week-row" />
+                <Calendar.DayGridRow value={week} key={week.getTime()} data-testid="week-row" />
               )}
             </Calendar.DayGridBody>
           </Calendar.DayGrid>
@@ -90,7 +90,7 @@ describe('<Calendar.DayGridBody />', () => {
           <Calendar.DayGrid>
             <Calendar.DayGridBody fixedWeekNumber={6}>
               {(week) => (
-                <Calendar.DayGridRow value={week} key={week.toString()} data-testid="week-row" />
+                <Calendar.DayGridRow value={week} key={week.getTime()} data-testid="week-row" />
               )}
             </Calendar.DayGridBody>
           </Calendar.DayGrid>
@@ -110,7 +110,7 @@ describe('<Calendar.DayGridBody />', () => {
           <Calendar.DayGrid>
             <Calendar.DayGridBody fixedWeekNumber={6}>
               {(week) => (
-                <Calendar.DayGridRow value={week} key={week.toString()} data-testid="week-row" />
+                <Calendar.DayGridRow value={week} key={week.getTime()} data-testid="week-row" />
               )}
             </Calendar.DayGridBody>
           </Calendar.DayGrid>
@@ -130,7 +130,7 @@ describe('<Calendar.DayGridBody />', () => {
           <Calendar.DayGrid>
             <Calendar.DayGridBody fixedWeekNumber={6}>
               {(week) => (
-                <Calendar.DayGridRow value={week} key={week.toString()} data-testid="week-row" />
+                <Calendar.DayGridRow value={week} key={week.getTime()} data-testid="week-row" />
               )}
             </Calendar.DayGridBody>
           </Calendar.DayGrid>
@@ -150,7 +150,7 @@ describe('<Calendar.DayGridBody />', () => {
           <Calendar.DayGrid>
             <Calendar.DayGridBody fixedWeekNumber={5}>
               {(week) => (
-                <Calendar.DayGridRow value={week} key={week.toString()} data-testid="week-row" />
+                <Calendar.DayGridRow value={week} key={week.getTime()} data-testid="week-row" />
               )}
             </Calendar.DayGridBody>
           </Calendar.DayGrid>
@@ -171,9 +171,9 @@ describe('<Calendar.DayGridBody />', () => {
           <Calendar.DayGrid>
             <Calendar.DayGridBody offset={0}>
               {(week) => (
-                <Calendar.DayGridRow value={week} key={week.toString()}>
+                <Calendar.DayGridRow value={week} key={week.getTime()}>
                   {(day) => (
-                    <Calendar.DayGridCell value={day} key={day.toString()}>
+                    <Calendar.DayGridCell value={day} key={day.getTime()}>
                       <Calendar.DayButton
                         data-testid={`month-${adapter.format(day, 'monthPadded')}`}
                       />
@@ -198,9 +198,9 @@ describe('<Calendar.DayGridBody />', () => {
           <Calendar.DayGrid>
             <Calendar.DayGridBody offset={1}>
               {(week) => (
-                <Calendar.DayGridRow value={week} key={week.toString()}>
+                <Calendar.DayGridRow value={week} key={week.getTime()}>
                   {(day) => (
-                    <Calendar.DayGridCell value={day} key={day.toString()}>
+                    <Calendar.DayGridCell value={day} key={day.getTime()}>
                       <Calendar.DayButton
                         data-testid={`month-${adapter.format(day, 'monthPadded')}`}
                       />
@@ -225,9 +225,9 @@ describe('<Calendar.DayGridBody />', () => {
           <Calendar.DayGrid>
             <Calendar.DayGridBody offset={-1}>
               {(week) => (
-                <Calendar.DayGridRow value={week} key={week.toString()}>
+                <Calendar.DayGridRow value={week} key={week.getTime()}>
                   {(day) => (
-                    <Calendar.DayGridCell value={day} key={day.toString()}>
+                    <Calendar.DayGridCell value={day} key={day.getTime()}>
                       <Calendar.DayButton
                         data-testid={`month-${adapter.format(day, 'monthPadded')}`}
                       />
@@ -252,9 +252,9 @@ describe('<Calendar.DayGridBody />', () => {
           <Calendar.DayGrid>
             <Calendar.DayGridBody offset={0}>
               {(week) => (
-                <Calendar.DayGridRow value={week} key={week.toString()}>
+                <Calendar.DayGridRow value={week} key={week.getTime()}>
                   {(day) => (
-                    <Calendar.DayGridCell value={day} key={day.toString()}>
+                    <Calendar.DayGridCell value={day} key={day.getTime()}>
                       <Calendar.DayButton
                         data-testid={`current-month-${adapter.format(day, 'monthPadded')}`}
                       />
@@ -267,9 +267,9 @@ describe('<Calendar.DayGridBody />', () => {
           <Calendar.DayGrid>
             <Calendar.DayGridBody offset={1}>
               {(week) => (
-                <Calendar.DayGridRow value={week} key={week.toString()}>
+                <Calendar.DayGridRow value={week} key={week.getTime()}>
                   {(day) => (
-                    <Calendar.DayGridCell value={day} key={day.toString()}>
+                    <Calendar.DayGridCell value={day} key={day.getTime()}>
                       <Calendar.DayButton
                         data-testid={`next-month-${adapter.format(day, 'monthPadded')}`}
                       />
@@ -297,9 +297,9 @@ describe('<Calendar.DayGridBody />', () => {
           <Calendar.DayGrid>
             <Calendar.DayGridBody>
               {(week) => (
-                <Calendar.DayGridRow value={week} key={week.toString()}>
+                <Calendar.DayGridRow value={week} key={week.getTime()}>
                   {(day) => (
-                    <Calendar.DayGridCell value={day} key={day.toString()}>
+                    <Calendar.DayGridCell value={day} key={day.getTime()}>
                       <Calendar.DayButton
                         data-testid={`month-${adapter.format(day, 'monthPadded')}`}
                       />

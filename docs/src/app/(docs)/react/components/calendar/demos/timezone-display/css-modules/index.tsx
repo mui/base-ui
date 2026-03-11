@@ -33,7 +33,7 @@ export default function CalendarWithTimezoneDisplay() {
                   {(day) => (
                     <Calendar.DayGridHeaderCell
                       value={day}
-                      key={day.toString()}
+                      key={day.getTime()}
                       className={styles.DayGridHeaderCell}
                     />
                   )}
@@ -43,13 +43,13 @@ export default function CalendarWithTimezoneDisplay() {
                 {(week) => (
                   <Calendar.DayGridRow
                     value={week}
-                    key={week.toString()}
+                    key={week.getTime()}
                     className={styles.DayGridRow}
                   >
                     {(day) => (
                       <Calendar.DayGridCell
                         value={day}
-                        key={day.toString()}
+                        key={day.getTime()}
                         className={styles.DayGridCell}
                       >
                         <Calendar.DayButton className={styles.DayButton} />

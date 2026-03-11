@@ -25,9 +25,9 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
         <Calendar.DayGrid>
           <Calendar.DayGridBody>
             {(week) => (
-              <Calendar.DayGridRow value={week} key={week.toString()}>
+              <Calendar.DayGridRow value={week} key={week.getTime()}>
                 {(day) => (
-                  <Calendar.DayGridCell value={day} key={day.toString()}>
+                  <Calendar.DayGridCell value={day} key={day.getTime()}>
                     <Calendar.DayButton />
                   </Calendar.DayGridCell>
                 )}
@@ -467,9 +467,9 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
           <Calendar.DayGrid>
             <Calendar.DayGridBody>
               {(week) => (
-                <Calendar.DayGridRow value={week} key={week.toString()}>
+                <Calendar.DayGridRow value={week} key={week.getTime()}>
                   {(day) => (
-                    <Calendar.DayGridCell value={day} key={day.toString()}>
+                    <Calendar.DayGridCell value={day} key={day.getTime()}>
                       <Calendar.DayButton focusableWhenDisabled />
                     </Calendar.DayGridCell>
                   )}
