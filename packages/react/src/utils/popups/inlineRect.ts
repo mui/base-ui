@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { rectToClientRect } from '@floating-ui/utils';
+import { isElement } from '@floating-ui/utils/dom';
 import type { Middleware } from '@floating-ui/react-dom';
 
 export interface InlineRectCoords {
@@ -25,19 +27,21 @@ interface ClientRectsReference {
 
 function hasGetClientRects(value: unknown): value is ClientRectsReference {
   return (
-    typeof value === 'object' &&
-    value !== null &&
-    'getClientRects' in value &&
-    typeof value.getClientRects === 'function'
+    isElement(value) ||
+    (typeof value === 'object' &&
+      value !== null &&
+      'getClientRects' in value &&
+      typeof value.getClientRects === 'function')
   );
 }
 
 function toClientRect(rect: RectLike) {
-  return {
-    ...rect,
+  return rectToClientRect({
     x: rect.left,
     y: rect.top,
-  };
+    width: rect.width,
+    height: rect.height,
+  });
 }
 
 function getBoundingRect(rects: readonly RectLike[]) {

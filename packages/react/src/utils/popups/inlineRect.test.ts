@@ -198,4 +198,62 @@ describe('inlineRect', () => {
       },
     });
   });
+
+  it('uses edge-aligned rects for right placements', async () => {
+    const rects: RectLike[] = [
+      { left: 0, top: 0, right: 40, bottom: 10, width: 40, height: 10 },
+      { left: 0, top: 20, right: 60, bottom: 30, width: 60, height: 10 },
+      { left: 20, top: 40, right: 60, bottom: 50, width: 40, height: 10 },
+    ];
+    const trigger = createTrigger(rects);
+    const coordsRef: React.RefObject<InlineRectCoords | undefined> = { current: undefined };
+    const middleware = createInlineMiddleware(coordsRef);
+
+    expect(
+      await middleware.fn?.(
+        createMiddlewareState(trigger, 'right', { x: 0, y: 0, width: 60, height: 50 }) as never,
+      ),
+    ).toEqual({
+      reset: {
+        rects: {
+          reference: {
+            x: rects[0].left,
+            y: rects[1].top,
+            width: rects[1].right - rects[0].left,
+            height: rects[2].bottom - rects[1].top,
+          },
+          floating: { x: 0, y: 0, width: 20, height: 10 },
+        },
+      },
+    });
+  });
+
+  it('uses edge-aligned rects for left placements', async () => {
+    const rects: RectLike[] = [
+      { left: 20, top: 0, right: 60, bottom: 10, width: 40, height: 10 },
+      { left: 0, top: 20, right: 40, bottom: 30, width: 40, height: 10 },
+      { left: 0, top: 40, right: 60, bottom: 50, width: 60, height: 10 },
+    ];
+    const trigger = createTrigger(rects);
+    const coordsRef: React.RefObject<InlineRectCoords | undefined> = { current: undefined };
+    const middleware = createInlineMiddleware(coordsRef);
+
+    expect(
+      await middleware.fn?.(
+        createMiddlewareState(trigger, 'left', { x: 0, y: 0, width: 60, height: 50 }) as never,
+      ),
+    ).toEqual({
+      reset: {
+        rects: {
+          reference: {
+            x: rects[1].left,
+            y: rects[1].top,
+            width: rects[0].right - rects[1].left,
+            height: rects[2].bottom - rects[1].top,
+          },
+          floating: { x: 0, y: 0, width: 20, height: 10 },
+        },
+      },
+    });
+  });
 });

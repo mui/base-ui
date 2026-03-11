@@ -300,6 +300,33 @@ describe('<Tooltip.Positioner />', () => {
     });
   });
 
+  it.skipIf(isJSDOM)(
+    'does not affect single-rect trigger positioning on non-default sides',
+    async () => {
+      await render(
+        <Tooltip.Root open>
+          <Trigger data-testid="trigger" style={triggerStyle}>
+            Trigger
+          </Trigger>
+          <Tooltip.Portal>
+            <Tooltip.Positioner data-testid="positioner" side="right">
+              <Tooltip.Popup style={popupStyle}>Popup</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Tooltip.Root>,
+      );
+
+      expect(screen.getByTestId('trigger').getClientRects()).to.have.length(1);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('positioner').getBoundingClientRect()).to.include({
+          x: anchorWidth,
+          y: (anchorHeight - popupHeight) / 2,
+        });
+      });
+    },
+  );
+
   describe.skipIf(isJSDOM)('multiline inline trigger', () => {
     it('positions the popup relative to the hovered line of a multiline trigger', async () => {
       const { user } = await render(
