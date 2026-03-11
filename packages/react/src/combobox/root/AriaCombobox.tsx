@@ -138,6 +138,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const labelsRef = React.useRef<Array<string | null>>([]);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
   const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const startDismissRef = React.useRef<HTMLSpanElement | null>(null);
+  const endDismissRef = React.useRef<HTMLSpanElement | null>(null);
   const emptyRef = React.useRef<HTMLDivElement | null>(null);
   const keyboardActiveRef = React.useRef(true);
   const hadInputClearRef = React.useRef(false);
@@ -350,6 +352,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         popupRef,
         emptyRef,
         inputRef,
+        startDismissRef,
+        endDismissRef,
         keyboardActiveRef,
         chipsContainerRef,
         clearRef,
@@ -1555,6 +1559,7 @@ export namespace AriaCombobox {
     | typeof REASONS.triggerPress
     | typeof REASONS.outsidePress
     | typeof REASONS.itemPress
+    | typeof REASONS.closePress
     | typeof REASONS.escapeKey
     | typeof REASONS.listNavigation
     | typeof REASONS.focusOut
