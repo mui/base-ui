@@ -162,6 +162,44 @@ describeTree('TreeRoot - Focus', ({ render }) => {
 
       expect(view.getFocusedItemId()).to.equal(null);
     });
+
+    it('should not focus item if grandparent is collapsed', async () => {
+      const view = await render({
+        items: [
+          { id: '1' },
+          {
+            id: '2',
+            children: [{ id: '2.1', children: [{ id: '2.1.1' }] }],
+          },
+        ],
+        defaultExpandedItems: ['2.1'],
+      });
+
+      act(() => {
+        view.actionsRef.current!.focusItem('2.1.1');
+      });
+
+      expect(view.getFocusedItemId()).to.equal(null);
+    });
+
+    it('should focus a deeply nested item if all ancestors are expanded', async () => {
+      const view = await render({
+        items: [
+          { id: '1' },
+          {
+            id: '2',
+            children: [{ id: '2.1', children: [{ id: '2.1.1' }] }],
+          },
+        ],
+        defaultExpandedItems: ['2', '2.1'],
+      });
+
+      act(() => {
+        view.actionsRef.current!.focusItem('2.1.1');
+      });
+
+      expect(view.getFocusedItemId()).to.equal('2.1.1');
+    });
   });
 
   describe('onItemFocus prop', () => {
@@ -227,6 +265,27 @@ describeTree('TreeRoot - Focus', ({ render }) => {
         expect(view.getItemRoot('2').tabIndex).to.equal(-1);
         expect(view.getItemRoot('3').tabIndex).to.equal(-1);
       });
+    });
+  });
+
+  describe('tree root focus behavior', () => {
+    it('should focus the first selected item when the tree root receives focus', async () => {
+      const view = await render({
+        items: [{ id: '1' }, { id: '2' }, { id: '3' }],
+        selectedItems: '2',
+      });
+
+      fireEvent.focus(view.getRoot());
+      expect(view.getFocusedItemId()).to.equal('2');
+    });
+
+    it('should focus the first item when the tree root receives focus and no item is selected', async () => {
+      const view = await render({
+        items: [{ id: '1' }, { id: '2' }, { id: '3' }],
+      });
+
+      fireEvent.focus(view.getRoot());
+      expect(view.getFocusedItemId()).to.equal('1');
     });
   });
 

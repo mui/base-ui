@@ -202,6 +202,15 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         fireEvent.click(view.getItemRoot('1'));
         expect(view.isItemSelected('1')).to.equal(false);
       });
+
+      it('should not select an item when clicking the expansion trigger', async () => {
+        const view = await render({
+          items: [{ id: '1', children: [{ id: '1.1' }] }],
+        });
+
+        fireEvent.click(view.getItemExpansionTrigger('1')!);
+        expect(view.isItemSelected('1')).to.equal(false);
+      });
     });
 
     describe('multi selection', () => {
@@ -841,6 +850,104 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         expect(view.getSelectedTreeItems()).to.deep.equal([]);
       });
     });
+
+    describe('selection propagation with disabled items', () => {
+      it('should not select disabled descendants when selecting a parent', async () => {
+        const view = await render({
+          multiple: true,
+          checkboxSelection: true,
+          items: [
+            {
+              id: '1',
+              children: [{ id: '1.1' }, { id: '1.2', disabled: true }, { id: '1.3' }],
+            },
+          ],
+          defaultExpandedItems: ['1'],
+          selectionPropagation: { descendants: true },
+        });
+
+        fireEvent.click(view.getItemRoot('1'));
+        expect(view.getSelectedTreeItems()).to.deep.equal(['1', '1.1', '1.3']);
+      });
+
+      it('should not select non-selectable descendants when selecting a parent', async () => {
+        const view = await render({
+          multiple: true,
+          checkboxSelection: true,
+          items: [
+            {
+              id: '1',
+              children: [{ id: '1.1' }, { id: '1.2' }, { id: '1.3' }],
+            },
+          ],
+          defaultExpandedItems: ['1'],
+          selectionPropagation: { descendants: true },
+          isItemSelectionDisabled: (item: any) => item.id === '1.2',
+        });
+
+        fireEvent.click(view.getItemRoot('1'));
+        expect(view.getSelectedTreeItems()).to.deep.equal(['1', '1.1', '1.3']);
+      });
+
+      it('should auto-select parent when all selectable children are selected (ignoring disabled children)', async () => {
+        const view = await render({
+          multiple: true,
+          checkboxSelection: true,
+          items: [
+            {
+              id: '1',
+              children: [{ id: '1.1' }, { id: '1.2', disabled: true }],
+            },
+          ],
+          defaultSelectedItems: [],
+          defaultExpandedItems: ['1'],
+          selectionPropagation: { parents: true },
+        });
+
+        fireEvent.click(view.getItemRoot('1.1'));
+        expect(view.getSelectedTreeItems()).to.deep.equal(['1', '1.1']);
+      });
+
+      it('should auto-select parent when all selectable children are selected (ignoring non-selectable children)', async () => {
+        const view = await render({
+          multiple: true,
+          checkboxSelection: true,
+          items: [
+            {
+              id: '1',
+              children: [{ id: '1.1' }, { id: '1.2' }],
+            },
+          ],
+          defaultSelectedItems: [],
+          defaultExpandedItems: ['1'],
+          selectionPropagation: { parents: true },
+          isItemSelectionDisabled: (item: any) => item.id === '1.2',
+        });
+
+        fireEvent.click(view.getItemRoot('1.1'));
+        expect(view.getSelectedTreeItems()).to.deep.equal(['1', '1.1']);
+      });
+
+      it('should not auto-select a non-selectable parent even when all children are selected', async () => {
+        const view = await render({
+          multiple: true,
+          checkboxSelection: true,
+          items: [
+            {
+              id: '1',
+              children: [{ id: '1.1' }, { id: '1.2' }],
+            },
+          ],
+          defaultSelectedItems: ['1.2'],
+          defaultExpandedItems: ['1'],
+          selectionPropagation: { parents: true },
+          isItemSelectionDisabled: (item: any) => item.id === '1',
+        });
+
+        fireEvent.click(view.getItemRoot('1.1'));
+        expect(view.getSelectedTreeItems()).to.deep.equal(['1.1', '1.2']);
+      });
+    });
   });
 
   describe('aria-multiselectable tree attribute', () => {
@@ -1106,6 +1213,24 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
         expect(view.getItemRoot('1')).not.to.have.attribute('aria-checked');
         expect(view.getItemRoot('1.1')).to.have.attribute('aria-checked', 'false');
+      });
+    });
+
+    describe('checkbox item interaction', () => {
+      it('should not select a non-selectable checkbox item when clicking on it', async () => {
+        const view = await render({
+          items: [{ id: '1' }, { id: '2' }],
+          checkboxSelection: true,
+          isItemSelectionDisabled: (item: any) => item.id === '1',
+        });
+
+        expect(view.isItemSelected('1')).to.equal(false);
+        fireEvent.click(view.getItemRoot('1'));
+        expect(view.isItemSelected('1')).to.equal(false);
+
+        expect(view.isItemSelected('2')).to.equal(false);
+        fireEvent.click(view.getItemRoot('2'));
+        expect(view.isItemSelected('2')).to.equal(true);
       });
     });
 

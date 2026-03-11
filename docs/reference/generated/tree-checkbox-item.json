@@ -1,0 +1,40 @@
+{
+  "name": "TreeCheckboxItem",
+  "description": "A tree item that uses a checkbox for selection.\nRenders a `<li>` element.",
+  "props": {
+    "clickToExpand": {
+      "type": "boolean",
+      "default": "true",
+      "description": "If `true`, clicking the item toggles expansion when no `Tree.ItemExpansionTrigger` is used.",
+      "detailedType": "boolean | undefined"
+    },
+    "className": {
+      "type": "string | ((state: Tree.CheckboxItem.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Tree.CheckboxItem.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Tree.CheckboxItem.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Tree.CheckboxItem.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Tree.CheckboxItem.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Tree.CheckboxItem.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {
+    "data-checked": {},
+    "data-unchecked": {},
+    "data-disabled": {},
+    "data-collapsed": {},
+    "data-depth": {},
+    "data-editing": {},
+    "data-expandable": {},
+    "data-expanded": {},
+    "data-focused": {},
+    "data-indeterminate": {},
+    "data-item-id": {}
+  },
+  "cssVariables": {}
+}

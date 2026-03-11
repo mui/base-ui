@@ -1,0 +1,132 @@
+{
+  "name": "TreeRoot",
+  "description": "Groups all parts of the tree.\nRenders a `<ul>` element.",
+  "props": {
+    "actionsRef": {
+      "type": "RefObject<Tree.Root.Actions | null>",
+      "description": "A ref to imperative actions on the tree.",
+      "detailedType": "React.RefObject<Tree.Root.Actions | null> | undefined"
+    },
+    "defaultExpandedItems": {
+      "type": "string[]",
+      "detailedType": "string[] | undefined"
+    },
+    "defaultSelectedItems": {
+      "type": "string[] | string | any | null",
+      "detailedType": "string[] | string | any | null | undefined"
+    },
+    "disableSelection": {
+      "type": "boolean",
+      "detailedType": "boolean | undefined"
+    },
+    "disabledItemsFocusable": {
+      "type": "boolean",
+      "detailedType": "boolean | undefined"
+    },
+    "expandedItems": {
+      "type": "string[]",
+      "detailedType": "string[] | undefined"
+    },
+    "getItemChildren": {
+      "type": "((item: Tree.Item.Model) => Tree.Item.Model[] | undefined)",
+      "detailedType": "| ((item: Tree.Item.Model) => Tree.Item.Model[] | undefined)\n| undefined"
+    },
+    "getItemId": {
+      "type": "((item: Tree.Item.Model) => string)",
+      "detailedType": "((item: Tree.Item.Model) => string) | undefined"
+    },
+    "getItemLabel": {
+      "type": "((item: Tree.Item.Model) => string)",
+      "detailedType": "((item: Tree.Item.Model) => string) | undefined"
+    },
+    "isItemDisabled": {
+      "type": "((item: Tree.Item.Model) => boolean)",
+      "detailedType": "((item: Tree.Item.Model) => boolean) | undefined"
+    },
+    "isItemEditable": {
+      "type": "boolean | ((item: Tree.Item.Model) => boolean)",
+      "detailedType": "| boolean\n| ((item: Tree.Item.Model) => boolean)\n| undefined"
+    },
+    "isItemSelectionDisabled": {
+      "type": "((item: Tree.Item.Model) => boolean)",
+      "detailedType": "((item: Tree.Item.Model) => boolean) | undefined"
+    },
+    "isRtl": {
+      "type": "boolean",
+      "detailedType": "boolean | undefined"
+    },
+    "items": {
+      "type": "Tree.Item.Model[]",
+      "detailedType": "Tree.Item.Model[] | undefined"
+    },
+    "multiple": {
+      "type": "boolean | undefined",
+      "detailedType": "boolean | undefined"
+    },
+    "onExpandedItemsChange": {
+      "type": "((expandedItems: string[], eventDetails: Tree.Root.ExpansionChangeEventDetails) => void)",
+      "detailedType": "| ((\n    expandedItems: string[],\n    eventDetails: Tree.Root.ExpansionChangeEventDetails,\n  ) => void)\n| undefined"
+    },
+    "onItemClick": {
+      "type": "((event: MouseEvent, itemId: string) => void)",
+      "detailedType": "| ((event: MouseEvent, itemId: string) => void)\n| undefined"
+    },
+    "onItemExpansionToggle": {
+      "type": "((itemId: string, isExpanded: boolean) => void)",
+      "detailedType": "| ((itemId: string, isExpanded: boolean) => void)\n| undefined"
+    },
+    "onItemFocus": {
+      "type": "((itemId: string) => void)",
+      "detailedType": "((itemId: string) => void) | undefined"
+    },
+    "onItemLabelChange": {
+      "type": "((itemId: string, newLabel: string) => void)",
+      "detailedType": "| ((itemId: string, newLabel: string) => void)\n| undefined"
+    },
+    "onItemSelectionToggle": {
+      "type": "((itemId: string, isSelected: boolean) => void)",
+      "detailedType": "| ((itemId: string, isSelected: boolean) => void)\n| undefined"
+    },
+    "onSelectedItemsChange": {
+      "type": "((selectedItems: string[] | string | any | null, eventDetails: Tree.Root.SelectionChangeEventDetails) => void)",
+      "detailedType": "| ((\n    selectedItems: string[] | string | any | null,\n    eventDetails: Tree.Root.SelectionChangeEventDetails,\n  ) => void)\n| undefined"
+    },
+    "rootRef": {
+      "type": "RefObject<HTMLElement | null>",
+      "detailedType": "React.RefObject<HTMLElement | null> | undefined"
+    },
+    "selectedItems": {
+      "type": "string[] | string | any | null",
+      "detailedType": "string[] | string | any | null | undefined"
+    },
+    "selectionPropagation": {
+      "type": "{ parents?: boolean, descendants?: boolean }",
+      "detailedType": "| { parents?: boolean; descendants?: boolean }\n| undefined"
+    },
+    "children": {
+      "type": "((item: Tree.Item.Model) => ReactNode)",
+      "description": "The render function for each tree item.\nCalled with the item model for each visible item.",
+      "detailedType": "((item: Tree.Item.Model) => ReactNode) | undefined"
+    },
+    "className": {
+      "type": "string | ((state: Tree.Root.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Tree.Root.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Tree.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Tree.Root.State) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Tree.Root.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Tree.Root.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {
+    "data-tree": {
+      "description": "Present on the root element."
+    }
+  },
+  "cssVariables": {}
+}

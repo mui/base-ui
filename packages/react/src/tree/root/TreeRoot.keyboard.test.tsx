@@ -82,6 +82,18 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         fireEvent.keyDown(view.getItemRoot('1'), { key: 'ArrowDown' });
         expect(view.getFocusedItemId()).to.equal('2');
       });
+
+      it('should not move the focus when the last item is focused', async () => {
+        const view = await render({
+          items: [{ id: '1' }, { id: '2' }],
+        });
+
+        act(() => {
+          view.getItemRoot('2').focus();
+        });
+        fireEvent.keyDown(view.getItemRoot('2'), { key: 'ArrowDown' });
+        expect(view.getFocusedItemId()).to.equal('2');
+      });
     });
 
     describe('key: ArrowUp', () => {
@@ -196,6 +208,18 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
         });
         fireEvent.keyDown(view.getItemRoot('3'), { key: 'ArrowUp' });
         expect(view.getFocusedItemId()).to.equal('2');
+      });
+
+      it('should not move the focus when the first item is focused', async () => {
+        const view = await render({
+          items: [{ id: '1' }, { id: '2' }],
+        });
+
+        act(() => {
+          view.getItemRoot('1').focus();
+        });
+        fireEvent.keyDown(view.getItemRoot('1'), { key: 'ArrowUp' });
+        expect(view.getFocusedItemId()).to.equal('1');
       });
     });
 
@@ -735,6 +759,25 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
           fireEvent.keyDown(view.getItemRoot('1'), { key: ' ' });
           expect(view.getSelectedTreeItems()).to.deep.equal([]);
         });
+
+        it('should expand the selection range when Space is pressed while holding Shift', async () => {
+          const view = await render({
+            items: [{ id: '1' }, { id: '2' }, { id: '3' }],
+            multiple: true,
+          });
+
+          act(() => {
+            view.getItemRoot('1').focus();
+          });
+          fireEvent.keyDown(view.getItemRoot('1'), { key: ' ' });
+          expect(view.getSelectedTreeItems()).to.deep.equal(['1']);
+
+          act(() => {
+            view.getItemRoot('3').focus();
+          });
+          fireEvent.keyDown(view.getItemRoot('3'), { key: ' ', shiftKey: true });
+          expect(view.getSelectedTreeItems()).to.deep.equal(['1', '2', '3']);
+        });
       });
 
       describe('key: ArrowDown', () => {
@@ -1125,6 +1168,36 @@ describeTree('TreeRoot - Keyboard', ({ render }) => {
             ctrlKey: true,
           });
           expect(view.getSelectedTreeItems()).to.deep.equal(['1', '3', '4']);
+        });
+      });
+
+      describe('key: Enter', () => {
+        it('should select the focused item without un-selecting the other selected items when Enter is pressed', async () => {
+          const view = await render({
+            items: [{ id: '1' }, { id: '2' }],
+            multiple: true,
+            defaultSelectedItems: ['1'],
+          });
+
+          act(() => {
+            view.getItemRoot('2').focus();
+          });
+          fireEvent.keyDown(view.getItemRoot('2'), { key: 'Enter' });
+          expect(view.getSelectedTreeItems()).to.deep.equal(['1', '2']);
+        });
+
+        it('should un-select the focused item when Enter is pressed', async () => {
+          const view = await render({
+            items: [{ id: '1' }, { id: '2' }],
+            multiple: true,
+            defaultSelectedItems: ['1', '2'],
+          });
+
+          act(() => {
+            view.getItemRoot('1').focus();
+          });
+          fireEvent.keyDown(view.getItemRoot('1'), { key: 'Enter' });
+          expect(view.getSelectedTreeItems()).to.deep.equal(['2']);
         });
       });
     });

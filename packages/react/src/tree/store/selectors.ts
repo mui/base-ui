@@ -172,6 +172,10 @@ export const checkboxSelectionStatus = createSelector(
         }
       }
 
+      if (hasSelectedDescendant && hasUnSelectedDescendant) {
+        return;
+      }
+
       const children = itemOrderedChildrenIds(state, idToTraverse);
       for (const childId of children) {
         traverseDescendants(childId);
@@ -321,12 +325,12 @@ export const itemProps = createSelectorMemoized(
 
     // Compute ARIA checked
     let ariaChecked: React.AriaAttributes['aria-checked'];
-    if (selectionStatus === 'checked') {
+    if (!canBeSelected) {
+      ariaChecked = undefined;
+    } else if (selectionStatus === 'checked') {
       ariaChecked = true;
     } else if (selectionStatus === 'indeterminate') {
       ariaChecked = 'mixed';
-    } else if (!canBeSelected) {
-      ariaChecked = undefined;
     } else {
       ariaChecked = false;
     }

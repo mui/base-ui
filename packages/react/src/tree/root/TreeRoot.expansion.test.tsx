@@ -248,6 +248,36 @@ describeTree('TreeRoot - Expansion', ({ render }) => {
       expect(view.getItemExpansionTrigger('1')).to.not.equal(null);
       expect(view.getItemExpansionTrigger('2')).to.not.equal(null);
     });
+
+    it('should expand a collapsed item when clicking the expansion trigger', async () => {
+      const view = await render({
+        items: [{ id: '1', children: [{ id: '1.1' }] }],
+      });
+
+      expect(view.isItemExpanded('1')).to.equal(false);
+      fireEvent.click(view.getItemExpansionTrigger('1')!);
+      expect(view.isItemExpanded('1')).to.equal(true);
+    });
+
+    it('should collapse an expanded item when clicking the expansion trigger', async () => {
+      const view = await render({
+        items: [{ id: '1', children: [{ id: '1.1' }] }],
+        defaultExpandedItems: ['1'],
+      });
+
+      expect(view.isItemExpanded('1')).to.equal(true);
+      fireEvent.click(view.getItemExpansionTrigger('1')!);
+      expect(view.isItemExpanded('1')).to.equal(false);
+    });
+
+    it('should not select the item when clicking the expansion trigger', async () => {
+      const view = await render({
+        items: [{ id: '1', children: [{ id: '1.1' }] }],
+      });
+
+      fireEvent.click(view.getItemExpansionTrigger('1')!);
+      expect(view.isItemSelected('1')).to.equal(false);
+    });
   });
 
   describe('setItemExpansion API method', () => {

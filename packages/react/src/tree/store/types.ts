@@ -4,6 +4,15 @@ import { REASONS } from '../../utils/reasons';
 export type TreeItemId = string;
 
 /**
+ * Conditional type that narrows the selected items type based on the `multiple` prop.
+ * When `Multiple` is `true`, the type is `TreeItemId[]`.
+ * When `Multiple` is `false` or `undefined`, the type is `TreeItemId`.
+ */
+export type TreeSelectedItemsType<Multiple extends boolean | undefined> = Multiple extends true
+  ? TreeItemId[]
+  : TreeItemId;
+
+/**
  * The shape of an item as provided by the user in the `items` prop.
  * Users can extend this with custom properties.
  */

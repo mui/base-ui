@@ -11,6 +11,7 @@ import type {
   TreeRootExpansionChangeEventDetails,
   TreeRootSelectionChangeEventReason,
   TreeRootSelectionChangeEventDetails,
+  TreeSelectedItemsType,
 } from './types';
 import { TREE_VIEW_ROOT_PARENT_ID } from './types';
 import { selectors } from './selectors';
@@ -28,7 +29,7 @@ import {
 
 const TYPEAHEAD_TIMEOUT = 500;
 
-export interface TreeStoreParameters {
+export interface TreeStoreParameters<Multiple extends boolean | undefined = false> {
   items: readonly TreeItemModel[];
 
   // Expansion
@@ -40,16 +41,22 @@ export interface TreeStoreParameters {
   onItemExpansionToggle?: ((itemId: TreeItemId, isExpanded: boolean) => void) | undefined;
 
   // Selection
-  selectedItems?: TreeItemId | null | readonly TreeItemId[] | undefined;
-  defaultSelectedItems?: TreeItemId | null | readonly TreeItemId[] | undefined;
+  selectedItems?:
+    | TreeSelectedItemsType<Multiple>
+    | (Multiple extends true ? never : null)
+    | undefined;
+  defaultSelectedItems?:
+    | TreeSelectedItemsType<Multiple>
+    | (Multiple extends true ? never : null)
+    | undefined;
   onSelectedItemsChange?:
     | ((
-        selectedItems: TreeItemId | null | TreeItemId[],
+        selectedItems: TreeSelectedItemsType<Multiple> | (Multiple extends true ? never : null),
         eventDetails: TreeRootSelectionChangeEventDetails,
       ) => void)
     | undefined;
   onItemSelectionToggle?: ((itemId: TreeItemId, isSelected: boolean) => void) | undefined;
-  multiple?: boolean | undefined;
+  multiple?: Multiple | undefined;
   disableSelection?: boolean | undefined;
   selectionPropagation?:
     | { parents?: boolean | undefined; descendants?: boolean | undefined }
@@ -139,7 +146,9 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
       },
       {
         onExpandedItemsChange: parameters.onExpandedItemsChange ?? (() => {}),
-        onSelectedItemsChange: parameters.onSelectedItemsChange ?? (() => {}),
+        onSelectedItemsChange:
+          (parameters.onSelectedItemsChange as TreeStoreContext['onSelectedItemsChange']) ??
+          (() => {}),
         onItemFocus: parameters.onItemFocus ?? (() => {}),
         onItemClick: parameters.onItemClick ?? (() => {}),
         onItemLabelChange: parameters.onItemLabelChange ?? (() => {}),
@@ -413,6 +422,9 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
       if (selectionPropagation.descendants) {
         const selectDescendants = (itemId: TreeItemId) => {
           if (itemId !== addedItemId) {
+            if (!selectors.canItemBeSelected(this.state, itemId)) {
+              return;
+            }
             flags.shouldRegenerateModel = true;
             newModelLookup[itemId] = true;
           }
@@ -426,6 +438,10 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
 
       if (selectionPropagation.parents) {
         const checkAllDescendantsSelected = (itemId: TreeItemId): boolean => {
+          // Non-selectable items don't count toward the "all selected" check
+          if (!selectors.canItemBeSelected(this.state, itemId)) {
+            return true;
+          }
           if (!newModelLookup[itemId]) {
             return false;
           }
@@ -440,8 +456,10 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
           }
           const siblings = selectors.itemOrderedChildrenIds(this.state, parentId);
           if (siblings.every(checkAllDescendantsSelected)) {
-            flags.shouldRegenerateModel = true;
-            newModelLookup[parentId] = true;
+            if (selectors.canItemBeSelected(this.state, parentId)) {
+              flags.shouldRegenerateModel = true;
+              newModelLookup[parentId] = true;
+            }
             selectParents(parentId);
           }
         };
@@ -636,8 +654,17 @@ export class TreeStore extends ReactStore<TreeState, TreeStoreContext, typeof se
 
   public focusItem(itemId: TreeItemId) {
     const meta = selectors.itemMeta(this.state, itemId);
-    const isItemVisible =
-      meta && (meta.parentId == null || selectors.isItemExpanded(this.state, meta.parentId));
+    let isItemVisible = meta != null;
+    if (isItemVisible) {
+      let parentId = meta!.parentId;
+      while (parentId != null) {
+        if (!selectors.isItemExpanded(this.state, parentId)) {
+          isItemVisible = false;
+          break;
+        }
+        parentId = selectors.itemMeta(this.state, parentId)?.parentId ?? null;
+      }
+    }
 
     if (isItemVisible) {
       this.getItemDOMElement(itemId)?.focus();

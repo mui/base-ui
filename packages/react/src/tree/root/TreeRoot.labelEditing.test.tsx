@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import { spy } from 'sinon';
 import { act, fireEvent } from '@mui/internal-test-utils';
 import { describeTree } from '../../../test/describeTree';
 
@@ -163,6 +164,62 @@ describeTree('TreeRoot - Label Editing', ({ render }) => {
         fireEvent.doubleClick(view.getItemLabel('1')!);
         expect(view.getItemLabelInput('1')!.value).to.equal('test');
       });
+    });
+
+    it('should not navigate when pressing ArrowDown while editing a label', async () => {
+      const view = await render({
+        items: [{ id: '1' }, { id: '2' }],
+        isItemEditable: () => true,
+      });
+      act(() => {
+        view.getItemRoot('1').focus();
+      });
+      fireEvent.doubleClick(view.getItemLabel('1')!);
+      fireEvent.keyDown(view.getItemLabelInput('1')!, { key: 'ArrowDown' });
+
+      expect(view.getFocusedItemId()).to.equal('1');
+    });
+  });
+
+  describe('onItemLabelChange prop', () => {
+    it('should call onItemLabelChange when saving a label edit', async () => {
+      const onItemLabelChange = spy();
+
+      const view = await render({
+        items: [{ id: '1', label: 'test' }],
+        isItemEditable: () => true,
+        onItemLabelChange,
+      });
+
+      act(() => {
+        view.getItemRoot('1').focus();
+      });
+      fireEvent.doubleClick(view.getItemLabel('1')!);
+      fireEvent.change(view.getItemLabelInput('1')!, { target: { value: 'new value' } });
+      fireEvent.keyDown(view.getItemLabelInput('1')!, { key: 'Enter' });
+
+      expect(onItemLabelChange.callCount).to.equal(1);
+      expect(onItemLabelChange.lastCall.args[0]).to.equal('1');
+      expect(onItemLabelChange.lastCall.args[1]).to.equal('new value');
+    });
+
+    it('should not call onItemLabelChange when canceling a label edit', async () => {
+      const onItemLabelChange = spy();
+
+      const view = await render({
+        items: [{ id: '1', label: 'test' }],
+        isItemEditable: () => true,
+        onItemLabelChange,
+      });
+
+      act(() => {
+        view.getItemRoot('1').focus();
+      });
+      fireEvent.doubleClick(view.getItemLabel('1')!);
+      fireEvent.change(view.getItemLabelInput('1')!, { target: { value: 'new value' } });
+      fireEvent.keyDown(view.getItemLabelInput('1')!, { key: 'Escape' });
+
+      expect(onItemLabelChange.callCount).to.equal(0);
     });
   });
 

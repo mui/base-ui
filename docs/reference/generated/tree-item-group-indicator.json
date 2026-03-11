@@ -1,0 +1,26 @@
+{
+  "name": "TreeItemGroupIndicator",
+  "description": "A visual indicator for expandable tree items.\nRenders a `<span>` element.",
+  "props": {
+    "className": {
+      "type": "string | ((state: Tree.ItemGroupIndicator.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((\n    state: Tree.ItemGroupIndicator.State,\n  ) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Tree.ItemGroupIndicator.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Tree.ItemGroupIndicator.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Tree.ItemGroupIndicator.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Tree.ItemGroupIndicator.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {
+    "data-collapsed": {},
+    "data-expandable": {},
+    "data-expanded": {}
+  },
+  "cssVariables": {}
+}

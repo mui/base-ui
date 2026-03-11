@@ -251,6 +251,62 @@ describeTree('TreeRoot - Items', ({ render }) => {
         ]);
       });
     });
+
+    describe('getParentId', () => {
+      it('should return the parent id of a child item', async () => {
+        const view = await render({
+          items: [{ id: '1', children: [{ id: '1.1' }] }],
+        });
+
+        expect(view.actionsRef.current!.getParentId('1.1')).to.equal('1');
+      });
+
+      it('should return null for root items', async () => {
+        const view = await render({
+          items: [{ id: '1' }, { id: '2' }],
+        });
+
+        expect(view.actionsRef.current!.getParentId('1')).to.equal(null);
+      });
+    });
+
+    describe('isItemExpanded', () => {
+      it('should return true for expanded items', async () => {
+        const view = await render({
+          items: [{ id: '1', children: [{ id: '1.1' }] }],
+          defaultExpandedItems: ['1'],
+        });
+
+        expect(view.actionsRef.current!.isItemExpanded('1')).to.equal(true);
+      });
+
+      it('should return false for collapsed items', async () => {
+        const view = await render({
+          items: [{ id: '1', children: [{ id: '1.1' }] }],
+        });
+
+        expect(view.actionsRef.current!.isItemExpanded('1')).to.equal(false);
+      });
+    });
+
+    describe('isItemSelected', () => {
+      it('should return true for selected items', async () => {
+        const view = await render({
+          items: [{ id: '1' }, { id: '2' }],
+          defaultSelectedItems: ['1'],
+        });
+
+        expect(view.actionsRef.current!.isItemSelected('1')).to.equal(true);
+      });
+
+      it('should return false for non-selected items', async () => {
+        const view = await render({
+          items: [{ id: '1' }, { id: '2' }],
+        });
+
+        expect(view.actionsRef.current!.isItemSelected('1')).to.equal(false);
+      });
+    });
   });
 
   describe('flat DOM structure', () => {
