@@ -37,6 +37,14 @@ import { DemoLocalizationProviderNesting } from './demos/nesting';
 
 <DemoLocalizationProviderNesting />
 
+### Start of week
+
+Start of the week is handled by the date library locale. You can override the default start of the week by spreading the locale and setting `options.weekStartsOn` to a value between `0` (Sunday) and `6` (Saturday).
+
+import { DemoLocalizationProviderStartOfWeek } from './demos/start-of-week';
+
+<DemoLocalizationProviderStartOfWeek />
+
 ## API reference
 
 <Reference component="LocalizationProvider" />
