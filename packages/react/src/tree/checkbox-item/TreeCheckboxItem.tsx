@@ -36,7 +36,8 @@ const stateAttributesMapping = {
 } satisfies StateAttributesMapping<TreeCheckboxItem.State>;
 
 /**
- * A tree item that uses a checkbox for selection.
+ * A tree item that uses toggle selection behavior with checkbox semantics.
+ * Clicking toggles the item's selection without affecting other items.
  * Renders a `<li>` element.
  *
  * Documentation: [Base UI Tree](https://base-ui.com/react/components/tree)
@@ -45,7 +46,7 @@ export const TreeCheckboxItem = React.forwardRef(function TreeCheckboxItem(
   componentProps: TreeCheckboxItem.Props,
   forwardedRef: React.ForwardedRef<HTMLLIElement>,
 ) {
-  const { className, render, clickToExpand = true, ...elementProps } = componentProps;
+  const { className, render, ...elementProps } = componentProps;
 
   const store = useTreeRootContext();
   const { itemId } = useTreeItemContext();
@@ -106,7 +107,7 @@ export const TreeCheckboxItem = React.forwardRef(function TreeCheckboxItem(
           }
         },
         onClick: (event: React.MouseEvent) => {
-          store.checkboxItemEventHandlers.onClick(event, itemId, clickToExpand);
+          store.checkboxItemEventHandlers.onClick(event, itemId);
         },
         onFocus: (event: React.FocusEvent) => {
           store.checkboxItemEventHandlers.onFocus(event, itemId);
@@ -141,13 +142,7 @@ export interface TreeCheckboxItemState {
   depth: number;
 }
 
-export interface TreeCheckboxItemProps extends BaseUIComponentProps<'li', TreeCheckboxItemState> {
-  /**
-   * If `true`, clicking the item toggles expansion when no `Tree.ItemExpansionTrigger` is used.
-   * @default true
-   */
-  clickToExpand?: boolean | undefined;
-}
+export interface TreeCheckboxItemProps extends BaseUIComponentProps<'li', TreeCheckboxItemState> {}
 
 export namespace TreeCheckboxItem {
   export type State = TreeCheckboxItemState;

@@ -62,6 +62,7 @@ describeTree('TreeRoot - Expansion', ({ render }) => {
 
       const view = await render({
         items: [{ id: '1', children: [{ id: '1.1' }] }],
+        expandOnClick: true,
         onExpandedItemsChange,
       });
 
@@ -80,6 +81,7 @@ describeTree('TreeRoot - Expansion', ({ render }) => {
           { id: '1', children: [{ id: '1.1' }] },
           { id: '2', children: [{ id: '2.1' }] },
         ],
+        expandOnClick: true,
         onExpandedItemsChange,
         defaultExpandedItems: ['1'],
       });
@@ -99,6 +101,7 @@ describeTree('TreeRoot - Expansion', ({ render }) => {
           { id: '1', children: [{ id: '1.1' }] },
           { id: '2', children: [{ id: '2.1' }] },
         ],
+        expandOnClick: true,
         onExpandedItemsChange,
         defaultExpandedItems: ['1'],
       });
@@ -117,6 +120,7 @@ describeTree('TreeRoot - Expansion', ({ render }) => {
 
       const view = await render({
         items: [{ id: '1', children: [{ id: '1.1' }] }],
+        expandOnClick: true,
         onExpandedItemsChange,
       });
 
@@ -152,6 +156,7 @@ describeTree('TreeRoot - Expansion', ({ render }) => {
 
       const view = await render({
         items: [{ id: '1', children: [{ id: '1.1' }] }],
+        expandOnClick: true,
         onItemExpansionToggle,
       });
 
@@ -167,6 +172,7 @@ describeTree('TreeRoot - Expansion', ({ render }) => {
       const view = await render({
         items: [{ id: '1', children: [{ id: '1.1' }] }],
         defaultExpandedItems: ['1'],
+        expandOnClick: true,
         onItemExpansionToggle,
       });
 
@@ -229,6 +235,7 @@ describeTree('TreeRoot - Expansion', ({ render }) => {
     it('should expand collapsed item when clicking on an item', async () => {
       const view = await render({
         items: [{ id: '1', children: [{ id: '1.1' }] }, { id: '2' }],
+        expandOnClick: true,
       });
 
       expect(view.isItemExpanded('1')).to.equal(false);
@@ -239,6 +246,7 @@ describeTree('TreeRoot - Expansion', ({ render }) => {
     it('should collapse expanded item when clicking on an item', async () => {
       const view = await render({
         items: [{ id: '1', children: [{ id: '1.1' }] }, { id: '2' }],
+        expandOnClick: true,
         defaultExpandedItems: ['1'],
       });
 
@@ -271,6 +279,7 @@ describeTree('TreeRoot - Expansion', ({ render }) => {
     it('should expand collapsed item when clicking on an item label', async () => {
       const view = await render({
         items: [{ id: '1', children: [{ id: '1.1' }] }, { id: '2' }],
+        expandOnClick: true,
       });
 
       expect(view.isItemExpanded('1')).to.equal(false);

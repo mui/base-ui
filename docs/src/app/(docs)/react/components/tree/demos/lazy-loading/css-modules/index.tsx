@@ -148,7 +148,7 @@ export default function ExampleTreeLazyLoading() {
 
           if (errorItems.has(parentId) && !loadingItems.has(parentId)) {
             return (
-              <Tree.Item className={styles.Item} clickToExpand={false} clickToSelect={false}>
+              <Tree.Item className={styles.Item} >
                 <span className={styles.ErrorText}>Failed to load</span>
                 <button
                   type="button"
@@ -165,7 +165,7 @@ export default function ExampleTreeLazyLoading() {
           }
 
           return (
-            <Tree.Item className={styles.Item} clickToExpand={false} clickToSelect={false}>
+            <Tree.Item className={styles.Item} >
               <span className={styles.Spinner} />
               <span className={styles.LoadingText}>Loading…</span>
             </Tree.Item>

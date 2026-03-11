@@ -94,6 +94,8 @@ export interface TreeState {
   // === Expansion ===
   /** IDs of currently expanded items */
   expandedItems: readonly TreeItemId[];
+  /** Whether clicking anywhere on an item row toggles expansion */
+  expandOnClick: boolean;
 
   // === Selection ===
   /** Currently selected items. string | null for single, string[] for multi */

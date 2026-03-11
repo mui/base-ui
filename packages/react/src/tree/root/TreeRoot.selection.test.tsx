@@ -853,6 +853,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
           checkboxSelection: true,
           items: [{ id: '1', children: [{ id: '1.1' }, { id: '1.2' }] }],
           defaultExpandedItems: ['1'],
+
           selectionPropagation: { descendants: true },
         });
 
@@ -944,6 +945,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
             },
           ],
           defaultExpandedItems: ['1'],
+
           selectionPropagation: { descendants: true },
         });
 
@@ -962,6 +964,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
             },
           ],
           defaultExpandedItems: ['1'],
+
           selectionPropagation: { descendants: true },
           isItemSelectionDisabled: (item: any) => item.id === '1.2',
         });
@@ -1360,6 +1363,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       it('should not select an item when clicking if isItemSelectionDisabled returns true', async () => {
         const view = await render({
           items: [{ id: '1', children: [{ id: '1.1' }] }, { id: '2' }],
+          defaultExpandedItems: ['1'],
           isItemSelectionDisabled: (item: any) => !!item.children && item.children.length > 0,
         });
 

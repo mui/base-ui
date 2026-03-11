@@ -37,7 +37,9 @@ import { Tree } from '@base-ui/react/tree';
 
 ### Checkbox items
 
-Use the `<Tree.CheckboxItem>` part to create tree items that can be checked or unchecked. Selection propagates to parent and descendant items.
+`<Tree.Item>` uses **replace** selection: clicking an item selects it and deselects others (use Ctrl/Cmd to add, Shift to range-select).
+
+`<Tree.CheckboxItem>` uses **toggle** selection: clicking an item toggles its selection without affecting others. It also renders checkbox ARIA semantics (`aria-checked` instead of `aria-selected`) and supports indeterminate state for parent items with partially selected children.
 
 import { DemoTreeCheckboxItems } from './demos/checkbox-items';
 

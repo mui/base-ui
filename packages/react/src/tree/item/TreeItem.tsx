@@ -23,7 +23,9 @@ const stateAttributesMapping = {
 } satisfies StateAttributesMapping<TreeItem.State>;
 
 /**
- * An individual tree item.
+ * An individual tree item that uses replace selection behavior.
+ * Clicking selects the item and deselects others.
+ * Use modifier keys (Ctrl/Cmd, Shift) for multi-select operations.
  * Renders a `<li>` element.
  *
  * Documentation: [Base UI Tree](https://base-ui.com/react/components/tree)
@@ -32,7 +34,7 @@ export const TreeItem = React.forwardRef(function TreeItem(
   componentProps: TreeItem.Props,
   forwardedRef: React.ForwardedRef<HTMLLIElement>,
 ) {
-  const { className, render, clickToExpand = true, clickToSelect = true, ...elementProps } = componentProps;
+  const { className, render, ...elementProps } = componentProps;
 
   const store = useTreeRootContext();
   const { itemId } = useTreeItemContext();
@@ -65,7 +67,7 @@ export const TreeItem = React.forwardRef(function TreeItem(
           }
         },
         onClick: (event: React.MouseEvent) => {
-          store.itemEventHandlers.onClick(event, itemId, clickToExpand, clickToSelect);
+          store.itemEventHandlers.onClick(event, itemId);
         },
         onFocus: (event: React.FocusEvent) => {
           store.itemEventHandlers.onFocus(event, itemId);
@@ -94,18 +96,7 @@ export interface TreeItemState {
   depth: number;
 }
 
-export interface TreeItemProps extends BaseUIComponentProps<'li', TreeItemState> {
-  /**
-   * If `true`, clicking the item toggles expansion when no `Tree.ItemExpansionTrigger` is used.
-   * @default true
-   */
-  clickToExpand?: boolean | undefined;
-  /**
-   * If `true`, clicking the item toggles selection.
-   * @default true
-   */
-  clickToSelect?: boolean | undefined;
-}
+export interface TreeItemProps extends BaseUIComponentProps<'li', TreeItemState> {}
 
 export namespace TreeItem {
   export type State = TreeItemState;

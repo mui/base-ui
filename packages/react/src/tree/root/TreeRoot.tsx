@@ -38,6 +38,7 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
     // Expansion
     expandedItems,
     defaultExpandedItems,
+    expandOnClick,
     onExpandedItemsChange,
     onItemExpansionToggle,
     // Selection
@@ -75,6 +76,7 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
         items,
         expandedItems,
         defaultExpandedItems,
+        expandOnClick,
         onExpandedItemsChange,
         onItemExpansionToggle,
         selectedItems,
@@ -102,6 +104,7 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
   store.useControlledProp('expandedItems', expandedItems);
   store.useControlledProp('selectedItems', selectedItems as any);
   store.useSyncedValues({
+    expandOnClick: expandOnClick ?? false,
     selectionMode: selectionMode ?? 'single',
     disallowEmptySelection: disallowEmptySelection ?? false,
     selectionPropagation: selectionPropagation ?? EMPTY_OBJECT,

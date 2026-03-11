@@ -36,6 +36,12 @@ export interface TreeStoreParameters<Mode extends TreeSelectionMode | undefined 
   // Expansion
   expandedItems?: readonly TreeItemId[] | undefined;
   defaultExpandedItems?: readonly TreeItemId[] | undefined;
+  /**
+   * Whether clicking anywhere on an item row toggles expansion.
+   * When `false`, only `Tree.ItemExpansionTrigger` can expand items.
+   * @default false
+   */
+  expandOnClick?: boolean | undefined;
   onExpandedItemsChange?:
     | ((expandedItems: TreeItemId[], eventDetails: TreeRootExpansionChangeEventDetails) => void)
     | undefined;
@@ -134,6 +140,7 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
       {
         ...itemsState,
         expandedItems: parameters.expandedItems ?? parameters.defaultExpandedItems ?? [],
+        expandOnClick: parameters.expandOnClick ?? false,
         selectedItems:
           parameters.selectedItems ??
           parameters.defaultSelectedItems ??
@@ -1062,7 +1069,7 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
   };
 
   public readonly itemEventHandlers = {
-    onClick: (event: React.MouseEvent, itemId: TreeItemId, clickToExpand: boolean, clickToSelect: boolean) => {
+    onClick: (event: React.MouseEvent, itemId: TreeItemId) => {
       this.context.onItemClick(event, itemId);
 
       // Handle focus - disabled items cannot be focused by mouse click
@@ -1072,32 +1079,30 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
 
       // Handle selection
       if (this.state.selectionMode !== 'none' && selectors.canItemBeSelected(this.state, itemId)) {
-        if (clickToSelect) {
-          const isMulti = this.state.selectionMode === 'multiple';
-          if (isMulti && (event.ctrlKey || event.metaKey)) {
-            this.setItemSelection({
-              itemId,
-              keepExistingSelection: true,
-              reason: REASONS.itemPress,
-              event: event.nativeEvent,
-            });
-            return;
-          }
-          if (isMulti && event.shiftKey) {
-            this.expandSelectionRange(itemId, REASONS.itemPress, event.nativeEvent);
-            return;
-          }
+        const isMulti = this.state.selectionMode === 'multiple';
+        if (isMulti && (event.ctrlKey || event.metaKey)) {
           this.setItemSelection({
             itemId,
-            shouldBeSelected: true,
+            keepExistingSelection: true,
             reason: REASONS.itemPress,
             event: event.nativeEvent,
           });
+          return;
         }
+        if (isMulti && event.shiftKey) {
+          this.expandSelectionRange(itemId, REASONS.itemPress, event.nativeEvent);
+          return;
+        }
+        this.setItemSelection({
+          itemId,
+          shouldBeSelected: true,
+          reason: REASONS.itemPress,
+          event: event.nativeEvent,
+        });
       }
 
       // Handle expansion (skipped for multi-select modifier clicks via early return above)
-      if (clickToExpand && this.canToggleItemExpansion(itemId)) {
+      if (this.state.expandOnClick && this.canToggleItemExpansion(itemId)) {
         this.setItemExpansion(itemId, undefined, REASONS.itemPress, event.nativeEvent);
       }
     },
@@ -1110,7 +1115,7 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
   };
 
   public readonly checkboxItemEventHandlers = {
-    onClick: (event: React.MouseEvent, itemId: TreeItemId, clickToExpand: boolean) => {
+    onClick: (event: React.MouseEvent, itemId: TreeItemId) => {
       this.context.onItemClick(event, itemId);
 
       // Handle focus - disabled items cannot be focused by mouse click
@@ -1133,11 +1138,10 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
           reason: REASONS.itemPress,
           event: event.nativeEvent,
         });
-        return;
       }
 
-      // Handle expansion (only when selection was not toggled)
-      if (clickToExpand && this.canToggleItemExpansion(itemId)) {
+      // Handle expansion
+      if (this.state.expandOnClick && this.canToggleItemExpansion(itemId)) {
         this.setItemExpansion(itemId, undefined, REASONS.itemPress, event.nativeEvent);
       }
     },
