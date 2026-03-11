@@ -59,10 +59,7 @@ const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
   const isSelected = useStore(store, selectors.isDayButtonSelected, value);
   const isTabbable = useStore(store, selectors.isDayButtonTabbable, value, month);
 
-  const isCurrent = React.useMemo(
-    () => adapter.isSameDay(value, adapter.now(adapter.getTimezone(value))),
-    [adapter, value],
-  );
+  const isCurrent = adapter.isSameDay(value, adapter.now(adapter.getTimezone(value)));
 
   const formattedDate = React.useMemo(
     () => adapter.format(value, 'localizedDateWithFullMonthAndWeekDay'),
