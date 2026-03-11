@@ -39,6 +39,16 @@ import { Calendar } from '@base-ui/react/calendar';
 
 ## Examples
 
+### Unavailable dates
+
+You can use the `isDateUnavailable()` prop to mark specific dates as unavailable. Unavailable dates are visually indicated and cannot be selected, but are focusable.
+
+This example disables weekends, US holidays, and the first Monday of every month.
+
+import { DemoCalendarUnavailableDates } from './demos/unavailable-dates';
+
+<DemoCalendarUnavailableDates />
+
 ### Validation
 
 You can use the `minDate` and `maxDate` props to limit the range of selectable dates.

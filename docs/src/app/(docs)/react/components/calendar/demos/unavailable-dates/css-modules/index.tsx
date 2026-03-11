@@ -5,9 +5,43 @@ import { Calendar } from '@base-ui/react/calendar';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import styles from '../../calendar.module.css';
 
-export default function ExampleCalendar() {
+const holidays: Array<[number, number]> = [
+  [0, 1], // New Year's Day
+  [6, 4], // Independence Day
+  [10, 11], // Veterans Day
+  [11, 25], // Christmas Day
+];
+
+function isDateUnavailable(date: Date) {
+  const day = date.getDay();
+  const month = date.getMonth();
+  const dayOfMonth = date.getDate();
+
+  // Weekends
+  if (day === 0 || day === 6) {
+    return true;
+  }
+
+  // US holidays
+  if (holidays.some(([m, d]) => month === m && dayOfMonth === d)) {
+    return true;
+  }
+
+  // First Monday of every month (maintenance day)
+  if (day === 1 && dayOfMonth <= 7) {
+    return true;
+  }
+
+  return false;
+}
+
+export default function UnavailableDatesCalendar() {
   return (
-    <Calendar.Root className={styles.Root}>
+    <Calendar.Root
+      className={styles.Root}
+      isDateUnavailable={isDateUnavailable}
+      aria-label="Appointment date"
+    >
       {({ visibleDate }) => (
         <React.Fragment>
           <header className={styles.Header}>
