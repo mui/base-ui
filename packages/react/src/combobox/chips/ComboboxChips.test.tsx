@@ -1,6 +1,6 @@
 import { expect } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
-import { screen } from '@mui/internal-test-utils';
+import { fireEvent, screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Combobox.Chips />', () => {
@@ -35,5 +35,31 @@ describe('<Combobox.Chips />', () => {
 
     const chips = screen.getByTestId('chips');
     expect(chips).toHaveAttribute('role', 'toolbar');
+  });
+
+  it('focuses the input when clicking anywhere in the Chips area', async () => {
+    await render(
+      <Combobox.Root multiple defaultValue={['apple']}>
+        <Combobox.Chips data-testid="chips">
+          <Combobox.Chip data-testid="chip">apple</Combobox.Chip>
+          <Combobox.Input data-testid="input" />
+        </Combobox.Chips>
+      </Combobox.Root>,
+    );
+
+    const chips = screen.getByTestId('chips');
+    const chip = screen.getByTestId('chip');
+    const input = screen.getByTestId('input');
+
+    expect(document.activeElement).not.to.equal(input);
+
+    fireEvent.mouseDown(chips);
+    expect(input).toHaveFocus();
+
+    // Blur and click on a chip: input should still receive focus.
+    input.blur();
+    expect(document.activeElement).not.to.equal(input);
+    fireEvent.mouseDown(chip);
+    expect(input).toHaveFocus();
   });
 });
