@@ -1,4 +1,4 @@
-import { lruMemoize, createSelectorCreator, Selector } from 'reselect';
+import { createSelectorCreator, lruMemoize, Selector } from 'reselect';
 
 /* eslint-disable no-underscore-dangle */ // __cacheKey__
 
@@ -12,13 +12,25 @@ const reselectCreateSelector = createSelectorCreator({
 
 type Fn = (...args: any[]) => any;
 type SelectorWithArgs = ReturnType<typeof reselectCreateSelector> & { selectorArgs: any[3] };
+/**
+ * Checks if a function type has any optional or default parameters.
+ * Default parameters break memoization because `Function.length` ignores them,
+ * causing incorrect `argsLength` calculation in `createSelectorMemoized`.
+ */
+type HasOptionalParams<F extends (...args: any[]) => any> =
+  Parameters<F> extends Required<Parameters<F>> ? false : true;
 
-type CreateSelectorFunction = <
+export type CreateSelectorFunction = <
   const Args extends any[],
   const Selectors extends ReadonlyArray<Selector<any>>,
   const Combiner extends (...args: readonly [...ReturnTypes<Selectors>, ...Args]) => any,
 >(
-  ...items: [...Selectors, Combiner]
+  ...items: HasOptionalParams<Combiner> extends true
+    ? [
+        ...Selectors,
+        error: 'Combiner cannot have optional or default parameters as they break memoization via Function.length',
+      ]
+    : [...Selectors, Combiner]
 ) => (
   ...args: Selectors['length'] extends 0
     ? MergeParams<ReturnTypes<Selectors>, Parameters<Combiner>>
@@ -54,9 +66,13 @@ type MergeParams<
 
 /**
  * Creates a selector function that can be used to derive values from the store's state.
- * The selector can take up to three additional arguments that can be used in the selector logic.
+ *
+ * The combiner function can have up to three additional parameters, but it **cannot have optional or default parameters**.
+ *
  * This function accepts up to six functions and combines them into a single selector function.
- * The last parameter is the combiner function that combines the results of the previous selectors.
+ * The resulting selector will take the state from the combined selectors and any additional parameters required by the combiner.
+ *
+ * The return type of the resulting selector is determined by the return type of the combiner function.
  *
  * @example
  * const selector = createSelector(
@@ -69,7 +85,6 @@ type MergeParams<
  *   (state) => state.open,
  *   (disabled, open) => ({ disabled, open })
  * );
- *
  */
 /* eslint-disable id-denylist */
 export const createSelector = ((
@@ -132,6 +147,33 @@ export const createSelector = ((
 }) as unknown as CreateSelectorFunction;
 /* eslint-enable id-denylist */
 
+/**
+ * Creates a memoized selector function that can be used to derive values from the store's state.
+ * This is useful for selectors that produce non-primitive values, such as objects or arrays, where memoization can help prevent unnecessary re-renders in React components.
+ *
+ * The memoization is implemented in a way that only the most recent selector result is cached.
+ * This is suitable for cases where the selector is called with the same state and arguments repeatedly,
+ * but may not be ideal for selectors that are called with a wide variety of states and arguments.
+ *
+ * The combiner function can have up to three additional parameters, but it **cannot have optional or default parameters**.
+ *
+ * This function accepts up to six functions and combines them into a single selector function.
+ * The resulting selector will take the state from the combined selectors and any additional parameters required by the combiner.
+ *
+ * The return type of the resulting selector is determined by the return type of the combiner function.
+ *
+ * @example
+ * const selector = createSelectorMemoized(
+ *  (state) => state.disabled
+ * );
+ *
+ * @example
+ * const selector = createSelectorMemoized(
+ *   (state) => state.disabled,
+ *   (state) => state.open,
+ *   (disabled, open) => ({ disabled, open })
+ * );
+ */
 export const createSelectorMemoized: CreateSelectorFunction = (...selectors: any[]) => {
   type CacheKey = { id: number };
 
