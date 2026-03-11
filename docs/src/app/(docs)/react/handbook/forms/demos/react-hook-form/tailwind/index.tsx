@@ -190,16 +190,16 @@ function ReactHookForm() {
           fieldState: { invalid, isTouched, isDirty, error },
         }) => (
           <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
-            <Field.Label className="cursor-default" nativeLabel={false} render={<div />}>
-              Server type
-            </Field.Label>
             <Select.Root items={SERVER_TYPES} value={value} onValueChange={onChange} inputRef={ref}>
-              <Select.Trigger className="w-48" onBlur={onBlur}>
-                <Select.Value />
-                <Select.Icon>
-                  <ChevronsUpDown className="size-4" />
-                </Select.Icon>
-              </Select.Trigger>
+              <div className="flex flex-col items-start gap-1">
+                <Select.Label>Server type</Select.Label>
+                <Select.Trigger className="w-48" onBlur={onBlur}>
+                  <Select.Value />
+                  <Select.Icon>
+                    <ChevronsUpDown className="size-4" />
+                  </Select.Icon>
+                </Select.Trigger>
+              </div>
               <Select.Portal>
                 <Select.Positioner>
                   <Select.Popup>
@@ -286,8 +286,13 @@ function ReactHookForm() {
               <Slider.Control>
                 <Slider.Track>
                   <Slider.Indicator />
-                  <Slider.Thumb index={0} onBlur={onBlur} inputRef={ref} />
-                  <Slider.Thumb index={1} onBlur={onBlur} />
+                  <Slider.Thumb
+                    index={0}
+                    aria-label="Minimum threshold"
+                    onBlur={onBlur}
+                    inputRef={ref}
+                  />
+                  <Slider.Thumb index={1} aria-label="Maximum threshold" onBlur={onBlur} />
                 </Slider.Track>
               </Slider.Control>
             </Fieldset.Root>

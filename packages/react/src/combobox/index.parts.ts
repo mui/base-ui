@@ -1,4 +1,5 @@
 export { ComboboxRoot as Root } from './root/ComboboxRoot';
+export { ComboboxLabel as Label } from './label/ComboboxLabel';
 export { ComboboxValue as Value } from './value/ComboboxValue';
 export { ComboboxInput as Input } from './input/ComboboxInput';
 export { ComboboxInputGroup as InputGroup } from './input-group/ComboboxInputGroup';
