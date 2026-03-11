@@ -46,6 +46,7 @@ import { HTMLProps } from '../../utils/types';
 import { useValueChanged } from '../../utils/useValueChanged';
 import { NOOP } from '../../utils/noop';
 import {
+  resolveSelectedLabel,
   stringifyAsLabel,
   stringifyAsValue,
   Group,
@@ -102,6 +103,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     loopFocus = true,
     itemToStringLabel,
     itemToStringValue,
+    getValueFromItem,
     isItemEqualToValue = defaultItemEquality,
     virtualized = false,
     inline: inlineProp = false,
@@ -165,7 +167,122 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const single = selectionMode === 'single';
   const hasInputValue = inputValueProp !== undefined || defaultInputValueProp !== undefined;
   const hasItems = items !== undefined;
+  const hasMappedItems = hasItems && getValueFromItem !== undefined;
   const hasFilteredItemsProp = filteredItemsProp !== undefined;
+  const isGrouped = isGroupedItems(items);
+
+  const flatItems: readonly any[] = React.useMemo(() => {
+    if (!items) {
+      return EMPTY_ARRAY;
+    }
+
+    if (isGrouped) {
+      return items.flatMap((group) => group.items);
+    }
+
+    return items;
+  }, [items, isGrouped]);
+
+  const itemToStringForItem = React.useMemo(() => {
+    if (!itemToStringLabel) {
+      return undefined;
+    }
+
+    if (!getValueFromItem) {
+      return itemToStringLabel;
+    }
+
+    return (item: any) => {
+      const mappedValue = getValueFromItem(item);
+
+      if (mappedValue == null) {
+        return stringifyAsLabel(item);
+      }
+
+      return itemToStringLabel(mappedValue) ?? '';
+    };
+  }, [getValueFromItem, itemToStringLabel]);
+
+  const flatItemValues: readonly any[] = React.useMemo(() => {
+    if (!hasMappedItems) {
+      return EMPTY_ARRAY;
+    }
+
+    return flatItems.map((item) => getValueFromItem(item));
+  }, [flatItems, getValueFromItem, hasMappedItems]);
+
+  const selectedValueToIndex = React.useMemo(() => {
+    if (!hasMappedItems || isItemEqualToValue !== defaultItemEquality) {
+      return null;
+    }
+
+    const valueToIndex = new Map<any, number>();
+
+    flatItemValues.forEach((itemValue, index) => {
+      if (itemValue === undefined || valueToIndex.has(itemValue)) {
+        return;
+      }
+
+      valueToIndex.set(itemValue, index);
+    });
+
+    return valueToIndex;
+  }, [flatItemValues, hasMappedItems, isItemEqualToValue]);
+
+  function resolveSelectedLabelAsString(
+    value: any,
+    selectedItemToStringLabel?: (item: any) => string,
+  ): string {
+    const label = resolveSelectedLabel(value, items, selectedItemToStringLabel);
+
+    if (label == null || typeof label === 'boolean') {
+      return '';
+    }
+
+    if (typeof label === 'string' || typeof label === 'number') {
+      return String(label);
+    }
+
+    return stringifyAsLabel(value);
+  }
+
+  const findSelectedIndex = React.useCallback(
+    (value: any) => {
+      if (!hasItems) {
+        return findItemIndex(allValuesRef.current, value, isItemEqualToValue);
+      }
+
+      if (!hasMappedItems) {
+        return findItemIndex(flatItems, value, isItemEqualToValue);
+      }
+
+      return (
+        selectedValueToIndex?.get(value) ?? findItemIndex(flatItemValues, value, isItemEqualToValue)
+      );
+    },
+    [flatItemValues, flatItems, hasItems, hasMappedItems, isItemEqualToValue, selectedValueToIndex],
+  );
+
+  function resolveSelectedInputLabel(value: any): string {
+    if (!hasMappedItems) {
+      return stringifyAsLabel(value, itemToStringLabel);
+    }
+
+    const index = findSelectedIndex(value);
+
+    if (index !== -1) {
+      if (itemToStringLabel && value != null) {
+        return itemToStringLabel(value) ?? '';
+      }
+
+      return stringifyAsLabel(flatItems[index], itemToStringForItem);
+    }
+
+    return resolveSelectedLabelAsString(
+      value,
+      value && typeof value === 'object' ? itemToStringLabel : undefined,
+    );
+  }
 
   let autoHighlightMode: false | 'input-change' | 'always';
   if (autoHighlight === 'always') {
@@ -186,13 +303,26 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       return () => true;
     }
     if (filterProp !== undefined) {
-      return filterProp;
+      return (item: Value, query: string) => filterProp(item, query, itemToStringForItem);
     }
     if (single && !queryChangedAfterOpen) {
-      return createSingleSelectionCollatorFilter(collatorFilter, itemToStringLabel, selectedValue);
+      return createSingleSelectionCollatorFilter(
+        collatorFilter,
+        itemToStringForItem,
+        selectedValue,
+        itemToStringLabel,
+      );
     }
-    return createCollatorItemFilter(collatorFilter, itemToStringLabel);
-  }, [filterProp, single, selectedValue, queryChangedAfterOpen, collatorFilter, itemToStringLabel]);
+    return createCollatorItemFilter(collatorFilter, itemToStringForItem);
+  }, [
+    collatorFilter,
+    filterProp,
+    itemToStringForItem,
+    itemToStringLabel,
+    queryChangedAfterOpen,
+    selectedValue,
+    single,
+  ]);
 
   // If neither inputValue nor defaultInputValue are provided, derive it from the
   // selected value for single mode so the input reflects the selection on mount.
@@ -202,7 +332,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         return defaultInputValueProp ?? '';
       }
       if (single) {
-        return stringifyAsLabel(selectedValue, itemToStringLabel);
+        return resolveSelectedInputLabel(selectedValue);
       }
       return '';
     },
@@ -222,10 +352,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     state: 'open',
   });
 
-  const isGrouped = isGroupedItems(items);
   const query = closeQuery ?? (inputValue === '' ? '' : String(inputValue).trim());
 
-  const selectedLabelString = single ? stringifyAsLabel(selectedValue, itemToStringLabel) : '';
+  const selectedLabelString = single ? resolveSelectedInputLabel(selectedValue) : '';
 
   const shouldBypassFiltering =
     single &&
@@ -237,18 +366,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const filterQuery = shouldBypassFiltering ? '' : query;
   const shouldIgnoreExternalFiltering = hasItems && hasFilteredItemsProp && shouldBypassFiltering;
-
-  const flatItems: readonly any[] = React.useMemo(() => {
-    if (!items) {
-      return EMPTY_ARRAY;
-    }
-
-    if (isGrouped) {
-      return items.flatMap((group) => group.items);
-    }
-
-    return items;
-  }, [items, isGrouped]);
 
   const filteredItems: Value[] | Group<Value>[] = React.useMemo(() => {
     if (filteredItemsProp && !shouldIgnoreExternalFiltering) {
@@ -272,7 +389,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         const candidateItems =
           filterQuery === ''
             ? group.items
-            : group.items.filter((item) => filter(item, filterQuery, itemToStringLabel));
+            : group.items.filter((item) => filter(item, filterQuery));
 
         if (candidateItems.length === 0) {
           continue;
@@ -308,7 +425,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       if (limit > -1 && limitedItems.length >= limit) {
         break;
       }
-      if (filter(item, filterQuery, itemToStringLabel)) {
+      if (filter(item, filterQuery)) {
         limitedItems.push(item);
       }
     }
@@ -322,7 +439,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     filterQuery,
     limit,
     filter,
-    itemToStringLabel,
     flatItems,
   ]);
 
@@ -364,6 +480,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         virtualized,
         openOnInputClick,
         itemToStringLabel,
+        getValueFromItem,
         isItemEqualToValue,
         modal,
         autoHighlight: autoHighlightMode,
@@ -440,7 +557,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     if (items) {
       // Ensure typeahead works on a closed list.
       labelsRef.current = flatFilteredItems.map((item) =>
-        stringifyAsLabel(item, itemToStringLabel),
+        stringifyAsLabel(item, itemToStringForItem),
       );
     } else {
       store.set('forceMounted', true);
@@ -606,7 +723,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
       if (shouldFillInput) {
         setInputValue(
-          stringifyAsLabel(nextValue, itemToStringLabel),
+          resolveSelectedInputLabel(nextValue),
           createChangeEventDetails(eventDetails.reason, eventDetails.event),
         );
       }
@@ -721,7 +838,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           setInputValue('', createChangeEventDetails(REASONS.inputClear));
         }
       } else {
-        const stringVal = stringifyAsLabel(selectedValue, itemToStringLabel);
+        const stringVal = resolveSelectedInputLabel(selectedValue);
         if (inputRef.current && inputRef.current.value !== stringVal) {
           // If no selection was made, treat this as clearing the typed filter.
           const reason = stringVal === '' ? REASONS.inputClear : REASONS.none;
@@ -761,36 +878,26 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         return;
       }
 
-      const registry = items ? flatItems : allValuesRef.current;
+      const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
+      const nextSelectedIndex = multiple
+        ? findSelectedIndex(currentValue[currentValue.length - 1])
+        : findSelectedIndex(selectedValue);
 
-      if (multiple) {
-        const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
-        const lastValue = currentValue[currentValue.length - 1];
-        const lastIndex = findItemIndex(registry, lastValue, isItemEqualToValue);
-        setIndices({ selectedIndex: lastIndex === -1 ? null : lastIndex });
-      } else {
-        const index = findItemIndex(registry, selectedValue, isItemEqualToValue);
-        setIndices({ selectedIndex: index === -1 ? null : index });
-      }
+      setIndices({ selectedIndex: nextSelectedIndex === -1 ? null : nextSelectedIndex });
     },
-    [
-      open,
-      selectedValue,
-      items,
-      selectionMode,
-      flatItems,
-      multiple,
-      isItemEqualToValue,
-      setIndices,
-    ],
+    [findSelectedIndex, multiple, open, selectedValue, selectionMode, setIndices],
   );
 
   useIsoLayoutEffect(() => {
     if (items) {
-      valuesRef.current = flatFilteredItems;
+      valuesRef.current = (
+        getValueFromItem
+          ? flatFilteredItems.map((item) => getValueFromItem(item))
+          : flatFilteredItems
+      ) as Value[];
       listRef.current.length = flatFilteredItems.length;
     }
-  }, [items, flatFilteredItems]);
+  }, [flatFilteredItems, getValueFromItem, items]);
 
   useIsoLayoutEffect(() => {
     const pendingHighlight = pendingQueryHighlightRef.current;
@@ -809,8 +916,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       return;
     }
 
-    const shouldUseFlatFilteredItems = hasItems || hasFilteredItemsProp;
-    const candidateItems = shouldUseFlatFilteredItems ? flatFilteredItems : valuesRef.current;
+    const candidateItems =
+      hasItems || !hasFilteredItemsProp ? valuesRef.current : flatFilteredItems;
     const storeActiveIndex = store.state.activeIndex;
 
     if (storeActiveIndex == null) {
@@ -908,7 +1015,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
 
     if (single && !hasInputValue && !inputInsidePopup) {
-      const nextInputValue = stringifyAsLabel(selectedValue, itemToStringLabel);
+      const nextInputValue = resolveSelectedInputLabel(selectedValue);
 
       if (inputValue !== nextInputValue) {
         setInputValue(nextInputValue, createChangeEventDetails(REASONS.none));
@@ -936,7 +1043,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       return;
     }
 
-    const nextInputValue = stringifyAsLabel(selectedValue, itemToStringLabel);
+    const nextInputValue = resolveSelectedInputLabel(selectedValue);
 
     if (inputValue !== nextInputValue) {
       setInputValue(nextInputValue, createChangeEventDetails(REASONS.none));
@@ -1109,6 +1216,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       onOpenChangeComplete,
       openOnInputClick,
       itemToStringLabel,
+      getValueFromItem,
       modal,
       autoHighlight: autoHighlightMode,
       isItemEqualToValue,
@@ -1141,6 +1249,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     onOpenChangeComplete,
     openOnInputClick,
     itemToStringLabel,
+    getValueFromItem,
     modal,
     isItemEqualToValue,
     submitOnItemClick,
@@ -1444,6 +1553,12 @@ interface ComboboxRootProps<ItemValue> {
    * If the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.
    */
   itemToStringValue?: ((itemValue: ItemValue) => string) | undefined;
+  /**
+   * Maps each item in `items` to the selected value shape.
+   * Useful when `items` are objects while `selectedValue` / `defaultSelectedValue` are primitives.
+   * When omitted, the full item is used as the selected value.
+   */
+  getValueFromItem?: ((item: any) => ItemValue) | undefined;
   /**
    * Custom comparison logic used to determine if a combobox item value matches the current selected value. Useful when item values are objects without matching referentially.
    * Defaults to `Object.is` comparison.

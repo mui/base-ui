@@ -76,14 +76,19 @@
       "detailedType": "string | undefined"
     },
     "filter": {
-      "type": "((itemValue: Value, query: string, itemToString: ((itemValue: Value) => string) | undefined) => boolean) | null",
+      "type": "((itemValue: Value | Item | any, query: string, itemToString: ((itemValue: Value | Item | any) => string) | undefined) => boolean) | null",
       "description": "Filter function used to match items vs input query.",
-      "detailedType": "| ((\n    itemValue: Value,\n    query: string,\n    itemToString:\n      | ((itemValue: Value) => string)\n      | undefined,\n  ) => boolean)\n| null\n| undefined"
+      "detailedType": "| ((\n    itemValue: Value | Item | any,\n    query: string,\n    itemToString:\n      | ((itemValue: Value | Item | any) => string)\n      | undefined,\n  ) => boolean)\n| null\n| undefined"
     },
     "filteredItems": {
       "type": "any[] | Group[]",
       "description": "Filtered items to display in the list.\nWhen provided, the list will use these items instead of filtering the `items` prop internally.\nUse when you want to control filtering logic externally with the `useFilter()` hook.",
       "detailedType": "any[] | Group[] | undefined"
+    },
+    "getValueFromItem": {
+      "type": "GetValueFromItemFn<Value, any[] | Group[] | undefined>",
+      "description": "Maps each item in the `items` array to the selected value shape.\nUseful when `items` are objects while `value` / `defaultValue` are primitive values.\nWhen omitted, the full item is used as the selected value.",
+      "detailedType": "((item: Item | any) => Value) | undefined"
     },
     "grid": {
       "type": "boolean",
@@ -113,7 +118,7 @@
       "detailedType": "((itemValue: Value) => string) | undefined"
     },
     "items": {
-      "type": "any[] | Group[]",
+      "type": "any[] | Group[] | undefined",
       "description": "The items to be displayed in the list.\nCan be either a flat array of items or an array of groups with items.",
       "detailedType": "any[] | Group[] | undefined"
     },
