@@ -39,7 +39,6 @@ export function useCalendarMonthButton(params: UseCalendarMonthButtonParameters)
 
       const wouldBeDisabled = selectors.isSetMonthButtonDisabled(
         store.state,
-        disabled,
         targetDate,
         disabledProp,
       );

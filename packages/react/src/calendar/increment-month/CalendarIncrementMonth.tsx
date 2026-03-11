@@ -39,13 +39,7 @@ export const CalendarIncrementMonth = React.forwardRef(function CalendarIncremen
     [visibleDate, monthPageSize, adapter],
   );
 
-  const isDisabled = useStore(
-    store,
-    selectors.isSetMonthButtonDisabled,
-    disabledProp,
-    targetDate,
-    disabledProp,
-  );
+  const isDisabled = useStore(store, selectors.isSetMonthButtonDisabled, targetDate, disabledProp);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled: isDisabled,
