@@ -20,6 +20,10 @@ export type {
   ComboboxClearState as AutocompleteClearState,
 } from '../combobox/clear/ComboboxClear';
 export type {
+  ComboboxInputGroupProps as AutocompleteInputGroupProps,
+  ComboboxInputGroupState as AutocompleteInputGroupState,
+} from '../combobox/input-group/ComboboxInputGroup';
+export type {
   ComboboxPopupProps as AutocompletePopupProps,
   ComboboxPopupState as AutocompletePopupState,
 } from '../combobox/popup/ComboboxPopup';

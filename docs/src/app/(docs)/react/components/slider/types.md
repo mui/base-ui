@@ -519,6 +519,65 @@ type SliderControlState = {
 };
 ```
 
+### Label
+
+An accessible label that is automatically associated with the slider thumbs.
+Renders a `<div>` element.
+
+**Label Props:**
+
+| Prop      | Type                                                                                      | Default | Description                                                                                                                                                                                   |
+| :-------- | :---------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Slider.Root.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Slider.Root.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Slider.Root.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+### Label.Props
+
+Re-export of [Label](#label) props.
+
+### Label.State
+
+```typescript
+type SliderLabelState = {
+  /** The index of the active thumb. */
+  activeThumbIndex: number;
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+  /** Whether the thumb is currently being dragged. */
+  dragging: boolean;
+  /** The maximum value. */
+  max: number;
+  /** The minimum value. */
+  min: number;
+  /**
+   * The minimum steps between values in a range slider.
+   * @default 0
+   */
+  minStepsBetweenValues: number;
+  /** The component orientation. */
+  orientation: Orientation;
+  /**
+   * The step increment of the slider when incrementing or decrementing. It will snap
+   * to multiples of this value. Decimal values are supported.
+   * @default 1
+   */
+  step: number;
+  /** The raw number value of the slider. */
+  values: number[];
+  /** Whether the field has been touched. */
+  touched: boolean;
+  /** Whether the field value has changed from its initial value. */
+  dirty: boolean;
+  /** Whether the field is valid. */
+  valid: boolean | null;
+  /** Whether the field has a value. */
+  filled: boolean;
+  /** Whether the field is focused. */
+  focused: boolean;
+};
+```
+
 ## Additional Types
 
 ### SliderRootChangeEventCustomProperties
@@ -547,12 +606,13 @@ type Orientation = 'horizontal' | 'vertical';
 ## Export Groups
 
 - `Slider.Root`: `Slider.Root`, `Slider.Root.State`, `Slider.Root.Props`, `Slider.Root.ChangeEventReason`, `Slider.Root.ChangeEventDetails`, `Slider.Root.CommitEventReason`, `Slider.Root.CommitEventDetails`
+- `Slider.Label`: `Slider.Label`, `Slider.Label.State`, `Slider.Label.Props`
 - `Slider.Value`: `Slider.Value`, `Slider.Value.State`, `Slider.Value.Props`
 - `Slider.Control`: `Slider.Control`, `Slider.Control.State`, `Slider.Control.Props`
 - `Slider.Track`: `Slider.Track`, `Slider.Track.State`, `Slider.Track.Props`
 - `Slider.Thumb`: `Slider.Thumb`, `Slider.Thumb.State`, `Slider.Thumb.Props`
 - `Slider.Indicator`: `Slider.Indicator`, `Slider.Indicator.State`, `Slider.Indicator.Props`
-- `Default`: `SliderRootState`, `SliderRootProps`, `SliderRootChangeEventCustomProperties`, `SliderRootChangeEventReason`, `SliderRootChangeEventDetails`, `SliderRootCommitEventReason`, `SliderRootCommitEventDetails`, `SliderValueState`, `SliderValueProps`, `SliderControlState`, `SliderControlProps`, `SliderTrackState`, `SliderTrackProps`, `ThumbMetadata`, `SliderThumbState`, `SliderThumbProps`, `SliderIndicatorState`, `SliderIndicatorProps`
+- `Default`: `SliderRootState`, `SliderRootProps`, `SliderRootChangeEventCustomProperties`, `SliderRootChangeEventReason`, `SliderRootChangeEventDetails`, `SliderRootCommitEventReason`, `SliderRootCommitEventDetails`, `SliderLabelState`, `SliderLabelProps`, `SliderValueState`, `SliderValueProps`, `SliderControlState`, `SliderControlProps`, `SliderTrackState`, `SliderTrackProps`, `ThumbMetadata`, `SliderThumbState`, `SliderThumbProps`, `SliderIndicatorState`, `SliderIndicatorProps`
 
 ## Canonical Types
 
@@ -564,6 +624,8 @@ Maps `Canonical`: `Alias` — rename aliases to their canonical form for consist
 - `Slider.Root.ChangeEventDetails`: `SliderRootChangeEventDetails`
 - `Slider.Root.CommitEventReason`: `SliderRootCommitEventReason`
 - `Slider.Root.CommitEventDetails`: `SliderRootCommitEventDetails`
+- `Slider.Label.State`: `SliderLabelState`
+- `Slider.Label.Props`: `SliderLabelProps`
 - `Slider.Value.State`: `SliderValueState`
 - `Slider.Value.Props`: `SliderValueProps`
 - `Slider.Control.State`: `SliderControlState`

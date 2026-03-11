@@ -128,6 +128,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     () =>
       new Store<StoreState>({
         id: generatedId,
+        labelId: undefined,
         modal,
         multiple,
         itemToStringLabel,

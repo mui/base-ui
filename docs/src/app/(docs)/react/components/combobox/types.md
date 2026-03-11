@@ -78,6 +78,7 @@ type ComboboxRootChangeEventReason =
   | 'trigger-press'
   | 'outside-press'
   | 'item-press'
+  | 'close-press'
   | 'escape-key'
   | 'list-navigation'
   | 'focus-out'
@@ -96,6 +97,7 @@ type ComboboxRootChangeEventDetails = (
   | { reason: 'trigger-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
   | { reason: 'outside-press'; event: MouseEvent | PointerEvent | TouchEvent }
   | { reason: 'item-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'close-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'escape-key'; event: KeyboardEvent }
   | { reason: 'list-navigation'; event: KeyboardEvent }
   | { reason: 'focus-out'; event: KeyboardEvent | FocusEvent }
@@ -678,6 +680,24 @@ Renders a `<div>` element.
 | style     | `React.CSSProperties \| ((state: Combobox.Group.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
 | render    | `ReactElement \| ((props: HTMLProps, state: Combobox.Group.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
+**Group Data Attributes:**
+
+| Attribute        | Type                                                                               | Description                                                                        |
+| :--------------- | :--------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- |
+| data-popup-open  | -                                                                                  | Present when the corresponding popup is open.                                      |
+| data-popup-side  | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start' \| null` | Indicates which side the corresponding popup is positioned relative to its anchor. |
+| data-list-empty  | -                                                                                  | Present when the corresponding items list is empty.                                |
+| data-pressed     | -                                                                                  | Present when the input group is pressed.                                           |
+| data-disabled    | -                                                                                  | Present when the component is disabled.                                            |
+| data-readonly    | -                                                                                  | Present when the component is readonly.                                            |
+| data-valid       | -                                                                                  | Present when the component is in valid state (when wrapped in Field.Root).         |
+| data-invalid     | -                                                                                  | Present when the component is in invalid state (when wrapped in Field.Root).       |
+| data-dirty       | -                                                                                  | Present when the component's value has changed (when wrapped in Field.Root).       |
+| data-touched     | -                                                                                  | Present when the component has been touched (when wrapped in Field.Root).          |
+| data-filled      | -                                                                                  | Present when the component has a value (when wrapped in Field.Root).               |
+| data-focused     | -                                                                                  | Present when the component is focused (when wrapped in Field.Root).                |
+| data-placeholder | -                                                                                  | Present when the combobox doesn't have a value.                                    |
+
 ### Group.Props
 
 Re-export of [Group](#group) props.
@@ -735,6 +755,42 @@ Re-export of [Separator](#separator) props.
 type ComboboxSeparatorState = {
   /** The orientation of the separator. */
   orientation: Orientation;
+};
+```
+
+### Label
+
+An accessible label that is automatically associated with the combobox trigger.
+Renders a `<div>` element.
+
+**Label Props:**
+
+| Prop      | Type                                                                                           | Default | Description                                                                                                                                                                                   |
+| :-------- | :--------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Combobox.Trigger.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Combobox.Trigger.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Combobox.Trigger.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+### Label.Props
+
+Re-export of [Label](#label) props.
+
+### Label.State
+
+```typescript
+type ComboboxLabelState = {
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+  /** Whether the field has been touched. */
+  touched: boolean;
+  /** Whether the field value has changed from its initial value. */
+  dirty: boolean;
+  /** Whether the field is valid. */
+  valid: boolean | null;
+  /** Whether the field has a value. */
+  filled: boolean;
+  /** Whether the field is focused. */
+  focused: boolean;
 };
 ```
 
@@ -947,6 +1003,70 @@ type ComboboxItemIndicatorState = {
 };
 ```
 
+### InputGroup
+
+A wrapper for the input and its associated controls.
+Renders a `<div>` element.
+
+**InputGroup Props:**
+
+| Prop      | Type                                                                                              | Default | Description                                                                                                                                                                                   |
+| :-------- | :------------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Combobox.InputGroup.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Combobox.InputGroup.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Combobox.InputGroup.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+**InputGroup Data Attributes:**
+
+| Attribute        | Type                                                                               | Description                                                                        |
+| :--------------- | :--------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- |
+| data-popup-open  | -                                                                                  | Present when the corresponding popup is open.                                      |
+| data-popup-side  | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start' \| null` | Indicates which side the corresponding popup is positioned relative to its anchor. |
+| data-list-empty  | -                                                                                  | Present when the corresponding items list is empty.                                |
+| data-pressed     | -                                                                                  | Present when the input group is pressed.                                           |
+| data-disabled    | -                                                                                  | Present when the component is disabled.                                            |
+| data-readonly    | -                                                                                  | Present when the component is readonly.                                            |
+| data-valid       | -                                                                                  | Present when the component is in valid state (when wrapped in Field.Root).         |
+| data-invalid     | -                                                                                  | Present when the component is in invalid state (when wrapped in Field.Root).       |
+| data-dirty       | -                                                                                  | Present when the component's value has changed (when wrapped in Field.Root).       |
+| data-touched     | -                                                                                  | Present when the component has been touched (when wrapped in Field.Root).          |
+| data-filled      | -                                                                                  | Present when the component has a value (when wrapped in Field.Root).               |
+| data-focused     | -                                                                                  | Present when the component is focused (when wrapped in Field.Root).                |
+| data-placeholder | -                                                                                  | Present when the combobox doesn't have a value.                                    |
+
+### InputGroup.Props
+
+Re-export of [InputGroup](#inputgroup) props.
+
+### InputGroup.State
+
+```typescript
+type ComboboxInputGroupState = {
+  /** Whether the corresponding popup is open. */
+  open: boolean;
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+  /** Whether the component should ignore user edits. */
+  readOnly: boolean;
+  /** Indicates which side the corresponding popup is positioned relative to its anchor. */
+  popupSide: Side | null;
+  /** Present when the corresponding items list is empty. */
+  listEmpty: boolean;
+  /** Whether the combobox doesn't have a value. */
+  placeholder: boolean;
+  /** Whether the field has been touched. */
+  touched: boolean;
+  /** Whether the field value has changed from its initial value. */
+  dirty: boolean;
+  /** Whether the field is valid. */
+  valid: boolean | null;
+  /** Whether the field has a value. */
+  filled: boolean;
+  /** Whether the field is focused. */
+  focused: boolean;
+};
+```
+
 ### useFilter
 
 Matches items against a query using `Intl.Collator` for robust string matching.
@@ -1044,8 +1164,10 @@ type Orientation = 'horizontal' | 'vertical';
 ## Export Groups
 
 - `Combobox.Root`: `Combobox.Root`, `Combobox.Root.Props`, `Combobox.Root.State`, `Combobox.Root.Actions`, `Combobox.Root.ChangeEventReason`, `Combobox.Root.ChangeEventDetails`, `Combobox.Root.HighlightEventReason`, `Combobox.Root.HighlightEventDetails`
+- `Combobox.Label`: `Combobox.Label`, `Combobox.Label.State`, `Combobox.Label.Props`
 - `Combobox.Value`: `Combobox.Value`, `Combobox.Value.State`, `Combobox.Value.Props`
 - `Combobox.Input`: `Combobox.Input`, `Combobox.Input.State`, `Combobox.Input.Props`
+- `Combobox.InputGroup`: `Combobox.InputGroup`, `Combobox.InputGroup.State`, `Combobox.InputGroup.Props`
 - `Combobox.Trigger`: `Combobox.Trigger`, `Combobox.Trigger.State`, `Combobox.Trigger.Props`
 - `Combobox.List`: `Combobox.List`, `Combobox.List.State`, `Combobox.List.Props`
 - `Combobox.Status`: `Combobox.Status`, `Combobox.Status.State`, `Combobox.Status.Props`
@@ -1069,7 +1191,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Combobox.Separator`: `Combobox.Separator`, `Combobox.Separator.Props`, `Combobox.Separator.State`
 - `Combobox.useFilter`
 - `Combobox.useFilteredItems`
-- `Default`: `ComboboxFilter`, `ComboboxFilterOptions`, `ComboboxRootProps`, `ComboboxRootState`, `ComboboxRootActions`, `ComboboxRootChangeEventReason`, `ComboboxRootChangeEventDetails`, `ComboboxRootHighlightEventReason`, `ComboboxRootHighlightEventDetails`, `ComboboxTriggerState`, `ComboboxTriggerProps`, `ComboboxInputState`, `ComboboxInputProps`, `ComboboxPopupState`, `ComboboxPopupProps`, `ComboboxPositionerState`, `ComboboxPositionerProps`, `ComboboxListState`, `ComboboxListProps`, `ComboboxItemState`, `ComboboxItemProps`, `ComboboxItemIndicatorProps`, `ComboboxItemIndicatorState`, `ComboboxValueState`, `ComboboxValueProps`, `ComboboxIconState`, `ComboboxIconProps`, `ComboboxArrowState`, `ComboboxArrowProps`, `ComboboxBackdropProps`, `ComboboxBackdropState`, `ComboboxPortalState`, `ComboboxPortalProps`, `ComboboxEmptyState`, `ComboboxEmptyProps`, `ComboboxGroupState`, `ComboboxGroupProps`, `ComboboxGroupLabelState`, `ComboboxGroupLabelProps`, `ComboboxRowState`, `ComboboxRowProps`, `ComboboxChipsState`, `ComboboxChipsProps`, `ComboboxChipState`, `ComboboxChipProps`, `ComboboxChipRemoveState`, `ComboboxChipRemoveProps`, `ComboboxClearState`, `ComboboxClearProps`, `ComboboxStatusState`, `ComboboxStatusProps`, `ComboboxCollectionState`, `ComboboxCollectionProps`
+- `Default`: `ComboboxFilter`, `ComboboxFilterOptions`, `ComboboxRootProps`, `ComboboxRootState`, `ComboboxRootActions`, `ComboboxRootChangeEventReason`, `ComboboxRootChangeEventDetails`, `ComboboxRootHighlightEventReason`, `ComboboxRootHighlightEventDetails`, `ComboboxLabelState`, `ComboboxLabelProps`, `ComboboxTriggerState`, `ComboboxTriggerProps`, `ComboboxInputState`, `ComboboxInputProps`, `ComboboxInputGroupState`, `ComboboxInputGroupProps`, `ComboboxPopupState`, `ComboboxPopupProps`, `ComboboxPositionerState`, `ComboboxPositionerProps`, `ComboboxListState`, `ComboboxListProps`, `ComboboxItemState`, `ComboboxItemProps`, `ComboboxItemIndicatorProps`, `ComboboxItemIndicatorState`, `ComboboxValueState`, `ComboboxValueProps`, `ComboboxIconState`, `ComboboxIconProps`, `ComboboxArrowState`, `ComboboxArrowProps`, `ComboboxBackdropProps`, `ComboboxBackdropState`, `ComboboxPortalState`, `ComboboxPortalProps`, `ComboboxEmptyState`, `ComboboxEmptyProps`, `ComboboxGroupState`, `ComboboxGroupProps`, `ComboboxGroupLabelState`, `ComboboxGroupLabelProps`, `ComboboxRowState`, `ComboboxRowProps`, `ComboboxChipsState`, `ComboboxChipsProps`, `ComboboxChipState`, `ComboboxChipProps`, `ComboboxChipRemoveState`, `ComboboxChipRemoveProps`, `ComboboxClearState`, `ComboboxClearProps`, `ComboboxStatusState`, `ComboboxStatusProps`, `ComboboxCollectionState`, `ComboboxCollectionProps`
 
 ## Canonical Types
 
@@ -1082,10 +1204,14 @@ Maps `Canonical`: `Alias` — rename aliases to their canonical form for consist
 - `Combobox.Root.ChangeEventDetails`: `ComboboxRootChangeEventDetails`
 - `Combobox.Root.HighlightEventReason`: `ComboboxRootHighlightEventReason`
 - `Combobox.Root.HighlightEventDetails`: `ComboboxRootHighlightEventDetails`
+- `Combobox.Label.State`: `ComboboxLabelState`
+- `Combobox.Label.Props`: `ComboboxLabelProps`
 - `Combobox.Value.State`: `ComboboxValueState`
 - `Combobox.Value.Props`: `ComboboxValueProps`
 - `Combobox.Input.State`: `ComboboxInputState`
 - `Combobox.Input.Props`: `ComboboxInputProps`
+- `Combobox.InputGroup.State`: `ComboboxInputGroupState`
+- `Combobox.InputGroup.Props`: `ComboboxInputGroupProps`
 - `Combobox.Trigger.State`: `ComboboxTriggerState`
 - `Combobox.Trigger.Props`: `ComboboxTriggerProps`
 - `Combobox.List.State`: `ComboboxListState`

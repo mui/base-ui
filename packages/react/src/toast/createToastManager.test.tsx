@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Toast } from '@base-ui/react/toast';
 import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
+import { spy } from 'sinon';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { List } from './utils/test-utils';
 
@@ -671,6 +672,59 @@ describe.skipIf(!isJSDOM)('createToastManager', () => {
       fireEvent.click(closeButton);
 
       expect(screen.queryByTestId('title')).to.equal(null);
+    });
+
+    it('does not call onClose when closing toasts that are already ending', async () => {
+      const toastManager = Toast.createToastManager();
+      const onCloseSpy1 = spy(() => {
+        toastManager.close();
+      });
+      const onCloseSpy2 = spy();
+      let toastId1: string;
+
+      function add() {
+        toastId1 = toastManager.add({
+          title: 'toast 1',
+          onClose: onCloseSpy1,
+        });
+
+        toastManager.add({
+          title: 'toast 2',
+          onClose: onCloseSpy2,
+        });
+      }
+
+      function close() {
+        toastManager.close(toastId1);
+      }
+
+      function Buttons() {
+        return (
+          <React.Fragment>
+            <button type="button" onClick={add}>
+              add
+            </button>
+            <button type="button" onClick={close}>
+              close
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider toastManager={toastManager}>
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+          <Buttons />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      fireEvent.click(screen.getByRole('button', { name: 'close' }));
+
+      expect(onCloseSpy1.callCount).to.equal(1);
+      expect(onCloseSpy2.callCount).to.equal(1);
     });
   });
 });

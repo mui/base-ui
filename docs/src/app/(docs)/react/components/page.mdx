@@ -170,6 +170,7 @@ An input that suggests options as you type.
     - Root
     - Value
     - Input
+    - InputGroup
     - Trigger
     - Icon
     - Clear
@@ -226,6 +227,7 @@ An input that suggests options as you type.
     - Data Attributes: data-disabled, data-highlighted, data-selected
   - Autocomplete - Group
     - Props: className, items, render, style
+    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-placeholder, data-popup-open, data-popup-side, data-pressed, data-readonly, data-touched, data-valid
   - Autocomplete - GroupLabel
     - Props: className, render, style
   - Autocomplete - Separator
@@ -238,6 +240,9 @@ An input that suggests options as you type.
     - Props: children
   - Autocomplete - Row
     - Props: className, render, style
+  - Autocomplete - InputGroup
+    - Props: className, render, style
+    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-placeholder, data-popup-open, data-popup-side, data-pressed, data-readonly, data-touched, data-valid
   - Autocomplete.useFilter
     - Parameters: options
   - Autocomplete.useFilteredItems
@@ -419,9 +424,11 @@ An input combined with a list of predefined items to select.
     - Virtualized
   - API reference
     - Root
+    - Label
     - Value
     - Icon
     - Input
+    - InputGroup
     - Clear
     - Trigger
     - Chips
@@ -481,10 +488,13 @@ An input combined with a list of predefined items to select.
     - Data Attributes: data-disabled, data-highlighted, data-selected
   - Combobox - Group
     - Props: className, items, render, style
+    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-placeholder, data-popup-open, data-popup-side, data-pressed, data-readonly, data-touched, data-valid
   - Combobox - GroupLabel
     - Props: className, render, style
   - Combobox - Separator
     - Props: className, orientation, render, style
+  - Combobox - Label
+    - Props: className, render, style
   - Combobox - Status
     - Props: className, render, style
   - Combobox - Empty
@@ -502,6 +512,9 @@ An input combined with a list of predefined items to select.
   - Combobox - ItemIndicator
     - Props: children, className, keepMounted, render, style
     - Data Attributes: data-ending-style, data-starting-style
+  - Combobox - InputGroup
+    - Props: className, render, style
+    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-placeholder, data-popup-open, data-popup-side, data-pressed, data-readonly, data-touched, data-valid
   - Combobox.useFilter
     - Parameters: options
   - Combobox.useFilteredItems
@@ -1405,6 +1418,7 @@ A common form component for choosing a predefined value in a dropdown menu.
     - Grouped
   - API reference
     - Root
+    - Label
     - Trigger
     - Value
     - Icon
@@ -1460,6 +1474,8 @@ A common form component for choosing a predefined value in a dropdown menu.
     - Props: className, render, style
   - Select - Separator
     - Props: className, orientation, render, style
+  - Select - Label
+    - Props: className, render, style
   - Select - ItemText
     - Props: className, render, style
   - Select - ItemIndicator
@@ -1515,6 +1531,7 @@ An easily stylable range input.
     - Form integration
   - API reference
     - Root
+    - Label
     - Value
     - Control
     - Track
@@ -1539,6 +1556,8 @@ An easily stylable range input.
   - Slider - Control
     - Props: className, render, style
     - Data Attributes: data-dirty, data-disabled, data-dragging, data-focused, data-invalid, data-orientation, data-touched, data-valid
+  - Slider - Label
+    - Props: className, render, style
 
 </details>
 

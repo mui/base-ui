@@ -24,11 +24,13 @@ Import the components and place them together:
 import { Autocomplete } from '@base-ui/react/autocomplete';
 
 <Autocomplete.Root>
-  <Autocomplete.Input />
-  <Autocomplete.Trigger />
-  <Autocomplete.Icon />
-  <Autocomplete.Clear />
-  <Autocomplete.Value />
+  <Autocomplete.InputGroup>
+    <Autocomplete.Input />
+    <Autocomplete.Trigger />
+    <Autocomplete.Icon />
+    <Autocomplete.Clear />
+    <Autocomplete.Value />
+  </Autocomplete.InputGroup>
 
   <Autocomplete.Portal>
     <Autocomplete.Backdrop />
@@ -174,6 +176,10 @@ import { TypesAutocomplete } from './types';
 ### Input
 
 <TypesAutocomplete.Input />
+
+### InputGroup
+
+<TypesAutocomplete.InputGroup />
 
 ### Trigger
 

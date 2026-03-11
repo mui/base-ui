@@ -70,6 +70,7 @@ type AutocompleteRootChangeEventReason =
   | 'trigger-press'
   | 'outside-press'
   | 'item-press'
+  | 'close-press'
   | 'escape-key'
   | 'list-navigation'
   | 'focus-out'
@@ -88,6 +89,7 @@ type AutocompleteRootChangeEventDetails = (
   | { reason: 'trigger-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
   | { reason: 'outside-press'; event: MouseEvent | PointerEvent | TouchEvent }
   | { reason: 'item-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'close-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'escape-key'; event: KeyboardEvent }
   | { reason: 'list-navigation'; event: KeyboardEvent }
   | { reason: 'focus-out'; event: KeyboardEvent | FocusEvent }
@@ -669,6 +671,24 @@ Renders a `<div>` element.
 | style     | `React.CSSProperties \| ((state: Autocomplete.Group.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
 | render    | `ReactElement \| ((props: HTMLProps, state: Autocomplete.Group.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
+**Group Data Attributes:**
+
+| Attribute        | Type                                                                               | Description                                                                        |
+| :--------------- | :--------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- |
+| data-popup-open  | -                                                                                  | Present when the corresponding popup is open.                                      |
+| data-popup-side  | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start' \| null` | Indicates which side the corresponding popup is positioned relative to its anchor. |
+| data-list-empty  | -                                                                                  | Present when the corresponding items list is empty.                                |
+| data-pressed     | -                                                                                  | Present when the input group is pressed.                                           |
+| data-disabled    | -                                                                                  | Present when the component is disabled.                                            |
+| data-readonly    | -                                                                                  | Present when the component is readonly.                                            |
+| data-valid       | -                                                                                  | Present when the component is in valid state (when wrapped in Field.Root).         |
+| data-invalid     | -                                                                                  | Present when the component is in invalid state (when wrapped in Field.Root).       |
+| data-dirty       | -                                                                                  | Present when the component's value has changed (when wrapped in Field.Root).       |
+| data-touched     | -                                                                                  | Present when the component has been touched (when wrapped in Field.Root).          |
+| data-filled      | -                                                                                  | Present when the component has a value (when wrapped in Field.Root).               |
+| data-focused     | -                                                                                  | Present when the component is focused (when wrapped in Field.Root).                |
+| data-placeholder | -                                                                                  | Present when the combobox doesn't have a value.                                    |
+
 ### Group.Props
 
 Re-export of [Group](#group) props.
@@ -825,6 +845,70 @@ Re-export of [Row](#row) props.
 type AutocompleteRowState = {};
 ```
 
+### InputGroup
+
+A wrapper for the input and its associated controls.
+Renders a `<div>` element.
+
+**InputGroup Props:**
+
+| Prop      | Type                                                                                                  | Default | Description                                                                                                                                                                                   |
+| :-------- | :---------------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Autocomplete.InputGroup.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Autocomplete.InputGroup.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Autocomplete.InputGroup.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+**InputGroup Data Attributes:**
+
+| Attribute        | Type                                                                               | Description                                                                        |
+| :--------------- | :--------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- |
+| data-popup-open  | -                                                                                  | Present when the corresponding popup is open.                                      |
+| data-popup-side  | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start' \| null` | Indicates which side the corresponding popup is positioned relative to its anchor. |
+| data-list-empty  | -                                                                                  | Present when the corresponding items list is empty.                                |
+| data-pressed     | -                                                                                  | Present when the input group is pressed.                                           |
+| data-disabled    | -                                                                                  | Present when the component is disabled.                                            |
+| data-readonly    | -                                                                                  | Present when the component is readonly.                                            |
+| data-valid       | -                                                                                  | Present when the component is in valid state (when wrapped in Field.Root).         |
+| data-invalid     | -                                                                                  | Present when the component is in invalid state (when wrapped in Field.Root).       |
+| data-dirty       | -                                                                                  | Present when the component's value has changed (when wrapped in Field.Root).       |
+| data-touched     | -                                                                                  | Present when the component has been touched (when wrapped in Field.Root).          |
+| data-filled      | -                                                                                  | Present when the component has a value (when wrapped in Field.Root).               |
+| data-focused     | -                                                                                  | Present when the component is focused (when wrapped in Field.Root).                |
+| data-placeholder | -                                                                                  | Present when the combobox doesn't have a value.                                    |
+
+### InputGroup.Props
+
+Re-export of [InputGroup](#inputgroup) props.
+
+### InputGroup.State
+
+```typescript
+type AutocompleteInputGroupState = {
+  /** Whether the corresponding popup is open. */
+  open: boolean;
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+  /** Whether the component should ignore user edits. */
+  readOnly: boolean;
+  /** Indicates which side the corresponding popup is positioned relative to its anchor. */
+  popupSide: Side | null;
+  /** Present when the corresponding items list is empty. */
+  listEmpty: boolean;
+  /** Whether the combobox doesn't have a value. */
+  placeholder: boolean;
+  /** Whether the field has been touched. */
+  touched: boolean;
+  /** Whether the field value has changed from its initial value. */
+  dirty: boolean;
+  /** Whether the field is valid. */
+  valid: boolean | null;
+  /** Whether the field has a value. */
+  filled: boolean;
+  /** Whether the field is focused. */
+  focused: boolean;
+};
+```
+
 ### useFilter
 
 Matches items against a query using `Intl.Collator` for robust string matching.
@@ -918,6 +1002,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Autocomplete.Value`: `Autocomplete.Value`, `Autocomplete.Value.State`, `Autocomplete.Value.Props`
 - `Autocomplete.Trigger`: `Autocomplete.Trigger`, `Autocomplete.Trigger.State`, `Autocomplete.Trigger.Props`
 - `Autocomplete.Input`: `Autocomplete.Input`, `Autocomplete.Input.State`, `Autocomplete.Input.Props`
+- `Autocomplete.InputGroup`: `Autocomplete.InputGroup`, `Autocomplete.InputGroup.State`, `Autocomplete.InputGroup.Props`
 - `Autocomplete.Icon`: `Autocomplete.Icon`, `Autocomplete.Icon.State`, `Autocomplete.Icon.Props`
 - `Autocomplete.Clear`: `Autocomplete.Clear`, `Autocomplete.Clear.State`, `Autocomplete.Clear.Props`
 - `Autocomplete.List`: `Autocomplete.List`, `Autocomplete.List.State`, `Autocomplete.List.Props`
@@ -936,7 +1021,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Autocomplete.Separator`: `Autocomplete.Separator`, `Autocomplete.Separator.Props`, `Autocomplete.Separator.State`
 - `Autocomplete.useFilter`
 - `Autocomplete.useFilteredItems`
-- `Default`: `AutocompleteTriggerProps`, `AutocompleteTriggerState`, `AutocompleteInputProps`, `AutocompleteInputState`, `AutocompleteIconProps`, `AutocompleteIconState`, `AutocompleteClearProps`, `AutocompleteClearState`, `AutocompletePopupProps`, `AutocompletePopupState`, `AutocompletePositionerProps`, `AutocompletePositionerState`, `AutocompleteListProps`, `AutocompleteListState`, `AutocompleteItemProps`, `AutocompleteItemState`, `AutocompleteRowProps`, `AutocompleteRowState`, `AutocompleteArrowProps`, `AutocompleteArrowState`, `AutocompleteBackdropProps`, `AutocompleteBackdropState`, `AutocompletePortalProps`, `AutocompletePortalState`, `AutocompleteGroupProps`, `AutocompleteGroupState`, `AutocompleteGroupLabelProps`, `AutocompleteGroupLabelState`, `AutocompleteEmptyProps`, `AutocompleteEmptyState`, `AutocompleteStatusProps`, `AutocompleteStatusState`, `AutocompleteCollectionProps`, `AutocompleteFilter`, `AutocompleteFilterOptions`, `AutocompleteRootState`, `AutocompleteRootActions`, `AutocompleteRootChangeEventReason`, `AutocompleteRootChangeEventDetails`, `AutocompleteRootHighlightEventReason`, `AutocompleteRootHighlightEventDetails`, `AutocompleteRootProps`, `AutocompleteValueState`, `AutocompleteValueProps`
+- `Default`: `AutocompleteTriggerProps`, `AutocompleteTriggerState`, `AutocompleteInputProps`, `AutocompleteInputState`, `AutocompleteIconProps`, `AutocompleteIconState`, `AutocompleteClearProps`, `AutocompleteClearState`, `AutocompleteInputGroupProps`, `AutocompleteInputGroupState`, `AutocompletePopupProps`, `AutocompletePopupState`, `AutocompletePositionerProps`, `AutocompletePositionerState`, `AutocompleteListProps`, `AutocompleteListState`, `AutocompleteItemProps`, `AutocompleteItemState`, `AutocompleteRowProps`, `AutocompleteRowState`, `AutocompleteArrowProps`, `AutocompleteArrowState`, `AutocompleteBackdropProps`, `AutocompleteBackdropState`, `AutocompletePortalProps`, `AutocompletePortalState`, `AutocompleteGroupProps`, `AutocompleteGroupState`, `AutocompleteGroupLabelProps`, `AutocompleteGroupLabelState`, `AutocompleteEmptyProps`, `AutocompleteEmptyState`, `AutocompleteStatusProps`, `AutocompleteStatusState`, `AutocompleteCollectionProps`, `AutocompleteFilter`, `AutocompleteFilterOptions`, `AutocompleteRootState`, `AutocompleteRootActions`, `AutocompleteRootChangeEventReason`, `AutocompleteRootChangeEventDetails`, `AutocompleteRootHighlightEventReason`, `AutocompleteRootHighlightEventDetails`, `AutocompleteRootProps`, `AutocompleteValueState`, `AutocompleteValueProps`
 
 ## Canonical Types
 
@@ -955,6 +1040,8 @@ Maps `Canonical`: `Alias` — rename aliases to their canonical form for consist
 - `Autocomplete.Trigger.Props`: `AutocompleteTriggerProps`
 - `Autocomplete.Input.State`: `AutocompleteInputState`
 - `Autocomplete.Input.Props`: `AutocompleteInputProps`
+- `Autocomplete.InputGroup.State`: `AutocompleteInputGroupState`
+- `Autocomplete.InputGroup.Props`: `AutocompleteInputGroupProps`
 - `Autocomplete.Icon.State`: `AutocompleteIconState`
 - `Autocomplete.Icon.Props`: `AutocompleteIconProps`
 - `Autocomplete.Clear.State`: `AutocompleteClearState`

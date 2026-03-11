@@ -634,6 +634,42 @@ type SelectSeparatorState = {
 };
 ```
 
+### Label
+
+An accessible label that is automatically associated with the select trigger.
+Renders a `<div>` element.
+
+**Label Props:**
+
+| Prop      | Type                                                                                         | Default | Description                                                                                                                                                                                   |
+| :-------- | :------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Select.Trigger.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Select.Trigger.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Select.Trigger.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+### Label.Props
+
+Re-export of [Label](#label) props.
+
+### Label.State
+
+```typescript
+type SelectLabelState = {
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+  /** Whether the field has been touched. */
+  touched: boolean;
+  /** Whether the field value has changed from its initial value. */
+  dirty: boolean;
+  /** Whether the field is valid. */
+  valid: boolean | null;
+  /** Whether the field has a value. */
+  filled: boolean;
+  /** Whether the field is focused. */
+  focused: boolean;
+};
+```
+
 ### ItemText
 
 A text label of the select item.
@@ -802,6 +838,7 @@ type Orientation = 'horizontal' | 'vertical';
 ## Export Groups
 
 - `Select.Root`: `Select.Root`, `Select.Root.Props`, `Select.Root.State`, `Select.Root.Actions`, `Select.Root.ChangeEventReason`, `Select.Root.ChangeEventDetails`
+- `Select.Label`: `Select.Label`, `Select.Label.State`, `Select.Label.Props`
 - `Select.Trigger`: `Select.Trigger`, `Select.Trigger.State`, `Select.Trigger.Props`
 - `Select.Value`: `Select.Value`, `Select.Value.State`, `Select.Value.Props`
 - `Select.Icon`: `Select.Icon`, `Select.Icon.State`, `Select.Icon.Props`
@@ -819,7 +856,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Select.Group`: `Select.Group`, `Select.Group.State`, `Select.Group.Props`
 - `Select.GroupLabel`: `Select.GroupLabel`, `Select.GroupLabel.State`, `Select.GroupLabel.Props`
 - `Select.Separator`: `Select.Separator`, `Select.Separator.Props`, `Select.Separator.State`
-- `Default`: `SelectRootProps`, `SelectRootState`, `SelectRootActions`, `SelectRootChangeEventReason`, `SelectRootChangeEventDetails`, `SelectTriggerState`, `SelectTriggerProps`, `SelectValueState`, `SelectValueProps`, `SelectIconState`, `SelectIconProps`, `SelectPortalState`, `SelectPortalProps`, `SelectBackdropState`, `SelectBackdropProps`, `SelectPositionerState`, `SelectPositionerProps`, `SelectPopupProps`, `SelectPopupState`, `SelectListProps`, `SelectListState`, `SelectItemState`, `SelectItemProps`, `SelectItemIndicatorState`, `SelectItemIndicatorProps`, `SelectItemTextState`, `SelectItemTextProps`, `SelectArrowState`, `SelectArrowProps`, `SelectScrollDownArrowState`, `SelectScrollDownArrowProps`, `SelectScrollUpArrowState`, `SelectScrollUpArrowProps`, `SelectGroupState`, `SelectGroupProps`, `SelectGroupLabelState`, `SelectGroupLabelProps`
+- `Default`: `SelectRootProps`, `SelectRootState`, `SelectRootActions`, `SelectRootChangeEventReason`, `SelectRootChangeEventDetails`, `SelectLabelState`, `SelectLabelProps`, `SelectTriggerState`, `SelectTriggerProps`, `SelectValueState`, `SelectValueProps`, `SelectIconState`, `SelectIconProps`, `SelectPortalState`, `SelectPortalProps`, `SelectBackdropState`, `SelectBackdropProps`, `SelectPositionerState`, `SelectPositionerProps`, `SelectPopupProps`, `SelectPopupState`, `SelectListProps`, `SelectListState`, `SelectItemState`, `SelectItemProps`, `SelectItemIndicatorState`, `SelectItemIndicatorProps`, `SelectItemTextState`, `SelectItemTextProps`, `SelectArrowState`, `SelectArrowProps`, `SelectScrollDownArrowState`, `SelectScrollDownArrowProps`, `SelectScrollUpArrowState`, `SelectScrollUpArrowProps`, `SelectGroupState`, `SelectGroupProps`, `SelectGroupLabelState`, `SelectGroupLabelProps`
 
 ## Canonical Types
 
@@ -830,6 +867,8 @@ Maps `Canonical`: `Alias` — rename aliases to their canonical form for consist
 - `Select.Root.Actions`: `SelectRootActions`
 - `Select.Root.ChangeEventReason`: `SelectRootChangeEventReason`
 - `Select.Root.ChangeEventDetails`: `SelectRootChangeEventDetails`
+- `Select.Label.State`: `SelectLabelState`
+- `Select.Label.Props`: `SelectLabelProps`
 - `Select.Trigger.State`: `SelectTriggerState`
 - `Select.Trigger.Props`: `SelectTriggerProps`
 - `Select.Value.State`: `SelectValueState`
