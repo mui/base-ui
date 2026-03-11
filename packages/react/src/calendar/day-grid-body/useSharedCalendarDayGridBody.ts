@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { REASONS } from '../../utils/reasons';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import { SharedCalendarDayGridBodyContext } from './SharedCalendarDayGridBodyContext';
@@ -83,13 +84,16 @@ export function useSharedCalendarDayGridBody(
 
   const handleItemMapUpdate = (newMap: typeof itemMap) => {
     setItemMap(newMap);
-    if (executeAfterItemMapUpdate.current) {
-      queueMicrotask(() => {
-        executeAfterItemMapUpdate.current?.(newMap);
-        executeAfterItemMapUpdate.current = null;
-      });
-    }
   };
+
+  // Execute pending focus callback after React has committed the new item map to the DOM.
+  // This replaces a queueMicrotask approach that could fire before React's commit phase.
+  useIsoLayoutEffect(() => {
+    if (executeAfterItemMapUpdate.current) {
+      executeAfterItemMapUpdate.current(itemMap);
+      executeAfterItemMapUpdate.current = null;
+    }
+  }, [itemMap]);
 
   const focusNextNonDisabledElement = ({
     elements = items,
