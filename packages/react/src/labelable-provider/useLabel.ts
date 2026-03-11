@@ -16,10 +16,7 @@ export function useLabel(params: UseLabelParameters = {}): UseLabelReturnValue {
     focusControl: focusControlProp,
   } = params;
 
-  const {
-    controlId: contextControlId,
-    setLabelId: setContextLabelId,
-  } = useLabelableContext();
+  const { controlId: contextControlId, setLabelId: setContextLabelId } = useLabelableContext();
 
   const syncLabelId = useStableCallback((nextLabelId: string | undefined) => {
     setContextLabelId(nextLabelId);
