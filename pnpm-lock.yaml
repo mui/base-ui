@@ -424,7 +424,7 @@ importers:
         specifier: ^5.1.2
         version: 5.1.4(vite@7.3.1(@types/node@22.18.13)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))
       eslint:
-        specifier: 10.0.2
+        specifier: ^10.0.2
         version: 10.0.2(jiti@2.6.1)
       prettier:
         specifier: ^3.8.1
@@ -467,7 +467,7 @@ importers:
         specifier: ^5.0.0
         version: 5.1.4(vite@7.3.1(@types/node@22.18.13)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))
       eslint:
-        specifier: 10.0.2
+        specifier: ^10.0.2
         version: 10.0.2(jiti@2.6.1)
       eslint-plugin-react-hooks:
         specifier: ^5.2.0
