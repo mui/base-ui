@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
+import { Drawer } from '@base-ui/react/drawer';
 
 export default function ExampleDrawer() {
   const [portalContainer, setPortalContainer] = React.useState<HTMLDivElement | null>(null);

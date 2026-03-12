@@ -293,7 +293,7 @@ function TreeContext(props: {
   const element = useRenderElement(nested ? 'div' : 'nav', props.componentProps, {
     state,
     ref: [props.forwardedRef, rootRef],
-    props: [{ 'aria-orientation': orientation }, elementProps],
+    props: elementProps,
   });
 
   return (

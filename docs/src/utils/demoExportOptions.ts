@@ -1,6 +1,7 @@
 import { stringOrHastToString } from '@mui/internal-docs-infra/pipeline/hastUtils';
 import type { VariantExtraFiles } from '@mui/internal-docs-infra/CodeHighlighter/types';
 import { ExportConfig } from '@mui/internal-docs-infra/useDemo';
+import ts from 'typescript';
 
 const defaultStylesLink = `<link rel="stylesheet" href="demo.css" />`;
 const htmlHeadWithDefaultStyles: ExportConfig['headTemplate'] = () => defaultStylesLink;
@@ -29,19 +30,137 @@ const htmlHeadWithCssModulesTheme: ExportConfig['headTemplate'] = () => themeSty
 // Tailwind CSS Setup
 const tailwindSetup = `
 <!-- Check out the Tailwind CSS' installation guide for setting it up: https://tailwindcss.com/docs/installation/framework-guides -->
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {},
-    },
-  }
-</script>`;
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>`;
 const tailwindNote = `
 
 <!-- Inject classes used so that Tailwind loaded from the CDN can pre-render them. -->
 <!-- This is for the CodeSandbox example only. You don't need this in your app. -->
 `;
+
+function addClassNames(classNames: Set<string>, classes: string) {
+  classes.split(/\s+/).forEach((className) => {
+    if (className) {
+      classNames.add(className);
+    }
+  });
+}
+
+function collectStringDeclarations(fileSource: ts.SourceFile) {
+  const declarations = new Map<string, ts.Expression>();
+
+  function visit(node: ts.Node) {
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer) {
+      declarations.set(node.name.text, node.initializer);
+    }
+
+    ts.forEachChild(node, visit);
+  }
+
+  visit(fileSource);
+  return declarations;
+}
+
+function resolveStringExpression(
+  expression: ts.Expression,
+  declarations: Map<string, ts.Expression>,
+  seen = new Set<string>(),
+): string | null {
+  if (ts.isStringLiteral(expression) || ts.isNoSubstitutionTemplateLiteral(expression)) {
+    return expression.text;
+  }
+
+  if (ts.isParenthesizedExpression(expression) || ts.isAsExpression(expression)) {
+    return resolveStringExpression(expression.expression, declarations, seen);
+  }
+
+  if (
+    ts.isBinaryExpression(expression) &&
+    expression.operatorToken.kind === ts.SyntaxKind.PlusToken
+  ) {
+    const left = resolveStringExpression(expression.left, declarations, seen);
+    const right = resolveStringExpression(expression.right, declarations, seen);
+
+    if (left === null || right === null) {
+      return null;
+    }
+
+    return left + right;
+  }
+
+  if (ts.isTemplateExpression(expression)) {
+    let value = expression.head.text;
+
+    for (const span of expression.templateSpans) {
+      const resolvedExpression = resolveStringExpression(span.expression, declarations, seen);
+      if (resolvedExpression === null) {
+        return null;
+      }
+
+      value += resolvedExpression + span.literal.text;
+    }
+
+    return value;
+  }
+
+  if (ts.isIdentifier(expression)) {
+    if (seen.has(expression.text)) {
+      return null;
+    }
+
+    const declaration = declarations.get(expression.text);
+    if (!declaration) {
+      return null;
+    }
+
+    const nextSeen = new Set(seen);
+    nextSeen.add(expression.text);
+    return resolveStringExpression(declaration, declarations, nextSeen);
+  }
+
+  return null;
+}
+
+function collectTailwindClassNames(file: string, classNames: Set<string>) {
+  const sourceFile = ts.createSourceFile(
+    'demo.tsx',
+    file,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX,
+  );
+  const declarations = collectStringDeclarations(sourceFile);
+
+  function visit(node: ts.Node) {
+    if (
+      ts.isJsxAttribute(node) &&
+      ts.isIdentifier(node.name) &&
+      node.name.text === 'className' &&
+      node.initializer
+    ) {
+      if (ts.isStringLiteral(node.initializer)) {
+        addClassNames(classNames, node.initializer.text);
+      } else if (ts.isJsxExpression(node.initializer) && node.initializer.expression) {
+        const value = resolveStringExpression(node.initializer.expression, declarations);
+        if (value !== null) {
+          addClassNames(classNames, value);
+        }
+      }
+    }
+
+    ts.forEachChild(node, visit);
+  }
+
+  visit(sourceFile);
+}
+
+function escapeHtmlAttribute(value: string) {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('"', '&quot;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;');
+}
+
 const htmlHeadWithTailwind: ExportConfig['headTemplate'] = ({ variant }) => {
   let head = tailwindSetup;
 
@@ -69,18 +188,12 @@ const htmlHeadWithTailwind: ExportConfig['headTemplate'] = ({ variant }) => {
       return;
     }
 
-    const cssClasses = file.matchAll(/className="(.+?)"/gs);
-    for (const match of cssClasses) {
-      const classes = match[1];
-      classes.split(' ').forEach((className) => {
-        classNames.add(className);
-      });
-    }
+    collectTailwindClassNames(file, classNames);
   });
 
   if (classNames.size > 0) {
     head += tailwindNote;
-    head += `<meta name="custom" class="${Array.from(classNames).join(' ')}" />`;
+    head += `<meta name="custom" class="${escapeHtmlAttribute(Array.from(classNames).join(' '))}" />`;
   }
 
   return head;

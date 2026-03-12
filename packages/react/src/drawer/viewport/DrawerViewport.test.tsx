@@ -1,4 +1,4 @@
-import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
+import { Drawer } from '@base-ui/react/drawer';
 import { Slider } from '@base-ui/react/slider';
 import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
@@ -171,6 +171,220 @@ describe('<Drawer.Viewport />', () => {
     }
   });
 
+  it('allows clicks on non-interactive elements without data-base-ui-swipe-ignore', async () => {
+    const handleClick = vi.fn();
+    const handleOpenChange = vi.fn();
+
+    await render(
+      <Drawer.Root open onOpenChange={handleOpenChange}>
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport>
+            <Drawer.Popup>
+              <Drawer.Content>
+                <div data-testid="target" onClick={handleClick}>
+                  Action
+                </div>
+              </Drawer.Content>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const target = screen.getByTestId('target');
+    const backdrop = screen.getByTestId('backdrop');
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => target;
+
+    try {
+      fireEvent.touchStart(target, {
+        touches: [
+          createTouch(target, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+      fireEvent.pointerDown(target, { pointerType: 'touch' });
+      fireEvent.touchEnd(target, {
+        changedTouches: [
+          createTouch(target, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+      fireEvent.click(target, { detail: 1 });
+
+      await flushMicrotasks();
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+
+    expect(handleClick).toHaveBeenCalledTimes(1);
+    expect(handleOpenChange).not.toHaveBeenCalled();
+    expect(backdrop).not.toHaveAttribute('data-swiping');
+  });
+
+  it('does not start touch swipes from elements with data-base-ui-swipe-ignore', async () => {
+    const handleOpenChange = vi.fn();
+
+    await render(
+      <Drawer.Root open onOpenChange={handleOpenChange}>
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport data-testid="viewport">
+            <Drawer.Popup>
+              <Drawer.Content>
+                <div data-testid="target" data-base-ui-swipe-ignore>
+                  Action
+                </div>
+              </Drawer.Content>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const target = screen.getByTestId('target');
+    const backdrop = screen.getByTestId('backdrop');
+
+    fireEvent.touchStart(target, {
+      touches: [
+        createTouch(target, {
+          clientX: 0,
+          clientY: 0,
+        }),
+      ],
+    });
+
+    fireEvent.touchMove(target, {
+      touches: [
+        createTouch(target, {
+          clientX: 0,
+          clientY: 40,
+        }),
+      ],
+    });
+
+    fireEvent.touchEnd(target, {
+      changedTouches: [
+        createTouch(target, {
+          clientX: 0,
+          clientY: 40,
+        }),
+      ],
+    });
+
+    await flushMicrotasks();
+
+    expect(backdrop).not.toHaveAttribute('data-swiping');
+    expect(handleOpenChange).not.toHaveBeenCalled();
+  });
+
+  it('still allows touch swipes from elements with legacy data-swipe-ignore', async () => {
+    const handleOpenChange = vi.fn();
+
+    await render(
+      <Drawer.Root open onOpenChange={handleOpenChange} swipeDirection="down">
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport data-testid="viewport">
+            <Drawer.Popup>
+              <div data-testid="target" data-swipe-ignore>
+                Action
+              </div>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const target = screen.getByTestId('target');
+    const backdrop = screen.getByTestId('backdrop');
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => target;
+
+    try {
+      fireEvent.touchStart(target, {
+        touches: [
+          createTouch(target, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      fireEvent.touchMove(target, {
+        touches: [
+          createTouch(target, {
+            clientX: 0,
+            clientY: 40,
+          }),
+        ],
+      });
+
+      await flushMicrotasks();
+
+      expect(backdrop).toHaveAttribute('data-swiping', '');
+
+      fireEvent.touchEnd(target, {
+        changedTouches: [
+          createTouch(target, {
+            clientX: 0,
+            clientY: 80,
+          }),
+        ],
+      });
+
+      await flushMicrotasks();
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+    expect(handleOpenChange).not.toHaveBeenCalled();
+  });
+
+  it('does not start non-touch swipes from Drawer.Content', async () => {
+    await render(
+      <Drawer.Root open>
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport>
+            <Drawer.Popup>
+              <Drawer.Content>
+                <div data-testid="target">Action</div>
+              </Drawer.Content>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const target = screen.getByTestId('target');
+    const backdrop = screen.getByTestId('backdrop');
+
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => target;
+
+    try {
+      fireEvent.pointerDown(target, {
+        button: 0,
+        buttons: 1,
+        pointerId: 1,
+        clientX: 0,
+        clientY: 0,
+        pointerType: 'mouse',
+      });
+
+      await flushMicrotasks();
+
+      expect(backdrop).not.toHaveAttribute('data-swiping');
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+  });
+
   it('does not jump when touch starts outside the popup and then enters it', async () => {
     await render(
       <Drawer.Root open swipeDirection="down">
@@ -292,7 +506,7 @@ describe('<Drawer.Viewport />', () => {
     );
   });
 
-  it('treats pen interactions on swipe-ignored content as non-touch swipes', async () => {
+  it('treats pen interactions on Drawer.Content as non-touch swipes', async () => {
     await render(
       <Drawer.Root open swipeDirection="down">
         <Drawer.Portal>

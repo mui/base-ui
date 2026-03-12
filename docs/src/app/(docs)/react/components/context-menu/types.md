@@ -285,6 +285,8 @@ type ContextMenuPositionerState = {
   anchorHidden: boolean;
   /** Whether the component is nested. */
   nested: boolean;
+  /** Whether CSS transitions should be disabled. */
+  instant: string | undefined;
 };
 ```
 
@@ -310,7 +312,7 @@ Renders a `<div>` element.
 | data-open           | -                                                                          | Present when the menu is open.                                        |
 | data-closed         | -                                                                          | Present when the menu is closed.                                      |
 | data-align          | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
-| data-instant        | `'click' \| 'dismiss' \| 'group'`                                          | Present if animations should be instant.                              |
+| data-instant        | `'click' \| 'dismiss' \| 'group' \| 'trigger-change'`                      | Present if animations should be instant.                              |
 | data-side           | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
 | data-starting-style | -                                                                          | Present when the menu is animating in.                                |
 | data-ending-style   | -                                                                          | Present when the menu is animating out.                               |
@@ -334,7 +336,7 @@ type ContextMenuPopupState = {
   /** Whether the component is nested. */
   nested: boolean;
   /** Whether transitions should be skipped. */
-  instant: 'dismiss' | 'click' | 'group' | undefined;
+  instant: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
 };
 ```
 

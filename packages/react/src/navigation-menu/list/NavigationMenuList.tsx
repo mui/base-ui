@@ -66,7 +66,9 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
   // but we want to block it in this case.
   // When nested, skip this handler so arrow keys can reach the parent CompositeRoot.
   const defaultProps: HTMLProps = nested
-    ? {}
+    ? {
+        'aria-orientation': orientation,
+      }
     : {
         onKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
           const shouldStop =

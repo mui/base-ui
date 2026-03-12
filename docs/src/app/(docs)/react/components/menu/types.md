@@ -303,6 +303,8 @@ type MenuPositionerState = {
   anchorHidden: boolean;
   /** Whether the component is nested. */
   nested: boolean;
+  /** Whether CSS transitions should be disabled. */
+  instant: string | undefined;
 };
 ```
 
@@ -328,7 +330,7 @@ Renders a `<div>` element.
 | data-open           | -                                                                          | Present when the menu is open.                                        |
 | data-closed         | -                                                                          | Present when the menu is closed.                                      |
 | data-align          | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
-| data-instant        | `'click' \| 'dismiss' \| 'group'`                                          | Present if animations should be instant.                              |
+| data-instant        | `'click' \| 'dismiss' \| 'group' \| 'trigger-change'`                      | Present if animations should be instant.                              |
 | data-side           | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
 | data-starting-style | -                                                                          | Present when the menu is animating in.                                |
 | data-ending-style   | -                                                                          | Present when the menu is animating out.                               |
@@ -352,7 +354,7 @@ type MenuPopupState = {
   /** Whether the component is nested. */
   nested: boolean;
   /** Whether transitions should be skipped. */
-  instant: 'dismiss' | 'click' | 'group' | undefined;
+  instant: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
 };
 ```
 
@@ -435,6 +437,55 @@ type MenuItemState = {
   disabled: boolean;
   /** Whether the item is highlighted. */
   highlighted: boolean;
+};
+```
+
+### Viewport
+
+A viewport for displaying content transitions.
+This component is only required if one popup can be opened by multiple triggers, its content change based on the trigger
+and switching between them is animated.
+Renders a `<div>` element.
+
+**Viewport Props:**
+
+| Prop      | Type                                                                                        | Default | Description                                                                                                                                                                                   |
+| :-------- | :------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| children  | `React.ReactNode`                                                                           | -       | The content to render inside the transition container.                                                                                                                                        |
+| className | `string \| ((state: Menu.Viewport.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Menu.Viewport.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Menu.Viewport.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Viewport Data Attributes:**
+
+| Attribute                 | Type                                                  | Description                                                                                                                                                                                                                        |
+| :------------------------ | :---------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| data-activation-direction | `` `${'left' \| 'right'} {'down' \| 'up'}` ``         | Indicates the direction from which the popup was activated.&#xA;This can be used to create directional animations based on how the popup was triggered.&#xA;Contains space-separated values for both horizontal and vertical axes. |
+| data-current              | -                                                     | Applied to the direct child of the viewport when no transitions are present or the new content when it's entering.                                                                                                                 |
+| data-instant              | `'click' \| 'dismiss' \| 'group' \| 'trigger-change'` | Present if animations should be instant.                                                                                                                                                                                           |
+| data-previous             | -                                                     | Applied to the direct child of the viewport that contains the exiting content when transitions are present.                                                                                                                        |
+| data-transitioning        | -                                                     | Indicates that the viewport is currently transitioning between old and new content.                                                                                                                                                |
+
+**Viewport CSS Variables:**
+
+| Variable         | Type | Description                                                                                                                                                                                                                                                           |
+| :--------------- | :--- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--popup-height` | ``   | The height of the parent popup.&#xA;This variable is placed on the 'previous' container and stores the height of the popup when the previous content was rendered.&#xA;It can be used to freeze the dimensions of the popup when animating between different content. |
+| `--popup-width`  | ``   | The width of the parent popup.&#xA;This variable is placed on the 'previous' container and stores the width of the popup when the previous content was rendered.&#xA;It can be used to freeze the dimensions of the popup when animating between different content.   |
+
+### Viewport.Props
+
+Re-export of [Viewport](#viewport) props.
+
+### Viewport.State
+
+```typescript
+type MenuViewportState = {
+  activationDirection: string | undefined;
+  /** Whether the viewport is currently transitioning between contents. */
+  transitioning: boolean;
+  /** Present if animations should be instant. */
+  instant: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
 };
 ```
 
@@ -1095,6 +1146,7 @@ type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => Rea
 - `Menu.Root`: `Menu.Root`, `Menu.Root.State`, `Menu.Root.Props`, `Menu.Root.Actions`, `Menu.Root.ChangeEventReason`, `Menu.Root.ChangeEventDetails`, `Menu.Root.Orientation`
 - `Menu.SubmenuRoot`: `Menu.SubmenuRoot`, `Menu.SubmenuRoot.Props`, `Menu.SubmenuRoot.State`, `Menu.SubmenuRoot.ChangeEventReason`, `Menu.SubmenuRoot.ChangeEventDetails`
 - `Menu.Trigger`: `Menu.Trigger`, `Menu.Trigger.Props`, `Menu.Trigger.State`
+- `Menu.Viewport`: `Menu.Viewport`, `Menu.Viewport.Props`, `Menu.Viewport.State`
 - `Menu.Separator`: `Menu.Separator`, `Menu.Separator.Props`, `Menu.Separator.State`
 - `Menu.SubmenuTrigger`: `Menu.SubmenuTrigger`, `Menu.SubmenuTrigger.Props`, `Menu.SubmenuTrigger.State`
 - `Menu.Handle`
