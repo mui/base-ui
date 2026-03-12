@@ -30,14 +30,7 @@ const htmlHeadWithCssModulesTheme: ExportConfig['headTemplate'] = () => themeSty
 // Tailwind CSS Setup
 const tailwindSetup = `
 <!-- Check out the Tailwind CSS' installation guide for setting it up: https://tailwindcss.com/docs/installation/framework-guides -->
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {},
-    },
-  }
-</script>`;
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>`;
 const tailwindNote = `
 
 <!-- Inject classes used so that Tailwind loaded from the CDN can pre-render them. -->

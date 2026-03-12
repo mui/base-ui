@@ -43,6 +43,17 @@ function getInjectedClassAttribute(headTemplate: string) {
 }
 
 describe('exportOpts Tailwind class injection', () => {
+  it('uses the Tailwind v4 browser runtime for StackBlitz exports', () => {
+    const headTemplate = getTailwindHeadTemplate(`
+      export default function Demo() {
+        return <div className="outline-1 outline-gray-200">Demo</div>;
+      }
+    `);
+
+    expect(headTemplate).toContain('https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4');
+    expect(headTemplate).not.toContain('https://cdn.tailwindcss.com');
+  });
+
   it('injects classes referenced via concatenated className constants', () => {
     const source = `
       const popupClassName =
