@@ -11,28 +11,19 @@ import { DemoBaseUIForm } from './demos/hero';
 
 ## Naming form controls
 
-Form controls must have an accessible name in order to be recognized by assistive technologies. `<Field.Label>` and `<Field.Description>` automatically assign the accessible name and description to their associated control:
+Form controls must have an accessible name in order to be recognized by assistive technologies. Use the label strategy below for each control type.
 
-```tsx {8-9, 14-15} title="Labeling select and slider"
-import { Form } from '@base-ui/react/form';
-import { Field } from '@base-ui/react/field';
-import { Select } from '@base-ui/react/select';
-import { Slider } from '@base-ui/react/slider';
+### Input controls
 
-<Form>
-  <Field.Root>
-    <Field.Label>Time zone</Field.Label>
-    <Field.Description>Used for notifications and reminders</Field.Description>
-    <Select.Root />
-  </Field.Root>
+Use `<Field.Label>` or a native `<label>` to label the following controls:
 
-  <Field.Root>
-    <Field.Label>Zoom level</Field.Label>
-    <Field.Description>Adjust the size of the user interface</Field.Description>
-    <Slider.Root />
-  </Field.Root>
-</Form>;
-```
+- `Input`
+- `NumberField`
+- `Autocomplete`
+- `Combobox` (input outside popup)
+- `Checkbox`
+- `Radio`
+- `Switch`
 
 You can implicitly label `<Checkbox>`, `<Radio>` and `<Switch>` components by enclosing them with `<Field.Label>`:
 
@@ -48,6 +39,52 @@ import { Switch } from '@base-ui/react/switch';
   <Field.Description>Enables extra tools for web developers</Field.Description>
 </Field.Root>;
 ```
+
+### Trigger-based controls
+
+- `Combobox` (input inside popup): use `<Combobox.Label>`.
+- `Select`: use `<Select.Label>`.
+- `Slider`: use `<Slider.Label>`. For multi-thumb sliders, also add an `aria-label` on each
+  `<Slider.Thumb>` to distinguish the thumbs.
+
+### Fallback
+
+If no visible label is rendered, provide `aria-label` on the actual form control.
+
+### Describing the control
+
+`<Field.Description>` automatically assigns an accessible description:
+
+```tsx title="Labeling select and slider"
+import { Form } from '@base-ui/react/form';
+import { Field } from '@base-ui/react/field';
+import { Select } from '@base-ui/react/select';
+import { Slider } from '@base-ui/react/slider';
+
+<Form>
+  <Field.Root>
+    <Select.Root>
+      <Select.Label>Time zone</Select.Label>
+      <Select.Trigger />
+    </Select.Root>
+    <Field.Description>Used for notifications and reminders</Field.Description>
+  </Field.Root>
+
+  <Field.Root>
+    <Slider.Root defaultValue={50}>
+      <Slider.Label>Zoom level</Slider.Label>
+      <Field.Description>Adjust the size of the user interface</Field.Description>
+      <Slider.Control>
+        <Slider.Track>
+          <Slider.Thumb />
+        </Slider.Track>
+      </Slider.Control>
+    </Slider.Root>
+  </Field.Root>
+</Form>;
+```
+
+### Labeling control groups
 
 Compose `<Fieldset>` when a single label applies to multiple controls, such as a range slider with multiple thumbs or a section that combines several inputs. For checkbox and radio groups, keep the group label in `<Fieldset.Legend>` and wrap each option with `<Field.Item>`:
 
@@ -65,8 +102,8 @@ import { Slider } from '@base-ui/react/slider';
       <Fieldset.Legend>Price range</Fieldset.Legend>
       <Slider.Control>
         <Slider.Track>
-          <Slider.Thumb />
-          <Slider.Thumb />
+          <Slider.Thumb aria-label="Minimum price" />
+          <Slider.Thumb aria-label="Maximum price" />
         </Slider.Track>
       </Slider.Control>
     </Fieldset.Root>
@@ -187,15 +224,17 @@ import { Field } from '@base-ui/react/field';
 Base UI form components use a hidden input to participate in native form submission and validation.
 To anchor the hidden input near a control so the native validation bubble points to the correct area, ensure the component has been given a `name`, and wrap controls in a relatively positioned container for best results.
 
-```tsx title="Positioning hidden inputs" {4,6}
+```tsx title="Positioning hidden inputs"
 import { Field } from '@base-ui/react/field';
 import { Select } from '@base-ui/react/select';
 
 <Field.Root name="apple">
-  <Field.Label>Apple</Field.Label>
-  <div className="relative">
-    <Select.Root />
-  </div>
+  <Select.Root>
+    <Select.Label>Apple</Select.Label>
+    <div className="relative">
+      <Select.Trigger />
+    </div>
+  </Select.Root>
 </Field.Root>;
 ```
 

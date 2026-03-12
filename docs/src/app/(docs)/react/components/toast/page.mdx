@@ -53,7 +53,7 @@ import { Toast } from '@base-ui/react/toast';
 - `<Toast.Provider>` can be wrapped around your entire app, ensuring all toasts are rendered in the same viewport.
 - <kbd>F6</kbd> lets users jump into the toast viewport landmark region to navigate toasts with
   keyboard focus.
-- The `data-swipe-ignore` attribute can be manually added to elements inside of a toast to prevent swipe-to-dismiss gestures on them. Interactive elements are automatically prevented.
+- The `data-base-ui-swipe-ignore` attribute can be manually added to elements inside of a toast to prevent swipe-to-dismiss gestures on them. Interactive elements are automatically prevented.
 
 ## Global manager
 
@@ -281,8 +281,9 @@ const toastManager = Toast.useToastManager();
       description: 'Add a toast to the toast list.',
     },
     close: {
-      type: '(toastId: string) => void',
-      description: 'Closes and removes a toast from the toast list.',
+      type: '(toastId?: string) => void',
+      description:
+        'Closes and removes a toast from the toast list. If no ID is passed, all toasts will be closed.',
     },
     update: {
       type: '(toastId: string, options: ToastManagerUpdateOptions) => void',
@@ -395,6 +396,12 @@ Closes the toast, removing it from the toast list after any animations complete.
 
 ```jsx title="Usage"
 toastManager.close(toastId);
+```
+
+Or you can close all toasts at once by not passing an ID:
+
+```jsx title="Close all toasts"
+toastManager.close();
 ```
 
 ### `promise` method

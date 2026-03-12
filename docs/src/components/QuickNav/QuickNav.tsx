@@ -3,6 +3,7 @@ import * as React from 'react';
 import clsx from 'clsx';
 import { usePathname } from 'next/navigation';
 import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
+import './QuickNav.css';
 
 export function Container({ className, ...props }: React.ComponentProps<'div'>) {
   return <div className={clsx('QuickNavContainer', className)} {...props} />;
@@ -92,7 +93,7 @@ function onMounted(ref: React.RefObject<HTMLDivElement | null>) {
     ref.current.style.bottom = initialStyles.bottom;
     ref.current.style.marginTop = initialStyles.marginTop;
     ref.current.style.marginBottom = initialStyles.marginBottom;
-    // Remove the style attibute if it's empty so that the DOM is tidy
+    // Remove the style attribute if it's empty so that the DOM is tidy
     if (ref.current?.style.length === 0) {
       ref.current.removeAttribute('style');
     }

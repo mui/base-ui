@@ -1,24 +1,10 @@
 'use client';
-import * as React from 'react';
 import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
 import styles from './index.module.css';
 
 export default function ExampleDrawerNested() {
-  const [firstOpen, setFirstOpen] = React.useState(false);
-  const [secondOpen, setSecondOpen] = React.useState(false);
-  const [thirdOpen, setThirdOpen] = React.useState(false);
-
   return (
-    <Drawer.Root
-      open={firstOpen}
-      onOpenChange={(nextOpen) => {
-        setFirstOpen(nextOpen);
-        if (!nextOpen) {
-          setSecondOpen(false);
-          setThirdOpen(false);
-        }
-      }}
-    >
+    <Drawer.Root>
       <Drawer.Trigger className={styles.Button}>Open drawer stack</Drawer.Trigger>
       <Drawer.Portal>
         <Drawer.Backdrop className={styles.Backdrop} />
@@ -34,15 +20,7 @@ export default function ExampleDrawerNested() {
 
               <div className={styles.Actions}>
                 <div className={styles.ActionsLeft}>
-                  <Drawer.Root
-                    open={secondOpen}
-                    onOpenChange={(nextOpen) => {
-                      setSecondOpen(nextOpen);
-                      if (!nextOpen) {
-                        setThirdOpen(false);
-                      }
-                    }}
-                  >
+                  <Drawer.Root>
                     <Drawer.Trigger className={styles.GhostButton}>
                       Security settings
                     </Drawer.Trigger>
@@ -64,7 +42,7 @@ export default function ExampleDrawerNested() {
 
                             <div className={styles.Actions}>
                               <div className={styles.ActionsLeft}>
-                                <Drawer.Root open={thirdOpen} onOpenChange={setThirdOpen}>
+                                <Drawer.Root>
                                   <Drawer.Trigger className={styles.GhostButton}>
                                     Advanced options
                                   </Drawer.Trigger>

@@ -83,7 +83,7 @@ export const Toggle = React.forwardRef(function Toggle<Value extends string>(
     native: nativeButton,
   });
 
-  const state: Toggle.State = {
+  const state: ToggleState = {
     disabled,
     pressed,
   };
@@ -148,7 +148,7 @@ export interface ToggleState {
 }
 
 export interface ToggleProps<Value extends string>
-  extends NativeButtonProps, BaseUIComponentProps<'button', Toggle.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', ToggleState> {
   /**
    * Whether the toggle button is currently pressed.
    * This is the controlled counterpart of `defaultPressed`.

@@ -1,141 +1,143 @@
-.Key {
-  position: relative;
-  box-sizing: border-box;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 24px;
-  border-radius: 8px;
-  line-height: 1;
-  vertical-align: middle;
-  z-index: 0;
-  background: linear-gradient(to bottom, hsl(0deg 0% 0% / 8%), hsl(0deg 0% 0% / 16%));
-  animation-duration: var(--keyboardMenuDuration);
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  transform: translateY(0);
-  --key-shadow-opacity: 1;
-}
-
-.Key::before,
-.Key::after {
-  content: '';
-  position: absolute;
-  inset: 1px;
-}
-
-.Key::before {
-  border-radius: 7px;
-  background: linear-gradient(to bottom, white, hsl(0deg 0% 97%));
-  opacity: var(--key-shadow-opacity);
-  box-shadow: inset 0 0 0 1px white;
-  z-index: -1;
-}
-
-.Key::after {
-  border-radius: 8px;
-  z-index: -2;
-  opacity: var(--key-shadow-opacity);
-  box-shadow:
-    0 1px 0.5px hsl(0deg 0% 0% / 12%),
-    0 1px 3px -1px hsl(0deg 0% 0% / 5%),
-    0 2px 4px -1px hsl(0deg 0% 0% / 5%),
-    0 3px 6px -2px hsl(0deg 0% 0% / 5%);
-}
-
-.Key--down {
-  animation-name: keyboardMenuDownKey;
-}
-
-.Key--up {
-  animation-name: keyboardMenuUpKey;
-}
-
-@keyframes keyboardMenuDownKey {
-  0%,
-  4.9999% {
+@layer components {
+  .Key {
+    position: relative;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 24px;
+    border-radius: 8px;
+    line-height: 1;
+    vertical-align: middle;
+    z-index: 0;
+    background: linear-gradient(to bottom, hsl(0deg 0% 0% / 8%), hsl(0deg 0% 0% / 16%));
+    animation-duration: var(--keyboardMenuDuration);
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
     transform: translateY(0);
     --key-shadow-opacity: 1;
   }
 
-  5%,
-  5.9999% {
-    transform: translateY(1px);
-    --key-shadow-opacity: 0.8;
+  .Key::before,
+  .Key::after {
+    content: '';
+    position: absolute;
+    inset: 1px;
   }
 
-  6%,
-  9.9999% {
-    transform: translateY(0);
-    --key-shadow-opacity: 1;
+  .Key::before {
+    border-radius: 7px;
+    background: linear-gradient(to bottom, white, hsl(0deg 0% 97%));
+    opacity: var(--key-shadow-opacity);
+    box-shadow: inset 0 0 0 1px white;
+    z-index: -1;
   }
 
-  10%,
-  10.9999% {
-    transform: translateY(1px);
-    --key-shadow-opacity: 0.8;
+  .Key::after {
+    border-radius: 8px;
+    z-index: -2;
+    opacity: var(--key-shadow-opacity);
+    box-shadow:
+      0 1px 0.5px hsl(0deg 0% 0% / 12%),
+      0 1px 3px -1px hsl(0deg 0% 0% / 5%),
+      0 2px 4px -1px hsl(0deg 0% 0% / 5%),
+      0 3px 6px -2px hsl(0deg 0% 0% / 5%);
   }
 
-  11%,
-  14.9999% {
-    transform: translateY(0);
-    --key-shadow-opacity: 1;
+  .Key--down {
+    animation-name: keyboardMenuDownKey;
   }
 
-  15%,
-  15.9999% {
-    transform: translateY(1px);
-    --key-shadow-opacity: 0.8;
+  .Key--up {
+    animation-name: keyboardMenuUpKey;
   }
 
-  16%,
-  99.9999% {
-    transform: translateY(0);
-    --key-shadow-opacity: 1;
-  }
-}
+  @keyframes keyboardMenuDownKey {
+    0%,
+    4.9999% {
+      transform: translateY(0);
+      --key-shadow-opacity: 1;
+    }
 
-@keyframes keyboardMenuUpKey {
-  0%,
-  39.9999% {
-    transform: translateY(0);
-    --key-shadow-opacity: 1;
+    5%,
+    5.9999% {
+      transform: translateY(1px);
+      --key-shadow-opacity: 0.8;
+    }
+
+    6%,
+    9.9999% {
+      transform: translateY(0);
+      --key-shadow-opacity: 1;
+    }
+
+    10%,
+    10.9999% {
+      transform: translateY(1px);
+      --key-shadow-opacity: 0.8;
+    }
+
+    11%,
+    14.9999% {
+      transform: translateY(0);
+      --key-shadow-opacity: 1;
+    }
+
+    15%,
+    15.9999% {
+      transform: translateY(1px);
+      --key-shadow-opacity: 0.8;
+    }
+
+    16%,
+    99.9999% {
+      transform: translateY(0);
+      --key-shadow-opacity: 1;
+    }
   }
 
-  40%,
-  40.9999% {
-    transform: translateY(1px);
-    --key-shadow-opacity: 0.8;
-  }
+  @keyframes keyboardMenuUpKey {
+    0%,
+    39.9999% {
+      transform: translateY(0);
+      --key-shadow-opacity: 1;
+    }
 
-  41%,
-  44.9999% {
-    transform: translateY(0);
-    --key-shadow-opacity: 1;
-  }
+    40%,
+    40.9999% {
+      transform: translateY(1px);
+      --key-shadow-opacity: 0.8;
+    }
 
-  45%,
-  45.9999% {
-    transform: translateY(1px);
-    --key-shadow-opacity: 0.8;
-  }
+    41%,
+    44.9999% {
+      transform: translateY(0);
+      --key-shadow-opacity: 1;
+    }
 
-  46%,
-  49.9999% {
-    transform: translateY(0);
-    --key-shadow-opacity: 1;
-  }
+    45%,
+    45.9999% {
+      transform: translateY(1px);
+      --key-shadow-opacity: 0.8;
+    }
 
-  50%,
-  50.9999% {
-    transform: translateY(1px);
-    --key-shadow-opacity: 0.8;
-  }
+    46%,
+    49.9999% {
+      transform: translateY(0);
+      --key-shadow-opacity: 1;
+    }
 
-  51%,
-  99.9999% {
-    transform: translateY(0);
-    --key-shadow-opacity: 1;
+    50%,
+    50.9999% {
+      transform: translateY(1px);
+      --key-shadow-opacity: 0.8;
+    }
+
+    51%,
+    99.9999% {
+      transform: translateY(0);
+      --key-shadow-opacity: 1;
+    }
   }
 }

@@ -19,7 +19,7 @@ export interface DrawerTrigger {
 }
 
 export interface DrawerTriggerProps<Payload = unknown>
-  extends NativeButtonProps, BaseUIComponentProps<'button', DrawerTrigger.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', DrawerTriggerState> {
   /**
    * A handle to associate the trigger with a drawer.
    * Can be created with the Drawer.createHandle() method.

@@ -28,12 +28,12 @@ export default function Homepage() {
         }}
       />
 
-      <section className="d-c">
-        <h1 className="Text size-3 bp2:size-4 gcs-1 gce-9 bp4:gce-5">
+      <section className="bui-d-c">
+        <h1 className="Text size-3 bp2:size-4 bui-gcs-1 bui-gce-9 bp4:bui-gce-5">
           Unstyled UI components for building accessible user interfaces
         </h1>
-        <div className="gcs-1 gce-9">
-          <Link className="Text size-2 Link d-if" href="/react/overview/quick-start">
+        <div className="bui-gcs-1 bui-gce-9">
+          <Link className="Text size-2 Link bui-d-if" href="/react/overview/quick-start">
             Documentation
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -53,8 +53,8 @@ export default function Homepage() {
           </Link>
         </div>
       </section>
-      <section className="d-c">
-        <div className="d-f fd-c g-4 gcs-1 gce-9 bp2:gcs-3 bp4:gce-7">
+      <section className="bui-d-c">
+        <div className="bui-d-f bui-fd-c bui-g-4 bui-gcs-1 bui-gce-9 bp2:bui-gcs-3 bp4:bui-gce-7">
           <p className="Text size-2">
             From the creators of Radix, Floating&nbsp;UI, and Material&nbsp;UI, Base&nbsp;UI is a
             comprehensive UI component library for building accessible user interfaces with React.
@@ -77,21 +77,21 @@ export default function Homepage() {
           </p>
         </div>
       </section>
-      <div className="gcs-1 gce-9 bp3:gcs-3">
+      <div className="bui-gcs-1 bui-gce-9 bp3:bui-gcs-3">
         <div className="Separator" role="separator" aria-hidden="true"></div>
       </div>
-      <section className="d-c">
-        <div className="gcs-1 gce-9 bp2:gce-3">
+      <section className="bui-d-c">
+        <div className="bui-gcs-1 bui-gce-9 bp2:bui-gce-3">
           <h2 className="Text size-2">Made for the makers</h2>
         </div>
         <ul
-          className="List gcs-1 gce-9 bp3:gcs-3 d-g gtc-2 bp2:gtc-4 bp3:gtc-6 g-8 bp2:g-9"
+          className="List bui-gcs-1 bui-gce-9 bp3:bui-gcs-3 bui-d-g bui-gtc-2 bp2:bui-gtc-4 bp3:bui-gtc-6 bui-g-8 bp2:bui-g-9"
           aria-label="companies using Base UI"
         >
           <li>
-            <div className="d-f fd-c g-2">
+            <div className="bui-d-f bui-fd-c bui-g-2">
               <div className="Figure" aria-hidden="true">
-                <div className="d-f ai-c jc-c h-100">
+                <div className="bui-d-f bui-ai-c bui-jc-c bui-h-100">
                   <Paper />
                 </div>
               </div>
@@ -99,9 +99,9 @@ export default function Homepage() {
             </div>
           </li>
           <li>
-            <div className="d-f fd-c g-2">
+            <div className="bui-d-f bui-fd-c bui-g-2">
               <div className="Figure" aria-hidden="true">
-                <div className="d-f ai-c jc-c h-100">
+                <div className="bui-d-f bui-ai-c bui-jc-c bui-h-100">
                   <GitHub />
                 </div>
               </div>
@@ -109,9 +109,9 @@ export default function Homepage() {
             </div>
           </li>
           <li>
-            <div className="d-f fd-c g-2">
+            <div className="bui-d-f bui-fd-c bui-g-2">
               <div className="Figure" aria-hidden="true">
-                <div className="d-f ai-c jc-c h-100">
+                <div className="bui-d-f bui-ai-c bui-jc-c bui-h-100">
                   <Zed />
                 </div>
               </div>
@@ -119,9 +119,9 @@ export default function Homepage() {
             </div>
           </li>
           <li>
-            <div className="d-f fd-c g-2">
+            <div className="bui-d-f bui-fd-c bui-g-2">
               <div className="Figure" aria-hidden="true">
-                <div className="d-f ai-c jc-c h-100">
+                <div className="bui-d-f bui-ai-c bui-jc-c bui-h-100">
                   <Unsplash />
                 </div>
               </div>
@@ -129,9 +129,9 @@ export default function Homepage() {
             </div>
           </li>
           <li>
-            <div className="d-f fd-c g-2">
+            <div className="bui-d-f bui-fd-c bui-g-2">
               <div className="Figure" aria-hidden="true">
-                <div className="d-f ai-c jc-c h-100">
+                <div className="bui-d-f bui-ai-c bui-jc-c bui-h-100">
                   <Operate />
                 </div>
               </div>
@@ -139,9 +139,9 @@ export default function Homepage() {
             </div>
           </li>
           <li>
-            <div className="d-f fd-c g-2">
+            <div className="bui-d-f bui-fd-c bui-g-2">
               <div className="Figure" aria-hidden="true">
-                <div className="d-f ai-c jc-c h-100">
+                <div className="bui-d-f bui-ai-c bui-jc-c bui-h-100">
                   <Interfere />
                 </div>
               </div>
@@ -150,62 +150,62 @@ export default function Homepage() {
           </li>
         </ul>
       </section>
-      <div className="gcs-1 gce-9 bp3:gcs-3">
+      <div className="bui-gcs-1 bui-gce-9 bp3:bui-gcs-3">
         <div className="Separator" role="separator" aria-hidden="true"></div>
       </div>
-      <section className="d-c">
-        <div className="gcs-1 gce-9 bp2:gce-3">
+      <section className="bui-d-c">
+        <div className="bui-gcs-1 bui-gce-9 bp2:bui-gce-3">
           <h2 className="Text size-2">So you know who to blame</h2>
         </div>
-        <div className="gcs-1 gce-9 bp2:gcs-3 bp4:gce-7">
+        <div className="bui-gcs-1 bui-gce-9 bp2:bui-gcs-3 bp4:bui-gce-7">
           <ul
             className="List"
             aria-label="team members"
             style={{ borderTop: '1px solid var(--border)' }}
           >
-            <li className="ListItem d-g gtc-2 g-8 bp3:g-9">
+            <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
               <span className="Text size-2">Colm Tuite</span>
               <span className="Text size-2">Director of Design Engineering</span>
             </li>
-            <li className="ListItem d-g gtc-2 g-8 bp3:g-9">
+            <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
               <span className="Text size-2">Marija Najdova</span>
               <span className="Text size-2">Director of Engineering</span>
             </li>
-            <li className="ListItem d-g gtc-2 g-8 bp3:g-9">
+            <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
               <span className="Text size-2">Albert Yu</span>
               <span className="Text size-2">Engineer</span>
             </li>
-            <li className="ListItem d-g gtc-2 g-8 bp3:g-9">
+            <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
               <span className="Text size-2">Flavien Delangle</span>
               <span className="Text size-2">Engineer</span>
             </li>
-            <li className="ListItem d-g gtc-2 g-8 bp3:g-9">
+            <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
               <span className="Text size-2">James Nelson</span>
               <span className="Text size-2">Engineer</span>
             </li>
-            <li className="ListItem d-g gtc-2 g-8 bp3:g-9">
+            <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
               <span className="Text size-2">Lukas Tyla</span>
               <span className="Text size-2">Engineer</span>
             </li>
-            <li className="ListItem d-g gtc-2 g-8 bp3:g-9">
+            <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
               <span className="Text size-2">Michał Dudak</span>
               <span className="Text size-2">Engineer</span>
             </li>
-            <li className="ListItem d-g gtc-2 g-8 bp3:g-9">
+            <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
               <span className="Text size-2">Vlad Moroz</span>
               <span className="Text size-2">Contributor</span>
             </li>
           </ul>
         </div>
       </section>
-      <div className="gcs-1 gce-9 bp3:gcs-3">
+      <div className="bui-gcs-1 bui-gce-9 bp3:bui-gcs-3">
         <div className="Separator" role="separator" aria-hidden="true"></div>
       </div>
-      <section className="d-c">
-        <div className="gcs-1 gce-9 bp2:gce-3">
+      <section className="bui-d-c">
+        <div className="bui-gcs-1 bui-gce-9 bp2:bui-gce-3">
           <h2 className="Text size-2">The fine print</h2>
         </div>
-        <div className="gcs-1 gce-9 bp2:gcs-3 bp4:gce-7">
+        <div className="bui-gcs-1 bui-gce-9 bp2:bui-gcs-3 bp4:bui-gce-7">
           <Accordion.Root className="AccordionRoot">
             <Accordion.Item className="AccordionItem">
               <Accordion.Header className="AccordionHeader">
@@ -274,7 +274,7 @@ export default function Homepage() {
                 </Accordion.Trigger>
               </Accordion.Header>
               <Accordion.Panel className="AccordionPanel">
-                <div className="d-f fd-c g-4">
+                <div className="bui-d-f bui-fd-c bui-g-4">
                   <p className="Text size-2">
                     In terms of API design, both libraries are very similar. We intentionally kept
                     our APIs close to Radix UI for an easier migration path. Base UI provides more

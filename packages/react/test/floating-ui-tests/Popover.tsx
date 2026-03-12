@@ -22,22 +22,23 @@ import {
   useInteractions,
   useRole,
 } from '../../src/floating-ui-react';
+import styles from './Popover.module.css';
 
 /** @internal */
 export function Main() {
   return (
     <React.Fragment>
-      <h1 className="mb-8 text-5xl font-bold">Popover</h1>
-      <div className="border-slate-400 mb-4 grid h-[20rem] place-items-center rounded border lg:w-[40rem]">
+      <h1 className={styles.Heading}>Popover</h1>
+      <div className={styles.Container}>
         <Popover
           modal
           bubbles
           render={({ labelId, descriptionId, close }) => (
             <React.Fragment>
-              <h2 id={labelId} className="mb-2 text-2xl font-bold">
+              <h2 id={labelId} className={styles.Title}>
                 Title
               </h2>
-              <p id={descriptionId} className="mb-2">
+              <p id={descriptionId} className={styles.Description}>
                 Description
               </p>
               <Popover
@@ -45,10 +46,10 @@ export function Main() {
                 bubbles
                 render={({ labelId, descriptionId, close }) => (
                   <React.Fragment>
-                    <h2 id={labelId} className="mb-2 text-2xl font-bold">
+                    <h2 id={labelId} className={styles.Title}>
                       Title
                     </h2>
-                    <p id={descriptionId} className="mb-2">
+                    <p id={descriptionId} className={styles.Description}>
                       Description
                     </p>
                     <Popover
@@ -56,13 +57,13 @@ export function Main() {
                       bubbles={false}
                       render={({ labelId, descriptionId, close }) => (
                         <React.Fragment>
-                          <h2 id={labelId} className="mb-2 text-2xl font-bold">
+                          <h2 id={labelId} className={styles.Title}>
                             Title
                           </h2>
-                          <p id={descriptionId} className="mb-2">
+                          <p id={descriptionId} className={styles.Description}>
                             Description
                           </p>
-                          <button type="button" onClick={close} className="font-bold">
+                          <button type="button" onClick={close} className={styles.CloseButton}>
                             Close
                           </button>
                         </React.Fragment>
@@ -70,7 +71,7 @@ export function Main() {
                     >
                       <button type="button">My button</button>
                     </Popover>
-                    <button type="button" onClick={close} className="font-bold">
+                    <button type="button" onClick={close} className={styles.CloseButton}>
                       Close
                     </button>
                   </React.Fragment>
@@ -78,7 +79,7 @@ export function Main() {
               >
                 <button type="button">My button</button>
               </Popover>
-              <button type="button" onClick={close} className="font-bold">
+              <button type="button" onClick={close} className={styles.CloseButton}>
                 Close
               </button>
             </React.Fragment>
@@ -150,7 +151,7 @@ function PopoverComponent({
         {open && (
           <FloatingFocusManager context={context} modal={modal}>
             <div
-              className="border-slate-900/10 rounded border bg-white bg-clip-padding px-4 py-6 shadow-md"
+              className={styles.Floating}
               ref={refs.setFloating}
               style={floatingStyles}
               aria-labelledby={labelId}

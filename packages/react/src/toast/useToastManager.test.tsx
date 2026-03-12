@@ -1284,6 +1284,51 @@ describe.skipIf(!isJSDOM)('useToast', () => {
 
       expect(screen.queryByTestId('root')).to.equal(null);
     });
+
+    it('closes all toasts', async () => {
+      function AddButton() {
+        const { add, close } = useToastManager();
+        return (
+          <React.Fragment>
+            <button
+              onClick={() => {
+                add({ title: 'test' });
+              }}
+            >
+              add
+            </button>
+            <button
+              onClick={() => {
+                close();
+              }}
+            >
+              close
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <CustomList />
+          </Toast.Viewport>
+          <AddButton />
+        </Toast.Provider>,
+      );
+
+      const addButton = screen.getByRole('button', { name: 'add' });
+      Array.from({ length: 5 }).forEach(() => {
+        fireEvent.click(addButton);
+      });
+
+      expect(screen.getAllByTestId('root')).to.have.length(5);
+
+      const closeButton = screen.getByRole('button', { name: 'close' });
+      fireEvent.click(closeButton);
+
+      expect(screen.queryByTestId('root')).to.equal(null);
+    });
   });
 
   describe('prop: limit', () => {

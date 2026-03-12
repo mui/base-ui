@@ -16,8 +16,8 @@ import { AccordionRootDataAttributes } from '../../accordion/root/AccordionRootD
 import type { CollapsibleRoot } from '../root/CollapsibleRoot';
 
 export function useCollapsiblePanel(
-  parameters: useCollapsiblePanel.Parameters,
-): useCollapsiblePanel.ReturnValue {
+  parameters: UseCollapsiblePanelParameters,
+): UseCollapsiblePanelReturnValue {
   const {
     abortControllerRef,
     animationTypeRef,
@@ -552,7 +552,4 @@ export interface UseCollapsiblePanelReturnValue {
   props: HTMLProps;
 }
 
-export namespace useCollapsiblePanel {
-  export type Parameters = UseCollapsiblePanelParameters;
-  export type ReturnValue = UseCollapsiblePanelReturnValue;
-}
+export interface UseCollapsiblePanelState {}

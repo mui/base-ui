@@ -8,7 +8,7 @@ import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
 import { DrawerBackdropCssVars } from '../backdrop/DrawerBackdropCssVars';
 import { DrawerPopupCssVars } from '../popup/DrawerPopupCssVars';
 
-const stateAttributesMapping: StateAttributesMapping<DrawerIndent.State> = {
+const stateAttributesMapping: StateAttributesMapping<DrawerIndentState> = {
   active(value): Record<string, string> | null {
     if (value) {
       return { 'data-active': '' };
@@ -68,7 +68,7 @@ export const DrawerIndent = React.forwardRef(function DrawerIndent(
     };
   }, [visualStateStore]);
 
-  const state: DrawerIndent.State = {
+  const state: DrawerIndentState = {
     active,
   };
 
@@ -94,7 +94,7 @@ export interface DrawerIndentState {
   active: boolean;
 }
 
-export interface DrawerIndentProps extends BaseUIComponentProps<'div', DrawerIndent.State> {}
+export interface DrawerIndentProps extends BaseUIComponentProps<'div', DrawerIndentState> {}
 
 export namespace DrawerIndent {
   export type State = DrawerIndentState;

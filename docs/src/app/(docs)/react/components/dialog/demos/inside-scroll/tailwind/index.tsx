@@ -11,24 +11,24 @@ export default function InsideScrollDialog() {
       <Dialog.Portal>
         <Dialog.Backdrop className="fixed inset-0 bg-black opacity-20 transition-opacity duration-[250ms] ease-[cubic-bezier(0.45,1.005,0,1.005)] data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 dark:opacity-70 supports-[-webkit-touch-callout:none]:absolute" />
         <Dialog.Viewport className="fixed inset-0 flex items-center justify-center overflow-hidden py-6 [@media(min-height:600px)]:pb-12 [@media(min-height:600px)]:pt-8">
-          <Dialog.Popup className="relative flex w-[min(40rem,calc(100vw-2rem))] max-h-full max-w-full min-h-0 flex-col overflow-hidden rounded-lg bg-[var(--color-gray-50)] p-8 text-[var(--color-gray-900)] shadow-[0_24px_45px_rgba(15,23,42,0.18)] outline-1 outline-[var(--color-gray-200)] transition-all duration-[300ms] ease-[cubic-bezier(0.45,1.005,0,1.005)] data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0 dark:outline-[var(--color-gray-300)]">
+          <Dialog.Popup className="relative flex w-[min(40rem,calc(100vw-2rem))] max-h-full max-w-full min-h-0 flex-col overflow-hidden rounded-lg bg-gray-50 p-8 text-gray-900 shadow-[0_24px_45px_rgba(15,23,42,0.18)] outline-1 outline-gray-200 transition-all duration-[300ms] ease-[cubic-bezier(0.45,1.005,0,1.005)] data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0 dark:outline-gray-300">
             <div className="mb-2 flex items-start justify-between gap-3">
               <Dialog.Title className="m-0 text-xl font-semibold leading-[1.875rem]">
                 Dialog
               </Dialog.Title>
             </div>
-            <Dialog.Description className="m-0 mb-4 text-base leading-[1.6rem] text-[var(--color-gray-600)]">
+            <Dialog.Description className="m-0 mb-4 text-base leading-[1.6rem] text-gray-600">
               This layout keeps the popup fully on screen while allowing its content to scroll.
             </Dialog.Description>
-            <ScrollArea.Root className="relative flex min-h-0 flex-1 overflow-hidden before:absolute before:top-0 before:h-px before:w-full before:bg-[var(--color-gray-200)] before:content-[''] after:absolute after:bottom-0 after:h-px after:w-full after:bg-[var(--color-gray-200)] after:content-['']">
-              <ScrollArea.Viewport className="flex-1 min-h-0 overflow-y-auto overscroll-contain py-6 pr-6 pl-1 focus-visible:outline-1 focus-visible:-outline-offset-1 focus-visible:outline-[var(--color-blue)]">
+            <ScrollArea.Root className="relative flex min-h-0 flex-1 overflow-hidden before:absolute before:top-0 before:h-px before:w-full before:bg-gray-200 before:content-[''] after:absolute after:bottom-0 after:h-px after:w-full after:bg-gray-200 after:content-['']">
+              <ScrollArea.Viewport className="flex-1 min-h-0 overflow-y-auto overscroll-contain py-6 pr-6 pl-1 focus-visible:outline-1 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
                 <ScrollArea.Content className="flex flex-col gap-6">
                   {CONTENT_SECTIONS.map((item) => (
                     <section key={item.title}>
                       <h3 className="mb-[0.4rem] text-base font-semibold leading-6">
                         {item.title}
                       </h3>
-                      <p className="m-0 text-[0.95rem] leading-[1.55rem] text-[var(--color-gray-700)]">
+                      <p className="m-0 text-[0.95rem] leading-[1.55rem] text-gray-700">
                         {item.body}
                       </p>
                     </section>
@@ -36,7 +36,7 @@ export default function InsideScrollDialog() {
                 </ScrollArea.Content>
               </ScrollArea.Viewport>
               <ScrollArea.Scrollbar className="pointer-events-none absolute m-1 flex w-[0.25rem] justify-center rounded-[1rem] opacity-0 transition-opacity duration-[250ms] data-[hovering]:pointer-events-auto data-[hovering]:opacity-100 data-[hovering]:duration-[75ms] data-[scrolling]:pointer-events-auto data-[scrolling]:opacity-100 data-[scrolling]:duration-[75ms] md:w-[0.325rem]">
-                <ScrollArea.Thumb className="w-full rounded-[inherit] bg-[var(--color-gray-500)] before:absolute before:left-1/2 before:top-1/2 before:h-[calc(100%+1rem)] before:w-[calc(100%+1rem)] before:-translate-x-1/2 before:-translate-y-1/2 before:content-['']" />
+                <ScrollArea.Thumb className="w-full rounded-[inherit] bg-gray-500 before:absolute before:left-1/2 before:top-1/2 before:h-[calc(100%+1rem)] before:w-[calc(100%+1rem)] before:-translate-x-1/2 before:-translate-y-1/2 before:content-['']" />
               </ScrollArea.Scrollbar>
             </ScrollArea.Root>
             <div className="mt-4 flex justify-end gap-3">

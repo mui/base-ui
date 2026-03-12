@@ -5,7 +5,7 @@ import { warn } from '@base-ui/utils/warn';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useCollapsibleRootContext } from '../root/CollapsibleRootContext';
-import type { CollapsibleRoot } from '../root/CollapsibleRoot';
+import type { CollapsibleRootState } from '../root/CollapsibleRoot';
 import { collapsibleStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useCollapsiblePanel } from './useCollapsiblePanel';
 import { CollapsiblePanelCssVars } from './CollapsiblePanelCssVars';
@@ -122,7 +122,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     },
   });
 
-  const panelState: CollapsiblePanel.State = React.useMemo(
+  const panelState: CollapsiblePanelState = React.useMemo(
     () => ({
       ...state,
       transitionStatus,
@@ -157,11 +157,14 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   return element;
 });
 
-export interface CollapsiblePanelState extends CollapsibleRoot.State {
+export interface CollapsiblePanelState extends CollapsibleRootState {
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
 }
 
-export interface CollapsiblePanelProps extends BaseUIComponentProps<'div', CollapsiblePanel.State> {
+export interface CollapsiblePanelProps extends BaseUIComponentProps<'div', CollapsiblePanelState> {
   /**
    * Allows the browser’s built-in page search to find and expand the panel contents.
    *
