@@ -266,6 +266,77 @@ describe('<Popover.Viewport />', () => {
       });
     });
 
+    it('should continue from the rendered in-flight size when switching payloads quickly', async () => {
+      const { user } = await render(
+        <div>
+          <style>
+            {`
+              [data-testid='positioner'] {
+                width: var(--positioner-width);
+                height: var(--positioner-height);
+              }
+
+              [data-testid='popup'] {
+                width: var(--popup-width, auto);
+                height: var(--popup-height, auto);
+                transition: width 1s linear, height 1s linear;
+              }
+            `}
+          </style>
+          <Popover.Root>
+            {({ payload }) => (
+              <React.Fragment>
+                <Popover.Trigger payload={100} data-testid="trigger1">
+                  Trigger 1
+                </Popover.Trigger>
+                <Popover.Trigger payload={320} data-testid="trigger2">
+                  Trigger 2
+                </Popover.Trigger>
+                <Popover.Trigger payload={220} data-testid="trigger3">
+                  Trigger 3
+                </Popover.Trigger>
+                <Popover.Portal>
+                  <Popover.Positioner data-testid="positioner">
+                    <Popover.Popup data-testid="popup">
+                      <Popover.Viewport>
+                        <div
+                          data-testid={`panel-${payload as number}`}
+                          style={{ width: `${payload as number}px`, height: '24px' }}
+                        />
+                      </Popover.Viewport>
+                    </Popover.Popup>
+                  </Popover.Positioner>
+                </Popover.Portal>
+              </React.Fragment>
+            )}
+          </Popover.Root>
+        </div>,
+      );
+
+      const trigger1 = screen.getByTestId('trigger1');
+      const trigger2 = screen.getByTestId('trigger2');
+      const trigger3 = screen.getByTestId('trigger3');
+
+      await user.click(trigger1);
+      await waitFor(() => {
+        expect(screen.getByTestId('panel-100')).toBeVisible();
+      });
+
+      const popup = screen.getByTestId('popup');
+
+      await user.click(trigger2);
+      await waitFor(() => {
+        const width = popup.getBoundingClientRect().width;
+        expect(width).to.be.greaterThan(110);
+        expect(width).to.be.lessThan(300);
+      });
+
+      await user.click(trigger3);
+
+      const inlinePopupWidth = parseFloat(popup.style.getPropertyValue('--popup-width'));
+      expect(inlinePopupWidth).to.be.lessThan(300);
+    });
+
     it.each([
       {
         name: 'should calculate "right down" direction',
