@@ -7,7 +7,7 @@
 
 - Warn when a component function is rendered directly ([#4077](https://github.com/mui/base-ui/pull/4077))
 - Reset `openMethod` after close transition ([#4128](https://github.com/mui/base-ui/pull/4128))
-- Fire Space activation on `keydown` in composite widgets ([#4053](https://github.com/mui/base-ui/pull/4053))
+- Fire <kbd>Space</kbd> activation on `keydown` in composite widgets ([#4053](https://github.com/mui/base-ui/pull/4053))
 - Skip CSS-hidden items during keyboard navigation in composite widgets ([#4195](https://github.com/mui/base-ui/pull/4195))
 - Optimize hot paths in `useHover` hooks and `safePolygon` ([#4199](https://github.com/mui/base-ui/pull/4199))
 - Snap `--anchor-width` and `--anchor-height` to device pixel grid ([#4082](https://github.com/mui/base-ui/pull/4082))
@@ -31,7 +31,7 @@
 
 ## Button
 
-- Avoid checking disabled twice in `onKeyDown` and `onKeyUp` ([#4132](https://github.com/mui/base-ui/pull/4132))
+- Avoid checking `disabled` twice in `onKeyDown` and `onKeyUp` ([#4132](https://github.com/mui/base-ui/pull/4132))
 
 ## Checkbox
 
@@ -41,7 +41,7 @@
 
 - Avoid applying field attributes to input when it is inside popup ([#4154](https://github.com/mui/base-ui/pull/4154))
 - Preserve inline input on `Enter` when nothing is highlighted ([#4235](https://github.com/mui/base-ui/pull/4235))
-- Fix combobox attributes during SSR ([#4179](https://github.com/mui/base-ui/pull/4179))
+- Fix ARIA attributes during SSR ([#4179](https://github.com/mui/base-ui/pull/4179))
 - Fix wrapping in virtualized grid arrow-key navigation ([#4164](https://github.com/mui/base-ui/pull/4164))
 - Add `InputGroup` part ([#3745](https://github.com/mui/base-ui/pull/3745))
 - Add support for a visually hidden close button and improve modal focus trapping ([#4084](https://github.com/mui/base-ui/pull/4084))
@@ -49,7 +49,7 @@
 
 ## Context Menu
 
-- Ignore context-menu `mouseup` on non-Mac platforms ([#3944](https://github.com/mui/base-ui/pull/3944))
+- Ignore `mouseup` on non-Mac platforms ([#3944](https://github.com/mui/base-ui/pull/3944))
 
 ## Drawer
 
@@ -60,7 +60,7 @@
 - Improve touch selection ([#4104](https://github.com/mui/base-ui/pull/4104))
 - Preserve cross-axis scrolling during touch gestures ([#4187](https://github.com/mui/base-ui/pull/4187))
 - Prevent swipe dismissal when component is controlled ([#4133](https://github.com/mui/base-ui/pull/4133))
-- Add `SwipeArea` component ([#4102](https://github.com/mui/base-ui/pull/4102))
+- Add `SwipeArea` part ([#4102](https://github.com/mui/base-ui/pull/4102))
 - Make `data-base-ui-swipe-ignore` explicit for touch interactions ([#4295](https://github.com/mui/base-ui/pull/4295))
 - Disable inheritance for swipe CSS variables ([#4099](https://github.com/mui/base-ui/pull/4099))
 
@@ -81,7 +81,6 @@
 
 ## Navigation Menu
 
-- Fix StackBlitz demo styling ([#3974](https://github.com/mui/base-ui/pull/3974))
 - Fix support for nested inline menus ([#4198](https://github.com/mui/base-ui/pull/4198))
 - Fix close propagation in nested hover menus ([#4285](https://github.com/mui/base-ui/pull/4285))
 - Close parent menus when nested link with `closeOnClick` is clicked ([#4276](https://github.com/mui/base-ui/pull/4276))
@@ -90,11 +89,11 @@
 
 ## Number Field
 
-- Fix incorrect `reason` value in `onValueCommitted` ([#4259](https://github.com/mui/base-ui/pull/4259))
+- Fix increment/decrement press `reason` values in `onValueCommitted` ([#4259](https://github.com/mui/base-ui/pull/4259))
 
 ## Popover
 
-- Add visually hidden close button support with improved modal focus trapping ([#4084](https://github.com/mui/base-ui/pull/4084))
+- Trap focus when `<Popover.Close>` is rendered inside and `modal` is `true`, and add support for a visually hidden close button ([#4084](https://github.com/mui/base-ui/pull/4084))
 - Fix nested hoverable popups ([#3798](https://github.com/mui/base-ui/pull/3798))
 
 ## Preview Card

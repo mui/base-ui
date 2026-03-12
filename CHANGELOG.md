@@ -8,7 +8,7 @@ _Mar 12, 2026_
 
 - Warn when a component function is rendered directly (#4077) by @atomiks
 - Reset `openMethod` after close transition (#4128) by @atomiks
-- Fire Space activation on `keydown` in composite widgets (#4053) by @atomiks
+- Fire <kbd>Space</kbd> activation on `keydown` in composite widgets (#4053) by @atomiks
 - Skip CSS-hidden items during keyboard navigation in composite widgets (#4195) by @atomiks
 - Optimize hot paths in `useHover` hooks and `safePolygon` (#4199) by @atomiks
 - Snap `--anchor-width` and `--anchor-height` to device pixel grid (#4082) by @flaviendelangle
@@ -32,7 +32,7 @@ _Mar 12, 2026_
 
 ### Button
 
-- Avoid checking disabled twice in `onKeyDown` and `onKeyUp` (#4132) by @flaviendelangle
+- Avoid checking `disabled` twice in `onKeyDown` and `onKeyUp` (#4132) by @flaviendelangle
 
 ### Checkbox
 
@@ -42,7 +42,7 @@ _Mar 12, 2026_
 
 - Avoid applying field attributes to input when it is inside popup (#4154) by @atomiks
 - Preserve inline input on `Enter` when nothing is highlighted (#4235) by @atomiks
-- Fix combobox attributes during SSR (#4179) by @atomiks
+- Fix ARIA attributes during SSR (#4179) by @atomiks
 - Fix wrapping in virtualized grid arrow-key navigation (#4164) by @atomiks
 - Add `InputGroup` part (#3745) by @atomiks
 - Add support for a visually hidden close button and improve modal focus trapping (#4084) by @atomiks
@@ -50,7 +50,7 @@ _Mar 12, 2026_
 
 ### Context Menu
 
-- Ignore context-menu `mouseup` on non-Mac platforms (#3944) by @atomiks
+- Ignore `mouseup` on non-Mac platforms (#3944) by @atomiks
 
 ### Drawer
 
@@ -61,7 +61,7 @@ _Mar 12, 2026_
 - Improve touch selection (#4104) by @atomiks
 - Preserve cross-axis scrolling during touch gestures (#4187) by @atomiks
 - Prevent swipe dismissal when component is controlled (#4133) by @flaviendelangle
-- Add `SwipeArea` component (#4102) by @atomiks
+- Add `SwipeArea` part (#4102) by @atomiks
 - Make `data-base-ui-swipe-ignore` explicit for touch interactions (#4295) by @atomiks
 - Disable inheritance for swipe CSS variables (#4099) by @atomiks
 
@@ -82,7 +82,6 @@ _Mar 12, 2026_
 
 ### Navigation Menu
 
-- Fix StackBlitz demo styling (#3974) by @CiscoFran10
 - Fix support for nested inline menus (#4198) by @atomiks
 - Fix close propagation in nested hover menus (#4285) by @atomiks
 - Close parent menus when nested link with `closeOnClick` is clicked (#4276) by @CiscoFran10
@@ -91,11 +90,11 @@ _Mar 12, 2026_
 
 ### Number Field
 
-- Fix incorrect `reason` value in `onValueCommitted` (#4259) by @jijiseong
+- Fix increment/decrement press `reason` values in `onValueCommitted` (#4259) by @jijiseong
 
 ### Popover
 
-- Add visually hidden close button support with improved modal focus trapping (#4084) by @atomiks
+- Trap focus when `<Popover.Close>` is rendered inside and `modal` is `true`, and add support for a visually hidden close button (#4084) by @atomiks
 - Fix nested hoverable popups (#3798) by @flaviendelangle
 
 ### Preview Card
