@@ -14,7 +14,7 @@ import { DemoSelectHero } from './demos/hero';
 
 - **Prefer Combobox for large lists**: Select is not filterable, aside from basic keyboard typeahead functionality to find items by focusing and highlighting them. Prefer [Combobox](/react/components/combobox) instead of Select when the number of items is sufficiently large to warrant filtering.
 - **Special positioning behavior**: The select popup by default overlaps its trigger so the selected item's text is aligned with the trigger's value text. This behavior [can be disabled or customized](/react/components/select#positioning).
-- **Form controls must have an accessible name**: It can be created using the `Field` component. See [Labeling a select](#labeling-a-select) and the [forms guide](/react/handbook/forms).
+- **Form controls must have an accessible name**: Prefer `<Select.Label>`, or provide an `aria-label` on `<Select.Trigger>` when no visible label is rendered. See [Labeling a select](#labeling-a-select) and the [forms guide](/react/handbook/forms).
 
 ## Anatomy
 
@@ -24,6 +24,7 @@ Import the component and assemble its parts:
 import { Select } from '@base-ui/react/select';
 
 <Select.Root>
+  <Select.Label />
   <Select.Trigger>
     <Select.Value />
     <Select.Icon />
@@ -126,18 +127,16 @@ To avoid lookup, [object values](#object-values) for each item can also be used.
 
 ### Labeling a select
 
-Use the [Field](/react/components/field) component to provide a visible label for the select trigger:
+Use `<Select.Label>` to provide a visible label for the select trigger:
 
-```tsx title="Using Field to label a select" {2,4}
-<Field.Root>
-  <Field.Label nativeLabel={false} render={<div />}>
-    Theme
-  </Field.Label>
-  <Select.Root>{/* ... */}</Select.Root>
-</Field.Root>
+```tsx title="Using Select.Label to label a select" {2}
+<Select.Root>
+  <Select.Label>Theme</Select.Label>
+  {/* ... */}
+</Select.Root>
 ```
 
-Replace the rendered `<label>` element with a `<div>` element and add `nativeLabel={false}` so it does not inherit native label behaviors. This ensures clicking on the label will focus the select trigger without opening the associated popup to match native `<select>` behavior, and prevents CSS `:hover` from activating on the trigger when hovering over the label.
+`<Select.Label>` renders a `<div>`, so clicking it focuses the select trigger without opening the popup.
 
 ### Placeholder values
 
@@ -219,7 +218,7 @@ import { DemoSelectGrouped } from './demos/grouped';
 
 <Reference
   component="Select"
-  parts="Root, Trigger, Value, Icon, Backdrop, Portal, Positioner, Popup, List, Arrow, Item, ItemText, ItemIndicator, Group, GroupLabel, ScrollUpArrow, ScrollDownArrow, Separator"
+  parts="Root, Label, Trigger, Value, Icon, Backdrop, Portal, Positioner, Popup, List, Arrow, Item, ItemText, ItemIndicator, Group, GroupLabel, ScrollUpArrow, ScrollDownArrow, Separator"
 />
 
 export const metadata = {

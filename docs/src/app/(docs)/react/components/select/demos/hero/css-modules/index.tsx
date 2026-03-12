@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
-import { Field } from '@base-ui/react/field';
 import styles from './index.module.css';
 
 const apples = [
@@ -13,11 +12,9 @@ const apples = [
 
 export default function ExampleSelect() {
   return (
-    <Field.Root className={styles.Field}>
-      <Field.Label className={styles.Label} nativeLabel={false} render={<div />}>
-        Apple
-      </Field.Label>
+    <div className={styles.Field}>
       <Select.Root items={apples}>
+        <Select.Label className={styles.Label}>Apple</Select.Label>
         <Select.Trigger className={styles.Select}>
           <Select.Value className={styles.Value} placeholder="Select apple" />
           <Select.Icon className={styles.SelectIcon}>
@@ -43,7 +40,7 @@ export default function ExampleSelect() {
           </Select.Positioner>
         </Select.Portal>
       </Select.Root>
-    </Field.Root>
+    </div>
   );
 }
 

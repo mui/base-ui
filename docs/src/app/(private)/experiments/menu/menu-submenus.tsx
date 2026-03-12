@@ -2,10 +2,7 @@
 import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import {
-  SettingsMetadata,
-  useExperimentSettings,
-} from '../../../../components/Experiments/SettingsPanel';
+import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
 import '../../../../demo-data/theme/css-modules/theme.css';
 import classes from './menu.module.css';
 

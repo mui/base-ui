@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import type { CheckboxRoot } from '../root/CheckboxRoot';
+import type { CheckboxRootState } from '../root/CheckboxRoot';
 import { CheckboxRootDataAttributes } from '../root/CheckboxRootDataAttributes';
 import { fieldValidityMapping } from '../../field/utils/constants';
 
-export function useStateAttributesMapping(state: CheckboxRoot.State) {
+export function useStateAttributesMapping(state: CheckboxRootState) {
   return React.useMemo<StateAttributesMapping<typeof state>>(
     () => ({
       checked(value): Record<string, string> {

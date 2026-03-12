@@ -1,11 +1,17 @@
 'use client';
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { FloatingNode } from '../../floating-ui-react';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
-import { useAnchorPositioning, type Align, type Side } from '../../utils/useAnchorPositioning';
+import {
+  useAnchorPositioning,
+  type Align,
+  type Side,
+  type UseAnchorPositioningSharedParameters,
+} from '../../utils/useAnchorPositioning';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
@@ -173,6 +179,15 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     };
   }, [floatingTreeRoot.events, store]);
 
+  const closeTimeout = useTimeout();
+
+  // Clear pending close timeout when the menu closes.
+  React.useEffect(() => {
+    if (!open) {
+      closeTimeout.clear();
+    }
+  }, [open, closeTimeout]);
+
   // Close unrelated child submenus when hovering a different item in the parent menu.
   React.useEffect(() => {
     function onItemHover(event: { nodeId: string | undefined; target: Element | null }) {
@@ -183,7 +198,19 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       }
 
       if (event.target && triggerElement && triggerElement !== event.target) {
-        store.setOpen(false, createChangeEventDetails(REASONS.siblingOpen));
+        const delay = store.select('closeDelay');
+        if (delay > 0) {
+          if (!closeTimeout.isStarted()) {
+            closeTimeout.start(delay, () => {
+              store.setOpen(false, createChangeEventDetails(REASONS.siblingOpen));
+            });
+          }
+        } else {
+          store.setOpen(false, createChangeEventDetails(REASONS.siblingOpen));
+        }
+      } else {
+        // User re-hovered the submenu trigger, cancel pending close.
+        closeTimeout.clear();
       }
     }
 
@@ -191,7 +218,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     return () => {
       floatingTreeRoot.events.off('itemhover', onItemHover);
     };
-  }, [floatingTreeRoot.events, open, triggerElement, store]);
+  }, [floatingTreeRoot.events, open, triggerElement, store, closeTimeout]);
 
   React.useEffect(() => {
     const eventDetails: MenuOpenEventDetails = {
@@ -204,7 +231,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     floatingTreeRoot.events.emit('menuopenchange', eventDetails);
   }, [floatingTreeRoot.events, open, store, floatingNodeId, floatingParentNodeId]);
 
-  const state: MenuPositioner.State = {
+  const state: MenuPositionerState = {
     open,
     side: positioner.side,
     align: positioner.align,
@@ -282,16 +309,26 @@ export interface MenuPositionerState {
    * Whether the menu is currently open.
    */
   open: boolean;
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
   align: Align;
+  /**
+   * Whether the anchor element is hidden.
+   */
   anchorHidden: boolean;
+  /**
+   * Whether the component is nested.
+   */
   nested: boolean;
 }
 
 export interface MenuPositionerProps
-  extends
-    useAnchorPositioning.SharedParameters,
-    BaseUIComponentProps<'div', MenuPositioner.State> {}
+  extends UseAnchorPositioningSharedParameters, BaseUIComponentProps<'div', MenuPositionerState> {}
 
 export namespace MenuPositioner {
   export type State = MenuPositionerState;

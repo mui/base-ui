@@ -12,11 +12,11 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useTabsRootContext } from '../root/TabsRootContext';
-import type { TabsRoot } from '../root/TabsRoot';
+import type { TabsRootState } from '../root/TabsRoot';
 import type { TabsTab } from '../tab/TabsTab';
 import { TabsPanelDataAttributes } from './TabsPanelDataAttributes';
 
-const stateAttributesMapping: StateAttributesMapping<TabsPanel.State> = {
+const stateAttributesMapping: StateAttributesMapping<TabsPanelState> = {
   ...tabsStateAttributesMapping,
   ...transitionStatusMapping,
 };
@@ -62,7 +62,7 @@ export const TabsPanel = React.forwardRef(function TabPanel(
 
   const correspondingTabId = getTabIdByPanelValue(value);
 
-  const state: TabsPanel.State = {
+  const state: TabsPanelState = {
     hidden,
     orientation,
     tabActivationDirection,
@@ -127,12 +127,18 @@ export interface TabsPanelMetadata {
   value: TabsTab.Value;
 }
 
-export interface TabsPanelState extends TabsRoot.State {
+export interface TabsPanelState extends TabsRootState {
+  /**
+   * Whether the component is hidden.
+   */
   hidden: boolean;
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
 }
 
-export interface TabsPanelProps extends BaseUIComponentProps<'div', TabsPanel.State> {
+export interface TabsPanelProps extends BaseUIComponentProps<'div', TabsPanelState> {
   /**
    * The value of the TabPanel. It will be shown when the Tab with the corresponding value is active.
    */

@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { Combobox as BaseCombobox } from '@base-ui/react/combobox';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import styles from './creatable-tags.module.css';
 
 const INITIAL_ITEMS = [
   'Black',
@@ -30,9 +31,9 @@ export default function Experiment() {
   const [selectedItems, setSelectedItems] = React.useState<string[]>([]);
 
   return (
-    <div className="max-w-md">
+    <div className={styles.Container}>
       <h1>Creatable tags</h1>
-      <p className="mb-4">
+      <p className={styles.Intro}>
         Select multiple items from the list or create new ones by typing and pressing Enter or
         comma.
       </p>
@@ -186,25 +187,19 @@ function Combobox(props: ComboboxProps) {
         highlightedItemRef.current = item ?? null;
       }}
     >
-      <div className="flex flex-col gap-1">
-        <BaseCombobox.Chips
-          className="flex flex-wrap items-center gap-0.5 rounded-md border border-gray-200 px-1.5 py-1 w-64 focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-blue-800 min-[500px]:w-[22rem]"
-          ref={containerRef}
-        >
+      <div className={styles.Field}>
+        <BaseCombobox.Chips className={styles.Chips} ref={containerRef}>
           <BaseCombobox.Value>
             {(itemsToRender: InternalComboboxItem[]) => (
               <React.Fragment>
                 {itemsToRender.map((item) => (
                   <BaseCombobox.Chip
                     key={item.value}
-                    className="flex items-center gap-1 rounded-md bg-gray-100 px-1.5 py-[0.2rem] text-sm text-gray-900 outline-none cursor-default [@media(hover:hover)]:[&[data-highlighted]]:bg-blue-800 [@media(hover:hover)]:[&[data-highlighted]]:text-gray-50 focus-within:bg-blue-800 focus-within:text-gray-50"
+                    className={styles.Chip}
                     aria-label={item.value}
                   >
                     {item.value}
-                    <BaseCombobox.ChipRemove
-                      className="rounded-md p-1 text-inherit hover:bg-gray-200"
-                      aria-label="Remove"
-                    >
+                    <BaseCombobox.ChipRemove className={styles.ChipRemove} aria-label="Remove">
                       <XIcon />
                     </BaseCombobox.ChipRemove>
                   </BaseCombobox.Chip>
@@ -212,7 +207,7 @@ function Combobox(props: ComboboxProps) {
                 <BaseCombobox.Input
                   ref={comboboxInputRef}
                   placeholder={itemsToRender.length > 0 ? '' : placeholderProp}
-                  className="min-w-12 flex-1 h-8 rounded-md border-0 bg-transparent pl-2 text-base text-gray-900 outline-none"
+                  className={styles.Input}
                   onKeyDown={handleInputKeyDown}
                 />
               </React.Fragment>
@@ -222,8 +217,8 @@ function Combobox(props: ComboboxProps) {
       </div>
 
       <BaseCombobox.Portal>
-        <BaseCombobox.Positioner className="z-50 outline-none" sideOffset={4} anchor={containerRef}>
-          <BaseCombobox.Popup className="w-[var(--anchor-width)] max-h-[min(var(--available-height),24rem)] max-w-[var(--available-width)] overflow-y-auto scroll-pt-2 scroll-pb-2 overscroll-contain rounded-lg bg-[canvas] py-2 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
+        <BaseCombobox.Positioner className={styles.Positioner} sideOffset={4} anchor={containerRef}>
+          <BaseCombobox.Popup className={styles.Popup}>
             <BaseCombobox.List>
               {(item: InternalComboboxItem) =>
                 item.isNew ? renderCreateItem(item) : renderRegularItem(item)
@@ -238,31 +233,23 @@ function Combobox(props: ComboboxProps) {
 
 function renderRegularItem(item: InternalComboboxItem) {
   return (
-    <BaseCombobox.Item
-      key={String(item.value)}
-      className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-4 text-base leading-4 outline-none select-none [@media(hover:hover)]:[&[data-highlighted]]:relative [@media(hover:hover)]:[&[data-highlighted]]:z-0 [@media(hover:hover)]:[&[data-highlighted]]:text-gray-50 [@media(hover:hover)]:[&[data-highlighted]]:before:absolute [@media(hover:hover)]:[&[data-highlighted]]:before:inset-x-2 [@media(hover:hover)]:[&[data-highlighted]]:before:inset-y-0 [@media(hover:hover)]:[&[data-highlighted]]:before:z-[-1] [@media(hover:hover)]:[&[data-highlighted]]:before:rounded-sm [@media(hover:hover)]:[&[data-highlighted]]:before:bg-gray-900"
-      value={item}
-    >
-      <BaseCombobox.ItemIndicator className="col-start-1">
-        <CheckIcon className="size-3" />
+    <BaseCombobox.Item key={String(item.value)} className={styles.Item} value={item}>
+      <BaseCombobox.ItemIndicator className={styles.ItemIndicator}>
+        <CheckIcon className={styles.TinyIcon} />
       </BaseCombobox.ItemIndicator>
-      <div className="col-start-2">{item.value}</div>
+      <div className={styles.ItemText}>{item.value}</div>
     </BaseCombobox.Item>
   );
 }
 
 function renderCreateItem(item: InternalComboboxItem) {
   return (
-    <BaseCombobox.Item
-      key={`new:${item.value}`}
-      className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-4 text-base leading-4 outline-none select-none [@media(hover:hover)]:[&[data-highlighted]]:relative [@media(hover:hover)]:[&[data-highlighted]]:z-0 [@media(hover:hover)]:[&[data-highlighted]]:text-gray-50 [@media(hover:hover)]:[&[data-highlighted]]:before:absolute [@media(hover:hover)]:[&[data-highlighted]]:before:inset-x-2 [@media(hover:hover)]:[&[data-highlighted]]:before:inset-y-0 [@media(hover:hover)]:[&[data-highlighted]]:before:z-[-1] [@media(hover:hover)]:[&[data-highlighted]]:before:rounded-sm [@media(hover:hover)]:[&[data-highlighted]]:before:bg-gray-900"
-      value={item}
-    >
-      <span className="col-start-1">
-        <PlusIcon className="size-3" />
+    <BaseCombobox.Item key={`new:${item.value}`} className={styles.Item} value={item}>
+      <span className={styles.ItemIndicator}>
+        <PlusIcon className={styles.TinyIcon} />
       </span>
 
-      <div className="col-start-2">{item.value}</div>
+      <div className={styles.ItemText}>{item.value}</div>
     </BaseCombobox.Item>
   );
 }

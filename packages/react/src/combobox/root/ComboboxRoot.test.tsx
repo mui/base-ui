@@ -65,12 +65,27 @@ function SelectedIndexProbe() {
   );
 }
 
+function isElementOrAncestorInert(element: HTMLElement) {
+  let current: HTMLElement | null = element;
+  while (current) {
+    if (
+      current.getAttribute('aria-hidden') === 'true' ||
+      current.hasAttribute('inert') ||
+      current.hasAttribute('data-base-ui-inert')
+    ) {
+      return true;
+    }
+    current = current.parentElement;
+  }
+  return false;
+}
+
 describe('<Combobox.Root />', () => {
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   popupConformanceTests({
     createComponent: (props) => (
@@ -91,6 +106,60 @@ describe('<Combobox.Root />', () => {
     triggerMouseAction: 'click',
     expectedPopupRole: 'listbox',
     combobox: true,
+  });
+
+  describe('server-side rendering', () => {
+    it('sets combobox aria attributes on the input', () => {
+      renderToString(
+        <Combobox.Root>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner />
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      expect(input).to.have.attribute('role', 'combobox');
+      expect(input).to.have.attribute('aria-expanded', 'false');
+      expect(input).to.have.attribute('aria-autocomplete', 'list');
+      expect(input).to.have.attribute('aria-haspopup', 'listbox');
+    });
+
+    it('sets combobox aria attributes on the trigger when input is inside popup', () => {
+      renderToString(
+        <Combobox.Root>
+          <Combobox.Trigger data-testid="trigger" />
+          <Combobox.Portal>
+            <Combobox.Positioner />
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      expect(trigger).to.have.attribute('role', 'combobox');
+      expect(trigger).to.have.attribute('aria-expanded', 'false');
+      expect(trigger).to.have.attribute('aria-haspopup', 'dialog');
+    });
+
+    it('does not link Combobox.Label to trigger before hydration', () => {
+      renderToString(
+        <Combobox.Root inline>
+          <Combobox.Label data-testid="label">Food</Combobox.Label>
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Input data-testid="input" />
+        </Combobox.Root>,
+      );
+
+      const label = screen.getByTestId('label');
+      const trigger = screen.getByTestId('trigger');
+
+      expect(label.id).to.not.equal('');
+      expect(trigger.id).to.not.equal('');
+      expect(trigger).not.to.have.attribute('aria-labelledby');
+    });
   });
 
   it('does not focus input when closing via trigger click (input inside popup)', async () => {
@@ -130,6 +199,68 @@ describe('<Combobox.Root />', () => {
     });
   });
 
+  it('does not aria-hide the input group when the input is outside the popup', async () => {
+    const { user } = await render(
+      <Combobox.Root items={['apple', 'banana']}>
+        <Combobox.InputGroup data-testid="group">
+          <Combobox.Input data-testid="input" />
+          <Combobox.Trigger>Open</Combobox.Trigger>
+        </Combobox.InputGroup>
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="apple">apple</Combobox.Item>
+                <Combobox.Item value="banana">banana</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByTestId('input');
+    const group = screen.getByTestId('group');
+
+    await user.click(input);
+    expect(await screen.findByRole('listbox')).not.to.equal(null);
+    await flushMicrotasks();
+
+    expect(input).toHaveFocus();
+    expect(group).not.to.have.attribute('aria-hidden', 'true');
+  });
+
+  it('dismisses the popup when clicking a plain wrapper around the input', async () => {
+    const { user } = await render(
+      <Combobox.Root items={['apple', 'banana']}>
+        <div style={{ padding: 10 }}>
+          <span data-testid="pad">padding</span>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Trigger>Open</Combobox.Trigger>
+        </div>
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="apple">apple</Combobox.Item>
+                <Combobox.Item value="banana">banana</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Open' }));
+    expect(await screen.findByRole('listbox')).not.to.equal(null);
+
+    await user.click(screen.getByTestId('pad'));
+
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox')).to.equal(null);
+    });
+  });
+
   it('does not cause infinite re-renders when items becomes undefined', async () => {
     const { rerender } = await render(
       <Combobox.Root items={[]} defaultOpen>
@@ -156,6 +287,156 @@ describe('<Combobox.Root />', () => {
         </Combobox.Portal>
       </Combobox.Root>,
     );
+  });
+
+  it('hides the trigger when popup is open with input outside the popup', async () => {
+    const { user } = await render(
+      <div>
+        <button data-testid="outside">Outside</button>
+        <Combobox.Root items={['Apple', 'Banana']}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>
+      </div>,
+    );
+
+    await user.click(screen.getByTestId('input'));
+
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox')).not.to.equal(null);
+    });
+
+    const outside = screen.getByTestId('outside');
+    const trigger = screen.getByTestId('trigger');
+
+    await waitFor(() => {
+      expect(isElementOrAncestorInert(outside)).to.equal(true);
+    });
+
+    expect(isElementOrAncestorInert(trigger)).to.equal(true);
+  });
+
+  it('does not render the start dismiss button while closed', async () => {
+    await render(
+      <Combobox.Root items={['Apple', 'Banana']}>
+        <Combobox.Input data-testid="input" />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup data-testid="popup">
+              <Combobox.List>
+                {(item: string) => (
+                  <Combobox.Item key={item} value={item}>
+                    {item}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    expect(screen.queryByRole('button', { name: 'Dismiss' })).to.equal(null);
+  });
+
+  it('renders internal dismiss buttons before the input and after the popup', async () => {
+    const { user } = await render(
+      <div>
+        <button data-testid="outside">Outside</button>
+        <Combobox.Root defaultOpen modal items={['Apple', 'Banana']}>
+          <Combobox.Trigger>Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup data-testid="popup" aria-label="Demo">
+                <Combobox.Input aria-label="Combobox input" />
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>
+      </div>,
+    );
+
+    const popup = screen.getByTestId('popup');
+    const input = screen.getByRole('combobox', { name: 'Combobox input' });
+    const [startDismissButton, endDismissButton] = screen.getAllByRole('button', {
+      name: 'Dismiss',
+    });
+    const outside = screen.getByTestId('outside');
+
+    expect(input.previousElementSibling).to.equal(startDismissButton);
+    expect(popup.nextElementSibling).to.equal(endDismissButton);
+    expect(startDismissButton).not.to.have.attribute('tabindex');
+    expect(endDismissButton).not.to.have.attribute('tabindex');
+
+    await waitFor(() => {
+      expect(isElementOrAncestorInert(outside)).to.equal(true);
+    });
+
+    await user.click(endDismissButton);
+
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox')).to.equal(null);
+    });
+  });
+
+  it('renders an internal dismiss button for the input-outside-popup pattern', async () => {
+    const { user } = await render(
+      <Combobox.Root items={['Apple', 'Banana']}>
+        <Combobox.Input data-testid="input" />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup data-testid="popup">
+              <Combobox.List>
+                {(item: string) => (
+                  <Combobox.Item key={item} value={item}>
+                    {item}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    await user.click(screen.getByTestId('input'));
+
+    const popup = await screen.findByTestId('popup');
+    const input = screen.getByTestId('input');
+    const [startDismissButton, endDismissButton] = screen.getAllByRole('button', {
+      name: 'Dismiss',
+    });
+
+    expect(input.previousElementSibling).to.equal(startDismissButton);
+    expect(popup.nextElementSibling).to.equal(endDismissButton);
+    expect(startDismissButton).not.to.have.attribute('tabindex');
+    expect(endDismissButton).not.to.have.attribute('tabindex');
+
+    await user.click(startDismissButton);
+
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox')).to.equal(null);
+    });
   });
 
   describe('selection behavior', () => {
@@ -908,6 +1189,33 @@ describe('<Combobox.Root />', () => {
       await user.keyboard('{Escape}');
 
       expect(onOuterKeyDown.callCount).to.equal(1);
+    });
+
+    it('keeps input value on Enter when inline and no item is highlighted', async () => {
+      const { user } = await render(
+        <Combobox.Root inline items={['Apple', 'Banana']}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.List>
+            {(item: string) => (
+              <Combobox.Item key={item} value={item}>
+                {item}
+              </Combobox.Item>
+            )}
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      await user.click(input);
+      await user.type(input, 'Ba');
+
+      expect(input).not.to.have.attribute('aria-activedescendant');
+      expect(input).to.have.value('Ba');
+
+      await user.keyboard('{Enter}');
+
+      expect(input).to.have.value('Ba');
     });
 
     it('bubbles Escape key when list is empty and popup hidden with CSS', async () => {
@@ -2858,6 +3166,44 @@ describe('<Combobox.Root />', () => {
       expect(input).to.have.attribute('aria-activedescendant', alpha.id);
     });
 
+    it('keeps gridcell typeahead active across Space in row mode without selecting', async () => {
+      const onValueChange = spy();
+      const { user } = await render(
+        <Combobox.Root autoHighlight grid onValueChange={onValueChange}>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Row>
+                    <Combobox.Item value="new-york">new york</Combobox.Item>
+                    <Combobox.Item value="new-jersey">new jersey</Combobox.Item>
+                  </Combobox.Row>
+                  <Combobox.Row>
+                    <Combobox.Item value="old-town">old town</Combobox.Item>
+                    <Combobox.Item value="other">other</Combobox.Item>
+                  </Combobox.Row>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      await user.type(input, 'new');
+
+      const newYork = screen.getByRole('gridcell', { name: 'new york' });
+      await waitFor(() => expect(newYork).to.have.attribute('data-highlighted'));
+      expect(input).to.have.attribute('aria-activedescendant', newYork.id);
+
+      await user.type(input, ' ');
+      expect(newYork).to.have.attribute('data-highlighted');
+      expect(input).to.have.attribute('aria-activedescendant', newYork.id);
+      expect(input).to.have.value('new ');
+      expect(onValueChange.called).to.equal(false);
+    });
+
     it('retains highlight when query is cleared back to empty', async () => {
       const { user } = await render(
         <Combobox.Root items={['apple', 'banana', 'cherry']} autoHighlight>
@@ -4641,7 +4987,7 @@ describe('<Combobox.Root />', () => {
 
       await waitFor(() => {
         expect(trigger).to.have.attribute('id', 'x-id');
-        expect(label).to.have.attribute('for', 'x-id');
+        expect(trigger).to.have.attribute('aria-labelledby', label.id);
       });
     });
 
@@ -4688,6 +5034,61 @@ describe('<Combobox.Root />', () => {
       expect(input).not.to.have.attribute('data-dirty');
       expect(input).not.to.have.attribute('data-filled');
       expect(input).not.to.have.attribute('data-focused');
+    });
+
+    it('Combobox.Label links to Combobox.Trigger when input is inside popup and trigger has an explicit id', async () => {
+      await render(
+        <Combobox.Root>
+          <Combobox.Label data-testid="label">Search</Combobox.Label>
+          <Combobox.Trigger data-testid="trigger" id="x-id">
+            Open
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input />
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                  <Combobox.Item value="b">b</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const label = screen.getByTestId<HTMLDivElement>('label');
+      const trigger = screen.getByTestId('trigger');
+
+      await waitFor(() => {
+        expect(trigger).to.have.attribute('id', 'x-id');
+        expect(trigger).to.have.attribute('aria-labelledby', label.id);
+      });
+    });
+
+    it('Combobox.Label focuses trigger without opening when input is inside popup', async () => {
+      const { user } = await render(
+        <Combobox.Root>
+          <Combobox.Label data-testid="label">Search</Combobox.Label>
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input />
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                  <Combobox.Item value="b">b</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await user.click(screen.getByTestId('label'));
+
+      expect(screen.getByTestId('trigger')).toHaveFocus();
+      expect(screen.queryByRole('dialog')).to.equal(null);
     });
 
     it('[data-touched]', async () => {
@@ -5247,6 +5648,71 @@ describe('<Combobox.Root />', () => {
         'aria-labelledby',
         screen.getByTestId('label').id,
       );
+    });
+
+    it('Combobox.Label does not label Combobox.Input and warns when input is the form control', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      await render(
+        <Combobox.Root>
+          <Combobox.Label data-testid="label" />
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner />
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await waitFor(() => {
+        expect(errorSpy.mock.calls.length).to.equal(1);
+      });
+
+      expect(errorSpy.mock.calls[0][0]).to.contain(
+        'Base UI: <Combobox.Label> labels <Combobox.Trigger> only.',
+      );
+      expect(screen.getByTestId('input')).not.to.have.attribute('aria-labelledby');
+      errorSpy.mockRestore();
+    });
+
+    it('does not set fallback aria-labelledby when no label is rendered', async () => {
+      await render(
+        <Combobox.Root>
+          <Combobox.Input data-testid="input" aria-label="Search" />
+          <Combobox.Portal>
+            <Combobox.Positioner />
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('input')).not.to.have.attribute('aria-labelledby');
+      });
+    });
+
+    it('updates Combobox.Label linkage when root id changes', async () => {
+      const { setProps } = await render(
+        <Combobox.Root id="first">
+          <Combobox.Label data-testid="label">Food</Combobox.Label>
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input />
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await setProps({ id: 'second' });
+
+      await waitFor(() => {
+        const label = screen.getByTestId('label');
+        const trigger = screen.getByTestId('trigger');
+        expect(trigger).to.have.attribute('id', 'second');
+        expect(label.id).to.equal('second-label');
+        expect(trigger).to.have.attribute('aria-labelledby', label.id);
+      });
     });
 
     it('Field.Description', async () => {

@@ -8,7 +8,7 @@ import { NOOP } from '../utils/noop';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { useLabelableContext } from './LabelableContext';
 
-export function useLabelableId(params: useLabelableId.Parameters = {}) {
+export function useLabelableId(params: UseLabelableIdParameters = {}) {
   const { id, implicit = false, controlRef } = params;
 
   const { controlId, registerControlId } = useLabelableContext();
@@ -97,7 +97,4 @@ export interface UseLabelableIdParameters {
 
 export type UseLabelableIdReturnValue = string;
 
-export namespace useLabelableId {
-  export type Parameters = UseLabelableIdParameters;
-  export type ReturnValue = UseLabelableIdReturnValue;
-}
+export interface UseLabelableIdState {}
