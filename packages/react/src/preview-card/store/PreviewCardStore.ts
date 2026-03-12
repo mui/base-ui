@@ -4,7 +4,7 @@ import { createSelector, ReactStore } from '@base-ui/utils/store';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import {
   createInitialPopupStoreState,
-  InlineRectState,
+  InlineRectCoords,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
@@ -22,7 +22,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
 
 export type Context = PopupStoreContext<PreviewCardRoot.ChangeEventDetails> & {
   closeDelayRef: React.RefObject<number>;
-  inlineRectCoordsRef: React.MutableRefObject<InlineRectState | undefined>;
+  inlineRectCoordsRef: React.MutableRefObject<InlineRectCoords | undefined>;
 };
 
 const selectors = {
