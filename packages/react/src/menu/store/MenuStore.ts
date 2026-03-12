@@ -50,7 +50,6 @@ const selectors = {
       ? state.parent.context.disabled || state.disabled
       : state.disabled,
   ),
-
   modal: createSelector(
     (state: State<unknown>) =>
       (state.parent.type === undefined || state.parent.type === 'context-menu') &&

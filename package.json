@@ -64,9 +64,9 @@
     "@arethetypeswrong/cli": "0.18.2",
     "@babel/plugin-transform-react-constant-elements": "7.27.1",
     "@base-ui/monorepo-tests": "workspace:*",
-    "@mui/internal-code-infra": "0.0.4-canary.2",
-    "@mui/internal-netlify-cache": "0.0.3-canary.0",
-    "@mui/internal-test-utils": "2.0.18-canary.11",
+    "@mui/internal-code-infra": "0.0.4-canary.5",
+    "@mui/internal-netlify-cache": "0.0.3-canary.1",
+    "@mui/internal-test-utils": "2.0.18-canary.12",
     "@next/eslint-plugin-next": "16.1.6",
     "@octokit/rest": "22.0.1",
     "@playwright/test": "1.58.2",
@@ -104,9 +104,9 @@
     "vite": "7.3.1",
     "vitest": "4.0.18"
   },
-  "packageManager": "pnpm@10.30.2",
+  "packageManager": "pnpm@10.30.3",
   "engines": {
-    "pnpm": "10.30.2",
+    "pnpm": "10.30.3",
     "node": ">=22.18.0"
   },
   "resolutions": {

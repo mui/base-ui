@@ -5,6 +5,7 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument } from '@base-ui/utils/owner';
 import {
+  FloatingNode,
   FloatingTree,
   useFloatingNodeId,
   useFloatingParentNodeId,
@@ -73,6 +74,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   } = componentProps;
 
   const nested = useFloatingParentNodeId() != null;
+  const parentRootContext = useNavigationMenuRootContext(true);
 
   const [value, setValueUnwrapped] = useControlled({
     controlled: valueParam,
@@ -134,6 +136,10 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
       }
 
       setValueUnwrapped(nextValue);
+
+      if (nested && !nextValue && eventDetails.reason === REASONS.linkPress && parentRootContext) {
+        parentRootContext.setValue(null, eventDetails);
+      }
     },
   );
 
@@ -292,7 +298,7 @@ function TreeContext(props: {
 
   return (
     <NavigationMenuTreeContext.Provider value={nodeId}>
-      {element}
+      <FloatingNode id={nodeId}>{element}</FloatingNode>
     </NavigationMenuTreeContext.Provider>
   );
 }
