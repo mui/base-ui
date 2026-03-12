@@ -11,7 +11,9 @@ export function computeMonthDayGrid(
   adapter: TemporalAdapter,
   month: TemporalSupportedObject,
   fixedWeekNumber?: number,
+  weeks?: TemporalSupportedObject[],
 ): TemporalSupportedObject[] {
-  const weeks = getWeekList(adapter, { date: month, amount: fixedWeekNumber ?? 'end-of-month' });
-  return weeks.flatMap((week) => getDayList(adapter, { date: week, amount: 7 }));
+  const weeksList =
+    weeks ?? getWeekList(adapter, { date: month, amount: fixedWeekNumber ?? 'end-of-month' });
+  return weeksList.flatMap((week) => getDayList(adapter, { date: week, amount: 7 }));
 }

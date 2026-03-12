@@ -39,9 +39,17 @@ export function useSharedCalendarDayGridBody(
   const adapter = useTemporalAdapter();
   const store = useSharedCalendarRootContext();
   const visibleMonth = useStore(store, selectors.visibleMonth);
+  const timezone = useStore(store, selectors.timezoneToRender);
   const ref = React.useRef<HTMLTableSectionElement>(null);
   const [highlightedIndex, setHighlightedIndex] = React.useState(0);
   const executeAfterItemMapUpdate = React.useRef<(newMap: any) => void>(null);
+
+  const nowValue = adapter.now(timezone);
+  const todayRef = React.useRef(nowValue);
+  if (!adapter.isSameDay(todayRef.current, nowValue)) {
+    todayRef.current = nowValue;
+  }
+  const today = todayRef.current;
 
   const month = React.useMemo(() => {
     return offset === 0 ? visibleMonth : adapter.addMonths(visibleMonth, offset);
@@ -96,6 +104,28 @@ export function useSharedCalendarDayGridBody(
     }
   }, [itemMap]);
 
+  const focusNonDisabledItem = (
+    elements: Array<HTMLElement | null>,
+    itemDisabledIndices: number[],
+    guessedIndex: number,
+    decrement: boolean,
+    amount: number,
+  ) => {
+    let idx = guessedIndex;
+    if (isListIndexDisabled(elements, idx, itemDisabledIndices)) {
+      idx = findNonDisabledListIndex(elements, {
+        startingIndex: idx,
+        decrement,
+        disabledIndices: itemDisabledIndices,
+        amount,
+      });
+    }
+    if (idx >= 0 && idx < elements.length) {
+      setHighlightedIndex(idx);
+      elements[idx]?.focus();
+    }
+  };
+
   const focusNextNonDisabledElement = ({
     elements = items,
     newHighlightedIndex,
@@ -107,22 +137,7 @@ export function useSharedCalendarDayGridBody(
     decrement: boolean;
     amount: number;
   }) => {
-    // Find a non disabled index if the new initially guessed index is disabled
-    if (isListIndexDisabled(elements, newHighlightedIndex, disabledIndices)) {
-      newHighlightedIndex = findNonDisabledListIndex(elements, {
-        startingIndex: newHighlightedIndex,
-        decrement,
-        disabledIndices,
-        amount,
-      });
-    }
-    if (newHighlightedIndex > -1) {
-      setHighlightedIndex(newHighlightedIndex);
-      const newHighlightedElement = elements[newHighlightedIndex];
-      if (newHighlightedElement) {
-        newHighlightedElement.focus();
-      }
-    }
+    focusNonDisabledItem(elements, disabledIndices, newHighlightedIndex, decrement, amount);
   };
 
   // Focuses the correct item after a cross-month navigation (PageUp/PageDown or arrow-key
@@ -141,19 +156,7 @@ export function useSharedCalendarDayGridBody(
         newDisabledIndices.push(meta.index);
       }
     }
-    let idx = guessedIndex;
-    if (isListIndexDisabled(newItems, idx, newDisabledIndices)) {
-      idx = findNonDisabledListIndex(newItems, {
-        startingIndex: idx,
-        decrement,
-        disabledIndices: newDisabledIndices,
-        amount,
-      });
-    }
-    if (idx >= 0 && idx < newItems.length) {
-      setHighlightedIndex(idx);
-      newItems[idx]?.focus();
-    }
+    focusNonDisabledItem(newItems, newDisabledIndices, guessedIndex, decrement, amount);
   };
 
   const handleKeyboardNavigation = (event: BaseUIEvent<React.KeyboardEvent>) => {
@@ -193,8 +196,9 @@ export function useSharedCalendarDayGridBody(
         if (event.shiftKey) {
           amount = 12;
         }
-        const gridDays = computeMonthDayGrid(adapter, month, fixedWeekNumber);
-        const currentDay = gridDays[highlightedIndex];
+        const currentDay = computeMonthDayGrid(adapter, month, fixedWeekNumber, weeks)[
+          highlightedIndex
+        ];
         if (!currentDay) {
           return;
         }
@@ -329,7 +333,10 @@ export function useSharedCalendarDayGridBody(
     children: resolvedChildren,
   };
 
-  const context: SharedCalendarDayGridBodyContext = React.useMemo(() => ({ month }), [month]);
+  const context: SharedCalendarDayGridBodyContext = React.useMemo(
+    () => ({ month, today }),
+    [month, today],
+  );
 
   return { props, compositeRootProps, context, ref };
 }

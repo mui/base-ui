@@ -7,6 +7,10 @@ export interface SharedCalendarDayGridBodyContext {
    * The month of this component.
    */
   month: TemporalSupportedObject;
+  /**
+   * Today's date, computed once at the grid body level.
+   */
+  today: TemporalSupportedObject;
 }
 
 export const SharedCalendarDayGridBodyContext = React.createContext<

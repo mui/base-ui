@@ -75,7 +75,7 @@ export function CalendarViewport({ children }: CalendarViewport.Props): React.JS
       capturedNodeRef.current
     ) {
       // Cancel the previous transition's pending animation-finished callback
-      // abortControllerRef.current?.abort();
+      abortControllerRef.current?.abort();
       const abortController = new AbortController();
       abortControllerRef.current = abortController;
 
