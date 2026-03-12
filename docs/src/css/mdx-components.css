@@ -85,20 +85,6 @@
     margin-block: 1.25rem;
   }
 
-  /* Choosing components handbook: give explanation column enough width so text doesn’t wrap tightly */
-  .ChoosingComponentsRoot .MdTable {
-    table-layout: fixed;
-    width: 100%;
-  }
-
-  .ChoosingComponentsRoot .MdTable td:first-child,
-  .ChoosingComponentsRoot .MdTable th:first-child {
-    width: 60%;
-    min-width: 20em;
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-  }
-
   .MdSubtitle {
     margin-top: -0.5rem;
     margin-bottom: 1.25rem;
