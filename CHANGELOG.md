@@ -55,7 +55,7 @@ _Mar 12, 2026_
 
 ### Drawer
 
-- 🚨 **Breaking change:** Unmark Drawer preview<br />
+- **Breaking change:** Unmark Drawer preview<br />
   The Drawer is now stable and should be imported as `{ Drawer } from '@base-ui/react/drawer'` (#4293) by @atomiks
 - Fix React 17 support (#4178) by @atomiks
 - Include border in frontmost height variable (#4202) by @atomiks
