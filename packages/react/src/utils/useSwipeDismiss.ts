@@ -5,6 +5,7 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import { contains, getTarget } from '../floating-ui-react/utils';
 import { findScrollableTouchTarget, hasScrollableAncestor, type ScrollAxis } from './scrollable';
 import { clamp } from './clamp';
+import { getElementAtPoint } from './getElementAtPoint';
 
 export type SwipeDirection = 'up' | 'down' | 'left' | 'right';
 
@@ -307,10 +308,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
 
   function getTargetAtPoint(position: { x: number; y: number }, nativeEvent: Event) {
     const doc = ownerDocument(elementRef.current);
-    const elementAtPoint =
-      typeof doc?.elementFromPoint === 'function'
-        ? doc.elementFromPoint(position.x, position.y)
-        : null;
+    const elementAtPoint = getElementAtPoint(doc, position.x, position.y);
     const target = elementAtPoint ?? getTarget(nativeEvent);
     return target as HTMLElement | null;
   }

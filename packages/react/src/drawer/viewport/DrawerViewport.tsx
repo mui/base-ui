@@ -20,12 +20,15 @@ import {
 import { DrawerPopupCssVars } from '../popup/DrawerPopupCssVars';
 import { DrawerPopupDataAttributes } from '../popup/DrawerPopupDataAttributes';
 import { DrawerBackdropCssVars } from '../backdrop/DrawerBackdropCssVars';
+import { DRAWER_CONTENT_ATTRIBUTE } from '../content/DrawerContentDataAttributes';
 import { REASONS } from '../../utils/reasons';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { contains } from '../../floating-ui-react/utils';
 import { DrawerViewportContext } from './DrawerViewportContext';
 import { TransitionStatusDataAttributes } from '../../utils/stateAttributesMapping';
 import { findScrollableTouchTarget, type ScrollAxis } from '../../utils/scrollable';
+import { BASE_UI_SWIPE_IGNORE_SELECTOR } from '../../utils/constants';
+import { getElementAtPoint } from '../../utils/getElementAtPoint';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 
@@ -40,6 +43,7 @@ const MIN_SWIPE_RELEASE_DURATION_MS = 80;
 const MAX_SWIPE_RELEASE_DURATION_MS = 360;
 const MIN_SWIPE_RELEASE_SCALAR = 0.1;
 const MAX_SWIPE_RELEASE_SCALAR = 1;
+const DRAWER_CONTENT_SELECTOR = `[${DRAWER_CONTENT_ATTRIBUTE}]`;
 
 interface TouchScrollState {
   startX: number;
@@ -105,6 +109,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   const nestedSwipeActiveRef = React.useRef(false);
   const lastPointerTypeRef = React.useRef<React.PointerEvent['pointerType'] | ''>('');
   const ignoreNextTouchStartFromPenRef = React.useRef(false);
+  const ignoreTouchSwipeRef = React.useRef(false);
   const touchScrollStateRef = React.useRef<TouchScrollState | null>(null);
 
   const snapPointRange = React.useMemo(() => {
@@ -389,10 +394,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
       }
 
       const doc = popupElement.ownerDocument;
-      const elementAtPoint =
-        typeof doc.elementFromPoint === 'function'
-          ? doc.elementFromPoint(position.x, position.y)
-          : null;
+      const elementAtPoint = getElementAtPoint(doc, position.x, position.y);
       if (!elementAtPoint || !contains(popupElement, elementAtPoint)) {
         return false;
       }
@@ -402,6 +404,10 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         'touches' in nativeEvent ||
         ('pointerType' in nativeEvent && nativeEvent.pointerType === 'touch');
       if (touchLike && shouldIgnoreSwipeForTextSelection(doc, popupElement)) {
+        return false;
+      }
+
+      if (nativeEvent.type === 'touchstart' && isSwipeIgnoredTarget(elementAtPoint)) {
         return false;
       }
 
@@ -772,6 +778,10 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     const win = ownerWindow(doc);
 
     function handleNativeTouchMove(event: TouchEvent) {
+      if (ignoreTouchSwipeRef.current) {
+        return;
+      }
+
       const touchState = touchScrollStateRef.current;
       const touch = event.touches[0];
       if (!touch || !touchState) {
@@ -939,6 +949,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   );
 
   function resetTouchTrackingState() {
+    ignoreTouchSwipeRef.current = false;
     touchScrollStateRef.current = null;
     lastPointerTypeRef.current = '';
     ignoreNextTouchStartFromPenRef.current = false;
@@ -954,16 +965,17 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           lastPointerTypeRef.current = event.pointerType;
           ignoreNextTouchStartFromPenRef.current = event.pointerType === 'pen';
 
-          if (!open || !mounted || nestedDrawerOpen || event.pointerType === 'touch') {
+          if (!open || !mounted || nestedDrawerOpen) {
             return;
           }
 
           const doc = ownerDocument(event.currentTarget);
-          const elementAtPoint =
-            typeof doc.elementFromPoint === 'function'
-              ? doc.elementFromPoint(event.clientX, event.clientY)
-              : null;
-          if (elementAtPoint?.closest('[data-swipe-ignore]')) {
+          const elementAtPoint = getElementAtPoint(doc, event.clientX, event.clientY);
+          if (isSwipeIgnoredTarget(elementAtPoint) || isDrawerContentTarget(elementAtPoint)) {
+            return;
+          }
+
+          if (event.pointerType === 'touch') {
             return;
           }
 
@@ -1003,11 +1015,13 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
             lastPointerTypeRef.current === 'pen' && ignoreNextTouchStartFromPenRef.current;
           if (startedFromPenPointerDown) {
             ignoreNextTouchStartFromPenRef.current = false;
+            ignoreTouchSwipeRef.current = false;
             touchScrollStateRef.current = null;
             return;
           }
 
           if (!open || !mounted || nestedDrawerOpen) {
+            ignoreTouchSwipeRef.current = false;
             touchScrollStateRef.current = null;
             return;
           }
@@ -1018,6 +1032,15 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           }
 
           if (isReactTouchEventOnRangeInput(event)) {
+            ignoreTouchSwipeRef.current = false;
+            touchScrollStateRef.current = null;
+            return;
+          }
+
+          const doc = ownerDocument(event.currentTarget);
+          const elementAtPoint = getElementAtPoint(doc, touch.clientX, touch.clientY);
+          ignoreTouchSwipeRef.current = isSwipeIgnoredTarget(elementAtPoint);
+          if (ignoreTouchSwipeRef.current) {
             touchScrollStateRef.current = null;
             return;
           }
@@ -1052,6 +1075,10 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           swipeTouchProps.onTouchStart?.(event);
         },
         onTouchMove(event) {
+          if (ignoreTouchSwipeRef.current) {
+            return;
+          }
+
           if (isReactTouchEventOnRangeInput(event)) {
             return;
           }
@@ -1142,6 +1169,14 @@ function setBackdropSwipingAttribute(backdropElement: HTMLElement | null, swipin
   }
 
   backdropElement.removeAttribute(DrawerPopupDataAttributes.swiping);
+}
+
+function isSwipeIgnoredTarget(target: Element | null): boolean {
+  return Boolean(target?.closest(BASE_UI_SWIPE_IGNORE_SELECTOR));
+}
+
+function isDrawerContentTarget(target: Element | null): boolean {
+  return Boolean(target?.closest(DRAWER_CONTENT_SELECTOR));
 }
 
 function getBaseSwipeThreshold(element: HTMLElement, direction: SwipeDirection): number {

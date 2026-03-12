@@ -46,7 +46,7 @@ import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
 </Drawer.Provider>;
 ```
 
-Drawer supports swipe gestures to dismiss. Set `swipeDirection` to control which direction dismisses the drawer. `<Drawer.Content>` allows text selection of its children without swipe interference when using a mouse pointer.
+Drawer supports swipe gestures to dismiss. Set `swipeDirection` to control which direction dismisses the drawer. `<Drawer.Content>` allows text selection of its children without swipe interference when using a mouse pointer. Add `data-base-ui-swipe-ignore` to a descendant when you need to opt that element out of swipe dismissal for all input types.
 
 ## Examples
 
