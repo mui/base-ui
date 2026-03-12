@@ -91,6 +91,44 @@ function TestNestedNavigationMenu(props: NavigationMenu.Root.Props = {}) {
   );
 }
 
+function TestNavigationMenuOrientationAttributes() {
+  return (
+    <NavigationMenu.Root data-testid="top-level-root" defaultValue="item-1" orientation="vertical">
+      <NavigationMenu.List data-testid="top-level-list">
+        <NavigationMenu.Item value="item-1">
+          <NavigationMenu.Trigger>Item 1</NavigationMenu.Trigger>
+          <NavigationMenu.Content>
+            <NavigationMenu.Root
+              data-testid="nested-root"
+              defaultValue="nested-item-1"
+              orientation="vertical"
+            >
+              <NavigationMenu.List data-testid="nested-list">
+                <NavigationMenu.Item value="nested-item-1">
+                  <NavigationMenu.Trigger>Nested Item 1</NavigationMenu.Trigger>
+                  <NavigationMenu.Content>
+                    <NavigationMenu.Link href="#nested-link-1">Nested Link 1</NavigationMenu.Link>
+                  </NavigationMenu.Content>
+                </NavigationMenu.Item>
+              </NavigationMenu.List>
+
+              <NavigationMenu.Viewport />
+            </NavigationMenu.Root>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+      </NavigationMenu.List>
+
+      <NavigationMenu.Portal>
+        <NavigationMenu.Positioner>
+          <NavigationMenu.Popup>
+            <NavigationMenu.Viewport />
+          </NavigationMenu.Popup>
+        </NavigationMenu.Positioner>
+      </NavigationMenu.Portal>
+    </NavigationMenu.Root>
+  );
+}
+
 function TestInlineNestedNavigationMenu(props: { nestedDefaultValue?: string | null } = {}) {
   const { nestedDefaultValue = 'nested-item-1' } = props;
   const nestedRootProps =
@@ -793,6 +831,20 @@ describe('<NavigationMenu.Root />', () => {
       return render(node);
     },
   }));
+
+  it('applies aria-orientation to the top-level list instead of the root element', async () => {
+    await render(<TestNavigationMenuOrientationAttributes />);
+
+    expect(screen.getByTestId('top-level-root')).not.to.have.attribute('aria-orientation');
+    expect(screen.getByTestId('top-level-list')).to.have.attribute('aria-orientation', 'vertical');
+  });
+
+  it('applies aria-orientation to nested lists instead of nested root elements', async () => {
+    await render(<TestNavigationMenuOrientationAttributes />);
+
+    expect(screen.getByTestId('nested-root')).not.to.have.attribute('aria-orientation');
+    expect(screen.getByTestId('nested-list')).to.have.attribute('aria-orientation', 'vertical');
+  });
 
   describe('interactions', () => {
     it('opens on hover with mouse input', async () => {
