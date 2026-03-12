@@ -48,10 +48,10 @@ export const mdxComponents: MDXComponents = {
   strong: (props) => <strong className="MdStrong" {...props} />,
   figure: (props) => {
     if ('data-rehype-pretty-code-figure' in props) {
-      return <CodeBlock.Root {...props} />;
+      return <CodeBlock.Root className="MdFigure" {...props} />;
     }
 
-    return <figure {...props} />;
+    return <figure className="MdFigure" {...props} />;
   },
   figcaption: (props) => {
     if ('data-rehype-pretty-code-title' in props) {
