@@ -70,16 +70,16 @@ export function useHoverFloatingInteraction(
   });
 
   const closeHoverPopup = useStableCallback((event: MouseEvent) => {
-    // Emit tree close only when a hover-close was actually committed.
-    if (
-      closeHoverPopupShared(
-        store,
-        instance,
-        event,
-        isHoverOpen(dataRef.current.openEvent?.type),
-        hoverCloseGracePeriod,
-      )
-    ) {
+    const { closed } = closeHoverPopupShared(
+      store,
+      instance,
+      event,
+      isHoverOpen(dataRef.current.openEvent?.type),
+      hoverCloseGracePeriod,
+    );
+
+    // Tree listeners use this signal to continue deferred parent closes.
+    if (closed) {
       tree?.events.emit('floating.closed', event);
     }
   });

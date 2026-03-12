@@ -125,30 +125,41 @@ export function recordHoverClose(instance: HoverInteraction, now = performance.n
   instance.lastHoverCloseTime = now;
 }
 
+/**
+ * Attempts to close a popup from a hover interaction.
+ *
+ * A committed close is reported whenever `setOpen(false, ...)` succeeds without
+ * cancellation, regardless of how the popup was originally opened. Tree-based
+ * hover coordination relies on that signal to continue deferred parent closes.
+ *
+ * Reopen grace is narrower: it is recorded only when the popup was both
+ * hover-opened and successfully closed, so click/keyboard/programmatic closes
+ * do not seed hover handoff behavior.
+ */
 export function closeHoverPopup(
   store: FloatingRootContext,
   instance: HoverInteraction,
   event: MouseEvent,
   isHoverOpen: boolean,
   hoverCloseGracePeriod?: number,
-): boolean {
+): { closed: boolean } {
   if (!store.select('open')) {
-    return false;
+    return { closed: false };
   }
 
   const eventDetails = createChangeEventDetails(REASONS.triggerHover, event);
   store.setOpen(false, eventDetails);
 
-  // Canceled requests or non-hover closes should not seed handoff grace.
-  if (eventDetails.isCanceled || !isHoverOpen) {
-    return false;
+  if (eventDetails.isCanceled) {
+    return { closed: false };
   }
 
-  if (hoverCloseGracePeriod != null && hoverCloseGracePeriod > 0) {
+  // Only hover-opened popups participate in the reopen grace window.
+  if (isHoverOpen && hoverCloseGracePeriod != null && hoverCloseGracePeriod > 0) {
     recordHoverClose(instance);
   }
 
-  return true;
+  return { closed: true };
 }
 
 export function clearRecentHoverClose(instance: HoverInteraction): void {
