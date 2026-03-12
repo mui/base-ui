@@ -130,18 +130,20 @@ export function useHoverReferenceInteraction(
   });
 
   React.useEffect(() => {
+    if (!hoverCloseGracePeriod || !open) {
+      return;
+    }
+
+    // Controlled/programmatic opens do not always emit a floating `openchange`
+    // event. Clear stale handoff grace once a new open cycle starts.
+    clearRecentHoverClose(instance);
+  }, [hoverCloseGracePeriod, instance, open]);
+
+  React.useEffect(() => {
     return () => {
       cleanupMouseMoveHandler(store, instance);
     };
   }, [instance, store]);
-
-  React.useEffect(() => {
-    if (open) {
-      // Programmatic/controlled `open` updates may not emit `openchange`.
-      // Clear stale grace once any new open cycle starts.
-      clearRecentHoverClose(instance);
-    }
-  }, [instance, open]);
 
   // When closing before opening, clear the delay timeouts to cancel it
   // from showing.

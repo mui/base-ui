@@ -17,7 +17,6 @@ import {
   isInteractiveElement,
   useHoverInteractionSharedState,
 } from './useHoverInteractionSharedState';
-import type { HoverInteraction } from './useHoverInteractionSharedState';
 import {
   getDelay,
   isClickLikeOpenEvent as isClickLikeOpenEventShared,
@@ -102,20 +101,22 @@ export function useHoverFloatingInteraction(
     [closeDelayProp, closeHoverPopup, instance, store],
   );
 
+  const clearPointerEvents = useStableCallback(() => {
+    clearSafePolygonPointerEventsMutation(instance);
+  });
+
   useIsoLayoutEffect(() => {
     if (!open) {
       instance.pointerType = undefined;
       instance.restTimeoutPending = false;
       instance.interactedInside = false;
-      clearPointerEvents(instance);
+      clearPointerEvents();
     }
-  }, [open, instance]);
+  }, [open, instance, clearPointerEvents]);
 
   React.useEffect(() => {
-    return () => {
-      clearPointerEvents(instance);
-    };
-  }, [instance]);
+    return clearPointerEvents;
+  }, [clearPointerEvents]);
 
   useIsoLayoutEffect(() => {
     if (!enabled) {
@@ -154,12 +155,22 @@ export function useHoverFloatingInteraction(
       });
 
       return () => {
-        clearPointerEvents(instance);
+        clearPointerEvents();
       };
     }
 
     return undefined;
-  }, [enabled, open, domReferenceElement, floatingElement, instance, dataRef, tree, parentId]);
+  }, [
+    enabled,
+    open,
+    domReferenceElement,
+    floatingElement,
+    instance,
+    dataRef,
+    tree,
+    parentId,
+    clearPointerEvents,
+  ]);
 
   const childClosedTimeout = useTimeout();
 
@@ -172,7 +183,7 @@ export function useHoverFloatingInteraction(
       instance.openChangeTimeout.clear();
       childClosedTimeout.clear();
       tree?.events.off('floating.closed', onNodeClosed);
-      clearPointerEvents(instance);
+      clearPointerEvents();
     }
 
     function onFloatingMouseLeave(event: MouseEvent) {
@@ -193,7 +204,7 @@ export function useHoverFloatingInteraction(
         return;
       }
 
-      clearPointerEvents(instance);
+      clearPointerEvents();
       if (!isClickLikeOpenEvent()) {
         closeWithDelay(event);
       }
@@ -238,18 +249,12 @@ export function useHoverFloatingInteraction(
     isClickLikeOpenEvent,
     closeWithDelay,
     closeHoverPopup,
+    clearPointerEvents,
     instance,
     tree,
     parentId,
     childClosedTimeout,
   ]);
-}
-
-/**
- * Clears the pointer-events mutation used by safe-polygon hover handling.
- */
-function clearPointerEvents(instance: HoverInteraction) {
-  clearSafePolygonPointerEventsMutation(instance);
 }
 
 /**
