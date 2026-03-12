@@ -147,23 +147,20 @@ export function useHoverReferenceInteraction(
     },
   );
 
-  const closeWithDelay = React.useCallback(
-    (event: MouseEvent, runElseBranch = true) => {
-      if (!store.select('open')) {
-        instance.openChangeTimeout.clear();
-        return;
-      }
+  const closeWithDelay = useStableCallback((event: MouseEvent, runElseBranch = true) => {
+    if (!store.select('open')) {
+      instance.openChangeTimeout.clear();
+      return;
+    }
 
-      const closeDelay = getDelay(delayRef.current, 'close', instance.pointerType);
-      if (closeDelay) {
-        instance.openChangeTimeout.start(closeDelay, () => closeHoverPopup(event));
-      } else if (runElseBranch) {
-        instance.openChangeTimeout.clear();
-        closeHoverPopup(event);
-      }
-    },
-    [closeHoverPopup, delayRef, instance, store],
-  );
+    const closeDelay = getDelay(delayRef.current, 'close', instance.pointerType);
+    if (closeDelay) {
+      instance.openChangeTimeout.start(closeDelay, () => closeHoverPopup(event));
+    } else if (runElseBranch) {
+      instance.openChangeTimeout.clear();
+      closeHoverPopup(event);
+    }
+  });
 
   const cleanupMouseMoveHandler = useStableCallback(() => {
     if (!instance.handler) {
@@ -173,6 +170,7 @@ export function useHoverReferenceInteraction(
     doc.removeEventListener('mousemove', instance.handler);
     instance.handler = undefined;
   });
+
   React.useEffect(() => cleanupMouseMoveHandler, [cleanupMouseMoveHandler]);
 
   const clearPointerEvents = useStableCallback(() => {
