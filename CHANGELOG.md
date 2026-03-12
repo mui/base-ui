@@ -10,7 +10,7 @@ _Mar 12, 2026_
 - Reset `openMethod` on close transition (#4128) by @atomiks
 - Fire Space activation on `keydown` for composite widgets (#4053) by @atomiks
 - Skip CSS-hidden composite items in keyboard navigation (#4195) by @atomiks
-- Add eslint to TanStack example so pnpm eslint works (#4297) by @CiscoFran10
+- Add ESLint to TanStack example so `pnpm eslint` works (#4297) by @CiscoFran10
 - Optimize useHover hooks and safePolygon hot paths (#4199) by @atomiks
 - Snap `--anchor-width/height` to device pixel grid (#4082) by @flaviendelangle
 - Fix outside press dismissal when component is portaled into shadow DOM (#4230) by @dmitri-gb
