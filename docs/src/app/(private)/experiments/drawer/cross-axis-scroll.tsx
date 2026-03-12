@@ -1,4 +1,4 @@
-import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
+import { Drawer } from '@base-ui/react/drawer';
 import clsx from 'clsx';
 import heroStyles from 'docs/src/app/(docs)/react/components/drawer/demos/hero/css-modules/index.module.css';
 import positionStyles from 'docs/src/app/(docs)/react/components/drawer/demos/position/css-modules/index.module.css';
