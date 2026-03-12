@@ -147,7 +147,10 @@ export function CalendarViewport({ children }: CalendarViewport.Props): React.JS
   }
 
   // Avoids remounting the current month after transition ends.
-  if (currentContainerRef.current) {
+  useIsoLayoutEffect(() => {
+    if (!currentContainerRef.current) {
+      return;
+    }
     if (isTransitioning) {
       currentContainerRef.current.setAttribute('data-current', '');
       if (showStartingStyleAttribute) {
@@ -167,7 +170,7 @@ export function CalendarViewport({ children }: CalendarViewport.Props): React.JS
         currentContainerRef.current.removeAttribute(attribute);
       }
     }
-  }
+  }, [isTransitioning, showStartingStyleAttribute, navigationDirection]);
 
   // When previousContentNode is present, imperatively populate the previous container with the cloned children.
   useIsoLayoutEffect(() => {
