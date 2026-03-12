@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
+import { Drawer } from '@base-ui/react/drawer';
 import styles from './index.module.css';
 
 const ACTIONS = ['Unfollow', 'Mute', 'Add to Favourites', 'Add to Close Friends', 'Restrict'];
