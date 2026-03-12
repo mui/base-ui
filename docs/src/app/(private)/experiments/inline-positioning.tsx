@@ -1,7 +1,19 @@
+'use client';
 import * as React from 'react';
 import { PreviewCard } from '@base-ui/react/preview-card';
 import { Tooltip } from '@base-ui/react/tooltip';
+import { type SettingsMetadata, useExperimentSettings } from './_components/SettingsPanel';
 import styles from './inline-positioning.module.css';
+
+interface Settings {
+  use300msDelay: boolean;
+}
+
+const DELAY_MS = 300;
+
+function getDelay(settings: Settings) {
+  return settings.use300msDelay ? DELAY_MS : 0;
+}
 
 const previewCards = {
   classicalProportion: {
@@ -93,6 +105,9 @@ const tooltips = {
 } as const;
 
 export default function InlinePositioningExperiment() {
+  const { settings } = useExperimentSettings<Settings>();
+  const delay = getDelay(settings);
+
   return (
     <div className={styles.Experiment}>
       <section className={styles.Section}>
@@ -126,7 +141,7 @@ export default function InlinePositioningExperiment() {
         </p>
       </section>
 
-      <Tooltip.Provider delay={0}>
+      <Tooltip.Provider closeDelay={delay} delay={delay}>
         <section className={styles.Section}>
           <p className={styles.SectionLabel}>Tooltips</p>
           <p className={styles.Paragraph}>
@@ -162,11 +177,13 @@ interface PreviewCardLinkProps {
 }
 
 function PreviewCardLink(props: PreviewCardLinkProps) {
+  const { settings } = useExperimentSettings<Settings>();
   const { href, title, summary, artwork, children } = props;
+  const delay = getDelay(settings);
 
   return (
     <PreviewCard.Root>
-      <PreviewCard.Trigger className={styles.Link} closeDelay={0} delay={0} href={href}>
+      <PreviewCard.Trigger className={styles.Link} closeDelay={delay} delay={delay} href={href}>
         {children}
       </PreviewCard.Trigger>
       <PreviewCard.Portal>
@@ -196,14 +213,16 @@ interface TooltipLinkProps {
 }
 
 function TooltipLink(props: TooltipLinkProps) {
+  const { settings } = useExperimentSettings<Settings>();
   const { href, description, children } = props;
+  const delay = getDelay(settings);
 
   return (
     <Tooltip.Root>
       <Tooltip.Trigger
         className={styles.Link}
-        closeDelay={0}
-        delay={0}
+        closeDelay={delay}
+        delay={delay}
         render={<a href={href}>{children}</a>}
       />
       <Tooltip.Portal>
@@ -238,3 +257,11 @@ function ArrowSvg(props: React.ComponentProps<'svg'>) {
     </svg>
   );
 }
+
+export const settingsMetadata: SettingsMetadata<Settings> = {
+  use300msDelay: {
+    type: 'boolean',
+    label: 'Use 300ms delay',
+    default: false,
+  },
+};
