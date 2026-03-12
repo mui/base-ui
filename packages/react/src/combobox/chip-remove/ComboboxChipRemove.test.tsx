@@ -179,6 +179,39 @@ describe('<Combobox.ChipRemove />', () => {
       expect(input).toHaveFocus();
     });
 
+    it('should keep the popup open while removing a chip', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'banana']} multiple defaultValue={['apple']}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Trigger>Open</Combobox.Trigger>
+          <Combobox.Chips>
+            <Combobox.Chip>
+              apple
+              <Combobox.ChipRemove data-testid="remove" />
+            </Combobox.Chip>
+          </Combobox.Chips>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                  <Combobox.Item value="banana">banana</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+      expect(screen.queryByRole('listbox')).not.to.equal(null);
+
+      await user.click(screen.getByTestId('remove'));
+
+      expect(screen.queryByRole('listbox')).not.to.equal(null);
+      expect(screen.getByTestId('input')).toHaveFocus();
+    });
+
     it('should prevent event propagation', async () => {
       const handleChipClick = vi.fn();
       const handleRemoveClick = vi.fn();
