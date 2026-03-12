@@ -46,6 +46,7 @@ import { MenuParent } from '../root/MenuRoot';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { HOVER_CLOSE_GRACE_PERIOD } from '../utils/constants';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -189,6 +190,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     move: false,
     restMs: parent.type === undefined ? delay : undefined,
     delay: { close: closeDelay },
+    hoverCloseGracePeriod: HOVER_CLOSE_GRACE_PERIOD,
     triggerElementRef,
     externalTree: floatingTreeRoot,
     isActiveTrigger: isTriggerActive,

@@ -14,6 +14,7 @@ import {
   closeHoverPopup as closeHoverPopupShared,
   applySafePolygonPointerEventsMutation,
   clearSafePolygonPointerEventsMutation,
+  HoverInteraction,
   isInteractiveElement,
   useHoverInteractionSharedState,
 } from './useHoverInteractionSharedState';
