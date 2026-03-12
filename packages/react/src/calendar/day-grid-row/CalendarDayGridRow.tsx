@@ -4,7 +4,6 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { TemporalSupportedObject } from '../../types/temporal';
 import { useCalendarDayList } from '../use-day-list/useCalendarDayList';
-import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 
 /**
  * Groups all cells of a given calendar's day grid row.
@@ -19,10 +18,7 @@ export const CalendarDayGridRow = React.forwardRef(function CalendarDayGridRow(
   const { className, render, value, children, ...elementProps } = componentProps;
 
   const getDayList = useCalendarDayList();
-  const store = useSharedCalendarRootContext();
   const days = React.useMemo(() => getDayList({ date: value, amount: 7 }), [getDayList, value]);
-
-  React.useEffect(() => store.registerCurrentMonthDayGrid(value, days), [store, days, value]);
 
   const resolvedChildren = React.useMemo(() => {
     if (!React.isValidElement(children) && typeof children === 'function') {

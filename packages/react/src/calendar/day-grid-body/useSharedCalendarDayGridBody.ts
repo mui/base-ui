@@ -10,6 +10,7 @@ import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdap
 import { TemporalSupportedObject } from '../../types/temporal';
 import { useCalendarWeekList } from '../use-week-list/useCalendarWeekList';
 import { selectors } from '../store';
+import { computeMonthDayGrid } from '../utils/computeMonthDayGrid';
 import { areArraysEqual } from '../../utils/areArraysEqual';
 import { CompositeMetadata } from '../../composite/list/CompositeList';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
@@ -192,7 +193,7 @@ export function useSharedCalendarDayGridBody(
         if (event.shiftKey) {
           amount = 12;
         }
-        const gridDays = store.getSortedCurrentMonthDays();
+        const gridDays = computeMonthDayGrid(adapter, month, fixedWeekNumber);
         const currentDay = gridDays[highlightedIndex];
         if (!currentDay) {
           return;
@@ -229,7 +230,8 @@ export function useSharedCalendarDayGridBody(
           REASONS.keyboard,
         );
         executeAfterItemMapUpdate.current = (newMap: typeof itemMap) => {
-          const newGridDays = store.getSortedCurrentMonthDays();
+          const newMonth = adapter.addMonths(month, decrement ? -amount : amount);
+          const newGridDays = computeMonthDayGrid(adapter, newMonth, fixedWeekNumber);
           // Find the target date in the new month's grid. Use targetDate (already clamped
           // by addMonths) so that e.g. Jan 31 + 1 month correctly finds Feb 28.
           const targetDayOfMonth = adapter.getDate(targetDate);
