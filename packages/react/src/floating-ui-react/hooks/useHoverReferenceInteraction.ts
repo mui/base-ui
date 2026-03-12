@@ -18,11 +18,13 @@ import {
   useHoverInteractionSharedState,
   wasHoverClosedRecently,
 } from './useHoverInteractionSharedState';
+import type { HoverInteraction } from './useHoverInteractionSharedState';
 import type { HandleClose, HandleCloseContextBase } from './useHoverShared';
 import {
   getDelay,
   getRestMs,
   isClickLikeOpenEvent as isClickLikeOpenEventShared,
+  isHoverOpen,
 } from './useHoverShared';
 import { FloatingUIOpenChangeDetails, HTMLProps } from '../../utils/types';
 
@@ -52,14 +54,6 @@ export interface UseHoverReferenceInteractionProps {
 }
 
 const EMPTY_REF: Readonly<React.RefObject<Element | null>> = { current: null };
-function shouldIgnoreOpenDelayAfterHoverClose(
-  instance: ReturnType<typeof useHoverInteractionSharedState>,
-  isOpen: boolean,
-  hoverCloseGracePeriod: number | undefined,
-) {
-  // Applies to quick handoffs like trigger->trigger and popup->trigger.
-  return !isOpen && wasHoverClosedRecently(instance, performance.now(), hoverCloseGracePeriod);
-}
 
 /**
  * Provides hover interactions that should be attached to reference or trigger
@@ -105,47 +99,20 @@ export function useHoverReferenceInteraction(
     return isClickLikeOpenEventShared(dataRef.current.openEvent?.type, instance.interactedInside);
   });
 
-  const isHoverOpen = useStableCallback(() => {
-    const openEventType = dataRef.current.openEvent?.type;
-    return openEventType?.includes('mouse') === true && openEventType !== 'mousedown';
-  });
-
-  const isRelatedTargetInsideEnabledTrigger = useStableCallback((target: EventTarget | null) => {
-    return isTargetInsideEnabledTrigger(target, store.context.triggerElements);
-  });
-
   const closeHoverPopup = useStableCallback((event: MouseEvent) => {
     // Emit tree close only when a hover-close was actually committed.
-    if (closeHoverPopupShared(store, instance, event, isHoverOpen(), hoverCloseGracePeriod)) {
+    if (
+      closeHoverPopupShared(
+        store,
+        instance,
+        event,
+        isHoverOpen(dataRef.current.openEvent?.type),
+        hoverCloseGracePeriod,
+      )
+    ) {
       tree?.events.emit('floating.closed', event);
     }
   });
-
-  const isOverInactiveTrigger = useStableCallback(
-    (
-      currentDomReference: Element | null,
-      currentTarget: Element,
-      target: EventTarget | null,
-    ): boolean => {
-      const allTriggers = store.context.triggerElements;
-
-      // Fast path for normal usage where handlers are attached directly to triggers.
-      if (allTriggers.hasElement(currentTarget)) {
-        return !currentDomReference || !contains(currentDomReference, currentTarget);
-      }
-
-      // Fallback for delegated/wrapper usage where currentTarget may be outside the trigger map.
-      if (!isElement(target)) {
-        return false;
-      }
-
-      const targetElement = target as Element;
-      return (
-        allTriggers.hasMatchingElement((trigger) => contains(trigger, targetElement)) &&
-        (!currentDomReference || !contains(currentDomReference, targetElement))
-      );
-    },
-  );
 
   const closeWithDelay = useStableCallback((event: MouseEvent, runElseBranch = true) => {
     if (!store.select('open')) {
@@ -162,20 +129,11 @@ export function useHoverReferenceInteraction(
     }
   });
 
-  const cleanupMouseMoveHandler = useStableCallback(() => {
-    if (!instance.handler) {
-      return;
-    }
-    const doc = ownerDocument(store.select('domReferenceElement'));
-    doc.removeEventListener('mousemove', instance.handler);
-    instance.handler = undefined;
-  });
-
-  React.useEffect(() => cleanupMouseMoveHandler, [cleanupMouseMoveHandler]);
-
-  const clearPointerEvents = useStableCallback(() => {
-    clearSafePolygonPointerEventsMutation(instance);
-  });
+  React.useEffect(() => {
+    return () => {
+      cleanupMouseMoveHandler(store, instance);
+    };
+  }, [instance, store]);
 
   React.useEffect(() => {
     if (open) {
@@ -198,7 +156,7 @@ export function useHoverReferenceInteraction(
       }
 
       if (!details.open) {
-        cleanupMouseMoveHandler();
+        cleanupMouseMoveHandler(store, instance);
         instance.openChangeTimeout.clear();
         instance.restTimeout.clear();
         instance.blockMouseMove = true;
@@ -210,7 +168,7 @@ export function useHoverReferenceInteraction(
     return () => {
       events.off('openchange', onOpenChangeLocal);
     };
-  }, [enabled, events, instance, cleanupMouseMoveHandler]);
+  }, [enabled, events, instance, store]);
 
   React.useEffect(() => {
     if (!enabled) {
@@ -246,7 +204,12 @@ export function useHoverReferenceInteraction(
       const isOverInactive =
         triggerNode == null
           ? false
-          : isOverInactiveTrigger(currentDomReference, triggerNode, event.target);
+          : isOverInactiveTrigger(
+              store.context.triggerElements,
+              currentDomReference,
+              triggerNode,
+              event.target,
+            );
 
       const isOpen = store.select('open');
       const shouldOpen = !isOpen || isOverInactive;
@@ -273,11 +236,11 @@ export function useHoverReferenceInteraction(
 
     function onMouseLeave(event: MouseEvent) {
       if (isClickLikeOpenEvent()) {
-        clearPointerEvents();
+        clearSafePolygonPointerEventsMutation(instance);
         return;
       }
 
-      cleanupMouseMoveHandler();
+      cleanupMouseMoveHandler(store, instance);
 
       const domReferenceElement = store.select('domReferenceElement');
       const doc = ownerDocument(domReferenceElement);
@@ -286,7 +249,10 @@ export function useHoverReferenceInteraction(
 
       const handleCloseContextBase = dataRef.current.floatingContext ?? getHandleCloseContext?.();
 
-      const ignoreRelatedTargetTrigger = isRelatedTargetInsideEnabledTrigger(event.relatedTarget);
+      const ignoreRelatedTargetTrigger = isTargetInsideEnabledTrigger(
+        event.relatedTarget,
+        store.context.triggerElements,
+      );
 
       if (ignoreRelatedTargetTrigger) {
         return;
@@ -305,8 +271,8 @@ export function useHoverReferenceInteraction(
           x: event.clientX,
           y: event.clientY,
           onClose() {
-            clearPointerEvents();
-            cleanupMouseMoveHandler();
+            clearSafePolygonPointerEventsMutation(instance);
+            cleanupMouseMoveHandler(store, instance);
             if (
               enabledRef.current &&
               !isClickLikeOpenEvent() &&
@@ -351,8 +317,6 @@ export function useHoverReferenceInteraction(
       trigger.removeEventListener('mouseleave', onMouseLeave);
     };
   }, [
-    cleanupMouseMoveHandler,
-    clearPointerEvents,
     dataRef,
     delayRef,
     closeWithDelay,
@@ -361,9 +325,7 @@ export function useHoverReferenceInteraction(
     handleCloseRef,
     instance,
     isActiveTrigger,
-    isOverInactiveTrigger,
     isClickLikeOpenEvent,
-    isRelatedTargetInsideEnabledTrigger,
     mouseOnly,
     move,
     restMsRef,
@@ -397,7 +359,12 @@ export function useHoverReferenceInteraction(
           currentOpen,
           hoverCloseGracePeriod,
         );
-        const isOverInactive = isOverInactiveTrigger(currentDomReference, trigger, event.target);
+        const isOverInactive = isOverInactiveTrigger(
+          store.context.triggerElements,
+          currentDomReference,
+          trigger,
+          event.target,
+        );
 
         if (mouseOnly && !isMouseLikePointerType(instance.pointerType)) {
           return;
@@ -451,14 +418,53 @@ export function useHoverReferenceInteraction(
         }
       },
     };
-  }, [
-    enabled,
-    hoverCloseGracePeriod,
-    instance,
-    isClickLikeOpenEvent,
-    isOverInactiveTrigger,
-    mouseOnly,
-    store,
-    restMsRef,
-  ]);
+  }, [enabled, hoverCloseGracePeriod, instance, isClickLikeOpenEvent, mouseOnly, store, restMsRef]);
+}
+
+function shouldIgnoreOpenDelayAfterHoverClose(
+  instance: ReturnType<typeof useHoverInteractionSharedState>,
+  isOpen: boolean,
+  hoverCloseGracePeriod: number | undefined,
+) {
+  // Applies to quick handoffs like trigger->trigger and popup->trigger.
+  return !isOpen && wasHoverClosedRecently(instance, performance.now(), hoverCloseGracePeriod);
+}
+
+/**
+ * Detects whether hover moved onto a different registered trigger.
+ */
+function isOverInactiveTrigger(
+  triggerElements: FloatingRootContext['context']['triggerElements'],
+  currentDomReference: Element | null,
+  currentTarget: Element,
+  target: EventTarget | null,
+): boolean {
+  // Fast path for normal usage where handlers are attached directly to triggers.
+  if (triggerElements.hasElement(currentTarget)) {
+    return !currentDomReference || !contains(currentDomReference, currentTarget);
+  }
+
+  // Fallback for delegated/wrapper usage where currentTarget may be outside the trigger map.
+  if (!isElement(target)) {
+    return false;
+  }
+
+  const targetElement = target as Element;
+  return (
+    triggerElements.hasMatchingElement((trigger) => contains(trigger, targetElement)) &&
+    (!currentDomReference || !contains(currentDomReference, targetElement))
+  );
+}
+
+/**
+ * Removes the active safe-polygon mousemove listener, if present.
+ */
+function cleanupMouseMoveHandler(store: FloatingRootContext, instance: HoverInteraction) {
+  if (!instance.handler) {
+    return;
+  }
+
+  const doc = ownerDocument(store.select('domReferenceElement'));
+  doc.removeEventListener('mousemove', instance.handler);
+  instance.handler = undefined;
 }
