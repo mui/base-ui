@@ -5,8 +5,8 @@ on:
     branches-ignore:
       # Renovate branches are always Pull Requests.
       # We don't need to run CI twice (push+pull_request)
-      - "renovate/**"
-      - "dependabot/**"
+      - 'renovate/**'
+      - 'dependabot/**'
   pull_request:
 
 permissions: {}
@@ -31,8 +31,8 @@ jobs:
       - name: Use Node.js 22.x
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
-          node-version: "22.18"
-          cache: "pnpm" # https://github.com/actions/setup-node/blob/main/docs/advanced-usage.md#caching-packages-dependencies
+          node-version: '22.18'
+          cache: 'pnpm' # https://github.com/actions/setup-node/blob/main/docs/advanced-usage.md#caching-packages-dependencies
       - run: pnpm install
       - run: pnpm release:build
       - name: Publish packages
