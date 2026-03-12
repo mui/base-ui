@@ -22,6 +22,12 @@ const getNavigationDirectionAttribute = (navigationDirection: CalendarNavigation
   }
 };
 
+const ALLOWED_TAGS = new Set(['div', 'section', 'span', 'tbody']);
+
+function getSafeTag(localName: string): string {
+  return ALLOWED_TAGS.has(localName) ? localName : 'div';
+}
+
 const DATA_ATTRIBUTES = [
   CalendarViewportDataAttributes.current,
   CalendarViewportDataAttributes.startingStyle,
@@ -104,7 +110,7 @@ export function CalendarViewport({ children }: CalendarViewport.Props): React.JS
 
     // Create the wrapper element of the same type as the source element.
     // It has to be an element of the same tag, especially if it's the calendar body (`tbody`).
-    const wrapper = document.createElement(source.localName);
+    const wrapper = document.createElement(getSafeTag(source.localName));
     for (const child of Array.from(source.childNodes)) {
       wrapper.appendChild(child.cloneNode(true));
     }
@@ -125,7 +131,7 @@ export function CalendarViewport({ children }: CalendarViewport.Props): React.JS
     childrenToRender = (
       <React.Fragment>
         {navigationDirection === 'previous' && currentChildren}
-        {React.createElement(previousContentNode.localName, {
+        {React.createElement(getSafeTag(previousContentNode.localName), {
           className: currentContainerRef?.current?.className,
           key: 'previous',
           ref: previousContainerRef,
