@@ -7,7 +7,7 @@
     "build": "vite build",
     "serve": "vite preview",
     "lint": "eslint .",
-    "check": "prettier --write . && eslint --fix .",
+    "check": "prettier . --write && eslint . --fix",
     "typescript": "tsc -b tsconfig.json"
   },
   "dependencies": {
