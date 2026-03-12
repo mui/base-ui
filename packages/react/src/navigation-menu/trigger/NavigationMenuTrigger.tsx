@@ -9,6 +9,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { isWebKit } from '@base-ui/utils/detectBrowser';
 import {
   safePolygon,
   useClick,
@@ -112,6 +113,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const allowFocusRef = React.useRef(false);
   const prevSizeRef = React.useRef(DEFAULT_SIZE);
   const animationAbortControllerRef = React.useRef<AbortController | null>(null);
+  const skipAutoSizeSyncRef = React.useRef(false);
 
   const isActiveItem = open && value === itemValue;
   const isActiveItemRef = useValueAsRef(isActiveItem);
@@ -327,6 +329,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       sizeFrame.cancel();
       animationAbortControllerRef.current?.abort();
       animationAbortControllerRef.current = null;
+      skipAutoSizeSyncRef.current = false;
       setPointerType('');
     }
   }, [stickIfOpenTimeout, open, mutationFrame, resizeFrame, sizeFrame]);
@@ -441,13 +444,20 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   useIsoLayoutEffect(() => {
     if (isActiveItemRef.current && open && popupElement) {
-      const hasNestedMenu = currentContentRef.current?.querySelector('[data-nested]') != null;
+      if (transitionStatus === 'starting') {
+        const hasNestedMenu = currentContentRef.current?.querySelector('[data-nested]') != null;
 
-      if (transitionStatus === 'starting' && hasNestedMenu) {
-        sizeFrame.request(syncCurrentSize);
-        return () => {
-          sizeFrame.cancel();
-        };
+        if (hasNestedMenu) {
+          sizeFrame.request(syncCurrentSize);
+          return () => {
+            sizeFrame.cancel();
+          };
+        }
+      }
+
+      if (skipAutoSizeSyncRef.current) {
+        skipAutoSizeSyncRef.current = false;
+        return undefined;
       }
 
       handleValueChange(0, 0);
@@ -540,10 +550,6 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   });
 
   function getScope() {
-    if (!nested || positionerElement) {
-      return null;
-    }
-
     return triggerElementRef.current?.closest('ul') ?? null;
   }
 
@@ -551,7 +557,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     enabled: hoverInteractionsEnabled,
     move: false,
     handleClose: safePolygon({
-      blockPointerEvents: pointerType !== 'touch',
+      blockPointerEvents: pointerType !== 'touch' && (!isWebKit || nested),
       getScope,
     }),
     restMs: mounted && positionerElement ? 0 : delay,
@@ -646,8 +652,15 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     }
 
     const { width, height } = getCssDimensions(popupElement);
+    const shouldSkipAutoSizeSync =
+      value != null && value !== itemValue && (event.type === 'click' || pointerType !== 'touch');
 
     handleActivation(event);
+
+    if (shouldSkipAutoSizeSync) {
+      skipAutoSizeSyncRef.current = true;
+    }
+
     handleValueChange(width, height);
   });
 
