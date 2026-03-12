@@ -545,6 +545,48 @@ describe('<Toast.Root />', () => {
       expect(screen.queryByTestId('toast-root')).not.to.equal(null);
     });
 
+    it('does not start swiping from elements with the data-base-ui-swipe-ignore attribute', async () => {
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <Toast.Root toast={toast} data-testid="toast-root" swipeDirection="up">
+              <div data-base-ui-swipe-ignore data-testid="ignore-target">
+                Ignore swipe
+              </div>
+            </Toast.Root>
+          </Toast.Viewport>
+        </Toast.Provider>,
+      );
+
+      const toastElement = screen.getByTestId('toast-root');
+      const ignoreTarget = screen.getByTestId('ignore-target');
+
+      fireEvent.pointerDown(ignoreTarget, { clientX: 100, clientY: 100, button: 0, pointerId: 1 });
+
+      expect(toastElement).not.to.have.attribute('data-swiping');
+    });
+
+    it('does not start swiping from elements with the legacy data-swipe-ignore attribute', async () => {
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <Toast.Root toast={toast} data-testid="toast-root" swipeDirection="up">
+              <div data-swipe-ignore data-testid="ignore-target">
+                Ignore swipe
+              </div>
+            </Toast.Root>
+          </Toast.Viewport>
+        </Toast.Provider>,
+      );
+
+      const toastElement = screen.getByTestId('toast-root');
+      const ignoreTarget = screen.getByTestId('ignore-target');
+
+      fireEvent.pointerDown(ignoreTarget, { clientX: 100, clientY: 100, button: 0, pointerId: 1 });
+
+      expect(toastElement).not.to.have.attribute('data-swiping');
+    });
+
     it('ignores swipe gestures when toast is anchored', async () => {
       const anchor = document.createElement('div');
       document.body.appendChild(anchor);

@@ -1,4 +1,4 @@
-import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
+import { Drawer } from '@base-ui/react/drawer';
 import { screen } from '@mui/internal-test-utils';
 import { expect } from 'vitest';
 import { createRenderer } from '#test-utils';

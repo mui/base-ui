@@ -727,6 +727,57 @@ describe('<MenuRoot />', () => {
       expect(screen.getByTestId('popup-content').textContent).to.equal('2');
     });
 
+    it('should not have inline scale style after switching triggers', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const testMenu = Menu.createHandle<number>();
+
+      function Test() {
+        return (
+          <React.Fragment>
+            <Menu.Trigger handle={testMenu} payload={1}>
+              Trigger 1
+            </Menu.Trigger>
+            <Menu.Trigger handle={testMenu} payload={2}>
+              Trigger 2
+            </Menu.Trigger>
+
+            <Menu.Root handle={testMenu}>
+              {({ payload }: NumberPayload) => (
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup data-testid="popup">
+                      <Menu.Viewport>
+                        <Menu.Item data-testid="content">{payload}</Menu.Item>
+                      </Menu.Viewport>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              )}
+            </Menu.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      await user.click(trigger1);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).to.equal('1');
+      });
+
+      await user.click(trigger2);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).to.equal('2');
+      });
+
+      const popup = screen.getByTestId('popup');
+      expect(popup.style.scale).to.equal('');
+    });
+
     describe('nested menus', () => {
       it('supports keyboard navigation regardless of which trigger opened the menu', async () => {
         const testMenu = Menu.createHandle();
