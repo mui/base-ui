@@ -14,7 +14,8 @@ export const releases: Release[] = [
     date: '2026-03-12',
     highlights: [
       '`Drawer` component is now stable.',
-      'New `Label` parts in Select, Combobox, and Slider',
+      'Content transitions in `Menu` with detached triggers.',
+      'New `Label` parts in `Select`, `Combobox`, and `Slider`.',
       'Many a11y, performance, and bug fixes.',
     ],
   },

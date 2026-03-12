@@ -10,7 +10,7 @@ _Mar 12, 2026_
 - Reset `openMethod` on close transition (#4128) by @atomiks
 - Fire Space activation on `keydown` for composite widgets (#4053) by @atomiks
 - Skip CSS-hidden composite items in keyboard navigation (#4195) by @atomiks
-- Remove old demo theme file (#4175) by @aarongarciah
+- Add eslint to TanStack example so pnpm eslint works (#4297) by @CiscoFran10
 - Optimize useHover hooks and safePolygon hot paths (#4199) by @atomiks
 - Snap `--anchor-width/height` to device pixel grid (#4082) by @flaviendelangle
 - Fix outside press dismissal when component is portaled into shadow DOM (#4230) by @dmitri-gb
@@ -47,7 +47,7 @@ _Mar 12, 2026_
 - Fix virtualized grid arrow navigation wrapping (#4164) by @atomiks
 - Add `InputGroup` part (#3745) by @atomiks
 - Add visually hidden close button support with improved modal focus trapping (#4084) by @atomiks
-- Add `Label` parts (#4167) by @atomiks
+- Add `Label` part (#4167) by @atomiks
 
 ### Context Menu
 
@@ -55,12 +55,15 @@ _Mar 12, 2026_
 
 ### Drawer
 
+- 🚨 **Breaking change:** Unmark Drawer preview<br />
+  The Drawer is now stable and should be imported as `{ Drawer } from '@base-ui/react/drawer'` (#4293) by @atomiks
 - Fix React 17 support (#4178) by @atomiks
 - Include border in frontmost height variable (#4202) by @atomiks
 - Improve touch selection (#4104) by @atomiks
 - Preserve cross-axis scrolling during touch gestures (#4187) by @atomiks
 - Prevent dismiss through swipe when the component is controlled (#4133) by @flaviendelangle
 - Restore SwipeArea component (#4102) by @atomiks
+- Make `data-base-ui-swipe-ignore` explicit for touch interactions (#4295) by @atomiks
 - Disable inheritance for swipe CSS vars (#4099) by @atomiks
 
 ### Field
@@ -72,6 +75,7 @@ _Mar 12, 2026_
 - Prevent `pointerleave` from stealing dialog focus (#4125) by @atomiks
 - Optimize submenu hover pointer-events (#4231) by @atomiks
 - Fix `closeDelay` not applied on `Menu.SubmenuTrigger` (#4134) by @flaviendelangle
+- Implement content transitions with Viewport (#4060) by @michaldudak
 
 ### Meter
 
@@ -83,6 +87,8 @@ _Mar 12, 2026_
 - Fix nested inline menu support (#4198) by @atomiks
 - Fix nested hover close propagation (#4285) by @atomiks
 - Close parent menus when nested link with `closeOnClick` is clicked (#4276) by @CiscoFran10
+- Fix duplicate `aria-orientation` (#4309) by @atomiks
+- Fix delayed trigger switches in Safari (#4310) by @atomiks
 
 ### Number Field
 
@@ -117,11 +123,11 @@ _Mar 12, 2026_
 - Fire onClick during drag-to-select (#3969) by @obeattie
 - Fix `items` type definition for groups (#3884) by @aarongarciah
 - Fix `alignItemWithTrigger` fallback with browser zoom (#4292) by @atomiks
-- Add `Label` parts (#4167) by @atomiks
+- Add `Label` part (#4167) by @atomiks
 
 ### Slider
 
-- Add `Label` parts (#4167) by @atomiks
+- Add `Label` part (#4167) by @atomiks
 - Remove validation commit on `touchend` (#4091) by @jijiseong
 
 ### Switch
@@ -141,7 +147,7 @@ _Mar 12, 2026_
 
 - Add `closeOnClick` prop (#4140) by @atomiks
 
-All contributors of this release in alphabetical order : @aarongarciah, @atomiks, @cgatian, @chuganzy, @CiscoFran10, @dmitri-gb, @flaviendelangle, @jijiseong, @mj12albert, @obeattie, @vcode-sh
+All contributors of this release in alphabetical order : @aarongarciah, @atomiks, @cgatian, @chuganzy, @CiscoFran10, @dmitri-gb, @flaviendelangle, @jijiseong, @michaldudak, @mj12albert, @obeattie, @vcode-sh
 
 ## v1.2.0
 
