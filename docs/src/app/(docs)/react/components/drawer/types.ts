@@ -1,4 +1,4 @@
-import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
+import { Drawer } from '@base-ui/react/drawer';
 import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
 const { types, AdditionalTypes } = createMultipleTypes(import.meta.url, Drawer);
