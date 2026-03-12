@@ -11,6 +11,46 @@ const Trigger = React.forwardRef(function Trigger(
   return <PreviewCard.Trigger {...props} ref={ref} render={<div />} />;
 });
 
+type RectLike = {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+  width: number;
+  height: number;
+};
+
+function mockClientRects(element: Element, rects: RectLike[]) {
+  const left = Math.min(...rects.map((rect) => rect.left));
+  const top = Math.min(...rects.map((rect) => rect.top));
+  const right = Math.max(...rects.map((rect) => rect.right));
+  const bottom = Math.max(...rects.map((rect) => rect.bottom));
+  const boundingRect = DOMRect.fromRect({
+    x: left,
+    y: top,
+    width: right - left,
+    height: bottom - top,
+  });
+
+  Object.defineProperty(element, 'getClientRects', {
+    configurable: true,
+    value: () =>
+      rects.map((rect) =>
+        DOMRect.fromRect({
+          x: rect.left,
+          y: rect.top,
+          width: rect.width,
+          height: rect.height,
+        }),
+      ),
+  });
+
+  Object.defineProperty(element, 'getBoundingClientRect', {
+    configurable: true,
+    value: () => boundingRect,
+  });
+}
+
 describe('<PreviewCard.Positioner />', () => {
   const { render } = createRenderer();
 
@@ -406,6 +446,96 @@ describe('<PreviewCard.Positioner />', () => {
         expect(positionerY).to.be.closeTo(expectedY, 2);
         expect(positionerX).to.be.greaterThanOrEqual(targetRect.left - 10);
         expect(positionerX).to.be.lessThanOrEqual(targetRect.right + 10);
+      });
+    });
+
+    it('ignores stale hovered coords when a controlled trigger switch reuses the popup', async () => {
+      function Test() {
+        const [open, setOpen] = React.useState(false);
+        const [triggerId, setTriggerId] = React.useState<string | null>(null);
+
+        return (
+          <div>
+            <PreviewCard.Root
+              open={open}
+              triggerId={triggerId}
+              onOpenChange={(nextOpen, eventDetails) => {
+                setOpen(nextOpen);
+                setTriggerId(eventDetails.trigger?.id ?? null);
+              }}
+            >
+              <PreviewCard.Trigger
+                href="#"
+                id="trigger-1"
+                data-testid="trigger-1"
+                delay={0}
+                style={{ display: 'inline' }}
+              >
+                Trigger 1
+              </PreviewCard.Trigger>
+              <PreviewCard.Trigger
+                href="#"
+                id="trigger-2"
+                data-testid="trigger-2"
+                delay={0}
+                style={{ display: 'inline' }}
+              >
+                Trigger 2
+              </PreviewCard.Trigger>
+              <PreviewCard.Portal>
+                <PreviewCard.Positioner data-testid="positioner" side="bottom" sideOffset={5}>
+                  <PreviewCard.Popup style={{ width: 80, height: 40 }}>
+                    Preview Content
+                  </PreviewCard.Popup>
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            </PreviewCard.Root>
+
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(true);
+                setTriggerId('trigger-2');
+              }}
+            >
+              Switch
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      const trigger1 = screen.getByTestId('trigger-1');
+      const trigger2 = screen.getByTestId('trigger-2');
+
+      mockClientRects(trigger1, [
+        { left: 180, top: 0, right: 220, bottom: 10, width: 40, height: 10 },
+        { left: 100, top: 20, right: 160, bottom: 30, width: 60, height: 10 },
+      ]);
+      mockClientRects(trigger2, [
+        { left: 180, top: 100, right: 220, bottom: 110, width: 40, height: 10 },
+        { left: 100, top: 120, right: 160, bottom: 130, width: 60, height: 10 },
+      ]);
+
+      await user.pointer([
+        { target: document.body },
+        { target: trigger1, coords: { clientX: 200, clientY: 5 } },
+      ]);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('positioner')).toBeVisible();
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Switch' }));
+
+      await waitFor(() => {
+        const { x: positionerX, y: positionerY } = screen
+          .getByTestId('positioner')
+          .getBoundingClientRect();
+
+        expect(positionerY).to.be.closeTo(135, 2);
+        expect(positionerX).to.be.greaterThanOrEqual(90);
+        expect(positionerX).to.be.lessThanOrEqual(170);
       });
     });
 

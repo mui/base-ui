@@ -12,6 +12,11 @@ export interface InlineRectCoords {
   y: number;
 }
 
+export interface InlineRectState extends InlineRectCoords {
+  /** The trigger element whose rects produced these coordinates. */
+  element: Element;
+}
+
 interface RectLike {
   left: number;
   top: number;
@@ -180,11 +185,12 @@ export function getInlineRectHoverCoords(
 }
 
 export function getInlineRectTriggerProps(
-  coordsRef: React.MutableRefObject<InlineRectCoords | undefined>,
+  coordsRef: React.MutableRefObject<InlineRectState | undefined>,
   isOpen: boolean,
 ): Pick<React.HTMLAttributes<Element>, 'onFocus' | 'onMouseEnter' | 'onMouseMove'> {
   function updateCoords(event: React.MouseEvent<Element>) {
-    coordsRef.current = getInlineRectHoverCoords(event);
+    const coords = getInlineRectHoverCoords(event);
+    coordsRef.current = coords ? { ...coords, element: event.currentTarget } : undefined;
   }
 
   return {
@@ -209,7 +215,7 @@ export function getInlineRectTriggerProps(
  * hovered rect of a wrapped inline element (e.g., a multi-line link).
  */
 export function createInlineMiddleware(
-  coordsRef: React.RefObject<InlineRectCoords | undefined>,
+  coordsRef: React.RefObject<InlineRectState | undefined>,
 ): Middleware {
   return {
     name: 'inline',
@@ -220,7 +226,12 @@ export function createInlineMiddleware(
         return {};
       }
 
-      const rect = getInlineReferenceRect(reference, state.placement, coordsRef.current);
+      const coords = coordsRef.current;
+      const rect = getInlineReferenceRect(
+        reference,
+        state.placement,
+        coords?.element === reference ? coords : undefined,
+      );
 
       if (
         !rect ||

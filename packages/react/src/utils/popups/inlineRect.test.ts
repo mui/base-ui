@@ -1,6 +1,6 @@
 import type * as React from 'react';
 import { describe, expect, it } from 'vitest';
-import type { InlineRectCoords } from './inlineRect';
+import type { InlineRectCoords, InlineRectState } from './inlineRect';
 import {
   createInlineMiddleware,
   getInlineRectHoverCoords,
@@ -51,6 +51,15 @@ function createMiddlewareState(
   };
 }
 
+function createInlineRectState(
+  element: Element,
+  coords: InlineRectCoords,
+): React.RefObject<InlineRectState | undefined> {
+  return {
+    current: { ...coords, element },
+  };
+}
+
 describe('inlineRect', () => {
   it('returns undefined when there is only one rect', () => {
     const rects: RectLike[] = [{ left: 0, top: 0, right: 10, bottom: 10, width: 10, height: 10 }];
@@ -76,8 +85,9 @@ describe('inlineRect', () => {
   });
 
   it('clears stored coords on focus', () => {
-    const coordsRef: React.MutableRefObject<InlineRectCoords | undefined> = {
-      current: { rectIndex: 1, x: 2, y: 3 },
+    const trigger = document.createElement('span');
+    const coordsRef: React.MutableRefObject<InlineRectState | undefined> = {
+      current: { rectIndex: 1, x: 2, y: 3, element: trigger },
     };
 
     getInlineRectTriggerProps(coordsRef, false).onFocus?.({} as React.FocusEvent<Element>);
@@ -91,16 +101,12 @@ describe('inlineRect', () => {
       { left: 0, top: 20, right: 10, bottom: 30, width: 10, height: 10 },
     ];
     const trigger = createTrigger(rects);
-    const coordsRef: React.MutableRefObject<InlineRectCoords | undefined> = { current: undefined };
+    const coordsRef: React.MutableRefObject<InlineRectState | undefined> = { current: undefined };
     const event = createMouseEvent(trigger, 5, 25);
 
     getInlineRectTriggerProps(coordsRef, false).onMouseMove?.(event);
 
-    expect(coordsRef.current).toEqual({
-      rectIndex: 1,
-      x: 5,
-      y: 5,
-    });
+    expect(coordsRef.current).toEqual({ rectIndex: 1, x: 5, y: 5, element: trigger });
   });
 
   it('updates stored coords on mouse enter before opening', () => {
@@ -109,16 +115,12 @@ describe('inlineRect', () => {
       { left: 0, top: 20, right: 10, bottom: 30, width: 10, height: 10 },
     ];
     const trigger = createTrigger(rects);
-    const coordsRef: React.MutableRefObject<InlineRectCoords | undefined> = { current: undefined };
+    const coordsRef: React.MutableRefObject<InlineRectState | undefined> = { current: undefined };
     const event = createMouseEvent(trigger, 5, 25);
 
     getInlineRectTriggerProps(coordsRef, true).onMouseEnter?.(event);
 
-    expect(coordsRef.current).toEqual({
-      rectIndex: 1,
-      x: 5,
-      y: 5,
-    });
+    expect(coordsRef.current).toEqual({ rectIndex: 1, x: 5, y: 5, element: trigger });
   });
 
   it('does not update stored coords on mouse move while open', () => {
@@ -127,18 +129,14 @@ describe('inlineRect', () => {
       { left: 0, top: 20, right: 10, bottom: 30, width: 10, height: 10 },
     ];
     const trigger = createTrigger(rects);
-    const coordsRef: React.MutableRefObject<InlineRectCoords | undefined> = {
-      current: { rectIndex: 0, x: 1, y: 1 },
+    const coordsRef: React.MutableRefObject<InlineRectState | undefined> = {
+      current: { rectIndex: 0, x: 1, y: 1, element: trigger },
     };
     const event = createMouseEvent(trigger, 5, 25);
 
     getInlineRectTriggerProps(coordsRef, true).onMouseMove?.(event);
 
-    expect(coordsRef.current).toEqual({
-      rectIndex: 0,
-      x: 1,
-      y: 1,
-    });
+    expect(coordsRef.current).toEqual({ rectIndex: 0, x: 1, y: 1, element: trigger });
   });
 
   it('creates inline middleware rects that offset based on stored coords', async () => {
@@ -147,9 +145,7 @@ describe('inlineRect', () => {
       { left: 0, top: 20, right: 10, bottom: 30, width: 10, height: 10 },
     ];
     const trigger = createTrigger(rects);
-    const coordsRef: React.RefObject<InlineRectCoords | undefined> = {
-      current: { rectIndex: 1, x: 2, y: 3 },
-    };
+    const coordsRef = createInlineRectState(trigger, { rectIndex: 1, x: 2, y: 3 });
 
     const middleware = createInlineMiddleware(coordsRef);
 
@@ -175,7 +171,7 @@ describe('inlineRect', () => {
   it('uses the side-aligned rect when coords are missing', async () => {
     const rects: RectLike[] = [{ left: 0, top: 0, right: 10, bottom: 10, width: 10, height: 10 }];
     const trigger = createTrigger(rects);
-    const coordsRef: React.RefObject<InlineRectCoords | undefined> = { current: undefined };
+    const coordsRef: React.RefObject<InlineRectState | undefined> = { current: undefined };
 
     const middleware = createInlineMiddleware(coordsRef);
 
@@ -192,9 +188,7 @@ describe('inlineRect', () => {
       { left: 0, top: 20, right: 10, bottom: 30, width: 10, height: 10 },
     ];
     const trigger = createTrigger(rects);
-    const coordsRef: React.RefObject<InlineRectCoords | undefined> = {
-      current: { rectIndex: 2, x: 1, y: 1 },
-    };
+    const coordsRef = createInlineRectState(trigger, { rectIndex: 2, x: 1, y: 1 });
 
     const middleware = createInlineMiddleware(coordsRef);
 
@@ -224,7 +218,7 @@ describe('inlineRect', () => {
       { left: 20, top: 40, right: 60, bottom: 50, width: 40, height: 10 },
     ];
     const trigger = createTrigger(rects);
-    const coordsRef: React.RefObject<InlineRectCoords | undefined> = { current: undefined };
+    const coordsRef: React.RefObject<InlineRectState | undefined> = { current: undefined };
     const middleware = createInlineMiddleware(coordsRef);
 
     expect(
@@ -253,7 +247,7 @@ describe('inlineRect', () => {
       { left: 0, top: 40, right: 60, bottom: 50, width: 60, height: 10 },
     ];
     const trigger = createTrigger(rects);
-    const coordsRef: React.RefObject<InlineRectCoords | undefined> = { current: undefined };
+    const coordsRef: React.RefObject<InlineRectState | undefined> = { current: undefined };
     const middleware = createInlineMiddleware(coordsRef);
 
     expect(
@@ -268,6 +262,38 @@ describe('inlineRect', () => {
             y: rects[1].top,
             width: rects[0].right - rects[1].left,
             height: rects[2].bottom - rects[1].top,
+          },
+          floating: { x: 0, y: 0, width: 20, height: 10 },
+        },
+      },
+    });
+  });
+
+  it('ignores stored coords from a different element', async () => {
+    const previousTrigger = createTrigger([
+      { left: 80, top: 0, right: 120, bottom: 10, width: 40, height: 10 },
+      { left: 0, top: 20, right: 60, bottom: 30, width: 60, height: 10 },
+    ]);
+    const rects: RectLike[] = [
+      { left: 80, top: 100, right: 120, bottom: 110, width: 40, height: 10 },
+      { left: 0, top: 120, right: 60, bottom: 130, width: 60, height: 10 },
+    ];
+    const trigger = createTrigger(rects);
+    const coordsRef = createInlineRectState(previousTrigger, { rectIndex: 0, x: 20, y: 5 });
+    const middleware = createInlineMiddleware(coordsRef);
+
+    expect(
+      await middleware.fn?.(
+        createMiddlewareState(trigger, 'bottom', { x: 0, y: 100, width: 120, height: 30 }) as never,
+      ),
+    ).toEqual({
+      reset: {
+        rects: {
+          reference: {
+            x: rects[1].left,
+            y: rects[0].top,
+            width: rects[1].width,
+            height: rects[1].bottom - rects[0].top,
           },
           floating: { x: 0, y: 0, width: 20, height: 10 },
         },
