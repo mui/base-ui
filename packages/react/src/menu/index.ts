@@ -18,3 +18,4 @@ export type * from './radio-item-indicator/MenuRadioItemIndicator';
 export type * from './submenu-root/MenuSubmenuRoot';
 export type * from './trigger/MenuTrigger';
 export type * from './submenu-trigger/MenuSubmenuTrigger';
+export type * from './viewport/MenuViewport';

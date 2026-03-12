@@ -16,6 +16,7 @@ import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { ToastRootCssVars } from './ToastRootCssVars';
+import { BASE_UI_SWIPE_IGNORE_SELECTOR, LEGACY_SWIPE_IGNORE_SELECTOR } from '../../utils/constants';
 
 const stateAttributesMapping: StateAttributesMapping<ToastRootState> = {
   ...transitionStatusMapping,
@@ -28,6 +29,7 @@ const SWIPE_THRESHOLD = 40;
 const REVERSE_CANCEL_THRESHOLD = 10;
 const OPPOSITE_DIRECTION_DAMPING_FACTOR = 0.5;
 const MIN_DRAG_THRESHOLD = 1;
+const TOAST_SWIPE_IGNORE_SELECTOR = `${BASE_UI_SWIPE_IGNORE_SELECTOR},${LEGACY_SWIPE_IGNORE_SELECTOR}`;
 
 function getDisplacement(
   direction: 'up' | 'down' | 'left' | 'right',
@@ -222,7 +224,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     const target = getTarget(event.nativeEvent) as HTMLElement | null;
 
     const isInteractiveElement = target
-      ? target.closest('button,a,input,textarea,[role="button"],[data-swipe-ignore]')
+      ? target.closest(`button,a,input,textarea,[role="button"],${TOAST_SWIPE_IGNORE_SELECTOR}`)
       : false;
 
     if (isInteractiveElement) {

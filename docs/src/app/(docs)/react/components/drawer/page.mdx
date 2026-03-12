@@ -8,8 +8,6 @@
 
 import { DemoDrawerHero } from './demos/hero';
 
-**Note**: `Drawer` is in preview for a temporary period and receives breaking changes in minor versions. `DrawerPreview` will be renamed to `Drawer` when it exits preview.
-
 <DemoDrawerHero />
 
 ## Usage guidelines
@@ -21,7 +19,7 @@ import { DemoDrawerHero } from './demos/hero';
 Import the component and assemble its parts:
 
 ```jsx title="Anatomy"
-import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
+import { Drawer } from '@base-ui/react/drawer';
 
 <Drawer.Provider>
   <Drawer.IndentBackground />
@@ -46,7 +44,7 @@ import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
 </Drawer.Provider>;
 ```
 
-Drawer supports swipe gestures to dismiss. Set `swipeDirection` to control which direction dismisses the drawer. `<Drawer.Content>` allows text selection of its children without swipe interference when using a mouse pointer.
+Drawer supports swipe gestures to dismiss. Set `swipeDirection` to control which direction dismisses the drawer. `<Drawer.Content>` allows text selection of its children without swipe interference when using a mouse pointer. Add `data-base-ui-swipe-ignore` to a descendant when you need to opt that element out of swipe dismissal for all input types.
 
 ## Examples
 
