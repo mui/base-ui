@@ -20,6 +20,7 @@ import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import { ComboboxInternalDismissButton } from '../utils/ComboboxInternalDismissButton';
 
 const stateAttributesMapping: StateAttributesMapping<ComboboxPopupState> = {
   ...popupStateMapping,
@@ -47,6 +48,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const transitionStatus = useStore(store, selectors.transitionStatus);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
   const inputElement = useStore(store, selectors.inputElement);
+  const modal = useStore(store, selectors.modal);
 
   const empty = filteredItems.length === 0;
 
@@ -110,16 +112,25 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
     resolvedFinalFocus = inputInsidePopup ? undefined : false;
   }
 
+  const focusManagerModal = !inputInsidePopup || modal;
+
   return (
     <FloatingFocusManager
       context={floatingRootContext}
       disabled={!mounted}
-      modal={!inputInsidePopup}
+      modal={focusManagerModal}
       openInteractionType={openMethod}
       initialFocus={resolvedInitialFocus}
       returnFocus={resolvedFinalFocus}
+      getInsideElements={() => [
+        store.state.startDismissRef.current,
+        store.state.endDismissRef.current,
+      ]}
     >
-      {element}
+      <React.Fragment>
+        {element}
+        {focusManagerModal && <ComboboxInternalDismissButton ref={store.state.endDismissRef} />}
+      </React.Fragment>
     </FloatingFocusManager>
   );
 });

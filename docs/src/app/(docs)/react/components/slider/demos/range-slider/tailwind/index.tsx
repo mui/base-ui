@@ -8,10 +8,12 @@ export default function RangeSlider() {
           <Slider.Indicator className="rounded-sm bg-gray-700 select-none" />
           <Slider.Thumb
             index={0}
+            aria-label="Minimum value"
             className="size-4 rounded-full bg-white outline-1 outline-gray-300 select-none has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-blue-800"
           />
           <Slider.Thumb
             index={1}
+            aria-label="Maximum value"
             className="size-4 rounded-full bg-white outline-1 outline-gray-300 select-none has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-blue-800"
           />
         </Slider.Track>
