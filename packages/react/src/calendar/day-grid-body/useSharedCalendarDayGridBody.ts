@@ -111,6 +111,9 @@ export function useSharedCalendarDayGridBody(
     decrement: boolean,
     amount: number,
   ) => {
+    if (elements.length === 0) {
+      return;
+    }
     let idx = guessedIndex;
     if (isListIndexDisabled(elements, idx, itemDisabledIndices)) {
       idx = findNonDisabledListIndex(elements, {
@@ -168,8 +171,9 @@ export function useSharedCalendarDayGridBody(
     switch (eventKey) {
       case HOME:
       case END: {
+        const colIndex = highlightedIndex % 7;
         // allow for default composite navigation in case we are on the first or last day of the week
-        if ((highlightedIndex + 1) % 7 === (eventKey === HOME ? 1 : 0)) {
+        if ((eventKey === HOME && colIndex === 0) || (eventKey === END && colIndex === 6)) {
           return;
         }
         // prevent default composite navigation and handle it ourselves
@@ -267,6 +271,61 @@ export function useSharedCalendarDayGridBody(
     }
   };
 
+  const handleLooping: CompositeRoot.Props<
+    UseSharedCalendarDayGridBodyItemMetadata,
+    any
+  >['onLoop'] = (event, prevIndex) => {
+    event.preventDefault();
+    const eventKey = event.key;
+    const decrement = BACKWARD_KEYS.has(eventKey);
+
+    const targetMonth = adapter.addMonths(visibleMonth, decrement ? -1 : 1);
+
+    const { minDate, maxDate } = store.state;
+    if (minDate != null || maxDate != null) {
+      // Check if the target month has any valid (non-disabled) days within min/max bounds.
+      if (
+        (minDate != null && adapter.isBefore(adapter.endOfMonth(targetMonth), minDate)) ||
+        (maxDate != null && adapter.isAfter(adapter.startOfMonth(targetMonth), maxDate))
+      ) {
+        // The entire target month is outside the valid range; stay put.
+        return prevIndex;
+      }
+    }
+
+    // Change the visible month and focus the equivalent day once the new month's
+    // DOM has been committed. This covers every arrow-key loop scenario, including
+    // cases where an outside-month day is visible as the first/last row of the
+    // current grid — the visible date must always update when crossing a month boundary.
+    store.setVisibleDate(
+      targetMonth,
+      event.nativeEvent,
+      event.currentTarget as HTMLElement,
+      REASONS.keyboard,
+    );
+
+    executeAfterItemMapUpdate.current = (newMap: typeof itemMap) => {
+      const newItems = Array.from(newMap.keys()) as HTMLElement[];
+
+      let guessedIndex: number;
+      if (eventKey === ARROW_LEFT) {
+        guessedIndex = newItems.length - 1;
+      } else if (eventKey === ARROW_RIGHT) {
+        guessedIndex = 0;
+      } else if (eventKey === ARROW_DOWN) {
+        guessedIndex = prevIndex % 7;
+      } else {
+        // ARROW_UP: same weekday in the last row of the previous month
+        guessedIndex = newItems.length - 7 + (prevIndex % 7);
+      }
+
+      focusItemFromMap(newMap, guessedIndex, decrement, HORIZONTAL_KEYS.has(eventKey) ? 1 : 7);
+    };
+
+    // Return the current index so the composite does not move focus before the new month renders.
+    return prevIndex;
+  };
+
   const compositeRootProps: CompositeRoot.Props<UseSharedCalendarDayGridBodyItemMetadata, any> = {
     cols: 7,
     disabledIndices,
@@ -276,57 +335,7 @@ export function useSharedCalendarDayGridBody(
     highlightedIndex,
     onKeyDown: handleKeyboardNavigation,
     onHighlightedIndexChange: setHighlightedIndex,
-    onLoop: (event, prevIndex) => {
-      event.preventDefault();
-      const eventKey = event.key;
-      const decrement = BACKWARD_KEYS.has(eventKey);
-
-      const targetMonth = adapter.addMonths(visibleMonth, decrement ? -1 : 1);
-
-      const { minDate, maxDate } = store.state;
-      if (minDate != null || maxDate != null) {
-        // Check if the target month has any valid (non-disabled) days within min/max bounds.
-        if (
-          (minDate != null && adapter.isBefore(adapter.endOfMonth(targetMonth), minDate)) ||
-          (maxDate != null && adapter.isAfter(adapter.startOfMonth(targetMonth), maxDate))
-        ) {
-          // The entire target month is outside the valid range; stay put.
-          return prevIndex;
-        }
-      }
-
-      // Change the visible month and focus the equivalent day once the new month's
-      // DOM has been committed. This covers every arrow-key loop scenario, including
-      // cases where an outside-month day is visible as the first/last row of the
-      // current grid — the visible date must always update when crossing a month boundary.
-      store.setVisibleDate(
-        targetMonth,
-        event.nativeEvent,
-        event.currentTarget as HTMLElement,
-        REASONS.keyboard,
-      );
-
-      executeAfterItemMapUpdate.current = (newMap: typeof itemMap) => {
-        const newItems = Array.from(newMap.keys()) as HTMLElement[];
-
-        let guessedIndex: number;
-        if (eventKey === ARROW_LEFT) {
-          guessedIndex = newItems.length - 1;
-        } else if (eventKey === ARROW_RIGHT) {
-          guessedIndex = 0;
-        } else if (eventKey === ARROW_DOWN) {
-          guessedIndex = prevIndex % 7;
-        } else {
-          // ARROW_UP: same weekday in the last row of the previous month
-          guessedIndex = newItems.length - 7 + (prevIndex % 7);
-        }
-
-        focusItemFromMap(newMap, guessedIndex, decrement, HORIZONTAL_KEYS.has(eventKey) ? 1 : 7);
-      };
-
-      // Return the current index so the composite does not move focus before the new month renders.
-      return prevIndex;
-    },
+    onLoop: handleLooping,
   };
 
   const props: HTMLProps = {
