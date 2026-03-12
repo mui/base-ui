@@ -13,10 +13,13 @@ export const releases: Release[] = [
     versionSlug: 'v1-3-0',
     date: '2026-03-12',
     highlights: [
-      '`Drawer` component is now stable.',
-      'Content transitions in `Menu` with detached triggers.',
-      'New `Label` parts in `Select`, `Combobox`, and `Slider`.',
-      'Many a11y, performance, and bug fixes.',
+      '`Drawer` is now stable.',
+      '`Menu` now supports content transitions with `Viewport`.',
+      'New `Label` parts for `Select`, `Combobox`, and `Slider`.',
+      'New `SwipeArea` part for `Drawer`.',
+      'New `InputGroup` parts for `Combobox` and `Autocomplete`.',
+      'New `closeOnClick` prop for `Tooltip`.',
+      'Many accessibility, performance, and bug fixes.',
     ],
   },
   {

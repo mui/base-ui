@@ -6,16 +6,15 @@ _Mar 12, 2026_
 
 ### General Changes
 
-- Warn when rendering a component function directly (#4077) by @atomiks
-- Reset `openMethod` on close transition (#4128) by @atomiks
-- Fire Space activation on `keydown` for composite widgets (#4053) by @atomiks
-- Skip CSS-hidden composite items in keyboard navigation (#4195) by @atomiks
-- Add ESLint to TanStack example so `pnpm eslint` works (#4297) by @CiscoFran10
-- Optimize useHover hooks and safePolygon hot paths (#4199) by @atomiks
-- Snap `--anchor-width/height` to device pixel grid (#4082) by @flaviendelangle
-- Fix outside press dismissal when component is portaled into shadow DOM (#4230) by @dmitri-gb
+- Warn when a component function is rendered directly (#4077) by @atomiks
+- Reset `openMethod` after close transition (#4128) by @atomiks
+- Fire Space activation on `keydown` in composite widgets (#4053) by @atomiks
+- Skip CSS-hidden items during keyboard navigation in composite widgets (#4195) by @atomiks
+- Optimize hot paths in `useHover` hooks and `safePolygon` (#4199) by @atomiks
+- Snap `--anchor-width` and `--anchor-height` to device pixel grid (#4082) by @flaviendelangle
+- Fix outside press dismissal when a component is portaled into a shadow DOM (#4230) by @dmitri-gb
 - Fix nested hoverable popups (#4206) by @dmitri-gb
-- Apply `data-base-ui-inert` to highest level node (#3955) by @atomiks
+- Apply `data-base-ui-inert` to highest-level node (#3955) by @atomiks
 - Fix portable types (#4058) by @cgatian
 
 ### Accordion
@@ -24,12 +23,12 @@ _Mar 12, 2026_
 
 ### Autocomplete
 
-- Respect `null` filter prop (#4117) by @atomiks
+- Respect a `null` `filter` prop (#4117) by @atomiks
 - Add `InputGroup` part (#3745) by @atomiks
 
 ### Avatar
 
-- Remove fallback transition logic and premature image display (#4110) by @atomiks
+- Remove fallback transition logic and prevent premature image display (#4110) by @atomiks
 
 ### Button
 
@@ -41,41 +40,41 @@ _Mar 12, 2026_
 
 ### Combobox
 
-- Avoid field attrs on input when inside popup (#4154) by @atomiks
-- Preserve inline input on Enter without highlight (#4235) by @atomiks
+- Avoid applying field attributes to input when it is inside popup (#4154) by @atomiks
+- Preserve inline input on `Enter` when nothing is highlighted (#4235) by @atomiks
 - Fix combobox attributes during SSR (#4179) by @atomiks
-- Fix virtualized grid arrow navigation wrapping (#4164) by @atomiks
+- Fix wrapping in virtualized grid arrow-key navigation (#4164) by @atomiks
 - Add `InputGroup` part (#3745) by @atomiks
-- Add visually hidden close button support with improved modal focus trapping (#4084) by @atomiks
+- Add support for a visually hidden close button and improve modal focus trapping (#4084) by @atomiks
 - Add `Label` part (#4167) by @atomiks
 
 ### Context Menu
 
-- Ignore context menu mouseup on non-Mac platforms (#3944) by @atomiks
+- Ignore context-menu `mouseup` on non-Mac platforms (#3944) by @atomiks
 
 ### Drawer
 
-- **Breaking change:** Unmark Drawer preview<br />
-  The Drawer is now stable and should be imported as `{ Drawer } from '@base-ui/react/drawer'` (#4293) by @atomiks
+- **Breaking change:** `Drawer` is no longer marked as preview<br />
+  `Drawer` is now stable and should be imported as `{ Drawer } from '@base-ui/react/drawer'` (#4293) by @atomiks
 - Fix React 17 support (#4178) by @atomiks
 - Include border in frontmost height variable (#4202) by @atomiks
 - Improve touch selection (#4104) by @atomiks
 - Preserve cross-axis scrolling during touch gestures (#4187) by @atomiks
-- Prevent dismiss through swipe when the component is controlled (#4133) by @flaviendelangle
-- Restore SwipeArea component (#4102) by @atomiks
+- Prevent swipe dismissal when component is controlled (#4133) by @flaviendelangle
+- Add `SwipeArea` component (#4102) by @atomiks
 - Make `data-base-ui-swipe-ignore` explicit for touch interactions (#4295) by @atomiks
-- Disable inheritance for swipe CSS vars (#4099) by @atomiks
+- Disable inheritance for swipe CSS variables (#4099) by @atomiks
 
 ### Field
 
-- Fix field validation with simultaneous Form errors or invalid prop (#4112) by @mj12albert
+- Fix field validation when `Form` errors or `invalid` prop are present at same time (#4112) by @mj12albert
 
 ### Menu
 
-- Prevent `pointerleave` from stealing dialog focus (#4125) by @atomiks
-- Optimize submenu hover pointer-events (#4231) by @atomiks
-- Fix `closeDelay` not applied on `Menu.SubmenuTrigger` (#4134) by @flaviendelangle
-- Implement content transitions with Viewport (#4060) by @michaldudak
+- Prevent `pointerleave` from stealing focus from dialogs (#4125) by @atomiks
+- Optimize `pointer-events` for submenu hover interactions (#4231) by @atomiks
+- Fix `closeDelay` not being applied to `Menu.SubmenuTrigger` (#4134) by @flaviendelangle
+- Implement content transitions with `Viewport` (#4060) by @michaldudak
 
 ### Meter
 
@@ -84,15 +83,15 @@ _Mar 12, 2026_
 ### Navigation Menu
 
 - Fix StackBlitz demo styling (#3974) by @CiscoFran10
-- Fix nested inline menu support (#4198) by @atomiks
-- Fix nested hover close propagation (#4285) by @atomiks
+- Fix support for nested inline menus (#4198) by @atomiks
+- Fix close propagation in nested hover menus (#4285) by @atomiks
 - Close parent menus when nested link with `closeOnClick` is clicked (#4276) by @CiscoFran10
 - Fix duplicate `aria-orientation` (#4309) by @atomiks
 - Fix delayed trigger switches in Safari (#4310) by @atomiks
 
 ### Number Field
 
-- Fixed incorrect reason value in `onValueCommitted` (#4259) by @jijiseong
+- Fix incorrect `reason` value in `onValueCommitted` (#4259) by @jijiseong
 
 ### Popover
 
@@ -113,14 +112,14 @@ _Mar 12, 2026_
 
 ### Scroll Area
 
-- Fix focus trap with non-scrollable viewport (#4220) by @atomiks
-- Fix remount thumb size (#4107) by @atomiks
+- Fix focus trapping with a non-scrollable viewport (#4220) by @atomiks
+- Fix thumb size after remounting (#4107) by @atomiks
 
 ### Select
 
-- Fix hidden input id fallback (#4135) by @atomiks
-- Fix `Value` placeholder not rendered with Record items (#4137) by @vcode-sh
-- Fire onClick during drag-to-select (#3969) by @obeattie
+- Fix hidden input `id` fallback (#4135) by @atomiks
+- Fix `Value` placeholder not rendering with `Record` items (#4137) by @vcode-sh
+- Fire `onClick` during drag-to-select (#3969) by @obeattie
 - Fix `items` type definition for groups (#3884) by @aarongarciah
 - Fix `alignItemWithTrigger` fallback with browser zoom (#4292) by @atomiks
 - Add `Label` part (#4167) by @atomiks
@@ -128,7 +127,7 @@ _Mar 12, 2026_
 ### Slider
 
 - Add `Label` part (#4167) by @atomiks
-- Remove validation commit on `touchend` (#4091) by @jijiseong
+- Stop committing validation on `touchend` (#4091) by @jijiseong
 
 ### Switch
 
