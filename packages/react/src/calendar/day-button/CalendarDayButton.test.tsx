@@ -450,6 +450,34 @@ describe('<Calendar.DayButton />', () => {
       expect(button).to.have.attribute('data-outside-month');
       expect(button).to.have.attribute('aria-disabled', 'true');
     });
+
+    it('should not call `onValueChange` or `onClick` on a day when an outside-month day is clicked', async () => {
+      const onValueChange = spy();
+      const onButtonClick = spy();
+      const date = adapter.date('2025-01-31', 'default');
+
+      const { user } = render(
+        <Calendar.Root
+          visibleDate={adapter.addMonths(adapter.startOfMonth(date), 1)}
+          onValueChange={onValueChange}
+        >
+          <Calendar.DayGrid>
+            <Calendar.DayGridBody>
+              <Calendar.DayGridRow value={adapter.startOfWeek(date)}>
+                <Calendar.DayGridCell value={date}>
+                  <Calendar.DayButton onClick={onButtonClick} />
+                </Calendar.DayGridCell>
+              </Calendar.DayGridRow>
+            </Calendar.DayGridBody>
+          </Calendar.DayGrid>
+        </Calendar.Root>,
+      );
+
+      const button = screen.getByRole('button');
+      await user.click(button);
+      expect(onValueChange.callCount).to.equal(0);
+      expect(onButtonClick.callCount).to.equal(0);
+    });
   });
 
   describe('unavailable state', () => {

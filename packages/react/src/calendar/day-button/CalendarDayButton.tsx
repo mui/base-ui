@@ -67,9 +67,10 @@ const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
   );
 
   const isDisabled = disabled ?? isCellDisabled;
+  const isInteractionDisabled = isDisabled || isOutsideCurrentMonth;
 
   const { getButtonProps, buttonRef } = useButton({
-    disabled: isDisabled,
+    disabled: isInteractionDisabled,
     native: nativeButton,
     focusableWhenDisabled,
   });
@@ -94,7 +95,7 @@ const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
     children: formattedValue,
     tabIndex: isTabbable ? 0 : -1,
     onClick(event) {
-      if (isUnavailable || isDisabled) {
+      if (isUnavailable || isInteractionDisabled) {
         return;
       }
       store.selectDate(value, event);
