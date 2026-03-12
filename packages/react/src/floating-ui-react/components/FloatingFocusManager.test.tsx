@@ -518,7 +518,7 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
       HTMLElement.prototype.focus = originalFocus;
     });
 
-    test('removes fallback element when return element is falsy', async () => {
+    test('does not insert fallback element when return element is falsy', async () => {
       function App() {
         const [isOpen, setIsOpen] = React.useState(false);
 
@@ -547,19 +547,17 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
 
       const reference = screen.getByTestId('reference');
       await userEvent.click(reference);
+      await flushMicrotasks();
 
-      const fallback = reference.nextElementSibling as HTMLElement | null;
-      await waitFor(() => {
-        expect(fallback).not.toBeNull();
-      });
-      expect(fallback?.getAttribute('aria-hidden')).toBe('true');
-      expect(fallback?.getAttribute('tabindex')).toBe('-1');
+      expect(reference.nextElementSibling).toBeNull();
 
       await userEvent.click(screen.getByTestId('close'));
 
       await waitFor(() => {
-        expect(fallback && fallback.isConnected).toBe(false);
+        expect(screen.queryByTestId('close')).toBeNull();
       });
+
+      expect(reference.nextElementSibling).toBeNull();
     });
   });
 
@@ -971,6 +969,50 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
       expect(screen.getByTestId('aria-live')).not.toHaveAttribute('aria-hidden');
       expect(screen.getByTestId('btn-1')).not.toHaveAttribute('aria-hidden');
       expect(screen.getByTestId('btn-2')).not.toHaveAttribute('aria-hidden');
+    });
+
+    test('true - keeps supplied inside elements outside the floating node exposed to assistive tech', async () => {
+      function App() {
+        const [isOpen, setIsOpen] = React.useState(false);
+        const dismissRef = React.useRef<HTMLButtonElement | null>(null);
+        const { refs, context } = useFloating({
+          open: isOpen,
+          onOpenChange: setIsOpen,
+        });
+
+        return (
+          <>
+            <input
+              data-testid="reference"
+              ref={refs.setReference}
+              onClick={() => setIsOpen((v) => !v)}
+            />
+            <div data-testid="outside-wrapper">
+              <button data-testid="outside-button" />
+            </div>
+            {isOpen && (
+              <FloatingFocusManager
+                context={context}
+                getInsideElements={() => [dismissRef.current]}
+              >
+                <>
+                  <div ref={refs.setFloating} data-testid="floating" />
+                  <button ref={dismissRef} data-testid="dismiss" />
+                </>
+              </FloatingFocusManager>
+            )}
+          </>
+        );
+      }
+
+      render(<App />);
+
+      fireEvent.click(screen.getByTestId('reference'));
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('floating')).not.toHaveAttribute('aria-hidden');
+      expect(screen.getByTestId('dismiss')).not.toHaveAttribute('aria-hidden');
+      expect(screen.getByTestId('outside-wrapper')).toHaveAttribute('aria-hidden', 'true');
     });
 
     test('false - does not apply inert to outside nodes', async () => {
