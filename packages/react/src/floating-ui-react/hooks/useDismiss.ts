@@ -333,13 +333,13 @@ export function useDismiss(
 
       const target = getTarget(event);
       const inertSelector = `[${createAttribute('inert')}]`;
-      let markers = Array.from(
-        ownerDocument(store.select('floatingElement')).querySelectorAll(inertSelector),
-      );
       const targetRoot = isElement(target) ? target.getRootNode() : null;
-      if (isShadowRoot(targetRoot)) {
-        markers = markers.concat(Array.from(targetRoot.querySelectorAll(inertSelector)));
-      }
+      const markers = Array.from(
+        (isShadowRoot(targetRoot)
+          ? targetRoot
+          : ownerDocument(store.select('floatingElement'))
+        ).querySelectorAll(inertSelector),
+      );
 
       const triggers = store.context.triggerElements;
 
