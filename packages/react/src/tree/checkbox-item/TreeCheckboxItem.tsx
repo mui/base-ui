@@ -1,12 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
+import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useTreeRootContext } from '../root/TreeRootContext';
-import { selectors } from '../store/selectors';
-import { TreeItemContext, useTreeItemContextOptional } from '../item/TreeItemContext';
+import { TreeItemContext } from '../item/TreeItemContext';
 import { TreeCheckboxItemContext } from './TreeCheckboxItemContext';
 import { TreeCheckboxItemDataAttributes } from './TreeCheckboxItemDataAttributes';
 import { TreeItemCssVars } from '../item/TreeItemCssVars';
@@ -42,73 +41,101 @@ const stateAttributesMapping = {
  *
  * Documentation: [Base UI Tree](https://base-ui.com/react/components/tree)
  */
-export const TreeCheckboxItem = React.forwardRef(function TreeCheckboxItem(
+export const TreeCheckboxItem = fastComponentRef(function TreeCheckboxItem(
   componentProps: TreeCheckboxItem.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, itemId: itemIdProp, ...elementProps } = componentProps;
+  const { className, render, itemId, ...elementProps } = componentProps;
 
   const store = useTreeRootContext();
-  const contextItemId = useTreeItemContextOptional()?.itemId;
-  const itemId = itemIdProp ?? contextItemId;
 
-  if (itemId === undefined) {
-    throw new Error(
-      'Base UI: Tree.CheckboxItem requires an `itemId` prop when used in virtualized mode, ' +
-        'or must be placed within a Tree.Root with a render function.',
-    );
+  const expanded = store.useState('isItemExpanded', itemId);
+  const expandable = store.useState('isItemExpandable', itemId);
+  const focused = store.useState('isItemFocused', itemId);
+  const disabled = store.useState('isItemDisabled', itemId);
+  const canBeSelected = store.useState('canItemBeSelected', itemId);
+  const checkboxStatus = store.useState('checkboxSelectionStatus', itemId);
+  const isDefaultFocusable = store.useState('isItemDefaultFocusable', itemId);
+  const siblingsCount = store.useState('itemSiblingsCount', itemId);
+  const posInSet = store.useState('itemPositionInSet', itemId);
+  const loading = store.useState('isItemLoading', itemId);
+  const depth = store.useState('itemDepth', itemId);
+  const virtualized = store.useState('virtualized');
+
+  // Compute aria-checked from checkbox selection status.
+  const checked = checkboxStatus === 'checked';
+  const indeterminate = checkboxStatus === 'indeterminate';
+  let ariaChecked: boolean | 'mixed' | undefined;
+  if (!canBeSelected) {
+    ariaChecked = undefined;
+  } else if (checked) {
+    ariaChecked = true;
+  } else if (indeterminate) {
+    ariaChecked = 'mixed';
+  } else {
+    ariaChecked = false;
   }
 
-  const { props: itemProps, state } = store.useState('checkboxItemPropsAndState', itemId);
-  const virtualized = useStore(store, selectors.virtualized);
-  const itemIdContext = React.useMemo(() => ({ itemId }), [itemId]);
+  const state: TreeCheckboxItem.State = {
+    itemId,
+    expanded,
+    expandable,
+    checked,
+    unchecked: !checked && !indeterminate,
+    indeterminate,
+    focused,
+    disabled,
+    depth,
+  };
 
   const checkboxItemContext = React.useMemo(
     () => ({
-      checked: state.checked,
-      indeterminate: state.indeterminate,
-      disabled: state.disabled,
+      checked,
+      indeterminate,
+      disabled,
     }),
-    [state.checked, state.indeterminate, state.disabled],
+    [checked, indeterminate, disabled],
   );
 
   // In virtualized mode, auto-focus when this item mounts and it's the focused item.
-  // This handles the case where keyboard navigation moves to an item that wasn't
-  // previously in the DOM, and the virtualizer scrolls to render it.
   const autoFocusRef = React.useCallback(
     (element: HTMLDivElement | null) => {
-      if (virtualized && element && state.focused) {
+      if (virtualized && element && focused) {
         element.focus();
       }
     },
-    [virtualized, state.focused],
+    [virtualized, focused],
   );
 
   const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, autoFocusRef],
     props: [
-      itemProps,
+      {
+        role: 'treeitem',
+        'aria-expanded': expandable ? expanded : undefined,
+        'aria-checked': ariaChecked,
+        'aria-level': depth + 1,
+        'aria-setsize': siblingsCount,
+        'aria-posinset': posInSet,
+        'aria-disabled': disabled || undefined,
+        'aria-busy': loading || undefined,
+        tabIndex: isDefaultFocusable ? 0 : -1,
+        style: { [TreeItemCssVars.depth]: depth } as React.CSSProperties,
+      },
       store.checkboxItemEventHandlers,
-      { style: { [TreeItemCssVars.depth]: state.depth } as React.CSSProperties },
       elementProps,
     ],
     stateAttributesMapping,
   });
 
-  const content = (
-    <TreeCheckboxItemContext.Provider value={checkboxItemContext}>
-      {element}
-    </TreeCheckboxItemContext.Provider>
+  return (
+    <TreeItemContext.Provider value={itemId}>
+      <TreeCheckboxItemContext.Provider value={checkboxItemContext}>
+        {element}
+      </TreeCheckboxItemContext.Provider>
+    </TreeItemContext.Provider>
   );
-
-  // When itemId is provided as a prop (virtualized mode), wrap with context
-  // so sub-parts (ItemLabel, ItemExpansionTrigger, etc.) can access itemId.
-  if (itemIdProp != null) {
-    return <TreeItemContext.Provider value={itemIdContext}>{content}</TreeItemContext.Provider>;
-  }
-
-  return content;
 });
 
 export interface TreeCheckboxItemState {
@@ -152,10 +179,9 @@ export interface TreeCheckboxItemState {
 
 export interface TreeCheckboxItemProps extends BaseUIComponentProps<'div', TreeCheckboxItemState> {
   /**
-   * The id of the item. Required when using `virtualized` on `Tree.Root`.
-   * When provided, the item will set up its own context for sub-parts.
+   * The id of the item.
    */
-  itemId?: string | undefined;
+  itemId: string;
 }
 
 export namespace TreeCheckboxItem {

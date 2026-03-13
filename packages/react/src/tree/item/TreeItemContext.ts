@@ -2,13 +2,9 @@
 import * as React from 'react';
 import type { TreeItemId } from '../store/types';
 
-export interface TreeItemContextValue {
-  itemId: TreeItemId;
-}
+export const TreeItemContext = React.createContext<TreeItemId | undefined>(undefined);
 
-export const TreeItemContext = React.createContext<TreeItemContextValue | undefined>(undefined);
-
-export function useTreeItemContext(): TreeItemContextValue {
+export function useTreeItemContext(): TreeItemId {
   const context = React.useContext(TreeItemContext);
   if (context === undefined) {
     throw new Error(
@@ -16,8 +12,4 @@ export function useTreeItemContext(): TreeItemContextValue {
     );
   }
   return context;
-}
-
-export function useTreeItemContextOptional(): TreeItemContextValue | undefined {
-  return React.useContext(TreeItemContext);
 }

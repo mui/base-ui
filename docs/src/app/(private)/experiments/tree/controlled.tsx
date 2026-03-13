@@ -78,8 +78,8 @@ export default function ControlledTree() {
           selectionMode="multiple"
           className={styles.tree}
         >
-          {() => (
-            <Tree.CheckboxItem className={styles.item}>
+          {(item) => (
+            <Tree.CheckboxItem itemId={item.id} className={styles.item}>
               <Tree.ItemExpansionTrigger className={styles.expansionTrigger}>
                 <ChevronIcon />
               </Tree.ItemExpansionTrigger>

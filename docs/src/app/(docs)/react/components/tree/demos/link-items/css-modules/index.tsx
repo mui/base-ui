@@ -39,14 +39,14 @@ export default function ExampleTreeLinkItems() {
         {(item) => {
           if (item.href) {
             return (
-              <Link className={styles.LinkItem} href={item.href} active={item.id === 'quick-start'}>
+              <Link itemId={item.id} className={styles.LinkItem} href={item.href} active={item.id === 'quick-start'}>
                 <Tree.ItemLabel className={styles.Label} />
               </Link>
             );
           }
 
           return (
-            <Tree.Item className={styles.Item}>
+            <Tree.Item itemId={item.id} className={styles.Item}>
               <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
                 <ChevronIcon />
               </Tree.ItemExpansionTrigger>

@@ -61,8 +61,8 @@ export default function SelectionTree() {
         selectionMode="multiple"
         className={styles.tree}
       >
-        {() => (
-          <Tree.Item className={styles.item}>
+        {(item) => (
+          <Tree.Item itemId={item.id} className={styles.item}>
             <Tree.ItemExpansionTrigger className={styles.expansionTrigger}>
               <ChevronIcon />
             </Tree.ItemExpansionTrigger>

@@ -55,7 +55,7 @@ export default function ExampleTreeLazyLoading() {
   return (
     <Tree.Root items={INITIAL_ITEMS} lazyLoading={lazyLoading} className={styles.Tree}>
       {(_item) => (
-        <Tree.Item className={styles.Item}>
+        <Tree.Item itemId={_item.id} className={styles.Item}>
           <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
             <ChevronIcon />
           </Tree.ItemExpansionTrigger>

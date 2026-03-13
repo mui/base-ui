@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
@@ -18,18 +19,18 @@ const stateAttributesMapping: StateAttributesMapping<TreeItemLoadingIndicator.St
  *
  * Documentation: [Base UI Tree](https://base-ui.com/react/components/tree)
  */
-export const TreeItemLoadingIndicator = React.forwardRef(function TreeItemLoadingIndicator(
+export const TreeItemLoadingIndicator = fastComponentRef(function TreeItemLoadingIndicator(
   componentProps: TreeItemLoadingIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const { className, render, ...elementProps } = componentProps;
 
   const store = useTreeRootContext();
-  const { itemId } = useTreeItemContext();
-  const propsFromState = store.useState('loadingIndicatorProps', itemId);
+  const itemId = useTreeItemContext();
+  const loading = store.useState('isItemLoading', itemId);
 
   const state: TreeItemLoadingIndicator.State = {
-    loading: propsFromState.loading,
+    loading,
   };
 
   return useRenderElement('span', componentProps, {
@@ -37,7 +38,7 @@ export const TreeItemLoadingIndicator = React.forwardRef(function TreeItemLoadin
     ref: forwardedRef,
     props: [{} as React.HTMLAttributes<HTMLSpanElement>, elementProps],
     stateAttributesMapping,
-    enabled: propsFromState.loading,
+    enabled: loading,
   });
 });
 

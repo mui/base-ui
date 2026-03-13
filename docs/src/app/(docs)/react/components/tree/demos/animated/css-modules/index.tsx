@@ -46,7 +46,7 @@ export default function ExampleTreeAnimated() {
       <Tree.AnimatedItemList>
         {(item, animatedChildren) => (
           <React.Fragment>
-            <Tree.Item className={styles.Item}>
+            <Tree.Item itemId={item.id} className={styles.Item}>
               <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
                 <ChevronIcon />
               </Tree.ItemExpansionTrigger>

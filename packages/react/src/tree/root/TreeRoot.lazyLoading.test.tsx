@@ -61,7 +61,7 @@ function TreeWithLazyLoading(
       {...other}
     >
       {(_item: TreeDefaultItemModel) => (
-        <Tree.Item>
+        <Tree.Item itemId={_item.id}>
           <Tree.ItemExpansionTrigger />
           <Tree.ItemLoadingIndicator>
             <span data-testid="loading-indicator" />

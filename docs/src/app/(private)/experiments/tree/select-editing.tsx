@@ -141,7 +141,7 @@ export default function SelectEditingTree() {
           itemToStringLabel={itemToStringLabel}
         >
           {(item) => (
-            <Tree.Item className={styles.item}>
+            <Tree.Item itemId={item.id} className={styles.item}>
               <Tree.ItemExpansionTrigger className={styles.expansionTrigger}>
                 <ChevronIcon />
               </Tree.ItemExpansionTrigger>

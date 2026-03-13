@@ -165,13 +165,13 @@ export function describeTree(
         >
           {(item: TreeDefaultItemModel) =>
             checkboxSelection ? (
-              <Tree.CheckboxItem key={item.id}>
+              <Tree.CheckboxItem key={item.id} itemId={item.id}>
                 <Tree.CheckboxItemIndicator />
                 <Tree.ItemExpansionTrigger />
                 <Tree.ItemLabel />
               </Tree.CheckboxItem>
             ) : (
-              <Tree.Item key={item.id}>
+              <Tree.Item key={item.id} itemId={item.id}>
                 <Tree.ItemExpansionTrigger />
                 <Tree.ItemLabel />
               </Tree.Item>

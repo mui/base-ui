@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
@@ -23,23 +24,24 @@ const stateAttributesMapping = {
  *
  * Documentation: [Base UI Tree](https://base-ui.com/react/components/tree)
  */
-export const TreeItemExpansionTrigger = React.forwardRef(function TreeItemExpansionTrigger(
+export const TreeItemExpansionTrigger = fastComponentRef(function TreeItemExpansionTrigger(
   componentProps: TreeItemExpansionTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const { className, render, ...elementProps } = componentProps;
 
   const store = useTreeRootContext();
-  const { itemId } = useTreeItemContext();
-  const propsFromState = store.useState('expansionTriggerProps', itemId);
+  const itemId = useTreeItemContext();
+  const expanded = store.useState('isItemExpanded', itemId);
+  const expandable = store.useState('isItemExpandable', itemId);
 
   const { getButtonProps, buttonRef } = useButton({
-    disabled: !propsFromState.expandable,
+    disabled: !expandable,
   });
 
   const state: TreeItemExpansionTrigger.State = {
-    expanded: propsFromState.expanded,
-    expandable: propsFromState.expandable,
+    expanded,
+    expandable,
   };
 
   return useRenderElement('button', componentProps, {
@@ -56,7 +58,7 @@ export const TreeItemExpansionTrigger = React.forwardRef(function TreeItemExpans
       elementProps,
     ],
     stateAttributesMapping,
-    enabled: propsFromState.expandable,
+    enabled: expandable,
   });
 });
 

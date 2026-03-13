@@ -68,7 +68,7 @@ export default function BasicTree() {
       </div>
       <Tree.Root items={items} defaultExpandedItems={['documents']} className={styles.tree}>
         {(_item) => (
-          <Tree.Item className={styles.item}>
+          <Tree.Item itemId={_item.id} className={styles.item}>
             <Tree.ItemExpansionTrigger className={styles.expansionTrigger}>
               <ChevronIcon />
             </Tree.ItemExpansionTrigger>

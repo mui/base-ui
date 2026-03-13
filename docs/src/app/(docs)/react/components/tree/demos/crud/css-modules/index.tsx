@@ -208,7 +208,7 @@ export default function ExampleTreeCrud() {
         }}
       >
         {(item) => (
-          <Tree.Item className={styles.Item}>
+          <Tree.Item itemId={item.id} className={styles.Item}>
             <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
               <ChevronIcon />
             </Tree.ItemExpansionTrigger>

@@ -127,7 +127,7 @@ export default function TextEditingTree() {
           }}
         >
           {(_item) => (
-            <Tree.Item className={styles.item}>
+            <Tree.Item itemId={_item.id} className={styles.item}>
               <Tree.ItemExpansionTrigger className={styles.expansionTrigger}>
                 <ChevronIcon />
               </Tree.ItemExpansionTrigger>

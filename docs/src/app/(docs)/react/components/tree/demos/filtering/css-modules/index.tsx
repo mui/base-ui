@@ -59,8 +59,8 @@ export default function ExampleTreeFiltering() {
       />
       <Tree.Root items={filteredItems} defaultExpandedItems={[]} className={styles.Tree}>
         <Tree.ItemList>
-          {() => (
-            <Tree.Item className={styles.Item}>
+          {(item) => (
+            <Tree.Item itemId={item.id} className={styles.Item}>
               <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
                 <ChevronIcon />
               </Tree.ItemExpansionTrigger>

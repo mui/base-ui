@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
@@ -22,27 +23,28 @@ const stateAttributesMapping = {
  *
  * Documentation: [Base UI Tree](https://base-ui.com/react/components/tree)
  */
-export const TreeItemGroupIndicator = React.forwardRef(function TreeItemGroupIndicator(
+export const TreeItemGroupIndicator = fastComponentRef(function TreeItemGroupIndicator(
   componentProps: TreeItemGroupIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const { className, render, ...elementProps } = componentProps;
 
   const store = useTreeRootContext();
-  const { itemId } = useTreeItemContext();
-  const propsFromState = store.useState('groupIndicatorProps', itemId);
+  const itemId = useTreeItemContext();
+  const expanded = store.useState('isItemExpanded', itemId);
+  const expandable = store.useState('isItemExpandable', itemId);
 
   const state: TreeItemGroupIndicator.State = {
-    expanded: propsFromState.expanded,
-    expandable: propsFromState.expandable,
+    expanded,
+    expandable,
   };
 
   return useRenderElement('span', componentProps, {
     state,
     ref: forwardedRef,
-    props: [{} as React.HTMLAttributes<HTMLSpanElement>, elementProps],
+    props: [elementProps],
     stateAttributesMapping,
-    enabled: propsFromState.expandable,
+    enabled: expandable,
   });
 });
 

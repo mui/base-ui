@@ -1,12 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
+import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useTreeRootContext } from '../root/TreeRootContext';
-import { selectors } from '../store/selectors';
-import { TreeItemContext, useTreeItemContextOptional } from './TreeItemContext';
+import { TreeItemContext } from './TreeItemContext';
 import { TreeItemDataAttributes } from './TreeItemDataAttributes';
 import { TreeItemCssVars } from './TreeItemCssVars';
 
@@ -30,58 +29,74 @@ const stateAttributesMapping = {
  *
  * Documentation: [Base UI Tree](https://base-ui.com/react/components/tree)
  */
-export const TreeItem = React.forwardRef(function TreeItem(
+export const TreeItem = fastComponentRef(function TreeItem(
   componentProps: TreeItem.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, itemId: itemIdProp, ...elementProps } = componentProps;
+  const { className, render, itemId, ...elementProps } = componentProps;
 
   const store = useTreeRootContext();
-  const contextItemId = useTreeItemContextOptional()?.itemId;
-  const itemId = itemIdProp ?? contextItemId;
 
-  if (itemId === undefined) {
-    throw new Error(
-      'Base UI: Tree.Item requires an `itemId` prop when used in virtualized mode, ' +
-        'or must be placed within a Tree.Root with a render function.',
-    );
-  }
+  const expanded = store.useState('isItemExpanded', itemId);
+  const expandable = store.useState('isItemExpandable', itemId);
+  const selected = store.useState('isItemSelected', itemId);
+  const focused = store.useState('isItemFocused', itemId);
+  const disabled = store.useState('isItemDisabled', itemId);
+  const canBeSelected = store.useState('canItemBeSelected', itemId);
+  const selectionDisabled = store.useState('isSelectionDisabled');
+  const isDefaultFocusable = store.useState('isItemDefaultFocusable', itemId);
+  const siblingsCount = store.useState('itemSiblingsCount', itemId);
+  const posInSet = store.useState('itemPositionInSet', itemId);
+  const loading = store.useState('isItemLoading', itemId);
+  const depth = store.useState('itemDepth', itemId);
+  const virtualized = store.useState('virtualized');
 
-  const { props: itemProps, state } = store.useState('itemPropsAndState', itemId);
-  const virtualized = useStore(store, selectors.virtualized);
-  const itemIdContext = React.useMemo(() => ({ itemId }), [itemId]);
+  const state: TreeItem.State = {
+    itemId,
+    expanded,
+    expandable,
+    selected,
+    focused,
+    disabled,
+    depth,
+  };
 
   // In virtualized mode, auto-focus when this item mounts and it's the focused item.
-  // This handles the case where keyboard navigation moves to an item that wasn't
-  // previously in the DOM, and the virtualizer scrolls to render it.
   const autoFocusRef = React.useCallback(
     (element: HTMLDivElement | null) => {
-      if (virtualized && element && state.focused) {
+      if (virtualized && element && focused) {
         element.focus();
       }
     },
-    [virtualized, state.focused],
+    [virtualized, focused],
   );
 
   const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, autoFocusRef],
     props: [
-      itemProps,
+      {
+        role: 'treeitem',
+        'aria-expanded': expandable ? expanded : undefined,
+        // Per WAI-ARIA, when selection is supported, all focusable treeitems
+        // must have aria-selected set to true or false.
+        // Only omit it entirely when the tree doesn't support selection at all.
+        'aria-selected': selectionDisabled || !canBeSelected ? undefined : selected,
+        'aria-level': depth + 1,
+        'aria-setsize': siblingsCount,
+        'aria-posinset': posInSet,
+        'aria-disabled': disabled || undefined,
+        'aria-busy': loading || undefined,
+        tabIndex: isDefaultFocusable ? 0 : -1,
+        style: { [TreeItemCssVars.depth]: depth } as React.CSSProperties,
+      },
       store.itemEventHandlers,
-      { style: { [TreeItemCssVars.depth]: state.depth } as React.CSSProperties },
       elementProps,
     ],
     stateAttributesMapping,
   });
 
-  // When itemId is provided as a prop (virtualized mode), wrap with context
-  // so sub-parts (ItemLabel, ItemExpansionTrigger, etc.) can access itemId.
-  if (itemIdProp != null) {
-    return <TreeItemContext.Provider value={itemIdContext}>{element}</TreeItemContext.Provider>;
-  }
-
-  return element;
+  return <TreeItemContext.Provider value={itemId}>{element}</TreeItemContext.Provider>;
 });
 
 export interface TreeItemState {
@@ -117,10 +132,9 @@ export interface TreeItemState {
 
 export interface TreeItemProps extends BaseUIComponentProps<'div', TreeItemState> {
   /**
-   * The id of the item. Required when using `virtualized` on `Tree.Root`.
-   * When provided, the item will set up its own context for sub-parts.
+   * The id of the item.
    */
-  itemId?: string | undefined;
+  itemId: string;
 }
 
 export namespace TreeItem {

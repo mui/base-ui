@@ -63,7 +63,7 @@ export default function LargeTree() {
         style={{ maxHeight: 500, overflow: 'auto' }}
       >
         {(_item) => (
-          <Tree.Item className={styles.item}>
+          <Tree.Item itemId={_item.id} className={styles.item}>
             <Tree.ItemExpansionTrigger className={styles.expansionTrigger}>
               <ChevronIcon />
             </Tree.ItemExpansionTrigger>

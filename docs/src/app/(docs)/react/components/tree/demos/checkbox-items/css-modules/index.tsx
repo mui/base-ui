@@ -48,8 +48,8 @@ export default function ExampleTreeCheckboxItems() {
       selectionMode="multiple"
       className={styles.Tree}
     >
-      {() => (
-        <Tree.CheckboxItem className={styles.Item}>
+      {(item) => (
+        <Tree.CheckboxItem itemId={item.id} className={styles.Item}>
           <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
             <ChevronIcon />
           </Tree.ItemExpansionTrigger>

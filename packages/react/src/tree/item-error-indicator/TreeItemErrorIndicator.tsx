@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
@@ -18,18 +19,19 @@ const stateAttributesMapping: StateAttributesMapping<TreeItemErrorIndicator.Stat
  *
  * Documentation: [Base UI Tree](https://base-ui.com/react/components/tree)
  */
-export const TreeItemErrorIndicator = React.forwardRef(function TreeItemErrorIndicator(
+export const TreeItemErrorIndicator = fastComponentRef(function TreeItemErrorIndicator(
   componentProps: TreeItemErrorIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const { className, render, ...elementProps } = componentProps;
 
   const store = useTreeRootContext();
-  const { itemId } = useTreeItemContext();
-  const propsFromState = store.useState('errorIndicatorProps', itemId);
+  const itemId = useTreeItemContext();
+  const error = store.useState('itemError', itemId);
+  const hasError = error != null;
 
   const state: TreeItemErrorIndicator.State = {
-    hasError: propsFromState.hasError,
+    hasError,
   };
 
   return useRenderElement('span', componentProps, {
@@ -37,7 +39,7 @@ export const TreeItemErrorIndicator = React.forwardRef(function TreeItemErrorInd
     ref: forwardedRef,
     props: [{} as React.HTMLAttributes<HTMLSpanElement>, elementProps],
     stateAttributesMapping,
-    enabled: propsFromState.hasError,
+    enabled: hasError,
   });
 });
 
