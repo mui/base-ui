@@ -83,11 +83,6 @@ export const mdxComponents: MDXComponents = {
   Subtitle: (props) => <Subtitle className="MdSubtitle" {...props} />,
 };
 
-export const mdxComponentsInline: MDXComponents = {
-  ...mdxComponents,
-  p: (props) => props.children,
-};
-
 export function useMDXComponents(): MDXComponents {
   return mdxComponents;
 }

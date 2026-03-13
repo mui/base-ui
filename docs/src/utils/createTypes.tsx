@@ -4,7 +4,7 @@ import {
 } from '@mui/internal-docs-infra/abstractCreateTypes';
 import clsx from 'clsx';
 import { ReferenceTable } from '../components/ReferenceTable/ReferenceTable';
-import { mdxComponents, mdxComponentsInline } from '../mdx-components';
+import { mdxComponents } from '../mdx-components';
 import * as CodeBlock from '../components/CodeBlock';
 import { CodeBlockPreComputed } from '../components/CodeBlock/CodeBlockPreComputed';
 import { Code } from '../components/Code';
@@ -22,13 +22,9 @@ const components: MDXComponents = {
   ),
 };
 
-const inlineComponents: MDXComponents = {
-  ...mdxComponentsInline,
-  code: (props) => (
-    <Code {...props} data-table-code="" className={clsx(props.className, 'TableCode')} />
-  ),
-  pre: CodeBlock.PreInline,
-};
+function TableCode(props: React.ComponentProps<typeof Code>) {
+  return <Code {...props} data-table-code="" className={clsx(props.className, 'TableCode')} />;
+}
 
 /**
  * Creates a type doc component that renders a reference table for the given component.
@@ -37,9 +33,11 @@ const inlineComponents: MDXComponents = {
  * @param [meta] Additional meta for the typedocs.
  */
 export const createTypes = createTypesFactory({
-  TypesContent: ReferenceTable,
+  TypesTable: ReferenceTable,
   components,
-  inlineComponents,
+  TypePre: CodeBlock.PreInline,
+  ShortTypeCode: TableCode,
+  DefaultCode: TableCode,
   typeRefComponent: 'TypeRef',
   typePropRefComponent: 'TypePropRef',
 });
@@ -52,9 +50,11 @@ export const createTypes = createTypesFactory({
  * @param [meta] Additional meta for the typedocs.
  */
 export const createMultipleTypes = createMultipleTypesFactory({
-  TypesContent: ReferenceTable,
+  TypesTable: ReferenceTable,
   components,
-  inlineComponents,
+  TypePre: CodeBlock.PreInline,
+  ShortTypeCode: TableCode,
+  DefaultCode: TableCode,
   typeRefComponent: 'TypeRef',
   typePropRefComponent: 'TypePropRef',
 });

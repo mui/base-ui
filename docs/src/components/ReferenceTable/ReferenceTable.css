@@ -386,6 +386,11 @@
     margin-bottom: 1.5rem;
   }
 
+  .ReferenceBlockSpaced p:last-of-type,
+  .ReferenceBlock p:last-of-type {
+    margin: 0;
+  }
+
   .ReferenceBlock {
     margin-bottom: 1.5rem;
   }

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import type { TypesContentProps } from '@mui/internal-docs-infra/abstractCreateTypes';
+import type { TypesTableProps } from '@mui/internal-docs-infra/abstractCreateTypes';
 import { useTypes } from '@mui/internal-docs-infra/useTypes';
 import { ReferenceAccordion } from './ReferenceAccordion';
 import { AttributesReferenceTable } from './AttributesReferenceTable';
@@ -18,7 +18,7 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
   return <h4 className="ReferenceSectionHeading">{children}</h4>;
 }
 
-type ReferenceTableProps = TypesContentProps<{
+type ReferenceTableProps = TypesTableProps<{
   hideDescription?: boolean;
   showAdditionalTypes?: string[];
 }>;
