@@ -15,7 +15,7 @@ import { REASONS } from '../../utils/reasons';
 import { FloatingUIOpenChangeDetails } from '../../utils/types';
 import { TYPEABLE_SELECTOR } from '../utils/constants';
 import type { HandleClose } from './useHoverShared';
-import { getDelay, getRestMs } from './useHoverShared';
+import { getDelay, getRestMs, isHoverOpen as isHoverOpenShared } from './useHoverShared';
 
 const interactiveSelector = `button,[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`;
 
@@ -85,8 +85,7 @@ export function useHover(
   const restTimeoutPendingRef = React.useRef(false);
 
   const isHoverOpen = useStableCallback(() => {
-    const type = dataRef.current.openEvent?.type;
-    return type?.includes('mouse') && type !== 'mousedown';
+    return isHoverOpenShared(dataRef.current.openEvent?.type);
   });
 
   const isClickLikeOpenEvent = useStableCallback(() => {

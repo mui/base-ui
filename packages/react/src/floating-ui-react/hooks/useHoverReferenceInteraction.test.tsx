@@ -1,4 +1,4 @@
-import { fireEvent, flushMicrotasks, render, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, render, screen } from '@mui/internal-test-utils';
 import * as React from 'react';
 import { vi } from 'vitest';
 import { isJSDOM } from '@base-ui/utils/detectBrowser';
@@ -122,5 +122,120 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
 
     expect(onOpenChange).toHaveBeenCalledTimes(1);
     expect(screen.queryByRole('tooltip')).not.to.equal(null);
+  });
+
+  it('does not bypass open delay after mouseleave while already closed', async () => {
+    vi.useFakeTimers();
+
+    function App() {
+      const [open, setOpen] = React.useState(false);
+      const triggerElementRef = React.useRef<Element | null>(null);
+      const { refs, context } = useFloating({
+        open,
+        onOpenChange: setOpen,
+      });
+
+      const hoverProps = useHoverReferenceInteraction(context, {
+        delay: { open: 100, close: 0 },
+        triggerElementRef,
+      });
+
+      return (
+        <React.Fragment>
+          <button
+            data-testid="trigger"
+            ref={(node) => {
+              refs.setReference(node);
+              triggerElementRef.current = node;
+            }}
+            {...hoverProps}
+          />
+          {open && <div role="tooltip" ref={refs.setFloating} />}
+        </React.Fragment>
+      );
+    }
+
+    try {
+      render(<App />);
+      await flushMicrotasks();
+      const trigger = screen.getByTestId('trigger');
+
+      // Can happen during aborted hovers; should not seed hover handoff grace.
+      fireEvent.mouseLeave(trigger);
+      fireEvent.mouseMove(trigger, { movementX: 10, movementY: 0 });
+
+      expect(screen.queryByRole('tooltip')).to.equal(null);
+
+      await act(async () => {
+        vi.advanceTimersByTime(99);
+      });
+      await flushMicrotasks();
+      expect(screen.queryByRole('tooltip')).to.equal(null);
+
+      await act(async () => {
+        vi.advanceTimersByTime(1);
+      });
+      await flushMicrotasks();
+      expect(screen.queryByRole('tooltip')).not.to.equal(null);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('does not schedule a delayed close from mouseleave while already closed', async () => {
+    vi.useFakeTimers();
+
+    function App() {
+      const [open, setOpen] = React.useState(false);
+      const triggerElementRef = React.useRef<Element | null>(null);
+      const { refs, context } = useFloating({
+        open,
+        onOpenChange: setOpen,
+      });
+
+      const hoverProps = useHoverReferenceInteraction(context, {
+        delay: { open: 100, close: 300 },
+        triggerElementRef,
+      });
+
+      return (
+        <React.Fragment>
+          <button
+            data-testid="trigger"
+            ref={(node) => {
+              refs.setReference(node);
+              triggerElementRef.current = node;
+            }}
+            {...hoverProps}
+          />
+          {open && <div role="tooltip" ref={refs.setFloating} />}
+        </React.Fragment>
+      );
+    }
+
+    try {
+      render(<App />);
+      await flushMicrotasks();
+      const trigger = screen.getByTestId('trigger');
+
+      fireEvent.mouseLeave(trigger);
+      fireEvent.mouseEnter(trigger);
+
+      expect(screen.queryByRole('tooltip')).to.equal(null);
+
+      await act(async () => {
+        vi.advanceTimersByTime(100);
+      });
+      await flushMicrotasks();
+      expect(screen.queryByRole('tooltip')).not.to.equal(null);
+
+      await act(async () => {
+        vi.advanceTimersByTime(200);
+      });
+      await flushMicrotasks();
+      expect(screen.queryByRole('tooltip')).not.to.equal(null);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

@@ -64,3 +64,10 @@ export function getRestMs(value: number | (() => number)) {
 export function isClickLikeOpenEvent(openEventType: string | undefined, interactedInside: boolean) {
   return interactedInside || openEventType === 'click' || openEventType === 'mousedown';
 }
+
+/**
+ * Returns whether the popup was opened by a hover interaction.
+ */
+export function isHoverOpen(openEventType: string | undefined) {
+  return openEventType?.includes('mouse') === true && openEventType !== 'mousedown';
+}

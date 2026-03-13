@@ -265,24 +265,286 @@ describe('<Popover.Root />', () => {
 
     describe('prop: delay', () => {
       clock.withFakeTimers();
+      const OPEN_DELAY_MS = 100;
+
+      async function hoverTrigger(trigger: HTMLElement) {
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+        await flushMicrotasks();
+      }
+
+      async function openAfterDelay(trigger: HTMLElement) {
+        await hoverTrigger(trigger);
+        clock.tick(OPEN_DELAY_MS);
+        await flushMicrotasks();
+      }
 
       it('should open after delay with rest type by default', async () => {
-        await render(<TestPopover triggerProps={{ openOnHover: true, delay: 100 }} />);
+        await render(<TestPopover triggerProps={{ openOnHover: true, delay: OPEN_DELAY_MS }} />);
 
         const anchor = screen.getByRole('button', { name: 'Toggle' });
 
-        fireEvent.mouseEnter(anchor);
-        fireEvent.mouseMove(anchor);
-
-        await flushMicrotasks();
+        await hoverTrigger(anchor);
 
         expect(screen.queryByText('Content')).to.equal(null);
 
-        clock.tick(100);
-
+        clock.tick(OPEN_DELAY_MS);
         await flushMicrotasks();
 
         expect(screen.getByText('Content')).not.to.equal(null);
+      });
+
+      it('bypasses open delay when re-hovering the same trigger shortly after hover close', async () => {
+        await render(
+          <TestPopover triggerProps={{ openOnHover: true, delay: OPEN_DELAY_MS, closeDelay: 0 }} />,
+        );
+
+        const anchor = screen.getByRole('button', { name: 'Toggle' });
+
+        await hoverTrigger(anchor);
+
+        expect(screen.queryByTestId('popover-popup')).to.equal(null);
+
+        clock.tick(OPEN_DELAY_MS);
+        await flushMicrotasks();
+
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+
+        fireEvent.mouseLeave(anchor);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).to.equal(null);
+
+        await hoverTrigger(anchor);
+
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+      });
+
+      it('restores open delay after the hover-close grace period expires', async () => {
+        await render(
+          <TestPopover triggerProps={{ openOnHover: true, delay: OPEN_DELAY_MS, closeDelay: 0 }} />,
+        );
+
+        const anchor = screen.getByRole('button', { name: 'Toggle' });
+
+        await openAfterDelay(anchor);
+
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+
+        fireEvent.mouseLeave(anchor);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).to.equal(null);
+
+        // Grace window is 400ms; after it expires, delay should apply again.
+        clock.tick(401);
+
+        await hoverTrigger(anchor);
+
+        expect(screen.queryByTestId('popover-popup')).to.equal(null);
+
+        clock.tick(OPEN_DELAY_MS);
+        await flushMicrotasks();
+
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+      });
+
+      it('does not reuse hover-close grace after a click open/close cycle', async () => {
+        await render(
+          <TestPopover triggerProps={{ openOnHover: true, delay: OPEN_DELAY_MS, closeDelay: 0 }} />,
+        );
+
+        const anchor = screen.getByRole('button', { name: 'Toggle' });
+
+        await openAfterDelay(anchor);
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+
+        // Seed grace window with a hover close.
+        fireEvent.mouseLeave(anchor);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).to.equal(null);
+
+        // Click open/close should clear hover grace state.
+        clock.tick(PATIENT_CLICK_THRESHOLD);
+        fireEvent.click(anchor);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+
+        clock.tick(PATIENT_CLICK_THRESHOLD);
+        fireEvent.click(anchor);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).to.equal(null);
+
+        await hoverTrigger(anchor);
+        expect(screen.queryByTestId('popover-popup')).to.equal(null);
+
+        clock.tick(OPEN_DELAY_MS);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+      });
+
+      it('does not reuse hover-close grace after a controlled programmatic open/close cycle', async () => {
+        function Test() {
+          const [open, setOpen] = React.useState(false);
+
+          return (
+            <React.Fragment>
+              <button onClick={() => setOpen(true)}>Programmatic open</button>
+              <button onClick={() => setOpen(false)}>Programmatic close</button>
+              <TestPopover
+                rootProps={{ open, onOpenChange: setOpen }}
+                triggerProps={{ openOnHover: true, delay: OPEN_DELAY_MS, closeDelay: 0 }}
+              />
+            </React.Fragment>
+          );
+        }
+
+        await render(<Test />);
+
+        const anchor = screen.getByRole('button', { name: 'Toggle' });
+        const openButton = screen.getByRole('button', { name: 'Programmatic open' });
+        const closeButton = screen.getByRole('button', { name: 'Programmatic close' });
+
+        await openAfterDelay(anchor);
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+
+        fireEvent.mouseLeave(anchor);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).to.equal(null);
+
+        fireEvent.click(openButton);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+
+        fireEvent.click(closeButton);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).to.equal(null);
+
+        await hoverTrigger(anchor);
+        expect(screen.queryByTestId('popover-popup')).to.equal(null);
+
+        clock.tick(OPEN_DELAY_MS);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+      });
+
+      it('does not seed hover-close grace when a hover close is canceled', async () => {
+        function Test() {
+          const [open, setOpen] = React.useState(false);
+
+          return (
+            <React.Fragment>
+              <button onClick={() => setOpen(false)}>Programmatic close</button>
+              <TestPopover
+                rootProps={{
+                  open,
+                  onOpenChange: (nextOpen, eventDetails) => {
+                    if (!nextOpen) {
+                      eventDetails.cancel();
+                      return;
+                    }
+                    setOpen(nextOpen);
+                  },
+                }}
+                triggerProps={{ openOnHover: true, delay: OPEN_DELAY_MS, closeDelay: 0 }}
+              />
+            </React.Fragment>
+          );
+        }
+
+        await render(<Test />);
+
+        const anchor = screen.getByRole('button', { name: 'Toggle' });
+        const closeButton = screen.getByRole('button', { name: 'Programmatic close' });
+
+        await openAfterDelay(anchor);
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+
+        fireEvent.mouseLeave(anchor);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+
+        fireEvent.click(closeButton);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).to.equal(null);
+
+        await hoverTrigger(anchor);
+        expect(screen.queryByTestId('popover-popup')).to.equal(null);
+
+        clock.tick(OPEN_DELAY_MS);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+      });
+
+      it('reuses hover-close grace after a controlled hover close that updates open', async () => {
+        function Test() {
+          const [open, setOpen] = React.useState(false);
+
+          return (
+            <TestPopover
+              rootProps={{ open, onOpenChange: setOpen }}
+              triggerProps={{ openOnHover: true, delay: OPEN_DELAY_MS, closeDelay: 0 }}
+            />
+          );
+        }
+
+        await render(<Test />);
+
+        const anchor = screen.getByRole('button', { name: 'Toggle' });
+
+        await openAfterDelay(anchor);
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+
+        fireEvent.mouseLeave(anchor);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).to.equal(null);
+
+        await hoverTrigger(anchor);
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+      });
+
+      it('does not seed hover-close grace when a controlled hover close is ignored', async () => {
+        function Test() {
+          const [open, setOpen] = React.useState(false);
+
+          return (
+            <React.Fragment>
+              <button onClick={() => setOpen(false)}>Programmatic close</button>
+              <TestPopover
+                rootProps={{
+                  open,
+                  onOpenChange: (nextOpen) => {
+                    if (nextOpen) {
+                      setOpen(true);
+                    }
+                  },
+                }}
+                triggerProps={{ openOnHover: true, delay: OPEN_DELAY_MS, closeDelay: 0 }}
+              />
+            </React.Fragment>
+          );
+        }
+
+        await render(<Test />);
+
+        const anchor = screen.getByRole('button', { name: 'Toggle' });
+        const closeButton = screen.getByRole('button', { name: 'Programmatic close' });
+
+        await openAfterDelay(anchor);
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+
+        fireEvent.mouseLeave(anchor);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+
+        fireEvent.click(closeButton);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).to.equal(null);
+
+        await hoverTrigger(anchor);
+        expect(screen.queryByTestId('popover-popup')).to.equal(null);
+
+        clock.tick(OPEN_DELAY_MS);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
       });
     });
 
@@ -312,6 +574,24 @@ describe('<Popover.Root />', () => {
         clock.tick(50);
 
         expect(screen.queryByText('Content')).to.equal(null);
+      });
+
+      it('does not emit a close change when popup mouseleaves while already closed', async () => {
+        const onOpenChange = spy();
+
+        await render(
+          <TestPopover
+            rootProps={{ onOpenChange }}
+            triggerProps={{ openOnHover: true, closeDelay: 100 }}
+            portalProps={{ keepMounted: true }}
+          />,
+        );
+
+        const popup = screen.getByTestId('popover-popup');
+        fireEvent.mouseLeave(popup);
+        await flushMicrotasks();
+
+        expect(onOpenChange.callCount).to.equal(0);
       });
     });
 
@@ -546,9 +826,8 @@ describe('<Popover.Root />', () => {
 
           await user.tab({ shift: true });
 
-          expect(screen.getByRole('button', { name: 'Toggle' })).toHaveFocus();
-
           await waitFor(() => {
+            expect(trigger).toHaveFocus();
             expect(screen.queryByRole('listbox')).to.equal(null);
           });
         });
@@ -1439,6 +1718,51 @@ describe('<Popover.Root />', () => {
         expect(screen.queryByTestId('parent-popup')).not.to.equal(null);
         expect(screen.queryByTestId('child-popup')).to.equal(null);
       });
+    });
+  });
+
+  describe('multiple detached triggers hover delay handoff', () => {
+    clock.withFakeTimers();
+
+    it('bypasses open delay when hovering another trigger shortly after hover close', async () => {
+      const popoverHandle = Popover.createHandle();
+
+      await render(
+        <React.Fragment>
+          <Popover.Trigger handle={popoverHandle} openOnHover delay={100} closeDelay={0}>
+            Trigger 1
+          </Popover.Trigger>
+          <Popover.Trigger handle={popoverHandle} openOnHover delay={100} closeDelay={0}>
+            Trigger 2
+          </Popover.Trigger>
+          <Popover.Root handle={popoverHandle}>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="popover-popup">Content</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </React.Fragment>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
+      clock.tick(100);
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+      fireEvent.mouseLeave(trigger1);
+      await flushMicrotasks();
+      expect(screen.queryByTestId('popover-popup')).to.equal(null);
+
+      fireEvent.mouseEnter(trigger2);
+      fireEvent.mouseMove(trigger2);
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
     });
   });
 });
