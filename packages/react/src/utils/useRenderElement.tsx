@@ -114,7 +114,7 @@ function resolveRenderFunctionProps<TagName extends IntrinsicTagName | undefined
     return mergePropsN(props) as RenderFunctionProps<TagName>;
   }
 
-  return mergePropsN([props]) as RenderFunctionProps<TagName>;
+  return mergeProps({}, props) as RenderFunctionProps<TagName>;
 }
 
 // The symbol React uses internally for lazy components
