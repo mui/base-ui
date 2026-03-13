@@ -64,8 +64,8 @@ describe('<Toolbar.Group />', () => {
         expect(toolbarItem).toHaveAttribute('data-disabled');
       });
 
-      expect(screen.getByText('Link')).to.not.have.attribute('data-disabled');
-      expect(screen.getByText('Link')).to.not.have.attribute('aria-disabled');
+      expect(screen.getByText('Link')).not.toHaveAttribute('data-disabled');
+      expect(screen.getByText('Link')).not.toHaveAttribute('aria-disabled');
     });
   });
 });

@@ -237,7 +237,7 @@ describe('<Accordion.Root />', () => {
         expect(element).toHaveAttribute('data-disabled');
       });
       [item2, header2, trigger2].forEach((element) => {
-        expect(element).to.not.have.attribute('data-disabled');
+        expect(element).not.toHaveAttribute('data-disabled');
       });
     });
   });
@@ -600,8 +600,8 @@ describe('<Accordion.Root />', () => {
 
       const [trigger1, trigger2] = screen.getAllByRole('button');
 
-      expect(trigger1).to.not.have.attribute('data-panel-open');
-      expect(trigger2).to.not.have.attribute('data-panel-open');
+      expect(trigger1).not.toHaveAttribute('data-panel-open');
+      expect(trigger2).not.toHaveAttribute('data-panel-open');
       expect(screen.queryByText(PANEL_CONTENT_1)).toBe(null);
       expect(screen.queryByText(PANEL_CONTENT_2)).toBe(null);
 
@@ -636,8 +636,8 @@ describe('<Accordion.Root />', () => {
 
       expect(screen.queryByText(PANEL_CONTENT_1)).toBe(null);
       expect(screen.queryByText(PANEL_CONTENT_2)).toBe(null);
-      expect(trigger1).to.not.have.attribute('data-panel-open');
-      expect(trigger2).to.not.have.attribute('data-panel-open');
+      expect(trigger1).not.toHaveAttribute('data-panel-open');
+      expect(trigger2).not.toHaveAttribute('data-panel-open');
 
       await user.pointer({ keys: '[MouseLeft]', target: trigger1 });
 
@@ -649,7 +649,7 @@ describe('<Accordion.Root />', () => {
       expect(screen.queryByText(PANEL_CONTENT_2)).toHaveAttribute('data-open');
       expect(trigger2).toHaveAttribute('data-panel-open');
       expect(screen.queryByText(PANEL_CONTENT_1)).toBe(null);
-      expect(trigger1).to.not.have.attribute('data-panel-open');
+      expect(trigger1).not.toHaveAttribute('data-panel-open');
     });
   });
 

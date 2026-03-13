@@ -38,7 +38,7 @@ describe('<Field.Label />', () => {
     const label = screen.getByTestId('label');
     const control = screen.getByTestId('control');
 
-    expect(label).to.not.have.attribute('for');
+    expect(label).not.toHaveAttribute('for');
 
     await user.click(label);
     expect(control).toHaveFocus();

@@ -149,7 +149,7 @@ describe('<Checkbox.Root />', () => {
   describe('prop: disabled', () => {
     it('uses aria-disabled instead of HTML disabled', async () => {
       await render(<Checkbox.Root disabled />);
-      expect(screen.getByRole('checkbox')).to.not.have.attribute('disabled');
+      expect(screen.getByRole('checkbox')).not.toHaveAttribute('disabled');
       expect(screen.getByRole('checkbox')).toHaveAttribute('aria-disabled', 'true');
     });
 
@@ -947,11 +947,11 @@ describe('<Checkbox.Root />', () => {
 
           const label = screen.getByTestId('label');
           const input = document.querySelector('input[type="checkbox"]');
-          expect(label.getAttribute('for')).to.not.equal(null);
+          expect(label.getAttribute('for')).not.toBe(null);
           expect(label.getAttribute('for')).toBe(input?.getAttribute('id'));
 
           const checkbox = screen.getByRole('checkbox');
-          expect(label.getAttribute('id')).to.not.equal(null);
+          expect(label.getAttribute('id')).not.toBe(null);
           expect(checkbox.getAttribute('aria-labelledby')).toBe(label.getAttribute('id'));
 
           expect(checkbox).toHaveAttribute('aria-checked', 'false');
@@ -1033,7 +1033,7 @@ describe('<Checkbox.Root />', () => {
     const checkbox = screen.getByRole('checkbox');
     const labelA = screen.getByText('Label A');
 
-    expect(labelA.id).to.not.equal('');
+    expect(labelA.id).not.toBe('');
     expect(checkbox).toHaveAttribute('aria-labelledby', labelA.id);
 
     fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
@@ -1041,8 +1041,8 @@ describe('<Checkbox.Root />', () => {
     await waitFor(() => {
       const labelB = screen.getByText('Label B');
 
-      expect(labelB.id).to.not.equal('');
-      expect(labelA.id).to.not.equal(labelB.id);
+      expect(labelB.id).not.toBe('');
+      expect(labelA.id).not.toBe(labelB.id);
       expect(checkbox).toHaveAttribute('aria-labelledby', labelB.id);
     });
   });

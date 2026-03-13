@@ -94,7 +94,7 @@ describe('<Toast.Root />', () => {
 
     await waitFor(() => {
       const height = toastRoot.style.getPropertyValue('--toast-height');
-      expect(height).to.not.equal('');
+      expect(height).not.toBe('');
     });
 
     const initialHeight = parseInt(toastRoot.style.getPropertyValue('--toast-height'), 10);

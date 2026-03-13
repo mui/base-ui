@@ -1220,8 +1220,8 @@ describe('<Select.Root />', () => {
 
       await user.click(screen.getByRole('button', { name: 'toggle' }));
 
-      expect(trigger).to.not.have.attribute('disabled');
-      expect(trigger).to.not.have.attribute('data-disabled');
+      expect(trigger).not.toHaveAttribute('disabled');
+      expect(trigger).not.toHaveAttribute('data-disabled');
 
       await user.keyboard('[Tab]');
       expect(trigger).toHaveFocus();
@@ -2063,7 +2063,7 @@ describe('<Select.Root />', () => {
       await user.keyboard('{ArrowUp}');
       await user.keyboard('{Enter}');
       await flushMicrotasks();
-      expect(trigger).to.not.have.attribute('aria-invalid');
+      expect(trigger).not.toHaveAttribute('aria-invalid');
     });
 
     // flaky in real browser

@@ -253,7 +253,7 @@ describe('<Combobox.Input />', () => {
 
       const options = screen.getAllByRole('option');
       options.forEach((opt) => {
-        expect(opt).to.not.have.attribute('aria-selected', 'true');
+        expect(opt).not.toHaveAttribute('aria-selected', 'true');
       });
     });
 

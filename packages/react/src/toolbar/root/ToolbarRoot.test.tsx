@@ -103,8 +103,8 @@ describe('<Toolbar.Root />', () => {
       expect(screen.getByRole('group')).toHaveAttribute('data-disabled');
 
       screen.getAllByText('Link').forEach((link) => {
-        expect(link).to.not.have.attribute('data-disabled');
-        expect(link).to.not.have.attribute('aria-disabled');
+        expect(link).not.toHaveAttribute('data-disabled');
+        expect(link).not.toHaveAttribute('aria-disabled');
       });
     });
   });
@@ -131,7 +131,7 @@ describe('<Toolbar.Root />', () => {
       const input = screen.getByRole('textbox');
       const buttons = screen.getAllByRole('button');
       [input, ...buttons].forEach((item) => {
-        expect(item).to.not.have.attribute('disabled');
+        expect(item).not.toHaveAttribute('disabled');
       });
 
       const [button1, groupedButton1, groupedButton2] = buttons;
@@ -177,7 +177,7 @@ describe('<Toolbar.Root />', () => {
         (button) => button.getAttribute('data-focusable') != null,
       );
       [input, ...focusableWhenDisabledButtons].forEach((item) => {
-        expect(item).to.not.have.attribute('disabled');
+        expect(item).not.toHaveAttribute('disabled');
       });
 
       const [button1, groupedButton1, groupedButton2] = buttons;

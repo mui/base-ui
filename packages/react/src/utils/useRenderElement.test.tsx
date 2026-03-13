@@ -148,7 +148,7 @@ describe('useRenderElement', () => {
 
       await render(<TestComponent render={renderFn} />);
 
-      expect(warnSpy.mock.calls.length).to.equal(0);
+      expect(warnSpy.mock.calls.length).toBe(0);
       warnSpy.mockRestore();
     });
 
@@ -279,7 +279,7 @@ describe('useRenderElement', () => {
       );
 
       const element = container.firstElementChild;
-      expect(element).to.not.equal(null);
+      expect(element).not.toBe(null);
       expect(element?.getAttribute('data-testid')).toBe('lazy');
       expect(element?.getAttribute('data-lazy')).toBe('true');
       expect(element?.className).toContain('test-component');
@@ -301,7 +301,7 @@ describe('useRenderElement', () => {
           process.env.NODE_ENV = originalEnv;
         }
 
-        expect(error).to.not.equal(null);
+        expect(error).not.toBe(null);
         expect(error?.message).toMatch(
           /Base UI: The `render` prop was provided an invalid React element/,
         );

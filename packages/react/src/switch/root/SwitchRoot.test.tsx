@@ -127,7 +127,7 @@ describe('<Switch.Root />', () => {
       const switchEl = screen.getByRole('switch');
       const labelA = screen.getByText('Label A');
 
-      expect(labelA.id).to.not.equal('');
+      expect(labelA.id).not.toBe('');
       expect(switchEl).toHaveAttribute('aria-labelledby', labelA.id);
 
       fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
@@ -135,8 +135,8 @@ describe('<Switch.Root />', () => {
       await waitFor(() => {
         const labelB = screen.getByText('Label B');
 
-        expect(labelB.id).to.not.equal('');
-        expect(labelA.id).to.not.equal(labelB.id);
+        expect(labelB.id).not.toBe('');
+        expect(labelA.id).not.toBe(labelB.id);
         expect(switchEl).toHaveAttribute('aria-labelledby', labelB.id);
       });
     });
@@ -187,7 +187,7 @@ describe('<Switch.Root />', () => {
   describe('prop: disabled', () => {
     it('uses aria-disabled instead of HTML disabled', async () => {
       await render(<Switch.Root disabled />);
-      expect(screen.getByRole('switch')).to.not.have.attribute('disabled');
+      expect(screen.getByRole('switch')).not.toHaveAttribute('disabled');
       expect(screen.getByRole('switch')).toHaveAttribute('aria-disabled', 'true');
     });
 
@@ -714,7 +714,7 @@ describe('<Switch.Root />', () => {
 
       fireEvent.click(screen.getByText('submit'));
       expect(button).toHaveAttribute('aria-invalid', 'true');
-      expect(screen.queryByTestId('error')).to.not.equal(null);
+      expect(screen.queryByTestId('error')).not.toBe(null);
 
       fireEvent.click(button);
       expect(button).not.toHaveAttribute('aria-invalid');
@@ -722,7 +722,7 @@ describe('<Switch.Root />', () => {
 
       fireEvent.click(button);
       expect(button).toHaveAttribute('aria-invalid', 'true');
-      expect(screen.queryByTestId('error')).to.not.equal(null);
+      expect(screen.queryByTestId('error')).not.toBe(null);
     });
 
     it('prop: validationMode=onChange', async () => {
@@ -891,7 +891,7 @@ describe('<Switch.Root />', () => {
 
           // non-native labels cannot toggle a non-native-button switch
           fireEvent.click(label);
-          expect(switchEl).to.not.have.attribute('aria-checked', 'true');
+          expect(switchEl).not.toHaveAttribute('aria-checked', 'true');
         });
       });
     });

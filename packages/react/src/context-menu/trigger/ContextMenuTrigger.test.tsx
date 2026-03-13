@@ -54,7 +54,7 @@ describe('<ContextMenu.Trigger />', () => {
     expect(trigger).toHaveAttribute('data-popup-open', '');
 
     await user.keyboard('{Escape}');
-    expect(trigger).to.not.have.attribute('data-popup-open');
+    expect(trigger).not.toHaveAttribute('data-popup-open');
   });
 
   it('should call onOpenChange when menu is opened via right click', async () => {

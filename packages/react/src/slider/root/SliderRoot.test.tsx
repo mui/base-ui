@@ -102,8 +102,8 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       const label = screen.getByTestId('label');
       const slider = screen.getByRole('slider');
 
-      expect(label.id).to.not.equal('');
-      expect(root.id).to.not.equal('');
+      expect(label.id).not.toBe('');
+      expect(root.id).not.toBe('');
       expect(root).not.toHaveAttribute('aria-labelledby');
       expect(slider).not.toHaveAttribute('aria-labelledby');
     });
@@ -1033,7 +1033,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         document.body,
         createTouches([{ identifier: 1, clientX: 21, clientY: 0 }]),
       );
-      expect(sliderControl).to.not.have.attribute('data-dragging');
+      expect(sliderControl).not.toHaveAttribute('data-dragging');
       fireEvent.touchEnd(document.body, createTouches([{ identifier: 1, clientX: 0, clientY: 0 }]));
     });
 
@@ -1057,7 +1057,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         createTouches([{ identifier: 1, clientX: 200, clientY: 0 }]),
       );
 
-      expect(sliderControl).to.not.have.attribute('data-dragging');
+      expect(sliderControl).not.toHaveAttribute('data-dragging');
 
       fireEvent.touchMove(
         document.body,
@@ -1066,7 +1066,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
 
       expect(sliderControl).toHaveAttribute('data-dragging', '');
       fireEvent.touchEnd(document.body, createTouches([{ identifier: 1, clientX: 0, clientY: 0 }]));
-      expect(sliderControl).to.not.have.attribute('data-dragging');
+      expect(sliderControl).not.toHaveAttribute('data-dragging');
     });
   });
 
@@ -1226,7 +1226,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(handleValueChange.mock.lastCall?.[1].activeThumbIndex).toBe(2);
       expect(newValue[0]).toBe(10);
       expect(newValue[1]).toBe(40);
-      expect(newValue[2]).to.not.equal(60);
+      expect(newValue[2]).not.toBe(60);
     });
 
     it.skipIf(isJSDOM)('should fire only when the value changes', async () => {
@@ -2254,12 +2254,12 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         expect(screen.queryByTestId('error')).toBe(null);
 
         fireEvent.change(input, { target: { value: '98' } });
-        expect(input).to.not.have.attribute('aria-invalid');
+        expect(input).not.toHaveAttribute('aria-invalid');
         expect(screen.queryByTestId('error')).toBe(null);
 
         fireEvent.click(screen.getByText('submit'));
         expect(input).toHaveAttribute('aria-invalid', 'true');
-        expect(screen.queryByTestId('error')).to.not.equal(null);
+        expect(screen.queryByTestId('error')).not.toBe(null);
         expect(root).toHaveAttribute('data-invalid');
         expect(thumb).toHaveAttribute('data-invalid');
 
@@ -2273,7 +2273,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
 
         fireEvent.change(input, { target: { value: '94' } });
         expect(input).toHaveAttribute('aria-invalid', 'true');
-        expect(screen.queryByTestId('error')).to.not.equal(null);
+        expect(screen.queryByTestId('error')).not.toBe(null);
 
         fireEvent.change(input, { target: { value: '12' } });
         expect(input).not.toHaveAttribute('aria-invalid');

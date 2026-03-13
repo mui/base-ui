@@ -377,7 +377,7 @@ describe('<Autocomplete.Root />', () => {
       expect(input).toHaveAttribute('aria-activedescendant');
 
       const highlightedBefore = input.getAttribute('aria-activedescendant');
-      expect(highlightedBefore).to.not.equal(null);
+      expect(highlightedBefore).not.toBe(null);
 
       await user.clear(input);
 

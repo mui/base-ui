@@ -77,7 +77,7 @@ describe('<Field.Root />', () => {
     const control = screen.getByTestId('control');
 
     expect(label).not.toHaveAttribute('for');
-    expect(control.getAttribute('id')).to.not.equal(null);
+    expect(control.getAttribute('id')).not.toBe(null);
   });
 
   it('updates label associations when the control id changes', async () => {
@@ -141,8 +141,8 @@ describe('<Field.Root />', () => {
       const updatedControl = screen.getByRole('textbox');
       const updatedId = updatedControl.getAttribute('id') ?? '';
 
-      expect(updatedId).to.not.equal('');
-      expect(updatedId).to.not.equal('control-a');
+      expect(updatedId).not.toBe('');
+      expect(updatedId).not.toBe('control-a');
       expect(label).toHaveAttribute('for', updatedId);
     });
   });
@@ -158,7 +158,7 @@ describe('<Field.Root />', () => {
       </Field.Root>,
     );
 
-    expect(screen.getByTestId('trigger')).to.not.have.attribute('aria-labelledby');
+    expect(screen.getByTestId('trigger')).not.toHaveAttribute('aria-labelledby');
   });
 
   it.skipIf(isJSDOM)(
@@ -194,8 +194,8 @@ describe('<Field.Root />', () => {
       const label = screen.getByTestId('label');
       const checkbox = screen.getByTestId('checkbox');
 
-      expect(label.id).to.not.equal('');
-      expect(checkbox).to.not.have.attribute('aria-labelledby');
+      expect(label.id).not.toBe('');
+      expect(checkbox).not.toHaveAttribute('aria-labelledby');
 
       hydrate();
       await waitFor(() => {
@@ -244,7 +244,7 @@ describe('<Field.Root />', () => {
       const label = screen.getByTestId('label');
       const trigger = screen.getByTestId('trigger');
 
-      expect(trigger).to.not.have.attribute('aria-labelledby');
+      expect(trigger).not.toHaveAttribute('aria-labelledby');
 
       hydrate();
       await waitFor(() => {
@@ -253,7 +253,7 @@ describe('<Field.Root />', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Remove Label' }));
 
       expect(screen.queryByTestId('label')).toBe(null);
-      expect(screen.getByTestId('trigger')).to.not.have.attribute('aria-labelledby');
+      expect(screen.getByTestId('trigger')).not.toHaveAttribute('aria-labelledby');
     },
   );
 
@@ -1245,7 +1245,7 @@ describe('<Field.Root />', () => {
 
       await user.click(screen.getByText('validate'));
 
-      expect(screen.queryByTestId('error')).to.not.equal(null);
+      expect(screen.queryByTestId('error')).not.toBe(null);
     });
   });
 });

@@ -189,7 +189,7 @@ describe('<ToggleGroup />', () => {
       const [button1, button2] = screen.getAllByRole('button');
 
       expect(button1).toHaveAttribute('aria-disabled', 'false');
-      expect(button1).to.not.have.attribute('data-disabled');
+      expect(button1).not.toHaveAttribute('data-disabled');
       expect(button2).toHaveAttribute('aria-disabled', 'true');
       expect(button2).toHaveAttribute('data-disabled');
     });

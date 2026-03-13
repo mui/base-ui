@@ -77,7 +77,7 @@ describe('<Dialog.Close />', () => {
       expect(handleOpenChange.mock.calls[0][0]).toBe(true);
 
       const closeButton = screen.getByText('Close');
-      expect(closeButton).to.not.have.attribute('disabled');
+      expect(closeButton).not.toHaveAttribute('disabled');
       expect(closeButton).toHaveAttribute('data-disabled');
       expect(closeButton).toHaveAttribute('aria-disabled', 'true');
       await user.click(closeButton);

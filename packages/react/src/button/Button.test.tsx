@@ -68,7 +68,7 @@ describe('<Button />', () => {
 
       const button = screen.getByRole('button');
 
-      expect(button).to.not.have.attribute('disabled');
+      expect(button).not.toHaveAttribute('disabled');
       expect(button).toHaveAttribute('data-disabled');
       expect(button).toHaveAttribute('aria-disabled', 'true');
       expect(button).toHaveAttribute('tabindex', '-1');
@@ -107,7 +107,7 @@ describe('<Button />', () => {
 
       const button = screen.getByRole('button');
 
-      expect(button).to.not.have.attribute('disabled');
+      expect(button).not.toHaveAttribute('disabled');
       expect(button).toHaveAttribute('data-disabled');
       expect(button).toHaveAttribute('aria-disabled', 'true');
       expect(button).toHaveAttribute('tabindex', '0');
@@ -146,7 +146,7 @@ describe('<Button />', () => {
 
       const button = screen.getByRole('button');
 
-      expect(button).to.not.have.attribute('disabled');
+      expect(button).not.toHaveAttribute('disabled');
       expect(button).toHaveAttribute('data-disabled');
       expect(button).toHaveAttribute('aria-disabled', 'true');
       expect(button).toHaveAttribute('tabindex', '0');

@@ -184,8 +184,8 @@ describe('<Form />', () => {
 
       fireEvent.click(screen.getByText('Submit'));
 
-      expect(screen.queryByTestId('name-error')).to.not.equal(null);
-      expect(screen.queryByTestId('age-error')).to.not.equal(null);
+      expect(screen.queryByTestId('name-error')).not.toBe(null);
+      expect(screen.queryByTestId('age-error')).not.toBe(null);
 
       fireEvent.change(name, { target: { value: 'John' } });
       fireEvent.change(age, { target: { value: '42' } });
@@ -234,7 +234,7 @@ describe('<Form />', () => {
       await user.click(input);
       await user.keyboard('abcde');
       await user.click(screen.getByRole('button', { name: 'Submit' }));
-      expect(screen.queryByTestId('name-error')).to.not.equal(null);
+      expect(screen.queryByTestId('name-error')).not.toBe(null);
       expect(screen.getByTestId('name-error')).toHaveTextContent('submit error');
 
       validateSpy.mockClear();
@@ -243,7 +243,7 @@ describe('<Form />', () => {
       // value changes from 'abcde' to 'abcd'
       await user.keyboard('{Backspace}');
       expect(validateSpy.mock.calls.length).toBe(1);
-      expect(screen.queryByTestId('name-error')).to.not.equal(null);
+      expect(screen.queryByTestId('name-error')).not.toBe(null);
       expect(screen.getByTestId('name-error')).toHaveTextContent('field error');
     });
 
@@ -354,7 +354,7 @@ describe('<Form />', () => {
       expect(screen.queryByTestId('error')).toBe(null);
       fireEvent.click(screen.getByText('submit'));
       expect(submitSpy.mock.calls.length).toBe(0);
-      expect(screen.queryByTestId('error')).to.not.equal(null);
+      expect(screen.queryByTestId('error')).not.toBe(null);
     });
   });
 

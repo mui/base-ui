@@ -833,9 +833,9 @@ describe('<RadioGroup />', () => {
           const description = descriptions[index];
           const input = inputs[index];
 
-          expect(label.getAttribute('for')).to.not.equal(null);
+          expect(label.getAttribute('for')).not.toBe(null);
           expect(label.getAttribute('for')).toBe(input?.getAttribute('id'));
-          expect(description.getAttribute('id')).to.not.equal(null);
+          expect(description.getAttribute('id')).not.toBe(null);
           expect(description.getAttribute('id')).toBe(radio.getAttribute('aria-describedby'));
         });
 
@@ -864,7 +864,7 @@ describe('<RadioGroup />', () => {
 
         const groupDescription = screen.getByTestId('group-description');
         const groupDescriptionId = groupDescription.getAttribute('id');
-        expect(groupDescriptionId).to.not.equal(null);
+        expect(groupDescriptionId).not.toBe(null);
         expect(screen.getByRole('radiogroup').getAttribute('aria-describedby')).toContain(
           groupDescriptionId,
         );
@@ -902,22 +902,22 @@ describe('<RadioGroup />', () => {
 
         const radioGroup = screen.getByRole('radiogroup');
         const [radioA, radioB, radioC] = screen.getAllByTestId('item');
-        expect(radioGroup).to.not.have.attribute('aria-invalid');
+        expect(radioGroup).not.toHaveAttribute('aria-invalid');
 
         await user.click(radioA);
         expect(radioA).toHaveAttribute('data-checked', '');
-        expect(radioGroup).to.not.have.attribute('aria-invalid');
+        expect(radioGroup).not.toHaveAttribute('aria-invalid');
 
         await user.click(radioC);
         expect(radioC).toHaveAttribute('data-checked', '');
-        expect(radioGroup).to.not.have.attribute('aria-invalid');
+        expect(radioGroup).not.toHaveAttribute('aria-invalid');
 
         await user.click(screen.getByText('submit'));
         expect(radioGroup).toHaveAttribute('aria-invalid');
 
         await user.click(radioB);
         expect(radioB).toHaveAttribute('data-checked', '');
-        expect(radioGroup).to.not.have.attribute('aria-invalid');
+        expect(radioGroup).not.toHaveAttribute('aria-invalid');
       });
     });
   });

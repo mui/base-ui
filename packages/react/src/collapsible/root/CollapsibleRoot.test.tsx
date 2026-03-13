@@ -80,7 +80,7 @@ describe('<Collapsible.Root />', () => {
       expect(handleOpenChange.mock.calls.length).toBe(1);
       const [openArg, details] = handleOpenChange.mock.calls[0] as [boolean, any];
       expect(openArg).toBe(true);
-      expect(details).to.not.equal(undefined);
+      expect(details).not.toBe(undefined);
       expect(details.reason).toBe(REASONS.triggerPress);
       expect(details.event).toBeInstanceOf(MouseEvent);
       expect(details.isCanceled).toBe(false);
@@ -110,7 +110,7 @@ describe('<Collapsible.Root />', () => {
       const externalTrigger = screen.getByRole('button', { name: 'toggle' });
       const trigger = screen.getByRole('button', { name: 'trigger' });
 
-      expect(trigger).to.not.have.attribute('aria-controls');
+      expect(trigger).not.toHaveAttribute('aria-controls');
       expect(trigger).toHaveAttribute('aria-expanded', 'false');
       expect(screen.queryByText(PANEL_CONTENT)).toBe(null);
 
@@ -126,7 +126,7 @@ describe('<Collapsible.Root />', () => {
 
       await user.click(externalTrigger);
 
-      expect(trigger).to.not.have.attribute('aria-controls');
+      expect(trigger).not.toHaveAttribute('aria-controls');
       expect(trigger).toHaveAttribute('aria-expanded', 'false');
       expect(screen.queryByText(PANEL_CONTENT)).toBe(null);
     });
@@ -141,7 +141,7 @@ describe('<Collapsible.Root />', () => {
 
       const trigger = screen.getByRole('button');
 
-      expect(trigger).to.not.have.attribute('aria-controls');
+      expect(trigger).not.toHaveAttribute('aria-controls');
       expect(trigger).toHaveAttribute('aria-expanded', 'false');
       expect(screen.queryByText(PANEL_CONTENT)).toBe(null);
 
@@ -157,8 +157,8 @@ describe('<Collapsible.Root />', () => {
       await user.pointer({ keys: '[MouseLeft]', target: trigger });
 
       expect(trigger).toHaveAttribute('aria-expanded', 'false');
-      expect(trigger).to.not.have.attribute('aria-controls');
-      expect(trigger).to.not.have.attribute('data-panel-open');
+      expect(trigger).not.toHaveAttribute('aria-controls');
+      expect(trigger).not.toHaveAttribute('data-panel-open');
       expect(screen.queryByText(PANEL_CONTENT)).toBe(null);
     });
   });
@@ -175,7 +175,7 @@ describe('<Collapsible.Root />', () => {
 
         const trigger = screen.getByRole('button');
 
-        expect(trigger).to.not.have.attribute('aria-controls');
+        expect(trigger).not.toHaveAttribute('aria-controls');
         expect(trigger).toHaveAttribute('aria-expanded', 'false');
         expect(screen.queryByText(PANEL_CONTENT)).toBe(null);
 
@@ -192,7 +192,7 @@ describe('<Collapsible.Root />', () => {
 
         await user.keyboard(`[${key}]`);
 
-        expect(trigger).to.not.have.attribute('aria-controls');
+        expect(trigger).not.toHaveAttribute('aria-controls');
         expect(trigger).toHaveAttribute('aria-expanded', 'false');
         expect(trigger).not.toHaveAttribute('data-panel-open');
         expect(screen.queryByText(PANEL_CONTENT)).toBe(null);

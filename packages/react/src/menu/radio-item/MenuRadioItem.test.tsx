@@ -460,7 +460,7 @@ describe('<Menu.RadioItem />', () => {
     const [item1, item2] = screen.getAllByRole('menuitemradio');
 
     expect(item1).toHaveAttribute('data-disabled');
-    expect(item2).to.not.have.attribute('data-disabled');
+    expect(item2).not.toHaveAttribute('data-disabled');
 
     await act(() => item1.focus());
     expect(item1).toHaveFocus();

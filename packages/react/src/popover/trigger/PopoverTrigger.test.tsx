@@ -60,7 +60,7 @@ describe('<Popover.Trigger />', () => {
       );
 
       const trigger = screen.getByRole('button');
-      expect(trigger).to.not.have.attribute('disabled');
+      expect(trigger).not.toHaveAttribute('disabled');
       expect(trigger).toHaveAttribute('data-disabled');
       expect(trigger).toHaveAttribute('aria-disabled', 'true');
 

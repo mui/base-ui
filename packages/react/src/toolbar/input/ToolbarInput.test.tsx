@@ -158,7 +158,7 @@ describe('<Toolbar.Input />', () => {
 
       const input = screen.getByRole('textbox');
 
-      expect(input).to.not.have.attribute('disabled');
+      expect(input).not.toHaveAttribute('disabled');
       expect(input).toHaveAttribute('data-disabled');
       expect(input).toHaveAttribute('aria-disabled', 'true');
 

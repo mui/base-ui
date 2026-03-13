@@ -105,7 +105,7 @@ describe('<Radio.Root />', () => {
     const radio = screen.getByRole('radio');
     const labelA = screen.getByText('Label A');
 
-    expect(labelA.id).to.not.equal('');
+    expect(labelA.id).not.toBe('');
     expect(radio).toHaveAttribute('aria-labelledby', labelA.id);
 
     fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
@@ -113,8 +113,8 @@ describe('<Radio.Root />', () => {
     await waitFor(() => {
       const labelB = screen.getByText('Label B');
 
-      expect(labelB.id).to.not.equal('');
-      expect(labelA.id).to.not.equal(labelB.id);
+      expect(labelB.id).not.toBe('');
+      expect(labelA.id).not.toBe(labelB.id);
       expect(radio).toHaveAttribute('aria-labelledby', labelB.id);
     });
   });
@@ -128,7 +128,7 @@ describe('<Radio.Root />', () => {
       );
 
       const radio = screen.getByTestId('radio');
-      expect(radio).to.not.have.attribute('disabled');
+      expect(radio).not.toHaveAttribute('disabled');
       expect(radio).toHaveAttribute('aria-disabled', 'true');
     });
   });

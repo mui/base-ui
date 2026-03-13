@@ -136,7 +136,7 @@ describe('<ScrollArea.Root />', () => {
       await waitFor(() => {
         expect(
           getComputedStyle(verticalThumb).getPropertyValue('--scroll-area-thumb-height'),
-        ).to.not.equal('0px');
+        ).not.toBe('0px');
       });
     });
 
@@ -654,8 +654,8 @@ describe('<ScrollArea.Root />', () => {
       expect(startPx).toBe('35px');
 
       const horizontalEndPx = viewportStyle.getPropertyValue('--scroll-area-overflow-x-end');
-      expect(horizontalEndPx).to.not.equal('');
-      expect(horizontalEndPx).to.not.equal('0px');
+      expect(horizontalEndPx).not.toBe('');
+      expect(horizontalEndPx).not.toBe('0px');
     });
 
     it('does not add state attributes when content does not overflow', async () => {

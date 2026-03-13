@@ -39,7 +39,7 @@ describe('<Fieldset.Legend />', () => {
   it.skipIf(isJSDOM)('does not set `aria-labelledby` during SSR when legend is absent', () => {
     renderToString(<Fieldset.Root data-testid="fieldset" />);
 
-    expect(screen.getByTestId('fieldset')).to.not.have.attribute('aria-labelledby');
+    expect(screen.getByTestId('fieldset')).not.toHaveAttribute('aria-labelledby');
   });
 
   it.skipIf(isJSDOM)(
@@ -54,8 +54,8 @@ describe('<Fieldset.Legend />', () => {
       const fieldset = screen.getByTestId('fieldset');
       const legend = screen.getByTestId('legend');
 
-      expect(legend.id).to.not.equal('');
-      expect(fieldset).to.not.have.attribute('aria-labelledby');
+      expect(legend.id).not.toBe('');
+      expect(fieldset).not.toHaveAttribute('aria-labelledby');
 
       hydrate();
 

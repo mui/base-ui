@@ -118,7 +118,7 @@ describe('<Toast.Viewport />', () => {
     expect(viewport).toHaveAttribute('data-expanded');
 
     fireEvent.mouseLeave(root);
-    expect(viewport).to.not.have.attribute('data-expanded');
+    expect(viewport).not.toHaveAttribute('data-expanded');
   });
 
   it('keeps expanded on mouseleave when focus-visible is inside', async () => {

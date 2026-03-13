@@ -155,8 +155,8 @@ describe('<Combobox.Root />', () => {
       const label = screen.getByTestId('label');
       const trigger = screen.getByTestId('trigger');
 
-      expect(label.id).to.not.equal('');
-      expect(trigger.id).to.not.equal('');
+      expect(label.id).not.toBe('');
+      expect(trigger.id).not.toBe('');
       expect(trigger).not.toHaveAttribute('aria-labelledby');
     });
   });
@@ -1708,7 +1708,7 @@ describe('<Combobox.Root />', () => {
       const input = screen.getByTestId('input');
 
       expect(trigger).toHaveAttribute('id', 'test-id');
-      expect(input).to.not.have.attribute('id', 'test-id');
+      expect(input).not.toHaveAttribute('id', 'test-id');
     });
   });
 
@@ -3258,7 +3258,7 @@ describe('<Combobox.Root />', () => {
       await screen.findByRole('option', { name: 'banana' });
       await waitFor(() => expect(input).toHaveAttribute('aria-activedescendant'));
       const highlightedBefore = input.getAttribute('aria-activedescendant');
-      expect(highlightedBefore).to.not.equal(null);
+      expect(highlightedBefore).not.toBe(null);
 
       await user.clear(input);
       await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
@@ -3293,7 +3293,7 @@ describe('<Combobox.Root />', () => {
       });
 
       const activeId = input.getAttribute('aria-activedescendant');
-      expect(activeId).to.not.equal(null);
+      expect(activeId).not.toBe(null);
       const activeEl = document.getElementById(activeId!);
       expect(activeEl?.textContent).toBe('banana');
     });

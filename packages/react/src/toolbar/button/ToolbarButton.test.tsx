@@ -78,7 +78,7 @@ describe('<Toolbar.Button />', () => {
 
       const button = screen.getByRole('button');
 
-      expect(button).to.not.have.attribute('disabled');
+      expect(button).not.toHaveAttribute('disabled');
       expect(button).toHaveAttribute('data-disabled');
       expect(button).toHaveAttribute('aria-disabled', 'true');
 
@@ -195,7 +195,7 @@ describe('<Toolbar.Button />', () => {
 
         const switchElement = screen.getByRole('switch');
 
-        expect(switchElement).to.not.have.attribute('disabled');
+        expect(switchElement).not.toHaveAttribute('disabled');
         expect(switchElement).toHaveAttribute('data-disabled');
         expect(switchElement).toHaveAttribute('aria-disabled', 'true');
 
@@ -331,7 +331,7 @@ describe('<Toolbar.Button />', () => {
         );
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });
-        expect(trigger).to.not.have.attribute('disabled');
+        expect(trigger).not.toHaveAttribute('disabled');
         expect(trigger).toHaveAttribute('data-disabled');
         expect(trigger).toHaveAttribute('aria-disabled', 'true');
 
@@ -453,7 +453,7 @@ describe('<Toolbar.Button />', () => {
           expect(screen.queryByRole('listbox')).toBe(null);
 
           const trigger = screen.getByRole('combobox');
-          expect(trigger).to.not.have.attribute('disabled');
+          expect(trigger).not.toHaveAttribute('disabled');
           expect(trigger).toHaveAttribute('data-disabled');
           expect(trigger).toHaveAttribute('aria-disabled', 'true');
 
@@ -556,7 +556,7 @@ describe('<Toolbar.Button />', () => {
         expect(screen.queryByText('title text')).toBe(null);
 
         const trigger = screen.getByRole('button');
-        expect(trigger).to.not.have.attribute('disabled');
+        expect(trigger).not.toHaveAttribute('disabled');
         expect(trigger).toHaveAttribute('data-disabled');
         expect(trigger).toHaveAttribute('aria-disabled', 'true');
 
@@ -677,7 +677,7 @@ describe('<Toolbar.Button />', () => {
         expect(screen.queryByText('title text')).toBe(null);
 
         const trigger = screen.getByRole('button');
-        expect(trigger).to.not.have.attribute('disabled');
+        expect(trigger).not.toHaveAttribute('disabled');
         expect(trigger).toHaveAttribute('data-disabled');
         expect(trigger).toHaveAttribute('aria-disabled', 'true');
 
@@ -794,7 +794,7 @@ describe('<Toolbar.Button />', () => {
         expect(screen.queryByText('Content')).toBe(null);
 
         const trigger = screen.getByRole('button');
-        expect(trigger).to.not.have.attribute('disabled');
+        expect(trigger).not.toHaveAttribute('disabled');
         expect(trigger).toHaveAttribute('data-disabled');
         expect(trigger).toHaveAttribute('aria-disabled', 'true');
 
@@ -902,7 +902,7 @@ describe('<Toolbar.Button />', () => {
 
         [button1, button2, button3].forEach((button) => {
           expect(button).toHaveAttribute('aria-pressed', 'false');
-          expect(button).to.not.have.attribute('disabled');
+          expect(button).not.toHaveAttribute('disabled');
           expect(button).toHaveAttribute('data-disabled');
           expect(button).toHaveAttribute('aria-disabled', 'true');
         });
