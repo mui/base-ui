@@ -80,7 +80,7 @@
     "invalid": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the calendar is forcefully marked as invalid.",
+      "description": "Whether the calendar is forcefully marked as invalid.\nA calendar can be invalid when the selected date fails validation (i.e., is outside of the allowed `minDate` and `maxDate` range).",
       "detailedType": "boolean | undefined"
     },
     "children": {

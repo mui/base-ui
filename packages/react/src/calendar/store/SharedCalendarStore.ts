@@ -255,6 +255,7 @@ export interface SharedCalendarStoreParameters<TValue extends TemporalSupportedV
   readOnly?: boolean | undefined;
   /**
    * Whether the calendar is forcefully marked as invalid.
+   * A calendar can be invalid when the selected date fails validation (i.e., is outside of the allowed `minDate` and `maxDate` range).
    * @default false
    */
   invalid?: boolean | undefined;
