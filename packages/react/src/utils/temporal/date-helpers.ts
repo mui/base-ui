@@ -1,4 +1,4 @@
-import { TemporalAdapter, TemporalSupportedObject } from '../../types';
+import { TemporalAdapter, TemporalSupportedObject } from '../../types/temporal';
 
 export function mergeDateAndTime(
   adapter: TemporalAdapter,

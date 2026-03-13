@@ -1,6 +1,9 @@
 import { ReactStore } from '@base-ui/utils/store';
-import { TemporalSupportedObject, TemporalSupportedValue } from '../../types/temporal';
-import { TemporalAdapter } from '../../types/temporal-adapter';
+import {
+  TemporalSupportedObject,
+  TemporalSupportedValue,
+  TemporalAdapter,
+} from '../../types/temporal';
 import { ValidateDateValidationProps } from '../../utils/temporal/validateDate';
 import { getInitialReferenceDate } from '../../utils/temporal/getInitialReferenceDate';
 import { TemporalManager, TemporalTimezoneProps } from '../../utils/temporal/types';

@@ -1,4 +1,9 @@
-import { TemporalAdapter, TemporalSupportedObject, TemporalTimezone } from '@base-ui/react/types';
+// TODO Temporal: Replace with `@base-ui/react/types` import when Temporal components will become public.
+import {
+  TemporalAdapter,
+  TemporalSupportedObject,
+  TemporalTimezone,
+} from '../../src/types/temporal';
 
 export interface DescribeGregorianAdapterParameters {
   /**

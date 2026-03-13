@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
-import { TemporalSupportedObject } from '../../types/temporal';
+import { TemporalSupportedObject } from '../../types/temporal/temporal';
 import { getWeekList } from './getWeekList';
 
 export function useCalendarWeekList(): UseWeekListReturnValue {

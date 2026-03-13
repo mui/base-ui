@@ -1,13 +1,14 @@
 import * as React from 'react';
 import { Locale } from 'date-fns/locale';
 import { LocalizationProvider } from '@base-ui/react/localization-provider';
-import { TemporalAdapter } from '@base-ui/react/types';
 import {
   createRenderer,
   CreateRendererOptions,
   MuiRenderResult,
   RenderOptions,
 } from '@mui/internal-test-utils/createRenderer';
+// TODO Temporal: Replace with `@base-ui/react/types` import when Temporal components will become public.
+import { TemporalAdapter } from '../src/types/temporal';
 import { TemporalAdapterDateFns } from '../../react/src/temporal-adapter-date-fns/TemporalAdapterDateFns';
 
 /**

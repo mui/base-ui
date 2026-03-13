@@ -1,9 +1,12 @@
 import { createSelector, createSelectorMemoized } from '@base-ui/utils/store';
-import { TemporalSupportedObject, TemporalSupportedValue } from '../../types/temporal';
+import {
+  TemporalSupportedObject,
+  TemporalSupportedValue,
+  TemporalAdapter,
+} from '../../types/temporal';
 import { validateDate } from '../../utils/temporal/validateDate';
 import { getInitialReferenceDate } from '../../utils/temporal/getInitialReferenceDate';
 import { CalendarNavigationDirection, SharedCalendarState as State } from './SharedCalendarState';
-import { TemporalAdapter } from '../../types';
 
 const timezoneToRenderSelector = createSelectorMemoized(
   (state: State) => state.adapter,

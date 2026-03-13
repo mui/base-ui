@@ -4,7 +4,7 @@ import {
   TemporalSupportedObject,
   TemporalSupportedValue,
   TemporalTimezone,
-} from '../../types';
+} from '../../types/temporal';
 
 export type CalendarNavigationDirection = 'previous' | 'next' | 'none';
 

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { TemporalAdapter } from '../types/temporal-adapter';
+import { TemporalAdapter } from '../types/temporal';
 import { TemporalAdapterContext } from './TemporalAdapterContext';
 
 /**

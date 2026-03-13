@@ -1,7 +1,7 @@
 import { areDatesEqual } from './date-helpers';
 import { validateDate, ValidateDateReturnValue, ValidateDateValidationProps } from './validateDate';
 import { TemporalManager } from './types';
-import { TemporalValue, TemporalAdapter } from '../../types';
+import { TemporalValue, TemporalAdapter } from '../../types/temporal';
 
 export function getDateManager(adapter: TemporalAdapter): GetDateManagerReturnValue {
   return {

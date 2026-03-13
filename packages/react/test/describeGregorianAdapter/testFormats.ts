@@ -1,5 +1,6 @@
 import { expect } from 'chai';
-import { TemporalAdapterFormats } from '@base-ui/react/types';
+// TODO Temporal: Replace with `@base-ui/react/types` import when Temporal components will become public.
+import { TemporalAdapterFormats } from '../../src/types/temporal';
 import { DescribeGregorianAdapterTestSuite } from './describeGregorianAdapter.types';
 
 export const testFormats: DescribeGregorianAdapterTestSuite = ({ adapter }) => {

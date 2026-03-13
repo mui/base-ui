@@ -4,7 +4,7 @@ import { inertValue } from '@base-ui/utils/inertValue';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStore } from '@base-ui/utils/store';
-import { TemporalSupportedObject } from '@base-ui/react/types';
+import { TemporalSupportedObject } from '../../types/temporal';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { CalendarViewportDataAttributes } from './CalendarViewportDataAttributes';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';

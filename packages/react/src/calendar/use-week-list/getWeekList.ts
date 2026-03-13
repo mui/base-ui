@@ -1,5 +1,4 @@
-import { TemporalAdapter } from '../../types/temporal-adapter';
-import { TemporalSupportedObject } from '../../types/temporal';
+import { TemporalSupportedObject, TemporalAdapter } from '../../types/temporal';
 
 /**
  * Computes a list of week-start dates for the given month/date.

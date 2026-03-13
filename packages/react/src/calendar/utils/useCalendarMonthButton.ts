@@ -2,9 +2,8 @@
 import * as React from 'react';
 import { usePressAndHold } from '../../utils/usePressAndHold';
 import { REASONS } from '../../utils/reasons';
-import type { TemporalAdapter } from '../../types/temporal-adapter';
 import type { SharedCalendarStore } from '../store/SharedCalendarStore';
-import type { TemporalSupportedValue } from '../../types/temporal';
+import type { TemporalSupportedValue, TemporalAdapter } from '../../types/temporal';
 import { selectors } from '../store';
 
 const CHANGE_MONTH_TICK_DELAY = 100;

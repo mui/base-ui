@@ -1,4 +1,4 @@
-import { TemporalAdapter, TemporalTimezone, TemporalSupportedObject } from '../../types';
+import { TemporalAdapter, TemporalTimezone, TemporalSupportedObject } from '../../types/temporal';
 import { isAfterDay, isBeforeDay } from './date-helpers';
 import { ValidateDateValidationProps } from './validateDate';
 
