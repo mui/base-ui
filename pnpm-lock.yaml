@@ -176,8 +176,8 @@ importers:
         specifier: ^1.28.4
         version: 1.28.5(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@tanstack/react-virtual':
-        specifier: ^3.13.19
-        version: 3.13.19(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        specifier: ^3.13.21
+        version: 3.13.22(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@types/mdx':
         specifier: ^2.0.13
         version: 2.0.13
@@ -4520,8 +4520,8 @@ packages:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  '@tanstack/react-virtual@3.13.19':
-    resolution: {integrity: sha512-KzwmU1IbE0IvCZSm6OXkS+kRdrgW2c2P3Ho3NC+zZXWK6oObv/L+lcV/2VuJ+snVESRlMJ+w/fg4WXI/JzoNGQ==}
+  '@tanstack/react-virtual@3.13.22':
+    resolution: {integrity: sha512-EaOrBBJLi3M0bTMQRjGkxLXRw7Gizwntoy5E2Q2UnSbML7Mo2a1P/Hfkw5tw9FLzK62bj34Jl6VNbQfRV6eJcA==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -4597,8 +4597,8 @@ packages:
   '@tanstack/store@0.9.2':
     resolution: {integrity: sha512-K013lUJEFJK2ofFQ/hZKJUmCnpcV00ebLyOyFOWQvyQHUOZp/iYO84BM6aOGiV81JzwbX0APTVmW8YI7yiG5oA==}
 
-  '@tanstack/virtual-core@3.13.19':
-    resolution: {integrity: sha512-/BMP7kNhzKOd7wnDeB8NrIRNLwkf5AhCYCvtfZV2GXWbBieFm/el0n6LOAXlTi6ZwHICSNnQcIxRCWHrLzDY+g==}
+  '@tanstack/virtual-core@3.13.22':
+    resolution: {integrity: sha512-isuUGKsc5TAPDoHSbWTbl1SCil54zOS2MiWz/9GCWHPUQOvNTQx8qJEWC7UWR0lShhbK0Lmkcf0SZYxvch7G3g==}
 
   '@tanstack/virtual-file-routes@1.154.7':
     resolution: {integrity: sha512-cHHDnewHozgjpI+MIVp9tcib6lYEQK5MyUr0ChHpHFGBl8Xei55rohFK0I0ve/GKoHeioaK42Smd8OixPp6CTg==}
@@ -14865,9 +14865,9 @@ snapshots:
       react-dom: 19.2.4(react@19.2.4)
       use-sync-external-store: 1.6.0(react@19.2.4)
 
-  '@tanstack/react-virtual@3.13.19(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+  '@tanstack/react-virtual@3.13.22(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
     dependencies:
-      '@tanstack/virtual-core': 3.13.19
+      '@tanstack/virtual-core': 3.13.22
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
 
@@ -15000,7 +15000,7 @@ snapshots:
 
   '@tanstack/store@0.9.2': {}
 
-  '@tanstack/virtual-core@3.13.19': {}
+  '@tanstack/virtual-core@3.13.22': {}
 
   '@tanstack/virtual-file-routes@1.154.7': {}
 
