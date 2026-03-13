@@ -21,8 +21,10 @@ export default function ExampleFuzzyMatchingAutocomplete() {
       <Autocomplete.Portal>
         <Autocomplete.Positioner className="outline-hidden" sideOffset={4}>
           <Autocomplete.Popup className="w-[var(--anchor-width)] max-h-[min(var(--available-height),28rem)] max-w-[var(--available-width)] overflow-y-auto scroll-pt-2 scroll-pb-2 overscroll-contain rounded-md bg-[canvas] py-2 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
-            <Autocomplete.Empty className="px-4 py-2 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0">
-              No results found for "{<Autocomplete.Value />}"
+            <Autocomplete.Empty>
+              <div className="px-4 py-2 text-[0.925rem] leading-4 text-gray-600">
+                No results found for "{<Autocomplete.Value />}"
+              </div>
             </Autocomplete.Empty>
 
             <Autocomplete.List className="flex flex-col">

@@ -1,6 +1,6 @@
 {
   "name": "ComboboxStatus",
-  "description": "Displays a status message whose content changes are announced politely to screen readers.\nUseful for conveying the status of an asynchronously loaded list.\nRenders a `<div>` element.",
+  "description": "Displays a status message whose content changes are announced politely to screen readers.\nUseful for conveying the status of an asynchronously loaded list.\nTo announce updates reliably, keep this element mounted instead of conditionally\nhiding or removing it with `display: none`, `hidden`, or `aria-hidden`; prefer\nCSS such as `:empty` to conditionally apply layout styles when it has no content.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | ((state: Combobox.Status.State) => string | undefined)",

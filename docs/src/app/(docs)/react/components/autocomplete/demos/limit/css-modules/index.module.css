@@ -91,7 +91,7 @@
   }
 }
 
-.Empty:not(:empty) {
+.Empty {
   box-sizing: border-box;
   padding: 0.5rem 1rem;
   font-size: 0.925rem;
@@ -99,7 +99,7 @@
   color: var(--color-gray-600);
 }
 
-.Status:not(:empty) {
+.Status {
   box-sizing: border-box;
   margin-top: 0.25rem;
   padding: 0.5rem 1rem;

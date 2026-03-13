@@ -38,7 +38,9 @@ export default function ExampleVirtualizedCombobox() {
       <Combobox.Portal>
         <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
           <Combobox.Popup className={styles.Popup}>
-            <Combobox.Empty className={styles.Empty}>No items found.</Combobox.Empty>
+            <Combobox.Empty>
+              <div className={styles.Empty}>No items found.</div>
+            </Combobox.Empty>
             <Combobox.List className={styles.List}>
               <VirtualizedList virtualizerRef={virtualizerRef} />
             </Combobox.List>

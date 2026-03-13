@@ -60,6 +60,9 @@ export default function ExampleAsyncSingleCombobox() {
     return 'Try a different search term.';
   }
 
+  const status = getStatus();
+  const emptyMessage = getEmptyMessage();
+
   return (
     <Combobox.Root
       items={items}
@@ -139,11 +142,19 @@ export default function ExampleAsyncSingleCombobox() {
             className="box-border w-[var(--anchor-width)] max-h-[min(var(--available-height),23rem)] max-w-[var(--available-width)] origin-[var(--transform-origin)] overflow-y-auto scroll-pb-2 scroll-pt-2 overscroll-contain rounded-md bg-[canvas] py-2 text-gray-900 shadow-[0_10px_15px_-3px_var(--color-gray-200),0_4px_6px_-4px_var(--color-gray-200)] outline outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:transition-none data-[starting-style]:scale-95 data-[starting-style]:opacity-0 dark:-outline-offset-1 dark:shadow-none dark:outline-gray-300"
             aria-busy={isPending || undefined}
           >
-            <Combobox.Status className="flex items-center gap-2 py-1 pl-4 pr-5 text-sm text-gray-600 empty:hidden">
-              {getStatus()}
+            <Combobox.Status>
+              {status ? (
+                <div className="flex items-center gap-2 py-1 pl-4 pr-5 text-sm text-gray-600">
+                  {status}
+                </div>
+              ) : null}
             </Combobox.Status>
-            <Combobox.Empty className="px-4 py-2 text-[0.875rem] leading-4 text-gray-600 empty:hidden">
-              {getEmptyMessage()}
+            <Combobox.Empty>
+              {emptyMessage ? (
+                <div className="px-4 py-2 text-[0.875rem] leading-4 text-gray-600">
+                  {emptyMessage}
+                </div>
+              ) : null}
             </Combobox.Empty>
             <Combobox.List>
               {(user: DirectoryUser) => (

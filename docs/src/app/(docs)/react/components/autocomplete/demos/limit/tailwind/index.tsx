@@ -32,8 +32,10 @@ export default function ExampleAutocompleteLimit() {
       <Autocomplete.Portal>
         <Autocomplete.Positioner className="outline-hidden" sideOffset={4}>
           <Autocomplete.Popup className="w-[var(--anchor-width)] max-h-[min(var(--available-height),23rem)] max-w-[var(--available-width)] overflow-y-auto scroll-pt-2 scroll-pb-2 overscroll-contain rounded-md bg-[canvas] py-2 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
-            <Autocomplete.Empty className="px-4 py-2 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0">
-              No results found for "{value}"
+            <Autocomplete.Empty>
+              <div className="px-4 py-2 text-[0.925rem] leading-4 text-gray-600">
+                No results found for "{value}"
+              </div>
             </Autocomplete.Empty>
 
             <Autocomplete.List>
@@ -48,10 +50,12 @@ export default function ExampleAutocompleteLimit() {
               )}
             </Autocomplete.List>
 
-            <Autocomplete.Status className="mt-1 px-4 py-2 text-sm leading-5 text-gray-600 empty:m-0 empty:p-0">
-              {moreCount > 0
-                ? `Hiding ${moreCount} results (type a more specific query to narrow results)`
-                : null}
+            <Autocomplete.Status>
+              {moreCount > 0 ? (
+                <div className="mt-1 px-4 py-2 text-sm leading-5 text-gray-600">
+                  {`Hiding ${moreCount} results (type a more specific query to narrow results)`}
+                </div>
+              ) : null}
             </Autocomplete.Status>
           </Autocomplete.Popup>
         </Autocomplete.Positioner>

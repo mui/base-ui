@@ -45,8 +45,7 @@ describe('<Combobox.Empty />', () => {
       </Combobox.Root>,
     );
 
-    expect(screen.getByTestId('empty')).to.have.text('No results');
-    expect(screen.getByTestId('empty')).to.have.attribute('role', 'status');
+    expect(screen.getByTestId('empty')).to.contain.text('No results');
   });
 
   it('does not render when there are items', async () => {
@@ -70,7 +69,7 @@ describe('<Combobox.Empty />', () => {
       </Combobox.Root>,
     );
 
-    expect(screen.queryByText('No results')).to.equal(null);
+    expect(screen.queryByText(/No results/)).to.equal(null);
   });
 
   it('renders when the search query matches no items', async () => {
@@ -94,7 +93,7 @@ describe('<Combobox.Empty />', () => {
       </Combobox.Root>,
     );
 
-    expect(screen.queryByText('No results')).not.to.equal(null);
+    expect(screen.getByTestId('empty')).to.contain.text('No results');
   });
 
   it('does not render when the search query matches an item', async () => {
@@ -118,6 +117,96 @@ describe('<Combobox.Empty />', () => {
       </Combobox.Root>,
     );
 
-    expect(screen.queryByText('No results')).to.equal(null);
+    expect(screen.queryByText(/No results/)).to.equal(null);
+  });
+
+  describe('a11y', () => {
+    const { render: renderFakeTimers, clock } = createRenderer();
+
+    clock.withFakeTimers();
+
+    it('removes the initial text mutation one tick after mount', async () => {
+      await renderFakeTimers(
+        <Combobox.Root items={[]} defaultOpen>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Empty data-testid="empty">No results</Combobox.Empty>
+                <Combobox.List />
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByRole('status')).to.equal(screen.getByTestId('empty'));
+      expect(screen.getByTestId('empty').textContent).to.equal('No results\u2060');
+
+      clock.tick(0);
+
+      expect(screen.getByTestId('empty').textContent).to.equal('No results');
+    });
+
+    it('updates the live region immediately when the empty content appears after mount', async () => {
+      const { rerender } = await renderFakeTimers(
+        <Combobox.Root items={['a']} defaultOpen>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Empty data-testid="empty">No results</Combobox.Empty>
+                <Combobox.List />
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByTestId('empty')).to.have.text('');
+      expect(screen.getByRole('status')).to.equal(screen.getByTestId('empty'));
+
+      await rerender(
+        <Combobox.Root items={[]} defaultOpen>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Empty data-testid="empty">No results</Combobox.Empty>
+                <Combobox.List />
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByTestId('empty')).to.have.text('No results');
+    });
+
+    it('preserves a custom render prop on the visible element', async () => {
+      await renderFakeTimers(
+        <Combobox.Root items={[]} defaultOpen>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Empty render={<p data-testid="custom-empty" />}>
+                  No results
+                </Combobox.Empty>
+                <Combobox.List />
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByTestId('custom-empty').tagName).to.equal('P');
+      expect(screen.getByRole('status')).to.equal(screen.getByTestId('custom-empty'));
+      expect(screen.getByTestId('custom-empty').textContent).to.equal('No results\u2060');
+
+      clock.tick(0);
+
+      expect(screen.getByTestId('custom-empty').textContent).to.equal('No results');
+    });
   });
 });

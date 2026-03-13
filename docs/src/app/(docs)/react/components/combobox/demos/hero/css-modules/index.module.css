@@ -178,7 +178,7 @@
   height: 0.75rem;
 }
 
-.Empty:not(:empty) {
+.Empty {
   font-size: 0.925rem;
   line-height: 1rem;
   color: var(--color-gray-600);
