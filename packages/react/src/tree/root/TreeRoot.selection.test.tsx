@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { spy } from 'sinon';
+import { spy, stub } from 'sinon';
 import { act, fireEvent } from '@mui/internal-test-utils';
 import { describeTree } from '../../../test/describeTree';
 
@@ -1037,6 +1037,38 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         fireEvent.click(view.getItemRoot('1.1'));
         expect(view.getSelectedTreeItems()).to.deep.equal(['1.1', '1.2']);
       });
+    });
+  });
+
+  describe('selectionPropagation warning', () => {
+    it('should warn when selectionPropagation is used with single selection mode', async () => {
+      const consoleWarn = stub(console, 'warn');
+      try {
+        await render({
+          items: [{ id: '1', children: [{ id: '1.1' }] }],
+          selectionPropagation: { descendants: true },
+        });
+
+        expect(consoleWarn.callCount).to.be.greaterThanOrEqual(1);
+        expect(consoleWarn.firstCall.args[0]).to.include('selectionPropagation');
+      } finally {
+        consoleWarn.restore();
+      }
+    });
+
+    it('should not warn when selectionPropagation is used with multiple selection mode', async () => {
+      const consoleWarn = stub(console, 'warn');
+      try {
+        await render({
+          items: [{ id: '1', children: [{ id: '1.1' }] }],
+          selectionMode: 'multiple',
+          selectionPropagation: { descendants: true },
+        });
+
+        expect(consoleWarn.callCount).to.equal(0);
+      } finally {
+        consoleWarn.restore();
+      }
     });
   });
 

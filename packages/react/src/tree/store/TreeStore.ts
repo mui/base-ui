@@ -41,7 +41,10 @@ import {
 
 const TYPEAHEAD_TIMEOUT = 500;
 
-export interface TreeStoreParameters<Mode extends TreeSelectionMode | undefined = undefined> {
+export interface TreeStoreParameters<
+  Mode extends TreeSelectionMode | undefined = undefined,
+  TItem = TreeItemModel,
+> {
   /**
    * Whether the component should ignore user interaction.
    * @default false
@@ -51,7 +54,7 @@ export interface TreeStoreParameters<Mode extends TreeSelectionMode | undefined 
    * The items to render.
    * Each item must have a unique identifier.
    */
-  items: readonly TreeItemModel[];
+  items: readonly TItem[];
   /**
    * The expanded items.
    *
@@ -163,33 +166,33 @@ export interface TreeStoreParameters<Mode extends TreeSelectionMode | undefined 
    * Used to determine the id of a given item.
    * @default (item) => item.id
    */
-  getItemId?: ((item: TreeItemModel) => TreeItemId) | undefined;
+  getItemId?: ((item: TItem) => TreeItemId) | undefined;
   /**
    * Used to determine the string label of a given item.
    * @default (item) => item.label
    */
-  getItemLabel?: ((item: TreeItemModel) => string) | undefined;
+  getItemLabel?: ((item: TItem) => string) | undefined;
   /**
    * Used to determine the children of a given item.
    * @default (item) => item.children
    */
-  getItemChildren?: ((item: TreeItemModel) => TreeItemModel[] | undefined) | undefined;
+  getItemChildren?: ((item: TItem) => TItem[] | undefined) | undefined;
   /**
    * Used to determine if a given item should be disabled.
-   * @default () => false
+   * @default (item) => !!item.disabled
    */
-  isItemDisabled?: ((item: TreeItemModel) => boolean) | undefined;
+  isItemDisabled?: ((item: TItem) => boolean) | undefined;
   /**
    * Used to determine if a given item should have selection disabled.
-   * @default () => false
+   * @default (item) => !!item.disabled
    */
-  isItemSelectionDisabled?: ((item: TreeItemModel) => boolean) | undefined;
+  isItemSelectionDisabled?: ((item: TItem) => boolean) | undefined;
   /**
    * Used to determine if a given item should be editable.
    * If a boolean is provided, all items will be editable or non-editable.
    * @default false
    */
-  isItemEditable?: boolean | ((item: TreeItemModel) => boolean) | undefined;
+  isItemEditable?: boolean | ((item: TItem) => boolean) | undefined;
   /**
    * Event handler called when an item is clicked.
    */
@@ -205,18 +208,13 @@ export interface TreeStoreParameters<Mode extends TreeSelectionMode | undefined 
    */
   direction: 'ltr' | 'rtl';
   /**
-   * This prop is used to help implement the accessibility logic.
-   * If you don't provide this prop, it falls back to a randomly generated id.
-   */
-  treeId?: string | undefined;
-  /**
    * A ref to the root element of the tree.
    */
   rootRef: React.RefObject<HTMLElement | null>;
   /**
    * The lazy loading plugin instance, used to load items on demand when expanding a parent item.
    */
-  lazyLoading?: TreeLazyLoading | undefined;
+  lazyLoading?: TreeLazyLoading<TItem> | undefined;
 }
 
 function getLookupFromArray(array: string[]): Record<string, true> {
@@ -241,8 +239,8 @@ function isPrintableKey(key: string): boolean {
   return key.length === 1 && !!key.match(/\S/);
 }
 
-export interface TreeLazyLoading {
-  attach(store: TreeStore): void;
+export interface TreeLazyLoading<TItem = TreeItemModel> {
+  attach(store: TreeStore<any, TItem>): void;
   onBeforeExpand(
     itemId: TreeItemId,
     reason: TreeRootExpansionChangeEventReason,
@@ -252,11 +250,10 @@ export interface TreeLazyLoading {
   destroy(): void;
 }
 
-export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> extends ReactStore<
-  TreeState,
-  TreeStoreContext,
-  typeof selectors
-> {
+export class TreeStore<
+  Mode extends TreeSelectionMode | undefined = undefined,
+  TItem = TreeItemModel,
+> extends ReactStore<TreeState<any>, TreeStoreContext, typeof selectors> {
   // Focus reason tracking — default to 'keyboard' since tab focus is keyboard-like
   private lastFocusReason: TreeItemFocusEventReason = REASONS.keyboard;
 
@@ -272,15 +269,16 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
 
   private labelMap: Record<string, string> = {};
 
-  public lazyLoading: TreeLazyLoading | undefined;
+  public lazyLoading: TreeLazyLoading<TItem> | undefined;
 
-  constructor(parameters: TreeStoreParameters<Mode>) {
+  constructor(parameters: TreeStoreParameters<Mode, TItem>) {
     const selectionMode: TreeSelectionMode = parameters.selectionMode ?? 'single';
-    const getItemId = parameters.getItemId ?? ((item: TreeItemModel) => item.id);
-    const getItemLabel = parameters.getItemLabel ?? ((item: TreeItemModel) => item.label);
-    const getItemChildren = parameters.getItemChildren ?? ((item: TreeItemModel) => item.children);
-    const isItemDisabled = parameters.isItemDisabled ?? (() => false);
-    const isItemSelectionDisabled = parameters.isItemSelectionDisabled ?? (() => false);
+    const getItemId = parameters.getItemId ?? ((item: any) => item.id);
+    const getItemLabel = parameters.getItemLabel ?? ((item: any) => item.label);
+    const getItemChildren = parameters.getItemChildren ?? ((item: any) => item.children);
+    const isItemDisabled = parameters.isItemDisabled ?? ((item: any) => !!item.disabled);
+    const isItemSelectionDisabled =
+      parameters.isItemSelectionDisabled ?? ((item: any) => !!item.disabled);
     const isItemEditable = parameters.isItemEditable ?? false;
 
     super(
@@ -302,7 +300,6 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
         itemFocusableWhenDisabled: parameters.itemFocusableWhenDisabled ?? false,
         editedItemId: null,
         lazyLoadedItems: undefined,
-        treeId: parameters.treeId,
         getItemId,
         getItemLabel,
         getItemChildren,
@@ -1403,7 +1400,7 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
   // Lazy loading helpers (called by the plugin)
   // ===========================================================================
 
-  public setItemChildrenOverride(parentId: string, children: TreeItemModel[]) {
+  public setItemChildrenOverride(parentId: string, children: TItem[]) {
     this.set('lazyItems', {
       ...this.state.lazyItems,
       children: { ...this.state.lazyItems.children, [parentId]: children },
@@ -1442,13 +1439,13 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
   // Actions (exposed via actionsRef)
   // ===========================================================================
 
-  public getActions(): TreeRootActions {
+  public getActions(): TreeRootActions<TItem> {
     return {
       focusItem: (itemId) => {
         this.lastFocusReason = REASONS.imperativeAction;
         this.focusItem(itemId);
       },
-      getItem: (itemId) => selectors.itemModel(this.state, itemId),
+      getItem: (itemId) => selectors.itemModel(this.state, itemId) as TItem,
       getItemDOMElement: (itemId) => this.getItemDOMElement(itemId),
       getItemOrderedChildrenIds: (itemId) => selectors.itemOrderedChildrenIds(this.state, itemId),
       getItemTree: () => this.getItemTree(),
@@ -1479,15 +1476,15 @@ export class TreeStore<Mode extends TreeSelectionMode | undefined = undefined> e
     };
   }
 
-  private getItemTree(): TreeItemModel[] {
-    const getItemFromItemId = (itemId: TreeItemId): TreeItemModel => {
-      const item = selectors.itemModel(this.state, itemId);
+  private getItemTree(): TItem[] {
+    const getItemFromItemId = (itemId: TreeItemId): TItem => {
+      const item = selectors.itemModel(this.state, itemId) as TItem;
       const itemToMutate = { ...item };
       const childrenIds = selectors.itemOrderedChildrenIds(this.state, itemId);
       if (childrenIds.length > 0) {
-        itemToMutate.children = childrenIds.map(getItemFromItemId);
+        (itemToMutate as any).children = childrenIds.map(getItemFromItemId);
       } else {
-        delete itemToMutate.children;
+        delete (itemToMutate as any).children;
       }
       return itemToMutate;
     };

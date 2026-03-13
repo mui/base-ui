@@ -37,11 +37,16 @@ For animated expand/collapse, wrap the item render function in `Tree.AnimatedIte
 
 ```jsx title="Animated anatomy"
 <Tree.Root>
-  <Tree.AnimatedItemList renderGroupTransition={<div />}>
-    <Tree.Item>
-      <Tree.ItemExpansionTrigger />
-      <Tree.ItemLabel />
-    </Tree.Item>
+  <Tree.AnimatedItemList>
+    {(item, animatedChildren) => (
+      <React.Fragment>
+        <Tree.Item>
+          <Tree.ItemExpansionTrigger />
+          <Tree.ItemLabel />
+        </Tree.Item>
+        <Tree.GroupTransition>{animatedChildren}</Tree.GroupTransition>
+      </React.Fragment>
+    )}
   </Tree.AnimatedItemList>
 </Tree.Root>
 ```
@@ -68,7 +73,7 @@ import { DemoTreeCheckboxItems } from './demos/checkbox-items';
 
 ### Animated expand/collapse
 
-Enable smooth height transitions when expanding and collapsing tree items using `Tree.AnimatedItemList`. Wrap your item render function inside this part and provide a `renderGroupTransition` element to control the animation wrapper. The wrapper exposes `--tree-group-height`, `data-starting-style`, and `data-ending-style` for CSS-based animations.
+Enable smooth height transitions when expanding and collapsing tree items using `Tree.AnimatedItemList` and `Tree.GroupTransition`. The render function receives `animatedChildren` as its second argument — pass it as children of `Tree.GroupTransition` to enable animated transitions. The wrapper exposes `--tree-group-height`, `data-starting-style`, and `data-ending-style` for CSS-based animations.
 
 import { DemoTreeAnimated } from './demos/animated';
 
@@ -86,5 +91,5 @@ import { DemoTreeLazyLoading } from './demos/lazy-loading';
 
 <Reference
   component="Tree"
-  parts="Root, AnimatedItemList, Item, CheckboxItem, CheckboxItemIndicator, ItemLabel, ItemExpansionTrigger, ItemGroupIndicator, ItemLoadingIndicator, ItemErrorIndicator"
+  parts="Root, AnimatedItemList, GroupTransition, Item, CheckboxItem, CheckboxItemIndicator, ItemLabel, ItemExpansionTrigger, ItemGroupIndicator, ItemLoadingIndicator, ItemErrorIndicator"
 />

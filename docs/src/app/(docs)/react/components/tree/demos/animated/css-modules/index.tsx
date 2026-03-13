@@ -44,14 +44,19 @@ const items: TreeItemModel[] = [
 export default function ExampleTreeAnimated() {
   return (
     <Tree.Root items={items} defaultExpandedItems={['documents']} className={styles.Tree}>
-      <Tree.AnimatedItemList renderGroupTransition={<div className={styles.GroupTransition} />}>
-        {() => (
-          <Tree.Item className={styles.Item}>
-            <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
-              <ChevronIcon />
-            </Tree.ItemExpansionTrigger>
-            <Tree.ItemLabel className={styles.Label} />
-          </Tree.Item>
+      <Tree.AnimatedItemList>
+        {(item, animatedChildren) => (
+          <React.Fragment>
+            <Tree.Item className={styles.Item}>
+              <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
+                <ChevronIcon />
+              </Tree.ItemExpansionTrigger>
+              <Tree.ItemLabel className={styles.Label} />
+            </Tree.Item>
+            <Tree.GroupTransition className={styles.GroupTransition}>
+              {animatedChildren}
+            </Tree.GroupTransition>
+          </React.Fragment>
         )}
       </Tree.AnimatedItemList>
     </Tree.Root>

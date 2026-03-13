@@ -29,11 +29,11 @@ import type {
 import { EMPTY_OBJECT } from '../../utils/constants';
 import { TreeItemModelProvider } from '../utils/TreeItemModelProvider';
 
-const defaultGetItemId = (item: TreeItemModel) => item.id;
-const defaultGetItemLabel = (item: TreeItemModel) => item.label;
-const defaultGetItemChildren = (item: TreeItemModel) => item.children;
-const defaultIsItemDisabled = () => false;
-const defaultIsItemSelectionDisabled = () => false;
+const defaultGetItemId = (item: any) => item.id;
+const defaultGetItemLabel = (item: any) => item.label;
+const defaultGetItemChildren = (item: any) => item.children;
+const defaultIsItemDisabled = (item: any) => !!item.disabled;
+const defaultIsItemSelectionDisabled = (item: any) => !!item.disabled;
 
 /**
  * Groups all parts of the tree.
@@ -43,7 +43,8 @@ const defaultIsItemSelectionDisabled = () => false;
  */
 export const TreeRoot = React.forwardRef(function TreeRoot<
   Mode extends TreeSelectionMode | undefined = undefined,
->(componentProps: TreeRoot.Props<Mode>, forwardedRef: React.ForwardedRef<HTMLUListElement>) {
+  TItem = TreeItemModel,
+>(componentProps: TreeRoot.Props<Mode, TItem>, forwardedRef: React.ForwardedRef<HTMLUListElement>) {
   const {
     // Rendering props
     className,
@@ -67,11 +68,11 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
     disallowEmptySelection,
     selectionPropagation,
     // Item accessors
-    getItemId,
-    getItemLabel,
-    getItemChildren,
-    isItemDisabled,
-    isItemSelectionDisabled,
+    getItemId = defaultGetItemId,
+    getItemLabel = defaultGetItemLabel,
+    getItemChildren = defaultGetItemChildren,
+    isItemDisabled = defaultIsItemDisabled,
+    isItemSelectionDisabled = defaultIsItemSelectionDisabled,
     isItemEditable,
     // Focus
     itemFocusableWhenDisabled,
@@ -89,11 +90,22 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
 
   const direction = useDirection();
 
+  if (process.env.NODE_ENV !== 'production') {
+    if (
+      (selectionMode === undefined || selectionMode === 'single') &&
+      (selectionPropagation?.parents || selectionPropagation?.descendants)
+    ) {
+      console.warn(
+        'Base UI: The `selectionPropagation` prop is not supported when `selectionMode="single"`. It will be ignored.',
+      );
+    }
+  }
+
   const rootRef = React.useRef<HTMLUListElement>(null);
 
   const store = useRefWithInit(
     () =>
-      new TreeStore<Mode>({
+      new TreeStore<Mode, TItem>({
         disabled,
         items,
         expandedItems,
@@ -129,11 +141,6 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
   // Sync controlled props
   store.useControlledProp('expandedItems', expandedItems);
   store.useControlledProp('selectedItems', selectedItems as any);
-  const getItemIdFn = getItemId ?? defaultGetItemId;
-  const getItemLabelFn = getItemLabel ?? defaultGetItemLabel;
-  const getItemChildrenFn = getItemChildren ?? defaultGetItemChildren;
-  const isItemDisabledFn = isItemDisabled ?? defaultIsItemDisabled;
-  const isItemSelectionDisabledFn = isItemSelectionDisabled ?? defaultIsItemSelectionDisabled;
   store.useSyncedValues({
     disabled: disabled ?? false,
     items,
@@ -142,11 +149,11 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
     disallowEmptySelection: disallowEmptySelection ?? false,
     selectionPropagation: selectionPropagation ?? EMPTY_OBJECT,
     itemFocusableWhenDisabled: itemFocusableWhenDisabled ?? false,
-    getItemId: getItemIdFn,
-    getItemLabel: getItemLabelFn,
-    getItemChildren: getItemChildrenFn,
-    isItemDisabled: isItemDisabledFn,
-    isItemSelectionDisabled: isItemSelectionDisabledFn,
+    getItemId,
+    getItemLabel,
+    getItemChildren,
+    isItemDisabled,
+    isItemSelectionDisabled,
     isItemEditable: isItemEditable ?? false,
     direction,
   });
@@ -173,7 +180,7 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
 
     return flatItemIds.map((itemId) => (
       <TreeItemModelProvider key={itemId} store={store} itemId={itemId}>
-        {children}
+        {children as any}
       </TreeItemModelProvider>
     ));
   }, [flatItemIds, store, children]);
@@ -200,8 +207,8 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
 
   return <TreeRootContext.Provider value={store}>{element}</TreeRootContext.Provider>;
 }) as {
-  <Mode extends TreeSelectionMode | undefined = undefined>(
-    props: TreeRoot.Props<Mode>,
+  <Mode extends TreeSelectionMode | undefined = undefined, TItem = TreeItemModel>(
+    props: TreeRoot.Props<Mode, TItem>,
   ): React.JSX.Element;
 };
 
@@ -212,25 +219,31 @@ export interface TreeRootState {
   disabled: boolean;
 }
 
-export interface TreeRootProps<Mode extends TreeSelectionMode | undefined = undefined>
+export interface TreeRootProps<
+  Mode extends TreeSelectionMode | undefined = undefined,
+  TItem = TreeItemModel,
+>
   extends
     Omit<BaseUIComponentProps<'ul', TreeRootState>, 'children'>,
-    Omit<TreeStoreParameters<Mode>, 'treeId' | 'rootRef' | 'direction'> {
+    Omit<TreeStoreParameters<Mode, TItem>, 'rootRef' | 'direction'> {
   /**
    * The render function for each tree item, or a `Tree.AnimatedItemList` element
    * for animated expand/collapse transitions.
    */
-  children: ((item: TreeItemModel) => React.ReactNode) | React.ReactNode;
+  children: ((item: TItem) => React.ReactNode) | React.ReactNode;
   /**
    * A ref to imperative actions on the tree.
    */
-  actionsRef?: React.RefObject<TreeRootActions | null> | undefined;
+  actionsRef?: React.RefObject<TreeRootActions<TItem> | null> | undefined;
 }
 
 export namespace TreeRoot {
   export type State = TreeRootState;
-  export type Props<Mode extends TreeSelectionMode | undefined = undefined> = TreeRootProps<Mode>;
-  export type Actions = TreeRootActions;
+  export type Props<
+    Mode extends TreeSelectionMode | undefined = undefined,
+    TItem = TreeItemModel,
+  > = TreeRootProps<Mode, TItem>;
+  export type Actions<TItem = TreeItemModel> = TreeRootActions<TItem>;
   export type ExpansionChangeEventReason = TreeRootExpansionChangeEventReason;
   export type ExpansionChangeEventDetails = TreeRootExpansionChangeEventDetails;
   export type SelectionChangeEventReason = TreeRootSelectionChangeEventReason;

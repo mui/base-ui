@@ -12,46 +12,46 @@ const LAZY_LOADED_ITEMS_INITIAL_STATE = {
   errors: {} as Record<string, Error | undefined>,
 };
 
-export interface UseTreeLazyLoadingConfig {
+export interface UseTreeLazyLoadingConfig<TItem = TreeItemModel> {
   /**
    * Fetches children for a given parent item.
    * Called with `undefined` to fetch root items.
    */
-  fetchChildren: (parentId?: TreeItemId) => Promise<TreeItemModel[]>;
+  fetchChildren: (parentId?: TreeItemId) => Promise<TItem[]>;
   /**
    * Returns the number of children an item has.
    * - `0` means the item is a leaf (not expandable).
    * - `-1` means the count is unknown (still expandable).
    * - Any positive number means the item is expandable.
    */
-  getChildrenCount: (item: TreeItemModel) => number;
+  getChildrenCount: (item: TItem) => number;
   /**
    * Optional cache for fetched children.
    * When omitted, no caching is performed (useful when using React Query or similar).
    * Use `DataSourceCacheDefault` for a simple TTL-based cache.
    */
-  cache?: DataSourceCache | undefined;
+  cache?: DataSourceCache<TItem> | undefined;
 }
 
-class LazyLoadingPlugin implements TreeLazyLoading {
-  private store: TreeStore | null = null;
+class LazyLoadingPlugin<TItem = TreeItemModel> implements TreeLazyLoading<TItem> {
+  private store: TreeStore<any, TItem> | null = null;
 
   private nestedDataManager = new NestedDataManager(this);
 
-  private configRef: React.RefObject<UseTreeLazyLoadingConfig>;
+  private configRef: React.RefObject<UseTreeLazyLoadingConfig<TItem>>;
 
-  private cache: DataSourceCache | undefined;
+  private cache: DataSourceCache<TItem> | undefined;
 
-  constructor(configRef: React.RefObject<UseTreeLazyLoadingConfig>) {
+  constructor(configRef: React.RefObject<UseTreeLazyLoadingConfig<TItem>>) {
     this.configRef = configRef;
     this.cache = configRef.current.cache;
   }
 
-  private get config(): UseTreeLazyLoadingConfig {
+  private get config(): UseTreeLazyLoadingConfig<TItem> {
     return this.configRef.current;
   }
 
-  attach(store: TreeStore): void {
+  attach(store: TreeStore<any, TItem>): void {
     this.store = store;
     this.cache = this.config.cache;
 
@@ -80,7 +80,7 @@ class LazyLoadingPlugin implements TreeLazyLoading {
     const metaLookup = selectors.itemMetaLookup(this.store.state);
 
     for (const [id, meta] of Object.entries(metaLookup)) {
-      const model = selectors.itemModel(this.store.state, id);
+      const model = selectors.itemModel(this.store.state, id) as TItem;
       if (!model) {
         continue;
       }
@@ -247,7 +247,7 @@ class LazyLoadingPlugin implements TreeLazyLoading {
     }
 
     try {
-      let response: TreeItemModel[];
+      let response: TItem[];
       if (itemId == null) {
         response = await fetchChildren();
       } else {
@@ -276,7 +276,7 @@ class LazyLoadingPlugin implements TreeLazyLoading {
     }
   };
 
-  private updateExpandableOverridesForItems(items: TreeItemModel[]): void {
+  private updateExpandableOverridesForItems(items: TItem[]): void {
     if (!this.store) {
       return;
     }
@@ -318,13 +318,15 @@ class LazyLoadingPlugin implements TreeLazyLoading {
  * </Tree.Root>
  * ```
  */
-export function useLazyLoading(config: UseTreeLazyLoadingConfig): TreeLazyLoading {
+export function useLazyLoading<TItem = TreeItemModel>(
+  config: UseTreeLazyLoadingConfig<TItem>,
+): TreeLazyLoading<TItem> {
   const configRef = React.useRef(config);
   configRef.current = config;
 
-  const pluginRef = React.useRef<LazyLoadingPlugin | null>(null);
+  const pluginRef = React.useRef<LazyLoadingPlugin<TItem> | null>(null);
   if (pluginRef.current === null) {
-    pluginRef.current = new LazyLoadingPlugin(configRef);
+    pluginRef.current = new LazyLoadingPlugin<TItem>(configRef);
   }
 
   // Keep cache in sync

@@ -2,9 +2,9 @@
 import * as React from 'react';
 import type { TreeStore } from '../store/TreeStore';
 
-export const TreeRootContext = React.createContext<TreeStore | undefined>(undefined);
+export const TreeRootContext = React.createContext<TreeStore<any, any> | undefined>(undefined);
 
-export function useTreeRootContext(): TreeStore {
+export function useTreeRootContext(): TreeStore<any, any> {
   const context = React.useContext(TreeRootContext);
   if (context === undefined) {
     throw new Error(

@@ -72,8 +72,8 @@ export type ItemMetaPatches = Record<TreeItemId, Partial<Pick<TreeItemMeta, 'lab
  * Lazy-loaded tree structure additions.
  * Contains children arrays keyed by parent ID and expandability hints.
  */
-export interface LazyItemsState {
-  children: Record<string, TreeItemModel[]>;
+export interface LazyItemsState<TItem = TreeItemModel> {
+  children: Record<string, TItem[]>;
   expandable: Record<TreeItemId, boolean>;
 }
 
@@ -82,8 +82,8 @@ export const TREE_VIEW_ROOT_PARENT_ID = '__ROOT__';
 /**
  * The computed lookup tables derived from the items prop and accessor functions.
  */
-export interface TreeItemsState {
-  itemModelLookup: Record<TreeItemId, TreeItemModel>;
+export interface TreeItemsState<TItem = TreeItemModel> {
+  itemModelLookup: Record<TreeItemId, TItem>;
   itemMetaLookup: Record<TreeItemId, TreeItemMeta>;
   itemOrderedChildrenIdsLookup: Record<string, TreeItemId[]>;
   itemChildrenIndexesLookup: Record<string, Record<TreeItemId, number>>;
@@ -132,7 +132,7 @@ export type TreeItemSelectionToggleEventDetails =
 /**
  * The full store state for the Tree component.
  */
-export interface TreeState {
+export interface TreeState<TItem = TreeItemModel> {
   /**
    * Whether the entire tree is disabled
    */
@@ -140,7 +140,7 @@ export interface TreeState {
   /**
    * The raw items prop from the user
    */
-  items: readonly TreeItemModel[];
+  items: readonly TItem[];
   /**
    * Sparse per-item metadata patches (label edits, imperative disabled).
    * Applied on top of the computed items state in selectors.
@@ -189,7 +189,7 @@ export interface TreeState {
    * Lazy-loaded tree structure additions.
    * Contains children arrays keyed by parent ID and expandability hints.
    */
-  lazyItems: LazyItemsState;
+  lazyItems: LazyItemsState<TItem>;
   /**
    * Lazy loading state. undefined when lazy loading is not in use
    */
@@ -197,35 +197,31 @@ export interface TreeState {
   /**
    * Extracts the ID from an item model
    */
-  getItemId: (item: TreeItemModel) => TreeItemId;
+  getItemId: (item: TItem) => TreeItemId;
   /**
    * Extracts the label from an item model
    */
-  getItemLabel: (item: TreeItemModel) => string;
+  getItemLabel: (item: TItem) => string;
   /**
    * Extracts the children from an item model
    */
-  getItemChildren: (item: TreeItemModel) => TreeItemModel[] | undefined;
+  getItemChildren: (item: TItem) => TItem[] | undefined;
   /**
    * Whether an item is disabled
    */
-  isItemDisabled: (item: TreeItemModel) => boolean;
+  isItemDisabled: (item: TItem) => boolean;
   /**
    * Whether an item's selection is disabled
    */
-  isItemSelectionDisabled: (item: TreeItemModel) => boolean;
+  isItemSelectionDisabled: (item: TItem) => boolean;
   /**
    * Whether an item is editable
    */
-  isItemEditable: ((item: TreeItemModel) => boolean) | boolean;
+  isItemEditable: ((item: TItem) => boolean) | boolean;
   /**
    * The layout direction of the tree
    */
   direction: 'ltr' | 'rtl';
-  /**
-   * User-provided tree ID for accessibility
-   */
-  treeId: string | undefined;
   /**
    * Whether group transitions (expand/collapse animation) are enabled.
    */
@@ -281,12 +277,12 @@ export interface TreeStoreContext {
 /**
  * Actions that can be performed imperatively on a tree via actionsRef.
  */
-export interface TreeRootActions {
+export interface TreeRootActions<TItem = TreeItemModel> {
   focusItem: (itemId: TreeItemId) => void;
-  getItem: (itemId: TreeItemId) => TreeItemModel;
+  getItem: (itemId: TreeItemId) => TItem;
   getItemDOMElement: (itemId: TreeItemId) => HTMLElement | null;
   getItemOrderedChildrenIds: (itemId: TreeItemId | null) => TreeItemId[];
-  getItemTree: () => TreeItemModel[];
+  getItemTree: () => TItem[];
   getParentId: (itemId: TreeItemId) => TreeItemId | null;
   isItemExpanded: (itemId: TreeItemId) => boolean;
   isItemSelected: (itemId: TreeItemId) => boolean;

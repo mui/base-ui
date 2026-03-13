@@ -1,6 +1,10 @@
 {
   "name": "TreeItemModelProvider",
   "props": {
+    "animatedChildren": {
+      "type": "ReactNode",
+      "detailedType": "React.ReactNode"
+    },
     "itemId": {
       "type": "string",
       "required": true
@@ -11,9 +15,9 @@
       "detailedType": "{}"
     },
     "children": {
-      "type": "((item: Tree.Item.Model) => ReactNode)",
+      "type": "((item: Tree.Item.Model, animatedChildren: ReactNode) => ReactNode)",
       "required": true,
-      "detailedType": "(item: Tree.Item.Model) => ReactNode"
+      "detailedType": "  item: Tree.Item.Model,\n  animatedChildren: ReactNode,\n) => ReactNode"
     }
   },
   "dataAttributes": {},

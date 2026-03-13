@@ -6,8 +6,11 @@ import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useRenderElement } from '../../utils/useRenderElement';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { useTreeRootContext } from '../root/TreeRootContext';
 import { TreeGroupTransitionDataAttributes } from './TreeGroupTransitionDataAttributes';
+import { TreeGroupTransitionCssVars } from './TreeGroupTransitionCssVars';
+import { TreeGroupTransitionContext } from './TreeGroupTransitionContext';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 
 interface TreeGroupTransitionInternalState extends TreeGroupTransitionState {
@@ -23,18 +26,34 @@ const groupTransitionStateAttributesMapping: StateAttributesMapping<TreeGroupTra
   };
 
 /**
- * A temporary wrapper rendered around a group of tree items during
- * expand/collapse animation. Animates its height from 0 to scrollHeight
- * (or vice versa) using CSS variables and data attributes.
+ * A wrapper rendered around a group of tree items during expand/collapse
+ * animation. Animates its height from 0 to scrollHeight (or vice versa)
+ * using CSS variables and data attributes.
  *
+ * Auto-returns `null` when there are no animated children.
  * Removed from the DOM once the animation completes.
  *
- * @internal
+ * Documentation: [Base UI Tree](https://base-ui.com/react/components/tree)
  */
-export function TreeGroupTransition(componentProps: TreeGroupTransitionInternalProps) {
+export function TreeGroupTransition(componentProps: TreeGroupTransition.Props) {
+  const context = React.useContext(TreeGroupTransitionContext);
+
+  if (!componentProps.children || !context) {
+    return null;
+  }
+
+  return <TreeGroupTransitionInner {...componentProps} context={context} />;
+}
+
+function TreeGroupTransitionInner(
+  props: TreeGroupTransition.Props & { context: NonNullable<React.ContextType<typeof TreeGroupTransitionContext>> },
+) {
+  const { context, ...componentProps } = props;
+  const { parentId, animation } = context;
   const {
-    parentId,
-    animation,
+    className,
+    style,
+    render,
     // Props forwarded to the DOM element
     ...elementProps
   } = componentProps;
@@ -114,7 +133,7 @@ export function TreeGroupTransition(componentProps: TreeGroupTransitionInternalP
         style: {
           overflow: 'hidden',
           ...((height !== undefined && {
-            ['--tree-group-height' as string]: `${height}px`,
+            [TreeGroupTransitionCssVars.treeGroupHeight as string]: `${height}px`,
           }) as React.CSSProperties),
         },
       },
@@ -130,19 +149,10 @@ export interface TreeGroupTransitionState {
   animation: 'expanding' | 'collapsing';
 }
 
-interface TreeGroupTransitionInternalProps {
-  parentId: string;
-  animation: 'expanding' | 'collapsing';
-  render?:
-    | React.ReactElement
-    | ((
-        props: React.HTMLAttributes<any> & React.RefAttributes<any>,
-        state: TreeGroupTransitionState,
-      ) => React.ReactElement)
-    | undefined;
-  children: React.ReactNode;
-}
+export interface TreeGroupTransitionProps
+  extends BaseUIComponentProps<'div', TreeGroupTransitionState> {}
 
 export namespace TreeGroupTransition {
   export type State = TreeGroupTransitionState;
+  export type Props = TreeGroupTransitionProps;
 }

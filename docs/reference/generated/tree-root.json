@@ -169,9 +169,6 @@
   "dataAttributes": {
     "data-disabled": {
       "description": "Present when the tree is disabled."
-    },
-    "data-tree": {
-      "description": "Present on the root element."
     }
   },
   "cssVariables": {}

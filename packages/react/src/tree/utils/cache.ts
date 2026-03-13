@@ -1,5 +1,3 @@
-import type { TreeItemModel } from '../store/types';
-
 type DataSourceCacheDefaultConfig = {
   /**
    * Time To Live for each cache entry in milliseconds.
@@ -9,27 +7,27 @@ type DataSourceCacheDefaultConfig = {
   ttl?: number | undefined;
 };
 
-export interface DataSourceCache {
+export interface DataSourceCache<TItem = any> {
   /**
    * Set the cache entry for the given key.
    * @param key The cache key (typically a parent item ID)
    * @param value The children items to cache
    */
-  set: (key: string, value: TreeItemModel[]) => void;
+  set: (key: string, value: TItem[]) => void;
   /**
    * Get the cache entry for the given key.
    * @param key The cache key
    * @returns The cached items, `undefined` if not found, or `-1` if expired
    */
-  get: (key: string) => TreeItemModel[] | undefined | -1;
+  get: (key: string) => TItem[] | undefined | -1;
   /**
    * Clear all cache entries.
    */
   clear: () => void;
 }
 
-export class DataSourceCacheDefault implements DataSourceCache {
-  private cache: Record<string, { value: TreeItemModel[]; expiry: number }>;
+export class DataSourceCacheDefault<TItem = any> implements DataSourceCache<TItem> {
+  private cache: Record<string, { value: TItem[]; expiry: number }>;
 
   private ttl: number;
 
@@ -38,12 +36,12 @@ export class DataSourceCacheDefault implements DataSourceCache {
     this.ttl = ttl;
   }
 
-  set(key: string, value: TreeItemModel[]) {
+  set(key: string, value: TItem[]) {
     const expiry = Date.now() + this.ttl;
     this.cache[key] = { value, expiry };
   }
 
-  get(key: string): TreeItemModel[] | undefined | -1 {
+  get(key: string): TItem[] | undefined | -1 {
     const entry = this.cache[key];
     if (!entry) {
       return undefined;

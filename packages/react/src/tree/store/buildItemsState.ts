@@ -1,21 +1,21 @@
 import type { TreeItemId, TreeItemModel, TreeItemMeta, TreeItemsState } from './types';
 import { TREE_VIEW_ROOT_PARENT_ID } from './types';
 
-export function buildItemsState(
-  items: readonly TreeItemModel[],
-  getItemId: (item: TreeItemModel) => TreeItemId,
-  getItemLabel: (item: TreeItemModel) => string,
-  getItemChildren: (item: TreeItemModel) => TreeItemModel[] | undefined,
-  isItemDisabled: (item: TreeItemModel) => boolean,
-  isItemSelectionDisabled: (item: TreeItemModel) => boolean,
-): TreeItemsState {
+export function buildItemsState<TItem = TreeItemModel>(
+  items: readonly TItem[],
+  getItemId: (item: TItem) => TreeItemId,
+  getItemLabel: (item: TItem) => string,
+  getItemChildren: (item: TItem) => TItem[] | undefined,
+  isItemDisabled: (item: TItem) => boolean,
+  isItemSelectionDisabled: (item: TItem) => boolean,
+): TreeItemsState<TItem> {
   const itemMetaLookup: Record<TreeItemId, TreeItemMeta> = {};
-  const itemModelLookup: Record<TreeItemId, TreeItemModel> = {};
+  const itemModelLookup: Record<TreeItemId, TItem> = {};
   const itemOrderedChildrenIdsLookup: Record<string, TreeItemId[]> = {};
   const itemChildrenIndexesLookup: Record<string, Record<TreeItemId, number>> = {};
 
   function processSiblings(
-    siblings: readonly TreeItemModel[],
+    siblings: readonly TItem[],
     parentId: TreeItemId | null,
     depth: number,
   ) {

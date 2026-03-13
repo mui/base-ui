@@ -373,6 +373,22 @@ describeTree('TreeRoot - Expansion', ({ render }) => {
       fireEvent.click(view.getItemExpansionTrigger('1')!);
       expect(view.isItemSelected('1')).to.equal(false);
     });
+
+    it('should not double-toggle expansion when expandOnClick is true and clicking the expansion trigger', async () => {
+      const onExpandedItemsChange = spy();
+      const view = await render({
+        items: [{ id: '1', children: [{ id: '1.1' }] }],
+        expandOnClick: true,
+        onExpandedItemsChange,
+      });
+
+      expect(view.isItemExpanded('1')).to.equal(false);
+      fireEvent.click(view.getItemExpansionTrigger('1')!);
+      // The item should be expanded (not toggled twice back to collapsed)
+      expect(view.isItemExpanded('1')).to.equal(true);
+      // onExpandedItemsChange should only be called once
+      expect(onExpandedItemsChange.callCount).to.equal(1);
+    });
   });
 
   describe('setItemExpansion API method', () => {

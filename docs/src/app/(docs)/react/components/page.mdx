@@ -1498,6 +1498,9 @@ A tree component for displaying hierarchical data.
   - Tree - CheckboxItemIndicator
     - Props: className, keepMounted, render, style
     - Data Attributes: data-checked, data-disabled, data-indeterminate, data-unchecked
+  - Tree - GroupTransition
+    - Props: className, render, style
+    - Data Attributes: data-parent-id
   - Tree - Item
     - Props: className, render, style
     - Data Attributes: data-collapsed, data-depth, data-disabled, data-editing, data-expandable, data-expanded, data-focused, data-item-id, data-selected
@@ -1518,9 +1521,9 @@ A tree component for displaying hierarchical data.
     - Data Attributes: data-loading
   - Tree - Root
     - Props: actionsRef, children, className, defaultExpandedItems, defaultSelectedItems, disabled, disallowEmptySelection, expandOnClick, expandedItems, getItemChildren, getItemId, getItemLabel, isItemDisabled, isItemEditable, isItemSelectionDisabled, itemFocusableWhenDisabled, items, lazyLoading, onExpandedItemsChange, onItemClick, onItemExpansionToggle, onItemFocus, onItemLabelChange, onItemSelectionToggle, onSelectedItemsChange, render, selectedItems, selectionMode, selectionPropagation, style
-    - Data Attributes: data-disabled, data-tree
+    - Data Attributes: data-disabled
   - Tree - ItemModelProvider
-    - Props: children, itemId, store
+    - Props: animatedChildren, children, itemId, store
   - Tree - Virtualizer
     - Props: children
 

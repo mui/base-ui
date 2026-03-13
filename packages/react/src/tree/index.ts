@@ -15,4 +15,5 @@ export type * from './item-loading-indicator/TreeItemLoadingIndicator';
 export type * from './item-error-indicator/TreeItemErrorIndicator';
 export type * from './virtualizer/TreeVirtualizer';
 export type * from './animated-item-list/TreeAnimatedItemList';
+export type * from './group-transition/TreeGroupTransition';
 export type * from './store/types';

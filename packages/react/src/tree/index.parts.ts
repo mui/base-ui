@@ -9,4 +9,5 @@ export { TreeItemLoadingIndicator as ItemLoadingIndicator } from './item-loading
 export { TreeItemErrorIndicator as ItemErrorIndicator } from './item-error-indicator/TreeItemErrorIndicator';
 export { TreeVirtualizer as Virtualizer } from './virtualizer/TreeVirtualizer';
 export { TreeAnimatedItemList as AnimatedItemList } from './animated-item-list/TreeAnimatedItemList';
+export { TreeGroupTransition as GroupTransition } from './group-transition/TreeGroupTransition';
 export { useLazyLoading } from './utils/useTreeLazyLoading';
