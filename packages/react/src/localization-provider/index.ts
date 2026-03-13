@@ -1,2 +1,2 @@
 export { LocalizationProvider } from './LocalizationProvider';
-export { useTemporalLocale } from './LocalizationContext';
+export { useTemporalLocale, useTranslations } from './LocalizationContext';

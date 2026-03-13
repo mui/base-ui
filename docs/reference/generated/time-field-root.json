@@ -1,0 +1,142 @@
+{
+  "name": "TimeFieldRoot",
+  "description": "Groups all parts of the time field.\nRenders a `<div>` element and a hidden `<input>` beside.",
+  "props": {
+    "name": {
+      "type": "string",
+      "description": "Identifies the field when a form is submitted.",
+      "detailedType": "string | undefined"
+    },
+    "defaultValue": {
+      "type": "TemporalValue",
+      "description": "The uncontrolled value that should be initially selected.\nTo render a controlled temporal field, use the `value` prop instead.",
+      "detailedType": "Date | null | undefined"
+    },
+    "value": {
+      "type": "TemporalValue",
+      "description": "The controlled value that should be selected.\nTo render an uncontrolled temporal field, use the `defaultValue` prop instead.",
+      "detailedType": "Date | null | undefined"
+    },
+    "onValueChange": {
+      "type": "((value: TemporalValue, eventDetails: TemporalFieldValueChangeEventDetails) => void)",
+      "description": "Event handler called when the selected value changes.\nProvides the new value as an argument.\nHas `getValidationError()` in the `eventDetails` to retrieve the validation error associated to the new value.",
+      "detailedType": "| ((\n    value: TemporalValue,\n    eventDetails: TemporalFieldValueChangeEventDetails,\n  ) => void)\n| undefined"
+    },
+    "actionsRef": {
+      "type": "RefObject<TemporalFieldRootActions | null>",
+      "description": "A ref to imperative actions.\n- `clear`: Clears the field value.",
+      "detailedType": "| React.RefObject<TemporalFieldRootActions | null>\n| undefined"
+    },
+    "ampm": {
+      "type": "boolean",
+      "default": "based on the current locale",
+      "description": "Whether to use 12-hour format with AM/PM or 24-hour format.\nIs ignored if a custom format is provided.",
+      "detailedType": "boolean | undefined"
+    },
+    "maxDate": {
+      "type": "Date",
+      "description": "Maximal selectable date.",
+      "detailedType": "Date | undefined"
+    },
+    "minDate": {
+      "type": "Date",
+      "description": "Minimal selectable date.",
+      "detailedType": "Date | undefined"
+    },
+    "referenceDate": {
+      "type": "Date",
+      "default": "'The closest valid date using the validation props.'",
+      "description": "The date used to generate the new value when both `value` and `defaultValue` are empty.",
+      "detailedType": "Date | undefined"
+    },
+    "timezone": {
+      "type": "string",
+      "default": "'The timezone of the \"value\" or \"defaultValue\" prop if defined, \"default\" otherwise.'",
+      "description": "Choose which timezone to use for the value.\nExample: \"default\", \"system\", \"UTC\", \"America/New_York\".\nIf you pass values from other timezones to some props, they will be converted to this timezone before being used.",
+      "detailedType": "string | undefined"
+    },
+    "step": {
+      "type": "number",
+      "default": "1",
+      "description": "The step increment for the most granular section of the field.\nFor example, with format 'HH:mm' and step=5, pressing ArrowUp on the minutes section\nwill increment by 5 (e.g., 10 -> 15 -> 20).",
+      "detailedType": "number | undefined"
+    },
+    "format": {
+      "type": "string",
+      "description": "Format of the value when rendered in the field.",
+      "detailedType": "string | undefined"
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the component should ignore user interaction.",
+      "detailedType": "boolean | undefined"
+    },
+    "readOnly": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the user should be unable to change the field value.",
+      "detailedType": "boolean | undefined"
+    },
+    "required": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the user must enter a value before submitting a form.",
+      "detailedType": "boolean | undefined"
+    },
+    "inputRef": {
+      "type": "Ref<HTMLInputElement>",
+      "description": "A ref to access the hidden input element.",
+      "detailedType": "React.Ref<HTMLInputElement> | undefined"
+    },
+    "children": {
+      "type": "ReactNode | ((section: TemporalFieldSection, index: number) => ReactNode)",
+      "description": "The children of the component.\nIf a function is provided, it will be called with each section as its parameter.",
+      "detailedType": "| React.ReactNode\n| ((\n    section: TemporalFieldSection,\n    index: number,\n  ) => ReactNode)"
+    },
+    "className": {
+      "type": "string | ((state: TimeField.Root.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: TimeField.Root.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: TimeField.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: TimeField.Root.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: TimeField.Root.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: TimeField.Root.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {
+    "data-disabled": {
+      "description": "Present when the time field is disabled."
+    },
+    "data-readonly": {
+      "description": "Present when the time field is readonly."
+    },
+    "data-required": {
+      "description": "Present when the time field is required."
+    },
+    "data-valid": {
+      "description": "Present when the time field is in valid state (when wrapped in Field.Root)."
+    },
+    "data-invalid": {
+      "description": "Present when the time field is in invalid state (when wrapped in Field.Root)."
+    },
+    "data-dirty": {
+      "description": "Present when the time field's value has changed (when wrapped in Field.Root)."
+    },
+    "data-touched": {
+      "description": "Present when the time field has been touched (when wrapped in Field.Root)."
+    },
+    "data-filled": {
+      "description": "Present when the time field is filled (when wrapped in Field.Root)."
+    },
+    "data-focused": {
+      "description": "Present when the time field is focused (when wrapped in Field.Root)."
+    }
+  },
+  "cssVariables": {}
+}

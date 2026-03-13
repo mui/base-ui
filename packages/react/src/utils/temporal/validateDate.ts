@@ -12,10 +12,10 @@ export function validateDate(parameters: ValidateDateParameters): ValidateDateRe
   if (!adapter.isValid(value)) {
     return 'invalid';
   }
-  if (minDate != null && isBeforeDay(adapter, value, minDate)) {
+  if (minDate != null && adapter.isValid(minDate) && isBeforeDay(adapter, value, minDate)) {
     return 'before-min-date';
   }
-  if (maxDate != null && isAfterDay(adapter, value, maxDate)) {
+  if (maxDate != null && adapter.isValid(maxDate) && isAfterDay(adapter, value, maxDate)) {
     return 'after-max-date';
   }
   return null;

@@ -9,7 +9,54 @@ import {
   DateBuilderReturnType,
   TemporalTimezone,
   TemporalAdapter,
-} from '../types';
+  TemporalFormatTokenConfigMap,
+} from '../types/temporal';
+
+const FORMAT_TOKEN_CONFIG_MAP: TemporalFormatTokenConfigMap = {
+  // Year
+  y: { part: 'year', contentType: 'digit' },
+  yy: { part: 'year', contentType: 'digit' },
+  yyyy: { part: 'year', contentType: 'digit' },
+
+  // Month
+  L: { part: 'month', contentType: 'digit' },
+  LL: { part: 'month', contentType: 'digit' },
+  LLL: { part: 'month', contentType: 'letter' },
+  LLLL: { part: 'month', contentType: 'letter' },
+  M: { part: 'month', contentType: 'digit' },
+  MM: { part: 'month', contentType: 'digit' },
+  MMM: { part: 'month', contentType: 'letter' },
+  MMMM: { part: 'month', contentType: 'letter' },
+
+  // Day of the month
+  d: { part: 'day', contentType: 'digit' },
+  dd: { part: 'day', contentType: 'digit' },
+
+  // Day of the week
+  c: { part: 'weekDay', contentType: 'digit' },
+  ccc: { part: 'weekDay', contentType: 'letter' },
+  cccc: { part: 'weekDay', contentType: 'letter' },
+  E: { part: 'weekDay', contentType: 'digit' },
+  EEE: { part: 'weekDay', contentType: 'letter' },
+  EEEE: { part: 'weekDay', contentType: 'letter' },
+
+  // Meridiem
+  a: { part: 'meridiem', contentType: 'letter' },
+
+  // Hours
+  H: { part: 'hours', contentType: 'digit' },
+  HH: { part: 'hours', contentType: 'digit' },
+  h: { part: 'hours', contentType: 'digit' },
+  hh: { part: 'hours', contentType: 'digit' },
+
+  // Minutes
+  m: { part: 'minutes', contentType: 'digit' },
+  mm: { part: 'minutes', contentType: 'digit' },
+
+  // Seconds
+  s: { part: 'seconds', contentType: 'digit' },
+  ss: { part: 'seconds', contentType: 'digit' },
+};
 
 const FORMATS: TemporalAdapterFormats = {
   // Digit formats with leading zeroes
@@ -26,6 +73,9 @@ const FORMATS: TemporalAdapterFormats = {
   hours24h: 'H',
   hours12h: 'h',
 
+  // Digit with letter formats
+  dayOfMonthWithLetter: 'd', // Luxon doesn't have a specific token for this format..
+
   // Letter formats
   month3Letters: 'MMM',
   monthFullLetter: 'MMMM',
@@ -37,7 +87,6 @@ const FORMATS: TemporalAdapterFormats = {
   // Full formats
   localizedDateWithFullMonthAndWeekDay: 'DDDD',
   localizedNumericDate: 'D',
-  fullMonthAndYear: 'MMMM yyyy',
 };
 
 // Temporarily disabled to avoid docs being built with `| DateTime`
@@ -55,6 +104,8 @@ export class TemporalAdapterLuxon implements TemporalAdapter {
   private locale: string;
 
   public formats: TemporalAdapterFormats = FORMATS;
+
+  public formatTokenConfigMap = FORMAT_TOKEN_CONFIG_MAP;
 
   public escapedCharacters = { start: "'", end: "'" };
 
@@ -80,11 +131,12 @@ export class TemporalAdapterLuxon implements TemporalAdapter {
     value: T,
     timezone: TemporalTimezone,
   ): DateBuilderReturnType<T> => {
+    type R = DateBuilderReturnType<T>;
     if (value === null) {
-      return null;
+      return null as unknown as R;
     }
 
-    return DateTime.fromISO(value, { locale: this.locale, zone: timezone });
+    return DateTime.fromISO(value, { locale: this.locale, zone: timezone }) as unknown as R;
   };
 
   public parse = (value: string, format: string, timezone: TemporalTimezone): DateTime => {
@@ -130,6 +182,55 @@ export class TemporalAdapterLuxon implements TemporalAdapter {
 
   public formatByString = (value: DateTime, format: string) => {
     return value.setLocale(this.locale).toFormat(format);
+  };
+
+  /* v8 ignore start */
+  public is12HourCycleInCurrentLocale = () => {
+    if (typeof Intl === 'undefined' || typeof Intl.DateTimeFormat === 'undefined') {
+      return true; // Luxon defaults to en-US if Intl not found
+    }
+
+    return Boolean(
+      new Intl.DateTimeFormat(this.locale, { hour: 'numeric' })?.resolvedOptions()?.hour12,
+    );
+  };
+  /* v8 ignore stop */
+
+  public expandFormat = (format: string) => {
+    // Extract escaped section to avoid extending them
+    const catchEscapedSectionsRegexp = /''|'(''|[^'])+('|$)|[^']*/g;
+
+    // This RegExp tests if a string is only made of supported tokens
+    const validTokens = [...Object.keys(this.formatTokenConfigMap), 'yyyyy'];
+    const isWordComposedOfTokens = new RegExp(`^(${validTokens.join('|')})+$`);
+
+    // Extract words to test if they are a token or a word to escape.
+    const catchWordsRegexp = /(?:^|[^a-z])([a-z]+)(?:[^a-z]|$)|([a-z]+)/gi;
+    return (
+      format
+        .match(catchEscapedSectionsRegexp)!
+        .map((token: string) => {
+          const firstCharacter = token[0];
+          if (firstCharacter === "'") {
+            return token;
+          }
+          const expandedToken = DateTime.expandFormat(token, { locale: this.locale });
+
+          return expandedToken.replace(catchWordsRegexp, (substring, g1, g2) => {
+            const word = g1 || g2; // words are either in group 1 or group 2
+
+            if (isWordComposedOfTokens.test(word)) {
+              return substring;
+            }
+            return `'${substring}'`;
+          });
+        })
+        .join('')
+        // The returned format can contain `yyyyy` which means year between 4 and 6 digits.
+        // This value is supported by luxon parser but not luxon formatter.
+        // To avoid conflicts, we replace it by 4 digits which is enough for most use-cases.
+        .replace('yyyyy', 'yyyy')
+    );
   };
 
   public isEqual = (value: DateTime | null, comparing: DateTime | null) => {

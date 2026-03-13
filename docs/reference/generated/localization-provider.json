@@ -8,6 +8,12 @@
       "description": "The locale to use in temporal components.",
       "detailedType": "Locale | undefined"
     },
+    "translations": {
+      "type": "Partial<BaseUITranslations>",
+      "default": "enUS",
+      "description": "Translations for Base UI component labels.\nPartial objects are merged with the default English translations.",
+      "detailedType": "| {\n    temporalFieldYearSectionLabel?: string\n    temporalFieldMonthSectionLabel?: string\n    temporalFieldDaySectionLabel?: string\n    temporalFieldWeekDaySectionLabel?: string\n    temporalFieldHoursSectionLabel?: string\n    temporalFieldMinutesSectionLabel?: string\n    temporalFieldSecondsSectionLabel?: string\n    temporalFieldMeridiemSectionLabel?: string\n    temporalFieldEmptySectionText?: string\n    temporalFieldYearPlaceholder?: (params: {\n      digitAmount: number\n    }) => string\n    temporalFieldMonthPlaceholder?: (params: {\n      contentType: TemporalFieldSectionContentType\n    }) => string\n    temporalFieldWeekDayPlaceholder?: (params: {\n      contentType: TemporalFieldSectionContentType\n    }) => string\n    temporalFieldDayPlaceholder?: () => string\n    temporalFieldHoursPlaceholder?: () => string\n    temporalFieldMinutesPlaceholder?: () => string\n    temporalFieldSecondsPlaceholder?: () => string\n    temporalFieldMeridiemPlaceholder?: () => string\n  }\n| undefined"
+    },
     "children": {
       "type": "ReactNode",
       "detailedType": "React.ReactNode"

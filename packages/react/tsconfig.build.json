@@ -13,7 +13,7 @@
     "outDir": "build/esm",
     "types": ["@mui/internal-code-infra/build-env"]
   },
-  "include": ["src/**/*.ts*"],
+  "include": ["src/**/*.ts*", "../utils/src/TimeoutManager.ts"],
   "exclude": ["src/**/*.spec.ts*", "src/**/*.test.ts*"],
   "references": [{ "path": "../utils/tsconfig.build.json" }]
 }
