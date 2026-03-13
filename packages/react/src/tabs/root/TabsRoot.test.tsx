@@ -626,6 +626,47 @@ describe('<Tabs.Root />', () => {
       expect(tabs[1]).to.have.attribute('aria-selected', 'true');
     });
 
+    it('stops honoring an initially disabled explicit default after that tab becomes enabled', async () => {
+      const handleChange = spy();
+
+      function TestComponent({ disableFirst }: { disableFirst: boolean }) {
+        return (
+          <Tabs.Root defaultValue={0} onValueChange={handleChange}>
+            <Tabs.List>
+              <Tabs.Tab value={0} disabled={disableFirst}>
+                Tab 0
+              </Tabs.Tab>
+              <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
+            </Tabs.List>
+          </Tabs.Root>
+        );
+      }
+
+      const { setProps } = await render(<TestComponent disableFirst={true} />);
+
+      await flushMicrotasks();
+
+      expect(handleChange.callCount).to.equal(0);
+
+      const tabs = screen.getAllByRole('tab');
+      expect(tabs[0]).to.have.attribute('aria-selected', 'true');
+
+      await setProps({ disableFirst: false });
+      await flushMicrotasks();
+
+      expect(handleChange.callCount).to.equal(0);
+      expect(tabs[0]).to.have.attribute('aria-selected', 'true');
+
+      await setProps({ disableFirst: true });
+      await flushMicrotasks();
+
+      expect(handleChange.callCount).to.equal(1);
+      expect(handleChange.firstCall.args[0]).to.equal(1);
+      expect(handleChange.firstCall.args[1].reason).to.equal('disabled');
+      expect(tabs[0]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[1]).to.have.attribute('aria-selected', 'true');
+    });
+
     it('does not auto-select or call onValueChange on initial render when defaultValue is null', async () => {
       const handleChange = spy();
 
@@ -909,6 +950,45 @@ describe('<Tabs.Root />', () => {
       expect(handleChange.callCount).to.equal(1);
       expect(handleChange.firstCall.args[0]).to.equal(null);
       expect(handleChange.firstCall.args[1].reason).to.equal('disabled');
+
+      const tabs = screen.getAllByRole('tab');
+      expect(tabs[0]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[1]).to.have.attribute('aria-selected', 'false');
+    });
+
+    it('preserves a null fallback when tabs become enabled again later', async () => {
+      const handleChange = spy();
+
+      function TestComponent({ disableAll }: { disableAll: boolean }) {
+        return (
+          <Tabs.Root defaultValue={0} onValueChange={handleChange}>
+            <Tabs.List>
+              <Tabs.Tab value={0} disabled={disableAll}>
+                Tab 0
+              </Tabs.Tab>
+              <Tabs.Tab value={1} disabled={disableAll}>
+                Tab 1
+              </Tabs.Tab>
+            </Tabs.List>
+          </Tabs.Root>
+        );
+      }
+
+      const { setProps } = await render(<TestComponent disableAll={false} />);
+
+      await setProps({ disableAll: true });
+      await flushMicrotasks();
+
+      expect(handleChange.callCount).to.equal(1);
+      expect(handleChange.firstCall.args[0]).to.equal(null);
+      expect(handleChange.firstCall.args[1].reason).to.equal('disabled');
+
+      handleChange.resetHistory();
+
+      await setProps({ disableAll: false });
+      await flushMicrotasks();
+
+      expect(handleChange.callCount).to.equal(0);
 
       const tabs = screen.getAllByRole('tab');
       expect(tabs[0]).to.have.attribute('aria-selected', 'false');

@@ -198,9 +198,9 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   // - Initial render with no explicit value (fires onValueChange with 'initial' reason)
   // - The current selection is disabled (and wasn't explicitly set via defaultValue on initial render)
   // - The current selection is missing (tab was removed from DOM)
-  // Falls back to null if all tabs are disabled.
+  // Falls back to null if all tabs are disabled and preserves that empty selection on later renders.
   const hasRunOnceRef = React.useRef(false);
-  const initialDisabledStateRef = React.useRef<boolean | undefined>(undefined);
+  const honorInitialDisabledDefaultSelectionRef = React.useRef(false);
 
   useIsoLayoutEffect(() => {
     if (isControlled || tabMap.size === 0) {
@@ -209,12 +209,15 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
     const selectionIsDisabled = selectedTabMetadata?.disabled === true;
     const selectionIsMissing = selectedTabMetadata == null && value !== null;
-    const hasNoSelection = value == null; // Catches both null and undefined
     const isInitialRun = !hasRunOnceRef.current;
 
-    // Track the initial disabled state on first run
-    if (isInitialRun && selectedTabMetadata != null) {
-      initialDisabledStateRef.current = selectedTabMetadata.disabled;
+    if (
+      isInitialRun &&
+      hasExplicitDefaultValueProp &&
+      value === defaultValueProp &&
+      selectionIsDisabled
+    ) {
+      honorInitialDisabledDefaultSelectionRef.current = true;
     }
 
     // Always honor explicit defaultValue pointing to a disabled tab,
@@ -224,7 +227,14 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       hasExplicitDefaultValueProp &&
       selectionIsDisabled &&
       value === defaultValueProp &&
-      initialDisabledStateRef.current === true;
+      honorInitialDisabledDefaultSelectionRef.current;
+
+    if (
+      honorInitialDisabledDefaultSelectionRef.current &&
+      (value !== defaultValueProp || !selectionIsDisabled)
+    ) {
+      honorInitialDisabledDefaultSelectionRef.current = false;
+    }
 
     if (shouldHonorExplicitDefaultSelection) {
       hasRunOnceRef.current = true;
@@ -236,16 +246,10 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     // Need to auto-select if:
     // - Selection is disabled
     // - Selection is missing (tab removed or invalid value)
-    // - No selection at all (value is null/undefined), but only without explicit defaultValue
     // - Initial run with no explicit defaultValue (automatic default to 0)
     const hasImplicitDefaultValue = !hasExplicitDefaultValueProp;
     const isAutomaticDefault = isInitialRun && hasImplicitDefaultValue;
-    const shouldAutoSelectFromEmptyValue = hasNoSelection && hasImplicitDefaultValue;
-    const needsAutoSelection =
-      selectionIsDisabled ||
-      selectionIsMissing ||
-      shouldAutoSelectFromEmptyValue ||
-      isAutomaticDefault;
+    const needsAutoSelection = selectionIsDisabled || selectionIsMissing || isAutomaticDefault;
 
     if (!needsAutoSelection) {
       return;
