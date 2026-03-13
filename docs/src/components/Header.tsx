@@ -58,27 +58,29 @@ export function Header() {
                       <MobileNav.List>
                         {section.pages
                           .filter((page) => (page.audience === 'private' ? showPrivatePages : true))
-                          .map((page) => (
-                            <MobileNav.Item
-                              key={page.title}
-                              href={
-                                page.path.startsWith('./')
-                                  ? `${section.prefix}${page.path.replace(/^\.\//, '').replace(/\/page\.mdx$/, '')}`
-                                  : page.path
-                              }
-                              external={page.tags?.includes('External')}
-                            >
-                              {(page.title && titleMap[page.title]) || page.title}
-                              {page.audience === 'private' && (
-                                <MobileNav.Badge>Private</MobileNav.Badge>
-                              )}
-                              {page.tags?.includes('Preview') ? (
-                                <MobileNav.Badge>Preview</MobileNav.Badge>
-                              ) : (
-                                page.tags?.includes('New') && <MobileNav.Badge>New</MobileNav.Badge>
-                              )}
-                            </MobileNav.Item>
-                          ))}
+                          .map((page) => {
+                            const isNewPage = page.tags?.includes('New');
+                            const isPreviewPage = page.tags?.includes('Preview');
+                            const isPrivatePage = page.audience === 'private';
+                            return (
+                              <MobileNav.Item
+                                key={page.title}
+                                href={
+                                  page.path.startsWith('./')
+                                    ? `${section.prefix}${page.path.replace(/^\.\//, '').replace(/\/page\.mdx$/, '')}`
+                                    : page.path
+                                }
+                                external={page.tags?.includes('External')}
+                              >
+                                {(page.title && titleMap[page.title]) || page.title}
+                                {isPrivatePage && <MobileNav.Badge>Private</MobileNav.Badge>}
+                                {isPreviewPage && <MobileNav.Badge>Preview</MobileNav.Badge>}
+                                {isNewPage && !isPreviewPage && !isPrivatePage && (
+                                  <MobileNav.Badge>New</MobileNav.Badge>
+                                )}
+                              </MobileNav.Item>
+                            );
+                          })}
                       </MobileNav.List>
                     </MobileNav.Section>
                   ))}
