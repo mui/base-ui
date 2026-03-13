@@ -1,6 +1,7 @@
 import {
   Toast,
   type UseToastManagerReturnValue,
+  type UseToastActionsReturnValue,
   type ToastManagerAddOptions as BaseToastManagerAddOptions,
   type ToastManagerPromiseOptions as BaseToastManagerPromiseOptions,
   type ToastManagerUpdateOptions as BaseToastManagerUpdateOptions,
@@ -22,6 +23,11 @@ export type ToastManagerPromiseOptions<Value, Data extends object> = BaseToastMa
   Data
 >;
 
+export type ToastActionsReturnValue = UseToastActionsReturnValue;
+export type ToastActionsAdd = UseToastActionsReturnValue['add'];
+export type ToastActionsUpdate = UseToastActionsReturnValue['update'];
+export type ToastActionsPromise = UseToastActionsReturnValue['promise'];
+
 export type ToastCreateManagerReturn = ReturnType<typeof Toast.createToastManager>;
 
-export const { useToastManager, createToastManager } = Toast;
+export const { useToastManager, useToastActions, createToastManager } = Toast;
