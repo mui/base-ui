@@ -10,7 +10,7 @@ export default defineConfig({
   resolve: {
     alias: {
       ...(shouldDisableWorkspaceAliases
-        ? // TODO: Remove and revert to `undefined` when calendar is publicly exported
+        ? // TODO Temporal: Remove and revert to `undefined` when calendar is publicly exported
           {
             '@base-ui/react/calendar': path.join(process.cwd(), 'packages/react/src/calendar'),
             '@base-ui/react/localization-provider': path.join(

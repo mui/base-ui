@@ -3,7 +3,7 @@ export * from './alert-dialog';
 export * from './autocomplete';
 export * from './avatar';
 export * from './button';
-// TODO: enable before public release
+// TODO Temporal: enable before public release
 // export * from './calendar';
 export * from './checkbox';
 export * from './checkbox-group';
@@ -35,7 +35,7 @@ export * from './separator';
 export * from './slider';
 export * from './switch';
 export * from './tabs';
-// TODO: enable before public release
+// TODO Temporal: enable before public release
 // export * from './localization-provider';
 export * from './toast';
 export * from './toggle';
