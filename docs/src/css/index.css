@@ -47,7 +47,7 @@
 @import './custom-media.css';
 
 /* TODO: Remove these component imports once we make these components' styles truly isolated and they import their own styles. */
-@import '../components/Code.css';
+@import '../components/CodeWithSyntax.css';
 @import '../components/Accordion.css';
 @import '../components/Table.css';
 @import '../components/TableCode.css';
@@ -179,8 +179,9 @@
     --color-gray: var(--color-gray-600);
     --color-navy: oklch(31% 25% 264deg);
     --color-green: oklch(46% 30% 150deg);
-    --color-purple: oklch(40% 45% 360deg);
+    --color-purple: oklch(63% 0.3 325.49deg);
     --color-violet: oklch(40% 60% 300deg);
+    --color-orange: oklch(64% 0.19 42.55deg);
 
     /* Typography */
     --text-xxs: 0.75rem;
@@ -221,8 +222,9 @@
       --color-gray: var(--color-gray-600);
       --color-green: oklch(75% 25% 150deg);
       --color-navy: oklch(85% 25% 264deg);
-      --color-purple: oklch(85% 30% 360deg);
+      --color-purple: oklch(72% 38% 325deg);
       --color-violet: oklch(80% 60% 280deg);
+      --color-orange: oklch(76% 38% 55deg);
     }
   }
 
@@ -247,6 +249,8 @@
     --color-green: initial;
     --color-purple: initial;
     --color-violet: initial;
+    --color-orange: initial;
+    --color-pink: initial;
 
     --text-xxs: initial;
     --text-xxs--line-height: initial;
