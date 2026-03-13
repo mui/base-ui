@@ -76,12 +76,6 @@
   }
 
   .TypeRefPopup .ScrollAreaViewport {
-    padding-inline: 1rem;
-    padding-block: 0.75rem;
-  }
-
-  .TypeRefContent::-webkit-scrollbar {
-    width: 0.75rem;
-    height: 0.75rem;
+    padding: 0.5rem 0.75rem;
   }
 }
