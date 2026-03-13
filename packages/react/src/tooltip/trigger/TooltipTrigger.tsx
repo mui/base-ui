@@ -5,7 +5,7 @@ import { useTooltipRootContext } from '../root/TooltipRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useTriggerDataForwarding } from '../../utils/popups';
+import { useTriggerDataForwarding, getInlineRectTriggerProps } from '../../utils/popups';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { TooltipHandle } from '../store/TooltipHandle';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
@@ -126,6 +126,12 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
+  const inlineRectCoordsRef = store.context.inlineRectCoordsRef;
+  const inlineRectTriggerProps = getInlineRectTriggerProps(
+    inlineRectCoordsRef,
+    isOpenedByThisTrigger,
+  );
+
   const element = useRenderElement('button', componentProps, {
     state,
     ref: [forwardedRef, registerTrigger, triggerElementRef],
@@ -133,11 +139,12 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
       hoverProps,
       focusProps,
       rootTriggerProps,
+      inlineRectTriggerProps,
       {
+        id: thisTriggerId,
         onPointerDown() {
           store.set('closeOnClick', closeOnClick);
         },
-        id: thisTriggerId,
         [TooltipTriggerDataAttributes.triggerDisabled]: disabled ? '' : undefined,
       } as React.HTMLAttributes<Element>,
       elementProps,

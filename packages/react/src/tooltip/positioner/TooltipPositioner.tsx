@@ -15,6 +15,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import { createInlineMiddleware } from '../../utils/popups';
 
 /**
  * Positions the tooltip against the trigger.
@@ -56,6 +57,8 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const transitionStatus = store.useState('transitionStatus');
   const hasViewport = store.useState('hasViewport');
 
+  const inlineRectCoordsRef = store.context.inlineRectCoordsRef;
+
   const positioning = useAnchorPositioning({
     anchor,
     positionMethod,
@@ -73,6 +76,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     keepMounted,
     collisionAvoidance,
     adaptiveOrigin: hasViewport ? adaptiveOrigin : undefined,
+    inline: createInlineMiddleware(inlineRectCoordsRef),
   });
 
   const defaultProps: HTMLProps = React.useMemo(() => {
