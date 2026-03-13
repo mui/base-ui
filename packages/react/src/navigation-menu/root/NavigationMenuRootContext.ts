@@ -4,6 +4,11 @@ import type { FloatingRootContext } from '../../floating-ui-react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { NavigationMenuRoot } from './NavigationMenuRoot';
 
+export type NavigationMenuPopupAutoSizeResetState = {
+  abortController: AbortController | null;
+  owner: any;
+};
+
 export interface NavigationMenuRootContext {
   open: boolean;
   value: any;
@@ -32,6 +37,7 @@ export interface NavigationMenuRootContext {
   beforeOutsideRef: React.RefObject<HTMLSpanElement | null>;
   afterOutsideRef: React.RefObject<HTMLSpanElement | null>;
   prevTriggerElementRef: React.RefObject<Element | null | undefined>;
+  popupAutoSizeResetRef: React.MutableRefObject<NavigationMenuPopupAutoSizeResetState>;
   delay: number;
   closeDelay: number;
   orientation: 'horizontal' | 'vertical';
