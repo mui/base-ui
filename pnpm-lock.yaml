@@ -694,8 +694,8 @@ importers:
         specifier: ^4.21.0
         version: 4.21.0
       typescript-api-extractor:
-        specifier: 1.0.0-alpha.13
-        version: 1.0.0-alpha.13(typescript@5.9.3)
+        specifier: 1.0.0-beta.1
+        version: 1.0.0-beta.1(typescript@5.9.3)
       yargs:
         specifier: ^18.0.0
         version: 18.0.0
@@ -2373,6 +2373,7 @@ packages:
   '@lerna/create@9.0.5':
     resolution: {integrity: sha512-Gwd6ooSqXMdkdhiCGvHAfLRstj7W3ttr72WQB3Jf9HPP1A6mWtw0O80D0X+T/2hakqfe7lNLuKrEid4f7C0qbg==}
     engines: {node: ^20.19.0 || ^22.12.0 || >=24.0.0}
+    deprecated: This package is an implementation detail of Lerna and is no longer published separately.
 
   '@loaderkit/resolve@1.0.4':
     resolution: {integrity: sha512-rJzYKVcV4dxJv+vW6jlvagF8zvGxHJ2+HTr1e2qOejfmGhAApgJHl8Aog4mMszxceTRiKTTbnpgmTO1bEZHV/A==}
@@ -9690,8 +9691,8 @@ packages:
   typedarray@0.0.6:
     resolution: {integrity: sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==}
 
-  typescript-api-extractor@1.0.0-alpha.13:
-    resolution: {integrity: sha512-vMn26RR+SisBu3t0E0n7odikrw/+C+5al52q6JwmiMEhUhLVgkO747BiwGhSTmedwjC6ACFFFHa9bytoQQhZ4w==}
+  typescript-api-extractor@1.0.0-beta.1:
+    resolution: {integrity: sha512-aaYLF5XjUd9G8HDw5bcYBELbhSiGXCYz0pGcp+5degXQPyZNIZqmPO0aAvr8x/clHki65s10HmDC1+DtoZeItA==}
     engines: {node: '>=22'}
     peerDependencies:
       typescript: ^5.8
@@ -21086,7 +21087,7 @@ snapshots:
 
   typedarray@0.0.6: {}
 
-  typescript-api-extractor@1.0.0-alpha.13(typescript@5.9.3):
+  typescript-api-extractor@1.0.0-beta.1(typescript@5.9.3):
     dependencies:
       es-toolkit: 1.45.1
       typescript: 5.9.3
