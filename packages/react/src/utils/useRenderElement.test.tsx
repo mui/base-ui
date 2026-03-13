@@ -27,6 +27,32 @@ describe('useRenderElement', () => {
     return element;
   });
 
+  const DirectPropsTestComponent = React.forwardRef(function DirectPropsTestComponent(
+    componentProps: BaseUIComponentProps<'div', { active?: boolean }> & { active?: boolean },
+    forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  ) {
+    const { className, render: renderProp, active, ...elementProps } = componentProps;
+
+    return useRenderElement('div', componentProps, {
+      state: { active },
+      ref: forwardedRef,
+      props: elementProps,
+    });
+  });
+
+  function DisabledPropsTestComponent(props: {
+    propsGetter: () => React.ComponentPropsWithRef<'div'>;
+  }) {
+    return useRenderElement(
+      'div',
+      {},
+      {
+        enabled: false,
+        props: [props.propsGetter],
+      },
+    );
+  }
+
   it('accepts className as function', async () => {
     const { container } = await render(
       <TestComponent
@@ -71,6 +97,32 @@ describe('useRenderElement', () => {
     const element = container.firstElementChild;
 
     expect(element?.getAttribute('style')).to.equal('padding: 10px;');
+  });
+
+  it('makes single prop objects preventable', async () => {
+    const handleMouseDown = vi.fn((event) => {
+      event.preventBaseUIHandler();
+    });
+
+    const { container } = await render(<DirectPropsTestComponent onMouseDown={handleMouseDown} />);
+
+    const element = container.firstElementChild as HTMLDivElement;
+
+    expect(() =>
+      element.dispatchEvent(new MouseEvent('mousedown', { bubbles: true })),
+    ).not.to.throw();
+    expect(handleMouseDown.mock.calls.length).to.equal(1);
+  });
+
+  it('does not resolve props when disabled', async () => {
+    const propsGetter = vi.fn(() => ({
+      onMouseDown() {},
+    }));
+
+    const { container } = await render(<DisabledPropsTestComponent propsGetter={propsGetter} />);
+
+    expect(container.firstElementChild).to.equal(null);
+    expect(propsGetter.mock.calls.length).to.equal(0);
   });
 
   describe('prop: render', () => {

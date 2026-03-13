@@ -99,7 +99,13 @@ export function mergePropsN<T extends ElementType>(props: InputProps<T>[]): Prop
     return EMPTY_PROPS as PropsOf<T>;
   }
   if (props.length === 1) {
-    return resolvePropsGetter(props[0], EMPTY_PROPS) as PropsOf<T>;
+    const firstProps = props[0];
+
+    if (isPropsGetter(firstProps)) {
+      return resolvePropsGetter(firstProps, EMPTY_PROPS) as PropsOf<T>;
+    }
+
+    return mutablyMergeInto({}, firstProps) as PropsOf<T>;
   }
 
   // We need to mutably own `merged`
@@ -192,10 +198,10 @@ function resolvePropsGetter<T extends ElementType>(
 
 function mergeEventHandlers(ourHandler: Function | undefined, theirHandler: Function | undefined) {
   if (!theirHandler) {
-    return ourHandler;
+    return wrapEventHandler(ourHandler);
   }
   if (!ourHandler) {
-    return theirHandler;
+    return wrapEventHandler(theirHandler);
   }
 
   return (event: unknown) => {
@@ -216,6 +222,20 @@ function mergeEventHandlers(ourHandler: Function | undefined, theirHandler: Func
     const result = theirHandler(event);
     ourHandler?.(event);
     return result;
+  };
+}
+
+function wrapEventHandler(handler: Function | undefined) {
+  if (!handler) {
+    return handler;
+  }
+
+  return (event: unknown) => {
+    if (isSyntheticEvent(event)) {
+      makeEventPreventable(event as BaseUIEvent<typeof event>);
+    }
+
+    return handler(event);
   };
 }
 
