@@ -3,21 +3,21 @@
   "description": "Groups all parts of the navigation menu.\nRenders a `<nav>` element at the root, or `<div>` element when nested.",
   "props": {
     "defaultValue": {
-      "type": "NavigationMenuValue<Value>",
+      "type": "Value | null",
       "default": "null",
       "description": "The uncontrolled value of the item that should be initially selected.\n\nTo render a controlled navigation menu, use the `value` prop instead.",
       "detailedType": "Value | null | undefined"
     },
     "value": {
-      "type": "NavigationMenuValue<Value>",
+      "type": "Value | null",
       "default": "null",
       "description": "The controlled value of the navigation menu item that should be currently open.\nWhen non-nullish, the menu will be open. When nullish, the menu will be closed.\n\nTo render an uncontrolled navigation menu, use the `defaultValue` prop instead.",
       "detailedType": "Value | null | undefined"
     },
     "onValueChange": {
-      "type": "((value: NavigationMenuValue<Value>, eventDetails: NavigationMenu.Root.ChangeEventDetails) => void)",
+      "type": "((value: Value | null, eventDetails: NavigationMenu.Root.ChangeEventDetails) => void)",
       "description": "Callback fired when the value changes.",
-      "detailedType": "| ((\n    value: NavigationMenuValue<Value>,\n    eventDetails: NavigationMenu.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: Value | null,\n    eventDetails: NavigationMenu.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
       "type": "RefObject<NavigationMenu.Root.Actions | null>",

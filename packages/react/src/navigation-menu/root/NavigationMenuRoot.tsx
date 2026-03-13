@@ -308,8 +308,6 @@ function TreeContext<Value>(props: {
   );
 }
 
-export type NavigationMenuValue<Value = any> = Value | null;
-
 export interface NavigationMenuRootState {
   /**
    * If `true`, the popup is open.
@@ -340,22 +338,19 @@ export interface NavigationMenuRootProps<Value = any> extends BaseUIComponentPro
    * To render an uncontrolled navigation menu, use the `defaultValue` prop instead.
    * @default null
    */
-  value?: NavigationMenuValue<Value> | undefined;
+  value?: Value | null | undefined;
   /**
    * The uncontrolled value of the item that should be initially selected.
    *
    * To render a controlled navigation menu, use the `value` prop instead.
    * @default null
    */
-  defaultValue?: NavigationMenuValue<Value> | undefined;
+  defaultValue?: Value | null | undefined;
   /**
    * Callback fired when the value changes.
    */
   onValueChange?:
-    | ((
-        value: NavigationMenuValue<Value>,
-        eventDetails: NavigationMenuRoot.ChangeEventDetails,
-      ) => void)
+    | ((value: Value | null, eventDetails: NavigationMenuRoot.ChangeEventDetails) => void)
     | undefined;
   /**
    * How long to wait before opening the navigation popup. Specified in milliseconds.
@@ -394,7 +389,7 @@ export type NavigationMenuRootChangeEventDetails =
 export namespace NavigationMenuRoot {
   export type State = NavigationMenuRootState;
   export type Props<TValue = any> = NavigationMenuRootProps<TValue>;
-  export type Value<TValue = any> = NavigationMenuValue<TValue>;
+  export type Value<TValue = any> = TValue | null;
   export type Actions = NavigationMenuRootActions;
   export type ChangeEventReason = NavigationMenuRootChangeEventReason;
   export type ChangeEventDetails = NavigationMenuRootChangeEventDetails;
