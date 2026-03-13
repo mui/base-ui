@@ -78,11 +78,7 @@ export const TreeItem = React.forwardRef(function TreeItem(
   // When itemId is provided as a prop (virtualized mode), wrap with context
   // so sub-parts (ItemLabel, ItemExpansionTrigger, etc.) can access itemId.
   if (itemIdProp != null) {
-    return (
-      <TreeItemContext.Provider value={itemIdContext}>
-        {element}
-      </TreeItemContext.Provider>
-    );
+    return <TreeItemContext.Provider value={itemIdContext}>{element}</TreeItemContext.Provider>;
   }
 
   return element;

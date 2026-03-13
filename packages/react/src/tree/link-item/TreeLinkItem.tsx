@@ -13,7 +13,7 @@ import { TreeItemCssVars } from '../item/TreeItemCssVars';
 const EXPANDED_HOOK = { [TreeLinkItemDataAttributes.expanded]: '' };
 const COLLAPSED_HOOK = { [TreeLinkItemDataAttributes.collapsed]: '' };
 const ACTIVE_HOOK = { [TreeLinkItemDataAttributes.active]: '' };
-const LINK_HOOK = { [TreeLinkItemDataAttributes.link]: '' };
+const LINK_HOOK: Record<string, string> = { [TreeLinkItemDataAttributes.link]: '' };
 
 const stateAttributesMapping = {
   itemId(v: string) {
@@ -38,13 +38,7 @@ export const TreeLinkItem = React.forwardRef(function TreeLinkItem(
   componentProps: TreeLinkItem.Props,
   forwardedRef: React.ForwardedRef<HTMLAnchorElement>,
 ) {
-  const {
-    className,
-    render,
-    itemId: itemIdProp,
-    active = false,
-    ...elementProps
-  } = componentProps;
+  const { className, render, itemId: itemIdProp, active = false, ...elementProps } = componentProps;
 
   const store = useTreeRootContext();
   const contextItemId = useTreeItemContextOptional()?.itemId;
@@ -96,11 +90,7 @@ export const TreeLinkItem = React.forwardRef(function TreeLinkItem(
   // When itemId is provided as a prop (virtualized mode), wrap with context
   // so sub-parts (ItemLabel, ItemExpansionTrigger, etc.) can access itemId.
   if (itemIdProp != null) {
-    return (
-      <TreeItemContext.Provider value={itemIdContext}>
-        {element}
-      </TreeItemContext.Provider>
-    );
+    return <TreeItemContext.Provider value={itemIdContext}>{element}</TreeItemContext.Provider>;
   }
 
   return element;

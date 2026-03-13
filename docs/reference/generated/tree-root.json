@@ -94,9 +94,9 @@
       "detailedType": "| ((\n    expandedItems: string[],\n    eventDetails: Tree.Root.ExpansionChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "onItemExpansionToggle": {
-      "type": "((itemId: string, isExpanded: boolean, details: Tree.Item.ExpansionToggleEventDetails) => void)",
+      "type": "((value: Tree.Item.ExpansionToggleValue, details: Tree.Item.ExpansionToggleEventDetails) => void)",
       "description": "Event handler called when an item is expanded or collapsed.",
-      "detailedType": "| ((\n    itemId: string,\n    isExpanded: boolean,\n    details: Tree.Item.ExpansionToggleEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: Tree.Item.ExpansionToggleValue,\n    details: Tree.Item.ExpansionToggleEventDetails,\n  ) => void)\n| undefined"
     },
     "onItemFocus": {
       "type": "((itemId: string, details: Tree.Item.FocusEventDetails) => void)",
@@ -104,9 +104,9 @@
       "detailedType": "| ((\n    itemId: string,\n    details: Tree.Item.FocusEventDetails,\n  ) => void)\n| undefined"
     },
     "onItemSelectionToggle": {
-      "type": "((itemId: string, isSelected: boolean, details: Tree.Item.SelectionToggleEventDetails) => void)",
+      "type": "((value: Tree.Item.SelectionToggleValue, details: Tree.Item.SelectionToggleEventDetails) => void)",
       "description": "Event handler called when an item is selected or deselected.",
-      "detailedType": "| ((\n    itemId: string,\n    isSelected: boolean,\n    details: Tree.Item.SelectionToggleEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: Tree.Item.SelectionToggleValue,\n    details: Tree.Item.SelectionToggleEventDetails,\n  ) => void)\n| undefined"
     },
     "onSelectedItemsChange": {
       "type": "((selectedItems: string[] | string | any | null, eventDetails: Tree.Root.SelectionChangeEventDetails) => void)",

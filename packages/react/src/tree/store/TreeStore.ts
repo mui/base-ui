@@ -17,7 +17,9 @@ import type {
   TreeSelectionMode,
   TreeItemFocusEventReason,
   TreeItemExpansionToggleEventDetails,
+  TreeItemExpansionToggleValue,
   TreeItemSelectionToggleEventDetails,
+  TreeItemSelectionToggleValue,
   TreeItemFocusEventDetails,
 } from './types';
 import { selectors } from './selectors';
@@ -82,8 +84,7 @@ export interface TreeStoreParameters<
    */
   onItemExpansionToggle?:
     | ((
-        itemId: TreeItemId,
-        isExpanded: boolean,
+        value: TreeItemExpansionToggleValue,
         details: TreeItemExpansionToggleEventDetails,
       ) => void)
     | undefined;
@@ -120,8 +121,7 @@ export interface TreeStoreParameters<
    */
   onItemSelectionToggle?:
     | ((
-        itemId: TreeItemId,
-        isSelected: boolean,
+        value: TreeItemSelectionToggleValue,
         details: TreeItemSelectionToggleEventDetails,
       ) => void)
     | undefined;
@@ -282,7 +282,10 @@ export class TreeStore<
           (selectionMode === 'multiple' ? EMPTY_ARRAY : null),
         selectionMode,
         disallowEmptySelection: parameters.disallowEmptySelection ?? false,
-        checkboxSelectionPropagation: parameters.checkboxSelectionPropagation ?? { parents: true, descendants: true },
+        checkboxSelectionPropagation: parameters.checkboxSelectionPropagation ?? {
+          parents: true,
+          descendants: true,
+        },
         focusedItemId: null,
         itemFocusableWhenDisabled: parameters.itemFocusableWhenDisabled ?? false,
         lazyLoadedItems: undefined,
@@ -336,13 +339,24 @@ export class TreeStore<
       if (focusedId != null && !newMetaLookup[focusedId]) {
         // Use previousState for navigation since the focused item still exists there.
         // Then verify the candidate still exists in the new state.
-        let candidate =
-          getNextNavigableItem(previousState, focusedId) ??
-          getPreviousNavigableItem(previousState, focusedId);
+        // Walk forward then backward through the previous state to find the
+        // nearest surviving neighbor. Multiple siblings may have been removed
+        // in the same batch, so we keep walking until we find one that still
+        // exists in the new state (or exhaust both directions).
+        let candidate: string | null = null;
 
-        // If the candidate was also removed, fall back to the first navigable item in the new state
-        if (candidate != null && !newMetaLookup[candidate]) {
-          candidate = null;
+        let probe = getNextNavigableItem(previousState, focusedId);
+        while (probe != null && !newMetaLookup[probe]) {
+          probe = getNextNavigableItem(previousState, probe);
+        }
+        candidate = probe;
+
+        if (candidate == null) {
+          probe = getPreviousNavigableItem(previousState, focusedId);
+          while (probe != null && !newMetaLookup[probe]) {
+            probe = getPreviousNavigableItem(previousState, probe);
+          }
+          candidate = probe;
         }
 
         const itemToFocusId = candidate ?? getFirstNavigableItem(newState);
@@ -432,8 +446,7 @@ export class TreeStore<
 
     this.set('expandedItems', newExpanded);
     this.context.onItemExpansionToggle(
-      itemId,
-      shouldBeExpanded,
+      { itemId, isExpanded: shouldBeExpanded },
       createGenericEventDetails(reason, event),
     );
   }
@@ -500,8 +513,7 @@ export class TreeStore<
       this.set('expandedItems', newExpanded);
       for (const expandedItemId of diff) {
         this.context.onItemExpansionToggle(
-          expandedItemId,
-          true,
+          { itemId: expandedItemId, isExpanded: true },
           createGenericEventDetails(reason, event),
         );
       }
@@ -528,8 +540,7 @@ export class TreeStore<
     this.set('expandedItems', newExpanded);
     for (const expandedItemId of diff) {
       this.context.onItemExpansionToggle(
-        expandedItemId,
-        true,
+        { itemId: expandedItemId, isExpanded: true },
         createGenericEventDetails(reason),
       );
     }
@@ -549,8 +560,7 @@ export class TreeStore<
     this.set('expandedItems', []);
     for (const collapsedItemId of oldExpanded) {
       this.context.onItemExpansionToggle(
-        collapsedItemId,
-        false,
+        { itemId: collapsedItemId, isExpanded: false },
         createGenericEventDetails(reason),
       );
     }
@@ -575,7 +585,8 @@ export class TreeStore<
     if (
       shouldPropagate &&
       isMulti &&
-      (this.state.checkboxSelectionPropagation.descendants || this.state.checkboxSelectionPropagation.parents)
+      (this.state.checkboxSelectionPropagation.descendants ||
+        this.state.checkboxSelectionPropagation.parents)
     ) {
       cleanModel = this.propagateSelection(
         newModel as TreeItemId[],
@@ -606,12 +617,12 @@ export class TreeStore<
     const selectionDetails = createGenericEventDetails(reason, event);
     for (const itemId of normalizedNew) {
       if (!normalizedOld.has(itemId)) {
-        this.context.onItemSelectionToggle(itemId, true, selectionDetails);
+        this.context.onItemSelectionToggle({ itemId, isSelected: true }, selectionDetails);
       }
     }
     for (const itemId of normalizedOld) {
       if (!normalizedNew.has(itemId)) {
-        this.context.onItemSelectionToggle(itemId, false, selectionDetails);
+        this.context.onItemSelectionToggle({ itemId, isSelected: false }, selectionDetails);
       }
     }
   }
@@ -775,7 +786,13 @@ export class TreeStore<
       }
     }
 
-    this.setSelectedItems(newSelected, reason, event, [itemId], shouldPropagate ?? keepExistingSelection);
+    this.setSelectedItems(
+      newSelected,
+      reason,
+      event,
+      [itemId],
+      shouldPropagate ?? keepExistingSelection,
+    );
     this.lastSelectedItem = itemId;
     this.lastSelectedRange = {};
   }
@@ -924,10 +941,7 @@ export class TreeStore<
         // Update state so the consumer can scroll the virtualizer to this item.
         // The item will auto-focus when it mounts (see TreeItem).
         this.set('focusedItemId', itemId);
-        this.context.onItemFocus(
-          itemId,
-          createGenericEventDetails(reason),
-        );
+        this.context.onItemFocus(itemId, createGenericEventDetails(reason));
       }
     }
   }
@@ -1287,11 +1301,13 @@ export class TreeStore<
         return;
       }
       // Prevent text selection when using modifier keys for multi-select
+      // Also prevent default for disabled items that cannot be focused,
+      // but allow it for disabled items with itemFocusableWhenDisabled.
       if (
         event.shiftKey ||
         event.ctrlKey ||
         event.metaKey ||
-        selectors.isItemDisabled(this.state, itemId)
+        !selectors.canItemBeFocused(this.state, itemId)
       ) {
         event.preventDefault();
       }
@@ -1301,8 +1317,8 @@ export class TreeStore<
       if (!itemId) {
         return;
       }
-      // Handle focus - disabled items cannot be focused by mouse click
-      if (!selectors.isItemDisabled(this.state, itemId)) {
+      // Handle focus - items that cannot be focused (disabled without itemFocusableWhenDisabled) are skipped
+      if (selectors.canItemBeFocused(this.state, itemId)) {
         this.lastFocusReason = REASONS.itemPress;
         this.set('focusedItemId', itemId);
       }
@@ -1359,11 +1375,13 @@ export class TreeStore<
         return;
       }
       // Prevent text selection when using modifier keys for multi-select
+      // Also prevent default for disabled items that cannot be focused,
+      // but allow it for disabled items with itemFocusableWhenDisabled.
       if (
         event.shiftKey ||
         event.ctrlKey ||
         event.metaKey ||
-        selectors.isItemDisabled(this.state, itemId)
+        !selectors.canItemBeFocused(this.state, itemId)
       ) {
         event.preventDefault();
       }
@@ -1373,8 +1391,8 @@ export class TreeStore<
       if (!itemId) {
         return;
       }
-      // Handle focus - disabled items cannot be focused by mouse click
-      if (!selectors.isItemDisabled(this.state, itemId)) {
+      // Handle focus - items that cannot be focused (disabled without itemFocusableWhenDisabled) are skipped
+      if (selectors.canItemBeFocused(this.state, itemId)) {
         this.lastFocusReason = REASONS.itemPress;
         this.set('focusedItemId', itemId);
       }
@@ -1423,10 +1441,10 @@ export class TreeStore<
       if (!itemId) {
         return;
       }
-      // Only prevent default for disabled items.
+      // Only prevent default for disabled items that cannot be focused.
       // Unlike regular items, we don't prevent default for modifier keys
       // so that Ctrl+click (open in new tab) and Shift+click (open in new window) work.
-      if (selectors.isItemDisabled(this.state, itemId)) {
+      if (!selectors.canItemBeFocused(this.state, itemId)) {
         event.preventDefault();
       }
     },
@@ -1435,8 +1453,8 @@ export class TreeStore<
       if (!itemId) {
         return;
       }
-      // Handle focus - disabled items cannot be focused by mouse click
-      if (!selectors.isItemDisabled(this.state, itemId)) {
+      // Handle focus - items that cannot be focused (disabled without itemFocusableWhenDisabled) are skipped
+      if (selectors.canItemBeFocused(this.state, itemId)) {
         this.lastFocusReason = REASONS.itemPress;
         this.set('focusedItemId', itemId);
       }

@@ -120,6 +120,16 @@ export type TreeItemExpansionToggleEventDetails =
 export type TreeItemSelectionToggleEventDetails =
   BaseUIGenericEventDetails<TreeRootSelectionChangeEventReason>;
 
+export interface TreeItemExpansionToggleValue {
+  itemId: TreeItemId;
+  isExpanded: boolean;
+}
+
+export interface TreeItemSelectionToggleValue {
+  itemId: TreeItemId;
+  isSelected: boolean;
+}
+
 /**
  * The full store state for the Tree component.
  */
@@ -242,13 +252,11 @@ export interface TreeStoreContext {
     details: TreeRootSelectionChangeEventDetails,
   ) => void;
   onItemExpansionToggle: (
-    itemId: TreeItemId,
-    isExpanded: boolean,
+    value: TreeItemExpansionToggleValue,
     details: TreeItemExpansionToggleEventDetails,
   ) => void;
   onItemSelectionToggle: (
-    itemId: TreeItemId,
-    isSelected: boolean,
+    value: TreeItemSelectionToggleValue,
     details: TreeItemSelectionToggleEventDetails,
   ) => void;
   onItemFocus: (itemId: TreeItemId, details: TreeItemFocusEventDetails) => void;

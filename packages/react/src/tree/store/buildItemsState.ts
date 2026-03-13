@@ -14,11 +14,7 @@ export function buildItemsState<TItem = TreeDefaultItemModel>(
   const itemOrderedChildrenIdsLookup: Record<string, TreeItemId[]> = {};
   const itemChildrenIndexesLookup: Record<string, Record<TreeItemId, number>> = {};
 
-  function processSiblings(
-    siblings: readonly TItem[],
-    parentId: TreeItemId | null,
-    depth: number,
-  ) {
+  function processSiblings(siblings: readonly TItem[], parentId: TreeItemId | null, depth: number) {
     const parentKey = parentId ?? TREE_VIEW_ROOT_PARENT_ID;
     const orderedChildrenIds: TreeItemId[] = [];
     const childrenIndexes: Record<TreeItemId, number> = {};
@@ -28,6 +24,15 @@ export function buildItemsState<TItem = TreeDefaultItemModel>(
       const itemId = itemToId(item);
       const children = itemToChildren(item);
       const expandable = !!children && children.length > 0;
+
+      if (process.env.NODE_ENV !== 'production') {
+        if (itemMetaLookup[itemId] != null) {
+          console.error(
+            `Base UI Tree: Two items have the same \`id\` property: "${itemId}". ` +
+              'Each item must have a unique ID. The second item will overwrite the first.',
+          );
+        }
+      }
 
       orderedChildrenIds.push(itemId);
       childrenIndexes[itemId] = i;

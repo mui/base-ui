@@ -20,7 +20,9 @@ import type {
   TreeItemFocusEventReason,
   TreeItemFocusEventDetails,
   TreeItemExpansionToggleEventDetails,
+  TreeItemExpansionToggleValue,
   TreeItemSelectionToggleEventDetails,
+  TreeItemSelectionToggleValue,
 } from '../store/types';
 import { TreeItemModelProvider } from '../utils/TreeItemModelProvider';
 
@@ -140,7 +142,8 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
     expandOnClick: expandOnClick ?? false,
     selectionMode: selectionMode ?? 'single',
     disallowEmptySelection: disallowEmptySelection ?? false,
-    checkboxSelectionPropagation: checkboxSelectionPropagation ?? DEFAULT_CHECKBOX_SELECTION_PROPAGATION,
+    checkboxSelectionPropagation:
+      checkboxSelectionPropagation ?? DEFAULT_CHECKBOX_SELECTION_PROPAGATION,
     itemFocusableWhenDisabled: itemFocusableWhenDisabled ?? false,
     itemToId,
     itemToStringLabel,
@@ -246,7 +249,9 @@ export namespace TreeRoot {
   export type SelectionChangeEventReason = TreeRootSelectionChangeEventReason;
   export type SelectionChangeEventDetails = TreeRootSelectionChangeEventDetails;
   export type ItemExpansionToggleEventDetails = TreeItemExpansionToggleEventDetails;
+  export type ItemExpansionToggleValue = TreeItemExpansionToggleValue;
   export type ItemSelectionToggleEventDetails = TreeItemSelectionToggleEventDetails;
+  export type ItemSelectionToggleValue = TreeItemSelectionToggleValue;
   export type ItemFocusEventReason = TreeItemFocusEventReason;
   export type ItemFocusEventDetails = TreeItemFocusEventDetails;
 }

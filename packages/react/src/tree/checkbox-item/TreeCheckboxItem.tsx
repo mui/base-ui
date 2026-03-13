@@ -1,9 +1,11 @@
 'use client';
 import * as React from 'react';
+import { useStore } from '@base-ui/utils/store';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useTreeRootContext } from '../root/TreeRootContext';
+import { selectors } from '../store/selectors';
 import { TreeItemContext, useTreeItemContextOptional } from '../item/TreeItemContext';
 import { TreeCheckboxItemContext } from './TreeCheckboxItemContext';
 import { TreeCheckboxItemDataAttributes } from './TreeCheckboxItemDataAttributes';
@@ -58,6 +60,7 @@ export const TreeCheckboxItem = React.forwardRef(function TreeCheckboxItem(
   }
 
   const { props: itemProps, state } = store.useState('checkboxItemPropsAndState', itemId);
+  const virtualized = useStore(store, selectors.virtualized);
   const itemIdContext = React.useMemo(() => ({ itemId }), [itemId]);
 
   const checkboxItemContext = React.useMemo(
@@ -69,9 +72,21 @@ export const TreeCheckboxItem = React.forwardRef(function TreeCheckboxItem(
     [state.checked, state.indeterminate, state.disabled],
   );
 
+  // In virtualized mode, auto-focus when this item mounts and it's the focused item.
+  // This handles the case where keyboard navigation moves to an item that wasn't
+  // previously in the DOM, and the virtualizer scrolls to render it.
+  const autoFocusRef = React.useCallback(
+    (element: HTMLDivElement | null) => {
+      if (virtualized && element && state.focused) {
+        element.focus();
+      }
+    },
+    [virtualized, state.focused],
+  );
+
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: forwardedRef,
+    ref: [forwardedRef, autoFocusRef],
     props: [
       itemProps,
       store.checkboxItemEventHandlers,
@@ -90,11 +105,7 @@ export const TreeCheckboxItem = React.forwardRef(function TreeCheckboxItem(
   // When itemId is provided as a prop (virtualized mode), wrap with context
   // so sub-parts (ItemLabel, ItemExpansionTrigger, etc.) can access itemId.
   if (itemIdProp != null) {
-    return (
-      <TreeItemContext.Provider value={itemIdContext}>
-        {content}
-      </TreeItemContext.Provider>
-    );
+    return <TreeItemContext.Provider value={itemIdContext}>{content}</TreeItemContext.Provider>;
   }
 
   return content;

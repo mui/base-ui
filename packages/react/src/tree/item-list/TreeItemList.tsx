@@ -28,8 +28,10 @@ export function TreeItemList(componentProps: TreeItemList.Props) {
 
 export interface TreeItemListState {}
 
-export interface TreeItemListProps
-  extends Omit<BaseUIComponentProps<'div', TreeItemListState>, 'children'> {
+export interface TreeItemListProps extends Omit<
+  BaseUIComponentProps<'div', TreeItemListState>,
+  'children'
+> {
   /**
    * The render function for each tree item.
    *

@@ -544,7 +544,9 @@ export const selectors = {
   isSelectionDisabled: isSelectionDisabledSelector,
   canItemBeSelected: canItemBeSelectedSelector,
   checkboxSelectionStatus: checkboxSelectionStatusSelector,
-  checkboxSelectionPropagationRules: createSelector((state: TreeState) => state.checkboxSelectionPropagation),
+  checkboxSelectionPropagationRules: createSelector(
+    (state: TreeState) => state.checkboxSelectionPropagation,
+  ),
   focusedItemId: createSelector((state: TreeState): TreeItemId | null => state.focusedItemId),
   isItemFocused: isItemFocusedSelector,
   defaultFocusableItemId: defaultFocusableItemIdSelector,
@@ -567,6 +569,8 @@ export const selectors = {
     (state: TreeState, itemId: TreeItemId) => isItemDefaultFocusableSelector(state, itemId),
     (state: TreeState, itemId: TreeItemId) => itemSiblingsCountSelector(state, itemId),
     (state: TreeState, itemId: TreeItemId) => itemPositionInSetSelector(state, itemId),
+    (state: TreeState, itemId: TreeItemId) =>
+      state.lazyLoadedItems?.loading[itemId] ?? false,
     (
       meta,
       expanded,
@@ -578,6 +582,7 @@ export const selectors = {
       isDefaultFocusable,
       siblingsCount,
       posInSet,
+      loading,
       itemId: TreeItemId,
     ) => {
       if (!meta) {
@@ -598,6 +603,7 @@ export const selectors = {
           'aria-setsize': siblingsCount,
           'aria-posinset': posInSet,
           'aria-disabled': disabled || undefined,
+          'aria-busy': loading || undefined,
           tabIndex: isDefaultFocusable ? 0 : -1,
         },
         state: {
@@ -622,6 +628,8 @@ export const selectors = {
     (state: TreeState, itemId: TreeItemId) => isItemDefaultFocusableSelector(state, itemId),
     (state: TreeState, itemId: TreeItemId) => itemSiblingsCountSelector(state, itemId),
     (state: TreeState, itemId: TreeItemId) => itemPositionInSetSelector(state, itemId),
+    (state: TreeState, itemId: TreeItemId) =>
+      state.lazyLoadedItems?.loading[itemId] ?? false,
     (
       meta,
       expanded,
@@ -632,6 +640,7 @@ export const selectors = {
       isDefaultFocusable,
       siblingsCount,
       posInSet,
+      loading,
       itemId: TreeItemId,
     ) => {
       if (!meta) {
@@ -663,6 +672,7 @@ export const selectors = {
           'aria-setsize': siblingsCount,
           'aria-posinset': posInSet,
           'aria-disabled': disabled || undefined,
+          'aria-busy': loading || undefined,
           tabIndex: isDefaultFocusable ? 0 : -1,
         },
         state: {

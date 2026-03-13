@@ -94,10 +94,7 @@ export default function DeleteItemTree() {
   );
 }
 
-function removeItem(
-  items: Tree.DefaultItemModel[],
-  targetId: string,
-): Tree.DefaultItemModel[] {
+function removeItem(items: Tree.DefaultItemModel[], targetId: string): Tree.DefaultItemModel[] {
   return items
     .filter((item) => item.id !== targetId)
     .map((item) => {
@@ -126,12 +123,7 @@ function ChevronIcon(props: React.ComponentProps<'svg'>) {
 function CloseIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg viewBox="0 0 12 12" fill="none" {...props} width="12" height="12">
-      <path
-        d="M3 3L9 9M9 3L3 9"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
+      <path d="M3 3L9 9M9 3L3 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   );
 }

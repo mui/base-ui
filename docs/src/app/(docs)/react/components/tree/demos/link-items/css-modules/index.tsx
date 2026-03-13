@@ -34,36 +34,24 @@ const items: LinkItemModel[] = [
 
 export default function ExampleTreeLinkItems() {
   return (
-    <Tree.Root
-      items={items}
-      defaultExpandedItems={['overview']}
-      className={styles.Tree}
-    >
+    <Tree.Root items={items} defaultExpandedItems={['overview']} className={styles.Tree}>
       <Tree.ItemList>
         {(item) => {
           if (item.href) {
             return (
-              <React.Fragment>
-                <Link
-                  className={styles.LinkItem}
-                  href={item.href}
-                  active={item.id === 'quick-start'}
-                >
-                  <Tree.ItemLabel className={styles.Label} />
-                </Link>
-              </React.Fragment>
+              <Link className={styles.LinkItem} href={item.href} active={item.id === 'quick-start'}>
+                <Tree.ItemLabel className={styles.Label} />
+              </Link>
             );
           }
 
           return (
-            <React.Fragment>
-              <Tree.Item className={styles.Item}>
-                <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
-                  <ChevronIcon />
-                </Tree.ItemExpansionTrigger>
-                <Tree.ItemLabel className={styles.Label} />
-              </Tree.Item>
-            </React.Fragment>
+            <Tree.Item className={styles.Item}>
+              <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
+                <ChevronIcon />
+              </Tree.ItemExpansionTrigger>
+              <Tree.ItemLabel className={styles.Label} />
+            </Tree.Item>
           );
         }}
       </Tree.ItemList>

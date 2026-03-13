@@ -47,7 +47,8 @@ function TreeWithLazyLoading(
   const lazyLoading = Tree.useLazyLoading({
     fetchChildren: config?.fetchChildren ?? mockFetchChildren,
     getChildrenCount:
-      config?.getChildrenCount ?? ((item: TreeDefaultItemModel) => (item as ItemType).childrenCount ?? 0),
+      config?.getChildrenCount ??
+      ((item: TreeDefaultItemModel) => (item as ItemType).childrenCount ?? 0),
     cache: config?.cache,
   });
 

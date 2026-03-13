@@ -95,5 +95,8 @@
   "95": "Base UI: TreeRootContext is missing. Tree parts must be placed within <Tree.Root>.",
   "96": "Base UI Tree: updateItemChildren requires a lazyLoading plugin. Pass a lazyLoading prop to Tree.Root created via Tree.useLazyLoading().",
   "97": "Base UI: Could not find the item metadata for item with id \"%s\".",
-  "98": "Base UI: Invalid range - unable to find a path between the two items. This may occur if the items are not in the same tree or the tree structure is invalid. Verify that both items exist in the tree."
+  "98": "Base UI: Invalid range - unable to find a path between the two items. This may occur if the items are not in the same tree or the tree structure is invalid. Verify that both items exist in the tree.",
+  "99": "Base UI: Tree.CheckboxItem requires an `itemId` prop when used in virtualized mode, or must be placed within a Tree.Root with a render function.",
+  "100": "Base UI: Tree.Item requires an `itemId` prop when used in virtualized mode, or must be placed within a Tree.Root with a render function.",
+  "101": "Base UI: Tree.LinkItem requires an `itemId` prop when used in virtualized mode, or must be placed within a Tree.Root with a render function."
 }

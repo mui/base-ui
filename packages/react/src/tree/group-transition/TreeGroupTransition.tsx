@@ -46,7 +46,9 @@ export function TreeGroupTransition(componentProps: TreeGroupTransition.Props) {
 }
 
 function TreeGroupTransitionInner(
-  props: TreeGroupTransition.Props & { context: NonNullable<React.ContextType<typeof TreeGroupTransitionContext>> },
+  props: TreeGroupTransition.Props & {
+    context: NonNullable<React.ContextType<typeof TreeGroupTransitionContext>>;
+  },
 ) {
   const { context, ...componentProps } = props;
   const { parentId, animation } = context;
@@ -149,8 +151,10 @@ export interface TreeGroupTransitionState {
   animation: 'expanding' | 'collapsing';
 }
 
-export interface TreeGroupTransitionProps
-  extends BaseUIComponentProps<'div', TreeGroupTransitionState> {}
+export interface TreeGroupTransitionProps extends BaseUIComponentProps<
+  'div',
+  TreeGroupTransitionState
+> {}
 
 export namespace TreeGroupTransition {
   export type State = TreeGroupTransitionState;

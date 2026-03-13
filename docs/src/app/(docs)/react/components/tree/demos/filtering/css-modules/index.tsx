@@ -57,11 +57,7 @@ export default function ExampleTreeFiltering() {
         value={filterText}
         onChange={(event) => setFilterText(event.target.value)}
       />
-      <Tree.Root
-        items={filteredItems}
-        defaultExpandedItems={[]}
-        className={styles.Tree}
-      >
+      <Tree.Root items={filteredItems} defaultExpandedItems={[]} className={styles.Tree}>
         <Tree.ItemList>
           {() => (
             <Tree.Item className={styles.Item}>

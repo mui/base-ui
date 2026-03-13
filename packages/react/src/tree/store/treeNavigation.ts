@@ -53,7 +53,15 @@ export const getPreviousNavigableItem = (
   const currentIndex = itemIndex(state, itemId);
 
   if (currentIndex === 0) {
-    return meta.parentId;
+    if (meta.parentId == null) {
+      return null;
+    }
+
+    if (canItemBeFocused(state, meta.parentId)) {
+      return meta.parentId;
+    }
+
+    return getPreviousNavigableItem(state, meta.parentId);
   }
 
   // Find the previous navigable sibling.

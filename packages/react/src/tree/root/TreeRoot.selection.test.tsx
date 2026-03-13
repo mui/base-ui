@@ -167,10 +167,9 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
       fireEvent.click(view.getItemRoot('1'));
       expect(onItemSelectionToggle.callCount).to.equal(1);
-      expect(onItemSelectionToggle.lastCall.args[0]).to.equal('1');
-      expect(onItemSelectionToggle.lastCall.args[1]).to.equal(true);
-      expect(onItemSelectionToggle.lastCall.args[2]).to.have.property('reason', 'item-press');
-      expect(onItemSelectionToggle.lastCall.args[2]).to.have.property('event');
+      expect(onItemSelectionToggle.lastCall.args[0]).to.deep.equal({ itemId: '1', isSelected: true });
+      expect(onItemSelectionToggle.lastCall.args[1]).to.have.property('reason', 'item-press');
+      expect(onItemSelectionToggle.lastCall.args[1]).to.have.property('event');
     });
 
     it('should call onItemSelectionToggle when un-selecting an item (multi selection)', async () => {
@@ -185,9 +184,8 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
       fireEvent.click(view.getItemRoot('1'), { ctrlKey: true });
       expect(onItemSelectionToggle.callCount).to.equal(1);
-      expect(onItemSelectionToggle.lastCall.args[0]).to.equal('1');
-      expect(onItemSelectionToggle.lastCall.args[1]).to.equal(false);
-      expect(onItemSelectionToggle.lastCall.args[2]).to.have.property('reason', 'item-press');
+      expect(onItemSelectionToggle.lastCall.args[0]).to.deep.equal({ itemId: '1', isSelected: false });
+      expect(onItemSelectionToggle.lastCall.args[1]).to.have.property('reason', 'item-press');
     });
 
     it('should not call onItemSelectionToggle when the selection is canceled', async () => {
@@ -218,9 +216,8 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       });
 
       expect(onItemSelectionToggle.callCount).to.equal(1);
-      expect(onItemSelectionToggle.lastCall.args[0]).to.equal('1');
-      expect(onItemSelectionToggle.lastCall.args[1]).to.equal(true);
-      expect(onItemSelectionToggle.lastCall.args[2]).to.have.property(
+      expect(onItemSelectionToggle.lastCall.args[0]).to.deep.equal({ itemId: '1', isSelected: true });
+      expect(onItemSelectionToggle.lastCall.args[1]).to.have.property(
         'reason',
         'imperative-action',
       );
@@ -240,10 +237,10 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
       const calls = onItemSelectionToggle
         .getCalls()
-        .map((call: any) => [call.args[0], call.args[1]]);
+        .map((call: any) => call.args[0]);
       expect(calls).to.deep.include.members([
-        ['2', true],
-        ['1', false],
+        { itemId: '2', isSelected: true },
+        { itemId: '1', isSelected: false },
       ]);
     });
   });

@@ -36,6 +36,8 @@ export type {
   TreeItemFocusEventReason,
   TreeItemFocusEventDetails,
   TreeItemExpansionToggleEventDetails,
+  TreeItemExpansionToggleValue,
   TreeItemSelectionToggleEventDetails,
+  TreeItemSelectionToggleValue,
 } from './store/types';
 export type { VisibleItem } from './store/selectors';
