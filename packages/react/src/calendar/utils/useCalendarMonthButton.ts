@@ -34,7 +34,7 @@ export function useCalendarMonthButton(params: UseCalendarMonthButtonParameters)
     tickDelay: CHANGE_MONTH_TICK_DELAY,
     tick(triggerNativeEvent) {
       const button = autoChangeButtonRef.current;
-      const currentVisibleDate = store.state.visibleDate;
+      const currentVisibleDate = selectors.visibleDate(store.state);
       const targetDate = adapter.addMonths(currentVisibleDate, direction * monthPageSize);
 
       const wouldBeDisabled = selectors.isSetMonthButtonDisabled(

@@ -298,6 +298,52 @@ describe('<Calendar.IncrementMonth />', () => {
       fireEvent.pointerUp(button);
     });
 
+    it('should use the controlled visibleDate for each tick', async () => {
+      const onVisibleDateChange = spy();
+
+      function ControlledCalendar() {
+        const [visibleDate, setVisibleDate] = React.useState(() =>
+          adapter.date('2025-01-15', 'default'),
+        );
+        return (
+          <LocalizationProvider>
+            <Calendar.Root
+              visibleDate={visibleDate}
+              onVisibleDateChange={(date, details) => {
+                setVisibleDate(date);
+                onVisibleDateChange(date, details);
+              }}
+            >
+              <Calendar.IncrementMonth data-testid="increment" />
+            </Calendar.Root>
+          </LocalizationProvider>
+        );
+      }
+
+      await renderWithClock(<ControlledCalendar />);
+      const button = screen.getByTestId('increment');
+
+      fireEvent.pointerDown(button);
+
+      // First tick fires immediately: Jan -> Feb
+      expect(onVisibleDateChange.callCount).to.equal(1);
+      expect(onVisibleDateChange.getCall(0).args[0]).toEqualDateTime('2025-02-15');
+
+      clock.tick(400);
+
+      // Second tick: Feb -> Mar
+      clock.tick(100);
+      expect(onVisibleDateChange.callCount).to.equal(2);
+      expect(onVisibleDateChange.getCall(1).args[0]).toEqualDateTime('2025-03-15');
+
+      // Third tick: Mar -> Apr
+      clock.tick(100);
+      expect(onVisibleDateChange.callCount).to.equal(3);
+      expect(onVisibleDateChange.getCall(2).args[0]).toEqualDateTime('2025-04-15');
+
+      fireEvent.pointerUp(button);
+    });
+
     describe('touch (Android)', () => {
       it('should navigate once on a quick touch tap', async () => {
         const onVisibleDateChange = spy();
