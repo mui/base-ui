@@ -15,6 +15,7 @@ import { rehypeKbd } from 'docs/src/components/Kbd/rehypeKbd.mjs';
 import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting/index.mjs';
 import { rehypeSlug } from 'docs/src/components/QuickNav/rehypeSlug.mjs';
 import { rehypeSubtitle } from 'docs/src/components/Subtitle/rehypeSubtitle.mjs';
+import { ordering } from 'docs/src/utils/typeOrder.mjs';
 
 const currentDirectory = url.fileURLToPath(new URL('.', import.meta.url));
 const workspaceRoot = path.resolve(currentDirectory, '../');
@@ -84,6 +85,7 @@ const nextConfig = {
                 baseDir,
                 onlyUpdateIndexes: true,
               },
+              ordering,
             },
           },
         ],
@@ -116,6 +118,7 @@ const nextConfig = {
               baseDir,
               onlyUpdateIndexes: true,
             },
+            ordering,
           },
         },
       ],
