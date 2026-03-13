@@ -5,7 +5,7 @@ import {
 import clsx from 'clsx';
 import { ReferenceTable } from '../components/ReferenceTable/ReferenceTable';
 import { mdxComponents, mdxComponentsInline } from '../mdx-components';
-import { PreInline } from '../components/CodeBlock';
+import * as CodeBlock from '../components/CodeBlock';
 import { CodeBlockPreComputed } from '../components/CodeBlock/CodeBlockPreComputed';
 import { Code } from '../components/Code';
 
@@ -15,7 +15,11 @@ interface MDXComponents {
 
 const components: MDXComponents = {
   ...mdxComponents,
-  pre: CodeBlockPreComputed,
+  pre: (props) => (
+    <CodeBlock.Root>
+      <CodeBlockPreComputed {...props} />
+    </CodeBlock.Root>
+  ),
 };
 
 const inlineComponents: MDXComponents = {
@@ -23,7 +27,7 @@ const inlineComponents: MDXComponents = {
   code: (props) => (
     <Code {...props} data-table-code="" className={clsx(props.className, 'TableCode')} />
   ),
-  pre: PreInline,
+  pre: CodeBlock.PreInline,
 };
 
 /**

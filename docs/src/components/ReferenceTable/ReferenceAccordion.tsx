@@ -3,6 +3,7 @@ import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { ProcessedProperty } from '@mui/internal-docs-infra/useTypes';
 import { Link } from 'docs/src/components/Link';
 import * as Accordion from '../Accordion';
+import * as CodeBlock from '../CodeBlock';
 import * as DescriptionList from '../DescriptionList';
 import { TableCode } from '../TableCode';
 import * as ReferenceTableTooltip from './ReferenceTableTooltip';
@@ -143,7 +144,9 @@ export function ReferenceAccordion({
                   )}
                   <DescriptionList.Item>
                     <DescriptionList.Term separator>Type</DescriptionList.Term>
-                    <DescriptionList.Details>{displayDetailedType}</DescriptionList.Details>
+                    <DescriptionList.Details>
+                      <CodeBlock.Root>{displayDetailedType}</CodeBlock.Root>
+                    </DescriptionList.Details>
                   </DescriptionList.Item>
                   {!hideDefault && prop.default !== undefined && (
                     <DescriptionList.Item>

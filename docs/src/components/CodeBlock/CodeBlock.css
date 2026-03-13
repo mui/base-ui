@@ -4,6 +4,15 @@
     background-color: var(--color-content);
     border: 1px solid var(--color-gray-200);
     border-radius: var(--radius-md);
+
+    & pre {
+      white-space: normal;
+    }
+
+    & [data-line],
+    & .line {
+      padding-inline: 0.75rem;
+    }
   }
 
   .CodeBlockPanel {
@@ -58,13 +67,14 @@
     justify-content: center;
   }
 
-  .CodeBlockPre {
+  .CodeBlockPreInline {
     font-size: var(--text-xs);
     line-height: var(--text-xs--line-height);
     letter-spacing: var(--text-xs--letter-spacing);
     cursor: text;
     color: var(--color-foreground);
     outline: 0;
+    white-space: normal;
 
     /* Scroll */
     display: flex;
@@ -78,6 +88,24 @@
       /* Make sure selection highlight spans full container width in Safari */
       flex-grow: 1;
     }
+
+    & [data-line],
+    & .line {
+      display: block;
+      white-space: pre;
+    }
+
+    & [data-line]:empty,
+    & .line:empty {
+      height: 1lh;
+    }
+  }
+
+  .CodeBlockPre,
+  .CodeBlockRoot .CodeBlockPreInline {
+    background-color: var(--color-content);
+    padding: 0.5rem 0;
+    border-radius: var(--radius-md);
   }
 
   .CodeBlockPreBackground {

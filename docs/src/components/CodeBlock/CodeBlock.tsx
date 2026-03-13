@@ -93,7 +93,9 @@ export function PreInline(props: React.ComponentProps<'pre'>) {
     >
       <ScrollArea.Viewport
         style={{ overflow: undefined }}
-        render={<pre {...props} id={codeId} className={clsx('CodeBlockPre', props.className)} />}
+        render={
+          <pre {...props} id={codeId} className={clsx('CodeBlockPreInline', props.className)} />
+        }
       />
       <ScrollArea.Scrollbar orientation="horizontal" />
     </ScrollArea.Root>
@@ -101,5 +103,5 @@ export function PreInline(props: React.ComponentProps<'pre'>) {
 }
 
 export function Pre(props: React.ComponentProps<'pre'>) {
-  return <PreInline {...props} className="CodeBlockPreBackground" />;
+  return <PreInline {...props} className="CodeBlockPre" />;
 }

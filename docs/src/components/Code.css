@@ -7,18 +7,6 @@
       white-space: normal;
     }
 
-    & [data-line],
-    & .line {
-      display: block;
-      white-space: pre;
-      padding-inline: 0.75rem;
-    }
-
-    & [data-line]:empty,
-    & .line:empty {
-      height: 1lh;
-    }
-
     & mark {
       display: inline-block;
     }

@@ -10,6 +10,7 @@ import { ParametersReferenceTable } from './ParametersReferenceTable';
 import { PropertiesReferenceAccordion } from './PropertiesReferenceAccordion';
 import { MethodsReferenceAccordion } from './MethodsReferenceAccordion';
 import { AdditionalTypes } from './AdditionalTypes';
+import * as CodeBlock from '../CodeBlock';
 
 import '../Demo/CodeHighlighting.css';
 
@@ -134,7 +135,9 @@ export function ReferenceTable(props: ReferenceTableProps) {
           <div className="ReferenceBlock">
             <SectionHeading>Return value</SectionHeading>
             {data.returnValue.type}
-            {data.returnValue.detailedType && data.returnValue.detailedType}
+            {data.returnValue.detailedType && (
+              <CodeBlock.Root>{data.returnValue.detailedType}</CodeBlock.Root>
+            )}
           </div>
         )}
 
