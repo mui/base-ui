@@ -99,6 +99,11 @@
     & .line:empty {
       height: 1lh;
     }
+
+    /* Hide JSDoc comment frames */
+    &:not(.CodeBlockPre) .frame[data-frame-type='comment'] {
+      display: none;
+    }
   }
 
   .CodeBlockPre,
