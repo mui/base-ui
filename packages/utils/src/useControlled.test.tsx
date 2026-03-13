@@ -1,5 +1,5 @@
+import { expect } from 'vitest';
 import * as React from 'react';
-import { expect } from 'chai';
 import { act, createRenderer } from '@mui/internal-test-utils';
 import { useControlled } from './useControlled';
 
@@ -38,13 +38,13 @@ describe('useControlled', () => {
         }}
       </TestComponent>,
     );
-    expect(valueState).to.equal(1);
+    expect(valueState).toBe(1);
 
     act(() => {
       setValueState(2);
     });
 
-    expect(valueState).to.equal(2);
+    expect(valueState).toBe(2);
   });
 
   it('works correctly when is controlled', () => {
@@ -57,7 +57,7 @@ describe('useControlled', () => {
         }}
       </TestComponent>,
     );
-    expect(valueState).to.equal(1);
+    expect(valueState).toBe(1);
   });
 
   it('warns when switching from uncontrolled to controlled', () => {

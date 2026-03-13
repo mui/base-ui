@@ -1,6 +1,6 @@
+import { expect } from 'vitest';
 import { createRenderer, screen, waitFor } from '@mui/internal-test-utils';
 import { Fieldset } from '@base-ui/react/fieldset';
-import { expect } from 'chai';
 import { describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Fieldset.Legend />', () => {
@@ -20,7 +20,7 @@ describe('<Fieldset.Legend />', () => {
       </Fieldset.Root>,
     );
 
-    expect(screen.getByRole('group')).to.have.attribute(
+    expect(screen.getByRole('group')).toHaveAttribute(
       'aria-labelledby',
       screen.getByTestId('legend').id,
     );
@@ -33,7 +33,7 @@ describe('<Fieldset.Legend />', () => {
       </Fieldset.Root>,
     );
 
-    expect(screen.getByRole('group')).to.have.attribute('aria-labelledby', 'legend-id');
+    expect(screen.getByRole('group')).toHaveAttribute('aria-labelledby', 'legend-id');
   });
 
   it.skipIf(isJSDOM)('does not set `aria-labelledby` during SSR when legend is absent', () => {
@@ -60,7 +60,7 @@ describe('<Fieldset.Legend />', () => {
       hydrate();
 
       await waitFor(() => {
-        expect(screen.getByTestId('fieldset')).to.have.attribute('aria-labelledby', legend.id);
+        expect(screen.getByTestId('fieldset')).toHaveAttribute('aria-labelledby', legend.id);
       });
     },
   );

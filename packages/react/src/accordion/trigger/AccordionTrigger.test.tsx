@@ -1,6 +1,6 @@
+import { expect } from 'vitest';
 import { Accordion } from '@base-ui/react/accordion';
 import { screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 import { describeConformance, createRenderer } from '#test-utils';
 
 describe('<Accordion.Trigger />', () => {
@@ -33,6 +33,6 @@ describe('<Accordion.Trigger />', () => {
     );
 
     const trigger = screen.getByRole('button', { name: 'Trigger' });
-    expect(trigger).to.have.attribute('tabindex', '0');
+    expect(trigger).toHaveAttribute('tabindex', '0');
   });
 });

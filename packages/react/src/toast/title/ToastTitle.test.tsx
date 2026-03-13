@@ -1,7 +1,7 @@
+import { expect } from 'vitest';
 import { Toast } from '@base-ui/react/toast';
 import { createRenderer, describeConformance } from '#test-utils';
 import { screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 import { List, Button } from '../utils/test-utils';
 
 const toast = {
@@ -42,8 +42,8 @@ describe('<Toast.Title />', () => {
     const titleId = titleElement.id;
 
     const rootElement = screen.getByTestId('root');
-    expect(rootElement).not.to.equal(null);
-    expect(rootElement.getAttribute('aria-labelledby')).to.equal(titleId);
+    expect(rootElement).not.toBe(null);
+    expect(rootElement.getAttribute('aria-labelledby')).toBe(titleId);
   });
 
   it('does not render if it has no children', async () => {
@@ -69,7 +69,7 @@ describe('<Toast.Title />', () => {
     await user.click(button);
 
     const titleElement = screen.queryByTestId('title');
-    expect(titleElement).to.equal(null);
+    expect(titleElement).toBe(null);
   });
 
   it('renders the title by default', async () => {
@@ -86,7 +86,7 @@ describe('<Toast.Title />', () => {
     await user.click(button);
 
     const titleElement = screen.getByTestId('title');
-    expect(titleElement).not.to.equal(null);
-    expect(titleElement.textContent).to.equal('title');
+    expect(titleElement).not.toBe(null);
+    expect(titleElement.textContent).toBe('title');
   });
 });

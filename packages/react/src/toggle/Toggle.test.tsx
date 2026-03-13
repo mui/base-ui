@@ -1,6 +1,5 @@
+import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { expect } from 'chai';
-import { spy } from 'sinon';
 import { act, screen } from '@mui/internal-test-utils';
 import { Toggle } from '@base-ui/react/toggle';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -32,18 +31,18 @@ describe('<Toggle />', () => {
       const checkbox = screen.getByRole('checkbox');
       const button = screen.getByRole('button');
 
-      expect(button).to.have.attribute('aria-pressed', 'false');
+      expect(button).toHaveAttribute('aria-pressed', 'false');
       await act(async () => {
         checkbox.click();
       });
 
-      expect(button).to.have.attribute('aria-pressed', 'true');
+      expect(button).toHaveAttribute('aria-pressed', 'true');
 
       await act(async () => {
         checkbox.click();
       });
 
-      expect(button).to.have.attribute('aria-pressed', 'false');
+      expect(button).toHaveAttribute('aria-pressed', 'false');
     });
 
     it('uncontrolled', async () => {
@@ -51,24 +50,24 @@ describe('<Toggle />', () => {
 
       const button = screen.getByRole('button');
 
-      expect(button).to.have.attribute('aria-pressed', 'false');
+      expect(button).toHaveAttribute('aria-pressed', 'false');
       await act(async () => {
         button.click();
       });
 
-      expect(button).to.have.attribute('aria-pressed', 'true');
+      expect(button).toHaveAttribute('aria-pressed', 'true');
 
       await act(async () => {
         button.click();
       });
 
-      expect(button).to.have.attribute('aria-pressed', 'false');
+      expect(button).toHaveAttribute('aria-pressed', 'false');
     });
   });
 
   describe('prop: onPressedChange', () => {
     it('is called when the pressed state changes', async () => {
-      const handlePressed = spy();
+      const handlePressed = vi.fn();
 
       await render(<Toggle defaultPressed={false} onPressedChange={handlePressed} />);
 
@@ -78,34 +77,34 @@ describe('<Toggle />', () => {
         button.click();
       });
 
-      expect(handlePressed.callCount).to.equal(1);
-      expect(handlePressed.firstCall.args[0]).to.equal(true);
+      expect(handlePressed.mock.calls.length).toBe(1);
+      expect(handlePressed.mock.calls[0][0]).toBe(true);
     });
   });
 
   describe('prop: disabled', () => {
     it('disables the component', async () => {
-      const handlePressed = spy();
+      const handlePressed = vi.fn();
       await render(<Toggle disabled onPressedChange={handlePressed} />);
 
       const button = screen.getByRole('button');
 
-      expect(button).to.have.attribute('disabled');
-      expect(button).to.have.attribute('data-disabled');
-      expect(button).to.have.attribute('aria-pressed', 'false');
+      expect(button).toHaveAttribute('disabled');
+      expect(button).toHaveAttribute('data-disabled');
+      expect(button).toHaveAttribute('aria-pressed', 'false');
 
       await act(async () => {
         button.click();
       });
 
-      expect(handlePressed.callCount).to.equal(0);
-      expect(button).to.have.attribute('aria-pressed', 'false');
+      expect(handlePressed.mock.calls.length).toBe(0);
+      expect(button).toHaveAttribute('aria-pressed', 'false');
     });
   });
 
   describe('prop: render', () => {
     it('should pass composite props', async () => {
-      const renderSpy = spy();
+      const renderSpy = vi.fn();
 
       function ToggleRenderComponent({
         renderProps,
@@ -122,7 +121,7 @@ describe('<Toggle />', () => {
         </ToggleGroup>,
       );
 
-      expect(renderSpy.lastCall.args[0]).to.have.property('tabIndex', 0);
+      expect(renderSpy.mock.lastCall?.[0]).toHaveProperty('tabIndex', 0);
     });
   });
 });

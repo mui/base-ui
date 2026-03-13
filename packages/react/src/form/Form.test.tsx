@@ -1,9 +1,8 @@
+import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Form } from '@base-ui/react/form';
 import { Field } from '@base-ui/react/field';
 import { NumberField } from '@base-ui/react/number-field';
-import { expect } from 'chai';
-import { spy } from 'sinon';
 import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
 import { describeConformance } from '../../test/describeConformance';
 
@@ -16,7 +15,7 @@ describe('<Form />', () => {
   }));
 
   it('does not submit if there are errors', async () => {
-    const onSubmit = spy();
+    const onSubmit = vi.fn();
 
     const { user } = render(
       <Form onSubmit={onSubmit}>
@@ -32,12 +31,12 @@ describe('<Form />', () => {
 
     await user.click(submit);
 
-    expect(screen.getByTestId('error')).not.to.equal(null);
-    expect(onSubmit.called).to.equal(false);
+    expect(screen.getByTestId('error')).not.toBe(null);
+    expect(onSubmit.mock.calls.length > 0).toBe(false);
   });
 
   it('unmounted fields should be removed from the form', async () => {
-    const submitSpy = spy((event) => event.preventDefault());
+    const submitSpy = vi.fn((event) => event.preventDefault());
     function App() {
       const [checked, setChecked] = React.useState(true);
 
@@ -65,12 +64,12 @@ describe('<Form />', () => {
     const submit = screen.getByText('Submit');
 
     await user.click(submit);
-    expect(submitSpy.callCount).to.equal(0);
-    expect(screen.getByTestId('email')).to.have.attribute('aria-invalid', 'true');
+    expect(submitSpy.mock.calls.length).toBe(0);
+    expect(screen.getByTestId('email')).toHaveAttribute('aria-invalid', 'true');
 
     await user.click(screen.getByRole('checkbox'));
     await user.click(submit);
-    expect(submitSpy.callCount).to.equal(1);
+    expect(submitSpy.mock.calls.length).toBe(1);
   });
 
   describe('prop: errors', () => {
@@ -84,8 +83,8 @@ describe('<Form />', () => {
         </Form>,
       );
 
-      expect(screen.getByTestId('error')).to.have.text('bar');
-      expect(screen.getByRole('textbox')).to.have.attribute('aria-invalid', 'true');
+      expect(screen.getByTestId('error')).toHaveTextContent('bar');
+      expect(screen.getByRole('textbox')).toHaveAttribute('aria-invalid', 'true');
     });
 
     it('should not mark <Field.Control> as invalid if no error is provided', () => {
@@ -98,8 +97,8 @@ describe('<Form />', () => {
         </Form>,
       );
 
-      expect(screen.queryByTestId('error')).to.equal(null);
-      expect(screen.getByRole('textbox')).not.to.have.attribute('aria-invalid');
+      expect(screen.queryByTestId('error')).toBe(null);
+      expect(screen.getByRole('textbox')).not.toHaveAttribute('aria-invalid');
     });
 
     function App() {
@@ -190,12 +189,12 @@ describe('<Form />', () => {
 
       fireEvent.change(name, { target: { value: 'John' } });
       fireEvent.change(age, { target: { value: '42' } });
-      expect(screen.queryByTestId('name-error')).to.equal(null);
-      expect(screen.queryByTestId('age-error')).to.equal(null);
+      expect(screen.queryByTestId('name-error')).toBe(null);
+      expect(screen.queryByTestId('age-error')).toBe(null);
     });
 
     it('runs field validation on first change after Form error is set', async () => {
-      const validateSpy = spy((value: unknown) => {
+      const validateSpy = vi.fn((value: unknown) => {
         if (value === 'abcd') {
           return 'field error';
         }
@@ -236,20 +235,20 @@ describe('<Form />', () => {
       await user.keyboard('abcde');
       await user.click(screen.getByRole('button', { name: 'Submit' }));
       expect(screen.queryByTestId('name-error')).to.not.equal(null);
-      expect(screen.getByTestId('name-error')).to.have.text('submit error');
+      expect(screen.getByTestId('name-error')).toHaveTextContent('submit error');
 
-      validateSpy.resetHistory();
+      validateSpy.mockClear();
 
       await user.click(input);
       // value changes from 'abcde' to 'abcd'
       await user.keyboard('{Backspace}');
-      expect(validateSpy.callCount).to.equal(1);
+      expect(validateSpy.mock.calls.length).toBe(1);
       expect(screen.queryByTestId('name-error')).to.not.equal(null);
-      expect(screen.getByTestId('name-error')).to.have.text('field error');
+      expect(screen.getByTestId('name-error')).toHaveTextContent('field error');
     });
 
     it('runs field validation on change when invalid prop is true and validationMode is onChange', async () => {
-      const validateSpy = spy(() => 'field error');
+      const validateSpy = vi.fn(() => 'field error');
 
       function Test() {
         return (
@@ -265,18 +264,18 @@ describe('<Form />', () => {
       const { user } = render(<Test />);
 
       const input = screen.getByTestId('name');
-      expect(screen.getByTestId('name-error')).to.have.text('server error');
+      expect(screen.getByTestId('name-error')).toHaveTextContent('server error');
 
       await user.click(input);
       await user.keyboard('a');
 
-      expect(validateSpy.callCount).to.equal(1);
-      expect(screen.getByTestId('name-error')).to.have.text('field error');
-      expect(input).to.have.attribute('aria-invalid', 'true');
+      expect(validateSpy.mock.calls.length).toBe(1);
+      expect(screen.getByTestId('name-error')).toHaveTextContent('field error');
+      expect(input).toHaveAttribute('aria-invalid', 'true');
     });
 
     it('does not run field validation on change for onBlur mode when invalid prop is true', async () => {
-      const validateSpy = spy(() => 'field error');
+      const validateSpy = vi.fn(() => 'field error');
 
       function Test() {
         return (
@@ -292,22 +291,22 @@ describe('<Form />', () => {
       const { user } = render(<Test />);
 
       const input = screen.getByTestId('name');
-      expect(screen.getByTestId('name-error')).to.have.text('server error');
+      expect(screen.getByTestId('name-error')).toHaveTextContent('server error');
 
       await user.click(input);
       await user.keyboard('a');
-      expect(validateSpy.callCount).to.equal(0);
-      expect(screen.queryByTestId('name-error')).to.equal(null);
+      expect(validateSpy.mock.calls.length).toBe(0);
+      expect(screen.queryByTestId('name-error')).toBe(null);
 
       await user.tab();
-      expect(validateSpy.callCount).to.equal(1);
-      expect(screen.getByTestId('name-error')).to.have.text('field error');
+      expect(validateSpy.mock.calls.length).toBe(1);
+      expect(screen.getByTestId('name-error')).toHaveTextContent('field error');
     });
   });
 
   describe('prop: onFormSubmit', () => {
     it('runs when the form is submitted', async () => {
-      const submitSpy = spy((formValues, eventDetails) => ({ formValues, eventDetails }));
+      const submitSpy = vi.fn((formValues, eventDetails) => ({ formValues, eventDetails }));
 
       function App() {
         return (
@@ -329,16 +328,16 @@ describe('<Form />', () => {
 
       fireEvent.click(screen.getByText('submit'));
 
-      expect(submitSpy.callCount).to.equal(1);
-      expect(submitSpy.lastCall.returnValue.formValues).to.deep.equal({
+      expect(submitSpy.mock.calls.length).toBe(1);
+      expect(submitSpy.mock.results.at(-1)?.value.formValues).toEqual({
         username: 'alice132',
         quantity: 5,
       });
-      expect(submitSpy.lastCall.returnValue.eventDetails.event.defaultPrevented).to.equal(true);
+      expect(submitSpy.mock.results.at(-1)?.value.eventDetails.event.defaultPrevented).toBe(true);
     });
 
     it('does not run when the form is invalid', async () => {
-      const submitSpy = spy();
+      const submitSpy = vi.fn();
 
       function App() {
         return (
@@ -352,16 +351,16 @@ describe('<Form />', () => {
         );
       }
       render(<App />);
-      expect(screen.queryByTestId('error')).to.equal(null);
+      expect(screen.queryByTestId('error')).toBe(null);
       fireEvent.click(screen.getByText('submit'));
-      expect(submitSpy.callCount).to.equal(0);
+      expect(submitSpy.mock.calls.length).toBe(0);
       expect(screen.queryByTestId('error')).to.not.equal(null);
     });
   });
 
   it('does not submit when invalid prop remains true even if validate returns null', async () => {
-    const submitSpy = spy();
-    const validateSpy = spy(() => null);
+    const submitSpy = vi.fn();
+    const validateSpy = vi.fn(() => null);
 
     const { user } = render(
       <Form onSubmit={submitSpy}>
@@ -377,23 +376,23 @@ describe('<Form />', () => {
     await user.click(input);
     await user.keyboard('o');
 
-    expect(validateSpy.callCount).to.equal(1);
+    expect(validateSpy.mock.calls.length).toBe(1);
 
     await user.click(screen.getByText('submit'));
 
-    expect(submitSpy.callCount).to.equal(0);
-    expect(input).to.have.attribute('aria-invalid', 'true');
+    expect(submitSpy.mock.calls.length).toBe(0);
+    expect(input).toHaveAttribute('aria-invalid', 'true');
   });
 
   describe('prop: noValidate', () => {
     it('should disable native validation if set to true (default)', () => {
       render(<Form data-testid="form" />);
-      expect(screen.getByTestId('form')).to.have.attribute('novalidate');
+      expect(screen.getByTestId('form')).toHaveAttribute('novalidate');
     });
 
     it('should enable native validation if set to false', () => {
       render(<Form noValidate={false} data-testid="form" />);
-      expect(screen.getByTestId('form')).not.to.have.attribute('novalidate');
+      expect(screen.getByTestId('form')).not.toHaveAttribute('novalidate');
     });
   });
 
@@ -425,11 +424,11 @@ describe('<Form />', () => {
 
       const { user } = await render(<App />);
 
-      expect(screen.queryByTestId('error')).to.equal(null);
+      expect(screen.queryByTestId('error')).toBe(null);
 
       await user.click(screen.getByText('validate'));
 
-      await expect(screen.queryAllByTestId('error').length).to.equal(2);
+      await expect(screen.queryAllByTestId('error').length).toBe(2);
     });
 
     it('validates a field when the `validate` method is called with the field name', async () => {
@@ -459,11 +458,11 @@ describe('<Form />', () => {
 
       const { user } = await render(<App />);
 
-      expect(screen.queryByTestId('error')).to.equal(null);
+      expect(screen.queryByTestId('error')).toBe(null);
 
       await user.click(screen.getByText('validate'));
 
-      await expect(screen.queryByTestId('error')).to.have.text('number field error');
+      await expect(screen.queryByTestId('error')).toHaveTextContent('number field error');
     });
   });
 });

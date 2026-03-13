@@ -1,5 +1,4 @@
-import { expect } from 'chai';
-import { spy } from 'sinon';
+import { expect, vi } from 'vitest';
 import { TemporalAdapterDateFns } from '../../../temporal-adapter-date-fns/TemporalAdapterDateFns';
 import { TemporalValue } from '../../../types/temporal';
 import { ValidateDateReturnValue } from '../../../utils/temporal/validateDate';
@@ -35,14 +34,14 @@ describe('SharedCalendarStore - visibleDate', () => {
       const visibleDate = adapter.date('2025-03-15', 'default');
       const store = createStore(adapter, { visibleDate });
 
-      expect(adapter.isEqual(store.state.visibleDate, visibleDate)).to.equal(true);
+      expect(adapter.isEqual(store.state.visibleDate, visibleDate)).toBe(true);
     });
 
     it('should initialize with defaultVisibleDate when provided', () => {
       const defaultVisibleDate = adapter.date('2025-04-20', 'default');
       const store = createStore(adapter, { defaultVisibleDate });
 
-      expect(adapter.isEqual(store.state.visibleDate, defaultVisibleDate)).to.equal(true);
+      expect(adapter.isEqual(store.state.visibleDate, defaultVisibleDate)).toBe(true);
     });
 
     it('should prefer visibleDate over defaultVisibleDate when both are provided', () => {
@@ -52,7 +51,7 @@ describe('SharedCalendarStore - visibleDate', () => {
         defaultVisibleDate: adapter.date('2025-04-20', 'default'),
       });
 
-      expect(adapter.isEqual(store.state.visibleDate, visibleDate)).to.equal(true);
+      expect(adapter.isEqual(store.state.visibleDate, visibleDate)).toBe(true);
     });
 
     it('should derive visibleDate from value when no visibleDate props are provided', () => {
@@ -60,7 +59,7 @@ describe('SharedCalendarStore - visibleDate', () => {
       const store = createStore(adapter, { value });
 
       // Should use the value as the initial visible date
-      expect(adapter.isEqual(store.state.visibleDate, value)).to.equal(true);
+      expect(adapter.isEqual(store.state.visibleDate, value)).toBe(true);
     });
 
     it('should derive visibleDate from defaultValue when no visibleDate props are provided', () => {
@@ -68,7 +67,7 @@ describe('SharedCalendarStore - visibleDate', () => {
       const store = createStore(adapter, { defaultValue });
 
       // Should use the defaultValue as the initial visible date
-      expect(adapter.isEqual(store.state.visibleDate, defaultValue)).to.equal(true);
+      expect(adapter.isEqual(store.state.visibleDate, defaultValue)).toBe(true);
     });
 
     it('should derive visibleDate from referenceDate when no value or visibleDate props are provided', () => {
@@ -76,7 +75,7 @@ describe('SharedCalendarStore - visibleDate', () => {
       const store = createStore(adapter, { referenceDate });
 
       // Should use the referenceDate as the initial visible date
-      expect(adapter.isEqual(store.state.visibleDate, referenceDate)).to.equal(true);
+      expect(adapter.isEqual(store.state.visibleDate, referenceDate)).toBe(true);
     });
   });
 
@@ -89,11 +88,11 @@ describe('SharedCalendarStore - visibleDate', () => {
 
       store.setVisibleDate(newVisibleDate);
 
-      expect(adapter.isEqual(store.state.visibleDate, newVisibleDate)).to.equal(true);
+      expect(adapter.isEqual(store.state.visibleDate, newVisibleDate)).toBe(true);
     });
 
     it('should call onVisibleDateChange when setVisibleDate is called', () => {
-      const onVisibleDateChange = spy();
+      const onVisibleDateChange = vi.fn();
       const store = createStore(adapter, {
         defaultVisibleDate: adapter.date('2025-02-01', 'default'),
         onVisibleDateChange,
@@ -102,12 +101,12 @@ describe('SharedCalendarStore - visibleDate', () => {
 
       store.setVisibleDate(newVisibleDate);
 
-      expect(onVisibleDateChange.callCount).to.equal(1);
-      expect(adapter.isEqual(onVisibleDateChange.firstCall.args[0], newVisibleDate)).to.equal(true);
+      expect(onVisibleDateChange.mock.calls.length).toBe(1);
+      expect(adapter.isEqual(onVisibleDateChange.mock.calls[0][0], newVisibleDate)).toBe(true);
     });
 
     it('should allow multiple visibleDate changes', () => {
-      const onVisibleDateChange = spy();
+      const onVisibleDateChange = vi.fn();
       const store = createStore(adapter, {
         defaultVisibleDate: adapter.date('2025-02-01', 'default'),
         onVisibleDateChange,
@@ -117,44 +116,44 @@ describe('SharedCalendarStore - visibleDate', () => {
       const date2 = adapter.date('2025-04-01', 'default');
 
       store.setVisibleDate(date1);
-      expect(adapter.isEqual(store.state.visibleDate, date1)).to.equal(true);
+      expect(adapter.isEqual(store.state.visibleDate, date1)).toBe(true);
 
       store.setVisibleDate(date2);
-      expect(adapter.isEqual(store.state.visibleDate, date2)).to.equal(true);
+      expect(adapter.isEqual(store.state.visibleDate, date2)).toBe(true);
 
-      expect(onVisibleDateChange.callCount).to.equal(2);
+      expect(onVisibleDateChange.mock.calls.length).toBe(2);
     });
   });
 
   describe('controlled mode (visibleDate prop)', () => {
     it('should not update internal visibleDate when setVisibleDate is called', () => {
       const visibleDate = adapter.date('2025-02-01', 'default');
-      const onVisibleDateChange = spy();
+      const onVisibleDateChange = vi.fn();
       const store = createStore(adapter, { visibleDate, onVisibleDateChange });
       const newVisibleDate = adapter.date('2025-03-01', 'default');
 
       store.setVisibleDate(newVisibleDate);
 
       // visibleDate should remain unchanged (controlled mode)
-      expect(adapter.isEqual(store.state.visibleDate, visibleDate)).to.equal(true);
+      expect(adapter.isEqual(store.state.visibleDate, visibleDate)).toBe(true);
     });
 
     it('should call onVisibleDateChange when setVisibleDate is called', () => {
       const visibleDate = adapter.date('2025-02-01', 'default');
-      const onVisibleDateChange = spy();
+      const onVisibleDateChange = vi.fn();
       const store = createStore(adapter, { visibleDate, onVisibleDateChange });
       const newVisibleDate = adapter.date('2025-03-01', 'default');
 
       store.setVisibleDate(newVisibleDate);
 
-      expect(onVisibleDateChange.callCount).to.equal(1);
-      expect(adapter.isEqual(onVisibleDateChange.firstCall.args[0], newVisibleDate)).to.equal(true);
+      expect(onVisibleDateChange.mock.calls.length).toBe(1);
+      expect(adapter.isEqual(onVisibleDateChange.mock.calls[0][0], newVisibleDate)).toBe(true);
     });
   });
 
   describe('onVisibleDateChange callback', () => {
     it('should pass eventDetails as second argument', () => {
-      const onVisibleDateChange = spy();
+      const onVisibleDateChange = vi.fn();
       const store = createStore(adapter, {
         defaultVisibleDate: adapter.date('2025-02-01', 'default'),
         onVisibleDateChange,
@@ -163,15 +162,14 @@ describe('SharedCalendarStore - visibleDate', () => {
 
       store.setVisibleDate(newVisibleDate);
 
-      expect(onVisibleDateChange.callCount).to.equal(1);
+      expect(onVisibleDateChange.mock.calls.length).toBe(1);
 
-      const eventDetails = onVisibleDateChange.firstCall
-        .args[1] as CalendarVisibleDateChangeEventDetails;
-      expect(eventDetails).not.to.equal(undefined);
-      expect(eventDetails.reason).to.equal('day-press');
-      expect(eventDetails.event).to.be.instanceOf(Event);
-      expect(eventDetails.isCanceled).to.equal(false);
-      expect(typeof eventDetails.cancel).to.equal('function');
+      const eventDetails = onVisibleDateChange.mock.calls[0][1] as CalendarVisibleDateChangeEventDetails;
+      expect(eventDetails).not.toBe(undefined);
+      expect(eventDetails.reason).toBe('day-press');
+      expect(eventDetails.event).toBeInstanceOf(Event);
+      expect(eventDetails.isCanceled).toBe(false);
+      expect(typeof eventDetails.cancel).toBe('function');
     });
 
     it('should support eventDetails.cancel() when uncontrolled', () => {
@@ -185,11 +183,11 @@ describe('SharedCalendarStore - visibleDate', () => {
       store.setVisibleDate(newVisibleDate);
 
       // visibleDate should remain unchanged because cancel() was called
-      expect(adapter.isEqual(store.state.visibleDate, defaultVisibleDate)).to.equal(true);
+      expect(adapter.isEqual(store.state.visibleDate, defaultVisibleDate)).toBe(true);
     });
 
     it("should pass reason 'month-change' in eventDetails when reason is 'month-change'", () => {
-      const onVisibleDateChange = spy();
+      const onVisibleDateChange = vi.fn();
       const store = createStore(adapter, {
         defaultVisibleDate: adapter.date('2025-02-01', 'default'),
         onVisibleDateChange,
@@ -198,13 +196,12 @@ describe('SharedCalendarStore - visibleDate', () => {
 
       store.setVisibleDate(newVisibleDate, undefined, undefined, 'month-change');
 
-      const eventDetails = onVisibleDateChange.firstCall
-        .args[1] as CalendarVisibleDateChangeEventDetails;
-      expect(eventDetails.reason).to.equal('month-change');
+      const eventDetails = onVisibleDateChange.mock.calls[0][1] as CalendarVisibleDateChangeEventDetails;
+      expect(eventDetails.reason).toBe('month-change');
     });
 
     it("should pass reason 'keyboard' in eventDetails when reason is 'keyboard'", () => {
-      const onVisibleDateChange = spy();
+      const onVisibleDateChange = vi.fn();
       const store = createStore(adapter, {
         defaultVisibleDate: adapter.date('2025-02-01', 'default'),
         onVisibleDateChange,
@@ -213,9 +210,8 @@ describe('SharedCalendarStore - visibleDate', () => {
 
       store.setVisibleDate(newVisibleDate, undefined, undefined, 'keyboard');
 
-      const eventDetails = onVisibleDateChange.firstCall
-        .args[1] as CalendarVisibleDateChangeEventDetails;
-      expect(eventDetails.reason).to.equal('keyboard');
+      const eventDetails = onVisibleDateChange.mock.calls[0][1] as CalendarVisibleDateChangeEventDetails;
+      expect(eventDetails.reason).toBe('keyboard');
     });
 
     it('should support conditionally calling eventDetails.cancel() when uncontrolled', () => {
@@ -233,12 +229,12 @@ describe('SharedCalendarStore - visibleDate', () => {
       // Try to navigate backward - should be canceled
       const pastDate = adapter.date('2025-01-01', 'default');
       store.setVisibleDate(pastDate);
-      expect(adapter.isEqual(store.state.visibleDate, defaultVisibleDate)).to.equal(true);
+      expect(adapter.isEqual(store.state.visibleDate, defaultVisibleDate)).toBe(true);
 
       // Navigate forward - should succeed
       const futureDate = adapter.date('2025-03-01', 'default');
       store.setVisibleDate(futureDate);
-      expect(adapter.isEqual(store.state.visibleDate, futureDate)).to.equal(true);
+      expect(adapter.isEqual(store.state.visibleDate, futureDate)).toBe(true);
     });
   });
 
@@ -251,7 +247,7 @@ describe('SharedCalendarStore - visibleDate', () => {
 
       store.setVisibleDate(newVisibleDate);
 
-      expect(store.state.navigationDirection).to.equal('next');
+      expect(store.state.navigationDirection).toBe('next');
     });
 
     it('should set navigationDirection to "previous" when navigating backward', () => {
@@ -262,7 +258,7 @@ describe('SharedCalendarStore - visibleDate', () => {
 
       store.setVisibleDate(newVisibleDate);
 
-      expect(store.state.navigationDirection).to.equal('previous');
+      expect(store.state.navigationDirection).toBe('previous');
     });
 
     it('should set navigationDirection to "none" when setting the same date', () => {
@@ -271,11 +267,11 @@ describe('SharedCalendarStore - visibleDate', () => {
 
       // First set a different date to change direction
       store.setVisibleDate(adapter.date('2025-03-01', 'default'));
-      expect(store.state.navigationDirection).to.equal('next');
+      expect(store.state.navigationDirection).toBe('next');
 
       // Now set back to the same date
       store.setVisibleDate(adapter.date('2025-03-01', 'default'));
-      expect(store.state.navigationDirection).to.equal('none');
+      expect(store.state.navigationDirection).toBe('none');
     });
 
     it('should initialize with navigationDirection "none"', () => {
@@ -283,13 +279,13 @@ describe('SharedCalendarStore - visibleDate', () => {
         defaultVisibleDate: adapter.date('2025-02-01', 'default'),
       });
 
-      expect(store.state.navigationDirection).to.equal('none');
+      expect(store.state.navigationDirection).toBe('none');
     });
   });
 
   describe('visibleDate synchronization with value', () => {
     it('should update visibleDate when controlled value changes to a valid date', () => {
-      const onVisibleDateChange = spy();
+      const onVisibleDateChange = vi.fn();
       const initialValue = adapter.date('2025-02-15', 'default');
       const store = createStore(adapter, { value: initialValue, onVisibleDateChange });
 
@@ -298,11 +294,11 @@ describe('SharedCalendarStore - visibleDate', () => {
       store.set('valueProp', newValue);
 
       // visibleDate should be updated to match the new value
-      expect(adapter.isEqual(store.state.visibleDate, newValue)).to.equal(true);
+      expect(adapter.isEqual(store.state.visibleDate, newValue)).toBe(true);
 
       // onVisibleDateChange should be called with the new visible date
-      expect(onVisibleDateChange.callCount).to.equal(1);
-      expect(adapter.isEqual(onVisibleDateChange.firstCall.args[0], newValue)).to.equal(true);
+      expect(onVisibleDateChange.mock.calls.length).toBe(1);
+      expect(adapter.isEqual(onVisibleDateChange.mock.calls[0][0], newValue)).toBe(true);
     });
   });
 });

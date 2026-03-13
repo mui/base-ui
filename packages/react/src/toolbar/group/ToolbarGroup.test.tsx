@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { Toolbar } from '@base-ui/react/toolbar';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -43,7 +43,7 @@ describe('<Toolbar.Group />', () => {
         </Toolbar.Root>,
       );
 
-      expect(screen.getByTestId('group')).to.equal(screen.getByRole('group'));
+      expect(screen.getByTestId('group')).toBe(screen.getByRole('group'));
     });
   });
 
@@ -60,8 +60,8 @@ describe('<Toolbar.Group />', () => {
       );
 
       [screen.getByRole('button'), screen.getByRole('textbox')].forEach((toolbarItem) => {
-        expect(toolbarItem).to.have.attribute('aria-disabled', 'true');
-        expect(toolbarItem).to.have.attribute('data-disabled');
+        expect(toolbarItem).toHaveAttribute('aria-disabled', 'true');
+        expect(toolbarItem).toHaveAttribute('data-disabled');
       });
 
       expect(screen.getByText('Link')).to.not.have.attribute('data-disabled');
