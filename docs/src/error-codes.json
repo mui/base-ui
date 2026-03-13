@@ -90,13 +90,14 @@
   "90": "Base UI: DrawerRootContext is missing. Drawer parts must be placed within <Drawer.Root>.",
   "91": "Base UI: DrawerProviderContext is missing. Use <Drawer.Provider>.",
   "92": "Base UI: DrawerViewportContext is missing. Drawer parts must be placed within <Drawer.Viewport>.",
-  "93": "Base UI: TreeCheckboxItemContext is missing. Tree checkbox item parts must be placed within <Tree.CheckboxItem>.",
-  "94": "Base UI: TreeItemContext is missing. Tree item parts must be placed within <Tree.Item>.",
-  "95": "Base UI: TreeRootContext is missing. Tree parts must be placed within <Tree.Root>.",
-  "96": "Base UI Tree: updateItemChildren requires a lazyLoading plugin. Pass a lazyLoading prop to Tree.Root created via Tree.useLazyLoading().",
-  "97": "Base UI: Could not find the item metadata for item with id \"%s\".",
-  "98": "Base UI: Invalid range - unable to find a path between the two items. This may occur if the items are not in the same tree or the tree structure is invalid. Verify that both items exist in the tree.",
-  "99": "Base UI: Tree.CheckboxItem requires an `itemId` prop when used in virtualized mode, or must be placed within a Tree.Root with a render function.",
-  "100": "Base UI: Tree.Item requires an `itemId` prop when used in virtualized mode, or must be placed within a Tree.Root with a render function.",
-  "101": "Base UI: Tree.LinkItem requires an `itemId` prop when used in virtualized mode, or must be placed within a Tree.Root with a render function."
+  "93": "Base UI: TemporalAdapterContext is missing. Temporal components must be place within <TemporalAdapterProvider />",
+  "94": "Base UI: LocalizationContext is missing. Temporal components must be place within <LocalizationProvider />",
+  "95": "Base UI: SharedCalendarDayGridBodyContext is missing. <Calendar.DayGridRow /> must be placed within <Calendar.DayGridBody /> and <RangeCalendar.DayGridRow /> must be placed within <RangeCalendar.DayGridBody />.",
+  "96": "Base UI: SharedCalendarDayGridCellContext is missing. <Calendar.DayButton /> must be placed within <Calendar.DayGridCell /> and <RangeCalendar.DayButton /> must be placed within <RangeCalendar.DayGridCell />.",
+  "97": "Base UI: SharedCalendarRootContext is missing. Calendar parts must be placed within <Calendar.Root /> and Range Calendar parts must be placed within <RangeCalendar.Root />.",
+  "98": "Base UI: TreeCheckboxItemContext is missing. Tree checkbox item parts must be placed within <Tree.CheckboxItem>.",
+  "99": "Base UI: TreeItemContext is missing. Tree item parts must be placed within <Tree.Item>.",
+  "100": "Base UI: TreeRootContext is missing. Tree parts must be placed within <Tree.Root>.",
+  "101": "Base UI Tree: updateItemChildren requires a lazyLoading plugin. Pass a lazyLoading prop to Tree.Root created via Tree.useLazyLoading().",
+  "102": "Base UI: Invalid range - unable to find a path between the two items. This may occur if the items are not in the same tree or the tree structure is invalid. Verify that both items exist in the tree."
 }
