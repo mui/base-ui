@@ -68,6 +68,24 @@ describe('<Menu.Item />', () => {
     expect(screen.queryByRole('menu')).not.toBe(null);
   });
 
+  it('allows onMouseDown to call preventBaseUIHandler', async () => {
+    await render(
+      <Menu.Root open>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.Item onMouseDown={(event) => event.preventBaseUIHandler()}>Item</Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    const item = screen.getByRole('menuitem');
+
+    expect(() => fireEvent.mouseDown(item)).not.to.throw();
+  });
+
   it('perf: does not rerender menu items unnecessarily', async ({ skip }) => {
     if (isJSDOM) {
       skip();

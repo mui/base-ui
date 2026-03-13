@@ -75,6 +75,24 @@ describe('mergeProps', () => {
     expect(log).toEqual(['1', '3']);
   });
 
+  it('makes a lone synthetic event handler preventable', () => {
+    let prevented = false;
+
+    const mergedProps = mergeProps<'button'>(
+      {},
+      {
+        onMouseDown(event) {
+          event.preventBaseUIHandler();
+          prevented = event.baseUIHandlerPrevented === true;
+        },
+      },
+    );
+
+    mergedProps.onMouseDown?.({ nativeEvent: new MouseEvent('mousedown') } as any);
+
+    expect(prevented).to.equal(true);
+  });
+
   it('merges styles', () => {
     const theirProps = {
       style: { color: 'red' },
