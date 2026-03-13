@@ -269,9 +269,19 @@ export const SliderControl = React.forwardRef(function SliderControl(
   });
 
   const focusThumb = useStableCallback((thumbIndex: number) => {
-    thumbRefs.current?.[thumbIndex]
-      ?.querySelector<HTMLInputElement>('input[type="range"]')
-      ?.focus({ preventScroll: true });
+    const input =
+      thumbRefs.current?.[thumbIndex]?.querySelector<HTMLInputElement>('input[type="range"]');
+    if (!input) {
+      return;
+    }
+
+    input.focus({
+      preventScroll: true,
+      // Prevent pointer-driven focus rings in browsers that support this option.
+      // Supported in Chrome from 144+.
+      // @ts-expect-error - focusVisible is not yet in the lib.dom.d.ts
+      focusVisible: false,
+    });
   });
 
   const handleTouchMove = useStableCallback((nativeEvent: TouchEvent | PointerEvent) => {
@@ -497,7 +507,6 @@ export const SliderControl = React.forwardRef(function SliderControl(
           doc.addEventListener('pointermove', handleTouchMove, { passive: true });
           doc.addEventListener('pointerup', handleTouchEnd, { once: true });
         },
-        tabIndex: -1,
       },
       elementProps,
     ],
