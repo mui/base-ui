@@ -9,6 +9,7 @@ import { spy } from 'sinon';
 import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
+import { REASONS } from '../../utils/reasons';
 
 describe('<Popover.Root />', () => {
   beforeEach(() => {
@@ -767,6 +768,75 @@ describe('<Popover.Root />', () => {
           expect(screen.queryByRole('dialog')).to.equal(null);
         });
         expect(handleOpenChange.callCount).to.equal(1);
+      });
+
+      it('closing via outside press: works when clicking another element inside the same shadow root', async () => {
+        const handleOpenChange = spy();
+
+        const host = document.body.appendChild(document.createElement('div'));
+        const shadowRoot = host.attachShadow({ mode: 'open' });
+        const container = document.createElement('div');
+        shadowRoot.appendChild(container);
+
+        try {
+          await render(
+            <React.Fragment>
+              <button data-testid="outside">Outside</button>
+              <TestPopover
+                rootProps={{ defaultOpen: true, onOpenChange: handleOpenChange }}
+                portalProps={{ container: shadowRoot }}
+              />
+            </React.Fragment>,
+            { container },
+          );
+
+          const outsideButton = shadowRoot.querySelector('[data-testid="outside"]') as HTMLElement;
+
+          fireEvent.click(outsideButton);
+
+          await waitFor(() => {
+            expect(shadowRoot.querySelector('[role="dialog"]')).to.equal(null);
+          });
+
+          expect(handleOpenChange.callCount).to.equal(1);
+          expect(handleOpenChange.firstCall.args[1].reason).to.equal(REASONS.outsidePress);
+        } finally {
+          await act(async () => {
+            host.remove();
+          });
+        }
+      });
+
+      it('closing via outside press: works when clicking outside the shadow root', async () => {
+        const handleOpenChange = spy();
+
+        const host = document.body.appendChild(document.createElement('div'));
+        const shadowRoot = host.attachShadow({ mode: 'open' });
+        const container = document.createElement('div');
+        shadowRoot.appendChild(container);
+
+        try {
+          await render(
+            <TestPopover
+              rootProps={{ defaultOpen: true, onOpenChange: handleOpenChange }}
+              portalProps={{ container: shadowRoot }}
+            />,
+            { container },
+          );
+
+          fireEvent.click(document.body);
+
+          await waitFor(() => {
+            expect(shadowRoot.querySelector('[role="dialog"]')).to.equal(null);
+          });
+
+          expect(handleOpenChange.callCount).to.equal(1);
+          expect(handleOpenChange.firstCall.args[1].reason).to.equal(REASONS.outsidePress);
+        } finally {
+          await act(async () => {
+            host.remove();
+          });
+        }
       });
     });
 

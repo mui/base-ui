@@ -324,6 +324,107 @@ describe('<Dialog.Root />', () => {
         });
         expect(handleOpenChange.callCount).to.equal(1);
       });
+
+      it('closing via outside press: works when clicking another element inside the same shadow root', async () => {
+        const handleOpenChange = spy();
+
+        const host = document.body.appendChild(document.createElement('div'));
+        const shadowRoot = host.attachShadow({ mode: 'open' });
+        const container = document.createElement('div');
+        shadowRoot.appendChild(container);
+
+        try {
+          await render(
+            <React.Fragment>
+              <button data-testid="outside">Outside</button>
+              <TestDialog
+                rootProps={{ defaultOpen: true, onOpenChange: handleOpenChange, modal: false }}
+                portalProps={{ container: shadowRoot }}
+              />
+            </React.Fragment>,
+            { container },
+          );
+
+          const outsideButton = shadowRoot.querySelector('[data-testid="outside"]') as HTMLElement;
+
+          fireEvent.click(outsideButton);
+
+          await waitFor(() => {
+            expect(shadowRoot.querySelector('[role="dialog"]')).to.equal(null);
+          });
+
+          expect(handleOpenChange.callCount).to.equal(1);
+          expect(handleOpenChange.firstCall.args[1].reason).to.equal(REASONS.outsidePress);
+        } finally {
+          await act(async () => {
+            host.remove();
+          });
+        }
+      });
+
+      it('closing via outside press: works when clicking outside the shadow root', async () => {
+        const handleOpenChange = spy();
+
+        const host = document.body.appendChild(document.createElement('div'));
+        const shadowRoot = host.attachShadow({ mode: 'open' });
+        const container = document.createElement('div');
+        shadowRoot.appendChild(container);
+
+        try {
+          await render(
+            <TestDialog
+              rootProps={{ defaultOpen: true, onOpenChange: handleOpenChange, modal: false }}
+              portalProps={{ container: shadowRoot }}
+            />,
+            { container },
+          );
+
+          fireEvent.click(document.body);
+
+          await waitFor(() => {
+            expect(shadowRoot.querySelector('[role="dialog"]')).to.equal(null);
+          });
+
+          expect(handleOpenChange.callCount).to.equal(1);
+          expect(handleOpenChange.firstCall.args[1].reason).to.equal(REASONS.outsidePress);
+        } finally {
+          await act(async () => {
+            host.remove();
+          });
+        }
+      });
+
+      it('closing via outside press: works for a modal dialog when clicking outside the shadow root', async () => {
+        const handleOpenChange = spy();
+
+        const host = document.body.appendChild(document.createElement('div'));
+        const shadowRoot = host.attachShadow({ mode: 'open' });
+        const container = document.createElement('div');
+        shadowRoot.appendChild(container);
+
+        try {
+          await render(
+            <TestDialog
+              rootProps={{ defaultOpen: true, onOpenChange: handleOpenChange, modal: true }}
+              portalProps={{ container: shadowRoot }}
+            />,
+            { container },
+          );
+
+          fireEvent.click(document.body);
+
+          await waitFor(() => {
+            expect(shadowRoot.querySelector('[role="dialog"]')).to.equal(null);
+          });
+
+          expect(handleOpenChange.callCount).to.equal(1);
+          expect(handleOpenChange.firstCall.args[1].reason).to.equal(REASONS.outsidePress);
+        } finally {
+          await act(async () => {
+            host.remove();
+          });
+        }
+      });
     });
 
     it.skipIf(isJSDOM)('waits for the exit transition to finish before unmounting', async () => {

@@ -136,6 +136,23 @@ describe('useRenderElement', () => {
       warnSpy.mockRestore();
     });
 
+    it('does not warn when render is passed a callback with an inferred useCallback name', async () => {
+      const warnSpy = vi
+        .spyOn(console, 'warn')
+        .mockName('console.warn')
+        .mockImplementation(() => {});
+
+      const renderFn = (props: React.ComponentPropsWithRef<'span'>) => <span {...props} />;
+      Object.defineProperty(renderFn, 'name', {
+        value: 'DropdownMenuExample.useCallback[renderSearchInput]',
+      });
+
+      await render(<TestComponent render={renderFn} />);
+
+      expect(warnSpy.mock.calls.length).to.equal(0);
+      warnSpy.mockRestore();
+    });
+
     it('does not warn when render is passed as a React element', async () => {
       const warnSpy = vi
         .spyOn(console, 'warn')
