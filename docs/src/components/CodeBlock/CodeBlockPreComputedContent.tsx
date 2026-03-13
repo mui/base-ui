@@ -8,9 +8,5 @@ import * as CodeBlock from './CodeBlock';
 export function CodeBlockPreComputedContent(props: ContentProps<object>) {
   const code = useCode(props);
 
-  return (
-    <div className="bui-w-full">
-      <CodeBlock.Pre>{code.selectedFile}</CodeBlock.Pre>
-    </div>
-  );
+  return <CodeBlock.Pre>{code.selectedFile}</CodeBlock.Pre>;
 }

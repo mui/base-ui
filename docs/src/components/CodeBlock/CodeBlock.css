@@ -87,6 +87,7 @@
   }
 
   .CodeBlockPreContainer {
+    width: 100%;
     outline: 0;
   }
 }
