@@ -1,6 +1,4 @@
 .Root {
-  /* Lock width to avoid stretching the container when transitioning (two months are rendered). */
-  width: 278px;
   /* Clip overflow to prevent content spilling out when transitioning. */
   overflow: clip;
   --duration: 0.2s;
