@@ -4,7 +4,7 @@ import { TREE_VIEW_ROOT_PARENT_ID } from './types';
 export function buildItemsState<TItem = TreeDefaultItemModel>(
   items: readonly TItem[],
   itemToId: (item: TItem) => TreeItemId,
-  itemToLabel: (item: TItem) => string,
+  itemToStringLabel: (item: TItem) => string,
   itemToChildren: (item: TItem) => TItem[] | undefined,
   isItemDisabled: (item: TItem) => boolean,
   isItemSelectionDisabled: (item: TItem) => boolean,
@@ -40,7 +40,7 @@ export function buildItemsState<TItem = TreeDefaultItemModel>(
         expandable,
         disabled: isItemDisabled(item),
         selectable: !isItemSelectionDisabled(item),
-        label: itemToLabel(item),
+        label: itemToStringLabel(item),
       };
 
       if (children && children.length > 0) {

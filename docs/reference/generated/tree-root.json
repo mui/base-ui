@@ -72,7 +72,7 @@
       "description": "Used to determine the id of a given item.",
       "detailedType": "((item: TItem) => string) | undefined"
     },
-    "itemToLabel": {
+    "itemToStringLabel": {
       "type": "((item: TItem) => string)",
       "default": "(item) => item.label",
       "description": "Used to determine the string label of a given item.",

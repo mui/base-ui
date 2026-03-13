@@ -201,7 +201,7 @@ export interface TreeState<TItem = TreeDefaultItemModel> {
   /**
    * Extracts the label from an item model
    */
-  itemToLabel: (item: TItem) => string;
+  itemToStringLabel: (item: TItem) => string;
   /**
    * Extracts the children from an item model
    */

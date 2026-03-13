@@ -17,13 +17,13 @@ import { buildItemsState } from './buildItemsState';
  */
 const itemAccessorsSelector = createSelectorMemoized(
   (state: TreeState) => state.itemToId,
-  (state: TreeState) => state.itemToLabel,
+  (state: TreeState) => state.itemToStringLabel,
   (state: TreeState) => state.itemToChildren,
   (state: TreeState) => state.isItemDisabled,
   (state: TreeState) => state.isItemSelectionDisabled,
-  (itemToId, itemToLabel, itemToChildren, isItemDisabled, isItemSelectionDisabled) => ({
+  (itemToId, itemToStringLabel, itemToChildren, isItemDisabled, isItemSelectionDisabled) => ({
     itemToId,
-    itemToLabel,
+    itemToStringLabel,
     itemToChildren,
     isItemDisabled,
     isItemSelectionDisabled,
@@ -41,7 +41,7 @@ const rawItemsStateSelector = createSelectorMemoized(
     buildItemsState(
       items,
       acc.itemToId,
-      acc.itemToLabel,
+      acc.itemToStringLabel,
       acc.itemToChildren,
       acc.isItemDisabled,
       acc.isItemSelectionDisabled,
@@ -97,7 +97,7 @@ const resolvedItemsStateSelector = createSelectorMemoized(
             expandable: lazyItems.expandable[childId] ?? false,
             disabled: acc.isItemDisabled(child),
             selectable: !acc.isItemSelectionDisabled(child),
-            label: acc.itemToLabel(child),
+            label: acc.itemToStringLabel(child),
           };
 
           // Process inline children of fetched items
@@ -243,42 +243,67 @@ const canItemBeSelectedSelector = createSelector(
 
 export type CheckboxSelectionStatus = 'checked' | 'indeterminate' | 'empty';
 
+/**
+ * Precomputes {selected, total} descendant counts for every item in a single
+ * O(N) bottom-up traversal. Memoized so it only recomputes when selectedItems
+ * or tree structure changes.
+ */
+const descendantSelectionCountsSelector = createSelectorMemoized(
+  selectedItemsSetSelector,
+  itemOrderedChildrenIdsLookupSelector,
+  (selectedSet, childrenLookup): Record<TreeItemId, { selected: number; total: number }> => {
+    const counts: Record<TreeItemId, { selected: number; total: number }> = {};
+
+    const compute = (itemId: string): { selected: number; total: number } => {
+      const children = childrenLookup[itemId];
+      if (!children || children.length === 0) {
+        const result = { selected: 0, total: 0 };
+        counts[itemId] = result;
+        return result;
+      }
+
+      let selected = 0;
+      let total = 0;
+
+      for (const childId of children) {
+        total += 1;
+        if (selectedSet.has(childId)) {
+          selected += 1;
+        }
+        const childCounts = compute(childId);
+        selected += childCounts.selected;
+        total += childCounts.total;
+      }
+
+      const result = { selected, total };
+      counts[itemId] = result;
+      return result;
+    };
+
+    compute(TREE_VIEW_ROOT_PARENT_ID);
+    return counts;
+  },
+);
+
 const checkboxSelectionStatusSelector = createSelector(
   (state: TreeState, itemId: TreeItemId): CheckboxSelectionStatus => {
     if (isItemSelectedSelector(state, itemId)) {
       return 'checked';
     }
 
-    let hasSelectedDescendant = false;
-    let hasUnSelectedDescendant = false;
+    const counts = descendantSelectionCountsSelector(state)[itemId];
+    if (!counts || counts.total === 0) {
+      return 'empty';
+    }
 
-    const traverseDescendants = (idToTraverse: TreeItemId) => {
-      if (idToTraverse !== itemId) {
-        if (isItemSelectedSelector(state, idToTraverse)) {
-          hasSelectedDescendant = true;
-        } else {
-          hasUnSelectedDescendant = true;
-        }
-      }
+    const hasSelectedDescendant = counts.selected > 0;
+    const hasUnSelectedDescendant = counts.selected < counts.total;
 
-      if (hasSelectedDescendant && hasUnSelectedDescendant) {
-        return;
-      }
-
-      const children = itemOrderedChildrenIdsSelector(state, idToTraverse);
-      for (const childId of children) {
-        traverseDescendants(childId);
-      }
-    };
-
-    traverseDescendants(itemId);
-
-    const shouldSelectBasedOnDescendants = state.selectionPropagation.parents;
-    if (shouldSelectBasedOnDescendants) {
+    if (state.selectionPropagation.parents) {
       if (hasSelectedDescendant && hasUnSelectedDescendant) {
         return 'indeterminate';
       }
-      if (hasSelectedDescendant && !hasUnSelectedDescendant) {
+      if (hasSelectedDescendant) {
         return 'checked';
       }
       return 'empty';

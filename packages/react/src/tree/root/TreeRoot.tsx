@@ -30,7 +30,7 @@ import { EMPTY_OBJECT } from '../../utils/constants';
 import { TreeItemModelProvider } from '../utils/TreeItemModelProvider';
 
 const defaultItemToId = (item: any) => item.id;
-const defaultItemToLabel = (item: any) => item.label;
+const defaultItemToStringLabel = (item: any) => item.label;
 const defaultItemToChildren = (item: any) => item.children;
 const defaultIsItemDisabled = (item: any) => !!item.disabled;
 const defaultIsItemSelectionDisabled = (item: any) => !!item.disabled;
@@ -69,7 +69,7 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
     selectionPropagation,
     // Item accessors
     itemToId = defaultItemToId,
-    itemToLabel = defaultItemToLabel,
+    itemToStringLabel = defaultItemToStringLabel,
     itemToChildren = defaultItemToChildren,
     isItemDisabled = defaultIsItemDisabled,
     isItemSelectionDisabled = defaultIsItemSelectionDisabled,
@@ -123,7 +123,7 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
         disallowEmptySelection,
         selectionPropagation,
         itemToId,
-        itemToLabel,
+        itemToStringLabel,
         itemToChildren,
         isItemDisabled,
         isItemSelectionDisabled,
@@ -153,7 +153,7 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
     selectionPropagation: selectionPropagation ?? EMPTY_OBJECT,
     itemFocusableWhenDisabled: itemFocusableWhenDisabled ?? false,
     itemToId,
-    itemToLabel,
+    itemToStringLabel,
     itemToChildren,
     isItemDisabled,
     isItemSelectionDisabled,
@@ -203,6 +203,7 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
     ref: [forwardedRef, rootRef],
     props: [
       {
+        dir: direction,
         role: 'tree',
         'aria-multiselectable': selectionMode === 'multiple' || undefined,
         children: renderChildren,

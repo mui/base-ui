@@ -171,7 +171,7 @@ export interface TreeStoreParameters<
    * Used to determine the string label of a given item.
    * @default (item) => item.label
    */
-  itemToLabel?: ((item: TItem) => string) | undefined;
+  itemToStringLabel?: ((item: TItem) => string) | undefined;
   /**
    * Used to determine the children of a given item.
    * @default (item) => item.children
@@ -279,7 +279,7 @@ export class TreeStore<
   constructor(parameters: TreeStoreParameters<Mode, TItem>) {
     const selectionMode: TreeSelectionMode = parameters.selectionMode ?? 'single';
     const itemToId = parameters.itemToId ?? ((item: any) => item.id);
-    const itemToLabel = parameters.itemToLabel ?? ((item: any) => item.label);
+    const itemToStringLabel = parameters.itemToStringLabel ?? ((item: any) => item.label);
     const itemToChildren = parameters.itemToChildren ?? ((item: any) => item.children);
     const isItemDisabled = parameters.isItemDisabled ?? ((item: any) => !!item.disabled);
     const isItemSelectionDisabled =
@@ -306,7 +306,7 @@ export class TreeStore<
         editedItemId: null,
         lazyLoadedItems: undefined,
         itemToId,
-        itemToLabel,
+        itemToStringLabel,
         itemToChildren,
         isItemDisabled,
         isItemSelectionDisabled,
@@ -558,6 +558,13 @@ export class TreeStore<
       cleanModel = newModel;
     }
 
+    if (this.state.disallowEmptySelection) {
+      const normalizedClean = normalizeSelectedItems(cleanModel);
+      if (normalizedClean.length === 0) {
+        return;
+      }
+    }
+
     const details = createChangeEventDetails(reason, event);
     this.context.onSelectedItemsChange(cleanModel as TreeItemId | null | TreeItemId[], details);
     if (details.isCanceled) {
@@ -746,7 +753,9 @@ export class TreeStore<
       return;
     }
 
-    const navigableItems = getAllNavigableItems(this.state);
+    const navigableItems = getAllNavigableItems(this.state).filter((id) =>
+      selectors.canItemBeSelected(this.state, id),
+    );
     this.setSelectedItems(navigableItems, reason, event);
     this.lastSelectedRange = getLookupFromArray(navigableItems);
   }

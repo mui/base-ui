@@ -59,10 +59,10 @@ describeTree('TreeRoot - Items', ({ render }) => {
       expect(view.getItemRoot('1')).not.to.have.attribute('aria-expanded');
     });
 
-    it('should use itemToLabel to render the label', async () => {
+    it('should use itemToStringLabel to render the label', async () => {
       const view = await render({
         items: [{ id: '1' }, { id: '2' }],
-        itemToLabel: (item: any) => `Label: ${item.id}`,
+        itemToStringLabel: (item: any) => `Label: ${item.id}`,
       });
 
       expect(view.getItemRoot('1')).to.have.text('Label: 1');
