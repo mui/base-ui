@@ -52,6 +52,7 @@
 @import '../components/Table.css';
 @import '../components/TableCode.css';
 @import '../components/DescriptionList.css';
+@import '../components/InstallationBlock.css';
 @import '../components/ReferenceTable/ReferenceTable.css';
 
 @import '../syntax-highlighting/index.css';
