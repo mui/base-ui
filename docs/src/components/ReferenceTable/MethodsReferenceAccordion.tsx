@@ -1,0 +1,152 @@
+import * as React from 'react';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { ProcessedMethod } from '@mui/internal-docs-infra/useTypes';
+import { Link } from 'docs/src/components/Link';
+import * as Accordion from '../Accordion';
+import * as DescriptionList from '../DescriptionList';
+import { TableCode } from '../TableCode';
+
+interface Props extends React.ComponentPropsWithoutRef<any> {
+  data: Record<string, ProcessedMethod>;
+  name: string;
+  methodLabel?: string;
+}
+
+export function MethodsReferenceAccordion({
+  data,
+  name: partName,
+  methodLabel = 'Method',
+  ...props
+}: Props) {
+  const captionId = `${partName}-methods-caption`;
+
+  return (
+    <Accordion.Root aria-describedby={captionId} {...props}>
+      <span id={captionId} style={visuallyHidden} aria-hidden>
+        Class methods table
+      </span>
+      <Accordion.HeaderRow className="MethodsHeaderRow">
+        <Accordion.HeaderCell>{methodLabel}</Accordion.HeaderCell>
+        <Accordion.HeaderCell className="ReferenceHeaderTypeCell">Returns</Accordion.HeaderCell>
+        <Accordion.HeaderCell className="ReferenceHeaderIconCell" />
+      </Accordion.HeaderRow>
+      {Object.keys(data).map((name, index) => {
+        const method = data[name];
+
+        // anchor hash for each method
+        const id = `${partName}-${name}`;
+
+        // Build parameter list for display
+        const paramEntries = Object.entries(method.parameters);
+
+        return (
+          <Accordion.Item
+            key={name}
+            gaCategory="reference"
+            gaLabel={`Method: ${id}`}
+            gaParams={{ type: 'method', slug: id, part_name: partName }}
+          >
+            <Accordion.Trigger
+              id={id}
+              index={index}
+              aria-label={`Method: ${name}, returns: ${method.returnValue ? 'value' : 'void'}`}
+              className="MethodsTrigger"
+            >
+              <Accordion.Scrollable className="ReferenceNameCell">
+                <code className="Code language-ts TableCode" data-table-code="">
+                  <span className="pl-en">{name}</span>
+                  {'('}
+                  {paramEntries.map(([paramName, param], i) => (
+                    <React.Fragment key={paramName}>
+                      {i !== 0 && ', '}
+                      <span className="pl-v">{paramName}</span>
+                      {param.optional && '?'}
+                    </React.Fragment>
+                  ))}
+                  {')'}
+                </code>
+              </Accordion.Scrollable>
+              <Accordion.Scrollable className="ReferenceTypeCell">
+                {method.returnValue}
+              </Accordion.Scrollable>
+              <span className="ReferenceIconWrap">
+                <svg
+                  className="AccordionIcon ReferenceIcon"
+                  width="10"
+                  height="10"
+                  viewBox="0 0 10 10"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" />
+                </svg>
+              </span>
+            </Accordion.Trigger>
+            <Accordion.Panel>
+              <Accordion.Content>
+                <DescriptionList.Root className="ReferenceContent" aria-label="Info">
+                  <DescriptionList.Item>
+                    <DescriptionList.Term>Name</DescriptionList.Term>
+                    <DescriptionList.Details>
+                      <Link href={`#${id}`}>
+                        <TableCode style={{ color: 'var(--color-blue)' }}>{name}</TableCode>
+                      </Link>
+                    </DescriptionList.Details>
+                  </DescriptionList.Item>
+
+                  {method.description && (
+                    <DescriptionList.Item>
+                      <DescriptionList.Term separator>Description</DescriptionList.Term>
+                      <DescriptionList.Details className="ReferenceDescription">
+                        {method.description}
+                      </DescriptionList.Details>
+                    </DescriptionList.Item>
+                  )}
+
+                  {paramEntries.length > 0 && (
+                    <DescriptionList.Item>
+                      <DescriptionList.Term separator>Parameters</DescriptionList.Term>
+                      <DescriptionList.Details>
+                        <ul className="MethodParamList">
+                          {paramEntries.map(([paramName, param]) => (
+                            <li key={paramName}>
+                              <div className="MethodParamRow">
+                                <TableCode style={{ color: 'var(--color-navy)' }}>
+                                  {paramName}
+                                  {param.optional && '?'}
+                                </TableCode>
+                                <span className="MethodParamSep">—</span>
+                                {param.type}
+                              </div>
+                              {param.description && (
+                                <div className="MethodParamDesc">{param.description}</div>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      </DescriptionList.Details>
+                    </DescriptionList.Item>
+                  )}
+
+                  <DescriptionList.Item>
+                    <DescriptionList.Term separator>Returns</DescriptionList.Term>
+                    <DescriptionList.Details>{method.returnValue}</DescriptionList.Details>
+                  </DescriptionList.Item>
+
+                  {method.returnValueDescription && (
+                    <DescriptionList.Item>
+                      <DescriptionList.Term separator>Return description</DescriptionList.Term>
+                      <DescriptionList.Details>
+                        {method.returnValueDescription}
+                      </DescriptionList.Details>
+                    </DescriptionList.Item>
+                  )}
+                </DescriptionList.Root>
+              </Accordion.Content>
+            </Accordion.Panel>
+          </Accordion.Item>
+        );
+      })}
+    </Accordion.Root>
+  );
+}

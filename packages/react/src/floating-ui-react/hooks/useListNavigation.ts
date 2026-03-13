@@ -134,7 +134,7 @@ export interface UseListNavigationProps {
    */
   focusItemOnHover?: boolean | undefined;
   /**
-   * Whether pressing an arrow key on the navigation’s main axis opens the
+   * Whether pressing an arrow key on the navigation's main axis opens the
    * floating element.
    * @default true
    */
@@ -179,7 +179,7 @@ export interface UseListNavigationProps {
    */
   parentOrientation?: UseListNavigationProps['orientation'] | undefined;
   /**
-   * Whether the direction of the floating element’s navigation is in RTL
+   * Whether the direction of the floating element's navigation is in RTL
    * layout.
    * @default false
    */
@@ -190,7 +190,7 @@ export interface UseListNavigationProps {
    * (such as an input), but allow arrow keys to navigate list items.
    * This is common in autocomplete listbox components.
    * Your virtually-focused list items must have a unique `id` set on them.
-   * If you’re using a component role with the `useRole()` Hook, then an `id` is
+   * If you're using a component role with the `useRole()` Hook, then an `id` is
    * generated automatically.
    * @default false
    */
@@ -201,7 +201,7 @@ export interface UseListNavigationProps {
    */
   orientation?: 'vertical' | 'horizontal' | 'both' | undefined;
   /**
-   * Specifies how many columns the list has (i.e., it’s a grid). Use an
+   * Specifies how many columns the list has (i.e., it's a grid). Use an
    * orientation of 'horizontal' (e.g. for an emoji picker/date picker, where
    * pressing ArrowRight or ArrowLeft can change rows), or 'both' (where the
    * current row cannot be escaped with ArrowRight or ArrowLeft, only ArrowUp

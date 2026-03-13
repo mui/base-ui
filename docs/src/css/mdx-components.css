@@ -94,4 +94,9 @@
     margin-top: 1.25rem;
     margin-bottom: 1.5rem;
   }
+
+  .MdFigure {
+    margin-top: calc(var(--spacing) * 5);
+    margin-bottom: calc(var(--spacing) * 6);
+  }
 }

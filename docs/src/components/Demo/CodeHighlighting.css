@@ -296,4 +296,10 @@
     color: var(--color-blue);
     background-color: var(--color-inline-highlight);
   }
+
+  /* Hide JSDoc comment frames in inline and table code contexts */
+  [data-inline] .frame[data-frame-type='comment'],
+  [data-table-code] .frame[data-frame-type='comment'] {
+    display: none;
+  }
 }
