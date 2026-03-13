@@ -1,0 +1,145 @@
+# Choosing components
+
+<Subtitle>A guide to selecting the right Base UI component for your use case.</Subtitle>
+<Meta
+  name="description"
+  content="Learn which Base UI component to use for common UI patterns like popups, toggles, form controls, and navigation."
+/>
+
+## Overlay content (dialogs, menus, drawers)
+
+| If you need...                                | Use                                            |
+| :-------------------------------------------- | :--------------------------------------------- |
+| A popup that opens on top of the entire page  | [Dialog](/react/components/dialog)             |
+| A dialog that requires a user response        | [Alert Dialog](/react/components/alert-dialog) |
+| A list of actions in a dropdown with keyboard | [Menu](/react/components/menu)                 |
+| A right-click or long-press action list       | [Context Menu](/react/components/context-menu) |
+| A panel that slides in from the screen edge   | [Drawer](/react/components/drawer)             |
+| A popup when a link is hovered (preview)      | [Preview Card](/react/components/preview-card) |
+
+**Key differences:**
+
+- **Dialog vs Alert Dialog**: `Dialog` can be dismissed with Escape or backdrop click. `Alert Dialog` requires an explicit user action (confirm/cancel) to proceed and is intended for destructive or irreversible operations.
+- **Dialog vs Drawer**: `Drawer` extends Dialog with gesture support, snap points, and indent effects. Use `Drawer` when you need those; otherwise a positioned `Dialog` is sufficient. `Dialog` does not support gestures.
+- **Menu vs Popover**: Menu is for a list of actions with keyboard navigation (arrow keys, type-ahead). Use `Popover` for general interactive content (see next section).
+
+## Contextual hints and notifications (Popover, Tooltip, Toast)
+
+These three are often confused. Use the table and key differences below to decide.
+
+| If you need...                                                  | Use                                  |
+| :-------------------------------------------------------------- | :----------------------------------- |
+| An accessible popup anchored to a trigger (interactive content) | [Popover](/react/components/popover) |
+| A short hint on hover/focus; trigger not for opening popup      | [Tooltip](/react/components/tooltip) |
+| A short-lived notification without a specific trigger           | [Toast](/react/components/toast)     |
+
+**Key differences:**
+
+- **Popover** — An accessible popup anchored to a button. Use when the trigger's purpose is to open the popup and the popup can contain interactive content (buttons, links, form fields). `Popover` is non-modal and can open on click or hover (`openOnHover`). Use `Popover` instead of `Tooltip` when the content must be available to touch or screen reader users (e.g. infotips on an info icon).
+
+- **Tooltip** — A popup that appears when an element is hovered or focused, showing a hint for sighted users. Use when you need a short, non-interactive label or hint for an element whose main purpose is something else (e.g. an icon button). Tooltips act as supplementary visual labels; they are not accessible to touch or screen reader users. The trigger must have an accessible name (e.g. `aria-label`). If the description is important for everyone, use inline text or `Popover` instead. See the Tooltip documentation for alternatives to tooltips.
+
+- **Toast** — Generates toast notifications. Use when you need to notify the user about something that just happened (e.g. saved, error, copied) without a specific trigger. Toasts are temporary and can stack; they can also be anchored for contextual feedback. Do not use `Toast` for content tied to a specific control—use `Tooltip` or `Popover` for that.
+
+## Actions and toggles
+
+| If you need...                                          | Use                                            |
+| :------------------------------------------------------ | :--------------------------------------------- |
+| A clickable action (submit, cancel, navigate)           | [Button](/react/components/button)             |
+| A two-state button that can be on or off (e.g. toolbar) | [Toggle](/react/components/toggle)             |
+| A group of toggle buttons (single or multi-select)      | [Toggle Group](/react/components/toggle-group) |
+
+**Key differences:**
+
+- **Button vs Toggle**: Button triggers an action. Toggle indicates a pressed/unpressed state (e.g. bold in a toolbar) and uses `aria-pressed`. Do not use Button for links—style an `<a>` element directly.
+- **Toggle Group vs Radio**: Both allow exclusive selection. Toggle Group is for toolbar-style actions; `Radio` is for form fields. Toggle Group also supports multi-select.
+
+## On/off, choice, and range controls
+
+| If you need...                                          | Use                                                |
+| :------------------------------------------------------ | :------------------------------------------------- |
+| A control that indicates whether a setting is on or off | [Switch](/react/components/switch)                 |
+| A binary form field with a checkmark                    | [Checkbox](/react/components/checkbox)             |
+| Multiple checkboxes with shared state (e.g. Select all) | [Checkbox Group](/react/components/checkbox-group) |
+| One selection from a small set of options               | [Radio](/react/components/radio)                   |
+| One or more values in a numeric range by dragging       | [Slider](/react/components/slider)                 |
+
+**Key differences:**
+
+- **Switch vs Checkbox**: Both are boolean form controls. `Switch` indicates whether a setting is on or off. `Checkbox` is for selected/unselected and is typically submitted with a form.
+- **Toggle vs Switch**: `Toggle` is for toolbar actions (e.g. bold/italic) and uses `aria-pressed`. `Switch` is for form settings and uses `role="switch"`.
+
+## Choosing from a list
+
+| If you need...                                              | Use                                            |
+| :---------------------------------------------------------- | :--------------------------------------------- |
+| A dropdown to choose a predefined value (no filtering)      | [Select](/react/components/select)             |
+| A filterable dropdown; value must be from the list          | [Combobox](/react/components/combobox)         |
+| An input with suggested completions; free-form text allowed | [Autocomplete](/react/components/autocomplete) |
+
+**Key differences:**
+
+- **Select vs Combobox**: `Select` is not filterable (aside from keyboard typeahead). Prefer `Combobox` when the number of items is large enough to warrant filtering. Use `Select` instead of `Combobox` when no input is rendered (listbox-only pattern).
+- **Combobox vs Autocomplete**: `Combobox` restricts the value to predefined items. `Autocomplete` allows free-form text; suggestions only optionally autocomplete. Use `Combobox` when the selection must be remembered and the value cannot be custom; use `Autocomplete` for search widgets or filterable command pickers.
+
+## Tabs, accordions, and collapsible content
+
+| If you need...                                    | Use                                          |
+| :------------------------------------------------ | :------------------------------------------- |
+| Toggling between related panels on the same page  | [Tabs](/react/components/tabs)               |
+| A set of collapsible panels with headings         | [Accordion](/react/components/accordion)     |
+| A single collapsible panel controlled by a button | [Collapsible](/react/components/collapsible) |
+| A visual divider between sections                 | [Separator](/react/components/separator)     |
+| A scrollable region with custom scrollbars        | [Scroll Area](/react/components/scroll-area) |
+
+**Key differences:**
+
+- **Tabs vs Accordion**: `Tabs` show one panel at a time with tab list navigation. `Accordion` is a set of collapsible panels with headings and can have multiple panels open.
+- **Accordion vs Collapsible**: `Accordion` manages a group of sections with shared state. `Collapsible` is a single panel controlled by a button.
+
+## Form structure and inputs
+
+| If you need...                                     | Use                                            |
+| :------------------------------------------------- | :--------------------------------------------- |
+| Labeling and validation for form controls          | [Field](/react/components/field)               |
+| Grouping related form controls with a legend       | [Fieldset](/react/components/fieldset)         |
+| A native form with consolidated error handling     | [Form](/react/components/form)                 |
+| A text input                                       | [Input](/react/components/input)               |
+| A numeric input with increment/decrement and scrub | [Number Field](/react/components/number-field) |
+| A date (or date range) picker                      | [Calendar](/react/components/calendar)         |
+
+Form is composed with [Field](/react/components/field). See the [forms guide](/react/handbook/forms) for naming controls, validation, and integration with React Hook Form or TanStack Form.
+
+## Navigation
+
+| If you need...                                      | Use                                                  |
+| :-------------------------------------------------- | :--------------------------------------------------- |
+| A horizontal bar of menu triggers (e.g. File, Edit) | [Menubar](/react/components/menubar)                 |
+| Site or app navigation with links and flyouts       | [Navigation Menu](/react/components/navigation-menu) |
+
+## Progress and status
+
+| If you need...                                   | Use                                    |
+| :----------------------------------------------- | :------------------------------------- |
+| Short-lived notifications (success, error, etc.) | [Toast](/react/components/toast)       |
+| The status of a task that takes a long time      | [Progress](/react/components/progress) |
+| A graphical display of a value within a range    | [Meter](/react/components/meter)       |
+
+**Key differences:** `Progress` displays task completion (e.g. upload). `Meter` displays a value within a known range (e.g. capacity, rating), not task progress. For when to use Toast vs Tooltip or Popover, see the Popover, Tooltip, and Toast section above.
+
+## Avatar and toolbar
+
+| If you need...                                                  | Use                                  |
+| :-------------------------------------------------------------- | :----------------------------------- |
+| A user image or initials fallback                               | [Avatar](/react/components/avatar)   |
+| A container grouping buttons and controls (e.g. editor toolbar) | [Toolbar](/react/components/toolbar) |
+
+export const metadata =
+  /** @type {import('@mui/internal-docs-infra/createSitemap/types').NextMetadata} */ ({
+    robots: {
+      index: false,
+    },
+    other: {
+      audience: 'private',
+    },
+  });
