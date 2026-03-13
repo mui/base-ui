@@ -4,11 +4,11 @@ import * as React from 'react';
 import { act, fireEvent } from '@mui/internal-test-utils';
 import { createRenderer } from '../../../test/createRenderer';
 import { Tree } from '../../tree';
-import type { TreeItemModel, TreeRootActions } from '../store/types';
+import type { TreeDefaultItemModel, TreeRootActions } from '../store/types';
 import { DataSourceCacheDefault } from '../utils/cache';
-import type { UseTreeLazyLoadingConfig } from '../utils/useTreeLazyLoading';
+import type { UseTreeLazyLoadingParameters } from '../utils/useTreeLazyLoading';
 
-interface ItemType extends TreeItemModel {
+interface ItemType extends TreeDefaultItemModel {
   childrenCount?: number;
 }
 
@@ -39,7 +39,7 @@ async function awaitMockFetch() {
 function TreeWithLazyLoading(
   props: {
     items: ItemType[];
-    config?: Partial<UseTreeLazyLoadingConfig>;
+    config?: Partial<UseTreeLazyLoadingParameters>;
     actionsRef?: React.RefObject<TreeRootActions | null>;
   } & Record<string, any>,
 ) {
@@ -47,7 +47,7 @@ function TreeWithLazyLoading(
   const lazyLoading = Tree.useLazyLoading({
     fetchChildren: config?.fetchChildren ?? mockFetchChildren,
     getChildrenCount:
-      config?.getChildrenCount ?? ((item: TreeItemModel) => (item as ItemType).childrenCount ?? 0),
+      config?.getChildrenCount ?? ((item: TreeDefaultItemModel) => (item as ItemType).childrenCount ?? 0),
     cache: config?.cache,
   });
 
@@ -59,7 +59,7 @@ function TreeWithLazyLoading(
       actionsRef={actionsRef}
       {...other}
     >
-      {(_item: TreeItemModel) => (
+      {(_item: TreeDefaultItemModel) => (
         <Tree.Item>
           <Tree.ItemExpansionTrigger />
           <Tree.ItemLoadingIndicator>
@@ -187,7 +187,7 @@ describe('TreeRoot - Lazy Loading', () => {
             },
           ]}
           defaultExpandedItems={['1', '1-1', '1-1-1']}
-          getItemChildren={(item: TreeItemModel) => (item as ItemType).children}
+          itemToChildren={(item: TreeDefaultItemModel) => (item as ItemType).children}
         />,
       );
 
@@ -208,7 +208,7 @@ describe('TreeRoot - Lazy Loading', () => {
             },
           ]}
           defaultExpandedItems={['1']}
-          getItemChildren={(item: TreeItemModel) => (item as ItemType).children}
+          itemToChildren={(item: TreeDefaultItemModel) => (item as ItemType).children}
         />,
       );
 
@@ -235,7 +235,7 @@ describe('TreeRoot - Lazy Loading', () => {
             { id: '2', label: '2', childrenCount: 1 },
           ]}
           defaultExpandedItems={['1', '2']}
-          getItemChildren={(item: TreeItemModel) => (item as ItemType).children}
+          itemToChildren={(item: TreeDefaultItemModel) => (item as ItemType).children}
           config={{ fetchChildren: controlledFetch }}
         />,
       );

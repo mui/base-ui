@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { TreeItemId, TreeItemModel } from '../store/types';
+import type { TreeItemId, TreeDefaultItemModel } from '../store/types';
 import { TREE_VIEW_ROOT_PARENT_ID } from '../store/types';
 import type { TreeLazyLoading, TreeStore } from '../store/TreeStore';
 import { selectors } from '../store/selectors';
@@ -12,7 +12,7 @@ const LAZY_LOADED_ITEMS_INITIAL_STATE = {
   errors: {} as Record<string, Error | undefined>,
 };
 
-export interface UseTreeLazyLoadingConfig<TItem = TreeItemModel> {
+export interface UseTreeLazyLoadingParameters<TItem = TreeDefaultItemModel> {
   /**
    * Fetches children for a given parent item.
    * Called with `undefined` to fetch root items.
@@ -33,21 +33,21 @@ export interface UseTreeLazyLoadingConfig<TItem = TreeItemModel> {
   cache?: DataSourceCache<TItem> | undefined;
 }
 
-class LazyLoadingPlugin<TItem = TreeItemModel> implements TreeLazyLoading<TItem> {
+class LazyLoadingPlugin<TItem = TreeDefaultItemModel> implements TreeLazyLoading<TItem> {
   private store: TreeStore<any, TItem> | null = null;
 
   private nestedDataManager = new NestedDataManager(this);
 
-  private configRef: React.RefObject<UseTreeLazyLoadingConfig<TItem>>;
+  private configRef: React.RefObject<UseTreeLazyLoadingParameters<TItem>>;
 
   private cache: DataSourceCache<TItem> | undefined;
 
-  constructor(configRef: React.RefObject<UseTreeLazyLoadingConfig<TItem>>) {
+  constructor(configRef: React.RefObject<UseTreeLazyLoadingParameters<TItem>>) {
     this.configRef = configRef;
     this.cache = configRef.current.cache;
   }
 
-  private get config(): UseTreeLazyLoadingConfig<TItem> {
+  private get config(): UseTreeLazyLoadingParameters<TItem> {
     return this.configRef.current;
   }
 
@@ -282,11 +282,11 @@ class LazyLoadingPlugin<TItem = TreeItemModel> implements TreeLazyLoading<TItem>
     }
 
     const { getChildrenCount } = this.config;
-    const getItemId = this.store.state.getItemId;
+    const itemToId = this.store.state.itemToId;
     const overrides: Record<TreeItemId, boolean> = {};
 
     for (const item of items) {
-      const id = getItemId(item);
+      const id = itemToId(item);
       const count = getChildrenCount(item);
       overrides[id] = count !== 0;
     }
@@ -318,8 +318,8 @@ class LazyLoadingPlugin<TItem = TreeItemModel> implements TreeLazyLoading<TItem>
  * </Tree.Root>
  * ```
  */
-export function useLazyLoading<TItem = TreeItemModel>(
-  config: UseTreeLazyLoadingConfig<TItem>,
+export function useLazyLoading<TItem = TreeDefaultItemModel>(
+  config: UseTreeLazyLoadingParameters<TItem>,
 ): TreeLazyLoading<TItem> {
   const configRef = React.useRef(config);
   configRef.current = config;
@@ -334,4 +334,8 @@ export function useLazyLoading<TItem = TreeItemModel>(
   pluginRef.current['cache'] = config.cache;
 
   return pluginRef.current;
+}
+
+export namespace useLazyLoading {
+  export type Parameters<TItem = TreeDefaultItemModel> = UseTreeLazyLoadingParameters<TItem>;
 }

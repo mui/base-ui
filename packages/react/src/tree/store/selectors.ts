@@ -4,7 +4,7 @@ import type {
   TreeState,
   TreeItemId,
   TreeItemMeta,
-  TreeItemModel,
+  TreeDefaultItemModel,
   TreeItemsState,
   FlatListEntry,
 } from './types';
@@ -16,15 +16,15 @@ import { buildItemsState } from './buildItemsState';
  * This avoids exceeding the max arity of createSelectorMemoized (5 inputs + combiner).
  */
 const itemAccessorsSelector = createSelectorMemoized(
-  (state: TreeState) => state.getItemId,
-  (state: TreeState) => state.getItemLabel,
-  (state: TreeState) => state.getItemChildren,
+  (state: TreeState) => state.itemToId,
+  (state: TreeState) => state.itemToLabel,
+  (state: TreeState) => state.itemToChildren,
   (state: TreeState) => state.isItemDisabled,
   (state: TreeState) => state.isItemSelectionDisabled,
-  (getItemId, getItemLabel, getItemChildren, isItemDisabled, isItemSelectionDisabled) => ({
-    getItemId,
-    getItemLabel,
-    getItemChildren,
+  (itemToId, itemToLabel, itemToChildren, isItemDisabled, isItemSelectionDisabled) => ({
+    itemToId,
+    itemToLabel,
+    itemToChildren,
     isItemDisabled,
     isItemSelectionDisabled,
   }),
@@ -40,9 +40,9 @@ const rawItemsStateSelector = createSelectorMemoized(
   (items, acc): TreeItemsState =>
     buildItemsState(
       items,
-      acc.getItemId,
-      acc.getItemLabel,
-      acc.getItemChildren,
+      acc.itemToId,
+      acc.itemToLabel,
+      acc.itemToChildren,
       acc.isItemDisabled,
       acc.isItemSelectionDisabled,
     ),
@@ -74,7 +74,7 @@ const resolvedItemsStateSelector = createSelectorMemoized(
     // Phase 1: Apply lazy-loaded children (tree structure mutations)
     if (hasLazyChildren) {
       const processChildren = (
-        children: TreeItemModel[],
+        children: TreeDefaultItemModel[],
         parentId: string,
         parentDepth: number,
       ) => {
@@ -83,7 +83,7 @@ const resolvedItemsStateSelector = createSelectorMemoized(
 
         for (let i = 0; i < children.length; i += 1) {
           const child = children[i];
-          const childId = acc.getItemId(child);
+          const childId = acc.itemToId(child);
           const depth = parentDepth + 1;
 
           ids.push(childId);
@@ -97,11 +97,11 @@ const resolvedItemsStateSelector = createSelectorMemoized(
             expandable: lazyItems.expandable[childId] ?? false,
             disabled: acc.isItemDisabled(child),
             selectable: !acc.isItemSelectionDisabled(child),
-            label: acc.getItemLabel(child),
+            label: acc.itemToLabel(child),
           };
 
           // Process inline children of fetched items
-          const grandchildren = acc.getItemChildren(child);
+          const grandchildren = acc.itemToChildren(child);
           if (grandchildren && grandchildren.length > 0) {
             processChildren(grandchildren, childId, depth);
             metaLookup[childId] = { ...metaLookup[childId], expandable: true };
@@ -461,7 +461,24 @@ const flatListWithGroupTransitionsSelector = createSelectorMemoized(
   },
 );
 
+const visibleItemsSelector = createSelectorMemoized(
+  flatListSelector,
+  itemMetaLookupSelector,
+  (flatList, metaLookup): VisibleItem[] =>
+    flatList.map((itemId) => ({
+      itemId,
+      depth: metaLookup[itemId]?.depth ?? 0,
+    })),
+);
+
+export interface VisibleItem {
+  itemId: TreeItemId;
+  depth: number;
+}
+
 export const selectors = {
+  virtualized: createSelector((state: TreeState): boolean => state.virtualized),
+  visibleItems: visibleItemsSelector,
   itemMetaLookup: itemMetaLookupSelector,
   itemMeta: createSelector(
     (state: TreeState, itemId: TreeItemId | null): TreeItemMeta | null =>

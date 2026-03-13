@@ -20,5 +20,10 @@
   "dataAttributes": {
     "data-parent-id": {}
   },
-  "cssVariables": {}
+  "cssVariables": {
+    "--tree-group-height": {
+      "description": "The height of the animated group of tree items.",
+      "type": "number"
+    }
+  }
 }

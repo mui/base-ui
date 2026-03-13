@@ -2,7 +2,7 @@ import * as React from 'react';
 import { act } from '@mui/internal-test-utils';
 import { createRenderer, type BaseUIRenderResult } from '../createRenderer';
 import { Tree } from '../../src/tree';
-import type { TreeItemModel, TreeRootActions } from '../../src/tree/store/types';
+import type { TreeDefaultItemModel, TreeRootActions } from '../../src/tree/store/types';
 
 export interface DescribeTreeItem {
   id: string;
@@ -130,14 +130,14 @@ export function describeTree(
     const treeRender: DescribeTreeRenderer = async ({
       items: rawItems,
       checkboxSelection,
-      getItemChildren: customGetItemChildren,
+      itemToChildren: customItemToChildren,
       ...other
     }) => {
       const items = rawItems as readonly DescribeTreeItem[];
       const actionsRef =
         React.createRef<TreeRootActions | null>() as React.RefObject<TreeRootActions | null>;
 
-      const convertItems = (describeItems: readonly DescribeTreeItem[]): TreeItemModel[] =>
+      const convertItems = (describeItems: readonly DescribeTreeItem[]): TreeDefaultItemModel[] =>
         describeItems.map((item) => ({
           id: item.id,
           label: item.label ?? item.id,
@@ -145,25 +145,25 @@ export function describeTree(
         }));
 
       // When a custom getItemChildren is provided, pass items as-is
-      const treeItems = customGetItemChildren ? (items as any) : convertItems(items);
+      const treeItems = customItemToChildren ? (items as any) : convertItems(items);
 
-      const isItemDisabled = (item: TreeItemModel): boolean => {
+      const isItemDisabled = (item: TreeDefaultItemModel): boolean => {
         const describeItem = findDescribeItem(items, item.id);
         return describeItem?.disabled ?? false;
       };
 
-      const getItemId = (item: TreeItemModel) => item.id;
+      const itemToId = (item: TreeDefaultItemModel) => item.id;
 
       const element = (
         <Tree.Root
           items={treeItems}
           actionsRef={actionsRef}
           isItemDisabled={isItemDisabled}
-          getItemId={getItemId}
-          {...(customGetItemChildren ? { getItemChildren: customGetItemChildren } : {})}
+          itemToId={itemToId}
+          {...(customItemToChildren ? { itemToChildren: customItemToChildren } : {})}
           {...other}
         >
-          {(item: TreeItemModel) =>
+          {(item: TreeDefaultItemModel) =>
             checkboxSelection ? (
               <Tree.CheckboxItem key={item.id}>
                 <Tree.CheckboxItemIndicator />
@@ -187,7 +187,7 @@ export function describeTree(
         setProps: result.setProps,
         setItems: async (newItems: readonly DescribeTreeItem[]) => {
           await result.setProps({
-            items: customGetItemChildren ? (newItems as any) : convertItems(newItems),
+            items: customItemToChildren ? (newItems as any) : convertItems(newItems),
           });
           // Flush requestAnimationFrame callbacks scheduled during the render
           // (e.g., focus management moves focus when the focused item is removed).

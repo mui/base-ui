@@ -1,10 +1,9 @@
 'use client';
 import * as React from 'react';
 import { Tree } from '@base-ui/react/tree';
-import type { TreeItemModel, TreeItemId } from '@base-ui/react/tree';
 import styles from './tree.module.css';
 
-const items: TreeItemModel[] = [
+const items: Tree.DefaultItemModel[] = [
   {
     id: 'usa',
     label: 'United States',
@@ -58,8 +57,8 @@ const items: TreeItemModel[] = [
 ];
 
 export default function ControlledTree() {
-  const [expandedItems, setExpandedItems] = React.useState<TreeItemId[]>(['usa']);
-  const [selectedItems, setSelectedItems] = React.useState<TreeItemId[]>([]);
+  const [expandedItems, setExpandedItems] = React.useState<Tree.ItemId[]>(['usa']);
+  const [selectedItems, setSelectedItems] = React.useState<Tree.ItemId[]>([]);
 
   return (
     <div className={styles.grid}>
@@ -75,7 +74,7 @@ export default function ControlledTree() {
           expandedItems={expandedItems}
           onExpandedItemsChange={setExpandedItems}
           selectedItems={selectedItems}
-          onSelectedItemsChange={(v) => setSelectedItems(v as TreeItemId[])}
+          onSelectedItemsChange={(v) => setSelectedItems(v as Tree.ItemId[])}
           selectionMode="multiple"
           className={styles.tree}
         >

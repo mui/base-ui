@@ -17,3 +17,7 @@ export function useTreeItemContext(): TreeItemContextValue {
   }
   return context;
 }
+
+export function useTreeItemContextOptional(): TreeItemContextValue | undefined {
+  return React.useContext(TreeItemContext);
+}

@@ -1,14 +1,13 @@
 'use client';
 import * as React from 'react';
 import { Tree } from '@base-ui/react/tree';
-import type { TreeItemModel } from '@base-ui/react/tree';
 import styles from './tree.module.css';
 
-function generateItems(depth: number, breadth: number, prefix = ''): TreeItemModel[] {
-  const items: TreeItemModel[] = [];
+function generateItems(depth: number, breadth: number, prefix = ''): Tree.DefaultItemModel[] {
+  const items: Tree.DefaultItemModel[] = [];
   for (let i = 0; i < breadth; i += 1) {
     const id = prefix ? `${prefix}-${i}` : `item-${i}`;
-    const item: TreeItemModel = {
+    const item: Tree.DefaultItemModel = {
       id,
       label: `Item ${id}`,
     };
@@ -23,7 +22,7 @@ function generateItems(depth: number, breadth: number, prefix = ''): TreeItemMod
 // 5 root items x 10 children x 5 grandchildren = 5 + 50 + 250 = 305 items
 // Plus 5 more root items with 20 children each = 5 + 100 = 105
 // Total: 410 items
-const items: TreeItemModel[] = [
+const items: Tree.DefaultItemModel[] = [
   ...generateItems(2, 5),
   ...generateItems(1, 5, 'flat').map((item) => ({
     ...item,
@@ -33,7 +32,7 @@ const items: TreeItemModel[] = [
 
 const totalCount = countItems(items);
 
-function countItems(list: TreeItemModel[]): number {
+function countItems(list: Tree.DefaultItemModel[]): number {
   return list.reduce((acc, item) => acc + 1 + (item.children ? countItems(item.children) : 0), 0);
 }
 

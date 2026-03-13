@@ -2,6 +2,11 @@
   "name": "TreeItem",
   "description": "An individual tree item that uses replace selection behavior.\nClicking selects the item and deselects others.\nUse modifier keys (Ctrl/Cmd, Shift) for multi-select operations.\nRenders a `<li>` element.",
   "props": {
+    "itemId": {
+      "type": "string",
+      "description": "The id of the item. Required when using `virtualized` on `Tree.Root`.\nWhen provided, the item will set up its own context for sub-parts.",
+      "detailedType": "string | undefined"
+    },
     "className": {
       "type": "string | ((state: Tree.Item.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",

@@ -10,7 +10,7 @@ import { TreeRootContext } from './TreeRootContext';
 import { TreeStore, type TreeStoreParameters } from '../store/TreeStore';
 import { selectors } from '../store/selectors';
 import type {
-  TreeItemModel,
+  TreeDefaultItemModel,
   TreeRootActions,
   TreeRootExpansionChangeEventReason,
   TreeRootExpansionChangeEventDetails,
@@ -29,9 +29,9 @@ import type {
 import { EMPTY_OBJECT } from '../../utils/constants';
 import { TreeItemModelProvider } from '../utils/TreeItemModelProvider';
 
-const defaultGetItemId = (item: any) => item.id;
-const defaultGetItemLabel = (item: any) => item.label;
-const defaultGetItemChildren = (item: any) => item.children;
+const defaultItemToId = (item: any) => item.id;
+const defaultItemToLabel = (item: any) => item.label;
+const defaultItemToChildren = (item: any) => item.children;
 const defaultIsItemDisabled = (item: any) => !!item.disabled;
 const defaultIsItemSelectionDisabled = (item: any) => !!item.disabled;
 
@@ -43,7 +43,7 @@ const defaultIsItemSelectionDisabled = (item: any) => !!item.disabled;
  */
 export const TreeRoot = React.forwardRef(function TreeRoot<
   Mode extends TreeSelectionMode | undefined = undefined,
-  TItem = TreeItemModel,
+  TItem = TreeDefaultItemModel,
 >(componentProps: TreeRoot.Props<Mode, TItem>, forwardedRef: React.ForwardedRef<HTMLUListElement>) {
   const {
     // Rendering props
@@ -68,9 +68,9 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
     disallowEmptySelection,
     selectionPropagation,
     // Item accessors
-    getItemId = defaultGetItemId,
-    getItemLabel = defaultGetItemLabel,
-    getItemChildren = defaultGetItemChildren,
+    itemToId = defaultItemToId,
+    itemToLabel = defaultItemToLabel,
+    itemToChildren = defaultItemToChildren,
     isItemDisabled = defaultIsItemDisabled,
     isItemSelectionDisabled = defaultIsItemSelectionDisabled,
     isItemEditable,
@@ -81,6 +81,8 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
     actionsRef,
     // Plugins
     lazyLoading,
+    // Virtualization
+    virtualized,
     // Other
     onItemClick,
     onItemLabelChange,
@@ -120,9 +122,9 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
         selectionMode,
         disallowEmptySelection,
         selectionPropagation,
-        getItemId,
-        getItemLabel,
-        getItemChildren,
+        itemToId,
+        itemToLabel,
+        itemToChildren,
         isItemDisabled,
         isItemSelectionDisabled,
         isItemEditable,
@@ -133,6 +135,7 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
         direction,
         rootRef,
         lazyLoading,
+        virtualized,
       }),
   ).current;
 
@@ -149,13 +152,14 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
     disallowEmptySelection: disallowEmptySelection ?? false,
     selectionPropagation: selectionPropagation ?? EMPTY_OBJECT,
     itemFocusableWhenDisabled: itemFocusableWhenDisabled ?? false,
-    getItemId,
-    getItemLabel,
-    getItemChildren,
+    itemToId,
+    itemToLabel,
+    itemToChildren,
     isItemDisabled,
     isItemSelectionDisabled,
     isItemEditable: isItemEditable ?? false,
     direction,
+    virtualized: virtualized ?? false,
   });
 
   store.useContextCallback('onExpandedItemsChange', onExpandedItemsChange);
@@ -174,8 +178,13 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
 
   const renderChildren = React.useMemo(() => {
     if (typeof children !== 'function') {
-      // AnimatedItemList (or other ReactNode) handles its own rendering
+      // AnimatedItemList (or other ReactNode) handles its own rendering.
+      // When virtualized, the consumer controls rendering via useVisibleItems().
       return children;
+    }
+
+    if (virtualized) {
+      return null;
     }
 
     return flatItemIds.map((itemId) => (
@@ -183,7 +192,7 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
         {children as any}
       </TreeItemModelProvider>
     ));
-  }, [flatItemIds, store, children]);
+  }, [virtualized, flatItemIds, store, children]);
 
   const state: TreeRoot.State = {
     disabled: disabled ?? false,
@@ -207,7 +216,7 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
 
   return <TreeRootContext.Provider value={store}>{element}</TreeRootContext.Provider>;
 }) as {
-  <Mode extends TreeSelectionMode | undefined = undefined, TItem = TreeItemModel>(
+  <Mode extends TreeSelectionMode | undefined = undefined, TItem = TreeDefaultItemModel>(
     props: TreeRoot.Props<Mode, TItem>,
   ): React.JSX.Element;
 };
@@ -221,7 +230,7 @@ export interface TreeRootState {
 
 export interface TreeRootProps<
   Mode extends TreeSelectionMode | undefined = undefined,
-  TItem = TreeItemModel,
+  TItem = TreeDefaultItemModel,
 >
   extends
     Omit<BaseUIComponentProps<'ul', TreeRootState>, 'children'>,
@@ -241,9 +250,9 @@ export namespace TreeRoot {
   export type State = TreeRootState;
   export type Props<
     Mode extends TreeSelectionMode | undefined = undefined,
-    TItem = TreeItemModel,
+    TItem = TreeDefaultItemModel,
   > = TreeRootProps<Mode, TItem>;
-  export type Actions<TItem = TreeItemModel> = TreeRootActions<TItem>;
+  export type Actions<TItem = TreeDefaultItemModel> = TreeRootActions<TItem>;
   export type ExpansionChangeEventReason = TreeRootExpansionChangeEventReason;
   export type ExpansionChangeEventDetails = TreeRootExpansionChangeEventDetails;
   export type SelectionChangeEventReason = TreeRootSelectionChangeEventReason;

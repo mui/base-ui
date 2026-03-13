@@ -1,11 +1,11 @@
-import type { TreeItemId, TreeItemModel, TreeItemMeta, TreeItemsState } from './types';
+import type { TreeItemId, TreeDefaultItemModel, TreeItemMeta, TreeItemsState } from './types';
 import { TREE_VIEW_ROOT_PARENT_ID } from './types';
 
-export function buildItemsState<TItem = TreeItemModel>(
+export function buildItemsState<TItem = TreeDefaultItemModel>(
   items: readonly TItem[],
-  getItemId: (item: TItem) => TreeItemId,
-  getItemLabel: (item: TItem) => string,
-  getItemChildren: (item: TItem) => TItem[] | undefined,
+  itemToId: (item: TItem) => TreeItemId,
+  itemToLabel: (item: TItem) => string,
+  itemToChildren: (item: TItem) => TItem[] | undefined,
   isItemDisabled: (item: TItem) => boolean,
   isItemSelectionDisabled: (item: TItem) => boolean,
 ): TreeItemsState<TItem> {
@@ -25,8 +25,8 @@ export function buildItemsState<TItem = TreeItemModel>(
 
     for (let i = 0; i < siblings.length; i += 1) {
       const item = siblings[i];
-      const itemId = getItemId(item);
-      const children = getItemChildren(item);
+      const itemId = itemToId(item);
+      const children = itemToChildren(item);
       const expandable = !!children && children.length > 0;
 
       orderedChildrenIds.push(itemId);
@@ -40,7 +40,7 @@ export function buildItemsState<TItem = TreeItemModel>(
         expandable,
         disabled: isItemDisabled(item),
         selectable: !isItemSelectionDisabled(item),
-        label: getItemLabel(item),
+        label: itemToLabel(item),
       };
 
       if (children && children.length > 0) {

@@ -1490,10 +1490,12 @@ A tree component for displaying hierarchical data.
     - Checkbox items
     - Animated expand/collapse
     - Lazy loading
+    - Virtualized
   - API reference
+  - useVisibleItems
 - Exports:
   - Tree - CheckboxItem
-    - Props: className, render, style
+    - Props: className, itemId, render, style
     - Data Attributes: data-checked, data-collapsed, data-depth, data-disabled, data-editing, data-expandable, data-expanded, data-focused, data-indeterminate, data-item-id, data-unchecked
   - Tree - CheckboxItemIndicator
     - Props: className, keepMounted, render, style
@@ -1501,8 +1503,9 @@ A tree component for displaying hierarchical data.
   - Tree - GroupTransition
     - Props: className, render, style
     - Data Attributes: data-parent-id
+    - CSS Variables: --tree-group-height
   - Tree - Item
-    - Props: className, render, style
+    - Props: className, itemId, render, style
     - Data Attributes: data-collapsed, data-depth, data-disabled, data-editing, data-expandable, data-expanded, data-focused, data-item-id, data-selected
   - Tree - ItemErrorIndicator
     - Props: className, render, style
@@ -1520,12 +1523,10 @@ A tree component for displaying hierarchical data.
     - Props: className, render, style
     - Data Attributes: data-loading
   - Tree - Root
-    - Props: actionsRef, children, className, defaultExpandedItems, defaultSelectedItems, disabled, disallowEmptySelection, expandOnClick, expandedItems, getItemChildren, getItemId, getItemLabel, isItemDisabled, isItemEditable, isItemSelectionDisabled, itemFocusableWhenDisabled, items, lazyLoading, onExpandedItemsChange, onItemClick, onItemExpansionToggle, onItemFocus, onItemLabelChange, onItemSelectionToggle, onSelectedItemsChange, render, selectedItems, selectionMode, selectionPropagation, style
+    - Props: actionsRef, children, className, defaultExpandedItems, defaultSelectedItems, disabled, disallowEmptySelection, expandOnClick, expandedItems, isItemDisabled, isItemEditable, isItemSelectionDisabled, itemFocusableWhenDisabled, itemToChildren, itemToId, itemToLabel, items, lazyLoading, onExpandedItemsChange, onItemClick, onItemExpansionToggle, onItemFocus, onItemLabelChange, onItemSelectionToggle, onSelectedItemsChange, render, selectedItems, selectionMode, selectionPropagation, style, virtualized
     - Data Attributes: data-disabled
   - Tree - ItemModelProvider
     - Props: animatedChildren, children, itemId, store
-  - Tree - Virtualizer
-    - Props: children
 
 </details>
 

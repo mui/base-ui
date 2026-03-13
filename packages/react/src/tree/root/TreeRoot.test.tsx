@@ -59,17 +59,17 @@ describeTree('TreeRoot - Items', ({ render }) => {
       expect(view.getItemRoot('1')).not.to.have.attribute('aria-expanded');
     });
 
-    it('should use getItemLabel to render the label', async () => {
+    it('should use itemToLabel to render the label', async () => {
       const view = await render({
         items: [{ id: '1' }, { id: '2' }],
-        getItemLabel: (item: any) => `Label: ${item.id}`,
+        itemToLabel: (item: any) => `Label: ${item.id}`,
       });
 
       expect(view.getItemRoot('1')).to.have.text('Label: 1');
       expect(view.getItemRoot('2')).to.have.text('Label: 2');
     });
 
-    it('should use getItemChildren to find children', async () => {
+    it('should use itemToChildren to find children', async () => {
       const items = [
         {
           id: '1',
@@ -84,7 +84,7 @@ describeTree('TreeRoot - Items', ({ render }) => {
 
       const view = await render({
         items,
-        getItemChildren: (item: any) => item.section,
+        itemToChildren: (item: any) => item.section,
         defaultExpandedItems: ['1'],
       });
 

@@ -26,10 +26,10 @@ export type TreeSelectedItemsType<Mode extends TreeSelectionMode | undefined> =
  * The shape of an item as provided by the user in the `items` prop.
  * Users can extend this with custom properties.
  */
-export interface TreeItemModel {
+export interface TreeDefaultItemModel {
   id: string;
   label: string;
-  children?: TreeItemModel[] | undefined;
+  children?: TreeDefaultItemModel[] | undefined;
   [key: string]: any;
 }
 
@@ -49,7 +49,7 @@ export interface TreeItemMeta {
 /**
  * Selection propagation configuration.
  */
-export interface SelectionPropagation {
+export interface TreeSelectionPropagation {
   parents?: boolean | undefined;
   descendants?: boolean | undefined;
 }
@@ -72,7 +72,7 @@ export type ItemMetaPatches = Record<TreeItemId, Partial<Pick<TreeItemMeta, 'lab
  * Lazy-loaded tree structure additions.
  * Contains children arrays keyed by parent ID and expandability hints.
  */
-export interface LazyItemsState<TItem = TreeItemModel> {
+export interface LazyItemsState<TItem = TreeDefaultItemModel> {
   children: Record<string, TItem[]>;
   expandable: Record<TreeItemId, boolean>;
 }
@@ -82,7 +82,7 @@ export const TREE_VIEW_ROOT_PARENT_ID = '__ROOT__';
 /**
  * The computed lookup tables derived from the items prop and accessor functions.
  */
-export interface TreeItemsState<TItem = TreeItemModel> {
+export interface TreeItemsState<TItem = TreeDefaultItemModel> {
   itemModelLookup: Record<TreeItemId, TItem>;
   itemMetaLookup: Record<TreeItemId, TreeItemMeta>;
   itemOrderedChildrenIdsLookup: Record<string, TreeItemId[]>;
@@ -132,7 +132,7 @@ export type TreeItemSelectionToggleEventDetails =
 /**
  * The full store state for the Tree component.
  */
-export interface TreeState<TItem = TreeItemModel> {
+export interface TreeState<TItem = TreeDefaultItemModel> {
   /**
    * Whether the entire tree is disabled
    */
@@ -172,7 +172,7 @@ export interface TreeState<TItem = TreeItemModel> {
   /**
    * How selection propagates through the tree hierarchy
    */
-  selectionPropagation: SelectionPropagation;
+  selectionPropagation: TreeSelectionPropagation;
   /**
    * The currently focused item ID, or null
    */
@@ -197,15 +197,15 @@ export interface TreeState<TItem = TreeItemModel> {
   /**
    * Extracts the ID from an item model
    */
-  getItemId: (item: TItem) => TreeItemId;
+  itemToId: (item: TItem) => TreeItemId;
   /**
    * Extracts the label from an item model
    */
-  getItemLabel: (item: TItem) => string;
+  itemToLabel: (item: TItem) => string;
   /**
    * Extracts the children from an item model
    */
-  getItemChildren: (item: TItem) => TItem[] | undefined;
+  itemToChildren: (item: TItem) => TItem[] | undefined;
   /**
    * Whether an item is disabled
    */
@@ -222,6 +222,10 @@ export interface TreeState<TItem = TreeItemModel> {
    * The layout direction of the tree
    */
   direction: 'ltr' | 'rtl';
+  /**
+   * Whether the items are being externally virtualized.
+   */
+  virtualized: boolean;
   /**
    * Whether group transitions (expand/collapse animation) are enabled.
    */
@@ -277,7 +281,7 @@ export interface TreeStoreContext {
 /**
  * Actions that can be performed imperatively on a tree via actionsRef.
  */
-export interface TreeRootActions<TItem = TreeItemModel> {
+export interface TreeRootActions<TItem = TreeDefaultItemModel> {
   focusItem: (itemId: TreeItemId) => void;
   getItem: (itemId: TreeItemId) => TItem;
   getItemDOMElement: (itemId: TreeItemId) => HTMLElement | null;

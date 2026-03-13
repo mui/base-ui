@@ -1,10 +1,9 @@
 'use client';
 import * as React from 'react';
 import { Tree } from '@base-ui/react/tree';
-import type { TreeItemModel } from '@base-ui/react/tree';
 import styles from './index.module.css';
 
-const items: TreeItemModel[] = [
+const items: Tree.DefaultItemModel[] = [
   {
     id: 'documents',
     label: 'Documents',

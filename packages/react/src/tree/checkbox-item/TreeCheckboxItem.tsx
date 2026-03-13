@@ -4,7 +4,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useTreeRootContext } from '../root/TreeRootContext';
-import { useTreeItemContext } from '../item/TreeItemContext';
+import { TreeItemContext, useTreeItemContextOptional } from '../item/TreeItemContext';
 import { TreeCheckboxItemContext } from './TreeCheckboxItemContext';
 import { TreeCheckboxItemDataAttributes } from './TreeCheckboxItemDataAttributes';
 
@@ -46,11 +46,21 @@ export const TreeCheckboxItem = React.forwardRef(function TreeCheckboxItem(
   componentProps: TreeCheckboxItem.Props,
   forwardedRef: React.ForwardedRef<HTMLLIElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, itemId: itemIdProp, ...elementProps } = componentProps;
 
   const store = useTreeRootContext();
-  const { itemId } = useTreeItemContext();
+  const contextItemId = useTreeItemContextOptional()?.itemId;
+  const itemId = itemIdProp ?? contextItemId;
+
+  if (itemId === undefined) {
+    throw new Error(
+      'Base UI: Tree.CheckboxItem requires an `itemId` prop when used in virtualized mode, ' +
+        'or must be placed within a Tree.Root with a render function.',
+    );
+  }
+
   const { props: itemProps, state } = store.useState('checkboxItemPropsAndState', itemId);
+  const itemIdContext = React.useMemo(() => ({ itemId }), [itemId]);
 
   const checkboxItemContext = React.useMemo(
     () => ({
@@ -68,11 +78,23 @@ export const TreeCheckboxItem = React.forwardRef(function TreeCheckboxItem(
     stateAttributesMapping,
   });
 
-  return (
+  const content = (
     <TreeCheckboxItemContext.Provider value={checkboxItemContext}>
       {element}
     </TreeCheckboxItemContext.Provider>
   );
+
+  // When itemId is provided as a prop (virtualized mode), wrap with context
+  // so sub-parts (ItemLabel, ItemExpansionTrigger, etc.) can access itemId.
+  if (itemIdProp != null) {
+    return (
+      <TreeItemContext.Provider value={itemIdContext}>
+        {content}
+      </TreeItemContext.Provider>
+    );
+  }
+
+  return content;
 });
 
 export interface TreeCheckboxItemState {
@@ -118,7 +140,13 @@ export interface TreeCheckboxItemState {
   depth: number;
 }
 
-export interface TreeCheckboxItemProps extends BaseUIComponentProps<'li', TreeCheckboxItemState> {}
+export interface TreeCheckboxItemProps extends BaseUIComponentProps<'li', TreeCheckboxItemState> {
+  /**
+   * The id of the item. Required when using `virtualized` on `Tree.Root`.
+   * When provided, the item will set up its own context for sub-parts.
+   */
+  itemId?: string | undefined;
+}
 
 export namespace TreeCheckboxItem {
   export type State = TreeCheckboxItemState;

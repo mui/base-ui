@@ -6,7 +6,7 @@ import type {
   TreeState,
   TreeStoreContext,
   TreeItemId,
-  TreeItemModel,
+  TreeDefaultItemModel,
   TreeItemMeta,
   TreeRootActions,
   TreeRootExpansionChangeEventReason,
@@ -43,7 +43,7 @@ const TYPEAHEAD_TIMEOUT = 500;
 
 export interface TreeStoreParameters<
   Mode extends TreeSelectionMode | undefined = undefined,
-  TItem = TreeItemModel,
+  TItem = TreeDefaultItemModel,
 > {
   /**
    * Whether the component should ignore user interaction.
@@ -166,17 +166,17 @@ export interface TreeStoreParameters<
    * Used to determine the id of a given item.
    * @default (item) => item.id
    */
-  getItemId?: ((item: TItem) => TreeItemId) | undefined;
+  itemToId?: ((item: TItem) => TreeItemId) | undefined;
   /**
    * Used to determine the string label of a given item.
    * @default (item) => item.label
    */
-  getItemLabel?: ((item: TItem) => string) | undefined;
+  itemToLabel?: ((item: TItem) => string) | undefined;
   /**
    * Used to determine the children of a given item.
    * @default (item) => item.children
    */
-  getItemChildren?: ((item: TItem) => TItem[] | undefined) | undefined;
+  itemToChildren?: ((item: TItem) => TItem[] | undefined) | undefined;
   /**
    * Used to determine if a given item should be disabled.
    * @default (item) => !!item.disabled
@@ -215,6 +215,11 @@ export interface TreeStoreParameters<
    * The lazy loading plugin instance, used to load items on demand when expanding a parent item.
    */
   lazyLoading?: TreeLazyLoading<TItem> | undefined;
+  /**
+   * Whether the items are being externally virtualized.
+   * @default false
+   */
+  virtualized?: boolean | undefined;
 }
 
 function getLookupFromArray(array: string[]): Record<string, true> {
@@ -239,7 +244,7 @@ function isPrintableKey(key: string): boolean {
   return key.length === 1 && !!key.match(/\S/);
 }
 
-export interface TreeLazyLoading<TItem = TreeItemModel> {
+export interface TreeLazyLoading<TItem = TreeDefaultItemModel> {
   attach(store: TreeStore<any, TItem>): void;
   onBeforeExpand(
     itemId: TreeItemId,
@@ -252,7 +257,7 @@ export interface TreeLazyLoading<TItem = TreeItemModel> {
 
 export class TreeStore<
   Mode extends TreeSelectionMode | undefined = undefined,
-  TItem = TreeItemModel,
+  TItem = TreeDefaultItemModel,
 > extends ReactStore<TreeState<any>, TreeStoreContext, typeof selectors> {
   // Focus reason tracking — default to 'keyboard' since tab focus is keyboard-like
   private lastFocusReason: TreeItemFocusEventReason = REASONS.keyboard;
@@ -273,9 +278,9 @@ export class TreeStore<
 
   constructor(parameters: TreeStoreParameters<Mode, TItem>) {
     const selectionMode: TreeSelectionMode = parameters.selectionMode ?? 'single';
-    const getItemId = parameters.getItemId ?? ((item: any) => item.id);
-    const getItemLabel = parameters.getItemLabel ?? ((item: any) => item.label);
-    const getItemChildren = parameters.getItemChildren ?? ((item: any) => item.children);
+    const itemToId = parameters.itemToId ?? ((item: any) => item.id);
+    const itemToLabel = parameters.itemToLabel ?? ((item: any) => item.label);
+    const itemToChildren = parameters.itemToChildren ?? ((item: any) => item.children);
     const isItemDisabled = parameters.isItemDisabled ?? ((item: any) => !!item.disabled);
     const isItemSelectionDisabled =
       parameters.isItemSelectionDisabled ?? ((item: any) => !!item.disabled);
@@ -300,13 +305,14 @@ export class TreeStore<
         itemFocusableWhenDisabled: parameters.itemFocusableWhenDisabled ?? false,
         editedItemId: null,
         lazyLoadedItems: undefined,
-        getItemId,
-        getItemLabel,
-        getItemChildren,
+        itemToId,
+        itemToLabel,
+        itemToChildren,
         isItemDisabled,
         isItemSelectionDisabled,
         isItemEditable,
         direction: parameters.direction,
+        virtualized: parameters.virtualized ?? false,
         enableGroupTransition: false,
         animatingGroups: EMPTY_OBJECT,
       },
@@ -865,9 +871,22 @@ export class TreeStore<
     }
 
     if (isItemVisible) {
-      // Calling .focus() synchronously triggers the onFocus handler,
-      // which already updates focusedItemId and calls onItemFocus.
-      this.getItemDOMElement(itemId)?.focus();
+      const element = this.getItemDOMElement(itemId);
+      if (element) {
+        // Calling .focus() synchronously triggers the onFocus handler,
+        // which already updates focusedItemId and calls onItemFocus.
+        element.focus();
+      } else if (this.state.virtualized) {
+        // In virtualized mode, the item may not be in the DOM yet.
+        // Update state so the consumer can scroll the virtualizer to this item.
+        // The item will auto-focus when it mounts (see TreeItem).
+        this.set('focusedItemId', itemId);
+        this.context.onItemFocus(
+          itemId,
+          createGenericEventDetails(this.lastFocusReason),
+        );
+        this.lastFocusReason = REASONS.keyboard;
+      }
     }
   }
 

@@ -1,10 +1,9 @@
 'use client';
 import * as React from 'react';
 import { Tree } from '@base-ui/react/tree';
-import type { TreeItemModel } from '@base-ui/react/tree';
 import styles from './tree.module.css';
 
-const initialItems: TreeItemModel[] = [
+const initialItems: Tree.DefaultItemModel[] = [
   {
     id: 'groceries',
     label: 'Groceries',
@@ -63,7 +62,7 @@ export default function LabelEditingTree() {
   );
 }
 
-function updateLabel(items: TreeItemModel[], targetId: string, newLabel: string): TreeItemModel[] {
+function updateLabel(items: Tree.DefaultItemModel[], targetId: string, newLabel: string): Tree.DefaultItemModel[] {
   return items.map((item) => {
     if (item.id === targetId) {
       return { ...item, label: newLabel };

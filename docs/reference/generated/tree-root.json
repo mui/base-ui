@@ -3,9 +3,9 @@
   "description": "Groups all parts of the tree.\nRenders a `<ul>` element.",
   "props": {
     "actionsRef": {
-      "type": "RefObject<Tree.Root.Actions | null>",
+      "type": "RefObject<Tree.Root.Actions<TItem> | null>",
       "description": "A ref to imperative actions on the tree.",
-      "detailedType": "React.RefObject<Tree.Root.Actions | null> | undefined"
+      "detailedType": "| React.RefObject<Tree.Root.Actions<TItem> | null>\n| undefined"
     },
     "defaultExpandedItems": {
       "type": "string[]",
@@ -36,41 +36,23 @@
       "description": "The expanded items.\n\nTo render an uncontrolled tree, use the `defaultExpandedItems` prop instead.",
       "detailedType": "string[] | undefined"
     },
-    "getItemChildren": {
-      "type": "((item: Tree.Item.Model) => Tree.Item.Model[] | undefined)",
-      "default": "(item) => item.children",
-      "description": "Used to determine the children of a given item.",
-      "detailedType": "| ((item: Tree.Item.Model) => Tree.Item.Model[] | undefined)\n| undefined"
-    },
-    "getItemId": {
-      "type": "((item: Tree.Item.Model) => string)",
-      "default": "(item) => item.id",
-      "description": "Used to determine the id of a given item.",
-      "detailedType": "((item: Tree.Item.Model) => string) | undefined"
-    },
-    "getItemLabel": {
-      "type": "((item: Tree.Item.Model) => string)",
-      "default": "(item) => item.label",
-      "description": "Used to determine the string label of a given item.",
-      "detailedType": "((item: Tree.Item.Model) => string) | undefined"
-    },
     "isItemDisabled": {
-      "type": "((item: Tree.Item.Model) => boolean)",
-      "default": "() => false",
+      "type": "((item: TItem) => boolean)",
+      "default": "(item) => !!item.disabled",
       "description": "Used to determine if a given item should be disabled.",
-      "detailedType": "((item: Tree.Item.Model) => boolean) | undefined"
+      "detailedType": "((item: TItem) => boolean) | undefined"
     },
     "isItemEditable": {
-      "type": "boolean | ((item: Tree.Item.Model) => boolean)",
+      "type": "boolean | ((item: TItem) => boolean)",
       "default": "false",
       "description": "Used to determine if a given item should be editable.\nIf a boolean is provided, all items will be editable or non-editable.",
-      "detailedType": "| boolean\n| ((item: Tree.Item.Model) => boolean)\n| undefined"
+      "detailedType": "boolean | ((item: TItem) => boolean) | undefined"
     },
     "isItemSelectionDisabled": {
-      "type": "((item: Tree.Item.Model) => boolean)",
-      "default": "() => false",
+      "type": "((item: TItem) => boolean)",
+      "default": "(item) => !!item.disabled",
       "description": "Used to determine if a given item should have selection disabled.",
-      "detailedType": "((item: Tree.Item.Model) => boolean) | undefined"
+      "detailedType": "((item: TItem) => boolean) | undefined"
     },
     "itemFocusableWhenDisabled": {
       "type": "boolean",
@@ -78,13 +60,31 @@
       "description": "Whether disabled items should be focusable.",
       "detailedType": "boolean | undefined"
     },
+    "itemToChildren": {
+      "type": "((item: TItem) => TItem[] | undefined)",
+      "default": "(item) => item.children",
+      "description": "Used to determine the children of a given item.",
+      "detailedType": "((item: TItem) => TItem[] | undefined) | undefined"
+    },
+    "itemToId": {
+      "type": "((item: TItem) => string)",
+      "default": "(item) => item.id",
+      "description": "Used to determine the id of a given item.",
+      "detailedType": "((item: TItem) => string) | undefined"
+    },
+    "itemToLabel": {
+      "type": "((item: TItem) => string)",
+      "default": "(item) => item.label",
+      "description": "Used to determine the string label of a given item.",
+      "detailedType": "((item: TItem) => string) | undefined"
+    },
     "items": {
-      "type": "Tree.Item.Model[]",
+      "type": "TItem[]",
       "required": true,
       "description": "The items to render.\nEach item must have a unique identifier."
     },
     "lazyLoading": {
-      "type": "TreeLazyLoading",
+      "type": "TreeLazyLoading<TItem>",
       "description": "The lazy loading plugin instance, used to load items on demand when expanding a parent item.",
       "detailedType": "| {\n    attach: attach\n    onBeforeExpand: onBeforeExpand\n    updateItemChildren: updateItemChildren\n    destroy: destroy\n  }\n| undefined"
     },
@@ -139,6 +139,12 @@
       "description": "When `selectionPropagation.descendants` is set to `true`:\n- Selecting a parent selects all its descendants automatically.\n- Deselecting a parent deselects all its descendants automatically.\n\nWhen `selectionPropagation.parents` is set to `true`:\n- Selecting all descendants of a parent selects the parent automatically.\n- Deselecting a descendant of a selected parent deselects the parent automatically.",
       "detailedType": "| { parents?: boolean; descendants?: boolean }\n| undefined"
     },
+    "virtualized": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the items are being externally virtualized.",
+      "detailedType": "boolean | undefined"
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",
@@ -146,10 +152,10 @@
       "detailedType": "boolean | undefined"
     },
     "children": {
-      "type": "((item: Tree.Item.Model) => ReactNode) | ReactNode",
+      "type": "((item: TItem) => ReactNode) | ReactNode",
       "required": true,
       "description": "The render function for each tree item, or a `Tree.AnimatedItemList` element\nfor animated expand/collapse transitions.",
-      "detailedType": "| ((item: Tree.Item.Model) => ReactNode)\n| React.ReactNode"
+      "detailedType": "((item: TItem) => ReactNode) | React.ReactNode"
     },
     "className": {
       "type": "string | ((state: Tree.Root.State) => string | undefined)",

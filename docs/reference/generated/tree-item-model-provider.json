@@ -10,14 +10,14 @@
       "required": true
     },
     "store": {
-      "type": "TreeStore",
+      "type": "TreeStore<any, any>",
       "required": true,
       "detailedType": "{}"
     },
     "children": {
-      "type": "((item: Tree.Item.Model, animatedChildren: ReactNode) => ReactNode)",
+      "type": "((item: any, animatedChildren: ReactNode) => ReactNode)",
       "required": true,
-      "detailedType": "  item: Tree.Item.Model,\n  animatedChildren: ReactNode,\n) => ReactNode"
+      "detailedType": "  item: any,\n  animatedChildren: ReactNode,\n) => ReactNode"
     }
   },
   "dataAttributes": {},

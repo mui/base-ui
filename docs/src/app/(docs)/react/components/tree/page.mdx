@@ -87,9 +87,21 @@ import { DemoTreeLazyLoading } from './demos/lazy-loading';
 
 <DemoTreeLazyLoading compact />
 
+### Virtualized
+
+Render large trees efficiently by only rendering items currently visible in the viewport. Set `virtualized` on `Tree.Root` and use `Tree.useVisibleItems()` to get the flat list of visible items, then wire up your own virtualizer (e.g. `@tanstack/react-virtual`). Each `Tree.Item` must receive an `itemId` prop.
+
+import { DemoTreeVirtualized } from './demos/virtualized';
+
+<DemoTreeVirtualized compact />
+
 ## API reference
 
 <Reference
   component="Tree"
   parts="Root, AnimatedItemList, GroupTransition, Item, CheckboxItem, CheckboxItemIndicator, ItemLabel, ItemExpansionTrigger, ItemGroupIndicator, ItemLoadingIndicator, ItemErrorIndicator"
 />
+
+## useVisibleItems
+
+Returns the flat list of visible items (respecting the current expansion state) when called inside `<Tree.Root>`. Use this hook with `virtualized` to get the items to render.

@@ -66,6 +66,7 @@
     "./toggle-group": "./src/toggle-group/index.ts",
     "./toolbar": "./src/toolbar/index.ts",
     "./tooltip": "./src/tooltip/index.ts",
+    "./tree": "./src/tree/index.ts",
     "./types": "./src/types/index.ts",
     "./unstable-use-media-query": "./src/unstable-use-media-query/index.ts",
     "./use-render": "./src/use-render/index.ts"

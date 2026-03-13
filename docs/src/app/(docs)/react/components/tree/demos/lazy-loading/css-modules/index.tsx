@@ -1,11 +1,10 @@
 'use client';
 import * as React from 'react';
 import { Tree } from '@base-ui/react/tree';
-import type { TreeItemModel } from '@base-ui/react/tree';
 import styles from './index.module.css';
 
 // Simulated server data
-const SERVER_DATA: Record<string, TreeItemModel[]> = {
+const SERVER_DATA: Record<string, Tree.DefaultItemModel[]> = {
   documents: [
     { id: 'resume', label: 'Resume.pdf' },
     { id: 'cover-letter', label: 'Cover Letter.docx' },
@@ -26,14 +25,14 @@ const SERVER_DATA: Record<string, TreeItemModel[]> = {
   ],
 };
 
-const INITIAL_ITEMS: TreeItemModel[] = [
+const INITIAL_ITEMS: Tree.DefaultItemModel[] = [
   { id: 'documents', label: 'Documents', childrenCount: 3 },
   { id: 'photos', label: 'Photos', childrenCount: 3 },
   { id: 'music', label: 'Music', childrenCount: 2 },
   { id: 'notes', label: 'Notes.txt' },
 ];
 
-function fetchChildren(parentId: string | undefined): Promise<TreeItemModel[]> {
+function fetchChildren(parentId: string | undefined): Promise<Tree.DefaultItemModel[]> {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       const children = parentId ? SERVER_DATA[parentId] : undefined;
@@ -46,7 +45,7 @@ function fetchChildren(parentId: string | undefined): Promise<TreeItemModel[]> {
   });
 }
 
-function getChildrenCount(item: TreeItemModel) {
+function getChildrenCount(item: Tree.DefaultItemModel) {
   return item.childrenCount ?? 0;
 }
 

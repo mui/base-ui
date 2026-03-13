@@ -38,6 +38,7 @@ export * from './toggle';
 export * from './toggle-group';
 export * from './toolbar';
 export * from './tooltip';
+export * from './tree';
 export * from './use-render';
 
 export type * from './types';
