@@ -252,3 +252,21 @@
   line-height: 1.5rem;
   color: var(--color-gray-600);
 }
+
+.FooterLink {
+  color: var(--color-gray-900);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.16em;
+
+  @media (hover: hover) {
+    &:hover {
+      text-decoration: none;
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: 2px;
+    border-radius: 0.125rem;
+  }
+}
