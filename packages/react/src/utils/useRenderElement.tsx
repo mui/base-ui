@@ -70,14 +70,7 @@ function useRenderElementProps<
     ? getStateAttributesProps(state, stateAttributesMapping)
     : EMPTY_OBJECT;
 
-  let resolvedProps = props;
-  if (enabled) {
-    if (Array.isArray(props)) {
-      resolvedProps = mergePropsN(props);
-    } else if (props) {
-      resolvedProps = mergePropsN([props]);
-    }
-  }
+  const resolvedProps = enabled && props ? resolveRenderFunctionProps<TagName>(props) : undefined;
 
   const outProps: React.HTMLAttributes<any> & React.RefAttributes<any> = enabled
     ? (mergeObjects(stateProps, resolvedProps) ?? EMPTY_OBJECT)
@@ -112,6 +105,16 @@ function useRenderElementProps<
   }
 
   return outProps;
+}
+
+function resolveRenderFunctionProps<TagName extends IntrinsicTagName | undefined>(
+  props: NonNullable<UseRenderElementParameters<any, any, TagName, any>['props']>,
+): RenderFunctionProps<TagName> {
+  if (Array.isArray(props)) {
+    return mergePropsN(props) as RenderFunctionProps<TagName>;
+  }
+
+  return mergePropsN([props]) as RenderFunctionProps<TagName>;
 }
 
 // The symbol React uses internally for lazy components
