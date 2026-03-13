@@ -1576,6 +1576,45 @@ A tree component for displaying hierarchical data.
   - useFilteredItems
     - Input parameters
     - Return value
+- Exports:
+  - Tree - Root
+    - Props: actionsRef, checkboxSelectionPropagation, children, className, defaultExpandedItems, defaultSelectedItems, disabled, disallowEmptySelection, expandOnClick, expandedItems, isItemDisabled, isItemSelectionDisabled, itemFocusableWhenDisabled, itemToChildren, itemToId, itemToStringLabel, items, lazyLoading, onExpandedItemsChange, onItemExpansionToggle, onItemFocus, onItemSelectionToggle, onSelectedItemsChange, render, selectedItems, selectionMode, style, virtualized
+    - Data Attributes: data-disabled
+  - Tree - Item
+    - Props: className, itemId, render, style
+    - Data Attributes: data-collapsed, data-disabled, data-expandable, data-expanded, data-focused, data-item-id, data-selected
+    - CSS Variables: --depth
+  - Tree - LinkItem
+    - Props: active, className, itemId, render, style
+    - Data Attributes: data-active, data-collapsed, data-disabled, data-expandable, data-expanded, data-focused, data-item-id, data-link, data-selected
+  - Tree - ItemExpansionTrigger
+    - Props: className, render, style
+    - Data Attributes: data-collapsed, data-expandable, data-expanded
+  - Tree - CheckboxItem
+    - Props: className, itemId, render, style
+    - Data Attributes: data-checked, data-collapsed, data-disabled, data-expandable, data-expanded, data-focused, data-indeterminate, data-item-id, data-unchecked
+  - Tree - CheckboxItemIndicator
+    - Props: className, keepMounted, render, style
+    - Data Attributes: data-checked, data-disabled, data-indeterminate, data-unchecked
+  - Tree - ItemLabel
+    - Props: className, render, style
+  - Tree - ItemGroupIndicator
+    - Props: className, render, style
+    - Data Attributes: data-collapsed, data-expandable, data-expanded
+  - Tree - ItemLoadingIndicator
+    - Props: className, render, style
+    - Data Attributes: data-loading
+  - Tree - ItemErrorIndicator
+    - Props: className, render, style
+    - Data Attributes: data-error
+  - Tree - GroupTransition
+    - Props: className, render, style
+    - Data Attributes: data-parent-id
+    - CSS Variables: --tree-group-height
+  - Tree - Empty
+    - Props: className, render, style
+  - Tree - ItemModelProvider
+    - Props: animatedChildren, children, itemId, store
 
 </details>
 

@@ -1294,14 +1294,13 @@ export class TreeStore<
       if (!itemId) {
         return;
       }
-      // Prevent text selection when using modifier keys for multi-select
-      // Also prevent default for disabled items that cannot be focused,
-      // but allow it for disabled items with itemFocusableWhenDisabled.
+      // Prevent text selection when using modifier keys for multi-select.
+      // Also prevent default for disabled items to avoid browser focus.
       if (
         event.shiftKey ||
         event.ctrlKey ||
         event.metaKey ||
-        !selectors.canItemBeFocused(this.state, itemId)
+        selectors.isItemDisabled(this.state, itemId)
       ) {
         event.preventDefault();
       }
@@ -1311,8 +1310,9 @@ export class TreeStore<
       if (!itemId) {
         return;
       }
-      // Handle focus - items that cannot be focused (disabled without itemFocusableWhenDisabled) are skipped
-      if (selectors.canItemBeFocused(this.state, itemId)) {
+      // Handle focus - disabled items are never focused by mouse click,
+      // even when itemFocusableWhenDisabled is true (that only affects keyboard focus).
+      if (!selectors.isItemDisabled(this.state, itemId)) {
         this.lastFocusReason = REASONS.itemPress;
         this.set('focusedItemId', itemId);
       }
@@ -1368,14 +1368,13 @@ export class TreeStore<
       if (!itemId) {
         return;
       }
-      // Prevent text selection when using modifier keys for multi-select
-      // Also prevent default for disabled items that cannot be focused,
-      // but allow it for disabled items with itemFocusableWhenDisabled.
+      // Prevent text selection when using modifier keys for multi-select.
+      // Also prevent default for disabled items to avoid browser focus.
       if (
         event.shiftKey ||
         event.ctrlKey ||
         event.metaKey ||
-        !selectors.canItemBeFocused(this.state, itemId)
+        selectors.isItemDisabled(this.state, itemId)
       ) {
         event.preventDefault();
       }
@@ -1385,8 +1384,9 @@ export class TreeStore<
       if (!itemId) {
         return;
       }
-      // Handle focus - items that cannot be focused (disabled without itemFocusableWhenDisabled) are skipped
-      if (selectors.canItemBeFocused(this.state, itemId)) {
+      // Handle focus - disabled items are never focused by mouse click,
+      // even when itemFocusableWhenDisabled is true (that only affects keyboard focus).
+      if (!selectors.isItemDisabled(this.state, itemId)) {
         this.lastFocusReason = REASONS.itemPress;
         this.set('focusedItemId', itemId);
       }
@@ -1435,10 +1435,10 @@ export class TreeStore<
       if (!itemId) {
         return;
       }
-      // Only prevent default for disabled items that cannot be focused.
+      // Prevent default for disabled items to avoid browser focus.
       // Unlike regular items, we don't prevent default for modifier keys
       // so that Ctrl+click (open in new tab) and Shift+click (open in new window) work.
-      if (!selectors.canItemBeFocused(this.state, itemId)) {
+      if (selectors.isItemDisabled(this.state, itemId)) {
         event.preventDefault();
       }
     },
@@ -1447,8 +1447,9 @@ export class TreeStore<
       if (!itemId) {
         return;
       }
-      // Handle focus - items that cannot be focused (disabled without itemFocusableWhenDisabled) are skipped
-      if (selectors.canItemBeFocused(this.state, itemId)) {
+      // Handle focus - disabled items are never focused by mouse click,
+      // even when itemFocusableWhenDisabled is true (that only affects keyboard focus).
+      if (!selectors.isItemDisabled(this.state, itemId)) {
         this.lastFocusReason = REASONS.itemPress;
         this.set('focusedItemId', itemId);
       }
