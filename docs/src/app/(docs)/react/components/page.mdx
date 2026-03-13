@@ -309,6 +309,71 @@ A button component that can be rendered as another tag or focusable when disable
 
 An easily stylable calendar component.
 
+<details>
+
+<summary>Outline</summary>
+
+- Keywords: React Calendar, React Date Picker, React Date Calendar, Calendar, Date Picker, Temporal, Base UI
+- Sections:
+  - Anatomy
+  - Examples
+    - Unavailable dates
+    - Validation
+    - Lazy loading
+    - Display week numbers
+    - Timezone support
+    - Month and year select
+    - Animating month changes
+      - Animating with `motion/react`
+    - Localization
+  - API reference
+    - Root
+    - DayGrid
+    - DayGridHeader
+    - DayGridHeaderCell
+    - DayGridBody
+    - DayGridRow
+    - DayGridCell
+    - DayButton
+    - DecrementMonth
+    - IncrementMonth
+    - Viewport
+- Exports:
+  - Calendar - Root
+    - Props: children, className, defaultValue, defaultVisibleDate, disabled, invalid, isDateUnavailable, maxDate, minDate, monthPageSize, onValueChange, onVisibleDateChange, readOnly, referenceDate, render, style, timezone, value, visibleDate
+    - Data Attributes: data-disabled, data-empty, data-invalid, data-navigation-direction, data-readonly
+  - Calendar - Viewport
+    - Props: children
+    - Data Attributes: data-current, data-ending-style, data-navigation-direction, data-previous, data-starting-style
+  - Calendar - DayButton
+    - Props: className, focusableWhenDisabled, format, nativeButton, render, style
+    - Data Attributes: data-current, data-disabled, data-outside-month, data-selected, data-unavailable
+  - Calendar - DayGrid
+    - Props: className, render, style
+  - Calendar - DayGridBody
+    - Props: children, className, fixedWeekNumber, offset, render, style
+  - Calendar - DayGridCell
+    - Props: className, render, style, value
+  - Calendar - DayGridHeader
+    - Props: className, render, style
+  - Calendar - DayGridHeaderCell
+    - Props: className, formatter, render, style, value
+  - Calendar - DayGridHeaderRow
+    - Props: children, className, render, style
+  - Calendar - DayGridRow
+    - Props: children, className, render, style, value
+  - Calendar - DecrementMonth
+    - Props: className, nativeButton, render, style
+    - Data Attributes: data-disabled
+  - Calendar - IncrementMonth
+    - Props: className, nativeButton, render, style
+    - Data Attributes: data-disabled
+  - Calendar.useContext
+  - Calendar.useDayList
+  - Calendar.useWeekList
+
+</details>
+
 [Read more](./calendar/page.mdx)
 
 ## Checkbox
