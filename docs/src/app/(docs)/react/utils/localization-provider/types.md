@@ -6,7 +6,7 @@
 
 ### LocalizationProvider
 
-Defines the temporal locale provider for Base UI temporal components.
+Defines the temporal locale provider for Base UI temporal components.
 
 Doesn't render its own HTML element.
 
