@@ -4,6 +4,7 @@ import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidd
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
+import { usePreviousValue } from '@base-ui/utils/usePreviousValue';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -158,6 +159,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const selectedIndex = useStore(store, selectors.selectedIndex);
   const triggerElement = useStore(store, selectors.triggerElement);
   const positionerElement = useStore(store, selectors.positionerElement);
+  const previousOpenMethod = usePreviousValue(openMethod);
+  const renderedOpenMethod = openMethod ?? previousOpenMethod;
 
   const serializedValue = React.useMemo(() => {
     if (multiple && Array.isArray(value) && value.length === 0) {
@@ -274,7 +277,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   const handleUnmount = useStableCallback(() => {
     setMounted(false);
-    store.set('activeIndex', null);
+    store.update({ activeIndex: null, openMethod: null });
     onOpenChangeComplete?.(false);
   });
 
@@ -413,7 +416,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       itemToStringLabel,
       itemToStringValue,
       isItemEqualToValue,
-      openMethod,
+      openMethod: renderedOpenMethod,
     });
   }, [
     store,
@@ -430,7 +433,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     itemToStringLabel,
     itemToStringValue,
     isItemEqualToValue,
-    openMethod,
+    renderedOpenMethod,
   ]);
 
   const contextValue: SelectRootContext = React.useMemo(

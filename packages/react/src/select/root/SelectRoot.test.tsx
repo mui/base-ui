@@ -862,6 +862,65 @@ describe('<Select.Root />', () => {
 
       expect(isScrollLocked()).to.equal(false);
     });
+
+    it('keeps touch positioning during the close transition', async ({ onTestFinished }) => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
+      const style = `
+        @keyframes select-close-test {
+          to {
+            opacity: 0;
+          }
+        }
+
+        .animation-test-popup[data-ending-style] {
+          animation: select-close-test 100ms linear;
+        }
+      `;
+
+      await render(
+        <div style={{ paddingTop: 80 }}>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
+          <Select.Root>
+            <Select.Trigger>Open</Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup className="animation-test-popup">
+                  <Select.Item>Item</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </div>,
+      );
+
+      const trigger = screen.getByRole('combobox');
+
+      function fireTouchPress() {
+        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+        fireEvent.mouseDown(trigger);
+      }
+
+      fireTouchPress();
+
+      const popup = await screen.findByRole('listbox');
+      const positioner = popup.parentElement as HTMLElement;
+
+      expect(getComputedStyle(positioner).position).to.equal('absolute');
+
+      fireTouchPress();
+
+      await waitFor(() => {
+        expect(popup).to.have.attribute('data-ending-style');
+      });
+
+      expect(getComputedStyle(positioner).position).to.equal('absolute');
+    });
   });
 
   describe('prop: actionsRef', () => {
