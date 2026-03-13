@@ -545,7 +545,7 @@ describe('<Popover.Root />', () => {
 
           await user.tab({ shift: true });
 
-          expect(screen.getByRole('button', { name: 'Toggle' })).toHaveFocus();
+          expect(trigger).toHaveFocus();
 
           await waitFor(() => {
             expect(screen.queryByRole('listbox')).toBe(null);
@@ -770,7 +770,7 @@ describe('<Popover.Root />', () => {
       });
 
       it('closing via outside press: works when clicking another element inside the same shadow root', async () => {
-        const handleOpenChange = spy();
+        const handleOpenChange = vi.fn();
 
         const host = document.body.appendChild(document.createElement('div'));
         const shadowRoot = host.attachShadow({ mode: 'open' });
@@ -794,11 +794,11 @@ describe('<Popover.Root />', () => {
           fireEvent.click(outsideButton);
 
           await waitFor(() => {
-            expect(shadowRoot.querySelector('[role="dialog"]')).to.equal(null);
+            expect(shadowRoot.querySelector('[role="dialog"]')).toBe(null);
           });
 
-          expect(handleOpenChange.callCount).to.equal(1);
-          expect(handleOpenChange.firstCall.args[1].reason).to.equal(REASONS.outsidePress);
+          expect(handleOpenChange.mock.calls.length).toBe(1);
+          expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.outsidePress);
         } finally {
           await act(async () => {
             host.remove();
@@ -807,7 +807,7 @@ describe('<Popover.Root />', () => {
       });
 
       it('closing via outside press: works when clicking outside the shadow root', async () => {
-        const handleOpenChange = spy();
+        const handleOpenChange = vi.fn();
 
         const host = document.body.appendChild(document.createElement('div'));
         const shadowRoot = host.attachShadow({ mode: 'open' });
@@ -826,11 +826,11 @@ describe('<Popover.Root />', () => {
           fireEvent.click(document.body);
 
           await waitFor(() => {
-            expect(shadowRoot.querySelector('[role="dialog"]')).to.equal(null);
+            expect(shadowRoot.querySelector('[role="dialog"]')).toBe(null);
           });
 
-          expect(handleOpenChange.callCount).to.equal(1);
-          expect(handleOpenChange.firstCall.args[1].reason).to.equal(REASONS.outsidePress);
+          expect(handleOpenChange.mock.calls.length).toBe(1);
+          expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.outsidePress);
         } finally {
           await act(async () => {
             host.remove();

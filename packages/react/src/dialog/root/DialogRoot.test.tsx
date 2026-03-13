@@ -325,7 +325,7 @@ describe('<Dialog.Root />', () => {
       });
 
       it('closing via outside press: works when clicking another element inside the same shadow root', async () => {
-        const handleOpenChange = spy();
+        const handleOpenChange = vi.fn();
 
         const host = document.body.appendChild(document.createElement('div'));
         const shadowRoot = host.attachShadow({ mode: 'open' });
@@ -349,11 +349,11 @@ describe('<Dialog.Root />', () => {
           fireEvent.click(outsideButton);
 
           await waitFor(() => {
-            expect(shadowRoot.querySelector('[role="dialog"]')).to.equal(null);
+            expect(shadowRoot.querySelector('[role="dialog"]')).toBe(null);
           });
 
-          expect(handleOpenChange.callCount).to.equal(1);
-          expect(handleOpenChange.firstCall.args[1].reason).to.equal(REASONS.outsidePress);
+          expect(handleOpenChange.mock.calls.length).toBe(1);
+          expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.outsidePress);
         } finally {
           await act(async () => {
             host.remove();
@@ -362,7 +362,7 @@ describe('<Dialog.Root />', () => {
       });
 
       it('closing via outside press: works when clicking outside the shadow root', async () => {
-        const handleOpenChange = spy();
+        const handleOpenChange = vi.fn();
 
         const host = document.body.appendChild(document.createElement('div'));
         const shadowRoot = host.attachShadow({ mode: 'open' });
@@ -381,11 +381,11 @@ describe('<Dialog.Root />', () => {
           fireEvent.click(document.body);
 
           await waitFor(() => {
-            expect(shadowRoot.querySelector('[role="dialog"]')).to.equal(null);
+            expect(shadowRoot.querySelector('[role="dialog"]')).toBe(null);
           });
 
-          expect(handleOpenChange.callCount).to.equal(1);
-          expect(handleOpenChange.firstCall.args[1].reason).to.equal(REASONS.outsidePress);
+          expect(handleOpenChange.mock.calls.length).toBe(1);
+          expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.outsidePress);
         } finally {
           await act(async () => {
             host.remove();
@@ -394,7 +394,7 @@ describe('<Dialog.Root />', () => {
       });
 
       it('closing via outside press: works for a modal dialog when clicking outside the shadow root', async () => {
-        const handleOpenChange = spy();
+        const handleOpenChange = vi.fn();
 
         const host = document.body.appendChild(document.createElement('div'));
         const shadowRoot = host.attachShadow({ mode: 'open' });
@@ -413,11 +413,11 @@ describe('<Dialog.Root />', () => {
           fireEvent.click(document.body);
 
           await waitFor(() => {
-            expect(shadowRoot.querySelector('[role="dialog"]')).to.equal(null);
+            expect(shadowRoot.querySelector('[role="dialog"]')).toBe(null);
           });
 
-          expect(handleOpenChange.callCount).to.equal(1);
-          expect(handleOpenChange.firstCall.args[1].reason).to.equal(REASONS.outsidePress);
+          expect(handleOpenChange.mock.calls.length).toBe(1);
+          expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.outsidePress);
         } finally {
           await act(async () => {
             host.remove();
