@@ -169,6 +169,89 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       thirdParty.remove();
     });
 
+    test('dismisses when clicking outside a shared shadow root', async () => {
+      function App({ shadowRoot }: { shadowRoot: ShadowRoot }) {
+        const [isOpen, setIsOpen] = React.useState(true);
+
+        const { context, refs } = useFloating({
+          open: isOpen,
+          onOpenChange: setIsOpen,
+        });
+
+        const dismiss = useDismiss(context);
+        const { getReferenceProps, getFloatingProps } = useInteractions([dismiss]);
+
+        return (
+          <React.Fragment>
+            <button {...getReferenceProps({ ref: refs.setReference })} />
+            {isOpen && (
+              <FloatingPortal container={shadowRoot}>
+                <div role="dialog" {...getFloatingProps({ ref: refs.setFloating })} />
+              </FloatingPortal>
+            )}
+          </React.Fragment>
+        );
+      }
+
+      const host = document.body.appendChild(document.createElement('div'));
+      const shadowRoot = host.attachShadow({ mode: 'open' });
+      const container = document.createElement('div');
+      shadowRoot.appendChild(container);
+
+      try {
+        render(<App shadowRoot={shadowRoot} />, { container });
+
+        await userEvent.click(document.body);
+
+        expect(shadowRoot.querySelector('[role="dialog"]')).toBe(null);
+      } finally {
+        host.remove();
+      }
+    });
+
+    test('dismisses when clicking outside a shared shadow root while focus is managed', async () => {
+      function App({ shadowRoot }: { shadowRoot: ShadowRoot }) {
+        const [isOpen, setIsOpen] = React.useState(true);
+
+        const { context, refs } = useFloating({
+          open: isOpen,
+          onOpenChange: setIsOpen,
+        });
+
+        const dismiss = useDismiss(context);
+        const { getReferenceProps, getFloatingProps } = useInteractions([dismiss]);
+
+        return (
+          <React.Fragment>
+            <button {...getReferenceProps({ ref: refs.setReference })} />
+            {isOpen && (
+              <FloatingPortal container={shadowRoot}>
+                <FloatingFocusManager context={context}>
+                  <div role="dialog" {...getFloatingProps({ ref: refs.setFloating })} />
+                </FloatingFocusManager>
+              </FloatingPortal>
+            )}
+          </React.Fragment>
+        );
+      }
+
+      const host = document.body.appendChild(document.createElement('div'));
+      const shadowRoot = host.attachShadow({ mode: 'open' });
+      const container = document.createElement('div');
+      shadowRoot.appendChild(container);
+
+      try {
+        render(<App shadowRoot={shadowRoot} />, { container });
+        await flushMicrotasks();
+
+        await userEvent.click(document.body);
+
+        expect(shadowRoot.querySelector('[role="dialog"]')).toBe(null);
+      } finally {
+        host.remove();
+      }
+    });
+
     test('outsidePress not ignored for nested floating elements', async () => {
       function Popover({
         children,
