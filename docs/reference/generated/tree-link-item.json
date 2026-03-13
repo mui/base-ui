@@ -1,0 +1,61 @@
+{
+  "name": "TreeLinkItem",
+  "description": "A tree item that acts as a navigational link.\nClicking navigates to the link's destination.\nRenders an `<a>` element.",
+  "props": {
+    "active": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether this link represents the current page.\nSets `aria-current=\"page\"` when true.",
+      "detailedType": "boolean | undefined"
+    },
+    "itemId": {
+      "type": "string",
+      "required": true,
+      "description": "The id of the item."
+    },
+    "className": {
+      "type": "string | ((state: Tree.LinkItem.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Tree.LinkItem.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Tree.LinkItem.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Tree.LinkItem.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Tree.LinkItem.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Tree.LinkItem.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {
+    "data-selected": {
+      "description": "Present when the item is selected."
+    },
+    "data-disabled": {
+      "description": "Present when the item is disabled."
+    },
+    "data-active": {
+      "description": "Present when the link represents the current page."
+    },
+    "data-collapsed": {
+      "description": "Present when the item is collapsed."
+    },
+    "data-expandable": {
+      "description": "Present when the item has children and can be expanded."
+    },
+    "data-expanded": {
+      "description": "Present when the item is expanded."
+    },
+    "data-focused": {
+      "description": "Present when the item is focused."
+    },
+    "data-item-id": {
+      "description": "The id of the item."
+    },
+    "data-link": {
+      "description": "Marks this item as a link item."
+    }
+  },
+  "cssVariables": {}
+}

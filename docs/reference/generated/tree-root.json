@@ -1,0 +1,165 @@
+{
+  "name": "TreeRoot",
+  "description": "Groups all parts of the tree.\nRenders a `<div>` element.",
+  "props": {
+    "actionsRef": {
+      "type": "RefObject<Tree.Root.Actions<TItem> | null>",
+      "description": "A ref to imperative actions on the tree.",
+      "detailedType": "| React.RefObject<Tree.Root.Actions<TItem> | null>\n| undefined"
+    },
+    "checkboxSelectionPropagation": {
+      "type": "{ parents?: boolean, descendants?: boolean }",
+      "default": "{ parents: true, descendants: true }",
+      "description": "Controls how selecting a `Tree.CheckboxItem` propagates through the tree hierarchy.\nThis does not affect `Tree.Item` interactions (which use replace-selection semantics).\n\nWhen `checkboxSelectionPropagation.descendants` is set to `true`:\n- Selecting a parent selects all its descendants automatically.\n- Deselecting a parent deselects all its descendants automatically.\n\nWhen `checkboxSelectionPropagation.parents` is set to `true`:\n- Selecting all descendants of a parent selects the parent automatically.\n- Deselecting a descendant of a selected parent deselects the parent automatically.",
+      "detailedType": "| { parents?: boolean; descendants?: boolean }\n| undefined"
+    },
+    "defaultExpandedItems": {
+      "type": "string[]",
+      "default": "[]",
+      "description": "The items that are initially expanded.\n\nTo render a controlled tree, use the `expandedItems` prop instead.",
+      "detailedType": "string[] | undefined"
+    },
+    "defaultSelectedItems": {
+      "type": "string[] | string | any | null",
+      "default": "[]",
+      "description": "The items that are initially selected.\n\nTo render a controlled tree, use the `selectedItems` prop instead.",
+      "detailedType": "string[] | string | any | null | undefined"
+    },
+    "disallowEmptySelection": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the tree disallows having no selected item.\nWhen `true`, at least one item must remain selected at all times.",
+      "detailedType": "boolean | undefined"
+    },
+    "expandOnClick": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether clicking anywhere on an item row toggles expansion.\nWhen `false`, only `Tree.ItemExpansionTrigger` can expand items.",
+      "detailedType": "boolean | undefined"
+    },
+    "expandedItems": {
+      "type": "string[]",
+      "description": "The expanded items.\n\nTo render an uncontrolled tree, use the `defaultExpandedItems` prop instead.",
+      "detailedType": "string[] | undefined"
+    },
+    "isItemDisabled": {
+      "type": "((item: TItem) => boolean)",
+      "default": "(item) => !!item.disabled",
+      "description": "Used to determine if a given item should be disabled.",
+      "detailedType": "((item: TItem) => boolean) | undefined"
+    },
+    "isItemSelectionDisabled": {
+      "type": "((item: TItem) => boolean)",
+      "default": "(item) => !!item.disabled",
+      "description": "Used to determine if a given item should have selection disabled.",
+      "detailedType": "((item: TItem) => boolean) | undefined"
+    },
+    "itemFocusableWhenDisabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether disabled items should be focusable.",
+      "detailedType": "boolean | undefined"
+    },
+    "itemToChildren": {
+      "type": "((item: TItem) => TItem[] | undefined)",
+      "default": "(item) => item.children",
+      "description": "Used to determine the children of a given item.",
+      "detailedType": "((item: TItem) => TItem[] | undefined) | undefined"
+    },
+    "itemToId": {
+      "type": "((item: TItem) => string)",
+      "default": "(item) => item.id",
+      "description": "Used to determine the id of a given item.",
+      "detailedType": "((item: TItem) => string) | undefined"
+    },
+    "itemToStringLabel": {
+      "type": "((item: TItem) => string)",
+      "default": "(item) => item.label",
+      "description": "Used to determine the string label of a given item.",
+      "detailedType": "((item: TItem) => string) | undefined"
+    },
+    "items": {
+      "type": "TItem[]",
+      "required": true,
+      "description": "The items to render.\nEach item must have a unique identifier."
+    },
+    "lazyLoading": {
+      "type": "TreeLazyLoading<TItem>",
+      "description": "The lazy loading plugin instance, used to load items on demand when expanding a parent item.",
+      "detailedType": "| {\n    attach: attach\n    onBeforeExpand: onBeforeExpand\n    updateItemChildren: updateItemChildren\n    destroy: destroy\n  }\n| undefined"
+    },
+    "onExpandedItemsChange": {
+      "type": "((expandedItems: string[], eventDetails: Tree.Root.ExpansionChangeEventDetails) => void)",
+      "description": "Event handler called when items are expanded or collapsed.",
+      "detailedType": "| ((\n    expandedItems: string[],\n    eventDetails: Tree.Root.ExpansionChangeEventDetails,\n  ) => void)\n| undefined"
+    },
+    "onItemExpansionToggle": {
+      "type": "((value: Tree.Item.ExpansionToggleValue, details: Tree.Item.ExpansionToggleEventDetails) => void)",
+      "description": "Event handler called when an item is expanded or collapsed.",
+      "detailedType": "| ((\n    value: Tree.Item.ExpansionToggleValue,\n    details: Tree.Item.ExpansionToggleEventDetails,\n  ) => void)\n| undefined"
+    },
+    "onItemFocus": {
+      "type": "((itemId: string, details: Tree.Item.FocusEventDetails) => void)",
+      "description": "Event handler called when an item is focused.",
+      "detailedType": "| ((\n    itemId: string,\n    details: Tree.Item.FocusEventDetails,\n  ) => void)\n| undefined"
+    },
+    "onItemSelectionToggle": {
+      "type": "((value: Tree.Item.SelectionToggleValue, details: Tree.Item.SelectionToggleEventDetails) => void)",
+      "description": "Event handler called when an item is selected or deselected.",
+      "detailedType": "| ((\n    value: Tree.Item.SelectionToggleValue,\n    details: Tree.Item.SelectionToggleEventDetails,\n  ) => void)\n| undefined"
+    },
+    "onSelectedItemsChange": {
+      "type": "((selectedItems: string[] | string | any | null, eventDetails: Tree.Root.SelectionChangeEventDetails) => void)",
+      "description": "Event handler called when the selected items change.",
+      "detailedType": "| ((\n    selectedItems: string[] | string | any | null,\n    eventDetails: Tree.Root.SelectionChangeEventDetails,\n  ) => void)\n| undefined"
+    },
+    "selectedItems": {
+      "type": "string[] | string | any | null",
+      "description": "The selected items.\n\nTo render an uncontrolled tree, use the `defaultSelectedItems` prop instead.",
+      "detailedType": "string[] | string | any | null | undefined"
+    },
+    "selectionMode": {
+      "type": "TreeSelectionMode | undefined",
+      "description": "The selection mode of the tree.\nUse `'single'` for single selection, `'multiple'` for multiple selection.",
+      "detailedType": "TreeSelectionMode | undefined"
+    },
+    "virtualized": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the items are being externally virtualized.",
+      "detailedType": "boolean | undefined"
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the component should ignore user interaction.",
+      "detailedType": "boolean | undefined"
+    },
+    "children": {
+      "type": "((item: TItem) => ReactNode) | ReactNode",
+      "required": true,
+      "description": "The render function for each tree item, or a `Tree.ItemList` / `Tree.AnimatedItemList`\nelement for more control over item rendering.",
+      "detailedType": "((item: TItem) => ReactNode) | React.ReactNode"
+    },
+    "className": {
+      "type": "string | ((state: Tree.Root.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Tree.Root.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Tree.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Tree.Root.State) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Tree.Root.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Tree.Root.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {
+    "data-disabled": {
+      "description": "Present when the tree is disabled."
+    }
+  },
+  "cssVariables": {}
+}

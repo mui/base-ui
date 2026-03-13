@@ -1,0 +1,55 @@
+{
+  "name": "TreeCheckboxItem",
+  "description": "A tree item that uses toggle selection behavior with checkbox semantics.\nClicking toggles the item's selection without affecting other items.\nRenders a `<div>` element.",
+  "props": {
+    "itemId": {
+      "type": "string",
+      "required": true,
+      "description": "The id of the item."
+    },
+    "className": {
+      "type": "string | ((state: Tree.CheckboxItem.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Tree.CheckboxItem.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Tree.CheckboxItem.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Tree.CheckboxItem.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Tree.CheckboxItem.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Tree.CheckboxItem.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {
+    "data-checked": {
+      "description": "Present when the item is checked."
+    },
+    "data-unchecked": {
+      "description": "Present when the item is not checked."
+    },
+    "data-disabled": {
+      "description": "Present when the item is disabled."
+    },
+    "data-collapsed": {
+      "description": "Present when the item is collapsed."
+    },
+    "data-expandable": {
+      "description": "Present when the item has children and can be expanded."
+    },
+    "data-expanded": {
+      "description": "Present when the item is expanded."
+    },
+    "data-focused": {
+      "description": "Present when the item is focused."
+    },
+    "data-indeterminate": {
+      "description": "Present when the item is in an indeterminate state."
+    },
+    "data-item-id": {
+      "description": "The id of the item."
+    }
+  },
+  "cssVariables": {}
+}

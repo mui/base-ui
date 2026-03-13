@@ -1,0 +1,188 @@
+.Tree {
+  list-style: none;
+  padding: 0.25rem;
+  margin: 0;
+  width: 16rem;
+  color: var(--color-gray-900);
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.5rem;
+  background: var(--color-content);
+}
+
+.Item {
+  --indent: 1.5rem;
+  --trigger-width: 1.5rem;
+
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-gray-900);
+
+  padding-left: calc(0.5rem + var(--indent) * var(--depth));
+
+  &:not([data-expandable]) {
+    padding-left: calc(0.5rem + var(--indent) * var(--depth) + var(--trigger-width));
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      background: var(--color-gray-100);
+    }
+  }
+
+  &[data-focused] {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -2px;
+  }
+
+  &[data-selected] {
+    background: color-mix(in srgb, var(--color-blue) 12%, transparent);
+  }
+
+  &[data-disabled] {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.ExpansionTrigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--color-gray-500);
+  border-radius: 0.25rem;
+  flex-shrink: 0;
+
+  @media (hover: hover) {
+    &:hover {
+      background: var(--color-gray-200);
+      color: var(--color-gray-700);
+    }
+  }
+
+  & svg {
+    width: 0.75rem;
+    height: 0.75rem;
+    transition: transform 150ms ease;
+  }
+
+  &[data-expanded] svg {
+    transform: rotate(90deg);
+  }
+}
+
+.GroupIndicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+  color: var(--color-gray-400);
+
+  & svg {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+}
+
+.Label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.Label input {
+  flex: 1;
+  min-width: 0;
+  font-size: inherit;
+  font-family: inherit;
+  line-height: inherit;
+  padding: 0;
+  border: 1px solid var(--color-blue);
+  border-radius: 0.25rem;
+  outline: none;
+  background: var(--color-content);
+  color: var(--color-gray-900);
+  margin: -1px 0;
+}
+
+.ActionButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--color-gray-400);
+  border-radius: 0.25rem;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+@media (hover: hover) {
+  .Item:hover .ActionButton {
+    opacity: 1;
+  }
+
+  .ActionButton.DeleteButton:hover {
+    background: color-mix(in srgb, var(--color-red-600, #dc2626) 12%, transparent);
+    color: var(--color-red-600, #dc2626);
+  }
+
+  .ActionButton.AddButton:hover {
+    background: color-mix(in srgb, var(--color-blue) 12%, transparent);
+    color: var(--color-blue);
+  }
+}
+
+.AddPopup {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-content);
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.1);
+  overflow: hidden;
+}
+
+.AddPopupOption {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--color-gray-900);
+  white-space: nowrap;
+
+  @media (hover: hover) {
+    &:hover {
+      background: var(--color-gray-100);
+    }
+  }
+}

@@ -1,0 +1,112 @@
+.Tree {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 14rem;
+  color: var(--color-gray-900);
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.5rem;
+  background: var(--color-content);
+}
+
+.Scroller {
+  height: min(24rem, var(--total-size));
+  max-height: 24rem;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.VirtualizedPlaceholder {
+  width: 100%;
+  position: relative;
+}
+
+.Item {
+  --trigger-width: 1.5rem;
+  --depth-offset: 0px;
+
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding-block: 0.25rem;
+  padding-inline-start: calc(0.5rem + var(--depth-offset));
+  padding-inline-end: 0.5rem;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-gray-900);
+  box-sizing: border-box;
+
+  &:not([data-expandable]) {
+    padding-inline-start: calc(0.5rem + var(--depth-offset) + var(--trigger-width));
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      background: var(--color-gray-100);
+    }
+  }
+
+  &[data-focused] {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -2px;
+  }
+
+  &[data-selected] {
+    background: color-mix(in srgb, var(--color-blue) 12%, transparent);
+  }
+
+  &[data-disabled] {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.ExpansionTrigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--color-gray-500);
+  border-radius: 0.25rem;
+  flex-shrink: 0;
+
+  @media (hover: hover) {
+    &:hover {
+      background: var(--color-gray-200);
+      color: var(--color-gray-700);
+    }
+  }
+
+  & svg {
+    width: 0.75rem;
+    height: 0.75rem;
+    transition: transform 150ms ease;
+  }
+
+  &[data-expanded] svg {
+    transform: rotate(90deg);
+  }
+}
+
+.Label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.Icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  color: var(--color-gray-500);
+}

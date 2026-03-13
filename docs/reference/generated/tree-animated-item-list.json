@@ -1,0 +1,21 @@
+{
+  "name": "TreeAnimatedItemList",
+  "description": "Renders tree items with animated expand/collapse transitions.\nPlace inside `Tree.Root` instead of using a direct render function\nto opt into group transition animations.",
+  "props": {
+    "renderGroupTransition": {
+      "type": "ReactElement | ((props: HTMLAttributes<any> & RefAttributes<any>, state: TreeGroupTransitionState) => ReactElement)",
+      "required": true,
+      "description": "Customizes the wrapper element rendered during expand/collapse animation.\nFollows Base UI's render prop semantics.",
+      "example": "React element (props auto-merged via cloneElement):\n```tsx\nrenderGroupTransition={<div className={styles.GroupTransition} />}\n```\nFunction (manual prop spreading):\n```tsx\nrenderGroupTransition={(props, state) => <div {...props} />}\n```",
+      "detailedType": "| React.ReactElement\n| ((\n    props: HTMLAttributes<any> & RefAttributes<any>,\n    state: TreeGroupTransitionState,\n  ) => ReactElement)"
+    },
+    "children": {
+      "type": "((item: Tree.Item.Model) => ReactNode)",
+      "required": true,
+      "description": "The render function for each tree item.\nCalled with the item model for each visible item.",
+      "detailedType": "(item: Tree.Item.Model) => ReactNode"
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}
