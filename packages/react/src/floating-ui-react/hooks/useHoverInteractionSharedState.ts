@@ -5,11 +5,21 @@ import { Timeout } from '@base-ui/utils/useTimeout';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 
-import type { ContextData, FloatingRootContext, SafePolygonOptions } from '../types';
+import type {
+  ContextData,
+  FloatingRootContext,
+  FloatingTreeType,
+  SafePolygonOptions,
+} from '../types';
 import { TYPEABLE_SELECTOR } from '../utils/constants';
 
 const interactiveSelector = `button,a,[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`;
 export const HOVER_CLOSE_UNSET = -1;
+
+type PendingHoverClose = {
+  event: MouseEvent;
+  shouldRecordGrace: boolean;
+};
 
 export function isInteractiveElement(element: Element | null) {
   return element ? Boolean(element.closest(interactiveSelector)) : false;
@@ -26,6 +36,7 @@ export class HoverInteraction {
   pointerEventsFloatingElement: HTMLElement | null;
   restTimeoutPending: boolean;
   lastHoverCloseTime: number;
+  pendingHoverClose: PendingHoverClose | null;
   openChangeTimeout: Timeout;
   restTimeout: Timeout;
   handleCloseOptions: SafePolygonOptions | undefined;
@@ -42,6 +53,7 @@ export class HoverInteraction {
     this.restTimeoutPending = false;
     // `HOVER_CLOSE_UNSET` means no hover-close has occurred yet.
     this.lastHoverCloseTime = HOVER_CLOSE_UNSET;
+    this.pendingHoverClose = null;
     this.openChangeTimeout = new Timeout();
     this.restTimeout = new Timeout();
     this.handleCloseOptions = undefined;
@@ -125,12 +137,39 @@ export function recordHoverClose(instance: HoverInteraction, now = performance.n
   instance.lastHoverCloseTime = now;
 }
 
+export function clearPendingHoverClose(instance: HoverInteraction): void {
+  instance.pendingHoverClose = null;
+}
+
+export function emitCommittedHoverClose(
+  instance: HoverInteraction,
+  tree: FloatingTreeType | null,
+): boolean {
+  const pendingHoverClose = instance.pendingHoverClose;
+  if (!pendingHoverClose) {
+    return false;
+  }
+
+  instance.pendingHoverClose = null;
+
+  if (pendingHoverClose.shouldRecordGrace) {
+    recordHoverClose(instance);
+  }
+
+  tree?.events.emit('floating.closed', pendingHoverClose.event);
+  return true;
+}
+
 /**
  * Attempts to close a popup from a hover interaction.
  *
- * A committed close is reported whenever `setOpen(false, ...)` succeeds without
- * cancellation, regardless of how the popup was originally opened. Tree-based
- * hover coordination relies on that signal to continue deferred parent closes.
+ * A committed close is reported only once the effective `open` state actually
+ * becomes `false`. Controlled consumers can ignore a close request without
+ * canceling it, so hover bookkeeping must not treat every accepted request as
+ * a real close.
+ *
+ * Tree-based hover coordination relies on that committed-close signal to
+ * continue deferred parent closes.
  *
  * Reopen grace is narrower: it is recorded only when the popup was both
  * hover-opened and successfully closed, so click/keyboard/programmatic closes
@@ -143,6 +182,8 @@ export function closeHoverPopup(
   isHoverOpen: boolean,
   hoverCloseGracePeriod?: number,
 ): { closed: boolean } {
+  clearPendingHoverClose(instance);
+
   if (!store.select('open')) {
     return { closed: false };
   }
@@ -154,16 +195,17 @@ export function closeHoverPopup(
     return { closed: false };
   }
 
-  // Only hover-opened popups participate in the reopen grace window.
-  if (isHoverOpen && hoverCloseGracePeriod != null && hoverCloseGracePeriod > 0) {
-    recordHoverClose(instance);
-  }
+  instance.pendingHoverClose = {
+    event,
+    shouldRecordGrace: isHoverOpen && hoverCloseGracePeriod != null && hoverCloseGracePeriod > 0,
+  };
 
-  return { closed: true };
+  return { closed: !store.select('open') };
 }
 
 export function clearRecentHoverClose(instance: HoverInteraction): void {
   instance.lastHoverCloseTime = HOVER_CLOSE_UNSET;
+  clearPendingHoverClose(instance);
 }
 
 export function wasHoverClosedRecently(

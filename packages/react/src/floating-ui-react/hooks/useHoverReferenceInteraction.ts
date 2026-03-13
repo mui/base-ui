@@ -15,6 +15,7 @@ import {
   closeHoverPopup as closeHoverPopupShared,
   clearRecentHoverClose,
   clearSafePolygonPointerEventsMutation,
+  emitCommittedHoverClose,
   useHoverInteractionSharedState,
   wasHoverClosedRecently,
 } from './useHoverInteractionSharedState';
@@ -108,9 +109,8 @@ export function useHoverReferenceInteraction(
       hoverCloseGracePeriod,
     );
 
-    // Tree listeners use this signal to continue deferred parent closes.
     if (closed) {
-      tree?.events.emit('floating.closed', event);
+      emitCommittedHoverClose(instance, tree);
     }
   });
 
@@ -138,6 +138,14 @@ export function useHoverReferenceInteraction(
     // event. Clear stale handoff grace once a new open cycle starts.
     clearRecentHoverClose(instance);
   }, [hoverCloseGracePeriod, instance, open]);
+
+  React.useEffect(() => {
+    if (open) {
+      return;
+    }
+
+    emitCommittedHoverClose(instance, tree);
+  }, [instance, open, tree]);
 
   React.useEffect(() => {
     return () => {

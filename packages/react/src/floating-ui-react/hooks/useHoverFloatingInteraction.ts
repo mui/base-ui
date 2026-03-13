@@ -13,6 +13,7 @@ import { useFloatingParentNodeId, useFloatingTree } from '../components/Floating
 import {
   closeHoverPopup as closeHoverPopupShared,
   applySafePolygonPointerEventsMutation,
+  emitCommittedHoverClose,
   clearSafePolygonPointerEventsMutation,
   HoverInteraction,
   isInteractiveElement,
@@ -78,9 +79,8 @@ export function useHoverFloatingInteraction(
       hoverCloseGracePeriod,
     );
 
-    // Tree listeners use this signal to continue deferred parent closes.
     if (closed) {
-      tree?.events.emit('floating.closed', event);
+      emitCommittedHoverClose(instance, tree);
     }
   });
 
@@ -111,9 +111,10 @@ export function useHoverFloatingInteraction(
       instance.pointerType = undefined;
       instance.restTimeoutPending = false;
       instance.interactedInside = false;
+      emitCommittedHoverClose(instance, tree);
       clearPointerEvents();
     }
-  }, [open, instance, clearPointerEvents]);
+  }, [open, instance, clearPointerEvents, tree]);
 
   React.useEffect(() => {
     return clearPointerEvents;

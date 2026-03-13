@@ -472,6 +472,79 @@ describe('<Popover.Root />', () => {
         await flushMicrotasks();
         expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
       });
+
+      it('reuses hover-close grace after a controlled hover close that updates open', async () => {
+        function Test() {
+          const [open, setOpen] = React.useState(false);
+
+          return (
+            <TestPopover
+              rootProps={{ open, onOpenChange: setOpen }}
+              triggerProps={{ openOnHover: true, delay: OPEN_DELAY_MS, closeDelay: 0 }}
+            />
+          );
+        }
+
+        await render(<Test />);
+
+        const anchor = screen.getByRole('button', { name: 'Toggle' });
+
+        await openAfterDelay(anchor);
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+
+        fireEvent.mouseLeave(anchor);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).to.equal(null);
+
+        await hoverTrigger(anchor);
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+      });
+
+      it('does not seed hover-close grace when a controlled hover close is ignored', async () => {
+        function Test() {
+          const [open, setOpen] = React.useState(false);
+
+          return (
+            <React.Fragment>
+              <button onClick={() => setOpen(false)}>Programmatic close</button>
+              <TestPopover
+                rootProps={{
+                  open,
+                  onOpenChange: (nextOpen) => {
+                    if (nextOpen) {
+                      setOpen(true);
+                    }
+                  },
+                }}
+                triggerProps={{ openOnHover: true, delay: OPEN_DELAY_MS, closeDelay: 0 }}
+              />
+            </React.Fragment>
+          );
+        }
+
+        await render(<Test />);
+
+        const anchor = screen.getByRole('button', { name: 'Toggle' });
+        const closeButton = screen.getByRole('button', { name: 'Programmatic close' });
+
+        await openAfterDelay(anchor);
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+
+        fireEvent.mouseLeave(anchor);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+
+        fireEvent.click(closeButton);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).to.equal(null);
+
+        await hoverTrigger(anchor);
+        expect(screen.queryByTestId('popover-popup')).to.equal(null);
+
+        clock.tick(OPEN_DELAY_MS);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+      });
     });
 
     describe('prop: closeDelay', () => {

@@ -2,6 +2,7 @@ import { vi } from 'vitest';
 import type { FloatingRootContext } from '../types';
 import {
   closeHoverPopup,
+  emitCommittedHoverClose,
   HOVER_CLOSE_UNSET,
   HoverInteraction,
 } from './useHoverInteractionSharedState';
@@ -38,6 +39,7 @@ describe('closeHoverPopup', () => {
       );
 
       expect(result).to.deep.equal({ closed: true });
+      emitCommittedHoverClose(instance, null);
       expect(instance.lastHoverCloseTime).to.equal(123);
     } finally {
       performanceNowSpy.mockRestore();
@@ -59,13 +61,36 @@ describe('closeHoverPopup', () => {
     expect(result).to.deep.equal({ closed: false });
     expect(instance.lastHoverCloseTime).to.equal(HOVER_CLOSE_UNSET);
   });
+
+  it('does not report a close when the effective controlled open state stays true', () => {
+    const store = createMockStore({ controlledOpen: true });
+    const instance = HoverInteraction.create();
+
+    const result = closeHoverPopup(
+      store as FloatingRootContext,
+      instance,
+      new MouseEvent('mouseleave'),
+      true,
+      400,
+    );
+
+    expect(result).to.deep.equal({ closed: false });
+    expect(instance.lastHoverCloseTime).to.equal(HOVER_CLOSE_UNSET);
+  });
 });
 
-function createMockStore(options: { cancelClose?: boolean } = {}) {
+function createMockStore(
+  options: {
+    cancelClose?: boolean;
+    controlledOpen?: boolean;
+  } = {},
+) {
+  let open = true;
+
   return {
     select(key: string) {
       if (key === 'open') {
-        return true;
+        return options.controlledOpen ?? open;
       }
 
       return undefined;
@@ -78,7 +103,10 @@ function createMockStore(options: { cancelClose?: boolean } = {}) {
     ) {
       if (options.cancelClose) {
         eventDetails.cancel();
+        return;
       }
+
+      open = false;
     },
   };
 }
