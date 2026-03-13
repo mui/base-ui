@@ -32,6 +32,10 @@ export interface NavigationMenuRootContext {
   beforeOutsideRef: React.RefObject<HTMLSpanElement | null>;
   afterOutsideRef: React.RefObject<HTMLSpanElement | null>;
   prevTriggerElementRef: React.RefObject<Element | null | undefined>;
+  popupAutoSizeResetRef: React.MutableRefObject<{
+    abortController: AbortController | null;
+    owner: any;
+  }>;
   delay: number;
   closeDelay: number;
   orientation: 'horizontal' | 'vertical';

@@ -416,6 +416,36 @@ function TestNavigationMenuWithKeepMountedContent() {
   );
 }
 
+function TestNavigationMenuWithKeepMountedContentClosed() {
+  return (
+    <NavigationMenu.Root>
+      <NavigationMenu.List>
+        <NavigationMenu.Item value="item-1">
+          <NavigationMenu.Trigger data-testid="trigger-product">Product</NavigationMenu.Trigger>
+          <NavigationMenu.Content keepMounted>
+            <div style={{ width: 675, height: 220 }}>Product panel</div>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+
+        <NavigationMenu.Item value="item-2">
+          <NavigationMenu.Trigger data-testid="trigger-learn">Learn</NavigationMenu.Trigger>
+          <NavigationMenu.Content keepMounted>
+            <div style={{ width: 500, height: 180 }}>Learn panel</div>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+      </NavigationMenu.List>
+
+      <NavigationMenu.Portal keepMounted>
+        <NavigationMenu.Positioner data-testid="positioner">
+          <NavigationMenu.Popup data-testid="popup-root">
+            <NavigationMenu.Viewport />
+          </NavigationMenu.Popup>
+        </NavigationMenu.Positioner>
+      </NavigationMenu.Portal>
+    </NavigationMenu.Root>
+  );
+}
+
 function TestNavigationMenuWithScopedPopupExitAnimation(
   props: {
     onOpenChangeComplete?: NavigationMenu.Root.Props['onOpenChangeComplete'];
@@ -528,23 +558,45 @@ function mockBoundingClientRect(
 }
 
 function mockAnimations(element: HTMLElement) {
-  let resolveFinished: (() => void) | null = null;
-  let finishedPromise = Promise.resolve();
+  type MockAnimation = {
+    finished: Promise<void>;
+    resolveFinished: (() => void) | null;
+  };
+
+  function createAnimation(): MockAnimation {
+    let resolveFinished: (() => void) | null = null;
+
+    return {
+      finished: new Promise<void>((resolve) => {
+        resolveFinished = resolve;
+      }),
+      resolveFinished,
+    };
+  }
+
+  let currentAnimation = createAnimation();
+  let activeAnimations: MockAnimation[] = [];
 
   Object.defineProperty(element, 'getAnimations', {
     configurable: true,
-    value: () => [{ finished: finishedPromise }],
+    value: () =>
+      activeAnimations.map((animation) => ({
+        finished: animation.finished,
+      })),
   });
 
   return {
     start() {
-      finishedPromise = new Promise<void>((resolve) => {
-        resolveFinished = resolve;
-      });
+      currentAnimation = createAnimation();
+      activeAnimations.push(currentAnimation);
+      return currentAnimation;
     },
-    finish() {
-      resolveFinished?.();
-      resolveFinished = null;
+    finish(animation: MockAnimation = currentAnimation) {
+      const finished = animation.finished;
+      animation.resolveFinished?.();
+      animation.resolveFinished = null;
+      activeAnimations = activeAnimations.filter((item) => item !== animation);
+      return finished;
     },
   };
 }
@@ -2366,6 +2418,84 @@ describe('<NavigationMenu.Root />', () => {
             expect(popupRoot.style.getPropertyValue('--popup-height')).to.equal('auto');
             expect(positioner.style.getPropertyValue('--positioner-width')).to.equal('500px');
             expect(positioner.style.getPropertyValue('--positioner-height')).to.equal('180px');
+          });
+        } finally {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
+          restoreResizeObserver();
+        }
+      });
+
+      it('ignores the initial open size reset once a trigger switch has started', async () => {
+        const restoreResizeObserver = mockResizeObserver();
+        const previousAnimationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        try {
+          function waitForAnimationFrame() {
+            return new Promise<void>((resolve) => {
+              requestAnimationFrame(() => {
+                resolve();
+              });
+            });
+          }
+
+          async function finishAnimation(animation: Parameters<typeof animations.finish>[0]) {
+            await act(async () => {
+              await animations.finish(animation);
+              await flushMicrotasks();
+              await waitForAnimationFrame();
+              await waitForAnimationFrame();
+            });
+          }
+
+          await render(<TestNavigationMenuWithKeepMountedContentClosed />);
+
+          const popupRoot = screen.getByTestId('popup-root');
+          const positioner = screen.getByTestId('positioner');
+          const animations = mockAnimations(popupRoot);
+
+          let popupWidth = 675;
+          let popupHeight = 220;
+
+          Object.defineProperty(popupRoot, 'offsetWidth', {
+            configurable: true,
+            get: () => popupWidth,
+          });
+          Object.defineProperty(popupRoot, 'offsetHeight', {
+            configurable: true,
+            get: () => popupHeight,
+          });
+
+          const openAnimation = animations.start();
+          fireEvent.click(screen.getByTestId('trigger-product'));
+          await flushMicrotasks();
+          await act(async () => {
+            await waitForAnimationFrame();
+            await waitForAnimationFrame();
+          });
+
+          popupWidth = 500;
+          popupHeight = 180;
+
+          const switchAnimation = animations.start();
+          fireEvent.click(screen.getByTestId('trigger-learn'));
+          await flushMicrotasks();
+
+          await waitFor(() => {
+            expect(positioner.style.getPropertyValue('--positioner-width')).to.equal('500px');
+            expect(positioner.style.getPropertyValue('--positioner-height')).to.equal('180px');
+          });
+
+          await finishAnimation(openAnimation);
+
+          expect(popupRoot.style.getPropertyValue('--popup-width')).to.equal('500px');
+          expect(popupRoot.style.getPropertyValue('--popup-height')).to.equal('180px');
+
+          await finishAnimation(switchAnimation);
+
+          await waitFor(() => {
+            expect(popupRoot.style.getPropertyValue('--popup-width')).to.equal('auto');
+            expect(popupRoot.style.getPropertyValue('--popup-height')).to.equal('auto');
           });
         } finally {
           globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
