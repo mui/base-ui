@@ -6,6 +6,7 @@ import { getYear } from 'date-fns/getYear';
 import { Calendar } from '@base-ui/react/calendar';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import styles from '../../calendar.module.css';
+import indexStyles from './index.module.css';
 
 const YEAR_PAST = 40;
 const YEAR_FUTURE = 10;
@@ -28,8 +29,16 @@ function CalendarContent() {
           <ChevronLeft />
         </Calendar.DecrementMonth>
         <select
+          className={indexStyles.Select}
           value={currentMonth}
-          onChange={(event) => setVisibleDate(new Date(currentYear, Number(event.target.value), 1))}
+          onChange={(event) =>
+            setVisibleDate(
+              new Date(currentYear, Number(event.target.value), 1),
+              event.nativeEvent,
+              event.target,
+              'month-change',
+            )
+          }
         >
           {MONTHS.map((name, index) => (
             <option key={name} value={index}>
@@ -38,9 +47,15 @@ function CalendarContent() {
           ))}
         </select>
         <select
+          className={indexStyles.Select}
           value={currentYear}
           onChange={(event) =>
-            setVisibleDate(new Date(Number(event.target.value), currentMonth, 1))
+            setVisibleDate(
+              new Date(Number(event.target.value), currentMonth, 1),
+              event.nativeEvent,
+              event.target,
+              'month-change',
+            )
           }
         >
           {years.map((year) => (
@@ -87,7 +102,7 @@ function CalendarContent() {
 
 export default function ExampleCalendarYearMonthSelect() {
   return (
-    <Calendar.Root className={styles.Root} aria-label="Date">
+    <Calendar.Root className={styles.Root}>
       <CalendarContent />
     </Calendar.Root>
   );
