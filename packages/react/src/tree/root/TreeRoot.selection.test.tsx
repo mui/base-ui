@@ -167,7 +167,10 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
       fireEvent.click(view.getItemRoot('1'));
       expect(onItemSelectionToggle.callCount).to.equal(1);
-      expect(onItemSelectionToggle.lastCall.args[0]).to.deep.equal({ itemId: '1', isSelected: true });
+      expect(onItemSelectionToggle.lastCall.args[0]).to.deep.equal({
+        itemId: '1',
+        isSelected: true,
+      });
       expect(onItemSelectionToggle.lastCall.args[1]).to.have.property('reason', 'item-press');
       expect(onItemSelectionToggle.lastCall.args[1]).to.have.property('event');
     });
@@ -184,7 +187,10 @@ describeTree('TreeRoot - Selection', ({ render }) => {
 
       fireEvent.click(view.getItemRoot('1'), { ctrlKey: true });
       expect(onItemSelectionToggle.callCount).to.equal(1);
-      expect(onItemSelectionToggle.lastCall.args[0]).to.deep.equal({ itemId: '1', isSelected: false });
+      expect(onItemSelectionToggle.lastCall.args[0]).to.deep.equal({
+        itemId: '1',
+        isSelected: false,
+      });
       expect(onItemSelectionToggle.lastCall.args[1]).to.have.property('reason', 'item-press');
     });
 
@@ -216,7 +222,10 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       });
 
       expect(onItemSelectionToggle.callCount).to.equal(1);
-      expect(onItemSelectionToggle.lastCall.args[0]).to.deep.equal({ itemId: '1', isSelected: true });
+      expect(onItemSelectionToggle.lastCall.args[0]).to.deep.equal({
+        itemId: '1',
+        isSelected: true,
+      });
       expect(onItemSelectionToggle.lastCall.args[1]).to.have.property(
         'reason',
         'imperative-action',
@@ -235,9 +244,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       fireEvent.click(view.getItemRoot('2'));
       expect(onItemSelectionToggle.callCount).to.equal(2);
 
-      const calls = onItemSelectionToggle
-        .getCalls()
-        .map((call: any) => call.args[0]);
+      const calls = onItemSelectionToggle.getCalls().map((call: any) => call.args[0]);
       expect(calls).to.deep.include.members([
         { itemId: '2', isSelected: true },
         { itemId: '1', isSelected: false },

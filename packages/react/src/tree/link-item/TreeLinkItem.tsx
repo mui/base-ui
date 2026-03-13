@@ -66,8 +66,6 @@ export const TreeLinkItem = fastComponentRef(function TreeLinkItem(
     active,
   };
 
-
-
   // In virtualized mode, auto-focus when this item mounts and it's the focused item.
   const autoFocusRef = React.useCallback(
     (element: HTMLAnchorElement | null) => {

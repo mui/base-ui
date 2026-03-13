@@ -83,10 +83,7 @@ export interface TreeStoreParameters<
    * Event handler called when an item is expanded or collapsed.
    */
   onItemExpansionToggle?:
-    | ((
-        value: TreeItemExpansionToggleValue,
-        details: TreeItemExpansionToggleEventDetails,
-      ) => void)
+    | ((value: TreeItemExpansionToggleValue, details: TreeItemExpansionToggleEventDetails) => void)
     | undefined;
   /**
    * The selected items.
@@ -120,10 +117,7 @@ export interface TreeStoreParameters<
    * Event handler called when an item is selected or deselected.
    */
   onItemSelectionToggle?:
-    | ((
-        value: TreeItemSelectionToggleValue,
-        details: TreeItemSelectionToggleEventDetails,
-      ) => void)
+    | ((value: TreeItemSelectionToggleValue, details: TreeItemSelectionToggleEventDetails) => void)
     | undefined;
   /**
    * The selection mode of the tree.

@@ -39,7 +39,12 @@ export default function ExampleTreeLinkItems() {
         {(item) => {
           if (item.href) {
             return (
-              <Link itemId={item.id} className={styles.LinkItem} href={item.href} active={item.id === 'quick-start'}>
+              <Link
+                itemId={item.id}
+                className={styles.LinkItem}
+                href={item.href}
+                active={item.id === 'quick-start'}
+              >
                 <Tree.ItemLabel className={styles.Label} />
               </Link>
             );

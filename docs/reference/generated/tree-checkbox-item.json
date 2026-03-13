@@ -4,8 +4,8 @@
   "props": {
     "itemId": {
       "type": "string",
-      "description": "The id of the item. Required when using `virtualized` on `Tree.Root`.\nWhen provided, the item will set up its own context for sub-parts.",
-      "detailedType": "string | undefined"
+      "required": true,
+      "description": "The id of the item."
     },
     "className": {
       "type": "string | ((state: Tree.CheckboxItem.State) => string | undefined)",

@@ -162,7 +162,10 @@ describeTree('TreeRoot - Expansion', ({ render }) => {
 
       fireEvent.click(view.getItemRoot('1'));
       expect(onItemExpansionToggle.callCount).to.equal(1);
-      expect(onItemExpansionToggle.lastCall.args[0]).to.deep.equal({ itemId: '1', isExpanded: true });
+      expect(onItemExpansionToggle.lastCall.args[0]).to.deep.equal({
+        itemId: '1',
+        isExpanded: true,
+      });
       expect(onItemExpansionToggle.lastCall.args[1]).to.have.property('reason', 'item-press');
       expect(onItemExpansionToggle.lastCall.args[1]).to.have.property('event');
     });
@@ -179,7 +182,10 @@ describeTree('TreeRoot - Expansion', ({ render }) => {
 
       fireEvent.click(view.getItemRoot('1'));
       expect(onItemExpansionToggle.callCount).to.equal(1);
-      expect(onItemExpansionToggle.lastCall.args[0]).to.deep.equal({ itemId: '1', isExpanded: false });
+      expect(onItemExpansionToggle.lastCall.args[0]).to.deep.equal({
+        itemId: '1',
+        isExpanded: false,
+      });
       expect(onItemExpansionToggle.lastCall.args[1]).to.have.property('reason', 'item-press');
     });
 
@@ -211,7 +217,10 @@ describeTree('TreeRoot - Expansion', ({ render }) => {
       });
 
       expect(onItemExpansionToggle.callCount).to.equal(1);
-      expect(onItemExpansionToggle.lastCall.args[0]).to.deep.equal({ itemId: '1', isExpanded: true });
+      expect(onItemExpansionToggle.lastCall.args[0]).to.deep.equal({
+        itemId: '1',
+        isExpanded: true,
+      });
       expect(onItemExpansionToggle.lastCall.args[1]).to.have.property(
         'reason',
         'imperative-action',
