@@ -146,35 +146,6 @@ describe('<Calendar.DecrementMonth />', () => {
       await user.click(screen.getByRole('button'));
       expect(onVisibleDateChange.callCount).to.equal(1);
     });
-
-    describe('focusableWhenDisabled', () => {
-      it('should not have disabled attribute and have aria-disabled when focusableWhenDisabled is true', () => {
-        render(
-          <Calendar.Root>
-            <Calendar.DecrementMonth disabled />
-          </Calendar.Root>,
-        );
-
-        const button = screen.getByRole('button');
-        expect(button).not.to.have.attribute('disabled');
-        expect(button).to.have.attribute('aria-disabled', 'true');
-      });
-
-      it('should not have disabled attribute or aria-disabled="true" when disabled is false even at the minDate boundary', () => {
-        render(
-          <Calendar.Root
-            minDate={adapter.date('2025-01-10', 'default')}
-            visibleDate={adapter.date('2025-01-01', 'default')}
-          >
-            <Calendar.DecrementMonth disabled={false} />
-          </Calendar.Root>,
-        );
-
-        const button = screen.getByRole('button');
-        expect(button).not.to.have.attribute('data-disabled');
-        expect(button).to.have.attribute('aria-disabled', 'false');
-      });
-    });
   });
 
   describe('press and hold', () => {
