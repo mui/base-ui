@@ -116,9 +116,7 @@ describe('useRenderElement', () => {
 
   it('does not resolve props when disabled', async () => {
     const propsGetter = vi.fn(() => ({
-      onMouseDown(event: React.MouseEvent) {
-        event.preventBaseUIHandler();
-      },
+      onMouseDown() {},
     }));
 
     const { container } = await render(<DisabledPropsTestComponent propsGetter={propsGetter} />);
