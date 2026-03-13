@@ -1,0 +1,341 @@
+.Root {
+  padding: 2rem;
+}
+
+.Title {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 2.5rem;
+  font-weight: 500;
+  letter-spacing: var(--text-2xl--letter-spacing);
+}
+
+.Section {
+  margin: 0;
+  margin-bottom: 3rem;
+}
+
+.Section:last-of-type {
+  margin-bottom: 0;
+}
+
+.SectionTitle {
+  margin: 0 0 1rem;
+  font-size: var(--text-xl);
+  line-height: var(--text-xl--line-height);
+  letter-spacing: var(--text-xl--letter-spacing);
+  font-weight: 600;
+}
+
+.Description {
+  margin: 0 0 1rem;
+  color: var(--color-gray-600);
+}
+
+.Positioner {
+  outline: none;
+}
+
+.Popup180,
+.Popup160,
+.Popup220 {
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  background: white;
+  padding: 0.5rem 0;
+  box-shadow: var(--shadow-lg);
+}
+
+.Popup180 {
+  min-width: 180px;
+}
+
+.Popup160 {
+  min-width: 160px;
+}
+
+.Popup220 {
+  min-width: 220px;
+}
+
+.Item {
+  cursor: default;
+  padding: 0.5rem 0.75rem;
+  font-size: var(--text-sm);
+}
+
+.Item:hover {
+  background: var(--color-gray-100);
+}
+
+.ItemDanger {
+  color: var(--color-red-600);
+}
+
+.SubmenuTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: default;
+  padding: 0.5rem 0.75rem;
+  font-size: var(--text-sm);
+}
+
+.SubmenuTrigger:hover {
+  background: var(--color-gray-100);
+}
+
+.Separator {
+  height: 1px;
+  margin: 0.25rem 0;
+  background: var(--color-gray-200);
+}
+
+.ContextBox {
+  border: 2px solid;
+  border-radius: 0.5rem;
+  padding: 2rem;
+}
+
+.ContextBoxInner {
+  display: inline-block;
+  margin-top: 1rem;
+  border: 2px solid;
+  border-radius: 0.25rem;
+  padding: 1rem;
+}
+
+.ContextBoxCenter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.Blue {
+  border-color: var(--color-blue-300);
+  background: var(--color-blue-50);
+}
+
+.Red {
+  border-color: var(--color-red-300);
+  background: var(--color-red-50);
+}
+
+.Green {
+  border-color: var(--color-green-300);
+  background: var(--color-green-50);
+}
+
+.Purple {
+  border-color: var(--color-purple-300);
+  background: var(--color-purple-50);
+}
+
+.Orange {
+  border-color: var(--color-orange-300);
+  background: var(--color-orange-50);
+}
+
+.Cyan {
+  border-color: var(--color-cyan-300);
+  background: var(--color-cyan-50);
+}
+
+.Indigo {
+  border-color: var(--color-indigo-300);
+  background: var(--color-indigo-50);
+}
+
+.CenterText {
+  text-align: center;
+}
+
+.LabelPrimary {
+  display: block;
+  font-weight: 500;
+}
+
+.LabelSecondary {
+  display: block;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  letter-spacing: var(--text-sm--letter-spacing);
+}
+
+.BluePrimary {
+  color: var(--color-blue-700);
+}
+
+.BlueSecondary {
+  color: var(--color-blue-600);
+}
+
+.RedPrimary {
+  color: var(--color-red-700);
+}
+
+.RedSecondary {
+  color: var(--color-red-600);
+}
+
+.GreenPrimary {
+  color: var(--color-green-700);
+}
+
+.GreenSecondary {
+  color: var(--color-green-600);
+}
+
+.PurplePrimary {
+  color: var(--color-purple-700);
+}
+
+.PurpleSecondary {
+  color: var(--color-purple-600);
+}
+
+.OrangePrimary {
+  color: var(--color-orange-700);
+}
+
+.OrangeSecondary {
+  color: var(--color-orange-600);
+}
+
+.CyanPrimary {
+  color: var(--color-cyan-700);
+}
+
+.CyanSecondary {
+  color: var(--color-cyan-600);
+}
+
+.PopoverTrigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.5rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  background: var(--color-gray-50);
+  padding: 1rem;
+  color: var(--color-gray-900);
+  user-select: none;
+}
+
+.PopoverTrigger:hover,
+.PopoverTrigger:active,
+.PopoverTrigger[data-popup-open] {
+  background: var(--color-gray-100);
+}
+
+.PopoverTrigger:focus-visible {
+  outline: 2px solid var(--color-blue-800);
+  outline-offset: -1px;
+}
+
+.PopoverPopup {
+  transform-origin: var(--transform-origin);
+  border-radius: 0.5rem;
+  background: canvas;
+  padding: 1rem 1.5rem;
+  color: var(--color-gray-900);
+  outline: 1px solid var(--color-gray-200);
+  box-shadow: var(--shadow-lg);
+  transition:
+    transform 150ms,
+    scale 150ms,
+    opacity 150ms;
+}
+
+.PopoverPopup[data-starting-style],
+.PopoverPopup[data-ending-style] {
+  scale: 0.9;
+  opacity: 0;
+}
+
+.PopoverPopupBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: var(--text-base);
+  color: var(--color-gray-600);
+}
+
+.MenuTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: default;
+  border: 1px solid var(--color-gray-300);
+  border-radius: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  font-size: var(--text-sm);
+  color: var(--color-gray-800);
+}
+
+.MenuTrigger:hover {
+  background: var(--color-gray-50);
+}
+
+.InlineContextTrigger {
+  display: inline-block;
+  margin-top: 1rem;
+  border: 2px solid var(--color-red-300);
+  border-radius: 0.375rem;
+  background: var(--color-red-50);
+  padding: 1rem;
+}
+
+.DisabledToggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+.DisabledCheckbox {
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid var(--color-gray-300);
+  border-radius: 0.25rem;
+}
+
+.DisabledLabel {
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  letter-spacing: var(--text-sm--letter-spacing);
+  color: var(--color-gray-700);
+}
+
+.DisabledTextActive {
+  color: var(--color-indigo-700);
+}
+
+.DisabledHintActive {
+  color: var(--color-indigo-600);
+}
+
+.DisabledTextMuted {
+  color: var(--color-gray-500);
+}
+
+.DisabledHintMuted {
+  color: var(--color-gray-400);
+}
+
+.SpecialTrigger {
+  display: block;
+  width: 100%;
+  cursor: default;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  font-size: var(--text-sm);
+}
+
+.SpecialTrigger:hover {
+  background: var(--color-gray-100);
+}

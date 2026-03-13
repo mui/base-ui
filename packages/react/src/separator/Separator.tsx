@@ -1,9 +1,7 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import type { BaseUIComponentProps } from '../utils/types';
-import { mergeReactProps } from '../utils/mergeReactProps';
-import { useComponentRenderer } from '../utils/useComponentRenderer';
+import type { BaseUIComponentProps, Orientation } from '../utils/types';
+import { useRenderElement } from '../utils/useRenderElement';
 
 /**
  * A separator element accessible to screen readers.
@@ -11,79 +9,39 @@ import { useComponentRenderer } from '../utils/useComponentRenderer';
  *
  * Documentation: [Base UI Separator](https://base-ui.com/react/components/separator)
  */
-const Separator = React.forwardRef(function SeparatorComponent(
-  props: Separator.Props,
+export const Separator = React.forwardRef(function SeparatorComponent(
+  componentProps: Separator.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, orientation = 'horizontal', ...other } = props;
+  const { className, render, orientation = 'horizontal', ...elementProps } = componentProps;
 
-  const state: Separator.State = React.useMemo(() => ({ orientation }), [orientation]);
+  const state: SeparatorState = { orientation };
 
-  const getSeparatorProps = React.useCallback(
-    (externalProps = {}) =>
-      mergeReactProps(externalProps, {
-        'aria-orientation': orientation,
-      }),
-    [orientation],
-  );
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: getSeparatorProps,
-    render: render ?? 'div',
-    className,
+  const element = useRenderElement('div', componentProps, {
     state,
-    extraProps: { role: 'separator', ...other },
     ref: forwardedRef,
+    props: [{ role: 'separator', 'aria-orientation': orientation }, elementProps],
   });
 
-  return renderElement();
+  return element;
 });
 
-type Orientation = 'horizontal' | 'vertical';
-
-namespace Separator {
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * The orientation of the separator.
-     * @default 'horizontal'
-     */
-    orientation?: Orientation;
-  }
-
-  export interface State {
-    /**
-     * The orientation of the separator.
-     */
-    orientation: Orientation;
-  }
-}
-
-export { Separator };
-
-Separator.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+export interface SeparatorProps extends BaseUIComponentProps<'div', SeparatorState> {
   /**
    * The orientation of the separator.
    * @default 'horizontal'
    */
-  orientation: PropTypes.oneOf(['horizontal', 'vertical']),
+  orientation?: Orientation | undefined;
+}
+
+export interface SeparatorState {
   /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
+   * The orientation of the separator.
    */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
+  orientation: Orientation;
+}
+
+export namespace Separator {
+  export type Props = SeparatorProps;
+  export type State = SeparatorState;
+}

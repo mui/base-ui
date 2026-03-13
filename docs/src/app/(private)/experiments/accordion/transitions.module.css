@@ -1,0 +1,94 @@
+.Accordion {
+  --duration: 200ms;
+
+  box-sizing: border-box;
+  display: flex;
+  width: 24rem;
+  max-width: calc(100vw - 8rem);
+  flex-direction: column;
+  justify-content: center;
+  color: var(--color-gray-900);
+}
+
+.Item {
+  border-bottom: 1px solid var(--color-gray-200);
+}
+
+.Header {
+  margin: 0;
+}
+
+.Trigger {
+  box-sizing: border-box;
+  display: flex;
+  width: 100%;
+  gap: 1rem;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  color: var(--color-gray-900);
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  background: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  text-align: left;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
+  }
+}
+
+.TriggerIcon {
+  box-sizing: border-box;
+  flex-shrink: 0;
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-right: 0.5rem;
+  transition: transform 150ms ease-out;
+
+  [data-panel-open] > & {
+    transform: rotate(45deg) scale(1.1);
+  }
+}
+
+.Panel {
+  box-sizing: border-box;
+  overflow: hidden;
+  color: var(--color-gray-600);
+  font-size: 1rem;
+  line-height: 1.5rem;
+
+  height: var(--accordion-panel-height);
+
+  transition: all var(--duration) ease-out;
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    height: 0;
+    opacity: 0;
+  }
+}
+
+.Content {
+  padding-bottom: 0.75rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 5rem;
+}
+
+.wrapper {
+  font-family: system-ui, sans-serif;
+  line-height: 1.4;
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: stretch;
+  gap: 1rem;
+  align-self: flex-start;
+}

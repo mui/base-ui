@@ -1,0 +1,9 @@
+.Text {
+  font-size: 0.875rem;
+  line-height: 1rem;
+  color: var(--color-gray-900);
+
+  strong& {
+    font-weight: 500;
+  }
+}

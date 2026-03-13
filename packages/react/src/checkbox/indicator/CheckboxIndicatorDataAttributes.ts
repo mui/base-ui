@@ -1,3 +1,5 @@
+import { TransitionStatusDataAttributes } from '../../utils/stateAttributesMapping';
+
 export enum CheckboxIndicatorDataAttributes {
   /**
    * Present when the checkbox is checked.
@@ -7,6 +9,10 @@ export enum CheckboxIndicatorDataAttributes {
    * Present when the checkbox is not checked.
    */
   unchecked = 'data-unchecked',
+  /**
+   * Present when the checkbox is in an indeterminate state.
+   */
+  indeterminate = 'data-indeterminate',
   /**
    * Present when the checkbox is disabled.
    */
@@ -22,11 +28,11 @@ export enum CheckboxIndicatorDataAttributes {
   /**
    * Present when the checkbox indicator is animating in.
    */
-  startingStyle = 'data-starting-style',
+  startingStyle = TransitionStatusDataAttributes.startingStyle,
   /**
    * Present when the checkbox indicator is animating out.
    */
-  endingStyle = 'data-ending-style',
+  endingStyle = TransitionStatusDataAttributes.endingStyle,
   /**
    * Present when the checkbox is in valid state (when wrapped in Field.Root).
    */
@@ -43,4 +49,12 @@ export enum CheckboxIndicatorDataAttributes {
    * Present when the checkbox's value has changed (when wrapped in Field.Root).
    */
   dirty = 'data-dirty',
+  /**
+   * Present when the checkbox is checked (when wrapped in Field.Root).
+   */
+  filled = 'data-filled',
+  /**
+   * Present when the checkbox is focused (when wrapped in Field.Root).
+   */
+  focused = 'data-focused',
 }

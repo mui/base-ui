@@ -1,26 +1,46 @@
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { type UserWorkspaceConfig } from 'vitest/config';
+// eslint-disable-next-line import/extensions
+import viteConfig from '@base-ui/monorepo-tests/vite.shared.config.mjs';
+import { playwright } from '@vitest/browser-playwright';
 
 const CURRENT_DIR = dirname(fileURLToPath(import.meta.url));
 const WORKSPACE_ROOT = resolve(CURRENT_DIR, './');
 const environment = process.env.VITEST_ENV;
 
-type ProjectConfig = UserWorkspaceConfig['test'] & {};
+type BrowserModeConfig = (UserWorkspaceConfig['test'] & {})['browser'];
 
-const browserConfig: ProjectConfig['browser'] =
-  environment === 'chromium' || environment === 'firefox'
-    ? {
-        enabled: true,
-        name: environment,
-        provider: 'playwright',
-        headless: !!process.env.CI,
-        viewport: {
-          width: 1024,
-          height: 896,
-        },
-      }
-    : undefined;
+const supportedBrowsers = new Set(['chromium', 'webkit', 'firefox'] as const);
+type SupportedBrowser = typeof supportedBrowsers extends Set<infer U> ? U : never;
+
+function isSupportedBrowser(env: string | undefined): env is SupportedBrowser {
+  return !!env && (supportedBrowsers as Set<string>).has(env);
+}
+
+function getBrowserConfig(): BrowserModeConfig {
+  if (!environment) {
+    return undefined;
+  }
+
+  let instances;
+
+  if (environment === 'all-browsers') {
+    instances = Array.from(supportedBrowsers, (browser) => ({ browser }));
+  } else if (isSupportedBrowser(environment)) {
+    instances = [{ browser: environment }];
+  } else {
+    return undefined;
+  }
+
+  return {
+    enabled: true,
+    provider: playwright(),
+    screenshotFailures: false,
+    headless: true,
+    instances,
+  };
+}
 
 const config: UserWorkspaceConfig = {
   test: {
@@ -34,16 +54,14 @@ const config: UserWorkspaceConfig = {
         url: 'http://localhost',
       },
     },
-    browser: browserConfig,
+    browser: getBrowserConfig(),
     env: {
       VITEST: 'true',
     },
+    // Avoid committing tests that influence their own retry
+    retry: process.env.CI ? 1 : 0,
   },
-  resolve: {
-    alias: {
-      docs: resolve(WORKSPACE_ROOT, './docs'),
-    },
-  },
+  resolve: viteConfig.resolve,
 };
 
 export default config;

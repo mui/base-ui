@@ -1,11 +1,11 @@
 import * as React from 'react';
 import * as ReactDOMClient from 'react-dom/client';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router';
 import TestViewer from './TestViewer';
-import 'docs/src/styles.css';
+import 'docs/src/css/index.css';
 
 interface Fixture {
-  Component: React.LazyExoticComponent<React.ComponentType<any>>;
+  Component: React.ComponentType<unknown>;
   name: string;
   path: string;
   suite: string;
@@ -14,7 +14,9 @@ interface Fixture {
 // Get all the fixtures specifically written for preventing visual regressions.
 const globbedRegressionFixtures = import.meta.glob<{ default: React.ComponentType<unknown> }>(
   './fixtures/**/*.tsx',
+  { eager: true },
 );
+
 const regressionFixtures: Fixture[] = [];
 
 for (const path in globbedRegressionFixtures) {
@@ -23,11 +25,12 @@ for (const path in globbedRegressionFixtures) {
     .replace('./', '')
     .replace(/\.\w+$/, '')
     .split('/');
+
   regressionFixtures.push({
     path,
     suite: `regression-${suite}`,
     name,
-    Component: React.lazy(() => globbedRegressionFixtures[path]()),
+    Component: globbedRegressionFixtures[path].default,
   });
 }
 
@@ -75,7 +78,8 @@ function excludeDemoFixture(suite: string, name: string, path: string) {
 // Also use all public demos to avoid code duplication.
 const globbedDemos = import.meta.glob<{ default: React.ComponentType<unknown> }>(
   // technically it should be 'docs/src/app/\\(public\\)/\\(content\\)/react/**/*.tsx' but tinyglobby doesn't resolve this on Windows
-  'docs/src/app/?public?/?content?/react/**/*.tsx',
+  'docs/src/app/?docs?/react/**/*.tsx',
+  { eager: true },
 );
 
 const demoFixtures: Fixture[] = [];
@@ -87,12 +91,12 @@ for (const path in globbedDemos) {
     .reverse()
     .join('-')}`;
 
-  if (!excludeDemoFixture(suite, name, path)) {
+  if (!excludeDemoFixture(suite, name, path) && globbedDemos[path].default) {
     demoFixtures.push({
       path,
       suite,
       name,
-      Component: React.lazy(() => globbedDemos[path]()),
+      Component: globbedDemos[path].default,
     });
   }
 }
@@ -166,14 +170,7 @@ function App(props: { fixtures: Fixture[] }) {
   }
 
   return (
-    <Router
-      future={{
-        // we don't use or need these features but this removes console warnings
-        // https://github.com/remix-run/react-router/issues/12250
-        v7_relativeSplatPath: true,
-        v7_startTransition: true,
-      }}
-    >
+    <Router>
       <Routes>
         {fixtures.map((fixture) => {
           const path = computePath(fixture);

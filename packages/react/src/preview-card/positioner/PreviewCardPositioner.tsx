@@ -1,16 +1,21 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
-import { usePreviewCardPositioner } from './usePreviewCardPositioner';
 import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
-import { useForkRef } from '../../utils/useForkRef';
-import type { Side, Align } from '../../utils/useAnchorPositioning';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react';
+import {
+  type Side,
+  type Align,
+  useAnchorPositioning,
+  type UseAnchorPositioningSharedParameters,
+} from '../../utils/useAnchorPositioning';
+import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import { HTMLElementType, refType } from '../../utils/proptypes';
 import { usePreviewCardPortalContext } from '../portal/PreviewCardPortalContext';
+import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
+import { useRenderElement } from '../../utils/useRenderElement';
+import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
+import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 
 /**
  * Positions the popup against the trigger.
@@ -18,8 +23,8 @@ import { usePreviewCardPortalContext } from '../portal/PreviewCardPortalContext'
  *
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
-const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
-  props: PreviewCardPositioner.Props,
+export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
+  componentProps: PreviewCardPositioner.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -35,18 +40,26 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     collisionPadding = 5,
     arrowPadding = 5,
     sticky = false,
-    trackAnchor = true,
-    ...otherProps
-  } = props;
+    disableAnchorTracking = false,
+    collisionAvoidance = POPUP_COLLISION_AVOIDANCE,
+    ...elementProps
+  } = componentProps;
 
-  const { open, mounted, floatingRootContext, setPositionerElement } = usePreviewCardRootContext();
+  const store = usePreviewCardRootContext();
   const keepMounted = usePreviewCardPortalContext();
+  const nodeId = useFloatingNodeId();
 
-  const positioner = usePreviewCardPositioner({
+  const open = store.useState('open');
+  const mounted = store.useState('mounted');
+  const floatingRootContext = store.useState('floatingRootContext');
+  const instantType = store.useState('instantType');
+  const transitionStatus = store.useState('transitionStatus');
+  const hasViewport = store.useState('hasViewport');
+
+  const positioning = useAnchorPositioning({
     anchor,
     floatingRootContext,
     positionMethod,
-    open,
     mounted,
     side,
     sideOffset,
@@ -56,175 +69,98 @@ const PreviewCardPositioner = React.forwardRef(function PreviewCardPositioner(
     collisionBoundary,
     collisionPadding,
     sticky,
-    trackAnchor,
+    disableAnchorTracking,
     keepMounted,
+    nodeId,
+    collisionAvoidance,
+    adaptiveOrigin: hasViewport ? adaptiveOrigin : undefined,
   });
 
-  const state: PreviewCardPositioner.State = React.useMemo(
-    () => ({
-      open,
-      side: positioner.side,
-      align: positioner.align,
-      anchorHidden: positioner.anchorHidden,
-    }),
-    [open, positioner.side, positioner.align, positioner.anchorHidden],
-  );
+  const defaultProps: HTMLProps = React.useMemo(() => {
+    const hiddenStyles: React.CSSProperties = {};
+
+    if (!open) {
+      hiddenStyles.pointerEvents = 'none';
+    }
+
+    return {
+      role: 'presentation',
+      hidden: !mounted,
+      style: {
+        ...positioning.positionerStyles,
+        ...hiddenStyles,
+      },
+    };
+  }, [open, mounted, positioning.positionerStyles]);
+
+  const state: PreviewCardPositionerState = {
+    open,
+    side: positioning.side,
+    align: positioning.align,
+    anchorHidden: positioning.anchorHidden,
+    instant: instantType,
+  };
 
   const contextValue: PreviewCardPositionerContext = React.useMemo(
     () => ({
-      side: positioner.side,
-      align: positioner.align,
-      arrowRef: positioner.arrowRef,
-      arrowUncentered: positioner.arrowUncentered,
-      arrowStyles: positioner.arrowStyles,
+      side: positioning.side,
+      align: positioning.align,
+      arrowRef: positioning.arrowRef,
+      arrowUncentered: positioning.arrowUncentered,
+      arrowStyles: positioning.arrowStyles,
     }),
     [
-      positioner.side,
-      positioner.align,
-      positioner.arrowRef,
-      positioner.arrowUncentered,
-      positioner.arrowStyles,
+      positioning.side,
+      positioning.align,
+      positioning.arrowRef,
+      positioning.arrowUncentered,
+      positioning.arrowStyles,
     ],
   );
 
-  const mergedRef = useForkRef(setPositionerElement, forwardedRef);
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: positioner.getPositionerProps,
-    render: render ?? 'div',
-    className,
+  const element = useRenderElement('div', componentProps, {
     state,
-    ref: mergedRef,
-    extraProps: otherProps,
-    customStyleHookMapping: popupStateMapping,
+    props: [defaultProps, getDisabledMountTransitionStyles(transitionStatus), elementProps],
+    ref: [forwardedRef, store.useStateSetter('positionerElement')],
+    stateAttributesMapping: popupStateMapping,
   });
 
   return (
     <PreviewCardPositionerContext.Provider value={contextValue}>
-      {renderElement()}
+      <FloatingNode id={nodeId}>{element}</FloatingNode>
     </PreviewCardPositionerContext.Provider>
   );
 });
 
-namespace PreviewCardPositioner {
-  export interface State {
-    /**
-     * Whether the preview card is currently open.
-     */
-    open: boolean;
-    side: Side;
-    align: Align;
-    anchorHidden: boolean;
-  }
-
-  export interface Props
-    extends usePreviewCardPositioner.SharedParameters,
-      BaseUIComponentProps<'div', State> {}
+export interface PreviewCardPositionerState {
+  /**
+   * Whether the preview card is currently open.
+   */
+  open: boolean;
+  /**
+   * The side of the anchor the component is placed on.
+   */
+  side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
+  align: Align;
+  /**
+   * Whether the anchor element is hidden.
+   */
+  anchorHidden: boolean;
+  /**
+   * Whether transitions should be skipped.
+   */
+  instant: 'dismiss' | 'focus' | undefined;
 }
 
-PreviewCardPositioner.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * How to align the popup relative to the specified side.
-   * @default 'center'
-   */
-  align: PropTypes.oneOf(['center', 'end', 'start']),
-  /**
-   * Additional offset along the alignment axis of the element.
-   * @default 0
-   */
-  alignOffset: PropTypes.number,
-  /**
-   * An element to position the popup against.
-   * By default, the popup will be positioned against the trigger.
-   */
-  anchor: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
-    HTMLElementType,
-    refType,
-    PropTypes.object,
-    PropTypes.func,
-  ]),
-  /**
-   * Minimum distance to maintain between the arrow and the edges of the popup.
-   *
-   * Use it to prevent the arrow element from hanging out of the rounded corners of a popup.
-   * @default 5
-   */
-  arrowPadding: PropTypes.number,
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * An element or a rectangle that delimits the area that the popup is confined to.
-   * @default 'clipping-ancestors'
-   */
-  collisionBoundary: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([
-    HTMLElementType,
-    PropTypes.arrayOf(HTMLElementType),
-    PropTypes.string,
-    PropTypes.shape({
-      height: PropTypes.number,
-      width: PropTypes.number,
-      x: PropTypes.number,
-      y: PropTypes.number,
-    }),
-  ]),
-  /**
-   * Additional space to maintain from the edge of the collision boundary.
-   * @default 5
-   */
-  collisionPadding: PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.shape({
-      bottom: PropTypes.number,
-      left: PropTypes.number,
-      right: PropTypes.number,
-      top: PropTypes.number,
-    }),
-  ]),
-  /**
-   * Determines which CSS `position` property to use.
-   * @default 'absolute'
-   */
-  positionMethod: PropTypes.oneOf(['absolute', 'fixed']),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * Which side of the anchor element to align the popup against.
-   * May automatically change to avoid collisions.
-   * @default 'bottom'
-   */
-  side: PropTypes.oneOf(['bottom', 'inline-end', 'inline-start', 'left', 'right', 'top']),
-  /**
-   * Distance between the anchor and the popup.
-   * @default 0
-   */
-  sideOffset: PropTypes.number,
-  /**
-   * Whether to maintain the popup in the viewport after
-   * the anchor element was scrolled out of view.
-   * @default false
-   */
-  sticky: PropTypes.bool,
-  /**
-   * Whether the popup tracks any layout shift of its positioning anchor.
-   * @default true
-   */
-  trackAnchor: PropTypes.bool,
-} as any;
+export interface PreviewCardPositionerProps
+  extends
+    UseAnchorPositioningSharedParameters,
+    BaseUIComponentProps<'div', PreviewCardPositionerState> {}
 
-export { PreviewCardPositioner };
+export namespace PreviewCardPositioner {
+  export type State = PreviewCardPositionerState;
+  export type Props = PreviewCardPositionerProps;
+}

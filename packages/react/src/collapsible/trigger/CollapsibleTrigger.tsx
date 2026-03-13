@@ -1,12 +1,18 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { BaseUIComponentProps } from '../../utils/types';
+import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import { useRenderElement } from '../../utils/useRenderElement';
+import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import { useButton } from '../../use-button';
 import { useCollapsibleRootContext } from '../root/CollapsibleRootContext';
-import { CollapsibleRoot } from '../root/CollapsibleRoot';
-import { useCollapsibleTrigger } from './useCollapsibleTrigger';
+import { type CollapsibleRootState } from '../root/CollapsibleRoot';
+
+const stateAttributesMapping: StateAttributesMapping<CollapsibleRootState> = {
+  ...triggerOpenStateMapping,
+  ...transitionStatusMapping,
+};
 
 /**
  * A button that opens and closes the collapsible panel.
@@ -14,67 +20,58 @@ import { useCollapsibleTrigger } from './useCollapsibleTrigger';
  *
  * Documentation: [Base UI Collapsible](https://base-ui.com/react/components/collapsible)
  */
-const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
-  props: CollapsibleTrigger.Props,
+export const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
+  componentProps: CollapsibleTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { className, disabled = false, id, render, ...otherProps } = props;
-
-  const { panelId, open, setOpen, state } = useCollapsibleRootContext();
-
-  const { getRootProps } = useCollapsibleTrigger({
-    disabled,
+  const {
     panelId,
     open,
-    setOpen,
-    rootRef: forwardedRef,
-  });
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
-    render: render ?? 'button',
+    handleTrigger,
     state,
+    disabled: contextDisabled,
+  } = useCollapsibleRootContext();
+
+  const {
     className,
-    extraProps: otherProps,
-    customStyleHookMapping: triggerOpenStateMapping,
+    disabled = contextDisabled,
+    id,
+    render,
+    nativeButton = true,
+    ...elementProps
+  } = componentProps;
+
+  const { getButtonProps, buttonRef } = useButton({
+    disabled,
+    focusableWhenDisabled: true,
+    native: nativeButton,
   });
 
-  return renderElement();
+  const props = React.useMemo(
+    () => ({
+      'aria-controls': open ? panelId : undefined,
+      'aria-expanded': open,
+      onClick: handleTrigger,
+    }),
+    [panelId, open, handleTrigger],
+  );
+
+  const element = useRenderElement('button', componentProps, {
+    state,
+    ref: [forwardedRef, buttonRef],
+    props: [props, elementProps, getButtonProps],
+    stateAttributesMapping,
+  });
+
+  return element;
 });
 
-export { CollapsibleTrigger };
+export interface CollapsibleTriggerState extends CollapsibleRootState {}
 
-namespace CollapsibleTrigger {
-  export interface Props extends BaseUIComponentProps<'button', CollapsibleRoot.State> {}
+export interface CollapsibleTriggerProps
+  extends NativeButtonProps, BaseUIComponentProps<'button', CollapsibleTriggerState> {}
+
+export namespace CollapsibleTrigger {
+  export type State = CollapsibleTriggerState;
+  export type Props = CollapsibleTriggerProps;
 }
-
-CollapsibleTrigger.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * @ignore
-   */
-  disabled: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  id: PropTypes.string,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;

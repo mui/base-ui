@@ -1,19 +1,55 @@
 'use client';
 import * as React from 'react';
-import type { UseNumberFieldRoot } from './useNumberFieldRoot';
-import type { NumberFieldRoot } from './NumberFieldRoot';
+import { Timeout } from '@base-ui/utils/useTimeout';
+import type { NumberFieldRoot, NumberFieldRootState } from './NumberFieldRoot';
+import { EventWithOptionalKeyState } from '../utils/types';
+import type { IncrementValueParameters } from '../utils/types';
 
-export interface NumberFieldRootContext extends UseNumberFieldRoot.ReturnValue {
-  state: NumberFieldRoot.State;
+export type InputMode = 'numeric' | 'decimal' | 'text';
+
+export interface NumberFieldRootContext {
+  inputValue: string;
+  value: number | null;
+  startAutoChange: (isIncrement: boolean, event?: React.MouseEvent | Event) => void;
+  stopAutoChange: () => void;
+  minWithDefault: number;
+  maxWithDefault: number;
+  disabled: boolean;
+  readOnly: boolean;
+  id: string | undefined;
+  setValue: (value: number | null, details: NumberFieldRoot.ChangeEventDetails) => boolean;
+  getStepAmount: (event?: EventWithOptionalKeyState) => number | undefined;
+  incrementValue: (amount: number, params: IncrementValueParameters) => boolean;
+  inputRef: React.RefObject<HTMLInputElement | null>;
+  allowInputSyncRef: React.RefObject<boolean | null>;
+  formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
+  valueRef: React.RefObject<number | null>;
+  lastChangedValueRef: React.RefObject<number | null>;
+  hasPendingCommitRef: React.RefObject<boolean>;
+  isPressedRef: React.RefObject<boolean | null>;
+  intentionalTouchCheckTimeout: Timeout;
+  movesAfterTouchRef: React.RefObject<number | null>;
+  name: string | undefined;
+  required: boolean;
+  invalid: boolean | undefined;
+  inputMode: InputMode;
+  getAllowedNonNumericKeys: () => Set<string | undefined>;
+  min: number | undefined;
+  max: number | undefined;
+  setInputValue: React.Dispatch<React.SetStateAction<string>>;
+  locale: Intl.LocalesArgument;
+  isScrubbing: boolean;
+  setIsScrubbing: React.Dispatch<React.SetStateAction<boolean>>;
+  state: NumberFieldRootState;
+  onValueCommitted: (
+    value: number | null,
+    eventDetails: NumberFieldRoot.CommitEventDetails,
+  ) => void;
 }
 
 export const NumberFieldRootContext = React.createContext<NumberFieldRootContext | undefined>(
   undefined,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  NumberFieldRootContext.displayName = 'NumberFieldRootContext';
-}
 
 export function useNumberFieldRootContext() {
   const context = React.useContext(NumberFieldRootContext);

@@ -1,0 +1,44 @@
+{
+  "name": "useRender",
+  "description": "Renders a Base UI element.",
+  "parameters": {
+    "render": {
+      "type": "UseRenderRenderProp<Record<string, unknown>>",
+      "description": "The React element or a function that returns one to override the default element."
+    },
+    "ref": {
+      "type": "Ref<Element>[] | Ref<Element>",
+      "description": "The ref to apply to the rendered element.",
+      "detailedType": "Ref<Element>[] | React.Ref<Element> | undefined"
+    },
+    "state": {
+      "type": "Record<string, unknown>",
+      "description": "The state of the component, passed as the second argument to the `render` callback.\nState properties are automatically converted to data-* attributes.",
+      "detailedType": "Record<string, unknown> | undefined"
+    },
+    "stateAttributesMapping": {
+      "type": "StateAttributesMapping<Record<string, unknown>>",
+      "description": "Custom mapping for converting state properties to data-* attributes.",
+      "example": "{ isActive: (value) => (value ? { 'data-is-active': '' } : null) }",
+      "detailedType": "{} | undefined"
+    },
+    "props": {
+      "type": "Record<string, unknown>",
+      "description": "Props to be spread on the rendered element.\nThey are merged with the internal props of the component, so that event handlers\nare merged, `className` strings and `style` properties are joined, while other external props overwrite the\ninternal ones.",
+      "detailedType": "Record<string, unknown> | undefined"
+    },
+    "enabled": {
+      "type": "boolean | undefined",
+      "default": "true",
+      "description": "If `false`, the hook will skip most of its internal logic and return `null`.\nThis is useful for rendering a component conditionally.",
+      "detailedType": "boolean | undefined | undefined"
+    },
+    "defaultTagName": {
+      "type": "'symbol' | 'object' | 'div' | 'a' | 'abbr' | 'address' | 'area' | 'article' | 'aside' | 'audio' | 'b' | 'base' | 'bdi' | 'bdo' | 'big' | 'blockquote' | 'body' | 'br' | 'button' | 'canvas' | 'caption' | 'center' | 'cite' | 'code' | 'col' | 'colgroup' | 'data' | 'datalist' | 'dd' | 'del' | 'details' | 'dfn' | 'dialog' | 'dl' | 'dt' | 'em' | 'embed' | 'fieldset' | 'figcaption' | 'figure' | 'footer' | 'form' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'head' | 'header' | 'hgroup' | 'hr' | 'html' | 'i' | 'iframe' | 'img' | 'input' | 'ins' | 'kbd' | 'keygen' | 'label' | 'legend' | 'li' | 'link' | 'main' | 'map' | 'mark' | 'menu' | 'menuitem' | 'meta' | 'meter' | 'nav' | 'noindex' | 'noscript' | 'ol' | 'optgroup' | 'option' | 'output' | 'p' | 'param' | 'picture' | 'pre' | 'progress' | 'q' | 'rp' | 'rt' | 'ruby' | 's' | 'samp' | 'search' | 'slot' | 'script' | 'section' | 'select' | 'small' | 'source' | 'span' | 'strong' | 'style' | 'sub' | 'summary' | 'sup' | 'table' | 'template' | 'tbody' | 'td' | 'textarea' | 'tfoot' | 'th' | 'thead' | 'time' | 'title' | 'tr' | 'track' | 'u' | 'ul' | 'var' | 'video' | 'wbr' | 'webview' | 'svg' | 'animate' | 'animateMotion' | 'animateTransform' | 'circle' | 'clipPath' | 'defs' | 'desc' | 'ellipse' | 'feBlend' | 'feColorMatrix' | 'feComponentTransfer' | 'feComposite' | 'feConvolveMatrix' | 'feDiffuseLighting' | 'feDisplacementMap' | 'feDistantLight' | 'feDropShadow' | 'feFlood' | 'feFuncA' | 'feFuncB' | 'feFuncG' | 'feFuncR' | 'feGaussianBlur' | 'feImage' | 'feMerge' | 'feMergeNode' | 'feMorphology' | 'feOffset' | 'fePointLight' | 'feSpecularLighting' | 'feSpotLight' | 'feTile' | 'feTurbulence' | 'filter' | 'foreignObject' | 'g' | 'image' | 'line' | 'linearGradient' | 'marker' | 'mask' | 'metadata' | 'mpath' | 'path' | 'pattern' | 'polygon' | 'polyline' | 'radialGradient' | 'rect' | 'set' | 'stop' | 'switch' | 'text' | 'textPath' | 'tspan' | 'use' | 'view'",
+      "default": "'div'",
+      "description": "The default tag name to use for the rendered element when `render` is not provided.",
+      "detailedType": "| 'symbol'\n| 'object'\n| 'div'\n| 'a'\n| 'abbr'\n| 'address'\n| 'area'\n| 'article'\n| 'aside'\n| 'audio'\n| 'b'\n| 'base'\n| 'bdi'\n| 'bdo'\n| 'big'\n| 'blockquote'\n| 'body'\n| 'br'\n| 'button'\n| 'canvas'\n| 'caption'\n| 'center'\n| 'cite'\n| 'code'\n| 'col'\n| 'colgroup'\n| 'data'\n| 'datalist'\n| 'dd'\n| 'del'\n| 'details'\n| 'dfn'\n| 'dialog'\n| 'dl'\n| 'dt'\n| 'em'\n| 'embed'\n| 'fieldset'\n| 'figcaption'\n| 'figure'\n| 'footer'\n| 'form'\n| 'h1'\n| 'h2'\n| 'h3'\n| 'h4'\n| 'h5'\n| 'h6'\n| 'head'\n| 'header'\n| 'hgroup'\n| 'hr'\n| 'html'\n| 'i'\n| 'iframe'\n| 'img'\n| 'input'\n| 'ins'\n| 'kbd'\n| 'keygen'\n| 'label'\n| 'legend'\n| 'li'\n| 'link'\n| 'main'\n| 'map'\n| 'mark'\n| 'menu'\n| 'menuitem'\n| 'meta'\n| 'meter'\n| 'nav'\n| 'noindex'\n| 'noscript'\n| 'ol'\n| 'optgroup'\n| 'option'\n| 'output'\n| 'p'\n| 'param'\n| 'picture'\n| 'pre'\n| 'progress'\n| 'q'\n| 'rp'\n| 'rt'\n| 'ruby'\n| 's'\n| 'samp'\n| 'search'\n| 'slot'\n| 'script'\n| 'section'\n| 'select'\n| 'small'\n| 'source'\n| 'span'\n| 'strong'\n| 'style'\n| 'sub'\n| 'summary'\n| 'sup'\n| 'table'\n| 'template'\n| 'tbody'\n| 'td'\n| 'textarea'\n| 'tfoot'\n| 'th'\n| 'thead'\n| 'time'\n| 'title'\n| 'tr'\n| 'track'\n| 'u'\n| 'ul'\n| 'var'\n| 'video'\n| 'wbr'\n| 'webview'\n| 'svg'\n| 'animate'\n| 'animateMotion'\n| 'animateTransform'\n| 'circle'\n| 'clipPath'\n| 'defs'\n| 'desc'\n| 'ellipse'\n| 'feBlend'\n| 'feColorMatrix'\n| 'feComponentTransfer'\n| 'feComposite'\n| 'feConvolveMatrix'\n| 'feDiffuseLighting'\n| 'feDisplacementMap'\n| 'feDistantLight'\n| 'feDropShadow'\n| 'feFlood'\n| 'feFuncA'\n| 'feFuncB'\n| 'feFuncG'\n| 'feFuncR'\n| 'feGaussianBlur'\n| 'feImage'\n| 'feMerge'\n| 'feMergeNode'\n| 'feMorphology'\n| 'feOffset'\n| 'fePointLight'\n| 'feSpecularLighting'\n| 'feSpotLight'\n| 'feTile'\n| 'feTurbulence'\n| 'filter'\n| 'foreignObject'\n| 'g'\n| 'image'\n| 'line'\n| 'linearGradient'\n| 'marker'\n| 'mask'\n| 'metadata'\n| 'mpath'\n| 'path'\n| 'pattern'\n| 'polygon'\n| 'polyline'\n| 'radialGradient'\n| 'rect'\n| 'set'\n| 'stop'\n| 'switch'\n| 'text'\n| 'textPath'\n| 'tspan'\n| 'use'\n| 'view'\n| undefined"
+    }
+  },
+  "returnValue": "ReactElement | null"
+}

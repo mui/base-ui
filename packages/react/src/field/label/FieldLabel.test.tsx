@@ -1,27 +1,21 @@
-import * as React from 'react';
-import { Field } from '@base-ui-components/react/field';
-import { Checkbox } from '@base-ui-components/react/checkbox';
-import { Switch } from '@base-ui-components/react/switch';
-import { NumberField } from '@base-ui-components/react/number-field';
-import { Slider } from '@base-ui-components/react/slider';
-import { RadioGroup } from '@base-ui-components/react/radio-group';
-import { Radio } from '@base-ui-components/react/radio';
-import { createRenderer, screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
-import { describeConformance } from '../../../test/describeConformance';
+import { Field } from '@base-ui/react/field';
+import { screen } from '@mui/internal-test-utils';
+import { expect } from 'vitest';
+import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Field.Label />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Field.Label />, () => ({
     refInstanceof: window.HTMLLabelElement,
+    testRenderPropWith: 'label',
     render(node) {
       return render(<Field.Root>{node}</Field.Root>);
     },
   }));
 
-  it('should set htmlFor referencing the control automatically', () => {
-    render(
+  it('should set htmlFor referencing the control automatically', async () => {
+    await render(
       <Field.Root data-testid="field">
         <Field.Control />
         <Field.Label data-testid="label">Label</Field.Label>
@@ -31,89 +25,92 @@ describe('<Field.Label />', () => {
     expect(screen.getByTestId('label')).to.have.attribute('for', screen.getByRole('textbox').id);
   });
 
-  describe('component integration', () => {
-    describe('Checkbox', () => {
-      it('supports Checkbox', () => {
-        render(
-          <Field.Root>
-            <Checkbox.Root data-testid="button" />
-            <Field.Label data-testid="label" />
-          </Field.Root>,
-        );
+  it('when nativeLabel={false}, clicking focuses the associated control', async () => {
+    const { user } = await render(
+      <Field.Root>
+        <Field.Control data-testid="control" />
+        <Field.Label nativeLabel={false} render={<div />} data-testid="label">
+          Label
+        </Field.Label>
+      </Field.Root>,
+    );
 
-        const button = screen.getByTestId('button');
+    const label = screen.getByTestId('label');
+    const control = screen.getByTestId('control');
 
-        expect(screen.getByTestId('label')).to.have.attribute('for', button.id);
-      });
+    expect(label).to.not.have.attribute('for');
+
+    await user.click(label);
+    expect(control).toHaveFocus();
+  });
+
+  describe('dev warnings', () => {
+    it('does not warn by default', async () => {
+      const errorSpy = vi
+        .spyOn(console, 'error')
+        .mockName('console.error')
+        .mockImplementation(() => {});
+
+      await render(
+        <Field.Root>
+          <Field.Control />
+          <Field.Label>Label</Field.Label>
+        </Field.Root>,
+      );
+
+      expect(errorSpy).not.toHaveBeenCalled();
+      errorSpy.mockRestore();
     });
 
-    describe('Switch', () => {
-      it('supports Switch', () => {
-        render(
-          <Field.Root>
-            <Switch.Root data-testid="button" />
-            <Field.Label data-testid="label" />
-          </Field.Root>,
-        );
+    it('errors if nativeLabel=true but ref is not a label', async () => {
+      const errorSpy = vi
+        .spyOn(console, 'error')
+        .mockName('console.error')
+        .mockImplementation(() => {});
 
-        const button = screen.getByTestId('button');
+      await render(
+        <Field.Root>
+          <Field.Control />
+          <Field.Label nativeLabel render={<div />}>
+            Label
+          </Field.Label>
+        </Field.Root>,
+      );
 
-        expect(screen.getByTestId('label')).to.have.attribute('for', button.id);
-      });
+      expect(errorSpy).toHaveBeenCalledTimes(1);
+      expect(errorSpy).toHaveBeenCalledWith(
+        expect.stringContaining(
+          'Base UI: <Field.Label> expected a <label> element because the `nativeLabel` prop is true. ' +
+            'Rendering a non-<label> disables native label association, so `htmlFor` will not ' +
+            'work. Use a real <label> in the `render` prop, or set `nativeLabel` to `false`.',
+        ),
+      );
+      errorSpy.mockRestore();
     });
 
-    describe('NumberField', () => {
-      it('supports NumberField', () => {
-        render(
-          <Field.Root>
-            <NumberField.Root>
-              <NumberField.Input />
-            </NumberField.Root>
-            <Field.Label data-testid="label" />
-          </Field.Root>,
-        );
+    it('errors if nativeLabel=false but ref is a label', async () => {
+      const errorSpy = vi
+        .spyOn(console, 'error')
+        .mockName('console.error')
+        .mockImplementation(() => {});
 
-        expect(screen.getByTestId('label')).to.have.attribute(
-          'for',
-          screen.getByRole('textbox').id,
-        );
-      });
-    });
+      await render(
+        <Field.Root>
+          <Field.Control />
+          <Field.Label nativeLabel={false}>Label</Field.Label>
+        </Field.Root>,
+      );
 
-    describe('Slider', () => {
-      it('supports Slider', () => {
-        render(
-          <Field.Root>
-            <Slider.Root data-testid="slider">
-              <Slider.Control />
-            </Slider.Root>
-            <Field.Label data-testid="label" render={<span />} />
-          </Field.Root>,
-        );
-
-        expect(screen.getByTestId('slider')).to.have.attribute(
-          'aria-labelledby',
-          screen.getByTestId('label').id,
-        );
-      });
-    });
-
-    describe('RadioGroup', () => {
-      it('supports RadioGroup', () => {
-        render(
-          <Field.Root>
-            <RadioGroup data-testid="radio-group">
-              <Radio.Root value="1" />
-            </RadioGroup>
-            <Field.Label data-testid="label" />
-          </Field.Root>,
-        );
-
-        expect(screen.getByTestId('radio-group')).to.have.attribute(
-          'aria-labelledby',
-          screen.getByTestId('label').id,
-        );
-      });
+      expect(errorSpy).toHaveBeenCalledTimes(1);
+      expect(errorSpy).toHaveBeenCalledWith(
+        expect.stringContaining(
+          'Base UI: <Field.Label> expected a non-<label> element because the `nativeLabel` prop is false. ' +
+            'Rendering a <label> assumes native label behavior while Base UI treats it as ' +
+            'non-native, which can cause unexpected pointer behavior. Use a non-<label> in the ' +
+            '`render` prop, or set `nativeLabel` to `true`.',
+        ),
+      );
+      errorSpy.mockRestore();
     });
   });
 });

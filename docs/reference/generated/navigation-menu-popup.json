@@ -1,0 +1,52 @@
+{
+  "name": "NavigationMenuPopup",
+  "description": "A container for the navigation menu contents.\nRenders a `<nav>` element.",
+  "props": {
+    "className": {
+      "type": "string | ((state: NavigationMenu.Popup.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((\n    state: NavigationMenu.Popup.State,\n  ) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: NavigationMenu.Popup.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: NavigationMenu.Popup.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: NavigationMenu.Popup.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: NavigationMenu.Popup.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {
+    "data-open": {
+      "description": "Present when the popup is open."
+    },
+    "data-closed": {
+      "description": "Present when the popup is closed."
+    },
+    "data-align": {
+      "description": "Indicates how the popup is aligned relative to the specified side.",
+      "type": "'start' | 'center' | 'end'"
+    },
+    "data-side": {
+      "description": "Indicates which side the popup is positioned relative to the trigger.",
+      "type": "'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'"
+    },
+    "data-starting-style": {
+      "description": "Present when the popup is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the popup is animating out."
+    }
+  },
+  "cssVariables": {
+    "--popup-height": {
+      "description": "The fixed height of the popup element.",
+      "type": "number"
+    },
+    "--popup-width": {
+      "description": "The fixed width of the popup element.",
+      "type": "number"
+    }
+  }
+}

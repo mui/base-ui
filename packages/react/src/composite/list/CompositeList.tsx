@@ -1,12 +1,159 @@
 /* eslint-disable no-bitwise */
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { fastObjectShallowCompare } from '../../utils/fastObjectShallowCompare';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { CompositeListContext } from './CompositeListContext';
 
-function sortByDocumentPosition(a: Node, b: Node) {
+export type CompositeMetadata<CustomMetadata> = {
+  index?: number | null | undefined;
+} & CustomMetadata;
+
+/**
+ * Provides context for a list of items in a composite component.
+ * @internal
+ */
+export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
+  const { children, elementsRef, labelsRef, onMapChange: onMapChangeProp } = props;
+
+  const onMapChange = useStableCallback(onMapChangeProp);
+
+  const nextIndexRef = React.useRef(0);
+  const listeners = useRefWithInit(createListeners).current;
+
+  // We use a stable `map` to avoid O(n^2) re-allocation costs for large lists.
+  // `mapTick` is our re-render trigger mechanism. We also need to update the
+  // elements and label refs, but there's a lot of async work going on and sometimes
+  // the effect that handles `onMapChange` gets called after those refs have been
+  // filled, and we don't want to lose those values by setting their lengths to `0`.
+  // We also need to have them at the proper length because floating-ui uses that
+  // information for list navigation.
+
+  const map = useRefWithInit(createMap<Metadata>).current;
+  // `mapTick` uses a counter rather than objects for low precision-loss risk and better memory efficiency
+  const [mapTick, setMapTick] = React.useState(0);
+  const lastTickRef = React.useRef(mapTick);
+
+  const register = useStableCallback((node: Element, metadata: Metadata) => {
+    map.set(node, metadata ?? null);
+    lastTickRef.current += 1;
+    setMapTick(lastTickRef.current);
+  });
+
+  const unregister = useStableCallback((node: Element) => {
+    map.delete(node);
+    lastTickRef.current += 1;
+    setMapTick(lastTickRef.current);
+  });
+
+  const sortedMap = React.useMemo(() => {
+    // `mapTick` is the `useMemo` trigger as `map` is stable.
+    disableEslintWarning(mapTick);
+
+    const newMap = new Map<Element, CompositeMetadata<Metadata>>();
+    // Filter out disconnected elements before sorting to avoid inconsistent
+    // compareDocumentPosition results when elements are detached from the DOM.
+    const sortedNodes = Array.from(map.keys())
+      .filter((node) => node.isConnected)
+      .sort(sortByDocumentPosition);
+
+    sortedNodes.forEach((node, index) => {
+      const metadata = map.get(node) ?? ({} as CompositeMetadata<Metadata>);
+      newMap.set(node, { ...metadata, index });
+    });
+
+    return newMap;
+  }, [map, mapTick]);
+
+  useIsoLayoutEffect(() => {
+    if (typeof MutationObserver !== 'function' || sortedMap.size === 0) {
+      return undefined;
+    }
+
+    const mutationObserver = new MutationObserver((entries) => {
+      const diff = new Set<Node>();
+      const updateDiff = (node: Node) => (diff.has(node) ? diff.delete(node) : diff.add(node));
+      entries.forEach((entry) => {
+        entry.removedNodes.forEach(updateDiff);
+        entry.addedNodes.forEach(updateDiff);
+      });
+      if (diff.size === 0) {
+        lastTickRef.current += 1;
+        setMapTick(lastTickRef.current);
+      }
+    });
+
+    sortedMap.forEach((_, node) => {
+      if (node.parentElement) {
+        mutationObserver.observe(node.parentElement, { childList: true });
+      }
+    });
+
+    return () => {
+      mutationObserver.disconnect();
+    };
+  }, [sortedMap]);
+
+  useIsoLayoutEffect(() => {
+    const shouldUpdateLengths = lastTickRef.current === mapTick;
+    if (shouldUpdateLengths) {
+      if (elementsRef.current.length !== sortedMap.size) {
+        elementsRef.current.length = sortedMap.size;
+      }
+      if (labelsRef && labelsRef.current.length !== sortedMap.size) {
+        labelsRef.current.length = sortedMap.size;
+      }
+      nextIndexRef.current = sortedMap.size;
+    }
+
+    onMapChange(sortedMap);
+  }, [onMapChange, sortedMap, elementsRef, labelsRef, mapTick]);
+
+  useIsoLayoutEffect(() => {
+    return () => {
+      elementsRef.current = [];
+    };
+  }, [elementsRef]);
+
+  useIsoLayoutEffect(() => {
+    return () => {
+      if (labelsRef) {
+        labelsRef.current = [];
+      }
+    };
+  }, [labelsRef]);
+
+  const subscribeMapChange = useStableCallback((fn) => {
+    listeners.add(fn);
+    return () => {
+      listeners.delete(fn);
+    };
+  });
+
+  useIsoLayoutEffect(() => {
+    listeners.forEach((l) => l(sortedMap));
+  }, [listeners, sortedMap]);
+
+  const contextValue = React.useMemo(
+    () => ({ register, unregister, subscribeMapChange, elementsRef, labelsRef, nextIndexRef }),
+    [register, unregister, subscribeMapChange, elementsRef, labelsRef, nextIndexRef],
+  );
+
+  return (
+    <CompositeListContext.Provider value={contextValue}>{children}</CompositeListContext.Provider>
+  );
+}
+
+function createMap<Metadata>() {
+  return new Map<Element, CompositeMetadata<Metadata> | null>();
+}
+
+function createListeners() {
+  return new Set<Function>();
+}
+
+function sortByDocumentPosition(a: Element, b: Element) {
   const position = a.compareDocumentPosition(b);
 
   if (
@@ -23,118 +170,26 @@ function sortByDocumentPosition(a: Node, b: Node) {
   return 0;
 }
 
-export type CompositeMetadata<CustomMetadata> = { index?: number | null } & CustomMetadata;
+function disableEslintWarning(_: any) {}
 
-function areMapsEqual<Metadata>(
-  map1: Map<Node, CompositeMetadata<Metadata> | null>,
-  map2: Map<Node, CompositeMetadata<Metadata> | null>,
-) {
-  if (map1.size !== map2.size) {
-    return false;
-  }
-  for (const [key, value] of map1.entries()) {
-    const value2 = map2.get(key);
-    // compare the index before comparing everything else
-    if (value?.index !== value2?.index) {
-      return false;
-    }
-    if (value2 !== undefined && !fastObjectShallowCompare(value, value2)) {
-      return false;
-    }
-  }
-  return true;
-}
+export interface CompositeListState {}
 
-/**
- * Provides context for a list of items in a composite component.
- * @ignore - internal component.
- */
-function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
-  const { children, elementsRef, labelsRef, onMapChange } = props;
-
-  const [map, setMap] = React.useState(() => new Map<Node, CompositeMetadata<Metadata> | null>());
-
-  const register = React.useCallback((node: Node, metadata: Metadata) => {
-    setMap((prevMap) => new Map(prevMap).set(node, metadata ?? null));
-  }, []);
-
-  const unregister = React.useCallback((node: Node) => {
-    setMap((prevMap) => {
-      const nextMap = new Map(prevMap);
-      nextMap.delete(node);
-      return nextMap;
-    });
-  }, []);
-
-  useEnhancedEffect(() => {
-    const newMap = new Map(map);
-
-    const nodes = Array.from(newMap.keys()).sort(sortByDocumentPosition);
-
-    nodes.forEach((node, index) => {
-      const metadata = map.get(node) ?? ({} as CompositeMetadata<Metadata>);
-
-      newMap.set(node, { ...metadata, index });
-    });
-
-    if (!areMapsEqual(map, newMap)) {
-      setMap(newMap);
-      onMapChange?.(newMap);
-    }
-  }, [map, onMapChange]);
-
-  const contextValue = React.useMemo(
-    () => ({ register, unregister, map, elementsRef, labelsRef }),
-    [register, unregister, map, elementsRef, labelsRef],
-  );
-
-  return (
-    <CompositeListContext.Provider value={contextValue}>{children}</CompositeListContext.Provider>
-  );
-}
-
-namespace CompositeList {
-  export interface Props<Metadata> {
-    children: React.ReactNode;
-    /**
-     * A ref to the list of HTML elements, ordered by their index.
-     * `useListNavigation`'s `listRef` prop.
-     */
-    elementsRef: React.RefObject<Array<HTMLElement | null>>;
-    /**
-     * A ref to the list of element labels, ordered by their index.
-     * `useTypeahead`'s `listRef` prop.
-     */
-    labelsRef?: React.RefObject<Array<string | null>>;
-    onMapChange?: (newMap: Map<Node, CompositeMetadata<Metadata> | null>) => void;
-  }
-}
-
-export { CompositeList };
-
-CompositeList.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
+export interface CompositeListProps<Metadata> {
+  children: React.ReactNode;
   /**
    * A ref to the list of HTML elements, ordered by their index.
    * `useListNavigation`'s `listRef` prop.
    */
-  elementsRef: PropTypes /* @typescript-to-proptypes-ignore */.any,
+  elementsRef: React.RefObject<Array<HTMLElement | null>>;
   /**
    * A ref to the list of element labels, ordered by their index.
    * `useTypeahead`'s `listRef` prop.
    */
-  labelsRef: PropTypes.shape({
-    current: PropTypes.arrayOf(PropTypes.string).isRequired,
-  }),
-  /**
-   * @ignore
-   */
-  onMapChange: PropTypes.func,
-} as any;
+  labelsRef?: React.RefObject<Array<string | null>> | undefined;
+  onMapChange?: ((newMap: Map<Element, CompositeMetadata<Metadata> | null>) => void) | undefined;
+}
+
+export namespace CompositeList {
+  export type State = CompositeListState;
+  export type Props<Metadata> = CompositeListProps<Metadata>;
+}

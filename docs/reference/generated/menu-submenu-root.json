@@ -1,0 +1,84 @@
+{
+  "name": "MenuSubmenuRoot",
+  "description": "Groups all parts of a submenu.\nDoesn’t render its own HTML element.",
+  "props": {
+    "defaultOpen": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the menu is initially open.\n\nTo render a controlled menu, use the `open` prop instead.",
+      "detailedType": "boolean | undefined"
+    },
+    "open": {
+      "type": "boolean",
+      "description": "Whether the menu is currently open.",
+      "detailedType": "boolean | undefined"
+    },
+    "onOpenChange": {
+      "type": "((open: boolean, eventDetails: Menu.SubmenuRoot.ChangeEventDetails) => void)",
+      "description": "Event handler called when the menu is opened or closed.",
+      "detailedType": "| ((\n    open: boolean,\n    eventDetails: Menu.SubmenuRoot.ChangeEventDetails,\n  ) => void)\n| undefined"
+    },
+    "highlightItemOnHover": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether moving the pointer over items should highlight them.\nDisabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.",
+      "detailedType": "boolean | undefined"
+    },
+    "actionsRef": {
+      "type": "RefObject<Menu.Root.Actions | null>",
+      "description": "A ref to imperative actions.\n- `unmount`: When specified, the menu will not be unmounted when closed.\n   Instead, the `unmount` function must be called to unmount the menu manually.\n  Useful when the menu's animation is controlled by an external library.\n- `close`: When specified, the menu can be closed imperatively.",
+      "detailedType": "| React.RefObject<Menu.Root.Actions | null>\n| undefined"
+    },
+    "closeParentOnEsc": {
+      "type": "boolean",
+      "default": "false",
+      "description": "When in a submenu, determines whether pressing the Escape key\ncloses the entire menu, or only the current child menu.",
+      "detailedType": "boolean | undefined"
+    },
+    "defaultTriggerId": {
+      "type": "string | null",
+      "description": "ID of the trigger that the popover is associated with.\nThis is useful in conjunction with the `defaultOpen` prop to create an initially open popover.",
+      "detailedType": "string | null | undefined"
+    },
+    "handle": {
+      "type": "Menu.Handle<unknown>",
+      "description": "A handle to associate the menu with a trigger.\nIf specified, allows external triggers to control the menu's open state.",
+      "detailedType": "{} | undefined"
+    },
+    "loopFocus": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys.",
+      "detailedType": "boolean | undefined"
+    },
+    "onOpenChangeComplete": {
+      "type": "((open: boolean) => void)",
+      "description": "Event handler called after any animations complete when the menu is closed.",
+      "detailedType": "((open: boolean) => void) | undefined"
+    },
+    "triggerId": {
+      "type": "string | null",
+      "description": "ID of the trigger that the popover is associated with.\nThis is useful in conjunction with the `open` prop to create a controlled popover.\nThere's no need to specify this prop when the popover is uncontrolled (i.e. when the `open` prop is not set).",
+      "detailedType": "string | null | undefined"
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the component should ignore user interaction.",
+      "detailedType": "boolean | undefined"
+    },
+    "orientation": {
+      "type": "Menu.Root.Orientation",
+      "default": "'vertical'",
+      "description": "The visual orientation of the menu.\nControls whether roving focus uses up/down or left/right arrow keys.",
+      "detailedType": "'horizontal' | 'vertical' | undefined"
+    },
+    "children": {
+      "type": "ReactNode | PayloadChildRenderFunction<unknown>",
+      "description": "The content of the popover.\nThis can be a regular React node or a render function that receives the `payload` of the active trigger.",
+      "detailedType": "| React.ReactNode\n| ((arg: { payload: unknown }) => ReactNode)"
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

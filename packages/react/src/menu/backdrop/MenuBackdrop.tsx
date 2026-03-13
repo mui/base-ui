@@ -1,15 +1,16 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { type StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
+import { REASONS } from '../../utils/reasons';
 
-const customStyleHookMapping: CustomStyleHookMapping<MenuBackdrop.State> = {
+const stateAttributesMapping: StateAttributesMapping<MenuBackdropState> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -20,66 +21,60 @@ const customStyleHookMapping: CustomStyleHookMapping<MenuBackdrop.State> = {
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-const MenuBackdrop = React.forwardRef(function MenuBackdrop(
-  props: MenuBackdrop.Props,
+export const MenuBackdrop = React.forwardRef(function MenuBackdrop(
+  componentProps: MenuBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...other } = props;
-  const { open, mounted, transitionStatus } = useMenuRootContext();
+  const { className, render, ...elementProps } = componentProps;
 
-  const state: MenuBackdrop.State = React.useMemo(
-    () => ({
-      open,
-      transitionStatus,
-    }),
-    [open, transitionStatus],
-  );
+  const { store } = useMenuRootContext();
+  const open = store.useState('open');
+  const mounted = store.useState('mounted');
+  const transitionStatus = store.useState('transitionStatus');
+  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
-    className,
+  const contextMenuContext = useContextMenuRootContext();
+
+  const state: MenuBackdropState = {
+    open,
+    transitionStatus,
+  };
+
+  return useRenderElement('div', componentProps, {
+    ref: contextMenuContext?.backdropRef
+      ? [forwardedRef, contextMenuContext.backdropRef]
+      : forwardedRef,
     state,
-    ref: forwardedRef,
-    extraProps: { role: 'presentation', hidden: !mounted, ...other },
-    customStyleHookMapping,
+    stateAttributesMapping,
+    props: [
+      {
+        role: 'presentation',
+        hidden: !mounted,
+        style: {
+          pointerEvents: lastOpenChangeReason === REASONS.triggerHover ? 'none' : undefined,
+          userSelect: 'none',
+          WebkitUserSelect: 'none',
+        },
+      },
+      elementProps,
+    ],
   });
-
-  return renderElement();
 });
 
-namespace MenuBackdrop {
-  export interface State {
-    /**
-     * Whether the menu is currently open.
-     */
-    open: boolean;
-    transitionStatus: TransitionStatus;
-  }
-
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface MenuBackdropState {
+  /**
+   * Whether the menu is currently open.
+   */
+  open: boolean;
+  /**
+   * The transition status of the component.
+   */
+  transitionStatus: TransitionStatus;
 }
 
-MenuBackdrop.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
+export interface MenuBackdropProps extends BaseUIComponentProps<'div', MenuBackdropState> {}
 
-export { MenuBackdrop };
+export namespace MenuBackdrop {
+  export type State = MenuBackdropState;
+  export type Props = MenuBackdropProps;
+}

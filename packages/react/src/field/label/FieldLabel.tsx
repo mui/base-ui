@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { FieldRoot } from '../root/FieldRoot';
+import { error } from '@base-ui/utils/error';
+import { SafeReact } from '@base-ui/utils/safeReact';
+import type { FieldRootState } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
-import { useFieldLabel } from './useFieldLabel';
-import { STYLE_HOOK_MAPPING } from '../utils/constants';
-import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
+import { fieldValidityMapping } from '../utils/constants';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { useRenderElement } from '../../utils/useRenderElement';
+import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import { useLabel } from '../../labelable-provider/useLabel';
 
 /**
  * An accessible label that is automatically associated with the field control.
@@ -16,69 +16,75 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
-const FieldLabel = React.forwardRef(function FieldLabel(
-  props: FieldLabel.Props,
-  forwardedRef: React.ForwardedRef<any>,
+export const FieldLabel = React.forwardRef(function FieldLabel(
+  componentProps: FieldLabel.Props,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { render, className, id: idProp, ...otherProps } = props;
+  const { render, className, id: idProp, nativeLabel = true, ...elementProps } = componentProps;
 
-  const { setLabelId, state } = useFieldRootContext(false);
+  const fieldRootContext = useFieldRootContext(false);
+  const { labelId } = useLabelableContext();
 
-  const id = useBaseUiId(idProp);
-
-  useEnhancedEffect(() => {
-    setLabelId(id);
-    return () => {
-      setLabelId(undefined);
-    };
-  }, [id, setLabelId]);
-
-  const { getLabelProps } = useFieldLabel();
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: getLabelProps,
-    render: render ?? 'label',
-    ref: forwardedRef,
-    className,
-    state,
-    extraProps: otherProps,
-    customStyleHookMapping: STYLE_HOOK_MAPPING,
+  const labelRef = React.useRef<HTMLElement | null>(null);
+  const labelProps = useLabel({
+    id: labelId ?? idProp,
+    native: nativeLabel,
   });
 
-  return renderElement();
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    React.useEffect(() => {
+      if (!labelRef.current) {
+        return;
+      }
+
+      const isLabelTag = labelRef.current.tagName === 'LABEL';
+
+      if (nativeLabel) {
+        if (!isLabelTag) {
+          const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
+          const message =
+            '<Field.Label> expected a <label> element because the `nativeLabel` prop is true. ' +
+            'Rendering a non-<label> disables native label association, so `htmlFor` will not ' +
+            'work. Use a real <label> in the `render` prop, or set `nativeLabel` to `false`.';
+          error(`${message}${ownerStackMessage}`);
+        }
+      } else if (isLabelTag) {
+        const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
+        const message =
+          '<Field.Label> expected a non-<label> element because the `nativeLabel` prop is false. ' +
+          'Rendering a <label> assumes native label behavior while Base UI treats it as ' +
+          'non-native, which can cause unexpected pointer behavior. Use a non-<label> in the ' +
+          '`render` prop, or set `nativeLabel` to `true`.';
+        error(`${message}${ownerStackMessage}`);
+      }
+    }, [nativeLabel]);
+  }
+
+  const element = useRenderElement('label', componentProps, {
+    ref: [forwardedRef, labelRef],
+    state: fieldRootContext.state,
+    props: [labelProps, elementProps],
+    stateAttributesMapping: fieldValidityMapping,
+  });
+
+  return element;
 });
 
-namespace FieldLabel {
-  export type State = FieldRoot.State;
+export interface FieldLabelState extends FieldRootState {}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface FieldLabelProps extends BaseUIComponentProps<'label', FieldLabelState> {
+  /**
+   * Whether the component renders a native `<label>` element when replacing it via the `render` prop.
+   * Set to `false` if the rendered element is not a label (e.g. `<div>`).
+   *
+   * This is useful to avoid inheriting label behaviors on `<button>` controls (such as `<Select.Trigger>` and `<Combobox.Trigger>`), including avoiding `:hover` on the button when hovering the label, and preventing clicks on the label from firing on the button.
+   * @default true
+   */
+  nativeLabel?: boolean | undefined;
 }
 
-FieldLabel.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * @ignore
-   */
-  id: PropTypes.string,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
-
-export { FieldLabel };
+export namespace FieldLabel {
+  export type State = FieldLabelState;
+  export type Props = FieldLabelProps;
+}

@@ -1,0 +1,17 @@
+{
+  "name": "ComboboxValue",
+  "description": "The current value of the combobox.\nDoesn't render its own HTML element.",
+  "props": {
+    "placeholder": {
+      "type": "ReactNode",
+      "description": "The placeholder value to display when no value is selected.\nThis is overridden by `children` if specified, or by a null item's label in `items`.",
+      "detailedType": "React.ReactNode"
+    },
+    "children": {
+      "type": "ReactNode | ((selectedValue: any) => ReactNode)",
+      "detailedType": "| React.ReactNode\n| ((selectedValue: any) => ReactNode)"
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

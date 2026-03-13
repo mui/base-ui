@@ -1,39 +1,18 @@
-import * as React from 'react';
 import { createRenderer } from '@mui/internal-test-utils';
-import { Collapsible } from '@base-ui-components/react/collapsible';
+import { Collapsible } from '@base-ui/react/collapsible';
 import { describeConformance } from '../../../test/describeConformance';
-import { CollapsibleRootContext } from '../root/CollapsibleRootContext';
-
-const contextValue: CollapsibleRootContext = {
-  panelId: 'PanelId',
-  disabled: false,
-  mounted: true,
-  open: true,
-  setPanelId() {},
-  setMounted() {},
-  setOpen() {},
-  transitionStatus: undefined,
-  state: {
-    open: true,
-    disabled: false,
-    transitionStatus: undefined,
-  },
-};
 
 describe('<Collapsible.Trigger />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Collapsible.Trigger />, () => ({
-    inheritComponent: 'button',
+    refInstanceof: window.HTMLButtonElement,
+    testComponentPropWith: 'button',
+    button: true,
     render: (node) => {
-      const { container, ...other } = render(
-        <CollapsibleRootContext.Provider value={contextValue}>
-          {node}
-        </CollapsibleRootContext.Provider>,
-      );
+      const { container, ...other } = render(<Collapsible.Root>{node}</Collapsible.Root>);
 
       return { container, ...other };
     },
-    refInstanceof: window.HTMLButtonElement,
   }));
 });

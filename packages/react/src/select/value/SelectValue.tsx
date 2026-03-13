@@ -1,11 +1,16 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { useSelectRootContext } from '../root/SelectRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useStore } from '@base-ui/utils/store';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useForkRef } from '../../utils/useForkRef';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useRenderElement } from '../../utils/useRenderElement';
+import { useSelectRootContext } from '../root/SelectRootContext';
+import { resolveMultipleLabels, resolveSelectedLabel } from '../../utils/resolveValueLabel';
+import { selectors } from '../store';
+import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+
+const stateAttributesMapping: StateAttributesMapping<SelectValueState> = {
+  value: () => null,
+};
 
 /**
  * A text label of the currently selected item.
@@ -13,81 +18,89 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-const SelectValue = React.forwardRef(function SelectValue(
-  props: SelectValue.Props,
+export const SelectValue = React.forwardRef(function SelectValue(
+  componentProps: SelectValue.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, children, placeholder, ...otherProps } = props;
-
-  const { label, valueRef } = useSelectRootContext();
-
-  const mergedRef = useForkRef(forwardedRef, valueRef);
-
-  const state: SelectValue.State = React.useMemo(() => ({}), []);
-
-  const getValueProps = React.useCallback(
-    (externalProps = {}) =>
-      mergeReactProps(externalProps, {
-        children: typeof children === 'function' ? children(label) : label || placeholder,
-      }),
-    [children, label, placeholder],
-  );
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: getValueProps,
-    render: render ?? 'span',
+  const {
     className,
-    state,
-    ref: mergedRef,
-    extraProps: otherProps,
-  });
+    render,
+    children: childrenProp,
+    placeholder,
+    ...elementProps
+  } = componentProps;
 
-  return renderElement();
-});
+  const { store, valueRef } = useSelectRootContext();
 
-namespace SelectValue {
-  export interface Props extends Omit<BaseUIComponentProps<'span', State>, 'children'> {
-    children?: null | ((value: string) => React.ReactNode);
-    /**
-     * A placeholder value to display when no value is selected.
-     *
-     * You can use this prop to pre-render the displayed text
-     * during SSR in order to avoid the hydration flash.
-     */
-    placeholder?: string;
+  const value = useStore(store, selectors.value);
+  const items = useStore(store, selectors.items);
+  const itemToStringLabel = useStore(store, selectors.itemToStringLabel);
+  const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
+
+  const shouldCheckNullItemLabel = !hasSelectedValue && placeholder != null && childrenProp == null;
+  const hasNullLabel = useStore(store, selectors.hasNullItemLabel, shouldCheckNullItemLabel);
+
+  const state: SelectValueState = {
+    value,
+    placeholder: !hasSelectedValue,
+  };
+
+  let children = null;
+  if (typeof childrenProp === 'function') {
+    children = childrenProp(value);
+  } else if (childrenProp != null) {
+    children = childrenProp;
+  } else if (!hasSelectedValue && placeholder != null && !hasNullLabel) {
+    children = placeholder;
+  } else if (Array.isArray(value)) {
+    children = resolveMultipleLabels(value, items, itemToStringLabel);
+  } else {
+    children = resolveSelectedLabel(value, items, itemToStringLabel);
   }
 
-  export interface State {}
+  const element = useRenderElement('span', componentProps, {
+    state,
+    ref: [forwardedRef, valueRef],
+    props: [{ children }, elementProps],
+    stateAttributesMapping,
+  });
+
+  return element;
+});
+
+export interface SelectValueState {
+  /**
+   * The value of the currently selected item.
+   */
+  value: any;
+  /**
+   * Whether the placeholder is being displayed.
+   */
+  placeholder: boolean;
 }
 
-SelectValue.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
+export interface SelectValueProps extends Omit<
+  BaseUIComponentProps<'span', SelectValueState>,
+  'children'
+> {
   /**
-   * @ignore
+   * Accepts a function that returns a `ReactNode` to format the selected value.
+   * @example
+   * ```tsx
+   * <Select.Value>
+   *   {(value: string | null) => value ? labels[value] : 'No value'}
+   * </Select.Value>
+   * ```
    */
-  children: PropTypes.func,
+  children?: React.ReactNode | ((value: any) => React.ReactNode);
   /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
+   * The placeholder value to display when no value is selected.
+   * This is overridden by `children` if specified, or by a null item's label in `items`.
    */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * A placeholder value to display when no value is selected.
-   *
-   * You can use this prop to pre-render the displayed text
-   * during SSR in order to avoid the hydration flash.
-   */
-  placeholder: PropTypes.string,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
+  placeholder?: React.ReactNode;
+}
 
-export { SelectValue };
+export namespace SelectValue {
+  export type State = SelectValueState;
+  export type Props = SelectValueProps;
+}

@@ -1,12 +1,12 @@
 import * as React from 'react';
 import * as ReactDOMClient from 'react-dom/client';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router';
 import * as DomTestingLibrary from '@testing-library/dom';
 import TestViewer from './TestViewer';
-import 'docs/src/styles.css';
+import 'docs/src/css/index.css';
 
 interface Fixture {
-  Component: React.LazyExoticComponent<React.ComponentType<any>>;
+  Component: React.ComponentType<any>;
   name: string;
   path: string;
   suite: string;
@@ -14,7 +14,11 @@ interface Fixture {
 
 const globbedFixtures = import.meta.glob<{ default: React.ComponentType<unknown> }>(
   './fixtures/**/*.{js,jsx,ts,tsx}',
+  {
+    eager: true,
+  },
 );
+
 const fixtures: Fixture[] = [];
 
 for (const path in globbedFixtures) {
@@ -22,11 +26,12 @@ for (const path in globbedFixtures) {
     .replace('./', '')
     .replace(/\.\w+$/, '')
     .split('/');
+
   fixtures.push({
     path,
     suite: `e2e-${suite}`,
     name,
-    Component: React.lazy(() => globbedFixtures[path]()),
+    Component: globbedFixtures[path].default,
   });
 }
 
@@ -53,7 +58,7 @@ function App() {
   }, []);
 
   function computePath(fixture: Fixture) {
-    return `/${fixture.suite}/${fixture.name}`;
+    return `/${fixture.suite}/${fixture.path.slice(11, -4)}`;
   }
 
   return (

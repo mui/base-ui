@@ -1,0 +1,56 @@
+@layer components {
+  .ReferenceTooltipPopup {
+    padding: 0.5rem 0.75rem;
+    font-size: var(--text-md);
+    overflow: visible;
+  }
+
+  .ReferenceTooltipContent {
+    display: flex;
+    max-width: 30rem;
+    flex-direction: column;
+    gap: 0.75rem;
+    text-wrap: pretty;
+  }
+
+  .ReferenceTooltipArrow {
+    &[data-side='bottom'] {
+      top: -8px;
+    }
+
+    &[data-side='left'] {
+      right: -13px;
+      transform: rotate(90deg);
+    }
+
+    &[data-side='right'] {
+      left: -13px;
+      transform: rotate(-90deg);
+    }
+
+    &[data-side='top'] {
+      bottom: -8px;
+      transform: rotate(180deg);
+    }
+  }
+
+  .ReferenceTooltipArrowFill {
+    fill: var(--color-popup);
+  }
+
+  .ReferenceTooltipArrowStroke {
+    fill: var(--color-gray-200);
+  }
+
+  .ReferenceTooltipArrowStrokeDark {
+    @media (prefers-color-scheme: dark) {
+      fill: var(--color-gray-300);
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .ReferenceTooltipArrowStroke {
+      fill: none;
+    }
+  }
+}

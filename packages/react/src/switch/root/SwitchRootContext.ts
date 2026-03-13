@@ -1,13 +1,10 @@
+'use client';
 import * as React from 'react';
-import type { SwitchRoot } from './SwitchRoot';
+import type { SwitchRootState } from './SwitchRoot';
 
-export type SwitchRootContext = SwitchRoot.State;
+export type SwitchRootContext = SwitchRootState;
 
 export const SwitchRootContext = React.createContext<SwitchRootContext | undefined>(undefined);
-
-if (process.env.NODE_ENV !== 'production') {
-  SwitchRootContext.displayName = 'SwitchRootContext';
-}
 
 export function useSwitchRootContext() {
   const context = React.useContext(SwitchRootContext);

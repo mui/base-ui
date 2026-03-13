@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Tooltip } from '@base-ui-components/react/tooltip';
+import { Tooltip } from '@base-ui/react/tooltip';
 import { DemoVariantSelectorProvider } from 'docs/src/components/Demo/DemoVariantSelectorProvider';
 import { PackageManagerSnippetProvider } from 'docs/src/blocks/PackageManagerSnippet/PackageManagerSnippetProvider';
 

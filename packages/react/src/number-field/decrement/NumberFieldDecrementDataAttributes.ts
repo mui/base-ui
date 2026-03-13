@@ -31,4 +31,12 @@ export enum NumberFieldDecrementDataAttributes {
    * Present when the number field's value has changed (when wrapped in Field.Root).
    */
   dirty = 'data-dirty',
+  /**
+   * Present when the number field is filled (when wrapped in Field.Root).
+   */
+  filled = 'data-filled',
+  /**
+   * Present when the number field is focused (when wrapped in Field.Root).
+   */
+  focused = 'data-focused',
 }

@@ -1,21 +1,28 @@
+'use client';
 import * as React from 'react';
 import type { FieldValidityData } from '../field/root/FieldRoot';
+import { NOOP } from '../utils/noop';
+import type { Form } from './Form';
 
-type Errors = Record<string, string | string[]>;
+export type Errors = Record<string, string | string[]>;
 
 export interface FormContext {
   errors: Errors;
-  onClearErrors: (errors: Errors) => void;
-  formRef: React.MutableRefObject<{
+  clearErrors: (name: string | undefined) => void;
+  formRef: React.RefObject<{
     fields: Map<
       string,
       {
-        validate: () => void;
+        name: string | undefined;
+        validate: (flushSync?: boolean | undefined) => void;
         validityData: FieldValidityData;
-        controlRef: React.RefObject<HTMLElement>;
+        controlRef: React.RefObject<HTMLElement | null>;
+        getValue: () => unknown;
       }
     >;
   }>;
+  validationMode: Form.ValidationMode;
+  submitAttemptedRef: React.RefObject<boolean>;
 }
 
 export const FormContext = React.createContext<FormContext>({
@@ -25,12 +32,12 @@ export const FormContext = React.createContext<FormContext>({
     },
   },
   errors: {},
-  onClearErrors: () => {},
+  clearErrors: NOOP,
+  validationMode: 'onSubmit',
+  submitAttemptedRef: {
+    current: false,
+  },
 });
-
-if (process.env.NODE_ENV !== 'production') {
-  FormContext.displayName = 'FormContext';
-}
 
 export function useFormContext() {
   return React.useContext(FormContext);

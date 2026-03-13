@@ -1,4 +1,5 @@
 import { FieldControlDataAttributes } from '../control/FieldControlDataAttributes';
+import type { FieldRootState } from '../root/FieldRoot';
 
 export const DEFAULT_VALIDITY_STATE = {
   badInput: false,
@@ -14,7 +15,23 @@ export const DEFAULT_VALIDITY_STATE = {
   valueMissing: false,
 };
 
-export const STYLE_HOOK_MAPPING = {
+export const DEFAULT_FIELD_STATE_ATTRIBUTES: Pick<
+  FieldRootState,
+  'valid' | 'touched' | 'dirty' | 'filled' | 'focused'
+> = {
+  valid: null,
+  touched: false,
+  dirty: false,
+  filled: false,
+  focused: false,
+};
+
+export const DEFAULT_FIELD_ROOT_STATE: FieldRootState = {
+  disabled: false,
+  ...DEFAULT_FIELD_STATE_ATTRIBUTES,
+};
+
+export const fieldValidityMapping = {
   valid(value: boolean | null): Record<string, string> | null {
     if (value === null) {
       return null;

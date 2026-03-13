@@ -12,11 +12,13 @@
     "types": ["vitest/globals", "@types/chai", "@types/chai-dom"]
   },
   "include": [
+    "vitest-env.d.ts",
     "src/**/*.spec.ts*",
     "src/**/*.test.ts*",
-    "src/index.test.js",
+    "src/index.test.ts",
     "test",
-    "src/global.d.ts"
+    "src/global.d.ts",
+    "package.json"
   ],
   "references": [{ "path": "./tsconfig.build.json" }]
 }

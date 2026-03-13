@@ -1,84 +1,58 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
-import { useCompositeRootContext } from '../root/CompositeRootContext';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { useCompositeItem } from './useCompositeItem';
-import { refType } from '../../utils/proptypes';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { EMPTY_OBJECT, EMPTY_ARRAY } from '../../utils/constants';
+import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 
 /**
- * @ignore - internal component.
+ * @internal
  */
-function CompositeItem<Metadata>(props: CompositeItem.Props<Metadata>) {
-  const { render, className, itemRef, metadata, ...otherProps } = props;
-
-  const { highlightedIndex } = useCompositeRootContext();
-  const { getItemProps, ref, index } = useCompositeItem({ metadata });
-
-  const state: CompositeItem.State = React.useMemo(
-    () => ({
-      highlighted: index === highlightedIndex,
-    }),
-    [index, highlightedIndex],
-  );
-
-  const mergedRef = useForkRef(itemRef, ref);
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: getItemProps,
-    ref: mergedRef,
-    render: render ?? 'div',
-    state,
+export function CompositeItem<Metadata, State extends Record<string, any>>(
+  componentProps: CompositeItem.Props<Metadata, State>,
+) {
+  const {
+    render,
     className,
-    extraProps: otherProps,
+    state = EMPTY_OBJECT as State,
+    props = EMPTY_ARRAY,
+    refs = EMPTY_ARRAY,
+    metadata,
+    stateAttributesMapping,
+    tag = 'div',
+    ...elementProps
+  } = componentProps;
+
+  const { compositeProps, compositeRef } = useCompositeItem({ metadata });
+
+  return useRenderElement(tag, componentProps, {
+    state,
+    ref: [...refs, compositeRef],
+    props: [compositeProps, ...props, elementProps],
+    stateAttributesMapping,
   });
-
-  return renderElement();
 }
 
-namespace CompositeItem {
-  export interface State {
-    highlighted: boolean;
-  }
+export interface CompositeItemState {}
 
-  export interface Props<Metadata> extends Omit<BaseUIComponentProps<'div', State>, 'itemRef'> {
-    // the itemRef name collides with https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/itemref
-    itemRef?: React.RefObject<HTMLElement | null>;
-    metadata?: Metadata;
-  }
+export interface CompositeItemProps<Metadata, State extends Record<string, any>> extends Pick<
+  BaseUIComponentProps<any, State>,
+  'render' | 'className'
+> {
+  children?: React.ReactNode;
+  metadata?: Metadata | undefined;
+  refs?: React.Ref<HTMLElement | null>[] | undefined;
+  props?: Array<Record<string, any> | (() => Record<string, any>)> | undefined;
+  state?: State | undefined;
+  stateAttributesMapping?: StateAttributesMapping<State> | undefined;
+  tag?: keyof React.JSX.IntrinsicElements | undefined;
 }
 
-export { CompositeItem };
-
-CompositeItem.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * @ignore
-   */
-  itemRef: refType,
-  /**
-   * @ignore
-   */
-  metadata: PropTypes.any,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
+export namespace CompositeItem {
+  export type State = CompositeItemState;
+  export type Props<Metadata, TState extends Record<string, any>> = CompositeItemProps<
+    Metadata,
+    TState
+  >;
+}

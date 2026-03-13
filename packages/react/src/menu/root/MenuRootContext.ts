@@ -1,26 +1,18 @@
 'use client';
 import * as React from 'react';
-import type { useMenuRoot } from './useMenuRoot';
-import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import { type MenuStore } from '../store/MenuStore';
+import { MenuParent } from './MenuRoot';
 
-export interface MenuRootContext extends useMenuRoot.ReturnValue {
-  disabled: boolean;
-  nested: boolean;
-  parentContext: MenuRootContext | undefined;
-  typingRef: React.RefObject<boolean>;
-  modal: boolean;
-  openReason: OpenChangeReason | null;
+export interface MenuRootContext<Payload = unknown> {
+  store: MenuStore<Payload>;
+  parent: MenuParent;
 }
 
 export const MenuRootContext = React.createContext<MenuRootContext | undefined>(undefined);
 
-if (process.env.NODE_ENV !== 'production') {
-  MenuRootContext.displayName = 'MenuRootContext';
-}
-
-function useMenuRootContext(optional?: false): MenuRootContext;
-function useMenuRootContext(optional: true): MenuRootContext | undefined;
-function useMenuRootContext(optional?: boolean) {
+export function useMenuRootContext(optional?: false): MenuRootContext;
+export function useMenuRootContext(optional: true): MenuRootContext | undefined;
+export function useMenuRootContext(optional?: boolean) {
   const context = React.useContext(MenuRootContext);
   if (context === undefined && !optional) {
     throw new Error(
@@ -30,5 +22,3 @@ function useMenuRootContext(optional?: boolean) {
 
   return context;
 }
-
-export { useMenuRootContext };

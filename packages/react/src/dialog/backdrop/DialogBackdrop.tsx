@@ -1,15 +1,14 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useDialogRootContext } from '../root/DialogRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { type TransitionStatus } from '../../utils/useTransitionStatus';
 import { type BaseUIComponentProps } from '../../utils/types';
-import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { type StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 
-const customStyleHookMapping: CustomStyleHookMapping<DialogBackdrop.State> = {
+const stateAttributesMapping: StateAttributesMapping<DialogBackdropState> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -20,72 +19,62 @@ const customStyleHookMapping: CustomStyleHookMapping<DialogBackdrop.State> = {
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
-const DialogBackdrop = React.forwardRef(function DialogBackdrop(
-  props: DialogBackdrop.Props,
+export const DialogBackdrop = React.forwardRef(function DialogBackdrop(
+  componentProps: DialogBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...other } = props;
-  const { open, nested, mounted, transitionStatus } = useDialogRootContext();
+  const { render, className, forceRender = false, ...elementProps } = componentProps;
+  const { store } = useDialogRootContext();
 
-  const state: DialogBackdrop.State = React.useMemo(
-    () => ({
-      open,
-      transitionStatus,
-    }),
-    [open, transitionStatus],
-  );
+  const open = store.useState('open');
+  const nested = store.useState('nested');
+  const mounted = store.useState('mounted');
+  const transitionStatus = store.useState('transitionStatus');
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
-    className,
+  const state: DialogBackdropState = {
+    open,
+    transitionStatus,
+  };
+
+  return useRenderElement('div', componentProps, {
     state,
-    ref: forwardedRef,
-    extraProps: { role: 'presentation', hidden: !mounted, ...other },
-    customStyleHookMapping,
+    ref: [store.context.backdropRef, forwardedRef],
+    stateAttributesMapping,
+    props: [
+      {
+        role: 'presentation',
+        hidden: !mounted,
+        style: {
+          userSelect: 'none',
+          WebkitUserSelect: 'none',
+        },
+      },
+      elementProps,
+    ],
+    enabled: forceRender || !nested,
   });
-
-  // no need to render nested backdrops
-  const shouldRender = !nested;
-  if (!shouldRender) {
-    return null;
-  }
-
-  return renderElement();
 });
 
-namespace DialogBackdrop {
-  export interface Props extends BaseUIComponentProps<'div', State> {}
-
-  export interface State {
-    /**
-     * Whether the dialog is currently open.
-     */
-    open: boolean;
-    transitionStatus: TransitionStatus;
-  }
+export interface DialogBackdropProps extends BaseUIComponentProps<'div', DialogBackdropState> {
+  /**
+   * Whether the backdrop is forced to render even when nested.
+   * @default false
+   */
+  forceRender?: boolean | undefined;
 }
 
-DialogBackdrop.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
+export interface DialogBackdropState {
   /**
-   * @ignore
+   * Whether the dialog is currently open.
    */
-  children: PropTypes.node,
+  open: boolean;
   /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
+   * The transition status of the component.
    */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
+  transitionStatus: TransitionStatus;
+}
 
-export { DialogBackdrop };
+export namespace DialogBackdrop {
+  export type Props = DialogBackdropProps;
+  export type State = DialogBackdropState;
+}

@@ -1,11 +1,53 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { useMenuTrigger } from './useMenuTrigger';
+import * as ReactDOM from 'react-dom';
+import { FocusableElement } from 'tabbable';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { fastComponentRef } from '@base-ui/utils/fastHooks';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import {
+  safePolygon,
+  useClick,
+  useFloatingTree,
+  useFocus,
+  useHoverReferenceInteraction,
+  useInteractions,
+  useFloatingNodeId,
+  useFloatingParentNodeId,
+} from '../../floating-ui-react';
+import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
+import {
+  contains,
+  getNextTabbable,
+  getTabbableAfterElement,
+  getTabbableBeforeElement,
+  isOutsideEvent,
+} from '../../floating-ui-react/utils';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { BaseUIComponentProps } from '../../utils/types';
+import { useRenderElement } from '../../utils/useRenderElement';
+import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import { useButton } from '../../use-button/useButton';
+import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
+import { CompositeItem } from '../../composite/item/CompositeItem';
+import { useCompositeRootContext } from '../../composite/root/CompositeRootContext';
+import { findRootOwnerId } from '../utils/findRootOwnerId';
+import { useTriggerDataForwarding } from '../../utils/popups';
+import { useBaseUiId } from '../../utils/useBaseUiId';
+import { REASONS } from '../../utils/reasons';
+import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHandler';
+import { MenuHandle } from '../store/MenuHandle';
+import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
+import { useMenubarContext } from '../../menubar/MenubarContext';
+import { MenuParent } from '../root/MenuRoot';
+import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
+import { FocusGuard } from '../../utils/FocusGuard';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+
+const BOUNDARY_OFFSET = 2;
 
 /**
  * A button that opens the menu.
@@ -13,90 +55,412 @@ import { BaseUIComponentProps } from '../../utils/types';
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-const MenuTrigger = React.forwardRef(function MenuTrigger(
-  props: MenuTrigger.Props,
+export const MenuTrigger = fastComponentRef(function MenuTrigger(
+  componentProps: MenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { render, className, disabled = false, ...other } = props;
-
   const {
-    getTriggerProps: getRootTriggerProps,
-    disabled: menuDisabled,
-    setTriggerElement,
-    open,
-    setOpen,
-    allowMouseUpTriggerRef,
-    positionerRef,
-  } = useMenuRootContext();
-
-  const { getTriggerProps } = useMenuTrigger({
-    disabled: disabled || menuDisabled,
-    rootRef: forwardedRef,
-    setTriggerElement,
-    open,
-    setOpen,
-    allowMouseUpTriggerRef,
-    positionerRef,
-  });
-
-  const state: MenuTrigger.State = React.useMemo(() => ({ open }), [open]);
-
-  const { renderElement } = useComponentRenderer({
-    render: render || 'button',
+    render,
     className,
-    state,
-    propGetter: (externalProps) => getRootTriggerProps(getTriggerProps(externalProps)),
-    customStyleHookMapping: pressableTriggerOpenStateMapping,
-    extraProps: other,
-  });
+    disabled: disabledProp = false,
+    nativeButton = true,
+    id: idProp,
+    openOnHover: openOnHoverProp,
+    delay = 100,
+    closeDelay = 0,
+    handle,
+    payload,
+    ...elementProps
+  } = componentProps;
 
-  return renderElement();
-});
-
-namespace MenuTrigger {
-  export interface Props extends BaseUIComponentProps<'button', State> {
-    children?: React.ReactNode;
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
+  const rootContext = useMenuRootContext(true);
+  const store = handle?.store ?? rootContext?.store;
+  if (!store) {
+    throw new Error(
+      'Base UI: <Menu.Trigger> must be either used within a <Menu.Root> component or provided with a handle.',
+    );
   }
 
-  export type State = {
-    /**
-     * Whether the menu is currently open.
-     */
-    open: boolean;
+  const thisTriggerId = useBaseUiId(idProp);
+  const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
+  const floatingRootContext = store.useState('floatingRootContext');
+  const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
+
+  const triggerElementRef = React.useRef<HTMLElement | null>(null);
+
+  const parent = useMenuParent();
+  const compositeRootContext = useCompositeRootContext(true);
+  const floatingTreeRootFromContext = useFloatingTree();
+  const floatingTreeRoot: FloatingTreeStore = React.useMemo(() => {
+    return floatingTreeRootFromContext ?? new FloatingTreeStore();
+  }, [floatingTreeRootFromContext]);
+
+  const floatingNodeId = useFloatingNodeId(floatingTreeRoot);
+  const floatingParentNodeId = useFloatingParentNodeId();
+
+  const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
+    thisTriggerId,
+    triggerElementRef,
+    store,
+    {
+      payload,
+      closeDelay,
+      parent,
+      floatingTreeRoot,
+      floatingNodeId,
+      floatingParentNodeId,
+      keyboardEventRelay: compositeRootContext?.relayKeyboardEvent,
+    },
+  );
+
+  const isInMenubar = parent.type === 'menubar';
+
+  const rootDisabled = store.useState('disabled');
+  const disabled = disabledProp || rootDisabled || (isInMenubar && parent.context.disabled);
+
+  const { getButtonProps, buttonRef } = useButton({
+    disabled,
+    native: nativeButton,
+  });
+
+  React.useEffect(() => {
+    if (!isOpenedByThisTrigger && parent.type === undefined) {
+      store.context.allowMouseUpTriggerRef.current = false;
+    }
+  }, [store, isOpenedByThisTrigger, parent.type]);
+
+  const triggerRef = React.useRef<HTMLElement | null>(null);
+  const allowMouseUpTriggerTimeout = useTimeout();
+
+  const handleDocumentMouseUp = useStableCallback((mouseEvent: MouseEvent) => {
+    if (!triggerRef.current) {
+      return;
+    }
+
+    allowMouseUpTriggerTimeout.clear();
+    store.context.allowMouseUpTriggerRef.current = false;
+
+    const mouseUpTarget = mouseEvent.target as Element | null;
+
+    if (
+      contains(triggerRef.current, mouseUpTarget) ||
+      contains(store.select('positionerElement'), mouseUpTarget) ||
+      mouseUpTarget === triggerRef.current
+    ) {
+      return;
+    }
+
+    if (mouseUpTarget != null && findRootOwnerId(mouseUpTarget) === store.select('rootId')) {
+      return;
+    }
+
+    const bounds = getPseudoElementBounds(triggerRef.current);
+
+    if (
+      mouseEvent.clientX >= bounds.left - BOUNDARY_OFFSET &&
+      mouseEvent.clientX <= bounds.right + BOUNDARY_OFFSET &&
+      mouseEvent.clientY >= bounds.top - BOUNDARY_OFFSET &&
+      mouseEvent.clientY <= bounds.bottom + BOUNDARY_OFFSET
+    ) {
+      return;
+    }
+
+    floatingTreeRoot.events.emit('close', { domEvent: mouseEvent, reason: REASONS.cancelOpen });
+  });
+
+  React.useEffect(() => {
+    if (isOpenedByThisTrigger && store.select('lastOpenChangeReason') === REASONS.triggerHover) {
+      const doc = ownerDocument(triggerRef.current);
+      doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
+    }
+  }, [isOpenedByThisTrigger, handleDocumentMouseUp, store]);
+
+  const parentMenubarHasSubmenuOpen = isInMenubar && parent.context.hasSubmenuOpen;
+  const openOnHover = openOnHoverProp ?? parentMenubarHasSubmenuOpen;
+
+  const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
+    enabled:
+      openOnHover &&
+      !disabled &&
+      parent.type !== 'context-menu' &&
+      (!isInMenubar || (parentMenubarHasSubmenuOpen && !isMountedByThisTrigger)),
+    handleClose: safePolygon({ blockPointerEvents: !isInMenubar }),
+    mouseOnly: true,
+    move: false,
+    restMs: parent.type === undefined ? delay : undefined,
+    delay: { close: closeDelay },
+    triggerElementRef,
+    externalTree: floatingTreeRoot,
+    isActiveTrigger: isTriggerActive,
+  });
+
+  // Whether to ignore clicks to open the menu.
+  // `lastOpenChangeReason` doesn't need to be reactive here, as we need to run this
+  // only when `isOpenedByThisTrigger` changes.
+  const stickIfOpen = useStickIfOpen(isOpenedByThisTrigger, store.select('lastOpenChangeReason'));
+
+  const click = useClick(floatingRootContext, {
+    enabled: !disabled && parent.type !== 'context-menu',
+    event: isOpenedByThisTrigger && isInMenubar ? 'click' : 'mousedown',
+    toggle: true,
+    ignoreMouse: false,
+    stickIfOpen: parent.type === undefined ? stickIfOpen : false,
+  });
+
+  const focus = useFocus(floatingRootContext, {
+    enabled: !disabled && parentMenubarHasSubmenuOpen,
+  });
+
+  const mixedToggleHandlers = useMixedToggleClickHandler({
+    open: isOpenedByThisTrigger,
+    enabled: isInMenubar,
+    mouseDownAction: 'open',
+  });
+
+  const localInteractionProps = useInteractions([click, focus]);
+
+  const state: MenuTriggerState = {
+    disabled,
+    open: isOpenedByThisTrigger,
   };
+
+  const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
+
+  const ref = [triggerRef, forwardedRef, buttonRef, registerTrigger, triggerElementRef];
+  const props = [
+    localInteractionProps.getReferenceProps(),
+    hoverProps ?? EMPTY_OBJECT,
+    rootTriggerProps,
+    {
+      'aria-haspopup': 'menu' as const,
+      id: thisTriggerId,
+      onMouseDown: (event: React.MouseEvent) => {
+        if (store.select('open')) {
+          return;
+        }
+
+        // mousedown -> mouseup on menu item should not trigger it within 200ms.
+        allowMouseUpTriggerTimeout.start(200, () => {
+          store.context.allowMouseUpTriggerRef.current = true;
+        });
+
+        const doc = ownerDocument(event.currentTarget);
+        doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
+      },
+    },
+    isInMenubar ? { role: 'menuitem' } : {},
+    mixedToggleHandlers,
+    elementProps,
+    getButtonProps,
+  ];
+
+  const preFocusGuardRef = React.useRef<HTMLElement>(null);
+
+  const handlePreFocusGuardFocus = useStableCallback((event: React.FocusEvent) => {
+    ReactDOM.flushSync(() => {
+      store.setOpen(
+        false,
+        createChangeEventDetails(
+          REASONS.focusOut,
+          event.nativeEvent,
+          event.currentTarget as HTMLElement,
+        ),
+      );
+    });
+
+    const previousTabbable: FocusableElement | null = getTabbableBeforeElement(
+      preFocusGuardRef.current,
+    );
+    previousTabbable?.focus();
+  });
+
+  const handleFocusTargetFocus = useStableCallback((event: React.FocusEvent) => {
+    const currentPositionerElement = store.select('positionerElement');
+    if (currentPositionerElement && isOutsideEvent(event, currentPositionerElement)) {
+      store.context.beforeContentFocusGuardRef.current?.focus();
+    } else {
+      ReactDOM.flushSync(() => {
+        store.setOpen(
+          false,
+          createChangeEventDetails(
+            REASONS.focusOut,
+            event.nativeEvent,
+            event.currentTarget as HTMLElement,
+          ),
+        );
+      });
+
+      let nextTabbable = getTabbableAfterElement(
+        store.context.triggerFocusTargetRef.current || triggerElementRef.current,
+      );
+
+      while (nextTabbable !== null && contains(currentPositionerElement, nextTabbable)) {
+        const prevTabbable = nextTabbable;
+        nextTabbable = getNextTabbable(nextTabbable);
+        if (nextTabbable === prevTabbable) {
+          break;
+        }
+      }
+
+      nextTabbable?.focus();
+    }
+  });
+
+  const element = useRenderElement('button', componentProps, {
+    enabled: !isInMenubar,
+    stateAttributesMapping: pressableTriggerOpenStateMapping,
+    state,
+    ref,
+    props,
+  });
+
+  if (isInMenubar) {
+    return (
+      <CompositeItem
+        tag="button"
+        render={render}
+        className={className}
+        state={state}
+        refs={ref}
+        props={props}
+        stateAttributesMapping={pressableTriggerOpenStateMapping}
+      />
+    );
+  }
+
+  // A fragment with key is required to ensure that the `element` is mounted to the same DOM node
+  // regardless of whether the focus guards are rendered or not.
+
+  if (isOpenedByThisTrigger) {
+    return (
+      <React.Fragment>
+        <FocusGuard
+          ref={preFocusGuardRef}
+          onFocus={handlePreFocusGuardFocus}
+          key={`${thisTriggerId}-pre-focus-guard`}
+        />
+        <React.Fragment key={thisTriggerId}>{element}</React.Fragment>
+        <FocusGuard
+          ref={store.context.triggerFocusTargetRef}
+          onFocus={handleFocusTargetFocus}
+          key={`${thisTriggerId}-post-focus-guard`}
+        />
+      </React.Fragment>
+    );
+  }
+
+  return <React.Fragment key={thisTriggerId}>{element}</React.Fragment>;
+}) as MenuTrigger;
+
+export interface MenuTrigger {
+  <Payload>(
+    componentProps: MenuTriggerProps<Payload> & React.RefAttributes<HTMLElement>,
+  ): React.JSX.Element;
 }
 
-MenuTrigger.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+export interface MenuTriggerProps<Payload = unknown>
+  extends NativeButtonProps, BaseUIComponentProps<'button', MenuTriggerState> {
+  children?: React.ReactNode;
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled: PropTypes.bool,
+  disabled?: boolean | undefined;
   /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
+   * A handle to associate the trigger with a menu.
    */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
+  handle?: MenuHandle<Payload> | undefined;
+  /**
+   * A payload to pass to the menu when it is opened.
+   */
+  payload?: Payload | undefined;
+  /**
+   * How long to wait before the menu may be opened on hover. Specified in milliseconds.
+   *
+   * Requires the `openOnHover` prop.
+   * @default 100
+   */
+  delay?: number | undefined;
+  /**
+   * How long to wait before closing the menu that was opened on hover.
+   * Specified in milliseconds.
+   *
+   * Requires the `openOnHover` prop.
+   * @default 0
+   */
+  closeDelay?: number | undefined;
+  /**
+   * Whether the menu should also open when the trigger is hovered.
+   */
+  openOnHover?: boolean | undefined;
+}
 
-export { MenuTrigger };
+export interface MenuTriggerState {
+  /**
+   * Whether the menu is currently open.
+   */
+  open: boolean;
+  /**
+   * Whether the trigger is disabled.
+   */
+  disabled: boolean;
+}
+
+export namespace MenuTrigger {
+  export type Props<Payload = unknown> = MenuTriggerProps<Payload>;
+  export type State = MenuTriggerState;
+}
+
+/**
+ * Determines whether to ignore clicks after a hover-open.
+ */
+function useStickIfOpen(open: boolean, openReason: string | null) {
+  const stickIfOpenTimeout = useTimeout();
+  const [stickIfOpen, setStickIfOpen] = React.useState(false);
+  useIsoLayoutEffect(() => {
+    if (open && openReason === 'trigger-hover') {
+      // Only allow "patient" clicks to close the menu if it's open.
+      // If they clicked within 500ms of the menu opening, keep it open.
+      setStickIfOpen(true);
+      stickIfOpenTimeout.start(PATIENT_CLICK_THRESHOLD, () => {
+        setStickIfOpen(false);
+      });
+    } else if (!open) {
+      stickIfOpenTimeout.clear();
+      setStickIfOpen(false);
+    }
+  }, [open, openReason, stickIfOpenTimeout]);
+
+  return stickIfOpen;
+}
+
+function useMenuParent() {
+  const contextMenuContext = useContextMenuRootContext(true);
+  const parentContext = useMenuRootContext(true);
+  const menubarContext = useMenubarContext(true);
+
+  const parent: MenuParent = React.useMemo(() => {
+    if (menubarContext) {
+      return {
+        type: 'menubar',
+        context: menubarContext,
+      };
+    }
+
+    // Ensure this is not a Menu nested inside ContextMenu.Trigger.
+    // ContextMenu parentContext is always undefined as ContextMenu.Root is instantiated with
+    // <MenuRootContext.Provider value={undefined}>
+    if (contextMenuContext && !parentContext) {
+      return {
+        type: 'context-menu',
+        context: contextMenuContext,
+      };
+    }
+
+    return {
+      type: undefined,
+    };
+  }, [contextMenuContext, parentContext, menubarContext]);
+
+  return parent;
+}

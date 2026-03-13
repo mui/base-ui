@@ -1,0 +1,33 @@
+{
+  "name": "ToastClose",
+  "description": "Closes the toast when clicked.\nRenders a `<button>` element.",
+  "props": {
+    "nativeButton": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`).",
+      "detailedType": "boolean | undefined"
+    },
+    "className": {
+      "type": "string | ((state: Toast.Close.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Toast.Close.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Toast.Close.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Toast.Close.State) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Toast.Close.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Toast.Close.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {
+    "data-type": {
+      "description": "The type of the toast.",
+      "type": "string"
+    }
+  },
+  "cssVariables": {}
+}

@@ -1,15 +1,21 @@
+@import 'docs/src/css/custom-media.css';
+
 @layer components {
   .MobileNavBackdrop {
     position: fixed;
     inset: 0;
-    height: 100dvh;
+    min-height: 100dvh;
 
     transition-duration: 600ms;
     transition-property: -webkit-backdrop-filter, backdrop-filter, opacity;
     transition-timing-function: var(--ease-out-fast);
-    -webkit-backdrop-filter: blur(1.5px);
     backdrop-filter: blur(1.5px);
     background-image: linear-gradient(to bottom, transparent 2rem, rgb(0 0 0 / 5%) 50%);
+
+    /* iOS 26+: Ensure the backdrop covers the entire visible viewport. */
+    @supports (-webkit-touch-callout: none) {
+      position: absolute;
+    }
 
     @media (prefers-color-scheme: dark) {
       background-image: linear-gradient(to bottom, transparent, rgb(0 0 0 / 25%) 6rem);
@@ -17,8 +23,7 @@
 
     &[data-starting-style],
     &[data-ending-style] {
-      -webkit-backdrop-filter: blur(0px);
-      backdrop-filter: blur(0px);
+      backdrop-filter: blur(0);
       opacity: 0;
     }
 
@@ -63,10 +68,13 @@
     height: 100dvh;
     overflow-y: auto;
 
-    @apply text-base;
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
+    letter-spacing: var(--text-base--letter-spacing);
 
     /* Native apps don't show scrollbars on sheets like this */
     scrollbar-width: none;
+
     &::-webkit-scrollbar {
       display: none;
     }
@@ -81,6 +89,7 @@
       height: 1px;
       transition: background-color 50ms;
     }
+
     &[data-clipped]::after {
       background-color: var(--color-gridline);
     }
@@ -146,7 +155,9 @@
   }
 
   .MobileNavHeading {
-    @apply text-lg;
+    font-size: var(--text-lg);
+    line-height: var(--text-lg--line-height);
+    letter-spacing: var(--text-lg--letter-spacing);
     font-weight: 500;
     padding-inline: var(--mobile-nav-item-padding-x);
 
@@ -182,7 +193,7 @@
   .MobileNavLink {
     flex-grow: 1;
     display: flex;
-    gap: 0.675rem;
+    gap: 4px;
     align-items: center;
     height: var(--mobile-nav-item-height);
     padding-inline: var(--mobile-nav-item-padding-x);
@@ -204,44 +215,60 @@
       -webkit-tap-highlight-color: var(--color-gray-300);
     }
   }
-}
 
-.MobileNavCloseContainer {
-  position: sticky;
-  top: 0.75rem;
-  left: 100%;
-  margin-right: 0.75rem;
-  height: 0;
-  width: fit-content;
-}
-
-.MobileNavClose {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-gray-500);
-  outline: 0;
-
-  /* Visible circle */
-  width: 1.75rem;
-  height: 1.75rem;
-  border-radius: 100%;
-  background-color: var(--color-gray-200);
-
-  /* Blur the dividers behind */
-  -webkit-backdrop-filter: blur(1rem);
-  backdrop-filter: blur(1rem);
-
-  &:focus-visible {
-    outline: 2px solid var(--color-blue);
-    outline-offset: -1px;
+  .MobileNavBadge {
+    color: var(--color-red);
+    line-height: inherit;
+    user-select: none;
+    text-transform: uppercase;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.035em;
+    padding-inline: 2px;
+    translate: 0 -3px;
   }
 
-  /* Tap target */
-  &::after {
-    content: '';
-    width: 3rem;
-    height: 3rem;
-    position: absolute;
+  .MobileNavCloseContainer {
+    position: sticky;
+    top: 0.75rem;
+    left: 100%;
+    margin-right: 0.75rem;
+    height: 0;
+    width: fit-content;
+  }
+
+  .MobileNavBody {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+
+  .MobileNavClose {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-gray-500);
+    outline: 0;
+
+    /* Visible circle */
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 100%;
+    background-color: var(--color-gray-200);
+
+    /* Blur the dividers behind */
+    backdrop-filter: blur(1rem);
+
+    &:focus-visible {
+      outline: 2px solid var(--color-blue);
+      outline-offset: -1px;
+    }
+
+    /* Tap target */
+    &::after {
+      content: '';
+      width: 3rem;
+      height: 3rem;
+      position: absolute;
+    }
   }
 }

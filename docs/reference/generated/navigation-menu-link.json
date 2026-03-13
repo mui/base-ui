@@ -1,0 +1,38 @@
+{
+  "name": "NavigationMenuLink",
+  "description": "A link in the navigation menu that can be used to navigate to a different page or section.\nRenders an `<a>` element.",
+  "props": {
+    "closeOnClick": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether to close the navigation menu when the link is clicked.",
+      "detailedType": "boolean | undefined"
+    },
+    "active": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the link is the currently active page.",
+      "detailedType": "boolean | undefined"
+    },
+    "className": {
+      "type": "string | ((state: NavigationMenu.Link.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: NavigationMenu.Link.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: NavigationMenu.Link.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: NavigationMenu.Link.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: NavigationMenu.Link.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: NavigationMenu.Link.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {
+    "data-active": {
+      "description": "Present when the link is the currently active page."
+    }
+  },
+  "cssVariables": {}
+}

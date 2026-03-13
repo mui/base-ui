@@ -1,0 +1,139 @@
+.Label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  color: var(--color-gray-900);
+}
+
+.Input {
+  box-sizing: border-box;
+  padding-left: 0.875rem;
+  margin: 0;
+  border: 1px solid var(--color-gray-200);
+  width: 16rem;
+  height: 2.5rem;
+  border-radius: 0.375rem;
+  font-family: inherit;
+  font-size: 1rem;
+  background-color: canvas;
+  color: var(--color-gray-900);
+  outline: none;
+
+  @media (min-width: 500px) {
+    width: 20rem;
+  }
+
+  &:focus {
+    border-color: var(--color-blue);
+    outline: 1px solid var(--color-blue);
+  }
+}
+
+.Positioner {
+  outline: 0;
+}
+
+.Popup {
+  box-sizing: border-box;
+  padding-block: 0.5rem;
+  border-radius: 0.375rem;
+  background-color: canvas;
+  color: var(--color-gray-900);
+  width: var(--anchor-width);
+  max-height: min(var(--available-height), 28rem);
+  max-width: var(--available-width);
+  overflow-y: auto;
+  scroll-padding-block: 0.5rem;
+  overscroll-behavior: contain;
+
+  @media (prefers-color-scheme: light) {
+    outline: 1px solid var(--color-gray-200);
+    box-shadow:
+      0 10px 15px -3px var(--color-gray-200),
+      0 4px 6px -4px var(--color-gray-200);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    outline: 1px solid var(--color-gray-300);
+    outline-offset: -1px;
+  }
+}
+
+.List {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.Item {
+  box-sizing: border-box;
+  outline: 0;
+  cursor: default;
+  user-select: none;
+  padding: 0.75rem 1rem;
+  display: flex;
+  font-size: 1rem;
+  line-height: 1.5rem;
+
+  &[data-highlighted] {
+    z-index: 0;
+    position: relative;
+  }
+
+  &[data-highlighted]::before {
+    content: '';
+    z-index: -1;
+    position: absolute;
+    inset-block: 0;
+    inset-inline: 0.5rem;
+    border-radius: 0.25rem;
+    background-color: var(--color-gray-200);
+  }
+}
+
+.ItemContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.ItemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ItemTitle {
+  font-weight: 500;
+  line-height: 1.25rem;
+  flex: 1;
+}
+
+.ItemDescription {
+  font-size: 0.875rem;
+  color: var(--color-gray-600);
+  line-height: 1.25rem;
+}
+
+.Empty:not(:empty) {
+  box-sizing: border-box;
+  font-size: 0.925rem;
+  line-height: 1rem;
+  color: var(--color-gray-600);
+  padding: 0.5rem 1rem;
+}
+
+.Item mark {
+  background-color: transparent;
+  color: var(--color-blue);
+  font-weight: 600;
+}
+
+.ItemCategory mark {
+  color: var(--color-blue);
+}

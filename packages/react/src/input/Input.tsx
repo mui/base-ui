@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../utils/types';
-import { Field } from '../field';
+import { Field, type FieldControlState } from '../field';
 
 /**
  * A native input element that automatically works with [Field](https://base-ui.com/react/components/field).
@@ -10,41 +9,36 @@ import { Field } from '../field';
  *
  * Documentation: [Base UI Input](https://base-ui.com/react/components/input)
  */
-const Input = React.forwardRef(function Input(
+export const Input = React.forwardRef(function Input(
   props: Input.Props,
-  forwardedRef: React.ForwardedRef<HTMLInputElement>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { render, className, ...otherProps } = props;
-  return <Field.Control ref={forwardedRef} render={render} className={className} {...otherProps} />;
+  return <Field.Control ref={forwardedRef} {...props} />;
 });
 
-namespace Input {
-  export interface Props extends BaseUIComponentProps<'input', State> {}
-
-  export interface State {}
+export interface InputProps extends BaseUIComponentProps<'input', InputState> {
+  /**
+   * Callback fired when the `value` changes. Use when controlled.
+   */
+  onValueChange?: Field.Control.Props['onValueChange'] | undefined;
+  /**
+   * The default value of the input. Use when uncontrolled.
+   */
+  defaultValue?: Field.Control.Props['defaultValue'] | undefined;
+  /**
+   * The value of the input. Use when controlled.
+   */
+  value?: React.ComponentProps<'input'>['value'] | undefined;
 }
 
-Input.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
+export interface InputState extends FieldControlState {}
 
-export { Input };
+export type InputChangeEventReason = Field.Control.ChangeEventReason;
+export type InputChangeEventDetails = Field.Control.ChangeEventDetails;
+
+export namespace Input {
+  export type Props = InputProps;
+  export type State = InputState;
+  export type ChangeEventReason = InputChangeEventReason;
+  export type ChangeEventDetails = InputChangeEventDetails;
+}

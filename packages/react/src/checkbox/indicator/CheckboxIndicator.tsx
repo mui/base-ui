@@ -1,16 +1,15 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useCheckboxRootContext } from '../root/CheckboxRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useCustomStyleHookMapping } from '../utils/useCustomStyleHookMapping';
-import type { CheckboxRoot } from '../root/CheckboxRoot';
+import { useRenderElement } from '../../utils/useRenderElement';
+import { useStateAttributesMapping } from '../utils/useStateAttributesMapping';
+import type { CheckboxRootState } from '../root/CheckboxRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
-import { useForkRef } from '../../utils/useForkRef';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import { fieldValidityMapping } from '../../field/utils/constants';
 
 /**
  * Indicates whether the checkbox is ticked.
@@ -18,11 +17,11 @@ import { transitionStatusMapping } from '../../utils/styleHookMapping';
  *
  * Documentation: [Base UI Checkbox](https://base-ui.com/react/components/checkbox)
  */
-const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
-  props: CheckboxIndicator.Props,
+export const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
+  componentProps: CheckboxIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, keepMounted = false, ...otherProps } = props;
+  const { render, className, keepMounted = false, ...elementProps } = componentProps;
 
   const rootState = useCheckboxRootContext();
 
@@ -31,94 +30,68 @@ const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(rendered);
 
   const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
-  const mergedRef = useForkRef(forwardedRef, indicatorRef);
 
-  const state: CheckboxIndicator.State = React.useMemo(
-    () => ({
-      ...rootState,
-      transitionStatus,
-    }),
-    [rootState, transitionStatus],
-  );
+  const state: CheckboxIndicatorState = {
+    ...rootState,
+    transitionStatus,
+  };
 
-  useAfterExitAnimation({
+  useOpenChangeComplete({
     open: rendered,
-    animatedElementRef: indicatorRef,
-    onFinished() {
-      setMounted(false);
+    ref: indicatorRef,
+    onComplete() {
+      if (!rendered) {
+        setMounted(false);
+      }
     },
   });
 
-  const baseStyleHookMapping = useCustomStyleHookMapping(rootState);
+  const baseStateAttributesMapping = useStateAttributesMapping(rootState);
 
-  const customStyleHookMapping: CustomStyleHookMapping<CheckboxIndicator.State> = React.useMemo(
+  const stateAttributesMapping: StateAttributesMapping<CheckboxIndicatorState> = React.useMemo(
     () => ({
-      ...baseStyleHookMapping,
+      ...baseStateAttributesMapping,
       ...transitionStatusMapping,
+      ...fieldValidityMapping,
     }),
-    [baseStyleHookMapping],
+    [baseStateAttributesMapping],
   );
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'span',
-    ref: mergedRef,
+  const shouldRender = keepMounted || mounted;
+
+  const element = useRenderElement('span', componentProps, {
+    ref: [forwardedRef, indicatorRef],
     state,
-    className,
-    customStyleHookMapping,
-    extraProps: {
-      hidden: !mounted,
-      ...otherProps,
-    },
+    stateAttributesMapping,
+    props: elementProps,
   });
 
-  const shouldRender = keepMounted || rendered;
   if (!shouldRender) {
     return null;
   }
 
-  return renderElement();
+  return element;
 });
 
-namespace CheckboxIndicator {
-  export interface State extends CheckboxRoot.State {
-    transitionStatus: TransitionStatus;
-  }
-
-  export interface Props extends BaseUIComponentProps<'span', State> {
-    /**
-     * Whether to keep the element in the DOM when the checkbox is not checked.
-     * @default false
-     */
-    keepMounted?: boolean;
-  }
+export interface CheckboxIndicatorState extends CheckboxRootState {
+  /**
+   * The transition status of the component.
+   */
+  transitionStatus: TransitionStatus;
 }
 
-CheckboxIndicator.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+export interface CheckboxIndicatorProps extends BaseUIComponentProps<
+  'span',
+  CheckboxIndicatorState
+> {
   /**
    * Whether to keep the element in the DOM when the checkbox is not checked.
    * @default false
    */
-  keepMounted: PropTypes.bool,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
+  keepMounted?: boolean | undefined;
+}
 
-export { CheckboxIndicator };
+export namespace CheckboxIndicator {
+  export type State = CheckboxIndicatorState;
+  export type Props = CheckboxIndicatorProps;
+}

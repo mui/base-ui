@@ -1,44 +1,29 @@
-import * as React from 'react';
+import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { Progress } from '@base-ui-components/react/progress';
+import { Progress } from '@base-ui/react/progress';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { ProgressRootContext } from '../root/ProgressRootContext';
-
-const contextValue: ProgressRootContext = {
-  max: 100,
-  min: 0,
-  value: 30,
-  status: 'progressing',
-  state: {
-    max: 100,
-    min: 0,
-    status: 'progressing',
-  },
-};
 
 describe('<Progress.Indicator />', () => {
   const { render } = createRenderer();
 
   describeConformance(<Progress.Indicator />, () => ({
     render: (node) => {
-      return render(
-        <ProgressRootContext.Provider value={contextValue}>{node}</ProgressRootContext.Provider>,
-      );
+      return render(<Progress.Root value={40}>{node}</Progress.Root>);
     },
-    refInstanceof: window.HTMLSpanElement,
+    refInstanceof: window.HTMLDivElement,
   }));
 
   describe.skipIf(isJSDOM)('internal styles', () => {
     it('determinate', async () => {
-      const { getByTestId } = await render(
+      await render(
         <Progress.Root value={33}>
           <Progress.Track>
-            <Progress.Indicator data-testid="indicator" />
+            <Progress.Indicator data-testid="indicator" render={<span />} />
           </Progress.Track>
         </Progress.Root>,
       );
 
-      const indicator = getByTestId('indicator');
+      const indicator = screen.getByTestId('indicator');
 
       expect(indicator).toHaveComputedStyle({
         insetInlineStart: '0px',
@@ -47,7 +32,7 @@ describe('<Progress.Indicator />', () => {
     });
 
     it('sets zero width when value is 0', async () => {
-      const { getByTestId } = await render(
+      await render(
         <Progress.Root value={0}>
           <Progress.Track>
             <Progress.Indicator data-testid="indicator" />
@@ -55,16 +40,16 @@ describe('<Progress.Indicator />', () => {
         </Progress.Root>,
       );
 
-      const indicator = getByTestId('indicator');
+      const indicator = screen.getByTestId('indicator');
 
       expect(indicator).toHaveComputedStyle({
         insetInlineStart: '0px',
-        width: '0%',
+        width: '0px',
       });
     });
 
     it('indeterminate', async () => {
-      const { getByTestId } = await render(
+      await render(
         <Progress.Root value={null}>
           <Progress.Track>
             <Progress.Indicator data-testid="indicator" />
@@ -72,7 +57,7 @@ describe('<Progress.Indicator />', () => {
         </Progress.Root>,
       );
 
-      const indicator = getByTestId('indicator');
+      const indicator = screen.getByTestId('indicator');
 
       expect(indicator).toHaveComputedStyle({});
     });

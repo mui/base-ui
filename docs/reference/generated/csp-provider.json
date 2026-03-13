@@ -1,0 +1,23 @@
+{
+  "name": "CSPProvider",
+  "description": "Provides a default Content Security Policy (CSP) configuration for Base UI components that\nrequire inline `<style>` or `<script>` tags.",
+  "props": {
+    "disableStyleElements": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether inline `<style>` elements created by Base UI components should not be rendered. Instead, components must specify the CSS styles via custom class names or other methods.",
+      "detailedType": "boolean | undefined"
+    },
+    "nonce": {
+      "type": "string",
+      "description": "The nonce value to apply to inline `<style>` and `<script>` tags.",
+      "detailedType": "string | undefined"
+    },
+    "children": {
+      "type": "ReactNode",
+      "detailedType": "React.ReactNode"
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

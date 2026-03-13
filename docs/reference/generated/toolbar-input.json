@@ -1,0 +1,49 @@
+{
+  "name": "ToolbarInput",
+  "description": "A native input element that integrates with Toolbar keyboard navigation.\nRenders an `<input>` element.",
+  "props": {
+    "defaultValue": {
+      "type": "string | number | string[]",
+      "detailedType": "string | number | string[] | undefined"
+    },
+    "focusableWhenDisabled": {
+      "type": "boolean",
+      "default": "true",
+      "description": "When `true` the item remains focuseable when disabled.",
+      "detailedType": "boolean | undefined"
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "When `true` the item is disabled.",
+      "detailedType": "boolean | undefined"
+    },
+    "className": {
+      "type": "string | ((state: Toolbar.Input.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Toolbar.Input.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Toolbar.Input.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Toolbar.Input.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Toolbar.Input.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Toolbar.Input.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {
+    "data-orientation": {
+      "description": "Indicates the orientation of the toolbar.",
+      "type": "'horizontal' | 'vertical'"
+    },
+    "data-disabled": {
+      "description": "Present when the input is disabled."
+    },
+    "data-focusable": {
+      "description": "Present when the input remains focusable when disabled."
+    }
+  },
+  "cssVariables": {}
+}

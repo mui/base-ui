@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
-import { usePopoverClose } from './usePopoverClose';
-
-const state = {};
+import { useRenderElement } from '../../utils/useRenderElement';
+import { useButton } from '../../use-button';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
+import { useClosePartRegistration } from '../../utils/closePart';
 
 /**
  * A button that closes the popover.
@@ -14,59 +14,52 @@ const state = {};
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
-const PopoverClose = React.forwardRef(function PopoverClose(
-  props: PopoverClose.Props,
+export const PopoverClose = React.forwardRef(function PopoverClose(
+  componentProps: PopoverClose.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, ...otherProps } = props;
-
-  const { setOpen } = usePopoverRootContext();
-
-  const { getCloseProps } = usePopoverClose({
-    onClose() {
-      setOpen(false);
-    },
-  });
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: getCloseProps,
-    render: render ?? 'button',
+  const {
+    render,
     className,
-    state,
-    extraProps: otherProps,
-    ref: forwardedRef,
+    disabled = false,
+    nativeButton = true,
+    ...elementProps
+  } = componentProps;
+
+  const { buttonRef, getButtonProps } = useButton({
+    disabled,
+    focusableWhenDisabled: false,
+    native: nativeButton,
   });
 
-  return renderElement();
+  const { store } = usePopoverRootContext();
+  useClosePartRegistration();
+
+  const element = useRenderElement('button', componentProps, {
+    ref: [forwardedRef, buttonRef],
+    props: [
+      {
+        onClick(event) {
+          store.setOpen(
+            false,
+            createChangeEventDetails(REASONS.closePress, event.nativeEvent, event.currentTarget),
+          );
+        },
+      },
+      elementProps,
+      getButtonProps,
+    ],
+  });
+
+  return element;
 });
 
-namespace PopoverClose {
-  export interface State {}
+export interface PopoverCloseState {}
 
-  export interface Props extends BaseUIComponentProps<'button', State> {}
+export interface PopoverCloseProps
+  extends NativeButtonProps, BaseUIComponentProps<'button', PopoverCloseState> {}
+
+export namespace PopoverClose {
+  export type State = PopoverCloseState;
+  export type Props = PopoverCloseProps;
 }
-
-PopoverClose.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
-
-export { PopoverClose };

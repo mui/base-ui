@@ -1,20 +1,23 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { useForkRef } from '../../utils/useForkRef';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { useCollapsibleRoot } from '../../collapsible/root/useCollapsibleRoot';
-import type { CollapsibleRoot } from '../../collapsible/root/CollapsibleRoot';
+import {
+  useCollapsibleRoot,
+  type UseCollapsibleRootParameters,
+} from '../../collapsible/root/useCollapsibleRoot';
+import type { CollapsibleRoot, CollapsibleRootState } from '../../collapsible/root/CollapsibleRoot';
 import { CollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
-import type { AccordionRoot } from '../root/AccordionRoot';
+import type { AccordionRootState } from '../root/AccordionRoot';
 import { useAccordionRootContext } from '../root/AccordionRootContext';
 import { AccordionItemContext } from './AccordionItemContext';
-import { accordionStyleHookMapping } from './styleHooks';
+import { accordionStateAttributesMapping } from './stateAttributesMapping';
+import { useRenderElement } from '../../utils/useRenderElement';
+import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 
 /**
  * Groups an accordion header with the corresponding panel.
@@ -22,8 +25,8 @@ import { accordionStyleHookMapping } from './styleHooks';
  *
  * Documentation: [Base UI Accordion](https://base-ui.com/react/components/accordion)
  */
-const AccordionItem = React.forwardRef(function AccordionItem(
-  props: AccordionItem.Props,
+export const AccordionItem = React.forwardRef(function AccordionItem(
+  componentProps: AccordionItem.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -32,11 +35,11 @@ const AccordionItem = React.forwardRef(function AccordionItem(
     onOpenChange: onOpenChangeProp,
     render,
     value: valueProp,
-    ...other
-  } = props;
+    ...elementProps
+  } = componentProps;
 
   const { ref: listItemRef, index } = useCompositeListItem();
-  const mergedRef = useForkRef(forwardedRef, listItemRef);
+  const mergedRef = useMergedRefs(forwardedRef, listItemRef);
 
   const {
     disabled: contextDisabled,
@@ -45,7 +48,9 @@ const AccordionItem = React.forwardRef(function AccordionItem(
     value: openValues,
   } = useAccordionRootContext();
 
-  const value = valueProp ?? index;
+  const fallbackValue = useBaseUiId();
+
+  const value = valueProp ?? fallbackValue;
 
   const disabled = disabledProp || contextDisabled;
 
@@ -63,10 +68,17 @@ const AccordionItem = React.forwardRef(function AccordionItem(
     return false;
   }, [openValues, value]);
 
-  const onOpenChange = useEventCallback((nextOpen: boolean) => {
-    handleValueChange(value, nextOpen);
-    onOpenChangeProp?.(nextOpen);
-  });
+  const onOpenChange = useStableCallback(
+    (nextOpen: boolean, eventDetails: CollapsibleRoot.ChangeEventDetails) => {
+      onOpenChangeProp?.(nextOpen, eventDetails);
+
+      if (eventDetails.isCanceled) {
+        return;
+      }
+
+      handleValueChange(value, nextOpen);
+    },
+  );
 
   const collapsible = useCollapsibleRoot({
     open: isOpen,
@@ -74,7 +86,7 @@ const AccordionItem = React.forwardRef(function AccordionItem(
     disabled,
   });
 
-  const collapsibleState: CollapsibleRoot.State = React.useMemo(
+  const collapsibleState: CollapsibleRootState = React.useMemo(
     () => ({
       open: collapsible.open,
       disabled: collapsible.disabled,
@@ -87,20 +99,20 @@ const AccordionItem = React.forwardRef(function AccordionItem(
   const collapsibleContext: CollapsibleRootContext = React.useMemo(
     () => ({
       ...collapsible,
+      onOpenChange,
       state: collapsibleState,
     }),
-    [collapsible, collapsibleState],
+    [collapsible, collapsibleState, onOpenChange],
   );
 
-  const state: AccordionItem.State = React.useMemo(
+  const state: AccordionItemState = React.useMemo(
     () => ({
       ...rootState,
       index,
       disabled,
       open: isOpen,
-      transitionStatus: collapsible.transitionStatus,
     }),
-    [collapsible.transitionStatus, disabled, index, isOpen, rootState],
+    [disabled, index, isOpen, rootState],
   );
 
   const [triggerId, setTriggerId] = React.useState<string | undefined>(useBaseUiId());
@@ -115,74 +127,67 @@ const AccordionItem = React.forwardRef(function AccordionItem(
     [isOpen, state, setTriggerId, triggerId],
   );
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
-    className,
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: mergedRef,
-    extraProps: other,
-    customStyleHookMapping: accordionStyleHookMapping,
+    props: elementProps,
+    stateAttributesMapping: accordionStateAttributesMapping,
   });
 
   return (
     <CollapsibleRootContext.Provider value={collapsibleContext}>
       <AccordionItemContext.Provider value={accordionItemContext}>
-        {renderElement()}
+        {element}
       </AccordionItemContext.Provider>
     </CollapsibleRootContext.Provider>
   );
 });
 
-export type AccordionItemValue = any | null;
-
-export namespace AccordionItem {
-  export interface State extends AccordionRoot.State {
-    index: number;
-    open: boolean;
-    transitionStatus: TransitionStatus;
-  }
-
-  export interface Props
-    extends BaseUIComponentProps<'div', State>,
-      Partial<Pick<useCollapsibleRoot.Parameters, 'disabled' | 'onOpenChange'>> {
-    value?: AccordionItemValue;
-  }
+export interface AccordionItemState extends AccordionRootState {
+  /**
+   * The item index.
+   */
+  index: number;
+  /**
+   * Whether the component is open.
+   */
+  open: boolean;
 }
 
-export { AccordionItem };
-
-AccordionItem.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
+export interface AccordionItemProps
+  extends
+    BaseUIComponentProps<'div', AccordionItemState>,
+    Partial<Pick<UseCollapsibleRootParameters, 'disabled'>> {
   /**
-   * @ignore
+   * A unique value that identifies this accordion item.
+   * If no value is provided, a unique ID will be generated automatically.
+   * Use when controlling the accordion programmatically, or to set an initial
+   * open state.
+   * @example
+   * ```tsx
+   * <Accordion.Root value={['a']}>
+   *   <Accordion.Item value="a" /> // initially open
+   *   <Accordion.Item value="b" /> // initially closed
+   * </Accordion.Root>
+   * ```
    */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Whether the component should ignore user interaction.
-   * @default false
-   */
-  disabled: PropTypes.bool,
+  value?: any;
   /**
    * Event handler called when the panel is opened or closed.
    */
-  onOpenChange: PropTypes.func,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * @ignore
-   */
-  value: PropTypes.any,
-} as any;
+  onOpenChange?:
+    | ((open: boolean, eventDetails: AccordionItem.ChangeEventDetails) => void)
+    | undefined;
+}
+
+export type AccordionItemChangeEventReason = typeof REASONS.triggerPress | typeof REASONS.none;
+
+export type AccordionItemChangeEventDetails =
+  BaseUIChangeEventDetails<AccordionItem.ChangeEventReason>;
+
+export namespace AccordionItem {
+  export type State = AccordionItemState;
+  export type Props = AccordionItemProps;
+  export type ChangeEventReason = AccordionItemChangeEventReason;
+  export type ChangeEventDetails = AccordionItemChangeEventDetails;
+}

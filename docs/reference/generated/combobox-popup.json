@@ -1,0 +1,60 @@
+{
+  "name": "ComboboxPopup",
+  "description": "A container for the list.\nRenders a `<div>` element.",
+  "props": {
+    "initialFocus": {
+      "type": "boolean | RefObject<HTMLElement | null> | ((openType: InteractionType) => boolean | void | HTMLElement | null)",
+      "description": "Determines the element to focus when the popup is opened.\n\n- `false`: Do not move focus.\n- `true`: Move focus based on the default behavior (first tabbable element or popup).\n- `RefObject`: Move focus to the ref element.\n- `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).\n  Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.",
+      "detailedType": "| boolean\n| React.RefObject<HTMLElement | null>\n| ((\n    openType: InteractionType,\n  ) => boolean | void | HTMLElement | null)\n| undefined"
+    },
+    "finalFocus": {
+      "type": "boolean | RefObject<HTMLElement | null> | ((closeType: InteractionType) => boolean | void | HTMLElement | null)",
+      "description": "Determines the element to focus when the popup is closed.\n\n- `false`: Do not move focus.\n- `true`: Move focus based on the default behavior (trigger or previously focused element).\n- `RefObject`: Move focus to the ref element.\n- `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).\n  Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.",
+      "detailedType": "| boolean\n| React.RefObject<HTMLElement | null>\n| ((\n    closeType: InteractionType,\n  ) => boolean | void | HTMLElement | null)\n| undefined"
+    },
+    "className": {
+      "type": "string | ((state: Combobox.Popup.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Combobox.Popup.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Combobox.Popup.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Combobox.Popup.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Combobox.Popup.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Combobox.Popup.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {
+    "data-open": {
+      "description": "Present when the popup is open."
+    },
+    "data-closed": {
+      "description": "Present when the popup is closed."
+    },
+    "data-align": {
+      "description": "Indicates how the popup is aligned relative to specified side.",
+      "type": "'start' | 'center' | 'end'"
+    },
+    "data-empty": {
+      "description": "Present when the items list is empty."
+    },
+    "data-instant": {
+      "description": "Present if animations should be instant.",
+      "type": "'click' | 'dismiss'"
+    },
+    "data-side": {
+      "description": "Indicates which side the popup is positioned relative to the trigger.",
+      "type": "'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'"
+    },
+    "data-starting-style": {
+      "description": "Present when the popup is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the popup is animating out."
+    }
+  },
+  "cssVariables": {}
+}

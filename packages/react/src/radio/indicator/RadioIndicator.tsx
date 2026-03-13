@@ -1,12 +1,10 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { useRadioRootContext } from '../root/RadioRootContext';
-import { customStyleHookMapping } from '../utils/customStyleHookMapping';
-import { useAfterExitAnimation } from '../../utils/useAfterExitAnimation';
-import { useForkRef } from '../../utils/useForkRef';
+import { stateAttributesMapping } from '../utils/stateAttributesMapping';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 
 /**
@@ -15,11 +13,11 @@ import { type TransitionStatus, useTransitionStatus } from '../../utils/useTrans
  *
  * Documentation: [Base UI Radio](https://base-ui.com/react/components/radio)
  */
-const RadioIndicator = React.forwardRef(function RadioIndicator(
-  props: RadioIndicator.Props,
+export const RadioIndicator = React.forwardRef(function RadioIndicator(
+  componentProps: RadioIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, keepMounted = true, ...otherProps } = props;
+  const { render, className, keepMounted = false, ...elementProps } = componentProps;
 
   const rootState = useRadioRootContext();
 
@@ -27,89 +25,59 @@ const RadioIndicator = React.forwardRef(function RadioIndicator(
 
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(rendered);
 
-  const state: RadioIndicator.State = React.useMemo(
-    () => ({
-      ...rootState,
-      transitionStatus,
-    }),
-    [rootState, transitionStatus],
-  );
+  const state: RadioIndicatorState = {
+    ...rootState,
+    transitionStatus,
+  };
 
   const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
-  const mergedRef = useForkRef(forwardedRef, indicatorRef);
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'span',
-    ref: mergedRef,
-    className,
+  const shouldRender = keepMounted || mounted;
+
+  const element = useRenderElement('span', componentProps, {
+    ref: [forwardedRef, indicatorRef],
     state,
-    extraProps: {
-      hidden: !mounted,
-      ...otherProps,
-    },
-    customStyleHookMapping,
+    props: elementProps,
+    stateAttributesMapping,
   });
 
-  useAfterExitAnimation({
+  useOpenChangeComplete({
     open: rendered,
-    animatedElementRef: indicatorRef,
-    onFinished() {
-      setMounted(false);
+    ref: indicatorRef,
+    onComplete() {
+      if (!rendered) {
+        setMounted(false);
+      }
     },
   });
 
-  const shouldRender = keepMounted || rendered;
   if (!shouldRender) {
     return null;
   }
 
-  return renderElement();
+  return element;
 });
 
-namespace RadioIndicator {
-  export interface Props extends BaseUIComponentProps<'span', State> {
-    /**
-     * Whether to keep the HTML element in the DOM when the radio button is inactive.
-     * @default true
-     */
-    keepMounted?: boolean;
-  }
-
-  export interface State {
-    /**
-     * Whether the radio button is currently selected.
-     */
-    checked: boolean;
-    transitionStatus: TransitionStatus;
-  }
-}
-
-RadioIndicator.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+export interface RadioIndicatorProps extends BaseUIComponentProps<'span', RadioIndicatorState> {
   /**
    * Whether to keep the HTML element in the DOM when the radio button is inactive.
-   * @default true
+   * @default false
    */
-  keepMounted: PropTypes.bool,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
+  keepMounted?: boolean | undefined;
+}
 
-export { RadioIndicator };
+export interface RadioIndicatorState {
+  /**
+   * Whether the radio button is currently selected.
+   */
+  checked: boolean;
+  /**
+   * The transition status of the component.
+   */
+  transitionStatus: TransitionStatus;
+}
+
+export namespace RadioIndicator {
+  export type Props = RadioIndicatorProps;
+  export type State = RadioIndicatorState;
+}

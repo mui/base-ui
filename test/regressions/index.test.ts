@@ -1,12 +1,12 @@
 import * as path from 'node:path';
-import * as fse from 'fs-extra';
-import * as playwright from 'playwright';
+import * as fs from 'node:fs/promises';
+import { chromium, Locator } from '@playwright/test';
 import { describe, it } from 'vitest';
 
 const baseUrl = 'http://localhost:5173';
 const screenshotDir = path.resolve(__dirname, './screenshots/chrome');
 
-const browser = await playwright.chromium.launch({
+const browser = await chromium.launch({
   args: ['--font-render-hinting=none'],
   // otherwise the loaded google Roboto font isn't applied
   headless: false,
@@ -61,15 +61,9 @@ async function renderFixture(index: number) {
   return testcase;
 }
 
-async function takeScreenshot({
-  testcase,
-  route,
-}: {
-  testcase: playwright.Locator;
-  route: string;
-}) {
+async function takeScreenshot({ testcase, route }: { testcase: Locator; route: string }) {
   const screenshotPath = path.resolve(screenshotDir, `.${route}.png`);
-  await fse.ensureDir(path.dirname(screenshotPath));
+  await fs.mkdir(path.dirname(screenshotPath), { recursive: true });
 
   const explicitScreenshotTarget = await page.$('[data-testid="screenshot-target"]');
   const screenshotTarget = explicitScreenshotTarget || testcase;
@@ -78,7 +72,7 @@ async function takeScreenshot({
 }
 
 // prepare screenshots
-await fse.emptyDir(screenshotDir);
+await fs.rm(screenshotDir, { force: true, recursive: true });
 
 describe('visual regressions', () => {
   beforeEach(async () => {

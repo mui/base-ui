@@ -1,12 +1,25 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { useTabsPanel } from './useTabsPanel';
-import { tabsStyleHookMapping } from '../root/styleHooks';
-import { useTabsRootContext } from '../root/TabsRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { TabsRoot, type TabValue } from '../root/TabsRoot';
+import { inertValue } from '@base-ui/utils/inertValue';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useBaseUiId } from '../../utils/useBaseUiId';
+import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
+import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
+import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
+import { useTabsRootContext } from '../root/TabsRootContext';
+import type { TabsRootState } from '../root/TabsRoot';
+import type { TabsTab } from '../tab/TabsTab';
+import { TabsPanelDataAttributes } from './TabsPanelDataAttributes';
+
+const stateAttributesMapping: StateAttributesMapping<TabsPanelState> = {
+  ...tabsStateAttributesMapping,
+  ...transitionStatusMapping,
+};
 
 /**
  * A panel displayed when the corresponding tab is active.
@@ -14,99 +27,131 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)
  */
-const TabsPanel = React.forwardRef(function TabPanel(
-  props: TabsPanel.Props,
+export const TabsPanel = React.forwardRef(function TabPanel(
+  componentProps: TabsPanel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { children, className, value: valueProp, render, keepMounted = false, ...other } = props;
+  const { className, value, render, keepMounted = false, ...elementProps } = componentProps;
 
   const {
     value: selectedValue,
-    getTabIdByPanelValueOrIndex,
+    getTabIdByPanelValue,
     orientation,
     tabActivationDirection,
+    registerMountedTabPanel,
+    unregisterMountedTabPanel,
   } = useTabsRootContext();
 
-  const { hidden, getRootProps } = useTabsPanel({
-    getTabIdByPanelValueOrIndex,
-    rootRef: forwardedRef,
-    selectedValue,
-    value: valueProp,
-  });
+  const id = useBaseUiId();
 
-  const state: TabsPanel.State = React.useMemo(
+  const metadata = React.useMemo(
     () => ({
-      hidden,
-      orientation,
-      tabActivationDirection,
+      id,
+      value,
     }),
-    [hidden, orientation, tabActivationDirection],
+    [id, value],
   );
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
-    render: render ?? 'div',
-    className,
-    state,
-    extraProps: { ...other, children: hidden && !keepMounted ? undefined : children },
-    customStyleHookMapping: tabsStyleHookMapping,
+  const { ref: listItemRef, index } = useCompositeListItem<TabsPanel.Metadata>({
+    metadata,
   });
 
-  return renderElement();
+  const open = value === selectedValue;
+  const { mounted, transitionStatus, setMounted } = useTransitionStatus(open);
+  const hidden = !mounted;
+
+  const correspondingTabId = getTabIdByPanelValue(value);
+
+  const state: TabsPanelState = {
+    hidden,
+    orientation,
+    tabActivationDirection,
+    transitionStatus,
+  };
+
+  const panelRef = React.useRef<HTMLDivElement | null>(null);
+
+  const element = useRenderElement('div', componentProps, {
+    state,
+    ref: [forwardedRef, listItemRef, panelRef],
+    props: [
+      {
+        'aria-labelledby': correspondingTabId,
+        hidden,
+        id,
+        role: 'tabpanel',
+        tabIndex: open ? 0 : -1,
+        inert: inertValue(!open),
+        [TabsPanelDataAttributes.index as string]: index,
+      },
+      elementProps,
+    ],
+    stateAttributesMapping,
+  });
+
+  useOpenChangeComplete({
+    open,
+    ref: panelRef,
+    onComplete() {
+      if (!open) {
+        setMounted(false);
+      }
+    },
+  });
+
+  useIsoLayoutEffect(() => {
+    if (hidden && !keepMounted) {
+      return undefined;
+    }
+
+    if (id == null) {
+      return undefined;
+    }
+
+    registerMountedTabPanel(value, id);
+    return () => {
+      unregisterMountedTabPanel(value, id);
+    };
+  }, [hidden, keepMounted, value, id, registerMountedTabPanel, unregisterMountedTabPanel]);
+
+  const shouldRender = keepMounted || mounted;
+  if (!shouldRender) {
+    return null;
+  }
+
+  return element;
 });
 
-namespace TabsPanel {
-  export interface State extends TabsRoot.State {
-    hidden: boolean;
-  }
-
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * The value of the TabPanel. It will be shown when the Tab with the corresponding value is selected.
-     * If not provided, it will fall back to the index of the panel.
-     * It is recommended to explicitly provide it, as it's required for the tab panel to be rendered on the server.
-     */
-    value?: TabValue;
-    /**
-     * Whether to keep the HTML element in the DOM while the panel is hidden.
-     * @default false
-     */
-    keepMounted?: boolean;
-  }
+export interface TabsPanelMetadata {
+  id?: string | undefined;
+  value: TabsTab.Value;
 }
 
-export { TabsPanel };
+export interface TabsPanelState extends TabsRootState {
+  /**
+   * Whether the component is hidden.
+   */
+  hidden: boolean;
+  /**
+   * The transition status of the component.
+   */
+  transitionStatus: TransitionStatus;
+}
 
-TabsPanel.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
+export interface TabsPanelProps extends BaseUIComponentProps<'div', TabsPanelState> {
   /**
-   * @ignore
+   * The value of the TabPanel. It will be shown when the Tab with the corresponding value is active.
    */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  value: TabsTab.Value;
   /**
    * Whether to keep the HTML element in the DOM while the panel is hidden.
    * @default false
    */
-  keepMounted: PropTypes.bool,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * The value of the TabPanel. It will be shown when the Tab with the corresponding value is selected.
-   * If not provided, it will fall back to the index of the panel.
-   * It is recommended to explicitly provide it, as it's required for the tab panel to be rendered on the server.
-   */
-  value: PropTypes.any,
-} as any;
+  keepMounted?: boolean | undefined;
+}
+
+export namespace TabsPanel {
+  export type Metadata = TabsPanelMetadata;
+  export type State = TabsPanelState;
+  export type Props = TabsPanelProps;
+}

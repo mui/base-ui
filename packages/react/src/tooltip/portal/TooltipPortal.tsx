@@ -1,21 +1,24 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
-import { HTMLElementType, refType } from '../../utils/proptypes';
 import { TooltipPortalContext } from './TooltipPortalContext';
 import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
 
 /**
  * A portal element that moves the popup to a different part of the DOM.
  * By default, the portal element is appended to `<body>`.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
-function TooltipPortal(props: TooltipPortal.Props) {
-  const { children, keepMounted = false, container } = props;
+export const TooltipPortal = React.forwardRef(function TooltipPortal(
+  props: TooltipPortal.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const { keepMounted = false, ...portalProps } = props;
 
-  const { mounted } = useTooltipRootContext();
+  const store = useTooltipRootContext();
+  const mounted = store.useState('mounted');
 
   const shouldRender = mounted || keepMounted;
   if (!shouldRender) {
@@ -24,44 +27,22 @@ function TooltipPortal(props: TooltipPortal.Props) {
 
   return (
     <TooltipPortalContext.Provider value={keepMounted}>
-      <FloatingPortalLite root={container}>{children}</FloatingPortalLite>
+      <FloatingPortalLite ref={forwardedRef} {...portalProps} />
     </TooltipPortalContext.Provider>
   );
-}
+});
 
-namespace TooltipPortal {
-  export interface Props {
-    children?: React.ReactNode;
-    /**
-     * Whether to keep the portal mounted in the DOM while the popup is hidden.
-     * @default false
-     */
-    keepMounted?: boolean;
-    /**
-     * A parent element to render the portal element into.
-     */
-    container?: HTMLElement | null | React.RefObject<HTMLElement | null>;
-  }
-}
+export interface TooltipPortalState {}
 
-TooltipPortal.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * A parent element to render the portal element into.
-   */
-  container: PropTypes /* @typescript-to-proptypes-ignore */.oneOfType([HTMLElementType, refType]),
+export interface TooltipPortalProps extends FloatingPortalLite.Props<TooltipPortalState> {
   /**
    * Whether to keep the portal mounted in the DOM while the popup is hidden.
    * @default false
    */
-  keepMounted: PropTypes.bool,
-} as any;
+  keepMounted?: boolean | undefined;
+}
 
-export { TooltipPortal };
+export namespace TooltipPortal {
+  export type State = TooltipPortalState;
+  export type Props = TooltipPortalProps;
+}

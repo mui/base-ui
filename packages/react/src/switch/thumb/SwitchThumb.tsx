@@ -1,12 +1,11 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import type { SwitchRoot } from '../root/SwitchRoot';
+import type { SwitchRootState } from '../root/SwitchRoot';
 import { useSwitchRootContext } from '../root/SwitchRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { styleHookMapping } from '../styleHooks';
+import { stateAttributesMapping } from '../stateAttributesMapping';
 
 /**
  * The movable part of the switch that indicates whether the switch is on or off.
@@ -14,56 +13,30 @@ import { styleHookMapping } from '../styleHooks';
  *
  * Documentation: [Base UI Switch](https://base-ui.com/react/components/switch)
  */
-const SwitchThumb = React.forwardRef(function SwitchThumb(
-  props: SwitchThumb.Props,
+export const SwitchThumb = React.forwardRef(function SwitchThumb(
+  componentProps: SwitchThumb.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, ...other } = props;
+  const { render, className, ...elementProps } = componentProps;
 
   const { state: fieldState } = useFieldRootContext();
 
   const state = useSwitchRootContext();
   const extendedState = { ...fieldState, ...state };
 
-  const { renderElement } = useComponentRenderer({
-    render: render || 'span',
-    className,
+  return useRenderElement('span', componentProps, {
     state: extendedState,
-    extraProps: other,
-    customStyleHookMapping: styleHookMapping,
     ref: forwardedRef,
+    stateAttributesMapping,
+    props: elementProps,
   });
-
-  return renderElement();
 });
 
-namespace SwitchThumb {
-  export interface Props extends BaseUIComponentProps<'span', State> {}
+export interface SwitchThumbProps extends BaseUIComponentProps<'span', SwitchThumbState> {}
 
-  export interface State extends SwitchRoot.State {}
+export interface SwitchThumbState extends SwitchRootState {}
+
+export namespace SwitchThumb {
+  export type Props = SwitchThumbProps;
+  export type State = SwitchThumbState;
 }
-
-SwitchThumb.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
-
-export { SwitchThumb };

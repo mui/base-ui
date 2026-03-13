@@ -1,9 +1,0 @@
-{
-  "name": "FieldValidity",
-  "props": {
-    "children": {
-      "type": "(validity) => React.ReactNode",
-      "required": true
-    }
-  }
-}

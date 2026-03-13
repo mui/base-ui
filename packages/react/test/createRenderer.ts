@@ -1,3 +1,4 @@
+import * as React from 'react';
 import {
   CreateRendererOptions,
   RenderOptions,
@@ -7,12 +8,12 @@ import {
   MuiRenderResult,
   act,
 } from '@mui/internal-test-utils';
-import { type UserEvent as VitestUserEvent } from '@vitest/browser/context';
-import { type UserEvent as RtlUserEvent } from '@testing-library/user-event';
-import { isJSDOM } from './utils';
+import { isJSDOM } from '@base-ui/utils/testUtils';
 
-export type BaseUIRenderResult = Omit<MuiRenderResult, 'user'> & {
-  user: VitestUserEvent | RtlUserEvent;
+export type BaseUIRenderResult = Omit<MuiRenderResult, 'user' | 'rerender' | 'setProps'> & {
+  user: MuiRenderResult['user'];
+  rerender: (newElement: React.ReactElement<DataAttributes>) => Promise<void>;
+  setProps: (newProps: object) => Promise<void>;
 };
 
 type BaseUITestRenderer = Omit<Renderer, 'render'> & {
@@ -31,15 +32,22 @@ export function createRenderer(globalOptions?: CreateRendererOptions): BaseUITes
   const { render: originalRender } = createRendererResult;
 
   const render = async (element: React.ReactElement<DataAttributes>, options?: RenderOptions) => {
-    const renderResult = await act(async () => {
-      const result = await originalRender(element, options);
+    const result = await act(async () => {
+      const renderResult = await originalRender(element, options);
       await flushMicrotasks();
-      return result;
+      return renderResult;
     });
 
-    if (!isJSDOM) {
-      const { userEvent: vitestUserEvent } = await import('@vitest/browser/context');
+    async function rerender(newElement: React.ReactElement<DataAttributes>) {
+      await act(async () => result.rerender(newElement));
+    }
 
+    async function setProps(newProps: object) {
+      await rerender(React.cloneElement(element, newProps));
+    }
+
+    if (!isJSDOM) {
+      const { userEvent: vitestUserEvent } = await import('vitest/browser');
       const originalUser = vitestUserEvent.setup();
 
       const proxyHandler: ProxyHandler<any> = {
@@ -54,15 +62,15 @@ export function createRenderer(globalOptions?: CreateRendererOptions): BaseUITes
         },
       };
 
-      const patchedUser = new Proxy(originalUser, proxyHandler);
-
       return {
-        ...renderResult,
-        user: patchedUser,
+        ...result,
+        user: new Proxy(originalUser, proxyHandler) as MuiRenderResult['user'],
+        rerender,
+        setProps,
       };
     }
 
-    return renderResult;
+    return { ...result, rerender, setProps };
   };
 
   return {

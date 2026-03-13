@@ -1,35 +1,52 @@
 'use client';
 import * as React from 'react';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useCompositeRootContext } from '../root/CompositeRootContext';
-import { useCompositeListItem } from '../list/useCompositeListItem';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import {
+  useCompositeListItem,
+  type UseCompositeListItemParameters,
+} from '../list/useCompositeListItem';
+import { HTMLProps } from '../../utils/types';
 
-export interface UseCompositeItemParameters<Metadata> {
-  metadata?: Metadata;
-}
+export interface UseCompositeItemParameters<Metadata> extends Pick<
+  UseCompositeListItemParameters<Metadata>,
+  'metadata' | 'indexGuessBehavior'
+> {}
 
 export function useCompositeItem<Metadata>(params: UseCompositeItemParameters<Metadata> = {}) {
-  const { highlightedIndex, onHighlightedIndexChange } = useCompositeRootContext();
+  const { highlightItemOnHover, highlightedIndex, onHighlightedIndexChange } =
+    useCompositeRootContext();
   const { ref, index } = useCompositeListItem(params);
+
   const isHighlighted = highlightedIndex === index;
 
-  const getItemProps = React.useCallback(
-    (externalProps = {}) =>
-      mergeReactProps<'div'>(externalProps, {
-        tabIndex: isHighlighted ? 0 : -1,
-        onFocus() {
-          onHighlightedIndexChange(index);
-        },
-      }),
-    [isHighlighted, index, onHighlightedIndexChange],
+  const itemRef = React.useRef<HTMLElement | null>(null);
+  const mergedRef = useMergedRefs(ref, itemRef);
+
+  const compositeProps = React.useMemo<HTMLProps>(
+    () => ({
+      tabIndex: isHighlighted ? 0 : -1,
+      onFocus() {
+        onHighlightedIndexChange(index);
+      },
+      onMouseMove() {
+        const item = itemRef.current;
+        if (!highlightItemOnHover || !item) {
+          return;
+        }
+
+        const disabled = item.hasAttribute('disabled') || item.ariaDisabled === 'true';
+        if (!isHighlighted && !disabled) {
+          item.focus();
+        }
+      },
+    }),
+    [isHighlighted, onHighlightedIndexChange, index, highlightItemOnHover],
   );
 
-  return React.useMemo(
-    () => ({
-      getItemProps,
-      ref,
-      index,
-    }),
-    [getItemProps, ref, index],
-  );
+  return {
+    compositeProps,
+    compositeRef: mergedRef as React.RefCallback<HTMLElement | null>,
+    index,
+  };
 }

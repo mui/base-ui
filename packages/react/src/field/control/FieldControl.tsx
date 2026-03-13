@@ -1,12 +1,20 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useFieldControl } from './useFieldControl';
-import { FieldRoot } from '../root/FieldRoot';
+import { useControlled } from '@base-ui/utils/useControlled';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { type FieldRootState } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
-import { STYLE_HOOK_MAPPING } from '../utils/constants';
+import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import { useLabelableId } from '../../labelable-provider/useLabelableId';
+import { fieldValidityMapping } from '../utils/constants';
 import { BaseUIComponentProps } from '../../utils/types';
+import { useRenderElement } from '../../utils/useRenderElement';
+import { useField } from '../useField';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
+import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { activeElement } from '../../floating-ui-react/utils';
 
 /**
  * The form control to label and validate.
@@ -18,118 +26,149 @@ import { BaseUIComponentProps } from '../../utils/types';
  *
  * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
-const FieldControl = React.forwardRef(function FieldControl(
-  props: FieldControl.Props,
-  forwardedRef: React.ForwardedRef<HTMLInputElement>,
+export const FieldControl = React.forwardRef(function FieldControl(
+  componentProps: FieldControl.Props,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     render,
     className,
-    id,
+    id: idProp,
     name: nameProp,
-    value,
+    value: valueProp,
     disabled: disabledProp = false,
     onValueChange,
     defaultValue,
-    ...otherProps
-  } = props;
+    autoFocus = false,
+    ...elementProps
+  } = componentProps;
 
-  const { state: fieldState, name: fieldName, disabled: fieldDisabled } = useFieldRootContext();
+  const {
+    state: fieldState,
+    name: fieldName,
+    disabled: fieldDisabled,
+    setTouched,
+    setDirty,
+    validityData,
+    setFocused,
+    setFilled,
+    validationMode,
+    validation,
+  } = useFieldRootContext();
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 
-  const state: FieldControl.State = React.useMemo(
-    () => ({ ...fieldState, disabled }),
-    [fieldState, disabled],
-  );
+  const state: FieldControlState = {
+    ...fieldState,
+    disabled,
+  };
 
-  const { getControlProps } = useFieldControl({
+  const { labelId } = useLabelableContext();
+
+  const id = useLabelableId({ id: idProp });
+
+  useIsoLayoutEffect(() => {
+    const hasExternalValue = valueProp != null;
+    if (validation.inputRef.current?.value || (hasExternalValue && valueProp !== '')) {
+      setFilled(true);
+    } else if (hasExternalValue && valueProp === '') {
+      setFilled(false);
+    }
+  }, [validation.inputRef, setFilled, valueProp]);
+
+  const inputRef = React.useRef<HTMLElement>(null);
+
+  useIsoLayoutEffect(() => {
+    if (autoFocus && inputRef.current === activeElement(ownerDocument(inputRef.current))) {
+      setFocused(true);
+    }
+  }, [autoFocus, setFocused]);
+
+  const [valueUnwrapped] = useControlled({
+    controlled: valueProp,
+    default: defaultValue,
+    name: 'FieldControl',
+    state: 'value',
+  });
+
+  const isControlled = valueProp !== undefined;
+  const value = isControlled ? valueUnwrapped : undefined;
+
+  useField({
     id,
     name,
-    disabled,
+    commit: validation.commit,
     value,
-    defaultValue,
-    onValueChange,
+    getValue: () => validation.inputRef.current?.value,
+    controlRef: validation.inputRef,
   });
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getControlProps,
-    render: render ?? 'input',
-    ref: forwardedRef,
-    className,
+  const element = useRenderElement('input', componentProps, {
+    ref: [forwardedRef, inputRef],
     state,
-    extraProps: otherProps,
-    customStyleHookMapping: STYLE_HOOK_MAPPING,
+    props: [
+      {
+        id,
+        disabled,
+        name,
+        ref: validation.inputRef,
+        'aria-labelledby': labelId,
+        autoFocus,
+        ...(isControlled ? { value } : { defaultValue }),
+        onChange(event) {
+          const inputValue = event.currentTarget.value;
+          onValueChange?.(inputValue, createChangeEventDetails(REASONS.none, event.nativeEvent));
+          setDirty(inputValue !== validityData.initialValue);
+          setFilled(inputValue !== '');
+        },
+        onFocus() {
+          setFocused(true);
+        },
+        onBlur(event) {
+          setTouched(true);
+          setFocused(false);
+
+          if (validationMode === 'onBlur') {
+            validation.commit(event.currentTarget.value);
+          }
+        },
+        onKeyDown(event) {
+          if (event.currentTarget.tagName === 'INPUT' && event.key === 'Enter') {
+            setTouched(true);
+            validation.commit(event.currentTarget.value);
+          }
+        },
+      },
+      validation.getInputValidationProps(),
+      elementProps,
+    ],
+    stateAttributesMapping: fieldValidityMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
-namespace FieldControl {
-  export type State = FieldRoot.State;
+export interface FieldControlState extends FieldRootState {}
 
-  export interface Props extends BaseUIComponentProps<'input', State> {
-    /**
-     * Callback fired when the `value` changes. Use when controlled.
-     */
-    onValueChange?: (value: string | number | readonly string[] | undefined, event: Event) => void;
-  }
-}
-
-FieldControl.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * @ignore
-   */
-  defaultValue: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.string),
-    PropTypes.number,
-    PropTypes.string,
-  ]),
-  /**
-   * @ignore
-   */
-  disabled: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  id: PropTypes.string,
-  /**
-   * @ignore
-   */
-  name: PropTypes.string,
+export interface FieldControlProps extends BaseUIComponentProps<'input', FieldControlState> {
   /**
    * Callback fired when the `value` changes. Use when controlled.
    */
-  onValueChange: PropTypes.func,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * @ignore
-   */
-  value: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.string),
-    PropTypes.number,
-    PropTypes.string,
-  ]),
-} as any;
+  onValueChange?:
+    | ((value: string, eventDetails: FieldControl.ChangeEventDetails) => void)
+    | undefined;
+  defaultValue?: React.ComponentProps<'input'>['defaultValue'] | undefined;
+}
 
-export { FieldControl };
+export type FieldControlChangeEventReason = typeof REASONS.none;
+
+export type FieldControlChangeEventDetails =
+  BaseUIChangeEventDetails<FieldControl.ChangeEventReason>;
+
+export namespace FieldControl {
+  export type State = FieldControlState;
+  export type Props = FieldControlProps;
+  export type ChangeEventReason = FieldControlChangeEventReason;
+  export type ChangeEventDetails = FieldControlChangeEventDetails;
+}

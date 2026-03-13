@@ -1,0 +1,58 @@
+{
+  "name": "MeterRoot",
+  "description": "Groups all parts of the meter and provides the value for screen readers.\nRenders a `<div>` element.",
+  "props": {
+    "value": {
+      "type": "number",
+      "required": true,
+      "description": "The current value."
+    },
+    "aria-valuetext": {
+      "type": "string",
+      "description": "A string value that provides a user-friendly name for `aria-valuenow`, the current value of the meter.",
+      "detailedType": "string | undefined"
+    },
+    "getAriaValueText": {
+      "type": "((formattedValue: string, value: number) => string)",
+      "description": "A function that returns a string value that provides a human-readable text alternative for `aria-valuenow`, the current value of the meter.",
+      "detailedType": "| ((formattedValue: string, value: number) => string)\n| undefined"
+    },
+    "locale": {
+      "type": "Intl.LocalesArgument",
+      "description": "The locale used by `Intl.NumberFormat` when formatting the value.\nDefaults to the user's runtime locale."
+    },
+    "min": {
+      "type": "number",
+      "default": "0",
+      "description": "The minimum value",
+      "detailedType": "number | undefined"
+    },
+    "max": {
+      "type": "number",
+      "default": "100",
+      "description": "The maximum value",
+      "detailedType": "number | undefined"
+    },
+    "format": {
+      "type": "Intl.NumberFormatOptions",
+      "description": "Options to format the value.",
+      "detailedType": "Intl.NumberFormatOptions | undefined"
+    },
+    "className": {
+      "type": "string | ((state: Meter.Root.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Meter.Root.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Meter.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Meter.Root.State) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Meter.Root.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Meter.Root.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

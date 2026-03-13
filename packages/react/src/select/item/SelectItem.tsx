@@ -1,371 +1,310 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import type { UseInteractionsReturn } from '@floating-ui/react';
-import { SelectRootContext, useSelectRootContext } from '../root/SelectRootContext';
-import { SelectIndexContext, useSelectIndexContext } from '../root/SelectIndexContext';
-import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
-import { useForkRef } from '../../utils/useForkRef';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useSelectItem } from './useSelectItem';
-import { useEnhancedEffect } from '../../utils/useEnhancedEffect';
-import { useLatestRef } from '../../utils/useLatestRef';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { isMouseWithinBounds } from '@base-ui/utils/isMouseWithinBounds';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useStore } from '@base-ui/utils/store';
+import { useSelectRootContext } from '../root/SelectRootContext';
+import {
+  useCompositeListItem,
+  IndexGuessBehavior,
+} from '../../composite/list/useCompositeListItem';
+import type {
+  BaseUIComponentProps,
+  BaseUIEvent,
+  HTMLProps,
+  NonNativeButtonProps,
+} from '../../utils/types';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { SelectItemContext } from './SelectItemContext';
-
-interface InnerSelectItemProps extends Omit<SelectItem.Props, 'value'> {
-  highlighted: boolean;
-  selected: boolean;
-  getRootItemProps: UseInteractionsReturn['getItemProps'];
-  setOpen: SelectRootContext['setOpen'];
-  typingRef: React.MutableRefObject<boolean>;
-  selectionRef: React.MutableRefObject<{
-    allowUnselectedMouseUp: boolean;
-    allowSelectedMouseUp: boolean;
-    allowSelect: boolean;
-  }>;
-  open: boolean;
-  value: any;
-  setValue: SelectRootContext['setValue'];
-  selectedIndexRef: React.RefObject<number | null>;
-  indexRef: React.RefObject<number>;
-  setActiveIndex: SelectIndexContext['setActiveIndex'];
-  popupRef: React.RefObject<HTMLDivElement | null>;
-}
-
-const InnerSelectItem = React.forwardRef(function InnerSelectItem(
-  props: InnerSelectItemProps,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
-) {
-  const {
-    className,
-    disabled = false,
-    highlighted,
-    selected,
-    getRootItemProps,
-    render,
-    setOpen,
-    typingRef,
-    selectionRef,
-    open,
-    value,
-    setValue,
-    selectedIndexRef,
-    indexRef,
-    setActiveIndex,
-    popupRef,
-    ...otherProps
-  } = props;
-
-  const state: SelectItem.State = React.useMemo(
-    () => ({
-      disabled,
-      open,
-      highlighted,
-      selected,
-    }),
-    [disabled, open, highlighted, selected],
-  );
-
-  const { getItemProps, rootRef } = useSelectItem({
-    open,
-    setOpen,
-    disabled,
-    highlighted,
-    selected,
-    ref: forwardedRef,
-    typingRef,
-    handleSelect: () => setValue(value),
-    selectionRef,
-    selectedIndexRef,
-    indexRef,
-    setActiveIndex,
-    popupRef,
-  });
-
-  const mergedRef = useForkRef(rootRef, forwardedRef);
-
-  const { renderElement } = useComponentRenderer({
-    propGetter(externalProps = {}) {
-      const rootProps = getRootItemProps({
-        ...externalProps,
-        active: highlighted,
-        selected,
-      });
-      // With our custom `focusItemOnHover` implementation, this interferes with the logic and can
-      // cause the index state to be stuck when leaving the select popup.
-      delete rootProps.onFocus;
-      return getItemProps(rootProps);
-    },
-    render: render ?? 'div',
-    ref: mergedRef,
-    className,
-    state,
-    extraProps: otherProps,
-  });
-
-  const contextValue = React.useMemo(
-    () => ({
-      selected,
-      indexRef,
-    }),
-    [selected, indexRef],
-  );
-
-  return (
-    <SelectItemContext.Provider value={contextValue}>{renderElement()}</SelectItemContext.Provider>
-  );
-});
-
-InnerSelectItem.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Whether the component should ignore user interaction.
-   * @default false
-   */
-  disabled: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  getRootItemProps: PropTypes.func.isRequired,
-  /**
-   * @ignore
-   */
-  highlighted: PropTypes.bool.isRequired,
-  /**
-   * @ignore
-   */
-  indexRef: PropTypes.shape({
-    current: PropTypes.number.isRequired,
-  }).isRequired,
-  /**
-   * Overrides the text label to use on the trigger when this item is selected
-   * and when the item is matched during keyboard text navigation.
-   */
-  label: PropTypes.string,
-  /**
-   * @ignore
-   */
-  open: PropTypes.bool.isRequired,
-  /**
-   * @ignore
-   */
-  popupRef: PropTypes.shape({
-    current: PropTypes.object,
-  }).isRequired,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * @ignore
-   */
-  selected: PropTypes.bool.isRequired,
-  /**
-   * @ignore
-   */
-  selectedIndexRef: PropTypes.shape({
-    current: PropTypes.number,
-  }).isRequired,
-  /**
-   * @ignore
-   */
-  selectionRef: PropTypes.shape({
-    current: PropTypes.shape({
-      allowSelect: PropTypes.bool.isRequired,
-      allowSelectedMouseUp: PropTypes.bool.isRequired,
-      allowUnselectedMouseUp: PropTypes.bool.isRequired,
-    }).isRequired,
-  }).isRequired,
-  /**
-   * @ignore
-   */
-  setActiveIndex: PropTypes.func.isRequired,
-  /**
-   * @ignore
-   */
-  setOpen: PropTypes.func.isRequired,
-  /**
-   * @ignore
-   */
-  setValue: PropTypes.func.isRequired,
-  /**
-   * @ignore
-   */
-  typingRef: PropTypes.shape({
-    current: PropTypes.bool.isRequired,
-  }).isRequired,
-  /**
-   * @ignore
-   */
-  value: PropTypes.any.isRequired,
-} as any;
-
-const MemoizedInnerSelectItem = React.memo(InnerSelectItem);
+import { selectors } from '../store';
+import { useButton } from '../../use-button';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
+import { compareItemEquality, removeItem } from '../../utils/itemEquality';
 
 /**
- * An individual option in the select menu.
+ * An individual option in the select popup.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-const SelectItem = React.forwardRef(function SelectItem(
-  props: SelectItem.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
-) {
-  const { value: valueProp = null, label, ...otherProps } = props;
+export const SelectItem = React.memo(
+  React.forwardRef(function SelectItem(
+    componentProps: SelectItem.Props,
+    forwardedRef: React.ForwardedRef<HTMLElement>,
+  ) {
+    const {
+      render,
+      className,
+      value: itemValue = null,
+      label,
+      disabled = false,
+      nativeButton = false,
+      ...elementProps
+    } = componentProps;
 
-  const listItem = useCompositeListItem({ label });
+    const textRef = React.useRef<HTMLElement | null>(null);
+    const listItem = useCompositeListItem({
+      label,
+      textRef,
+      indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
+    });
 
-  const { activeIndex, selectedIndex, setActiveIndex } = useSelectIndexContext();
-  const {
-    getItemProps,
-    setOpen,
-    setValue,
-    open,
-    selectionRef,
-    typingRef,
-    valuesRef,
-    popupRef,
-    registerSelectedItem,
-    value,
-  } = useSelectRootContext();
+    const {
+      store,
+      getItemProps,
+      setOpen,
+      setValue,
+      selectionRef,
+      typingRef,
+      valuesRef,
+      keyboardActiveRef,
+      multiple,
+      highlightItemOnHover,
+    } = useSelectRootContext();
 
-  const itemRef = React.useRef<HTMLDivElement | null>(null);
-  const selectedIndexRef = useLatestRef(selectedIndex);
-  const indexRef = useLatestRef(listItem.index);
-  const mergedRef = useForkRef(listItem.ref, forwardedRef, itemRef);
+    const highlightTimeout = useTimeout();
 
-  const hasRegistered = listItem.index !== -1;
+    const highlighted = useStore(store, selectors.isActive, listItem.index);
+    const selected = useStore(store, selectors.isSelected, listItem.index, itemValue);
+    const selectedByFocus = useStore(store, selectors.isSelectedByFocus, listItem.index);
+    const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
-  useEnhancedEffect(() => {
-    if (!hasRegistered) {
+    const index = listItem.index;
+    const hasRegistered = index !== -1;
+
+    const itemRef = React.useRef<HTMLDivElement | null>(null);
+    const indexRef = useValueAsRef(index);
+
+    useIsoLayoutEffect(() => {
+      if (!hasRegistered) {
+        return undefined;
+      }
+
+      const values = valuesRef.current;
+      values[index] = itemValue;
+
+      return () => {
+        delete values[index];
+      };
+    }, [hasRegistered, index, itemValue, valuesRef]);
+
+    useIsoLayoutEffect(() => {
+      if (!hasRegistered) {
+        return undefined;
+      }
+
+      const selectedValue = store.state.value;
+
+      let selectedCandidate = selectedValue;
+      if (multiple && Array.isArray(selectedValue) && selectedValue.length > 0) {
+        selectedCandidate = selectedValue[selectedValue.length - 1];
+      }
+
+      if (
+        selectedCandidate !== undefined &&
+        compareItemEquality(itemValue, selectedCandidate, isItemEqualToValue)
+      ) {
+        store.set('selectedIndex', index);
+      }
       return undefined;
-    }
+    }, [hasRegistered, index, multiple, isItemEqualToValue, store, itemValue]);
 
-    const values = valuesRef.current;
-    values[listItem.index] = valueProp;
-
-    return () => {
-      delete values[listItem.index];
+    const state: SelectItemState = {
+      disabled,
+      selected,
+      highlighted,
     };
-  }, [hasRegistered, listItem.index, valueProp, valuesRef]);
 
-  useEnhancedEffect(() => {
-    if (hasRegistered && valueProp === value) {
-      registerSelectedItem(listItem.index);
+    const rootProps = getItemProps({ active: highlighted, selected });
+    // With our custom `focusItemOnHover` implementation, this interferes with the logic and can
+    // cause the index state to be stuck when leaving the select popup.
+    rootProps.onFocus = undefined;
+    rootProps.id = undefined;
+
+    const lastKeyRef = React.useRef<string | null>(null);
+    const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
+    const didPointerDownRef = React.useRef(false);
+
+    const { getButtonProps, buttonRef } = useButton({
+      disabled,
+      focusableWhenDisabled: true,
+      native: nativeButton,
+      composite: true,
+    });
+
+    function commitSelection(event: MouseEvent) {
+      const selectedValue = store.state.value;
+      if (multiple) {
+        const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
+        const nextValue = selected
+          ? removeItem(currentValue, itemValue, isItemEqualToValue)
+          : [...currentValue, itemValue];
+        setValue(nextValue, createChangeEventDetails(REASONS.itemPress, event));
+      } else {
+        setValue(itemValue, createChangeEventDetails(REASONS.itemPress, event));
+        setOpen(false, createChangeEventDetails(REASONS.itemPress, event));
+      }
     }
-  }, [hasRegistered, listItem.index, registerSelectedItem, valueProp, value]);
 
-  const highlighted = activeIndex === listItem.index;
-  const selected = selectedIndex === listItem.index;
+    const defaultProps: HTMLProps = {
+      role: 'option',
+      'aria-selected': selected,
+      tabIndex: highlighted ? 0 : -1,
+      onFocus() {
+        store.set('activeIndex', index);
+      },
+      onMouseEnter() {
+        if (
+          !keyboardActiveRef.current &&
+          store.state.selectedIndex === null &&
+          highlightItemOnHover
+        ) {
+          store.set('activeIndex', index);
+        }
+      },
+      onMouseMove() {
+        if (highlightItemOnHover) {
+          store.set('activeIndex', index);
+        }
+      },
+      onMouseLeave(event) {
+        if (!highlightItemOnHover || keyboardActiveRef.current || isMouseWithinBounds(event)) {
+          return;
+        }
 
-  return (
-    <MemoizedInnerSelectItem
-      ref={mergedRef}
-      highlighted={highlighted}
-      selected={selected}
-      getRootItemProps={getItemProps}
-      setOpen={setOpen}
-      open={open}
-      selectionRef={selectionRef}
-      typingRef={typingRef}
-      value={valueProp}
-      setValue={setValue}
-      selectedIndexRef={selectedIndexRef}
-      indexRef={indexRef}
-      setActiveIndex={setActiveIndex}
-      popupRef={popupRef}
-      {...otherProps}
-    />
-  );
-});
+        highlightTimeout.start(0, () => {
+          if (store.state.activeIndex === index) {
+            store.set('activeIndex', null);
+          }
+        });
+      },
+      onTouchStart() {
+        selectionRef.current = {
+          allowSelectedMouseUp: false,
+          allowUnselectedMouseUp: false,
+        };
+      },
+      onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
+        lastKeyRef.current = event.key;
+        store.set('activeIndex', index);
 
-namespace SelectItem {
-  export interface State {
-    /**
-     * Whether the component should ignore user interaction.
-     */
-    disabled: boolean;
-    highlighted: boolean;
-    selected: boolean;
-    /**
-     * Whether the select menu is currently open.
-     */
-    open: boolean;
-  }
+        if (event.key === ' ' && typingRef.current) {
+          event.preventDefault();
+        }
+      },
+      onClick(event) {
+        didPointerDownRef.current = false;
 
-  export interface Props extends Omit<BaseUIComponentProps<'div', State>, 'id'> {
-    children?: React.ReactNode;
-    /**
-     * A unique value that identifies this select item.
-     * @default null
-     */
-    value?: any;
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-    /**
-     * Overrides the text label to use on the trigger when this item is selected
-     * and when the item is matched during keyboard text navigation.
-     */
-    label?: string;
-  }
+        // Prevent double commit on {Enter}
+        if (event.type === 'keydown' && lastKeyRef.current === null) {
+          return;
+        }
+
+        if (
+          disabled ||
+          (event.type === 'keydown' && lastKeyRef.current === ' ' && typingRef.current) ||
+          (pointerTypeRef.current !== 'touch' && !highlighted)
+        ) {
+          return;
+        }
+
+        lastKeyRef.current = null;
+        commitSelection(event.nativeEvent);
+      },
+      onPointerEnter(event) {
+        pointerTypeRef.current = event.pointerType;
+      },
+      onPointerDown(event) {
+        pointerTypeRef.current = event.pointerType;
+        didPointerDownRef.current = true;
+      },
+      onMouseUp() {
+        if (disabled) {
+          return;
+        }
+
+        // Regular click (pointerdown on this element) if didPointerDownRef is set, otherwise drag-to-select
+        if (didPointerDownRef.current) {
+          didPointerDownRef.current = false;
+          return;
+        }
+
+        const disallowSelectedMouseUp = !selectionRef.current.allowSelectedMouseUp && selected;
+        const disallowUnselectedMouseUp = !selectionRef.current.allowUnselectedMouseUp && !selected;
+
+        if (
+          disallowSelectedMouseUp ||
+          disallowUnselectedMouseUp ||
+          (pointerTypeRef.current !== 'touch' && !highlighted)
+        ) {
+          return;
+        }
+
+        itemRef.current?.click();
+      },
+    };
+
+    const element = useRenderElement('div', componentProps, {
+      ref: [buttonRef, forwardedRef, listItem.ref, itemRef],
+      state,
+      props: [rootProps, defaultProps, elementProps, getButtonProps],
+    });
+
+    const contextValue: SelectItemContext = React.useMemo(
+      () => ({
+        selected,
+        indexRef,
+        textRef,
+        selectedByFocus,
+        hasRegistered,
+      }),
+      [selected, indexRef, textRef, selectedByFocus, hasRegistered],
+    );
+
+    return <SelectItemContext.Provider value={contextValue}>{element}</SelectItemContext.Provider>;
+  }),
+);
+
+export interface SelectItemState {
+  /**
+   * Whether the item should ignore user interaction.
+   */
+  disabled: boolean;
+  /**
+   * Whether the item is selected.
+   */
+  selected: boolean;
+  /**
+   * Whether the item is highlighted.
+   */
+  highlighted: boolean;
 }
 
-SelectItem.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Whether the component should ignore user interaction.
-   * @default false
-   */
-  disabled: PropTypes.bool,
-  /**
-   * Overrides the text label to use on the trigger when this item is selected
-   * and when the item is matched during keyboard text navigation.
-   */
-  label: PropTypes.string,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+export interface SelectItemProps
+  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'div', SelectItemState>, 'id'> {
+  children?: React.ReactNode;
   /**
    * A unique value that identifies this select item.
    * @default null
    */
-  value: PropTypes.any,
-} as any;
+  value?: any;
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean | undefined;
+  /**
+   * Specifies the text label to use when the item is matched during keyboard text navigation.
+   *
+   * Defaults to the item text content if not provided.
+   */
+  label?: string | undefined;
+}
 
-export { SelectItem };
+export namespace SelectItem {
+  export type State = SelectItemState;
+  export type Props = SelectItemProps;
+}

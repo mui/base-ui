@@ -1,25 +1,22 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
-import { useForkRef } from '../../utils/useForkRef';
-import { mergeReactProps } from '../../utils/mergeReactProps';
 import { useScrollAreaScrollbarContext } from '../scrollbar/ScrollAreaScrollbarContext';
 import { ScrollAreaScrollbarCssVars } from '../scrollbar/ScrollAreaScrollbarCssVars';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
- * The draggable part of the the scrollbar that indicates the current scroll position.
+ * The draggable part of the scrollbar that indicates the current scroll position.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
  */
-const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
-  props: ScrollAreaThumb.Props,
+export const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
+  componentProps: ScrollAreaThumb.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, ...elementProps } = componentProps;
 
   const {
     thumbYRef,
@@ -29,74 +26,56 @@ const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
     handlePointerUp,
     setScrollingX,
     setScrollingY,
+    hasMeasuredScrollbar,
   } = useScrollAreaRootContext();
 
   const { orientation } = useScrollAreaScrollbarContext();
 
-  const mergedRef = useForkRef(forwardedRef, orientation === 'vertical' ? thumbYRef : thumbXRef);
+  const state: ScrollAreaThumbState = { orientation };
 
-  const state: ScrollAreaThumb.State = React.useMemo(() => ({ orientation }), [orientation]);
-
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
-    ref: mergedRef,
-    className,
+  const element = useRenderElement('div', componentProps, {
+    ref: [forwardedRef, orientation === 'vertical' ? thumbYRef : thumbXRef],
     state,
-    extraProps: mergeReactProps<'div'>(otherProps, {
-      onPointerDown: handlePointerDown,
-      onPointerMove: handlePointerMove,
-      onPointerUp(event) {
-        if (orientation === 'vertical') {
-          setScrollingY(false);
-        }
-        if (orientation === 'horizontal') {
-          setScrollingX(false);
-        }
-        handlePointerUp(event);
+    props: [
+      {
+        onPointerDown: handlePointerDown,
+        onPointerMove: handlePointerMove,
+        onPointerUp(event) {
+          if (orientation === 'vertical') {
+            setScrollingY(false);
+          }
+          if (orientation === 'horizontal') {
+            setScrollingX(false);
+          }
+          handlePointerUp(event);
+        },
+        style: {
+          visibility: hasMeasuredScrollbar ? undefined : 'hidden',
+          ...(orientation === 'vertical' && {
+            height: `var(${ScrollAreaScrollbarCssVars.scrollAreaThumbHeight})`,
+          }),
+          ...(orientation === 'horizontal' && {
+            width: `var(${ScrollAreaScrollbarCssVars.scrollAreaThumbWidth})`,
+          }),
+        },
       },
-      style: {
-        ...(orientation === 'vertical' && {
-          height: `var(${ScrollAreaScrollbarCssVars.scrollAreaThumbHeight})`,
-        }),
-        ...(orientation === 'horizontal' && {
-          width: `var(${ScrollAreaScrollbarCssVars.scrollAreaThumbWidth})`,
-        }),
-      },
-    }),
+      elementProps,
+    ],
   });
 
-  return renderElement();
+  return element;
 });
 
-namespace ScrollAreaThumb {
-  export interface State {
-    orientation?: 'horizontal' | 'vertical';
-  }
-
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface ScrollAreaThumbState {
+  /**
+   * The component orientation.
+   */
+  orientation?: 'horizontal' | 'vertical' | undefined;
 }
 
-ScrollAreaThumb.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
+export interface ScrollAreaThumbProps extends BaseUIComponentProps<'div', ScrollAreaThumbState> {}
 
-export { ScrollAreaThumb };
+export namespace ScrollAreaThumb {
+  export type State = ScrollAreaThumbState;
+  export type Props = ScrollAreaThumbProps;
+}

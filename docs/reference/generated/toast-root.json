@@ -1,0 +1,82 @@
+{
+  "name": "ToastRoot",
+  "description": "Groups all parts of an individual toast.\nRenders a `<div>` element.",
+  "props": {
+    "swipeDirection": {
+      "type": "'up' | 'down' | 'left' | 'right' | ('left' | 'right' | 'up' | 'down')[]",
+      "default": "['down', 'right']",
+      "description": "Direction(s) in which the toast can be swiped to dismiss.",
+      "detailedType": "| 'up'\n| 'down'\n| 'left'\n| 'right'\n| ('left' | 'right' | 'up' | 'down')[]\n| undefined"
+    },
+    "toast": {
+      "type": "Toast.Root.ToastObject<any>",
+      "required": true,
+      "description": "The toast to render.",
+      "detailedType": "id: string\n  ref?: RefObject<HTMLElement | null>\n  title?: ReactNode\n  type?: string\n  description?: ReactNode\n  timeout?: number\n  priority?: 'low' | 'high'\n  transitionStatus?: 'starting' | 'ending'\n  limited?: boolean\n  height?: number\n  onClose?: () => void\n  onRemove?: () => void\n  actionProps?: Omit<\n    DetailedHTMLProps<\n      ButtonHTMLAttributes<HTMLButtonElement>,\n      HTMLButtonElement\n    >,\n    'ref'\n  >\n  positionerProps?: ToastManagerPositionerProps\n  data?: {}\n}"
+    },
+    "className": {
+      "type": "string | ((state: Toast.Root.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Toast.Root.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Toast.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Toast.Root.State) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Toast.Root.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Toast.Root.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {
+    "data-expanded": {
+      "description": "Present when the toast is expanded in the viewport.",
+      "type": "boolean"
+    },
+    "data-limited": {
+      "description": "Present when the toast was removed due to exceeding the limit.",
+      "type": "boolean"
+    },
+    "data-swipe-direction": {
+      "description": "The direction the toast was swiped.",
+      "type": "'up' | 'down' | 'left' | 'right'"
+    },
+    "data-swiping": {
+      "description": "Present when the toast is being swiped.",
+      "type": "boolean"
+    },
+    "data-type": {
+      "description": "The type of the toast.",
+      "type": "string"
+    },
+    "data-starting-style": {
+      "description": "Present when the toast is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the toast is animating out."
+    }
+  },
+  "cssVariables": {
+    "--toast-height": {
+      "description": "Indicates the measured natural height of the toast in pixels.",
+      "type": "number"
+    },
+    "--toast-index": {
+      "description": "Indicates the index of the toast in the list.",
+      "type": "number"
+    },
+    "--toast-offset-y": {
+      "description": "Indicates the vertical pixels offset of the toast in the list when expanded.",
+      "type": "number"
+    },
+    "--toast-swipe-movement-x": {
+      "description": "Indicates the horizontal swipe movement of the toast.",
+      "type": "number"
+    },
+    "--toast-swipe-movement-y": {
+      "description": "Indicates the vertical swipe movement of the toast.",
+      "type": "number"
+    }
+  }
+}

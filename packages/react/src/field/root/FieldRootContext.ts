@@ -1,18 +1,19 @@
 'use client';
 import * as React from 'react';
-import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
-import type { FieldRoot, FieldValidityData } from './FieldRoot';
-
-const NOOP = () => {};
+import { NOOP } from '../../utils/noop';
+import {
+  DEFAULT_FIELD_ROOT_STATE,
+  DEFAULT_FIELD_STATE_ATTRIBUTES,
+  DEFAULT_VALIDITY_STATE,
+} from '../utils/constants';
+import type { FieldValidityData, FieldRootState } from './FieldRoot';
+import type { Form } from '../../form';
+import type { UseFieldValidationReturnValue } from './useFieldValidation';
+import type { HTMLProps } from '../../utils/types';
+import { EMPTY_OBJECT } from '../../utils/constants';
 
 export interface FieldRootContext {
   invalid: boolean | undefined;
-  controlId: string | undefined;
-  setControlId: React.Dispatch<React.SetStateAction<string | undefined>>;
-  labelId: string | undefined;
-  setLabelId: React.Dispatch<React.SetStateAction<string | undefined>>;
-  messageIds: string[];
-  setMessageIds: React.Dispatch<React.SetStateAction<string[]>>;
   name: string | undefined;
   validityData: FieldValidityData;
   setValidityData: React.Dispatch<React.SetStateAction<FieldValidityData>>;
@@ -21,21 +22,24 @@ export interface FieldRootContext {
   setTouched: React.Dispatch<React.SetStateAction<boolean>>;
   dirty: boolean;
   setDirty: React.Dispatch<React.SetStateAction<boolean>>;
-  validate: (value: unknown) => string | string[] | null | Promise<string | string[] | null>;
-  validationMode: 'onBlur' | 'onChange';
+  filled: boolean;
+  setFilled: React.Dispatch<React.SetStateAction<boolean>>;
+  focused: boolean;
+  setFocused: React.Dispatch<React.SetStateAction<boolean>>;
+  validate: (
+    value: unknown,
+    formValues: Record<string, unknown>,
+  ) => string | string[] | null | Promise<string | string[] | null>;
+  validationMode: Form.ValidationMode;
   validationDebounceTime: number;
-  state: FieldRoot.State;
-  markedDirtyRef: React.MutableRefObject<boolean>;
+  shouldValidateOnChange: () => boolean;
+  state: FieldRootState;
+  markedDirtyRef: React.RefObject<boolean>;
+  validation: UseFieldValidationReturnValue;
 }
 
 export const FieldRootContext = React.createContext<FieldRootContext>({
   invalid: undefined,
-  controlId: undefined,
-  setControlId: NOOP,
-  labelId: undefined,
-  setLabelId: NOOP,
-  messageIds: [],
-  setMessageIds: NOOP,
   name: undefined,
   validityData: {
     state: DEFAULT_VALIDITY_STATE,
@@ -46,30 +50,32 @@ export const FieldRootContext = React.createContext<FieldRootContext>({
   },
   setValidityData: NOOP,
   disabled: undefined,
-  touched: false,
+  touched: DEFAULT_FIELD_STATE_ATTRIBUTES.touched,
   setTouched: NOOP,
-  dirty: false,
+  dirty: DEFAULT_FIELD_STATE_ATTRIBUTES.dirty,
   setDirty: NOOP,
+  filled: DEFAULT_FIELD_STATE_ATTRIBUTES.filled,
+  setFilled: NOOP,
+  focused: DEFAULT_FIELD_STATE_ATTRIBUTES.focused,
+  setFocused: NOOP,
   validate: () => null,
-  validationMode: 'onBlur',
+  validationMode: 'onSubmit',
   validationDebounceTime: 0,
-  state: {
-    disabled: false,
-    valid: null,
-    touched: false,
-    dirty: false,
-  },
+  shouldValidateOnChange: () => false,
+  state: DEFAULT_FIELD_ROOT_STATE,
   markedDirtyRef: { current: false },
+  validation: {
+    getValidationProps: (props: HTMLProps = EMPTY_OBJECT) => props,
+    getInputValidationProps: (props: HTMLProps = EMPTY_OBJECT) => props,
+    inputRef: { current: null },
+    commit: async () => {},
+  },
 });
-
-if (process.env.NODE_ENV !== 'production') {
-  FieldRootContext.displayName = 'FieldRootContext';
-}
 
 export function useFieldRootContext(optional = true) {
   const context = React.useContext(FieldRootContext);
 
-  if (context.setControlId === NOOP && !optional) {
+  if (context.setValidityData === NOOP && !optional) {
     throw new Error(
       'Base UI: FieldRootContext is missing. Field parts must be placed within <Field.Root>.',
     );

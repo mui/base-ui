@@ -1,12 +1,80 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
+import { useOnMount } from '@base-ui/utils/useOnMount';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { valueToPercent } from '../../utils/valueToPercent';
+import { useRenderElement } from '../../utils/useRenderElement';
 import { useSliderRootContext } from '../root/SliderRootContext';
-import { sliderStyleHookMapping } from '../root/styleHooks';
-import type { SliderRoot } from '../root/SliderRoot';
-import { useSliderIndicator } from './useSliderIndicator';
+import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
+import type { SliderRootState } from '../root/SliderRoot';
+
+function getInsetStyles(
+  vertical: boolean,
+  range: boolean,
+  start: number | undefined,
+  end: number | undefined,
+  renderBeforeHydration: boolean,
+  mounted: boolean,
+): React.CSSProperties & Record<string, unknown> {
+  const visibility =
+    start === undefined || (range && end === undefined) ? ('hidden' as const) : undefined;
+
+  const startEdge = vertical ? 'bottom' : 'insetInlineStart';
+  const mainSide = vertical ? 'height' : 'width';
+  const crossSide = vertical ? 'width' : 'height';
+
+  const styles: React.CSSProperties & Record<string, unknown> = {
+    visibility: renderBeforeHydration && !mounted ? 'hidden' : visibility,
+    position: vertical ? 'absolute' : 'relative',
+    [crossSide]: 'inherit',
+  };
+
+  styles['--start-position'] = `${start ?? 0}%`;
+
+  if (!range) {
+    styles[startEdge] = 0;
+    styles[mainSide] = 'var(--start-position)';
+
+    return styles;
+  }
+
+  styles['--relative-size'] = `${(end ?? 0) - (start ?? 0)}%`;
+
+  styles[startEdge] = 'var(--start-position)';
+  styles[mainSide] = 'var(--relative-size)';
+
+  return styles;
+}
+
+function getCenteredStyles(
+  vertical: boolean,
+  range: boolean,
+  start: number,
+  end: number,
+): React.CSSProperties {
+  const startEdge = vertical ? 'bottom' : 'insetInlineStart';
+  const mainSide = vertical ? 'height' : 'width';
+  const crossSide = vertical ? 'width' : 'height';
+
+  const styles: React.CSSProperties = {
+    position: vertical ? 'absolute' : 'relative',
+    [crossSide]: 'inherit',
+  };
+
+  if (!range) {
+    styles[startEdge] = 0;
+    styles[mainSide] = `${start}%`;
+
+    return styles;
+  }
+
+  const size = end - start;
+
+  styles[startEdge] = `${start}%`;
+  styles[mainSide] = `${size}%`;
+
+  return styles;
+}
 
 /**
  * Visualizes the current value of the slider.
@@ -14,58 +82,59 @@ import { useSliderIndicator } from './useSliderIndicator';
  *
  * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
  */
-const SliderIndicator = React.forwardRef(function SliderIndicator(
-  props: SliderIndicator.Props,
-  forwardedRef: React.ForwardedRef<HTMLElement>,
+export const SliderIndicator = React.forwardRef(function SliderIndicator(
+  componentProps: SliderIndicator.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...otherProps } = props;
+  const { render, className, ...elementProps } = componentProps;
 
-  const { disabled, orientation, state, percentageValues } = useSliderRootContext();
+  const { indicatorPosition, inset, max, min, orientation, renderBeforeHydration, state, values } =
+    useSliderRootContext();
 
-  const { getRootProps } = useSliderIndicator({
-    disabled,
-    orientation,
-    percentageValues,
-  });
+  const [isMounted, setIsMounted] = React.useState(false);
+  useOnMount(() => setIsMounted(true));
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
-    render: render ?? 'div',
+  const vertical = orientation === 'vertical';
+  const range = values.length > 1;
+
+  const style = inset
+    ? getInsetStyles(
+        vertical,
+        range,
+        indicatorPosition[0],
+        indicatorPosition[1],
+        renderBeforeHydration,
+        isMounted,
+      )
+    : getCenteredStyles(
+        vertical,
+        range,
+        valueToPercent(values[0], min, max),
+        valueToPercent(values[values.length - 1], min, max),
+      );
+
+  const element = useRenderElement('div', componentProps, {
     state,
-    className,
     ref: forwardedRef,
-    extraProps: otherProps,
-    customStyleHookMapping: sliderStyleHookMapping,
+    props: [
+      {
+        ['data-base-ui-slider-indicator' as string]: renderBeforeHydration ? '' : undefined,
+        style,
+        suppressHydrationWarning: renderBeforeHydration || undefined,
+      },
+      elementProps,
+    ],
+    stateAttributesMapping: sliderStateAttributesMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
+export interface SliderIndicatorState extends SliderRootState {}
+
+export interface SliderIndicatorProps extends BaseUIComponentProps<'div', SliderIndicatorState> {}
+
 export namespace SliderIndicator {
-  export interface Props extends BaseUIComponentProps<'div', SliderRoot.State> {}
+  export type State = SliderIndicatorState;
+  export type Props = SliderIndicatorProps;
 }
-
-export { SliderIndicator };
-
-SliderIndicator.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;

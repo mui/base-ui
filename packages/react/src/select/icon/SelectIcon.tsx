@@ -1,70 +1,51 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
+import { useStore } from '@base-ui/utils/store';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { mergeReactProps } from '../../utils/mergeReactProps';
+import { useRenderElement } from '../../utils/useRenderElement';
+import { useSelectRootContext } from '../root/SelectRootContext';
+import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { selectors } from '../store';
 
 /**
- * An icon that indicates that the trigger button opens a select menu.
+ * An icon that indicates that the trigger button opens a select popup.
  * Renders a `<span>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-const SelectIcon = React.forwardRef(function SelectIcon(
-  props: SelectIcon.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+export const SelectIcon = React.forwardRef(function SelectIcon(
+  componentProps: SelectIcon.Props,
+  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, ...otherProps } = props;
+  const { className, render, ...elementProps } = componentProps;
 
-  const state: SelectIcon.State = React.useMemo(() => ({}), []);
+  const { store } = useSelectRootContext();
+  const open = useStore(store, selectors.open);
 
-  const getIconProps = React.useCallback((externalProps: React.ComponentProps<'span'>) => {
-    return mergeReactProps(externalProps, {
-      'aria-hidden': true,
-      children: '▼',
-    });
-  }, []);
+  const state: SelectIconState = {
+    open,
+  };
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getIconProps,
-    render: render ?? 'span',
-    ref: forwardedRef,
-    className,
+  const element = useRenderElement('span', componentProps, {
     state,
-    extraProps: otherProps,
+    ref: forwardedRef,
+    props: [{ 'aria-hidden': true, children: '▼' }, elementProps],
+    stateAttributesMapping: triggerOpenStateMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
-namespace SelectIcon {
-  export interface State {}
-
-  export interface Props extends BaseUIComponentProps<'span', State> {}
+export interface SelectIconState {
+  /**
+   * Whether the select popup is currently open.
+   */
+  open: boolean;
 }
 
-SelectIcon.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
+export interface SelectIconProps extends BaseUIComponentProps<'span', SelectIconState> {}
 
-export { SelectIcon };
+export namespace SelectIcon {
+  export type State = SelectIconState;
+  export type Props = SelectIconProps;
+}

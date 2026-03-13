@@ -1,19 +1,18 @@
 'use client';
 import * as React from 'react';
-import type { useCollapsibleRoot } from './useCollapsibleRoot';
-import type { CollapsibleRoot } from './CollapsibleRoot';
+import type { UseCollapsibleRootReturnValue } from './useCollapsibleRoot';
+import type { CollapsibleRoot, CollapsibleRootState } from './CollapsibleRoot';
+import type { TransitionStatus } from '../../utils/useTransitionStatus';
 
-export interface CollapsibleRootContext extends useCollapsibleRoot.ReturnValue {
-  state: CollapsibleRoot.State;
+export interface CollapsibleRootContext extends UseCollapsibleRootReturnValue {
+  onOpenChange: (open: boolean, eventDetails: CollapsibleRoot.ChangeEventDetails) => void;
+  state: CollapsibleRootState;
+  transitionStatus: TransitionStatus;
 }
 
 export const CollapsibleRootContext = React.createContext<CollapsibleRootContext | undefined>(
   undefined,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  CollapsibleRootContext.displayName = 'CollapsibleRootContext';
-}
 
 export function useCollapsibleRootContext() {
   const context = React.useContext(CollapsibleRootContext);

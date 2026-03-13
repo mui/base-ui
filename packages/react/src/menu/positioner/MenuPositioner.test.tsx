@@ -1,8 +1,15 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { flushMicrotasks } from '@mui/internal-test-utils';
-import { Menu } from '@base-ui-components/react/menu';
+import { flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import { Menu } from '@base-ui/react/menu';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
+
+const Trigger = React.forwardRef(function Trigger(
+  props: Menu.Trigger.Props,
+  ref: React.ForwardedRef<any>,
+) {
+  return <Menu.Trigger {...props} ref={ref} render={<div />} nativeButton={false} />;
+});
 
 describe('<Menu.Positioner />', () => {
   const { render } = createRenderer();
@@ -18,12 +25,8 @@ describe('<Menu.Positioner />', () => {
     refInstanceof: window.HTMLDivElement,
   }));
 
-  describe('prop: anchor', () => {
-    it('should be placed near the specified element when a ref is passed', async ({ skip }) => {
-      if (isJSDOM) {
-        skip();
-      }
-
+  describe.skipIf(isJSDOM)('prop: anchor', () => {
+    it('should be placed near the specified element when a ref is passed', async () => {
       function TestComponent() {
         const anchor = React.useRef<HTMLDivElement | null>(null);
 
@@ -50,10 +53,10 @@ describe('<Menu.Positioner />', () => {
         );
       }
 
-      const { getByTestId } = await render(<TestComponent />);
+      const { user } = await render(<TestComponent />);
 
-      const positioner = getByTestId('positioner');
-      const anchor = getByTestId('anchor');
+      const positioner = screen.getByTestId('positioner');
+      const anchor = screen.getByTestId('anchor');
 
       const anchorPosition = anchor.getBoundingClientRect();
 
@@ -64,13 +67,7 @@ describe('<Menu.Positioner />', () => {
       );
     });
 
-    it('should be placed near the specified element when an element is passed', async ({
-      skip,
-    }) => {
-      if (isJSDOM) {
-        skip();
-      }
-
+    it('should be placed near the specified element when an element is passed', async () => {
       function TestComponent() {
         const [anchor, setAnchor] = React.useState<HTMLDivElement | null>(null);
         const handleRef = React.useCallback((element: HTMLDivElement | null) => {
@@ -100,10 +97,10 @@ describe('<Menu.Positioner />', () => {
         );
       }
 
-      const { getByTestId } = await render(<TestComponent />);
+      await render(<TestComponent />);
 
-      const positioner = getByTestId('positioner');
-      const anchor = getByTestId('anchor');
+      const positioner = screen.getByTestId('positioner');
+      const anchor = screen.getByTestId('anchor');
 
       const anchorPosition = anchor.getBoundingClientRect();
 
@@ -114,13 +111,7 @@ describe('<Menu.Positioner />', () => {
       );
     });
 
-    it('should be placed near the specified element when a function returning an element is passed', async ({
-      skip,
-    }) => {
-      if (isJSDOM) {
-        skip();
-      }
-
+    it('should be placed near the specified element when a function returning an element is passed', async () => {
       function TestComponent() {
         const [anchor, setAnchor] = React.useState<HTMLDivElement | null>(null);
         const handleRef = React.useCallback((element: HTMLDivElement | null) => {
@@ -152,10 +143,10 @@ describe('<Menu.Positioner />', () => {
         );
       }
 
-      const { getByTestId } = await render(<TestComponent />);
+      await render(<TestComponent />);
 
-      const positioner = getByTestId('positioner');
-      const anchor = getByTestId('anchor');
+      const positioner = screen.getByTestId('positioner');
+      const anchor = screen.getByTestId('anchor');
 
       const anchorPosition = anchor.getBoundingClientRect();
 
@@ -166,11 +157,7 @@ describe('<Menu.Positioner />', () => {
       );
     });
 
-    it('should be placed at the specified position', async ({ skip }) => {
-      if (isJSDOM) {
-        skip();
-      }
-
+    it('should be placed at the specified position', async () => {
       const boundingRect = {
         x: 200,
         y: 100,
@@ -185,7 +172,7 @@ describe('<Menu.Positioner />', () => {
 
       const virtualElement = { getBoundingClientRect: () => boundingRect };
 
-      const { getByTestId } = await render(
+      await render(
         <Menu.Root open>
           <Menu.Portal>
             <Menu.Positioner
@@ -204,14 +191,114 @@ describe('<Menu.Positioner />', () => {
         </Menu.Root>,
       );
 
-      const positioner = getByTestId('positioner');
+      const positioner = screen.getByTestId('positioner');
       expect(positioner.style.getPropertyValue('transform')).to.equal(`translate(200px, 100px)`);
+    });
+
+    it('should accept a non-memoized function as an anchor', async () => {
+      function TestComponent() {
+        return (
+          <div style={{ margin: '50px' }}>
+            <Menu.Root open>
+              <Menu.Portal>
+                <Menu.Positioner
+                  side="bottom"
+                  align="start"
+                  anchor={() => null}
+                  arrowPadding={0}
+                  data-testid="positioner"
+                >
+                  <Menu.Popup>
+                    <Menu.Item>1</Menu.Item>
+                    <Menu.Item>2</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </div>
+        );
+      }
+
+      await render(<TestComponent />);
+    });
+
+    it('should react to the anchor changing from a ref to undefined and back', async () => {
+      function TestComponent() {
+        const anchorRef = React.useRef<HTMLDivElement | null>(null);
+        const [currentAnchor, setCurrentAnchor] = React.useState<
+          React.RefObject<HTMLDivElement | null> | undefined
+        >(anchorRef);
+
+        return (
+          <div style={{ margin: '50px' }}>
+            <button type="button" onClick={() => setCurrentAnchor(undefined)}>
+              undefined
+            </button>
+            <button type="button" onClick={() => setCurrentAnchor(anchorRef)}>
+              ref
+            </button>
+            <Menu.Root open>
+              <Menu.Trigger>trigger</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner
+                  side="bottom"
+                  align="start"
+                  anchor={currentAnchor}
+                  arrowPadding={0}
+                  data-testid="positioner"
+                >
+                  <Menu.Popup>
+                    <Menu.Item>1</Menu.Item>
+                    <Menu.Item>2</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <div
+              data-testid="anchor"
+              style={{ marginTop: '100px', width: 10, height: 10 }}
+              ref={anchorRef}
+            />
+          </div>
+        );
+      }
+
+      await render(<TestComponent />);
+
+      const positioner = screen.getByTestId('positioner');
+      const anchorElement = screen.getByTestId('anchor');
+
+      const setUndefinedButton = screen.getByRole('button', { name: 'undefined' });
+      const setRefButton = screen.getByRole('button', { name: 'ref' });
+      const trigger = screen.getByRole('button', { name: 'trigger' });
+
+      let anchorRect = anchorElement.getBoundingClientRect();
+      await flushMicrotasks();
+      expect(positioner.style.getPropertyValue('transform')).to.equal(
+        `translate(${anchorRect.left}px, ${anchorRect.bottom}px)`,
+      );
+
+      await user.click(setUndefinedButton);
+      await flushMicrotasks();
+
+      const triggerRect = trigger.getBoundingClientRect();
+      expect(positioner.style.getPropertyValue('transform')).to.equal(
+        `translate(${Math.floor(triggerRect.left)}px, ${triggerRect.bottom}px)`,
+      );
+
+      await user.click(setRefButton);
+      await flushMicrotasks();
+
+      anchorRect = anchorElement.getBoundingClientRect();
+      expect(positioner.style.getPropertyValue('transform')).to.equal(
+        `translate(${anchorRect.left}px, ${anchorRect.bottom}px)`,
+      );
     });
   });
 
   describe('prop: keepMounted', () => {
     it('when keepMounted=true, should keep the content mounted when closed', async () => {
-      const { getByRole, queryByRole, user } = await render(
+      const { user } = await render(
         <Menu.Root modal={false}>
           <Menu.Trigger>Toggle</Menu.Trigger>
           <Menu.Portal keepMounted>
@@ -225,23 +312,28 @@ describe('<Menu.Positioner />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Toggle' });
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
 
-      expect(queryByRole('menu', { hidden: true })).not.to.equal(null);
-      expect(queryByRole('menu', { hidden: true })).toBeInaccessible();
+      expect(screen.queryByRole('menu', { hidden: true })).not.to.equal(null);
+      expect(screen.queryByRole('menu', { hidden: true })).toBeInaccessible();
 
-      await user.click(trigger);
-      await flushMicrotasks();
-      expect(queryByRole('menu', { hidden: false })).not.to.equal(null);
-      expect(queryByRole('menu', { hidden: false })).not.toBeInaccessible();
+      await user.click(trigger, { delay: 20 });
+      await waitFor(() => {
+        expect(screen.queryByRole('menu', { hidden: false })).not.to.equal(null);
+      });
+      expect(screen.queryByRole('menu', { hidden: false })).not.toBeInaccessible();
 
-      await user.click(trigger);
-      expect(queryByRole('menu', { hidden: true })).not.to.equal(null);
-      expect(queryByRole('menu', { hidden: true })).toBeInaccessible();
+      await user.click(trigger, { delay: 20 });
+      await waitFor(() => {
+        expect(screen.queryByRole('menu', { hidden: true })).not.to.equal(null);
+      });
+      await waitFor(() => {
+        expect(screen.queryByRole('menu', { hidden: true })).toBeInaccessible();
+      });
     });
 
     it('when keepMounted=false, should unmount the content when closed', async () => {
-      const { getByRole, queryByRole, user } = await render(
+      const { user } = await render(
         <Menu.Root modal={false}>
           <Menu.Trigger>Toggle</Menu.Trigger>
           <Menu.Portal keepMounted={false}>
@@ -255,17 +347,253 @@ describe('<Menu.Positioner />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Toggle' });
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
 
-      expect(queryByRole('menu', { hidden: true })).to.equal(null);
+      expect(screen.queryByRole('menu', { hidden: true })).to.equal(null);
 
-      await user.click(trigger);
+      await user.click(trigger, { delay: 20 });
       await flushMicrotasks();
-      expect(queryByRole('menu', { hidden: false })).not.to.equal(null);
-      expect(queryByRole('menu', { hidden: false })).not.toBeInaccessible();
+      await waitFor(() => {
+        expect(screen.queryByRole('menu', { hidden: false })).not.to.equal(null);
+      });
+      expect(screen.queryByRole('menu', { hidden: false })).not.toBeInaccessible();
 
-      await user.click(trigger);
-      expect(queryByRole('menu', { hidden: true })).to.equal(null);
+      await user.click(trigger, { delay: 20 });
+      await waitFor(() => {
+        expect(screen.queryByRole('menu', { hidden: true })).to.equal(null);
+      });
+    });
+  });
+
+  const baselineX = 10;
+  const baselineY = 36;
+  const popupWidth = 52;
+  const popupHeight = 24;
+  const anchorWidth = 72;
+  const anchorHeight = 36;
+  const triggerStyle = { width: anchorWidth, height: anchorHeight };
+  const popupStyle = { width: popupWidth, height: popupHeight };
+
+  describe.skipIf(isJSDOM)('prop: sideOffset', () => {
+    it('offsets the side when a number is specified', async () => {
+      const sideOffset = 7;
+      await render(
+        <Menu.Root open>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <Menu.Portal>
+            <Menu.Positioner data-testid="positioner" sideOffset={sideOffset}>
+              <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      expect(screen.getByTestId('positioner').style.transform).to.equal(
+        `translate(${baselineX}px, ${baselineY + sideOffset}px)`,
+      );
+    });
+
+    it('offsets the side when a function is specified', async () => {
+      await render(
+        <Menu.Root open>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <Menu.Portal>
+            <Menu.Positioner
+              data-testid="positioner"
+              sideOffset={(data) => data.positioner.width + data.anchor.width}
+            >
+              <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      expect(screen.getByTestId('positioner').style.transform).to.equal(
+        `translate(${baselineX}px, ${baselineY + popupWidth + anchorWidth}px)`,
+      );
+    });
+
+    it('can read the latest side inside sideOffset', async () => {
+      let side = 'none';
+      await render(
+        <Menu.Root open>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <Menu.Portal>
+            <Menu.Positioner
+              side="left"
+              data-testid="positioner"
+              sideOffset={(data) => {
+                side = data.side;
+                return 0;
+              }}
+            >
+              <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      // correctly flips the side in the browser
+      expect(side).to.equal('right');
+    });
+
+    it('can read the latest align inside sideOffset', async () => {
+      let align = 'none';
+      await render(
+        <Menu.Root open>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <Menu.Portal>
+            <Menu.Positioner
+              side="right"
+              align="start"
+              data-testid="positioner"
+              sideOffset={(data) => {
+                align = data.align;
+                return 0;
+              }}
+            >
+              <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      // correctly flips the align in the browser
+      expect(align).to.equal('end');
+    });
+
+    it('reads logical side inside sideOffset', async () => {
+      let side = 'none';
+      await render(
+        <Menu.Root open>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <Menu.Portal>
+            <Menu.Positioner
+              side="inline-start"
+              data-testid="positioner"
+              sideOffset={(data) => {
+                side = data.side;
+                return 0;
+              }}
+            >
+              <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      // correctly flips the side in the browser
+      expect(side).to.equal('inline-end');
+    });
+  });
+
+  describe.skipIf(isJSDOM)('prop: alignOffset', () => {
+    it('offsets the align when a number is specified', async () => {
+      const alignOffset = 7;
+      await render(
+        <Menu.Root open>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <Menu.Portal>
+            <Menu.Positioner data-testid="positioner" alignOffset={alignOffset}>
+              <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      expect(screen.getByTestId('positioner').style.transform).to.equal(
+        `translate(${baselineX + alignOffset}px, ${baselineY}px)`,
+      );
+    });
+
+    it('offsets the align when a function is specified', async () => {
+      await render(
+        <Menu.Root open>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <Menu.Portal>
+            <Menu.Positioner data-testid="positioner" alignOffset={(data) => data.positioner.width}>
+              <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      expect(screen.getByTestId('positioner').style.transform).to.equal(
+        `translate(${baselineX + popupWidth}px, ${baselineY}px)`,
+      );
+    });
+
+    it('can read the latest side inside alignOffset', async () => {
+      let side = 'none';
+      await render(
+        <Menu.Root open>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <Menu.Portal>
+            <Menu.Positioner
+              side="left"
+              data-testid="positioner"
+              alignOffset={(data) => {
+                side = data.side;
+                return 0;
+              }}
+            >
+              <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      // correctly flips the side in the browser
+      expect(side).to.equal('right');
+    });
+
+    it('can read the latest align inside alignOffset', async () => {
+      let align = 'none';
+      await render(
+        <Menu.Root open>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <Menu.Portal>
+            <Menu.Positioner
+              side="right"
+              align="start"
+              data-testid="positioner"
+              alignOffset={(data) => {
+                align = data.align;
+                return 0;
+              }}
+            >
+              <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      // correctly flips the align in the browser
+      expect(align).to.equal('end');
+    });
+
+    it('reads logical side inside alignOffset', async () => {
+      let side = 'none';
+      await render(
+        <Menu.Root open>
+          <Trigger style={triggerStyle}>Trigger</Trigger>
+          <Menu.Portal>
+            <Menu.Positioner
+              side="inline-start"
+              data-testid="positioner"
+              alignOffset={(data) => {
+                side = data.side;
+                return 0;
+              }}
+            >
+              <Menu.Popup style={popupStyle}>Popup</Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      // correctly flips the side in the browser
+      expect(side).to.equal('inline-end');
     });
   });
 });

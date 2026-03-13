@@ -1,3 +1,5 @@
+import { TransitionStatusDataAttributes } from '../../utils/stateAttributesMapping';
+
 export enum RadioIndicatorDataAttributes {
   /**
    * Present when the radio is checked.
@@ -20,6 +22,14 @@ export enum RadioIndicatorDataAttributes {
    */
   required = 'data-required',
   /**
+   * Present when the radio indicator is animating in.
+   */
+  startingStyle = TransitionStatusDataAttributes.startingStyle,
+  /**
+   * Present when the radio indicator is animating out.
+   */
+  endingStyle = TransitionStatusDataAttributes.endingStyle,
+  /**
    * Present when the radio is in valid state (when wrapped in Field.Root).
    */
   valid = 'data-valid',
@@ -35,4 +45,12 @@ export enum RadioIndicatorDataAttributes {
    * Present when the radio's value has changed (when wrapped in Field.Root).
    */
   dirty = 'data-dirty',
+  /**
+   * Present when the radio is checked (when wrapped in Field.Root).
+   */
+  filled = 'data-filled',
+  /**
+   * Present when the radio is focused (when wrapped in Field.Root).
+   */
+  focused = 'data-focused',
 }

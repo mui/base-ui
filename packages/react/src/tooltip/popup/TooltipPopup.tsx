@@ -1,19 +1,19 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { useTooltipPositionerContext } from '../positioner/TooltipPositionerContext';
-import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { mergeReactProps } from '../../utils/mergeReactProps';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { useRenderElement } from '../../utils/useRenderElement';
+import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import { useHoverFloatingInteraction } from '../../floating-ui-react';
 
-const customStyleHookMapping: CustomStyleHookMapping<TooltipPopup.State> = {
+const stateAttributesMapping: StateAttributesMapping<TooltipPopupState> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -24,85 +24,83 @@ const customStyleHookMapping: CustomStyleHookMapping<TooltipPopup.State> = {
  *
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
-const TooltipPopup = React.forwardRef(function TooltipPopup(
-  props: TooltipPopup.Props,
+export const TooltipPopup = React.forwardRef(function TooltipPopup(
+  componentProps: TooltipPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...otherProps } = props;
+  const { className, render, ...elementProps } = componentProps;
 
-  const { open, instantType, transitionStatus, getRootPopupProps, popupRef } =
-    useTooltipRootContext();
+  const store = useTooltipRootContext();
   const { side, align } = useTooltipPositionerContext();
 
-  const state: TooltipPopup.State = React.useMemo(
-    () => ({
-      open,
-      side,
-      align,
-      instant: instantType,
-      transitionStatus,
-    }),
-    [open, side, align, instantType, transitionStatus],
-  );
+  const open = store.useState('open');
+  const instantType = store.useState('instantType');
+  const transitionStatus = store.useState('transitionStatus');
+  const popupProps = store.useState('popupProps');
+  const floatingContext = store.useState('floatingRootContext');
 
-  const mergedRef = useForkRef(popupRef, forwardedRef);
-
-  // The content element needs to be a child of a wrapper floating element in order to avoid
-  // conflicts with CSS transitions and the positioning transform.
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootPopupProps,
-    render: render ?? 'div',
-    className,
-    state,
-    ref: mergedRef,
-    extraProps:
-      transitionStatus === 'starting'
-        ? mergeReactProps(otherProps, {
-            style: { transition: 'none' },
-          })
-        : otherProps,
-    customStyleHookMapping,
+  useOpenChangeComplete({
+    open,
+    ref: store.context.popupRef,
+    onComplete() {
+      if (open) {
+        store.context.onOpenChangeComplete?.(true);
+      }
+    },
   });
 
-  return renderElement();
+  const disabled = store.useState('disabled');
+  const closeDelay = store.useState('closeDelay');
+
+  useHoverFloatingInteraction(floatingContext, {
+    enabled: !disabled,
+    closeDelay,
+  });
+
+  const state: TooltipPopupState = {
+    open,
+    side,
+    align,
+    instant: instantType,
+    transitionStatus,
+  };
+
+  const element = useRenderElement('div', componentProps, {
+    state,
+    ref: [forwardedRef, store.context.popupRef, store.useStateSetter('popupElement')],
+    props: [popupProps, getDisabledMountTransitionStyles(transitionStatus), elementProps],
+    stateAttributesMapping,
+  });
+
+  return element;
 });
 
-namespace TooltipPopup {
-  export interface State {
-    /**
-     * Whether the tooltip is currently open.
-     */
-    open: boolean;
-    side: Side;
-    align: Align;
-    instant: 'delay' | 'focus' | 'dismiss' | undefined;
-    transitionStatus: TransitionStatus;
-  }
-
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface TooltipPopupState {
+  /**
+   * Whether the tooltip is currently open.
+   */
+  open: boolean;
+  /**
+   * The side of the anchor the component is placed on.
+   */
+  side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
+  align: Align;
+  /**
+   * Whether transitions should be skipped.
+   */
+  instant: 'delay' | 'focus' | 'dismiss' | undefined;
+  /**
+   * The transition status of the component.
+   */
+  transitionStatus: TransitionStatus;
 }
 
-TooltipPopup.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
+export interface TooltipPopupProps extends BaseUIComponentProps<'div', TooltipPopupState> {}
 
-export { TooltipPopup };
+export namespace TooltipPopup {
+  export type State = TooltipPopupState;
+  export type Props = TooltipPopupProps;
+}

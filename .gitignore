@@ -4,11 +4,7 @@
 .idea
 # IntelliJ IDEA module file
 *.iml
-.vscode/*
-!.vscode/launch.json
-!.vscode/extensions.json
 *.log
-*.tsbuildinfo
 /.eslintcache
 /coverage
 /docs/.env.local
@@ -27,7 +23,23 @@ node_modules
 package-lock.json
 size-snapshot.json
 # vale downloaded config
-.github/styles/Google
-.github/styles/MUI
-.github/styles/.vale-config
+.github/styles/
 .nx/cache
+.nx/workspace-data
+
+# Remove if you want to pregenerate the docs md files
+docs/public/llms.txt
+docs/public/llms-full.txt
+docs/public/react
+.cursor/rules/nx-rules.mdc
+.github/instructions/nx.instructions.md
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# Claude
+.claude/settings.local.json
+
+# Testing
+test-results/

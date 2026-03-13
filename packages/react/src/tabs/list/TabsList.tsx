@@ -1,15 +1,15 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import type { TabsRoot, TabsRootState } from '../root/TabsRoot';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
-import { tabsStyleHookMapping } from '../root/styleHooks';
+import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useTabsRootContext } from '../root/TabsRootContext';
-import { TabsRoot } from '../root/TabsRoot';
-import { type TabMetadata } from '../tab/useTabsTab';
-import { useTabsList } from './useTabsList';
+import type { TabsTab } from '../tab/TabsTab';
 import { TabsListContext } from './TabsListContext';
+import { EMPTY_ARRAY } from '../../utils/constants';
 
 /**
  * Groups the individual tab buttons.
@@ -17,14 +17,19 @@ import { TabsListContext } from './TabsListContext';
  *
  * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)
  */
-const TabsList = React.forwardRef(function TabsList(
-  props: TabsList.Props,
+export const TabsList = React.forwardRef(function TabsList(
+  componentProps: TabsList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { activateOnFocus = true, className, loop = true, render, ...other } = props;
+  const {
+    activateOnFocus = false,
+    className,
+    loopFocus = true,
+    render,
+    ...elementProps
+  } = componentProps;
 
   const {
-    direction,
     getTabElementBySelectedValue,
     onValueChange,
     orientation,
@@ -34,123 +39,232 @@ const TabsList = React.forwardRef(function TabsList(
   } = useTabsRootContext();
 
   const [highlightedTabIndex, setHighlightedTabIndex] = React.useState(0);
+  const [tabsListElement, setTabsListElement] = React.useState<HTMLElement | null>(null);
 
-  const tabsListRef = React.useRef<HTMLElement>(null);
+  const indicatorUpdateListenersRef = React.useRef(new Set<() => void>());
+  const tabResizeObserverElementsRef = React.useRef(new Set<HTMLElement>());
+  const resizeObserverRef = React.useRef<ResizeObserver | null>(null);
 
-  const { getRootProps, onTabActivation } = useTabsList({
-    getTabElementBySelectedValue,
-    onValueChange,
-    orientation,
-    rootRef: forwardedRef,
-    setTabMap,
-    tabsListRef,
-    value,
+  const notifyIndicatorUpdateListeners = useStableCallback(() => {
+    indicatorUpdateListenersRef.current.forEach((listener) => {
+      listener();
+    });
   });
 
-  const state: TabsList.State = React.useMemo(
-    () => ({
-      orientation,
-      tabActivationDirection,
-    }),
-    [orientation, tabActivationDirection],
+  React.useEffect(() => {
+    if (typeof ResizeObserver === 'undefined') {
+      return undefined;
+    }
+
+    const resizeObserver = new ResizeObserver(() => {
+      if (!indicatorUpdateListenersRef.current.size) {
+        return;
+      }
+      notifyIndicatorUpdateListeners();
+    });
+
+    resizeObserverRef.current = resizeObserver;
+
+    if (tabsListElement) {
+      resizeObserver.observe(tabsListElement);
+    }
+
+    tabResizeObserverElementsRef.current.forEach((element) => {
+      resizeObserver.observe(element);
+    });
+
+    return () => {
+      resizeObserver.disconnect();
+      resizeObserverRef.current = null;
+    };
+  }, [tabsListElement, notifyIndicatorUpdateListeners]);
+
+  const registerIndicatorUpdateListener = useStableCallback((listener: () => void) => {
+    indicatorUpdateListenersRef.current.add(listener);
+    return () => {
+      indicatorUpdateListenersRef.current.delete(listener);
+    };
+  });
+
+  const registerTabResizeObserverElement = useStableCallback((element: HTMLElement) => {
+    tabResizeObserverElementsRef.current.add(element);
+    resizeObserverRef.current?.observe(element);
+    return () => {
+      tabResizeObserverElementsRef.current.delete(element);
+      resizeObserverRef.current?.unobserve(element);
+    };
+  });
+
+  const detectActivationDirection = useActivationDirectionDetector(
+    value, // the old value
+    orientation,
+    tabsListElement,
+    getTabElementBySelectedValue,
   );
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
-    render: render ?? 'div',
-    className,
-    state,
-    extraProps: other,
-    customStyleHookMapping: tabsStyleHookMapping,
-  });
+  const onTabActivation = useStableCallback(
+    (newValue: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => {
+      if (newValue !== value) {
+        const activationDirection = detectActivationDirection(newValue);
+        eventDetails.activationDirection = activationDirection;
+        onValueChange(newValue, eventDetails);
+      }
+    },
+  );
+
+  const state: TabsListState = {
+    orientation,
+    tabActivationDirection,
+  };
+
+  const defaultProps: HTMLProps = {
+    'aria-orientation': orientation === 'vertical' ? 'vertical' : undefined,
+    role: 'tablist',
+  };
 
   const tabsListContextValue: TabsListContext = React.useMemo(
     () => ({
       activateOnFocus,
       highlightedTabIndex,
+      registerIndicatorUpdateListener,
+      registerTabResizeObserverElement,
       onTabActivation,
       setHighlightedTabIndex,
-      tabsListRef,
-      value,
+      tabsListElement,
     }),
     [
       activateOnFocus,
       highlightedTabIndex,
+      registerIndicatorUpdateListener,
+      registerTabResizeObserverElement,
       onTabActivation,
       setHighlightedTabIndex,
-      tabsListRef,
-      value,
+      tabsListElement,
     ],
   );
 
   return (
     <TabsListContext.Provider value={tabsListContextValue}>
-      <CompositeRoot<TabMetadata>
+      <CompositeRoot
+        render={render}
+        className={className}
+        state={state}
+        refs={[forwardedRef, setTabsListElement]}
+        props={[defaultProps, elementProps]}
+        stateAttributesMapping={tabsStateAttributesMapping}
         highlightedIndex={highlightedTabIndex}
         enableHomeAndEndKeys
-        loop={loop}
-        direction={direction}
+        loopFocus={loopFocus}
         orientation={orientation}
         onHighlightedIndexChange={setHighlightedTabIndex}
         onMapChange={setTabMap}
-        render={renderElement()}
+        disabledIndices={EMPTY_ARRAY as number[]}
       />
     </TabsListContext.Provider>
   );
 });
 
-namespace TabsList {
-  export type State = TabsRoot.State;
+function getInset(tab: HTMLElement, tabsList: HTMLElement) {
+  const { left: tabLeft, top: tabTop } = tab.getBoundingClientRect();
+  const { left: listLeft, top: listTop } = tabsList.getBoundingClientRect();
 
-  export interface Props extends BaseUIComponentProps<'div', TabsList.State> {
-    /**
-     * Whether to automatically change the active tab on arrow key focus.
-     * Otherwise, tabs will be activated using Enter or Spacebar key press.
-     * @default true
-     */
-    activateOnFocus?: boolean;
-    /**
-     * Whether to loop keyboard focus back to the first item
-     * when the end of the list is reached while using the arrow keys.
-     * @default true
-     */
-    loop?: boolean;
-  }
+  const left = tabLeft - listLeft;
+  const top = tabTop - listTop;
+
+  return { left, top };
 }
 
-export { TabsList };
+function useActivationDirectionDetector(
+  // the old value
+  activeTabValue: any,
+  orientation: TabsRoot.Orientation,
+  tabsListElement: HTMLElement | null,
+  getTabElement: (selectedValue: any) => HTMLElement | null,
+): (newValue: any) => TabsTab.ActivationDirection {
+  const [previousTabEdge, setPreviousTabEdge] = React.useState<number | null>(null);
 
-TabsList.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
+  useIsoLayoutEffect(() => {
+    // Whenever orientation changes, reset the state.
+    if (activeTabValue == null || tabsListElement == null) {
+      setPreviousTabEdge(null);
+      return;
+    }
+
+    const activeTab = getTabElement(activeTabValue);
+    if (activeTab == null) {
+      setPreviousTabEdge(null);
+      return;
+    }
+
+    const { left, top } = getInset(activeTab, tabsListElement);
+    setPreviousTabEdge(orientation === 'horizontal' ? left : top);
+  }, [orientation, getTabElement, tabsListElement, activeTabValue]);
+
+  return React.useCallback(
+    (newValue: any) => {
+      if (newValue === activeTabValue) {
+        return 'none';
+      }
+
+      if (newValue == null) {
+        setPreviousTabEdge(null);
+        return 'none';
+      }
+
+      if (newValue != null && tabsListElement != null) {
+        const activeTabElement = getTabElement(newValue);
+
+        if (activeTabElement != null) {
+          const { left, top } = getInset(activeTabElement, tabsListElement);
+
+          if (previousTabEdge == null) {
+            setPreviousTabEdge(orientation === 'horizontal' ? left : top);
+            return 'none';
+          }
+
+          if (orientation === 'horizontal') {
+            if (left < previousTabEdge) {
+              setPreviousTabEdge(left);
+              return 'left';
+            }
+            if (left > previousTabEdge) {
+              setPreviousTabEdge(left);
+              return 'right';
+            }
+          } else if (top < previousTabEdge) {
+            setPreviousTabEdge(top);
+            return 'up';
+          } else if (top > previousTabEdge) {
+            setPreviousTabEdge(top);
+            return 'down';
+          }
+        }
+      }
+
+      return 'none';
+    },
+    [getTabElement, orientation, previousTabEdge, tabsListElement, activeTabValue],
+  );
+}
+
+export interface TabsListState extends TabsRootState {}
+
+export interface TabsListProps extends BaseUIComponentProps<'div', TabsListState> {
   /**
    * Whether to automatically change the active tab on arrow key focus.
-   * Otherwise, tabs will be activated using Enter or Spacebar key press.
-   * @default true
+   * Otherwise, tabs will be activated using <kbd>Enter</kbd> or <kbd>Space</kbd> key press.
+   * @default false
    */
-  activateOnFocus: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
+  activateOnFocus?: boolean | undefined;
   /**
    * Whether to loop keyboard focus back to the first item
    * when the end of the list is reached while using the arrow keys.
    * @default true
    */
-  loop: PropTypes.bool,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
+  loopFocus?: boolean | undefined;
+}
+
+export namespace TabsList {
+  export type State = TabsListState;
+  export type Props = TabsListProps;
+}

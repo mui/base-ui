@@ -1,3 +1,5 @@
+@import 'docs/src/css/custom-media.css';
+
 @layer components {
   .SideNavRoot {
     /* Match quick nav spacing so side nav and quick nav are visually aligned */
@@ -16,11 +18,14 @@
         var(--side-nav-scrollbar-thumb-width) / 2
     );
 
-    @apply text-md;
+    font-size: var(--text-md);
+    line-height: var(--text-md--line-height);
+    letter-spacing: var(--text-md--letter-spacing);
     position: sticky;
     top: 0;
 
     display: none;
+
     @media (--show-side-nav) {
       display: block;
     }
@@ -28,16 +33,16 @@
 
   .SideNavViewport {
     max-height: 100vh;
-    padding-top: 0.75rem;
-    padding-bottom: 3rem;
-    padding-left: 1.5rem;
-    padding-right: calc(
-      var(--side-nav-scrollbar-gap-left) + var(--side-nav-scrollbar-width) / 2 +
-        var(--side-nav-scrollbar-thumb-width) / 2
-    );
+    padding: 0.75rem
+      calc(
+        var(--side-nav-scrollbar-gap-left) + var(--side-nav-scrollbar-width) / 2 +
+          var(--side-nav-scrollbar-thumb-width) / 2
+      )
+      6rem 1.5rem;
 
     /* Scroll containers are focusable */
     outline: 0;
+
     .SideNavRoot:has(&:focus-visible)::before {
       content: '';
       inset: 0;
@@ -94,6 +99,7 @@
     display: inline-flex;
     padding-block: var(--side-nav-item-padding-y);
     font-weight: 500;
+    letter-spacing: 0.00625em;
   }
 
   .SideNavItem {
@@ -101,12 +107,16 @@
   }
 
   .SideNavLink {
+    display: flex;
+    align-items: center;
+    gap: 4px;
     flex-grow: 1;
     padding: calc(var(--side-nav-item-padding-y) - 1px) 0.75rem;
     border-block: 1px solid transparent; /* Maintain a 1px gap between active an inactive item */
     background-clip: padding-box;
     border-radius: var(--radius-md);
-    letter-spacing: 0.0025em;
+    letter-spacing: var(--text-md--letter-spacing);
+    user-select: none;
 
     @media (hover: hover) {
       &:hover {
@@ -121,7 +131,7 @@
       outline: 1px solid var(--color-gray-200);
       outline-offset: -1px;
       font-weight: 500;
-      letter-spacing: -0.0025em;
+      letter-spacing: 0.00625em;
       word-spacing: -0.005em;
       cursor: default;
     }
@@ -131,5 +141,17 @@
       outline: 2px solid var(--color-blue);
       outline-offset: -1px;
     }
+  }
+
+  .SideNavBadge {
+    color: var(--color-red);
+    line-height: inherit;
+    user-select: none;
+    text-transform: uppercase;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.035em;
+    padding-inline: 2px;
+    translate: 0 -2px;
   }
 }

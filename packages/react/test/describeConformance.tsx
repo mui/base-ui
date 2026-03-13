@@ -12,10 +12,13 @@ export type ConformantComponentProps = {
   'data-testid'?: string;
   className?: string | ((state: unknown) => string);
   style?: React.CSSProperties;
+  nativeButton?: boolean;
 };
 
-export interface BaseUiConformanceTestsOptions
-  extends Omit<Partial<ConformanceOptions>, 'render' | 'mount' | 'skip' | 'classes'> {
+export interface BaseUiConformanceTestsOptions extends Omit<
+  Partial<ConformanceOptions>,
+  'render' | 'mount' | 'skip' | 'classes'
+> {
   render: (
     element: React.ReactElement<
       ConformantComponentProps,
@@ -25,6 +28,7 @@ export interface BaseUiConformanceTestsOptions
   ) => Promise<BaseUIRenderResult> | BaseUIRenderResult;
   skip?: (keyof typeof fullSuite)[];
   testRenderPropWith?: keyof React.JSX.IntrinsicElements;
+  button?: boolean;
 }
 
 const fullSuite = {
@@ -53,6 +57,4 @@ function describeConformanceFn(
   });
 }
 
-const describeConformance = createDescribe('Base UI component API', describeConformanceFn);
-
-export { describeConformance };
+export const describeConformance = createDescribe('Base UI component API', describeConformanceFn);

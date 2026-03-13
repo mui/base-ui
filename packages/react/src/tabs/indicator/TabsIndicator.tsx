@@ -1,17 +1,24 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useOnMount } from '../../utils/useOnMount';
+import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
+import { useOnMount } from '@base-ui/utils/useOnMount';
+import { useRenderElement } from '../../utils/useRenderElement';
+import { getCssDimensions } from '../../utils/getCssDimensions';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { TabsOrientation, TabsRoot } from '../root/TabsRoot';
+import type { TabsRoot, TabsRootState } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
-import { tabsStyleHookMapping } from '../root/styleHooks';
+import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useTabsListContext } from '../list/TabsListContext';
-import { ActiveTabPosition, ActiveTabSize, useTabsIndicator } from './useTabsIndicator';
+import type { TabsTab } from '../tab/TabsTab';
 import { script as prehydrationScript } from './prehydrationScript.min';
+import { TabsIndicatorCssVars } from './TabsIndicatorCssVars';
+import { useCSPContext } from '../../csp-provider/CSPContext';
 
-const noop = () => null;
+const stateAttributesMapping = {
+  ...tabsStateAttributesMapping,
+  activeTabPosition: () => null,
+  activeTabSize: () => null,
+};
 
 /**
  * A visual indicator that can be styled to match the position of the currently active tab.
@@ -19,122 +26,179 @@ const noop = () => null;
  *
  * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)
  */
-const TabsIndicator = React.forwardRef<HTMLSpanElement, TabsIndicator.Props>(
-  function TabIndicator(props, forwardedRef) {
-    const { className, render, renderBeforeHydration = false, ...other } = props;
+export const TabsIndicator = React.forwardRef(function TabIndicator(
+  componentProps: TabsIndicator.Props,
+  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
+) {
+  const { className, render, renderBeforeHydration = false, ...elementProps } = componentProps;
 
-    const { getTabElementBySelectedValue, orientation, tabActivationDirection, value } =
-      useTabsRootContext();
+  const { nonce } = useCSPContext();
 
-    const { tabsListRef } = useTabsListContext();
+  const { getTabElementBySelectedValue, orientation, tabActivationDirection, value } =
+    useTabsRootContext();
 
-    const [instanceId] = React.useState(() => Math.random().toString(36).slice(2));
-    const [isMounted, setIsMounted] = React.useState(false);
-    const { value: activeTabValue } = useTabsRootContext();
+  const { tabsListElement, registerIndicatorUpdateListener } = useTabsListContext();
 
-    useOnMount(() => setIsMounted(true));
+  const [isMounted, setIsMounted] = React.useState(false);
 
-    const {
-      getRootProps,
-      activeTabPosition: selectedTabPosition,
-      activeTabSize: selectedTabSize,
-    } = useTabsIndicator({
-      getTabElementBySelectedValue,
-      tabsListRef,
-      value,
-    });
+  useOnMount(() => setIsMounted(true));
 
-    const state: TabsIndicator.State = React.useMemo(
-      () => ({
-        orientation,
-        selectedTabPosition,
-        selectedTabSize,
-        tabActivationDirection,
-      }),
-      [orientation, selectedTabPosition, selectedTabSize, tabActivationDirection],
-    );
+  const rerender = useForcedRerendering();
 
-    const { renderElement } = useComponentRenderer({
-      propGetter: getRootProps,
-      render: render ?? 'span',
-      className,
-      state,
-      extraProps: {
-        ...other,
-        'data-instance-id': !(isMounted && renderBeforeHydration) ? instanceId : undefined,
-        suppressHydrationWarning: true,
-      },
-      customStyleHookMapping: {
-        ...tabsStyleHookMapping,
-        selectedTabPosition: noop,
-        selectedTabSize: noop,
-      },
-      ref: forwardedRef,
-    });
+  React.useEffect(() => {
+    return registerIndicatorUpdateListener(rerender);
+  }, [registerIndicatorUpdateListener, rerender]);
 
-    if (activeTabValue == null) {
-      return null;
+  let left = 0;
+  let right = 0;
+  let top = 0;
+  let bottom = 0;
+  let width = 0;
+  let height = 0;
+
+  let isTabSelected = false;
+
+  if (value != null && tabsListElement != null) {
+    const activeTab = getTabElementBySelectedValue(value);
+    isTabSelected = true;
+
+    if (activeTab != null) {
+      const { width: computedWidth, height: computedHeight } = getCssDimensions(activeTab);
+      const { width: tabListWidth, height: tabListHeight } = getCssDimensions(tabsListElement);
+      const tabRect = activeTab.getBoundingClientRect();
+      const tabsListRect = tabsListElement.getBoundingClientRect();
+      const scaleX = tabListWidth > 0 ? tabsListRect.width / tabListWidth : 1;
+      const scaleY = tabListHeight > 0 ? tabsListRect.height / tabListHeight : 1;
+      const hasNonZeroScale =
+        Math.abs(scaleX) > Number.EPSILON && Math.abs(scaleY) > Number.EPSILON;
+
+      if (hasNonZeroScale) {
+        const tabLeftDelta = tabRect.left - tabsListRect.left;
+        const tabTopDelta = tabRect.top - tabsListRect.top;
+
+        left = tabLeftDelta / scaleX + tabsListElement.scrollLeft - tabsListElement.clientLeft;
+        top = tabTopDelta / scaleY + tabsListElement.scrollTop - tabsListElement.clientTop;
+      } else {
+        left = activeTab.offsetLeft;
+        top = activeTab.offsetTop;
+      }
+
+      width = computedWidth;
+      height = computedHeight;
+      right = tabsListElement.scrollWidth - left - width;
+      bottom = tabsListElement.scrollHeight - top - height;
+    }
+  }
+
+  const activeTabPosition = React.useMemo(
+    () =>
+      isTabSelected
+        ? {
+            left,
+            right,
+            top,
+            bottom,
+          }
+        : null,
+    [left, right, top, bottom, isTabSelected],
+  );
+
+  const activeTabSize = React.useMemo(
+    () =>
+      isTabSelected
+        ? {
+            width,
+            height,
+          }
+        : null,
+    [width, height, isTabSelected],
+  );
+
+  const style = React.useMemo(() => {
+    if (!isTabSelected) {
+      return undefined;
     }
 
-    return (
-      <React.Fragment>
-        {renderElement()}
-        {!isMounted && renderBeforeHydration && (
-          <script
-            // eslint-disable-next-line react/no-danger
-            dangerouslySetInnerHTML={{ __html: prehydrationScript }}
-            suppressHydrationWarning
-          />
-        )}
-      </React.Fragment>
-    );
-  },
-);
+    return {
+      [TabsIndicatorCssVars.activeTabLeft]: `${left}px`,
+      [TabsIndicatorCssVars.activeTabRight]: `${right}px`,
+      [TabsIndicatorCssVars.activeTabTop]: `${top}px`,
+      [TabsIndicatorCssVars.activeTabBottom]: `${bottom}px`,
+      [TabsIndicatorCssVars.activeTabWidth]: `${width}px`,
+      [TabsIndicatorCssVars.activeTabHeight]: `${height}px`,
+    } as React.CSSProperties;
+  }, [left, right, top, bottom, width, height, isTabSelected]);
 
-namespace TabsIndicator {
-  export interface State extends TabsRoot.State {
-    selectedTabPosition: ActiveTabPosition | null;
-    selectedTabSize: ActiveTabSize | null;
-    orientation: TabsOrientation;
+  const displayIndicator = isTabSelected && width > 0 && height > 0;
+
+  const state: TabsIndicatorState = {
+    orientation,
+    activeTabPosition,
+    activeTabSize,
+    tabActivationDirection,
+  };
+
+  const element = useRenderElement('span', componentProps, {
+    state,
+    ref: forwardedRef,
+    props: [
+      {
+        role: 'presentation',
+        style,
+        hidden: !displayIndicator, // do not display the indicator before the layout is settled
+      },
+      elementProps,
+      {
+        suppressHydrationWarning: true,
+      },
+    ],
+    stateAttributesMapping,
+  });
+
+  if (value == null) {
+    return null;
   }
 
-  export interface Props extends BaseUIComponentProps<'span', TabsIndicator.State> {
-    /**
-     * Whether to render itself before React hydrates.
-     * This minimizes the time that the indicator isn’t visible after server-side rendering.
-     * @default false
-     */
-    renderBeforeHydration?: boolean;
-  }
+  return (
+    <React.Fragment>
+      {element}
+      {!isMounted && renderBeforeHydration && (
+        <script
+          nonce={nonce}
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: prehydrationScript }}
+          suppressHydrationWarning
+        />
+      )}
+    </React.Fragment>
+  );
+});
+
+export interface TabsIndicatorState extends TabsRootState {
+  /**
+   * The active tab position.
+   */
+  activeTabPosition: TabsTab.Position | null;
+  /**
+   * The active tab size.
+   */
+  activeTabSize: TabsTab.Size | null;
+  /**
+   * The component orientation.
+   */
+  orientation: TabsRoot.Orientation;
 }
 
-export { TabsIndicator };
-
-TabsIndicator.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
+export interface TabsIndicatorProps extends BaseUIComponentProps<'span', TabsIndicatorState> {
   /**
    * Whether to render itself before React hydrates.
    * This minimizes the time that the indicator isn’t visible after server-side rendering.
    * @default false
    */
-  renderBeforeHydration: PropTypes.bool,
-} as any;
+  renderBeforeHydration?: boolean | undefined;
+}
+
+export namespace TabsIndicator {
+  export type State = TabsIndicatorState;
+  export type Props = TabsIndicatorProps;
+}

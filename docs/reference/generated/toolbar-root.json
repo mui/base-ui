@@ -1,0 +1,46 @@
+{
+  "name": "ToolbarRoot",
+  "description": "A container for grouping a set of controls, such as buttons, toggle groups, or menus.\nRenders a `<div>` element.",
+  "props": {
+    "loopFocus": {
+      "type": "boolean",
+      "default": "true",
+      "description": "If `true`, using keyboard navigation will wrap focus to the other end of the toolbar once the end is reached.",
+      "detailedType": "boolean | undefined"
+    },
+    "disabled": {
+      "type": "boolean",
+      "detailedType": "boolean | undefined"
+    },
+    "orientation": {
+      "type": "Toolbar.Root.Orientation",
+      "default": "'horizontal'",
+      "description": "The orientation of the toolbar.",
+      "detailedType": "'horizontal' | 'vertical' | undefined"
+    },
+    "className": {
+      "type": "string | ((state: Toolbar.Root.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Toolbar.Root.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Toolbar.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Toolbar.Root.State) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Toolbar.Root.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Toolbar.Root.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {
+    "data-orientation": {
+      "description": "Indicates the orientation of the toolbar.",
+      "type": "'horizontal' | 'vertical'"
+    },
+    "data-disabled": {
+      "description": "Present when the toolbar is disabled."
+    }
+  },
+  "cssVariables": {}
+}

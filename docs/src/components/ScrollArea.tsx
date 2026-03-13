@@ -1,6 +1,6 @@
-import * as React from 'react';
-import { ScrollArea } from '@base-ui-components/react/scroll-area';
+import { ScrollArea } from '@base-ui/react/scroll-area';
 import clsx from 'clsx';
+import './ScrollArea.css';
 
 export const Root = ScrollArea.Root;
 

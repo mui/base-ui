@@ -1,6 +1,5 @@
-import * as React from 'react';
 import { createRenderer } from '#test-utils';
-import { ScrollArea } from '@base-ui-components/react/scroll-area';
+import { ScrollArea } from '@base-ui/react/scroll-area';
 import { describeConformance } from '../../../test/describeConformance';
 
 describe('<ScrollArea.Thumb />', () => {
@@ -11,7 +10,7 @@ describe('<ScrollArea.Thumb />', () => {
     render(node) {
       return render(
         <ScrollArea.Root>
-          <ScrollArea.Scrollbar>{node}</ScrollArea.Scrollbar>
+          <ScrollArea.Scrollbar keepMounted>{node}</ScrollArea.Scrollbar>
         </ScrollArea.Root>,
       );
     },

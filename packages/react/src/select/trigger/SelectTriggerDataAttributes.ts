@@ -1,12 +1,14 @@
+import { CommonTriggerDataAttributes } from '../../utils/popupStateMapping';
+
 export enum SelectTriggerDataAttributes {
   /**
    * Present when the corresponding select is open.
    */
-  popupOpen = 'data-popup-open',
+  popupOpen = CommonTriggerDataAttributes.popupOpen,
   /**
    * Present when the trigger is pressed.
    */
-  pressed = 'data-pressed',
+  pressed = CommonTriggerDataAttributes.pressed,
   /**
    * Present when the select is disabled.
    */
@@ -35,4 +37,16 @@ export enum SelectTriggerDataAttributes {
    * Present when the select's value has changed (when wrapped in Field.Root).
    */
   dirty = 'data-dirty',
+  /**
+   * Present when the select has a value (when wrapped in Field.Root).
+   */
+  filled = 'data-filled',
+  /**
+   * Present when the select trigger is focused (when wrapped in Field.Root).
+   */
+  focused = 'data-focused',
+  /**
+   * Present when the select doesn't have a value.
+   */
+  placeholder = 'data-placeholder',
 }

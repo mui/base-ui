@@ -1,167 +1,134 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { CompositeList, type CompositeMetadata } from '../list/CompositeList';
 import { useCompositeRoot } from './useCompositeRoot';
 import { CompositeRootContext } from './CompositeRootContext';
-import { refType } from '../../utils/proptypes';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { TextDirection } from '../../direction-provider/DirectionContext';
-import type { Dimensions } from '../composite';
+import type { Dimensions, ModifierKey } from '../composite';
+import { useDirection } from '../../direction-provider/DirectionContext';
+import { EMPTY_ARRAY, EMPTY_OBJECT } from '../../utils/constants';
+import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 
 /**
- * @ignore - internal component.
+ * @internal
  */
-function CompositeRoot<Metadata extends {}>(props: CompositeRoot.Props<Metadata>) {
+export function CompositeRoot<Metadata extends {}, State extends Record<string, any>>(
+  componentProps: CompositeRoot.Props<Metadata, State>,
+) {
   const {
     render,
     className,
+    refs = EMPTY_ARRAY as React.Ref<Element>[],
+    props = EMPTY_ARRAY,
+    state = EMPTY_OBJECT as State,
+    stateAttributesMapping,
     highlightedIndex: highlightedIndexProp,
     onHighlightedIndexChange: onHighlightedIndexChangeProp,
     orientation,
     dense,
     itemSizes,
-    loop,
+    loopFocus,
     cols,
-    direction,
     enableHomeAndEndKeys,
-    onMapChange,
-    stopEventPropagation,
+    onMapChange: onMapChangeProp,
+    stopEventPropagation = true,
     rootRef,
-    ...otherProps
-  } = props;
+    disabledIndices,
+    modifierKeys,
+    highlightItemOnHover = false,
+    tag = 'div',
+    ...elementProps
+  } = componentProps;
 
-  const { getRootProps, highlightedIndex, onHighlightedIndexChange, elementsRef } =
-    useCompositeRoot({
-      itemSizes,
-      cols,
-      loop,
-      dense,
-      orientation,
-      highlightedIndex: highlightedIndexProp,
-      onHighlightedIndexChange: onHighlightedIndexChangeProp,
-      rootRef,
-      stopEventPropagation,
-      enableHomeAndEndKeys,
-      direction,
-    });
+  const direction = useDirection();
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootProps,
-    render: render ?? 'div',
-    state: {},
-    className,
-    extraProps: otherProps,
+  const {
+    props: defaultProps,
+    highlightedIndex,
+    onHighlightedIndexChange,
+    elementsRef,
+    onMapChange: onMapChangeUnwrapped,
+    relayKeyboardEvent,
+  } = useCompositeRoot({
+    itemSizes,
+    cols,
+    loopFocus,
+    dense,
+    orientation,
+    highlightedIndex: highlightedIndexProp,
+    onHighlightedIndexChange: onHighlightedIndexChangeProp,
+    rootRef,
+    stopEventPropagation,
+    enableHomeAndEndKeys,
+    direction,
+    disabledIndices,
+    modifierKeys,
+  });
+
+  const element = useRenderElement(tag, componentProps, {
+    state,
+    ref: refs,
+    props: [defaultProps, ...props, elementProps],
+    stateAttributesMapping,
   });
 
   const contextValue: CompositeRootContext = React.useMemo(
-    () => ({ highlightedIndex, onHighlightedIndexChange }),
-    [highlightedIndex, onHighlightedIndexChange],
+    () => ({
+      highlightedIndex,
+      onHighlightedIndexChange,
+      highlightItemOnHover,
+      relayKeyboardEvent,
+    }),
+    [highlightedIndex, onHighlightedIndexChange, highlightItemOnHover, relayKeyboardEvent],
   );
 
   return (
     <CompositeRootContext.Provider value={contextValue}>
-      <CompositeList<Metadata> elementsRef={elementsRef} onMapChange={onMapChange}>
-        {renderElement()}
+      <CompositeList<Metadata>
+        elementsRef={elementsRef}
+        onMapChange={(newMap) => {
+          onMapChangeProp?.(newMap);
+          onMapChangeUnwrapped(newMap);
+        }}
+      >
+        {element}
       </CompositeList>
     </CompositeRootContext.Provider>
   );
 }
 
-namespace CompositeRoot {
-  export interface State {}
+export interface CompositeRootState {}
 
-  export interface Props<Metadata> extends BaseUIComponentProps<'div', State> {
-    orientation?: 'horizontal' | 'vertical' | 'both';
-    cols?: number;
-    loop?: boolean;
-    highlightedIndex?: number;
-    onHighlightedIndexChange?: (index: number) => void;
-    itemSizes?: Dimensions[];
-    dense?: boolean;
-    direction?: TextDirection;
-    enableHomeAndEndKeys?: boolean;
-    onMapChange?: (newMap: Map<Node, CompositeMetadata<Metadata> | null>) => void;
-    stopEventPropagation?: boolean;
-    rootRef?: React.RefObject<HTMLElement | null>;
-  }
+export interface CompositeRootProps<Metadata, State extends Record<string, any>> extends Pick<
+  BaseUIComponentProps<'div', State>,
+  'render' | 'className' | 'children'
+> {
+  props?: Array<Record<string, any> | (() => Record<string, any>)> | undefined;
+  state?: State | undefined;
+  stateAttributesMapping?: StateAttributesMapping<State> | undefined;
+  refs?: React.Ref<HTMLElement | null>[] | undefined;
+  tag?: keyof React.JSX.IntrinsicElements | undefined;
+  orientation?: 'horizontal' | 'vertical' | 'both' | undefined;
+  cols?: number | undefined;
+  loopFocus?: boolean | undefined;
+  highlightedIndex?: number | undefined;
+  onHighlightedIndexChange?: ((index: number) => void) | undefined;
+  itemSizes?: Dimensions[] | undefined;
+  dense?: boolean | undefined;
+  enableHomeAndEndKeys?: boolean | undefined;
+  onMapChange?: ((newMap: Map<Node, CompositeMetadata<Metadata> | null>) => void) | undefined;
+  stopEventPropagation?: boolean | undefined;
+  rootRef?: React.RefObject<HTMLElement | null> | undefined;
+  disabledIndices?: number[] | undefined;
+  modifierKeys?: ModifierKey[] | undefined;
+  highlightItemOnHover?: boolean | undefined;
 }
 
-export { CompositeRoot };
-
-CompositeRoot.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * @ignore
-   */
-  cols: PropTypes.number,
-  /**
-   * @ignore
-   */
-  dense: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  direction: PropTypes.oneOf(['ltr', 'rtl']),
-  /**
-   * @ignore
-   */
-  enableHomeAndEndKeys: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  highlightedIndex: PropTypes.number,
-  /**
-   * @ignore
-   */
-  itemSizes: PropTypes.arrayOf(
-    PropTypes.shape({
-      height: PropTypes.number.isRequired,
-      width: PropTypes.number.isRequired,
-    }),
-  ),
-  /**
-   * @ignore
-   */
-  loop: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  onHighlightedIndexChange: PropTypes.func,
-  /**
-   * @ignore
-   */
-  onMapChange: PropTypes.func,
-  /**
-   * @ignore
-   */
-  orientation: PropTypes.oneOf(['both', 'horizontal', 'vertical']),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-  /**
-   * @ignore
-   */
-  rootRef: refType,
-  /**
-   * @ignore
-   */
-  stopEventPropagation: PropTypes.bool,
-} as any;
+export namespace CompositeRoot {
+  export type State = CompositeRootState;
+  export type Props<Metadata, TState extends Record<string, any>> = CompositeRootProps<
+    Metadata,
+    TState
+  >;
+}

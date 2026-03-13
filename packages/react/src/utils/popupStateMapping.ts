@@ -1,24 +1,69 @@
-import type { CustomStyleHookMapping } from './getStyleHookProps';
+import type { StateAttributesMapping } from './getStateAttributesProps';
+import { TransitionStatusDataAttributes } from './stateAttributesMapping';
+
+export enum CommonPopupDataAttributes {
+  /**
+   * Present when the popup is open.
+   */
+  open = 'data-open',
+  /**
+   * Present when the popup is closed.
+   */
+  closed = 'data-closed',
+  /**
+   * Present when the popup is animating in.
+   */
+  startingStyle = TransitionStatusDataAttributes.startingStyle,
+  /**
+   * Present when the popup is animating out.
+   */
+  endingStyle = TransitionStatusDataAttributes.endingStyle,
+  /**
+   * Present when the anchor is hidden.
+   */
+  anchorHidden = 'data-anchor-hidden',
+  /**
+   * Indicates which side the popup is positioned relative to the trigger.
+   * @type { 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'}
+   */
+  side = 'data-side',
+  /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type {'start' | 'center' | 'end'}
+   */
+  align = 'data-align',
+}
+
+export enum CommonTriggerDataAttributes {
+  /**
+   * Present when the popup is open.
+   */
+  popupOpen = 'data-popup-open',
+  /**
+   * Present when a pressable trigger is pressed.
+   */
+  pressed = 'data-pressed',
+}
 
 const TRIGGER_HOOK = {
-  'data-popup-open': '',
+  [CommonTriggerDataAttributes.popupOpen]: '',
 };
 
 const PRESSABLE_TRIGGER_HOOK = {
-  'data-popup-open': '',
-  'data-pressed': '',
+  [CommonTriggerDataAttributes.popupOpen]: '',
+  [CommonTriggerDataAttributes.pressed]: '',
 };
 
 const POPUP_OPEN_HOOK = {
-  'data-open': '',
+  [CommonPopupDataAttributes.open]: '',
 };
 
 const POPUP_CLOSED_HOOK = {
-  'data-closed': '',
+  [CommonPopupDataAttributes.closed]: '',
 };
 
 const ANCHOR_HIDDEN_HOOK = {
-  'data-anchor-hidden': '',
+  [CommonPopupDataAttributes.anchorHidden]: '',
 };
 
 export const triggerOpenStateMapping = {
@@ -28,7 +73,7 @@ export const triggerOpenStateMapping = {
     }
     return null;
   },
-} satisfies CustomStyleHookMapping<{ open: boolean }>;
+} satisfies StateAttributesMapping<{ open: boolean }>;
 
 export const pressableTriggerOpenStateMapping = {
   open(value) {
@@ -37,7 +82,7 @@ export const pressableTriggerOpenStateMapping = {
     }
     return null;
   },
-} satisfies CustomStyleHookMapping<{ open: boolean }>;
+} satisfies StateAttributesMapping<{ open: boolean }>;
 
 export const popupStateMapping = {
   open(value) {
@@ -52,4 +97,4 @@ export const popupStateMapping = {
     }
     return null;
   },
-} satisfies CustomStyleHookMapping<{ open: boolean; anchorHidden: boolean }>;
+} satisfies StateAttributesMapping<{ open: boolean; anchorHidden: boolean }>;

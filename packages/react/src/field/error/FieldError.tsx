@@ -1,13 +1,23 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { FieldRoot } from '../root/FieldRoot';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { type FieldRootState } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
-import { useFieldError } from './useFieldError';
-import { STYLE_HOOK_MAPPING } from '../utils/constants';
+import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import { fieldValidityMapping } from '../utils/constants';
 import { useFormContext } from '../../form/FormContext';
 import type { BaseUIComponentProps } from '../../utils/types';
+import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import { useRenderElement } from '../../utils/useRenderElement';
+import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
+
+const stateAttributesMapping: StateAttributesMapping<FieldErrorState> = {
+  ...fieldValidityMapping,
+  ...transitionStatusMapping,
+};
 
 /**
  * An error message displayed if the field control fails validation.
@@ -15,108 +25,126 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
-const FieldError = React.forwardRef(function FieldError(
-  props: FieldError.Props,
+export const FieldError = React.forwardRef(function FieldError(
+  componentProps: FieldError.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, id, className, match, forceShow, ...otherProps } = props;
+  const { render, id: idProp, className, match, ...elementProps } = componentProps;
 
-  const { validityData, state, name } = useFieldRootContext(false);
+  const id = useBaseUiId(idProp);
+
+  const { validityData, state: fieldState, name } = useFieldRootContext(false);
+  const { setMessageIds } = useLabelableContext();
 
   const { errors } = useFormContext();
 
   const formError = name ? errors[name] : null;
 
   let rendered = false;
-  if (formError || forceShow) {
+  if (formError || match === true) {
     rendered = true;
   } else if (match) {
     rendered = Boolean(validityData.state[match]);
-  } else if (forceShow == null) {
+  } else {
     rendered = validityData.state.valid === false;
   }
 
-  const { getErrorProps } = useFieldError({ id, rendered, formError });
+  const { mounted, transitionStatus, setMounted } = useTransitionStatus(rendered);
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getErrorProps,
-    render: render ?? 'div',
-    ref: forwardedRef,
-    className,
-    state,
-    extraProps: otherProps,
-    customStyleHookMapping: STYLE_HOOK_MAPPING,
+  useIsoLayoutEffect(() => {
+    if (!rendered || !id) {
+      return undefined;
+    }
+
+    setMessageIds((v) => v.concat(id));
+
+    return () => {
+      setMessageIds((v) => v.filter((item) => item !== id));
+    };
+  }, [rendered, id, setMessageIds]);
+
+  const errorRef = React.useRef<HTMLDivElement | null>(null);
+  const [lastRenderedMessage, setLastRenderedMessage] = React.useState<React.ReactNode>(null);
+  const [lastRenderedMessageKey, setLastRenderedMessageKey] = React.useState<string | null>(null);
+
+  const errorMessage =
+    formError ||
+    (validityData.errors.length > 1 ? (
+      <ul>
+        {validityData.errors.map((message) => (
+          <li key={message}>{message}</li>
+        ))}
+      </ul>
+    ) : (
+      validityData.error
+    ));
+
+  let errorKey = validityData.error;
+  if (formError != null) {
+    errorKey = Array.isArray(formError) ? JSON.stringify(formError) : formError;
+  } else if (validityData.errors.length > 1) {
+    errorKey = JSON.stringify(validityData.errors);
+  }
+
+  if (rendered && errorKey !== lastRenderedMessageKey) {
+    setLastRenderedMessageKey(errorKey);
+    setLastRenderedMessage(errorMessage);
+  }
+
+  useOpenChangeComplete({
+    open: rendered,
+    ref: errorRef,
+    onComplete() {
+      if (!rendered) {
+        setMounted(false);
+      }
+    },
   });
 
-  if (!rendered) {
+  const state: FieldErrorState = {
+    ...fieldState,
+    transitionStatus,
+  };
+
+  const element = useRenderElement('div', componentProps, {
+    ref: [forwardedRef, errorRef],
+    state,
+    props: [
+      {
+        id,
+        children: rendered ? errorMessage : lastRenderedMessage,
+      },
+      elementProps,
+    ],
+    stateAttributesMapping,
+    enabled: mounted,
+  });
+
+  if (!mounted) {
     return null;
   }
 
-  return renderElement();
+  return element;
 });
 
-namespace FieldError {
-  export type State = FieldRoot.State;
-
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * Determines whether to show the error message according to the field’s
-     * [ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState).
-     */
-    match?: keyof ValidityState;
-    /**
-     * Whether the error message should be shown regardless of the field’s validity.
-     */
-    forceShow?: boolean;
-  }
+export interface FieldErrorState extends FieldRootState {
+  /**
+   * The transition status of the component.
+   */
+  transitionStatus: TransitionStatus;
 }
 
-FieldError.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Whether the error message should be shown regardless of the field’s validity.
-   */
-  forceShow: PropTypes.bool,
-  /**
-   * @ignore
-   */
-  id: PropTypes.string,
+export interface FieldErrorProps extends BaseUIComponentProps<'div', FieldErrorState> {
   /**
    * Determines whether to show the error message according to the field’s
    * [ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState).
+   * Specifying `true` will always show the error message, and lets external libraries
+   * control the visibility.
    */
-  match: PropTypes.oneOf([
-    'badInput',
-    'customError',
-    'patternMismatch',
-    'rangeOverflow',
-    'rangeUnderflow',
-    'stepMismatch',
-    'tooLong',
-    'tooShort',
-    'typeMismatch',
-    'valid',
-    'valueMissing',
-  ]),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
+  match?: boolean | keyof ValidityState | undefined;
+}
 
-export { FieldError };
+export namespace FieldError {
+  export type State = FieldErrorState;
+  export type Props = FieldErrorProps;
+}

@@ -1,0 +1,78 @@
+{
+  "name": "ComboboxTrigger",
+  "description": "A button that opens the popup.\nRenders a `<button>` element.",
+  "props": {
+    "nativeButton": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`).",
+      "detailedType": "boolean | undefined"
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the component should ignore user interaction.",
+      "detailedType": "boolean | undefined"
+    },
+    "className": {
+      "type": "string | ((state: Combobox.Trigger.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Combobox.Trigger.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Combobox.Trigger.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Combobox.Trigger.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Combobox.Trigger.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Combobox.Trigger.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {
+    "data-popup-open": {
+      "description": "Present when the corresponding popup is open."
+    },
+    "data-popup-side": {
+      "description": "Indicates which side the corresponding popup is positioned relative to its anchor.",
+      "type": "'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start' | null"
+    },
+    "data-list-empty": {
+      "description": "Present when the corresponding items list is empty."
+    },
+    "data-pressed": {
+      "description": "Present when the trigger is pressed."
+    },
+    "data-disabled": {
+      "description": "Present when the component is disabled."
+    },
+    "data-readonly": {
+      "description": "Present when the component is readonly."
+    },
+    "data-required": {
+      "description": "Present when the component is required."
+    },
+    "data-valid": {
+      "description": "Present when the component is in valid state (when wrapped in Field.Root)."
+    },
+    "data-invalid": {
+      "description": "Present when the component is in invalid state (when wrapped in Field.Root)."
+    },
+    "data-dirty": {
+      "description": "Present when the component's value has changed (when wrapped in Field.Root)."
+    },
+    "data-touched": {
+      "description": "Present when the component has been touched (when wrapped in Field.Root)."
+    },
+    "data-filled": {
+      "description": "Present when the component has a value (when wrapped in Field.Root)."
+    },
+    "data-focused": {
+      "description": "Present when the trigger is focused (when wrapped in Field.Root)."
+    },
+    "data-placeholder": {
+      "description": "Present when the combobox doesn't have a value."
+    }
+  },
+  "cssVariables": {}
+}

@@ -1,0 +1,53 @@
+{
+  "name": "ComboboxClear",
+  "description": "Clears the value when clicked.\nRenders a `<button>` element.",
+  "props": {
+    "nativeButton": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`).",
+      "detailedType": "boolean | undefined"
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the component should ignore user interaction.",
+      "detailedType": "boolean | undefined"
+    },
+    "className": {
+      "type": "string | ((state: Combobox.Clear.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Combobox.Clear.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Combobox.Clear.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Combobox.Clear.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
+    "keepMounted": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the component should remain mounted in the DOM when not visible.",
+      "detailedType": "boolean | undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Combobox.Clear.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Combobox.Clear.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {
+    "data-popup-open": {
+      "description": "Present when the corresponding popup is open."
+    },
+    "data-disabled": {
+      "description": "Present when the button is disabled."
+    },
+    "data-starting-style": {
+      "description": "Present when the button is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the button is animating out."
+    }
+  },
+  "cssVariables": {}
+}

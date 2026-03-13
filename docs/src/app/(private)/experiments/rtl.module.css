@@ -16,12 +16,12 @@
   margin: 12px 0;
   min-width: 200px;
   border-radius: 12px;
-  /*  overflow: auto;*/
+  /* overflow: auto; */
   outline: 0;
   background: #fff;
   border: 1px solid var(--color-gray-200);
   color: black;
-  box-shadow: 0px 4px 30px var(--color-gray-200);
+  box-shadow: 0 4px 30px var(--color-gray-200);
   z-index: 1;
   transform-origin: var(--transform-origin);
   opacity: 1;
@@ -31,10 +31,8 @@
     transform 100ms ease-in;
 
   @starting-style {
-    & {
-      opacity: 0;
-      transform: scale(0.8);
-    }
+    opacity: 0;
+    transform: scale(0.8);
   }
 
   &[data-ending-style] {
@@ -43,12 +41,6 @@
     transition:
       opacity 200ms ease-in,
       transform 200ms ease-in;
-  }
-}
-
-.positioner {
-  &:focus-visible {
-    outline: 0;
   }
 }
 

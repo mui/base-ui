@@ -6,56 +6,59 @@ A typical release goes like this:
 
 ### Prerequisites
 
-1. You must be a member of the `@mui` org in npm to publish the release
-2. Set up your npm authToken by logging into npm (`npm login`) . This will save a token to `~/.npmrc` as a line that looks
-   like this:
+1. You must be a member of the `@base-ui` org in npm to publish the release.
+2. Set up your npm authToken by logging into npm (`npm login`) . This will save a token to `~/.npmrc` as a line that looks like this:
    ```text
    //registry.npmjs.org/:_authToken=npm_000000000000000000000000000000000000
    ```
-3. Make sure you have added the `material-ui-docs` remote to deploy the documentation:
-   ```bash
-   git remote add material-ui-docs https://github.com/mui/material-ui-docs.git
-   ```
-4. Generate a GitHub Token at https://github.com/settings/personal-access-tokens/new and add it to your shell rc script (either `.bashrc` or `.zshrc`) as `GITHUB_TOKEN`.
+3. Generate a GitHub Token at https://github.com/settings/personal-access-tokens/new and add it to your shell rc script (either `.bashrc` or `.zshrc`) as `GITHUB_TOKEN`.
+   - When creating the token, choose **mui** as the Resource owner.
+   - Set expiration to 366 days or less.
+   - Set **Public Repositories (read-only)** in Repository access.
+   - Organization permissions are not required.
 
-### Prepare
+### Prepare the release of the packages
 
-The following steps must be proposed as a pull request.
+1. Update the root `/package.json`'s version.
+2. Generate the changelog with `pnpm release:changelog`
+   The output must be prepended to the top level `CHANGELOG.md`.
+   Run `pnpm release:changelog --help` for more information. If your GitHub token is not in your env, pass it as `--githubToken <my-token>` to the above command.
+3. Update the changelog as necessary. In particular, describe all the breaking changes.
+4. Generate the changelog in a format suitable for the docs with `pnpm release:changelog:docs`.
+5. Create a new release page at `docs/src/app/(docs)/react/overview/releases/<version-slug>/page.mdx` (where `<version-slug>` uses hyphens, for example, `v1-1-0` for v1.1.0). Paste the generated changelog there, following the format of existing release pages (title, `<Subtitle>` with the date, `<Meta>` tag).
+6. Copy the changes made in point 3 to the new release page.
+7. Add a new entry to `docs/src/data/releases.ts` with the version, versionSlug, date, and highlights. Move the `latest: true` flag to the new release if appropriate.
+8. Run `pnpm release:version`. Keep the package versions of stable public packages the same as the root `package.json` version.
+9. Open a PR with changes and wait for review and green CI.
+10. Merge the PR once the CI is green and it has been approved.
 
-1. Generate the changelog with `pnpm release:changelog`
-   The output must be prepended to the top level `CHANGELOG.md`
-   `pnpm release:changelog --help` for more information. If your GitHub token is not in your env, pass it as `--githubToken <my-token>` to the above command.
+### Release the packages
 
-2. Clean the generated changelog:
-   1. Match the format of https://github.com/mui/material-ui/releases.
-   2. Change the packages names casing to be lowercase if applicable, for example change `Material` to `material`
-3. Update the root `/package.json`'s version
-4. Run `pnpm release:version`. Keep the package versions of stable public packages the same as the root `package.json` version.
-5. Open PR with changes and wait for review and green CI
-6. Merge PR once CI is green and it has been approved
+1. Run `pnpm release:publish`. You may be asked to authenticate with GitHub when running the command for the first time or after a very long time.
+2. It'll automatically fetch the latest merged release PR and ask for confirmation before publishing.
+3. If you already know the sha of the commit, you can pass it directly like `pnpm release:publish --sha <your-sha>`.
+4. Other flags for the command:
 
-### Release
+   > - **--dry-run** Used for debugging. Or directly run `pnpm release:publish:dry-run`.
+   > - **--dist-tag** Use to publish legacy or canary versions.
 
-1. Checkout the last version of the release branch
-2. `pnpm install && pnpm release:build` (make sure you have the latest dependencies installed, and build the packages)
-3. `pnpm release:publish` (release the versions on npm, you need your 2FA device)
-4. `pnpm release:tag` (push the newly created tag)
+5. This command invokes the [Publish](https://github.com/mui/base-ui/actions/workflows/publish.yml) GitHub action. It'll log the url which can be opened to see the latest workflow run.
+6. The next screen shows "@username requested your review to deploy to npm-publish", click "Review deployments" and authorize your workflow run. **Never approve workflow runs you didn't initiaite.**
 
 ### Publish the documentation
 
 The documentation must be updated on the `docs-vX` branch (`docs-v1` for `v1.X` releases, `docs-v2` for `v2.X` releases, etc.)
 
-Push the working branch to the documentation release branch to deploy the documentation with the latest changes.
-
-<!-- #default-branch-switch -->
+Push the working branch to the documentation release branch to deploy the documentation with the latest changes:
 
 ```bash
-git push -f upstream master:docs-v1
+pnpm docs:deploy
 ```
 
-You can follow the deployment process [on the Netlify Dashboard](https://app.netlify.com/sites/material-ui-x/deploys?filter=docs-next)
-Once deployed, it will be accessible at https://material-ui-x.netlify.app/ for the `docs-next` deployment.
+You can follow the deployment process [on the Netlify Dashboard](https://app.netlify.com/sites/base-ui/deploys?filter=docs-v1)
+Once deployed, it will be accessible at https://base-ui.netlify.app/ for the `docs-v1` deployment.
 
-### Announce
+### GitHub release
 
-Follow the instructions in https://mui-org.notion.site/Releases-7490ef9581b4447ebdbf86b13164272d.
+After the documentation deployment is done, review, and then publish the release that was created in draft mode during the release step [GitHub releases page](https://github.com/mui/base-ui/releases)
+Make sure to check the **Set as a pre-release** checkbox if publishing an unstable version.

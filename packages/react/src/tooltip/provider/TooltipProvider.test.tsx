@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { Tooltip } from '@base-ui-components/react/tooltip';
+import { Tooltip } from '@base-ui/react/tooltip';
 import { screen, fireEvent, flushMicrotasks } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { createRenderer } from '#test-utils';
@@ -25,7 +24,7 @@ describe('<Tooltip.Provider />', () => {
         </Tooltip.Provider>,
       );
 
-      const trigger = document.querySelector('button')!;
+      const trigger = screen.getByRole('button');
 
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
@@ -37,6 +36,62 @@ describe('<Tooltip.Provider />', () => {
       expect(screen.queryByText('Content')).to.equal(null);
 
       clock.tick(9_000);
+
+      await flushMicrotasks();
+
+      expect(screen.queryByText('Content')).not.to.equal(null);
+    });
+
+    it('respects delay=0', async () => {
+      await render(
+        <Tooltip.Provider delay={0}>
+          <Tooltip.Root>
+            <Tooltip.Trigger />
+            <Tooltip.Portal>
+              <Tooltip.Positioner>
+                <Tooltip.Popup>Content</Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
+          </Tooltip.Root>
+        </Tooltip.Provider>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      clock.tick(0);
+
+      expect(screen.queryByText('Content')).not.to.equal(null);
+    });
+
+    it('respects trigger delay prop over provider delay prop', async () => {
+      await render(
+        <Tooltip.Provider delay={10}>
+          <Tooltip.Root>
+            <Tooltip.Trigger delay={100} />
+            <Tooltip.Portal>
+              <Tooltip.Positioner>
+                <Tooltip.Popup>Content</Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
+          </Tooltip.Root>
+        </Tooltip.Provider>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      expect(screen.queryByText('Content')).to.equal(null);
+
+      clock.tick(99);
+
+      expect(screen.queryByText('Content')).to.equal(null);
+
+      clock.tick(1);
 
       await flushMicrotasks();
 
@@ -61,7 +116,7 @@ describe('<Tooltip.Provider />', () => {
         </Tooltip.Provider>,
       );
 
-      const trigger = document.querySelector('button')!;
+      const trigger = screen.getByRole('button');
 
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);

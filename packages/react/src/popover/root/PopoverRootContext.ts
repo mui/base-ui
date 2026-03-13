@@ -1,49 +1,21 @@
 'use client';
 import * as React from 'react';
-import type { FloatingRootContext } from '@floating-ui/react';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import type { GenericHTMLProps } from '../../utils/types';
-import type { InteractionType } from '../../utils/useEnhancedClickHandler';
-import type { OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import type { PopoverStore } from '../store/PopoverStore';
 
-export interface PopoverRootContext {
-  open: boolean;
-  openOnHover: boolean;
-  setOpen: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
-  setTriggerElement: (el: Element | null) => void;
-  positionerElement: HTMLElement | null;
-  setPositionerElement: (el: HTMLElement | null) => void;
-  popupRef: React.RefObject<HTMLElement | null>;
-  delay: number;
-  closeDelay: number;
-  instantType: 'dismiss' | 'click' | undefined;
-  mounted: boolean;
-  setMounted: React.Dispatch<React.SetStateAction<boolean>>;
-  transitionStatus: TransitionStatus;
-  titleId: string | undefined;
-  setTitleId: React.Dispatch<React.SetStateAction<string | undefined>>;
-  descriptionId: string | undefined;
-  setDescriptionId: React.Dispatch<React.SetStateAction<string | undefined>>;
-  floatingRootContext: FloatingRootContext;
-  getRootTriggerProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-  getRootPopupProps: (externalProps?: GenericHTMLProps) => GenericHTMLProps;
-  openMethod: InteractionType | null;
-  openReason: OpenChangeReason | null;
+export interface PopoverRootContext<Payload = unknown> {
+  store: PopoverStore<Payload>;
 }
 
 export const PopoverRootContext = React.createContext<PopoverRootContext | undefined>(undefined);
 
-if (process.env.NODE_ENV !== 'production') {
-  PopoverRootContext.displayName = 'PopoverRootContext';
-}
-
-export function usePopoverRootContext() {
+export function usePopoverRootContext(optional?: false): PopoverRootContext;
+export function usePopoverRootContext(optional: true): PopoverRootContext | undefined;
+export function usePopoverRootContext(optional?: boolean) {
   const context = React.useContext(PopoverRootContext);
-  if (context === undefined) {
+  if (context === undefined && !optional) {
     throw new Error(
       'Base UI: PopoverRootContext is missing. Popover parts must be placed within <Popover.Root>.',
     );
   }
-
   return context;
 }

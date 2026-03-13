@@ -1,12 +1,13 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { FieldRoot } from '../root/FieldRoot';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { type FieldRootState } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
-import { useFieldDescription } from './useFieldDescription';
-import { STYLE_HOOK_MAPPING } from '../utils/constants';
+import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import { fieldValidityMapping } from '../utils/constants';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * A paragraph with additional information about the field.
@@ -14,60 +15,44 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
-const FieldDescription = React.forwardRef(function FieldDescription(
-  props: FieldDescription.Props,
+export const FieldDescription = React.forwardRef(function FieldDescription(
+  componentProps: FieldDescription.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
-  const { render, id, className, ...otherProps } = props;
+  const { render, id: idProp, className, ...elementProps } = componentProps;
 
-  const { state } = useFieldRootContext(false);
+  const id = useBaseUiId(idProp);
 
-  const { getDescriptionProps } = useFieldDescription({ id });
+  const fieldRootContext = useFieldRootContext(false);
+  const { setMessageIds } = useLabelableContext();
 
-  const { renderElement } = useComponentRenderer({
-    propGetter: getDescriptionProps,
-    render: render ?? 'p',
+  useIsoLayoutEffect(() => {
+    if (!id) {
+      return undefined;
+    }
+
+    setMessageIds((v) => v.concat(id));
+
+    return () => {
+      setMessageIds((v) => v.filter((item) => item !== id));
+    };
+  }, [id, setMessageIds]);
+
+  const element = useRenderElement('p', componentProps, {
     ref: forwardedRef,
-    className,
-    state,
-    extraProps: otherProps,
-    customStyleHookMapping: STYLE_HOOK_MAPPING,
+    state: fieldRootContext.state,
+    props: [{ id }, elementProps],
+    stateAttributesMapping: fieldValidityMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
-namespace FieldDescription {
-  export type State = FieldRoot.State;
+export interface FieldDescriptionState extends FieldRootState {}
 
-  export interface Props extends BaseUIComponentProps<'p', State> {}
+export interface FieldDescriptionProps extends BaseUIComponentProps<'p', FieldDescriptionState> {}
+
+export namespace FieldDescription {
+  export type State = FieldDescriptionState;
+  export type Props = FieldDescriptionProps;
 }
-
-FieldDescription.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * @ignore
-   */
-  id: PropTypes.string,
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
-
-export { FieldDescription };

@@ -1,10 +1,12 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import { useRenderElement } from '../../utils/useRenderElement';
+import { useButton } from '../../use-button';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import type { NumberFieldRoot } from '../root/NumberFieldRoot';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { useNumberFieldButton } from '../root/useNumberFieldButton';
+import type { NumberFieldRootState } from '../root/NumberFieldRoot';
+import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 
 /**
  * A stepper button that increases the field value when clicked.
@@ -12,52 +14,99 @@ import type { BaseUIComponentProps } from '../../utils/types';
  *
  * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
  */
-const NumberFieldIncrement = React.forwardRef(function NumberFieldIncrement(
-  props: NumberFieldIncrement.Props,
+export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncrement(
+  componentProps: NumberFieldIncrement.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, ...otherProps } = props;
-
-  const { getIncrementButtonProps, state } = useNumberFieldRootContext();
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: getIncrementButtonProps,
-    ref: forwardedRef,
-    render: render ?? 'button',
-    state,
+  const {
+    render,
     className,
-    extraProps: otherProps,
+    disabled: disabledProp = false,
+    nativeButton = true,
+    ...elementProps
+  } = componentProps;
+
+  const {
+    allowInputSyncRef,
+    disabled: contextDisabled,
+    formatOptionsRef,
+    getStepAmount,
+    id,
+    incrementValue,
+    inputRef,
+    inputValue,
+    intentionalTouchCheckTimeout,
+    isPressedRef,
+    locale,
+    maxWithDefault,
+    movesAfterTouchRef,
+    readOnly,
+    setValue,
+    startAutoChange,
+    state,
+    stopAutoChange,
+    value,
+    valueRef,
+    lastChangedValueRef,
+    onValueCommitted,
+  } = useNumberFieldRootContext();
+
+  const isMax = value != null && value >= maxWithDefault;
+  const disabled = disabledProp || contextDisabled || isMax;
+
+  const props = useNumberFieldButton({
+    isIncrement: true,
+    inputRef,
+    startAutoChange,
+    stopAutoChange,
+    inputValue,
+    disabled,
+    readOnly,
+    id,
+    setValue,
+    getStepAmount,
+    incrementValue,
+    allowInputSyncRef,
+    formatOptionsRef,
+    valueRef,
+    isPressedRef,
+    intentionalTouchCheckTimeout,
+    movesAfterTouchRef,
+    locale,
+    lastChangedValueRef,
+    onValueCommitted,
   });
 
-  return renderElement();
+  const { getButtonProps, buttonRef } = useButton({
+    disabled,
+    native: nativeButton,
+    focusableWhenDisabled: true,
+  });
+
+  const buttonState = React.useMemo(
+    () => ({
+      ...state,
+      disabled,
+    }),
+    [state, disabled],
+  );
+
+  const element = useRenderElement('button', componentProps, {
+    ref: [forwardedRef, buttonRef],
+    state: buttonState,
+    props: [props, elementProps, getButtonProps],
+    stateAttributesMapping,
+  });
+
+  return element;
 });
 
-namespace NumberFieldIncrement {
-  export interface State extends NumberFieldRoot.State {}
-  export interface Props extends BaseUIComponentProps<'button', State> {}
+export interface NumberFieldIncrementState extends NumberFieldRootState {}
+
+export interface NumberFieldIncrementProps
+  extends NativeButtonProps, BaseUIComponentProps<'button', NumberFieldIncrementState> {}
+
+export namespace NumberFieldIncrement {
+  export type State = NumberFieldIncrementState;
+  export type Props = NumberFieldIncrementProps;
 }
-
-NumberFieldIncrement.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
-
-export { NumberFieldIncrement };

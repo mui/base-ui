@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "dependencies": {
+    "@base-ui/react": "workspace:*",
+    "react": "19.2.4"
+  },
+  "scripts": {
+    "release:test": "tsc --noEmit"
+  }
+}

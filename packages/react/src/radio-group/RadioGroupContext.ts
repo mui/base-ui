@@ -1,32 +1,31 @@
 'use client';
 import * as React from 'react';
-import { NOOP } from '../utils/noop';
+import type { UseFieldValidationReturnValue } from '../field/root/useFieldValidation';
+import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
+import type { BaseUIEventReasons } from '../utils/reasons';
 
-export interface RadioGroupContext {
+export interface RadioGroupContext<Value> {
   disabled: boolean | undefined;
   readOnly: boolean | undefined;
   required: boolean | undefined;
-  checkedValue: unknown;
-  setCheckedValue: React.Dispatch<React.SetStateAction<unknown>>;
-  onValueChange: (value: unknown, event: Event) => void;
+  name: string | undefined;
+  checkedValue: Value | undefined;
+  setCheckedValue: (
+    value: Value,
+    eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none']>,
+  ) => void;
+  onValueChange: (
+    value: Value,
+    eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none']>,
+  ) => void;
   touched: boolean;
   setTouched: React.Dispatch<React.SetStateAction<boolean>>;
+  validation?: UseFieldValidationReturnValue | undefined;
+  registerControlRef: (element: HTMLElement | null, disabled?: boolean) => void;
+  registerInputRef: (element: HTMLInputElement | null) => void;
 }
 
-export const RadioGroupContext = React.createContext<RadioGroupContext>({
-  disabled: undefined,
-  readOnly: undefined,
-  required: undefined,
-  checkedValue: '',
-  setCheckedValue: NOOP,
-  onValueChange: NOOP,
-  touched: false,
-  setTouched: NOOP,
-});
-
-if (process.env.NODE_ENV !== 'production') {
-  RadioGroupContext.displayName = 'RadioGroupContext';
-}
+export const RadioGroupContext = React.createContext<RadioGroupContext<any> | undefined>(undefined);
 
 export function useRadioGroupContext() {
   return React.useContext(RadioGroupContext);

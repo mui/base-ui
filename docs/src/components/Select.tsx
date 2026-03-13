@@ -1,22 +1,21 @@
-import * as React from 'react';
-import { Select } from '@base-ui-components/react/select';
+import { Select } from '@base-ui/react/select';
 import clsx from 'clsx';
 import { ChevronDownIcon } from '../icons/ChevronDownIcon';
 import { ThickCheckIcon } from '../icons/ThickCheckIcon';
+import './Select.css';
 
 export const Root = Select.Root;
 
-interface TriggerProps extends Select.Trigger.Props {
-  ssrFallback?: string;
-  placeholder?: Select.Value.Props['placeholder'];
+interface TriggerProps extends Omit<Select.Trigger.Props, 'children'> {
+  children?: Select.Value.Props['children'];
 }
 
-export function Trigger({ className, ssrFallback, placeholder, ...props }: TriggerProps) {
+export function Trigger({ className, children, ...props }: TriggerProps) {
   return (
     // Implicitly relying on <GhostButton>, keep it in sync
-    <Select.Trigger data-layout="text" className="GhostButton" {...props}>
-      <Select.Value placeholder={placeholder}>{(value) => value || ssrFallback}</Select.Value>
-      <Select.Icon render={<ChevronDownIcon className="-ml-0.5" />} />
+    <Select.Trigger data-layout="text" className="GhostButton" type={undefined} {...props}>
+      <Select.Value>{children}</Select.Value>
+      <Select.Icon render={<ChevronDownIcon className="bui-ml--0.5" />} />
     </Select.Trigger>
   );
 }

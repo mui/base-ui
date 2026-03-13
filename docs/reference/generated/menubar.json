@@ -1,0 +1,46 @@
+{
+  "name": "Menubar",
+  "description": "The container for menus.",
+  "props": {
+    "loopFocus": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys.",
+      "detailedType": "boolean | undefined"
+    },
+    "modal": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether the menubar is modal.",
+      "detailedType": "boolean | undefined"
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the whole menubar is disabled.",
+      "detailedType": "boolean | undefined"
+    },
+    "orientation": {
+      "type": "Menu.Root.Orientation",
+      "default": "'horizontal'",
+      "description": "The orientation of the menubar.",
+      "detailedType": "'horizontal' | 'vertical' | undefined"
+    },
+    "className": {
+      "type": "string | ((state: Menubar.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Menubar.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Menubar.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Menubar.State) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Menubar.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Menubar.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

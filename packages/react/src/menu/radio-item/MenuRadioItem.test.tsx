@@ -1,14 +1,15 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { fireEvent, act, waitFor } from '@mui/internal-test-utils';
-import { Menu } from '@base-ui-components/react/menu';
+import { fireEvent, act, waitFor, screen } from '@mui/internal-test-utils';
+import { Menu } from '@base-ui/react/menu';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 import { MenuRadioGroupContext } from '../radio-group/MenuRadioGroupContext';
 
 const testRadioGroupContext = {
   value: '0',
   setValue: () => {},
+  disabled: false,
 };
 
 describe('<Menu.RadioItem />', () => {
@@ -52,7 +53,7 @@ describe('<Menu.RadioItem />', () => {
       return <li {...other} ref={ref} />;
     });
 
-    const { getAllByRole } = await render(
+    await render(
       <Menu.Root open>
         <Menu.Portal>
           <Menu.Positioner>
@@ -93,7 +94,7 @@ describe('<Menu.RadioItem />', () => {
       </Menu.Root>,
     );
 
-    const menuItems = getAllByRole('menuitemradio');
+    const menuItems = screen.getAllByRole('menuitemradio');
     await act(async () => {
       menuItems[0].focus();
     });
@@ -131,7 +132,7 @@ describe('<Menu.RadioItem />', () => {
 
   describe('state management', () => {
     it('adds the state and ARIA attributes when selected', async () => {
-      const { getByRole, user } = await render(
+      const { user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
@@ -146,10 +147,10 @@ describe('<Menu.RadioItem />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('button', { name: 'Open' });
       await user.click(trigger);
 
-      const item = getByRole('menuitemradio');
+      const item = screen.getByRole('menuitemradio');
       await user.click(item);
 
       expect(item).to.have.attribute('aria-checked', 'true');
@@ -158,7 +159,7 @@ describe('<Menu.RadioItem />', () => {
 
     ['Space', 'Enter'].forEach((key) => {
       it(`selects the item when ${key} is pressed`, async () => {
-        const { getByRole, user } = await render(
+        const { user } = await render(
           <Menu.Root>
             <Menu.Trigger>Open</Menu.Trigger>
             <Menu.Portal>
@@ -171,12 +172,12 @@ describe('<Menu.RadioItem />', () => {
           </Menu.Root>,
         );
 
-        const trigger = getByRole('button', { name: 'Open' });
+        const trigger = screen.getByRole('button', { name: 'Open' });
         await act(async () => {
           trigger.focus();
         });
         await user.keyboard('[ArrowDown]');
-        const item = getByRole('menuitemradio');
+        const item = screen.getByRole('menuitemradio');
 
         await waitFor(() => {
           expect(item).toHaveFocus();
@@ -187,9 +188,48 @@ describe('<Menu.RadioItem />', () => {
       });
     });
 
+    it.skipIf(isJSDOM)(
+      'does not select when Space is pressed during an active typeahead session',
+      async () => {
+        const onValueChange = spy();
+        const { user } = await render(
+          <Menu.Root open>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.RadioGroup defaultValue={0} onValueChange={onValueChange}>
+                    <Menu.RadioItem value={1}>Item One</Menu.RadioItem>
+                    <Menu.RadioItem value={2}>Item Two</Menu.RadioItem>
+                  </Menu.RadioGroup>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>,
+        );
+
+        const [itemOne, itemTwo] = screen.getAllByRole('menuitemradio');
+
+        await act(async () => {
+          itemOne.focus();
+        });
+
+        await user.keyboard('Item T');
+
+        await waitFor(() => {
+          expect(itemTwo).toHaveFocus();
+        });
+
+        await user.keyboard('[Space]');
+        await user.keyboard('[Space]');
+
+        expect(onValueChange.called).to.equal(false);
+        expect(itemTwo).to.have.attribute('aria-checked', 'false');
+      },
+    );
+
     it('calls `onValueChange` when the item is clicked', async () => {
       const onValueChange = spy();
-      const { getByRole, user } = await render(
+      const { user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
@@ -204,10 +244,10 @@ describe('<Menu.RadioItem />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('button', { name: 'Open' });
       await user.click(trigger);
 
-      const item = getByRole('menuitemradio');
+      const item = screen.getByRole('menuitemradio');
       await user.click(item);
 
       expect(onValueChange.callCount).to.equal(1);
@@ -215,7 +255,7 @@ describe('<Menu.RadioItem />', () => {
     });
 
     it('keeps the state when closed and reopened', async () => {
-      const { getByRole, user } = await render(
+      const { user } = await render(
         <Menu.Root modal={false}>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal keepMounted>
@@ -230,17 +270,21 @@ describe('<Menu.RadioItem />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('button', { name: 'Open' });
       await user.click(trigger);
 
-      const item = getByRole('menuitemradio');
+      const item = screen.getByRole('menuitemradio');
       await user.click(item);
 
-      await user.click(trigger);
+      await user.click(trigger); // close the menu
 
-      await user.click(trigger);
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).to.equal(null);
+      });
 
-      const itemAfterReopen = getByRole('menuitemradio');
+      await user.click(trigger); // reopen the menu
+
+      const itemAfterReopen = await screen.findByRole('menuitemradio');
       expect(itemAfterReopen).to.have.attribute('aria-checked', 'true');
       expect(itemAfterReopen).to.have.attribute('data-checked', '');
     });
@@ -248,7 +292,7 @@ describe('<Menu.RadioItem />', () => {
 
   describe('prop: closeOnClick', () => {
     it('when `closeOnClick=true`, closes the menu when the item is clicked', async () => {
-      const { getByRole, queryByRole, user } = await render(
+      const { user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
@@ -265,17 +309,17 @@ describe('<Menu.RadioItem />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('button', { name: 'Open' });
       await user.click(trigger);
 
-      const item = getByRole('menuitemradio');
+      const item = screen.getByRole('menuitemradio');
       await user.click(item);
 
-      expect(queryByRole('menu')).to.equal(null);
+      expect(screen.queryByRole('menu')).to.equal(null);
     });
 
     it('does not close the menu when the item is clicked by default', async () => {
-      const { getByRole, queryByRole, user } = await render(
+      const { user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
@@ -290,13 +334,165 @@ describe('<Menu.RadioItem />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('button', { name: 'Open' });
       await user.click(trigger);
 
-      const item = getByRole('menuitemradio');
+      const item = screen.getByRole('menuitemradio');
       await user.click(item);
 
-      expect(queryByRole('menu')).not.to.equal(null);
+      expect(screen.queryByRole('menu')).not.to.equal(null);
+    });
+  });
+
+  describe('prop: focusableWhenDisabled', () => {
+    it('can be focused but not interacted with when a radio group is disabled', async () => {
+      const handleClick = spy();
+      const handleKeyDown = spy();
+      const handleKeyUp = spy();
+      const handleValueChange = spy();
+
+      await render(
+        <Menu.Root open>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.RadioGroup defaultValue={0} disabled onValueChange={handleValueChange}>
+                  <Menu.RadioItem
+                    value="one"
+                    onClick={handleClick}
+                    onKeyDown={handleKeyDown}
+                    onKeyUp={handleKeyUp}
+                  >
+                    one
+                  </Menu.RadioItem>
+                  <Menu.RadioItem
+                    value="two"
+                    onClick={handleClick}
+                    onKeyDown={handleKeyDown}
+                    onKeyUp={handleKeyUp}
+                  >
+                    two
+                  </Menu.RadioItem>
+                </Menu.RadioGroup>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const [item1, item2] = screen.getAllByRole('menuitemradio');
+
+      expect(item1).to.have.attribute('data-disabled');
+      expect(item2).to.have.attribute('data-disabled');
+
+      await act(() => item1.focus());
+      expect(item1).toHaveFocus();
+
+      fireEvent.keyDown(item1, { key: 'Enter' });
+      expect(handleKeyDown.callCount).to.equal(0);
+      expect(handleClick.callCount).to.equal(0);
+      expect(handleValueChange.callCount).to.equal(0);
+
+      fireEvent.keyUp(item1, { key: 'Space' });
+      expect(handleKeyDown.callCount).to.equal(0);
+      expect(handleClick.callCount).to.equal(0);
+      expect(handleValueChange.callCount).to.equal(0);
+
+      fireEvent.click(item1);
+      expect(handleClick.callCount).to.equal(0);
+      expect(handleValueChange.callCount).to.equal(0);
+
+      fireEvent.keyDown(item1, { key: 'ArrowDown' });
+      expect(handleKeyDown.callCount).to.equal(0);
+      expect(item2).toHaveFocus();
+
+      fireEvent.keyDown(item2, { key: 'Enter' });
+      expect(handleKeyDown.callCount).to.equal(0);
+      expect(handleClick.callCount).to.equal(0);
+      expect(handleValueChange.callCount).to.equal(0);
+
+      fireEvent.keyUp(item2, { key: 'Space' });
+      expect(handleKeyDown.callCount).to.equal(0);
+      expect(handleClick.callCount).to.equal(0);
+      expect(handleValueChange.callCount).to.equal(0);
+
+      fireEvent.click(item2);
+      expect(handleClick.callCount).to.equal(0);
+      expect(handleValueChange.callCount).to.equal(0);
+    });
+  });
+
+  it('can be focused but not interacted with when individual items are disabled', async () => {
+    const handleClick = spy();
+    const handleKeyDown = spy();
+    const handleKeyUp = spy();
+    const handleValueChange = spy();
+
+    await render(
+      <Menu.Root open>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.RadioGroup defaultValue={0} onValueChange={handleValueChange}>
+                <Menu.RadioItem
+                  value="one"
+                  onClick={handleClick}
+                  onKeyDown={handleKeyDown}
+                  onKeyUp={handleKeyUp}
+                  disabled
+                >
+                  one
+                </Menu.RadioItem>
+                <Menu.RadioItem
+                  value="two"
+                  onClick={handleClick}
+                  onKeyDown={handleKeyDown}
+                  onKeyUp={handleKeyUp}
+                >
+                  two
+                </Menu.RadioItem>
+              </Menu.RadioGroup>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    const [item1, item2] = screen.getAllByRole('menuitemradio');
+
+    expect(item1).to.have.attribute('data-disabled');
+    expect(item2).to.not.have.attribute('data-disabled');
+
+    await act(() => item1.focus());
+    expect(item1).toHaveFocus();
+
+    fireEvent.keyDown(item1, { key: 'Enter' });
+    expect(handleKeyDown.callCount).to.equal(0);
+    expect(handleClick.callCount).to.equal(0);
+    expect(handleValueChange.callCount).to.equal(0);
+
+    fireEvent.keyUp(item1, { key: 'Space' });
+    expect(handleKeyDown.callCount).to.equal(0);
+    expect(handleClick.callCount).to.equal(0);
+    expect(handleValueChange.callCount).to.equal(0);
+
+    fireEvent.click(item1);
+    expect(handleClick.callCount).to.equal(0);
+    expect(handleValueChange.callCount).to.equal(0);
+
+    fireEvent.keyDown(item1, { key: 'ArrowDown' });
+    expect(handleKeyDown.callCount).to.equal(0);
+    expect(item2).toHaveFocus();
+
+    fireEvent.keyDown(item2, { key: 'Enter' });
+    expect(handleKeyDown.callCount).to.equal(1);
+    expect(handleClick.callCount).to.equal(1);
+    expect(handleValueChange.callCount).to.equal(1);
+    expect(handleValueChange.args[0][0]).to.equal('two');
+
+    fireEvent.keyDown(item2, { key: 'ArrowDown' });
+    await waitFor(() => {
+      expect(item1).toHaveFocus();
     });
   });
 });

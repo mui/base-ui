@@ -1,6 +1,6 @@
 import * as React from 'react';
-import classes from './experiments.module.css';
+import './layout.css';
 
-export default function Layout({ children }: React.PropsWithChildren<{}>) {
-  return <main className={classes.main}>{children}</main>;
+export default function ExperimentsLayout({ children }: React.PropsWithChildren) {
+  return <div className="experiments-layout-root">{children}</div>;
 }

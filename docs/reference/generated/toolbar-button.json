@@ -1,0 +1,51 @@
+{
+  "name": "ToolbarButton",
+  "description": "A button that can be used as-is or as a trigger for other components.\nRenders a `<button>` element.",
+  "props": {
+    "focusableWhenDisabled": {
+      "type": "boolean",
+      "default": "true",
+      "description": "When `true` the item remains focuseable when disabled.",
+      "detailedType": "boolean | undefined"
+    },
+    "nativeButton": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`).",
+      "detailedType": "boolean | undefined"
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "When `true` the item is disabled.",
+      "detailedType": "boolean | undefined"
+    },
+    "className": {
+      "type": "string | ((state: Toolbar.Button.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Toolbar.Button.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Toolbar.Button.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Toolbar.Button.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Toolbar.Button.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Toolbar.Button.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {
+    "data-orientation": {
+      "description": "Indicates the orientation of the toolbar.",
+      "type": "'horizontal' | 'vertical'"
+    },
+    "data-disabled": {
+      "description": "Present when the button is disabled."
+    },
+    "data-focusable": {
+      "description": "Present when the button remains focusable when disabled."
+    }
+  },
+  "cssVariables": {}
+}

@@ -1,0 +1,26 @@
+{
+  "name": "ToastPortal",
+  "description": "A portal element that moves the viewport to a different part of the DOM.\nBy default, the portal element is appended to `<body>`.\nRenders a `<div>` element.",
+  "props": {
+    "container": {
+      "type": "HTMLElement | ShadowRoot | RefObject<HTMLElement | ShadowRoot | null> | null",
+      "description": "A parent element to render the portal element into.",
+      "detailedType": "| HTMLElement\n| ShadowRoot\n| React.RefObject<HTMLElement | ShadowRoot | null>\n| null\n| undefined"
+    },
+    "className": {
+      "type": "string | ((state: any) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "style": {
+      "type": "CSSProperties | ((state: any) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: any) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: any) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((props: HTMLProps, state: any) => ReactElement)"
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

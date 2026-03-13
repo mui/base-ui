@@ -1,14 +1,11 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
-import { useForkRef } from '../../utils/useForkRef';
+import { useRenderElement } from '../../utils/useRenderElement';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import { mergeReactProps } from '../../utils/mergeReactProps';
 
 /**
  * Displays an element positioned against the menu anchor.
@@ -16,85 +13,57 @@ import { mergeReactProps } from '../../utils/mergeReactProps';
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-const MenuArrow = React.forwardRef(function MenuArrow(
-  props: MenuArrow.Props,
+export const MenuArrow = React.forwardRef(function MenuArrow(
+  componentProps: MenuArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...otherProps } = props;
+  const { className, render, ...elementProps } = componentProps;
 
-  const { open } = useMenuRootContext();
+  const { store } = useMenuRootContext();
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = useMenuPositionerContext();
+  const open = store.useState('open');
 
-  const getArrowProps = React.useCallback(
-    (externalProps = {}) => {
-      return mergeReactProps<'div'>(externalProps, {
-        style: arrowStyles,
-        'aria-hidden': true,
-      });
-    },
-    [arrowStyles],
-  );
+  const state: MenuArrowState = {
+    open,
+    side,
+    align,
+    uncentered: arrowUncentered,
+  };
 
-  const state: MenuArrow.State = React.useMemo(
-    () => ({
-      open,
-      side,
-      align,
-      uncentered: arrowUncentered,
-    }),
-    [open, side, align, arrowUncentered],
-  );
-
-  const mergedRef = useForkRef(arrowRef, forwardedRef);
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: getArrowProps,
-    render: render ?? 'div',
-    className,
+  return useRenderElement('div', componentProps, {
+    ref: [arrowRef, forwardedRef],
+    stateAttributesMapping: popupStateMapping,
     state,
-    ref: mergedRef,
-    extraProps: otherProps,
-    customStyleHookMapping: popupStateMapping,
+    props: {
+      style: arrowStyles,
+      'aria-hidden': true,
+      ...elementProps,
+    },
   });
-
-  return renderElement();
 });
 
-namespace MenuArrow {
-  export interface State {
-    /**
-     * Whether the menu is currently open.
-     */
-    open: boolean;
-    side: Side;
-    align: Align;
-    uncentered: boolean;
-  }
-
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface MenuArrowState {
+  /**
+   * Whether the menu is currently open.
+   */
+  open: boolean;
+  /**
+   * The side of the anchor the component is placed on.
+   */
+  side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
+  align: Align;
+  /**
+   * Whether the arrow cannot be centered on the anchor.
+   */
+  uncentered: boolean;
 }
 
-MenuArrow.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
+export interface MenuArrowProps extends BaseUIComponentProps<'div', MenuArrowState> {}
 
-export { MenuArrow };
+export namespace MenuArrow {
+  export type State = MenuArrowState;
+  export type Props = MenuArrowProps;
+}

@@ -134,7 +134,7 @@ A big thanks to the 10 contributors who made this release possible. Here are som
 - [core] Allow Renovate to update pnpm (#446) @michaldudak
 - [core] Encapsulate the common rendering logic in `useComponentRenderer` (#408) @michaldudak
 - [core] Fix event naming convention @oliviertassinari
-- [core] Improve performance of `mergeReactProps` (#456) @marcpachecog
+- [core] Improve performance of `mergeProps` (#456) @marcpachecog
 - [core] Improve Tooltip and Popover consistency (#463) @atomiks
 - [core] Link GH issue for import/prefer-default-export @oliviertassinari
 - [core] Make pnpm version permissive (#529) @atomiks
@@ -146,7 +146,7 @@ A big thanks to the 10 contributors who made this release possible. Here are som
 - [core] Simpler pnpm dedupe error message to act on @oliviertassinari
 - [core] Upgrade to core-js v3 (#418) @atomiks
 - [core] Verify types in test code (#457) @michaldudak
-- [dependencies] Do not try to update eslint (#515) @michaldudak
+- [dependencies] Do not try to update ESLint (#515) @michaldudak
 - [docs-infra] Fix a stylelint issue (#421) @oliviertassinari
 - [docs-infra] Integrate the latest @mui/docs (#378) @michaldudak
 - [test] Clean up and unify test code (#532) @michaldudak

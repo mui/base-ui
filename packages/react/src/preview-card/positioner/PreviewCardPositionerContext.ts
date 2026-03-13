@@ -5,7 +5,7 @@ import type { Side, Align } from '../../utils/useAnchorPositioning';
 export interface PreviewCardPositionerContext {
   side: Side;
   align: Align;
-  arrowRef: React.MutableRefObject<Element | null>;
+  arrowRef: React.RefObject<Element | null>;
   arrowUncentered: boolean;
   arrowStyles: React.CSSProperties;
 }
@@ -13,10 +13,6 @@ export interface PreviewCardPositionerContext {
 export const PreviewCardPositionerContext = React.createContext<
   PreviewCardPositionerContext | undefined
 >(undefined);
-
-if (process.env.NODE_ENV !== 'production') {
-  PreviewCardPositionerContext.displayName = 'PreviewCardPositionerContext';
-}
 
 export function usePreviewCardPositionerContext() {
   const context = React.useContext(PreviewCardPositionerContext);

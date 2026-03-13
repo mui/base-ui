@@ -13,14 +13,6 @@ export enum SliderControlDataAttributes {
    */
   disabled = 'data-disabled',
   /**
-   * Present when the slider is readonly.
-   */
-  readonly = 'data-readonly',
-  /**
-   * Present when the slider is required.
-   */
-  required = 'data-required',
-  /**
    * Present when the slider is in valid state (when wrapped in Field.Root).
    */
   valid = 'data-valid',
@@ -36,4 +28,8 @@ export enum SliderControlDataAttributes {
    * Present when the slider's value has changed (when wrapped in Field.Root).
    */
   dirty = 'data-dirty',
+  /**
+   * Present when the slider is focused (when wrapped in Field.Root).
+   */
+  focused = 'data-focused',
 }

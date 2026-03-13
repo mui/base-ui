@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
-  // This config is for emitting declarations (.d.ts) only
-  // Actual .ts source files are transpiled via babel
+  // This config is for emitting declarations (.d.ts) only.
+  // TS source files are transpiled to JS by Babel.
   "compilerOptions": {
     "composite": true,
     "declaration": true,
@@ -10,11 +10,10 @@
     "moduleResolution": "bundler",
     "noEmit": false,
     "rootDir": "./src",
-    "outDir": "build/esm"
+    "outDir": "build/esm",
+    "types": ["@mui/internal-code-infra/build-env"]
   },
   "include": ["src/**/*.ts*"],
   "exclude": ["src/**/*.spec.ts*", "src/**/*.test.ts*"],
-  "tsc-alias": {
-    "resolveFullPaths": true
-  }
+  "references": [{ "path": "../utils/tsconfig.build.json" }]
 }

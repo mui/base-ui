@@ -1,17 +1,16 @@
+'use client';
 import * as React from 'react';
+import type { MenuRoot } from '../root/MenuRoot';
 
 export interface MenuRadioGroupContext {
   value: any;
-  setValue: (newValue: any, event: Event) => void;
+  setValue: (newValue: any, eventDetails: MenuRoot.ChangeEventDetails) => void;
+  disabled: boolean;
 }
 
 export const MenuRadioGroupContext = React.createContext<MenuRadioGroupContext | undefined>(
   undefined,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  MenuRadioGroupContext.displayName = 'MenuRadioGroupContext';
-}
 
 export function useMenuRadioGroupContext() {
   const context = React.useContext(MenuRadioGroupContext);

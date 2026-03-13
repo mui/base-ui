@@ -1,23 +1,27 @@
 'use client';
 import * as React from 'react';
-import { UseCheckboxGroupParent } from './useCheckboxGroupParent';
+import type { UseFieldValidationReturnValue } from '../field/root/useFieldValidation';
+import type { UseCheckboxGroupParentReturnValue } from './useCheckboxGroupParent';
+import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
+import type { BaseUIEventReasons } from '../utils/reasons';
 
 export interface CheckboxGroupContext {
   value: string[] | undefined;
   defaultValue: string[] | undefined;
-  setValue: (value: string[], event: Event) => void;
+  setValue: (
+    value: string[],
+    eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none']>,
+  ) => void;
   allValues: string[] | undefined;
-  parent: UseCheckboxGroupParent.ReturnValue;
+  parent: UseCheckboxGroupParentReturnValue;
   disabled: boolean;
+  validation: UseFieldValidationReturnValue;
+  registerControlRef: (element: HTMLButtonElement | null) => void;
 }
 
 export const CheckboxGroupContext = React.createContext<CheckboxGroupContext | undefined>(
   undefined,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  CheckboxGroupContext.displayName = 'CheckboxGroupContext';
-}
 
 export function useCheckboxGroupContext(optional: false): CheckboxGroupContext;
 export function useCheckboxGroupContext(optional?: true): CheckboxGroupContext | undefined;

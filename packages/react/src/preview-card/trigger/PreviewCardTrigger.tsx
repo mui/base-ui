@@ -1,11 +1,15 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
-import { useForkRef } from '../../utils/useForkRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { useRenderElement } from '../../utils/useRenderElement';
+import { useBaseUiId } from '../../utils/useBaseUiId';
+import { PreviewCardHandle } from '../store/PreviewCardHandle';
+import { useTriggerDataForwarding } from '../../utils/popups';
+import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
+import { safePolygon, useFocus, useHoverReferenceInteraction } from '../../floating-ui-react';
 
 /**
  * A link that opens the preview card.
@@ -13,63 +17,123 @@ import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
  *
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
-const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
-  props: PreviewCardTrigger.Props,
+export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
+  componentProps: PreviewCardTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLAnchorElement>,
 ) {
-  const { render, className, ...otherProps } = props;
-
-  const { open, getRootTriggerProps, setTriggerElement } = usePreviewCardRootContext();
-
-  const state: PreviewCardTrigger.State = React.useMemo(() => ({ open }), [open]);
-
-  const mergedRef = useForkRef(setTriggerElement, forwardedRef);
-
-  const { renderElement } = useComponentRenderer({
-    propGetter: getRootTriggerProps,
-    render: render ?? 'a',
+  const {
+    render,
     className,
-    state,
-    ref: mergedRef,
-    extraProps: otherProps,
-    customStyleHookMapping: triggerOpenStateMapping,
-  });
+    delay,
+    closeDelay,
+    id: idProp,
+    payload,
+    handle,
+    ...elementProps
+  } = componentProps;
 
-  return renderElement();
-});
-
-namespace PreviewCardTrigger {
-  export interface State {
-    /**
-     * Whether the preview card is currently open.
-     */
-    open: boolean;
+  const rootContext = usePreviewCardRootContext(true);
+  const store = handle?.store ?? rootContext;
+  if (!store) {
+    throw new Error(
+      'Base UI: <PreviewCard.Trigger> must be either used within a <PreviewCard.Root> component or provided with a handle.',
+    );
   }
 
-  export interface Props extends BaseUIComponentProps<'a', State> {}
+  const thisTriggerId = useBaseUiId(idProp);
+  const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
+  const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
+  const floatingRootContext = store.useState('floatingRootContext');
+
+  const triggerElementRef = React.useRef<Element | null>(null);
+
+  const delayWithDefault = delay ?? OPEN_DELAY;
+  const closeDelayWithDefault = closeDelay ?? CLOSE_DELAY;
+
+  const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
+    thisTriggerId,
+    triggerElementRef,
+    store,
+    {
+      payload,
+    },
+  );
+
+  useIsoLayoutEffect(() => {
+    if (isMountedByThisTrigger) {
+      store.context.closeDelayRef.current = closeDelayWithDefault;
+    }
+  }, [store, isMountedByThisTrigger, closeDelayWithDefault]);
+
+  const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
+    mouseOnly: true,
+    move: false,
+    handleClose: safePolygon(),
+    delay: () => ({ open: delayWithDefault, close: closeDelayWithDefault }),
+    triggerElementRef,
+    isActiveTrigger: isTriggerActive,
+  });
+
+  const focusProps = useFocus(floatingRootContext, { delay: delayWithDefault });
+
+  const state: PreviewCardTriggerState = { open: isOpenedByThisTrigger };
+
+  const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
+
+  const element = useRenderElement('a', componentProps, {
+    state,
+    ref: [forwardedRef, registerTrigger, triggerElementRef],
+    props: [
+      hoverProps,
+      focusProps.reference,
+      rootTriggerProps,
+      { id: thisTriggerId },
+      elementProps,
+    ],
+    stateAttributesMapping: triggerOpenStateMapping,
+  });
+
+  return element;
+}) as PreviewCardTrigger;
+
+export interface PreviewCardTrigger {
+  <Payload>(
+    componentProps: PreviewCardTrigger.Props<Payload> & React.RefAttributes<HTMLElement>,
+  ): React.JSX.Element;
 }
 
-PreviewCardTrigger.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
+export interface PreviewCardTriggerState {
   /**
-   * @ignore
+   * Whether the preview card is currently open.
    */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
+  open: boolean;
+}
 
-export { PreviewCardTrigger };
+export interface PreviewCardTriggerProps<Payload = unknown> extends BaseUIComponentProps<
+  'a',
+  PreviewCardTriggerState
+> {
+  /**
+   * A handle to associate the trigger with a preview card.
+   */
+  handle?: PreviewCardHandle<Payload> | undefined;
+  /**
+   * A payload to pass to the preview card when it is opened.
+   */
+  payload?: Payload | undefined;
+  /**
+   * How long to wait before the preview card opens. Specified in milliseconds.
+   * @default 600
+   */
+  delay?: number | undefined;
+  /**
+   * How long to wait before closing the preview card. Specified in milliseconds.
+   * @default 300
+   */
+  closeDelay?: number | undefined;
+}
+
+export namespace PreviewCardTrigger {
+  export type State = PreviewCardTriggerState;
+  export type Props<Payload = unknown> = PreviewCardTriggerProps<Payload>;
+}

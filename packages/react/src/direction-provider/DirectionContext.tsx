@@ -8,19 +8,12 @@ export type DirectionContext = {
 };
 
 /**
- * @ignore - internal component.
+ * @internal
  */
 export const DirectionContext = React.createContext<DirectionContext | undefined>(undefined);
 
-if (process.env.NODE_ENV !== 'production') {
-  DirectionContext.displayName = 'DirectionContext';
-}
-
-export function useDirection(optional = true) {
+export function useDirection() {
   const context = React.useContext(DirectionContext);
-  if (context === undefined && !optional) {
-    throw new Error('Base UI: DirectionContext is missing.');
-  }
 
   return context?.direction ?? 'ltr';
 }

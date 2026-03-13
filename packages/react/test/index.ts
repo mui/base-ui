@@ -1,3 +1,5 @@
+export * from '@base-ui/utils/testUtils';
 export { createRenderer } from './createRenderer';
 export { describeConformance } from './describeConformance';
-export { isJSDOM } from './utils';
+export { popupConformanceTests } from './popupConformanceTests';
+export * from './wait';

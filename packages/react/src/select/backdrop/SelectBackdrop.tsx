@@ -1,15 +1,16 @@
 'use client';
 import * as React from 'react';
-import PropTypes from 'prop-types';
+import { useStore } from '@base-ui/utils/store';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useComponentRenderer } from '../../utils/useComponentRenderer';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import { useRenderElement } from '../../utils/useRenderElement';
+import { selectors } from '../store';
 
-const customStyleHookMapping: CustomStyleHookMapping<SelectBackdrop.State> = {
+const stateAttributesMapping: StateAttributesMapping<SelectBackdropState> = {
   ...popupStateMapping,
   ...transitionStatusMapping,
 };
@@ -20,64 +21,57 @@ const customStyleHookMapping: CustomStyleHookMapping<SelectBackdrop.State> = {
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-const SelectBackdrop = React.forwardRef(function SelectBackdrop(
-  props: SelectBackdrop.Props,
+export const SelectBackdrop = React.forwardRef(function SelectBackdrop(
+  componentProps: SelectBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...other } = props;
+  const { className, render, ...elementProps } = componentProps;
 
-  const { open, mounted, transitionStatus } = useSelectRootContext();
+  const { store } = useSelectRootContext();
 
-  const state: SelectBackdrop.State = React.useMemo(
-    () => ({ open, transitionStatus }),
-    [open, transitionStatus],
-  );
+  const open = useStore(store, selectors.open);
+  const mounted = useStore(store, selectors.mounted);
+  const transitionStatus = useStore(store, selectors.transitionStatus);
 
-  const { renderElement } = useComponentRenderer({
-    render: render ?? 'div',
-    className,
+  const state: SelectBackdropState = {
+    open,
+    transitionStatus,
+  };
+
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
-    extraProps: { role: 'presentation', hidden: !mounted, ...other },
-    customStyleHookMapping,
+    props: [
+      {
+        role: 'presentation',
+        hidden: !mounted,
+        style: {
+          userSelect: 'none',
+          WebkitUserSelect: 'none',
+        },
+      },
+      elementProps,
+    ],
+    stateAttributesMapping,
   });
 
-  return renderElement();
+  return element;
 });
 
-namespace SelectBackdrop {
-  export interface Props extends BaseUIComponentProps<'div', State> {}
-
-  export interface State {
-    /**
-     * Whether the select menu is currently open.
-     */
-    open: boolean;
-    transitionStatus: TransitionStatus;
-  }
+export interface SelectBackdropState {
+  /**
+   * Whether the component is open.
+   */
+  open: boolean;
+  /**
+   * The transition status of the component.
+   */
+  transitionStatus: TransitionStatus;
 }
 
-SelectBackdrop.propTypes /* remove-proptypes */ = {
-  // ┌────────────────────────────── Warning ──────────────────────────────┐
-  // │ These PropTypes are generated from the TypeScript type definitions. │
-  // │ To update them, edit the TypeScript types and run `pnpm proptypes`. │
-  // └─────────────────────────────────────────────────────────────────────┘
-  /**
-   * @ignore
-   */
-  children: PropTypes.node,
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
-   */
-  className: PropTypes.oneOfType([PropTypes.func, PropTypes.string]),
-  /**
-   * Allows you to replace the component’s HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render: PropTypes.oneOfType([PropTypes.element, PropTypes.func]),
-} as any;
+export interface SelectBackdropProps extends BaseUIComponentProps<'div', SelectBackdropState> {}
 
-export { SelectBackdrop };
+export namespace SelectBackdrop {
+  export type State = SelectBackdropState;
+  export type Props = SelectBackdropProps;
+}

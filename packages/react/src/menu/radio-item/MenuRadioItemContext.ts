@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 
 export interface MenuRadioItemContext {
@@ -9,10 +10,6 @@ export interface MenuRadioItemContext {
 export const MenuRadioItemContext = React.createContext<MenuRadioItemContext | undefined>(
   undefined,
 );
-
-if (process.env.NODE_ENV !== 'production') {
-  MenuRadioItemContext.displayName = 'MenuRadioItemContext';
-}
 
 export function useMenuRadioItemContext() {
   const context = React.useContext(MenuRadioItemContext);
