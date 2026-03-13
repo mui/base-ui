@@ -32,10 +32,6 @@ export enum TreeCheckboxItemDataAttributes {
    */
   disabled = 'data-disabled',
   /**
-   * Present when the item's label is being edited.
-   */
-  editing = 'data-editing',
-  /**
    * The depth of the item in the tree hierarchy.
    */
   depth = 'data-depth',

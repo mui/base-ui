@@ -47,9 +47,11 @@ export interface TreeItemMeta {
 }
 
 /**
- * Selection propagation configuration.
+ * Checkbox selection propagation configuration.
+ * Controls how selecting a `Tree.CheckboxItem` propagates through the tree hierarchy.
+ * This does not affect `Tree.Item` (which uses replace-selection semantics).
  */
-export interface TreeSelectionPropagation {
+export interface TreeCheckboxSelectionPropagation {
   parents?: boolean | undefined;
   descendants?: boolean | undefined;
 }
@@ -116,13 +118,6 @@ export type TreeItemClickEventReason = typeof REASONS.itemPress;
 
 export type TreeItemClickEventDetails = BaseUIGenericEventDetails<TreeItemClickEventReason>;
 
-export type TreeItemLabelChangeEventReason =
-  | typeof REASONS.keyboard
-  | typeof REASONS.imperativeAction;
-
-export type TreeItemLabelChangeEventDetails =
-  BaseUIGenericEventDetails<TreeItemLabelChangeEventReason>;
-
 export type TreeItemExpansionToggleEventDetails =
   BaseUIGenericEventDetails<TreeRootExpansionChangeEventReason>;
 
@@ -170,9 +165,11 @@ export interface TreeState<TItem = TreeDefaultItemModel> {
    */
   disallowEmptySelection: boolean;
   /**
-   * How selection propagates through the tree hierarchy
+   * How checkbox selection propagates through the tree hierarchy.
+   * Only applies to `Tree.CheckboxItem` interactions (toggle semantics).
+   * Does not affect `Tree.Item` (replace semantics).
    */
-  selectionPropagation: TreeSelectionPropagation;
+  checkboxSelectionPropagation: TreeCheckboxSelectionPropagation;
   /**
    * The currently focused item ID, or null
    */
@@ -181,10 +178,6 @@ export interface TreeState<TItem = TreeDefaultItemModel> {
    * Whether disabled items can receive focus
    */
   itemFocusableWhenDisabled: boolean;
-  /**
-   * The ID of the item currently being edited, or null
-   */
-  editedItemId: TreeItemId | null;
   /**
    * Lazy-loaded tree structure additions.
    * Contains children arrays keyed by parent ID and expandability hints.
@@ -214,10 +207,6 @@ export interface TreeState<TItem = TreeDefaultItemModel> {
    * Whether an item's selection is disabled
    */
   isItemSelectionDisabled: (item: TItem) => boolean;
-  /**
-   * Whether an item is editable
-   */
-  isItemEditable: ((item: TItem) => boolean) | boolean;
   /**
    * The layout direction of the tree
    */
@@ -268,12 +257,6 @@ export interface TreeStoreContext {
   ) => void;
   onItemFocus: (itemId: TreeItemId, details: TreeItemFocusEventDetails) => void;
   onItemClick: (itemId: TreeItemId, details: TreeItemClickEventDetails) => void;
-  onItemLabelChange: (
-    itemId: TreeItemId,
-    newLabel: string,
-    details: TreeItemLabelChangeEventDetails,
-  ) => void;
-
   // DOM ref for the tree root element
   rootRef: React.RefObject<HTMLElement | null>;
 }
@@ -292,10 +275,10 @@ export interface TreeRootActions<TItem = TreeDefaultItemModel> {
   isItemSelected: (itemId: TreeItemId) => boolean;
   setItemExpansion: (itemId: TreeItemId, isExpanded: boolean) => void;
   setItemSelection: (itemId: TreeItemId, isSelected: boolean) => void;
-  setEditedItem: (itemId: TreeItemId | null) => void;
   setIsItemDisabled: (itemId: TreeItemId, isDisabled: boolean) => void;
-  updateItemLabel: (itemId: TreeItemId, newLabel: string) => void;
   updateItemChildren: (itemId: TreeItemId | null) => Promise<void>;
+  expandAll: () => void;
+  collapseAll: () => void;
 }
 
 /**

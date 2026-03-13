@@ -1,6 +1,11 @@
 export * as Tree from './index.parts';
 
 export type { UseTreeLazyLoadingParameters } from './utils/useTreeLazyLoading';
+export type {
+  UseTreeFilteredItemsOptions,
+  UseTreeFilteredItemsReturnValue,
+} from './utils/useFilteredItems';
+export type { Filter, UseFilterOptions } from '../utils/filter';
 export { DataSourceCacheDefault } from './utils/cache';
 export type { DataSourceCache } from './utils/cache';
 
@@ -13,13 +18,15 @@ export type * from './item-label/TreeItemLabel';
 export type * from './item-group-indicator/TreeItemGroupIndicator';
 export type * from './item-loading-indicator/TreeItemLoadingIndicator';
 export type * from './item-error-indicator/TreeItemErrorIndicator';
+export type * from './item-list/TreeItemList';
 export type * from './animated-item-list/TreeAnimatedItemList';
 export type * from './group-transition/TreeGroupTransition';
+export type * from './empty/TreeEmpty';
 export type {
   TreeItemId,
   TreeSelectionMode,
   TreeDefaultItemModel,
-  TreeSelectionPropagation,
+  TreeCheckboxSelectionPropagation,
   TreeRootActions,
   TreeRootExpansionChangeEventReason,
   TreeRootExpansionChangeEventDetails,
@@ -29,8 +36,6 @@ export type {
   TreeItemFocusEventDetails,
   TreeItemClickEventReason,
   TreeItemClickEventDetails,
-  TreeItemLabelChangeEventReason,
-  TreeItemLabelChangeEventDetails,
   TreeItemExpansionToggleEventDetails,
   TreeItemSelectionToggleEventDetails,
 } from './store/types';

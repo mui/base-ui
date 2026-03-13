@@ -61,10 +61,6 @@ export default function CheckboxSelectionTree() {
         items={items}
         defaultExpandedItems={['frontend', 'react']}
         selectionMode="multiple"
-        selectionPropagation={{
-          parents: true,
-          descendants: true,
-        }}
         className={styles.tree}
       >
         {() => (

@@ -40,27 +40,41 @@ const items: Tree.DefaultItemModel[] = [
   { id: 'notes', label: 'Notes.txt' },
 ];
 
-export default function ExampleTreeCheckboxItems() {
+export default function ExampleTreeFiltering() {
+  const [filterText, setFilterText] = React.useState('');
+  const filter = Tree.useFilter();
+  const filteredItems = Tree.useFilteredItems({
+    items,
+    filterText,
+    filter,
+  });
+
   return (
-    <Tree.Root
-      items={items}
-      defaultExpandedItems={['documents']}
-      selectionMode="multiple"
-      className={styles.Tree}
-    >
-      {() => (
-        <Tree.CheckboxItem className={styles.Item}>
-          <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
-            <ChevronIcon />
-          </Tree.ItemExpansionTrigger>
-          <Tree.CheckboxItemIndicator className={styles.CheckboxIndicator} keepMounted>
-            <CheckIcon className={styles.CheckIcon} />
-            <MinusIcon className={styles.MinusIcon} />
-          </Tree.CheckboxItemIndicator>
-          <Tree.ItemLabel className={styles.Label} />
-        </Tree.CheckboxItem>
-      )}
-    </Tree.Root>
+    <div className={styles.Demo}>
+      <input
+        className={styles.FilterInput}
+        placeholder="Filter items…"
+        value={filterText}
+        onChange={(event) => setFilterText(event.target.value)}
+      />
+      <Tree.Root
+        items={filteredItems}
+        defaultExpandedItems={[]}
+        className={styles.Tree}
+      >
+        <Tree.ItemList>
+          {() => (
+            <Tree.Item className={styles.Item}>
+              <Tree.ItemExpansionTrigger className={styles.ExpansionTrigger}>
+                <ChevronIcon />
+              </Tree.ItemExpansionTrigger>
+              <Tree.ItemLabel className={styles.Label} />
+            </Tree.Item>
+          )}
+        </Tree.ItemList>
+        <Tree.Empty className={styles.Empty}>No results found.</Tree.Empty>
+      </Tree.Root>
+    </div>
   );
 }
 
@@ -75,22 +89,6 @@ function ChevronIcon(props: React.ComponentProps<'svg'>) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-    </svg>
-  );
-}
-
-function CheckIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg viewBox="0 0 12 12" fill="currentColor" {...props}>
-      <path d="M9.854 3.146a.5.5 0 010 .708l-4.5 4.5a.5.5 0 01-.708 0l-2-2a.5.5 0 01.708-.708L5 7.293l4.146-4.147a.5.5 0 01.708 0z" />
-    </svg>
-  );
-}
-
-function MinusIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg viewBox="0 0 12 12" fill="currentColor" {...props}>
-      <path d="M2.5 6a.5.5 0 01.5-.5h6a.5.5 0 010 1H3a.5.5 0 01-.5-.5z" />
     </svg>
   );
 }

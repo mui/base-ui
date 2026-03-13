@@ -38,13 +38,13 @@ const stateAttributesMapping = {
 /**
  * A tree item that uses toggle selection behavior with checkbox semantics.
  * Clicking toggles the item's selection without affecting other items.
- * Renders a `<li>` element.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Tree](https://base-ui.com/react/components/tree)
  */
 export const TreeCheckboxItem = React.forwardRef(function TreeCheckboxItem(
   componentProps: TreeCheckboxItem.Props,
-  forwardedRef: React.ForwardedRef<HTMLLIElement>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { className, render, itemId: itemIdProp, ...elementProps } = componentProps;
 
@@ -71,7 +71,7 @@ export const TreeCheckboxItem = React.forwardRef(function TreeCheckboxItem(
     [state.checked, state.indeterminate, state.disabled],
   );
 
-  const element = useRenderElement('li', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
     props: [itemProps, store.checkboxItemEventHandlers, elementProps],
@@ -131,16 +131,12 @@ export interface TreeCheckboxItemState {
    */
   disabled: boolean;
   /**
-   * Whether the item's label is being edited.
-   */
-  editing: boolean;
-  /**
    * The depth of the item in the tree hierarchy.
    */
   depth: number;
 }
 
-export interface TreeCheckboxItemProps extends BaseUIComponentProps<'li', TreeCheckboxItemState> {
+export interface TreeCheckboxItemProps extends BaseUIComponentProps<'div', TreeCheckboxItemState> {
   /**
    * The id of the item. Required when using `virtualized` on `Tree.Root`.
    * When provided, the item will set up its own context for sub-parts.

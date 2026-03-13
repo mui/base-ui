@@ -20,8 +20,6 @@ import type {
   TreeItemSelectionToggleEventDetails,
   TreeItemFocusEventDetails,
   TreeItemClickEventDetails,
-  TreeItemLabelChangeEventDetails,
-  TreeItemLabelChangeEventReason,
 } from './types';
 import { selectors } from './selectors';
 import {
@@ -140,17 +138,20 @@ export interface TreeStoreParameters<
    */
   disallowEmptySelection?: boolean | undefined;
   /**
-   * When `selectionPropagation.descendants` is set to `true`:
+   * Controls how selecting a `Tree.CheckboxItem` propagates through the tree hierarchy.
+   * This does not affect `Tree.Item` interactions (which use replace-selection semantics).
+   *
+   * When `checkboxSelectionPropagation.descendants` is set to `true`:
    * - Selecting a parent selects all its descendants automatically.
    * - Deselecting a parent deselects all its descendants automatically.
    *
-   * When `selectionPropagation.parents` is set to `true`:
+   * When `checkboxSelectionPropagation.parents` is set to `true`:
    * - Selecting all descendants of a parent selects the parent automatically.
    * - Deselecting a descendant of a selected parent deselects the parent automatically.
    *
-   * @default { parents: false, descendants: false }
+   * @default { parents: true, descendants: true }
    */
-  selectionPropagation?:
+  checkboxSelectionPropagation?:
     | { parents?: boolean | undefined; descendants?: boolean | undefined }
     | undefined;
   /**
@@ -188,21 +189,9 @@ export interface TreeStoreParameters<
    */
   isItemSelectionDisabled?: ((item: TItem) => boolean) | undefined;
   /**
-   * Used to determine if a given item should be editable.
-   * If a boolean is provided, all items will be editable or non-editable.
-   * @default false
-   */
-  isItemEditable?: boolean | ((item: TItem) => boolean) | undefined;
-  /**
    * Event handler called when an item is clicked.
    */
   onItemClick?: ((itemId: TreeItemId, details: TreeItemClickEventDetails) => void) | undefined;
-  /**
-   * Event handler called when the label of an item changes.
-   */
-  onItemLabelChange?:
-    | ((itemId: TreeItemId, newLabel: string, details: TreeItemLabelChangeEventDetails) => void)
-    | undefined;
   /**
    * The direction of the tree layout.
    */
@@ -284,8 +273,6 @@ export class TreeStore<
     const isItemDisabled = parameters.isItemDisabled ?? ((item: any) => !!item.disabled);
     const isItemSelectionDisabled =
       parameters.isItemSelectionDisabled ?? ((item: any) => !!item.disabled);
-    const isItemEditable = parameters.isItemEditable ?? false;
-
     super(
       {
         disabled: parameters.disabled ?? false,
@@ -300,17 +287,15 @@ export class TreeStore<
           (selectionMode === 'multiple' ? EMPTY_ARRAY : null),
         selectionMode,
         disallowEmptySelection: parameters.disallowEmptySelection ?? false,
-        selectionPropagation: parameters.selectionPropagation ?? EMPTY_OBJECT,
+        checkboxSelectionPropagation: parameters.checkboxSelectionPropagation ?? { parents: true, descendants: true },
         focusedItemId: null,
         itemFocusableWhenDisabled: parameters.itemFocusableWhenDisabled ?? false,
-        editedItemId: null,
         lazyLoadedItems: undefined,
         itemToId,
         itemToStringLabel,
         itemToChildren,
         isItemDisabled,
         isItemSelectionDisabled,
-        isItemEditable,
         direction: parameters.direction,
         virtualized: parameters.virtualized ?? false,
         enableGroupTransition: false,
@@ -325,7 +310,6 @@ export class TreeStore<
         onItemSelectionToggle: parameters.onItemSelectionToggle ?? (() => {}),
         onItemFocus: parameters.onItemFocus ?? (() => {}),
         onItemClick: parameters.onItemClick ?? (() => {}),
-        onItemLabelChange: parameters.onItemLabelChange ?? (() => {}),
         rootRef: parameters.rootRef,
       },
       selectors,
@@ -530,6 +514,54 @@ export class TreeStore<
     }
   }
 
+  public expandAll(reason: TreeRootExpansionChangeEventReason) {
+    const metaLookup = selectors.itemMetaLookup(this.state);
+    const expandedSet = new Set(this.state.expandedItems);
+    const diff = Object.keys(metaLookup).filter(
+      (itemId) => metaLookup[itemId].expandable && !expandedSet.has(itemId),
+    );
+
+    if (diff.length === 0) {
+      return;
+    }
+
+    const newExpanded = [...this.state.expandedItems, ...diff];
+    const details = createChangeEventDetails(reason);
+    this.context.onExpandedItemsChange(newExpanded, details);
+    if (details.isCanceled) {
+      return;
+    }
+    this.set('expandedItems', newExpanded);
+    for (const expandedItemId of diff) {
+      this.context.onItemExpansionToggle(
+        expandedItemId,
+        true,
+        createGenericEventDetails(reason),
+      );
+    }
+  }
+
+  public collapseAll(reason: TreeRootExpansionChangeEventReason) {
+    const oldExpanded = this.state.expandedItems;
+    if (oldExpanded.length === 0) {
+      return;
+    }
+
+    const details = createChangeEventDetails(reason);
+    this.context.onExpandedItemsChange([], details);
+    if (details.isCanceled) {
+      return;
+    }
+    this.set('expandedItems', []);
+    for (const collapsedItemId of oldExpanded) {
+      this.context.onItemExpansionToggle(
+        collapsedItemId,
+        false,
+        createGenericEventDetails(reason),
+      );
+    }
+  }
+
   // ===========================================================================
   // Selection
   // ===========================================================================
@@ -539,6 +571,7 @@ export class TreeStore<
     reason: TreeRootSelectionChangeEventReason,
     event?: Event,
     additionalItemsToPropagate?: TreeItemId[],
+    shouldPropagate: boolean = true,
   ) {
     const oldModel = this.state.selectedItems;
     const isMulti = this.state.selectionMode === 'multiple';
@@ -546,8 +579,9 @@ export class TreeStore<
     let cleanModel: TreeItemId[] | TreeItemId | null;
 
     if (
+      shouldPropagate &&
       isMulti &&
-      (this.state.selectionPropagation.descendants || this.state.selectionPropagation.parents)
+      (this.state.checkboxSelectionPropagation.descendants || this.state.checkboxSelectionPropagation.parents)
     ) {
       cleanModel = this.propagateSelection(
         newModel as TreeItemId[],
@@ -593,8 +627,8 @@ export class TreeStore<
     oldModel: TreeItemId[],
     additionalItemsToPropagate?: TreeItemId[],
   ): TreeItemId[] {
-    const { selectionPropagation } = this.state;
-    if (!selectionPropagation.descendants && !selectionPropagation.parents) {
+    const { checkboxSelectionPropagation } = this.state;
+    if (!checkboxSelectionPropagation.descendants && !checkboxSelectionPropagation.parents) {
       return newModel;
     }
 
@@ -617,7 +651,7 @@ export class TreeStore<
     });
 
     for (const addedItemId of added) {
-      if (selectionPropagation.descendants) {
+      if (checkboxSelectionPropagation.descendants) {
         const selectDescendants = (itemId: TreeItemId) => {
           if (itemId !== addedItemId) {
             if (!selectors.canItemBeSelected(this.state, itemId)) {
@@ -634,7 +668,7 @@ export class TreeStore<
         selectDescendants(addedItemId);
       }
 
-      if (selectionPropagation.parents) {
+      if (checkboxSelectionPropagation.parents) {
         const checkAllDescendantsSelected = (itemId: TreeItemId): boolean => {
           // Non-selectable items don't count toward the "all selected" check
           if (!selectors.canItemBeSelected(this.state, itemId)) {
@@ -666,7 +700,7 @@ export class TreeStore<
     }
 
     for (const removedItemId of removed) {
-      if (selectionPropagation.parents) {
+      if (checkboxSelectionPropagation.parents) {
         let parentId = selectors.itemParentId(this.state, removedItemId);
         while (parentId != null) {
           if (newModelLookup[parentId]) {
@@ -677,7 +711,7 @@ export class TreeStore<
         }
       }
 
-      if (selectionPropagation.descendants) {
+      if (checkboxSelectionPropagation.descendants) {
         const deSelectDescendants = (itemId: TreeItemId) => {
           if (itemId !== removedItemId) {
             flags.shouldRegenerateModel = true;
@@ -699,12 +733,16 @@ export class TreeStore<
     itemId,
     keepExistingSelection = false,
     shouldBeSelected,
+    shouldPropagate,
     reason,
     event,
   }: {
     itemId: TreeItemId;
     keepExistingSelection?: boolean | undefined;
     shouldBeSelected?: boolean | undefined;
+    /** Whether to propagate the selection change through the tree hierarchy.
+     * Defaults to the value of `keepExistingSelection` (toggle semantics propagate, replace semantics don't). */
+    shouldPropagate?: boolean | undefined;
     reason: TreeRootSelectionChangeEventReason;
     event?: Event | undefined;
   }) {
@@ -743,7 +781,7 @@ export class TreeStore<
       }
     }
 
-    this.setSelectedItems(newSelected, reason, event, [itemId]);
+    this.setSelectedItems(newSelected, reason, event, [itemId], shouldPropagate ?? keepExistingSelection);
     this.lastSelectedItem = itemId;
     this.lastSelectedRange = {};
   }
@@ -865,7 +903,7 @@ export class TreeStore<
   // Focus
   // ===========================================================================
 
-  public focusItem(itemId: TreeItemId) {
+  public focusItem(itemId: TreeItemId, reason: TreeItemFocusEventReason = REASONS.keyboard) {
     const meta = selectors.itemMeta(this.state, itemId);
     let isItemVisible = meta != null;
     if (isItemVisible) {
@@ -884,6 +922,8 @@ export class TreeStore<
       if (element) {
         // Calling .focus() synchronously triggers the onFocus handler,
         // which already updates focusedItemId and calls onItemFocus.
+        // Set lastFocusReason so the onFocus handler picks up the correct reason.
+        this.lastFocusReason = reason;
         element.focus();
       } else if (this.state.virtualized) {
         // In virtualized mode, the item may not be in the DOM yet.
@@ -892,9 +932,8 @@ export class TreeStore<
         this.set('focusedItemId', itemId);
         this.context.onItemFocus(
           itemId,
-          createGenericEventDetails(this.lastFocusReason),
+          createGenericEventDetails(reason),
         );
-        this.lastFocusReason = REASONS.keyboard;
       }
     }
   }
@@ -911,33 +950,6 @@ export class TreeStore<
     }
 
     this.set('focusedItemId', null);
-  }
-
-  // ===========================================================================
-  // Label editing
-  // ===========================================================================
-
-  public setEditedItem(itemId: TreeItemId | null) {
-    if (itemId != null && !this.isItemEditable(itemId)) {
-      return;
-    }
-    this.set('editedItemId', itemId);
-  }
-
-  public updateItemLabel(
-    itemId: TreeItemId,
-    newLabel: string,
-    reason: TreeItemLabelChangeEventReason = REASONS.keyboard,
-  ) {
-    this.update({
-      itemMetaPatches: {
-        ...this.state.itemMetaPatches,
-        [itemId]: { ...this.state.itemMetaPatches[itemId], label: newLabel },
-      },
-    });
-
-    this.context.onItemLabelChange(itemId, newLabel, createGenericEventDetails(reason));
-    this.setEditedItem(null);
   }
 
   public setIsItemDisabled(itemId: TreeItemId, isDisabled: boolean) {
@@ -979,15 +991,6 @@ export class TreeStore<
       !selectors.isItemDisabled(this.state, itemId) &&
       selectors.isItemExpandable(this.state, itemId)
     );
-  }
-
-  private isItemEditable(itemId: TreeItemId): boolean {
-    const { isItemEditable } = this.state;
-    if (typeof isItemEditable === 'boolean') {
-      return isItemEditable;
-    }
-    const model = selectors.itemModel(this.state, itemId);
-    return model ? isItemEditable(model) : false;
   }
 
   private createLabelMap(metaLookup: Record<string, TreeItemMeta>): Record<string, string> {
@@ -1074,11 +1077,9 @@ export class TreeStore<
         break;
       }
 
-      // Enter: expand/collapse, start editing, or select
+      // Enter: expand/collapse or select
       case key === 'Enter': {
-        if (this.isItemEditable(itemId) && !selectors.isItemBeingEdited(this.state, itemId)) {
-          this.setEditedItem(itemId);
-        } else if (this.canToggleItemExpansion(itemId)) {
+        if (this.canToggleItemExpansion(itemId)) {
           this.setItemExpansion(itemId, undefined, REASONS.keyboard, event.nativeEvent);
           event.preventDefault();
         } else if (this.canToggleItemSelection(itemId)) {
@@ -1469,10 +1470,7 @@ export class TreeStore<
 
   public getActions(): TreeRootActions<TItem> {
     return {
-      focusItem: (itemId) => {
-        this.lastFocusReason = REASONS.imperativeAction;
-        this.focusItem(itemId);
-      },
+      focusItem: (itemId) => this.focusItem(itemId, REASONS.imperativeAction),
       getItem: (itemId) => selectors.itemModel(this.state, itemId) as TItem,
       getItemDOMElement: (itemId) => this.getItemDOMElement(itemId),
       getItemOrderedChildrenIds: (itemId) => selectors.itemOrderedChildrenIds(this.state, itemId),
@@ -1486,12 +1484,12 @@ export class TreeStore<
         this.setItemSelection({
           itemId,
           shouldBeSelected: isSelected,
+          shouldPropagate: true,
           reason: REASONS.imperativeAction,
         }),
-      setEditedItem: (itemId) => this.setEditedItem(itemId),
       setIsItemDisabled: (itemId, isDisabled) => this.setIsItemDisabled(itemId, isDisabled),
-      updateItemLabel: (itemId, newLabel) =>
-        this.updateItemLabel(itemId, newLabel, REASONS.imperativeAction),
+      expandAll: () => this.expandAll(REASONS.imperativeAction),
+      collapseAll: () => this.collapseAll(REASONS.imperativeAction),
       updateItemChildren: (itemId) => {
         if (!this.lazyLoading) {
           throw new Error(

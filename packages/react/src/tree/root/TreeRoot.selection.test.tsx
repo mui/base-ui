@@ -720,13 +720,14 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         expect(view.getSelectedTreeItems()).to.deep.equal(['1', '3']);
       });
 
-      it('should not select the parent when selecting all the children', async () => {
+      it('should not select the parent when selecting all the children if checkboxSelectionPropagation.parents is false', async () => {
         const view = await render({
           selectionMode: 'multiple',
           checkboxSelection: true,
           items: [{ id: '1', children: [{ id: '1.1' }, { id: '1.2' }] }, { id: '2' }],
           defaultSelectedItems: ['1.2'],
           defaultExpandedItems: ['1'],
+          checkboxSelectionPropagation: { parents: false, descendants: false },
         });
 
         fireEvent.click(view.getItemRoot('1.1'));
@@ -745,13 +746,14 @@ describeTree('TreeRoot - Selection', ({ render }) => {
         expect(view.getItemRoot('1')).to.have.attribute('data-indeterminate');
       });
 
-      it('should set the checkbox item as indeterminate when all its children are selected but the parent is not', async () => {
+      it('should set the checkbox item as indeterminate when all its children are selected but the parent is not (no propagation)', async () => {
         const view = await render({
           selectionMode: 'multiple',
           checkboxSelection: true,
           items: [{ id: '1', children: [{ id: '1.1' }, { id: '1.2' }] }],
           defaultSelectedItems: ['1.1', '1.2'],
           defaultExpandedItems: ['1'],
+          checkboxSelectionPropagation: { parents: false, descendants: false },
         });
 
         expect(view.getItemRoot('1')).to.have.attribute('data-indeterminate');
@@ -852,7 +854,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       });
     });
 
-    describe('multi selection with selectionPropagation.descendants = true', () => {
+    describe('multi selection with checkboxSelectionPropagation.descendants = true', () => {
       it('should select all the children when selecting a parent', async () => {
         const view = await render({
           selectionMode: 'multiple',
@@ -860,7 +862,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
           items: [{ id: '1', children: [{ id: '1.1' }, { id: '1.2' }] }],
           defaultExpandedItems: ['1'],
 
-          selectionPropagation: { descendants: true },
+          checkboxSelectionPropagation: { descendants: true },
         });
 
         fireEvent.click(view.getItemRoot('1'));
@@ -874,7 +876,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
           items: [{ id: '1', children: [{ id: '1.1' }, { id: '1.2' }] }],
           defaultSelectedItems: ['1', '1.1', '1.2'],
           defaultExpandedItems: ['1'],
-          selectionPropagation: { descendants: true },
+          checkboxSelectionPropagation: { descendants: true },
         });
 
         fireEvent.click(view.getItemRoot('1'));
@@ -888,7 +890,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
           items: [{ id: '1', children: [{ id: '1.1' }, { id: '1.2' }] }],
           defaultSelectedItems: ['1.2'],
           defaultExpandedItems: ['1'],
-          selectionPropagation: { descendants: true },
+          checkboxSelectionPropagation: { descendants: true },
         });
 
         fireEvent.click(view.getItemRoot('1.1'));
@@ -902,7 +904,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
           items: [{ id: '1', children: [{ id: '1.1' }, { id: '1.2' }] }],
           defaultSelectedItems: ['1', '1.1', '1.2'],
           defaultExpandedItems: ['1'],
-          selectionPropagation: { descendants: true },
+          checkboxSelectionPropagation: { descendants: true },
         });
 
         fireEvent.click(view.getItemRoot('1.1'));
@@ -910,14 +912,14 @@ describeTree('TreeRoot - Selection', ({ render }) => {
       });
     });
 
-    describe('multi selection with selectionPropagation.parents = true', () => {
+    describe('multi selection with checkboxSelectionPropagation.parents = true', () => {
       it('should select all the parents when selecting a child', async () => {
         const view = await render({
           selectionMode: 'multiple',
           checkboxSelection: true,
           items: [{ id: '1', children: [{ id: '1.1', children: [{ id: '1.1.1' }] }] }],
           defaultExpandedItems: ['1', '1.1'],
-          selectionPropagation: { parents: true },
+          checkboxSelectionPropagation: { parents: true },
         });
 
         fireEvent.click(view.getItemRoot('1.1.1'));
@@ -931,7 +933,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
           items: [{ id: '1', children: [{ id: '1.1', children: [{ id: '1.1.1' }] }] }],
           defaultSelectedItems: ['1', '1.1', '1.1.1'],
           defaultExpandedItems: ['1', '1.1'],
-          selectionPropagation: { parents: true },
+          checkboxSelectionPropagation: { parents: true },
         });
 
         fireEvent.click(view.getItemRoot('1.1.1'));
@@ -952,7 +954,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
           ],
           defaultExpandedItems: ['1'],
 
-          selectionPropagation: { descendants: true },
+          checkboxSelectionPropagation: { descendants: true },
         });
 
         fireEvent.click(view.getItemRoot('1'));
@@ -971,7 +973,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
           ],
           defaultExpandedItems: ['1'],
 
-          selectionPropagation: { descendants: true },
+          checkboxSelectionPropagation: { descendants: true },
           isItemSelectionDisabled: (item: any) => item.id === '1.2',
         });
 
@@ -991,7 +993,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
           ],
           defaultSelectedItems: [],
           defaultExpandedItems: ['1'],
-          selectionPropagation: { parents: true },
+          checkboxSelectionPropagation: { parents: true },
         });
 
         fireEvent.click(view.getItemRoot('1.1'));
@@ -1010,7 +1012,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
           ],
           defaultSelectedItems: [],
           defaultExpandedItems: ['1'],
-          selectionPropagation: { parents: true },
+          checkboxSelectionPropagation: { parents: true },
           isItemSelectionDisabled: (item: any) => item.id === '1.2',
         });
 
@@ -1030,7 +1032,7 @@ describeTree('TreeRoot - Selection', ({ render }) => {
           ],
           defaultSelectedItems: ['1.2'],
           defaultExpandedItems: ['1'],
-          selectionPropagation: { parents: true },
+          checkboxSelectionPropagation: { parents: true },
           isItemSelectionDisabled: (item: any) => item.id === '1',
         });
 
@@ -1040,29 +1042,29 @@ describeTree('TreeRoot - Selection', ({ render }) => {
     });
   });
 
-  describe('selectionPropagation warning', () => {
-    it('should warn when selectionPropagation is used with single selection mode', async () => {
+  describe('checkboxSelectionPropagation warning', () => {
+    it('should warn when checkboxSelectionPropagation is used with single selection mode', async () => {
       const consoleWarn = stub(console, 'warn');
       try {
         await render({
           items: [{ id: '1', children: [{ id: '1.1' }] }],
-          selectionPropagation: { descendants: true },
+          checkboxSelectionPropagation: { descendants: true },
         });
 
         expect(consoleWarn.callCount).to.be.greaterThanOrEqual(1);
-        expect(consoleWarn.firstCall.args[0]).to.include('selectionPropagation');
+        expect(consoleWarn.firstCall.args[0]).to.include('checkboxSelectionPropagation');
       } finally {
         consoleWarn.restore();
       }
     });
 
-    it('should not warn when selectionPropagation is used with multiple selection mode', async () => {
+    it('should not warn when checkboxSelectionPropagation is used with multiple selection mode', async () => {
       const consoleWarn = stub(console, 'warn');
       try {
         await render({
           items: [{ id: '1', children: [{ id: '1.1' }] }],
           selectionMode: 'multiple',
-          selectionPropagation: { descendants: true },
+          checkboxSelectionPropagation: { descendants: true },
         });
 
         expect(consoleWarn.callCount).to.equal(0);

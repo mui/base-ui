@@ -299,7 +299,7 @@ const checkboxSelectionStatusSelector = createSelector(
     const hasSelectedDescendant = counts.selected > 0;
     const hasUnSelectedDescendant = counts.selected < counts.total;
 
-    if (state.selectionPropagation.parents) {
+    if (state.checkboxSelectionPropagation.parents) {
       if (hasSelectedDescendant && hasUnSelectedDescendant) {
         return 'indeterminate';
       }
@@ -366,10 +366,6 @@ const defaultFocusableItemIdSelector = createSelectorMemoized(
 
     return null;
   },
-);
-
-const isItemBeingEditedSelector = createSelector(
-  (state: TreeState, itemId: TreeItemId): boolean => state.editedItemId === itemId,
 );
 
 const isItemDefaultFocusableSelector = createSelector(
@@ -551,12 +547,10 @@ export const selectors = {
   isSelectionDisabled: isSelectionDisabledSelector,
   canItemBeSelected: canItemBeSelectedSelector,
   checkboxSelectionStatus: checkboxSelectionStatusSelector,
-  selectionPropagationRules: createSelector((state: TreeState) => state.selectionPropagation),
+  checkboxSelectionPropagationRules: createSelector((state: TreeState) => state.checkboxSelectionPropagation),
   focusedItemId: createSelector((state: TreeState): TreeItemId | null => state.focusedItemId),
   isItemFocused: isItemFocusedSelector,
   defaultFocusableItemId: defaultFocusableItemIdSelector,
-  isItemBeingEdited: isItemBeingEditedSelector,
-  editedItemId: createSelector((state: TreeState): TreeItemId | null => state.editedItemId),
   isItemLoading: createSelector(
     (state: TreeState, itemId: TreeItemId | null): boolean =>
       state.lazyLoadedItems?.loading[itemId ?? TREE_VIEW_ROOT_PARENT_ID] ?? false,
@@ -571,7 +565,6 @@ export const selectors = {
     (state: TreeState, itemId: TreeItemId) => isItemSelectedSelector(state, itemId),
     (state: TreeState, itemId: TreeItemId) => isItemFocusedSelector(state, itemId),
     (state: TreeState, itemId: TreeItemId) => isItemDisabledSelector(state, itemId),
-    (state: TreeState, itemId: TreeItemId) => isItemBeingEditedSelector(state, itemId),
     (state: TreeState, itemId: TreeItemId) => canItemBeSelectedSelector(state, itemId),
     isSelectionDisabledSelector,
     (state: TreeState, itemId: TreeItemId) => isItemDefaultFocusableSelector(state, itemId),
@@ -583,7 +576,6 @@ export const selectors = {
       isSelected,
       focused,
       disabled,
-      editing,
       canBeSelected,
       selectionDisabled,
       isDefaultFocusable,
@@ -618,7 +610,6 @@ export const selectors = {
           selected: isSelected,
           focused,
           disabled,
-          editing,
           depth: meta.depth,
         },
       };
@@ -629,7 +620,6 @@ export const selectors = {
     (state: TreeState, itemId: TreeItemId) => isItemExpandedSelector(state, itemId),
     (state: TreeState, itemId: TreeItemId) => isItemFocusedSelector(state, itemId),
     (state: TreeState, itemId: TreeItemId) => isItemDisabledSelector(state, itemId),
-    (state: TreeState, itemId: TreeItemId) => isItemBeingEditedSelector(state, itemId),
     (state: TreeState, itemId: TreeItemId) => canItemBeSelectedSelector(state, itemId),
     (state: TreeState, itemId: TreeItemId) => checkboxSelectionStatusSelector(state, itemId),
     (state: TreeState, itemId: TreeItemId) => isItemDefaultFocusableSelector(state, itemId),
@@ -640,7 +630,6 @@ export const selectors = {
       expanded,
       focused,
       disabled,
-      editing,
       canBeSelected,
       checkboxStatus,
       isDefaultFocusable,
@@ -688,7 +677,6 @@ export const selectors = {
           indeterminate,
           focused,
           disabled,
-          editing,
           depth: meta.depth,
         },
       };
@@ -696,10 +684,8 @@ export const selectors = {
   ),
   labelProps: createSelectorMemoized(
     (state: TreeState, itemId: TreeItemId) => itemMetaLookupSelector(state)[itemId]?.label ?? '',
-    (state: TreeState, itemId: TreeItemId) => state.editedItemId === itemId,
-    (label, editing, _itemId: TreeItemId) => ({
+    (label, _itemId: TreeItemId) => ({
       label,
-      editing,
     }),
   ),
   expansionTriggerProps: createSelectorMemoized(

@@ -69,7 +69,7 @@ export default function ExampleTreeSelectionPropagation() {
         items={items}
         defaultExpandedItems={['documents']}
         selectionMode="multiple"
-        selectionPropagation={{
+        checkboxSelectionPropagation={{
           parents: propagateParents,
           descendants: propagateDescendants,
         }}

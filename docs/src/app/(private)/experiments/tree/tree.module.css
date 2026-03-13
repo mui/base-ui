@@ -94,6 +94,35 @@
   &[data-expanded] svg {
     transform: rotate(90deg);
   }
+
+  /* Hide expansion trigger when loading indicator is visible */
+  &:has(+ [data-loading]) {
+    display: none;
+  }
+}
+
+.loadingIndicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.spinner {
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid var(--color-gray-200);
+  border-top-color: var(--color-gray-500);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .groupIndicator {
@@ -159,14 +188,92 @@
 .item input:not([type='checkbox']) {
   flex: 1;
   min-width: 0;
-  font-size: 0.875rem;
+  font-size: inherit;
   font-family: inherit;
-  padding: 1px 4px;
+  line-height: inherit;
+  padding: 0;
   border: 1px solid var(--color-blue);
   border-radius: 4px;
   outline: none;
   background: var(--color-content);
   color: var(--color-gray-900);
+  margin: -1px 0;
+}
+
+.item select {
+  font-size: inherit;
+  font-family: inherit;
+  line-height: inherit;
+  padding: 0 4px;
+  border: 1px solid var(--color-gray-300);
+  border-radius: 4px;
+  outline: none;
+  background: var(--color-content);
+  color: var(--color-gray-900);
+  margin: -1px 0;
+
+  &:focus {
+    border-color: var(--color-blue);
+  }
+}
+
+.editForm {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.editForm button {
+  font-size: 0.75rem;
+  font-family: inherit;
+  padding: 1px 6px;
+  border: 1px solid var(--color-gray-300);
+  border-radius: 4px;
+  background: var(--color-content);
+  color: var(--color-gray-700);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-gray-100);
+  }
+}
+
+.editForm button[data-primary] {
+  background: var(--color-blue);
+  border-color: var(--color-blue);
+  color: white;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.deleteButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--color-gray-400);
+  border-radius: 4px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 150ms ease;
+
+  &:hover {
+    background: color-mix(in srgb, var(--color-red-600, #dc2626) 12%, transparent);
+    color: var(--color-red-600, #dc2626);
+  }
+}
+
+.item:hover .deleteButton {
+  opacity: 1;
 }
 
 .heading {

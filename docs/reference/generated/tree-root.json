@@ -133,10 +133,10 @@
       "description": "The selection mode of the tree.\nUse `'single'` for single selection, `'multiple'` for multiple selection.",
       "detailedType": "TreeSelectionMode | undefined"
     },
-    "selectionPropagation": {
+    "checkboxSelectionPropagation": {
       "type": "{ parents?: boolean, descendants?: boolean }",
-      "default": "{ parents: false, descendants: false }",
-      "description": "When `selectionPropagation.descendants` is set to `true`:\n- Selecting a parent selects all its descendants automatically.\n- Deselecting a parent deselects all its descendants automatically.\n\nWhen `selectionPropagation.parents` is set to `true`:\n- Selecting all descendants of a parent selects the parent automatically.\n- Deselecting a descendant of a selected parent deselects the parent automatically.",
+      "default": "{ parents: true, descendants: true }",
+      "description": "Controls how selecting a `Tree.CheckboxItem` propagates through the tree hierarchy.\nThis does not affect `Tree.Item` interactions (which use replace-selection semantics).\n\nWhen `checkboxSelectionPropagation.descendants` is set to `true`:\n- Selecting a parent selects all its descendants automatically.\n- Deselecting a parent deselects all its descendants automatically.\n\nWhen `checkboxSelectionPropagation.parents` is set to `true`:\n- Selecting all descendants of a parent selects the parent automatically.\n- Deselecting a descendant of a selected parent deselects the parent automatically.",
       "detailedType": "| { parents?: boolean; descendants?: boolean }\n| undefined"
     },
     "virtualized": {

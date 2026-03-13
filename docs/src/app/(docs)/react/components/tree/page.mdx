@@ -53,9 +53,9 @@ For animated expand/collapse, wrap the item render function in `Tree.AnimatedIte
 
 ## Examples
 
-### Selection propagation
+### Checkbox selection propagation
 
-Use `selectionPropagation` to automatically propagate selection changes through the tree hierarchy. When `descendants` is enabled, selecting a parent selects all its children. When `parents` is enabled, a parent becomes selected when all its children are selected. Toggle the checkboxes below to see how each option affects selection behavior.
+Use `checkboxSelectionPropagation` to control how selection changes propagate through the tree hierarchy when using `Tree.CheckboxItem`. By default, both `parents` and `descendants` are enabled: selecting a parent selects all its children, and a parent becomes selected when all its children are selected. Toggle the checkboxes below to see how each option affects selection behavior.
 
 import { DemoTreeSelectionPropagation } from './demos/selection-propagation';
 
@@ -86,6 +86,14 @@ Load tree items on demand when a parent node is expanded. This is useful for lar
 import { DemoTreeLazyLoading } from './demos/lazy-loading';
 
 <DemoTreeLazyLoading compact />
+
+### Filtering
+
+Filter tree items by text query using `Tree.useFilter()` and `Tree.useFilteredItems()`. Matching items are shown along with their ancestors to preserve the tree structure.
+
+import { DemoTreeFiltering } from './demos/filtering';
+
+<DemoTreeFiltering compact />
 
 ### Virtualized
 
