@@ -9,7 +9,8 @@
   background: var(--color-content);
 }
 
-.Item {
+.Item,
+.LinkItem {
   --indent: 1.5rem;
   --trigger-width: 1.5rem;
 
@@ -24,6 +25,7 @@
   font-size: 0.875rem;
   line-height: 1.5;
   color: var(--color-gray-900);
+  text-decoration: none;
 
   padding-left: calc(0.5rem + var(--indent) * var(--depth));
 
@@ -50,6 +52,12 @@
     opacity: 0.5;
     cursor: default;
   }
+}
+
+.LinkItem[data-active] {
+  background: color-mix(in srgb, var(--color-blue) 12%, transparent);
+  color: var(--color-blue);
+  font-weight: 500;
 }
 
 .ExpansionTrigger {
@@ -81,47 +89,6 @@
 
   &[data-expanded] svg {
     transform: rotate(90deg);
-  }
-}
-
-.CheckboxIndicator {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1rem;
-  height: 1rem;
-  flex-shrink: 0;
-  border: 1px solid var(--color-gray-400);
-  border-radius: 0.25rem;
-  color: white;
-  background: transparent;
-
-  & svg {
-    width: 0.75rem;
-    height: 0.75rem;
-    display: none;
-  }
-
-  &[data-checked] {
-    background: var(--color-blue);
-    border-color: var(--color-blue);
-  }
-
-  &[data-indeterminate] {
-    background: var(--color-blue);
-    border-color: var(--color-blue);
-  }
-}
-
-.CheckIcon {
-  .CheckboxIndicator[data-checked] & {
-    display: block;
-  }
-}
-
-.MinusIcon {
-  .CheckboxIndicator[data-indeterminate] & {
-    display: block;
   }
 }
 

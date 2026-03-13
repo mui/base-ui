@@ -6,35 +6,45 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useTreeRootContext } from '../root/TreeRootContext';
 import { selectors } from '../store/selectors';
-import { TreeItemContext, useTreeItemContextOptional } from './TreeItemContext';
-import { TreeItemDataAttributes } from './TreeItemDataAttributes';
-import { TreeItemCssVars } from './TreeItemCssVars';
+import { TreeItemContext, useTreeItemContextOptional } from '../item/TreeItemContext';
+import { TreeLinkItemDataAttributes } from './TreeLinkItemDataAttributes';
+import { TreeItemCssVars } from '../item/TreeItemCssVars';
 
-const EXPANDED_HOOK = { [TreeItemDataAttributes.expanded]: '' };
-const COLLAPSED_HOOK = { [TreeItemDataAttributes.collapsed]: '' };
+const EXPANDED_HOOK = { [TreeLinkItemDataAttributes.expanded]: '' };
+const COLLAPSED_HOOK = { [TreeLinkItemDataAttributes.collapsed]: '' };
+const ACTIVE_HOOK = { [TreeLinkItemDataAttributes.active]: '' };
+const LINK_HOOK = { [TreeLinkItemDataAttributes.link]: '' };
 
 const stateAttributesMapping = {
   itemId(v: string) {
-    return { [TreeItemDataAttributes.itemId]: v };
+    return { [TreeLinkItemDataAttributes.itemId]: v };
   },
   expanded(v: boolean) {
     return v ? EXPANDED_HOOK : COLLAPSED_HOOK;
   },
-} satisfies StateAttributesMapping<TreeItem.State>;
+  active(v: boolean) {
+    return v ? ACTIVE_HOOK : null;
+  },
+} satisfies StateAttributesMapping<TreeLinkItem.State>;
 
 /**
- * An individual tree item that uses replace selection behavior.
- * Clicking selects the item and deselects others.
- * Use modifier keys (Ctrl/Cmd, Shift) for multi-select operations.
- * Renders a `<div>` element.
+ * A tree item that acts as a navigational link.
+ * Clicking navigates to the link's destination.
+ * Renders an `<a>` element.
  *
  * Documentation: [Base UI Tree](https://base-ui.com/react/components/tree)
  */
-export const TreeItem = React.forwardRef(function TreeItem(
-  componentProps: TreeItem.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+export const TreeLinkItem = React.forwardRef(function TreeLinkItem(
+  componentProps: TreeLinkItem.Props,
+  forwardedRef: React.ForwardedRef<HTMLAnchorElement>,
 ) {
-  const { className, render, itemId: itemIdProp, ...elementProps } = componentProps;
+  const {
+    className,
+    render,
+    itemId: itemIdProp,
+    active = false,
+    ...elementProps
+  } = componentProps;
 
   const store = useTreeRootContext();
   const contextItemId = useTreeItemContextOptional()?.itemId;
@@ -42,20 +52,26 @@ export const TreeItem = React.forwardRef(function TreeItem(
 
   if (itemId === undefined) {
     throw new Error(
-      'Base UI: Tree.Item requires an `itemId` prop when used in virtualized mode, ' +
+      'Base UI: Tree.LinkItem requires an `itemId` prop when used in virtualized mode, ' +
         'or must be placed within a Tree.Root with a render function.',
     );
   }
 
-  const { props: itemProps, state } = store.useState('itemPropsAndState', itemId);
+  const { props: itemProps, state: itemState } = store.useState('itemPropsAndState', itemId);
   const virtualized = useStore(store, selectors.virtualized);
   const itemIdContext = React.useMemo(() => ({ itemId }), [itemId]);
 
+  const state: TreeLinkItem.State = React.useMemo(
+    () => ({
+      ...itemState,
+      active,
+    }),
+    [itemState, active],
+  );
+
   // In virtualized mode, auto-focus when this item mounts and it's the focused item.
-  // This handles the case where keyboard navigation moves to an item that wasn't
-  // previously in the DOM, and the virtualizer scrolls to render it.
   const autoFocusRef = React.useCallback(
-    (element: HTMLDivElement | null) => {
+    (element: HTMLAnchorElement | null) => {
       if (virtualized && element && state.focused) {
         element.focus();
       }
@@ -63,12 +79,14 @@ export const TreeItem = React.forwardRef(function TreeItem(
     [virtualized, state.focused],
   );
 
-  const element = useRenderElement('div', componentProps, {
+  const element = useRenderElement('a', componentProps, {
     state,
     ref: [forwardedRef, autoFocusRef],
     props: [
       itemProps,
-      store.itemEventHandlers,
+      { 'aria-current': active ? ('page' as const) : undefined },
+      LINK_HOOK,
+      store.linkItemEventHandlers,
       { style: { [TreeItemCssVars.depth]: state.depth } as React.CSSProperties },
       elementProps,
     ],
@@ -88,7 +106,7 @@ export const TreeItem = React.forwardRef(function TreeItem(
   return element;
 });
 
-export interface TreeItemState {
+export interface TreeLinkItemState {
   /**
    * The id of the item.
    */
@@ -117,17 +135,27 @@ export interface TreeItemState {
    * The depth of the item in the tree hierarchy.
    */
   depth: number;
+  /**
+   * Whether the link represents the current page.
+   */
+  active: boolean;
 }
 
-export interface TreeItemProps extends BaseUIComponentProps<'div', TreeItemState> {
+export interface TreeLinkItemProps extends BaseUIComponentProps<'a', TreeLinkItemState> {
   /**
    * The id of the item. Required when using `virtualized` on `Tree.Root`.
    * When provided, the item will set up its own context for sub-parts.
    */
   itemId?: string | undefined;
+  /**
+   * Whether this link represents the current page.
+   * Sets `aria-current="page"` when true.
+   * @default false
+   */
+  active?: boolean | undefined;
 }
 
-export namespace TreeItem {
-  export type State = TreeItemState;
-  export type Props = TreeItemProps;
+export namespace TreeLinkItem {
+  export type State = TreeLinkItemState;
+  export type Props = TreeLinkItemProps;
 }

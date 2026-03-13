@@ -1,6 +1,6 @@
 {
   "name": "TreeItemLabel",
-  "description": "Displays the label of a tree item.\nWhen the item is being edited, renders an `<input>` element; otherwise renders a `<span>`.",
+  "description": "Displays the label of a tree item.\nRenders a `<span>` element.",
   "props": {
     "className": {
       "type": "string | ((state: Tree.ItemLabel.State) => string | undefined)",
@@ -17,10 +17,6 @@
       "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Tree.ItemLabel.State,\n  ) => ReactElement)"
     }
   },
-  "dataAttributes": {
-    "data-editing": {
-      "description": "Present when the item's label is being edited."
-    }
-  },
+  "dataAttributes": {},
   "cssVariables": {}
 }

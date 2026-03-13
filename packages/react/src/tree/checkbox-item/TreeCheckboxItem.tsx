@@ -7,6 +7,7 @@ import { useTreeRootContext } from '../root/TreeRootContext';
 import { TreeItemContext, useTreeItemContextOptional } from '../item/TreeItemContext';
 import { TreeCheckboxItemContext } from './TreeCheckboxItemContext';
 import { TreeCheckboxItemDataAttributes } from './TreeCheckboxItemDataAttributes';
+import { TreeItemCssVars } from '../item/TreeItemCssVars';
 
 const EXPANDED_HOOK = { [TreeCheckboxItemDataAttributes.expanded]: '' };
 const COLLAPSED_HOOK = { [TreeCheckboxItemDataAttributes.collapsed]: '' };
@@ -29,9 +30,6 @@ const stateAttributesMapping = {
   },
   indeterminate(v: boolean) {
     return v ? INDETERMINATE_HOOK : null;
-  },
-  depth(v: number) {
-    return { [TreeCheckboxItemDataAttributes.depth]: String(v) };
   },
 } satisfies StateAttributesMapping<TreeCheckboxItem.State>;
 
@@ -74,7 +72,12 @@ export const TreeCheckboxItem = React.forwardRef(function TreeCheckboxItem(
   const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
-    props: [itemProps, store.checkboxItemEventHandlers, elementProps],
+    props: [
+      itemProps,
+      store.checkboxItemEventHandlers,
+      { style: { [TreeItemCssVars.depth]: state.depth } as React.CSSProperties },
+      elementProps,
+    ],
     stateAttributesMapping,
   });
 

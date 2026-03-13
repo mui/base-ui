@@ -128,14 +128,11 @@ const resolvedItemsStateSelector = createSelectorMemoized(
       }
     }
 
-    // Phase 3: Apply meta patches (label, disabled)
+    // Phase 3: Apply meta patches (disabled)
     if (hasPatches) {
       for (const [id, patch] of Object.entries(metaPatches)) {
         if (metaLookup[id]) {
           metaLookup[id] = { ...metaLookup[id], ...patch };
-        }
-        if (patch.label !== undefined && modelLookup[id]) {
-          modelLookup[id] = { ...modelLookup[id], label: patch.label };
         }
       }
     }

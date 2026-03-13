@@ -166,4 +166,3 @@ function generateItems(): Tree.DefaultItemModel[] {
 const items = generateItems();
 
 type ScrollToItem = (itemId: string) => void;
-type Virtualizer = ReturnType<typeof useVirtualizer<HTMLDivElement, Element>>;

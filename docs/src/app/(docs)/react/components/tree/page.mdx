@@ -15,21 +15,29 @@ Import the component and assemble its parts:
 import { Tree } from '@base-ui/react/tree';
 
 <Tree.Root>
-  <Tree.Item>
-    <Tree.ItemExpansionTrigger />
-    <Tree.ItemGroupIndicator />
-    <Tree.ItemLabel />
-    <Tree.ItemLoadingIndicator />
-    <Tree.ItemErrorIndicator />
-  </Tree.Item>
-  <Tree.CheckboxItem>
-    <Tree.ItemExpansionTrigger />
-    <Tree.CheckboxItemIndicator />
-    <Tree.ItemGroupIndicator />
-    <Tree.ItemLabel />
-    <Tree.ItemLoadingIndicator />
-    <Tree.ItemErrorIndicator />
-  </Tree.CheckboxItem>
+  <Tree.Empty />
+  <Tree.ItemList>
+    <Tree.Item>
+      <Tree.ItemExpansionTrigger />
+      <Tree.ItemGroupIndicator />
+      <Tree.ItemLabel />
+      <Tree.ItemLoadingIndicator />
+      <Tree.ItemErrorIndicator />
+    </Tree.Item>
+    <Tree.LinkItem>
+      <Tree.ItemExpansionTrigger />
+      <Tree.ItemGroupIndicator />
+      <Tree.ItemLabel />
+    </Tree.LinkItem>
+    <Tree.CheckboxItem>
+      <Tree.ItemExpansionTrigger />
+      <Tree.CheckboxItemIndicator />
+      <Tree.ItemGroupIndicator />
+      <Tree.ItemLabel />
+      <Tree.ItemLoadingIndicator />
+      <Tree.ItemErrorIndicator />
+    </Tree.CheckboxItem>
+  </Tree.ItemList>
 </Tree.Root>;
 ```
 
@@ -37,6 +45,7 @@ For animated expand/collapse, wrap the item render function in `Tree.AnimatedIte
 
 ```jsx title="Animated anatomy"
 <Tree.Root>
+  <Tree.Empty />
   <Tree.AnimatedItemList>
     {(item, animatedChildren) => (
       <React.Fragment>
@@ -70,6 +79,14 @@ import { DemoTreeSelectionPropagation } from './demos/selection-propagation';
 import { DemoTreeCheckboxItems } from './demos/checkbox-items';
 
 <DemoTreeCheckboxItems compact />
+
+### Link items
+
+Use `Tree.LinkItem` to create tree items that act as navigational links. Each link item renders an `<a>` element and supports an `active` prop that sets `aria-current="page"` to indicate the current page. Use the `render` prop to swap in your framework's Link component for client-side routing.
+
+import { DemoTreeLinkItems } from './demos/link-items';
+
+<DemoTreeLinkItems compact />
 
 ### Animated expand/collapse
 
@@ -107,9 +124,98 @@ import { DemoTreeVirtualized } from './demos/virtualized';
 
 <Reference
   component="Tree"
-  parts="Root, AnimatedItemList, GroupTransition, Item, CheckboxItem, CheckboxItemIndicator, ItemLabel, ItemExpansionTrigger, ItemGroupIndicator, ItemLoadingIndicator, ItemErrorIndicator"
+  parts="Root, AnimatedItemList, GroupTransition, Item, LinkItem, CheckboxItem, CheckboxItemIndicator, ItemLabel, ItemExpansionTrigger, ItemGroupIndicator, ItemLoadingIndicator, ItemErrorIndicator"
 />
 
 ## useVisibleItems
 
 Returns the flat list of visible items (respecting the current expansion state) when called inside `<Tree.Root>`. Use this hook with `virtualized` to get the items to render.
+
+### Return value
+
+Returns an array of `Tree.useVisibleItems.Item` objects:
+
+<PropsReferenceTable
+  type="return"
+  data={{
+    itemId: {
+      type: 'string',
+      description: 'The unique ID of the item.',
+    },
+    depth: {
+      type: 'number',
+      description: 'The depth of the item in the tree hierarchy (0-based).',
+    },
+  }}
+/>
+
+## useFilteredItems
+
+Filters a tree of items by a text query, preserving ancestors of matching items.
+Use this hook together with `Tree.useFilter()` to implement client-side filtering.
+
+### Input parameters
+
+<PropsReferenceTable
+  data={{
+    items: {
+      type: 'readonly TItem[]',
+      description: 'The items to filter.',
+      required: true,
+    },
+    filterText: {
+      type: 'string',
+      description: 'The text to filter items by. When empty, all items are returned.',
+      required: true,
+    },
+    filter: {
+      type: 'Filter',
+      description: 'The filter object to use for matching. Obtain one via `Tree.useFilter()`.',
+    },
+    method: {
+      type: "'contains' | 'startsWith' | 'endsWith'",
+      description: 'The matching strategy to use.',
+      default: "'contains'",
+    },
+    autoExpand: {
+      type: 'boolean',
+      description: 'Whether to automatically expand ancestor items that have matching descendants. When `true`, the return value includes an `expandedItems` array.',
+      default: 'false',
+    },
+    itemToId: {
+      type: '(item: TItem) => string',
+      description: 'Extracts the unique ID from an item. Required when `autoExpand` is `true`.',
+      default: '(item) => item.id',
+    },
+    itemToStringLabel: {
+      type: '(item: TItem) => string',
+      description: 'Extracts the string label from an item for filtering.',
+      default: '(item) => item.label',
+    },
+    itemToChildren: {
+      type: '(item: TItem) => TItem[] | undefined',
+      description: 'Extracts the children from an item.',
+      default: '(item) => item.children',
+    },
+  }}
+/>
+
+### Return value
+
+When `autoExpand` is `false` (default), returns `TItem[]` — the filtered items tree.
+
+When `autoExpand` is `true`, returns an object:
+
+<PropsReferenceTable
+  type="return"
+  data={{
+    items: {
+      type: 'TItem[]',
+      description: 'The filtered items tree. Contains only matching items and their ancestors.',
+    },
+    expandedItems: {
+      type: 'string[]',
+      description: 'The IDs of items that should be expanded to reveal matching descendants.',
+    },
+  }}
+/>

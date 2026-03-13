@@ -1,5 +1,6 @@
 export { TreeRoot as Root } from './root/TreeRoot';
 export { TreeItem as Item } from './item/TreeItem';
+export { TreeLinkItem as LinkItem } from './link-item/TreeLinkItem';
 export { TreeItemExpansionTrigger as ItemExpansionTrigger } from './item-expansion-trigger/TreeItemExpansionTrigger';
 export { TreeCheckboxItem as CheckboxItem } from './checkbox-item/TreeCheckboxItem';
 export { TreeCheckboxItemIndicator as CheckboxItemIndicator } from './checkbox-item-indicator/TreeCheckboxItemIndicator';

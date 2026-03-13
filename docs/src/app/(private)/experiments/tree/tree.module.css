@@ -31,21 +31,7 @@
   line-height: 1.5;
   color: var(--color-gray-900);
 
-  &[data-depth='1'] {
-    padding-left: 24px;
-  }
-
-  &[data-depth='2'] {
-    padding-left: 44px;
-  }
-
-  &[data-depth='3'] {
-    padding-left: 64px;
-  }
-
-  &[data-depth='4'] {
-    padding-left: 84px;
-  }
+  padding-left: calc(8px + 20px * var(--depth));
 
   &:hover {
     background: var(--color-gray-100);

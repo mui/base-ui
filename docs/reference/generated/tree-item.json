@@ -1,6 +1,6 @@
 {
   "name": "TreeItem",
-  "description": "An individual tree item that uses replace selection behavior.\nClicking selects the item and deselects others.\nUse modifier keys (Ctrl/Cmd, Shift) for multi-select operations.\nRenders a `<li>` element.",
+  "description": "An individual tree item that uses replace selection behavior.\nClicking selects the item and deselects others.\nUse modifier keys (Ctrl/Cmd, Shift) for multi-select operations.\nRenders a `<div>` element.",
   "props": {
     "itemId": {
       "type": "string",
@@ -32,12 +32,6 @@
     "data-collapsed": {
       "description": "Present when the item is collapsed."
     },
-    "data-depth": {
-      "description": "The depth of the item in the tree hierarchy."
-    },
-    "data-editing": {
-      "description": "Present when the item's label is being edited."
-    },
     "data-expandable": {
       "description": "Present when the item has children and can be expanded."
     },
@@ -51,5 +45,10 @@
       "description": "The id of the item."
     }
   },
-  "cssVariables": {}
+  "cssVariables": {
+    "--depth": {
+      "description": "The depth of the item in the tree hierarchy.",
+      "type": "number"
+    }
+  }
 }

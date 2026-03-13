@@ -11,6 +11,7 @@ export type { DataSourceCache } from './utils/cache';
 
 export type * from './root/TreeRoot';
 export type * from './item/TreeItem';
+export type * from './link-item/TreeLinkItem';
 export type * from './item-expansion-trigger/TreeItemExpansionTrigger';
 export type * from './checkbox-item/TreeCheckboxItem';
 export type * from './checkbox-item-indicator/TreeCheckboxItemIndicator';
@@ -34,8 +35,6 @@ export type {
   TreeRootSelectionChangeEventDetails,
   TreeItemFocusEventReason,
   TreeItemFocusEventDetails,
-  TreeItemClickEventReason,
-  TreeItemClickEventDetails,
   TreeItemExpansionToggleEventDetails,
   TreeItemSelectionToggleEventDetails,
 } from './store/types';

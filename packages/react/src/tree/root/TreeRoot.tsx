@@ -19,8 +19,6 @@ import type {
   TreeSelectionMode,
   TreeItemFocusEventReason,
   TreeItemFocusEventDetails,
-  TreeItemClickEventReason,
-  TreeItemClickEventDetails,
   TreeItemExpansionToggleEventDetails,
   TreeItemSelectionToggleEventDetails,
 } from '../store/types';
@@ -81,8 +79,6 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
     lazyLoading,
     // Virtualization
     virtualized,
-    // Other
-    onItemClick,
     // Props forwarded to the DOM element
     ...elementProps
   } = componentProps;
@@ -126,7 +122,6 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
         isItemSelectionDisabled,
         itemFocusableWhenDisabled,
         onItemFocus,
-        onItemClick,
         direction,
         rootRef,
         lazyLoading,
@@ -161,7 +156,6 @@ export const TreeRoot = React.forwardRef(function TreeRoot<
   store.useContextCallback('onSelectedItemsChange', onSelectedItemsChange as any);
   store.useContextCallback('onItemSelectionToggle', onItemSelectionToggle);
   store.useContextCallback('onItemFocus', onItemFocus);
-  store.useContextCallback('onItemClick', onItemClick);
 
   // Expose imperative actions
   React.useImperativeHandle(actionsRef, () => store.getActions(), [store]);
@@ -255,6 +249,4 @@ export namespace TreeRoot {
   export type ItemSelectionToggleEventDetails = TreeItemSelectionToggleEventDetails;
   export type ItemFocusEventReason = TreeItemFocusEventReason;
   export type ItemFocusEventDetails = TreeItemFocusEventDetails;
-  export type ItemClickEventReason = TreeItemClickEventReason;
-  export type ItemClickEventDetails = TreeItemClickEventDetails;
 }

@@ -24,10 +24,6 @@ export enum TreeItemDataAttributes {
    */
   disabled = 'data-disabled',
   /**
-   * The depth of the item in the tree hierarchy.
-   */
-  depth = 'data-depth',
-  /**
    * Present when the item has children and can be expanded.
    */
   expandable = 'data-expandable',

@@ -570,7 +570,7 @@ describe('TreeRoot - Lazy Loading', () => {
       await awaitMockFetch();
 
       const childItem = getItemRoot(container, '1-1');
-      expect(childItem.dataset.depth).to.equal('1');
+      expect(childItem.style.getPropertyValue('--depth')).to.equal('1');
     });
   });
 });

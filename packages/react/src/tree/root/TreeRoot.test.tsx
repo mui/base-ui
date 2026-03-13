@@ -117,51 +117,6 @@ describeTree('TreeRoot - Items', ({ render }) => {
     });
   });
 
-  describe('onItemClick prop', () => {
-    it('should call onItemClick when clicking on an item', async () => {
-      const onItemClick = spy();
-
-      const view = await render({
-        items: [{ id: '1' }],
-        onItemClick,
-      });
-
-      fireEvent.click(view.getItemRoot('1'));
-      expect(onItemClick.callCount).to.equal(1);
-      expect(onItemClick.lastCall.args[0]).to.equal('1');
-      expect(onItemClick.lastCall.args[1]).to.have.property('reason', 'item-press');
-      expect(onItemClick.lastCall.args[1]).to.have.property('event');
-    });
-
-    it('should call onItemClick with the correct id when the item id contains special characters', async () => {
-      const onItemClick = spy();
-      const specialId = 'item "with" special\\chars/[and](more)';
-
-      const view = await render({
-        items: [{ id: specialId }],
-        onItemClick,
-      });
-
-      fireEvent.click(view.getItemRoot(specialId));
-      expect(onItemClick.callCount).to.equal(1);
-      expect(onItemClick.lastCall.args[0]).to.equal(specialId);
-    });
-
-    it('should not call onItemClick for the ancestors of the clicked item', async () => {
-      const onItemClick = spy();
-
-      const view = await render({
-        items: [{ id: '1', children: [{ id: '1.1' }] }],
-        defaultExpandedItems: ['1'],
-        onItemClick,
-      });
-
-      fireEvent.click(view.getItemRoot('1.1'));
-      expect(onItemClick.callCount).to.equal(1);
-      expect(onItemClick.lastCall.args[0]).to.equal('1.1');
-    });
-  });
-
   describe('API methods', () => {
     describe('getItem', () => {
       it('should return the item model', async () => {

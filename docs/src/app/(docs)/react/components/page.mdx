@@ -1488,44 +1488,54 @@ A tree component for displaying hierarchical data.
   - Examples
     - Checkbox selection propagation
     - Checkbox items
+    - Link items
     - Animated expand/collapse
     - Lazy loading
     - Filtering
     - Virtualized
   - API reference
   - useVisibleItems
+    - Return value
+  - useFilteredItems
+    - Input parameters
+    - Return value
 - Exports:
+  - Tree - Root
+    - Props: actionsRef, checkboxSelectionPropagation, children, className, defaultExpandedItems, defaultSelectedItems, disabled, disallowEmptySelection, expandOnClick, expandedItems, isItemDisabled, isItemSelectionDisabled, itemFocusableWhenDisabled, itemToChildren, itemToId, itemToStringLabel, items, lazyLoading, onExpandedItemsChange, onItemExpansionToggle, onItemFocus, onItemSelectionToggle, onSelectedItemsChange, render, selectedItems, selectionMode, style, virtualized
+    - Data Attributes: data-disabled
+  - Tree - Item
+    - Props: className, itemId, render, style
+    - Data Attributes: data-collapsed, data-disabled, data-expandable, data-expanded, data-focused, data-item-id, data-selected
+    - CSS Variables: --depth
+  - Tree - LinkItem
+    - Props: active, className, itemId, render, style
+    - Data Attributes: data-active, data-collapsed, data-disabled, data-expandable, data-expanded, data-focused, data-item-id, data-link, data-selected
+  - Tree - ItemExpansionTrigger
+    - Props: className, render, style
+    - Data Attributes: data-collapsed, data-expandable, data-expanded
   - Tree - CheckboxItem
     - Props: className, itemId, render, style
-    - Data Attributes: data-checked, data-collapsed, data-depth, data-disabled, data-editing, data-expandable, data-expanded, data-focused, data-indeterminate, data-item-id, data-unchecked
+    - Data Attributes: data-checked, data-collapsed, data-disabled, data-expandable, data-expanded, data-focused, data-indeterminate, data-item-id, data-unchecked
   - Tree - CheckboxItemIndicator
     - Props: className, keepMounted, render, style
     - Data Attributes: data-checked, data-disabled, data-indeterminate, data-unchecked
+  - Tree - ItemLabel
+    - Props: className, render, style
+  - Tree - ItemGroupIndicator
+    - Props: className, render, style
+    - Data Attributes: data-collapsed, data-expandable, data-expanded
+  - Tree - ItemLoadingIndicator
+    - Props: className, render, style
+    - Data Attributes: data-loading
+  - Tree - ItemErrorIndicator
+    - Props: className, render, style
+    - Data Attributes: data-error
   - Tree - GroupTransition
     - Props: className, render, style
     - Data Attributes: data-parent-id
     - CSS Variables: --tree-group-height
-  - Tree - Item
-    - Props: className, itemId, render, style
-    - Data Attributes: data-collapsed, data-depth, data-disabled, data-editing, data-expandable, data-expanded, data-focused, data-item-id, data-selected
-  - Tree - ItemErrorIndicator
+  - Tree - Empty
     - Props: className, render, style
-    - Data Attributes: data-error
-  - Tree - ItemExpansionTrigger
-    - Props: className, render, style
-    - Data Attributes: data-collapsed, data-expandable, data-expanded
-  - Tree - ItemGroupIndicator
-    - Props: className, render, style
-    - Data Attributes: data-collapsed, data-expandable, data-expanded
-  - Tree - ItemLabel
-    - Props: className, render, style
-    - Data Attributes: data-editing
-  - Tree - ItemLoadingIndicator
-    - Props: className, render, style
-    - Data Attributes: data-loading
-  - Tree - Root
-    - Props: actionsRef, children, className, defaultExpandedItems, defaultSelectedItems, disabled, disallowEmptySelection, expandOnClick, expandedItems, isItemDisabled, isItemEditable, isItemSelectionDisabled, itemFocusableWhenDisabled, itemToChildren, itemToId, itemToStringLabel, items, lazyLoading, onExpandedItemsChange, onItemClick, onItemExpansionToggle, onItemFocus, onItemLabelChange, onItemSelectionToggle, onSelectedItemsChange, render, selectedItems, selectionMode, checkboxSelectionPropagation, style, virtualized
-    - Data Attributes: data-disabled
   - Tree - ItemModelProvider
     - Props: animatedChildren, children, itemId, store
 

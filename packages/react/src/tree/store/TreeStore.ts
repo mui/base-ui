@@ -19,7 +19,6 @@ import type {
   TreeItemExpansionToggleEventDetails,
   TreeItemSelectionToggleEventDetails,
   TreeItemFocusEventDetails,
-  TreeItemClickEventDetails,
 } from './types';
 import { selectors } from './selectors';
 import {
@@ -189,10 +188,6 @@ export interface TreeStoreParameters<
    */
   isItemSelectionDisabled?: ((item: TItem) => boolean) | undefined;
   /**
-   * Event handler called when an item is clicked.
-   */
-  onItemClick?: ((itemId: TreeItemId, details: TreeItemClickEventDetails) => void) | undefined;
-  /**
    * The direction of the tree layout.
    */
   direction: 'ltr' | 'rtl';
@@ -309,7 +304,6 @@ export class TreeStore<
         onItemExpansionToggle: parameters.onItemExpansionToggle ?? (() => {}),
         onItemSelectionToggle: parameters.onItemSelectionToggle ?? (() => {}),
         onItemFocus: parameters.onItemFocus ?? (() => {}),
-        onItemClick: parameters.onItemClick ?? (() => {}),
         rootRef: parameters.rootRef,
       },
       selectors,
@@ -1077,8 +1071,23 @@ export class TreeStore<
         break;
       }
 
-      // Enter: expand/collapse or select
+      // Enter: for link items, let the browser handle native navigation.
+      // For other items, expand/collapse or select.
       case key === 'Enter': {
+        const isLink = (event.target as HTMLElement).hasAttribute('data-link');
+        if (isLink) {
+          // Let the browser follow the link natively (no preventDefault).
+          // Still handle selection so the item becomes selected on navigation.
+          if (this.canToggleItemSelection(itemId)) {
+            this.setItemSelection({
+              itemId,
+              shouldBeSelected: true,
+              reason: REASONS.keyboard,
+              event: event.nativeEvent,
+            });
+          }
+          break;
+        }
         if (this.canToggleItemExpansion(itemId)) {
           this.setItemExpansion(itemId, undefined, REASONS.keyboard, event.nativeEvent);
           event.preventDefault();
@@ -1292,11 +1301,6 @@ export class TreeStore<
       if (!itemId) {
         return;
       }
-      this.context.onItemClick(
-        itemId,
-        createGenericEventDetails(REASONS.itemPress, event.nativeEvent),
-      );
-
       // Handle focus - disabled items cannot be focused by mouse click
       if (!selectors.isItemDisabled(this.state, itemId)) {
         this.lastFocusReason = REASONS.itemPress;
@@ -1369,11 +1373,6 @@ export class TreeStore<
       if (!itemId) {
         return;
       }
-      this.context.onItemClick(
-        itemId,
-        createGenericEventDetails(REASONS.itemPress, event.nativeEvent),
-      );
-
       // Handle focus - disabled items cannot be focused by mouse click
       if (!selectors.isItemDisabled(this.state, itemId)) {
         this.lastFocusReason = REASONS.itemPress;
@@ -1401,6 +1400,60 @@ export class TreeStore<
       if (this.state.expandOnClick && this.canToggleItemExpansion(itemId)) {
         this.setItemExpansion(itemId, undefined, REASONS.itemPress, event.nativeEvent);
       }
+    },
+    onFocus: (event: React.FocusEvent) => {
+      const itemId = this.getItemIdFromEvent(event);
+      if (!itemId) {
+        return;
+      }
+      if (selectors.canItemBeFocused(this.state, itemId) && this.state.focusedItemId !== itemId) {
+        this.set('focusedItemId', itemId);
+        this.context.onItemFocus(
+          itemId,
+          createGenericEventDetails(this.lastFocusReason, event.nativeEvent),
+        );
+        this.lastFocusReason = REASONS.keyboard;
+      }
+    },
+  };
+
+  public readonly linkItemEventHandlers = {
+    onMouseDown: (event: React.MouseEvent) => {
+      const itemId = this.getItemIdFromEvent(event);
+      if (!itemId) {
+        return;
+      }
+      // Only prevent default for disabled items.
+      // Unlike regular items, we don't prevent default for modifier keys
+      // so that Ctrl+click (open in new tab) and Shift+click (open in new window) work.
+      if (selectors.isItemDisabled(this.state, itemId)) {
+        event.preventDefault();
+      }
+    },
+    onClick: (event: React.MouseEvent) => {
+      const itemId = this.getItemIdFromEvent(event);
+      if (!itemId) {
+        return;
+      }
+      // Handle focus - disabled items cannot be focused by mouse click
+      if (!selectors.isItemDisabled(this.state, itemId)) {
+        this.lastFocusReason = REASONS.itemPress;
+        this.set('focusedItemId', itemId);
+      }
+
+      // Handle selection (same as Tree.Item: replace semantics)
+      if (this.state.selectionMode !== 'none' && selectors.canItemBeSelected(this.state, itemId)) {
+        this.setItemSelection({
+          itemId,
+          shouldBeSelected: true,
+          reason: REASONS.itemPress,
+          event: event.nativeEvent,
+        });
+      }
+
+      // expandOnClick is intentionally NOT handled for link items.
+      // The primary action of a link is navigation, not expansion.
+      // Expansion is done via ItemExpansionTrigger or ArrowRight/Left keys.
     },
     onFocus: (event: React.FocusEvent) => {
       const itemId = this.getItemIdFromEvent(event);

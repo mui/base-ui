@@ -1,4 +1,4 @@
-export enum TreeCheckboxItemDataAttributes {
+export enum TreeLinkItemDataAttributes {
   /**
    * The id of the item.
    */
@@ -12,17 +12,9 @@ export enum TreeCheckboxItemDataAttributes {
    */
   collapsed = 'data-collapsed',
   /**
-   * Present when the item is checked.
+   * Present when the item is selected.
    */
-  checked = 'data-checked',
-  /**
-   * Present when the item is not checked.
-   */
-  unchecked = 'data-unchecked',
-  /**
-   * Present when the item is in an indeterminate state.
-   */
-  indeterminate = 'data-indeterminate',
+  selected = 'data-selected',
   /**
    * Present when the item is focused.
    */
@@ -35,4 +27,12 @@ export enum TreeCheckboxItemDataAttributes {
    * Present when the item has children and can be expanded.
    */
   expandable = 'data-expandable',
+  /**
+   * Present when the link represents the current page.
+   */
+  active = 'data-active',
+  /**
+   * Marks this item as a link item.
+   */
+  link = 'data-link',
 }

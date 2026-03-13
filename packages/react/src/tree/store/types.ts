@@ -68,7 +68,7 @@ export interface LazyLoadedItemsState {
  * Sparse per-item metadata patches applied on top of computed metadata.
  * Only the fields that are actually overridden are present.
  */
-export type ItemMetaPatches = Record<TreeItemId, Partial<Pick<TreeItemMeta, 'label' | 'disabled'>>>;
+export type ItemMetaPatches = Record<TreeItemId, Partial<Pick<TreeItemMeta, 'disabled'>>>;
 
 /**
  * Lazy-loaded tree structure additions.
@@ -114,10 +114,6 @@ export type TreeItemFocusEventReason =
 
 export type TreeItemFocusEventDetails = BaseUIGenericEventDetails<TreeItemFocusEventReason>;
 
-export type TreeItemClickEventReason = typeof REASONS.itemPress;
-
-export type TreeItemClickEventDetails = BaseUIGenericEventDetails<TreeItemClickEventReason>;
-
 export type TreeItemExpansionToggleEventDetails =
   BaseUIGenericEventDetails<TreeRootExpansionChangeEventReason>;
 
@@ -137,7 +133,7 @@ export interface TreeState<TItem = TreeDefaultItemModel> {
    */
   items: readonly TItem[];
   /**
-   * Sparse per-item metadata patches (label edits, imperative disabled).
+   * Sparse per-item metadata patches (imperative disabled).
    * Applied on top of the computed items state in selectors.
    */
   itemMetaPatches: ItemMetaPatches;
@@ -256,7 +252,6 @@ export interface TreeStoreContext {
     details: TreeItemSelectionToggleEventDetails,
   ) => void;
   onItemFocus: (itemId: TreeItemId, details: TreeItemFocusEventDetails) => void;
-  onItemClick: (itemId: TreeItemId, details: TreeItemClickEventDetails) => void;
   // DOM ref for the tree root element
   rootRef: React.RefObject<HTMLElement | null>;
 }

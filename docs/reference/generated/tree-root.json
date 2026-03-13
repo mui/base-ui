@@ -1,11 +1,17 @@
 {
   "name": "TreeRoot",
-  "description": "Groups all parts of the tree.\nRenders a `<ul>` element.",
+  "description": "Groups all parts of the tree.\nRenders a `<div>` element.",
   "props": {
     "actionsRef": {
       "type": "RefObject<Tree.Root.Actions<TItem> | null>",
       "description": "A ref to imperative actions on the tree.",
       "detailedType": "| React.RefObject<Tree.Root.Actions<TItem> | null>\n| undefined"
+    },
+    "checkboxSelectionPropagation": {
+      "type": "{ parents?: boolean, descendants?: boolean }",
+      "default": "{ parents: true, descendants: true }",
+      "description": "Controls how selecting a `Tree.CheckboxItem` propagates through the tree hierarchy.\nThis does not affect `Tree.Item` interactions (which use replace-selection semantics).\n\nWhen `checkboxSelectionPropagation.descendants` is set to `true`:\n- Selecting a parent selects all its descendants automatically.\n- Deselecting a parent deselects all its descendants automatically.\n\nWhen `checkboxSelectionPropagation.parents` is set to `true`:\n- Selecting all descendants of a parent selects the parent automatically.\n- Deselecting a descendant of a selected parent deselects the parent automatically.",
+      "detailedType": "| { parents?: boolean; descendants?: boolean }\n| undefined"
     },
     "defaultExpandedItems": {
       "type": "string[]",
@@ -41,12 +47,6 @@
       "default": "(item) => !!item.disabled",
       "description": "Used to determine if a given item should be disabled.",
       "detailedType": "((item: TItem) => boolean) | undefined"
-    },
-    "isItemEditable": {
-      "type": "boolean | ((item: TItem) => boolean)",
-      "default": "false",
-      "description": "Used to determine if a given item should be editable.\nIf a boolean is provided, all items will be editable or non-editable.",
-      "detailedType": "boolean | ((item: TItem) => boolean) | undefined"
     },
     "isItemSelectionDisabled": {
       "type": "((item: TItem) => boolean)",
@@ -93,11 +93,6 @@
       "description": "Event handler called when items are expanded or collapsed.",
       "detailedType": "| ((\n    expandedItems: string[],\n    eventDetails: Tree.Root.ExpansionChangeEventDetails,\n  ) => void)\n| undefined"
     },
-    "onItemClick": {
-      "type": "((itemId: string, details: Tree.Item.ClickEventDetails) => void)",
-      "description": "Event handler called when an item is clicked.",
-      "detailedType": "| ((\n    itemId: string,\n    details: Tree.Item.ClickEventDetails,\n  ) => void)\n| undefined"
-    },
     "onItemExpansionToggle": {
       "type": "((itemId: string, isExpanded: boolean, details: Tree.Item.ExpansionToggleEventDetails) => void)",
       "description": "Event handler called when an item is expanded or collapsed.",
@@ -107,11 +102,6 @@
       "type": "((itemId: string, details: Tree.Item.FocusEventDetails) => void)",
       "description": "Event handler called when an item is focused.",
       "detailedType": "| ((\n    itemId: string,\n    details: Tree.Item.FocusEventDetails,\n  ) => void)\n| undefined"
-    },
-    "onItemLabelChange": {
-      "type": "((itemId: string, newLabel: string, details: Tree.ItemLabel.ChangeEventDetails) => void)",
-      "description": "Event handler called when the label of an item changes.",
-      "detailedType": "| ((\n    itemId: string,\n    newLabel: string,\n    details: Tree.ItemLabel.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "onItemSelectionToggle": {
       "type": "((itemId: string, isSelected: boolean, details: Tree.Item.SelectionToggleEventDetails) => void)",
@@ -133,12 +123,6 @@
       "description": "The selection mode of the tree.\nUse `'single'` for single selection, `'multiple'` for multiple selection.",
       "detailedType": "TreeSelectionMode | undefined"
     },
-    "checkboxSelectionPropagation": {
-      "type": "{ parents?: boolean, descendants?: boolean }",
-      "default": "{ parents: true, descendants: true }",
-      "description": "Controls how selecting a `Tree.CheckboxItem` propagates through the tree hierarchy.\nThis does not affect `Tree.Item` interactions (which use replace-selection semantics).\n\nWhen `checkboxSelectionPropagation.descendants` is set to `true`:\n- Selecting a parent selects all its descendants automatically.\n- Deselecting a parent deselects all its descendants automatically.\n\nWhen `checkboxSelectionPropagation.parents` is set to `true`:\n- Selecting all descendants of a parent selects the parent automatically.\n- Deselecting a descendant of a selected parent deselects the parent automatically.",
-      "detailedType": "| { parents?: boolean; descendants?: boolean }\n| undefined"
-    },
     "virtualized": {
       "type": "boolean",
       "default": "false",
@@ -154,7 +138,7 @@
     "children": {
       "type": "((item: TItem) => ReactNode) | ReactNode",
       "required": true,
-      "description": "The render function for each tree item, or a `Tree.AnimatedItemList` element\nfor animated expand/collapse transitions.",
+      "description": "The render function for each tree item, or a `Tree.ItemList` / `Tree.AnimatedItemList`\nelement for more control over item rendering.",
       "detailedType": "((item: TItem) => ReactNode) | React.ReactNode"
     },
     "className": {
