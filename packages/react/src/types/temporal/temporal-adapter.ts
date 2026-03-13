@@ -52,6 +52,11 @@ export interface TemporalAdapterFormats {
    */
   hours12h: string;
   /**
+   * The day of the month with letter suffix.
+   * @example "1st", "11th"
+   */
+  dayOfMonthWithLetter: string;
+  /**
    * The abbreviated month name.
    * @example "Aug"
    */
@@ -93,13 +98,48 @@ export interface TemporalAdapterFormats {
   localizedNumericDate: string;
 }
 
+export type TemporalFieldDatePartType =
+  | 'year'
+  | 'month'
+  | 'day'
+  | 'weekDay'
+  | 'hours'
+  | 'minutes'
+  | 'seconds'
+  | 'meridiem';
+
+export type TemporalFieldSectionContentType = 'digit' | 'digit-with-letter' | 'letter';
+
+export interface TemporalFormatTokenConfig {
+  /**
+   * Type of the section.
+   */
+  part: TemporalFieldDatePartType;
+  /**
+   * Type of content of the section.
+   * Will determine if we should apply a digit-based editing or a letter-based editing.
+   */
+  contentType: TemporalFieldSectionContentType;
+}
+
+export interface TemporalFormatTokenConfigMap {
+  [formatToken: string]: TemporalFormatTokenConfig;
+}
+
 export type DateBuilderReturnType<T extends string | null> = [T] extends [null]
   ? null
   : TemporalSupportedObject;
 
 export interface TemporalAdapter {
   isTimezoneCompatible: boolean;
+  /**
+   * Formats supported by the adapter.
+   */
   formats: TemporalAdapterFormats;
+  /**
+   * Mapping of format tokens to their section type and content type.
+   */
+  formatTokenConfigMap: TemporalFormatTokenConfigMap;
   /**
    * Name of the library that is used right now.
    */
@@ -148,6 +188,14 @@ export interface TemporalAdapter {
    * Formats a date using a format of the date library.
    */
   formatByString(value: TemporalSupportedObject, formatString: string): string;
+  /**
+   * Checks if the current locale is using 12 hours cycle (i.e: time with meridiem).
+   */
+  is12HourCycleInCurrentLocale(): boolean;
+  /**
+   * Expands a format to replace the meta-token (for example: `LLL` or `PP`) with their localized expanded form.
+   */
+  expandFormat(format: string): string;
   /**
    * Checks if the two dates are equal (which means they represent the same timestamp).
    */

@@ -40,7 +40,7 @@ import { isSameYear } from 'date-fns/isSameYear';
 import { isSameMonth } from 'date-fns/isSameMonth';
 import { isValid } from 'date-fns/isValid';
 import { isWithinInterval } from 'date-fns/isWithinInterval';
-import { Locale as DateFnsLocale } from 'date-fns/locale';
+import { Locale as DateFnsLocale, FormatLong } from 'date-fns/locale';
 import { enUS } from 'date-fns/locale/en-US';
 import { parse } from 'date-fns/parse';
 import { setDate } from 'date-fns/setDate';
@@ -63,7 +63,139 @@ import {
   DateBuilderReturnType,
   TemporalTimezone,
   TemporalAdapter,
+  TemporalFormatTokenConfigMap,
 } from '../types/temporal';
+
+// TODO: Try to import from date-fns
+const dateLongFormatter = (pattern: string, formatLong: FormatLong) => {
+  switch (pattern) {
+    case 'P':
+      return formatLong.date({ width: 'short' });
+    case 'PP':
+      return formatLong.date({ width: 'medium' });
+    case 'PPP':
+      return formatLong.date({ width: 'long' });
+    case 'PPPP':
+    default:
+      return formatLong.date({ width: 'full' });
+  }
+};
+
+const timeLongFormatter = (pattern: string, formatLong: FormatLong) => {
+  switch (pattern) {
+    case 'p':
+      return formatLong.time({ width: 'short' });
+    case 'pp':
+      return formatLong.time({ width: 'medium' });
+    case 'ppp':
+      return formatLong.time({ width: 'long' });
+    case 'pppp':
+    default:
+      return formatLong.time({ width: 'full' });
+  }
+};
+
+const dateTimeLongFormatter = (pattern: string, formatLong: FormatLong) => {
+  const matchResult = pattern.match(/(P+)(p+)?/) || [];
+  const datePattern = matchResult[1];
+  const timePattern = matchResult[2];
+
+  if (!timePattern) {
+    return dateLongFormatter(pattern, formatLong);
+  }
+
+  let dateTimeFormat;
+
+  switch (datePattern) {
+    case 'P':
+      dateTimeFormat = formatLong.dateTime({ width: 'short' });
+      break;
+    case 'PP':
+      dateTimeFormat = formatLong.dateTime({ width: 'medium' });
+      break;
+    case 'PPP':
+      dateTimeFormat = formatLong.dateTime({ width: 'long' });
+      break;
+    case 'PPPP':
+    default:
+      dateTimeFormat = formatLong.dateTime({ width: 'full' });
+      break;
+  }
+
+  return dateTimeFormat
+    .replace('{{date}}', dateLongFormatter(datePattern, formatLong))
+    .replace('{{time}}', timeLongFormatter(timePattern, formatLong));
+};
+
+export const longFormatters = {
+  p: timeLongFormatter,
+  P: dateTimeLongFormatter,
+};
+
+const FORMAT_TOKEN_CONFIG_MAP: TemporalFormatTokenConfigMap = {
+  // Year
+  y: { part: 'year', contentType: 'digit' },
+  yy: { part: 'year', contentType: 'digit' },
+  yyy: { part: 'year', contentType: 'digit' },
+  yyyy: { part: 'year', contentType: 'digit' },
+
+  // Month
+  M: { part: 'month', contentType: 'digit' },
+  MM: { part: 'month', contentType: 'digit' },
+  MMMM: { part: 'month', contentType: 'letter' },
+  MMM: { part: 'month', contentType: 'letter' },
+  L: { part: 'month', contentType: 'digit' },
+  LL: { part: 'month', contentType: 'digit' },
+  LLL: { part: 'month', contentType: 'letter' },
+  LLLL: { part: 'month', contentType: 'letter' },
+
+  // Day of the month
+  d: { part: 'day', contentType: 'digit' },
+  dd: { part: 'day', contentType: 'digit' },
+  do: { part: 'day', contentType: 'digit-with-letter' },
+
+  // Day of the week
+  E: { part: 'weekDay', contentType: 'letter' },
+  EE: { part: 'weekDay', contentType: 'letter' },
+  EEE: { part: 'weekDay', contentType: 'letter' },
+  EEEE: { part: 'weekDay', contentType: 'letter' },
+  EEEEE: { part: 'weekDay', contentType: 'letter' },
+  i: { part: 'weekDay', contentType: 'digit' },
+  ii: { part: 'weekDay', contentType: 'digit' },
+  iii: { part: 'weekDay', contentType: 'letter' },
+  iiii: { part: 'weekDay', contentType: 'letter' },
+  // eslint-disable-next-line id-denylist
+  e: { part: 'weekDay', contentType: 'digit' },
+  ee: { part: 'weekDay', contentType: 'digit' },
+  eee: { part: 'weekDay', contentType: 'letter' },
+  eeee: { part: 'weekDay', contentType: 'letter' },
+  eeeee: { part: 'weekDay', contentType: 'letter' },
+  eeeeee: { part: 'weekDay', contentType: 'letter' },
+  c: { part: 'weekDay', contentType: 'digit' },
+  cc: { part: 'weekDay', contentType: 'digit' },
+  ccc: { part: 'weekDay', contentType: 'letter' },
+  cccc: { part: 'weekDay', contentType: 'letter' },
+  ccccc: { part: 'weekDay', contentType: 'letter' },
+  cccccc: { part: 'weekDay', contentType: 'letter' },
+
+  // Meridiem
+  a: { part: 'meridiem', contentType: 'letter' },
+  aa: { part: 'meridiem', contentType: 'letter' },
+  aaa: { part: 'meridiem', contentType: 'letter' },
+
+  // Hours
+  H: { part: 'hours', contentType: 'digit' },
+  HH: { part: 'hours', contentType: 'digit' },
+  h: { part: 'hours', contentType: 'digit' },
+  hh: { part: 'hours', contentType: 'digit' },
+  // Minutes
+  m: { part: 'minutes', contentType: 'digit' },
+  mm: { part: 'minutes', contentType: 'digit' },
+
+  // Seconds
+  s: { part: 'seconds', contentType: 'digit' },
+  ss: { part: 'seconds', contentType: 'digit' },
+};
 
 const FORMATS: TemporalAdapterFormats = {
   // Digit formats with leading zeroes
@@ -79,6 +211,9 @@ const FORMATS: TemporalAdapterFormats = {
   dayOfMonth: 'd',
   hours24h: 'H',
   hours12h: 'h',
+
+  // Digit with letter formats
+  dayOfMonthWithLetter: 'do',
 
   // Letter formats
   month3Letters: 'MMM',
@@ -108,6 +243,8 @@ export class TemporalAdapterDateFns implements TemporalAdapter {
   private locale: DateFnsLocale;
 
   public formats = FORMATS;
+
+  public formatTokenConfigMap = FORMAT_TOKEN_CONFIG_MAP;
 
   public escapedCharacters = { start: "'", end: "'" };
 
@@ -223,6 +360,27 @@ export class TemporalAdapterDateFns implements TemporalAdapter {
 
   public formatByString = (value: Date, format: string) => {
     return dateFnsFormat(value, format, { locale: this.locale });
+  };
+
+  public is12HourCycleInCurrentLocale = () => {
+    return /a/.test(this.locale.formatLong!.time({ width: 'short' }));
+  };
+
+  public expandFormat = (format: string) => {
+    const longFormatRegexp = /P+p+|P+|p+|''|'(''|[^'])+('|$)|./g;
+
+    // @see https://github.com/date-fns/date-fns/blob/master/src/format/index.js#L31
+    return format
+      .match(longFormatRegexp)!
+      .map((token: string) => {
+        const firstCharacter = token[0];
+        if (firstCharacter === 'p' || firstCharacter === 'P') {
+          const longFormatter = longFormatters[firstCharacter];
+          return longFormatter(token, this.locale.formatLong);
+        }
+        return token;
+      })
+      .join('');
   };
 
   public isEqual = (value: Date | null, comparing: Date | null) => {

@@ -1,0 +1,77 @@
+# Date Field
+
+<Subtitle>An easily stylable date field component.</Subtitle>
+
+<Meta
+  name="description"
+  content="A high-quality, unstyled React date field that is easy to customize."
+/>
+
+import { DemoDateFieldHero } from './demos/hero';
+
+<DemoDateFieldHero />
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { DateField } from '@base-ui/react/date-field';
+
+{
+  /* Basic usage: render sections directly via children render function */
+}
+<DateField.Root>{(section) => <DateField.Section section={section} />}</DateField.Root>;
+
+{
+  /* With clear button: wrap sections in SectionList */
+}
+<DateField.Root>
+  <DateField.SectionList>
+    {(section) => <DateField.Section section={section} />}
+  </DateField.SectionList>
+  <DateField.Clear />
+</DateField.Root>;
+```
+
+## API reference
+
+<Reference component="DateField" parts="Root, Section, SectionList, Clear" />
+
+## Examples
+
+### Custom format
+
+Use the `format` prop to customize the date display format. The format string follows [date-fns format patterns](https://date-fns.org/docs/format).
+
+import { DemoDateFieldCustomFormat } from './demos/custom-format';
+
+<DemoDateFieldCustomFormat />
+
+### Clear button
+
+Wrap the sections in `<DateField.SectionList>` to render the clear button next to them using `<DateField.Clear>`. The `SectionList` groups all sections into a single element so that additional controls can be placed alongside them inside the field.
+
+import { DemoDateFieldClearButton } from './demos/clear-button';
+
+<DemoDateFieldClearButton />
+
+### Validation
+
+Use the `minDate` and `maxDate` props to constrain the allowed date range. Combine with `<Field.Error>` to display validation messages.
+
+import { DemoDateFieldValidation } from './demos/validation';
+
+<DemoDateFieldValidation />
+
+### Localization
+
+Use `<LocalizationProvider>` to set the locale and customize placeholder text via the `translations` prop.
+
+import { DemoDateFieldLocalization } from './demos/localization';
+
+<DemoDateFieldLocalization />
+
+export const metadata = {
+  keywords: ['React Date Field', 'Date Input', 'Date Picker', 'Temporal', 'Base UI'],
+};

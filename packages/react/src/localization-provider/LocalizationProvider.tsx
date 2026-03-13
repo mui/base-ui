@@ -4,6 +4,8 @@ import { Locale } from 'date-fns/locale';
 import { LocalizationContext } from './LocalizationContext';
 import { TemporalAdapterDateFns } from '../temporal-adapter-date-fns/TemporalAdapterDateFns';
 import { TemporalAdapterContext } from '../temporal-adapter-provider/TemporalAdapterContext';
+import type { BaseUITranslations } from '../translations/types';
+import { enUS } from '../translations/enUS';
 
 /**
  * Defines the temporal locale provider for Base UI temporal components.
@@ -14,9 +16,15 @@ import { TemporalAdapterContext } from '../temporal-adapter-provider/TemporalAda
  */
 export const LocalizationProvider: React.FC<LocalizationProvider.Props> =
   function LocalizationProvider(props: LocalizationProvider.Props) {
-    const { children, temporalLocale } = props;
+    const { children, temporalLocale, translations } = props;
 
-    const contextValue = React.useMemo(() => ({ temporalLocale }), [temporalLocale]);
+    const contextValue = React.useMemo(
+      () => ({
+        temporalLocale,
+        translations: translations ? { ...enUS, ...translations } : enUS,
+      }),
+      [temporalLocale, translations],
+    );
     const adapterContextValue = React.useMemo(
       () => ({ adapter: new TemporalAdapterDateFns({ locale: temporalLocale }) }),
       [temporalLocale],
@@ -39,5 +47,11 @@ export namespace LocalizationProvider {
      * @default en-US
      */
     temporalLocale?: Locale | undefined;
+    /**
+     * Translations for Base UI component labels.
+     * Partial objects are merged with the default English translations.
+     * @default enUS
+     */
+    translations?: Partial<BaseUITranslations> | undefined;
   }
 }

@@ -54,6 +54,7 @@ export class SharedCalendarStore<TValue extends TemporalSupportedValue, TError> 
     } else {
       initialVisibleDate = getInitialReferenceDate({
         adapter,
+        granularity: 'day',
         timezone: parameters.timezone ?? 'default',
         validationProps: { minDate: parameters.minDate, maxDate: parameters.maxDate },
         externalReferenceDate: parameters.referenceDate ?? null,

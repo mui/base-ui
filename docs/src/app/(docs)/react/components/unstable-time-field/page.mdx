@@ -1,0 +1,78 @@
+# Time Field
+
+<Subtitle>An easily stylable time field component.</Subtitle>
+
+<Meta
+  name="description"
+  content="A high-quality, unstyled React time field that is easy to customize."
+/>
+
+import { DemoTimeFieldHero } from './demos/hero';
+
+<DemoTimeFieldHero />
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { TimeField } from '@base-ui/react/time-field';
+
+{
+  /* Basic usage: render sections directly via children render function */
+}
+<TimeField.Root>{(section) => <TimeField.Section section={section} />}</TimeField.Root>;
+
+{
+  /* With clear button: wrap sections in SectionList */
+}
+<TimeField.Root>
+  <TimeField.SectionList>
+    {(section) => <TimeField.Section section={section} />}
+  </TimeField.SectionList>
+  <TimeField.Clear />
+</TimeField.Root>;
+```
+
+## API reference
+
+<Reference component="TimeField" parts="Root" />
+<Reference component="DateField" parts="Section, SectionList, Clear" />
+
+## Examples
+
+### Custom format
+
+Use the `format` prop to customize the time display format. The format string follows [date-fns format patterns](https://date-fns.org/docs/format).
+
+import { DemoTimeFieldCustomFormat } from './demos/custom-format';
+
+<DemoTimeFieldCustomFormat />
+
+### Clear button
+
+Wrap the sections in `<TimeField.SectionList>` to render the clear button next to them using `<TimeField.Clear>`. The `SectionList` groups all sections into a single element so that additional controls can be placed alongside them inside the field.
+
+import { DemoTimeFieldClearButton } from './demos/clear-button';
+
+<DemoTimeFieldClearButton />
+
+### Validation
+
+Use the `minDate` and `maxDate` props to constrain the allowed time range. Combine with `<Field.Error>` to display validation messages.
+
+import { DemoTimeFieldValidation } from './demos/validation';
+
+<DemoTimeFieldValidation />
+
+### Localization
+
+Use `<LocalizationProvider>` to set the locale and customize placeholder text via the `translations` prop.
+
+import { DemoTimeFieldLocalization } from './demos/localization';
+
+<DemoTimeFieldLocalization />
+
+export const metadata = {
+  keywords: ['React Time Field', 'Time Input', 'Time Picker', 'Temporal', 'Base UI'],
+};
