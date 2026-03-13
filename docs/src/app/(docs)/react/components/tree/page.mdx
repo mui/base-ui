@@ -114,7 +114,7 @@ import { DemoTreeFiltering } from './demos/filtering';
 
 ### Virtualized
 
-Render large trees efficiently by only rendering items currently visible in the viewport. Set `virtualized` on `Tree.Root` and use `Tree.useVisibleItems()` to get the flat list of visible items, then wire up your own virtualizer (e.g. `@tanstack/react-virtual`). Each `Tree.Item` must receive an `itemId` prop.
+Render large trees efficiently by only rendering items currently visible in the viewport. Set `virtualized` on `Tree.Root` and use `Tree.useVisibleItems()` to get the flat list of visible items, then wire up your own virtualizer (for example, `@tanstack/react-virtual`). Each `Tree.Item` must receive an `itemId` prop.
 
 import { DemoTreeVirtualized } from './demos/virtualized';
 

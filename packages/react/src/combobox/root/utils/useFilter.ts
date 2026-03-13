@@ -8,7 +8,7 @@ export type { UseFilterOptions, Filter };
 /**
  * Matches items against a query using `Intl.Collator` for robust string matching.
  */
-export const useCoreFilter = getFilter;
+export const useCoreFilter: (options?: UseFilterOptions) => Filter = getFilter;
 
 export interface UseComboboxFilterOptions extends UseFilterOptions {
   /**
