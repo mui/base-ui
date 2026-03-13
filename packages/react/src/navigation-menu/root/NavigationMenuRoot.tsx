@@ -108,6 +108,12 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   const afterInsideRef = React.useRef<HTMLSpanElement | null>(null);
   const beforeOutsideRef = React.useRef<HTMLSpanElement | null>(null);
   const afterOutsideRef = React.useRef<HTMLSpanElement | null>(null);
+  const popupAutoSizeResetRef = React.useRef<
+    NavigationMenuRootContext['popupAutoSizeResetRef']['current']
+  >({
+    abortController: null,
+    owner: null,
+  });
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
@@ -219,6 +225,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
       beforeOutsideRef,
       afterOutsideRef,
       prevTriggerElementRef,
+      popupAutoSizeResetRef,
       delay,
       closeDelay,
       orientation,
