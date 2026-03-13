@@ -31,7 +31,7 @@ export const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
 
   const { orientation } = useScrollAreaScrollbarContext();
 
-  const state: ScrollAreaThumb.State = { orientation };
+  const state: ScrollAreaThumbState = { orientation };
 
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, orientation === 'vertical' ? thumbYRef : thumbXRef],
@@ -67,10 +67,13 @@ export const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
 });
 
 export interface ScrollAreaThumbState {
+  /**
+   * The component orientation.
+   */
   orientation?: 'horizontal' | 'vertical' | undefined;
 }
 
-export interface ScrollAreaThumbProps extends BaseUIComponentProps<'div', ScrollAreaThumb.State> {}
+export interface ScrollAreaThumbProps extends BaseUIComponentProps<'div', ScrollAreaThumbState> {}
 
 export namespace ScrollAreaThumb {
   export type State = ScrollAreaThumbState;

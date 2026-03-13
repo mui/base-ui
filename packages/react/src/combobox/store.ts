@@ -9,6 +9,7 @@ import type { AriaCombobox } from './root/AriaCombobox';
 
 export type State = {
   id: string | undefined;
+  labelId: string | undefined;
 
   query: string;
 
@@ -36,6 +37,7 @@ export type State = {
   listElement: HTMLElement | null;
   triggerElement: HTMLElement | null;
   inputElement: HTMLInputElement | null;
+  inputGroupElement: HTMLDivElement | null;
   popupSide: Side | null;
 
   openMethod: InteractionType | null;
@@ -49,6 +51,8 @@ export type State = {
   popupRef: React.RefObject<HTMLDivElement | null>;
   emptyRef: React.RefObject<HTMLDivElement | null>;
   inputRef: React.RefObject<HTMLInputElement | null>;
+  startDismissRef: React.RefObject<HTMLSpanElement | null>;
+  endDismissRef: React.RefObject<HTMLSpanElement | null>;
   keyboardActiveRef: React.RefObject<boolean>;
   chipsContainerRef: React.RefObject<HTMLDivElement | null>;
   clearRef: React.RefObject<HTMLButtonElement | null>;
@@ -93,6 +97,7 @@ export type ComboboxStore = Store<State>;
 
 export const selectors = {
   id: createSelector((state: State) => state.id),
+  labelId: createSelector((state: State) => state.labelId),
 
   query: createSelector((state: State) => state.query),
 
@@ -150,6 +155,7 @@ export const selectors = {
   listElement: createSelector((state: State) => state.listElement),
   triggerElement: createSelector((state: State) => state.triggerElement),
   inputElement: createSelector((state: State) => state.inputElement),
+  inputGroupElement: createSelector((state: State) => state.inputGroupElement),
   popupSide: createSelector((state: State) => state.popupSide),
 
   openMethod: createSelector((state: State) => state.openMethod),

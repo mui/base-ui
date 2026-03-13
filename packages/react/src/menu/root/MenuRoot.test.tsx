@@ -145,6 +145,50 @@ describe('<Menu.Root />', () => {
         expect(disabledItem3).to.have.attribute('aria-disabled', 'true');
       });
 
+      it.skipIf(isJSDOM)('skips items hidden with CSS during keyboard navigation', async () => {
+        await render(
+          <TestMenu
+            popupProps={{
+              children: (
+                <React.Fragment>
+                  <Menu.Item data-testid="item-1" style={{ display: 'none' }}>
+                    Item 1
+                  </Menu.Item>
+                  <Menu.Item data-testid="item-2">Item 2</Menu.Item>
+                  <Menu.Item data-testid="item-3">Item 3</Menu.Item>
+                </React.Fragment>
+              ),
+            }}
+          />,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await act(async () => {
+          trigger.focus();
+        });
+
+        await userEvent.keyboard('[Enter]');
+
+        const hiddenItem = screen.getByTestId('item-1');
+        const item2 = screen.getByTestId('item-2');
+        const item3 = screen.getByTestId('item-3');
+
+        await waitFor(() => {
+          expect(item2).toHaveFocus();
+        });
+        expect(hiddenItem).to.have.attribute('tabindex', '-1');
+
+        await userEvent.keyboard('{ArrowDown}');
+        await waitFor(() => {
+          expect(item3).toHaveFocus();
+        });
+
+        await userEvent.keyboard('{ArrowUp}');
+        await waitFor(() => {
+          expect(item2).toHaveFocus();
+        });
+      });
+
       describe('text navigation', () => {
         it.skipIf(isJSDOM)('changes the highlighted item', async () => {
           const itemElements = [
@@ -179,6 +223,39 @@ describe('<Menu.Root />', () => {
           });
 
           expect(screen.getByText('Cd')).to.have.attribute('tabindex', '0');
+        });
+
+        it.skipIf(isJSDOM)('skips items hidden with CSS in text navigation', async () => {
+          const itemElements = [
+            <Menu.Item key="hidden" data-testid="item-hidden" style={{ display: 'none' }}>
+              Apple
+            </Menu.Item>,
+            <Menu.Item key="apricot" data-testid="item-apricot">
+              Apricot
+            </Menu.Item>,
+            <Menu.Item key="banana" data-testid="item-banana">
+              Banana
+            </Menu.Item>,
+          ];
+
+          const { user } = await render(
+            <TestMenu rootProps={{ open: true }} popupProps={{ children: itemElements }} />,
+          );
+
+          const hiddenItem = screen.getByTestId('item-hidden');
+          const apricotItem = screen.getByTestId('item-apricot');
+          const bananaItem = screen.getByTestId('item-banana');
+
+          await act(async () => {
+            bananaItem.focus();
+          });
+
+          await user.keyboard('a');
+          await waitFor(() => {
+            expect(apricotItem).toHaveFocus();
+          });
+
+          expect(hiddenItem).to.have.attribute('tabindex', '-1');
         });
 
         it.skipIf(!isJSDOM)(
@@ -1527,6 +1604,83 @@ describe('<Menu.Root />', () => {
         clock.tick(50);
 
         expect(screen.queryByText('Item 1')).to.equal(null);
+      });
+
+      it('should close submenu after delay when hovering a sibling item', async () => {
+        await renderFakeTimers(
+          <TestMenu
+            triggerProps={{ openOnHover: true, delay: 0 }}
+            submenuTriggerProps={{ delay: 0, closeDelay: 100 }}
+          />,
+        );
+
+        const trigger = screen.getByRole('button');
+
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        await flushMicrotasks();
+
+        // Open the submenu by hovering its trigger
+        const submenuTrigger = screen.getByRole('menuitem', { name: 'Item 4' });
+        fireEvent.mouseEnter(submenuTrigger);
+        fireEvent.mouseMove(submenuTrigger);
+
+        await flushMicrotasks();
+
+        expect(screen.queryByTestId('submenu')).not.to.equal(null);
+
+        // Hover a sibling item in the parent menu
+        const siblingItem = screen.getByRole('menuitem', { name: 'Item 1' });
+        fireEvent.mouseMove(siblingItem);
+
+        // Submenu should still be open after partial delay
+        clock.tick(50);
+        expect(screen.queryByTestId('submenu')).not.to.equal(null);
+
+        // Submenu should close after the full delay
+        clock.tick(50);
+        expect(screen.queryByTestId('submenu')).to.equal(null);
+      });
+
+      it('should not restart closeDelay on repeated mousemove over sibling items', async () => {
+        await renderFakeTimers(
+          <TestMenu
+            triggerProps={{ openOnHover: true, delay: 0 }}
+            submenuTriggerProps={{ delay: 0, closeDelay: 100 }}
+          />,
+        );
+
+        const trigger = screen.getByRole('button');
+
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        await flushMicrotasks();
+
+        // Open the submenu by hovering its trigger
+        const submenuTrigger = screen.getByRole('menuitem', { name: 'Item 4' });
+        fireEvent.mouseEnter(submenuTrigger);
+        fireEvent.mouseMove(submenuTrigger);
+
+        await flushMicrotasks();
+
+        expect(screen.queryByTestId('submenu')).not.to.equal(null);
+
+        // Hover a sibling item in the parent menu
+        const siblingItem = screen.getByRole('menuitem', { name: 'Item 1' });
+        fireEvent.mouseMove(siblingItem);
+
+        // Wait 80ms (most of the delay), then move again over the sibling
+        clock.tick(80);
+        expect(screen.queryByTestId('submenu')).not.to.equal(null);
+
+        // Move again - this should NOT restart the timer
+        fireEvent.mouseMove(siblingItem);
+
+        // After 20 more ms (100ms total from first move), the submenu should close
+        clock.tick(20);
+        expect(screen.queryByTestId('submenu')).to.equal(null);
       });
     });
 

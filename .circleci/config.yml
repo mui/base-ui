@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  code-infra: https://raw.githubusercontent.com/mui/mui-public/0eed58c5bf2f7f3bfa60887e07808b0d6b4a078b/.circleci/orbs/code-infra.yml
+  code-infra: https://raw.githubusercontent.com/mui/mui-public/993d672e95892fc2f0e64b730dca5a79644b8d0a/.circleci/orbs/code-infra.yml
 
 parameters:
   browserstack-force:
@@ -67,11 +67,9 @@ jobs:
           package-overrides: react@<< parameters.react-version >>
       - run:
           name: Run tests on JSDOM
-          command: pnpm test:jsdom:coverage
+          command: pnpm test:jsdom
       - store_test_results:
           path: test-results
-      - code-infra/upload-coverage:
-          key: << parameters.react-version >>-jsdom
   docs_validate:
     <<: *default-job
     steps:
@@ -166,11 +164,9 @@ jobs:
           package-overrides: react@<< parameters.react-version >>
       - run:
           name: Run tests on headless Chromium
-          command: pnpm test:chromium --coverage
+          command: pnpm test:chromium
       - store_test_results:
           path: test-results
-      - code-infra/upload-coverage:
-          key: << parameters.react-version >>-browser
   test_regressions:
     <<: *default-job
     resource_class: 'medium+'
@@ -234,7 +230,7 @@ jobs:
       - build-with-compiler
       - run:
           name: Run tests on JSDOM
-          command: pnpm test:jsdom:coverage
+          command: pnpm test:jsdom
           environment:
             MUI_DISABLE_WORKSPACE_ALIASES: 1
       - store_test_results:
@@ -252,7 +248,7 @@ jobs:
       - build-with-compiler
       - run:
           name: Run tests on headless Chromium
-          command: pnpm test:chromium --coverage
+          command: pnpm test:chromium
           environment:
             MUI_DISABLE_WORKSPACE_ALIASES: 1
       - store_test_results:

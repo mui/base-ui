@@ -36,7 +36,7 @@
     "modal": {
       "type": "boolean | 'trap-focus'",
       "default": "false",
-      "description": "Determines if the popover enters a modal state when open.\n- `true`: user interaction is limited to the popover: document page scroll is locked, and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed.\n- `'trap-focus'`: focus is trapped inside the popover, but document page scroll is not locked and pointer interactions outside of it remain enabled.",
+      "description": "Determines if the popover enters a modal state when open.\n- `true`: user interaction is limited to the popover: document page scroll is locked, and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed.\n- `'trap-focus'`: focus is trapped inside the popover, but document page scroll is not locked and pointer interactions outside of it remain enabled.\n\nWhen `modal` is `true`, focus trapping is enabled only if `<Popover.Close>` is rendered\ninside `<Popover.Popup>`. It can be visually hidden with your own CSS if needed, such as\nTailwind's `sr-only` utility.\n\nWhen `modal` is `'trap-focus'`, render `<Popover.Close>` inside `<Popover.Popup>` so touch\nscreen readers can escape the popup.",
       "detailedType": "boolean | 'trap-focus' | undefined"
     },
     "onOpenChangeComplete": {

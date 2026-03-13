@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { DRAWER_CONTENT_ATTRIBUTE } from './DrawerContentDataAttributes';
 
 /**
  * A container for the drawer contents.
@@ -20,11 +21,11 @@ export const DrawerContent = React.forwardRef(function DrawerContent(
 
   return useRenderElement('div', componentProps, {
     ref: forwardedRef,
-    props: [{ ['data-swipe-ignore' as string]: '' }, elementProps],
+    props: [{ [DRAWER_CONTENT_ATTRIBUTE as string]: '' }, elementProps],
   });
 });
 
-export interface DrawerContentProps extends BaseUIComponentProps<'div', DrawerContent.State> {}
+export interface DrawerContentProps extends BaseUIComponentProps<'div', DrawerContentState> {}
 export interface DrawerContentState {}
 
 export namespace DrawerContent {
