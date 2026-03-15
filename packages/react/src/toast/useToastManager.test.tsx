@@ -395,6 +395,7 @@ describe.skipIf(!isJSDOM)('useToast', () => {
         <Toast.Root key={t.id} toast={t} data-testid="root">
           <Toast.Title data-testid="title">{t.title}</Toast.Title>
           <Toast.Description data-testid="description">{t.description}</Toast.Description>
+          <Toast.Close aria-label="close-press" />
           <span>{t.type}</span>
         </Toast.Root>
       ));
@@ -618,6 +619,53 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       expect(screen.getByTestId('description')).to.have.text('loading description');
 
       await flushMicrotasks();
+    });
+
+    it('does not reopen a dismissed promise toast when it resolves', async () => {
+      let resolvePromise: (value: string) => void = () => {
+        throw new Error('Promise resolver should be assigned before resolving.');
+      };
+
+      function AddButton() {
+        const { promise } = useToastManager();
+        return (
+          <button
+            onClick={() => {
+              const pendingPromise = new Promise<string>((resolve) => {
+                resolvePromise = resolve;
+              });
+
+              promise(pendingPromise, {
+                loading: 'loading',
+                success: 'success',
+                error: 'error',
+              });
+            }}
+          >
+            add
+          </button>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <CustomList />
+          </Toast.Viewport>
+          <AddButton />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+
+      expect(screen.getByTestId('description')).to.have.text('loading');
+
+      fireEvent.click(screen.getByLabelText('close-press'));
+      resolvePromise('success');
+
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('root')).to.equal(null);
     });
 
     describe('timeout handling', () => {
@@ -1230,6 +1278,51 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       fireEvent.click(addButton);
 
       expect(screen.getByTestId('root')).not.to.equal(null);
+
+      const closeButton = screen.getByRole('button', { name: 'close' });
+      fireEvent.click(closeButton);
+
+      expect(screen.queryByTestId('root')).to.equal(null);
+    });
+
+    it('closes all toasts', async () => {
+      function AddButton() {
+        const { add, close } = useToastManager();
+        return (
+          <React.Fragment>
+            <button
+              onClick={() => {
+                add({ title: 'test' });
+              }}
+            >
+              add
+            </button>
+            <button
+              onClick={() => {
+                close();
+              }}
+            >
+              close
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <CustomList />
+          </Toast.Viewport>
+          <AddButton />
+        </Toast.Provider>,
+      );
+
+      const addButton = screen.getByRole('button', { name: 'add' });
+      Array.from({ length: 5 }).forEach(() => {
+        fireEvent.click(addButton);
+      });
+
+      expect(screen.getAllByTestId('root')).to.have.length(5);
 
       const closeButton = screen.getByRole('button', { name: 'close' });
       fireEvent.click(closeButton);

@@ -41,7 +41,7 @@ export interface PopoverTitleState {}
 
 export interface PopoverTitleProps extends BaseUIComponentProps<
   'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6',
-  PopoverTitle.State
+  PopoverTitleState
 > {}
 
 export namespace PopoverTitle {

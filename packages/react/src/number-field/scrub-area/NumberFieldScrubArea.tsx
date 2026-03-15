@@ -7,7 +7,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
-import type { NumberFieldRoot } from '../root/NumberFieldRoot';
+import type { NumberFieldRootState } from '../root/NumberFieldRoot';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { NumberFieldScrubAreaContext } from './NumberFieldScrubAreaContext';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -339,17 +339,17 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
   );
 });
 
-export interface NumberFieldScrubAreaState extends NumberFieldRoot.State {}
+export interface NumberFieldScrubAreaState extends NumberFieldRootState {}
 
 export interface NumberFieldScrubAreaProps extends BaseUIComponentProps<
   'span',
-  NumberFieldScrubArea.State
+  NumberFieldScrubAreaState
 > {
   /**
    * Cursor movement direction in the scrub area.
    * @default 'horizontal'
    */
-  direction?: ('horizontal' | 'vertical') | undefined;
+  direction?: 'horizontal' | 'vertical' | undefined;
   /**
    * Determines how many pixels the cursor must move before the value changes.
    * A higher value will make scrubbing less sensitive.

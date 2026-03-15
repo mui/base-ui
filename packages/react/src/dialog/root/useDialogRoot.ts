@@ -16,7 +16,7 @@ import { type DialogRoot } from './DialogRoot';
 import { DialogStore } from '../store/DialogStore';
 import { useImplicitActiveTrigger, useOpenStateTransitions } from '../../utils/popups';
 
-export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
+export function useDialogRoot(params: UseDialogRootParameters): UseDialogRootReturnValue {
   const { store, parentContext, actionsRef } = params;
 
   const open = store.useState('open');
@@ -24,16 +24,10 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const modal = store.useState('modal');
   const popupElement = store.useState('popupElement');
 
-  const {
-    openMethod,
-    triggerProps,
-    reset: resetOpenInteractionType,
-  } = useOpenInteractionType(open);
+  const { openMethod, triggerProps } = useOpenInteractionType(open);
 
   useImplicitActiveTrigger(store);
-  const { forceUnmount } = useOpenStateTransitions(open, store, () => {
-    resetOpenInteractionType();
-  });
+  const { forceUnmount } = useOpenStateTransitions(open, store);
 
   const createDialogEventDetails = useStableCallback((reason: DialogRoot.ChangeEventReason) => {
     const details: DialogRoot.ChangeEventDetails =
@@ -81,6 +75,10 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
       };
     },
     outsidePress(event) {
+      if (!store.context.outsidePressEnabledRef.current) {
+        return false;
+      }
+
       // For mouse events, only accept left button (button 0)
       // For touch events, a single touch is equivalent to left button
       if ('button' in event && event.button !== 0) {
@@ -167,13 +165,9 @@ export interface UseDialogRootParameters {
   actionsRef?: DialogRoot.Props['actionsRef'] | undefined;
   parentContext?: DialogStore<unknown>['context'] | undefined;
   onOpenChange: DialogRoot.Props['onOpenChange'];
-  triggerIdProp?: (string | null) | undefined;
+  triggerIdProp?: string | null | undefined;
 }
 
 export type UseDialogRootReturnValue = void;
 
-export namespace useDialogRoot {
-  export type SharedParameters = UseDialogRootSharedParameters;
-  export type Parameters = UseDialogRootParameters;
-  export type ReturnValue = UseDialogRootReturnValue;
-}
+export interface UseDialogRootState {}

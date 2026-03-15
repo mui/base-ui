@@ -29,6 +29,7 @@ describe('<Field.Validity />', () => {
 
       expect(handleValidity.lastCall.args[0].validity.valid).to.equal(false);
       expect(handleValidity.lastCall.args[0].validity.valueMissing).to.equal(true);
+      expect(handleValidity.lastCall.args[0]).to.have.property('transitionStatus');
 
       fireEvent.focus(input);
       fireEvent.change(input, { target: { value: 'test' } });

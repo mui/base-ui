@@ -2,91 +2,61 @@
 import * as React from 'react';
 import { useEnhancedClickHandler } from '@base-ui/utils/useEnhancedClickHandler';
 
-/**
- * Test component to demonstrate bug #2: useEnhancedClickHandler calls handler multiple times
- * on Chrome/Edge due to missing return/else after line 39
- */
-export default function TestEnhancedClickHandler() {
-  const [callLog, setCallLog] = React.useState<
-    Array<{ type: string; interactionType: string; timestamp: string }>
-  >([]);
-  const callCountRef = React.useRef(0);
-
-  const handler = React.useCallback((event: React.MouseEvent | React.PointerEvent, interactionType: string) => {
-    callCountRef.current += 1;
-    const logEntry = {
-      type: event.type,
-      interactionType,
-      timestamp: new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 }),
-    };
-    setCallLog((prev) => [...prev, logEntry]);
-    console.log(
-      `[${callCountRef.current}] event.type="${event.type}", interactionType="${interactionType}"`
-    );
-  }, []);
-
-  const { onClick, onPointerDown } = useEnhancedClickHandler(handler);
-
-  const handleReset = () => {
-    callCountRef.current = 0;
-    setCallLog([]);
-    console.log('=== RESET ===');
-  };
-
-  const browserName = React.useMemo(() => {
-    const ua = navigator.userAgent;
-    if (ua.includes('Chrome') && !ua.includes('Edge')) return 'Chrome';
-    if (ua.includes('Edge')) return 'Edge';
-    if (ua.includes('Safari')) return 'Safari';
-    if (ua.includes('Firefox')) return 'Firefox';
-    return 'Unknown';
-  }, []);
+export default function ExampleMultipleCombobox() {
+  const id = React.useId();
 
   return (
+    <Combobox.Root items={langs} multiple>
+      <div className={styles.Container}>
+        <label className={styles.Label} htmlFor={id}>
+          Programming languages
+        </label>
+        <Combobox.InputGroup className={styles.InputGroup}>
+          <Combobox.Chips className={styles.Chips}>
+            <Combobox.Value>
+              {(value: ProgrammingLanguage[]) => (
+                <React.Fragment>
+                  {value.map((language) => (
+                    <Combobox.Chip
+                      key={language.id}
+                      className={styles.Chip}
+                      aria-label={language.value}
+                    >
+                      {language.value}
+                      <Combobox.ChipRemove className={styles.ChipRemove} aria-label="Remove">
+                        <XIcon />
+                      </Combobox.ChipRemove>
+                    </Combobox.Chip>
+                  ))}
+                  <Combobox.Input
+                    id={id}
+                    placeholder={value.length > 0 ? '' : 'e.g. TypeScript'}
+                    className={styles.Input}
+                  />
+                </React.Fragment>
+              )}
+            </Combobox.Value>
+          </Combobox.Chips>
+        </Combobox.InputGroup>
+      </div>
 
-    <html>
-    <head>
-      <title>Test Click Event Type</title>
-    </head>
-    <body>
-      <h2>Click Event Properties Test</h2>
-      <button id="testBtn">Click me</button>
-      <p id="output"></p>
-
-      <script>
-        const btn = document.getElementById('testBtn');
-        const output = document.getElementById('output');
-
-        btn.addEventListener('pointerdown', (e) => {
-          console.log('pointerdown:', {
-            type: e.type,
-            pointerType: e.pointerType,
-            'pointerType' in e: 'pointerType' in e,
-          });
-        });
-
-        btn.addEventListener('click', (e) => {
-          const hasPointerType = 'pointerType' in e;
-          console.log('click event:', {
-            type: e.type,
-            constructor: e.constructor.name,
-            pointerType: e.pointerType,
-            'pointerType' in e: hasPointerType,
-            detail: e.detail,
-          });
-
-          const msg = `
-            Click event properties:
-            - constructor: ${e.constructor.name}
-            - 'pointerType' in event: ${hasPointerType}
-            - event.pointerType: ${e.pointerType}
-            - event.detail: ${e.detail}
-          `;
-          output.innerHTML = msg;
-        });
-      </script>
-    </body>
-    </html>
-
+      <Combobox.Portal>
+        <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
+          <Combobox.Popup className={styles.Popup}>
+            <Combobox.Empty className={styles.Empty}>No languages found.</Combobox.Empty>
+            <Combobox.List>
+              {(language: ProgrammingLanguage) => (
+                <Combobox.Item key={language.id} className={styles.Item} value={language}>
+                  <Combobox.ItemIndicator className={styles.ItemIndicator}>
+                    <CheckIcon className={styles.ItemIndicatorIcon} />
+                  </Combobox.ItemIndicator>
+                  <div className={styles.ItemText}>{language.value}</div>
+                </Combobox.Item>
+              )}
+            </Combobox.List>
+          </Combobox.Popup>
+        </Combobox.Positioner>
+      </Combobox.Portal>
+    </Combobox.Root>
   );
 }

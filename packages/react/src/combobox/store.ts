@@ -9,6 +9,7 @@ import type { AriaCombobox } from './root/AriaCombobox';
 
 export type State = {
   id: string | undefined;
+  labelId: string | undefined;
 
   query: string;
 
@@ -36,6 +37,7 @@ export type State = {
   listElement: HTMLElement | null;
   triggerElement: HTMLElement | null;
   inputElement: HTMLInputElement | null;
+  inputGroupElement: HTMLDivElement | null;
   popupSide: Side | null;
 
   openMethod: InteractionType | null;
@@ -49,6 +51,8 @@ export type State = {
   popupRef: React.RefObject<HTMLDivElement | null>;
   emptyRef: React.RefObject<HTMLDivElement | null>;
   inputRef: React.RefObject<HTMLInputElement | null>;
+  startDismissRef: React.RefObject<HTMLSpanElement | null>;
+  endDismissRef: React.RefObject<HTMLSpanElement | null>;
   keyboardActiveRef: React.RefObject<boolean>;
   chipsContainerRef: React.RefObject<HTMLDivElement | null>;
   clearRef: React.RefObject<HTMLButtonElement | null>;
@@ -60,9 +64,9 @@ export type State = {
   setInputValue: (value: string, eventDetails: AriaCombobox.ChangeEventDetails) => void;
   setSelectedValue: (value: any, eventDetails: AriaCombobox.ChangeEventDetails) => void;
   setIndices: (indices: {
-    activeIndex?: (number | null) | undefined;
-    selectedIndex?: (number | null) | undefined;
-    type?: ('keyboard' | 'pointer' | 'none') | undefined;
+    activeIndex?: number | null | undefined;
+    selectedIndex?: number | null | undefined;
+    type?: 'keyboard' | 'pointer' | 'none' | undefined;
   }) => void;
   onItemHighlighted: (item: any, eventDetails: AriaCombobox.HighlightEventDetails) => void;
   forceMount: () => void;
@@ -82,7 +86,7 @@ export type State = {
   onOpenChangeComplete: (open: boolean) => void;
   openOnInputClick: boolean;
   itemToStringLabel?: ((item: any) => string) | undefined;
-  isItemEqualToValue: (item: any, value: any) => boolean;
+  isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean;
   modal: boolean;
   autoHighlight: false | 'always' | 'input-change';
   submitOnItemClick: boolean;
@@ -93,6 +97,7 @@ export type ComboboxStore = Store<State>;
 
 export const selectors = {
   id: createSelector((state: State) => state.id),
+  labelId: createSelector((state: State) => state.labelId),
 
   query: createSelector((state: State) => state.query),
 
@@ -128,13 +133,15 @@ export const selectors = {
   activeIndex: createSelector((state: State) => state.activeIndex),
   selectedIndex: createSelector((state: State) => state.selectedIndex),
   isActive: createSelector((state: State, index: number) => state.activeIndex === index),
-  isSelected: createSelector((state: State, candidate: any) => {
+  isSelected: createSelector((state: State, itemValue: any) => {
     const comparer = state.isItemEqualToValue;
     const selectedValue = state.selectedValue;
     if (Array.isArray(selectedValue)) {
-      return selectedValue.some((value) => compareItemEquality(value, candidate, comparer));
+      return selectedValue.some((selectedItem) =>
+        compareItemEquality(itemValue, selectedItem, comparer),
+      );
     }
-    return compareItemEquality(selectedValue, candidate, comparer);
+    return compareItemEquality(itemValue, selectedValue, comparer);
   }),
 
   transitionStatus: createSelector((state: State) => state.transitionStatus),
@@ -148,6 +155,7 @@ export const selectors = {
   listElement: createSelector((state: State) => state.listElement),
   triggerElement: createSelector((state: State) => state.triggerElement),
   inputElement: createSelector((state: State) => state.inputElement),
+  inputGroupElement: createSelector((state: State) => state.inputGroupElement),
   popupSide: createSelector((state: State) => state.popupSide),
 
   openMethod: createSelector((state: State) => state.openMethod),

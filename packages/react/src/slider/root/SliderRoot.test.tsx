@@ -80,12 +80,36 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     (window as any).PointerEvent = window.MouseEvent;
   });
 
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describeConformance(<Slider.Root defaultValue={50} />, () => ({
     render,
     refInstanceof: window.HTMLDivElement,
   }));
+
+  describe('server-side rendering', () => {
+    it('does not link Slider.Label before hydration', () => {
+      renderToString(
+        <Slider.Root defaultValue={30} data-testid="root">
+          <Slider.Label data-testid="label">Volume</Slider.Label>
+          <Slider.Control>
+            <Slider.Track>
+              <Slider.Thumb />
+            </Slider.Track>
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const root = screen.getByTestId('root');
+      const label = screen.getByTestId('label');
+      const slider = screen.getByRole('slider');
+
+      expect(label.id).to.not.equal('');
+      expect(root.id).to.not.equal('');
+      expect(root).not.to.have.attribute('aria-labelledby');
+      expect(slider).not.to.have.attribute('aria-labelledby');
+    });
+  });
 
   it.skipIf(isWebKit)('should not break when initial value is out of range', async () => {
     await render(<TestRangeSlider value={[19, 41]} min={20} max={40} />);
@@ -2350,6 +2374,32 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         expect(validateSpy.callCount).to.equal(1);
         expect(validateSpy.args[0][0]).to.deep.equal([5, 12]);
       });
+
+      it('does not call validate on change when validationMode is omitted', async () => {
+        const validateSpy = spy();
+        await render(
+          <Form>
+            <Field.Root validate={validateSpy}>
+              <Slider.Root defaultValue={50}>
+                <Slider.Control data-testid="control">
+                  <Slider.Track>
+                    <Slider.Thumb aria-label="Value" />
+                  </Slider.Track>
+                </Slider.Control>
+              </Slider.Root>
+            </Field.Root>
+            <button type="submit">submit</button>
+          </Form>,
+        );
+
+        expect(validateSpy.callCount).to.equal(0);
+
+        const sliderControl = screen.getByTestId('control');
+        fireEvent.pointerDown(sliderControl, { buttons: 1, clientX: 10 });
+        fireEvent.pointerUp(sliderControl, { buttons: 1, clientX: 30 });
+
+        expect(validateSpy.callCount).to.equal(0);
+      });
     });
 
     it('Field.Label', async () => {
@@ -2368,6 +2418,116 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         'aria-labelledby',
         screen.getByTestId('label').id,
       );
+    });
+
+    it('Slider.Label', async () => {
+      await render(
+        <Slider.Root>
+          <Slider.Label data-testid="label" />
+          <Slider.Control>
+            <Slider.Thumb />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      expect(screen.getByRole('slider')).to.have.attribute(
+        'aria-labelledby',
+        screen.getByTestId('label').id,
+      );
+    });
+
+    it('Slider.Label focuses slider on click', async () => {
+      const { user } = await render(
+        <Slider.Root>
+          <Slider.Label data-testid="label">Volume</Slider.Label>
+          <Slider.Control>
+            <Slider.Thumb />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      await user.click(screen.getByTestId('label'));
+
+      expect(screen.getByRole('slider')).toHaveFocus();
+    });
+
+    it('Slider.Label does not focus a thumb on click for range sliders', async () => {
+      const { user } = await render(
+        <Slider.Root defaultValue={[20, 80]}>
+          <Slider.Label data-testid="label">Price range</Slider.Label>
+          <Slider.Control>
+            <Slider.Track>
+              <Slider.Thumb aria-label="Minimum price" />
+              <Slider.Thumb aria-label="Maximum price" />
+            </Slider.Track>
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      await user.click(screen.getByTestId('label'));
+
+      const [minimumSlider, maximumSlider] = screen.getAllByRole('slider');
+      expect(minimumSlider).not.toHaveFocus();
+      expect(maximumSlider).not.toHaveFocus();
+    });
+
+    it('does not set aria-labelledby when getAriaLabel is provided', async () => {
+      await render(
+        <Slider.Root defaultValue={[20, 80]}>
+          <Slider.Label>Price range</Slider.Label>
+          <Slider.Control>
+            <Slider.Track>
+              <Slider.Thumb getAriaLabel={() => 'Minimum price'} />
+              <Slider.Thumb getAriaLabel={() => 'Maximum price'} />
+            </Slider.Track>
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const [minimumSlider, maximumSlider] = screen.getAllByRole('slider');
+      expect(minimumSlider).to.have.attribute('aria-label', 'Minimum price');
+      expect(maximumSlider).to.have.attribute('aria-label', 'Maximum price');
+      expect(minimumSlider).not.to.have.attribute('aria-labelledby');
+      expect(maximumSlider).not.to.have.attribute('aria-labelledby');
+    });
+
+    it('does not set fallback aria-labelledby when no label is rendered', async () => {
+      await render(
+        <Slider.Root>
+          <Slider.Control>
+            <Slider.Thumb aria-label="Volume" />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole('slider')).not.to.have.attribute('aria-labelledby');
+      });
+    });
+
+    it('updates Slider.Label linkage when root id changes', async () => {
+      const { setProps } = await render(
+        <Slider.Root id="first" defaultValue={30} data-testid="root">
+          <Slider.Label data-testid="label">Volume</Slider.Label>
+          <Slider.Control>
+            <Slider.Track>
+              <Slider.Thumb />
+            </Slider.Track>
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      await setProps({ id: 'second' });
+
+      await waitFor(() => {
+        const root = screen.getByTestId('root');
+        const label = screen.getByTestId('label');
+        const slider = screen.getByRole('slider');
+        expect(root).to.have.attribute('id', 'second');
+        expect(label.id).to.equal('second-label');
+        expect(root).to.have.attribute('aria-labelledby', label.id);
+        expect(slider).to.have.attribute('aria-labelledby', label.id);
+      });
     });
 
     it('Field.Description', async () => {

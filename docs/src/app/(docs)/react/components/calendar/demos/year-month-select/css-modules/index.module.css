@@ -1,0 +1,11 @@
+.Select {
+  box-sizing: border-box;
+  height: 2rem;
+  padding-inline: 0.1rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  background-color: canvas;
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: var(--color-gray-900);
+}

@@ -1,7 +1,8 @@
+import * as React from 'react';
 import { expect } from 'chai';
 import { Radio } from '@base-ui/react/radio';
 import { RadioGroup } from '@base-ui/react/radio-group';
-import { fireEvent, screen } from '@mui/internal-test-utils';
+import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer } from '#test-utils';
 
 describe('<Radio.Root />', () => {
@@ -64,6 +65,58 @@ describe('<Radio.Root />', () => {
     expect(radioA).to.have.attribute('aria-checked', 'false');
     fireEvent.click(screen.getByTestId('label'));
     expect(radioA).to.have.attribute('aria-checked', 'true');
+  });
+
+  it('sets `aria-labelledby` from a sibling label associated with the hidden input', async () => {
+    await render(
+      <div>
+        <label htmlFor="radio-input">Label</label>
+        <RadioGroup>
+          <Radio.Root value="a" id="radio-input" />
+        </RadioGroup>
+      </div>,
+    );
+
+    const label = screen.getByText('Label');
+    expect(label.id).not.to.equal('');
+    expect(screen.getByRole('radio')).to.have.attribute('aria-labelledby', label.id);
+  });
+
+  it('updates fallback `aria-labelledby` when the hidden input id changes', async () => {
+    function TestCase() {
+      const [id, setId] = React.useState('radio-input-a');
+
+      return (
+        <React.Fragment>
+          <label htmlFor="radio-input-a">Label A</label>
+          <label htmlFor="radio-input-b">Label B</label>
+          <RadioGroup>
+            <Radio.Root value="a" id={id} />
+          </RadioGroup>
+          <button type="button" onClick={() => setId('radio-input-b')}>
+            Toggle
+          </button>
+        </React.Fragment>
+      );
+    }
+
+    await render(<TestCase />);
+
+    const radio = screen.getByRole('radio');
+    const labelA = screen.getByText('Label A');
+
+    expect(labelA.id).to.not.equal('');
+    expect(radio).to.have.attribute('aria-labelledby', labelA.id);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+
+    await waitFor(() => {
+      const labelB = screen.getByText('Label B');
+
+      expect(labelB.id).to.not.equal('');
+      expect(labelA.id).to.not.equal(labelB.id);
+      expect(radio).to.have.attribute('aria-labelledby', labelB.id);
+    });
   });
 
   describe('prop: disabled', () => {

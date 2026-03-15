@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
 import styles from 'docs/src/app/(docs)/react/components/popover/demos/detached-triggers-full/css-modules/index.module.css';
+import localStyles from './dynamic-size.module.css';
 
 const demoPopover = Popover.createHandle<number>();
 
@@ -29,18 +30,18 @@ export default function Experiment() {
 
                 <Popover.Viewport className={styles.Viewport}>
                   <p>Popover</p>
-                  <div className="flex gap-2 my-2">
+                  <div className={localStyles.Controls}>
                     <button
                       type="button"
                       onClick={() => setPayload(10)}
-                      className="border border-gray-200 p-1 rounded-sm"
+                      className={localStyles.Button}
                     >
                       Grow
                     </button>
                     <button
                       type="button"
                       onClick={() => setPayload(1)}
-                      className="border border-gray-200 p-1 rounded-sm"
+                      className={localStyles.Button}
                     >
                       Shrink
                     </button>

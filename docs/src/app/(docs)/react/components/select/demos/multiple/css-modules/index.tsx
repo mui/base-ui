@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
-import { Field } from '@base-ui/react/field';
 import styles from './index.module.css';
 
 const languages = {
@@ -33,11 +32,9 @@ function renderValue(value: Language[]) {
 
 export default function MultiSelectExample() {
   return (
-    <Field.Root className={styles.Field}>
-      <Field.Label className={styles.Label} nativeLabel={false} render={<div />}>
-        Languages
-      </Field.Label>
+    <div className={styles.Field}>
       <Select.Root multiple defaultValue={['javascript', 'typescript']}>
+        <Select.Label className={styles.Label}>Languages</Select.Label>
         <Select.Trigger className={styles.Select}>
           <Select.Value className={styles.Value}>{renderValue}</Select.Value>
           <Select.Icon className={styles.SelectIcon}>
@@ -63,7 +60,7 @@ export default function MultiSelectExample() {
           </Select.Positioner>
         </Select.Portal>
       </Select.Root>
-    </Field.Root>
+    </div>
   );
 }
 

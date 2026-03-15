@@ -19,15 +19,13 @@ export const ToastDescription = React.forwardRef(function ToastDescription(
 ) {
   const { render, className, id: idProp, children: childrenProp, ...elementProps } = componentProps;
 
-  const { toast } = useToastRootContext();
+  const { toast, setDescriptionId } = useToastRootContext();
 
   const children = childrenProp ?? toast.description;
 
   const shouldRender = Boolean(children);
 
   const id = useId(idProp);
-
-  const { setDescriptionId } = useToastRootContext();
 
   useIsoLayoutEffect(() => {
     if (!shouldRender) {
@@ -41,7 +39,7 @@ export const ToastDescription = React.forwardRef(function ToastDescription(
     };
   }, [shouldRender, id, setDescriptionId]);
 
-  const state: ToastDescription.State = {
+  const state: ToastDescriptionState = {
     type: toast.type,
   };
 
@@ -69,7 +67,7 @@ export interface ToastDescriptionState {
   type: string | undefined;
 }
 
-export interface ToastDescriptionProps extends BaseUIComponentProps<'p', ToastDescription.State> {}
+export interface ToastDescriptionProps extends BaseUIComponentProps<'p', ToastDescriptionState> {}
 
 export namespace ToastDescription {
   export type State = ToastDescriptionState;

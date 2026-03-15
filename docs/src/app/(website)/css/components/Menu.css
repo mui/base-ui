@@ -1,73 +1,75 @@
-.Menu {
-  position: relative;
-  --keyboardMenuDuration: 5s;
-  --keyboardMenuItemBg: #fff;
-  --keyboardMenuItemHighlight: hsl(0deg 0% 95%);
-}
+@layer components {
+  .Menu {
+    position: relative;
+    --keyboardMenuDuration: 5s;
+    --keyboardMenuItemBg: #fff;
+    --keyboardMenuItemHighlight: hsl(0deg 0% 95%);
+  }
 
-.MenuItem {
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 0 12px;
-  height: 32px;
-  background-color: transparent;
-  border-radius: 4px;
-  font-size: 14px;
-  line-height: 1;
-  font-family: 'test die grotesk a', sans-serif;
-  letter-spacing: 0.18px;
-  position: relative;
-  z-index: 1;
-  white-space: nowrap;
-}
+  .MenuItem {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 12px;
+    height: 32px;
+    background-color: transparent;
+    border-radius: 4px;
+    font-size: 14px;
+    line-height: 1;
+    font-family: 'test die grotesk a', sans-serif;
+    letter-spacing: 0.18px;
+    position: relative;
+    z-index: 1;
+    white-space: nowrap;
+  }
 
-.MenuItemHighlight {
-  position: absolute;
-  left: 4px;
-  right: 4px;
-  height: 32px;
-  background-color: var(--keyboardMenuItemHighlight);
-  border-radius: 4px;
-  pointer-events: none;
-  animation: menuItemHighlighted var(--keyboardMenuDuration) steps(8, end) infinite;
-  transform: translateY(0);
-}
-
-@keyframes menuItemHighlighted {
-  0%,
-  4.9999% {
+  .MenuItemHighlight {
+    position: absolute;
+    left: 4px;
+    right: 4px;
+    height: 32px;
+    background-color: var(--keyboardMenuItemHighlight);
+    border-radius: 4px;
+    pointer-events: none;
+    animation: menuItemHighlighted var(--keyboardMenuDuration) steps(8, end) infinite;
     transform: translateY(0);
   }
 
-  5%,
-  9.9999% {
-    transform: translateY(32px);
-  }
+  @keyframes menuItemHighlighted {
+    0%,
+    4.9999% {
+      transform: translateY(0);
+    }
 
-  10%,
-  14.9999% {
-    transform: translateY(64px);
-  }
+    5%,
+    9.9999% {
+      transform: translateY(32px);
+    }
 
-  15%,
-  39.9999% {
-    transform: translateY(96px);
-  }
+    10%,
+    14.9999% {
+      transform: translateY(64px);
+    }
 
-  40%,
-  44.9999% {
-    transform: translateY(64px);
-  }
+    15%,
+    39.9999% {
+      transform: translateY(96px);
+    }
 
-  45%,
-  49.9999% {
-    transform: translateY(32px);
-  }
+    40%,
+    44.9999% {
+      transform: translateY(64px);
+    }
 
-  50%,
-  99.9999% {
-    transform: translateY(0);
+    45%,
+    49.9999% {
+      transform: translateY(32px);
+    }
+
+    50%,
+    99.9999% {
+      transform: translateY(0);
+    }
   }
 }

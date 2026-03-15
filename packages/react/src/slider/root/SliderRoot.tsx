@@ -20,11 +20,12 @@ import { clamp } from '../../utils/clamp';
 import { areArraysEqual } from '../../utils/areArraysEqual';
 import { activeElement } from '../../floating-ui-react/utils';
 import { CompositeList, type CompositeMetadata } from '../../composite/list/CompositeList';
-import type { FieldRoot } from '../../field/root/FieldRoot';
+import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useField } from '../../field/useField';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFormContext } from '../../form/FormContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import { resolveAriaLabelledBy, getDefaultLabelId } from '../../utils/resolveAriaLabelledBy';
 import { asc } from '../utils/asc';
 import { getSliderValue } from '../utils/getSliderValue';
 import { validateMinimumDistance } from '../utils/validateMinimumDistance';
@@ -86,6 +87,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   } = componentProps;
 
   const id = useBaseUiId(idProp);
+  const defaultLabelId = getDefaultLabelId(id);
   const onValueChange = useStableCallback(
     onValueChangeProp as (
       value: number | number[],
@@ -110,9 +112,10 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     shouldValidateOnChange,
     validation,
   } = useFieldRootContext();
-  const { labelId } = useLabelableContext();
+  const { labelId: fieldLabelId } = useLabelableContext();
+  const [labelId, setLabelId] = React.useState<string | undefined>();
 
-  const ariaLabelledby = ariaLabelledByProp ?? labelId;
+  const ariaLabelledby = ariaLabelledByProp ?? resolveAriaLabelledBy(fieldLabelId, labelId);
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 
@@ -286,7 +289,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     setActive(-1);
   }
 
-  const state: SliderRoot.State = React.useMemo(
+  const state: SliderRootState = React.useMemo(
     () => ({
       ...fieldState,
       activeThumbIndex: active,
@@ -325,6 +328,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       indicatorPosition,
       inset: thumbAlignment !== 'center',
       labelId: ariaLabelledby,
+      rootLabelId: defaultLabelId,
       largeStep,
       lastUsedThumbIndex,
       lastChangedValueRef,
@@ -345,6 +349,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       setActive,
       setDragging,
       setIndicatorPosition,
+      setLabelId,
       setValue,
       state,
       step,
@@ -357,6 +362,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       active,
       controlRef,
       ariaLabelledby,
+      defaultLabelId,
       disabled,
       dragging,
       validation,
@@ -382,6 +388,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       setActive,
       setDragging,
       setIndicatorPosition,
+      setLabelId,
       setValue,
       state,
       step,
@@ -423,7 +430,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   ): React.JSX.Element;
 };
 
-export interface SliderRootState extends FieldRoot.State {
+export interface SliderRootState extends FieldRootState {
   /**
    * The index of the active thumb.
    */
@@ -436,7 +443,13 @@ export interface SliderRootState extends FieldRoot.State {
    * Whether the thumb is currently being dragged.
    */
   dragging: boolean;
+  /**
+   * The maximum value.
+   */
   max: number;
+  /**
+   * The minimum value.
+   */
   min: number;
   /**
    * The minimum steps between values in a range slider.
@@ -461,7 +474,7 @@ export interface SliderRootState extends FieldRoot.State {
 
 export interface SliderRootProps<
   Value extends number | readonly number[] = number | readonly number[],
-> extends BaseUIComponentProps<'div', SliderRoot.State> {
+> extends BaseUIComponentProps<'div', SliderRootState> {
   /**
    * The uncontrolled value of the slider when it’s initially rendered.
    *
@@ -527,7 +540,7 @@ export interface SliderRootProps<
    * - `edge-client-only`: Same as `edge` but renders after React hydration on the client, reducing bundle size in return
    * @default 'center'
    */
-  thumbAlignment?: ('center' | 'edge' | 'edge-client-only') | undefined;
+  thumbAlignment?: 'center' | 'edge' | 'edge-client-only' | undefined;
   /**
    * Controls how thumbs behave when they collide during pointer interactions.
    *
@@ -537,7 +550,7 @@ export interface SliderRootProps<
    *
    * @default 'push'
    */
-  thumbCollisionBehavior?: ('push' | 'swap' | 'none') | undefined;
+  thumbCollisionBehavior?: 'push' | 'swap' | 'none' | undefined;
   /**
    * The value of the slider.
    * For ranged sliders, provide an array with two values.

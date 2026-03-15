@@ -334,7 +334,7 @@ describe('<Popover.Trigger />', () => {
       const { render: vbrRender, cleanup } = await import('vitest-browser-react');
 
       try {
-        vbrRender(
+        await vbrRender(
           <div>
             <Popover.Root>
               <Popover.Trigger render={<div />} nativeButton={false} data-testid="div-trigger">
@@ -382,7 +382,7 @@ describe('<Popover.Trigger />', () => {
         await user.keyboard('[Space]');
         expect(screen.queryByText('Content')).to.equal(null);
       } finally {
-        cleanup();
+        await cleanup();
       }
     },
   );

@@ -10,7 +10,12 @@ import {
   useCompositeListItem,
   IndexGuessBehavior,
 } from '../../composite/list/useCompositeListItem';
-import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
+import type {
+  BaseUIComponentProps,
+  BaseUIEvent,
+  HTMLProps,
+  NonNativeButtonProps,
+} from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { SelectItemContext } from './SelectItemContext';
 import { selectors } from '../store';
@@ -33,7 +38,7 @@ export const SelectItem = React.memo(
     const {
       render,
       className,
-      value = null,
+      value: itemValue = null,
       label,
       disabled = false,
       nativeButton = false,
@@ -63,7 +68,7 @@ export const SelectItem = React.memo(
     const highlightTimeout = useTimeout();
 
     const highlighted = useStore(store, selectors.isActive, listItem.index);
-    const selected = useStore(store, selectors.isSelected, listItem.index, value);
+    const selected = useStore(store, selectors.isSelected, listItem.index, itemValue);
     const selectedByFocus = useStore(store, selectors.isSelectedByFocus, listItem.index);
     const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
@@ -79,12 +84,12 @@ export const SelectItem = React.memo(
       }
 
       const values = valuesRef.current;
-      values[index] = value;
+      values[index] = itemValue;
 
       return () => {
         delete values[index];
       };
-    }, [hasRegistered, index, value, valuesRef]);
+    }, [hasRegistered, index, itemValue, valuesRef]);
 
     useIsoLayoutEffect(() => {
       if (!hasRegistered) {
@@ -93,18 +98,21 @@ export const SelectItem = React.memo(
 
       const selectedValue = store.state.value;
 
-      let candidate = selectedValue;
+      let selectedCandidate = selectedValue;
       if (multiple && Array.isArray(selectedValue) && selectedValue.length > 0) {
-        candidate = selectedValue[selectedValue.length - 1];
+        selectedCandidate = selectedValue[selectedValue.length - 1];
       }
 
-      if (candidate !== undefined && compareItemEquality(candidate, value, isItemEqualToValue)) {
+      if (
+        selectedCandidate !== undefined &&
+        compareItemEquality(itemValue, selectedCandidate, isItemEqualToValue)
+      ) {
         store.set('selectedIndex', index);
       }
       return undefined;
-    }, [hasRegistered, index, multiple, isItemEqualToValue, store, value]);
+    }, [hasRegistered, index, multiple, isItemEqualToValue, store, itemValue]);
 
-    const state: SelectItem.State = {
+    const state: SelectItemState = {
       disabled,
       selected,
       highlighted,
@@ -124,6 +132,7 @@ export const SelectItem = React.memo(
       disabled,
       focusableWhenDisabled: true,
       native: nativeButton,
+      composite: true,
     });
 
     function commitSelection(event: MouseEvent) {
@@ -131,11 +140,11 @@ export const SelectItem = React.memo(
       if (multiple) {
         const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
         const nextValue = selected
-          ? removeItem(currentValue, value, isItemEqualToValue)
-          : [...currentValue, value];
+          ? removeItem(currentValue, itemValue, isItemEqualToValue)
+          : [...currentValue, itemValue];
         setValue(nextValue, createChangeEventDetails(REASONS.itemPress, event));
       } else {
-        setValue(value, createChangeEventDetails(REASONS.itemPress, event));
+        setValue(itemValue, createChangeEventDetails(REASONS.itemPress, event));
         setOpen(false, createChangeEventDetails(REASONS.itemPress, event));
       }
     }
@@ -178,9 +187,13 @@ export const SelectItem = React.memo(
           allowUnselectedMouseUp: false,
         };
       },
-      onKeyDown(event) {
+      onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
         lastKeyRef.current = event.key;
         store.set('activeIndex', index);
+
+        if (event.key === ' ' && typingRef.current) {
+          event.preventDefault();
+        }
       },
       onClick(event) {
         didPointerDownRef.current = false;
@@ -192,7 +205,7 @@ export const SelectItem = React.memo(
 
         if (
           disabled ||
-          (lastKeyRef.current === ' ' && typingRef.current) ||
+          (event.type === 'keydown' && lastKeyRef.current === ' ' && typingRef.current) ||
           (pointerTypeRef.current !== 'touch' && !highlighted)
         ) {
           return;
@@ -208,11 +221,12 @@ export const SelectItem = React.memo(
         pointerTypeRef.current = event.pointerType;
         didPointerDownRef.current = true;
       },
-      onMouseUp(event) {
+      onMouseUp() {
         if (disabled) {
           return;
         }
 
+        // Regular click (pointerdown on this element) if didPointerDownRef is set, otherwise drag-to-select
         if (didPointerDownRef.current) {
           didPointerDownRef.current = false;
           return;
@@ -229,7 +243,7 @@ export const SelectItem = React.memo(
           return;
         }
 
-        commitSelection(event.nativeEvent);
+        itemRef.current?.click();
       },
     };
 
@@ -270,7 +284,7 @@ export interface SelectItemState {
 }
 
 export interface SelectItemProps
-  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'div', SelectItem.State>, 'id'> {
+  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'div', SelectItemState>, 'id'> {
   children?: React.ReactNode;
   /**
    * A unique value that identifies this select item.

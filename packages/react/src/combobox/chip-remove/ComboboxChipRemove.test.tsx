@@ -1,6 +1,6 @@
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance } from '#test-utils';
-import { screen } from '@mui/internal-test-utils';
+import { act, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 
@@ -117,7 +117,9 @@ describe('<Combobox.ChipRemove />', () => {
       const remove = screen.getByTestId('remove');
 
       // Should be focusable
-      remove.focus();
+      await act(async () => {
+        remove.focus();
+      });
       expect(remove).toHaveFocus();
 
       // But should not trigger action
@@ -223,7 +225,9 @@ describe('<Combobox.ChipRemove />', () => {
 
       const remove = screen.getByTestId('remove');
 
-      remove.focus();
+      await act(async () => {
+        remove.focus();
+      });
       await user.keyboard('{Enter}');
 
       expect(handleValueChange.callCount).to.equal(1);

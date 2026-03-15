@@ -8,9 +8,21 @@ import {
   waitFor,
 } from '@mui/internal-test-utils';
 import { spy } from 'sinon';
+import { vi } from 'vitest';
 import { ContextMenu } from '@base-ui/react/context-menu';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { REASONS } from '../../utils/reasons';
+
+vi.mock('@base-ui/utils/detectBrowser', async () => {
+  const actual = await vi.importActual<typeof import('@base-ui/utils/detectBrowser')>(
+    '@base-ui/utils/detectBrowser',
+  );
+
+  return {
+    ...actual,
+    isMac: true,
+  };
+});
 
 describe('<ContextMenu.Root />', () => {
   beforeEach(() => {

@@ -2,7 +2,13 @@
 import * as React from 'react';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
-import { type Side, type Align, useAnchorPositioning } from '../../utils/useAnchorPositioning';
+import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react';
+import {
+  type Side,
+  type Align,
+  useAnchorPositioning,
+  type UseAnchorPositioningSharedParameters,
+} from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { usePreviewCardPortalContext } from '../portal/PreviewCardPortalContext';
@@ -41,6 +47,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
 
   const store = usePreviewCardRootContext();
   const keepMounted = usePreviewCardPortalContext();
+  const nodeId = useFloatingNodeId();
 
   const open = store.useState('open');
   const mounted = store.useState('mounted');
@@ -64,6 +71,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     sticky,
     disableAnchorTracking,
     keepMounted,
+    nodeId,
     collisionAvoidance,
     adaptiveOrigin: hasViewport ? adaptiveOrigin : undefined,
   });
@@ -85,7 +93,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     };
   }, [open, mounted, positioning.positionerStyles]);
 
-  const state: PreviewCardPositioner.State = {
+  const state: PreviewCardPositionerState = {
     open,
     side: positioning.side,
     align: positioning.align,
@@ -119,7 +127,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
 
   return (
     <PreviewCardPositionerContext.Provider value={contextValue}>
-      {element}
+      <FloatingNode id={nodeId}>{element}</FloatingNode>
     </PreviewCardPositionerContext.Provider>
   );
 });
@@ -129,16 +137,28 @@ export interface PreviewCardPositionerState {
    * Whether the preview card is currently open.
    */
   open: boolean;
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
   align: Align;
+  /**
+   * Whether the anchor element is hidden.
+   */
   anchorHidden: boolean;
+  /**
+   * Whether transitions should be skipped.
+   */
   instant: 'dismiss' | 'focus' | undefined;
 }
 
 export interface PreviewCardPositionerProps
   extends
-    useAnchorPositioning.SharedParameters,
-    BaseUIComponentProps<'div', PreviewCardPositioner.State> {}
+    UseAnchorPositioningSharedParameters,
+    BaseUIComponentProps<'div', PreviewCardPositionerState> {}
 
 export namespace PreviewCardPositioner {
   export type State = PreviewCardPositionerState;
