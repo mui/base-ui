@@ -1,3 +1,4 @@
+import { expect } from 'vitest';
 import type { FloatingContext } from '../types';
 import { getNodeAncestors, getNodeChildren } from './nodes';
 

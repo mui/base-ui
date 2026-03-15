@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { getStateAttributesProps } from './getStateAttributesProps';
 
 describe('getStateAttributesProps', () => {
@@ -10,7 +10,7 @@ describe('getStateAttributesProps', () => {
     };
 
     const result = getStateAttributesProps(state);
-    expect(result).to.deep.equal({
+    expect(result).toEqual({
       'data-checked': '',
       'data-orientation': 'vertical',
       'data-count': '42',
@@ -23,7 +23,7 @@ describe('getStateAttributesProps', () => {
     };
 
     const result = getStateAttributesProps(state);
-    expect(result).to.deep.equal({
+    expect(result).toEqual({
       'data-readonly': '',
     });
   });
@@ -35,7 +35,7 @@ describe('getStateAttributesProps', () => {
     };
 
     const result = getStateAttributesProps(state);
-    expect(result).to.deep.equal({ 'data-required': '' });
+    expect(result).toEqual({ 'data-required': '' });
   });
 
   it('does not include false values', () => {
@@ -45,7 +45,7 @@ describe('getStateAttributesProps', () => {
     };
 
     const result = getStateAttributesProps(state);
-    expect(result).not.to.haveOwnProperty('data-disabled');
+    expect(result).not.toHaveProperty('data-disabled');
   });
 
   it('supports custom mapping', () => {
@@ -59,7 +59,7 @@ describe('getStateAttributesProps', () => {
       checked: (value) => ({ 'data-state': value ? 'checked' : 'unchecked' }),
     });
 
-    expect(result).to.deep.equal({
+    expect(result).toEqual({
       'data-state': 'checked',
       'data-orientation': 'vertical',
       'data-count': '42',
@@ -76,7 +76,7 @@ describe('getStateAttributesProps', () => {
       checked: (value) => (value === true ? { 'data-state': 'checked' } : null),
     });
 
-    expect(result).to.deep.equal({
+    expect(result).toEqual({
       'data-orientation': 'vertical',
     });
   });

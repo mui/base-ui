@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { TemporalAdapterDateFns } from '../../temporal-adapter-date-fns/TemporalAdapterDateFns';
 import { getInitialReferenceDate } from './getInitialReferenceDate';
 
@@ -153,7 +153,7 @@ describe('getInitialReferenceDate', () => {
         validationProps: {},
       });
 
-      expect(adapter.getTimezone(result)).to.equal('UTC');
+      expect(adapter.getTimezone(result)).toBe('UTC');
     });
 
     it('should set the timezone when using externalReferenceDate', () => {
@@ -165,7 +165,7 @@ describe('getInitialReferenceDate', () => {
         validationProps: {},
       });
 
-      expect(adapter.getTimezone(result)).to.equal('UTC');
+      expect(adapter.getTimezone(result)).toBe('UTC');
     });
 
     it('should set the timezone when falling back to current date', () => {
@@ -179,7 +179,7 @@ describe('getInitialReferenceDate', () => {
         validationProps: {},
       });
 
-      expect(adapter.getTimezone(result)).to.equal('UTC');
+      expect(adapter.getTimezone(result)).toBe('UTC');
       vi.useRealTimers();
     });
   });

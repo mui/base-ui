@@ -1,7 +1,7 @@
+import { expect } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
-import { expect } from 'chai';
 
 describe('<Combobox.Chips />', () => {
   const { render } = createRenderer();
@@ -21,7 +21,7 @@ describe('<Combobox.Chips />', () => {
     );
 
     const chips = screen.getByTestId('chips');
-    expect(chips).not.to.have.attribute('role');
+    expect(chips).not.toHaveAttribute('role');
   });
 
   it('sets role="toolbar" when there is at least one chip', async () => {
@@ -34,6 +34,6 @@ describe('<Combobox.Chips />', () => {
     );
 
     const chips = screen.getByTestId('chips');
-    expect(chips).to.have.attribute('role', 'toolbar');
+    expect(chips).toHaveAttribute('role', 'toolbar');
   });
 });

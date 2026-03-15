@@ -49,7 +49,7 @@ describe('<NavigationMenu.Content />', () => {
       );
 
       const contents = screen.queryAllByTestId('content-1');
-      expect(contents.length).to.equal(1);
+      expect(contents.length).toBe(1);
     });
 
     it('does not keep the content mounted in the DOM when keepMounted is false', async () => {
@@ -74,7 +74,7 @@ describe('<NavigationMenu.Content />', () => {
       );
 
       const contents = screen.queryAllByTestId('content-1');
-      expect(contents.length).to.equal(0);
+      expect(contents.length).toBe(0);
     });
   });
 
@@ -100,8 +100,8 @@ describe('<NavigationMenu.Content />', () => {
     );
 
     const contents = screen.queryAllByTestId('content-1');
-    expect(contents.length).to.equal(1);
-    expect(contents[0]).to.have.attribute('hidden');
+    expect(contents.length).toBe(1);
+    expect(contents[0]).toHaveAttribute('hidden');
   });
 
   it('does not keep the content mounted post-hydration when keepMounted is false', async () => {
@@ -126,7 +126,7 @@ describe('<NavigationMenu.Content />', () => {
     );
 
     const contents = screen.queryAllByTestId('content-1');
-    expect(contents.length).to.equal(0);
+    expect(contents.length).toBe(0);
   });
 
   it('moves content into the popup and keeps it there when switching triggers', async () => {
@@ -163,14 +163,14 @@ describe('<NavigationMenu.Content />', () => {
 
     const viewport = screen.getByTestId('viewport');
     const content1 = screen.getByTestId('content-1');
-    expect(viewport.contains(content1)).to.equal(true);
-    expect(list.contains(content1)).to.equal(false);
+    expect(viewport.contains(content1)).toBe(true);
+    expect(list.contains(content1)).toBe(false);
 
     fireEvent.click(screen.getByRole('button', { name: 'Item 2' }));
     await flushMicrotasks();
 
     await waitFor(() => {
-      expect(screen.queryByTestId('content-2')).not.to.equal(null);
+      expect(screen.queryByTestId('content-2')).not.toBe(null);
     });
 
     const content1After = screen.queryByTestId('content-1');
@@ -178,8 +178,8 @@ describe('<NavigationMenu.Content />', () => {
     if (!content1After || !content2) {
       throw new Error('Expected both contents to remain mounted inside the viewport.');
     }
-    expect(viewport.contains(content1After)).to.equal(true);
-    expect(viewport.contains(content2)).to.equal(true);
+    expect(viewport.contains(content1After)).toBe(true);
+    expect(viewport.contains(content2)).toBe(true);
   });
 
   it('keeps content mounted inside the popup when closed if the portal is kept mounted', async () => {
@@ -207,15 +207,15 @@ describe('<NavigationMenu.Content />', () => {
     await flushMicrotasks();
 
     const viewport = screen.getByTestId('viewport');
-    expect(viewport.contains(screen.getByTestId('content-1'))).to.equal(true);
+    expect(viewport.contains(screen.getByTestId('content-1'))).toBe(true);
 
     await user.keyboard('{Escape}');
     await flushMicrotasks();
 
     await waitFor(() => {
-      expect(screen.getByTestId('content-1')).to.have.attribute('hidden');
+      expect(screen.getByTestId('content-1')).toHaveAttribute('hidden');
     });
 
-    expect(viewport.contains(screen.getByTestId('content-1'))).to.equal(true);
+    expect(viewport.contains(screen.getByTestId('content-1'))).toBe(true);
   });
 });

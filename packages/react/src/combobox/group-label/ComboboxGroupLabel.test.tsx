@@ -1,7 +1,7 @@
+import { expect } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance } from '#test-utils';
 import { screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 
 describe('<Combobox.GroupLabel />', () => {
   const { render } = createRenderer();
@@ -35,7 +35,7 @@ describe('<Combobox.GroupLabel />', () => {
 
       const group = screen.getByRole('group');
       const label = screen.getByText('Label');
-      expect(group).to.have.attribute('aria-labelledby', label.id);
+      expect(group).toHaveAttribute('aria-labelledby', label.id);
     });
 
     it('uses provided id in aria-labelledby', async () => {
@@ -54,7 +54,7 @@ describe('<Combobox.GroupLabel />', () => {
       );
 
       const group = screen.getByRole('group');
-      expect(group).to.have.attribute('aria-labelledby', 'test-group');
+      expect(group).toHaveAttribute('aria-labelledby', 'test-group');
     });
   });
 });

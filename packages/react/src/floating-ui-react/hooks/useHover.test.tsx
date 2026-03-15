@@ -1,7 +1,7 @@
+import { vi, test, expect } from 'vitest';
 /* eslint-disable @typescript-eslint/no-shadow */
 import { act, fireEvent, flushMicrotasks, render, screen, waitFor } from '@mui/internal-test-utils';
 import * as React from 'react';
-import { vi, test } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { isJSDOM } from '@base-ui/utils/detectBrowser';
 import { useFloating, useHover, useInteractions } from '../index';

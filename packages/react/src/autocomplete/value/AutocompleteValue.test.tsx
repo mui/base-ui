@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { screen } from '@mui/internal-test-utils';
 import { Autocomplete } from '@base-ui/react/autocomplete';
 import { createRenderer } from '#test-utils';
@@ -26,7 +26,7 @@ describe('<Autocomplete.Value />', () => {
         </Autocomplete.Root>,
       );
 
-      expect(screen.getByTestId('value')).to.have.text('hel');
+      expect(screen.getByTestId('value')).toHaveTextContent('hel');
     });
 
     it('renders function child with empty string when no value typed', async () => {
@@ -47,7 +47,7 @@ describe('<Autocomplete.Value />', () => {
         </Autocomplete.Root>,
       );
 
-      expect(screen.getByTestId('value')).to.have.text('empty');
+      expect(screen.getByTestId('value')).toHaveTextContent('empty');
     });
 
     it('overrides the display when children is a static ReactNode', async () => {
@@ -66,7 +66,7 @@ describe('<Autocomplete.Value />', () => {
         </Autocomplete.Root>,
       );
 
-      expect(screen.getByText('Custom Display Text')).not.to.equal(null);
+      expect(screen.getByText('Custom Display Text')).not.toBe(null);
     });
 
     it('renders complex ReactNode children', async () => {
@@ -90,8 +90,8 @@ describe('<Autocomplete.Value />', () => {
       );
 
       const element = screen.getByTestId('complex');
-      expect(element.querySelector('strong')).to.have.text('Bold');
-      expect(element.querySelector('em')).to.have.text('italic');
+      expect(element.querySelector('strong')).toHaveTextContent('Bold');
+      expect(element.querySelector('em')).toHaveTextContent('italic');
     });
   });
 });
