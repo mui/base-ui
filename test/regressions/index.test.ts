@@ -6,6 +6,10 @@ import { describe, it } from 'vitest';
 const baseUrl = 'http://localhost:5173';
 const screenshotDir = path.resolve(__dirname, './screenshots/chrome');
 
+// Pick the new/fake "now" to have stable "now" in Argos.
+// Calendar PR merge day
+const fakeNow = new Date('2026-03-13').valueOf();
+
 const browser = await chromium.launch({
   args: ['--font-render-hinting=none'],
   // otherwise the loaded google Roboto font isn't applied
@@ -14,6 +18,24 @@ const browser = await chromium.launch({
 // reuse viewport from `vrtest`
 // https://github.com/nathanmarks/vrtest/blob/1185b852a6c1813cedf5d81f6d6843d9a241c1ce/src/server/runner.js#L44
 const page = await browser.newPage({ viewport: { width: 1000, height: 700 } });
+// taken from: https://github.com/microsoft/playwright/issues/6347#issuecomment-1085850728
+// Update the Date accordingly in your test pages
+await page.addInitScript(`{
+    // Extend Date constructor to default to fakeNow
+    Date = class extends Date {
+      constructor(...args) {
+        if (args.length === 0) {
+          super(${fakeNow});
+        } else {
+          super(...args);
+        }
+      }
+    }
+    // Override Date.now() to start from fakeNow
+    const __DateNowOffset = ${fakeNow} - Date.now();
+    const __DateNow = Date.now;
+    Date.now = () => __DateNow() + __DateNowOffset;
+  }`);
 
 // Block images since they slow down tests (need download).
 // They're also most likely decorative for documentation demos
