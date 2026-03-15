@@ -1,0 +1,203 @@
+@layer components {
+  .ReferencePre {
+    margin: 0;
+    padding: 0;
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+    letter-spacing: var(--text-xs--letter-spacing);
+  }
+
+  .ReferenceHeaderRow {
+    display: grid;
+  }
+
+  .ReferenceHeaderTypeCell {
+    display: none;
+  }
+
+  .ReferenceHeaderDefaultCell {
+    display: none;
+  }
+
+  .ReferenceHeaderIconCell {
+    display: none;
+    width: 2.5rem;
+  }
+
+  .ReferenceTrigger {
+    min-height: min-content;
+    scroll-margin-top: 3rem;
+    padding: 0;
+  }
+
+  .ReferenceNameCell {
+    padding-inline: 0.75rem;
+  }
+
+  .ReferenceRequired {
+    top: -0.3em;
+    font-size: var(--text-xs);
+    color: var(--color-red-800);
+  }
+
+  .ReferenceTypeCell {
+    display: none;
+    align-items: baseline;
+    padding-inline: 0.75rem;
+    font-size: var(--text-sm);
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .ReferenceDefaultCell {
+    display: none;
+    padding-inline: 0.75rem;
+    white-space: nowrap;
+  }
+
+  .ReferenceIconWrap {
+    display: flex;
+    justify-content: center;
+  }
+
+  .ReferenceIcon {
+    transform: translateY(1px);
+  }
+
+  .ReferenceContent {
+    display: flex;
+    flex-direction: column;
+    color: var(--color-gray-600);
+  }
+
+  .ReferenceDescription [role='figure'] {
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .ReferenceExampleReset > * {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  .ReferenceCompactPanel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+    font-size: var(--text-md);
+    line-height: var(--text-md--line-height);
+    letter-spacing: var(--text-md--letter-spacing);
+    text-wrap: pretty;
+  }
+
+  .ReferenceWideNameColumn {
+    width: 100%;
+  }
+
+  .ReferenceWideDescriptionColumn {
+    width: 66.6667%;
+  }
+
+  .ReferenceReturnTypeColumn {
+    width: 40%;
+  }
+
+  .ReferenceReturnDescriptionColumn {
+    width: 60%;
+  }
+
+  @media (min-width: 32rem) {
+    .ReferenceHeaderRow {
+      grid-template-columns: 12rem 1fr 2.5rem;
+    }
+
+    .ReferenceTrigger {
+      display: grid;
+      grid-template-columns: 12rem 1fr 2.5rem;
+    }
+
+    .ReferenceHeaderTypeCell {
+      display: table-cell;
+    }
+
+    .ReferenceTypeCell {
+      display: flex;
+    }
+
+    .ReferenceWideNameColumn {
+      width: 12rem;
+    }
+
+    .ReferenceContent {
+      display: grid;
+      gap: 0;
+      grid-template-columns: 12rem 1fr 2.5rem;
+    }
+  }
+
+  @media (min-width: 40rem) {
+    .ReferenceHeaderRow {
+      grid-template-columns: 14rem 1fr 2.5rem;
+    }
+
+    .ReferenceTrigger {
+      grid-template-columns: 14rem 1fr 2.5rem;
+    }
+
+    .ReferenceWideNameColumn {
+      width: 14rem;
+    }
+
+    .ReferenceContent {
+      grid-template-columns: 14rem 1fr 2.5rem;
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .ReferenceHeaderDefaultCell {
+      display: table-cell;
+    }
+
+    .ReferenceHeaderIconCell {
+      display: table-cell;
+    }
+
+    .ReferenceDefaultCell {
+      display: block;
+    }
+
+    .ReferenceHeaderRow {
+      grid-template-columns: 5fr 7fr 4.5fr 2.5rem;
+    }
+
+    .ReferenceTrigger {
+      scroll-margin-top: 0;
+      grid-template-columns: 5fr 7fr 4.5fr 2.5rem;
+    }
+
+    .ReferenceWideNameColumn {
+      width: calc(5 / 16.5 * 100%);
+    }
+
+    .ReferenceWideDescriptionColumn {
+      width: calc(11.5 / 16.5 * 100%);
+    }
+
+    .ReferenceContent {
+      grid-template-columns: 5fr 11.5fr 2.5rem;
+    }
+  }
+
+  @media (width < 32rem) {
+    .ReferenceIconWrap {
+      margin-left: auto;
+      margin-right: 0.75rem;
+    }
+
+    .ReferenceContent {
+      padding-top: 0.75rem;
+      padding-bottom: 0.75rem;
+    }
+  }
+}

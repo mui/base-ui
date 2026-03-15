@@ -15,7 +15,7 @@ import { useDialogPortalContext } from '../portal/DialogPortalContext';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { COMPOSITE_KEYS } from '../../composite/composite';
 
-const stateAttributesMapping: StateAttributesMapping<DialogPopup.State> = {
+const stateAttributesMapping: StateAttributesMapping<DialogPopupState> = {
   ...baseMapping,
   ...transitionStatusMapping,
   nestedDialogOpen(value) {
@@ -77,7 +77,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
 
   const nestedDialogOpen = nestedOpenDialogCount > 0;
 
-  const state: DialogPopup.State = {
+  const state: DialogPopupState = {
     open,
     nested,
     transitionStatus,
@@ -125,7 +125,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   );
 });
 
-export interface DialogPopupProps extends BaseUIComponentProps<'div', DialogPopup.State> {
+export interface DialogPopupProps extends BaseUIComponentProps<'div', DialogPopupState> {
   /**
    * Determines the element to focus when the dialog is opened.
    *
@@ -136,11 +136,9 @@ export interface DialogPopupProps extends BaseUIComponentProps<'div', DialogPopu
    *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
    */
   initialFocus?:
-    | (
-        | boolean
-        | React.RefObject<HTMLElement | null>
-        | ((openType: InteractionType) => boolean | HTMLElement | null | void)
-      )
+    | boolean
+    | React.RefObject<HTMLElement | null>
+    | ((openType: InteractionType) => boolean | HTMLElement | null | void)
     | undefined;
   /**
    * Determines the element to focus when the dialog is closed.
@@ -152,11 +150,9 @@ export interface DialogPopupProps extends BaseUIComponentProps<'div', DialogPopu
    *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
    */
   finalFocus?:
-    | (
-        | boolean
-        | React.RefObject<HTMLElement | null>
-        | ((closeType: InteractionType) => boolean | HTMLElement | null | void)
-      )
+    | boolean
+    | React.RefObject<HTMLElement | null>
+    | ((closeType: InteractionType) => boolean | HTMLElement | null | void)
     | undefined;
 }
 
@@ -165,6 +161,9 @@ export interface DialogPopupState {
    * Whether the dialog is currently open.
    */
   open: boolean;
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
   /**
    * Whether the dialog is nested within a parent dialog.

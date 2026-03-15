@@ -118,7 +118,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   );
 
   // Compute the activation direction during render for external value changes
-  const computeActivationDirection = useStableCallback((): TabsTab.ActivationDirection => {
+  const computeActivationDirection = React.useCallback((): TabsTab.ActivationDirection => {
     // If value hasn't changed or was handled internally, don't compute
     if (value === previousValueRef.current || value === valueHandledInternallyRef.current) {
       return 'none';
@@ -144,7 +144,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     }
 
     return calculateDirection(newTabEdge, previousTabEdgeRef.current, orientation);
-  });
+  }, [value, getTabElementBySelectedValue, orientation, tabsListElement]);
 
   // Compute direction for external changes
   const externalChangeDirection = computeActivationDirection();
@@ -347,7 +347,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     value,
   ]);
 
-  const state: TabsRoot.State = {
+  const state: TabsRootState = {
     orientation,
     tabActivationDirection,
   };
@@ -369,11 +369,17 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 export type TabsRootOrientation = BaseOrientation;
 
 export interface TabsRootState {
+  /**
+   * The component orientation.
+   */
   orientation: TabsRoot.Orientation;
+  /**
+   * The direction used for tab activation.
+   */
   tabActivationDirection: TabsTab.ActivationDirection;
 }
 
-export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRoot.State> {
+export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRootState> {
   /**
    * The value of the currently active `Tab`. Use when the component is controlled.
    * When the value is `null`, no Tab will be active.

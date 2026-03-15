@@ -2,7 +2,12 @@
 import * as React from 'react';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { TooltipPositionerContext } from './TooltipPositionerContext';
-import { useAnchorPositioning, type Side, type Align } from '../../utils/useAnchorPositioning';
+import {
+  useAnchorPositioning,
+  type Side,
+  type Align,
+  type UseAnchorPositioningSharedParameters,
+} from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useTooltipPortalContext } from '../portal/TooltipPortalContext';
@@ -87,7 +92,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     };
   }, [open, trackCursorAxis, disableHoverablePopup, mounted, positioning.positionerStyles]);
 
-  const state: TooltipPositioner.State = React.useMemo(
+  const state: TooltipPositionerState = React.useMemo(
     () => ({
       open,
       side: positioning.side,
@@ -134,8 +139,17 @@ export interface TooltipPositionerState {
    * Whether the tooltip is currently open.
    */
   open: boolean;
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
   align: Align;
+  /**
+   * Whether the anchor element is hidden.
+   */
   anchorHidden: boolean;
   /**
    * Whether CSS transitions should be disabled.
@@ -145,8 +159,8 @@ export interface TooltipPositionerState {
 
 export interface TooltipPositionerProps
   extends
-    BaseUIComponentProps<'div', TooltipPositioner.State>,
-    Omit<useAnchorPositioning.SharedParameters, 'side'> {
+    BaseUIComponentProps<'div', TooltipPositionerState>,
+    Omit<UseAnchorPositioningSharedParameters, 'side'> {
   /**
    * Which side of the anchor element to align the popup against.
    * May automatically change to avoid collisions.

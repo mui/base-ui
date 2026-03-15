@@ -14,10 +14,11 @@ import { useButton } from '../../use-button';
 import { SwitchRootContext } from './SwitchRootContext';
 import { stateAttributesMapping } from '../stateAttributesMapping';
 import { useField } from '../../field/useField';
-import type { FieldRoot } from '../../field/root/FieldRoot';
+import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFormContext } from '../../form/FormContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import { useAriaLabelledBy } from '../../labelable-provider/useAriaLabelledBy';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
@@ -38,6 +39,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     checked: checkedProp,
     className,
     defaultChecked,
+    'aria-labelledby': ariaLabelledByProp,
     id: idProp,
     inputRef: externalInputRef,
     name: nameProp,
@@ -125,6 +127,13 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     disabled,
     native: nativeButton,
   });
+  const ariaLabelledBy = useAriaLabelledBy(
+    ariaLabelledByProp,
+    labelId,
+    inputRef,
+    !nativeButton,
+    hiddenInputId,
+  );
 
   const rootProps: React.ComponentPropsWithRef<'span'> = {
     id: nativeButton ? controlId : id,
@@ -132,7 +141,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     'aria-checked': checked,
     'aria-readonly': readOnly || undefined,
     'aria-required': required || undefined,
-    'aria-labelledby': labelId,
+    'aria-labelledby': ariaLabelledBy,
     onFocus() {
       if (!disabled) {
         setFocused(true);
@@ -158,7 +167,15 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
       event.preventDefault();
 
-      inputRef?.current?.click();
+      inputRef.current?.dispatchEvent(
+        new PointerEvent('click', {
+          bubbles: true,
+          shiftKey: event.shiftKey,
+          ctrlKey: event.ctrlKey,
+          altKey: event.altKey,
+          metaKey: event.metaKey,
+        }),
+      );
     },
   };
 
@@ -216,7 +233,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     ],
   );
 
-  const state: SwitchRoot.State = React.useMemo(
+  const state: SwitchRootState = React.useMemo(
     () => ({
       ...fieldState,
       checked,
@@ -245,7 +262,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   );
 });
 
-export interface SwitchRootState extends FieldRoot.State {
+export interface SwitchRootState extends FieldRootState {
   /**
    * Whether the switch is currently active.
    */
@@ -265,7 +282,7 @@ export interface SwitchRootState extends FieldRoot.State {
 }
 
 export interface SwitchRootProps
-  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'span', SwitchRoot.State>, 'onChange'> {
+  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'span', SwitchRootState>, 'onChange'> {
   /**
    * The id of the switch element.
    */

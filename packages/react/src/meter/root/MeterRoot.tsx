@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { MeterRootContext } from './MeterRootContext';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { formatNumberValue } from '../../utils/formatNumber';
@@ -24,6 +25,7 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
     value: valueProp,
     render,
     className,
+    children,
     ...elementProps
   } = componentProps;
 
@@ -44,6 +46,14 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
     'aria-valuenow': valueProp,
     'aria-valuetext': ariaValuetext,
     role: 'meter',
+    children: (
+      <React.Fragment>
+        {children}
+        <span role="presentation" style={visuallyHidden}>
+          {/* force NVDA to read the label https://github.com/mui/base-ui/issues/4184 */}x
+        </span>
+      </React.Fragment>
+    ),
   };
 
   const contextValue: MeterRootContext = React.useMemo(
@@ -65,7 +75,7 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
   return <MeterRootContext.Provider value={contextValue}>{element}</MeterRootContext.Provider>;
 });
 export interface MeterRootState {}
-export interface MeterRootProps extends BaseUIComponentProps<'div', MeterRoot.State> {
+export interface MeterRootProps extends BaseUIComponentProps<'div', MeterRootState> {
   /**
    * A string value that provides a user-friendly name for `aria-valuenow`, the current value of the meter.
    */

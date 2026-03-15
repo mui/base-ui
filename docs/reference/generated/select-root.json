@@ -49,6 +49,11 @@
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the select will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the select manually.\nUseful when the select's animation is controlled by an external library.",
       "detailedType": "| React.RefObject<Select.Root.Actions | null>\n| undefined"
     },
+    "autoComplete": {
+      "type": "string",
+      "description": "Provides a hint to the browser for autofill.",
+      "detailedType": "string | undefined"
+    },
     "isItemEqualToValue": {
       "type": "((itemValue: Value, value: Value) => boolean)",
       "description": "Custom comparison logic used to determine if a select item value matches the current selected value. Useful when item values are objects without matching referentially.\nDefaults to `Object.is` comparison.",
@@ -65,10 +70,10 @@
       "detailedType": "((itemValue: Value) => string) | undefined"
     },
     "items": {
-      "type": "Record<string, ReactNode> | ({ label: ReactNode, value: any })[]",
+      "type": "Record<string, ReactNode> | Group[] | ({ label: ReactNode, value: any })[]",
       "description": "Data structure of the items rendered in the select popup.\nWhen specified, `<Select.Value>` renders the label of the selected item instead of the raw value.",
       "example": "```tsx\nconst items = {\n  sans: 'Sans-serif',\n  serif: 'Serif',\n  mono: 'Monospace',\n  cursive: 'Cursive',\n};\n<Select.Root items={items} />\n```",
-      "detailedType": "| Record<string, ReactNode>\n| { label: ReactNode; value: any }[]\n| undefined"
+      "detailedType": "| Record<string, ReactNode>\n| Group[]\n| { label: ReactNode; value: any }[]\n| undefined"
     },
     "modal": {
       "type": "boolean",

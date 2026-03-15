@@ -35,6 +35,9 @@
     },
     "data-overflow-y-start": {
       "description": "Present when there is overflow on the vertical start side."
+    },
+    "data-scrolling": {
+      "description": "Present when the user scrolls inside the scroll area."
     }
   },
   "cssVariables": {

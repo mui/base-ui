@@ -3,28 +3,26 @@ import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { error } from '@base-ui/utils/error';
+import { SafeReact } from '@base-ui/utils/safeReact';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { makeEventPreventable, mergeProps } from '../merge-props';
 import { useCompositeRootContext } from '../composite/root/CompositeRootContext';
 import { BaseUIEvent, HTMLProps } from '../utils/types';
 import { useFocusableWhenDisabled } from '../utils/useFocusableWhenDisabled';
 
-export function useButton(parameters: useButton.Parameters = {}): useButton.ReturnValue {
+export function useButton(parameters: UseButtonParameters = {}): UseButtonReturnValue {
   const {
     disabled = false,
     focusableWhenDisabled,
     tabIndex = 0,
     native: isNativeButton = true,
+    composite: compositeProp,
   } = parameters;
 
   const elementRef = React.useRef<HTMLElement | null>(null);
 
-  const isCompositeItem = useCompositeRootContext(true) !== undefined;
-
-  const isValidLink = useStableCallback(() => {
-    const element = elementRef.current;
-    return Boolean(element?.tagName === 'A' && (element as HTMLAnchorElement)?.href);
-  });
+  const compositeRootContext = useCompositeRootContext(true);
+  const isCompositeItem = compositeProp ?? compositeRootContext !== undefined;
 
   const { props: focusableWhenDisabledProps } = useFocusableWhenDisabled({
     focusableWhenDisabled,
@@ -41,18 +39,27 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         return;
       }
 
-      const isButtonTag = elementRef.current.tagName === 'BUTTON';
+      const isButtonTag = isButtonElement(elementRef.current);
 
       if (isNativeButton) {
         if (!isButtonTag) {
-          error(
-            'A component that acts as a button was not rendered as a native <button>, which does not match the default. Ensure that the element passed to the `render` prop of the component is a real <button>, or set the `nativeButton` prop on the component to `false`.',
-          );
+          const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
+          const message =
+            'A component that acts as a button expected a native <button> because the ' +
+            '`nativeButton` prop is true. Rendering a non-<button> removes native button ' +
+            'semantics, which can impact forms and accessibility. Use a real <button> in the ' +
+            '`render` prop, or set `nativeButton` to `false`.';
+          error(`${message}${ownerStackMessage}`);
         }
       } else if (isButtonTag) {
-        error(
-          'A component that acts as a button was rendered as a native <button>, which does not match the default. Ensure that the element passed to the `render` prop of the component is not a real <button>, or set the `nativeButton` prop on the component to `true`.',
-        );
+        const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
+        const message =
+          'A component that acts as a button expected a non-<button> because the `nativeButton` ' +
+          'prop is false. Rendering a <button> keeps native behavior while Base UI applies ' +
+          'non-native attributes and handlers, which can add unintended extra attributes (such ' +
+          'as `role` or `aria-disabled`). Use a non-<button> in the `render` prop, or set ' +
+          '`nativeButton` to `true`.';
+        error(`${message}${ownerStackMessage}`);
       }
     }, [isNativeButton]);
   }
@@ -109,51 +116,86 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
             }
           },
           onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
-            if (!disabled) {
-              makeEventPreventable(event);
-              externalOnKeyDown?.(event);
+            if (disabled) {
+              return;
             }
 
+            makeEventPreventable(event);
+            externalOnKeyDown?.(event);
             if (event.baseUIHandlerPrevented) {
               return;
             }
 
-            const shouldClick =
-              event.target === event.currentTarget &&
-              !isNativeButton &&
-              !isValidLink() &&
-              !disabled;
+            const isCurrentTarget = event.target === event.currentTarget;
+            const currentTarget = event.currentTarget as HTMLElement;
+            const isButton = isButtonElement(currentTarget);
+            const isLink = !isNativeButton && isValidLinkElement(currentTarget);
+            const shouldClick = isCurrentTarget && (isNativeButton ? isButton : !isLink);
             const isEnterKey = event.key === 'Enter';
             const isSpaceKey = event.key === ' ';
+            const role = currentTarget.getAttribute('role');
+            const isTextNavigationRole =
+              role?.startsWith('menuitem') || role === 'option' || role === 'gridcell';
 
-            // Keyboard accessibility for non interactive elements
+            if (isCurrentTarget && isCompositeItem && isSpaceKey) {
+              if (event.defaultPrevented && isTextNavigationRole) {
+                return;
+              }
+
+              event.preventDefault();
+
+              if (isLink || (isNativeButton && isButton)) {
+                currentTarget.click();
+                event.preventBaseUIHandler();
+              } else if (shouldClick) {
+                externalOnClick?.(event);
+                event.preventBaseUIHandler();
+              }
+
+              return;
+            }
+
+            // Keyboard accessibility for native and non-native elements.
             if (shouldClick) {
-              if (isSpaceKey || isEnterKey) {
+              if (!isNativeButton && (isSpaceKey || isEnterKey)) {
                 event.preventDefault();
               }
 
-              if (isEnterKey) {
+              if (!isNativeButton && isEnterKey) {
                 externalOnClick?.(event);
               }
             }
           },
           onKeyUp(event: BaseUIEvent<React.KeyboardEvent>) {
+            if (disabled) {
+              return;
+            }
+
             // calling preventDefault in keyUp on a <button> will not dispatch a click event if Space is pressed
             // https://codesandbox.io/p/sandbox/button-keyup-preventdefault-dn7f0
-            // Keyboard accessibility for non interactive elements
-            if (!disabled) {
-              makeEventPreventable(event);
-              externalOnKeyUp?.(event);
+            makeEventPreventable(event);
+            externalOnKeyUp?.(event);
+
+            if (
+              event.target === event.currentTarget &&
+              isNativeButton &&
+              isCompositeItem &&
+              isButtonElement(event.currentTarget as HTMLElement) &&
+              event.key === ' '
+            ) {
+              event.preventDefault();
+              return;
             }
 
             if (event.baseUIHandlerPrevented) {
               return;
             }
 
+            // Keyboard accessibility for non interactive elements
             if (
               event.target === event.currentTarget &&
               !isNativeButton &&
-              !disabled &&
+              !isCompositeItem &&
               event.key === ' '
             ) {
               externalOnClick?.(event);
@@ -172,7 +214,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         otherExternalProps,
       );
     },
-    [disabled, focusableWhenDisabledProps, isNativeButton, isValidLink],
+    [disabled, focusableWhenDisabledProps, isCompositeItem, isNativeButton],
   );
 
   const buttonRef = useStableCallback((element: HTMLElement | null) => {
@@ -190,6 +232,10 @@ function isButtonElement(
   elem: HTMLButtonElement | HTMLAnchorElement | HTMLElement | null,
 ): elem is HTMLButtonElement {
   return isHTMLElement(elem) && elem.tagName === 'BUTTON';
+}
+
+function isValidLinkElement(elem: HTMLElement | null): elem is HTMLAnchorElement {
+  return Boolean(elem?.tagName === 'A' && (elem as HTMLAnchorElement)?.href);
 }
 
 interface GenericButtonProps extends Omit<HTMLProps, 'onClick'>, AdditionalButtonProps {
@@ -220,6 +266,12 @@ export interface UseButtonParameters {
    * @default true
    */
   native?: boolean | undefined;
+  /**
+   * Whether the button is part of a composite widget.
+   * When `true`, keyboard activation for Space occurs on keydown rather than keyup.
+   * @default inferred from CompositeRoot context
+   */
+  composite?: boolean | undefined;
 }
 
 export interface UseButtonReturnValue {
@@ -238,7 +290,4 @@ export interface UseButtonReturnValue {
   buttonRef: React.Ref<HTMLElement>;
 }
 
-export namespace useButton {
-  export type Parameters = UseButtonParameters;
-  export type ReturnValue = UseButtonReturnValue;
-}
+export interface UseButtonState {}

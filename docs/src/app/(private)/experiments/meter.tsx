@@ -1,10 +1,7 @@
 'use client';
 import * as React from 'react';
 import { Meter } from '@base-ui/react/meter';
-import {
-  SettingsMetadata,
-  useExperimentSettings,
-} from '../../../components/Experiments/SettingsPanel';
+import { SettingsMetadata, useExperimentSettings } from './_components/SettingsPanel';
 import styles from './meter.module.css';
 
 interface Settings {

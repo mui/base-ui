@@ -21,7 +21,7 @@ import {
   ANY_MINUS_DETECT_RE,
   ANY_PLUS_DETECT_RE,
 } from '../utils/parse';
-import type { NumberFieldRoot } from '../root/NumberFieldRoot';
+import type { NumberFieldRootState } from '../root/NumberFieldRoot';
 import { stateAttributesMapping as numberFieldStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import {
@@ -239,8 +239,8 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
-      // For trusted user typing, update the input text immediately and only fire onValueChange
-      // if the typed value is currently parseable into a number. This preserves good UX for IME
+      // Update the input text immediately and only fire onValueChange if the typed value is
+      // currently parseable into a number. This preserves good UX for IME
       // composition/partial input while still providing live numeric updates when possible.
       const allowedNonNumericKeys = getAllowedNonNumericKeys();
       const isValidCharacterString = Array.from(targetValue).every((ch) => {
@@ -265,19 +265,11 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
-      if (event.isTrusted) {
-        setInputValue(targetValue);
-        const parsedValue = parseNumber(targetValue, locale, formatOptionsRef.current);
-        if (parsedValue !== null) {
-          setValue(parsedValue, createChangeEventDetails(REASONS.inputChange, event.nativeEvent));
-        }
-        return;
-      }
-
       const parsedValue = parseNumber(targetValue, locale, formatOptionsRef.current);
 
+      setInputValue(targetValue);
+
       if (parsedValue !== null) {
-        setInputValue(targetValue);
         setValue(parsedValue, createChangeEventDetails(REASONS.inputChange, event.nativeEvent));
       }
     },
@@ -434,11 +426,11 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   return element;
 });
 
-export interface NumberFieldInputState extends NumberFieldRoot.State {}
+export interface NumberFieldInputState extends NumberFieldRootState {}
 
 export interface NumberFieldInputProps extends BaseUIComponentProps<
   'input',
-  NumberFieldInput.State
+  NumberFieldInputState
 > {
   /**
    * A string value that provides a user-friendly name for the role of the input.
