@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
@@ -10,10 +9,10 @@ import {
   contains,
   getTarget,
   isTypeableCombobox,
-  isVirtualClick,
-  isVirtualPointerEvent,
-  stopEvent,
   getFloatingFocusElement,
+} from '../utils/element';
+import { isVirtualClick, isVirtualPointerEvent, stopEvent } from '../utils/event';
+import {
   isIndexOutOfListBounds,
   getMinListIndex,
   getMaxListIndex,
@@ -23,7 +22,7 @@ import {
   getGridCellIndices,
   getGridCellIndexOfCorner,
   findNonDisabledListIndex,
-} from '../utils';
+} from '../utils/composite';
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
@@ -282,7 +281,8 @@ export function useListNavigation(
   }
 
   const floatingFocusElement = getFloatingFocusElement(floatingElement);
-  const floatingFocusElementRef = useValueAsRef(floatingFocusElement);
+  const floatingFocusElementRef = React.useRef(floatingFocusElement);
+  floatingFocusElementRef.current = floatingFocusElement;
 
   const parentId = useFloatingParentNodeId();
   const tree = useFloatingTree(externalTree);
@@ -308,10 +308,14 @@ export function useListNavigation(
   const forceSyncFocusRef = React.useRef(false);
   const forceScrollIntoViewRef = React.useRef(false);
 
-  const disabledIndicesRef = useValueAsRef(disabledIndices);
-  const latestOpenRef = useValueAsRef(open);
-  const selectedIndexRef = useValueAsRef(selectedIndex);
-  const resetOnPointerLeaveRef = useValueAsRef(resetOnPointerLeave);
+  const disabledIndicesRef = React.useRef(disabledIndices);
+  disabledIndicesRef.current = disabledIndices;
+  const latestOpenRef = React.useRef(open);
+  latestOpenRef.current = open;
+  const selectedIndexRef = React.useRef(selectedIndex);
+  selectedIndexRef.current = selectedIndex;
+  const resetOnPointerLeaveRef = React.useRef(resetOnPointerLeave);
+  resetOnPointerLeaveRef.current = resetOnPointerLeave;
 
   const focusItem = useStableCallback(() => {
     function runFocus(item: HTMLElement) {

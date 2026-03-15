@@ -98,4 +98,5 @@ describe('resolveValueLabel', () => {
       expect(hasNullItemLabel(undefined)).to.equal(false);
     });
   });
+
 });

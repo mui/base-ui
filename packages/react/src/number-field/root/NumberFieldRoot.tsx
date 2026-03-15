@@ -5,7 +5,6 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useInterval } from '@base-ui/utils/useInterval';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
@@ -113,7 +112,8 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   });
 
   const value = valueUnwrapped ?? null;
-  const valueRef = useValueAsRef(value);
+  const valueRef = React.useRef(value);
+  valueRef.current = value;
 
   useIsoLayoutEffect(() => {
     setFilled(value !== null);
@@ -121,7 +121,8 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
   const forceRender = useForcedRerendering();
 
-  const formatOptionsRef = useValueAsRef(format);
+  const formatOptionsRef = React.useRef(format);
+  formatOptionsRef.current = format;
 
   const hasPendingCommitRef = React.useRef(false);
 

@@ -1,9 +1,7 @@
 'use client';
 import * as React from 'react';
-import { tabbable, isTabbable, focusable, type FocusableElement } from 'tabbable';
 import { getNodeName, isHTMLElement } from '@floating-ui/utils/dom';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui/utils/useTimeout';
@@ -17,19 +15,21 @@ import {
   contains,
   getTarget,
   isTypeableCombobox,
-  isVirtualClick,
-  isVirtualPointerEvent,
-  stopEvent,
-  getNodeAncestors,
-  getNodeChildren,
   getFloatingFocusElement,
-  getTabbableOptions,
+  isTypeableElement,
+} from '../utils/element';
+import { isVirtualClick, isVirtualPointerEvent, stopEvent } from '../utils/event';
+import {
+  tabbable,
+  focusable,
   isOutsideEvent,
+  isTabbable,
   getNextTabbable,
   getPreviousTabbable,
-  isElementVisible,
-  isTypeableElement,
-} from '../utils';
+  type FocusableElement,
+} from '../utils/tabbable';
+import { getNodeAncestors, getNodeChildren } from '../utils/nodes';
+import { isElementVisible } from '../utils/composite';
 import type { FloatingContext, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
@@ -95,12 +95,11 @@ function getFirstTabbableElement(container: Element | null) {
     return null;
   }
 
-  const tabbableOptions = getTabbableOptions();
-  if (isTabbable(container, tabbableOptions)) {
+  if (isTabbable(container)) {
     return container;
   }
 
-  return tabbable(container, tabbableOptions)[0] || container;
+  return tabbable(container)[0] || container;
 }
 
 function isFocusable(element: Element | null) {
@@ -126,12 +125,11 @@ function handleTabIndex(
     return;
   }
 
-  const options = getTabbableOptions();
-  const focusableElements = focusable(floatingFocusElement, options);
+  const focusableElements = focusable(floatingFocusElement);
   const tabbableContent = focusableElements.filter((element) => {
     const dataTabIndex = element.getAttribute('data-tabindex') || '';
     return (
-      isTabbable(element, options) ||
+      isTabbable(element) ||
       (element.hasAttribute('data-tabindex') && !dataTabIndex.startsWith('-'))
     );
   });
@@ -291,9 +289,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const isUntrappedTypeableCombobox = isTypeableCombobox(domReference) && ignoreInitialFocus;
 
   const orderRef = React.useRef<Array<'reference' | 'floating' | 'content'>>(['content']);
-  const initialFocusRef = useValueAsRef(initialFocus);
-  const returnFocusRef = useValueAsRef(returnFocus);
-  const openInteractionTypeRef = useValueAsRef(openInteractionType);
+  const initialFocusRef = React.useRef(initialFocus);
+  initialFocusRef.current = initialFocus;
+  const returnFocusRef = React.useRef(returnFocus);
+  returnFocusRef.current = returnFocus;
+  const openInteractionTypeRef = React.useRef(openInteractionType);
+  openInteractionTypeRef.current = openInteractionType;
 
   const tree = useFloatingTree(externalTree);
   const portalContext = usePortalContext();
@@ -324,7 +325,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
   const getTabbableContent = useStableCallback(
     (container: Element | null = floatingFocusElement) => {
-      return container ? tabbable(container, getTabbableOptions()) : [];
+      return container ? tabbable(container) : [];
     },
   );
 
@@ -856,7 +857,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         const hasExplicitReturnFocus = typeof returnFocusRef.current !== 'boolean';
 
         if (
-          // eslint-disable-next-line react-hooks/exhaustive-deps
           returnFocusRef.current &&
           !preventReturnFocusRef.current &&
           isHTMLElement(tabbableReturnElement) &&

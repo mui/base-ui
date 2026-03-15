@@ -16,10 +16,10 @@ import {
   contains,
   getTarget,
   isEventTargetWithin,
-  isReactEvent,
   isRootElement,
-  getNodeChildren,
-} from '../utils';
+} from '../utils/element';
+import { isReactEvent } from '../utils/event';
+import { getNodeChildren } from '../utils/nodes';
 
 /* eslint-disable no-underscore-dangle */
 

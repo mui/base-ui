@@ -11,7 +11,7 @@ import {
   isTargetInsideEnabledTrigger,
   isTypeableElement,
   matchesFocusVisible,
-} from '../utils';
+} from '../utils/element';
 
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';

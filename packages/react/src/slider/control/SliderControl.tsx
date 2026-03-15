@@ -4,7 +4,6 @@ import { isElement } from '@floating-ui/utils/dom';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { activeElement, contains } from '../../floating-ui-react/utils';
 import type { Coords } from '../../floating-ui-react/types';
 import { clamp } from '../../utils/clamp';
@@ -135,7 +134,8 @@ export const SliderControl = React.forwardRef(function SliderControl(
   // The offset amount to each side of the control for inset sliders.
   // This value should be equal to the radius or half the width/height of the thumb.
   const insetThumbOffsetRef = React.useRef(0);
-  const latestValuesRef = useValueAsRef(values);
+  const latestValuesRef = React.useRef(values);
+  latestValuesRef.current = values;
 
   const updatePressedThumb = useStableCallback((nextIndex: number) => {
     if (pressedThumbIndexRef.current !== nextIndex) {

@@ -7,8 +7,8 @@ import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { useStore, Store } from '@base-ui/utils/store';
+import { Store } from '@base-ui/utils/store/Store';
+import { useStore } from '@base-ui/utils/store/useStore';
 import {
   useClick,
   useDismiss,
@@ -173,7 +173,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     return stringifyAsValue(value, itemToStringValue);
   }, [multiple, value, itemToStringValue]);
 
-  const controlRef = useValueAsRef(store.state.triggerElement);
+  const controlRef = React.useRef(store.state.triggerElement);
+  controlRef.current = store.state.triggerElement;
 
   useField({
     id: generatedId,

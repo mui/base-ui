@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { createSelector, ReactStore } from '@base-ui/utils/store';
+import { ReactStore } from '@base-ui/utils/store/ReactStore';
+import { createSelector } from '@base-ui/utils/store/createSelector';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { type TooltipRoot } from '../root/TooltipRoot';
 import { useSyncedFloatingRootContext } from '../../floating-ui-react';

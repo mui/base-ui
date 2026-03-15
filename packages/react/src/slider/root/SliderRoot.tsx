@@ -3,7 +3,6 @@ import * as React from 'react';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
 import type { BaseUIComponentProps, Orientation } from '../../utils/types';
@@ -143,7 +142,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const lastChangedValueRef = React.useRef<number | readonly number[] | null>(null);
   const lastChangeReasonRef = React.useRef<SliderRoot.ChangeEventReason>('none');
 
-  const formatOptionsRef = useValueAsRef(format);
+  const formatOptionsRef = React.useRef(format);
+  formatOptionsRef.current = format;
 
   // We can't use the :active browser pseudo-classes.
   // - The active state isn't triggered when clicking on the rail.

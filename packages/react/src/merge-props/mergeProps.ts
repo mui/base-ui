@@ -61,20 +61,19 @@ export function mergeProps<T extends ElementType>(
 ): PropsOf<T>;
 export function mergeProps<T extends ElementType>(a: InputProps<T>, b: InputProps<T>): PropsOf<T>;
 export function mergeProps(a: any, b: any, c?: any, d?: any, e?: any) {
-  // We need to mutably own `merged`
-  let merged = { ...resolvePropsGetter(a, EMPTY_PROPS) };
+  let merged = { ...getInputProps(a, EMPTY_PROPS) };
 
   if (b) {
-    merged = mergeOne(merged, b);
+    merged = mergeInto(merged, b);
   }
   if (c) {
-    merged = mergeOne(merged, c);
+    merged = mergeInto(merged, c);
   }
   if (d) {
-    merged = mergeOne(merged, d);
+    merged = mergeInto(merged, d);
   }
   if (e) {
-    merged = mergeOne(merged, e);
+    merged = mergeInto(merged, e);
   }
 
   return merged;
@@ -99,22 +98,21 @@ export function mergePropsN<T extends ElementType>(props: InputProps<T>[]): Prop
     return EMPTY_PROPS as PropsOf<T>;
   }
   if (props.length === 1) {
-    return resolvePropsGetter(props[0], EMPTY_PROPS) as PropsOf<T>;
+    return getInputProps(props[0], EMPTY_PROPS) as PropsOf<T>;
   }
 
-  // We need to mutably own `merged`
-  let merged = { ...resolvePropsGetter(props[0], EMPTY_PROPS) };
+  let merged = { ...getInputProps(props[0], EMPTY_PROPS) };
 
   for (let i = 1; i < props.length; i += 1) {
-    merged = mergeOne(merged, props[i]);
+    merged = mergeInto(merged, props[i]);
   }
 
   return merged as PropsOf<T>;
 }
 
-function mergeOne<T extends ElementType>(merged: Record<string, any>, inputProps: InputProps<T>) {
-  if (isPropsGetter(inputProps)) {
-    return inputProps(merged);
+function mergeInto<T extends ElementType>(merged: Record<string, any>, inputProps: InputProps<T>) {
+  if (typeof inputProps === 'function') {
+    return inputProps(merged as PropsOf<T>);
   }
   return mutablyMergeInto(merged, inputProps);
 }
@@ -173,17 +171,11 @@ function isEventHandler(key: string, value: unknown) {
   );
 }
 
-function isPropsGetter<T extends React.ComponentType>(
-  inputProps: InputProps<T>,
-): inputProps is (props: PropsOf<T>) => PropsOf<T> {
-  return typeof inputProps === 'function';
-}
-
-function resolvePropsGetter<T extends ElementType>(
+function getInputProps<T extends ElementType>(
   inputProps: InputProps<ElementType>,
   previousProps: PropsOf<T>,
 ) {
-  if (isPropsGetter(inputProps)) {
+  if (typeof inputProps === 'function') {
     return inputProps(previousProps);
   }
 

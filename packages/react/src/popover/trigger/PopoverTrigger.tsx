@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { type FocusableElement } from 'tabbable';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useButton } from '../../use-button/useButton';
@@ -25,6 +24,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   contains,
+  type FocusableElement,
   getNextTabbable,
   getTabbableAfterElement,
   getTabbableBeforeElement,

@@ -4,8 +4,7 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { useStore } from '@base-ui/utils/store';
+import { useStore } from '@base-ui/utils/store/useStore';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { BaseUIComponentProps, HTMLProps, NativeButtonProps } from '../../utils/types';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
@@ -92,7 +91,8 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 
   useLabelableId({ id });
 
-  const positionerRef = useValueAsRef(positionerElement);
+  const positionerRef = React.useRef(positionerElement);
+  positionerRef.current = positionerElement;
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
 

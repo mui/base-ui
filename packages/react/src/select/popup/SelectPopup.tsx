@@ -8,7 +8,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { isMouseWithinBounds } from '@base-ui/utils/isMouseWithinBounds';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useStore } from '@base-ui/utils/store';
+import { useStore } from '@base-ui/utils/store/useStore';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { FloatingFocusManager, platform as floatingPlatform } from '../../floating-ui-react';

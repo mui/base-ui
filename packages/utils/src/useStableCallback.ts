@@ -16,15 +16,6 @@ const useSafeInsertionEffect =
 
 type Callback = (...args: any[]) => any;
 
-type Stable<T extends Callback> = {
-  /** The next value for callback */
-  next: T | undefined;
-  /** The function to be called by trampoline. This must fail during the initial render phase. */
-  callback: T | undefined;
-  trampoline: T;
-  effect: () => void;
-};
-
 /**
  * Stabilizes the function passed so it's always the same between renders.
  *
@@ -36,22 +27,16 @@ type Stable<T extends Callback> = {
  * This hook is a more permissive version of React 19.2's `React.useEffectEvent` in that it can be passed through contexts and called in event handler props, not just effects.
  */
 export function useStableCallback<T extends Callback>(callback: T | undefined): T {
-  const stable = useRefWithInit(createStableCallback).current;
-  stable.next = callback;
-  useSafeInsertionEffect(stable.effect);
-  return stable.trampoline;
-}
+  const callbackRef = React.useRef<T | undefined>(assertNotCalled as T);
+  const trampoline = useRefWithInit((ref: React.RefObject<T | undefined>) => {
+    return ((...args: Parameters<T>) => ref.current?.(...args)) as T;
+  }, callbackRef).current;
 
-function createStableCallback() {
-  const stable: Stable<any> = {
-    next: undefined,
-    callback: assertNotCalled,
-    trampoline: (...args: []) => stable.callback?.(...args),
-    effect: () => {
-      stable.callback = stable.next;
-    },
-  };
-  return stable;
+  useSafeInsertionEffect(() => {
+    callbackRef.current = callback;
+  });
+
+  return trampoline;
 }
 
 function assertNotCalled() {

@@ -12,7 +12,7 @@ import {
   getPreviousTabbable,
   getNextTabbable,
   isOutsideEvent,
-} from '../utils';
+} from '../utils/tabbable';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { createAttribute } from '../utils/createAttribute';

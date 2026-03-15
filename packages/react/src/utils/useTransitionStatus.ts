@@ -79,14 +79,11 @@ export function useTransitionStatus(
     return () => {
       AnimationFrame.cancel(frame);
     };
-  }, [enableIdleState, open, mounted, setTransitionStatus, transitionStatus]);
+  }, [enableIdleState, open, mounted, transitionStatus]);
 
-  return React.useMemo(
-    () => ({
-      mounted,
-      setMounted,
-      transitionStatus,
-    }),
-    [mounted, transitionStatus],
-  );
+  return {
+    mounted,
+    setMounted,
+    transitionStatus,
+  };
 }

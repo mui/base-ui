@@ -10,6 +10,10 @@
   "license": "MIT",
   "exports": {
     "./store": "./src/store/index.ts",
+    "./store/Store": "./src/store/Store.ts",
+    "./store/ReactStore": "./src/store/ReactStore.ts",
+    "./store/createSelector": "./src/store/createSelector.ts",
+    "./store/useStore": "./src/store/useStore.ts",
     "./*": "./src/*.ts"
   },
   "imports": {

@@ -1,4 +1,4 @@
-import { isMouseLikePointerType } from '../utils';
+import { isMouseLikePointerType } from '../utils/event';
 import type { ExtendedElements, FloatingTreeType, Placement } from '../types';
 
 export interface HandleCloseOptions {

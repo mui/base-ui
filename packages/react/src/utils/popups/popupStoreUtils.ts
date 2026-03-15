@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { ReactStore } from '@base-ui/utils/store';
+import { ReactStore } from '@base-ui/utils/store/ReactStore';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useTransitionStatus } from '../useTransitionStatus';

@@ -2,11 +2,11 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isElement } from '@floating-ui/utils/dom';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument } from '@base-ui/utils/owner';
 import type { Delay, FloatingContext, FloatingRootContext } from '../types';
-import { contains, isMouseLikePointerType, isTargetInsideEnabledTrigger } from '../utils';
+import { contains, isTargetInsideEnabledTrigger } from '../utils/element';
+import { isMouseLikePointerType } from '../utils/event';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { useFloatingTree } from '../components/FloatingTree';
@@ -72,10 +72,14 @@ export function useHoverReferenceInteraction(
 
   const instance = useHoverInteractionSharedState(store);
 
-  const handleCloseRef = useValueAsRef(handleClose);
-  const delayRef = useValueAsRef(delay);
-  const restMsRef = useValueAsRef(restMs);
-  const enabledRef = useValueAsRef(enabled);
+  const handleCloseRef = React.useRef(handleClose);
+  handleCloseRef.current = handleClose;
+  const delayRef = React.useRef(delay);
+  delayRef.current = delay;
+  const restMsRef = React.useRef(restMs);
+  restMsRef.current = restMs;
+  const enabledRef = React.useRef(enabled);
+  enabledRef.current = enabled;
 
   if (isActiveTrigger) {
     // eslint-disable-next-line no-underscore-dangle

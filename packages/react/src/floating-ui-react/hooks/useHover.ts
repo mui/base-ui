@@ -2,11 +2,10 @@
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { contains, getTarget } from '../utils';
+import { contains, getTarget } from '../utils/element';
 
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import type { Delay, ElementProps, FloatingContext, FloatingRootContext } from '../types';
@@ -70,9 +69,12 @@ export function useHover(
 
   const tree = useFloatingTree();
   const parentId = useFloatingParentNodeId();
-  const handleCloseRef = useValueAsRef(handleClose);
-  const delayRef = useValueAsRef(delay);
-  const restMsRef = useValueAsRef(restMs);
+  const handleCloseRef = React.useRef(handleClose);
+  handleCloseRef.current = handleClose;
+  const delayRef = React.useRef(delay);
+  delayRef.current = delay;
+  const restMsRef = React.useRef(restMs);
+  restMsRef.current = restMs;
 
   const pointerTypeRef = React.useRef<string>(undefined);
   const interactedInsideRef = React.useRef(false);

@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { formatNumberValue } from '../../utils/formatNumber';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -41,7 +40,8 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
 
   const [labelId, setLabelId] = React.useState<string | undefined>();
 
-  const formatOptionsRef = useValueAsRef(format);
+  const formatOptionsRef = React.useRef(format);
+  formatOptionsRef.current = format;
 
   let status: ProgressStatus = 'indeterminate';
   if (Number.isFinite(value)) {

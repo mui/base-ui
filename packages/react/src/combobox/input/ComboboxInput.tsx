@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
+import { useStore } from '@base-ui/utils/store/useStore';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { isAndroid, isFirefox } from '@base-ui/utils/detectBrowser';
 import { BaseUIComponentProps } from '../../utils/types';

@@ -1,7 +1,7 @@
 'use client';
 import { useId } from '@base-ui/utils/useId';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { ReactStore } from '@base-ui/utils/store';
+import { ReactStore } from '@base-ui/utils/store/ReactStore';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { isElement } from '@floating-ui/utils/dom';
 import { BaseUIChangeEventDetails } from '../../types';

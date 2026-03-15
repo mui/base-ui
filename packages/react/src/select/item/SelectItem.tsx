@@ -1,10 +1,9 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { isMouseWithinBounds } from '@base-ui/utils/isMouseWithinBounds';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { useStore } from '@base-ui/utils/store';
+import { useStore } from '@base-ui/utils/store/useStore';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import {
   useCompositeListItem,
@@ -76,7 +75,8 @@ export const SelectItem = React.memo(
     const hasRegistered = index !== -1;
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
-    const indexRef = useValueAsRef(index);
+    const indexRef = React.useRef(index);
+    indexRef.current = index;
 
     useIsoLayoutEffect(() => {
       if (!hasRegistered) {

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { error } from '@base-ui/utils/error';
 import { SafeReact } from '@base-ui/utils/safeReact';
-import { useStore } from '@base-ui/utils/store';
+import { useStore } from '@base-ui/utils/store/useStore';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { FieldRoot } from '../../field/root/FieldRoot';

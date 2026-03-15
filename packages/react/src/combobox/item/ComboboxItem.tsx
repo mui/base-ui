@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { useStore } from '@base-ui/utils/store';
+import { useStore } from '@base-ui/utils/store/useStore';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import {
   useComboboxRootContext,

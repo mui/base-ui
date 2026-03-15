@@ -1,21 +1,156 @@
-import { tabbable, type FocusableElement } from 'tabbable';
+import { getNodeName, isHTMLElement, isShadowRoot } from '@floating-ui/utils/dom';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { activeElement, contains } from './element';
+import { isElementVisible } from './composite';
 
-export const getTabbableOptions = () =>
-  ({
-    getShadowRoot: true,
-    displayCheck:
-      // JSDOM does not support the `tabbable` library. To solve this we can
-      // check if `ResizeObserver` is a real function (not polyfilled), which
-      // determines if the current environment is JSDOM-like.
-      typeof ResizeObserver === 'function' && ResizeObserver.toString().includes('[native code]')
-        ? 'full'
-        : 'none',
-  }) as const;
+export type FocusableElement = HTMLElement | SVGElement;
+
+const CANDIDATE_SELECTOR =
+  'a[href],button,input,select,textarea,summary,details,[tabindex],[contenteditable]:not([contenteditable="false"]),audio[controls],video[controls]';
+
+function getParentElement(element: Element) {
+  const assignedSlot = (element as Element & {
+    assignedSlot?: HTMLSlotElement | null | undefined;
+  }).assignedSlot;
+  if (assignedSlot) {
+    return assignedSlot;
+  }
+
+  if (element.parentElement) {
+    return element.parentElement;
+  }
+
+  const rootNode = element.getRootNode();
+  return isShadowRoot(rootNode) ? rootNode.host : null;
+}
+
+function getDetailsSummary(details: Element) {
+  for (const child of Array.from(details.children)) {
+    if (getNodeName(child) === 'summary') {
+      return child;
+    }
+  }
+
+  return null;
+}
+
+function isWithinOpenDetailsSummary(element: Element, details: Element) {
+  const summary = getDetailsSummary(details);
+  return !!summary && (element === summary || contains(summary, element));
+}
+
+function isFocusableCandidate(element: Element | null): element is FocusableElement {
+  const nodeName = element ? getNodeName(element) : '';
+
+  return (
+    element != null &&
+    element.matches(CANDIDATE_SELECTOR) &&
+    (nodeName !== 'summary' ||
+      (element.parentElement != null &&
+        getNodeName(element.parentElement) === 'details' &&
+        getDetailsSummary(element.parentElement) === element)) &&
+    (nodeName !== 'details' || getDetailsSummary(element) == null) &&
+    (nodeName !== 'input' || (element as HTMLInputElement).type !== 'hidden')
+  );
+}
+
+function isFocusableElement(element: Element | null): element is FocusableElement {
+  if (!isFocusableCandidate(element) || !element.isConnected || element.matches(':disabled')) {
+    return false;
+  }
+
+  for (let current: Element | null = element; current; current = getParentElement(current)) {
+    if (current.hasAttribute('inert')) {
+      return false;
+    }
+
+    if (
+      (current !== element &&
+        getNodeName(current) === 'details' &&
+        !(current as HTMLDetailsElement).open &&
+        !isWithinOpenDetailsSummary(element, current)) ||
+      current.hasAttribute('hidden') ||
+      !isElementVisible(current)
+    ) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function getTabIndex(element: FocusableElement) {
+  const tabIndex = element.tabIndex;
+  if (tabIndex < 0) {
+    const nodeName = getNodeName(element);
+    if (
+      nodeName === 'details' ||
+      nodeName === 'audio' ||
+      nodeName === 'video' ||
+      (isHTMLElement(element) && element.isContentEditable)
+    ) {
+      return 0;
+    }
+  }
+
+  return tabIndex;
+}
+
+function getComposedChildren(container: ParentNode): Element[] {
+  if (isHTMLElement(container) && getNodeName(container) === 'slot') {
+    const assignedElements = (container as HTMLSlotElement).assignedElements({ flatten: true });
+    if (assignedElements.length > 0) {
+      return assignedElements;
+    }
+  }
+
+  if (isHTMLElement(container) && container.shadowRoot) {
+    return Array.from(container.shadowRoot.children);
+  }
+
+  return Array.from(container.children);
+}
+
+function appendCandidates(container: ParentNode, list: FocusableElement[]) {
+  getComposedChildren(container).forEach((child) => {
+    if (isFocusableCandidate(child)) {
+      list.push(child);
+    }
+
+    appendCandidates(child, list);
+  });
+}
+
+function appendMatchingElements(
+  container: ParentNode,
+  selector: string,
+  list: HTMLElement[],
+) {
+  getComposedChildren(container).forEach((child) => {
+    if (isHTMLElement(child) && child.matches(selector)) {
+      list.push(child);
+    }
+
+    appendMatchingElements(child, selector, list);
+  });
+}
+
+export function isTabbable(element: Element | null) {
+  return isFocusableElement(element) && getTabIndex(element) >= 0;
+}
+
+export function focusable(container: Element) {
+  const candidates: FocusableElement[] = [];
+  appendCandidates(container, candidates);
+  return candidates.filter(isFocusableElement);
+}
+
+export function tabbable(container: Element) {
+  return focusable(container).filter((element) => getTabIndex(element) >= 0);
+}
 
 function getTabbableIn(container: HTMLElement, dir: 1 | -1): FocusableElement | undefined {
-  const list = tabbable(container, getTabbableOptions());
+  const list = tabbable(container);
   const len = list.length;
   if (len === 0) {
     return undefined;
@@ -47,7 +182,7 @@ function getTabbableNearElement(referenceElement: Element | null, dir: 1 | -1) {
     return null;
   }
 
-  const list = tabbable(ownerDocument(referenceElement).body, getTabbableOptions());
+  const list = tabbable(ownerDocument(referenceElement).body);
   const elementCount = list.length;
   if (elementCount === 0) {
     return null;
@@ -79,7 +214,7 @@ export function isOutsideEvent(event: FocusEvent | React.FocusEvent, container?:
 }
 
 export function disableFocusInside(container: HTMLElement) {
-  const tabbableElements = tabbable(container, getTabbableOptions());
+  const tabbableElements = tabbable(container);
   tabbableElements.forEach((element) => {
     element.dataset.tabindex = element.getAttribute('tabindex') || '';
     element.setAttribute('tabindex', '-1');
@@ -87,7 +222,8 @@ export function disableFocusInside(container: HTMLElement) {
 }
 
 export function enableFocusInside(container: HTMLElement) {
-  const elements = container.querySelectorAll<HTMLElement>('[data-tabindex]');
+  const elements: HTMLElement[] = [];
+  appendMatchingElements(container, '[data-tabindex]', elements);
   elements.forEach((element) => {
     const tabindex = element.dataset.tabindex;
     delete element.dataset.tabindex;

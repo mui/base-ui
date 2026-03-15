@@ -2,13 +2,11 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { isTabbable } from 'tabbable';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { isWebKit } from '@base-ui/utils/detectBrowser';
 import {
   safePolygon,
@@ -28,6 +26,7 @@ import {
   getTabbableAfterElement,
   getNextTabbable,
   getPreviousTabbable,
+  isTabbable,
   isOutsideEvent,
   stopEvent,
 } from '../../floating-ui-react/utils';
@@ -116,7 +115,8 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const skipAutoSizeSyncRef = React.useRef(false);
 
   const isActiveItem = open && value === itemValue;
-  const isActiveItemRef = useValueAsRef(isActiveItem);
+  const isActiveItemRef = React.useRef(isActiveItem);
+  isActiveItemRef.current = isActiveItem;
   const interactionsEnabled = positionerElement ? true : !value;
   const hoverFloatingElement = positionerElement || viewportElement;
   const hoverInteractionsEnabled = hoverFloatingElement ? true : !value;
@@ -174,19 +174,10 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     runOnceAnimationsFinish(setAutoSizes, animationAbortControllerRef.current.signal);
   }
 
-  const handleValueChange = useStableCallback(
-    (
-      currentWidth: number,
-      currentHeight: number,
-      options: {
-        syncPositioner?: boolean | undefined;
-      } = {},
-    ) => {
+  const handleValueChange = useStableCallback((currentWidth: number, currentHeight: number) => {
       if (!popupElement || !positionerElement) {
         return;
       }
-
-      const { syncPositioner = false } = options;
 
       clearFixedSizes();
 
@@ -203,11 +194,11 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${currentHeight}px`);
       positionerElement.style.setProperty(
         NavigationMenuPositionerCssVars.positionerWidth,
-        `${syncPositioner ? currentWidth : measuredWidth}px`,
+        `${measuredWidth}px`,
       );
       positionerElement.style.setProperty(
         NavigationMenuPositionerCssVars.positionerHeight,
-        `${syncPositioner ? currentHeight : measuredHeight}px`,
+        `${measuredHeight}px`,
       );
 
       sizeFrame.request(() => {
@@ -217,21 +208,9 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
           `${measuredHeight}px`,
         );
 
-        if (syncPositioner) {
-          positionerElement.style.setProperty(
-            NavigationMenuPositionerCssVars.positionerWidth,
-            `${measuredWidth}px`,
-          );
-          positionerElement.style.setProperty(
-            NavigationMenuPositionerCssVars.positionerHeight,
-            `${measuredHeight}px`,
-          );
-        }
-
         scheduleAutoSizeReset();
       });
-    },
-  );
+    });
 
   const handleInterruptedMutationResize = useStableCallback(
     (currentWidth: number, currentHeight: number) => {

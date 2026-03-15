@@ -4,7 +4,8 @@ import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { EMPTY_OBJECT } from '../../utils/constants';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
-import { isClickLikeEvent, isMouseLikePointerType, isTypeableElement } from '../utils';
+import { isTypeableElement } from '../utils/element';
+import { isClickLikeEvent, isMouseLikePointerType } from '../utils/event';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 

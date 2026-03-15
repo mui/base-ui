@@ -1,4 +1,5 @@
-import { ReactStore, createSelector, createSelectorMemoized } from '@base-ui/utils/store';
+import { ReactStore } from '@base-ui/utils/store/ReactStore';
+import { createSelector } from '@base-ui/utils/store/createSelector';
 import { generateId } from '@base-ui/utils/generateId';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { Timeout } from '@base-ui/utils/useTimeout';
@@ -25,15 +26,25 @@ export type State = {
   prevFocusElement: HTMLElement | null;
 };
 
-const toastMapSelector = createSelectorMemoized(
-  (state: State) => state.toasts,
-  (toasts) => {
-    const map = new Map<
-      string,
-      { value: ToastObject<any>; domIndex: number; visibleIndex: number; offsetY: number }
-    >();
+type ToastMap = Map<
+  string,
+  { value: ToastObject<any>; domIndex: number; visibleIndex: number; offsetY: number }
+>;
+
+const toastMapSelector = (() => {
+  let lastToasts: State['toasts'] | null = null;
+  let lastMap: ToastMap = new Map();
+
+  return (state: State) => {
+    const { toasts } = state;
+    if (toasts === lastToasts) {
+      return lastMap;
+    }
+
+    const map: ToastMap = new Map();
     let visibleIndex = 0;
     let offsetY = 0;
+
     toasts.forEach((toast, toastIndex) => {
       const isEnding = toast.transitionStatus === 'ending';
       map.set(toast.id, {
@@ -49,9 +60,12 @@ const toastMapSelector = createSelectorMemoized(
         visibleIndex += 1;
       }
     });
+
+    lastToasts = toasts;
+    lastMap = map;
     return map;
-  },
-);
+  };
+})();
 
 export const selectors = {
   toasts: createSelector((state: State) => state.toasts),

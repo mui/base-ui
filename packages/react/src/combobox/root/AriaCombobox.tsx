@@ -7,8 +7,8 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { Store, useStore } from '@base-ui/utils/store';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { Store } from '@base-ui/utils/store/Store';
+import { useStore } from '@base-ui/utils/store/useStore';
 import {
   ElementProps,
   useDismiss,
@@ -429,7 +429,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const inline = useStore(store, selectors.inline);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
 
-  const triggerRef = useValueAsRef(triggerElement);
+  const triggerRef = React.useRef(triggerElement);
+  triggerRef.current = triggerElement;
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const { openMethod, triggerProps } = useOpenInteractionType(open);
