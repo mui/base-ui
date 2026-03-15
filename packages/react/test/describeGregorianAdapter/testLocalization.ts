@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { DescribeGregorianAdapterTestSuite } from './describeGregorianAdapter.types';
 
 export const testLocalization: DescribeGregorianAdapterTestSuite = ({ adapter }) => {
@@ -9,6 +9,6 @@ export const testLocalization: DescribeGregorianAdapterTestSuite = ({ adapter })
     // }
 
     // Returns the default locale
-    expect(adapter.getCurrentLocaleCode()).to.match(/en/);
+    expect(adapter.getCurrentLocaleCode()).toMatch(/en/);
   });
 };

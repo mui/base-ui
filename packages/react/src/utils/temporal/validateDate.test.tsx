@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect } from 'vitest';
 // TODO Temporal: Replace with `@base-ui/react/types` import when Temporal components will become public.
 import { TemporalAdapter } from '../../types/temporal';
 import { TemporalAdapterDateFns } from '../../temporal-adapter-date-fns';
@@ -17,7 +17,7 @@ adapters.forEach((adapter) => {
           value: adapter.date('2025-06-03', 'default'),
           validationProps: {},
         }),
-      ).to.equal(null);
+      ).toBe(null);
     });
 
     it('should return null when the provided value is between the min date and the max date', () => {
@@ -30,7 +30,7 @@ adapters.forEach((adapter) => {
             maxDate: adapter.date('2025-06-05', 'default'),
           },
         }),
-      ).to.equal(null);
+      ).toBe(null);
     });
 
     it('should return null when the provided value is on the same day as the min date', () => {
@@ -42,7 +42,7 @@ adapters.forEach((adapter) => {
             minDate: adapter.date('2025-06-03T20:30', 'default'),
           },
         }),
-      ).to.equal(null);
+      ).toBe(null);
     });
 
     it('should return null when the provided value is on the same day as the max date', () => {
@@ -54,7 +54,7 @@ adapters.forEach((adapter) => {
             maxDate: adapter.date('2025-06-03T15:30', 'default'),
           },
         }),
-      ).to.equal(null);
+      ).toBe(null);
     });
 
     it('should return "invalid" when receiving an invalid date', () => {
@@ -64,7 +64,7 @@ adapters.forEach((adapter) => {
           value: adapter.date('Invalid date', 'default'),
           validationProps: {},
         }),
-      ).to.equal('invalid');
+      ).toBe('invalid');
     });
   });
 });

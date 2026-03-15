@@ -122,8 +122,8 @@ export function testPropForwarding(
       await flushMicrotasks();
 
       const customRoot = screen.getByTestId('custom-root');
-      expect(customRoot).to.have.attribute('style');
-      expect(customRoot.getAttribute('style')).to.contain('color: green');
+      expect(customRoot).toHaveAttribute('style');
+      expect(customRoot.getAttribute('style')).toContain('color: green');
     });
   });
 }

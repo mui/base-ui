@@ -1,43 +1,45 @@
-import * as chai from 'chai';
+import { expect } from 'vitest';
 
-// https://stackoverflow.com/a/46755166/3406963
-declare global {
-  namespace Chai {
-    interface Assertion {
-      /**
-       * Matcher with useful error messages if the dates don't match.
-       */
-      toEqualDateTime(expected: any): void;
-    }
+declare module 'vitest' {
+  interface Assertion<T = any> {
+    toEqualDateTime(expected: any): T;
+  }
+
+  interface AsymmetricMatchersContaining {
+    toEqualDateTime(expected: any): void;
   }
 }
 
-chai.use((chaiAPI, utils) => {
-  chaiAPI.Assertion.addMethod('toEqualDateTime', function toEqualDateTime(expectedDate, message) {
-    // eslint-disable-next-line no-underscore-dangle
-    const actualDate = this._obj;
+function cleanDate(value: any): Date {
+  if (typeof value?.toJSDate === 'function') {
+    return value.toJSDate();
+  }
 
-    // Luxon dates don't have a `toISOString` function, we need to convert to the JS date first
-    const cleanActualDate: Date =
-      typeof actualDate.toJSDate === 'function' ? actualDate.toJSDate() : actualDate;
+  if (typeof value === 'string') {
+    return new Date(value);
+  }
 
-    let cleanExpectedDate: Date;
-    if (typeof expectedDate === 'string') {
-      cleanExpectedDate = new Date(expectedDate);
-    } else if (typeof expectedDate.toJSDate === 'function') {
-      cleanExpectedDate = expectedDate.toJSDate();
-    } else {
-      cleanExpectedDate = expectedDate;
-    }
+  return value;
+}
 
-    const format = (d: Date) =>
-      `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}T${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}.${d.getMilliseconds()}`;
+function formatDate(value: Date): string {
+  return `${value.getFullYear()}-${value.getMonth() + 1}-${value.getDate()}T${value.getHours()}:${value.getMinutes()}:${value.getSeconds()}.${value.getMilliseconds()}`;
+}
 
-    const assertion = new chaiAPI.Assertion(format(cleanActualDate), message);
-    // TODO: Investigate if `as any` can be removed after https://github.com/DefinitelyTyped/DefinitelyTyped/issues/48634 is resolved.
-    utils.transferFlags(this as any, assertion, false);
-    assertion.to.equal(format(cleanExpectedDate));
-  });
+expect.extend({
+  toEqualDateTime(received, expected) {
+    const actual = formatDate(cleanDate(received));
+    const expectedFormatted = formatDate(cleanDate(expected));
+    const pass = actual === expectedFormatted;
+
+    return {
+      pass,
+      message: () =>
+        pass
+          ? `expected ${actual} not to equal ${expectedFormatted}`
+          : `expected ${actual} to equal ${expectedFormatted}`,
+    };
+  },
 });
 
 export type {};
