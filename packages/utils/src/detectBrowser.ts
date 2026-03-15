@@ -8,8 +8,8 @@ const hasNavigator = typeof navigator !== 'undefined';
 const uaData = hasNavigator
   ? ((navigator as any).userAgentData as NavigatorUAData | undefined)
   : null;
-const platform = uaData?.platform ?? (hasNavigator ? navigator.platform ?? '' : '');
-const maxTouchPoints = hasNavigator ? navigator.maxTouchPoints ?? -1 : -1;
+const platform = uaData?.platform ?? (hasNavigator ? (navigator.platform ?? '') : '');
+const maxTouchPoints = hasNavigator ? (navigator.maxTouchPoints ?? -1) : -1;
 let userAgent = '';
 
 if (uaData && Array.isArray(uaData.brands)) {

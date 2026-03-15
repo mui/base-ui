@@ -9,9 +9,11 @@ const CANDIDATE_SELECTOR =
   'a[href],button,input,select,textarea,summary,details,[tabindex],[contenteditable]:not([contenteditable="false"]),audio[controls],video[controls]';
 
 function getParentElement(element: Element) {
-  const assignedSlot = (element as Element & {
-    assignedSlot?: HTMLSlotElement | null | undefined;
-  }).assignedSlot;
+  const assignedSlot = (
+    element as Element & {
+      assignedSlot?: HTMLSlotElement | null | undefined;
+    }
+  ).assignedSlot;
   if (assignedSlot) {
     return assignedSlot;
   }
@@ -121,11 +123,7 @@ function appendCandidates(container: ParentNode, list: FocusableElement[]) {
   });
 }
 
-function appendMatchingElements(
-  container: ParentNode,
-  selector: string,
-  list: HTMLElement[],
-) {
+function appendMatchingElements(container: ParentNode, selector: string, list: HTMLElement[]) {
   getComposedChildren(container).forEach((child) => {
     if (isHTMLElement(child) && child.matches(selector)) {
       list.push(child);
