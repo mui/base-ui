@@ -1,7 +1,7 @@
 import { vi } from 'vitest';
 import setupVitest from '@mui/internal-test-utils/setupVitest';
 // eslint-disable-next-line import/no-relative-packages
-import '../packages/react/test/addChaiAssertions';
+import '../packages/react/test/addVitestMatchers';
 import '@testing-library/jest-dom/vitest';
 import { reset } from '@base-ui/utils/error';
 

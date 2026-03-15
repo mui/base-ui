@@ -123,9 +123,7 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
         const testTodayZone = (timezone: TemporalTimezone) => {
           const dateWithZone = adapterTZ.now(timezone);
           expect(adapterTZ.getTimezone(dateWithZone)).toBe(timezone);
-          expect(Math.abs(adapterTZ.toJsDate(dateWithZone).getTime() - Date.now())).toBeLessThan(
-            5,
-          );
+          expect(Math.abs(adapterTZ.toJsDate(dateWithZone).getTime() - Date.now())).toBeLessThan(5);
         };
 
         testTodayZone('system');

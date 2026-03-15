@@ -160,7 +160,8 @@ describe('SharedCalendarStore - value', () => {
 
       expect(onValueChange.mock.calls.length).toBe(1);
 
-      const eventDetails = onValueChange.mock.calls[0][1] as CalendarValueChangeEventDetails<ValidateDateReturnValue>;
+      const eventDetails = onValueChange.mock
+        .calls[0][1] as CalendarValueChangeEventDetails<ValidateDateReturnValue>;
       const validationError = eventDetails.getValidationError();
       expect(validationError).toBe('before-min-date');
     });
@@ -176,7 +177,8 @@ describe('SharedCalendarStore - value', () => {
 
       expect(onValueChange.mock.calls.length).toBe(1);
 
-      const eventDetails = onValueChange.mock.calls[0][1] as CalendarValueChangeEventDetails<ValidateDateReturnValue>;
+      const eventDetails = onValueChange.mock
+        .calls[0][1] as CalendarValueChangeEventDetails<ValidateDateReturnValue>;
       const validationError = eventDetails.getValidationError();
       expect(validationError).toBe(null);
     });

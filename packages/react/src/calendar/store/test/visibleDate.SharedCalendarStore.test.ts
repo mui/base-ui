@@ -164,7 +164,8 @@ describe('SharedCalendarStore - visibleDate', () => {
 
       expect(onVisibleDateChange.mock.calls.length).toBe(1);
 
-      const eventDetails = onVisibleDateChange.mock.calls[0][1] as CalendarVisibleDateChangeEventDetails;
+      const eventDetails = onVisibleDateChange.mock
+        .calls[0][1] as CalendarVisibleDateChangeEventDetails;
       expect(eventDetails).not.toBe(undefined);
       expect(eventDetails.reason).toBe('day-press');
       expect(eventDetails.event).toBeInstanceOf(Event);
@@ -196,7 +197,8 @@ describe('SharedCalendarStore - visibleDate', () => {
 
       store.setVisibleDate(newVisibleDate, undefined, undefined, 'month-change');
 
-      const eventDetails = onVisibleDateChange.mock.calls[0][1] as CalendarVisibleDateChangeEventDetails;
+      const eventDetails = onVisibleDateChange.mock
+        .calls[0][1] as CalendarVisibleDateChangeEventDetails;
       expect(eventDetails.reason).toBe('month-change');
     });
 
@@ -210,7 +212,8 @@ describe('SharedCalendarStore - visibleDate', () => {
 
       store.setVisibleDate(newVisibleDate, undefined, undefined, 'keyboard');
 
-      const eventDetails = onVisibleDateChange.mock.calls[0][1] as CalendarVisibleDateChangeEventDetails;
+      const eventDetails = onVisibleDateChange.mock
+        .calls[0][1] as CalendarVisibleDateChangeEventDetails;
       expect(eventDetails.reason).toBe('keyboard');
     });
 

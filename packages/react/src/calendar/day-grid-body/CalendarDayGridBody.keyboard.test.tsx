@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { vi } from 'vitest';
 import { Calendar } from '@base-ui/react/calendar';
+import type { CalendarRoot } from '@base-ui/react/calendar';
 import { act, screen } from '@mui/internal-test-utils';
 import { createTemporalRenderer } from '#test-utils';
 
@@ -12,8 +13,8 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
     options?: {
       minDate?: ReturnType<ReturnType<typeof createTemporalRenderer>['adapter']['date']>;
       maxDate?: ReturnType<ReturnType<typeof createTemporalRenderer>['adapter']['date']>;
-      onVisibleDateChange?: ReturnType<typeof vi.fn>;
-      onValueChange?: ReturnType<typeof vi.fn>;
+      onVisibleDateChange?: CalendarRoot.Props['onVisibleDateChange'];
+      onValueChange?: CalendarRoot.Props['onValueChange'];
       focusableWhenDisabled?: boolean;
     },
   ) {
