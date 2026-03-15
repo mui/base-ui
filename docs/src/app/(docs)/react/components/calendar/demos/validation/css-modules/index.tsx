@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import indexStyles from './index.module.css';
 import styles from '../../calendar.module.css';
 
-const today = new Date();
+const today = new Date('2025-11-12');
 
 export default function MinMaxDateCalendars() {
   return (
@@ -19,7 +19,7 @@ export default function MinMaxDateCalendars() {
 
 function ValidationCalendar(props: Calendar.Root.Props) {
   return (
-    <Calendar.Root className={styles.Root} {...props}>
+    <Calendar.Root className={styles.Root} referenceDate={today} {...props}>
       {({ visibleDate }) => (
         <React.Fragment>
           <header className={styles.Header}>
