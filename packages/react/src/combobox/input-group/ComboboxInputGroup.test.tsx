@@ -1,7 +1,7 @@
+import { expect } from 'vitest';
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance } from '#test-utils';
-import { expect } from 'vitest';
 import { screen } from '@mui/internal-test-utils';
 
 describe('<Combobox.InputGroup />', () => {
@@ -37,10 +37,10 @@ describe('<Combobox.InputGroup />', () => {
     );
 
     await user.click(screen.getByRole('button', { name: 'Open' }));
-    expect(await screen.findByRole('listbox')).not.to.equal(null);
+    expect(await screen.findByRole('listbox')).not.toBe(null);
 
     await user.click(screen.getByTestId('pad'));
-    expect(screen.queryByRole('listbox')).not.to.equal(null);
+    expect(screen.queryByRole('listbox')).not.toBe(null);
   });
 
   it('has role prop', async () => {
@@ -50,6 +50,6 @@ describe('<Combobox.InputGroup />', () => {
       </Combobox.Root>,
     );
 
-    expect(screen.queryByRole('group')).not.to.equal(null);
+    expect(screen.queryByRole('group')).not.toBe(null);
   });
 });

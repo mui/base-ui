@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { resolveThumbCollision } from './resolveThumbCollision';
 
 describe('resolveThumbCollision', () => {
@@ -14,9 +14,9 @@ describe('resolveThumbCollision', () => {
       minStepsBetweenValues: 0,
     });
 
-    expect(result.value).to.deep.equal([40, 40]);
-    expect(result.thumbIndex).to.equal(0);
-    expect(result.didSwap).to.equal(false);
+    expect(result.value).toEqual([40, 40]);
+    expect(result.thumbIndex).toBe(0);
+    expect(result.didSwap).toBe(false);
   });
 
   it('pushes thumbs forward without cling when behavior is "push"', () => {
@@ -31,9 +31,9 @@ describe('resolveThumbCollision', () => {
       minStepsBetweenValues: 0,
     });
 
-    expect(result.value).to.deep.equal([70, 70]);
-    expect(result.thumbIndex).to.equal(0);
-    expect(result.didSwap).to.equal(false);
+    expect(result.value).toEqual([70, 70]);
+    expect(result.thumbIndex).toBe(0);
+    expect(result.didSwap).toBe(false);
   });
 
   it('keeps pushed thumbs in place when moving backward in push mode', () => {
@@ -53,7 +53,7 @@ describe('resolveThumbCollision', () => {
     });
 
     const nextValues = pushed.value as number[];
-    expect(nextValues).to.deep.equal([70, 70]);
+    expect(nextValues).toEqual([70, 70]);
 
     const movedBack = resolveThumbCollision({
       behavior: 'push',
@@ -68,9 +68,9 @@ describe('resolveThumbCollision', () => {
       minStepsBetweenValues: 0,
     });
 
-    expect(movedBack.value).to.deep.equal([30, 70]);
-    expect(movedBack.thumbIndex).to.equal(0);
-    expect(movedBack.didSwap).to.equal(false);
+    expect(movedBack.value).toEqual([30, 70]);
+    expect(movedBack.thumbIndex).toBe(0);
+    expect(movedBack.didSwap).toBe(false);
   });
 
   it('swaps thumbs when behavior is "swap"', () => {
@@ -85,9 +85,9 @@ describe('resolveThumbCollision', () => {
       minStepsBetweenValues: 0,
     });
 
-    expect(result.value).to.deep.equal([40, 65]);
-    expect(result.thumbIndex).to.equal(1);
-    expect(result.didSwap).to.equal(true);
+    expect(result.value).toEqual([40, 65]);
+    expect(result.thumbIndex).toBe(1);
+    expect(result.didSwap).toBe(true);
   });
 
   it('maintains swap continuity with minimum steps when provided current and initial values', () => {
@@ -107,9 +107,9 @@ describe('resolveThumbCollision', () => {
     });
 
     const firstValues = first.value as number[];
-    expect(firstValues).to.deep.equal([70, 85]);
-    expect(first.thumbIndex).to.equal(1);
-    expect(first.didSwap).to.equal(true);
+    expect(firstValues).toEqual([70, 85]);
+    expect(first.thumbIndex).toBe(1);
+    expect(first.didSwap).toBe(true);
 
     const continued = resolveThumbCollision({
       behavior: 'swap',
@@ -125,9 +125,9 @@ describe('resolveThumbCollision', () => {
     });
 
     const continuedValues = continued.value as number[];
-    expect(continuedValues).to.deep.equal([70, 95]);
-    expect(continued.thumbIndex).to.equal(1);
-    expect(continued.didSwap).to.equal(false);
+    expect(continuedValues).toEqual([70, 95]);
+    expect(continued.thumbIndex).toBe(1);
+    expect(continued.didSwap).toBe(false);
   });
 
   it('does not swap before reaching neighbour value with minimum steps', () => {
@@ -145,9 +145,9 @@ describe('resolveThumbCollision', () => {
     });
 
     const resultValues = result.value as number[];
-    expect(resultValues).to.deep.equal([40, 45]);
-    expect(result.thumbIndex).to.equal(0);
-    expect(result.didSwap).to.equal(false);
+    expect(resultValues).toEqual([40, 45]);
+    expect(result.thumbIndex).toBe(0);
+    expect(result.didSwap).toBe(false);
   });
 
   it('swaps once reaching the neighbour value with minimum steps', () => {
@@ -165,9 +165,9 @@ describe('resolveThumbCollision', () => {
     });
 
     const resultValues = result.value as number[];
-    expect(resultValues).to.deep.equal([40, 45]);
-    expect(result.thumbIndex).to.equal(1);
-    expect(result.didSwap).to.equal(true);
+    expect(resultValues).toEqual([40, 45]);
+    expect(result.thumbIndex).toBe(1);
+    expect(result.didSwap).toBe(true);
   });
 
   it('does not swap backward before reaching neighbour value with minimum steps', () => {
@@ -185,9 +185,9 @@ describe('resolveThumbCollision', () => {
     });
 
     const resultValues = result.value as number[];
-    expect(resultValues).to.deep.equal([25, 30]);
-    expect(result.thumbIndex).to.equal(1);
-    expect(result.didSwap).to.equal(false);
+    expect(resultValues).toEqual([25, 30]);
+    expect(result.thumbIndex).toBe(1);
+    expect(result.didSwap).toBe(false);
   });
 
   it('swaps backward once reaching the neighbour value with minimum steps', () => {
@@ -205,9 +205,9 @@ describe('resolveThumbCollision', () => {
     });
 
     const resultValues = result.value as number[];
-    expect(resultValues).to.deep.equal([25, 30]);
-    expect(result.thumbIndex).to.equal(0);
-    expect(result.didSwap).to.equal(true);
+    expect(resultValues).toEqual([25, 30]);
+    expect(result.thumbIndex).toBe(0);
+    expect(result.didSwap).toBe(true);
   });
 
   it('does not move the clamped neighbour when swapping across with minimum steps', () => {
@@ -228,8 +228,8 @@ describe('resolveThumbCollision', () => {
     });
 
     const resultValues = result.value as number[];
-    expect(resultValues).to.deep.equal([40, 46]);
-    expect(result.thumbIndex).to.equal(1);
-    expect(result.didSwap).to.equal(true);
+    expect(resultValues).toEqual([40, 46]);
+    expect(result.thumbIndex).toBe(1);
+    expect(result.didSwap).toBe(true);
   });
 });

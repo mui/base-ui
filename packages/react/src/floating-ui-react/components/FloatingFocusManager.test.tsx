@@ -1,3 +1,4 @@
+import { test, vi, expect } from 'vitest';
 /* eslint-disable jsx-a11y/role-has-required-aria-props */
 /* eslint-disable no-promise-executor-return */
 /* eslint-disable react/function-component-definition */
@@ -13,7 +14,6 @@ import {
   waitFor,
   within,
 } from '@mui/internal-test-utils';
-import { test } from 'vitest';
 import * as React from 'react';
 import * as ReactDOMClient from 'react-dom/client';
 import { isJSDOM } from '@base-ui/utils/detectBrowser';

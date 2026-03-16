@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
-import { spy } from 'sinon';
+import { expect, vi } from 'vitest';
 import { Calendar } from '@base-ui/react/calendar';
 import { createTemporalRenderer, describeConformance } from '#test-utils';
 
@@ -30,7 +29,7 @@ describe('<Calendar.DayButton />', () => {
 
   describe('value update', () => {
     it('should update the value when clicked', async () => {
-      const onValueChange = spy();
+      const onValueChange = vi.fn();
       const date = adapter.date('2025-02-04', 'default');
 
       const { user } = render(
@@ -50,12 +49,12 @@ describe('<Calendar.DayButton />', () => {
       const button = screen.getByRole('button');
 
       await user.click(button);
-      expect(onValueChange.callCount).to.equal(1);
-      expect(onValueChange.firstCall.args[0]).toEqualDateTime('2025-02-04T00:00:00.000Z');
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(onValueChange.mock.calls[0][0]).toEqualDateTime('2025-02-04T00:00:00.000Z');
     });
 
     it('should keep the time of the previous value when clicked', async () => {
-      const onValueChange = spy();
+      const onValueChange = vi.fn();
       const date = adapter.date('2025-02-04', 'default');
 
       const { user } = render(
@@ -79,12 +78,12 @@ describe('<Calendar.DayButton />', () => {
       const button = screen.getByRole('button');
 
       await user.click(button);
-      expect(onValueChange.callCount).to.equal(1);
-      expect(onValueChange.firstCall.args[0]).toEqualDateTime('2025-02-04T12:01:02.003Z');
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(onValueChange.mock.calls[0][0]).toEqualDateTime('2025-02-04T12:01:02.003Z');
     });
 
     it('should keep the time of the default value when clicked', async () => {
-      const onValueChange = spy();
+      const onValueChange = vi.fn();
       const date = adapter.date('2025-02-04', 'default');
 
       const { user } = render(
@@ -108,12 +107,12 @@ describe('<Calendar.DayButton />', () => {
       const button = screen.getByRole('button');
 
       await user.click(button);
-      expect(onValueChange.callCount).to.equal(1);
-      expect(onValueChange.firstCall.args[0]).toEqualDateTime('2025-02-04T12:01:02.003Z');
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(onValueChange.mock.calls[0][0]).toEqualDateTime('2025-02-04T12:01:02.003Z');
     });
 
     it('should keep the time of the reference date when clicked', async () => {
-      const onValueChange = spy();
+      const onValueChange = vi.fn();
       const date = adapter.date('2025-02-04', 'default');
 
       const { user } = render(
@@ -137,8 +136,8 @@ describe('<Calendar.DayButton />', () => {
       const button = screen.getByRole('button');
 
       await user.click(button);
-      expect(onValueChange.callCount).to.equal(1);
-      expect(onValueChange.firstCall.args[0]).toEqualDateTime('2025-02-04T12:01:02.003Z');
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(onValueChange.mock.calls[0][0]).toEqualDateTime('2025-02-04T12:01:02.003Z');
     });
   });
 
@@ -164,8 +163,8 @@ describe('<Calendar.DayButton />', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button).to.have.attribute('aria-selected', 'true');
-      expect(button).to.have.attribute('data-selected');
+      expect(button).toHaveAttribute('aria-selected', 'true');
+      expect(button).toHaveAttribute('data-selected');
     });
 
     it('should be selected when the date is in the same day as the default value', () => {
@@ -189,8 +188,8 @@ describe('<Calendar.DayButton />', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button).to.have.attribute('aria-selected', 'true');
-      expect(button).to.have.attribute('data-selected');
+      expect(button).toHaveAttribute('aria-selected', 'true');
+      expect(button).toHaveAttribute('data-selected');
     });
 
     it('should not be selected when the date is in the same day as the reference date', () => {
@@ -214,8 +213,8 @@ describe('<Calendar.DayButton />', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button).not.to.have.attribute('aria-selected', 'true');
-      expect(button).not.to.have.attribute('data-selected');
+      expect(button).not.toHaveAttribute('aria-selected', 'true');
+      expect(button).not.toHaveAttribute('data-selected');
     });
 
     it('should update the selected state when the controlled value changes', () => {
@@ -240,8 +239,8 @@ describe('<Calendar.DayButton />', () => {
       );
 
       const buttons = screen.getAllByRole('button');
-      expect(buttons[0]).to.have.attribute('aria-selected', 'true');
-      expect(buttons[1]).not.to.have.attribute('aria-selected', 'true');
+      expect(buttons[0]).toHaveAttribute('aria-selected', 'true');
+      expect(buttons[1]).not.toHaveAttribute('aria-selected', 'true');
 
       rerender(
         <Calendar.Root visibleDate={adapter.startOfMonth(dateA)} value={dateB}>
@@ -260,8 +259,8 @@ describe('<Calendar.DayButton />', () => {
         </Calendar.Root>,
       );
 
-      expect(buttons[0]).not.to.have.attribute('aria-selected', 'true');
-      expect(buttons[1]).to.have.attribute('aria-selected', 'true');
+      expect(buttons[0]).not.toHaveAttribute('aria-selected', 'true');
+      expect(buttons[1]).toHaveAttribute('aria-selected', 'true');
     });
   });
 
@@ -284,8 +283,8 @@ describe('<Calendar.DayButton />', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button).to.have.attribute('aria-disabled', 'true');
-      expect(button).to.have.attribute('data-disabled');
+      expect(button).toHaveAttribute('aria-disabled', 'true');
+      expect(button).toHaveAttribute('data-disabled');
     });
 
     it('should have aria-disabled="true" and data-disabled when the date is before the minDate', () => {
@@ -309,8 +308,8 @@ describe('<Calendar.DayButton />', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button).to.have.attribute('aria-disabled', 'true');
-      expect(button).to.have.attribute('data-disabled');
+      expect(button).toHaveAttribute('aria-disabled', 'true');
+      expect(button).toHaveAttribute('data-disabled');
     });
 
     it('should have aria-disabled="true" and data-disabled when the date is after the maxDate', () => {
@@ -334,8 +333,8 @@ describe('<Calendar.DayButton />', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button).to.have.attribute('aria-disabled', 'true');
-      expect(button).to.have.attribute('data-disabled');
+      expect(button).toHaveAttribute('aria-disabled', 'true');
+      expect(button).toHaveAttribute('data-disabled');
     });
 
     it('should not have aria-disabled or data-disabled when the date is not disabled', () => {
@@ -356,8 +355,8 @@ describe('<Calendar.DayButton />', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button).not.to.have.attribute('aria-disabled');
-      expect(button).not.to.have.attribute('data-disabled');
+      expect(button).not.toHaveAttribute('aria-disabled');
+      expect(button).not.toHaveAttribute('data-disabled');
     });
   });
 
@@ -380,8 +379,8 @@ describe('<Calendar.DayButton />', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button).to.have.attribute('aria-current', 'date');
-      expect(button).to.have.attribute('data-current');
+      expect(button).toHaveAttribute('aria-current', 'date');
+      expect(button).toHaveAttribute('data-current');
     });
 
     it('should not have aria-current or data-current when the date is not today', () => {
@@ -402,8 +401,8 @@ describe('<Calendar.DayButton />', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button).not.to.have.attribute('aria-current');
-      expect(button).not.to.have.attribute('data-current');
+      expect(button).not.toHaveAttribute('aria-current');
+      expect(button).not.toHaveAttribute('data-current');
     });
   });
 
@@ -426,7 +425,7 @@ describe('<Calendar.DayButton />', () => {
       );
 
       const button = document.querySelector('button');
-      expect(button).not.to.have.attribute('data-outside-month');
+      expect(button).not.toHaveAttribute('data-outside-month');
     });
 
     it('should have data-outside-month attribute and aria-disabled when the date is outside the current month', () => {
@@ -447,13 +446,13 @@ describe('<Calendar.DayButton />', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button).to.have.attribute('data-outside-month');
-      expect(button).to.have.attribute('aria-disabled', 'true');
+      expect(button).toHaveAttribute('data-outside-month');
+      expect(button).toHaveAttribute('aria-disabled', 'true');
     });
 
     it('should not call `onValueChange` or `onClick` on a day when an outside-month day is clicked', async () => {
-      const onValueChange = spy();
-      const onButtonClick = spy();
+      const onValueChange = vi.fn();
+      const onButtonClick = vi.fn();
       const date = adapter.date('2025-01-31', 'default');
 
       const { user } = render(
@@ -475,8 +474,8 @@ describe('<Calendar.DayButton />', () => {
 
       const button = screen.getByRole('button');
       await user.click(button);
-      expect(onValueChange.callCount).to.equal(0);
-      expect(onButtonClick.callCount).to.equal(0);
+      expect(onValueChange.mock.calls.length).toBe(0);
+      expect(onButtonClick.mock.calls.length).toBe(0);
     });
   });
 
@@ -499,8 +498,8 @@ describe('<Calendar.DayButton />', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button).not.to.have.attribute('data-unavailable');
-      expect(button).not.to.have.attribute('aria-disabled');
+      expect(button).not.toHaveAttribute('data-unavailable');
+      expect(button).not.toHaveAttribute('aria-disabled');
     });
 
     it('should have data-unavailable and aria-disabled when the date is unavailable', () => {
@@ -521,8 +520,8 @@ describe('<Calendar.DayButton />', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button).to.have.attribute('data-unavailable');
-      expect(button).to.have.attribute('aria-disabled', 'true');
+      expect(button).toHaveAttribute('data-unavailable');
+      expect(button).toHaveAttribute('aria-disabled', 'true');
     });
   });
 
@@ -545,7 +544,7 @@ describe('<Calendar.DayButton />', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button.textContent).to.equal('4');
+      expect(button.textContent).toBe('4');
     });
 
     it('should use the provided format', () => {
@@ -566,7 +565,7 @@ describe('<Calendar.DayButton />', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button.textContent).to.equal('04');
+      expect(button.textContent).toBe('04');
     });
   });
 
@@ -614,7 +613,7 @@ describe('<Calendar.DayButton />', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button).to.have.attribute('tabindex', '0');
+      expect(button).toHaveAttribute('tabindex', '0');
     });
 
     it('should have tabIndex={-1} when the date is not the first day of the month that contains no selected date or reference date', () => {
@@ -635,7 +634,7 @@ describe('<Calendar.DayButton />', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button).to.have.attribute('tabindex', '-1');
+      expect(button).toHaveAttribute('tabindex', '-1');
     });
 
     it('should have tabIndex={0} when the date is selected', () => {
@@ -656,7 +655,7 @@ describe('<Calendar.DayButton />', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button).to.have.attribute('tabindex', '0');
+      expect(button).toHaveAttribute('tabindex', '0');
     });
 
     it('should have tabIndex={0} when the date is the reference date and no date is selected', () => {
@@ -677,7 +676,7 @@ describe('<Calendar.DayButton />', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button).to.have.attribute('tabindex', '0');
+      expect(button).toHaveAttribute('tabindex', '0');
     });
 
     it('should have tabIndex={-1} when the date is the reference date but a date is selected in the same month', () => {
@@ -703,7 +702,7 @@ describe('<Calendar.DayButton />', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button).to.have.attribute('tabindex', '-1');
+      expect(button).toHaveAttribute('tabindex', '-1');
     });
 
     it('should have tabIndex={-1} when the date is outside the current month event if its the first day of the month', () => {
@@ -724,7 +723,7 @@ describe('<Calendar.DayButton />', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button).to.have.attribute('tabindex', '-1');
+      expect(button).toHaveAttribute('tabindex', '-1');
     });
 
     it('should have tabIndex={-1} when the date is outside the current month even if it is the selected value', () => {
@@ -745,7 +744,7 @@ describe('<Calendar.DayButton />', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button).to.have.attribute('tabindex', '-1');
+      expect(button).toHaveAttribute('tabindex', '-1');
     });
   });
 });

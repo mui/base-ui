@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { Calendar } from '@base-ui/react/calendar';
 import { createTemporalRenderer, describeConformance } from '#test-utils';
 
@@ -38,7 +38,7 @@ describe('<Calendar.DayGridBody />', () => {
       );
 
       const rows = screen.getAllByTestId('week-row');
-      expect(rows.length).to.equal(4);
+      expect(rows.length).toBe(4);
     });
 
     it('should render the correct number of weeks without fixedWeekNumber for a month with 5 weeks', () => {
@@ -58,7 +58,7 @@ describe('<Calendar.DayGridBody />', () => {
       );
 
       const rows = screen.getAllByTestId('week-row');
-      expect(rows.length).to.equal(5);
+      expect(rows.length).toBe(5);
     });
 
     it('should render the correct number of weeks without fixedWeekNumber for a month with 6 weeks', () => {
@@ -78,7 +78,7 @@ describe('<Calendar.DayGridBody />', () => {
       );
 
       const rows = screen.getAllByTestId('week-row');
-      expect(rows.length).to.equal(6);
+      expect(rows.length).toBe(6);
     });
 
     it('should render exactly 6 weeks when fixedWeekNumber is 6 for a month with 4 weeks', () => {
@@ -98,7 +98,7 @@ describe('<Calendar.DayGridBody />', () => {
       );
 
       const rows = screen.getAllByTestId('week-row');
-      expect(rows.length).to.equal(6);
+      expect(rows.length).toBe(6);
     });
 
     it('should render exactly 6 weeks when fixedWeekNumber is 6 for a month with 5 weeks', () => {
@@ -118,7 +118,7 @@ describe('<Calendar.DayGridBody />', () => {
       );
 
       const rows = screen.getAllByTestId('week-row');
-      expect(rows.length).to.equal(6);
+      expect(rows.length).toBe(6);
     });
 
     it('should render exactly 6 weeks when fixedWeekNumber is 6 for a month with 6 weeks', () => {
@@ -138,7 +138,7 @@ describe('<Calendar.DayGridBody />', () => {
       );
 
       const rows = screen.getAllByTestId('week-row');
-      expect(rows.length).to.equal(6);
+      expect(rows.length).toBe(6);
     });
 
     it('should render exactly 5 weeks when fixedWeekNumber is 5', () => {
@@ -158,7 +158,7 @@ describe('<Calendar.DayGridBody />', () => {
       );
 
       const rows = screen.getAllByTestId('week-row');
-      expect(rows.length).to.equal(5);
+      expect(rows.length).toBe(5);
     });
   });
 
@@ -187,7 +187,7 @@ describe('<Calendar.DayGridBody />', () => {
       );
 
       // Check that February (02) days are rendered - February 2025 has 28 days
-      expect(screen.getAllByTestId('month-02').length).to.equal(28);
+      expect(screen.getAllByTestId('month-02').length).toBe(28);
     });
 
     it('should render the next month when offset is 1', () => {
@@ -214,7 +214,7 @@ describe('<Calendar.DayGridBody />', () => {
       );
 
       // Check that March (03) days are rendered - March has 31 days
-      expect(screen.getAllByTestId('month-03').length).to.equal(31);
+      expect(screen.getAllByTestId('month-03').length).toBe(31);
     });
 
     it('should render the previous month when offset is -1', () => {
@@ -241,7 +241,7 @@ describe('<Calendar.DayGridBody />', () => {
       );
 
       // Check that January (01) days are rendered - January has 31 days
-      expect(screen.getAllByTestId('month-01').length).to.equal(31);
+      expect(screen.getAllByTestId('month-01').length).toBe(31);
     });
 
     it('should render multiple months with different offsets', () => {
@@ -283,10 +283,10 @@ describe('<Calendar.DayGridBody />', () => {
       );
 
       // Current month (February - 02) has 28 days
-      expect(screen.getAllByTestId('current-month-02').length).to.equal(28);
+      expect(screen.getAllByTestId('current-month-02').length).toBe(28);
 
       // Next month (March - 03) has 31 days
-      expect(screen.getAllByTestId('next-month-03').length).to.equal(31);
+      expect(screen.getAllByTestId('next-month-03').length).toBe(31);
     });
 
     it('should default to offset 0 when not provided', () => {
@@ -313,7 +313,7 @@ describe('<Calendar.DayGridBody />', () => {
       );
 
       // Check that February (02) days are rendered - February 2025 has 28 days
-      expect(screen.getAllByTestId('month-02').length).to.equal(28);
+      expect(screen.getAllByTestId('month-02').length).toBe(28);
     });
   });
 });

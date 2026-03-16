@@ -1,7 +1,6 @@
+import { vi, expect } from 'vitest';
 /* eslint-disable testing-library/render-result-naming-convention */
 import * as React from 'react';
-import { expect } from 'chai';
-import { vi } from 'vitest';
 import { createRenderer } from '#test-utils';
 import { reactMajor } from '@mui/internal-test-utils';
 import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from '../utils/types';
@@ -37,7 +36,7 @@ describe('useRenderElement', () => {
 
     const element = container.firstElementChild;
 
-    expect(element).to.have.attribute('class', 'active-class test-component');
+    expect(element).toHaveAttribute('class', 'active-class test-component');
   });
 
   it('accepts className as function that returns undefined', async () => {
@@ -47,7 +46,7 @@ describe('useRenderElement', () => {
 
     const element = container.firstElementChild;
 
-    expect(element).to.have.attribute('class', 'test-component');
+    expect(element).toHaveAttribute('class', 'test-component');
   });
 
   it('accepts style as function', async () => {
@@ -60,7 +59,7 @@ describe('useRenderElement', () => {
 
     const element = container.firstElementChild;
 
-    expect(element?.getAttribute('style')).to.equal('padding: 10px; color: rgb(255, 0, 0);');
+    expect(element?.getAttribute('style')).toBe('padding: 10px; color: rgb(255, 0, 0);');
   });
 
   it('accepts style as function that returns undefined', async () => {
@@ -70,7 +69,7 @@ describe('useRenderElement', () => {
 
     const element = container.firstElementChild;
 
-    expect(element?.getAttribute('style')).to.equal('padding: 10px;');
+    expect(element?.getAttribute('style')).toBe('padding: 10px;');
   });
 
   describe('prop: render', () => {
@@ -87,17 +86,17 @@ describe('useRenderElement', () => {
 
       const element = container.firstElementChild;
 
-      expect(renderCalls.length).to.be.greaterThan(0);
+      expect(renderCalls.length).toBeGreaterThan(0);
       const [firstCallProps, firstCallState] = renderCalls[0];
-      expect(firstCallProps).to.include({
+      expect(firstCallProps).toMatchObject({
         className: 'test-component',
         'data-testid': 'custom',
       });
-      expect(firstCallProps.style).to.deep.equal({ padding: '10px' });
-      expect(firstCallState).to.deep.equal({ active: true });
-      expect(element?.tagName).to.equal('SPAN');
-      expect(element).to.have.attribute('data-testid', 'custom');
-      expect(element).to.have.attribute('data-active', 'true');
+      expect(firstCallProps.style).toEqual({ padding: '10px' });
+      expect(firstCallState).toEqual({ active: true });
+      expect(element?.tagName).toBe('SPAN');
+      expect(element).toHaveAttribute('data-testid', 'custom');
+      expect(element).toHaveAttribute('data-active', 'true');
     });
 
     it('warns when render is passed a function with an uppercase name', async () => {
@@ -112,11 +111,11 @@ describe('useRenderElement', () => {
 
       await render(<TestComponent render={UppercaseRenderPropWarningTestComponent} />);
 
-      expect(warnSpy.mock.calls.length).to.equal(1);
-      expect(warnSpy.mock.calls[0][0]).to.contain(
+      expect(warnSpy.mock.calls.length).toBe(1);
+      expect(warnSpy.mock.calls[0][0]).toContain(
         'Base UI: The `render` prop received a function named `UppercaseRenderPropWarningTestComponent` that starts with an uppercase letter.',
       );
-      expect(warnSpy.mock.calls[0][0]).to.contain(
+      expect(warnSpy.mock.calls[0][0]).toContain(
         'Use `render={<Component />}` or `render={(props) => <Component {...props} />}` instead.',
       );
       warnSpy.mockRestore();
@@ -132,7 +131,7 @@ describe('useRenderElement', () => {
 
       await render(<TestComponent render={renderFn} />);
 
-      expect(warnSpy.mock.calls.length).to.equal(0);
+      expect(warnSpy.mock.calls.length).toBe(0);
       warnSpy.mockRestore();
     });
 
@@ -149,7 +148,7 @@ describe('useRenderElement', () => {
 
       await render(<TestComponent render={renderFn} />);
 
-      expect(warnSpy.mock.calls.length).to.equal(0);
+      expect(warnSpy.mock.calls.length).toBe(0);
       warnSpy.mockRestore();
     });
 
@@ -165,7 +164,7 @@ describe('useRenderElement', () => {
 
       await render(<TestComponent render={<UppercaseRenderElement />} />);
 
-      expect(warnSpy.mock.calls.length).to.equal(0);
+      expect(warnSpy.mock.calls.length).toBe(0);
       warnSpy.mockRestore();
     });
 
@@ -182,9 +181,9 @@ describe('useRenderElement', () => {
 
       const element = container.firstElementChild;
 
-      expect(element?.tagName).to.equal('SPAN');
-      expect(element).to.have.attribute('data-testid', 'custom');
-      expect(element).to.have.attribute('data-active', 'true');
+      expect(element?.tagName).toBe('SPAN');
+      expect(element).toHaveAttribute('data-testid', 'custom');
+      expect(element).toHaveAttribute('data-active', 'true');
     });
 
     it('forwards ref to render element', async () => {
@@ -197,7 +196,7 @@ describe('useRenderElement', () => {
       const ref = React.createRef<HTMLDivElement>();
       const { container } = await render(<TestComponent ref={ref} render={<CustomElement />} />);
       const element = container.firstElementChild;
-      expect(ref.current).to.equal(element);
+      expect(ref.current).toBe(element);
     });
 
     it('merges className from render element and component props', async () => {
@@ -211,9 +210,9 @@ describe('useRenderElement', () => {
 
       const element = container.firstElementChild;
 
-      expect(element?.className).to.contain('component-class');
-      expect(element?.className).to.contain('render-class');
-      expect(element?.className).to.contain('test-component');
+      expect(element?.className).toContain('component-class');
+      expect(element?.className).toContain('render-class');
+      expect(element?.className).toContain('test-component');
     });
 
     it('merges className function with render element', async () => {
@@ -227,9 +226,9 @@ describe('useRenderElement', () => {
 
       const element = container.firstElementChild;
 
-      expect(element?.className).to.contain('active-class');
-      expect(element?.className).to.contain('render-class');
-      expect(element?.className).to.contain('test-component');
+      expect(element?.className).toContain('active-class');
+      expect(element?.className).toContain('render-class');
+      expect(element?.className).toContain('test-component');
     });
 
     it('merges style from render element and component props', async () => {
@@ -242,9 +241,9 @@ describe('useRenderElement', () => {
       );
 
       const element = container.firstElementChild as HTMLElement;
-      expect(element.style.padding).to.equal('10px');
-      expect(element.style.color).to.equal('rgb(255, 0, 0)');
-      expect(element.style.fontSize).to.equal('16px');
+      expect(element.style.padding).toBe('10px');
+      expect(element.style.color).toBe('rgb(255, 0, 0)');
+      expect(element.style.fontSize).toBe('16px');
     });
 
     it('merges style function with render element', async () => {
@@ -257,9 +256,9 @@ describe('useRenderElement', () => {
       );
 
       const element = container.firstElementChild as HTMLElement;
-      expect(element.style.padding).to.equal('10px');
-      expect(element.style.color).to.equal('rgb(255, 0, 0)');
-      expect(element.style.fontSize).to.equal('16px');
+      expect(element.style.padding).toBe('10px');
+      expect(element.style.color).toBe('rgb(255, 0, 0)');
+      expect(element.style.fontSize).toBe('16px');
     });
 
     it('handles lazy elements', async () => {
@@ -280,10 +279,10 @@ describe('useRenderElement', () => {
       );
 
       const element = container.firstElementChild;
-      expect(element).to.not.equal(null);
-      expect(element?.getAttribute('data-testid')).to.equal('lazy');
-      expect(element?.getAttribute('data-lazy')).to.equal('true');
-      expect(element?.className).to.contain('test-component');
+      expect(element).not.toBe(null);
+      expect(element?.getAttribute('data-testid')).toBe('lazy');
+      expect(element?.getAttribute('data-lazy')).toBe('true');
+      expect(element?.className).toContain('test-component');
     });
 
     // React 18 also log console error, React 19 fixed that. Ignoring this test for React 18.
@@ -302,8 +301,8 @@ describe('useRenderElement', () => {
           process.env.NODE_ENV = originalEnv;
         }
 
-        expect(error).to.not.equal(null);
-        expect(error?.message).to.match(
+        expect(error).not.toBe(null);
+        expect(error?.message).toMatch(
           /Base UI: The `render` prop was provided an invalid React element/,
         );
       },
@@ -321,9 +320,9 @@ describe('useRenderElement', () => {
 
       await render(<TestComponent ref={componentRef} render={<CustomElement ref={renderRef} />} />);
 
-      expect(renderRef.current).to.be.instanceOf(HTMLDivElement);
-      expect(componentRef.current).to.be.instanceOf(HTMLDivElement);
-      expect(renderRef.current).to.equal(componentRef.current);
+      expect(renderRef.current).toBeInstanceOf(HTMLDivElement);
+      expect(componentRef.current).toBeInstanceOf(HTMLDivElement);
+      expect(renderRef.current).toBe(componentRef.current);
     });
   });
 });

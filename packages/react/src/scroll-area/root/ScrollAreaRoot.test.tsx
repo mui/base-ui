@@ -1,8 +1,8 @@
+import { expect } from 'vitest';
 import * as React from 'react';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
-import { expect } from 'chai';
 import { describeConformance } from '../../../test/describeConformance';
 import { DirectionProvider } from '../../direction-provider/DirectionProvider';
 import { SCROLL_TIMEOUT } from '../constants';
@@ -42,7 +42,7 @@ async function withMockResizeObserver(test: (notifyResizeObserver: () => void) =
 
   try {
     await test(() => {
-      expect(notifyResizeObserver).not.to.equal(null);
+      expect(notifyResizeObserver).not.toBe(null);
       notifyResizeObserver?.();
     });
   } finally {
@@ -75,26 +75,26 @@ describe('<ScrollArea.Root />', () => {
       const root = screen.getByTestId('root');
       const viewport = screen.getByTestId('viewport');
 
-      expect(root).not.to.have.attribute('data-scrolling');
+      expect(root).not.toHaveAttribute('data-scrolling');
 
       fireEvent.pointerEnter(viewport);
       fireEvent.scroll(viewport, { target: { scrollTop: 1 } });
 
-      expect(root).to.have.attribute('data-scrolling', '');
+      expect(root).toHaveAttribute('data-scrolling', '');
 
       await clock.tickAsync(SCROLL_TIMEOUT);
 
-      expect(root).not.to.have.attribute('data-scrolling');
+      expect(root).not.toHaveAttribute('data-scrolling');
 
       // Test horizontal scrolling
       fireEvent.pointerEnter(viewport);
       fireEvent.scroll(viewport, { target: { scrollLeft: 1 } });
 
-      expect(root).to.have.attribute('data-scrolling', '');
+      expect(root).toHaveAttribute('data-scrolling', '');
 
       await clock.tickAsync(SCROLL_TIMEOUT);
 
-      expect(root).not.to.have.attribute('data-scrolling');
+      expect(root).not.toHaveAttribute('data-scrolling');
     });
   });
 
@@ -136,7 +136,7 @@ describe('<ScrollArea.Root />', () => {
       await waitFor(() => {
         expect(
           getComputedStyle(verticalThumb).getPropertyValue('--scroll-area-thumb-height'),
-        ).to.not.equal('0px');
+        ).not.toBe('0px');
       });
     });
 
@@ -156,7 +156,7 @@ describe('<ScrollArea.Root />', () => {
         const verticalScrollbar = await screen.findByTestId('vertical-scrollbar');
 
         await waitFor(() => {
-          expect(getComputedStyle(verticalScrollbar).visibility).to.equal('visible');
+          expect(getComputedStyle(verticalScrollbar).visibility).toBe('visible');
         });
 
         await act(async () => {
@@ -164,7 +164,7 @@ describe('<ScrollArea.Root />', () => {
         });
 
         await waitFor(() => {
-          expect(getComputedStyle(verticalScrollbar).visibility).to.equal('visible');
+          expect(getComputedStyle(verticalScrollbar).visibility).toBe('visible');
         });
       });
     });
@@ -190,8 +190,8 @@ describe('<ScrollArea.Root />', () => {
         const verticalThumb = await screen.findByTestId('vertical-thumb');
 
         await waitFor(() => {
-          expect(getComputedStyle(verticalScrollbar).visibility).to.equal('visible');
-          expect(getComputedStyle(verticalThumb).visibility).to.equal('visible');
+          expect(getComputedStyle(verticalScrollbar).visibility).toBe('visible');
+          expect(getComputedStyle(verticalThumb).visibility).toBe('visible');
         });
 
         await act(async () => {
@@ -199,8 +199,8 @@ describe('<ScrollArea.Root />', () => {
         });
 
         await waitFor(() => {
-          expect(getComputedStyle(verticalScrollbar).visibility).to.equal('visible');
-          expect(getComputedStyle(verticalThumb).visibility).to.equal('visible');
+          expect(getComputedStyle(verticalScrollbar).visibility).toBe('visible');
+          expect(getComputedStyle(verticalThumb).visibility).toBe('visible');
         });
       });
     });
@@ -236,7 +236,7 @@ describe('<ScrollArea.Root />', () => {
           notifyResizeObserver();
         });
 
-        expect(screen.queryByTestId('corner')).to.equal(null);
+        expect(screen.queryByTestId('corner')).toBe(null);
 
         await rerender(renderArea(SCROLLABLE_CONTENT_SIZE));
 
@@ -246,8 +246,8 @@ describe('<ScrollArea.Root />', () => {
 
         await waitFor(() => {
           const corner = screen.getByTestId('corner');
-          expect(corner.style.width).to.equal('11px');
-          expect(corner.style.height).to.equal('13px');
+          expect(corner.style.width).toBe('11px');
+          expect(corner.style.height).toBe('13px');
         });
       });
     });
@@ -271,12 +271,12 @@ describe('<ScrollArea.Root />', () => {
       const horizontalThumb = screen.getByTestId('horizontal-thumb');
 
       await waitFor(() => {
-        expect(
-          getComputedStyle(verticalThumb).getPropertyValue('--scroll-area-thumb-height'),
-        ).to.equal(`${(VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE) * VIEWPORT_SIZE}px`);
+        expect(getComputedStyle(verticalThumb).getPropertyValue('--scroll-area-thumb-height')).toBe(
+          `${(VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE) * VIEWPORT_SIZE}px`,
+        );
         expect(
           getComputedStyle(horizontalThumb).getPropertyValue('--scroll-area-thumb-width'),
-        ).to.equal(`${(VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE) * VIEWPORT_SIZE}px`);
+        ).toBe(`${(VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE) * VIEWPORT_SIZE}px`);
       });
     });
 
@@ -300,9 +300,9 @@ describe('<ScrollArea.Root />', () => {
       const contentWrapper = screen.getByTestId('viewport').firstElementChild!;
       const style = getComputedStyle(contentWrapper);
 
-      expect(style.paddingLeft).to.equal('0px');
-      expect(style.paddingRight).to.equal('0px');
-      expect(style.paddingBottom).to.equal('0px');
+      expect(style.paddingLeft).toBe('0px');
+      expect(style.paddingRight).toBe('0px');
+      expect(style.paddingBottom).toBe('0px');
     });
 
     it('accounts for scrollbar padding', async () => {
@@ -334,16 +334,12 @@ describe('<ScrollArea.Root />', () => {
       const horizontalThumb = screen.getByTestId('horizontal-thumb');
 
       await waitFor(() => {
-        expect(
-          getComputedStyle(verticalThumb).getPropertyValue('--scroll-area-thumb-height'),
-        ).to.equal(
+        expect(getComputedStyle(verticalThumb).getPropertyValue('--scroll-area-thumb-height')).toBe(
           `${(VIEWPORT_SIZE - PADDING * 2) * (VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE)}px`,
         );
         expect(
           getComputedStyle(horizontalThumb).getPropertyValue('--scroll-area-thumb-width'),
-        ).to.equal(
-          `${(VIEWPORT_SIZE - PADDING * 2) * (VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE)}px`,
-        );
+        ).toBe(`${(VIEWPORT_SIZE - PADDING * 2) * (VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE)}px`);
       });
     });
 
@@ -377,12 +373,12 @@ describe('<ScrollArea.Root />', () => {
       const horizontalThumb = screen.getByTestId('horizontal-thumb');
 
       await waitFor(() => {
-        expect(
-          getComputedStyle(verticalThumb).getPropertyValue('--scroll-area-thumb-height'),
-        ).to.equal(`${viewportSize * (viewportSize / SCROLLABLE_CONTENT_SIZE)}px`);
+        expect(getComputedStyle(verticalThumb).getPropertyValue('--scroll-area-thumb-height')).toBe(
+          `${viewportSize * (viewportSize / SCROLLABLE_CONTENT_SIZE)}px`,
+        );
         expect(
           getComputedStyle(horizontalThumb).getPropertyValue('--scroll-area-thumb-width'),
-        ).to.equal(`${viewportSize * (viewportSize / SCROLLABLE_CONTENT_SIZE)}px`);
+        ).toBe(`${viewportSize * (viewportSize / SCROLLABLE_CONTENT_SIZE)}px`);
       });
     });
 
@@ -407,12 +403,12 @@ describe('<ScrollArea.Root />', () => {
       const horizontalThumb = screen.getByTestId('horizontal-thumb');
 
       await waitFor(() => {
-        expect(
-          getComputedStyle(verticalThumb).getPropertyValue('--scroll-area-thumb-height'),
-        ).to.equal(`${(VIEWPORT_SIZE - MARGIN * 2) * (VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE)}px`);
+        expect(getComputedStyle(verticalThumb).getPropertyValue('--scroll-area-thumb-height')).toBe(
+          `${(VIEWPORT_SIZE - MARGIN * 2) * (VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE)}px`,
+        );
         expect(
           getComputedStyle(horizontalThumb).getPropertyValue('--scroll-area-thumb-width'),
-        ).to.equal(`${(VIEWPORT_SIZE - MARGIN * 2) * (VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE)}px`);
+        ).toBe(`${(VIEWPORT_SIZE - MARGIN * 2) * (VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE)}px`);
       });
     });
   });
@@ -440,7 +436,7 @@ describe('<ScrollArea.Root />', () => {
       const root = screen.getByTestId('root');
       const viewport = screen.getByTestId('viewport');
 
-      await waitFor(() => expect(root).to.have.attribute('data-has-overflow-x'));
+      await waitFor(() => expect(root).toHaveAttribute('data-has-overflow-x'));
 
       const maxScrollLeft = viewport.scrollWidth - viewport.clientWidth;
 
@@ -450,10 +446,12 @@ describe('<ScrollArea.Root />', () => {
         },
       });
 
+      /* eslint-disable testing-library/no-wait-for-multiple-assertions */
       await waitFor(() => {
-        expect(root).to.have.attribute('data-overflow-x-start');
-        expect(root).to.have.attribute('data-overflow-x-end');
+        expect(root).toHaveAttribute('data-overflow-x-start');
+        expect(root).toHaveAttribute('data-overflow-x-end');
       });
+      /* eslint-enable testing-library/no-wait-for-multiple-assertions */
 
       await rerender(renderArea('rtl'));
 
@@ -462,8 +460,8 @@ describe('<ScrollArea.Root />', () => {
       });
 
       await waitFor(() => {
-        expect(root).to.have.attribute('data-overflow-x-start');
-        expect(root).not.to.have.attribute('data-overflow-x-end');
+        expect(root).toHaveAttribute('data-overflow-x-start');
+        expect(root).not.toHaveAttribute('data-overflow-x-end');
       });
     });
 
@@ -491,34 +489,36 @@ describe('<ScrollArea.Root />', () => {
       const hScrollbar = screen.getByTestId('scrollbar-horizontal');
 
       // Initial: at start (top/left)
+      /* eslint-disable testing-library/no-wait-for-multiple-assertions */
       await waitFor(() => {
-        expect(root).to.have.attribute('data-has-overflow-x');
-        expect(root).to.have.attribute('data-has-overflow-y');
-        expect(root).not.to.have.attribute('data-overflow-x-start');
-        expect(root).to.have.attribute('data-overflow-x-end');
-        expect(root).not.to.have.attribute('data-overflow-y-start');
-        expect(root).to.have.attribute('data-overflow-y-end');
+        expect(root).toHaveAttribute('data-has-overflow-x');
+        expect(root).toHaveAttribute('data-has-overflow-y');
+        expect(root).not.toHaveAttribute('data-overflow-x-start');
+        expect(root).toHaveAttribute('data-overflow-x-end');
+        expect(root).not.toHaveAttribute('data-overflow-y-start');
+        expect(root).toHaveAttribute('data-overflow-y-end');
 
-        expect(viewport).to.have.attribute('data-has-overflow-x');
-        expect(viewport).to.have.attribute('data-has-overflow-y');
-        expect(viewport).not.to.have.attribute('data-overflow-x-start');
-        expect(viewport).to.have.attribute('data-overflow-x-end');
-        expect(viewport).not.to.have.attribute('data-overflow-y-start');
-        expect(viewport).to.have.attribute('data-overflow-y-end');
-        expect(content).to.have.attribute('data-has-overflow-x');
-        expect(content).to.have.attribute('data-has-overflow-y');
-        expect(content).not.to.have.attribute('data-overflow-x-start');
-        expect(content).to.have.attribute('data-overflow-x-end');
-        expect(content).not.to.have.attribute('data-overflow-y-start');
-        expect(content).to.have.attribute('data-overflow-y-end');
+        expect(viewport).toHaveAttribute('data-has-overflow-x');
+        expect(viewport).toHaveAttribute('data-has-overflow-y');
+        expect(viewport).not.toHaveAttribute('data-overflow-x-start');
+        expect(viewport).toHaveAttribute('data-overflow-x-end');
+        expect(viewport).not.toHaveAttribute('data-overflow-y-start');
+        expect(viewport).toHaveAttribute('data-overflow-y-end');
+        expect(content).toHaveAttribute('data-has-overflow-x');
+        expect(content).toHaveAttribute('data-has-overflow-y');
+        expect(content).not.toHaveAttribute('data-overflow-x-start');
+        expect(content).toHaveAttribute('data-overflow-x-end');
+        expect(content).not.toHaveAttribute('data-overflow-y-start');
+        expect(content).toHaveAttribute('data-overflow-y-end');
 
-        expect(vScrollbar).to.have.attribute('data-has-overflow-y');
-        expect(vScrollbar).not.to.have.attribute('data-overflow-y-start');
-        expect(vScrollbar).to.have.attribute('data-overflow-y-end');
-        expect(hScrollbar).to.have.attribute('data-has-overflow-x');
-        expect(hScrollbar).not.to.have.attribute('data-overflow-x-start');
-        expect(hScrollbar).to.have.attribute('data-overflow-x-end');
+        expect(vScrollbar).toHaveAttribute('data-has-overflow-y');
+        expect(vScrollbar).not.toHaveAttribute('data-overflow-y-start');
+        expect(vScrollbar).toHaveAttribute('data-overflow-y-end');
+        expect(hScrollbar).toHaveAttribute('data-has-overflow-x');
+        expect(hScrollbar).not.toHaveAttribute('data-overflow-x-start');
+        expect(hScrollbar).toHaveAttribute('data-overflow-x-end');
       });
+      /* eslint-enable testing-library/no-wait-for-multiple-assertions */
 
       // Scroll to middle
       const halfY = (viewport.scrollHeight - viewport.clientHeight) / 2;
@@ -528,24 +528,24 @@ describe('<ScrollArea.Root />', () => {
       });
       await flushMicrotasks();
 
-      expect(root).to.have.attribute('data-overflow-y-start');
-      expect(root).to.have.attribute('data-overflow-y-end');
-      expect(root).to.have.attribute('data-overflow-x-start');
-      expect(root).to.have.attribute('data-overflow-x-end');
+      expect(root).toHaveAttribute('data-overflow-y-start');
+      expect(root).toHaveAttribute('data-overflow-y-end');
+      expect(root).toHaveAttribute('data-overflow-x-start');
+      expect(root).toHaveAttribute('data-overflow-x-end');
 
-      expect(viewport).to.have.attribute('data-overflow-y-start');
-      expect(viewport).to.have.attribute('data-overflow-y-end');
-      expect(viewport).to.have.attribute('data-overflow-x-start');
-      expect(viewport).to.have.attribute('data-overflow-x-end');
-      expect(content).to.have.attribute('data-overflow-y-start');
-      expect(content).to.have.attribute('data-overflow-y-end');
-      expect(content).to.have.attribute('data-overflow-x-start');
-      expect(content).to.have.attribute('data-overflow-x-end');
+      expect(viewport).toHaveAttribute('data-overflow-y-start');
+      expect(viewport).toHaveAttribute('data-overflow-y-end');
+      expect(viewport).toHaveAttribute('data-overflow-x-start');
+      expect(viewport).toHaveAttribute('data-overflow-x-end');
+      expect(content).toHaveAttribute('data-overflow-y-start');
+      expect(content).toHaveAttribute('data-overflow-y-end');
+      expect(content).toHaveAttribute('data-overflow-x-start');
+      expect(content).toHaveAttribute('data-overflow-x-end');
 
-      expect(vScrollbar).to.have.attribute('data-overflow-y-start');
-      expect(vScrollbar).to.have.attribute('data-overflow-y-end');
-      expect(hScrollbar).to.have.attribute('data-overflow-x-start');
-      expect(hScrollbar).to.have.attribute('data-overflow-x-end');
+      expect(vScrollbar).toHaveAttribute('data-overflow-y-start');
+      expect(vScrollbar).toHaveAttribute('data-overflow-y-end');
+      expect(hScrollbar).toHaveAttribute('data-overflow-x-start');
+      expect(hScrollbar).toHaveAttribute('data-overflow-x-end');
 
       // Scroll to end
       fireEvent.scroll(viewport, {
@@ -556,24 +556,24 @@ describe('<ScrollArea.Root />', () => {
       });
       await flushMicrotasks();
 
-      expect(root).to.have.attribute('data-overflow-y-start');
-      expect(root).not.to.have.attribute('data-overflow-y-end');
-      expect(root).to.have.attribute('data-overflow-x-start');
-      expect(root).not.to.have.attribute('data-overflow-x-end');
+      expect(root).toHaveAttribute('data-overflow-y-start');
+      expect(root).not.toHaveAttribute('data-overflow-y-end');
+      expect(root).toHaveAttribute('data-overflow-x-start');
+      expect(root).not.toHaveAttribute('data-overflow-x-end');
 
-      expect(viewport).to.have.attribute('data-overflow-y-start');
-      expect(viewport).not.to.have.attribute('data-overflow-y-end');
-      expect(viewport).to.have.attribute('data-overflow-x-start');
-      expect(viewport).not.to.have.attribute('data-overflow-x-end');
-      expect(content).to.have.attribute('data-overflow-y-start');
-      expect(content).not.to.have.attribute('data-overflow-y-end');
-      expect(content).to.have.attribute('data-overflow-x-start');
-      expect(content).not.to.have.attribute('data-overflow-x-end');
+      expect(viewport).toHaveAttribute('data-overflow-y-start');
+      expect(viewport).not.toHaveAttribute('data-overflow-y-end');
+      expect(viewport).toHaveAttribute('data-overflow-x-start');
+      expect(viewport).not.toHaveAttribute('data-overflow-x-end');
+      expect(content).toHaveAttribute('data-overflow-y-start');
+      expect(content).not.toHaveAttribute('data-overflow-y-end');
+      expect(content).toHaveAttribute('data-overflow-x-start');
+      expect(content).not.toHaveAttribute('data-overflow-x-end');
 
-      expect(vScrollbar).to.have.attribute('data-overflow-y-start');
-      expect(vScrollbar).not.to.have.attribute('data-overflow-y-end');
-      expect(hScrollbar).to.have.attribute('data-overflow-x-start');
-      expect(hScrollbar).not.to.have.attribute('data-overflow-x-end');
+      expect(vScrollbar).toHaveAttribute('data-overflow-y-start');
+      expect(vScrollbar).not.toHaveAttribute('data-overflow-y-end');
+      expect(hScrollbar).toHaveAttribute('data-overflow-x-start');
+      expect(hScrollbar).not.toHaveAttribute('data-overflow-x-end');
     });
 
     it('treats near-edge scroll offsets as fully scrolled', async () => {
@@ -607,10 +607,10 @@ describe('<ScrollArea.Root />', () => {
       });
       await flushMicrotasks();
 
-      expect(root).to.have.attribute('data-overflow-y-start');
-      expect(root).not.to.have.attribute('data-overflow-y-end');
-      expect(root).to.have.attribute('data-overflow-x-start');
-      expect(root).not.to.have.attribute('data-overflow-x-end');
+      expect(root).toHaveAttribute('data-overflow-y-start');
+      expect(root).not.toHaveAttribute('data-overflow-y-end');
+      expect(root).toHaveAttribute('data-overflow-x-start');
+      expect(root).not.toHaveAttribute('data-overflow-x-end');
     });
 
     it('respects overflowEdgeThreshold and exposes scroll metrics', async () => {
@@ -640,22 +640,22 @@ describe('<ScrollArea.Root />', () => {
         target: { scrollLeft: 15, scrollTop: 7 },
       });
 
-      await waitFor(() => expect(viewport).not.to.have.attribute('data-overflow-x-start'));
-      expect(viewport).to.have.attribute('data-overflow-y-start');
+      await waitFor(() => expect(viewport).not.toHaveAttribute('data-overflow-x-start'));
+      expect(viewport).toHaveAttribute('data-overflow-y-start');
 
       fireEvent.scroll(viewport, {
         target: { scrollLeft: 35, scrollTop: 7 },
       });
 
-      await waitFor(() => expect(viewport).to.have.attribute('data-overflow-x-start'));
+      await waitFor(() => expect(viewport).toHaveAttribute('data-overflow-x-start'));
 
       const viewportStyle = viewport.style;
       const startPx = viewportStyle.getPropertyValue('--scroll-area-overflow-x-start');
-      expect(startPx).to.equal('35px');
+      expect(startPx).toBe('35px');
 
       const horizontalEndPx = viewportStyle.getPropertyValue('--scroll-area-overflow-x-end');
-      expect(horizontalEndPx).to.not.equal('');
-      expect(horizontalEndPx).to.not.equal('0px');
+      expect(horizontalEndPx).not.toBe('');
+      expect(horizontalEndPx).not.toBe('0px');
     });
 
     it('does not add state attributes when content does not overflow', async () => {
@@ -685,26 +685,26 @@ describe('<ScrollArea.Root />', () => {
       const vScrollbar = screen.getByTestId('scrollbar-vertical');
       const hScrollbar = screen.getByTestId('scrollbar-horizontal');
 
-      expect(root).not.to.have.attribute('data-has-overflow-x');
-      expect(root).not.to.have.attribute('data-has-overflow-y');
-      expect(root).not.to.have.attribute('data-overflow-x-start');
-      expect(root).not.to.have.attribute('data-overflow-x-end');
-      expect(root).not.to.have.attribute('data-overflow-y-start');
-      expect(root).not.to.have.attribute('data-overflow-y-end');
+      expect(root).not.toHaveAttribute('data-has-overflow-x');
+      expect(root).not.toHaveAttribute('data-has-overflow-y');
+      expect(root).not.toHaveAttribute('data-overflow-x-start');
+      expect(root).not.toHaveAttribute('data-overflow-x-end');
+      expect(root).not.toHaveAttribute('data-overflow-y-start');
+      expect(root).not.toHaveAttribute('data-overflow-y-end');
 
-      expect(viewport).not.to.have.attribute('data-overflow-x-start');
-      expect(viewport).not.to.have.attribute('data-overflow-x-end');
-      expect(viewport).not.to.have.attribute('data-overflow-y-start');
-      expect(viewport).not.to.have.attribute('data-overflow-y-end');
-      expect(content).not.to.have.attribute('data-overflow-x-start');
-      expect(content).not.to.have.attribute('data-overflow-x-end');
-      expect(content).not.to.have.attribute('data-overflow-y-start');
-      expect(content).not.to.have.attribute('data-overflow-y-end');
+      expect(viewport).not.toHaveAttribute('data-overflow-x-start');
+      expect(viewport).not.toHaveAttribute('data-overflow-x-end');
+      expect(viewport).not.toHaveAttribute('data-overflow-y-start');
+      expect(viewport).not.toHaveAttribute('data-overflow-y-end');
+      expect(content).not.toHaveAttribute('data-overflow-x-start');
+      expect(content).not.toHaveAttribute('data-overflow-x-end');
+      expect(content).not.toHaveAttribute('data-overflow-y-start');
+      expect(content).not.toHaveAttribute('data-overflow-y-end');
 
-      expect(vScrollbar).not.to.have.attribute('data-overflow-y-start');
-      expect(vScrollbar).not.to.have.attribute('data-overflow-y-end');
-      expect(hScrollbar).not.to.have.attribute('data-overflow-x-start');
-      expect(hScrollbar).not.to.have.attribute('data-overflow-x-end');
+      expect(vScrollbar).not.toHaveAttribute('data-overflow-y-start');
+      expect(vScrollbar).not.toHaveAttribute('data-overflow-y-end');
+      expect(hScrollbar).not.toHaveAttribute('data-overflow-x-start');
+      expect(hScrollbar).not.toHaveAttribute('data-overflow-x-end');
     });
 
     it('correctly handles RTL', async () => {
@@ -734,9 +734,9 @@ describe('<ScrollArea.Root />', () => {
         },
       });
 
-      await waitFor(() => expect(root).to.have.attribute('data-has-overflow-x'));
-      expect(root).not.to.have.attribute('data-overflow-x-start');
-      expect(root).to.have.attribute('data-overflow-x-end');
+      await waitFor(() => expect(root).toHaveAttribute('data-has-overflow-x'));
+      expect(root).not.toHaveAttribute('data-overflow-x-start');
+      expect(root).toHaveAttribute('data-overflow-x-end');
 
       fireEvent.scroll(viewport, {
         target: {
@@ -744,8 +744,8 @@ describe('<ScrollArea.Root />', () => {
         },
       });
 
-      await waitFor(() => expect(root).to.have.attribute('data-overflow-x-start'));
-      expect(root).to.have.attribute('data-overflow-x-end');
+      await waitFor(() => expect(root).toHaveAttribute('data-overflow-x-start'));
+      expect(root).toHaveAttribute('data-overflow-x-end');
 
       fireEvent.scroll(viewport, {
         target: {
@@ -753,8 +753,8 @@ describe('<ScrollArea.Root />', () => {
         },
       });
 
-      await waitFor(() => expect(root).to.have.attribute('data-overflow-x-start'));
-      expect(root).not.to.have.attribute('data-overflow-x-end');
+      await waitFor(() => expect(root).toHaveAttribute('data-overflow-x-start'));
+      expect(root).not.toHaveAttribute('data-overflow-x-end');
     });
   });
 });

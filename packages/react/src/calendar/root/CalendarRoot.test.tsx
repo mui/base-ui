@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { screen } from '@mui/internal-test-utils';
 import { Calendar } from '@base-ui/react/calendar';
 import { createTemporalRenderer, describeConformance } from '#test-utils';
@@ -19,7 +19,7 @@ describe('<Calendar.Root />', () => {
       render(<Calendar.Root data-testid="calendar" visibleDate={visibleDate} />);
 
       const calendar = screen.getByTestId('calendar');
-      expect(calendar).to.have.attribute('aria-label', 'March 2025');
+      expect(calendar).toHaveAttribute('aria-label', 'March 2025');
     });
 
     it('should prepend custom aria-label to the visible month', () => {
@@ -30,7 +30,7 @@ describe('<Calendar.Root />', () => {
       );
 
       const calendar = screen.getByTestId('calendar');
-      expect(calendar).to.have.attribute('aria-label', 'Choose date, March 2025');
+      expect(calendar).toHaveAttribute('aria-label', 'Choose date, March 2025');
     });
 
     it('should update aria-label when visible month changes', () => {
@@ -41,12 +41,12 @@ describe('<Calendar.Root />', () => {
       );
 
       const calendar = screen.getByTestId('calendar');
-      expect(calendar).to.have.attribute('aria-label', 'March 2025');
+      expect(calendar).toHaveAttribute('aria-label', 'March 2025');
 
       const newDate = adapter.date('2025-06-20', 'default');
       rerender(<Calendar.Root data-testid="calendar" visibleDate={newDate} />);
 
-      expect(calendar).to.have.attribute('aria-label', 'June 2025');
+      expect(calendar).toHaveAttribute('aria-label', 'June 2025');
     });
   });
 });

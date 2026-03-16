@@ -1,8 +1,8 @@
+import { test, expect } from 'vitest';
 import * as React from 'react';
 import type { Coords } from '@floating-ui/react-dom';
 import { flushMicrotasks } from '@mui/internal-test-utils';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { test } from 'vitest';
 import { useClientPoint, useFloating, useInteractions } from '../index';
 
 function expectLocation({ x, y }: Coords) {

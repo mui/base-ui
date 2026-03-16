@@ -1,5 +1,4 @@
-import { expect } from 'chai';
-import { spy } from 'sinon';
+import { expect, vi } from 'vitest';
 import { TemporalAdapterDateFns } from '../../../temporal-adapter-date-fns/TemporalAdapterDateFns';
 import { TemporalValue } from '../../../types/temporal';
 import { ValidateDateReturnValue } from '../../../utils/temporal/validateDate';
@@ -51,21 +50,21 @@ describe('SharedCalendarStore - value', () => {
     it('should initialize with null value when no value or defaultValue is provided', () => {
       const store = createStore(adapter);
 
-      expect(store.state.value).to.equal(null);
+      expect(store.state.value).toBe(null);
     });
 
     it('should initialize with defaultValue when provided', () => {
       const defaultValue = adapter.date('2025-02-15', 'default');
       const store = createStore(adapter, { defaultValue });
 
-      expect(adapter.isEqual(store.state.value, defaultValue)).to.equal(true);
+      expect(adapter.isEqual(store.state.value, defaultValue)).toBe(true);
     });
 
     it('should initialize with value when provided (controlled mode)', () => {
       const value = adapter.date('2025-02-20', 'default');
       const store = createStore(adapter, { value });
 
-      expect(adapter.isEqual(store.state.value, value)).to.equal(true);
+      expect(adapter.isEqual(store.state.value, value)).toBe(true);
     });
 
     it('should prefer value over defaultValue when both are provided', () => {
@@ -75,7 +74,7 @@ describe('SharedCalendarStore - value', () => {
         defaultValue: adapter.date('2025-02-15', 'default'),
       });
 
-      expect(adapter.isEqual(store.state.value, value)).to.equal(true);
+      expect(adapter.isEqual(store.state.value, value)).toBe(true);
     });
   });
 
@@ -86,11 +85,11 @@ describe('SharedCalendarStore - value', () => {
 
       store.selectDate(selectedDate, createMockMouseEvent());
 
-      expect(adapter.isEqual(store.state.value, selectedDate)).to.equal(true);
+      expect(adapter.isEqual(store.state.value, selectedDate)).toBe(true);
     });
 
     it('should call onValueChange when selectDate is called', () => {
-      const onValueChange = spy();
+      const onValueChange = vi.fn();
       const store = createStore(adapter, {
         defaultValue: adapter.date('2025-02-15', 'default'),
         onValueChange,
@@ -99,12 +98,12 @@ describe('SharedCalendarStore - value', () => {
 
       store.selectDate(selectedDate, createMockMouseEvent());
 
-      expect(onValueChange.callCount).to.equal(1);
-      expect(adapter.isEqual(onValueChange.firstCall.args[0], selectedDate)).to.equal(true);
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(adapter.isEqual(onValueChange.mock.calls[0][0], selectedDate)).toBe(true);
     });
 
     it('should allow multiple value changes', () => {
-      const onValueChange = spy();
+      const onValueChange = vi.fn();
       const store = createStore(adapter, {
         defaultValue: adapter.date('2025-02-15', 'default'),
         onValueChange,
@@ -114,44 +113,44 @@ describe('SharedCalendarStore - value', () => {
       const date2 = adapter.date('2025-02-22', 'default');
 
       store.selectDate(date1, createMockMouseEvent());
-      expect(adapter.isEqual(store.state.value, date1)).to.equal(true);
+      expect(adapter.isEqual(store.state.value, date1)).toBe(true);
 
       store.selectDate(date2, createMockMouseEvent());
-      expect(adapter.isEqual(store.state.value, date2)).to.equal(true);
+      expect(adapter.isEqual(store.state.value, date2)).toBe(true);
 
-      expect(onValueChange.callCount).to.equal(2);
+      expect(onValueChange.mock.calls.length).toBe(2);
     });
   });
 
   describe('controlled mode (value prop)', () => {
     it('should not update internal value when selectDate is called', () => {
       const value = adapter.date('2025-02-15', 'default');
-      const onValueChange = spy();
+      const onValueChange = vi.fn();
       const store = createStore(adapter, { value, onValueChange });
       const selectedDate = adapter.date('2025-02-20', 'default');
 
       store.selectDate(selectedDate, createMockMouseEvent());
 
       // Value should remain unchanged (controlled mode)
-      expect(adapter.isEqual(store.state.value, value)).to.equal(true);
+      expect(adapter.isEqual(store.state.value, value)).toBe(true);
     });
 
     it('should call onValueChange when selectDate is called', () => {
       const value = adapter.date('2025-02-15', 'default');
-      const onValueChange = spy();
+      const onValueChange = vi.fn();
       const store = createStore(adapter, { value, onValueChange });
       const selectedDate = adapter.date('2025-02-20', 'default');
 
       store.selectDate(selectedDate, createMockMouseEvent());
 
-      expect(onValueChange.callCount).to.equal(1);
-      expect(adapter.isEqual(onValueChange.firstCall.args[0], selectedDate)).to.equal(true);
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(adapter.isEqual(onValueChange.mock.calls[0][0], selectedDate)).toBe(true);
     });
   });
 
   describe('onValueChange callback', () => {
     it('should return the validation error for invalid dates', () => {
-      const onValueChange = spy();
+      const onValueChange = vi.fn();
       const minDate = adapter.date('2025-02-25', 'default');
       const store = createStore(adapter, { onValueChange, minDate });
 
@@ -159,16 +158,16 @@ describe('SharedCalendarStore - value', () => {
       const selectedDate = adapter.date('2025-02-20', 'default');
       store.selectDate(selectedDate, createMockMouseEvent());
 
-      expect(onValueChange.callCount).to.equal(1);
+      expect(onValueChange.mock.calls.length).toBe(1);
 
-      const eventDetails = onValueChange.firstCall
-        .args[1] as CalendarValueChangeEventDetails<ValidateDateReturnValue>;
+      const eventDetails = onValueChange.mock
+        .calls[0][1] as CalendarValueChangeEventDetails<ValidateDateReturnValue>;
       const validationError = eventDetails.getValidationError();
-      expect(validationError).to.equal('before-min-date');
+      expect(validationError).toBe('before-min-date');
     });
 
     it('should return null validation error for valid dates', () => {
-      const onValueChange = spy();
+      const onValueChange = vi.fn();
       const minDate = adapter.date('2025-02-10', 'default');
       const store = createStore(adapter, { onValueChange, minDate });
 
@@ -176,12 +175,12 @@ describe('SharedCalendarStore - value', () => {
       const selectedDate = adapter.date('2025-02-20', 'default');
       store.selectDate(selectedDate, createMockMouseEvent());
 
-      expect(onValueChange.callCount).to.equal(1);
+      expect(onValueChange.mock.calls.length).toBe(1);
 
-      const eventDetails = onValueChange.firstCall
-        .args[1] as CalendarValueChangeEventDetails<ValidateDateReturnValue>;
+      const eventDetails = onValueChange.mock
+        .calls[0][1] as CalendarValueChangeEventDetails<ValidateDateReturnValue>;
       const validationError = eventDetails.getValidationError();
-      expect(validationError).to.equal(null);
+      expect(validationError).toBe(null);
     });
 
     it('should support eventDetails.cancel() when uncontrolled', () => {
@@ -195,7 +194,7 @@ describe('SharedCalendarStore - value', () => {
       store.selectDate(adapter.date('2025-02-20', 'default'), createMockMouseEvent());
 
       // But value should remain unchanged
-      expect(adapter.isEqual(store.state.value, defaultValue)).to.equal(true);
+      expect(adapter.isEqual(store.state.value, defaultValue)).toBe(true);
     });
 
     it('should support conditionally calling eventDetails.cancel() based on validation when uncontrolled', () => {
@@ -217,42 +216,42 @@ describe('SharedCalendarStore - value', () => {
       store.selectDate(invalidDate, createMockMouseEvent());
 
       // Value should remain unchanged
-      expect(adapter.isEqual(store.state.value, defaultValue)).to.equal(true);
+      expect(adapter.isEqual(store.state.value, defaultValue)).toBe(true);
 
       // Select a valid date - should succeed
       const validDate = adapter.date('2025-02-20', 'default');
       store.selectDate(validDate, createMockMouseEvent());
 
       // Value should be updated
-      expect(adapter.isEqual(store.state.value, validDate)).to.equal(true);
+      expect(adapter.isEqual(store.state.value, validDate)).toBe(true);
     });
   });
 
   describe('readOnly mode', () => {
     it('should not update value when readOnly is true', () => {
       const defaultValue = adapter.date('2025-02-15', 'default');
-      const onValueChange = spy();
+      const onValueChange = vi.fn();
       const store = createStore(adapter, { defaultValue, onValueChange, readOnly: true });
       const selectedDate = adapter.date('2025-02-20', 'default');
 
       store.selectDate(selectedDate, createMockMouseEvent());
 
       // onValueChange should not be called
-      expect(onValueChange.callCount).to.equal(0);
+      expect(onValueChange.mock.calls.length).toBe(0);
 
       // Value should remain unchanged
-      expect(adapter.isEqual(store.state.value, defaultValue)).to.equal(true);
+      expect(adapter.isEqual(store.state.value, defaultValue)).toBe(true);
     });
 
     it('should not call onValueChange when readOnly is true', () => {
       const value = adapter.date('2025-02-15', 'default');
-      const onValueChange = spy();
+      const onValueChange = vi.fn();
       const store = createStore(adapter, { value, onValueChange, readOnly: true });
       const selectedDate = adapter.date('2025-02-20', 'default');
 
       store.selectDate(selectedDate, createMockMouseEvent());
 
-      expect(onValueChange.callCount).to.equal(0);
+      expect(onValueChange.mock.calls.length).toBe(0);
     });
   });
 
@@ -260,35 +259,35 @@ describe('SharedCalendarStore - value', () => {
     it('should handle null value (controlled with empty)', () => {
       const store = createStore(adapter, { value: null });
 
-      expect(store.state.value).to.equal(null);
+      expect(store.state.value).toBe(null);
     });
 
     it('should transition from null to a selected value in uncontrolled mode', () => {
-      const onValueChange = spy();
+      const onValueChange = vi.fn();
       const store = createStore(adapter, { onValueChange });
       const selectedDate = adapter.date('2025-02-20', 'default');
 
-      expect(store.state.value).to.equal(null);
+      expect(store.state.value).toBe(null);
 
       store.selectDate(selectedDate, createMockMouseEvent());
 
-      expect(adapter.isEqual(store.state.value, selectedDate)).to.equal(true);
-      expect(onValueChange.callCount).to.equal(1);
+      expect(adapter.isEqual(store.state.value, selectedDate)).toBe(true);
+      expect(onValueChange.mock.calls.length).toBe(1);
     });
 
     it('should call onValueChange when transitioning from null (controlled)', () => {
-      const onValueChange = spy();
+      const onValueChange = vi.fn();
       const store = createStore(adapter, { value: null, onValueChange });
       const selectedDate = adapter.date('2025-02-20', 'default');
 
       store.selectDate(selectedDate, createMockMouseEvent());
 
       // Value remains null in controlled mode
-      expect(store.state.value).to.equal(null);
+      expect(store.state.value).toBe(null);
 
       // But onValueChange should be called
-      expect(onValueChange.callCount).to.equal(1);
-      expect(adapter.isEqual(onValueChange.firstCall.args[0], selectedDate)).to.equal(true);
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(adapter.isEqual(onValueChange.mock.calls[0][0], selectedDate)).toBe(true);
     });
   });
 });

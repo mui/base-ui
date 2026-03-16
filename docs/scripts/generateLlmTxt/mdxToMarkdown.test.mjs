@@ -20,16 +20,16 @@ describe('mdxToMarkdown', () => {
     const result = await mdxToMarkdown(accordionMdxContent, accordionMdxPath);
 
     // Verify the result structure
-    expect(result).to.be.an('object');
-    expect(result).to.have.property('markdown');
-    expect(result).to.have.property('title');
-    expect(result).to.have.property('subtitle');
-    expect(result).to.have.property('description');
+    expect(result).toBeTypeOf('object');
+    expect(result).toHaveProperty('markdown');
+    expect(result).toHaveProperty('title');
+    expect(result).toHaveProperty('subtitle');
+    expect(result).toHaveProperty('description');
 
     // Verify extracted metadata
-    expect(result.title).to.equal('Accordion');
-    expect(result.subtitle).to.equal('A set of collapsible panels with headings.');
-    expect(result.description).to.equal(
+    expect(result.title).toBe('Accordion');
+    expect(result.subtitle).toBe('A set of collapsible panels with headings.');
+    expect(result.description).toBe(
       'A high-quality, unstyled React accordion component that displays a set of collapsible panels with headings.',
     );
 
@@ -51,16 +51,16 @@ describe('mdxToMarkdown', () => {
     const result = await mdxToMarkdown(directionProviderMdxContent, directionProviderMdxPath);
 
     // Verify the result structure
-    expect(result).to.be.an('object');
-    expect(result).to.have.property('markdown');
-    expect(result).to.have.property('title');
-    expect(result).to.have.property('subtitle');
-    expect(result).to.have.property('description');
+    expect(result).toBeTypeOf('object');
+    expect(result).toHaveProperty('markdown');
+    expect(result).toHaveProperty('title');
+    expect(result).toHaveProperty('subtitle');
+    expect(result).toHaveProperty('description');
 
     // Verify extracted metadata
-    expect(result.title).to.equal('Direction Provider');
-    expect(result.subtitle).to.equal('Enables RTL behavior for Base UI components.');
-    expect(result.description).to.equal(
+    expect(result.title).toBe('Direction Provider');
+    expect(result.subtitle).toBe('Enables RTL behavior for Base UI components.');
+    expect(result.description).toBe(
       'A direction provider component that enables RTL behavior for Base UI components.',
     );
 
