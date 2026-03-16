@@ -7,6 +7,11 @@
       "required": true,
       "description": "The unique identifying value of the radio in a group."
     },
+    "form": {
+      "type": "string",
+      "description": "Identifies the form that owns the hidden input.\nUseful when the radio is rendered outside the form.",
+      "detailedType": "string | undefined"
+    },
     "nativeButton": {
       "type": "boolean",
       "default": "false",

@@ -33,6 +33,11 @@
       "description": "When true, direct text entry may be outside the `min`/`max` range without clamping,\nso native range underflow/overflow validation can occur.\nStep-based interactions (keyboard arrows, buttons, wheel, scrub) still clamp.",
       "detailedType": "boolean | undefined"
     },
+    "form": {
+      "type": "string",
+      "description": "Identifies the form that owns the hidden input.\nUseful when the number field is rendered outside the form.",
+      "detailedType": "string | undefined"
+    },
     "locale": {
       "type": "Intl.LocalesArgument",
       "description": "The locale of the input element.\nDefaults to the user's runtime locale."

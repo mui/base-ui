@@ -2132,6 +2132,30 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         const submit = screen.getByRole('button');
         fireEvent.click(submit);
       });
+
+      it('submits to an external form when `form` is provided', async () => {
+        await render(
+          <React.Fragment>
+            <form
+              id="external-form"
+              onSubmit={(event) => {
+                event.preventDefault();
+                const formData = new FormData(event.currentTarget);
+                expect(formData.get('slider')).to.equal('25');
+              }}
+            >
+              <button type="submit">Submit</button>
+            </form>
+            <Slider.Root name="slider" form="external-form" defaultValue={25}>
+              <Slider.Control>
+                <Slider.Thumb />
+              </Slider.Control>
+            </Slider.Root>
+          </React.Fragment>,
+        );
+
+        fireEvent.click(screen.getByRole('button'));
+      });
     });
   });
 

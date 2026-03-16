@@ -43,6 +43,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     required: requiredProp = false,
     'aria-labelledby': ariaLabelledByProp,
     value,
+    form: formProp,
     inputRef: inputRefProp,
     nativeButton = false,
     id: idProp,
@@ -55,6 +56,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     disabled: disabledGroup,
     readOnly: readOnlyGroup,
     required: requiredGroup,
+    form: formGroup,
     checkedValue,
     touched = false,
     validation,
@@ -79,6 +81,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   const disabled = fieldDisabled || fieldItemContext.disabled || disabledGroup || disabledProp;
   const readOnly = readOnlyGroup || readOnlyProp;
   const required = requiredGroup || requiredProp;
+  const form = formGroup ?? formProp;
 
   const checked = groupContext ? checkedValue === value : value === '';
   const serializedValue = React.useMemo(() => serializeValue(value), [value]);
@@ -183,6 +186,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   const inputProps: React.ComponentPropsWithRef<'input'> = {
     type: 'radio',
     ref: mergedInputRef,
+    form,
     id: hiddenInputId,
     name,
     tabIndex: -1,
@@ -310,6 +314,11 @@ export interface RadioRootProps<Value = any>
    * Whether the user should be unable to select the radio button.
    */
   readOnly?: boolean | undefined;
+  /**
+   * Identifies the form that owns the hidden input.
+   * Useful when the radio is rendered outside the form.
+   */
+  form?: string | undefined;
   /**
    * A ref to access the hidden input element.
    */

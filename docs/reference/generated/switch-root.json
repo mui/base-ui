@@ -28,6 +28,11 @@
       "description": "The value submitted with the form when the switch is on.\nBy default, switch submits the \"on\" value, matching native checkbox behavior.",
       "detailedType": "string | undefined"
     },
+    "form": {
+      "type": "string",
+      "description": "Identifies the form that owns the hidden input.\nUseful when the switch is rendered outside the form.",
+      "detailedType": "string | undefined"
+    },
     "nativeButton": {
       "type": "boolean",
       "default": "false",

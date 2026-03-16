@@ -4573,6 +4573,55 @@ describe('<Combobox.Root />', () => {
       expect(handleFormSubmit.mock.calls[0][0]).toEqual({ country: 'US' });
     });
 
+    it.skipIf(isJSDOM)('submits to an external form when `form` is provided', async () => {
+      const submitSpy = spy((event) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        return formData.get('country');
+      });
+
+      const items = [
+        { code: 'US', label: 'United States' },
+        { code: 'CA', label: 'Canada' },
+      ];
+
+      await render(
+        <React.Fragment>
+          <form id="external-form" onSubmit={submitSpy}>
+            <button type="submit">Submit</button>
+          </form>
+          <Combobox.Root
+            name="country"
+            form="external-form"
+            items={items}
+            itemToStringLabel={(item) => item.label}
+            itemToStringValue={(item) => item.code}
+            defaultValue={items[0]}
+          >
+            <Combobox.Input />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(item: (typeof items)[number]) => (
+                      <Combobox.Item key={item.code} value={item}>
+                        {item.label}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        </React.Fragment>,
+      );
+
+      fireEvent.click(screen.getByRole('button'));
+
+      expect(submitSpy.callCount).to.equal(1);
+      expect(submitSpy.lastCall.returnValue).to.equal('US');
+    });
+
     describe('serialization for object values', () => {
       const items = [
         { value: 'US', label: 'United States' },

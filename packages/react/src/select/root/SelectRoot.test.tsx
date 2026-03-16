@@ -1739,6 +1739,40 @@ describe('<Select.Root />', () => {
       expect(handleFormSubmit.mock.calls[0][0]).toEqual({ country: 'US' });
     });
 
+    it.skipIf(isJSDOM)('submits to an external form when `form` is provided', async () => {
+      const submitSpy = spy((event) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        return formData.get('country');
+      });
+
+      await render(
+        <React.Fragment>
+          <form id="external-form" onSubmit={submitSpy}>
+            <button type="submit">Submit</button>
+          </form>
+          <Select.Root name="country" form="external-form" defaultValue="US">
+            <Select.Trigger>
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="US">United States</Select.Item>
+                  <Select.Item value="CA">Canada</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </React.Fragment>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(submitSpy.callCount).to.equal(1);
+      expect(submitSpy.lastCall.returnValue).to.equal('US');
+    });
+
     it('triggers native HTML validation on submit', async () => {
       const { user } = await render(
         <Form>

@@ -1165,6 +1165,36 @@ describe('<NumberField />', () => {
       expect(fieldValue).toBe('54.5');
     });
 
+    it('submits to an external form when `form` is provided', async ({ skip }) => {
+      if (isJSDOM) {
+        skip();
+      }
+
+      let fieldValue = '';
+
+      await render(
+        <React.Fragment>
+          <form
+            id="external-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              const formData = new FormData(event.currentTarget);
+              fieldValue = formData.get('test') as string;
+            }}
+          >
+            <button type="submit">Submit</button>
+          </form>
+          <NumberFieldBase.Root name="test" form="external-form" defaultValue={54.5}>
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Root>
+        </React.Fragment>,
+      );
+
+      await act(async () => screen.getByText('Submit').click());
+
+      expect(fieldValue).to.equal('54.5');
+    });
+
     it('triggers native HTML validation on submit', async () => {
       const { user } = await render(
         <Form>

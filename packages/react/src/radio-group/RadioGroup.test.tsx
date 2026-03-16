@@ -951,6 +951,31 @@ describe('<RadioGroup />', () => {
 
     clock.withFakeTimers();
 
+    it.skipIf(isJSDOM)('submits to an external form when `form` is provided', async () => {
+      const submitSpy = spy((event) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        return formData.get('group');
+      });
+
+      await render(
+        <React.Fragment>
+          <form id="external-form" onSubmit={submitSpy}>
+            <button type="submit">Submit</button>
+          </form>
+          <RadioGroup name="group" form="external-form" defaultValue="b">
+            <Radio.Root value="a" />
+            <Radio.Root value="b" />
+          </RadioGroup>
+        </React.Fragment>,
+      );
+
+      fireEvent.click(screen.getByRole('button'));
+
+      expect(submitSpy.callCount).to.equal(1);
+      expect(submitSpy.lastCall.returnValue).to.equal('b');
+    });
+
     it('triggers native HTML validation on submit', async () => {
       const { user } = await renderFakeTimers(
         <Form>
