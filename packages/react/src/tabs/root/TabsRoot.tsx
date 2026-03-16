@@ -59,11 +59,98 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
   );
 
+  // Used for activation direction detection via tab element positions.
+  const getTabElementBySelectedValue = React.useCallback(
+    (selectedValue: TabsTab.Value | undefined): HTMLElement | null => {
+      if (selectedValue === undefined) {
+        return null;
+      }
+
+      for (const [tabElement, tabMetadata] of tabMap.entries()) {
+        if (tabMetadata != null && selectedValue === (tabMetadata.value ?? tabMetadata.index)) {
+          return tabElement as HTMLElement;
+        }
+      }
+
+      return null;
+    },
+    [tabMap],
+  );
+
   const [tabActivationDirection, setTabActivationDirection] =
     React.useState<TabsTab.ActivationDirection>('none');
 
+  const previousValueRef = React.useRef(value);
+  const previousTabEdgeRef = React.useRef<number | null>(null);
+
+  function getTabEdge(tabValue: TabsTab.Value | null): number | null {
+    if (tabValue == null) {
+      return null;
+    }
+    const tab = getTabElementBySelectedValue(tabValue);
+    if (tab == null) {
+      return null;
+    }
+    const rect = tab.getBoundingClientRect();
+    return orientation === 'horizontal' ? rect.left : rect.top;
+  }
+
+  function computeActivationDirection(
+    newEdge: number,
+    oldEdge: number,
+  ): TabsTab.ActivationDirection {
+    if (orientation === 'horizontal') {
+      if (newEdge < oldEdge) {
+        return 'left';
+      }
+      if (newEdge > oldEdge) {
+        return 'right';
+      }
+    } else {
+      if (newEdge < oldEdge) {
+        return 'up';
+      }
+      if (newEdge > oldEdge) {
+        return 'down';
+      }
+    }
+    return 'none';
+  }
+
+  // Compute activation direction during render when value changes.
+  // Uses React's "setState during render" pattern so that children
+  // see the correct direction on their first render.
+  // use case: https://github.com/mui/base-ui/issues/3873
+  if (previousValueRef.current !== value) {
+    previousValueRef.current = value;
+
+    const newEdge = getTabEdge(value);
+    if (newEdge != null && previousTabEdgeRef.current != null) {
+      const newDirection = computeActivationDirection(newEdge, previousTabEdgeRef.current);
+      if (newDirection !== tabActivationDirection) {
+        setTabActivationDirection(newDirection);
+      }
+    }
+  }
+
+  // Keep the previous tab edge position in sync after each commit.
+  useIsoLayoutEffect(() => {
+    previousTabEdgeRef.current = getTabEdge(value);
+  });
+
   const onValueChange = useStableCallback(
     (newValue: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => {
+      // Compute direction for the public callback's event details.
+      if (newValue != null) {
+        const newEdge = getTabEdge(newValue);
+        if (newEdge != null && previousTabEdgeRef.current != null) {
+          eventDetails.activationDirection = computeActivationDirection(
+            newEdge,
+            previousTabEdgeRef.current,
+          );
+        }
+      }
+
       onValueChangeProp?.(newValue, eventDetails);
 
       if (eventDetails.isCanceled) {
@@ -71,7 +158,6 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       }
 
       setValue(newValue);
-      setTabActivationDirection(eventDetails.activationDirection);
     },
   );
 
@@ -120,24 +206,6 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
         }
       }
       return undefined;
-    },
-    [tabMap],
-  );
-
-  // used in `useActivationDirectionDetector` for setting data-activation-direction
-  const getTabElementBySelectedValue = React.useCallback(
-    (selectedValue: TabsTab.Value | undefined): HTMLElement | null => {
-      if (selectedValue === undefined) {
-        return null;
-      }
-
-      for (const [tabElement, tabMetadata] of tabMap.entries()) {
-        if (tabMetadata != null && selectedValue === (tabMetadata.value ?? tabMetadata.index)) {
-          return tabElement as HTMLElement;
-        }
-      }
-
-      return null;
     },
     [tabMap],
   );

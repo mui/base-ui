@@ -1286,14 +1286,20 @@ describe('<Tabs.Root />', () => {
 
   describe.skipIf(isJSDOM)('activation direction', () => {
     it('should set the `data-activation-direction` attribute on the tabs root with orientation=horizontal', async () => {
+      const panelRenderMock = vi.fn();
       await render(
         <Tabs.Root data-testid="root">
           <Tabs.List>
             <Tabs.Tab value={0} />
             <Tabs.Tab value={1} />
           </Tabs.List>
+          <Tabs.Panel value={0} render={(_, state) => panelRenderMock(state)} />
+          <Tabs.Panel value={1} render={(_, state) => panelRenderMock(state)} />
         </Tabs.Root>,
       );
+
+      // clear the initial render calls from mounting the component
+      panelRenderMock.mockClear();
 
       const root = screen.getByTestId('root');
       const [tab1, tab2] = screen.getAllByRole('tab');
@@ -1303,24 +1309,40 @@ describe('<Tabs.Root />', () => {
         tab2.click();
       });
 
+      // Ensure the first call to the panel render already has the correct activation direction
+      expect(panelRenderMock).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({ tabActivationDirection: 'right' }),
+      );
       expect(root).toHaveAttribute('data-activation-direction', 'right');
+      panelRenderMock.mockClear();
 
       await act(async () => {
         tab1.click();
       });
 
+      expect(panelRenderMock).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({ tabActivationDirection: 'left' }),
+      );
       expect(root).toHaveAttribute('data-activation-direction', 'left');
     });
 
     it('should set the `data-activation-direction` attribute on the tabs root with orientation=vertical', async () => {
+      const panelRenderMock = vi.fn();
       await render(
         <Tabs.Root data-testid="root" orientation="vertical">
           <Tabs.List>
             <Tabs.Tab value={0} style={{ display: 'block' }} />
             <Tabs.Tab value={1} style={{ display: 'block' }} />
           </Tabs.List>
+          <Tabs.Panel value={0} render={(_, state) => panelRenderMock(state)} />
+          <Tabs.Panel value={1} render={(_, state) => panelRenderMock(state)} />
         </Tabs.Root>,
       );
+
+      // clear the initial render calls from mounting the component
+      panelRenderMock.mockClear();
 
       const root = screen.getByTestId('root');
       const [tab1, tab2] = screen.getAllByRole('tab');
@@ -1330,12 +1352,105 @@ describe('<Tabs.Root />', () => {
         tab2.click();
       });
 
+      // Ensure the first call to the panel render already has the correct activation direction
+      expect(panelRenderMock).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({ tabActivationDirection: 'down' }),
+      );
       expect(root).toHaveAttribute('data-activation-direction', 'down');
+
+      panelRenderMock.mockClear();
 
       await act(async () => {
         tab1.click();
       });
 
+      expect(panelRenderMock).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({ tabActivationDirection: 'up' }),
+      );
+      expect(root).toHaveAttribute('data-activation-direction', 'up');
+    });
+
+    it('should update `data-activation-direction` on programmatic value changes with orientation=horizontal', async () => {
+      const panelRenderMock = vi.fn();
+      const { setProps } = await render(
+        <Tabs.Root data-testid="root" value={0}>
+          <Tabs.List>
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} />
+          </Tabs.List>
+          <Tabs.Panel value={0} render={(_, state) => panelRenderMock(state)} />
+          <Tabs.Panel value={1} render={(_, state) => panelRenderMock(state)} />
+        </Tabs.Root>,
+      );
+
+      // clear the initial render calls from mounting the component
+      panelRenderMock.mockClear();
+
+      const root = screen.getByTestId('root');
+      expect(root).toHaveAttribute('data-activation-direction', 'none');
+
+      await setProps({ value: 1 });
+      await flushMicrotasks();
+
+      // Ensure the first call to the panel render already has the correct activation direction
+      expect(panelRenderMock).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({ tabActivationDirection: 'right' }),
+      );
+      expect(root).toHaveAttribute('data-activation-direction', 'right');
+
+      panelRenderMock.mockClear();
+
+      await setProps({ value: 0 });
+      await flushMicrotasks();
+
+      expect(panelRenderMock).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({ tabActivationDirection: 'left' }),
+      );
+      expect(root).toHaveAttribute('data-activation-direction', 'left');
+    });
+
+    it('should update `data-activation-direction` on programmatic value changes with orientation=vertical', async () => {
+      const panelRenderMock = vi.fn();
+      const { setProps } = await render(
+        <Tabs.Root data-testid="root" value={0} orientation="vertical">
+          <Tabs.List>
+            <Tabs.Tab value={0} style={{ display: 'block' }} />
+            <Tabs.Tab value={1} style={{ display: 'block' }} />
+          </Tabs.List>
+          <Tabs.Panel value={0} render={(_, state) => panelRenderMock(state)} />
+          <Tabs.Panel value={1} render={(_, state) => panelRenderMock(state)} />
+        </Tabs.Root>,
+      );
+
+      // clear the initial render calls from mounting the component
+      panelRenderMock.mockClear();
+
+      const root = screen.getByTestId('root');
+      expect(root).toHaveAttribute('data-activation-direction', 'none');
+
+      await setProps({ value: 1 });
+      await flushMicrotasks();
+
+      // Ensure the first call to the panel render already has the correct activation direction
+      expect(panelRenderMock).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({ tabActivationDirection: 'down' }),
+      );
+      expect(root).toHaveAttribute('data-activation-direction', 'down');
+
+      panelRenderMock.mockClear();
+
+      await setProps({ value: 0 });
+      await flushMicrotasks();
+
+      expect(panelRenderMock).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({ tabActivationDirection: 'up' }),
+      );
       expect(root).toHaveAttribute('data-activation-direction', 'up');
     });
   });
