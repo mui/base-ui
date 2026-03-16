@@ -920,6 +920,49 @@ describe('<Select.Root />', () => {
 
       expect(getComputedStyle(positioner).position).toBe('absolute');
     });
+
+    it('keeps the selected item highlighted when reopening after a touch-driven mouseleave', async () => {
+      await render(
+        <Select.Root>
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+                <Select.Item value="c">c</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByRole('combobox');
+
+      function fireTouchPress(element: HTMLElement) {
+        fireEvent.pointerDown(element, { pointerType: 'touch' });
+        fireEvent.mouseDown(element);
+      }
+
+      fireTouchPress(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).not.to.equal(null);
+      });
+
+      const optionB = screen.getByRole('option', { name: 'b' });
+      fireEvent.pointerDown(optionB, { pointerType: 'touch' });
+      fireEvent.click(optionB);
+      fireEvent.mouseLeave(optionB, { clientX: -1, clientY: -1 });
+
+      fireTouchPress(trigger);
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'b' })).to.have.attribute('data-highlighted');
+      });
+    });
   });
 
   describe('prop: actionsRef', () => {
