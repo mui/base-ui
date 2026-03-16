@@ -1,5 +1,5 @@
+import { expect } from 'vitest';
 import * as React from 'react';
-import { expect } from 'chai';
 import { Dialog } from '@base-ui/react/dialog';
 import { createRenderer, describeConformance } from '#test-utils';
 import { screen } from '@mui/internal-test-utils';
@@ -38,12 +38,12 @@ describe('<Dialog.Viewport />', () => {
 
     const { user } = await render(<App />);
 
-    expect(screen.queryByTestId('viewport')).to.equal(null);
+    expect(screen.queryByTestId('viewport')).toBe(null);
 
     await user.click(screen.getByText('Open'));
 
-    expect(screen.getByTestId('viewport')).not.to.equal(null);
-    expect(screen.getByTestId('viewport')).to.contain(screen.getByTestId('popup'));
+    expect(screen.getByTestId('viewport')).not.toBe(null);
+    expect(screen.getByTestId('viewport')).toContain(screen.getByTestId('popup'));
   });
 
   it('stays mounted when used within a keepMounted portal', async () => {
@@ -57,10 +57,10 @@ describe('<Dialog.Viewport />', () => {
       </Dialog.Root>,
     );
 
-    expect(screen.getByTestId('viewport')).not.to.equal(null);
+    expect(screen.getByTestId('viewport')).not.toBe(null);
 
     await setProps({ open: false });
 
-    expect(screen.getByTestId('viewport')).not.to.equal(null);
+    expect(screen.getByTestId('viewport')).not.toBe(null);
   });
 });

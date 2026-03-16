@@ -1,21 +1,20 @@
+import { describe, it, expect } from 'vitest';
 /**
  * Important: This test also serves as a point to
  * import the entire lib for coverage reporting
  */
-import { expect } from 'chai';
-import { describe, it } from 'vitest';
 import { isJSDOM } from '#test-utils';
 import * as BaseUI from './index';
 
 describe('@base-ui/react', () => {
   it('should have exports', () => {
-    expect(typeof BaseUI).to.equal('object');
+    expect(typeof BaseUI).toBe('object');
   });
 
   it('should not have undefined exports', () => {
     Object.keys(BaseUI).forEach((exportKey) => {
       const value = (BaseUI as Record<string, unknown>)[exportKey];
-      expect(Boolean(value)).to.equal(true);
+      expect(Boolean(value)).toBe(true);
     });
   });
 
@@ -40,10 +39,7 @@ describe('@base-ui/react', () => {
           const module = await import(/* @vite-ignore */ importSpecifier);
 
           Object.keys(module).forEach((exportKey) => {
-            expect((BaseUI as Record<string, unknown>)[exportKey]).not.to.equal(
-              undefined,
-              `${exportKey} (from ${importSpecifier}) was not found in root exports`,
-            );
+            expect((BaseUI as Record<string, unknown>)[exportKey]).not.toBeUndefined();
           });
         }),
     );

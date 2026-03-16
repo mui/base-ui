@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { Calendar } from '@base-ui/react/calendar';
 import { createTemporalRenderer, describeConformance } from '#test-utils';
 
@@ -40,7 +40,7 @@ describe('<Calendar.DayGridHeaderCell />', () => {
       );
 
       const cell = document.querySelector('th')!;
-      expect(cell.textContent).to.equal('T');
+      expect(cell.textContent).toBe('T');
     });
 
     it('should use the value returned by the provided formatter', () => {
@@ -60,7 +60,7 @@ describe('<Calendar.DayGridHeaderCell />', () => {
       );
 
       const cell = document.querySelector('th')!;
-      expect(cell.textContent).to.equal('Test');
+      expect(cell.textContent).toBe('Test');
     });
   });
 });
