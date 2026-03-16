@@ -1,5 +1,5 @@
+import { expect } from 'vitest';
 import * as React from 'react';
-import { expect } from 'chai';
 import { Radio } from '@base-ui/react/radio';
 import { RadioGroup } from '@base-ui/react/radio-group';
 import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
@@ -22,7 +22,7 @@ describe('<Radio.Root />', () => {
       </RadioGroup>,
     );
 
-    expect(screen.getByTestId('radio-root')).not.to.have.attribute('value');
+    expect(screen.getByTestId('radio-root')).not.toHaveAttribute('value');
   });
 
   it('allows `null` value', async () => {
@@ -36,9 +36,9 @@ describe('<Radio.Root />', () => {
     const radioNull = screen.getByTestId('radio-null');
     const radioA = screen.getByTestId('radio-a');
     fireEvent.click(radioNull);
-    expect(radioNull).to.have.attribute('aria-checked', 'true');
+    expect(radioNull).toHaveAttribute('aria-checked', 'true');
     fireEvent.click(radioA);
-    expect(radioNull).to.have.attribute('aria-checked', 'false');
+    expect(radioNull).toHaveAttribute('aria-checked', 'false');
   });
 
   it('associates `id` with the native button when `nativeButton=true`', async () => {
@@ -56,15 +56,15 @@ describe('<Radio.Root />', () => {
     );
 
     const radioA = screen.getByTestId('a');
-    expect(radioA).to.have.attribute('id', 'myRadio');
+    expect(radioA).toHaveAttribute('id', 'myRadio');
 
     const hiddenInput = radioA.nextElementSibling as HTMLInputElement | null;
-    expect(hiddenInput?.tagName).to.equal('INPUT');
-    expect(hiddenInput).not.to.have.attribute('id', 'myRadio');
+    expect(hiddenInput?.tagName).toBe('INPUT');
+    expect(hiddenInput).not.toHaveAttribute('id', 'myRadio');
 
-    expect(radioA).to.have.attribute('aria-checked', 'false');
+    expect(radioA).toHaveAttribute('aria-checked', 'false');
     fireEvent.click(screen.getByTestId('label'));
-    expect(radioA).to.have.attribute('aria-checked', 'true');
+    expect(radioA).toHaveAttribute('aria-checked', 'true');
   });
 
   it('sets `aria-labelledby` from a sibling label associated with the hidden input', async () => {
@@ -78,8 +78,8 @@ describe('<Radio.Root />', () => {
     );
 
     const label = screen.getByText('Label');
-    expect(label.id).not.to.equal('');
-    expect(screen.getByRole('radio')).to.have.attribute('aria-labelledby', label.id);
+    expect(label.id).not.toBe('');
+    expect(screen.getByRole('radio')).toHaveAttribute('aria-labelledby', label.id);
   });
 
   it('updates fallback `aria-labelledby` when the hidden input id changes', async () => {
@@ -105,17 +105,17 @@ describe('<Radio.Root />', () => {
     const radio = screen.getByRole('radio');
     const labelA = screen.getByText('Label A');
 
-    expect(labelA.id).to.not.equal('');
-    expect(radio).to.have.attribute('aria-labelledby', labelA.id);
+    expect(labelA.id).not.toBe('');
+    expect(radio).toHaveAttribute('aria-labelledby', labelA.id);
 
     fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
 
     await waitFor(() => {
       const labelB = screen.getByText('Label B');
 
-      expect(labelB.id).to.not.equal('');
-      expect(labelA.id).to.not.equal(labelB.id);
-      expect(radio).to.have.attribute('aria-labelledby', labelB.id);
+      expect(labelB.id).not.toBe('');
+      expect(labelA.id).not.toBe(labelB.id);
+      expect(radio).toHaveAttribute('aria-labelledby', labelB.id);
     });
   });
 
@@ -128,8 +128,8 @@ describe('<Radio.Root />', () => {
       );
 
       const radio = screen.getByTestId('radio');
-      expect(radio).to.not.have.attribute('disabled');
-      expect(radio).to.have.attribute('aria-disabled', 'true');
+      expect(radio).not.toHaveAttribute('disabled');
+      expect(radio).toHaveAttribute('aria-disabled', 'true');
     });
   });
 });

@@ -1,9 +1,8 @@
+import { expect, vi } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 import { Field } from '@base-ui/react/field';
-import { spy } from 'sinon';
 import { REASONS } from '../../utils/reasons';
 
 describe('<Combobox.Trigger />', () => {
@@ -28,13 +27,13 @@ describe('<Combobox.Trigger />', () => {
     const input = screen.getByRole('combobox');
     const trigger = screen.getByTestId('trigger');
 
-    expect(trigger).to.have.attribute('tabindex', '-1');
+    expect(trigger).toHaveAttribute('tabindex', '-1');
 
     await user.click(input);
-    expect(trigger).to.have.attribute('tabindex', '-1');
+    expect(trigger).toHaveAttribute('tabindex', '-1');
 
     await user.click(trigger);
-    expect(trigger).to.have.attribute('tabindex', '-1');
+    expect(trigger).toHaveAttribute('tabindex', '-1');
   });
 
   describe('prop: disabled', () => {
@@ -48,7 +47,7 @@ describe('<Combobox.Trigger />', () => {
       );
 
       const trigger = screen.getByTestId('trigger');
-      expect(trigger).to.have.attribute('disabled');
+      expect(trigger).toHaveAttribute('disabled');
     });
 
     it('should inherit disabled state from ComboboxRoot', async () => {
@@ -59,7 +58,7 @@ describe('<Combobox.Trigger />', () => {
       );
 
       const trigger = screen.getByTestId('trigger');
-      expect(trigger).to.have.attribute('disabled');
+      expect(trigger).toHaveAttribute('disabled');
     });
 
     it('should inherit disabled state from Field.Root', async () => {
@@ -72,7 +71,7 @@ describe('<Combobox.Trigger />', () => {
       );
 
       const trigger = screen.getByTestId('trigger');
-      expect(trigger).to.have.attribute('disabled');
+      expect(trigger).toHaveAttribute('disabled');
     });
 
     it('should not open popup when disabled', async () => {
@@ -97,7 +96,7 @@ describe('<Combobox.Trigger />', () => {
       const trigger = screen.getByTestId('trigger');
       await user.click(trigger);
 
-      expect(screen.queryByRole('listbox')).to.equal(null);
+      expect(screen.queryByRole('listbox')).toBe(null);
     });
 
     it('should prioritize local disabled over root disabled', async () => {
@@ -110,7 +109,7 @@ describe('<Combobox.Trigger />', () => {
       );
 
       const trigger = screen.getByTestId('trigger');
-      expect(trigger).to.have.attribute('disabled');
+      expect(trigger).toHaveAttribute('disabled');
     });
   });
 
@@ -135,7 +134,7 @@ describe('<Combobox.Trigger />', () => {
       const trigger = screen.getByTestId('trigger');
       await user.click(trigger);
 
-      expect(screen.queryByRole('listbox')).to.equal(null);
+      expect(screen.queryByRole('listbox')).toBe(null);
     });
 
     it('should not toggle when readOnly=false (control)', async () => {
@@ -156,7 +155,7 @@ describe('<Combobox.Trigger />', () => {
 
       const trigger = screen.getByTestId('trigger');
       await user.click(trigger);
-      expect(await screen.findByRole('listbox')).not.to.equal(null);
+      expect(await screen.findByRole('listbox')).not.toBe(null);
     });
   });
 
@@ -182,16 +181,16 @@ describe('<Combobox.Trigger />', () => {
       const trigger = screen.getByTestId('trigger');
 
       await user.click(trigger);
-      expect(await screen.findByRole('listbox')).not.to.equal(null);
+      expect(await screen.findByRole('listbox')).not.toBe(null);
 
       await user.click(trigger);
       await waitFor(() => {
-        expect(screen.queryByRole('listbox')).to.equal(null);
+        expect(screen.queryByRole('listbox')).toBe(null);
       });
     });
 
     it('should call onOpenChange when toggling', async () => {
-      const handleOpenChange = spy();
+      const handleOpenChange = vi.fn();
       const { user } = await render(
         <Combobox.Root onOpenChange={handleOpenChange}>
           <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
@@ -212,9 +211,9 @@ describe('<Combobox.Trigger />', () => {
       await user.click(trigger);
 
       await waitFor(() => {
-        expect(handleOpenChange.callCount).to.equal(1);
+        expect(handleOpenChange.mock.calls.length).toBe(1);
       });
-      expect(handleOpenChange.args[0][0]).to.equal(true);
+      expect(handleOpenChange.mock.calls[0][0]).toBe(true);
     });
 
     it('opens popup when pressing ArrowDown or ArrowUp', async () => {
@@ -238,18 +237,18 @@ describe('<Combobox.Trigger />', () => {
       });
 
       await user.keyboard('{ArrowDown}');
-      expect(screen.getByRole('listbox')).not.to.equal(null);
+      expect(screen.getByRole('listbox')).not.toBe(null);
       expect(screen.getByRole('combobox')).toHaveFocus();
 
       await user.keyboard('{Escape}');
-      expect(screen.queryByRole('listbox')).to.equal(null);
+      expect(screen.queryByRole('listbox')).toBe(null);
 
       await act(async () => {
         trigger.focus();
       });
 
       await user.keyboard('{ArrowUp}');
-      expect(screen.queryByRole('listbox')).not.to.equal(null);
+      expect(screen.queryByRole('listbox')).not.toBe(null);
       expect(screen.getByRole('combobox')).toHaveFocus();
     });
 
@@ -264,13 +263,13 @@ describe('<Combobox.Trigger />', () => {
       const trigger = screen.getByRole('combobox');
       await user.click(trigger);
       await user.keyboard('{ArrowDown}');
-      expect(screen.queryByRole('listbox')).to.equal(null);
+      expect(screen.queryByRole('listbox')).toBe(null);
       await user.keyboard('{ArrowUp}');
-      expect(screen.queryByRole('listbox')).to.equal(null);
+      expect(screen.queryByRole('listbox')).toBe(null);
     });
 
     it('fires with reason trigger-press when Trigger is clicked', async () => {
-      const onOpenChange = spy();
+      const onOpenChange = vi.fn();
       const { user } = await render(
         <Combobox.Root onOpenChange={onOpenChange}>
           <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
@@ -291,16 +290,16 @@ describe('<Combobox.Trigger />', () => {
       await user.click(trigger);
 
       await waitFor(() => {
-        expect(onOpenChange.callCount).to.equal(1);
+        expect(onOpenChange.mock.calls.length).toBe(1);
       });
-      expect(onOpenChange.lastCall.args[0]).to.equal(true);
-      expect(onOpenChange.lastCall.args[1].reason).to.equal(REASONS.triggerPress);
+      expect(onOpenChange.mock.lastCall?.[0]).toBe(true);
+      expect(onOpenChange.mock.lastCall?.[1].reason).toBe(REASONS.triggerPress);
     });
   });
 
   describe('drag selection', () => {
     it('commits selection when the input is outside the popup', async () => {
-      const handleValueChange = spy();
+      const handleValueChange = vi.fn();
 
       await render(
         <Combobox.Root onValueChange={handleValueChange}>
@@ -327,18 +326,18 @@ describe('<Combobox.Trigger />', () => {
       const option = await screen.findByRole('option', { name: 'Beta' });
 
       fireEvent.mouseMove(option, { pointerType: 'mouse' });
-      await waitFor(() => expect(option).to.have.attribute('data-highlighted'));
+      await waitFor(() => expect(option).toHaveAttribute('data-highlighted'));
 
       fireEvent.mouseUp(option, { button: 0 });
 
       await waitFor(() => {
-        expect(handleValueChange.callCount).to.equal(1);
+        expect(handleValueChange.mock.calls.length).toBe(1);
       });
-      expect(handleValueChange.firstCall.args[0]).to.equal('beta');
+      expect(handleValueChange.mock.calls[0][0]).toBe('beta');
     });
 
     it('commits selection when the input is inside the popup and the pointer is released over an item', async () => {
-      const handleValueChange = spy();
+      const handleValueChange = vi.fn();
 
       await render(
         <Combobox.Root onValueChange={handleValueChange}>
@@ -365,18 +364,18 @@ describe('<Combobox.Trigger />', () => {
       const option = await screen.findByRole('option', { name: 'Beta' });
 
       fireEvent.mouseMove(option, { pointerType: 'mouse' });
-      await waitFor(() => expect(option).to.have.attribute('data-highlighted'));
+      await waitFor(() => expect(option).toHaveAttribute('data-highlighted'));
 
       fireEvent.mouseUp(option, { button: 0 });
 
       await waitFor(() => {
-        expect(handleValueChange.callCount).to.equal(1);
+        expect(handleValueChange.mock.calls.length).toBe(1);
       });
-      expect(handleValueChange.firstCall.args[0]).to.equal('beta');
+      expect(handleValueChange.mock.calls[0][0]).toBe('beta');
     });
 
     it('does not commit selection if the pointer never hovers the item', async () => {
-      const handleValueChange = spy();
+      const handleValueChange = vi.fn();
 
       await render(
         <Combobox.Root onValueChange={handleValueChange}>
@@ -405,7 +404,7 @@ describe('<Combobox.Trigger />', () => {
       fireEvent.mouseUp(option, { button: 0 });
 
       await waitFor(() => {
-        expect(handleValueChange.callCount).to.equal(0);
+        expect(handleValueChange.mock.calls.length).toBe(0);
       });
     });
   });
@@ -436,7 +435,7 @@ describe('<Combobox.Trigger />', () => {
       fireEvent.mouseUp(document.body, { button: 0, clientX: 999, clientY: 999 });
 
       await waitFor(() => {
-        expect(screen.queryByRole('listbox')).to.equal(null);
+        expect(screen.queryByRole('listbox')).toBe(null);
       });
     });
 
@@ -479,7 +478,7 @@ describe('<Combobox.Trigger />', () => {
 
       fireEvent.mouseUp(document.body, { button: 0, clientX: 1, clientY: 1 });
 
-      expect(listbox.isConnected).to.equal(true);
+      expect(listbox.isConnected).toBe(true);
     });
   });
 
@@ -492,7 +491,7 @@ describe('<Combobox.Trigger />', () => {
       );
 
       const trigger = screen.getByTestId('trigger');
-      expect(trigger).to.have.attribute('aria-required', 'true');
+      expect(trigger).toHaveAttribute('aria-required', 'true');
     });
 
     it('does not set aria-required attribute when the input is outside the popup', async () => {
@@ -504,7 +503,7 @@ describe('<Combobox.Trigger />', () => {
       );
 
       const trigger = screen.getByTestId('trigger');
-      expect(trigger).not.to.have.attribute('aria-required');
+      expect(trigger).not.toHaveAttribute('aria-required');
     });
 
     it('sets all aria attributes on the input when closed', async () => {
@@ -523,10 +522,10 @@ describe('<Combobox.Trigger />', () => {
 
       const trigger = screen.getByTestId('trigger');
 
-      expect(trigger).to.have.attribute('tabindex', '0');
-      expect(trigger).to.have.attribute('aria-expanded', 'false');
-      expect(trigger).to.have.attribute('aria-haspopup', 'dialog');
-      expect(trigger).not.to.have.attribute('aria-controls');
+      expect(trigger).toHaveAttribute('tabindex', '0');
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(trigger).toHaveAttribute('aria-haspopup', 'dialog');
+      expect(trigger).not.toHaveAttribute('aria-controls');
     });
 
     it('sets all aria attributes on the input when open', async () => {
@@ -548,10 +547,10 @@ describe('<Combobox.Trigger />', () => {
 
       const listbox = await screen.findByRole('listbox');
 
-      expect(trigger).to.have.attribute('tabindex', '0');
-      expect(trigger).to.have.attribute('aria-expanded', 'true');
-      expect(trigger).to.have.attribute('aria-haspopup', 'dialog');
-      expect(trigger).to.have.attribute('aria-controls', listbox.id);
+      expect(trigger).toHaveAttribute('tabindex', '0');
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(trigger).toHaveAttribute('aria-haspopup', 'dialog');
+      expect(trigger).toHaveAttribute('aria-controls', listbox.id);
     });
   });
 
@@ -580,15 +579,15 @@ describe('<Combobox.Trigger />', () => {
 
       const trigger = screen.getByTestId('trigger');
 
-      expect(trigger).not.to.have.text('apple');
+      expect(trigger).not.toHaveTextContent('apple');
 
       await act(async () => {
         trigger.focus();
       });
       await user.keyboard('a');
 
-      expect(trigger).to.have.text('apple');
-      expect(screen.queryByRole('listbox')).to.equal(null);
+      expect(trigger).toHaveTextContent('apple');
+      expect(screen.queryByRole('listbox')).toBe(null);
     });
   });
 
@@ -614,17 +613,17 @@ describe('<Combobox.Trigger />', () => {
       );
 
       const trigger = screen.getByTestId('trigger');
-      expect(trigger).not.to.have.attribute('data-popup-side');
+      expect(trigger).not.toHaveAttribute('data-popup-side');
 
       await user.click(trigger);
 
-      await waitFor(() => expect(screen.queryByRole('listbox')).not.to.equal(null));
-      expect(trigger).to.have.attribute('data-popup-side', 'right');
+      await waitFor(() => expect(screen.queryByRole('listbox')).not.toBe(null));
+      expect(trigger).toHaveAttribute('data-popup-side', 'right');
 
       await user.click(document.body);
 
-      await waitFor(() => expect(screen.queryByRole('listbox')).to.equal(null));
-      expect(trigger).not.to.have.attribute('data-popup-side');
+      await waitFor(() => expect(screen.queryByRole('listbox')).toBe(null));
+      expect(trigger).not.toHaveAttribute('data-popup-side');
     });
 
     it('toggles data-list-empty when the filtered list is empty', async () => {
@@ -645,8 +644,8 @@ describe('<Combobox.Trigger />', () => {
 
       await user.click(trigger);
 
-      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
-      expect(trigger).to.have.attribute('data-list-empty');
+      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+      expect(trigger).toHaveAttribute('data-list-empty');
     });
 
     it('has data-placeholder when no value is selected', async () => {
@@ -668,7 +667,7 @@ describe('<Combobox.Trigger />', () => {
       );
 
       const trigger = screen.getByTestId('trigger');
-      expect(trigger).to.have.attribute('data-placeholder');
+      expect(trigger).toHaveAttribute('data-placeholder');
     });
 
     it('does not have data-placeholder when value is selected', async () => {
@@ -690,7 +689,7 @@ describe('<Combobox.Trigger />', () => {
       );
 
       const trigger = screen.getByTestId('trigger');
-      expect(trigger).not.to.have.attribute('data-placeholder');
+      expect(trigger).not.toHaveAttribute('data-placeholder');
     });
 
     it('has data-placeholder when multiple mode has empty array', async () => {
@@ -712,7 +711,7 @@ describe('<Combobox.Trigger />', () => {
       );
 
       const trigger = screen.getByTestId('trigger');
-      expect(trigger).to.have.attribute('data-placeholder');
+      expect(trigger).toHaveAttribute('data-placeholder');
     });
 
     it('does not have data-placeholder when multiple mode has a default value', async () => {
@@ -734,7 +733,7 @@ describe('<Combobox.Trigger />', () => {
       );
 
       const trigger = screen.getByTestId('trigger');
-      expect(trigger).not.to.have.attribute('data-placeholder');
+      expect(trigger).not.toHaveAttribute('data-placeholder');
     });
   });
 });

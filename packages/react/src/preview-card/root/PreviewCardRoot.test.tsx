@@ -1,9 +1,8 @@
+import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { PreviewCard } from '@base-ui/react/preview-card';
 import { act, fireEvent, screen, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { expect } from 'chai';
-import { spy } from 'sinon';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 
@@ -52,7 +51,7 @@ describe('<PreviewCard.Root />', () => {
 
         await flushMicrotasks();
 
-        expect(screen.getByText('Content')).not.to.equal(null);
+        expect(screen.getByText('Content')).not.toBe(null);
       });
 
       it('should close when the trigger is unhovered', async () => {
@@ -72,7 +71,7 @@ describe('<PreviewCard.Root />', () => {
 
         clock.tick(CLOSE_DELAY);
 
-        expect(screen.queryByText('Content')).to.equal(null);
+        expect(screen.queryByText('Content')).toBe(null);
       });
 
       it('should open when the trigger is focused', async () => {
@@ -91,7 +90,7 @@ describe('<PreviewCard.Root />', () => {
 
         await flushMicrotasks();
 
-        expect(screen.getByText('Content')).not.to.equal(null);
+        expect(screen.getByText('Content')).not.toBe(null);
       });
 
       it('should close when the trigger is blurred', async () => {
@@ -106,7 +105,7 @@ describe('<PreviewCard.Root />', () => {
         await act(async () => trigger.blur());
         clock.tick(CLOSE_DELAY);
 
-        expect(screen.queryByText('Content')).to.equal(null);
+        expect(screen.queryByText('Content')).toBe(null);
       });
     });
 
@@ -114,7 +113,7 @@ describe('<PreviewCard.Root />', () => {
       clock.withFakeTimers();
 
       it('should call onOpenChange when the open state changes', async () => {
-        const handleChange = spy();
+        const handleChange = vi.fn();
 
         function App() {
           const [open, setOpen] = React.useState(false);
@@ -134,7 +133,7 @@ describe('<PreviewCard.Root />', () => {
 
         await render(<App />);
 
-        expect(screen.queryByText('Content')).to.equal(null);
+        expect(screen.queryByText('Content')).toBe(null);
 
         const trigger = screen.getByRole('link', { name: 'Link' });
 
@@ -145,20 +144,20 @@ describe('<PreviewCard.Root />', () => {
 
         await flushMicrotasks();
 
-        expect(screen.getByText('Content')).not.to.equal(null);
+        expect(screen.getByText('Content')).not.toBe(null);
 
         fireEvent.mouseLeave(trigger);
 
         clock.tick(CLOSE_DELAY);
 
-        expect(screen.queryByText('Content')).to.equal(null);
-        expect(handleChange.callCount).to.equal(2);
-        expect(handleChange.firstCall.args[0]).to.equal(false);
-        expect(handleChange.secondCall.args[0]).to.equal(true);
+        expect(screen.queryByText('Content')).toBe(null);
+        expect(handleChange.mock.calls.length).toBe(2);
+        expect(handleChange.mock.calls[0][0]).toBe(false);
+        expect(handleChange.mock.calls[1][0]).toBe(true);
       });
 
       it('should not call onChange when the open state does not change', async () => {
-        const handleChange = spy();
+        const handleChange = vi.fn();
 
         function App() {
           const [open, setOpen] = React.useState(false);
@@ -178,7 +177,7 @@ describe('<PreviewCard.Root />', () => {
 
         await render(<App />);
 
-        expect(screen.queryByText('Content')).to.equal(null);
+        expect(screen.queryByText('Content')).toBe(null);
 
         const trigger = screen.getByRole('link', { name: 'Link' });
 
@@ -189,9 +188,9 @@ describe('<PreviewCard.Root />', () => {
 
         await flushMicrotasks();
 
-        expect(screen.getByText('Content')).not.to.equal(null);
-        expect(handleChange.callCount).to.equal(1);
-        expect(handleChange.firstCall.args[0]).to.equal(false);
+        expect(screen.getByText('Content')).not.toBe(null);
+        expect(handleChange.mock.calls.length).toBe(1);
+        expect(handleChange.mock.calls[0][0]).toBe(false);
       });
     });
 
@@ -207,7 +206,7 @@ describe('<PreviewCard.Root />', () => {
           />,
         );
 
-        expect(screen.getByText('Content')).not.to.equal(null);
+        expect(screen.getByText('Content')).not.toBe(null);
       });
 
       it('should not open when the component is rendered and open is controlled', async () => {
@@ -220,7 +219,7 @@ describe('<PreviewCard.Root />', () => {
           />,
         );
 
-        expect(screen.queryByText('Content')).to.equal(null);
+        expect(screen.queryByText('Content')).toBe(null);
       });
 
       it('should not close when the component is rendered and open is controlled', async () => {
@@ -233,7 +232,7 @@ describe('<PreviewCard.Root />', () => {
           />,
         );
 
-        expect(screen.getByText('Content')).not.to.equal(null);
+        expect(screen.getByText('Content')).not.toBe(null);
       });
 
       it('should remain uncontrolled', async () => {
@@ -245,7 +244,7 @@ describe('<PreviewCard.Root />', () => {
           />,
         );
 
-        expect(screen.getByText('Content')).not.to.equal(null);
+        expect(screen.getByText('Content')).not.toBe(null);
 
         const trigger = screen.getByRole('link', { name: 'Link' });
 
@@ -253,7 +252,7 @@ describe('<PreviewCard.Root />', () => {
 
         clock.tick(CLOSE_DELAY);
 
-        expect(screen.queryByText('Content')).to.equal(null);
+        expect(screen.queryByText('Content')).toBe(null);
       });
     });
 
@@ -270,13 +269,13 @@ describe('<PreviewCard.Root />', () => {
 
         await flushMicrotasks();
 
-        expect(screen.queryByText('Content')).to.equal(null);
+        expect(screen.queryByText('Content')).toBe(null);
 
         clock.tick(100);
 
         await flushMicrotasks();
 
-        expect(screen.getByText('Content')).not.to.equal(null);
+        expect(screen.getByText('Content')).not.toBe(null);
       });
     });
 
@@ -295,15 +294,15 @@ describe('<PreviewCard.Root />', () => {
 
         await flushMicrotasks();
 
-        expect(screen.getByText('Content')).not.to.equal(null);
+        expect(screen.getByText('Content')).not.toBe(null);
 
         fireEvent.mouseLeave(trigger);
 
-        expect(screen.getByText('Content')).not.to.equal(null);
+        expect(screen.getByText('Content')).not.toBe(null);
 
         clock.tick(100);
 
-        expect(screen.queryByText('Content')).to.equal(null);
+        expect(screen.queryByText('Content')).toBe(null);
       });
     });
 
@@ -327,7 +326,7 @@ describe('<PreviewCard.Root />', () => {
         fireEvent.mouseMove(trigger);
         await flushMicrotasks();
 
-        expect(screen.queryByText('Content')).to.equal(null);
+        expect(screen.queryByText('Content')).toBe(null);
       });
     });
 
@@ -335,8 +334,8 @@ describe('<PreviewCard.Root />', () => {
       it('unmounts the preview card when the `unmount` method is called', async () => {
         const actionsRef = {
           current: {
-            unmount: spy(),
-            close: spy(),
+            unmount: vi.fn(),
+            close: vi.fn(),
           },
         };
 
@@ -359,26 +358,26 @@ describe('<PreviewCard.Root />', () => {
         await user.hover(trigger);
 
         await waitFor(() => {
-          expect(screen.queryByTestId('positioner')).not.to.equal(null);
+          expect(screen.queryByTestId('positioner')).not.toBe(null);
         });
 
         await user.unhover(trigger);
 
         await waitFor(() => {
-          expect(screen.queryByTestId('positioner')).not.to.equal(null);
+          expect(screen.queryByTestId('positioner')).not.toBe(null);
         });
 
         await act(async () => actionsRef.current.unmount());
 
         await waitFor(() => {
-          expect(screen.queryByTestId('positioner')).to.equal(null);
+          expect(screen.queryByTestId('positioner')).toBe(null);
         });
       });
     });
 
     describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
       it('is called on close when there is no exit animation defined', async () => {
-        const onOpenChangeComplete = spy();
+        const onOpenChangeComplete = vi.fn();
 
         function Test() {
           const [open, setOpen] = React.useState(true);
@@ -401,17 +400,17 @@ describe('<PreviewCard.Root />', () => {
         await user.click(closeButton);
 
         await waitFor(() => {
-          expect(screen.queryByTestId('popup')).to.equal(null);
+          expect(screen.queryByTestId('popup')).toBe(null);
         });
 
-        expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
-        expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
+        expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
+        expect(onOpenChangeComplete.mock.lastCall?.[0]).toBe(false);
       });
 
       it('is called on close when the exit animation finishes', async () => {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
-        const onOpenChangeComplete = spy();
+        const onOpenChangeComplete = vi.fn();
 
         function Test() {
           const style = `
@@ -448,22 +447,22 @@ describe('<PreviewCard.Root />', () => {
 
         const { user } = await render(<Test />);
 
-        expect(screen.getByTestId('popup')).not.to.equal(null);
+        expect(screen.getByTestId('popup')).not.toBe(null);
 
         const closeButton = screen.getByText('Close');
         await user.click(closeButton);
 
         await waitFor(() => {
-          expect(screen.queryByTestId('popup')).to.equal(null);
+          expect(screen.queryByTestId('popup')).toBe(null);
         });
 
-        expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
+        expect(onOpenChangeComplete.mock.lastCall?.[0]).toBe(false);
       });
     });
 
     describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
       it('is called on close when there is no exit animation defined', async () => {
-        const onOpenChangeComplete = spy();
+        const onOpenChangeComplete = vi.fn();
 
         function Test() {
           const [open, setOpen] = React.useState(true);
@@ -486,17 +485,17 @@ describe('<PreviewCard.Root />', () => {
         await user.click(closeButton);
 
         await waitFor(() => {
-          expect(screen.queryByTestId('popup')).to.equal(null);
+          expect(screen.queryByTestId('popup')).toBe(null);
         });
 
-        expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
-        expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
+        expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
+        expect(onOpenChangeComplete.mock.lastCall?.[0]).toBe(false);
       });
 
       it('is called on close when the exit animation finishes', async () => {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
-        const onOpenChangeComplete = spy();
+        const onOpenChangeComplete = vi.fn();
 
         function Test() {
           const style = `
@@ -533,25 +532,25 @@ describe('<PreviewCard.Root />', () => {
 
         const { user } = await render(<Test />);
 
-        expect(screen.getByTestId('popup')).not.to.equal(null);
+        expect(screen.getByTestId('popup')).not.toBe(null);
 
         // Wait for open animation to finish
         await waitFor(() => {
-          expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+          expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
         });
 
         const closeButton = screen.getByText('Close');
         await user.click(closeButton);
 
         await waitFor(() => {
-          expect(screen.queryByTestId('popup')).to.equal(null);
+          expect(screen.queryByTestId('popup')).toBe(null);
         });
 
-        expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
+        expect(onOpenChangeComplete.mock.lastCall?.[0]).toBe(false);
       });
 
       it('is called on open when there is no enter animation defined', async () => {
-        const onOpenChangeComplete = spy();
+        const onOpenChangeComplete = vi.fn();
 
         function Test() {
           const [open, setOpen] = React.useState(false);
@@ -574,17 +573,17 @@ describe('<PreviewCard.Root />', () => {
         await user.click(openButton);
 
         await waitFor(() => {
-          expect(screen.queryByTestId('popup')).not.to.equal(null);
+          expect(screen.queryByTestId('popup')).not.toBe(null);
         });
 
-        expect(onOpenChangeComplete.callCount).to.equal(2);
-        expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+        expect(onOpenChangeComplete.mock.calls.length).toBe(2);
+        expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
       });
 
       it('is called on open when the enter animation finishes', async () => {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
-        const onOpenChangeComplete = spy();
+        const onOpenChangeComplete = vi.fn();
 
         function Test() {
           const style = `
@@ -626,14 +625,14 @@ describe('<PreviewCard.Root />', () => {
 
         // Wait for open animation to finish
         await waitFor(() => {
-          expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+          expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
         });
 
-        expect(screen.queryByTestId('popup')).not.to.equal(null);
+        expect(screen.queryByTestId('popup')).not.toBe(null);
       });
 
       it('does not get called on mount when not open', async () => {
-        const onOpenChangeComplete = spy();
+        const onOpenChangeComplete = vi.fn();
 
         await render(
           <TestPreviewCard
@@ -643,7 +642,7 @@ describe('<PreviewCard.Root />', () => {
           />,
         );
 
-        expect(onOpenChangeComplete.callCount).to.equal(0);
+        expect(onOpenChangeComplete.mock.calls.length).toBe(0);
       });
     });
   });
@@ -676,7 +675,7 @@ describe('<PreviewCard.Root />', () => {
 
       await render(<Test />);
 
-      expect(screen.queryByTestId('parent-popup')).not.to.equal(null);
+      expect(screen.queryByTestId('parent-popup')).not.toBe(null);
 
       const childTrigger = screen.getByRole('link', { name: 'Child' });
 
@@ -685,7 +684,7 @@ describe('<PreviewCard.Root />', () => {
       await flushMicrotasks();
 
       // Parent popup should still be open after clicking the child trigger
-      expect(screen.queryByTestId('parent-popup')).not.to.equal(null);
+      expect(screen.queryByTestId('parent-popup')).not.toBe(null);
     });
 
     it('keeps the parent preview card open when press starts in nested popup and ends outside', async () => {
@@ -721,8 +720,8 @@ describe('<PreviewCard.Root />', () => {
 
       await render(<Test />);
 
-      expect(screen.queryByTestId('parent-popup')).not.to.equal(null);
-      expect(screen.queryByTestId('child-popup')).not.to.equal(null);
+      expect(screen.queryByTestId('parent-popup')).not.toBe(null);
+      expect(screen.queryByTestId('child-popup')).not.toBe(null);
 
       const childPopup = screen.getByTestId('child-popup');
       const outside = screen.getByTestId('outside');
@@ -731,9 +730,9 @@ describe('<PreviewCard.Root />', () => {
       fireEvent.click(outside);
 
       await waitFor(() => {
-        expect(screen.queryByTestId('parent-popup')).not.to.equal(null);
+        expect(screen.queryByTestId('parent-popup')).not.toBe(null);
       });
-      expect(screen.queryByTestId('child-popup')).not.to.equal(null);
+      expect(screen.queryByTestId('child-popup')).not.toBe(null);
     });
 
     it('keeps the parent preview card open when hovering nested trigger', async () => {
@@ -766,7 +765,7 @@ describe('<PreviewCard.Root />', () => {
 
       await render(<Test />);
 
-      expect(screen.queryByTestId('parent-popup')).not.to.equal(null);
+      expect(screen.queryByTestId('parent-popup')).not.toBe(null);
 
       const childTrigger = screen.getByTestId('child-trigger');
 
@@ -778,7 +777,7 @@ describe('<PreviewCard.Root />', () => {
       await flushMicrotasks();
 
       // Parent popup should still be open after hovering the child trigger
-      expect(screen.queryByTestId('parent-popup')).not.to.equal(null);
+      expect(screen.queryByTestId('parent-popup')).not.toBe(null);
     });
 
     describe('race condition between close timers and hover-open logic', () => {
@@ -837,8 +836,8 @@ describe('<PreviewCard.Root />', () => {
         await flushMicrotasks();
 
         // Parent should still be open
-        expect(screen.queryByTestId('parent-popup')).not.to.equal(null);
-        expect(screen.queryByTestId('child-popup')).to.equal(null);
+        expect(screen.queryByTestId('parent-popup')).not.toBe(null);
+        expect(screen.queryByTestId('child-popup')).toBe(null);
 
         // Step 5: Hover child trigger again to re-open child
         const childTrigger = screen.getByTestId('child-trigger');
@@ -850,7 +849,7 @@ describe('<PreviewCard.Root />', () => {
         await flushMicrotasks();
 
         // Parent and child should be open
-        expect(screen.queryByTestId('parent-popup')).not.to.equal(null);
+        expect(screen.queryByTestId('parent-popup')).not.toBe(null);
         childPopup = screen.getByTestId('child-popup').parentElement!;
 
         fireEvent.mouseLeave(childTrigger, { relatedTarget: childPopup });
@@ -859,8 +858,8 @@ describe('<PreviewCard.Root />', () => {
 
         clock.tick(CLOSE_DELAY);
 
-        expect(screen.queryByTestId('parent-popup')).not.to.equal(null);
-        expect(screen.queryByTestId('child-popup')).not.to.equal(null);
+        expect(screen.queryByTestId('parent-popup')).not.toBe(null);
+        expect(screen.queryByTestId('child-popup')).not.toBe(null);
       });
     });
 
@@ -923,8 +922,8 @@ describe('<PreviewCard.Root />', () => {
         clock.tick(CLOSE_DELAY + 10);
         await flushMicrotasks();
 
-        expect(screen.queryByTestId('child-popup')).to.equal(null);
-        expect(screen.queryByTestId('parent-popup')).to.equal(null);
+        expect(screen.queryByTestId('child-popup')).toBe(null);
+        expect(screen.queryByTestId('parent-popup')).toBe(null);
       });
     });
   });

@@ -1,7 +1,7 @@
+import { vi, it, describe, expect } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { vi, it, describe } from 'vitest';
 import { flushMicrotasks } from '@mui/internal-test-utils';
 import { isJSDOM } from '@base-ui/utils/detectBrowser';
 import { useClick, useDismiss, useFloating, useInteractions, useListNavigation } from '../index';
@@ -634,11 +634,11 @@ describe('useListNavigation', () => {
 
     it('true - onNavigate is called with `null` when escaped', async () => {
       const spy = vi.fn();
-      render(<App allowEscape virtual loopFocus onNavigate={(index) => spy(index)} />);
+      render(<App allowEscape virtual loopFocus onNavigate={spy} />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowUp' });
       expect(spy).toHaveBeenCalledTimes(2);
-      expect(spy).toHaveBeenCalledWith(null);
+      expect(spy.mock.calls.some((args) => args[0] === null)).toBe(true);
       await flushMicrotasks();
     });
   });
@@ -688,21 +688,19 @@ describe('useListNavigation', () => {
   describe('prop: focusItemOnHover', () => {
     it('true - focuses item on hover and syncs the active index', async () => {
       const spy = vi.fn();
-      render(<App onNavigate={(index) => spy(index)} />);
+      render(<App onNavigate={spy} />);
       fireEvent.click(screen.getByRole('button'));
       fireEvent.mouseMove(screen.getByTestId('item-1'));
       expect(screen.getByTestId('item-1')).toHaveFocus();
       fireEvent.pointerLeave(screen.getByTestId('item-1'));
       expect(screen.getByRole('menu')).toHaveFocus();
-      expect(spy).toHaveBeenCalledWith(1);
+      expect(spy.mock.calls.some((args) => args[0] === 1)).toBe(true);
       await flushMicrotasks();
     });
 
     it('false - does not focus item on hover and does not sync the active index', async () => {
       const spy = vi.fn();
-      render(
-        <App onNavigate={(index) => spy(index)} focusItemOnOpen={false} focusItemOnHover={false} />,
-      );
+      render(<App onNavigate={spy} focusItemOnOpen={false} focusItemOnHover={false} />);
       fireEvent.click(screen.getByRole('button'));
       fireEvent.mouseMove(screen.getByTestId('item-1'));
       expect(screen.getByTestId('item-1')).not.toHaveFocus();

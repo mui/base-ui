@@ -1,7 +1,6 @@
+import { expect, vi, type MockInstance } from 'vitest';
 import * as React from 'react';
-import { expect } from 'chai';
 import { act, createRenderer, screen } from '@mui/internal-test-utils';
-import { SinonSpy, spy } from 'sinon';
 import { ReactStore } from './ReactStore';
 import { useRefWithInit } from '../useRefWithInit';
 import { createSelector } from './createSelector';
@@ -25,19 +24,19 @@ describe('ReactStore', () => {
     }
 
     const { setProps } = render(<Test controlled={1} />);
-    expect(store.state.value).to.equal(1);
+    expect(store.state.value).toBe(1);
 
     act(() => {
       store.update({ label: 'y' });
     });
     // Non-controlled keys still update
-    expect(store.state.label).to.equal('y');
+    expect(store.state.label).toBe('y');
 
     // Changing the controlled prop updates internal state
     act(() => {
       setProps({ controlled: 7 });
     });
-    expect(store.state.value).to.equal(7);
+    expect(store.state.value).toBe(7);
   });
 
   it('warns on switching from uncontrolled to controlled', () => {
@@ -84,10 +83,10 @@ describe('ReactStore', () => {
     }
 
     const { setProps } = render(<Test value={1} />);
-    expect(store.state.value).to.equal(1);
+    expect(store.state.value).toBe(1);
 
     act(() => setProps({ value: 2 }));
-    expect(store.state.value).to.equal(2);
+    expect(store.state.value).toBe(2);
   });
 
   it('useProps applies multiple keys from a props object', () => {
@@ -100,23 +99,23 @@ describe('ReactStore', () => {
     }
 
     const { setProps } = render(<Test props={{ value: 5, label: 'a' }} />);
-    expect(store.state.value).to.equal(5);
-    expect(store.state.label).to.equal('a');
+    expect(store.state.value).toBe(5);
+    expect(store.state.label).toBe('a');
 
     act(() => setProps({ props: { value: 6, label: 'b' } }));
-    expect(store.state.value).to.equal(6);
-    expect(store.state.label).to.equal('b');
+    expect(store.state.value).toBe(6);
+    expect(store.state.label).toBe('b');
   });
 
   it('useSyncedValues depends on entries instead of object identity', () => {
     let store!: ReactStore<TestState>;
-    let updateSpy!: SinonSpy<[Partial<TestState>], void>;
+    let updateSpy!: MockInstance;
 
     function Test({ props }: { props: Partial<TestState> }) {
       store = useStableStore<TestState>({ value: 0, label: '' });
 
       if (!updateSpy) {
-        updateSpy = spy(store, 'update');
+        updateSpy = vi.spyOn(store, 'update');
       }
 
       store.useSyncedValues(props);
@@ -125,20 +124,20 @@ describe('ReactStore', () => {
 
     const { setProps } = render(<Test props={{ value: 5, label: 'a' }} />, { strict: false });
 
-    expect(updateSpy.callCount).to.equal(1);
+    expect(updateSpy.mock.calls.length).toBe(1);
 
     act(() => {
       setProps({ props: { value: 5, label: 'a' } });
     });
 
-    expect(updateSpy.callCount).to.equal(1);
+    expect(updateSpy.mock.calls.length).toBe(1);
 
     act(() => {
       setProps({ props: { value: 6, label: 'a' } });
     });
 
-    expect(updateSpy.callCount).to.equal(2);
-    expect(store.state.value).to.equal(6);
+    expect(updateSpy.mock.calls.length).toBe(2);
+    expect(store.state.value).toBe(6);
   });
 
   it('warns if useSyncedValues keys change between renders', () => {
@@ -174,17 +173,17 @@ describe('ReactStore', () => {
     }
 
     const { setProps, unmount } = render(<Test node={firstNode} />);
-    expect(store.state.node).to.equal(firstNode);
+    expect(store.state.node).toBe(firstNode);
 
     act(() => {
       setProps({ node: secondNode });
     });
-    expect(store.state.node).to.equal(secondNode);
+    expect(store.state.node).toBe(secondNode);
 
     act(() => {
       unmount();
     });
-    expect(store.state.node).to.equal(undefined);
+    expect(store.state.node).toBe(undefined);
   });
 
   it('useStateSetter returns a stable callback that updates the store state', () => {
@@ -211,19 +210,19 @@ describe('ReactStore', () => {
 
     render(<Test />);
     const firstSetter = lastSetter;
-    expect(store.state.element).to.equal(element);
+    expect(store.state.element).toBe(element);
 
     act(() => {
       forceUpdate((value) => value + 1);
     });
 
-    expect(lastSetter).to.equal(firstSetter);
+    expect(lastSetter).toBe(firstSetter);
 
     act(() => {
       lastSetter(null);
     });
 
-    expect(store.state.element).to.equal(null);
+    expect(store.state.element).toBe(null);
   });
 
   it('supports nested stores as state values', async () => {
@@ -288,31 +287,31 @@ describe('ReactStore', () => {
     await act(async () => {
       childStore.set('count', 5);
     });
-    expect(childStore.state.count).to.equal(5);
-    expect(output.textContent).to.equal('5');
+    expect(childStore.state.count).toBe(5);
+    expect(output.textContent).toBe('5');
 
     await act(async () => {
       childStore.set('parent', parentStore);
     });
-    expect(childStore.state.count).to.equal(5);
-    expect(childStore.select('count')).to.equal(0);
-    expect(output.textContent).to.equal('0');
+    expect(childStore.state.count).toBe(5);
+    expect(childStore.select('count')).toBe(0);
+    expect(output.textContent).toBe('0');
 
     await act(async () => {
       childStore.set('count', 20);
     });
-    expect(childStore.state.count).to.equal(20);
-    expect(parentStore.state.count).to.equal(20);
-    expect(childStore.select('count')).to.equal(20);
-    expect(output.textContent).to.equal('20');
+    expect(childStore.state.count).toBe(20);
+    expect(parentStore.state.count).toBe(20);
+    expect(childStore.select('count')).toBe(20);
+    expect(output.textContent).toBe('20');
 
     await act(async () => {
       parentStore.set('count', 15);
     });
-    expect(parentStore.state.count).to.equal(15);
-    expect(childStore.state.count).to.equal(20);
-    expect(childStore.select('count')).to.equal(15);
-    expect(output.textContent).to.equal('15');
+    expect(parentStore.state.count).toBe(15);
+    expect(childStore.state.count).toBe(20);
+    expect(childStore.select('count')).toBe(15);
+    expect(output.textContent).toBe('15');
   });
   describe('observeSelector', () => {
     type CounterState = { count: number; multiplier: number };
@@ -333,21 +332,21 @@ describe('ReactStore', () => {
         },
       );
 
-      expect(calls).to.have.lengthOf(1);
-      expect(calls[0]).to.deep.equal({ newValue: false, oldValue: false });
+      expect(calls).toHaveLength(1);
+      expect(calls[0]).toEqual({ newValue: false, oldValue: false });
 
       store.set('count', 2);
-      expect(calls).to.have.lengthOf(2);
-      expect(calls[1]).to.deep.equal({ newValue: true, oldValue: false });
+      expect(calls).toHaveLength(2);
+      expect(calls[1]).toEqual({ newValue: true, oldValue: false });
 
       store.set('count', 1);
-      expect(calls).to.have.lengthOf(3);
-      expect(calls[2]).to.deep.equal({ newValue: false, oldValue: true });
+      expect(calls).toHaveLength(3);
+      expect(calls[2]).toEqual({ newValue: false, oldValue: true });
 
       unsubscribe();
 
       store.set('count', 3);
-      expect(calls).to.have.lengthOf(3);
+      expect(calls).toHaveLength(3);
     });
 
     it('calls listener immediately with current selector result on subscription', () => {
@@ -362,8 +361,8 @@ describe('ReactStore', () => {
         calls.push({ newValue, oldValue });
       });
 
-      expect(calls).to.have.lengthOf(1);
-      expect(calls[0]).to.deep.equal({ newValue: 10, oldValue: 10 });
+      expect(calls).toHaveLength(1);
+      expect(calls[0]).toEqual({ newValue: 10, oldValue: 10 });
     });
 
     it('calls listener when selector result changes', () => {
@@ -381,9 +380,9 @@ describe('ReactStore', () => {
       store.set('count', 10);
       store.set('count', 7);
 
-      expect(calls).to.have.lengthOf(3);
-      expect(calls[1]).to.deep.equal({ newValue: 20, oldValue: 10 });
-      expect(calls[2]).to.deep.equal({ newValue: 14, oldValue: 20 });
+      expect(calls).toHaveLength(3);
+      expect(calls[1]).toEqual({ newValue: 20, oldValue: 10 });
+      expect(calls[2]).toEqual({ newValue: 14, oldValue: 20 });
     });
 
     it('does not call listener when selector result is unchanged', () => {
@@ -400,7 +399,7 @@ describe('ReactStore', () => {
 
       store.set('multiplier', 5);
 
-      expect(calls).to.have.lengthOf(1); // Only initial call
+      expect(calls).toHaveLength(1); // Only initial call
     });
 
     it('calls listener when any dependency of the selector changes', () => {
@@ -418,10 +417,10 @@ describe('ReactStore', () => {
       store.set('count', 10);
       store.set('multiplier', 2);
 
-      expect(calls).to.have.lengthOf(3);
-      expect(calls[0]).to.deep.equal({ newValue: 15, oldValue: 15 });
-      expect(calls[1]).to.deep.equal({ newValue: 30, oldValue: 15 });
-      expect(calls[2]).to.deep.equal({ newValue: 20, oldValue: 30 });
+      expect(calls).toHaveLength(3);
+      expect(calls[0]).toEqual({ newValue: 15, oldValue: 15 });
+      expect(calls[1]).toEqual({ newValue: 30, oldValue: 15 });
+      expect(calls[2]).toEqual({ newValue: 20, oldValue: 30 });
     });
 
     it('provides the store instance to the listener', () => {
@@ -436,7 +435,7 @@ describe('ReactStore', () => {
         receivedStore = storeArg;
       });
 
-      expect(receivedStore).to.equal(store);
+      expect(receivedStore).toBe(store);
     });
 
     it('returns an unsubscribe function that stops observing', () => {
@@ -452,12 +451,12 @@ describe('ReactStore', () => {
       });
 
       store.set('count', 10);
-      expect(calls).to.have.lengthOf(2);
+      expect(calls).toHaveLength(2);
 
       unsubscribe();
 
       store.set('count', 15);
-      expect(calls).to.have.lengthOf(2); // No new calls after unsubscribe
+      expect(calls).toHaveLength(2); // No new calls after unsubscribe
     });
 
     it('supports multiple observers on the same selector', () => {
@@ -479,8 +478,8 @@ describe('ReactStore', () => {
 
       store.set('count', 10);
 
-      expect(calls1).to.deep.equal([10, 20]);
-      expect(calls2).to.deep.equal([10, 20]);
+      expect(calls1).toEqual([10, 20]);
+      expect(calls2).toEqual([10, 20]);
     });
 
     it('supports observers on different selectors', () => {
@@ -503,8 +502,8 @@ describe('ReactStore', () => {
       store.set('count', 10);
       store.set('multiplier', 2);
 
-      expect(doubledCalls).to.deep.equal([10, 20]);
-      expect(multipliedCalls).to.deep.equal([15, 30, 20]);
+      expect(doubledCalls).toEqual([10, 20]);
+      expect(multipliedCalls).toEqual([15, 30, 20]);
     });
   });
 });

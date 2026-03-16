@@ -1,7 +1,7 @@
+import { describe, it } from 'vitest';
 import * as path from 'node:path';
 import * as fs from 'node:fs/promises';
 import { chromium, Locator } from '@playwright/test';
-import { describe, it } from 'vitest';
 
 const baseUrl = 'http://localhost:5173';
 const screenshotDir = path.resolve(__dirname, './screenshots/chrome');

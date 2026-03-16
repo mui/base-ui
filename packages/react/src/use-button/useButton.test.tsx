@@ -1,5 +1,5 @@
+import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { expect } from 'vitest';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { createRenderer, isJSDOM } from '#test-utils';
@@ -124,7 +124,7 @@ describe('useButton', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(document.activeElement).not.to.equal(button);
+      expect(document.activeElement).not.toBe(button);
 
       expect(handleFocus).toHaveBeenCalledTimes(0);
       await user.keyboard('[Tab]');
@@ -147,7 +147,7 @@ describe('useButton', () => {
       expect(handleBlur).toHaveBeenCalledTimes(0);
       await user.keyboard('[Tab]');
       expect(handleBlur).toHaveBeenCalledTimes(1);
-      expect(document.activeElement).not.to.equal(button);
+      expect(document.activeElement).not.toBe(button);
     });
   });
 
@@ -156,13 +156,13 @@ describe('useButton', () => {
       function TestButton() {
         const { getButtonProps } = useButton();
 
-        expect(getButtonProps().tabIndex).to.equal(0);
+        expect(getButtonProps().tabIndex).toBe(0);
 
         return <button {...getButtonProps()} />;
       }
 
       await render(<TestButton />);
-      expect(screen.getByRole('button')).to.have.property('tabIndex', 0);
+      expect(screen.getByRole('button')).toHaveProperty('tabIndex', 0);
     });
 
     it('returns tabIndex in getButtonProps when host component is not BUTTON', async () => {
@@ -171,13 +171,13 @@ describe('useButton', () => {
         const { getButtonProps, buttonRef } = useButton({ native: false });
         useMergedRefs(ref, buttonRef);
 
-        expect(getButtonProps().tabIndex).to.equal(0);
+        expect(getButtonProps().tabIndex).toBe(0);
 
         return <span {...getButtonProps()} />;
       }
 
       await render(<TestButton />);
-      expect(screen.getByRole('button')).to.have.property('tabIndex', 0);
+      expect(screen.getByRole('button')).toHaveProperty('tabIndex', 0);
     });
 
     it('returns tabIndex in getButtonProps if it is explicitly provided', async () => {
@@ -188,7 +188,7 @@ describe('useButton', () => {
       }
 
       await render(<TestButton />);
-      expect(screen.getByRole('button')).to.have.property('tabIndex', customTabIndex);
+      expect(screen.getByRole('button')).toHaveProperty('tabIndex', customTabIndex);
     });
   });
 
@@ -201,7 +201,7 @@ describe('useButton', () => {
       }
 
       await render(<TestButton />);
-      expect(screen.getByRole('button')).to.have.attribute('data-testid', buttonTestId);
+      expect(screen.getByRole('button')).toHaveAttribute('data-testid', buttonTestId);
     });
   });
 
@@ -685,7 +685,7 @@ describe('useButton', () => {
 
       const { container } = await renderToString(<TestButton disabled />);
 
-      expect(container.firstChild).to.have.property('role', 'button');
+      expect(container.firstChild).toHaveProperty('role', 'button');
     });
 
     it('adds disabled attribute', async () => {
@@ -696,7 +696,7 @@ describe('useButton', () => {
       }
 
       renderToString(<TestButton disabled>Submit</TestButton>);
-      expect(screen.getByRole('button')).to.have.property('disabled');
+      expect(screen.getByRole('button')).toHaveProperty('disabled');
     });
   });
 
