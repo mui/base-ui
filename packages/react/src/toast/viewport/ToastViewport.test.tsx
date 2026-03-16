@@ -1,7 +1,7 @@
+import { expect } from 'vitest';
 import { Toast } from '@base-ui/react/toast';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 import { List, Button } from '../utils/test-utils';
 
 describe('<Toast.Viewport />', () => {
@@ -115,10 +115,10 @@ describe('<Toast.Viewport />', () => {
     const viewport = screen.getByTestId('viewport');
 
     fireEvent.mouseEnter(root);
-    expect(viewport).to.have.attribute('data-expanded');
+    expect(viewport).toHaveAttribute('data-expanded');
 
     fireEvent.mouseLeave(root);
-    expect(viewport).to.not.have.attribute('data-expanded');
+    expect(viewport).not.toHaveAttribute('data-expanded');
   });
 
   it('keeps expanded on mouseleave when focus-visible is inside', async () => {
@@ -140,9 +140,9 @@ describe('<Toast.Viewport />', () => {
     await user.tab();
 
     fireEvent.mouseEnter(root);
-    expect(viewport).to.have.attribute('data-expanded');
+    expect(viewport).toHaveAttribute('data-expanded');
     fireEvent.mouseLeave(root);
-    expect(viewport).to.have.attribute('data-expanded');
+    expect(viewport).toHaveAttribute('data-expanded');
   });
 
   describe('timers', () => {
@@ -167,7 +167,7 @@ describe('<Toast.Viewport />', () => {
 
       clock.tick(5001);
 
-      expect(screen.queryByTestId('root')).not.to.equal(null);
+      expect(screen.queryByTestId('root')).not.toBe(null);
     });
 
     it('resumes timers when not hovering', async () => {
@@ -191,11 +191,11 @@ describe('<Toast.Viewport />', () => {
 
       clock.tick(4999);
 
-      expect(screen.queryByTestId('root')).not.to.equal(null);
+      expect(screen.queryByTestId('root')).not.toBe(null);
 
       clock.tick(2);
 
-      expect(screen.queryByTestId('root')).to.equal(null);
+      expect(screen.queryByTestId('root')).toBe(null);
     });
 
     it('pauses timers when the viewport is focused', async () => {
@@ -215,7 +215,7 @@ describe('<Toast.Viewport />', () => {
 
       clock.tick(5001);
 
-      expect(screen.queryByTestId('root')).not.to.equal(null);
+      expect(screen.queryByTestId('root')).not.toBe(null);
     });
 
     it.skipIf(!isJSDOM)('resumes timers when the viewport is blurred', async () => {
@@ -239,7 +239,7 @@ describe('<Toast.Viewport />', () => {
 
       clock.tick(5001);
 
-      expect(screen.queryByTestId('root')).to.equal(null);
+      expect(screen.queryByTestId('root')).toBe(null);
     });
   });
 });

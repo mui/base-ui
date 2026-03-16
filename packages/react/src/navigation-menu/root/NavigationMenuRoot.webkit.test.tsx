@@ -1,7 +1,6 @@
+import { vi, expect } from 'vitest';
 import * as React from 'react';
-import { expect } from 'chai';
 import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
-import { vi } from 'vitest';
 import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import { createRenderer } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
@@ -111,9 +110,9 @@ describe('<NavigationMenu.Root /> (Safari)', () => {
 
     const topLevelList = screen.getByTestId('top-level-list');
 
-    expect(screen.queryByTestId('popup-1')).not.to.equal(null);
-    expect(topLevelList.style.pointerEvents).to.equal('');
-    expect(document.body.style.pointerEvents).to.equal('');
+    expect(screen.queryByTestId('popup-1')).not.toBe(null);
+    expect(topLevelList.style.pointerEvents).toBe('');
+    expect(document.body.style.pointerEvents).toBe('');
   });
 
   it('keeps nested safePolygon pointer events scoped on WebKit', async () => {
@@ -133,7 +132,7 @@ describe('<NavigationMenu.Root /> (Safari)', () => {
     mockBoundingClientRect(nestedViewport, { x: 200, y: 0, width: 300, height: 300 });
     fireEvent.mouseEnter(nestedTrigger1);
 
-    expect(nestedList.style.pointerEvents).to.equal('none');
-    expect(document.body.style.pointerEvents).to.equal('');
+    expect(nestedList.style.pointerEvents).toBe('none');
+    expect(document.body.style.pointerEvents).toBe('');
   });
 });

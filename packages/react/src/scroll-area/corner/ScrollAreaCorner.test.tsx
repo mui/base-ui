@@ -1,5 +1,5 @@
+import { expect } from 'vitest';
 import { ScrollArea } from '@base-ui/react/scroll-area';
-import { expect } from 'chai';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { describeConformance } from '../../../test/describeConformance';
@@ -64,8 +64,8 @@ describe('<ScrollArea.Corner />', () => {
 
       await waitFor(() => {
         const style = getComputedStyle(corner);
-        expect(style.getPropertyValue('--scroll-area-corner-width')).to.equal('10px');
-        expect(style.getPropertyValue('--scroll-area-corner-height')).to.equal('10px');
+        expect(style.getPropertyValue('--scroll-area-corner-width')).toBe('10px');
+        expect(style.getPropertyValue('--scroll-area-corner-height')).toBe('10px');
       });
     });
   });

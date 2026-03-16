@@ -1,7 +1,7 @@
+import { expect } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 
 describe('<Combobox.Clear />', () => {
   const { render } = createRenderer();
@@ -26,7 +26,7 @@ describe('<Combobox.Clear />', () => {
         <Combobox.Clear data-testid="clear" />
       </Combobox.Root>,
     );
-    expect(screen.getByTestId('clear')).not.to.equal(null);
+    expect(screen.getByTestId('clear')).not.toBe(null);
   });
 
   it('click clears selected value and focuses input', async () => {
@@ -49,8 +49,8 @@ describe('<Combobox.Clear />', () => {
     const input = screen.getByRole('combobox');
     await user.click(screen.getByTestId('clear'));
 
-    expect(screen.queryByTestId('clear')).to.equal(null);
-    expect(document.activeElement).to.equal(input);
+    expect(screen.queryByTestId('clear')).toBe(null);
+    expect(document.activeElement).toBe(input);
   });
 
   it('does not dismiss the popup on click (outsidePress is blocked)', async () => {
@@ -71,11 +71,11 @@ describe('<Combobox.Clear />', () => {
       </Combobox.Root>,
     );
 
-    expect(screen.getByRole('listbox')).not.to.equal(null);
+    expect(screen.getByRole('listbox')).not.toBe(null);
 
     await user.click(screen.getByTestId('clear'));
 
-    expect(screen.getByRole('listbox')).not.to.equal(null);
+    expect(screen.getByRole('listbox')).not.toBe(null);
   });
 
   it('is disabled when root disabled and does nothing on click', async () => {
@@ -87,10 +87,10 @@ describe('<Combobox.Clear />', () => {
     );
 
     const clear = screen.getByTestId('clear');
-    expect(clear).to.have.attribute('disabled');
+    expect(clear).toHaveAttribute('disabled');
 
     fireEvent.click(clear);
-    expect(screen.getByTestId('clear')).not.to.equal(null);
+    expect(screen.getByTestId('clear')).not.toBe(null);
   });
 
   it('when root is readOnly it does nothing on click', async () => {
@@ -104,7 +104,7 @@ describe('<Combobox.Clear />', () => {
     const clear = screen.getByTestId('clear');
 
     fireEvent.click(clear);
-    expect(screen.getByTestId('clear')).not.to.equal(null);
+    expect(screen.getByTestId('clear')).not.toBe(null);
   });
 
   describe.skipIf(isJSDOM)('animations', () => {
@@ -151,17 +151,17 @@ describe('<Combobox.Clear />', () => {
         </div>,
       );
 
-      expect(screen.queryByTestId('clear')).to.equal(null);
+      expect(screen.queryByTestId('clear')).toBe(null);
 
       const input = screen.getByTestId('input');
       await user.click(input);
-      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
       await user.click(screen.getByRole('option', { name: 'a' }));
 
       await waitFor(() => {
-        expect(animationFinished).to.equal(true);
+        expect(animationFinished).toBe(true);
       });
-      expect(screen.getByTestId('clear')).not.to.equal(null);
+      expect(screen.getByTestId('clear')).not.toBe(null);
     });
 
     it('triggers exit animation via data-ending-style before unmount', async () => {
@@ -200,12 +200,12 @@ describe('<Combobox.Clear />', () => {
       );
 
       const clear = screen.getByTestId('clear');
-      expect(clear).not.to.equal(null);
+      expect(clear).not.toBe(null);
 
       await user.click(clear);
 
       await waitFor(() => {
-        expect(animationFinished).to.equal(true);
+        expect(animationFinished).toBe(true);
       });
     });
   });

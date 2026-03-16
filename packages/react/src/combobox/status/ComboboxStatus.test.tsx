@@ -1,7 +1,7 @@
+import { expect } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance } from '#test-utils';
 import { screen, waitFor } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 
 describe('<Combobox.Status />', () => {
   const { render } = createRenderer();
@@ -30,8 +30,8 @@ describe('<Combobox.Status />', () => {
       </Combobox.Root>,
     );
 
-    expect(screen.queryByRole('status')).to.equal(null);
+    expect(screen.queryByRole('status')).toBe(null);
     await user.click(screen.getByTestId('input'));
-    await waitFor(() => expect(screen.getByRole('status')).not.to.equal(null));
+    await waitFor(() => expect(screen.getByRole('status')).not.toBe(null));
   });
 });
