@@ -1,6 +1,6 @@
+import { expect } from 'vitest';
 import { PreviewCard } from '@base-ui/react/preview-card';
 import { screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Popover.Popup />', () => {
@@ -30,6 +30,6 @@ describe('<Popover.Popup />', () => {
       </PreviewCard.Root>,
     );
 
-    expect(screen.getByText('Content')).not.to.equal(null);
+    expect(screen.getByText('Content')).not.toBe(null);
   });
 });

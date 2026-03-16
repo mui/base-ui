@@ -25,6 +25,7 @@ import { useField } from '../../field/useField';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFormContext } from '../../form/FormContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import { resolveAriaLabelledBy, getDefaultLabelId } from '../../utils/resolveAriaLabelledBy';
 import { asc } from '../utils/asc';
 import { getSliderValue } from '../utils/getSliderValue';
 import { validateMinimumDistance } from '../utils/validateMinimumDistance';
@@ -86,6 +87,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   } = componentProps;
 
   const id = useBaseUiId(idProp);
+  const defaultLabelId = getDefaultLabelId(id);
   const onValueChange = useStableCallback(
     onValueChangeProp as (
       value: number | number[],
@@ -110,9 +112,10 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     shouldValidateOnChange,
     validation,
   } = useFieldRootContext();
-  const { labelId } = useLabelableContext();
+  const { labelId: fieldLabelId } = useLabelableContext();
+  const [labelId, setLabelId] = React.useState<string | undefined>();
 
-  const ariaLabelledby = ariaLabelledByProp ?? labelId;
+  const ariaLabelledby = ariaLabelledByProp ?? resolveAriaLabelledBy(fieldLabelId, labelId);
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 
@@ -325,6 +328,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       indicatorPosition,
       inset: thumbAlignment !== 'center',
       labelId: ariaLabelledby,
+      rootLabelId: defaultLabelId,
       largeStep,
       lastUsedThumbIndex,
       lastChangedValueRef,
@@ -345,6 +349,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       setActive,
       setDragging,
       setIndicatorPosition,
+      setLabelId,
       setValue,
       state,
       step,
@@ -357,6 +362,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       active,
       controlRef,
       ariaLabelledby,
+      defaultLabelId,
       disabled,
       dragging,
       validation,
@@ -382,6 +388,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       setActive,
       setDragging,
       setIndicatorPosition,
+      setLabelId,
       setValue,
       state,
       step,

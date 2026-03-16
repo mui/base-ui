@@ -1,7 +1,8 @@
+import { vi, expect } from 'vitest';
 import { act } from '@mui/internal-test-utils';
-import { vi } from 'vitest';
 import { FloatingTreeStore } from './components/FloatingTreeStore';
 import type { HandleCloseContext } from './hooks/useHoverShared';
+import type { FloatingContext } from './types';
 import { safePolygon } from './safePolygon';
 import { getEmptyRootContext } from './utils/getEmptyRootContext';
 
@@ -21,13 +22,17 @@ function createRect(left: number, top: number, width: number, height: number) {
   } satisfies DOMRect;
 }
 
-function createMouseMoveEvent(clientX: number, clientY: number): MouseEvent {
+function createMouseMoveEvent(
+  clientX: number,
+  clientY: number,
+  target: EventTarget | null = null,
+): MouseEvent {
   return {
     type: 'mousemove',
     clientX,
     clientY,
     relatedTarget: null,
-    composedPath: () => [null],
+    composedPath: () => [target],
   } as unknown as MouseEvent;
 }
 
@@ -48,7 +53,27 @@ function createHandleCloseContext({
   x?: number;
   y?: number;
 }): HandleCloseContext {
-  const refs: HandleCloseContext['refs'] = {
+  return {
+    x,
+    y,
+    placement,
+    elements: { domReference, floating },
+    nodeId: 'root',
+    onClose,
+    tree,
+  };
+}
+
+function createFloatingContext({
+  domReference,
+  floating,
+  open,
+}: {
+  domReference: Element;
+  floating: HTMLElement;
+  open: boolean;
+}): FloatingContext {
+  const refs: FloatingContext['refs'] = {
     reference: { current: domReference },
     floating: { current: floating },
     domReference: { current: domReference },
@@ -57,22 +82,22 @@ function createHandleCloseContext({
     setPositionReference() {},
   };
 
-  const events: HandleCloseContext['events'] = {
+  const events: FloatingContext['events'] = {
     emit() {},
     on() {},
     off() {},
   };
 
   return {
-    x,
-    y,
+    x: 0,
+    y: 0,
     strategy: 'absolute',
-    placement,
+    placement: 'right',
     middlewareData: {},
     isPositioned: true,
     update: async () => {},
     floatingStyles: {},
-    open: true,
+    open,
     onOpenChange() {},
     events,
     dataRef: { current: {} },
@@ -81,8 +106,6 @@ function createHandleCloseContext({
     refs,
     elements: { reference: domReference, domReference, floating },
     rootStore: getEmptyRootContext(),
-    onClose,
-    tree,
   };
 }
 
@@ -157,7 +180,7 @@ describe('safePolygon', () => {
       tree,
     });
 
-    const openChildContext = { ...context, open: true };
+    const openChildContext = createFloatingContext({ domReference, floating, open: true });
     tree.addNode({ id: 'child', parentId: 'root', context: openChildContext });
 
     const handler = safePolygon()(context);
@@ -185,7 +208,7 @@ describe('safePolygon', () => {
       tree,
     });
 
-    const closedChildContext = { ...context, open: false };
+    const closedChildContext = createFloatingContext({ domReference, floating, open: false });
     tree.addNode({ id: 'child', parentId: 'root', context: closedChildContext });
 
     const handler = safePolygon()(context);
@@ -255,4 +278,34 @@ describe('safePolygon', () => {
       expect(onClose).toHaveBeenCalledTimes(1);
     },
   );
+
+  it('resets traversal state for a new handler invocation', () => {
+    const domReference = document.createElement('button');
+    const floating = document.createElement('div');
+    const scenario = createPlacementScenario('right');
+
+    domReference.getBoundingClientRect = () => scenario.referenceRect;
+    floating.getBoundingClientRect = () => scenario.floatingRect;
+
+    const tree = new FloatingTreeStore();
+    const onClose = vi.fn();
+    const context = createHandleCloseContext({
+      domReference,
+      floating,
+      onClose,
+      tree,
+      placement: 'right',
+      x: scenario.leavePoint[0],
+      y: scenario.leavePoint[1],
+    });
+
+    const handleClose = safePolygon();
+    const firstHandler = handleClose(context);
+    firstHandler(createMouseMoveEvent(130, 50, floating));
+
+    const secondHandler = handleClose(context);
+    secondHandler(createMouseMoveEvent(scenario.troughPoint[0], scenario.troughPoint[1]));
+
+    expect(onClose).toHaveBeenCalledTimes(0);
+  });
 });

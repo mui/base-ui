@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { getPushedThumbValues } from './getPushedThumbValues';
 
 describe('getPushedThumbValues', () => {
@@ -13,7 +13,7 @@ describe('getPushedThumbValues', () => {
       minStepsBetweenValues: 0,
     });
 
-    expect(result).to.deep.equal([70, 70]);
+    expect(result).toEqual([70, 70]);
   });
 
   it('ensures minimum distance between thumbs while pushing forward', () => {
@@ -27,7 +27,7 @@ describe('getPushedThumbValues', () => {
       minStepsBetweenValues: 5,
     });
 
-    expect(result).to.deep.equal([60, 65]);
+    expect(result).toEqual([60, 65]);
   });
 
   it('pushes previous thumbs backward when moving before them', () => {
@@ -41,7 +41,7 @@ describe('getPushedThumbValues', () => {
       minStepsBetweenValues: 0,
     });
 
-    expect(result).to.deep.equal([0, 0]);
+    expect(result).toEqual([0, 0]);
   });
 
   it('pushes multiple thumbs in sequence', () => {
@@ -55,7 +55,7 @@ describe('getPushedThumbValues', () => {
       minStepsBetweenValues: 5,
     });
 
-    expect(result).to.deep.equal([10, 95, 100]);
+    expect(result).toEqual([10, 95, 100]);
   });
 
   it('allows fractional minimum distances', () => {
@@ -69,8 +69,8 @@ describe('getPushedThumbValues', () => {
       minStepsBetweenValues: 0.4,
     });
 
-    expect(result[0]).to.equal(1.4);
-    expect(result[1]).to.equal(1.8);
+    expect(result[0]).toBe(1.4);
+    expect(result[1]).toBe(1.8);
   });
 
   it('restores pushed thumbs towards their initial value when space allows', () => {
@@ -87,7 +87,7 @@ describe('getPushedThumbValues', () => {
       minStepsBetweenValues: 0,
     });
 
-    expect(pushed).to.deep.equal([20, 20]);
+    expect(pushed).toEqual([20, 20]);
 
     const restored = getPushedThumbValues({
       values: pushed,
@@ -100,6 +100,6 @@ describe('getPushedThumbValues', () => {
       minStepsBetweenValues: 0,
     });
 
-    expect(restored).to.deep.equal([30, 35]);
+    expect(restored).toEqual([30, 35]);
   });
 });

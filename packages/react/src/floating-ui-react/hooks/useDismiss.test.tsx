@@ -1,8 +1,8 @@
+import { vi, expect } from 'vitest';
 /* eslint-disable @typescript-eslint/no-shadow */
 import { act, fireEvent, flushMicrotasks, render, screen, waitFor } from '@mui/internal-test-utils';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { vi } from 'vitest';
 
 import { isJSDOM } from '@base-ui/utils/detectBrowser';
 import {
@@ -167,6 +167,89 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       await userEvent.click(thirdParty);
       expect(screen.getByRole('dialog')).toBeInTheDocument();
       thirdParty.remove();
+    });
+
+    test('dismisses when clicking outside a shared shadow root', async () => {
+      function App({ shadowRoot }: { shadowRoot: ShadowRoot }) {
+        const [isOpen, setIsOpen] = React.useState(true);
+
+        const { context, refs } = useFloating({
+          open: isOpen,
+          onOpenChange: setIsOpen,
+        });
+
+        const dismiss = useDismiss(context);
+        const { getReferenceProps, getFloatingProps } = useInteractions([dismiss]);
+
+        return (
+          <React.Fragment>
+            <button {...getReferenceProps({ ref: refs.setReference })} />
+            {isOpen && (
+              <FloatingPortal container={shadowRoot}>
+                <div role="dialog" {...getFloatingProps({ ref: refs.setFloating })} />
+              </FloatingPortal>
+            )}
+          </React.Fragment>
+        );
+      }
+
+      const host = document.body.appendChild(document.createElement('div'));
+      const shadowRoot = host.attachShadow({ mode: 'open' });
+      const container = document.createElement('div');
+      shadowRoot.appendChild(container);
+
+      try {
+        render(<App shadowRoot={shadowRoot} />, { container });
+
+        await userEvent.click(document.body);
+
+        expect(shadowRoot.querySelector('[role="dialog"]')).toBe(null);
+      } finally {
+        host.remove();
+      }
+    });
+
+    test('dismisses when clicking outside a shared shadow root while focus is managed', async () => {
+      function App({ shadowRoot }: { shadowRoot: ShadowRoot }) {
+        const [isOpen, setIsOpen] = React.useState(true);
+
+        const { context, refs } = useFloating({
+          open: isOpen,
+          onOpenChange: setIsOpen,
+        });
+
+        const dismiss = useDismiss(context);
+        const { getReferenceProps, getFloatingProps } = useInteractions([dismiss]);
+
+        return (
+          <React.Fragment>
+            <button {...getReferenceProps({ ref: refs.setReference })} />
+            {isOpen && (
+              <FloatingPortal container={shadowRoot}>
+                <FloatingFocusManager context={context}>
+                  <div role="dialog" {...getFloatingProps({ ref: refs.setFloating })} />
+                </FloatingFocusManager>
+              </FloatingPortal>
+            )}
+          </React.Fragment>
+        );
+      }
+
+      const host = document.body.appendChild(document.createElement('div'));
+      const shadowRoot = host.attachShadow({ mode: 'open' });
+      const container = document.createElement('div');
+      shadowRoot.appendChild(container);
+
+      try {
+        render(<App shadowRoot={shadowRoot} />, { container });
+        await flushMicrotasks();
+
+        await userEvent.click(document.body);
+
+        expect(shadowRoot.querySelector('[role="dialog"]')).toBe(null);
+      } finally {
+        host.remove();
+      }
     });
 
     test('outsidePress not ignored for nested floating elements', async () => {

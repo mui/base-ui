@@ -1,7 +1,7 @@
+import { expect } from 'vitest';
 import * as React from 'react';
 import { Toast } from '@base-ui/react/toast';
 import { act, screen, fireEvent, waitFor } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import type { ToastManagerAddOptions } from '../useToastManager';
 import { List, Button } from '../utils/test-utils';
@@ -94,7 +94,7 @@ describe('<Toast.Root />', () => {
 
     await waitFor(() => {
       const height = toastRoot.style.getPropertyValue('--toast-height');
-      expect(height).to.not.equal('');
+      expect(height).not.toBe('');
     });
 
     const initialHeight = parseInt(toastRoot.style.getPropertyValue('--toast-height'), 10);
@@ -103,7 +103,7 @@ describe('<Toast.Root />', () => {
 
     await waitFor(() => {
       const newHeight = parseInt(toastRoot.style.getPropertyValue('--toast-height'), 10);
-      expect(newHeight).to.be.greaterThan(initialHeight);
+      expect(newHeight).toBeGreaterThan(initialHeight);
     });
   });
 
@@ -127,7 +127,7 @@ describe('<Toast.Root />', () => {
     await user.keyboard('{Tab}');
     await user.keyboard('{Escape}');
 
-    expect(screen.queryByTestId('root')).to.equal(null);
+    expect(screen.queryByTestId('root')).toBe(null);
   });
 
   describe.skipIf(isJSDOM)('swipe behavior', () => {
@@ -236,7 +236,7 @@ describe('<Toast.Root />', () => {
       simulateSwipe(toastElement, 100, 100, 100, 55);
 
       await waitFor(() => {
-        expect(screen.queryByTestId('toast-root')).to.equal(null);
+        expect(screen.queryByTestId('toast-root')).toBe(null);
       });
     });
 
@@ -257,7 +257,7 @@ describe('<Toast.Root />', () => {
       // Swipe up but only by 10px (below 40px threshold)
       simulateSwipe(toastElement, 100, 100, 100, 90);
 
-      expect(screen.queryByTestId('toast-root')).not.to.equal(null);
+      expect(screen.queryByTestId('toast-root')).not.toBe(null);
     });
 
     it('does not close toast when swiping in a non-specified direction', async () => {
@@ -277,7 +277,7 @@ describe('<Toast.Root />', () => {
       // Swipe down (opposite of allowed direction)
       simulateSwipe(toastElement, 100, 100, 100, 150);
 
-      expect(screen.queryByTestId('toast-root')).not.to.equal(null);
+      expect(screen.queryByTestId('toast-root')).not.toBe(null);
     });
 
     describe('supports multiple swipe directions', () => {
@@ -299,7 +299,7 @@ describe('<Toast.Root />', () => {
         simulateSwipe(screen.getByTestId('toast-root'), 100, 100, 150, 100);
 
         await waitFor(() => {
-          expect(screen.queryByTestId('toast-root')).to.equal(null);
+          expect(screen.queryByTestId('toast-root')).toBe(null);
         });
 
         fireEvent.click(addToast);
@@ -308,7 +308,7 @@ describe('<Toast.Root />', () => {
         simulateSwipe(screen.getByTestId('toast-root'), 100, 100, 100, 50);
 
         await waitFor(() => {
-          expect(screen.queryByTestId('toast-root')).to.equal(null);
+          expect(screen.queryByTestId('toast-root')).toBe(null);
         });
       });
 
@@ -330,7 +330,7 @@ describe('<Toast.Root />', () => {
         simulateSwipe(screen.getByTestId('toast-root'), 100, 100, 150, 100);
 
         await waitFor(() => {
-          expect(screen.queryByTestId('toast-root')).to.equal(null);
+          expect(screen.queryByTestId('toast-root')).toBe(null);
         });
 
         fireEvent.click(addToast);
@@ -339,7 +339,7 @@ describe('<Toast.Root />', () => {
         simulateSwipe(screen.getByTestId('toast-root'), 100, 100, 50, 100);
 
         await waitFor(() => {
-          expect(screen.queryByTestId('toast-root')).to.equal(null);
+          expect(screen.queryByTestId('toast-root')).toBe(null);
         });
       });
 
@@ -361,7 +361,7 @@ describe('<Toast.Root />', () => {
         simulateSwipe(screen.getByTestId('toast-root'), 100, 100, 100, 50);
 
         await waitFor(() => {
-          expect(screen.queryByTestId('toast-root')).to.equal(null);
+          expect(screen.queryByTestId('toast-root')).toBe(null);
         });
 
         fireEvent.click(addToast);
@@ -370,7 +370,7 @@ describe('<Toast.Root />', () => {
         simulateSwipe(screen.getByTestId('toast-root'), 100, 100, 100, 150);
 
         await waitFor(() => {
-          expect(screen.queryByTestId('toast-root')).to.equal(null);
+          expect(screen.queryByTestId('toast-root')).toBe(null);
         });
       });
     });
@@ -397,7 +397,7 @@ describe('<Toast.Root />', () => {
       fireEvent.pointerMove(toastElement, { clientX: 100, clientY: 90, pointerId: 1 });
       fireEvent.pointerUp(toastElement, { clientX: 100, clientY: 90, pointerId: 1 });
 
-      expect(screen.queryByTestId('toast-root')).not.to.equal(null);
+      expect(screen.queryByTestId('toast-root')).not.toBe(null);
     });
 
     it('applies [data-swiping] attribute when swiping', async () => {
@@ -416,7 +416,7 @@ describe('<Toast.Root />', () => {
 
       fireEvent.pointerDown(toastElement, { clientX: 100, clientY: 100, button: 0, pointerId: 1 });
 
-      expect(toastElement.getAttribute('data-swiping')).to.equal('');
+      expect(toastElement.getAttribute('data-swiping')).toBe('');
     });
 
     it('dismisses toast when swiped down with downward swipe direction', async () => {
@@ -434,7 +434,7 @@ describe('<Toast.Root />', () => {
       const toastElement = screen.getByTestId('toast-root');
       simulateSwipe(toastElement, 100, 100, 100, 150);
 
-      expect(screen.queryByTestId('toast-root')).to.equal(null);
+      expect(screen.queryByTestId('toast-root')).toBe(null);
     });
 
     it('dismisses toast when swiped left with leftward swipe direction', async () => {
@@ -452,7 +452,7 @@ describe('<Toast.Root />', () => {
       const toastElement = screen.getByTestId('toast-root');
       simulateSwipe(toastElement, 100, 100, 50, 100);
 
-      expect(screen.queryByTestId('toast-root')).to.equal(null);
+      expect(screen.queryByTestId('toast-root')).toBe(null);
     });
 
     it('dismisses toast when swiped right with rightward swipe direction', async () => {
@@ -470,7 +470,7 @@ describe('<Toast.Root />', () => {
       const toastElement = screen.getByTestId('toast-root');
       simulateSwipe(toastElement, 100, 100, 150, 100);
 
-      expect(screen.queryByTestId('toast-root')).to.equal(null);
+      expect(screen.queryByTestId('toast-root')).toBe(null);
     });
 
     it('allows swiping in multiple directions when specified', async () => {
@@ -490,14 +490,14 @@ describe('<Toast.Root />', () => {
       // First test upward swipe
       simulateSwipe(toastElement, 100, 100, 100, 50);
 
-      expect(screen.queryByTestId('toast-root')).to.equal(null);
+      expect(screen.queryByTestId('toast-root')).toBe(null);
 
       fireEvent.click(screen.getByRole('button', { name: 'add toast' }));
       const secondToastElement = screen.getByTestId('toast-root');
 
       simulateSwipe(secondToastElement, 100, 100, 150, 100);
 
-      expect(screen.queryByTestId('toast-root')).to.equal(null);
+      expect(screen.queryByTestId('toast-root')).toBe(null);
     });
 
     it('does not dismiss when swiped in non-specified direction', async () => {
@@ -517,12 +517,12 @@ describe('<Toast.Root />', () => {
       // Swipe right (not allowed)
       simulateSwipe(toastElement, 100, 100, 150, 100);
 
-      expect(screen.queryByTestId('toast-root')).not.to.equal(null);
+      expect(screen.queryByTestId('toast-root')).not.toBe(null);
 
       // Swipe down (not allowed)
       simulateSwipe(toastElement, 100, 100, 100, 150);
 
-      expect(screen.queryByTestId('toast-root')).not.to.equal(null);
+      expect(screen.queryByTestId('toast-root')).not.toBe(null);
     });
 
     it('does not dismiss when swipe distance is below threshold', async () => {
@@ -542,7 +542,49 @@ describe('<Toast.Root />', () => {
       // Small upward swipe (below threshold)
       simulateSwipe(toastElement, 100, 100, 100, 95);
 
-      expect(screen.queryByTestId('toast-root')).not.to.equal(null);
+      expect(screen.queryByTestId('toast-root')).not.toBe(null);
+    });
+
+    it('does not start swiping from elements with the data-base-ui-swipe-ignore attribute', async () => {
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <Toast.Root toast={toast} data-testid="toast-root" swipeDirection="up">
+              <div data-base-ui-swipe-ignore data-testid="ignore-target">
+                Ignore swipe
+              </div>
+            </Toast.Root>
+          </Toast.Viewport>
+        </Toast.Provider>,
+      );
+
+      const toastElement = screen.getByTestId('toast-root');
+      const ignoreTarget = screen.getByTestId('ignore-target');
+
+      fireEvent.pointerDown(ignoreTarget, { clientX: 100, clientY: 100, button: 0, pointerId: 1 });
+
+      expect(toastElement).not.toHaveAttribute('data-swiping');
+    });
+
+    it('does not start swiping from elements with the legacy data-swipe-ignore attribute', async () => {
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <Toast.Root toast={toast} data-testid="toast-root" swipeDirection="up">
+              <div data-swipe-ignore data-testid="ignore-target">
+                Ignore swipe
+              </div>
+            </Toast.Root>
+          </Toast.Viewport>
+        </Toast.Provider>,
+      );
+
+      const toastElement = screen.getByTestId('toast-root');
+      const ignoreTarget = screen.getByTestId('ignore-target');
+
+      fireEvent.pointerDown(ignoreTarget, { clientX: 100, clientY: 100, button: 0, pointerId: 1 });
+
+      expect(toastElement).not.toHaveAttribute('data-swiping');
     });
 
     it('ignores swipe gestures when toast is anchored', async () => {
@@ -571,7 +613,7 @@ describe('<Toast.Root />', () => {
 
         simulateSwipe(toastElement, 100, 100, 100, 55);
 
-        expect(screen.queryByTestId('toast-root')).not.to.equal(null);
+        expect(screen.queryByTestId('toast-root')).not.toBe(null);
       } finally {
         document.body.removeChild(anchor);
       }
@@ -639,14 +681,14 @@ describe('<Toast.Root />', () => {
       // The --toast-index CSS variable is set based on the domIndex calculation
       await waitFor(() => {
         const toastIndex = toastElement.style.getPropertyValue('--toast-index');
-        expect(toastIndex).to.equal('0');
+        expect(toastIndex).toBe('0');
       });
 
       // Verify the close button works (which also relies on ID-based lookup)
       fireEvent.click(screen.getByTestId('toast-close'));
 
       await waitFor(() => {
-        expect(screen.queryByTestId('toast-root')).to.equal(null);
+        expect(screen.queryByTestId('toast-root')).toBe(null);
       });
     });
 
@@ -693,13 +735,13 @@ describe('<Toast.Root />', () => {
 
       // Wait for all toasts to appear
       const toasts = await screen.findAllByTestId(/^toast-/);
-      expect(toasts).to.have.length(3);
+      expect(toasts).toHaveLength(3);
 
       // Verify each toast has a valid (non-negative) index
       await waitFor(() => {
         toasts.forEach((toastEl) => {
           const toastIndex = parseInt(toastEl.style.getPropertyValue('--toast-index'), 10);
-          expect(toastIndex).to.be.at.least(0);
+          expect(toastIndex).toBeGreaterThanOrEqual(0);
         });
       });
     });

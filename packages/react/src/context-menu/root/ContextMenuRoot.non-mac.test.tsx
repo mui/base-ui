@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { vi, expect } from 'vitest';
 import {
   fireEvent,
   ignoreActWarnings,
@@ -6,8 +6,6 @@ import {
   screen,
   waitFor,
 } from '@mui/internal-test-utils';
-import { spy } from 'sinon';
-import { vi } from 'vitest';
 import { ContextMenu } from '@base-ui/react/context-menu';
 import { createRenderer } from '#test-utils';
 
@@ -41,7 +39,7 @@ describe('<ContextMenu.Root /> (non-Mac)', () => {
         ignoreActWarnings();
       }
 
-      const onOpenChange = spy();
+      const onOpenChange = vi.fn();
 
       await render(
         <ContextMenu.Root onOpenChange={onOpenChange}>
@@ -67,10 +65,10 @@ describe('<ContextMenu.Root /> (non-Mac)', () => {
       fireEvent.mouseUp(item, { button: 2, clientX: 24, clientY: 24 });
 
       await waitFor(() => {
-        expect(screen.queryByTestId('context-popup')).not.to.equal(null);
+        expect(screen.queryByTestId('context-popup')).not.toBe(null);
       });
 
-      expect(onOpenChange.callCount).to.equal(1);
+      expect(onOpenChange.mock.calls.length).toBe(1);
     });
   });
 });
