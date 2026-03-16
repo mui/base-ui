@@ -6,10 +6,6 @@ import { describe, it } from 'vitest';
 const baseUrl = 'http://localhost:5173';
 const screenshotDir = path.resolve(__dirname, './screenshots/chrome');
 
-// Pick the new/fake "now" to have stable "now" in Argos.
-// Calendar PR merge day
-const fakeNow = new Date('2026-03-13T17:44:00Z').valueOf();
-
 const browser = await chromium.launch({
   args: ['--font-render-hinting=none'],
   // otherwise the loaded google Roboto font isn't applied
@@ -18,29 +14,6 @@ const browser = await chromium.launch({
 // reuse viewport from `vrtest`
 // https://github.com/nathanmarks/vrtest/blob/1185b852a6c1813cedf5d81f6d6843d9a241c1ce/src/server/runner.js#L44
 const page = await browser.newPage({ viewport: { width: 1000, height: 700 }, timezoneId: 'UTC' });
-// Override Date so that `new Date()` and `Date.now()` start from fakeNow.
-// We can't use a `class extends Date` to patch it, because @date-fns/tz's TZDateMini relies on
-// `Object.getOwnPropertyNames(Date.prototype)` returning all native methods (get*, set*) to set up
-// its timezone-aware overrides. A subclass's prototype only has 'constructor' as an own property.
-// We can't use `page.clock` either, because Sinon's fake Date doesn't properly support subclassing
-// via `super()`. Using Reflect.construct preserves the native Date.prototype while correctly
-// forwarding new.target for proper subclass construction (TZDateMini extends Date).
-await page.addInitScript(`{
-    const __OriginalDate = Date;
-    const __DateNowOffset = ${fakeNow} - __OriginalDate.now();
-    Date = function Date(...args) {
-      if (new.target) {
-        return args.length === 0
-          ? Reflect.construct(__OriginalDate, [__OriginalDate.now() + __DateNowOffset], new.target)
-          : Reflect.construct(__OriginalDate, args, new.target);
-      }
-      return new __OriginalDate(__OriginalDate.now() + __DateNowOffset).toString();
-    };
-    Date.prototype = __OriginalDate.prototype;
-    Date.parse = __OriginalDate.parse;
-    Date.UTC = __OriginalDate.UTC;
-    Date.now = () => __OriginalDate.now() + __DateNowOffset;
-  }`);
 
 // Block images since they slow down tests (need download).
 // They're also most likely decorative for documentation demos
