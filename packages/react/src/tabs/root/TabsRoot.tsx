@@ -67,7 +67,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   const valueHandledInternallyRef = React.useRef<TabsTab.Value | undefined>(undefined);
 
   // Helper to get tab element by value
-  const getTabElementBySelectedValue = useStableCallback(
+  const getTabElementBySelectedValue = React.useCallback(
     (selectedValue: TabsTab.Value | undefined): HTMLElement | null => {
       if (selectedValue === undefined) {
         return null;
@@ -81,6 +81,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
       return null;
     },
+    [tabMap],
   );
 
   // Compute the activation direction during render for external value changes
