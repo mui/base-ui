@@ -81,6 +81,26 @@ Use [Field](/react/components/field) to handle label associations and form integ
 </Form>
 ```
 
+### Indeterminate
+
+Use the `indeterminate` prop for a mixed state—when a checkbox is neither checked nor unchecked. A common case is a parent checkbox in a group: it becomes indeterminate when some, but not all, child options are checked.
+
+You can access the component state using the `render` prop on `<Checkbox.Indicator>` to render a different indicator.
+
+```tsx title="Indeterminate checkbox" "indeterminate" "state.indeterminate"
+<Checkbox.Root indeterminate>
+  <Checkbox.Indicator
+    render={(props, state) => (
+      <span {...props}>{state.indeterminate ? <MinusIcon /> : <CheckIcon />}</span>
+    )}
+  />
+</Checkbox.Root>
+```
+
+Use the `data-indeterminate` attribute to style the component differently when it's in the indeterminate state.
+
+The indeterminate state is automatically supported in `CheckboxGroup` when building a [parent checkbox](/react/components/checkbox-group#parent-checkbox).
+
 ## API reference
 
 <Reference component="Checkbox" parts="Root, Indicator" />
