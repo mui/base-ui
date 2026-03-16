@@ -521,7 +521,7 @@ describe('<Tabs.Root />', () => {
     });
 
     it('calls onValueChange with "initial" reason when auto-selecting first tab on mount', async () => {
-      const handleChange = spy();
+      const handleChange = vi.fn();
 
       await render(
         <Tabs.Root onValueChange={handleChange}>
@@ -536,17 +536,17 @@ describe('<Tabs.Root />', () => {
       await flushMicrotasks();
 
       // onValueChange should be called with the first tab (0)
-      expect(handleChange.callCount).to.equal(1);
-      expect(handleChange.firstCall.args[0]).to.equal(0);
-      expect(handleChange.firstCall.args[1].reason).to.equal('initial');
-      expect(handleChange.firstCall.args[1].activationDirection).to.equal('none');
+      expect(handleChange.mock.calls.length).to.equal(1);
+      expect(handleChange.mock.calls[0][0]).to.equal(0);
+      expect(handleChange.mock.calls[0][1].reason).to.equal('initial');
+      expect(handleChange.mock.calls[0][1].activationDirection).to.equal('none');
 
       const tabs = screen.getAllByRole('tab');
       expect(tabs[0]).to.have.attribute('aria-selected', 'true');
     });
 
     it('calls onValueChange with "initial" reason when first tab is disabled', async () => {
-      const handleChange = spy();
+      const handleChange = vi.fn();
 
       await render(
         <Tabs.Root onValueChange={handleChange}>
@@ -563,16 +563,16 @@ describe('<Tabs.Root />', () => {
       await flushMicrotasks();
 
       // onValueChange should be called with the first enabled tab (1)
-      expect(handleChange.callCount).to.equal(1);
-      expect(handleChange.firstCall.args[0]).to.equal(1);
-      expect(handleChange.firstCall.args[1].reason).to.equal('initial');
+      expect(handleChange.mock.calls.length).to.equal(1);
+      expect(handleChange.mock.calls[0][0]).to.equal(1);
+      expect(handleChange.mock.calls[0][1].reason).to.equal('initial');
 
       const tabs = screen.getAllByRole('tab');
       expect(tabs[1]).to.have.attribute('aria-selected', 'true');
     });
 
     it('does not call onValueChange on initial render when all tabs are disabled', async () => {
-      const handleChange = spy();
+      const handleChange = vi.fn();
 
       await render(
         <Tabs.Root onValueChange={handleChange}>
@@ -589,7 +589,7 @@ describe('<Tabs.Root />', () => {
 
       await flushMicrotasks();
 
-      expect(handleChange.callCount).to.equal(0);
+      expect(handleChange.mock.calls.length).to.equal(0);
 
       const tabs = screen.getAllByRole('tab');
       expect(tabs[0]).to.have.attribute('aria-selected', 'false');
@@ -597,7 +597,7 @@ describe('<Tabs.Root />', () => {
     });
 
     it('does not call onValueChange on initial render when defaultValue is provided', async () => {
-      const handleChange = spy();
+      const handleChange = vi.fn();
 
       await render(
         <Tabs.Root defaultValue={1} onValueChange={handleChange}>
@@ -612,14 +612,14 @@ describe('<Tabs.Root />', () => {
       await flushMicrotasks();
 
       // onValueChange should NOT be called because user provided explicit defaultValue
-      expect(handleChange.callCount).to.equal(0);
+      expect(handleChange.mock.calls.length).to.equal(0);
 
       const tabs = screen.getAllByRole('tab');
       expect(tabs[1]).to.have.attribute('aria-selected', 'true');
     });
 
     it('stops honoring an initially disabled explicit default after that tab becomes enabled', async () => {
-      const handleChange = spy();
+      const handleChange = vi.fn();
 
       function TestComponent({ disableFirst }: { disableFirst: boolean }) {
         return (
@@ -638,7 +638,7 @@ describe('<Tabs.Root />', () => {
 
       await flushMicrotasks();
 
-      expect(handleChange.callCount).to.equal(0);
+      expect(handleChange.mock.calls.length).to.equal(0);
 
       const tabs = screen.getAllByRole('tab');
       expect(tabs[0]).to.have.attribute('aria-selected', 'true');
@@ -646,21 +646,21 @@ describe('<Tabs.Root />', () => {
       await setProps({ disableFirst: false });
       await flushMicrotasks();
 
-      expect(handleChange.callCount).to.equal(0);
+      expect(handleChange.mock.calls.length).to.equal(0);
       expect(tabs[0]).to.have.attribute('aria-selected', 'true');
 
       await setProps({ disableFirst: true });
       await flushMicrotasks();
 
-      expect(handleChange.callCount).to.equal(1);
-      expect(handleChange.firstCall.args[0]).to.equal(1);
-      expect(handleChange.firstCall.args[1].reason).to.equal('disabled');
+      expect(handleChange.mock.calls.length).to.equal(1);
+      expect(handleChange.mock.calls[0][0]).to.equal(1);
+      expect(handleChange.mock.calls[0][1].reason).to.equal('disabled');
       expect(tabs[0]).to.have.attribute('aria-selected', 'false');
       expect(tabs[1]).to.have.attribute('aria-selected', 'true');
     });
 
     it('does not auto-select or call onValueChange on initial render when defaultValue is null', async () => {
-      const handleChange = spy();
+      const handleChange = vi.fn();
 
       await render(
         <Tabs.Root defaultValue={null} onValueChange={handleChange}>
@@ -674,7 +674,7 @@ describe('<Tabs.Root />', () => {
 
       await flushMicrotasks();
 
-      expect(handleChange.callCount).to.equal(0);
+      expect(handleChange.mock.calls.length).to.equal(0);
 
       const tabs = screen.getAllByRole('tab');
       expect(tabs[0]).to.have.attribute('aria-selected', 'false');
@@ -683,7 +683,7 @@ describe('<Tabs.Root />', () => {
     });
 
     it('calls onValueChange with "missing" reason when defaultValue is explicitly invalid on mount', async () => {
-      const handleChange = spy();
+      const handleChange = vi.fn();
 
       await render(
         <Tabs.Root defaultValue={99} onValueChange={handleChange}>
@@ -697,17 +697,17 @@ describe('<Tabs.Root />', () => {
 
       await flushMicrotasks();
 
-      expect(handleChange.callCount).to.equal(1);
-      expect(handleChange.firstCall.args[0]).to.equal(0);
-      expect(handleChange.firstCall.args[1].reason).to.equal('missing');
-      expect(handleChange.firstCall.args[1].activationDirection).to.equal('none');
+      expect(handleChange.mock.calls.length).to.equal(1);
+      expect(handleChange.mock.calls[0][0]).to.equal(0);
+      expect(handleChange.mock.calls[0][1].reason).to.equal('missing');
+      expect(handleChange.mock.calls[0][1].activationDirection).to.equal('none');
 
       const tabs = screen.getAllByRole('tab');
       expect(tabs[0]).to.have.attribute('aria-selected', 'true');
     });
 
     it('does not call onValueChange on initial render when value is provided', async () => {
-      const handleChange = spy();
+      const handleChange = vi.fn();
 
       await render(
         <Tabs.Root value={1} onValueChange={handleChange}>
@@ -722,14 +722,14 @@ describe('<Tabs.Root />', () => {
       await flushMicrotasks();
 
       // onValueChange should NOT be called in controlled mode
-      expect(handleChange.callCount).to.equal(0);
+      expect(handleChange.mock.calls.length).to.equal(0);
 
       const tabs = screen.getAllByRole('tab');
       expect(tabs[1]).to.have.attribute('aria-selected', 'true');
     });
 
     it('calls onValueChange with "disabled" reason when selected tab becomes disabled', async () => {
-      const handleChange = spy();
+      const handleChange = vi.fn();
 
       function TestComponent({ disableFirst }: { disableFirst: boolean }) {
         return (
@@ -755,10 +755,10 @@ describe('<Tabs.Root />', () => {
       await flushMicrotasks();
 
       // onValueChange should be called with the fallback tab (1)
-      expect(handleChange.callCount).to.equal(1);
-      expect(handleChange.firstCall.args[0]).to.equal(1);
-      expect(handleChange.firstCall.args[1].reason).to.equal('disabled');
-      expect(handleChange.firstCall.args[1].activationDirection).to.equal('none');
+      expect(handleChange.mock.calls.length).to.equal(1);
+      expect(handleChange.mock.calls[0][0]).to.equal(1);
+      expect(handleChange.mock.calls[0][1].reason).to.equal('disabled');
+      expect(handleChange.mock.calls[0][1].activationDirection).to.equal('none');
 
       // The first enabled tab should now be selected
       expect(tabs[1]).to.have.attribute('aria-selected', 'true');
@@ -766,7 +766,7 @@ describe('<Tabs.Root />', () => {
     });
 
     it('calls onValueChange with "missing" reason when selected tab is removed', async () => {
-      const handleChange = spy();
+      const handleChange = vi.fn();
 
       function TestComponent({ showFirstTab }: { showFirstTab: boolean }) {
         return (
@@ -790,9 +790,9 @@ describe('<Tabs.Root />', () => {
       await flushMicrotasks();
 
       // onValueChange should be called with the fallback tab (1)
-      expect(handleChange.callCount).to.equal(1);
-      expect(handleChange.firstCall.args[0]).to.equal(1);
-      expect(handleChange.firstCall.args[1].reason).to.equal('missing');
+      expect(handleChange.mock.calls.length).to.equal(1);
+      expect(handleChange.mock.calls[0][0]).to.equal(1);
+      expect(handleChange.mock.calls[0][1].reason).to.equal('missing');
 
       const updatedTabs = screen.getAllByRole('tab');
       expect(updatedTabs[0]).to.have.attribute('aria-selected', 'true');
@@ -800,7 +800,7 @@ describe('<Tabs.Root />', () => {
     });
 
     it('respects cancellation when onValueChange cancels automatic fallback', async () => {
-      const handleChange = spy((_value: number, eventDetails: Tabs.Root.ChangeEventDetails) => {
+      const handleChange = vi.fn((_value: number, eventDetails: Tabs.Root.ChangeEventDetails) => {
         // Cancel automatic selection
         if (eventDetails.reason === 'disabled') {
           eventDetails.cancel();
@@ -830,7 +830,7 @@ describe('<Tabs.Root />', () => {
       await flushMicrotasks();
 
       // onValueChange should be called
-      expect(handleChange.callCount).to.equal(1);
+      expect(handleChange.mock.calls.length).to.equal(1);
 
       // But the selection should not change because we canceled
       expect(tabs[0]).to.have.attribute('aria-selected', 'true');
@@ -838,7 +838,7 @@ describe('<Tabs.Root />', () => {
     });
 
     it('calls onValueChange with "missing" reason when tabs are reordered and selection becomes invalid', async () => {
-      const handleChange = spy();
+      const handleChange = vi.fn();
 
       function TestComponent({ includeFirstTab }: { includeFirstTab: boolean }) {
         const values = includeFirstTab ? [0, 1, 2] : [1, 2];
@@ -863,16 +863,16 @@ describe('<Tabs.Root />', () => {
       expect(tabs[0]).to.have.attribute('aria-selected', 'true');
 
       // Clear any initial calls
-      handleChange.resetHistory();
+      handleChange.mockClear();
 
       // Remove tab 0
       await setProps({ includeFirstTab: false });
       await flushMicrotasks();
 
       // Tab 0 is removed, so callback should fire with 'missing' reason
-      expect(handleChange.callCount).to.equal(1);
-      expect(handleChange.firstCall.args[0]).to.equal(1);
-      expect(handleChange.firstCall.args[1].reason).to.equal('missing');
+      expect(handleChange.mock.calls.length).to.equal(1);
+      expect(handleChange.mock.calls[0][0]).to.equal(1);
+      expect(handleChange.mock.calls[0][1].reason).to.equal('missing');
 
       const reorderedTabs = screen.getAllByRole('tab');
       expect(reorderedTabs[0]).to.have.text('Tab 1');
@@ -880,7 +880,7 @@ describe('<Tabs.Root />', () => {
     });
 
     it('does not call onValueChange for automatic fallback in controlled mode', async () => {
-      const handleChange = spy();
+      const handleChange = vi.fn();
 
       const { setProps } = await render(
         <Tabs.Root value={0} onValueChange={handleChange}>
@@ -910,12 +910,12 @@ describe('<Tabs.Root />', () => {
 
       // In controlled mode, automatic fallback should NOT happen
       // The parent component controls the value
-      expect(handleChange.callCount).to.equal(0);
+      expect(handleChange.mock.calls.length).to.equal(0);
       expect(tabs[0]).to.have.attribute('aria-selected', 'true');
     });
 
     it('calls onValueChange with null and "disabled" reason when all tabs become disabled', async () => {
-      const handleChange = spy();
+      const handleChange = vi.fn();
 
       function TestComponent({ disableAll }: { disableAll: boolean }) {
         return (
@@ -939,9 +939,9 @@ describe('<Tabs.Root />', () => {
       await flushMicrotasks();
 
       // onValueChange should be called with null
-      expect(handleChange.callCount).to.equal(1);
-      expect(handleChange.firstCall.args[0]).to.equal(null);
-      expect(handleChange.firstCall.args[1].reason).to.equal('disabled');
+      expect(handleChange.mock.calls.length).to.equal(1);
+      expect(handleChange.mock.calls[0][0]).to.equal(null);
+      expect(handleChange.mock.calls[0][1].reason).to.equal('disabled');
 
       const tabs = screen.getAllByRole('tab');
       expect(tabs[0]).to.have.attribute('aria-selected', 'false');
@@ -949,7 +949,7 @@ describe('<Tabs.Root />', () => {
     });
 
     it('preserves a null fallback when tabs become enabled again later', async () => {
-      const handleChange = spy();
+      const handleChange = vi.fn();
 
       function TestComponent({ disableAll }: { disableAll: boolean }) {
         return (
@@ -971,16 +971,16 @@ describe('<Tabs.Root />', () => {
       await setProps({ disableAll: true });
       await flushMicrotasks();
 
-      expect(handleChange.callCount).to.equal(1);
-      expect(handleChange.firstCall.args[0]).to.equal(null);
-      expect(handleChange.firstCall.args[1].reason).to.equal('disabled');
+      expect(handleChange.mock.calls.length).to.equal(1);
+      expect(handleChange.mock.calls[0][0]).to.equal(null);
+      expect(handleChange.mock.calls[0][1].reason).to.equal('disabled');
 
-      handleChange.resetHistory();
+      handleChange.mockClear();
 
       await setProps({ disableAll: false });
       await flushMicrotasks();
 
-      expect(handleChange.callCount).to.equal(0);
+      expect(handleChange.mock.calls.length).to.equal(0);
 
       const tabs = screen.getAllByRole('tab');
       expect(tabs[0]).to.have.attribute('aria-selected', 'false');
