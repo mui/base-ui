@@ -1,7 +1,7 @@
+import { expect } from 'vitest';
 import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
 import { screen, waitFor } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Menu.Viewport />', () => {
@@ -40,8 +40,8 @@ describe('<Menu.Viewport />', () => {
     );
 
     const currentContainer = screen.getByTestId('content').closest('[data-current]');
-    expect(currentContainer).not.to.equal(null);
-    expect(currentContainer!.textContent).to.equal('Content');
+    expect(currentContainer).not.toBe(null);
+    expect(currentContainer!.textContent).toBe('Content');
   });
 
   it('should remount the `current` container when the active trigger changes', async () => {
@@ -81,15 +81,15 @@ describe('<Menu.Viewport />', () => {
 
     const firstImage = await screen.findByTestId('payload-image-1');
     const firstContainer = firstImage.closest('[data-current]');
-    expect(firstContainer).not.to.equal(null);
+    expect(firstContainer).not.toBe(null);
 
     await user.click(trigger2);
 
     await waitFor(() => {
       const secondImage = screen.getByTestId('payload-image-2');
       const secondContainer = secondImage.closest('[data-current]');
-      expect(secondContainer).not.to.equal(null);
-      expect(secondContainer).not.to.equal(firstContainer);
+      expect(secondContainer).not.toBe(null);
+      expect(secondContainer).not.toBe(firstContainer);
     });
   });
 
@@ -182,25 +182,25 @@ describe('<Menu.Viewport />', () => {
       let previousContainer: HTMLElement | null = null;
       await waitFor(() => {
         previousContainer = document.querySelector('[data-previous]');
-        expect(previousContainer).not.to.equal(null);
+        expect(previousContainer).not.toBe(null);
       });
 
-      expect(previousContainer).to.have.attribute('inert');
-      expect(previousContainer!.textContent).to.equal('Content 0');
-      expect(previousContainer!.style.getPropertyValue('--popup-width')).to.match(
+      expect(previousContainer).toHaveAttribute('inert');
+      expect(previousContainer!.textContent).toBe('Content 0');
+      expect(previousContainer!.style.getPropertyValue('--popup-width')).toMatch(
         /^\d+(?:\.\d+)?px$/,
       );
-      expect(previousContainer!.style.getPropertyValue('--popup-height')).to.match(
+      expect(previousContainer!.style.getPropertyValue('--popup-height')).toMatch(
         /^\d+(?:\.\d+)?px$/,
       );
 
       const nextContainer = document.querySelector('[data-current]');
-      expect(nextContainer).not.to.equal(null);
-      expect(nextContainer!.textContent).to.equal('Content 1');
+      expect(nextContainer).not.toBe(null);
+      expect(nextContainer!.textContent).toBe('Content 1');
 
       // Verify they are cleaned up after animation
       await waitFor(() => {
-        expect(document.querySelector('[data-previous]')).to.equal(null);
+        expect(document.querySelector('[data-previous]')).toBe(null);
       });
 
       expect(document.querySelector('[data-current]')).toBeVisible();
@@ -393,16 +393,16 @@ describe('<Menu.Viewport />', () => {
 
       const viewport = screen.getByTestId('viewport');
       await waitFor(() => {
-        expect(viewport).to.have.attribute('data-activation-direction');
+        expect(viewport).toHaveAttribute('data-activation-direction');
       });
 
       const direction = viewport.getAttribute('data-activation-direction');
 
       if (expectedDirection.length === 0) {
-        expect(direction?.trim()).to.equal('');
+        expect(direction?.trim()).toBe('');
       } else {
         expectedDirection.forEach((dir) => {
-          expect(direction).to.contain(dir);
+          expect(direction).toContain(dir);
         });
       }
     });

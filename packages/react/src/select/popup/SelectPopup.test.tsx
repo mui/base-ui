@@ -1,5 +1,5 @@
+import { expect } from 'vitest';
 import * as React from 'react';
-import { expect } from 'chai';
 import { Select } from '@base-ui/react/select';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
@@ -34,20 +34,20 @@ describe('<Select.Popup />', () => {
 
     const trigger = screen.getByRole('combobox');
 
-    expect(trigger).not.to.have.attribute('aria-controls');
-    expect(trigger).to.have.attribute('aria-expanded', 'false');
+    expect(trigger).not.toHaveAttribute('aria-controls');
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
 
     await user.click(trigger);
 
     const popup = await screen.findByTestId('popup');
     const listbox = await screen.findByRole('listbox');
 
-    expect(popup).to.equal(listbox);
-    expect(popup.id).not.to.equal('');
-    expect(popup).to.have.attribute('aria-multiselectable', 'true');
-    expect(trigger).to.have.attribute('aria-controls', popup.id);
-    expect(trigger).to.have.attribute('aria-expanded', 'true');
-    expect(trigger).to.have.attribute('aria-haspopup', 'listbox');
+    expect(popup).toBe(listbox);
+    expect(popup.id).not.toBe('');
+    expect(popup).toHaveAttribute('aria-multiselectable', 'true');
+    expect(trigger).toHaveAttribute('aria-controls', popup.id);
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    expect(trigger).toHaveAttribute('aria-haspopup', 'listbox');
   });
 
   it('places aria attributes on Select.List instead if it is present', async () => {
@@ -69,9 +69,9 @@ describe('<Select.Popup />', () => {
 
     const trigger = screen.getByRole('combobox');
 
-    expect(trigger).not.to.have.attribute('aria-controls');
-    expect(trigger).to.have.attribute('aria-expanded', 'false');
-    expect(trigger).to.have.attribute('aria-haspopup', 'listbox');
+    expect(trigger).not.toHaveAttribute('aria-controls');
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    expect(trigger).toHaveAttribute('aria-haspopup', 'listbox');
 
     await user.click(trigger);
 
@@ -79,15 +79,15 @@ describe('<Select.Popup />', () => {
     const list = await screen.findByTestId('list');
     const listbox = await screen.findByRole('listbox');
 
-    expect(list).to.equal(listbox);
-    expect(list).to.have.attribute('aria-multiselectable');
-    expect(popup).to.have.attribute('role', 'presentation');
-    expect(popup).not.to.have.attribute('aria-multiselectable');
-    expect(list.id).not.to.equal('');
-    expect(trigger).to.have.attribute('aria-controls', list.id);
-    expect(trigger).not.to.have.attribute('aria-controls', popup.id);
-    expect(trigger).to.have.attribute('aria-expanded', 'true');
-    expect(trigger).to.have.attribute('aria-haspopup', 'listbox');
+    expect(list).toBe(listbox);
+    expect(list).toHaveAttribute('aria-multiselectable');
+    expect(popup).toHaveAttribute('role', 'presentation');
+    expect(popup).not.toHaveAttribute('aria-multiselectable');
+    expect(list.id).not.toBe('');
+    expect(trigger).toHaveAttribute('aria-controls', list.id);
+    expect(trigger).not.toHaveAttribute('aria-controls', popup.id);
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    expect(trigger).toHaveAttribute('aria-haspopup', 'listbox');
   });
 
   it('restores transform-related inline styles after measurement', async () => {
@@ -119,10 +119,10 @@ describe('<Select.Popup />', () => {
 
     await new Promise<void>(queueMicrotask);
 
-    expect(popupElement).not.to.equal(null);
-    expect(popupElement!.style.getPropertyValue('transform')).to.equal('translateX(10px)');
-    expect(popupElement!.style.getPropertyValue('scale')).to.equal('0.8');
-    expect(popupElement!.style.getPropertyValue('translate')).to.equal('1px 2px');
+    expect(popupElement).not.toBe(null);
+    expect(popupElement!.style.getPropertyValue('transform')).toBe('translateX(10px)');
+    expect(popupElement!.style.getPropertyValue('scale')).toBe('0.8');
+    expect(popupElement!.style.getPropertyValue('translate')).toBe('1px 2px');
   });
 
   it.skipIf(isJSDOM)('keeps alignItemWithTrigger active at browser zoom', async () => {
@@ -155,7 +155,7 @@ describe('<Select.Popup />', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByTestId('positioner')).to.have.attribute('data-side', 'none');
+        expect(screen.getByTestId('positioner')).toHaveAttribute('data-side', 'none');
       });
     } finally {
       docEl.style.zoom = previousZoom;
@@ -258,9 +258,9 @@ describe('<Select.Popup />', () => {
         const positioner = screen.getByTestId('positioner');
 
         await waitFor(() => {
-          expect(positioner).to.have.attribute('data-side', 'none');
-          expect(positioner.style.top).not.to.equal('');
-          expect(positioner.style.bottom).to.equal('');
+          expect(positioner).toHaveAttribute('data-side', 'none');
+          expect(positioner.style.top).not.toBe('');
+          expect(positioner.style.bottom).toBe('');
         });
       } finally {
         restoreDescriptor(docEl, 'clientHeight', clientHeightDescriptor);
@@ -364,7 +364,7 @@ describe('<Select.Popup />', () => {
         );
 
         await waitFor(() => {
-          expect(screen.getByTestId('positioner')).to.have.attribute('data-side', 'none');
+          expect(screen.getByTestId('positioner')).toHaveAttribute('data-side', 'none');
         });
       } finally {
         restoreDescriptor(docEl, 'clientHeight', clientHeightDescriptor);

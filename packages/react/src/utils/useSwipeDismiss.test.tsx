@@ -1,7 +1,7 @@
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
-import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { useSwipeDismiss } from './useSwipeDismiss';
 
 function SwipeBox() {
@@ -349,7 +349,7 @@ describe('useSwipeDismiss', () => {
     });
 
     await flushMicrotasks();
-    expect(element.style.transition).to.equal('none');
+    expect(element.style.transition).toBe('none');
 
     fireEvent.pointerMove(element, {
       pointerId: 1,

@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { expect } from 'chai';
-import { spy } from 'sinon';
+import { expect, vi } from 'vitest';
 import { act, flushMicrotasks, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
 import { Popover } from '@base-ui/react/popover';
@@ -17,7 +16,7 @@ describe('<Tabs.Root />', () => {
     // The test fails on Safari with just:
     //
     // container.scrollLeft = 200;
-    // expect(container.scrollLeft).to.equal(200); 💥
+    // expect(container.scrollLeft).toBe(200); 💥
     if (isSafari) {
       skip();
     }
@@ -39,7 +38,7 @@ describe('<Tabs.Root />', () => {
         </Tabs.Root>,
       );
 
-      expect(screen.getAllByRole('tab')).to.have.lengthOf(1);
+      expect(screen.getAllByRole('tab')).toHaveLength(1);
     });
 
     it('should support empty children', async () => {
@@ -56,15 +55,11 @@ describe('<Tabs.Root />', () => {
         </Tabs.Root>,
       );
 
-      expect(screen.getAllByRole('tab').map((tab) => tab.tabIndex)).to.have.ordered.members([
-        -1, 0,
-      ]);
+      expect(screen.getAllByRole('tab').map((tab) => tab.tabIndex)).toEqual([-1, 0]);
 
       await setProps({ value: 0 });
 
-      expect(screen.getAllByRole('tab').map((tab) => tab.tabIndex)).to.have.ordered.members([
-        0, -1,
-      ]);
+      expect(screen.getAllByRole('tab').map((tab) => tab.tabIndex)).toEqual([0, -1]);
     });
 
     it('sets the aria-labelledby attribute on tab panels to the corresponding tab id', async () => {
@@ -86,10 +81,10 @@ describe('<Tabs.Root />', () => {
       const tabs = screen.getAllByRole('tab');
       const tabPanels = screen.getAllByRole('tabpanel', { hidden: true });
 
-      expect(tabPanels[0]).to.have.attribute('aria-labelledby', tabs[1].id);
-      expect(tabPanels[1]).to.have.attribute('aria-labelledby', tabs[0].id);
-      expect(tabPanels[2]).to.have.attribute('aria-labelledby', tabs[2].id);
-      expect(tabPanels[3]).to.have.attribute('aria-labelledby', tabs[3].id);
+      expect(tabPanels[0]).toHaveAttribute('aria-labelledby', tabs[1].id);
+      expect(tabPanels[1]).toHaveAttribute('aria-labelledby', tabs[0].id);
+      expect(tabPanels[2]).toHaveAttribute('aria-labelledby', tabs[2].id);
+      expect(tabPanels[3]).toHaveAttribute('aria-labelledby', tabs[3].id);
     });
 
     it('sets the aria-controls attribute on tabs to the corresponding tab panel id', async () => {
@@ -111,10 +106,10 @@ describe('<Tabs.Root />', () => {
       const tabs = screen.getAllByRole('tab');
       const tabPanels = screen.getAllByRole('tabpanel', { hidden: true });
 
-      expect(tabs[0]).to.have.attribute('aria-controls', tabPanels[1].id);
-      expect(tabs[1]).to.have.attribute('aria-controls', tabPanels[0].id);
-      expect(tabs[2]).to.have.attribute('aria-controls', tabPanels[2].id);
-      expect(tabs[3]).to.have.attribute('aria-controls', tabPanels[3].id);
+      expect(tabs[0]).toHaveAttribute('aria-controls', tabPanels[1].id);
+      expect(tabs[1]).toHaveAttribute('aria-controls', tabPanels[0].id);
+      expect(tabs[2]).toHaveAttribute('aria-controls', tabPanels[2].id);
+      expect(tabs[3]).toHaveAttribute('aria-controls', tabPanels[3].id);
     });
 
     it('sets aria-controls on the first tab when no value is provided', async () => {
@@ -132,10 +127,10 @@ describe('<Tabs.Root />', () => {
       const tabs = screen.getAllByRole('tab');
       const tabPanels = screen.getAllByRole('tabpanel', { hidden: true });
 
-      expect(tabs[0]).to.have.attribute('aria-controls', tabPanels[0].id);
-      expect(tabs[1]).to.have.attribute('aria-controls', tabPanels[1].id);
-      expect(tabPanels[0]).to.have.attribute('aria-labelledby', tabs[0].id);
-      expect(tabPanels[1]).to.have.attribute('aria-labelledby', tabs[1].id);
+      expect(tabs[0]).toHaveAttribute('aria-controls', tabPanels[0].id);
+      expect(tabs[1]).toHaveAttribute('aria-controls', tabPanels[1].id);
+      expect(tabPanels[0]).toHaveAttribute('aria-labelledby', tabs[0].id);
+      expect(tabPanels[1]).toHaveAttribute('aria-labelledby', tabs[1].id);
     });
 
     it('syncs aria-controls to the mounted tab panel when keepMounted is false', async () => {
@@ -153,17 +148,17 @@ describe('<Tabs.Root />', () => {
       const tabs = screen.getAllByRole('tab');
       const [firstTabPanel] = screen.getAllByRole('tabpanel');
 
-      expect(tabs[0]).to.have.attribute('aria-controls', firstTabPanel.id);
-      expect(tabs[1]).not.to.have.attribute('aria-controls');
+      expect(tabs[0]).toHaveAttribute('aria-controls', firstTabPanel.id);
+      expect(tabs[1]).not.toHaveAttribute('aria-controls');
 
       await user.click(tabs[1]);
 
       await waitFor(() => {
         const [secondTabPanel] = screen.getAllByRole('tabpanel');
 
-        expect(secondTabPanel).to.have.text('Panel 1');
-        expect(tabs[0]).not.to.have.attribute('aria-controls');
-        expect(tabs[1]).to.have.attribute('aria-controls', secondTabPanel.id);
+        expect(secondTabPanel).toHaveTextContent('Panel 1');
+        expect(tabs[0]).not.toHaveAttribute('aria-controls');
+        expect(tabs[1]).toHaveAttribute('aria-controls', secondTabPanel.id);
       });
     });
   });
@@ -181,8 +176,8 @@ describe('<Tabs.Root />', () => {
 
       await render(tabs);
       const tabElements = screen.getAllByRole('tab');
-      expect(tabElements[0]).to.have.attribute('aria-selected', 'false');
-      expect(tabElements[1]).to.have.attribute('aria-selected', 'true');
+      expect(tabElements[0]).toHaveAttribute('aria-selected', 'false');
+      expect(tabElements[1]).toHaveAttribute('aria-selected', 'true');
     });
 
     it('should support values of different types', async () => {
@@ -206,16 +201,13 @@ describe('<Tabs.Root />', () => {
 
       await Promise.allSettled(
         tabValues.map(async (value, index) => {
-          expect(tabPanelElements[index]).to.have.attribute(
-            'aria-labelledby',
-            tabElements[index].id,
-          );
+          expect(tabPanelElements[index]).toHaveAttribute('aria-labelledby', tabElements[index].id);
 
           await act(() => {
             tabElements[index].click();
           });
 
-          expect(tabPanelElements[index]).not.to.have.attribute('hidden');
+          expect(tabPanelElements[index]).not.toHaveAttribute('hidden');
         }),
       );
     });
@@ -243,11 +235,11 @@ describe('<Tabs.Root />', () => {
       const [disabledTab, enabledTab] = screen.getAllByRole('tab');
       const [disabledPanel, enabledPanel] = screen.getAllByRole('tabpanel', { hidden: true });
 
-      expect(disabledTab).to.have.attribute('aria-selected', 'false');
-      expect(enabledTab).to.have.attribute('aria-selected', 'true');
-      expect(disabledPanel).to.have.attribute('hidden');
-      expect(enabledPanel).not.to.have.attribute('hidden');
-      expect(enabledPanel).to.have.text('Enabled panel');
+      expect(disabledTab).toHaveAttribute('aria-selected', 'false');
+      expect(enabledTab).toHaveAttribute('aria-selected', 'true');
+      expect(disabledPanel).toHaveAttribute('hidden');
+      expect(enabledPanel).not.toHaveAttribute('hidden');
+      expect(enabledPanel).toHaveTextContent('Enabled panel');
     });
 
     it('should select the third tab when first two tabs are disabled', async () => {
@@ -277,10 +269,10 @@ describe('<Tabs.Root />', () => {
       const tabs = screen.getAllByRole('tab');
 
       // The first non-disabled tab (tab 2) should be selected
-      expect(tabs[2]).to.have.attribute('aria-selected', 'true');
-      expect(tabs[0]).to.have.attribute('aria-selected', 'false');
-      expect(tabs[1]).to.have.attribute('aria-selected', 'false');
-      expect(tabs[3]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[2]).toHaveAttribute('aria-selected', 'true');
+      expect(tabs[0]).toHaveAttribute('aria-selected', 'false');
+      expect(tabs[1]).toHaveAttribute('aria-selected', 'false');
+      expect(tabs[3]).toHaveAttribute('aria-selected', 'false');
     });
 
     it('should still honor explicit defaultValue even if it points to a disabled tab', async () => {
@@ -306,9 +298,9 @@ describe('<Tabs.Root />', () => {
       const tabs = screen.getAllByRole('tab');
 
       // The explicitly set disabled tab should be selected
-      expect(tabs[0]).to.have.attribute('aria-selected', 'true');
-      expect(tabs[1]).to.have.attribute('aria-selected', 'false');
-      expect(tabs[2]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
+      expect(tabs[1]).toHaveAttribute('aria-selected', 'false');
+      expect(tabs[2]).toHaveAttribute('aria-selected', 'false');
     });
 
     it('should still honor explicit value prop even if it points to a disabled tab', async () => {
@@ -334,9 +326,9 @@ describe('<Tabs.Root />', () => {
       const tabs = screen.getAllByRole('tab');
 
       // The explicitly set disabled tab should be selected
-      expect(tabs[0]).to.have.attribute('aria-selected', 'true');
-      expect(tabs[1]).to.have.attribute('aria-selected', 'false');
-      expect(tabs[2]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
+      expect(tabs[1]).toHaveAttribute('aria-selected', 'false');
+      expect(tabs[2]).toHaveAttribute('aria-selected', 'false');
     });
 
     it('does not set tabIndex=0 on disabled tabs when they are programmatically selected', async () => {
@@ -358,20 +350,20 @@ describe('<Tabs.Root />', () => {
       const tabs = screen.getAllByRole('tab');
 
       // Initially, tab 1 is selected and should be highlighted (tabIndex=0)
-      expect(tabs[1]).to.have.attribute('tabindex', '0');
-      expect(tabs[0]).to.have.attribute('tabindex', '-1');
-      expect(tabs[2]).to.have.attribute('tabindex', '-1');
+      expect(tabs[1]).toHaveAttribute('tabindex', '0');
+      expect(tabs[0]).toHaveAttribute('tabindex', '-1');
+      expect(tabs[2]).toHaveAttribute('tabindex', '-1');
 
       // Programmatically select the disabled tab 0
       await setProps({ value: 0 });
       await flushMicrotasks();
 
       // The disabled tab should be selected but NOT highlighted (tabIndex should remain -1)
-      expect(tabs[0]).to.have.attribute('aria-selected', 'true');
-      expect(tabs[0]).to.have.attribute('tabindex', '-1');
+      expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
+      expect(tabs[0]).toHaveAttribute('tabindex', '-1');
 
       // The previously highlighted tab should retain the highlight
-      expect(tabs[1]).to.have.attribute('tabindex', '0');
+      expect(tabs[1]).toHaveAttribute('tabindex', '0');
     });
 
     it('does not select any tab when all tabs are disabled', async () => {
@@ -404,21 +396,21 @@ describe('<Tabs.Root />', () => {
       const panels = screen.getAllByRole('tabpanel', { hidden: true });
 
       // No tab should be selected
-      expect(tabs[0]).to.have.attribute('aria-selected', 'false');
-      expect(tabs[1]).to.have.attribute('aria-selected', 'false');
-      expect(tabs[2]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[0]).toHaveAttribute('aria-selected', 'false');
+      expect(tabs[1]).toHaveAttribute('aria-selected', 'false');
+      expect(tabs[2]).toHaveAttribute('aria-selected', 'false');
 
       // All panels should be hidden
-      expect(panels[0]).to.have.attribute('hidden');
-      expect(panels[1]).to.have.attribute('hidden');
-      expect(panels[2]).to.have.attribute('hidden');
+      expect(panels[0]).toHaveAttribute('hidden');
+      expect(panels[1]).toHaveAttribute('hidden');
+      expect(panels[2]).toHaveAttribute('hidden');
     });
   });
 
   describe('prop: onValueChange', () => {
     it('when `activateOnFocus = true` should call onValueChange on pointerdown', async () => {
-      const handleChange = spy();
-      const handlePointerDown = spy();
+      const handleChange = vi.fn();
+      const handlePointerDown = vi.fn();
       const { user } = await render(
         <Tabs.Root value={0} onValueChange={handleChange}>
           <Tabs.List activateOnFocus>
@@ -429,12 +421,12 @@ describe('<Tabs.Root />', () => {
       );
 
       await user.pointer({ keys: '[MouseLeft>]', target: screen.getAllByRole('tab')[1] });
-      expect(handleChange.callCount).to.equal(1);
-      expect(handlePointerDown.callCount).to.equal(1);
+      expect(handleChange.mock.calls.length).toBe(1);
+      expect(handlePointerDown.mock.calls.length).toBe(1);
     });
 
     it.skipIf(isJSDOM)('should call onValueChange when clicking', async () => {
-      const handleChange = spy();
+      const handleChange = vi.fn();
 
       await render(
         <Tabs.Root value={0} onValueChange={handleChange}>
@@ -446,13 +438,13 @@ describe('<Tabs.Root />', () => {
       );
 
       fireEvent.click(screen.getAllByRole('tab')[1]);
-      expect(handleChange.callCount).to.equal(1);
-      expect(handleChange.firstCall.args[0]).to.equal(1);
-      expect(handleChange.firstCall.args[1].activationDirection).to.equal('right');
+      expect(handleChange.mock.calls.length).toBe(1);
+      expect(handleChange.mock.calls[0][0]).toBe(1);
+      expect(handleChange.mock.calls[0][1].activationDirection).toBe('right');
     });
 
     it('should not call onValueChange on non-main button clicks', async () => {
-      const handleChange = spy();
+      const handleChange = vi.fn();
 
       await render(
         <Tabs.Root value={0} onValueChange={handleChange}>
@@ -464,11 +456,11 @@ describe('<Tabs.Root />', () => {
       );
 
       fireEvent.click(screen.getAllByRole('tab')[1], { button: 2 });
-      expect(handleChange.callCount).to.equal(0);
+      expect(handleChange.mock.calls.length).toBe(0);
     });
 
     it('should not call onValueChange when already active', async () => {
-      const handleChange = spy();
+      const handleChange = vi.fn();
 
       await render(
         <Tabs.Root value={0} onValueChange={handleChange}>
@@ -480,11 +472,11 @@ describe('<Tabs.Root />', () => {
       );
 
       fireEvent.click(screen.getAllByRole('tab')[0]);
-      expect(handleChange.callCount).to.equal(0);
+      expect(handleChange.mock.calls.length).toBe(0);
     });
 
     it('when `activateOnFocus = true` should call onValueChange if an unactive tab gets focused', async () => {
-      const handleChange = spy();
+      const handleChange = vi.fn();
 
       await render(
         <Tabs.Root value={0} onValueChange={handleChange}>
@@ -504,12 +496,12 @@ describe('<Tabs.Root />', () => {
       fireEvent.keyDown(firstTab, { key: 'ArrowRight' });
       await flushMicrotasks();
 
-      expect(handleChange.callCount).to.equal(1);
-      expect(handleChange.firstCall.args[0]).to.equal(1);
+      expect(handleChange.mock.calls.length).toBe(1);
+      expect(handleChange.mock.calls[0][0]).toBe(1);
     });
 
     it('when `activateOnFocus = false` should not call onValueChange if an unactive tab gets focused', async () => {
-      const handleChange = spy();
+      const handleChange = vi.fn();
 
       await render(
         <Tabs.Root value={1} onValueChange={handleChange}>
@@ -526,7 +518,7 @@ describe('<Tabs.Root />', () => {
         firstTab.focus();
       });
 
-      expect(handleChange.callCount).to.equal(0);
+      expect(handleChange.mock.calls.length).toBe(0);
     });
   });
 
@@ -540,7 +532,7 @@ describe('<Tabs.Root />', () => {
         </Tabs.Root>,
       );
 
-      expect(screen.getByRole('tablist')).not.to.have.attribute('aria-orientation');
+      expect(screen.getByRole('tablist')).not.toHaveAttribute('aria-orientation');
     });
 
     it('adds the proper aria-orientation when vertical', async () => {
@@ -552,7 +544,7 @@ describe('<Tabs.Root />', () => {
         </Tabs.Root>,
       );
 
-      expect(screen.getByRole('tablist')).to.have.attribute('aria-orientation', 'vertical');
+      expect(screen.getByRole('tablist')).toHaveAttribute('aria-orientation', 'vertical');
     });
   });
 
@@ -582,9 +574,9 @@ describe('<Tabs.Root />', () => {
 
       const panels = screen.getAllByRole('tabpanel', { hidden: true });
 
-      expect(panels[0]).to.have.attribute('hidden');
-      expect(panels[1]).not.to.have.attribute('hidden');
-      expect(panels[2]).to.have.attribute('hidden');
+      expect(panels[0]).toHaveAttribute('hidden');
+      expect(panels[1]).not.toHaveAttribute('hidden');
+      expect(panels[2]).toHaveAttribute('hidden');
     });
 
     it('does not select the clicked disabled tab', async () => {
@@ -614,9 +606,9 @@ describe('<Tabs.Root />', () => {
 
       const panels = screen.getAllByRole('tabpanel', { hidden: true });
 
-      expect(panels[0]).not.to.have.attribute('hidden');
-      expect(panels[1]).to.have.attribute('hidden');
-      expect(panels[2]).to.have.attribute('hidden');
+      expect(panels[0]).not.toHaveAttribute('hidden');
+      expect(panels[1]).toHaveAttribute('hidden');
+      expect(panels[2]).toHaveAttribute('hidden');
     });
   });
 
@@ -634,8 +626,8 @@ describe('<Tabs.Root />', () => {
           describe(previousItemKey ?? '', () => {
             describe('with `activateOnFocus = false`', () => {
               it('moves focus to the last tab without activating it if focus is on the first tab', async () => {
-                const handleChange = spy();
-                const handleKeyDown = spy();
+                const handleChange = vi.fn();
+                const handleKeyDown = vi.fn();
 
                 await render(
                   <DirectionProvider direction={direction as TextDirection}>
@@ -662,14 +654,14 @@ describe('<Tabs.Root />', () => {
                 await flushMicrotasks();
 
                 expect(lastTab).toHaveFocus();
-                expect(handleChange.callCount).to.equal(0);
-                expect(handleKeyDown.callCount).to.equal(1);
-                expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
+                expect(handleChange.mock.calls.length).toBe(0);
+                expect(handleKeyDown.mock.calls.length).toBe(1);
+                expect(handleKeyDown.mock.calls[0][0]).toHaveProperty('defaultPrevented', true);
               });
 
               it('moves focus to the previous tab without activating it', async () => {
-                const handleChange = spy();
-                const handleKeyDown = spy();
+                const handleChange = vi.fn();
+                const handleKeyDown = vi.fn();
 
                 await render(
                   <DirectionProvider direction={direction as TextDirection}>
@@ -696,13 +688,13 @@ describe('<Tabs.Root />', () => {
                 await flushMicrotasks();
 
                 expect(firstTab).toHaveFocus();
-                expect(handleChange.callCount).to.equal(0);
-                expect(handleKeyDown.callCount).to.equal(1);
-                expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
+                expect(handleChange.mock.calls.length).toBe(0);
+                expect(handleKeyDown.mock.calls.length).toBe(1);
+                expect(handleKeyDown.mock.calls[0][0]).toHaveProperty('defaultPrevented', true);
               });
 
               it('moves focus to a disabled tab without activating it', async () => {
-                const handleKeyDown = spy();
+                const handleKeyDown = vi.fn();
 
                 await render(
                   <DirectionProvider direction={direction as TextDirection}>
@@ -728,15 +720,15 @@ describe('<Tabs.Root />', () => {
                 await flushMicrotasks();
 
                 expect(disabledTab).toHaveFocus();
-                expect(handleKeyDown.callCount).to.equal(1);
-                expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
+                expect(handleKeyDown.mock.calls.length).toBe(1);
+                expect(handleKeyDown.mock.calls[0][0]).toHaveProperty('defaultPrevented', true);
               });
             });
 
             describe('with `activateOnFocus = true`', () => {
               it('moves focus to the last tab while activating it if focus is on the first tab', async () => {
-                const handleChange = spy();
-                const handleKeyDown = spy();
+                const handleChange = vi.fn();
+                const handleKeyDown = vi.fn();
 
                 await render(
                   <DirectionProvider direction={direction as TextDirection}>
@@ -763,15 +755,15 @@ describe('<Tabs.Root />', () => {
                 await flushMicrotasks();
 
                 expect(lastTab).toHaveFocus();
-                expect(handleChange.callCount).to.equal(1);
-                expect(handleChange.firstCall.args[0]).to.equal(2);
-                expect(handleKeyDown.callCount).to.equal(1);
-                expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
+                expect(handleChange.mock.calls.length).toBe(1);
+                expect(handleChange.mock.calls[0][0]).toBe(2);
+                expect(handleKeyDown.mock.calls.length).toBe(1);
+                expect(handleKeyDown.mock.calls[0][0]).toHaveProperty('defaultPrevented', true);
               });
 
               it('moves focus to the previous tab while activating it', async () => {
-                const handleChange = spy();
-                const handleKeyDown = spy();
+                const handleChange = vi.fn();
+                const handleKeyDown = vi.fn();
 
                 await render(
                   <DirectionProvider direction={direction as TextDirection}>
@@ -798,15 +790,15 @@ describe('<Tabs.Root />', () => {
                 await flushMicrotasks();
 
                 expect(firstTab).toHaveFocus();
-                expect(handleChange.callCount).to.equal(1);
-                expect(handleChange.firstCall.args[0]).to.equal(0);
-                expect(handleKeyDown.callCount).to.equal(1);
-                expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
+                expect(handleChange.mock.calls.length).toBe(1);
+                expect(handleChange.mock.calls[0][0]).toBe(0);
+                expect(handleKeyDown.mock.calls.length).toBe(1);
+                expect(handleKeyDown.mock.calls[0][0]).toHaveProperty('defaultPrevented', true);
               });
             });
 
             it('moves focus to a disabled tab without activating it', async () => {
-              const handleKeyDown = spy();
+              const handleKeyDown = vi.fn();
 
               await render(
                 <DirectionProvider direction={direction as TextDirection}>
@@ -829,16 +821,16 @@ describe('<Tabs.Root />', () => {
               await flushMicrotasks();
 
               expect(disabledTab).toHaveFocus();
-              expect(handleKeyDown.callCount).to.equal(1);
-              expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
+              expect(handleKeyDown.mock.calls.length).toBe(1);
+              expect(handleKeyDown.mock.calls[0][0]).toHaveProperty('defaultPrevented', true);
             });
           });
 
           describe(nextItemKey ?? '', () => {
             describe('with `activateOnFocus = false`', () => {
               it('moves focus to the first tab without activating it if focus is on the last tab', async () => {
-                const handleChange = spy();
-                const handleKeyDown = spy();
+                const handleChange = vi.fn();
+                const handleKeyDown = vi.fn();
 
                 await render(
                   <DirectionProvider direction={direction as TextDirection}>
@@ -865,14 +857,14 @@ describe('<Tabs.Root />', () => {
                 await flushMicrotasks();
 
                 expect(firstTab).toHaveFocus();
-                expect(handleChange.callCount).to.equal(0);
-                expect(handleKeyDown.callCount).to.equal(1);
-                expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
+                expect(handleChange.mock.calls.length).toBe(0);
+                expect(handleKeyDown.mock.calls.length).toBe(1);
+                expect(handleKeyDown.mock.calls[0][0]).toHaveProperty('defaultPrevented', true);
               });
 
               it('moves focus to the next tab without activating it', async () => {
-                const handleChange = spy();
-                const handleKeyDown = spy();
+                const handleChange = vi.fn();
+                const handleKeyDown = vi.fn();
 
                 await render(
                   <DirectionProvider direction={direction as TextDirection}>
@@ -899,14 +891,14 @@ describe('<Tabs.Root />', () => {
                 await flushMicrotasks();
 
                 expect(lastTab).toHaveFocus();
-                expect(handleChange.callCount).to.equal(0);
-                expect(handleKeyDown.callCount).to.equal(1);
-                expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
+                expect(handleChange.mock.calls.length).toBe(0);
+                expect(handleKeyDown.mock.calls.length).toBe(1);
+                expect(handleKeyDown.mock.calls[0][0]).toHaveProperty('defaultPrevented', true);
               });
 
               it('moves focus to a disabled tab without activating it', async () => {
-                const handleChange = spy();
-                const handleKeyDown = spy();
+                const handleChange = vi.fn();
+                const handleKeyDown = vi.fn();
 
                 await render(
                   <DirectionProvider direction={direction as TextDirection}>
@@ -933,9 +925,9 @@ describe('<Tabs.Root />', () => {
                 await flushMicrotasks();
 
                 expect(disabledTab).toHaveFocus();
-                expect(handleChange.callCount).to.equal(0);
-                expect(handleKeyDown.callCount).to.equal(1);
-                expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
+                expect(handleChange.mock.calls.length).toBe(0);
+                expect(handleKeyDown.mock.calls.length).toBe(1);
+                expect(handleKeyDown.mock.calls[0][0]).toHaveProperty('defaultPrevented', true);
 
                 fireEvent.keyDown(disabledTab, { key: nextItemKey });
                 await flushMicrotasks();
@@ -945,8 +937,8 @@ describe('<Tabs.Root />', () => {
 
             describe('with `activateOnFocus = true`', () => {
               it('moves focus to the first tab while activating it if focus is on the last tab', async () => {
-                const handleChange = spy();
-                const handleKeyDown = spy();
+                const handleChange = vi.fn();
+                const handleKeyDown = vi.fn();
 
                 await render(
                   <DirectionProvider direction={direction as TextDirection}>
@@ -973,15 +965,15 @@ describe('<Tabs.Root />', () => {
                 await flushMicrotasks();
 
                 expect(firstTab).toHaveFocus();
-                expect(handleChange.callCount).to.equal(1);
-                expect(handleChange.firstCall.args[0]).to.equal(0);
-                expect(handleKeyDown.callCount).to.equal(1);
-                expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
+                expect(handleChange.mock.calls.length).toBe(1);
+                expect(handleChange.mock.calls[0][0]).toBe(0);
+                expect(handleKeyDown.mock.calls.length).toBe(1);
+                expect(handleKeyDown.mock.calls[0][0]).toHaveProperty('defaultPrevented', true);
               });
 
               it('moves focus to the next tab while activating it', async () => {
-                const handleChange = spy();
-                const handleKeyDown = spy();
+                const handleChange = vi.fn();
+                const handleKeyDown = vi.fn();
 
                 await render(
                   <DirectionProvider direction={direction as TextDirection}>
@@ -1008,16 +1000,16 @@ describe('<Tabs.Root />', () => {
                 await flushMicrotasks();
 
                 expect(lastTab).toHaveFocus();
-                expect(handleChange.callCount).to.equal(1);
-                expect(handleChange.firstCall.args[0]).to.equal(2);
-                expect(handleKeyDown.callCount).to.equal(1);
-                expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
+                expect(handleChange.mock.calls.length).toBe(1);
+                expect(handleChange.mock.calls[0][0]).toBe(2);
+                expect(handleKeyDown.mock.calls.length).toBe(1);
+                expect(handleKeyDown.mock.calls[0][0]).toHaveProperty('defaultPrevented', true);
               });
             });
 
             it('moves focus to a disabled tab without activating it', async () => {
-              const handleChange = spy();
-              const handleKeyDown = spy();
+              const handleChange = vi.fn();
+              const handleKeyDown = vi.fn();
 
               await render(
                 <DirectionProvider direction={direction as TextDirection}>
@@ -1044,9 +1036,9 @@ describe('<Tabs.Root />', () => {
               await flushMicrotasks();
 
               expect(disabledTab).toHaveFocus();
-              expect(handleChange.callCount).to.equal(0);
-              expect(handleKeyDown.callCount).to.equal(1);
-              expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
+              expect(handleChange.mock.calls.length).toBe(0);
+              expect(handleKeyDown.mock.calls.length).toBe(1);
+              expect(handleKeyDown.mock.calls[0][0]).toHaveProperty('defaultPrevented', true);
 
               fireEvent.keyDown(disabledTab, { key: nextItemKey });
               await flushMicrotasks();
@@ -1057,8 +1049,8 @@ describe('<Tabs.Root />', () => {
           describe('modifier keys', () => {
             ['Shift', 'Control', 'Alt', 'Meta'].forEach((modifierKey) => {
               it(`does not move focus when modifier key: ${modifierKey} is pressed`, async () => {
-                const handleChange = spy();
-                const handleKeyDown = spy();
+                const handleChange = vi.fn();
+                const handleKeyDown = vi.fn();
                 const { user } = await render(
                   <DirectionProvider direction={direction as TextDirection}>
                     <Tabs.Root
@@ -1082,13 +1074,13 @@ describe('<Tabs.Root />', () => {
 
                 await user.keyboard(`{${modifierKey}>}{${nextItemKey}}`);
                 expect(firstTab).toHaveFocus();
-                expect(handleChange.callCount).to.equal(0);
-                expect(handleKeyDown.callCount).to.equal(2);
+                expect(handleChange.mock.calls.length).toBe(0);
+                expect(handleKeyDown.mock.calls.length).toBe(2);
 
                 await user.keyboard(`{${modifierKey}>}{${previousItemKey}}`);
                 expect(firstTab).toHaveFocus();
-                expect(handleChange.callCount).to.equal(0);
-                expect(handleKeyDown.callCount).to.equal(4);
+                expect(handleChange.mock.calls.length).toBe(0);
+                expect(handleKeyDown.mock.calls.length).toBe(4);
               });
             });
           });
@@ -1099,8 +1091,8 @@ describe('<Tabs.Root />', () => {
     describe('when focus is on a tab regardless of orientation', () => {
       describe('Home', () => {
         it('when `activateOnFocus = false`, moves focus to the first tab without activating it', async () => {
-          const handleChange = spy();
-          const handleKeyDown = spy();
+          const handleChange = vi.fn();
+          const handleKeyDown = vi.fn();
 
           await render(
             <Tabs.Root onValueChange={handleChange} value={2}>
@@ -1121,14 +1113,14 @@ describe('<Tabs.Root />', () => {
           await flushMicrotasks();
 
           expect(firstTab).toHaveFocus();
-          expect(handleChange.callCount).to.equal(0);
-          expect(handleKeyDown.callCount).to.equal(1);
-          expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
+          expect(handleChange.mock.calls.length).toBe(0);
+          expect(handleKeyDown.mock.calls.length).toBe(1);
+          expect(handleKeyDown.mock.calls[0][0]).toHaveProperty('defaultPrevented', true);
         });
 
         it('when `activateOnFocus = true`, moves focus to the first tab while activating it', async () => {
-          const handleChange = spy();
-          const handleKeyDown = spy();
+          const handleChange = vi.fn();
+          const handleKeyDown = vi.fn();
 
           await render(
             <Tabs.Root onValueChange={handleChange} value={2}>
@@ -1149,16 +1141,16 @@ describe('<Tabs.Root />', () => {
           await flushMicrotasks();
 
           expect(firstTab).toHaveFocus();
-          expect(handleChange.callCount).to.equal(1);
-          expect(handleChange.firstCall.args[0]).to.equal(0);
-          expect(handleKeyDown.callCount).to.equal(1);
-          expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
+          expect(handleChange.mock.calls.length).toBe(1);
+          expect(handleChange.mock.calls[0][0]).toBe(0);
+          expect(handleKeyDown.mock.calls.length).toBe(1);
+          expect(handleKeyDown.mock.calls[0][0]).toHaveProperty('defaultPrevented', true);
         });
 
         [false, true].forEach((activateOnFocusProp) => {
           it(`when \`activateOnFocus = ${activateOnFocusProp}\`, moves focus to a disabled tab without activating it`, async () => {
-            const handleChange = spy();
-            const handleKeyDown = spy();
+            const handleChange = vi.fn();
+            const handleKeyDown = vi.fn();
 
             await render(
               <Tabs.Root onValueChange={handleChange} value={2}>
@@ -1179,17 +1171,17 @@ describe('<Tabs.Root />', () => {
             await flushMicrotasks();
 
             expect(disabledTab).toHaveFocus();
-            expect(handleChange.callCount).to.equal(0);
-            expect(handleKeyDown.callCount).to.equal(1);
-            expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
+            expect(handleChange.mock.calls.length).toBe(0);
+            expect(handleKeyDown.mock.calls.length).toBe(1);
+            expect(handleKeyDown.mock.calls[0][0]).toHaveProperty('defaultPrevented', true);
           });
         });
       });
 
       describe('End', () => {
         it('when `activateOnFocus = false`, moves focus to the last tab without activating it', async () => {
-          const handleChange = spy();
-          const handleKeyDown = spy();
+          const handleChange = vi.fn();
+          const handleKeyDown = vi.fn();
 
           await render(
             <Tabs.Root onValueChange={handleChange} value={0}>
@@ -1210,14 +1202,14 @@ describe('<Tabs.Root />', () => {
           await flushMicrotasks();
 
           expect(lastTab).toHaveFocus();
-          expect(handleChange.callCount).to.equal(0);
-          expect(handleKeyDown.callCount).to.equal(1);
-          expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
+          expect(handleChange.mock.calls.length).toBe(0);
+          expect(handleKeyDown.mock.calls.length).toBe(1);
+          expect(handleKeyDown.mock.calls[0][0]).toHaveProperty('defaultPrevented', true);
         });
 
         it('when `activateOnFocus = true`, moves focus to the last tab while activating it', async () => {
-          const handleChange = spy();
-          const handleKeyDown = spy();
+          const handleChange = vi.fn();
+          const handleKeyDown = vi.fn();
 
           await render(
             <Tabs.Root onValueChange={handleChange} value={0}>
@@ -1238,16 +1230,16 @@ describe('<Tabs.Root />', () => {
           await flushMicrotasks();
 
           expect(lastTab).toHaveFocus();
-          expect(handleChange.callCount).to.equal(1);
-          expect(handleChange.firstCall.args[0]).to.equal(2);
-          expect(handleKeyDown.callCount).to.equal(1);
-          expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
+          expect(handleChange.mock.calls.length).toBe(1);
+          expect(handleChange.mock.calls[0][0]).toBe(2);
+          expect(handleKeyDown.mock.calls.length).toBe(1);
+          expect(handleKeyDown.mock.calls[0][0]).toHaveProperty('defaultPrevented', true);
         });
 
         [false, true].forEach((activateOnFocusProp) => {
           it(`when \`activateOnFocus = ${activateOnFocusProp}\`, moves focus to a disabled tab without activating it`, async () => {
-            const handleChange = spy();
-            const handleKeyDown = spy();
+            const handleChange = vi.fn();
+            const handleKeyDown = vi.fn();
 
             await render(
               <Tabs.Root onValueChange={handleChange} value={0}>
@@ -1268,9 +1260,9 @@ describe('<Tabs.Root />', () => {
             await flushMicrotasks();
 
             expect(disabledTab).toHaveFocus();
-            expect(handleChange.callCount).to.equal(0);
-            expect(handleKeyDown.callCount).to.equal(1);
-            expect(handleKeyDown.firstCall.args[0]).to.have.property('defaultPrevented', true);
+            expect(handleChange.mock.calls.length).toBe(0);
+            expect(handleKeyDown.mock.calls.length).toBe(1);
+            expect(handleKeyDown.mock.calls[0][0]).toHaveProperty('defaultPrevented', true);
           });
         });
       });
@@ -1286,7 +1278,7 @@ describe('<Tabs.Root />', () => {
         </Tabs.Root>,
       );
 
-      expect(screen.getAllByRole('tab').map((tab) => tab.getAttribute('tabIndex'))).to.deep.equal([
+      expect(screen.getAllByRole('tab').map((tab) => tab.getAttribute('tabIndex'))).toEqual([
         '0',
         '-1',
       ]);
@@ -1307,18 +1299,18 @@ describe('<Tabs.Root />', () => {
       const root = screen.getByTestId('root');
       const [tab1, tab2] = screen.getAllByRole('tab');
 
-      expect(root).to.have.attribute('data-activation-direction', 'none');
+      expect(root).toHaveAttribute('data-activation-direction', 'none');
       await act(async () => {
         tab2.click();
       });
 
-      expect(root).to.have.attribute('data-activation-direction', 'right');
+      expect(root).toHaveAttribute('data-activation-direction', 'right');
 
       await act(async () => {
         tab1.click();
       });
 
-      expect(root).to.have.attribute('data-activation-direction', 'left');
+      expect(root).toHaveAttribute('data-activation-direction', 'left');
     });
 
     it('should set the `data-activation-direction` attribute on the tabs root with orientation=vertical', async () => {
@@ -1334,18 +1326,18 @@ describe('<Tabs.Root />', () => {
       const root = screen.getByTestId('root');
       const [tab1, tab2] = screen.getAllByRole('tab');
 
-      expect(root).to.have.attribute('data-activation-direction', 'none');
+      expect(root).toHaveAttribute('data-activation-direction', 'none');
       await act(async () => {
         tab2.click();
       });
 
-      expect(root).to.have.attribute('data-activation-direction', 'down');
+      expect(root).toHaveAttribute('data-activation-direction', 'down');
 
       await act(async () => {
         tab1.click();
       });
 
-      expect(root).to.have.attribute('data-activation-direction', 'up');
+      expect(root).toHaveAttribute('data-activation-direction', 'up');
     });
 
     describe('programmatic value changes', () => {
@@ -1542,21 +1534,21 @@ describe('<Tabs.Root />', () => {
 
       const [firstTab, secondTab, thirdTab] = screen.getAllByRole('tab');
 
-      expect(firstTab.tabIndex).to.equal(0);
+      expect(firstTab.tabIndex).toBe(0);
 
       await setProps({ value: 2 });
       await flushMicrotasks();
 
-      expect(firstTab.tabIndex).to.equal(-1);
-      expect(secondTab.tabIndex).to.equal(-1);
-      expect(thirdTab.tabIndex).to.equal(0);
+      expect(firstTab.tabIndex).toBe(-1);
+      expect(secondTab.tabIndex).toBe(-1);
+      expect(thirdTab.tabIndex).toBe(0);
 
       await setProps({ value: 1 });
       await flushMicrotasks();
 
-      expect(firstTab.tabIndex).to.equal(-1);
-      expect(secondTab.tabIndex).to.equal(0);
-      expect(thirdTab.tabIndex).to.equal(-1);
+      expect(firstTab.tabIndex).toBe(-1);
+      expect(secondTab.tabIndex).toBe(0);
+      expect(thirdTab.tabIndex).toBe(-1);
     });
 
     it('when focus is inside the tablist, highlight stays put on external change and arrow keys continue from the focused tab', async () => {
@@ -1575,17 +1567,17 @@ describe('<Tabs.Root />', () => {
       await act(async () => {
         firstTab.focus();
       });
-      expect(firstTab).to.have.property('tabIndex', 0);
+      expect(firstTab).toHaveProperty('tabIndex', 0);
 
       await setProps({ value: 2 });
       await flushMicrotasks();
 
       // Highlight should not change (still on first tab), but selection did
-      expect(firstTab.tabIndex).to.equal(0);
-      expect(secondTab.tabIndex).to.equal(-1);
-      expect(thirdTab.tabIndex).to.equal(-1);
-      expect(firstTab).to.have.attribute('aria-selected', 'false');
-      expect(thirdTab).to.have.attribute('aria-selected', 'true');
+      expect(firstTab.tabIndex).toBe(0);
+      expect(secondTab.tabIndex).toBe(-1);
+      expect(thirdTab.tabIndex).toBe(-1);
+      expect(firstTab).toHaveAttribute('aria-selected', 'false');
+      expect(thirdTab).toHaveAttribute('aria-selected', 'true');
 
       // Arrow navigation should continue from the highlighted tab
       fireEvent.keyDown(firstTab, { key: 'ArrowRight' });
@@ -1593,8 +1585,8 @@ describe('<Tabs.Root />', () => {
 
       expect(secondTab).toHaveFocus();
       // Selection remains the externally-set tab since activateOnFocus=false
-      expect(thirdTab).to.have.attribute('aria-selected', 'true');
-      expect(secondTab).to.have.attribute('aria-selected', 'false');
+      expect(thirdTab).toHaveAttribute('aria-selected', 'true');
+      expect(secondTab).toHaveAttribute('aria-selected', 'false');
     });
   });
 });

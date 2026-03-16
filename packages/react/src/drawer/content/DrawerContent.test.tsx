@@ -1,6 +1,6 @@
+import { describe, expect, it } from 'vitest';
 import { Drawer } from '@base-ui/react/drawer';
 import { screen } from '@mui/internal-test-utils';
-import { describe, expect, it } from 'vitest';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Drawer.Content />', () => {

@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect } from 'vitest';
 // TODO Temporal: Replace with `@base-ui/react/types` import when Temporal components will become public.
 import {
   TemporalAdapter,
@@ -16,7 +16,7 @@ import { TEST_DATE_ISO_STRING, TEST_DATE_LOCALE_STRING } from './describeGregori
 // We change to
 const expectSameTimeInMonacoTZ = (adapter: TemporalAdapter, value: TemporalSupportedObject) => {
   const valueInMonacoTz = adapter.setTimezone(value, 'Europe/Monaco');
-  expect(adapter.getHours(value)).to.equal(adapter.getHours(valueInMonacoTz));
+  expect(adapter.getHours(value)).toBe(adapter.getHours(valueInMonacoTz));
 };
 
 export const testComputations: DescribeGregorianAdapterTestSuite = ({
@@ -40,7 +40,7 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
         const test = (timezone: TemporalTimezone, expectedTimezones: string = timezone) => {
           [adapterTZ, adapterFr].forEach((instance) => {
             const dateWithZone = instance.date(TEST_DATE_ISO_STRING, timezone);
-            expect(instance.getTimezone(dateWithZone)).to.equal(expectedTimezones);
+            expect(instance.getTimezone(dateWithZone)).toBe(expectedTimezones);
 
             // Should keep the time of the value in the UTC timezone
             expect(dateWithZone).toEqualDateTime(TEST_DATE_ISO_STRING);
@@ -73,10 +73,10 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
         const test = (timezone: TemporalTimezone) => {
           [adapterTZ, adapterFr].forEach((instance) => {
             const dateWithZone = instance.date(TEST_DATE_LOCALE_STRING, timezone);
-            expect(instance.getTimezone(dateWithZone)).to.equal(timezone);
+            expect(instance.getTimezone(dateWithZone)).toBe(timezone);
 
             // Should keep the time of the date in the target timezone
-            expect(instance.format(dateWithZone, 'hours24hPadded')).to.equal('00');
+            expect(instance.format(dateWithZone, 'hours24hPadded')).toBe('00');
           });
         };
 
@@ -92,11 +92,11 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
     });
 
     it('should parse null', () => {
-      expect(adapter.date(null, 'system')).to.equal(null);
+      expect(adapter.date(null, 'system')).toBe(null);
 
       if (adapter.isTimezoneCompatible) {
-        expect(adapter.date(null, 'UTC')).to.equal(null);
-        expect(adapter.date(null, 'America/New_York')).to.equal(null);
+        expect(adapter.date(null, 'UTC')).toBe(null);
+        expect(adapter.date(null, 'America/New_York')).toBe(null);
       }
     });
   });
@@ -122,10 +122,8 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
       if (adapter.isTimezoneCompatible) {
         const testTodayZone = (timezone: TemporalTimezone) => {
           const dateWithZone = adapterTZ.now(timezone);
-          expect(adapterTZ.getTimezone(dateWithZone)).to.equal(timezone);
-          expect(Math.abs(adapterTZ.toJsDate(dateWithZone).getTime() - Date.now())).to.be.lessThan(
-            5,
-          );
+          expect(adapterTZ.getTimezone(dateWithZone)).toBe(timezone);
+          expect(Math.abs(adapterTZ.toJsDate(dateWithZone).getTime() - Date.now())).toBeLessThan(5);
         };
 
         testTodayZone('system');
@@ -134,14 +132,14 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
       } else {
         expect(
           Math.abs(adapterTZ.toJsDate(adapter.now('system')).getTime() - Date.now()),
-        ).to.be.lessThan(5);
+        ).toBeLessThan(5);
       }
     });
   });
 
   test.skipIf(!adapter.isTimezoneCompatible)('Method: getTimezone', () => {
     const testTimezone = (timezone: string, expectedTimezone = timezone) => {
-      expect(adapter.getTimezone(adapter.now(timezone))).to.equal(expectedTimezone);
+      expect(adapter.getTimezone(adapter.now(timezone))).toBe(expectedTimezone);
     };
 
     testTimezone('system');
@@ -160,7 +158,7 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
     'should not mix Europe/London and UTC in winter',
     () => {
       const dateWithZone = adapter.date('2023-10-30T11:44:00.000Z', 'Europe/London');
-      expect(adapter.getTimezone(dateWithZone)).to.equal('Europe/London');
+      expect(adapter.getTimezone(dateWithZone)).toBe('Europe/London');
     },
   );
 
@@ -172,8 +170,8 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
 
         const testTimezone = (timezone: TemporalTimezone) => {
           const dateInTargetTimezone = adapter.setTimezone(dateWithLocaleTimezone, timezone);
-          expect(adapter.getTimezone(dateInTargetTimezone)).to.equal(timezone);
-          expect(adapter.toJsDate(dateInTargetTimezone).getTime()).to.equal(
+          expect(adapter.getTimezone(dateInTargetTimezone)).toBe(timezone);
+          expect(adapter.toJsDate(dateInTargetTimezone).getTime()).toBe(
             adapter.toJsDate(dateWithLocaleTimezone).getTime(),
           );
         };
@@ -189,12 +187,12 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
       'should convert the date to the default timezone',
       () => {
         setDefaultTimezone!('America/New_York');
-        expect(adapter.getTimezone(adapter.setTimezone(testDateIsoInSystemTz, 'default'))).to.equal(
+        expect(adapter.getTimezone(adapter.setTimezone(testDateIsoInSystemTz, 'default'))).toBe(
           'America/New_York',
         );
 
         setDefaultTimezone!('Europe/Paris');
-        expect(adapter.getTimezone(adapter.setTimezone(testDateIsoInSystemTz, 'default'))).to.equal(
+        expect(adapter.getTimezone(adapter.setTimezone(testDateIsoInSystemTz, 'default'))).toBe(
           'Europe/Paris',
         );
 
@@ -217,37 +215,37 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
   });
 
   it('Method: toJsDate', () => {
-    expect(adapter.toJsDate(testDateIso)).to.be.instanceOf(Date);
-    expect(adapter.toJsDate(testDateLocale)).to.be.instanceOf(Date);
+    expect(adapter.toJsDate(testDateIso)).toBeInstanceOf(Date);
+    expect(adapter.toJsDate(testDateLocale)).toBeInstanceOf(Date);
   });
 
   it('Method: isValid', () => {
     const invalidDate = adapter.date('2018-42-30T11:60:00.000Z', 'default');
 
-    expect(adapter.isValid(testDateIso)).to.equal(true);
-    expect(adapter.isValid(testDateLocale)).to.equal(true);
-    expect(adapter.isValid(invalidDate)).to.equal(false);
-    expect(adapter.isValid(null)).to.equal(false);
+    expect(adapter.isValid(testDateIso)).toBe(true);
+    expect(adapter.isValid(testDateLocale)).toBe(true);
+    expect(adapter.isValid(invalidDate)).toBe(false);
+    expect(adapter.isValid(null)).toBe(false);
   });
 
   describe('Method: isEqual', () => {
     it('should work in the same timezone', () => {
-      expect(adapter.isEqual(adapter.date(null, 'default'), null)).to.equal(true);
-      expect(adapter.isEqual(testDateIso, adapter.date(TEST_DATE_ISO_STRING, 'default'))).to.equal(
+      expect(adapter.isEqual(adapter.date(null, 'default'), null)).toBe(true);
+      expect(adapter.isEqual(testDateIso, adapter.date(TEST_DATE_ISO_STRING, 'default'))).toBe(
         true,
       );
-      expect(adapter.isEqual(null, testDateIso)).to.equal(false);
+      expect(adapter.isEqual(null, testDateIso)).toBe(false);
       expect(
         adapter.isEqual(testDateLocale, adapter.date(TEST_DATE_LOCALE_STRING, 'default')),
-      ).to.equal(true);
-      expect(adapter.isEqual(null, testDateLocale)).to.equal(false);
+      ).toBe(true);
+      expect(adapter.isEqual(null, testDateLocale)).toBe(false);
     });
 
     test.skipIf(!adapter.isTimezoneCompatible)('should work with different timezones', () => {
       const dateInLondonTZ = adapterTZ.setTimezone(testDateIso, 'Europe/London');
       const dateInParisTZ = adapterTZ.setTimezone(testDateIso, 'Europe/Paris');
 
-      expect(adapterTZ.isEqual(dateInLondonTZ, dateInParisTZ)).to.equal(true);
+      expect(adapterTZ.isEqual(dateInLondonTZ, dateInParisTZ)).toBe(true);
     });
   });
 
@@ -255,16 +253,16 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
     it('should work in the same timezone', () => {
       expect(
         adapter.isSameYear(testDateIso, adapter.date('2018-10-01T00:00:00.000Z', 'default')),
-      ).to.equal(true);
+      ).toBe(true);
       expect(
         adapter.isSameYear(testDateIso, adapter.date('2019-10-01T00:00:00.000Z', 'default')),
-      ).to.equal(false);
+      ).toBe(false);
       expect(
         adapter.isSameYear(testDateLocale, adapter.date('2018-10-01T00:00:00.000Z', 'default')),
-      ).to.equal(true);
+      ).toBe(true);
       expect(
         adapter.isSameYear(testDateLocale, adapter.date('2019-10-01T00:00:00.000Z', 'default')),
-      ).to.equal(false);
+      ).toBe(false);
     });
 
     test.skipIf(!adapter.isTimezoneCompatible)('should work with different timezones', () => {
@@ -275,8 +273,8 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
       );
       const dateInParisTZ = adapterTZ.setTimezone(dateInLondonTZ, 'Europe/Paris');
 
-      expect(adapterTZ.isSameYear(dateInLondonTZ, dateInParisTZ)).to.equal(true);
-      expect(adapterTZ.isSameYear(dateInParisTZ, dateInLondonTZ)).to.equal(true);
+      expect(adapterTZ.isSameYear(dateInLondonTZ, dateInParisTZ)).toBe(true);
+      expect(adapterTZ.isSameYear(dateInParisTZ, dateInLondonTZ)).toBe(true);
     });
   });
 
@@ -284,16 +282,16 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
     it('should work in the same timezone', () => {
       expect(
         adapter.isSameMonth(testDateIso, adapter.date('2018-10-01T00:00:00.000Z', 'default')),
-      ).to.equal(true);
+      ).toBe(true);
       expect(
         adapter.isSameMonth(testDateIso, adapter.date('2019-10-01T00:00:00.000Z', 'default')),
-      ).to.equal(false);
+      ).toBe(false);
       expect(
         adapter.isSameMonth(testDateLocale, adapter.date('2018-10-01T00:00:00.000Z', 'default')),
-      ).to.equal(true);
+      ).toBe(true);
       expect(
         adapter.isSameMonth(testDateLocale, adapter.date('2019-10-01T00:00:00.000Z', 'default')),
-      ).to.equal(false);
+      ).toBe(false);
     });
 
     test.skipIf(!adapter.isTimezoneCompatible)('should work with different timezones', () => {
@@ -304,8 +302,8 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
       );
       const dateInParisTZ = adapterTZ.setTimezone(dateInLondonTZ, 'Europe/Paris');
 
-      expect(adapterTZ.isSameMonth(dateInLondonTZ, dateInParisTZ)).to.equal(true);
-      expect(adapterTZ.isSameMonth(dateInParisTZ, dateInLondonTZ)).to.equal(true);
+      expect(adapterTZ.isSameMonth(dateInLondonTZ, dateInParisTZ)).toBe(true);
+      expect(adapterTZ.isSameMonth(dateInParisTZ, dateInLondonTZ)).toBe(true);
     });
   });
 
@@ -313,16 +311,16 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
     it('should work in the same timezone', () => {
       expect(
         adapter.isSameDay(testDateIso, adapter.date('2018-10-30T00:00:00.000Z', 'default')),
-      ).to.equal(true);
+      ).toBe(true);
       expect(
         adapter.isSameDay(testDateIso, adapter.date('2019-10-30T00:00:00.000Z', 'default')),
-      ).to.equal(false);
+      ).toBe(false);
       expect(
         adapter.isSameDay(testDateLocale, adapter.date('2018-10-30T00:00:00.000Z', 'default')),
-      ).to.equal(true);
+      ).toBe(true);
       expect(
         adapter.isSameDay(testDateLocale, adapter.date('2019-10-30T00:00:00.000Z', 'default')),
-      ).to.equal(false);
+      ).toBe(false);
     });
 
     test.skipIf(!adapter.isTimezoneCompatible)('should work with different timezones', () => {
@@ -333,8 +331,8 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
       );
       const dateInParisTZ = adapterTZ.setTimezone(dateInLondonTZ, 'Europe/Paris');
 
-      expect(adapterTZ.isSameDay(dateInLondonTZ, dateInParisTZ)).to.equal(true);
-      expect(adapterTZ.isSameDay(dateInParisTZ, dateInLondonTZ)).to.equal(true);
+      expect(adapterTZ.isSameDay(dateInLondonTZ, dateInParisTZ)).toBe(true);
+      expect(adapterTZ.isSameDay(dateInParisTZ, dateInLondonTZ)).toBe(true);
     });
   });
 
@@ -342,10 +340,10 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
     it('should work in the same timezone', () => {
       expect(
         adapter.isSameHour(testDateIso, adapter.date('2018-10-30T11:00:00.000Z', 'default')),
-      ).to.equal(true);
+      ).toBe(true);
       expect(
         adapter.isSameHour(testDateIso, adapter.date('2018-10-30T12:00:00.000Z', 'default')),
-      ).to.equal(false);
+      ).toBe(false);
     });
 
     test.skipIf(!adapter.isTimezoneCompatible)('should work with different timezones', () => {
@@ -354,18 +352,18 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
       const dateInLondonTZ = adapterTZ.setTimezone(testDateIso, 'Europe/London');
       const dateInParisTZ = adapterTZ.setTimezone(dateInLondonTZ, 'Europe/Paris');
 
-      expect(adapterTZ.isSameHour(dateInLondonTZ, dateInParisTZ)).to.equal(true);
-      expect(adapterTZ.isSameHour(dateInParisTZ, dateInLondonTZ)).to.equal(true);
+      expect(adapterTZ.isSameHour(dateInLondonTZ, dateInParisTZ)).toBe(true);
+      expect(adapterTZ.isSameHour(dateInParisTZ, dateInLondonTZ)).toBe(true);
     });
   });
 
   describe('Method: isAfter', () => {
     it('should work with the same timezone', () => {
-      expect(adapter.isAfter(adapter.now('default'), testDateIso)).to.equal(true);
-      expect(adapter.isAfter(testDateIso, adapter.now('default'))).to.equal(false);
+      expect(adapter.isAfter(adapter.now('default'), testDateIso)).toBe(true);
+      expect(adapter.isAfter(testDateIso, adapter.now('default'))).toBe(false);
 
-      expect(adapter.isAfter(adapter.now('default'), testDateLocale)).to.equal(true);
-      expect(adapter.isAfter(testDateLocale, adapter.now('default'))).to.equal(false);
+      expect(adapter.isAfter(adapter.now('default'), testDateLocale)).toBe(true);
+      expect(adapter.isAfter(testDateLocale, adapter.now('default'))).toBe(false);
     });
 
     test.skipIf(!adapter.isTimezoneCompatible)('should work with different timezones', () => {
@@ -377,18 +375,18 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
         30,
       );
 
-      expect(adapter.isAfter(dateInLondonTZ, dateInParisTZ)).to.equal(true);
-      expect(adapter.isAfter(dateInParisTZ, dateInLondonTZ)).to.equal(false);
+      expect(adapter.isAfter(dateInLondonTZ, dateInParisTZ)).toBe(true);
+      expect(adapter.isAfter(dateInParisTZ, dateInLondonTZ)).toBe(false);
     });
   });
 
   describe('Method: isBefore', () => {
     it('should work with the same timezone', () => {
-      expect(adapter.isBefore(testDateIso, adapter.now('default'))).to.equal(true);
-      expect(adapter.isBefore(adapter.now('default'), testDateIso)).to.equal(false);
+      expect(adapter.isBefore(testDateIso, adapter.now('default'))).toBe(true);
+      expect(adapter.isBefore(adapter.now('default'), testDateIso)).toBe(false);
 
-      expect(adapter.isBefore(testDateLocale, adapter.now('default'))).to.equal(true);
-      expect(adapter.isBefore(adapter.now('default'), testDateLocale)).to.equal(false);
+      expect(adapter.isBefore(testDateLocale, adapter.now('default'))).toBe(true);
+      expect(adapter.isBefore(adapter.now('default'), testDateLocale)).toBe(false);
     });
 
     test.skipIf(!adapter.isTimezoneCompatible)('should work with different timezones', () => {
@@ -400,8 +398,8 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
         30,
       );
 
-      expect(adapter.isBefore(dateInLondonTZ, dateInParisTZ)).to.equal(false);
-      expect(adapter.isBefore(dateInParisTZ, dateInLondonTZ)).to.equal(true);
+      expect(adapter.isBefore(dateInLondonTZ, dateInParisTZ)).toBe(false);
+      expect(adapter.isBefore(dateInParisTZ, dateInLondonTZ)).toBe(true);
     });
   });
 
@@ -412,28 +410,28 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
           adapter.date('2019-09-01T00:00:00.000Z', 'default'),
           adapter.date('2019-11-01T00:00:00.000Z', 'default'),
         ]),
-      ).to.equal(true);
+      ).toBe(true);
 
       expect(
         adapter.isWithinRange(adapter.date('2019-12-01T00:00:00.000Z', 'default'), [
           adapter.date('2019-09-01T00:00:00.000Z', 'default'),
           adapter.date('2019-11-01T00:00:00.000Z', 'default'),
         ]),
-      ).to.equal(false);
+      ).toBe(false);
 
       expect(
         adapter.isWithinRange(adapter.date('2019-10-01', 'default'), [
           adapter.date('2019-09-01', 'default'),
           adapter.date('2019-11-01', 'default'),
         ]),
-      ).to.equal(true);
+      ).toBe(true);
 
       expect(
         adapter.isWithinRange(adapter.date('2019-12-01', 'default'), [
           adapter.date('2019-09-01', 'default'),
           adapter.date('2019-11-01', 'default'),
         ]),
-      ).to.equal(false);
+      ).toBe(false);
     });
 
     it('should use inclusiveness of range', () => {
@@ -442,28 +440,28 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
           adapter.date('2019-09-01T00:00:00.000Z', 'default'),
           adapter.date('2019-12-01T00:00:00.000Z', 'default'),
         ]),
-      ).to.equal(true);
+      ).toBe(true);
 
       expect(
         adapter.isWithinRange(adapter.date('2019-12-01T00:00:00.000Z', 'default'), [
           adapter.date('2019-09-01T00:00:00.000Z', 'default'),
           adapter.date('2019-12-01T00:00:00.000Z', 'default'),
         ]),
-      ).to.equal(true);
+      ).toBe(true);
 
       expect(
         adapter.isWithinRange(adapter.date('2019-09-01', 'default'), [
           adapter.date('2019-09-01', 'default'),
           adapter.date('2019-12-01', 'default'),
         ]),
-      ).to.equal(true);
+      ).toBe(true);
 
       expect(
         adapter.isWithinRange(adapter.date('2019-12-01', 'default'), [
           adapter.date('2019-09-01', 'default'),
           adapter.date('2019-12-01', 'default'),
         ]),
-      ).to.equal(true);
+      ).toBe(true);
     });
 
     it('should be equal with values in different locales', () => {
@@ -472,7 +470,7 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
           adapterFr.date('2022-04-17', 'default'),
           adapterFr.date('2022-04-19', 'default'),
         ]),
-      ).to.equal(true);
+      ).toBe(true);
     });
   });
 
@@ -632,35 +630,35 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
   });
 
   it('Method: getYear', () => {
-    expect(adapter.getYear(testDateIso)).to.equal(2018);
+    expect(adapter.getYear(testDateIso)).toBe(2018);
   });
 
   it('Method: getMonth', () => {
-    expect(adapter.getMonth(testDateIso)).to.equal(9);
+    expect(adapter.getMonth(testDateIso)).toBe(9);
   });
 
   it('Method: getDate', () => {
-    expect(adapter.getDate(testDateIso)).to.equal(30);
+    expect(adapter.getDate(testDateIso)).toBe(30);
   });
 
   it('Method: getHours', () => {
-    expect(adapter.getHours(testDateIso)).to.equal(11);
+    expect(adapter.getHours(testDateIso)).toBe(11);
   });
 
   it('Method: getMinutes', () => {
-    expect(adapter.getMinutes(testDateIso)).to.equal(44);
+    expect(adapter.getMinutes(testDateIso)).toBe(44);
   });
 
   it('Method: getSeconds', () => {
-    expect(adapter.getSeconds(testDateIso)).to.equal(25);
+    expect(adapter.getSeconds(testDateIso)).toBe(25);
   });
 
   it('Method: getMilliseconds', () => {
-    expect(adapter.getMilliseconds(testDateIso)).to.equal(750);
+    expect(adapter.getMilliseconds(testDateIso)).toBe(750);
   });
 
   it('Method: getTime', () => {
-    expect(adapter.getTime(testDateIso)).to.equal(1540899865750);
+    expect(adapter.getTime(testDateIso)).toBe(1540899865750);
   });
 
   it('Method: setYear', () => {
@@ -698,14 +696,14 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
           adapter.date('2020-04-01', 'default'),
           adapter.date('2018-10-30', 'default'),
         ),
-      ).to.equal(1);
+      ).toBe(1);
 
       expect(
         adapter.differenceInYears(
           adapter.date('2020-04-01', 'default'),
           adapter.date('2018-04-01', 'default'),
         ),
-      ).to.equal(2);
+      ).toBe(2);
     });
 
     test.skipIf(!adapter.isTimezoneCompatible)('should work with timezones', () => {
@@ -714,7 +712,7 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
           adapter.date('2020-04-01T12:00', 'Europe/Paris'),
           adapter.date('2018-04-01T12:00', 'America/New_York'),
         ),
-      ).to.equal(1);
+      ).toBe(1);
     });
   });
 
@@ -725,14 +723,14 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
           adapter.date('2019-01-30', 'default'),
           adapter.date('2018-10-30', 'default'),
         ),
-      ).to.equal(3);
+      ).toBe(3);
 
       expect(
         adapter.differenceInMonths(
           adapter.date('2019-01-15', 'default'),
           adapter.date('2018-10-30', 'default'),
         ),
-      ).to.equal(2);
+      ).toBe(2);
     });
 
     test.skipIf(!adapter.isTimezoneCompatible)('should work with timezones', () => {
@@ -741,7 +739,7 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
           adapter.date('2018-06-30T12:00', 'Europe/Paris'),
           adapter.date('2018-04-30T12:00', 'America/New_York'),
         ),
-      ).to.equal(1);
+      ).toBe(1);
     });
   });
 
@@ -752,14 +750,14 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
           adapter.date('2018-11-05', 'default'),
           adapter.date('2018-10-30', 'default'),
         ),
-      ).to.equal(6);
+      ).toBe(6);
 
       expect(
         adapter.differenceInDays(
           adapter.date('2018-11-05', 'default'),
           adapter.date('2018-11-01', 'default'),
         ),
-      ).to.equal(4);
+      ).toBe(4);
     });
 
     test.skipIf(!adapter.isTimezoneCompatible)('should work with timezones', () => {
@@ -768,7 +766,7 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
           adapter.date('2018-10-07T12:00', 'Europe/Paris'),
           adapter.date('2018-10-05T12:00', 'America/New_York'),
         ),
-      ).to.equal(1);
+      ).toBe(1);
     });
   });
 
@@ -779,14 +777,14 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
           adapter.date('2018-10-31T15:00', 'default'),
           adapter.date('2018-10-30T11:00', 'default'),
         ),
-      ).to.equal(28);
+      ).toBe(28);
 
       expect(
         adapter.differenceInHours(
           adapter.date('2018-10-31T15:00', 'default'),
           adapter.date('2018-10-31T11:00', 'default'),
         ),
-      ).to.equal(4);
+      ).toBe(4);
     });
 
     test.skipIf(!adapter.isTimezoneCompatible)('should work with timezones', () => {
@@ -795,7 +793,7 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
           adapter.date('2018-10-30T12:00', 'Europe/Paris'),
           adapter.date('2018-10-30T12:00', 'America/New_York'),
         ),
-      ).to.equal(-5);
+      ).toBe(-5);
     });
 
     test.skipIf(!adapter.isTimezoneCompatible)('should work accross DST', () => {
@@ -804,7 +802,7 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
           adapter.date('2022-03-28', 'Europe/Paris'),
           adapter.date('2022-03-27', 'Europe/Paris'),
         ),
-      ).to.equal(23);
+      ).toBe(23);
     });
   });
 
@@ -815,14 +813,14 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
           adapter.date('2018-10-30T12:30', 'default'),
           adapter.date('2018-10-30T11:00', 'default'),
         ),
-      ).to.equal(90);
+      ).toBe(90);
 
       expect(
         adapter.differenceInMinutes(
           adapter.date('2018-10-30T11:30', 'default'),
           adapter.date('2018-10-30T11:00', 'default'),
         ),
-      ).to.equal(30);
+      ).toBe(30);
     });
 
     test.skipIf(!adapter.isTimezoneCompatible)('should work with timezones', () => {
@@ -831,7 +829,7 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
           adapter.date('2018-10-30T12:00', 'Europe/Paris'),
           adapter.date('2018-10-30T12:00', 'America/New_York'),
         ),
-      ).to.equal(-300);
+      ).toBe(-300);
     });
 
     test.skipIf(!adapter.isTimezoneCompatible)('should work accross DST', () => {
@@ -840,21 +838,21 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
           adapter.date('2022-03-28', 'Europe/Paris'),
           adapter.date('2022-03-27', 'Europe/Paris'),
         ),
-      ).to.equal(23 * 60);
+      ).toBe(23 * 60);
     });
   });
 
   it('Method: getDaysInMonth', () => {
-    expect(adapter.getDaysInMonth(testDateIso)).to.equal(31);
-    expect(adapter.getDaysInMonth(testDateLocale)).to.equal(31);
-    expect(adapter.getDaysInMonth(adapter.addMonths(testDateIso, 1))).to.equal(30);
+    expect(adapter.getDaysInMonth(testDateIso)).toBe(31);
+    expect(adapter.getDaysInMonth(testDateLocale)).toBe(31);
+    expect(adapter.getDaysInMonth(adapter.addMonths(testDateIso, 1))).toBe(30);
   });
 
   it('Method: getDayOfWeek', () => {
-    expect(adapter.getDayOfWeek(testDateIso)).to.equal(3);
+    expect(adapter.getDayOfWeek(testDateIso)).toBe(3);
   });
 
   it('Method: getWeekNumber', () => {
-    expect(adapter.getWeekNumber(testDateIso)).to.equal(44);
+    expect(adapter.getWeekNumber(testDateIso)).toBe(44);
   });
 };
