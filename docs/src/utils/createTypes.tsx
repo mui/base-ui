@@ -2,12 +2,11 @@ import {
   createTypesFactory,
   createMultipleTypesFactory,
 } from '@mui/internal-docs-infra/abstractCreateTypes';
-import clsx from 'clsx';
 import { ReferenceTable } from '../components/ReferenceTable/ReferenceTable';
 import { mdxComponents } from '../mdx-components';
 import * as CodeBlock from '../components/CodeBlock';
 import { CodeBlockPreComputed } from '../components/CodeBlock/CodeBlockPreComputed';
-import { Code } from '../components/Code';
+import { TableCode } from '../components/TableCode';
 
 interface MDXComponents {
   [key: string]: React.FC<any> | MDXComponents;
@@ -21,10 +20,6 @@ const components: MDXComponents = {
     </CodeBlock.Root>
   ),
 };
-
-function TableCode(props: React.ComponentProps<typeof Code>) {
-  return <Code {...props} data-table-code="" className={clsx(props.className, 'TableCode')} />;
-}
 
 /**
  * Creates a type doc component that renders a reference table for the given component.
