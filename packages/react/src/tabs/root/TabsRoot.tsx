@@ -8,12 +8,53 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { CompositeList } from '../../composite/list/CompositeList';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import { useDirection } from '../../direction-provider/DirectionContext';
+import type { TextDirection } from '../../direction-provider/DirectionContext';
 import { TabsRootContext } from './TabsRootContext';
 import { tabsStateAttributesMapping } from './stateAttributesMapping';
 import type { TabsTab } from '../tab/TabsTab';
 import type { TabsPanel } from '../panel/TabsPanel';
 import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
+
+function computeActivationDirection(
+  previousValue: TabsTab.Value | undefined,
+  newValue: TabsTab.Value,
+  tabMap: Map<Node, CompositeMetadata<TabsTab.Metadata> | null>,
+  orientation: TabsRoot.Orientation,
+  direction: TextDirection,
+): TabsTab.ActivationDirection {
+  if (newValue == null || previousValue == null) {
+    return 'none';
+  }
+
+  let previousIndex: number | null = null;
+  let newIndex: number | null = null;
+
+  for (const tabMetadata of tabMap.values()) {
+    if (tabMetadata != null && tabMetadata.index != null) {
+      const tabValue = tabMetadata.value ?? tabMetadata.index;
+      if (tabValue === previousValue) {
+        previousIndex = tabMetadata.index;
+      }
+      if (tabValue === newValue) {
+        newIndex = tabMetadata.index;
+      }
+    }
+  }
+
+  if (previousIndex == null || newIndex == null || newIndex === previousIndex) {
+    return 'none';
+  }
+
+  if (orientation === 'horizontal') {
+    if (direction === 'rtl') {
+      return newIndex > previousIndex ? 'left' : 'right';
+    }
+    return newIndex > previousIndex ? 'right' : 'left';
+  }
+
+  return newIndex > previousIndex ? 'down' : 'up';
+}
 
 /**
  * Groups the tabs and the corresponding panels.
@@ -59,14 +100,9 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
   );
 
-  const [tabsListElement, setTabsListElement] = React.useState<HTMLElement | null>(null);
-
-  // Refs for tracking previous value for direction calculation
   const previousValueRef = React.useRef<TabsTab.Value | undefined>(undefined);
-  // Track values that were handled by internal changes (clicks) to avoid recalculating
-  const valueHandledInternallyRef = React.useRef<TabsTab.Value | undefined>(undefined);
 
-  // Helper to get tab element by value
+  // used in `TabsIndicator` for positioning
   const getTabElementBySelectedValue = React.useCallback(
     (selectedValue: TabsTab.Value | undefined): HTMLElement | null => {
       if (selectedValue === undefined) {
@@ -84,83 +120,43 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     [tabMap],
   );
 
-  // Compute the activation direction during render for external value changes
-  // Uses tab indices from tabMap (state) rather than DOM positions, since
-  // useStableCallback cannot be called during render.
-  const computeActivationDirection = React.useCallback((): TabsTab.ActivationDirection => {
-    // If value hasn't changed or was handled internally, don't compute
-    if (value === previousValueRef.current || value === valueHandledInternallyRef.current) {
-      return 'none';
-    }
+  // Compute direction during render for programmatic (external) value changes.
+  // Both internal (click) and external paths use the same index-based logic.
+  const activationDirectionForRender =
+    value !== previousValueRef.current && previousValueRef.current !== undefined
+      ? computeActivationDirection(previousValueRef.current, value, tabMap, orientation, direction)
+      : 'none';
 
-    // Clear the internal handling flag
-    valueHandledInternallyRef.current = undefined;
-
-    if (value == null || previousValueRef.current == null) {
-      return 'none';
-    }
-
-    // Find indices of previous and new tabs in tabMap
-    let previousIndex: number | null = null;
-    let newIndex: number | null = null;
-
-    for (const tabMetadata of tabMap.values()) {
-      if (tabMetadata != null && tabMetadata.index != null) {
-        const tabValue = tabMetadata.value ?? tabMetadata.index;
-        if (tabValue === previousValueRef.current) {
-          previousIndex = tabMetadata.index;
-        }
-        if (tabValue === value) {
-          newIndex = tabMetadata.index;
-        }
-      }
-    }
-
-    if (previousIndex == null || newIndex == null || newIndex === previousIndex) {
-      return 'none';
-    }
-
-    if (orientation === 'horizontal') {
-      if (direction === 'rtl') {
-        return newIndex > previousIndex ? 'left' : 'right';
-      }
-      return newIndex > previousIndex ? 'right' : 'left';
-    }
-
-    return newIndex > previousIndex ? 'down' : 'up';
-  }, [value, tabMap, orientation, direction]);
-
-  // Compute direction for external changes
-  const externalChangeDirection = computeActivationDirection();
-
-  // State for activation direction - this gets updated via internal changes or external computation
   const [tabActivationDirectionState, setTabActivationDirection] =
     React.useState<TabsTab.ActivationDirection>('none');
 
-  // The actual direction to use - either from external computation or state
-  const tabActivationDirection =
-    externalChangeDirection !== 'none' ? externalChangeDirection : tabActivationDirectionState;
+  const tabActivationDirection: TabsTab.ActivationDirection =
+    activationDirectionForRender !== 'none'
+      ? activationDirectionForRender
+      : tabActivationDirectionState;
 
-  // Update refs after computing direction
   useIsoLayoutEffect(() => {
     previousValueRef.current = value;
-
-    // Also update the state if we computed a direction for external change
-    if (externalChangeDirection !== 'none') {
-      setTabActivationDirection(externalChangeDirection);
+    if (activationDirectionForRender !== 'none') {
+      setTabActivationDirection(activationDirectionForRender);
     }
-  }, [value, externalChangeDirection]);
+  }, [value, activationDirectionForRender]);
 
   const onValueChange = useStableCallback(
     (newValue: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => {
+      eventDetails.activationDirection = computeActivationDirection(
+        value,
+        newValue,
+        tabMap,
+        orientation,
+        direction,
+      );
+
       onValueChangeProp?.(newValue, eventDetails);
 
       if (eventDetails.isCanceled) {
         return;
       }
-
-      // Mark this value as handled internally so we don't recompute direction
-      valueHandledInternallyRef.current = newValue;
 
       setValue(newValue);
       setTabActivationDirection(eventDetails.activationDirection);
@@ -225,10 +221,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       onValueChange,
       orientation,
       registerMountedTabPanel,
-      setTabActivationDirection,
       setTabMap,
-      setTabsListElement,
-      tabsListElement,
       unregisterMountedTabPanel,
       tabActivationDirection,
       value,
@@ -241,10 +234,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       onValueChange,
       orientation,
       registerMountedTabPanel,
-      setTabActivationDirection,
       setTabMap,
-      setTabsListElement,
-      tabsListElement,
       unregisterMountedTabPanel,
       tabActivationDirection,
       value,

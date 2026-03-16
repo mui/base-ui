@@ -28,71 +28,14 @@ export const TabsList = React.forwardRef(function TabsList(
     ...elementProps
   } = componentProps;
 
-  const {
-    getTabElementBySelectedValue,
-    onValueChange,
-    orientation,
-    setTabsListElement,
-    tabsListElement,
-    value,
-    setTabMap,
-    tabActivationDirection,
-  } = useTabsRootContext();
+  const { onValueChange, orientation, value, setTabMap, tabActivationDirection } =
+    useTabsRootContext();
 
   const [highlightedTabIndex, setHighlightedTabIndex] = React.useState(0);
+  const [tabsListElement, setTabsListElement] = React.useState<HTMLElement | null>(null);
   const indicatorUpdateListenersRef = React.useRef(new Set<() => void>());
   const tabResizeObserverElementsRef = React.useRef(new Set<HTMLElement>());
   const resizeObserverRef = React.useRef<ResizeObserver | null>(null);
-
-  // Calculate direction for internal tab clicks
-  const calculateDirectionForClick = React.useCallback(
-    (newValue: TabsTab.Value): TabsTab.ActivationDirection => {
-      if (newValue === value || newValue == null || tabsListElement == null) {
-        return 'none';
-      }
-
-      // Get the current tab's position
-      const currentTabElement = getTabElementBySelectedValue(value);
-      if (currentTabElement == null) {
-        return 'none';
-      }
-
-      const { left: currentTabLeft, top: currentTabTop } =
-        currentTabElement.getBoundingClientRect();
-      const { left: listLeft, top: listTop } = tabsListElement.getBoundingClientRect();
-      const currentTabEdge =
-        orientation === 'horizontal' ? currentTabLeft - listLeft : currentTabTop - listTop;
-
-      // Get the new tab's position
-      const newTabElement = getTabElementBySelectedValue(newValue);
-      if (newTabElement == null) {
-        return 'none';
-      }
-
-      const { left: newTabLeft, top: newTabTop } = newTabElement.getBoundingClientRect();
-      const newTabEdge = orientation === 'horizontal' ? newTabLeft - listLeft : newTabTop - listTop;
-
-      // Calculate direction
-      if (orientation === 'horizontal') {
-        if (newTabEdge < currentTabEdge) {
-          return 'left';
-        }
-        if (newTabEdge > currentTabEdge) {
-          return 'right';
-        }
-      } else {
-        if (newTabEdge < currentTabEdge) {
-          return 'up';
-        }
-        if (newTabEdge > currentTabEdge) {
-          return 'down';
-        }
-      }
-
-      return 'none';
-    },
-    [value, tabsListElement, getTabElementBySelectedValue, orientation],
-  );
 
   const notifyIndicatorUpdateListeners = useStableCallback(() => {
     indicatorUpdateListenersRef.current.forEach((listener) => {
@@ -147,8 +90,6 @@ export const TabsList = React.forwardRef(function TabsList(
   const onTabActivation = useStableCallback(
     (newValue: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => {
       if (newValue !== value) {
-        const activationDirection = calculateDirectionForClick(newValue);
-        eventDetails.activationDirection = activationDirection;
         onValueChange(newValue, eventDetails);
       }
     },
