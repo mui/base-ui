@@ -425,7 +425,7 @@ describe('<Tabs.Root />', () => {
       expect(handlePointerDown.mock.calls.length).toBe(1);
     });
 
-    it.skipIf(isJSDOM)('should call onValueChange when clicking', async () => {
+    it('should call onValueChange when clicking', async () => {
       const handleChange = vi.fn();
 
       await render(
@@ -620,7 +620,7 @@ describe('<Tabs.Root />', () => {
     ].forEach((entry) => {
       const [orientation, direction, previousItemKey, nextItemKey] = entry;
 
-      describe.skipIf(isJSDOM && direction === 'rtl')(
+      describe.skipIf(direction === 'rtl')(
         `when focus is on a tab element in a ${orientation} ${direction ?? ''} tablist`,
         () => {
           describe(previousItemKey ?? '', () => {
@@ -1285,7 +1285,7 @@ describe('<Tabs.Root />', () => {
     });
   });
 
-  describe.skipIf(isJSDOM)('activation direction', () => {
+  describe('activation direction', () => {
     it('should set the `data-activation-direction` attribute on the tabs root with orientation=horizontal', async () => {
       await render(
         <Tabs.Root data-testid="root">
@@ -1405,31 +1405,34 @@ describe('<Tabs.Root />', () => {
         expect(spyFn.mock.calls[0][0]).toBe('left');
       });
 
-      it('should set `data-activation-direction` when value is changed programmatically with orientation=vertical', async () => {
-        const spyFn = vi.fn();
-        const { user } = await render(
-          <ControlledTabs orientation="vertical" onRenderCallback={spyFn} />,
-        );
+      it.skipIf(isJSDOM)(
+        'should set `data-activation-direction` when value is changed programmatically with orientation=vertical',
+        async () => {
+          const spyFn = vi.fn();
+          const { user } = await render(
+            <ControlledTabs orientation="vertical" onRenderCallback={spyFn} />,
+          );
 
-        // reset initial render calls
-        spyFn.mockClear();
+          // reset initial render calls
+          spyFn.mockClear();
 
-        const root = screen.getByTestId('root');
-        expect(root).toHaveAttribute('data-activation-direction', 'none');
+          const root = screen.getByTestId('root');
+          expect(root).toHaveAttribute('data-activation-direction', 'none');
 
-        await user.click(screen.getByText('Set 1'));
-        expect(root).toHaveAttribute('data-activation-direction', 'down');
-        expect(screen.getByRole('tabpanel')).toHaveTextContent('down');
-        expect(spyFn.mock.calls[0][0]).toBe('down');
+          await user.click(screen.getByText('Set 1'));
+          expect(root).toHaveAttribute('data-activation-direction', 'down');
+          expect(screen.getByRole('tabpanel')).toHaveTextContent('down');
+          expect(spyFn.mock.calls[0][0]).toBe('down');
 
-        // reset before new render
-        spyFn.mockClear();
+          // reset before new render
+          spyFn.mockClear();
 
-        await user.click(screen.getByText('Set 0'));
-        expect(root).toHaveAttribute('data-activation-direction', 'up');
-        expect(screen.getByRole('tabpanel')).toHaveTextContent('up');
-        expect(spyFn.mock.calls[0][0]).toBe('up');
-      });
+          await user.click(screen.getByText('Set 0'));
+          expect(root).toHaveAttribute('data-activation-direction', 'up');
+          expect(screen.getByRole('tabpanel')).toHaveTextContent('up');
+          expect(spyFn.mock.calls[0][0]).toBe('up');
+        },
+      );
     });
   });
 
