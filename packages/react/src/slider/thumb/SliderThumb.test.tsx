@@ -1,10 +1,62 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { fireEvent, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Slider } from '@base-ui/react/slider';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { isWebKit } from '@base-ui/utils/detectBrowser';
 import { createTouches, getHorizontalSliderRect } from '../utils/test-utils';
+
+async function withMockResizeObserver(test: (notifyResizeObserver: () => void) => Promise<void>) {
+  const originalResizeObserver = window.ResizeObserver;
+  let notifyResizeObserver: (() => void) | null = null;
+
+  class ResizeObserverMock implements ResizeObserver {
+    callback: ResizeObserverCallback;
+
+    constructor(callback: ResizeObserverCallback) {
+      this.callback = callback;
+    }
+
+    observe() {
+      notifyResizeObserver = () => {
+        this.callback([], this);
+      };
+    }
+
+    unobserve() {}
+
+    disconnect() {}
+
+    takeRecords() {
+      return [];
+    }
+  }
+
+  window.ResizeObserver = ResizeObserverMock;
+
+  try {
+    await test(() => {
+      expect(notifyResizeObserver).not.toBe(null);
+      notifyResizeObserver?.();
+    });
+  } finally {
+    window.ResizeObserver = originalResizeObserver;
+  }
+}
+
+function getThumbRect(width = 10) {
+  return {
+    width,
+    height: 10,
+    bottom: 10,
+    left: 0,
+    x: 0,
+    y: 0,
+    top: 0,
+    right: width,
+    toJSON() {},
+  };
+}
 
 describe('<Slider.Thumb />', () => {
   const { render, renderToString } = createRenderer();
@@ -322,6 +374,65 @@ describe('<Slider.Thumb />', () => {
       expect(document.body).toHaveFocus();
       expect(thumb1.style.zIndex).toBe('1');
       expect(thumb0.style.zIndex).toBe('');
+    });
+  });
+
+  describe('prop: thumbAlignment', () => {
+    it('recomputes inset positions when the slider becomes visible', async () => {
+      await withMockResizeObserver(async (notifyResizeObserver) => {
+        function App() {
+          const [visible, setVisible] = React.useState(false);
+
+          return (
+            <React.Fragment>
+              <button type="button" onClick={() => setVisible(true)}>
+                show
+              </button>
+              <div style={{ display: visible ? 'block' : 'none' }}>
+                <Slider.Root defaultValue={30} thumbAlignment="edge">
+                  <Slider.Control data-testid="control">
+                    <Slider.Track>
+                      <Slider.Indicator data-testid="indicator" />
+                      <Slider.Thumb data-testid="thumb" />
+                    </Slider.Track>
+                  </Slider.Control>
+                </Slider.Root>
+              </div>
+            </React.Fragment>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        const control = screen.getByTestId('control');
+        const thumb = screen.getByTestId('thumb');
+        const indicator = screen.getByTestId('indicator');
+
+        await waitFor(() => {
+          expect(thumb.style.visibility).toBe('hidden');
+          expect(thumb.style.getPropertyValue('--position')).toBe('0%');
+          expect(indicator.style.visibility).toBe('hidden');
+          expect(indicator.style.getPropertyValue('--start-position')).toBe('0%');
+        });
+
+        vi.spyOn(control, 'getBoundingClientRect').mockImplementation(() =>
+          getHorizontalSliderRect(100),
+        );
+        vi.spyOn(thumb, 'getBoundingClientRect').mockImplementation(() => getThumbRect(10));
+
+        await user.click(screen.getByRole('button', { name: 'show' }));
+
+        act(() => {
+          notifyResizeObserver();
+        });
+
+        await waitFor(() => {
+          expect(thumb.style.visibility).toBe('');
+          expect(thumb.style.getPropertyValue('--position')).toBe('32%');
+          expect(indicator.style.visibility).toBe('');
+          expect(indicator.style.getPropertyValue('--start-position')).toBe('32%');
+        });
+      });
     });
   });
 
