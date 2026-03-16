@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useValueChanged } from '../../utils/useValueChanged';
 import type { BaseUIComponentProps, Orientation as BaseOrientation } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { CompositeList } from '../../composite/list/CompositeList';
@@ -81,75 +82,63 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     React.useState<TabsTab.ActivationDirection>('none');
 
   const previousValueRef = React.useRef(value);
-  const previousTabEdgeRef = React.useRef<number | null>(null);
-
-  function getTabEdge(tabValue: TabsTab.Value | null): number | null {
-    if (tabValue == null) {
-      return null;
-    }
-    const tab = getTabElementBySelectedValue(tabValue);
-    if (tab == null) {
-      return null;
-    }
-    const rect = tab.getBoundingClientRect();
-    return orientation === 'horizontal' ? rect.left : rect.top;
-  }
 
   function computeActivationDirection(
-    newEdge: number,
-    oldEdge: number,
+    oldValue: TabsTab.Value | null,
+    newValue: TabsTab.Value | null,
   ): TabsTab.ActivationDirection {
+    if (oldValue == null || newValue == null) {
+      return 'none';
+    }
+
+    const oldTab = getTabElementBySelectedValue(oldValue);
+    const newTab = getTabElementBySelectedValue(newValue);
+    if (oldTab == null || newTab == null) {
+      return 'none';
+    }
+
+    const oldRect = oldTab.getBoundingClientRect();
+    const newRect = newTab.getBoundingClientRect();
+
     if (orientation === 'horizontal') {
-      if (newEdge < oldEdge) {
+      if (newRect.left < oldRect.left) {
         return 'left';
       }
-      if (newEdge > oldEdge) {
+      if (newRect.left > oldRect.left) {
         return 'right';
       }
     } else {
-      if (newEdge < oldEdge) {
+      if (newRect.top < oldRect.top) {
         return 'up';
       }
-      if (newEdge > oldEdge) {
+      if (newRect.top > oldRect.top) {
         return 'down';
       }
     }
+
     return 'none';
   }
 
-  // Compute activation direction during render when value changes.
-  // Uses React's "setState during render" pattern so that children
-  // see the correct direction on their first render.
-  // use case: https://github.com/mui/base-ui/issues/3873
+  // Compute activation direction during render when value changes so that
+  // children see the correct direction on their very first render.
+  // The ref is read-only here — updated only after commit via useValueChanged.
+  // https://github.com/mui/base-ui/issues/3873
   if (previousValueRef.current !== value) {
-    previousValueRef.current = value;
-
-    const newEdge = getTabEdge(value);
-    if (newEdge != null && previousTabEdgeRef.current != null) {
-      const newDirection = computeActivationDirection(newEdge, previousTabEdgeRef.current);
-      if (newDirection !== tabActivationDirection) {
-        setTabActivationDirection(newDirection);
-      }
+    const activationDirection = computeActivationDirection(previousValueRef.current, value);
+    if (activationDirection !== tabActivationDirection) {
+      setTabActivationDirection(activationDirection);
     }
   }
 
-  // Keep the previous tab edge position in sync after each commit.
-  useIsoLayoutEffect(() => {
-    previousTabEdgeRef.current = getTabEdge(value);
+  // Sync the previous value ref after commit.
+  useValueChanged(value, () => {
+    previousValueRef.current = value;
   });
 
   const onValueChange = useStableCallback(
     (newValue: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => {
-      // Compute direction for the public callback's event details.
-      if (newValue != null) {
-        const newEdge = getTabEdge(newValue);
-        if (newEdge != null && previousTabEdgeRef.current != null) {
-          eventDetails.activationDirection = computeActivationDirection(
-            newEdge,
-            previousTabEdgeRef.current,
-          );
-        }
-      }
+      const activationDirection = computeActivationDirection(value, newValue);
+      eventDetails.activationDirection = activationDirection;
 
       onValueChangeProp?.(newValue, eventDetails);
 
@@ -158,6 +147,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       }
 
       setValue(newValue);
+      setTabActivationDirection(activationDirection);
     },
   );
 
