@@ -799,9 +799,8 @@ describe('<Tabs.Root />', () => {
       expect(updatedTabs[0]).toHaveTextContent('Tab 1');
     });
 
-    it('respects cancellation when onValueChange cancels automatic fallback', async () => {
+    it('ignores cancel() for automatic fallback selections', async () => {
       const handleChange = vi.fn((_value: number, eventDetails: Tabs.Root.ChangeEventDetails) => {
-        // Cancel automatic selection
         if (eventDetails.reason === 'disabled') {
           eventDetails.cancel();
         }
@@ -832,7 +831,36 @@ describe('<Tabs.Root />', () => {
       // onValueChange should be called
       expect(handleChange.mock.calls.length).toBe(1);
 
-      // But the selection should not change because we canceled
+      // cancel() is a no-op for automatic selections — the fallback always applies
+      // because the disabled/missing tab can't remain selected
+      expect(tabs[0]).toHaveAttribute('aria-selected', 'false');
+      expect(tabs[1]).toHaveAttribute('aria-selected', 'true');
+    });
+
+    it('respects cancel() for user-initiated tab changes', async () => {
+      const handleChange = vi.fn(
+        (_value: Tabs.Tab.Value, eventDetails: Tabs.Root.ChangeEventDetails) => {
+          eventDetails.cancel();
+        },
+      );
+
+      await render(
+        <Tabs.Root defaultValue={0} onValueChange={handleChange}>
+          <Tabs.List>
+            <Tabs.Tab value={0}>Tab 0</Tabs.Tab>
+            <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      const tabs = screen.getAllByRole('tab');
+      expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
+
+      fireEvent.click(tabs[1]);
+
+      expect(handleChange.mock.calls.length).toBe(1);
+
+      // Selection should not change because we canceled
       expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
       expect(tabs[1]).toHaveAttribute('aria-selected', 'false');
     });

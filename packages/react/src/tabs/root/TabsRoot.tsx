@@ -200,7 +200,12 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   // - The current selection is missing (tab was removed from DOM)
   // Falls back to null if all tabs are disabled and preserves that empty selection on later renders.
   const hasRunOnceRef = React.useRef(false);
-  const honorInitialDisabledDefaultSelectionRef = React.useRef(false);
+
+  // When `defaultValue` explicitly points to a disabled tab, we honor that choice
+  // on mount (keeping the disabled tab selected). But once the tab becomes enabled
+  // and then disabled again, we treat it as a dynamic change and fire onValueChange.
+  // This ref tracks whether the initial "honor disabled default" grace period is active.
+  const honorDisabledDefaultRef = React.useRef(false);
 
   useIsoLayoutEffect(() => {
     if (isControlled || tabMap.size === 0) {
@@ -211,32 +216,24 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     const selectionIsMissing = selectedTabMetadata == null && value !== null;
     const isInitialRun = !hasRunOnceRef.current;
 
-    if (
-      isInitialRun &&
-      hasExplicitDefaultValueProp &&
-      value === defaultValueProp &&
-      selectionIsDisabled
-    ) {
-      honorInitialDisabledDefaultSelectionRef.current = true;
+    // On the first run, record whether we're in the "honor disabled default" scenario.
+    if (isInitialRun) {
+      honorDisabledDefaultRef.current =
+        hasExplicitDefaultValueProp && value === defaultValueProp && selectionIsDisabled;
     }
 
-    // Always honor explicit defaultValue pointing to a disabled tab,
-    // BUT only if it was disabled from the start (not if it became disabled later).
-    // This preserves the user's explicit choice while still firing callbacks for dynamic changes.
-    const shouldHonorExplicitDefaultSelection =
-      hasExplicitDefaultValueProp &&
-      selectionIsDisabled &&
-      value === defaultValueProp &&
-      honorInitialDisabledDefaultSelectionRef.current;
-
+    // Expire the grace period once the tab is no longer the default or no longer disabled
+    // (e.g., the tab was enabled then disabled again — that's a dynamic change).
     if (
-      honorInitialDisabledDefaultSelectionRef.current &&
+      honorDisabledDefaultRef.current &&
       (value !== defaultValueProp || !selectionIsDisabled)
     ) {
-      honorInitialDisabledDefaultSelectionRef.current = false;
+      honorDisabledDefaultRef.current = false;
     }
 
-    if (shouldHonorExplicitDefaultSelection) {
+    // Honor the user's explicit defaultValue pointing to a disabled tab while
+    // the grace period is still active. No fallback, no callback.
+    if (honorDisabledDefaultRef.current) {
       hasRunOnceRef.current = true;
       return;
     }
@@ -263,16 +260,15 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       return;
     }
 
+    // When all tabs are disabled on initial render with no explicit default,
+    // set value to null silently (no callback) — there's no meaningful selection
+    // to report to the user.
     if (isAutomaticDefault && fallbackValue === null) {
       setValue(fallbackValue);
       setTabActivationDirection('none');
       return;
     }
 
-    // Determine the appropriate reason based on context:
-    // - 'initial': First automatic selection (no value/defaultValue provided)
-    // - 'disabled': Tab became disabled after initial render
-    // - 'missing': Tab was removed from DOM
     let reason: TabsRoot.ChangeEventReason = REASONS.missing;
     if (isAutomaticDefault) {
       reason = REASONS.initial;
@@ -280,12 +276,18 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       reason = REASONS.disabled;
     }
 
-    // Call onValueChange to notify about automatic selection
     const eventDetails = createChangeEventDetails(reason, undefined, undefined, {
       activationDirection: 'none' as const,
     });
 
+    // Notify via onValueChange (which calls the user's callback), then always
+    // apply the fallback. The second setValue/setTabActivationDirection call
+    // ensures cancel() is a no-op for automatic selections — the disabled/missing
+    // tab can't stay selected. React deduplicates the redundant setState when
+    // the user doesn't cancel.
     onValueChange(fallbackValue, eventDetails);
+    setValue(fallbackValue);
+    setTabActivationDirection('none');
   }, [
     defaultValueProp,
     firstEnabledTabValue,
@@ -350,6 +352,17 @@ export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRootState
   orientation?: TabsRoot.Orientation | undefined;
   /**
    * Callback invoked when new value is being set.
+   *
+   * The `eventDetails.reason` indicates why the value changed:
+   * - `'none'`: User-initiated change (click, keyboard navigation).
+   * - `'initial'`: Automatic selection on mount when no `value`/`defaultValue` is provided.
+   * - `'disabled'`: The selected tab became disabled.
+   * - `'missing'`: The selected tab was removed from the DOM.
+   *
+   * Calling `eventDetails.cancel()` prevents the value change for user-initiated
+   * actions (`'none'`). It is a no-op for automatic selections (`'initial'`,
+   * `'disabled'`, `'missing'`), as the component must move away from a
+   * disabled or missing tab.
    */
   onValueChange?:
     | ((value: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => void)

@@ -15,7 +15,7 @@
     },
     "onValueChange": {
       "type": "((value: Tabs.Tab.Value, eventDetails: Tabs.Root.ChangeEventDetails) => void)",
-      "description": "Callback invoked when new value is being set.",
+      "description": "Callback invoked when new value is being set.\n\nThe `eventDetails.reason` indicates why the value changed:\n- `'none'`: User-initiated change (click, keyboard navigation).\n- `'initial'`: Automatic selection on mount when no `value`/`defaultValue` is provided.\n- `'disabled'`: The selected tab became disabled.\n- `'missing'`: The selected tab was removed from the DOM.\n\nCalling `eventDetails.cancel()` prevents the value change for user-initiated\nactions (`'none'`). It is a no-op for automatic selections (`'initial'`,\n`'disabled'`, `'missing'`), as the component must move away from a\ndisabled or missing tab.",
       "detailedType": "| ((\n    value: Tabs.Tab.Value,\n    eventDetails: Tabs.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "orientation": {
