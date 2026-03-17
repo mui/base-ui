@@ -70,7 +70,7 @@ function TimezoneSelect(props: Omit<Select.Root.Props<string, false>, 'children'
   return (
     <Select.Root {...props}>
       <Select.Trigger className={indexStyles.Select}>
-        <Select.Value className={indexStyles.Value} placeholder="Select timezone" />
+        <Select.Value placeholder="Select timezone" />
         <Select.Icon className={indexStyles.SelectIcon}>
           <ChevronsUpDown />
         </Select.Icon>

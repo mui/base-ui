@@ -25,9 +25,7 @@ export default function StartOfWeekCalendar() {
         <Select.Root value={weekStartsOn} onValueChange={(value) => setWeekStartsOn(value as Day)}>
           <Select.Label className={indexStyles.Label}>First day of the week</Select.Label>
           <Select.Trigger className={indexStyles.Select}>
-            <Select.Value className={indexStyles.Value}>
-              {(value: Day) => dayNames[value]}
-            </Select.Value>
+            <Select.Value>{(value: Day) => dayNames[value]}</Select.Value>
             <Select.Icon className={indexStyles.SelectIcon}>
               <ChevronsUpDown />
             </Select.Icon>

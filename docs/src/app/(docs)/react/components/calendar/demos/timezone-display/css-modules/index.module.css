@@ -50,10 +50,6 @@
   }
 }
 
-.Value[data-placeholder] {
-  opacity: 0.6;
-}
-
 .Positioner {
   outline: none;
   z-index: 1;

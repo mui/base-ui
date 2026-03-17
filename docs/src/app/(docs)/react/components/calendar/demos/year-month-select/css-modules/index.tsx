@@ -44,9 +44,7 @@ function CalendarContent() {
             }}
           >
             <Select.Trigger className={indexStyles.Select} data-month-select>
-              <Select.Value className={indexStyles.Value}>
-                {(value: number) => MONTHS[value]}
-              </Select.Value>
+              <Select.Value>{(value: number) => MONTHS[value]}</Select.Value>
               <Select.Icon className={indexStyles.SelectIcon}>
                 <ChevronsUpDown />
               </Select.Icon>
@@ -84,7 +82,7 @@ function CalendarContent() {
             }}
           >
             <Select.Trigger className={indexStyles.Select}>
-              <Select.Value className={indexStyles.Value} />
+              <Select.Value />
               <Select.Icon className={indexStyles.SelectIcon}>
                 <ChevronsUpDown />
               </Select.Icon>
