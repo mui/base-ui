@@ -196,7 +196,9 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     const thumbOffsetFromControlEdge =
       thumbRect[side] / 2 + (controlSize * thumbValuePercent) / 100;
     const nextPositionPercent = (thumbOffsetFromControlEdge / controlRect[side]) * 100;
-    const nextInsetPosition = Number.isFinite(nextPositionPercent) ? nextPositionPercent : undefined;
+    const nextInsetPosition = Number.isFinite(nextPositionPercent)
+      ? nextPositionPercent
+      : undefined;
 
     setPositionPercent(nextInsetPosition);
 
