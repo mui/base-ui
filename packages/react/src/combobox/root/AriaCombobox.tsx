@@ -1617,7 +1617,6 @@ export type AriaComboboxProps<
 export namespace AriaCombobox {
   export type Props<Value, Mode extends SelectionMode = 'none'> = AriaComboboxProps<Value, Mode>;
   export type State = AriaComboboxState;
-  export type ItemClickBehavior = import('../store').ItemClickBehavior;
 
   export interface Actions {
     unmount: () => void;

@@ -16,12 +16,7 @@ export const AutocompleteInput = React.forwardRef(function AutocompleteInput(
   props: AutocompleteInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
-  const { clearOnItemClick: clearOnItemClickProp, ...other } = props as AutocompleteInput.Props & {
-    clearOnItemClick?: unknown;
-  };
-  void clearOnItemClickProp;
-
-  return <ComboboxInput {...other} ref={forwardedRef} />;
+  return <ComboboxInput {...props} ref={forwardedRef} />;
 });
 
 export type AutocompleteInputState = ComboboxInputState;

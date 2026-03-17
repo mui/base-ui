@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { AriaCombobox, type AriaComboboxState } from './AriaCombobox';
+import type { ItemClickBehavior as ComboboxItemClickBehavior } from '../store';
 
 /**
  * Groups all parts of the combobox.
@@ -92,7 +93,7 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
    * - `'never'`: never close after selecting an item.
    * @default 'auto'
    */
-  closeOnItemClick?: ComboboxRoot.ItemClickBehavior | undefined;
+  closeOnItemClick?: ComboboxItemClickBehavior | undefined;
   /**
    * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.
    * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.
@@ -171,7 +172,6 @@ export type ComboboxRootChangeEventDetails = AriaCombobox.ChangeEventDetails;
 
 export type ComboboxRootHighlightEventReason = AriaCombobox.HighlightEventReason;
 export type ComboboxRootHighlightEventDetails = AriaCombobox.HighlightEventDetails;
-export type ComboboxRootItemClickBehavior = AriaCombobox.ItemClickBehavior;
 
 export namespace ComboboxRoot {
   export type Props<Value, Multiple extends boolean | undefined = false> = ComboboxRootProps<
@@ -184,5 +184,4 @@ export namespace ComboboxRoot {
   export type ChangeEventDetails = ComboboxRootChangeEventDetails;
   export type HighlightEventReason = ComboboxRootHighlightEventReason;
   export type HighlightEventDetails = ComboboxRootHighlightEventDetails;
-  export type ItemClickBehavior = ComboboxRootItemClickBehavior;
 }

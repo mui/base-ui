@@ -532,5 +532,4 @@ export interface ComboboxInputProps extends BaseUIComponentProps<'input', Combob
 export namespace ComboboxInput {
   export type State = ComboboxInputState;
   export type Props = ComboboxInputProps;
-  export type ItemClickBehavior = import('../store').ItemClickBehavior;
 }

@@ -192,6 +192,4 @@ export const selectors = {
   modal: createSelector((state: State) => state.modal),
   autoHighlight: createSelector((state: State) => state.autoHighlight),
   submitOnItemClick: createSelector((state: State) => state.submitOnItemClick),
-  closeOnItemClick: createSelector((state: State) => state.closeOnItemClick),
-  clearOnItemClick: createSelector((state: State) => state.clearOnItemClick),
 };
