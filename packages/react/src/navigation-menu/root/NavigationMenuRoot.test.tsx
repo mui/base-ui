@@ -831,18 +831,18 @@ describe('<NavigationMenu.Root />', () => {
     },
   }));
 
-  it('applies aria-orientation to the top-level list instead of the root element', async () => {
+  it('does not apply aria-orientation to the top-level list or root element', async () => {
     await render(<TestNavigationMenuOrientationAttributes />);
 
     expect(screen.getByTestId('top-level-root')).not.toHaveAttribute('aria-orientation');
-    expect(screen.getByTestId('top-level-list')).toHaveAttribute('aria-orientation', 'vertical');
+    expect(screen.getByTestId('top-level-list')).not.toHaveAttribute('aria-orientation');
   });
 
-  it('applies aria-orientation to nested lists instead of nested root elements', async () => {
+  it('does not apply aria-orientation to nested lists or root elements', async () => {
     await render(<TestNavigationMenuOrientationAttributes />);
 
     expect(screen.getByTestId('nested-root')).not.toHaveAttribute('aria-orientation');
-    expect(screen.getByTestId('nested-list')).toHaveAttribute('aria-orientation', 'vertical');
+    expect(screen.getByTestId('nested-list')).not.toHaveAttribute('aria-orientation');
   });
 
   describe('interactions', () => {
