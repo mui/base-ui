@@ -224,10 +224,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
     // Expire the grace period once the tab is no longer the default or no longer disabled
     // (e.g., the tab was enabled then disabled again — that's a dynamic change).
-    if (
-      honorDisabledDefaultRef.current &&
-      (value !== defaultValueProp || !selectionIsDisabled)
-    ) {
+    if (honorDisabledDefaultRef.current && (value !== defaultValueProp || !selectionIsDisabled)) {
       honorDisabledDefaultRef.current = false;
     }
 
