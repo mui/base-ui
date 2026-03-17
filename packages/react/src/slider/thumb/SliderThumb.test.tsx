@@ -345,10 +345,7 @@ describe('<Slider.Thumb />', () => {
                   >
                     <Slider.Track style={{ position: 'relative', width: '100%', height: '10px' }}>
                       <Slider.Indicator data-testid="indicator" />
-                      <Slider.Thumb
-                        data-testid="thumb"
-                        style={{ width: '10px', height: '10px' }}
-                      />
+                      <Slider.Thumb data-testid="thumb" style={{ width: '10px', height: '10px' }} />
                     </Slider.Track>
                   </Slider.Control>
                 </Slider.Root>
