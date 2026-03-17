@@ -949,7 +949,7 @@ describe('<Select.Root />', () => {
       fireTouchPress(trigger);
 
       await waitFor(() => {
-        expect(screen.queryByRole('listbox')).not.to.equal(null);
+        expect(screen.getByRole('listbox')).toBeInTheDocument();
       });
 
       const optionB = screen.getByRole('option', { name: 'b' });
@@ -960,7 +960,7 @@ describe('<Select.Root />', () => {
       fireTouchPress(trigger);
 
       await waitFor(() => {
-        expect(screen.getByRole('option', { name: 'b' })).to.have.attribute('data-highlighted');
+        expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('data-highlighted');
       });
     });
   });
