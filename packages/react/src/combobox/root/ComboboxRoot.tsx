@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { AriaCombobox, type AriaComboboxState } from './AriaCombobox';
-import type { ItemClickBehavior as ComboboxItemClickBehavior } from '../store';
 
 /**
  * Groups all parts of the combobox.
@@ -93,7 +92,7 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
    * - `'never'`: never close after selecting an item.
    * @default 'auto'
    */
-  closeOnItemClick?: ComboboxItemClickBehavior | undefined;
+  closeOnItemClick?: 'auto' | 'always' | 'never' | undefined;
   /**
    * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.
    * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.

@@ -7,7 +7,7 @@ import { compareItemEquality } from '../utils/itemEquality';
 import { hasNullItemLabel } from '../utils/resolveValueLabel';
 import type { AriaCombobox } from './root/AriaCombobox';
 
-export type ItemClickBehavior = 'auto' | 'always' | 'never';
+type ItemClickBehavior = 'auto' | 'always' | 'never';
 
 export type State = {
   id: string | undefined;

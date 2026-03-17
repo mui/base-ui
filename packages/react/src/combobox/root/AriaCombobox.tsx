@@ -31,11 +31,7 @@ import {
   ComboboxRootContext,
   ComboboxInputValueContext,
 } from './ComboboxRootContext';
-import {
-  selectors,
-  type ItemClickBehavior as ComboboxItemClickBehavior,
-  type State as StoreState,
-} from '../store';
+import { selectors, type State as StoreState } from '../store';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useField } from '../../field/useField';
@@ -64,11 +60,13 @@ import {
 } from '../../utils/itemEquality';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
 
-type PendingInputBehavior = {
+type ItemClickBehavior = 'auto' | 'always' | 'never';
+
+export interface PendingInputBehavior {
   didClearInput: boolean;
   closeAction: 'default' | 'skip' | 'force';
   skipSelectedValueSync: boolean;
-};
+}
 
 /**
  * @internal
@@ -158,7 +156,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     closeAction: 'default',
     skipSelectedValueSync: false,
   });
-  const clearOnItemClickRef = React.useRef<ComboboxItemClickBehavior>('auto');
+  const clearOnItemClickRef = React.useRef<ItemClickBehavior>('auto');
   const chipsContainerRef = React.useRef<HTMLDivElement | null>(null);
   const clearRef = React.useRef<HTMLButtonElement | null>(null);
   const selectionEventRef = React.useRef<MouseEvent | PointerEvent | KeyboardEvent | null>(null);
@@ -651,10 +649,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   );
 
-  function resolveItemClickBehavior(
-    behavior: ComboboxItemClickBehavior,
-    autoValue: boolean,
-  ): boolean {
+  function resolveItemClickBehavior(behavior: ItemClickBehavior, autoValue: boolean): boolean {
     if (behavior === 'always') {
       return true;
     }
@@ -1578,7 +1573,7 @@ interface ComboboxRootProps<ItemValue> {
    * - `'never'`: never close after selecting an item.
    * @default 'auto'
    */
-  closeOnItemClick?: ComboboxItemClickBehavior | undefined;
+  closeOnItemClick?: 'auto' | 'always' | 'never' | undefined;
   /**
    * INTERNAL: When `selectionMode` is `none`, controls whether selecting an item fills the input.
    */

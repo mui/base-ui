@@ -27,7 +27,6 @@ import type { Side } from '../../utils/useAnchorPositioning';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 import { ComboboxInternalDismissButton } from '../utils/ComboboxInternalDismissButton';
-import type { ItemClickBehavior as ComboboxItemClickBehavior } from '../store';
 
 /**
  * A text input to search for items in the list.
@@ -526,7 +525,7 @@ export interface ComboboxInputProps extends BaseUIComponentProps<'input', Combob
    * - `'never'`: never clear after selecting an item.
    * @default 'auto'
    */
-  clearOnItemClick?: ComboboxItemClickBehavior | undefined;
+  clearOnItemClick?: 'auto' | 'always' | 'never' | undefined;
 }
 
 export namespace ComboboxInput {
