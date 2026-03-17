@@ -161,7 +161,8 @@ export function emitCommittedHoverClose(
 }
 
 /**
- * Attempts to close a popup from a hover interaction.
+ * Attempts to close a popup from a hover interaction and, if the close is
+ * committed, emits the tree coordination signal.
  *
  * A committed close is reported only once the effective `open` state actually
  * becomes `false`. Controlled consumers can ignore a close request without
@@ -178,21 +179,29 @@ export function emitCommittedHoverClose(
 export function closeHoverPopup(
   store: FloatingRootContext,
   instance: HoverInteraction,
+  tree: FloatingTreeType | null,
   event: MouseEvent,
   isHoverOpen: boolean,
   hoverCloseGracePeriod?: number,
-): { closed: boolean } {
+): void {
   clearPendingHoverClose(instance);
 
   if (!store.select('open')) {
-    return { closed: false };
+    return;
   }
 
   const eventDetails = createChangeEventDetails(REASONS.triggerHover, event);
   store.setOpen(false, eventDetails);
 
   if (eventDetails.isCanceled) {
-    return { closed: false };
+    return;
+  }
+
+  // Re-read the effective open state. Controlled consumers may leave the
+  // popup open without calling `cancel()`. In that case, no committed close
+  // occurred and we must not record grace time or emit a tree signal.
+  if (store.select('open')) {
+    return;
   }
 
   instance.pendingHoverClose = {
@@ -200,7 +209,7 @@ export function closeHoverPopup(
     shouldRecordGrace: isHoverOpen && hoverCloseGracePeriod != null && hoverCloseGracePeriod > 0,
   };
 
-  return { closed: !store.select('open') };
+  emitCommittedHoverClose(instance, tree);
 }
 
 export function clearRecentHoverClose(instance: HoverInteraction): void {

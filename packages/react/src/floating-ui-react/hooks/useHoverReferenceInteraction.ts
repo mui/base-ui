@@ -12,7 +12,7 @@ import { REASONS } from '../../utils/reasons';
 import { useFloatingTree } from '../components/FloatingTree';
 import type { FloatingTreeStore } from '../components/FloatingTreeStore';
 import {
-  closeHoverPopup as closeHoverPopupShared,
+  closeHoverPopup,
   clearRecentHoverClose,
   clearSafePolygonPointerEventsMutation,
   emitCommittedHoverClose,
@@ -100,18 +100,15 @@ export function useHoverReferenceInteraction(
     return isClickLikeOpenEventShared(dataRef.current.openEvent?.type, instance.interactedInside);
   });
 
-  const closeHoverPopup = useStableCallback((event: MouseEvent) => {
-    const { closed } = closeHoverPopupShared(
+  const closeHoverPopupCb = useStableCallback((event: MouseEvent) => {
+    closeHoverPopup(
       store,
       instance,
+      tree,
       event,
       isHoverOpen(dataRef.current.openEvent?.type),
       hoverCloseGracePeriod,
     );
-
-    if (closed) {
-      emitCommittedHoverClose(instance, tree);
-    }
   });
 
   const closeWithDelay = useStableCallback((event: MouseEvent, runElseBranch = true) => {
@@ -122,10 +119,10 @@ export function useHoverReferenceInteraction(
 
     const closeDelay = getDelay(delayRef.current, 'close', instance.pointerType);
     if (closeDelay) {
-      instance.openChangeTimeout.start(closeDelay, () => closeHoverPopup(event));
+      instance.openChangeTimeout.start(closeDelay, () => closeHoverPopupCb(event));
     } else if (runElseBranch) {
       instance.openChangeTimeout.clear();
-      closeHoverPopup(event);
+      closeHoverPopupCb(event);
     }
   });
 

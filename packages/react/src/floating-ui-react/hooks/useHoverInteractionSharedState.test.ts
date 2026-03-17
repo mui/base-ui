@@ -1,45 +1,47 @@
 import { vi } from 'vitest';
-import type { FloatingRootContext } from '../types';
+import type { FloatingRootContext, FloatingTreeType } from '../types';
 import {
   closeHoverPopup,
-  emitCommittedHoverClose,
   HOVER_CLOSE_UNSET,
   HoverInteraction,
 } from './useHoverInteractionSharedState';
 
 describe('closeHoverPopup', () => {
-  it('reports a committed close even when the popup was not hover-opened', () => {
+  it('emits a committed close even when the popup was not hover-opened', () => {
     const store = createMockStore();
     const instance = HoverInteraction.create();
+    const tree = createMockTree();
 
-    const result = closeHoverPopup(
+    closeHoverPopup(
       store as FloatingRootContext,
       instance,
+      tree as unknown as FloatingTreeType,
       new MouseEvent('mouseleave'),
       false,
       400,
     );
 
-    expect(result).to.deep.equal({ closed: true });
+    expect(tree.emittedEvents).toEqual([['floating.closed', expect.any(MouseEvent)]]);
     expect(instance.lastHoverCloseTime).to.equal(HOVER_CLOSE_UNSET);
   });
 
   it('records reopen grace only for committed hover closes', () => {
     const store = createMockStore();
     const instance = HoverInteraction.create();
+    const tree = createMockTree();
     const performanceNowSpy = vi.spyOn(performance, 'now').mockReturnValue(123);
 
     try {
-      const result = closeHoverPopup(
+      closeHoverPopup(
         store as FloatingRootContext,
         instance,
+        tree as unknown as FloatingTreeType,
         new MouseEvent('mouseleave'),
         true,
         400,
       );
 
-      expect(result).to.deep.equal({ closed: true });
-      emitCommittedHoverClose(instance, null);
+      expect(tree.emittedEvents).toEqual([['floating.closed', expect.any(MouseEvent)]]);
       expect(instance.lastHoverCloseTime).to.equal(123);
     } finally {
       performanceNowSpy.mockRestore();
@@ -49,33 +51,38 @@ describe('closeHoverPopup', () => {
   it('does not report a close when the request is canceled', () => {
     const store = createMockStore({ cancelClose: true });
     const instance = HoverInteraction.create();
+    const tree = createMockTree();
 
-    const result = closeHoverPopup(
+    closeHoverPopup(
       store as FloatingRootContext,
       instance,
+      tree as unknown as FloatingTreeType,
       new MouseEvent('mouseleave'),
       true,
       400,
     );
 
-    expect(result).to.deep.equal({ closed: false });
+    expect(tree.emittedEvents).toEqual([]);
     expect(instance.lastHoverCloseTime).to.equal(HOVER_CLOSE_UNSET);
   });
 
   it('does not report a close when the effective controlled open state stays true', () => {
     const store = createMockStore({ controlledOpen: true });
     const instance = HoverInteraction.create();
+    const tree = createMockTree();
 
-    const result = closeHoverPopup(
+    closeHoverPopup(
       store as FloatingRootContext,
       instance,
+      tree as unknown as FloatingTreeType,
       new MouseEvent('mouseleave'),
       true,
       400,
     );
 
-    expect(result).to.deep.equal({ closed: false });
+    expect(tree.emittedEvents).toEqual([]);
     expect(instance.lastHoverCloseTime).to.equal(HOVER_CLOSE_UNSET);
+    expect(instance.pendingHoverClose).to.equal(null);
   });
 });
 
@@ -107,6 +114,18 @@ function createMockStore(
       }
 
       open = false;
+    },
+  };
+}
+
+function createMockTree() {
+  const emittedEvents: Array<[string, unknown]> = [];
+  return {
+    emittedEvents,
+    events: {
+      emit(event: string, data: unknown) {
+        emittedEvents.push([event, data]);
+      },
     },
   };
 }

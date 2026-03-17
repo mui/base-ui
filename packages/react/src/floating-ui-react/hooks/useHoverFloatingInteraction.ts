@@ -11,7 +11,7 @@ import { getNodeChildren, getTarget, isTargetInsideEnabledTrigger } from '../uti
 
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import {
-  closeHoverPopup as closeHoverPopupShared,
+  closeHoverPopup,
   applySafePolygonPointerEventsMutation,
   emitCommittedHoverClose,
   clearSafePolygonPointerEventsMutation,
@@ -70,18 +70,15 @@ export function useHoverFloatingInteraction(
     return isClickLikeOpenEventShared(dataRef.current.openEvent?.type, instance.interactedInside);
   });
 
-  const closeHoverPopup = useStableCallback((event: MouseEvent) => {
-    const { closed } = closeHoverPopupShared(
+  const closeHoverPopupCb = useStableCallback((event: MouseEvent) => {
+    closeHoverPopup(
       store,
       instance,
+      tree,
       event,
       isHoverOpen(dataRef.current.openEvent?.type),
       hoverCloseGracePeriod,
     );
-
-    if (closed) {
-      emitCommittedHoverClose(instance, tree);
-    }
   });
 
   const closeWithDelay = React.useCallback(
@@ -93,13 +90,13 @@ export function useHoverFloatingInteraction(
 
       const closeDelay = getDelay(closeDelayProp, 'close', instance.pointerType);
       if (closeDelay) {
-        instance.openChangeTimeout.start(closeDelay, () => closeHoverPopup(event));
+        instance.openChangeTimeout.start(closeDelay, () => closeHoverPopupCb(event));
       } else {
         instance.openChangeTimeout.clear();
-        closeHoverPopup(event);
+        closeHoverPopupCb(event);
       }
     },
-    [closeDelayProp, closeHoverPopup, instance, store],
+    [closeDelayProp, closeHoverPopupCb, instance, store],
   );
 
   const clearPointerEvents = useStableCallback(() => {
@@ -219,7 +216,7 @@ export function useHoverFloatingInteraction(
       // Allow the mouseenter event to fire in case child was closed because mouse moved into parent.
       childClosedTimeout.start(0, () => {
         tree.events.off('floating.closed', onNodeClosed);
-        closeHoverPopup(event);
+        closeHoverPopupCb(event);
       });
     }
 
@@ -250,7 +247,7 @@ export function useHoverFloatingInteraction(
     store,
     isClickLikeOpenEvent,
     closeWithDelay,
-    closeHoverPopup,
+    closeHoverPopupCb,
     clearPointerEvents,
     instance,
     tree,

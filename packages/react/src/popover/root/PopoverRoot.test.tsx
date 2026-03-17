@@ -473,6 +473,59 @@ describe('<Popover.Root />', () => {
         expect(screen.queryByTestId('popover-popup')).not.toBe(null);
       });
 
+      it('does not seed hover-close grace when controlled consumer ignores hover close without canceling', async () => {
+        function Test() {
+          const [open, setOpen] = React.useState(false);
+
+          return (
+            <React.Fragment>
+              <button onClick={() => setOpen(false)}>Programmatic close</button>
+              <TestPopover
+                rootProps={{
+                  open,
+                  onOpenChange: (nextOpen) => {
+                    // Only allow opens — silently ignore close requests without
+                    // calling cancel(). This should NOT count as a committed close.
+                    if (nextOpen) {
+                      setOpen(true);
+                    }
+                  },
+                }}
+                triggerProps={{ openOnHover: true, delay: OPEN_DELAY_MS, closeDelay: 0 }}
+              />
+            </React.Fragment>
+          );
+        }
+
+        await render(<Test />);
+
+        const anchor = screen.getByRole('button', { name: 'Toggle' });
+        const closeButton = screen.getByRole('button', { name: 'Programmatic close' });
+
+        // Open via hover
+        await openAfterDelay(anchor);
+        expect(screen.queryByTestId('popover-popup')).not.toBe(null);
+
+        // Leave the trigger — the controlled consumer ignores the close request.
+        fireEvent.mouseLeave(anchor);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).not.toBe(null);
+
+        // Close programmatically (bypasses hover path).
+        fireEvent.click(closeButton);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).toBe(null);
+
+        // Re-hover must require the full delay — no grace window should exist
+        // because the earlier hover-close was never committed.
+        await hoverTrigger(anchor);
+        expect(screen.queryByTestId('popover-popup')).toBe(null);
+
+        clock.tick(OPEN_DELAY_MS);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('popover-popup')).not.toBe(null);
+      });
+
       it('reuses hover-close grace after a controlled hover close that updates open', async () => {
         function Test() {
           const [open, setOpen] = React.useState(false);
