@@ -213,7 +213,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     if (inset) {
       queueMicrotask(getInsetPosition);
     }
-  }, [controlRef, getInsetPosition, inset]);
+  }, [getInsetPosition, inset]);
 
   useIsoLayoutEffect(() => {
     if (inset) {
