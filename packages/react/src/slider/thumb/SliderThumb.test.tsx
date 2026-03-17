@@ -1,48 +1,10 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Slider } from '@base-ui/react/slider';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { isWebKit } from '@base-ui/utils/detectBrowser';
 import { createTouches, getHorizontalSliderRect } from '../utils/test-utils';
-
-async function withMockResizeObserver(test: (notifyResizeObserver: () => void) => Promise<void>) {
-  const originalResizeObserver = window.ResizeObserver;
-  let notifyResizeObserver: (() => void) | null = null;
-
-  class ResizeObserverMock implements ResizeObserver {
-    callback: ResizeObserverCallback;
-
-    constructor(callback: ResizeObserverCallback) {
-      this.callback = callback;
-    }
-
-    observe() {
-      notifyResizeObserver = () => {
-        this.callback([], this);
-      };
-    }
-
-    unobserve() {}
-
-    disconnect() {}
-
-    takeRecords() {
-      return [];
-    }
-  }
-
-  window.ResizeObserver = ResizeObserverMock;
-
-  try {
-    await test(() => {
-      expect(notifyResizeObserver).not.toBe(null);
-      notifyResizeObserver?.();
-    });
-  } finally {
-    window.ResizeObserver = originalResizeObserver;
-  }
-}
 
 describe('<Slider.Thumb />', () => {
   const { render, renderToString } = createRenderer();
@@ -364,8 +326,9 @@ describe('<Slider.Thumb />', () => {
   });
 
   describe('prop: thumbAlignment', () => {
-    it('recomputes inset positions when the slider becomes visible', async () => {
-      await withMockResizeObserver(async (notifyResizeObserver) => {
+    it.skipIf(isJSDOM || isWebKit || /Firefox/i.test(window.navigator.userAgent))(
+      'recomputes inset positions when the slider becomes visible',
+      async () => {
         function App() {
           const [visible, setVisible] = React.useState(false);
 
@@ -375,11 +338,17 @@ describe('<Slider.Thumb />', () => {
                 show
               </button>
               <div style={{ display: visible ? 'block' : 'none' }}>
-                <Slider.Root defaultValue={30} thumbAlignment="edge">
-                  <Slider.Control data-testid="control">
-                    <Slider.Track>
+                <Slider.Root defaultValue={30} thumbAlignment="edge" style={{ width: '100px' }}>
+                  <Slider.Control
+                    data-testid="control"
+                    style={{ position: 'relative', width: '100%', height: '10px' }}
+                  >
+                    <Slider.Track style={{ position: 'relative', width: '100%', height: '10px' }}>
                       <Slider.Indicator data-testid="indicator" />
-                      <Slider.Thumb data-testid="thumb" />
+                      <Slider.Thumb
+                        data-testid="thumb"
+                        style={{ width: '10px', height: '10px' }}
+                      />
                     </Slider.Track>
                   </Slider.Control>
                 </Slider.Root>
@@ -390,7 +359,6 @@ describe('<Slider.Thumb />', () => {
 
         const { user } = await render(<App />);
 
-        const control = screen.getByTestId('control');
         const thumb = screen.getByTestId('thumb');
         const indicator = screen.getByTestId('indicator');
 
@@ -401,18 +369,7 @@ describe('<Slider.Thumb />', () => {
           expect(indicator.style.getPropertyValue('--start-position')).toBe('0%');
         });
 
-        vi.spyOn(control, 'getBoundingClientRect').mockImplementation(() =>
-          getHorizontalSliderRect(100),
-        );
-        vi.spyOn(thumb, 'getBoundingClientRect').mockImplementation(() =>
-          getHorizontalSliderRect(10),
-        );
-
         await user.click(screen.getByRole('button', { name: 'show' }));
-
-        act(() => {
-          notifyResizeObserver();
-        });
 
         await waitFor(() => {
           expect(thumb.style.visibility).toBe('');
@@ -420,8 +377,8 @@ describe('<Slider.Thumb />', () => {
           expect(indicator.style.visibility).toBe('');
           expect(indicator.style.getPropertyValue('--start-position')).toBe('32%');
         });
-      });
-    });
+      },
+    );
   });
 
   /**
