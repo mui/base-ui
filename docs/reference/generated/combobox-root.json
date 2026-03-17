@@ -76,7 +76,7 @@
       "detailedType": "string | undefined"
     },
     "closeOnItemClick": {
-      "type": "Combobox.Root.ItemClickBehavior",
+      "type": "Combobox.Item.ClickBehavior",
       "default": "'auto'",
       "description": "Whether the popup closes after selecting an item.\n- `'auto'` (default): preserve the default behavior for the current selection mode and filter state.\n- `'always'`: always close after selecting an item.\n- `'never'`: never close after selecting an item.",
       "detailedType": "'auto' | 'always' | 'never' | undefined"

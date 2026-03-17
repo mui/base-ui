@@ -7,7 +7,10 @@ export type {
   ComboboxTriggerProps as AutocompleteTriggerProps,
   ComboboxTriggerState as AutocompleteTriggerState,
 } from '../combobox/trigger/ComboboxTrigger';
-export type { AutocompleteInputProps, AutocompleteInputState } from './input/AutocompleteInput';
+export type {
+  ComboboxInputProps as AutocompleteInputProps,
+  ComboboxInputState as AutocompleteInputState,
+} from '../combobox/input/ComboboxInput';
 export type {
   ComboboxInputGroupProps as AutocompleteInputGroupProps,
   ComboboxInputGroupState as AutocompleteInputGroupState,
