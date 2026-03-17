@@ -70,7 +70,7 @@ export function useHoverFloatingInteraction(
     return isClickLikeOpenEventShared(dataRef.current.openEvent?.type, instance.interactedInside);
   });
 
-  const closeHoverPopupCb = useStableCallback((event: MouseEvent) => {
+  const handleHoverClose = useStableCallback((event: MouseEvent) => {
     closeHoverPopup(
       store,
       instance,
@@ -83,6 +83,8 @@ export function useHoverFloatingInteraction(
 
   const closeWithDelay = React.useCallback(
     (event: MouseEvent) => {
+      // Bail out if the popup is already closed (e.g. mouseleave fired on an
+      // already-closed kept-mounted popup). Avoids a spurious `setOpen(false)`.
       if (!store.select('open')) {
         instance.openChangeTimeout.clear();
         return;
@@ -90,19 +92,24 @@ export function useHoverFloatingInteraction(
 
       const closeDelay = getDelay(closeDelayProp, 'close', instance.pointerType);
       if (closeDelay) {
-        instance.openChangeTimeout.start(closeDelay, () => closeHoverPopupCb(event));
+        instance.openChangeTimeout.start(closeDelay, () => handleHoverClose(event));
       } else {
         instance.openChangeTimeout.clear();
-        closeHoverPopupCb(event);
+        handleHoverClose(event);
       }
     },
-    [closeDelayProp, closeHoverPopupCb, instance, store],
+    [closeDelayProp, handleHoverClose, instance, store],
   );
 
   const clearPointerEvents = useStableCallback(() => {
     clearSafePolygonPointerEventsMutation(instance);
   });
 
+  // Reset transient interaction state and finalize any pending hover-close
+  // when the popup closes. Uses a layout effect so pointer-event mutations
+  // are cleaned up before the browser paints. The `emitCommittedHoverClose`
+  // call is the layout-phase counterpart of the reference hook's regular
+  // effect — see the comment on `emitCommittedHoverClose` for details.
   useIsoLayoutEffect(() => {
     if (!open) {
       instance.pointerType = undefined;
@@ -216,7 +223,7 @@ export function useHoverFloatingInteraction(
       // Allow the mouseenter event to fire in case child was closed because mouse moved into parent.
       childClosedTimeout.start(0, () => {
         tree.events.off('floating.closed', onNodeClosed);
-        closeHoverPopupCb(event);
+        handleHoverClose(event);
       });
     }
 
@@ -247,7 +254,7 @@ export function useHoverFloatingInteraction(
     store,
     isClickLikeOpenEvent,
     closeWithDelay,
-    closeHoverPopupCb,
+    handleHoverClose,
     clearPointerEvents,
     instance,
     tree,

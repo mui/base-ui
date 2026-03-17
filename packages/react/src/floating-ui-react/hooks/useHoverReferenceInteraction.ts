@@ -100,7 +100,7 @@ export function useHoverReferenceInteraction(
     return isClickLikeOpenEventShared(dataRef.current.openEvent?.type, instance.interactedInside);
   });
 
-  const closeHoverPopupCb = useStableCallback((event: MouseEvent) => {
+  const handleHoverClose = useStableCallback((event: MouseEvent) => {
     closeHoverPopup(
       store,
       instance,
@@ -112,6 +112,8 @@ export function useHoverReferenceInteraction(
   });
 
   const closeWithDelay = useStableCallback((event: MouseEvent, runElseBranch = true) => {
+    // Bail out if the popup is already closed (e.g. mouseleave fired on an
+    // already-closed kept-mounted popup). Avoids a spurious `setOpen(false)`.
     if (!store.select('open')) {
       instance.openChangeTimeout.clear();
       return;
@@ -119,10 +121,10 @@ export function useHoverReferenceInteraction(
 
     const closeDelay = getDelay(delayRef.current, 'close', instance.pointerType);
     if (closeDelay) {
-      instance.openChangeTimeout.start(closeDelay, () => closeHoverPopupCb(event));
+      instance.openChangeTimeout.start(closeDelay, () => handleHoverClose(event));
     } else if (runElseBranch) {
       instance.openChangeTimeout.clear();
-      closeHoverPopupCb(event);
+      handleHoverClose(event);
     }
   });
 
@@ -136,6 +138,12 @@ export function useHoverReferenceInteraction(
     clearRecentHoverClose(instance);
   }, [hoverCloseGracePeriod, instance, open]);
 
+  // Finalize any pending hover-close when `open` transitions to `false`.
+  // This handles controlled consumers that update their state asynchronously
+  // in `onOpenChange` — the synchronous path inside `closeHoverPopup` won't
+  // see the transition, so this effect acts as a fallback. The call is
+  // idempotent: if the synchronous path already consumed the pending close,
+  // this is a no-op.
   React.useEffect(() => {
     if (open) {
       return;

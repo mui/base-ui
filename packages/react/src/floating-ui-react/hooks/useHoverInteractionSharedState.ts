@@ -14,10 +14,24 @@ import type {
 import { TYPEABLE_SELECTOR } from '../utils/constants';
 
 const interactiveSelector = `button,a,[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`;
+/**
+ * Sentinel value for `lastHoverCloseTime` indicating that no hover-close has
+ * been committed yet. Using a named constant avoids confusion with a real
+ * `performance.now()` timestamp.
+ */
 export const HOVER_CLOSE_UNSET = -1;
 
+/**
+ * Captures the context of a hover-close that has been accepted by the store
+ * (not canceled) but has not yet been confirmed as committed — the effective
+ * `open` state may still be `true` in controlled components that update
+ * asynchronously. Once `open` actually becomes `false`, the pending close is
+ * "committed": grace time is optionally recorded and a `floating.closed` tree
+ * event is emitted.
+ */
 type PendingHoverClose = {
   event: MouseEvent;
+  /** Whether to record `lastHoverCloseTime` when this close is committed. */
   shouldRecordGrace: boolean;
 };
 
@@ -141,6 +155,21 @@ export function clearPendingHoverClose(instance: HoverInteraction): void {
   instance.pendingHoverClose = null;
 }
 
+/**
+ * If a pending hover-close exists, finalizes it as committed: records the
+ * grace timestamp (when applicable) and emits a `floating.closed` tree event
+ * so parent popups can continue deferred close coordination.
+ *
+ * This is called from two sites:
+ *  1. Synchronously inside `closeHoverPopup` when the store confirms the
+ *     popup closed immediately.
+ *  2. Inside an effect that watches `open` → when a controlled component
+ *     updates its state asynchronously after `onOpenChange`, the effect
+ *     picks up the transition and finalizes the pending close.
+ *
+ * The function is idempotent: calling it when `pendingHoverClose` is already
+ * `null` (consumed by site 1) is a no-op.
+ */
 export function emitCommittedHoverClose(
   instance: HoverInteraction,
   tree: FloatingTreeType | null,
@@ -184,31 +213,41 @@ export function closeHoverPopup(
   isHoverOpen: boolean,
   hoverCloseGracePeriod?: number,
 ): void {
+  // Discard any stale pending close from a previous attempt that was never
+  // committed (e.g. a controlled consumer ignored a prior close request).
   clearPendingHoverClose(instance);
 
   if (!store.select('open')) {
     return;
   }
 
+  // --- Request phase: ask the store to close. ---
   const eventDetails = createChangeEventDetails(REASONS.triggerHover, event);
   store.setOpen(false, eventDetails);
 
+  // The consumer explicitly vetoed the close via `cancel()`.
   if (eventDetails.isCanceled) {
     return;
   }
 
-  // Re-read the effective open state. Controlled consumers may leave the
-  // popup open without calling `cancel()`. In that case, no committed close
-  // occurred and we must not record grace time or emit a tree signal.
+  // --- Verification phase: did the popup actually close? ---
+  // Re-read the effective `open` selector (`openProp ?? state.open`).
+  // Controlled consumers may silently ignore the close by not updating their
+  // state and not calling `cancel()`. If `open` is still `true`, no
+  // committed close occurred — skip grace recording and tree signaling.
   if (store.select('open')) {
     return;
   }
 
+  // --- Commit phase: the popup closed synchronously. ---
   instance.pendingHoverClose = {
     event,
     shouldRecordGrace: isHoverOpen && hoverCloseGracePeriod != null && hoverCloseGracePeriod > 0,
   };
 
+  // Finalize immediately. For controlled consumers that update state
+  // asynchronously, the pending close will instead be finalized by the
+  // `emitCommittedHoverClose` call inside the `open` watcher effect.
   emitCommittedHoverClose(instance, tree);
 }
 
