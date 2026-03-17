@@ -6,7 +6,6 @@ import * as Accordion from '../Accordion';
 import * as CodeBlock from '../CodeBlock';
 import * as DescriptionList from '../DescriptionList';
 import { TableCode } from '../TableCode';
-import * as ReferenceTableTooltip from './ReferenceTableTooltip';
 
 /** Workaround for strange Server -> Client Component behavior */
 function TableDefault({ children }: { children: React.ReactNode }) {
@@ -56,7 +55,6 @@ export function ReferenceAccordion({
         // Use shortType if available (set by useTypes), otherwise use the full type
         const displayShortType = prop.shortType ?? prop.type;
         const displayDetailedType = prop.detailedType ?? prop.type;
-        const hasExpandedType = Boolean(prop.shortType || prop.detailedType);
 
         // anchor hash for each prop
         const id = `${partName}-${name}`;
@@ -85,18 +83,7 @@ export function ReferenceAccordion({
               </Accordion.Scrollable>
               {prop.type && (
                 <Accordion.Scrollable className="ReferenceTypeCell">
-                  {hasExpandedType ? (
-                    <ReferenceTableTooltip.Root disableHoverablePopup>
-                      <ReferenceTableTooltip.Trigger delay={300}>
-                        {displayShortType}
-                      </ReferenceTableTooltip.Trigger>
-                      <ReferenceTableTooltip.Popup>
-                        {displayDetailedType}
-                      </ReferenceTableTooltip.Popup>
-                    </ReferenceTableTooltip.Root>
-                  ) : (
-                    displayShortType
-                  )}
+                  {displayShortType}
                 </Accordion.Scrollable>
               )}
               {!hideDefault && (

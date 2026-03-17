@@ -5,7 +5,6 @@ import { Link } from 'docs/src/components/Link';
 import * as Accordion from '../Accordion';
 import * as DescriptionList from '../DescriptionList';
 import { TableCode } from '../TableCode';
-import * as ReferenceTableTooltip from './ReferenceTableTooltip';
 
 interface ProcessedClassProperty extends ProcessedProperty {
   isStatic?: boolean;
@@ -39,7 +38,6 @@ export function PropertiesReferenceAccordion({ data, name: partName, ...props }:
         // Use shortType if available, otherwise use the full type
         const displayShortType = prop.shortType ?? prop.type;
         const displayDetailedType = prop.detailedType ?? prop.type;
-        const hasExpandedType = Boolean(prop.shortType || prop.detailedType);
 
         // anchor hash for each property
         const id = `${partName}-${name}`;
@@ -76,18 +74,7 @@ export function PropertiesReferenceAccordion({ data, name: partName, ...props }:
               </Accordion.Scrollable>
               {prop.type && (
                 <Accordion.Scrollable className="ReferenceTypeCell">
-                  {hasExpandedType ? (
-                    <ReferenceTableTooltip.Root disableHoverablePopup>
-                      <ReferenceTableTooltip.Trigger delay={300}>
-                        {displayShortType}
-                      </ReferenceTableTooltip.Trigger>
-                      <ReferenceTableTooltip.Popup>
-                        {displayDetailedType}
-                      </ReferenceTableTooltip.Popup>
-                    </ReferenceTableTooltip.Root>
-                  ) : (
-                    displayShortType
-                  )}
+                  {displayShortType}
                 </Accordion.Scrollable>
               )}
               <Accordion.Scrollable className="ReferenceDefaultCell">
