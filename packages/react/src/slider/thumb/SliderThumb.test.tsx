@@ -44,20 +44,6 @@ async function withMockResizeObserver(test: (notifyResizeObserver: () => void) =
   }
 }
 
-function getThumbRect(width = 10) {
-  return {
-    width,
-    height: 10,
-    bottom: 10,
-    left: 0,
-    x: 0,
-    y: 0,
-    top: 0,
-    right: width,
-    toJSON() {},
-  };
-}
-
 describe('<Slider.Thumb />', () => {
   const { render, renderToString } = createRenderer();
 
@@ -418,7 +404,9 @@ describe('<Slider.Thumb />', () => {
         vi.spyOn(control, 'getBoundingClientRect').mockImplementation(() =>
           getHorizontalSliderRect(100),
         );
-        vi.spyOn(thumb, 'getBoundingClientRect').mockImplementation(() => getThumbRect(10));
+        vi.spyOn(thumb, 'getBoundingClientRect').mockImplementation(() =>
+          getHorizontalSliderRect(10),
+        );
 
         await user.click(screen.getByRole('button', { name: 'show' }));
 

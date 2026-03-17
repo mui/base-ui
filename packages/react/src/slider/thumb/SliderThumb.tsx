@@ -180,16 +180,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const safeLastUsedThumbIndex =
     lastUsedThumbIndex >= 0 && lastUsedThumbIndex < sliderValues.length ? lastUsedThumbIndex : -1;
 
-  const setInsetPosition = useStableCallback((nextPositionPercent: number | undefined) => {
-    setPositionPercent(nextPositionPercent);
-
-    if (index === 0) {
-      setIndicatorPosition((prevPosition) => [nextPositionPercent, prevPosition[1]]);
-    } else if (last) {
-      setIndicatorPosition((prevPosition) => [prevPosition[0], nextPositionPercent]);
-    }
-  });
-
   const getInsetPosition = useStableCallback(() => {
     const control = controlRef.current;
     const thumb = thumbRef.current;
@@ -206,13 +196,15 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     const thumbOffsetFromControlEdge =
       thumbRect[side] / 2 + (controlSize * thumbValuePercent) / 100;
     const nextPositionPercent = (thumbOffsetFromControlEdge / controlRect[side]) * 100;
+    const nextInsetPosition = Number.isFinite(nextPositionPercent) ? nextPositionPercent : undefined;
 
-    if (!Number.isFinite(nextPositionPercent)) {
-      setInsetPosition(undefined);
-      return;
+    setPositionPercent(nextInsetPosition);
+
+    if (index === 0) {
+      setIndicatorPosition((prevPosition) => [nextInsetPosition, prevPosition[1]]);
+    } else if (last) {
+      setIndicatorPosition((prevPosition) => [prevPosition[0], nextInsetPosition]);
     }
-
-    setInsetPosition(nextPositionPercent);
   });
 
   useIsoLayoutEffect(() => {
@@ -247,7 +239,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     return () => {
       resizeObserver.disconnect();
     };
-  }, [controlRef, getInsetPosition, inset]);
+  }, [getInsetPosition, inset]);
 
   const getThumbStyle = React.useCallback(() => {
     const startEdge = vertical ? 'bottom' : 'insetInlineStart';
