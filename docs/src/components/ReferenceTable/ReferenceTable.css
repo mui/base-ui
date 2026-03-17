@@ -176,6 +176,14 @@
       grid-template-columns: 5fr 7fr 4.5fr 2.5rem;
     }
 
+    [data-hide-default] > .ReferenceHeaderRow {
+      grid-template-columns: 5fr 7fr 2.5rem;
+    }
+
+    [data-hide-default] .ReferenceTrigger {
+      grid-template-columns: 5fr 7fr 2.5rem;
+    }
+
     .ReferenceWideNameColumn {
       width: calc(5 / 16.5 * 100%);
     }

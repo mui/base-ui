@@ -35,7 +35,11 @@ export function ReferenceAccordion({
   const captionId = `${partName}-caption`;
 
   return (
-    <Accordion.Root aria-describedby={captionId} {...props}>
+    <Accordion.Root
+      aria-describedby={captionId}
+      data-hide-default={hideDefault || undefined}
+      {...props}
+    >
       <span id={captionId} style={visuallyHidden} aria-hidden>
         {caption}
       </span>
