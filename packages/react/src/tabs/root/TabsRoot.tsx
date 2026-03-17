@@ -3,12 +3,10 @@ import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useValueChanged } from '../../utils/useValueChanged';
 import type { BaseUIComponentProps, Orientation as BaseOrientation } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { CompositeList } from '../../composite/list/CompositeList';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
-import { useDirection } from '../../direction-provider/DirectionContext';
 import { TabsRootContext } from './TabsRootContext';
 import { tabsStateAttributesMapping } from './stateAttributesMapping';
 import type { TabsTab } from '../tab/TabsTab';
@@ -35,8 +33,6 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     value: valueProp,
     ...elementProps
   } = componentProps;
-
-  const direction = useDirection();
 
   // Track whether the user explicitly provided a `defaultValue` prop.
   // Used to determine if we should honor a disabled tab selection.
@@ -82,63 +78,36 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     React.useState<TabsTab.ActivationDirection>('none');
 
   const previousValueRef = React.useRef(value);
+  const directionJustComputedRef = React.useRef(false);
 
-  function computeActivationDirection(
-    oldValue: TabsTab.Value | null,
-    newValue: TabsTab.Value | null,
-  ): TabsTab.ActivationDirection {
-    if (oldValue == null || newValue == null) {
-      return 'none';
-    }
-
-    const oldTab = getTabElementBySelectedValue(oldValue);
-    const newTab = getTabElementBySelectedValue(newValue);
-    if (oldTab == null || newTab == null) {
-      return 'none';
-    }
-
-    const oldRect = oldTab.getBoundingClientRect();
-    const newRect = newTab.getBoundingClientRect();
-
-    if (orientation === 'horizontal') {
-      if (newRect.left < oldRect.left) {
-        return 'left';
-      }
-      if (newRect.left > oldRect.left) {
-        return 'right';
-      }
-    } else {
-      if (newRect.top < oldRect.top) {
-        return 'up';
-      }
-      if (newRect.top > oldRect.top) {
-        return 'down';
-      }
-    }
-
-    return 'none';
-  }
-
-  // Compute activation direction during render when value changes so that
-  // children see the correct direction on their very first render.
-  // The ref is read-only here — updated only after commit via useValueChanged.
+  // Compute activation direction during render when value changes programmatically
+  // so that children see the correct direction on their very first render.
+  // Skipped when the click-path handler already computed it (directionJustComputedRef).
+  // The ref is read-only here — updated only after commit via layout effect.
   // https://github.com/mui/base-ui/issues/3873
-  if (previousValueRef.current !== value) {
-    const activationDirection = computeActivationDirection(previousValueRef.current, value);
+  if (previousValueRef.current !== value && !directionJustComputedRef.current) {
+    const activationDirection = computeActivationDirection(
+      previousValueRef.current,
+      value,
+      orientation,
+      tabMap,
+    );
     if (activationDirection !== tabActivationDirection) {
       setTabActivationDirection(activationDirection);
     }
   }
 
-  // Sync the previous value ref after commit.
-  useValueChanged(value, () => {
+  // Sync the previous value ref after commit and reset the direction flag.
+  useIsoLayoutEffect(() => {
     previousValueRef.current = value;
-  });
+    directionJustComputedRef.current = false;
+  }, [value]);
 
   const onValueChange = useStableCallback(
     (newValue: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => {
-      const activationDirection = computeActivationDirection(value, newValue);
+      const activationDirection = computeActivationDirection(value, newValue, orientation, tabMap);
       eventDetails.activationDirection = activationDirection;
+      directionJustComputedRef.current = true;
 
       onValueChangeProp?.(newValue, eventDetails);
 
@@ -202,7 +171,6 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   const tabsContextValue: TabsRootContext = React.useMemo(
     () => ({
-      direction,
       getTabElementBySelectedValue,
       getTabIdByPanelValue,
       getTabPanelIdByValue,
@@ -215,7 +183,6 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       value,
     }),
     [
-      direction,
       getTabElementBySelectedValue,
       getTabIdByPanelValue,
       getTabPanelIdByValue,
@@ -310,6 +277,61 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     </TabsRootContext.Provider>
   );
 });
+
+function computeActivationDirection(
+  oldValue: TabsTab.Value | null,
+  newValue: TabsTab.Value | null,
+  orientation: 'horizontal' | 'vertical',
+  tabMap: Map<Node, CompositeMetadata<TabsTab.Metadata> | null>,
+): TabsTab.ActivationDirection {
+  if (oldValue == null || newValue == null) {
+    return 'none';
+  }
+
+  let oldTab: HTMLElement | null = null;
+  let newTab: HTMLElement | null = null;
+
+  for (const [tabElement, tabMetadata] of tabMap.entries()) {
+    if (tabMetadata == null) {
+      continue;
+    }
+    const tabValue = tabMetadata.value ?? tabMetadata.index;
+    if (oldValue === tabValue) {
+      oldTab = tabElement as HTMLElement;
+    }
+    if (newValue === tabValue) {
+      newTab = tabElement as HTMLElement;
+    }
+    if (oldTab != null && newTab != null) {
+      break;
+    }
+  }
+
+  if (oldTab == null || newTab == null) {
+    return 'none';
+  }
+
+  const oldRect = oldTab.getBoundingClientRect();
+  const newRect = newTab.getBoundingClientRect();
+
+  if (orientation === 'horizontal') {
+    if (newRect.left < oldRect.left) {
+      return 'left';
+    }
+    if (newRect.left > oldRect.left) {
+      return 'right';
+    }
+  } else {
+    if (newRect.top < oldRect.top) {
+      return 'up';
+    }
+    if (newRect.top > oldRect.top) {
+      return 'down';
+    }
+  }
+
+  return 'none';
+}
 
 export type TabsRootOrientation = BaseOrientation;
 
