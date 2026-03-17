@@ -107,7 +107,7 @@ const nextConfig = {
   webpack: (config, { defaultLoaders }) => {
     // for production builds
     config.module.rules.push({
-      test: /[/\\\\]types\.ts$/,
+      test: /[/\\\\]app[/\\\\].*[/\\\\]types\.ts$/,
       use: [
         defaultLoaders.babel,
         {
