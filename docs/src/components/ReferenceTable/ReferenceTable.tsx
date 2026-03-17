@@ -1,8 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import type { TypesTableProps } from '@mui/internal-docs-infra/abstractCreateTypes';
-import { useTypes } from '@mui/internal-docs-infra/useTypes';
+import { useTypes, type TypesTableProps } from '@mui/internal-docs-infra/useTypes';
 import { ReferenceAccordion } from './ReferenceAccordion';
 import { AttributesReferenceTable } from './AttributesReferenceTable';
 import { CssVariablesReferenceTable } from './CssVariablesReferenceTable';
