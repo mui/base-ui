@@ -10,6 +10,7 @@
   font-weight: 500;
   color: var(--color-gray-900);
   cursor: default;
+  margin-bottom: 0.5rem;
 }
 
 .Select {

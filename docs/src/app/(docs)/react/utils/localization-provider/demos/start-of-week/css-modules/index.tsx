@@ -21,35 +21,37 @@ export default function StartOfWeekCalendar() {
 
   return (
     <div className={indexStyles.Wrapper}>
-      <Select.Root value={weekStartsOn} onValueChange={(value) => setWeekStartsOn(value as Day)}>
-        <Select.Label className={indexStyles.Label}>First day of the week</Select.Label>
-        <Select.Trigger className={indexStyles.Select}>
-          <Select.Value className={indexStyles.Value}>
-            {(value: Day) => dayNames[value]}
-          </Select.Value>
-          <Select.Icon className={indexStyles.SelectIcon}>
-            <ChevronsUpDown />
-          </Select.Icon>
-        </Select.Trigger>
-        <Select.Portal>
-          <Select.Positioner className={indexStyles.Positioner} sideOffset={8}>
-            <Select.Popup className={indexStyles.Popup}>
-              <Select.ScrollUpArrow className={indexStyles.ScrollArrow} />
-              <Select.List className={indexStyles.List}>
-                {dayNames.map((day, index) => (
-                  <Select.Item key={day} value={index} className={indexStyles.Item}>
-                    <Select.ItemIndicator className={indexStyles.ItemIndicator}>
-                      <Check className={indexStyles.ItemIndicatorIcon} />
-                    </Select.ItemIndicator>
-                    <Select.ItemText className={indexStyles.ItemText}>{day}</Select.ItemText>
-                  </Select.Item>
-                ))}
-              </Select.List>
-              <Select.ScrollDownArrow className={indexStyles.ScrollArrow} />
-            </Select.Popup>
-          </Select.Positioner>
-        </Select.Portal>
-      </Select.Root>
+      <div>
+        <Select.Root value={weekStartsOn} onValueChange={(value) => setWeekStartsOn(value as Day)}>
+          <Select.Label className={indexStyles.Label}>First day of the week</Select.Label>
+          <Select.Trigger className={indexStyles.Select}>
+            <Select.Value className={indexStyles.Value}>
+              {(value: Day) => dayNames[value]}
+            </Select.Value>
+            <Select.Icon className={indexStyles.SelectIcon}>
+              <ChevronsUpDown />
+            </Select.Icon>
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner className={indexStyles.Positioner} sideOffset={8}>
+              <Select.Popup className={indexStyles.Popup}>
+                <Select.ScrollUpArrow className={indexStyles.ScrollArrow} />
+                <Select.List className={indexStyles.List}>
+                  {dayNames.map((day, index) => (
+                    <Select.Item key={day} value={index} className={indexStyles.Item}>
+                      <Select.ItemIndicator className={indexStyles.ItemIndicator}>
+                        <Check className={indexStyles.ItemIndicatorIcon} />
+                      </Select.ItemIndicator>
+                      <Select.ItemText className={indexStyles.ItemText}>{day}</Select.ItemText>
+                    </Select.Item>
+                  ))}
+                </Select.List>
+                <Select.ScrollDownArrow className={indexStyles.ScrollArrow} />
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>
+      </div>
       <LocalizationProvider temporalLocale={locale}>
         <Calendar.Root className={styles.Root}>
           {({ visibleDate }) => (
