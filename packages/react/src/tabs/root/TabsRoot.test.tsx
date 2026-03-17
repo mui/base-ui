@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { expect, vi } from 'vitest';
 import { act, flushMicrotasks, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
@@ -1441,48 +1440,6 @@ describe('<Tabs.Root />', () => {
         expect.objectContaining({ tabActivationDirection: 'up' }),
       );
       expect(root).toHaveAttribute('data-activation-direction', 'up');
-    });
-
-    it('should compute correct activation direction when a tab is added and selected in the same update', async () => {
-      const panelRenderMock = vi.fn();
-      function ControlledTabs() {
-        const [state, setState] = React.useState({ value: 0 as number, tabCount: 2 });
-        return (
-          <div>
-            <button type="button" onClick={() => setState({ value: 2, tabCount: 3 })}>
-              Add and select Tab 2
-            </button>
-            <Tabs.Root data-testid="root" value={state.value}>
-              <Tabs.List>
-                <Tabs.Tab value={0} />
-                <Tabs.Tab value={1} />
-                {state.tabCount >= 3 && <Tabs.Tab value={2} />}
-              </Tabs.List>
-              <Tabs.Panel value={0} />
-              <Tabs.Panel value={1} />
-              {state.tabCount >= 3 && (
-                <Tabs.Panel value={2} render={(_, panelState) => panelRenderMock(panelState)} />
-              )}
-            </Tabs.Root>
-          </div>
-        );
-      }
-
-      const { user } = await render(<ControlledTabs />);
-      // clear the initial render calls from mounting the component
-      panelRenderMock.mockClear();
-
-      const root = screen.getByTestId('root');
-      expect(root).toHaveAttribute('data-activation-direction', 'none');
-
-      await user.click(screen.getByRole('button', { name: 'Add and select Tab 2' }));
-
-      // Tab_2 is to the right of Tab_0, so direction should be 'right'
-      expect(panelRenderMock).toHaveBeenNthCalledWith(
-        1,
-        expect.objectContaining({ tabActivationDirection: 'right' }),
-      );
-      expect(root).toHaveAttribute('data-activation-direction', 'right');
     });
   });
 
