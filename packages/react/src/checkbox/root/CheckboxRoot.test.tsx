@@ -428,7 +428,7 @@ describe('<Checkbox.Root />', () => {
     );
 
     it.skipIf(isJSDOM)('submits to an external form when `form` is provided', async () => {
-      const submitSpy = spy((event) => {
+      const submitSpy = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
         return formData.get('test-checkbox');
@@ -446,8 +446,8 @@ describe('<Checkbox.Root />', () => {
       await user.click(screen.getByRole('checkbox'));
       await user.click(screen.getByRole('button'));
 
-      expect(submitSpy.callCount).to.equal(1);
-      expect(submitSpy.lastCall.returnValue).to.equal('on');
+      expect(submitSpy.mock.calls.length).toBe(1);
+      expect(submitSpy.mock.results.at(-1)?.value).toBe('on');
     });
 
     it.skipIf(isJSDOM)(

@@ -4574,7 +4574,7 @@ describe('<Combobox.Root />', () => {
     });
 
     it.skipIf(isJSDOM)('submits to an external form when `form` is provided', async () => {
-      const submitSpy = spy((event) => {
+      const submitSpy = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
         return formData.get('country');
@@ -4618,8 +4618,8 @@ describe('<Combobox.Root />', () => {
 
       fireEvent.click(screen.getByRole('button'));
 
-      expect(submitSpy.callCount).to.equal(1);
-      expect(submitSpy.lastCall.returnValue).to.equal('US');
+      expect(submitSpy.mock.calls.length).toBe(1);
+      expect(submitSpy.mock.results.at(-1)?.value).toBe('US');
     });
 
     describe('serialization for object values', () => {
