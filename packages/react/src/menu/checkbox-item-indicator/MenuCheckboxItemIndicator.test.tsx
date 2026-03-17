@@ -1,8 +1,8 @@
+import { expect } from 'vitest';
 import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { screen, waitFor } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 
 describe('<Menu.CheckboxItemIndicator />', () => {
   beforeEach(() => {
@@ -55,14 +55,14 @@ describe('<Menu.CheckboxItemIndicator />', () => {
 
     const { user } = await render(<Test />);
 
-    expect(screen.queryByTestId('indicator')).not.to.equal(null);
+    expect(screen.queryByTestId('indicator')).not.toBe(null);
 
     const closeButton = screen.getByText('Close');
 
     await user.click(closeButton);
 
     await waitFor(() => {
-      expect(screen.queryByTestId('indicator')).to.equal(null);
+      expect(screen.queryByTestId('indicator')).toBe(null);
     });
   });
 
@@ -119,13 +119,13 @@ describe('<Menu.CheckboxItemIndicator />', () => {
 
     const { user } = await render(<Test />);
 
-    expect(screen.getByTestId('indicator')).not.to.have.attribute('hidden');
+    expect(screen.getByTestId('indicator')).not.toHaveAttribute('hidden');
 
     const closeButton = screen.getByText('Close');
     await user.click(closeButton);
 
     await waitFor(() => {
-      expect(animationFinished).to.equal(true);
+      expect(animationFinished).toBe(true);
     });
   });
 });

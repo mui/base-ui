@@ -1,6 +1,6 @@
+import { expect } from 'vitest';
 import { Field } from '@base-ui/react/field';
 import { screen } from '@mui/internal-test-utils';
-import { expect } from 'vitest';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Field.Label />', () => {
@@ -22,7 +22,7 @@ describe('<Field.Label />', () => {
       </Field.Root>,
     );
 
-    expect(screen.getByTestId('label')).to.have.attribute('for', screen.getByRole('textbox').id);
+    expect(screen.getByTestId('label')).toHaveAttribute('for', screen.getByRole('textbox').id);
   });
 
   it('when nativeLabel={false}, clicking focuses the associated control', async () => {
@@ -38,7 +38,7 @@ describe('<Field.Label />', () => {
     const label = screen.getByTestId('label');
     const control = screen.getByTestId('control');
 
-    expect(label).to.not.have.attribute('for');
+    expect(label).not.toHaveAttribute('for');
 
     await user.click(label);
     expect(control).toHaveFocus();

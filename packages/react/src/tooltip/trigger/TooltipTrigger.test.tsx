@@ -1,7 +1,7 @@
+import { expect } from 'vitest';
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
 import { screen, waitFor } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Tooltip.Trigger />', () => {
@@ -45,14 +45,14 @@ describe('<Tooltip.Trigger />', () => {
 
     await user.hover(trigger);
     await waitFor(() => {
-      expect(trigger).to.have.attribute('data-popup-open');
+      expect(trigger).toHaveAttribute('data-popup-open');
     });
 
     await user.unhover(trigger);
     await waitFor(() => {
-      expect(trigger).not.to.have.attribute('data-popup-open');
+      expect(trigger).not.toHaveAttribute('data-popup-open');
     });
 
-    expect(screen.getByText('Content')).not.to.equal(null);
+    expect(screen.getByText('Content')).not.toBe(null);
   });
 });

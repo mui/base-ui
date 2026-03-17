@@ -1,6 +1,6 @@
+import { expect } from 'vitest';
 import { Popover } from '@base-ui/react/popover';
 import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 import { createRenderer, describeConformance } from '#test-utils';
 
 function isElementOrAncestorInert(element: HTMLElement) {
@@ -47,7 +47,7 @@ describe('<Popover.Close />', () => {
       </Popover.Root>,
     );
 
-    expect(screen.queryByRole('button', { name: 'Close popover' })).not.to.equal(null);
+    expect(screen.queryByRole('button', { name: 'Close popover' })).not.toBe(null);
   });
 
   it('should close popover when clicked', async () => {
@@ -65,11 +65,11 @@ describe('<Popover.Close />', () => {
       </Popover.Root>,
     );
 
-    expect(screen.queryByText('Content')).not.to.equal(null);
+    expect(screen.queryByText('Content')).not.toBe(null);
 
     fireEvent.click(screen.getByTestId('close'));
 
-    expect(screen.queryByText('Content')).to.equal(null);
+    expect(screen.queryByText('Content')).toBe(null);
   });
 
   it('enables modal focus management when `modal=true` and close is rendered', async () => {
@@ -90,7 +90,7 @@ describe('<Popover.Close />', () => {
     );
 
     await waitFor(() => {
-      expect(isElementOrAncestorInert(screen.getByTestId('outside'))).to.equal(true);
+      expect(isElementOrAncestorInert(screen.getByTestId('outside'))).toBe(true);
     });
   });
 
@@ -112,7 +112,7 @@ describe('<Popover.Close />', () => {
     );
 
     await waitFor(() => {
-      expect(isElementOrAncestorInert(screen.getByTestId('outside'))).to.equal(true);
+      expect(isElementOrAncestorInert(screen.getByTestId('outside'))).toBe(true);
     });
   });
 });

@@ -1,5 +1,5 @@
+import { expect } from 'vitest';
 import { screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 import { Separator } from '@base-ui/react/separator';
 import { createRenderer, describeConformance } from '#test-utils';
 
@@ -21,7 +21,7 @@ describe('<Separator />', () => {
       it(orientation, async () => {
         await render(<Separator orientation={orientation as Separator.Props['orientation']} />);
 
-        expect(screen.getByRole('separator')).to.have.attribute('aria-orientation', orientation);
+        expect(screen.getByRole('separator')).toHaveAttribute('aria-orientation', orientation);
       });
     });
   });
