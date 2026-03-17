@@ -37,7 +37,7 @@ export const TabsPanel = React.forwardRef(function TabPanel(
     value: selectedValue,
     getTabIdByPanelValue,
     orientation,
-    tabActivationDirection,
+    resolveTabActivationDirection,
     registerMountedTabPanel,
     unregisterMountedTabPanel,
   } = useTabsRootContext();
@@ -61,6 +61,8 @@ export const TabsPanel = React.forwardRef(function TabPanel(
   const hidden = !mounted;
 
   const correspondingTabId = getTabIdByPanelValue(value);
+
+  const tabActivationDirection = resolveTabActivationDirection();
 
   const state: TabsPanelState = {
     hidden,

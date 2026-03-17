@@ -3,7 +3,6 @@ import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useValueChanged } from '../../utils/useValueChanged';
 import type { BaseUIComponentProps, Orientation as BaseOrientation } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { CompositeList } from '../../composite/list/CompositeList';
@@ -15,6 +14,31 @@ import type { TabsTab } from '../tab/TabsTab';
 import type { TabsPanel } from '../panel/TabsPanel';
 import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
+
+function computeActivationDirection(
+  oldValue: TabsTab.Value | null,
+  newValue: TabsTab.Value | null,
+  tabRenderOrder: TabsTab.Value[],
+  orientation: 'horizontal' | 'vertical',
+  isRtl: boolean,
+): TabsTab.ActivationDirection {
+  if (oldValue == null || newValue == null) {
+    return 'none';
+  }
+
+  const oldIdx = tabRenderOrder.indexOf(oldValue);
+  const newIdx = tabRenderOrder.indexOf(newValue);
+
+  if (oldIdx < 0 || newIdx < 0 || oldIdx === newIdx) {
+    return 'none';
+  }
+
+  if (orientation === 'horizontal') {
+    return newIdx > oldIdx !== isRtl ? 'right' : 'left';
+  }
+
+  return newIdx > oldIdx ? 'down' : 'up';
+}
 
 /**
  * Groups the tabs and the corresponding panels.
@@ -60,7 +84,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
   );
 
-  // Used for activation direction detection via tab element positions.
+  // Used by TabsIndicator to position itself relative to the active tab.
   const getTabElementBySelectedValue = React.useCallback(
     (selectedValue: TabsTab.Value | undefined): HTMLElement | null => {
       if (selectedValue === undefined) {
@@ -83,61 +107,59 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   const previousValueRef = React.useRef(value);
 
-  function computeActivationDirection(
-    oldValue: TabsTab.Value | null,
-    newValue: TabsTab.Value | null,
-  ): TabsTab.ActivationDirection {
-    if (oldValue == null || newValue == null) {
-      return 'none';
+  // Populated by each Tab during render with its value (in render order).
+  // Since tabs render before panels in the React tree, panels can read this
+  // to determine direction even when a newly added tab is not yet in tabMap.
+  const tabRenderOrderRef = React.useRef<TabsTab.Value[]>([]);
+  tabRenderOrderRef.current = [];
+
+  // Binds the pure computeActivationDirection helper with component-level args
+  // so callers only need to supply old/new values.
+  const getActivationDirection = React.useCallback(
+    (oldVal: TabsTab.Value | null, newVal: TabsTab.Value | null) =>
+      computeActivationDirection(
+        oldVal,
+        newVal,
+        tabRenderOrderRef.current,
+        orientation,
+        direction === 'rtl',
+      ),
+    [orientation, direction],
+  );
+
+  // Resolves the activation direction for consumers (panels) that render
+  // after tabs in the React tree. When the value has changed but the layout
+  // effect hasn't committed yet, the state may be stale, so we recompute
+  // from render-order indices. Tabs push their values to tabRenderOrderRef
+  // during render before panels read this.
+  const resolveTabActivationDirection = React.useCallback((): TabsTab.ActivationDirection => {
+    if (previousValueRef.current === value) {
+      return tabActivationDirection;
+    }
+    return getActivationDirection(previousValueRef.current, value);
+  }, [tabActivationDirection, value, getActivationDirection]);
+
+  // Commit activation direction to state after render for the root's
+  // data-activation-direction attribute. Tabs populate tabRenderOrderRef
+  // during render (before this effect runs), so the order is always
+  // up-to-date — even for newly added tabs.
+  useIsoLayoutEffect(() => {
+    if (previousValueRef.current === value) {
+      return;
     }
 
-    const oldTab = getTabElementBySelectedValue(oldValue);
-    const newTab = getTabElementBySelectedValue(newValue);
-    if (oldTab == null || newTab == null) {
-      return 'none';
-    }
+    const newDirection = resolveTabActivationDirection();
 
-    const oldRect = oldTab.getBoundingClientRect();
-    const newRect = newTab.getBoundingClientRect();
-
-    if (orientation === 'horizontal') {
-      if (newRect.left < oldRect.left) {
-        return 'left';
-      }
-      if (newRect.left > oldRect.left) {
-        return 'right';
-      }
-    } else {
-      if (newRect.top < oldRect.top) {
-        return 'up';
-      }
-      if (newRect.top > oldRect.top) {
-        return 'down';
-      }
-    }
-
-    return 'none';
-  }
-
-  // Compute activation direction during render when value changes so that
-  // children see the correct direction on their very first render.
-  // The ref is read-only here — updated only after commit via useValueChanged.
-  // https://github.com/mui/base-ui/issues/3873
-  if (previousValueRef.current !== value) {
-    const activationDirection = computeActivationDirection(previousValueRef.current, value);
-    if (activationDirection !== tabActivationDirection) {
-      setTabActivationDirection(activationDirection);
-    }
-  }
-
-  // Sync the previous value ref after commit.
-  useValueChanged(value, () => {
     previousValueRef.current = value;
-  });
+
+    if (newDirection !== tabActivationDirection) {
+      setTabActivationDirection(newDirection);
+    }
+  }, [value, resolveTabActivationDirection, tabActivationDirection]);
 
   const onValueChange = useStableCallback(
     (newValue: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => {
-      const activationDirection = computeActivationDirection(value, newValue);
+      const activationDirection = getActivationDirection(value, newValue);
       eventDetails.activationDirection = activationDirection;
 
       onValueChangeProp?.(newValue, eventDetails);
@@ -209,9 +231,11 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       onValueChange,
       orientation,
       registerMountedTabPanel,
+      resolveTabActivationDirection,
       setTabMap,
       unregisterMountedTabPanel,
       tabActivationDirection,
+      tabRenderOrderRef,
       value,
     }),
     [
@@ -222,6 +246,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       onValueChange,
       orientation,
       registerMountedTabPanel,
+      resolveTabActivationDirection,
       setTabMap,
       unregisterMountedTabPanel,
       tabActivationDirection,
