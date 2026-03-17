@@ -112,10 +112,10 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   });
 
   useIsoLayoutEffect(() => {
-    store.update({ clearOnItemClick });
+    store.state.clearOnItemClickRef.current = clearOnItemClick;
 
     return () => {
-      store.update({ clearOnItemClick: 'auto' });
+      store.state.clearOnItemClickRef.current = 'auto';
     };
   }, [store, clearOnItemClick]);
 

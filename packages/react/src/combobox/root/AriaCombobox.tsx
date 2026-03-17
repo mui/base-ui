@@ -150,6 +150,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const hadInputClearRef = React.useRef(false);
   const inputClearActionOnCloseRef = React.useRef<'default' | 'skip' | 'force'>('default');
   const skipSelectedValueInputSyncRef = React.useRef(false);
+  const clearOnItemClickRef = React.useRef<ComboboxItemClickBehavior>('auto');
   const chipsContainerRef = React.useRef<HTMLDivElement | null>(null);
   const clearRef = React.useRef<HTMLButtonElement | null>(null);
   const selectionEventRef = React.useRef<MouseEvent | PointerEvent | KeyboardEvent | null>(null);
@@ -380,8 +381,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         modal,
         autoHighlight: autoHighlightMode,
         submitOnItemClick,
-        closeOnItemClick,
-        clearOnItemClick: 'auto',
+        clearOnItemClickRef,
         hasInputValue,
         mounted: false,
         forceMounted: false,
@@ -701,11 +701,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       const inputInsidePopupOnSelect = store.state.inputInsidePopup;
       const wasFiltering = inputRef.current ? inputRef.current.value.trim() !== '' : false;
       const shouldClearInput = resolveItemClickBehavior(
-        store.state.clearOnItemClick,
+        clearOnItemClickRef.current,
         multiple ? wasFiltering : inputInsidePopupOnSelect,
       );
       const shouldClose = resolveItemClickBehavior(
-        store.state.closeOnItemClick,
+        closeOnItemClick,
         multiple ? wasFiltering && !inputInsidePopupOnSelect : true,
       );
 
@@ -1181,7 +1181,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       autoHighlight: autoHighlightMode,
       isItemEqualToValue,
       submitOnItemClick,
-      closeOnItemClick,
       hasInputValue,
       requestSubmit,
     });
@@ -1213,7 +1212,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     modal,
     isItemEqualToValue,
     submitOnItemClick,
-    closeOnItemClick,
     hasInputValue,
     inlineProp,
     requestSubmit,

@@ -92,8 +92,7 @@ export type State = {
   modal: boolean;
   autoHighlight: false | 'always' | 'input-change';
   submitOnItemClick: boolean;
-  closeOnItemClick: ItemClickBehavior;
-  clearOnItemClick: ItemClickBehavior;
+  clearOnItemClickRef: React.MutableRefObject<ItemClickBehavior>;
   hasInputValue: boolean;
 };
 
