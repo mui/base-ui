@@ -64,6 +64,12 @@ import {
 } from '../../utils/itemEquality';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
 
+type PendingInputBehavior = {
+  didClearInput: boolean;
+  closeAction: 'default' | 'skip' | 'force';
+  skipSelectedValueSync: boolean;
+};
+
 /**
  * @internal
  */
@@ -147,9 +153,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const endDismissRef = React.useRef<HTMLSpanElement | null>(null);
   const emptyRef = React.useRef<HTMLDivElement | null>(null);
   const keyboardActiveRef = React.useRef(true);
-  const hadInputClearRef = React.useRef(false);
-  const inputClearActionOnCloseRef = React.useRef<'default' | 'skip' | 'force'>('default');
-  const skipSelectedValueInputSyncRef = React.useRef(false);
+  const pendingInputBehaviorRef = React.useRef<PendingInputBehavior>({
+    didClearInput: false,
+    closeAction: 'default',
+    skipSelectedValueSync: false,
+  });
   const clearOnItemClickRef = React.useRef<ComboboxItemClickBehavior>('auto');
   const chipsContainerRef = React.useRef<HTMLDivElement | null>(null);
   const clearRef = React.useRef<HTMLButtonElement | null>(null);
@@ -503,7 +511,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const setInputValue = useStableCallback(
     (next: string, eventDetails: AriaCombobox.ChangeEventDetails) => {
-      hadInputClearRef.current = eventDetails.reason === REASONS.inputClear;
+      pendingInputBehaviorRef.current.didClearInput = eventDetails.reason === REASONS.inputClear;
 
       props.onInputValueChange?.(next, eventDetails);
 
@@ -561,7 +569,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
       if (eventDetails.isCanceled) {
         if (!nextOpen) {
-          inputClearActionOnCloseRef.current = 'default';
+          pendingInputBehaviorRef.current.closeAction = 'default';
         }
         return;
       }
@@ -584,7 +592,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           }
           // Clear the input immediately on close while retaining filtering via closeQuery for exit animations
           // if the input is outside the popup.
-          if (inputClearActionOnCloseRef.current !== 'skip') {
+          if (pendingInputBehaviorRef.current.closeAction !== 'skip') {
             setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
           }
         }
@@ -711,18 +719,18 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
       if (shouldClose) {
         if (!shouldClearInput) {
-          inputClearActionOnCloseRef.current = 'skip';
+          pendingInputBehaviorRef.current.closeAction = 'skip';
         } else if (selectionMode === 'none' || (single && !inputInsidePopupOnSelect)) {
-          inputClearActionOnCloseRef.current = 'force';
+          pendingInputBehaviorRef.current.closeAction = 'force';
         } else {
-          inputClearActionOnCloseRef.current = 'default';
+          pendingInputBehaviorRef.current.closeAction = 'default';
         }
         setOpen(false, eventDetails);
         return;
       }
 
       if (shouldClearInput) {
-        skipSelectedValueInputSyncRef.current = single && !inputInsidePopupOnSelect;
+        pendingInputBehaviorRef.current.skipSelectedValueSync = single && !inputInsidePopupOnSelect;
         setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
       }
     },
@@ -758,8 +766,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       multiple &&
       inputRef.current &&
       inputRef.current.value !== '' &&
-      !hadInputClearRef.current &&
-      inputClearActionOnCloseRef.current !== 'skip'
+      !pendingInputBehaviorRef.current.didClearInput &&
+      pendingInputBehaviorRef.current.closeAction !== 'skip'
     ) {
       setInputValue('', createChangeEventDetails(REASONS.inputClear));
     }
@@ -772,7 +780,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         if (
           inputRef.current &&
           inputRef.current.value !== '' &&
-          inputClearActionOnCloseRef.current !== 'skip'
+          pendingInputBehaviorRef.current.closeAction !== 'skip'
         ) {
           setInputValue('', createChangeEventDetails(REASONS.inputClear));
         }
@@ -786,11 +794,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       }
     }
 
-    if (inputClearActionOnCloseRef.current === 'force' && inputRef.current?.value !== '') {
+    if (pendingInputBehaviorRef.current.closeAction === 'force' && inputRef.current?.value !== '') {
       setInputValue('', createChangeEventDetails(REASONS.inputClear));
     }
 
-    inputClearActionOnCloseRef.current = 'default';
+    pendingInputBehaviorRef.current.closeAction = 'default';
   });
 
   // Support composing the Dialog component around an inline combobox.
@@ -969,8 +977,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       validation.commit(selectedValue, true);
     }
 
-    if (skipSelectedValueInputSyncRef.current) {
-      skipSelectedValueInputSyncRef.current = false;
+    if (pendingInputBehaviorRef.current.skipSelectedValueSync) {
+      pendingInputBehaviorRef.current.skipSelectedValueSync = false;
       return;
     }
 
