@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
-import { ProcessedProperty } from '@mui/internal-docs-infra/useTypes';
+import type { EnhancedProperty } from '@mui/internal-docs-infra/useTypes';
 import { Link } from 'docs/src/components/Link';
 import * as Accordion from '../Accordion';
 import * as CodeBlock from '../CodeBlock';
@@ -13,7 +13,7 @@ function TableDefault({ children }: { children: React.ReactNode }) {
 }
 
 interface Props extends React.ComponentPropsWithoutRef<any> {
-  data: Record<string, ProcessedProperty>;
+  data: Record<string, EnhancedProperty>;
   name: string;
   nameLabel?: string;
   caption?: string;

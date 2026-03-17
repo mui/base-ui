@@ -1,16 +1,16 @@
 import * as React from 'react';
-import type { ProcessedHookParameter, ProcessedProperty } from '@mui/internal-docs-infra/useTypes';
+import type { EnhancedHookParameter, EnhancedProperty } from '@mui/internal-docs-infra/useTypes';
 import { ReferenceAccordion } from './ReferenceAccordion';
 
 interface ParametersReferenceTableProps extends React.ComponentPropsWithoutRef<any> {
-  data: Record<string, ProcessedHookParameter>;
+  data: Record<string, EnhancedHookParameter>;
   name: string;
 }
 
-function normalizeParameters(data: Record<string, ProcessedHookParameter>) {
+function normalizeParameters(data: Record<string, EnhancedHookParameter>) {
   return Object.fromEntries(
     Object.entries(data).map(([name, param]) => {
-      const { optional, ...rest } = param as ProcessedHookParameter & { optional?: boolean };
+      const { optional, ...rest } = param as EnhancedHookParameter & { optional?: boolean };
       return [
         name,
         {
@@ -19,7 +19,7 @@ function normalizeParameters(data: Record<string, ProcessedHookParameter>) {
         },
       ];
     }),
-  ) as Record<string, ProcessedProperty>;
+  ) as Record<string, EnhancedProperty>;
 }
 
 export function ParametersReferenceTable({ data, name, ...props }: ParametersReferenceTableProps) {

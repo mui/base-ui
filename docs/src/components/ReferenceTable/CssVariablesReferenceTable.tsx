@@ -1,12 +1,12 @@
 import * as React from 'react';
 import clsx from 'clsx';
-import { ProcessedEnumMember } from '@mui/internal-docs-infra/useTypes';
+import type { EnhancedEnumMember } from '@mui/internal-docs-infra/useTypes';
 import * as Accordion from '../Accordion';
 import * as Table from '../Table';
 import { TableCode } from '../TableCode';
 
 interface CssVariablesReferenceTableProps extends React.ComponentProps<typeof Table.Root> {
-  data: Record<string, ProcessedEnumMember>;
+  data: Record<string, EnhancedEnumMember>;
   name?: string;
 }
 

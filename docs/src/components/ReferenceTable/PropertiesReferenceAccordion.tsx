@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
-import { ProcessedProperty } from '@mui/internal-docs-infra/useTypes';
+import type { EnhancedProperty } from '@mui/internal-docs-infra/useTypes';
 import { Link } from 'docs/src/components/Link';
 import * as Accordion from '../Accordion';
 import * as DescriptionList from '../DescriptionList';
 import { TableCode } from '../TableCode';
 
-interface ProcessedClassProperty extends ProcessedProperty {
+interface ProcessedClassProperty extends EnhancedProperty {
   isStatic?: boolean;
   readonly?: boolean;
 }

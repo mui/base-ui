@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ProcessedTypesMeta } from '@mui/internal-docs-infra/useTypes';
+import type { EnhancedTypesMeta } from '@mui/internal-docs-infra/useTypes';
 import { Link } from '../Link';
 import { Code } from '../Code';
 import * as CodeBlock from '../CodeBlock';
@@ -9,7 +9,7 @@ export function AdditionalTypes({
   multiple,
   show,
 }: {
-  data: ProcessedTypesMeta[];
+  data: EnhancedTypesMeta[];
   multiple?: boolean;
   show?: string[];
 }) {
