@@ -1,8 +1,9 @@
 /**
- * demoProcessor.mjs - Process demo component directories
+ * typedocProcessor.mjs - Process Typedoc types markdown
  *
- * This module handles loading and converting demo code examples
- * into markdown code blocks for documentation.
+ * This module resolves Typedoc components in MDX files to their generated
+ * types markdown, parses that markdown, and returns AST nodes to be
+ * inserted into the documentation.
  */
 
 import fs from 'fs';
@@ -10,7 +11,6 @@ import path from 'path';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
-import * as mdx from './mdxNodeHelpers.mjs';
 
 /**
  * Parse a markdown string into an AST
@@ -43,11 +43,6 @@ export function processTypedoc(node, mdxFilePath, typesPath) {
   }
 
   const typesContent = fs.readFileSync(typesPath, 'utf-8');
-
-  const result = [];
-
-  // Add main Demo heading
-  result.push(mdx.heading(2, 'Types'));
 
   // Parse the markdown content and add it to the result
   // Removing the leading title and description
