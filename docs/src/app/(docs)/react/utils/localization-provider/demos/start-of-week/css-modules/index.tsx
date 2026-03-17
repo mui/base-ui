@@ -5,7 +5,8 @@ import { enUS } from 'date-fns/locale/en-US';
 import type { Day } from 'date-fns';
 import { LocalizationProvider } from '@base-ui/react/localization-provider';
 import { Calendar } from '@base-ui/react/calendar';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Select } from '@base-ui/react/select';
+import { Check, ChevronLeft, ChevronRight, ChevronsUpDown } from 'lucide-react';
 import styles from '../../../calendar.module.css';
 import indexStyles from './index.module.css';
 
@@ -20,20 +21,35 @@ export default function StartOfWeekCalendar() {
 
   return (
     <div className={indexStyles.Wrapper}>
-      <label className={indexStyles.Label}>
-        First day of the week
-        <select
-          className={indexStyles.Select}
-          value={weekStartsOn}
-          onChange={(event) => setWeekStartsOn(Number(event.target.value) as Day)}
-        >
-          {dayNames.map((day, index) => (
-            <option key={day} value={index}>
-              {day}
-            </option>
-          ))}
-        </select>
-      </label>
+      <Select.Root value={weekStartsOn} onValueChange={(value) => setWeekStartsOn(value as Day)}>
+        <Select.Label className={indexStyles.Label}>First day of the week</Select.Label>
+        <Select.Trigger className={indexStyles.Select}>
+          <Select.Value className={indexStyles.Value}>
+            {(value: Day) => dayNames[value]}
+          </Select.Value>
+          <Select.Icon className={indexStyles.SelectIcon}>
+            <ChevronsUpDown />
+          </Select.Icon>
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner className={indexStyles.Positioner} sideOffset={8}>
+            <Select.Popup className={indexStyles.Popup}>
+              <Select.ScrollUpArrow className={indexStyles.ScrollArrow} />
+              <Select.List className={indexStyles.List}>
+                {dayNames.map((day, index) => (
+                  <Select.Item key={day} value={index} className={indexStyles.Item}>
+                    <Select.ItemIndicator className={indexStyles.ItemIndicator}>
+                      <Check className={indexStyles.ItemIndicatorIcon} />
+                    </Select.ItemIndicator>
+                    <Select.ItemText className={indexStyles.ItemText}>{day}</Select.ItemText>
+                  </Select.Item>
+                ))}
+              </Select.List>
+              <Select.ScrollDownArrow className={indexStyles.ScrollArrow} />
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>
       <LocalizationProvider temporalLocale={locale}>
         <Calendar.Root className={styles.Root}>
           {({ visibleDate }) => (

@@ -2,8 +2,8 @@
 import * as React from 'react';
 import { format } from 'date-fns/format';
 import { Calendar } from '@base-ui/react/calendar';
-import { Select } from '@base-ui/react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Select } from '@base-ui/react/select';
+import { Check, ChevronLeft, ChevronRight, ChevronsUpDown } from 'lucide-react';
 import styles from '../../calendar.module.css';
 import indexStyles from './index.module.css';
 
@@ -71,21 +71,25 @@ function TimezoneSelect(props: Omit<Select.Root.Props<string, false>, 'children'
     <Select.Root {...props}>
       <Select.Trigger className={indexStyles.Select}>
         <Select.Value className={indexStyles.Value} placeholder="Select timezone" />
-        <Select.Icon>↓</Select.Icon>
+        <Select.Icon className={indexStyles.SelectIcon}>
+          <ChevronsUpDown />
+        </Select.Icon>
       </Select.Trigger>
       <Select.Portal>
         <Select.Positioner className={indexStyles.Positioner} sideOffset={8}>
           <Select.Popup className={indexStyles.Popup}>
+            <Select.ScrollUpArrow className={indexStyles.ScrollArrow} />
             <Select.List className={indexStyles.List}>
               {timezones.map((timezone) => (
                 <Select.Item key={timezone} value={timezone} className={indexStyles.Item}>
                   <Select.ItemIndicator className={indexStyles.ItemIndicator}>
-                    ✔️
+                    <Check className={indexStyles.ItemIndicatorIcon} />
                   </Select.ItemIndicator>
                   <Select.ItemText className={indexStyles.ItemText}>{timezone}</Select.ItemText>
                 </Select.Item>
               ))}
             </Select.List>
+            <Select.ScrollDownArrow className={indexStyles.ScrollArrow} />
           </Select.Popup>
         </Select.Positioner>
       </Select.Portal>
