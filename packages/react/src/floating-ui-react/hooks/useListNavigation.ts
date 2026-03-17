@@ -440,7 +440,7 @@ export function useListNavigation(
 
         waitForListPopulated();
       }
-    } else if (!isIndexOutOfListBounds(listRef, activeIndex)) {
+    } else if (!isIndexOutOfListBounds(listRef.current, activeIndex)) {
       indexRef.current = activeIndex;
       focusItem();
       forceScrollIntoViewRef.current = false;
@@ -541,11 +541,16 @@ export function useListNavigation(
         }
 
         enqueueFocus(null, { sync: true });
+
         indexRef.current = -1;
         onNavigate(event);
 
         if (!virtual) {
-          floatingFocusElementRef.current?.focus({ preventScroll: true });
+          const floatingFocusEl = floatingFocusElementRef.current;
+          const activeEl = activeElement(ownerDocument(floatingFocusEl));
+          if (floatingFocusEl && contains(floatingFocusEl, activeEl)) {
+            floatingFocusEl.focus({ preventScroll: true });
+          }
         }
       },
     };
@@ -636,12 +641,12 @@ export function useListNavigation(
       // as if every item was 1x1, then convert back to real indices.
       const cellMap = createGridCellMap(sizes, cols, false);
       const minGridIndex = cellMap.findIndex(
-        (index) => index != null && !isListIndexDisabled(listRef, index, disabledIndices),
+        (index) => index != null && !isListIndexDisabled(listRef.current, index, disabledIndices),
       );
       // last enabled index
       const maxGridIndex = cellMap.reduce(
         (foundIndex: number, index, cellIndex) =>
-          index != null && !isListIndexDisabled(listRef, index, disabledIndices)
+          index != null && !isListIndexDisabled(listRef.current, index, disabledIndices)
             ? cellIndex
             : foundIndex,
         -1,
@@ -650,11 +655,7 @@ export function useListNavigation(
       const index =
         cellMap[
           getGridNavigatedIndex(
-            {
-              current: cellMap.map((itemIndex) =>
-                itemIndex != null ? listRef.current[itemIndex] : null,
-              ),
-            },
+            cellMap.map((itemIndex) => (itemIndex != null ? listRef.current[itemIndex] : null)),
             {
               event,
               orientation,
@@ -667,7 +668,7 @@ export function useListNavigation(
                 [
                   ...((typeof disabledIndices !== 'function' ? disabledIndices : null) ||
                     listRef.current.map((_, listIndex) =>
-                      isListIndexDisabled(listRef, listIndex, disabledIndices)
+                      isListIndexDisabled(listRef.current, listIndex, disabledIndices)
                         ? listIndex
                         : undefined,
                     )),
@@ -734,7 +735,7 @@ export function useListNavigation(
               indexRef.current = minIndex;
             }
           } else {
-            indexRef.current = findNonDisabledListIndex(listRef, {
+            indexRef.current = findNonDisabledListIndex(listRef.current, {
               startingIndex: currentIndex,
               disabledIndices,
             });
@@ -742,7 +743,7 @@ export function useListNavigation(
         } else {
           indexRef.current = Math.min(
             maxIndex,
-            findNonDisabledListIndex(listRef, {
+            findNonDisabledListIndex(listRef.current, {
               startingIndex: currentIndex,
               disabledIndices,
             }),
@@ -758,7 +759,7 @@ export function useListNavigation(
             indexRef.current = maxIndex;
           }
         } else {
-          indexRef.current = findNonDisabledListIndex(listRef, {
+          indexRef.current = findNonDisabledListIndex(listRef.current, {
             startingIndex: currentIndex,
             decrement: true,
             disabledIndices,
@@ -767,7 +768,7 @@ export function useListNavigation(
       } else {
         indexRef.current = Math.max(
           minIndex,
-          findNonDisabledListIndex(listRef, {
+          findNonDisabledListIndex(listRef.current, {
             startingIndex: currentIndex,
             decrement: true,
             disabledIndices,
@@ -775,7 +776,7 @@ export function useListNavigation(
         );
       }
 
-      if (isIndexOutOfListBounds(listRef, indexRef.current)) {
+      if (isIndexOutOfListBounds(listRef.current, indexRef.current)) {
         indexRef.current = -1;
       }
 

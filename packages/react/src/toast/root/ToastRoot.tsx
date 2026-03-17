@@ -16,8 +16,9 @@ import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { ToastRootCssVars } from './ToastRootCssVars';
+import { BASE_UI_SWIPE_IGNORE_SELECTOR, LEGACY_SWIPE_IGNORE_SELECTOR } from '../../utils/constants';
 
-const stateAttributesMapping: StateAttributesMapping<ToastRoot.State> = {
+const stateAttributesMapping: StateAttributesMapping<ToastRootState> = {
   ...transitionStatusMapping,
   swipeDirection(value) {
     return value ? { 'data-swipe-direction': value } : null;
@@ -28,6 +29,7 @@ const SWIPE_THRESHOLD = 40;
 const REVERSE_CANCEL_THRESHOLD = 10;
 const OPPOSITE_DIRECTION_DAMPING_FACTOR = 0.5;
 const MIN_DRAG_THRESHOLD = 1;
+const TOAST_SWIPE_IGNORE_SELECTOR = `${BASE_UI_SWIPE_IGNORE_SELECTOR},${LEGACY_SWIPE_IGNORE_SELECTOR}`;
 
 function getDisplacement(
   direction: 'up' | 'down' | 'left' | 'right',
@@ -222,7 +224,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     const target = getTarget(event.nativeEvent) as HTMLElement | null;
 
     const isInteractiveElement = target
-      ? target.closest('button,a,input,textarea,[role="button"],[data-swipe-ignore]')
+      ? target.closest(`button,a,input,textarea,[role="button"],${TOAST_SWIPE_IGNORE_SELECTOR}`)
       : false;
 
     if (isInteractiveElement) {
@@ -551,7 +553,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     ],
   );
 
-  const state: ToastRoot.State = {
+  const state: ToastRootState = {
     transitionStatus: toast.transitionStatus,
     expanded,
     limited: toast.limited || false,
@@ -572,19 +574,32 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
 
 export type ToastRootToastObject<Data extends object = any> = ToastObjectType<Data>;
 export interface ToastRootState {
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
-  /** Whether the toasts in the viewport are expanded. */
+  /**
+   * Whether the toasts in the viewport are expanded.
+   */
   expanded: boolean;
-  /** Whether the toast was removed due to exceeding the limit. */
+  /**
+   * Whether the toast was removed due to exceeding the limit.
+   */
   limited: boolean;
-  /** The type of the toast. */
+  /**
+   * The type of the toast.
+   */
   type: string | undefined;
-  /** Whether the toast is being swiped. */
+  /**
+   * Whether the toast is being swiped.
+   */
   swiping: boolean;
-  /** The direction the toast is being swiped. */
+  /**
+   * The direction the toast is being swiped.
+   */
   swipeDirection: 'up' | 'down' | 'left' | 'right' | undefined;
 }
-export interface ToastRootProps extends BaseUIComponentProps<'div', ToastRoot.State> {
+export interface ToastRootProps extends BaseUIComponentProps<'div', ToastRootState> {
   /**
    * The toast to render.
    */

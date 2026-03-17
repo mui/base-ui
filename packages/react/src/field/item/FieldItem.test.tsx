@@ -1,3 +1,4 @@
+import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Field } from '@base-ui/react/field';
 import { Checkbox } from '@base-ui/react/checkbox';
@@ -5,8 +6,6 @@ import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import { Radio } from '@base-ui/react/radio';
 import { RadioGroup } from '@base-ui/react/radio-group';
 import { createRenderer, screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
-import { spy } from 'sinon';
 import { describeConformance } from '../../../test/describeConformance';
 
 describe('<Field.Item />', () => {
@@ -21,7 +20,7 @@ describe('<Field.Item />', () => {
 
   describe('prop: disabled', () => {
     it('disables a wrapped checkbox', async () => {
-      const onValueChange = spy();
+      const onValueChange = vi.fn();
       const { user } = await render(
         <Field.Root name="apple">
           <CheckboxGroup defaultValue={[]} onValueChange={onValueChange}>
@@ -36,13 +35,13 @@ describe('<Field.Item />', () => {
       );
       const [checkbox1, checkbox2] = screen.getAllByRole('checkbox');
       await user.click(checkbox1);
-      expect(onValueChange.callCount).to.equal(0);
+      expect(onValueChange.mock.calls.length).toBe(0);
       await user.click(checkbox2);
-      expect(onValueChange.callCount).to.equal(1);
+      expect(onValueChange.mock.calls.length).toBe(1);
     });
 
     it('disables a wrapped radio', async () => {
-      const onValueChange = spy();
+      const onValueChange = vi.fn();
       const { user } = await render(
         <Field.Root name="apple">
           <RadioGroup defaultValue="" onValueChange={onValueChange}>
@@ -57,9 +56,9 @@ describe('<Field.Item />', () => {
       );
       const [radio1, radio2] = screen.getAllByRole('radio');
       await user.click(radio1);
-      expect(onValueChange.callCount).to.equal(0);
+      expect(onValueChange.mock.calls.length).toBe(0);
       await user.click(radio2);
-      expect(onValueChange.callCount).to.equal(1);
+      expect(onValueChange.mock.calls.length).toBe(1);
     });
   });
 });

@@ -23,7 +23,7 @@ export const NavigationMenuArrow = React.forwardRef(function NavigationMenuArrow
   const { arrowRef, side, align, arrowUncentered, arrowStyles } =
     useNavigationMenuPositionerContext();
 
-  const state: NavigationMenuArrow.State = {
+  const state: NavigationMenuArrowState = {
     open,
     side,
     align,
@@ -45,14 +45,23 @@ export interface NavigationMenuArrowState {
    * Whether the popup is currently open.
    */
   open: boolean;
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
   align: Align;
+  /**
+   * Whether the arrow cannot be centered on the anchor.
+   */
   uncentered: boolean;
 }
 
 export interface NavigationMenuArrowProps extends BaseUIComponentProps<
   'div',
-  NavigationMenuArrow.State
+  NavigationMenuArrowState
 > {}
 
 export namespace NavigationMenuArrow {

@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  code-infra: https://raw.githubusercontent.com/mui/mui-public/b788836647750acde70e3f136f3a7f8f8d6c62bf/.circleci/orbs/code-infra.yml
+  code-infra: https://raw.githubusercontent.com/mui/mui-public/993d672e95892fc2f0e64b730dca5a79644b8d0a/.circleci/orbs/code-infra.yml
 
 parameters:
   browserstack-force:
@@ -23,6 +23,7 @@ default-job: &default-job
       description: The version of react to be used
       type: string
       default: << pipeline.parameters.react-version >>
+  resource_class: medium
   environment:
     # expose it globally otherwise we have to thread it from each job to the install command
     BROWSERSTACK_FORCE: << pipeline.parameters.browserstack-force >>
@@ -59,17 +60,16 @@ commands:
 jobs:
   test_unit:
     <<: *default-job
+    resource_class: large
     steps:
       - checkout
       - code-infra/install-deps:
           package-overrides: react@<< parameters.react-version >>
       - run:
           name: Run tests on JSDOM
-          command: pnpm test:jsdom:coverage
+          command: pnpm test:jsdom
       - store_test_results:
           path: test-results
-      - code-infra/upload-coverage:
-          key: << parameters.react-version >>-jsdom
   docs_validate:
     <<: *default-job
     steps:
@@ -154,7 +154,7 @@ jobs:
             exit 0
   test_browser:
     <<: *default-job
-    resource_class: 'medium+'
+    resource_class: large
     executor:
       name: code-infra/mui-node-browser
       playwright-img-version: v1.58.2-noble
@@ -164,13 +164,12 @@ jobs:
           package-overrides: react@<< parameters.react-version >>
       - run:
           name: Run tests on headless Chromium
-          command: pnpm test:chromium --coverage
+          command: pnpm test:chromium
       - store_test_results:
           path: test-results
-      - code-infra/upload-coverage:
-          key: << parameters.react-version >>-browser
   test_regressions:
     <<: *default-job
+    resource_class: 'medium+'
     executor:
       name: code-infra/mui-node-browser
       playwright-img-version: v1.58.2-noble
@@ -201,6 +200,7 @@ jobs:
 
   test_package:
     <<: *default-job
+    resource_class: 'medium+'
     steps:
       - checkout
       - code-infra/install-deps
@@ -223,13 +223,14 @@ jobs:
 
   test_unit_compiler:
     <<: *default-job
+    resource_class: large
     steps:
       - checkout
       - code-infra/install-deps
       - build-with-compiler
       - run:
           name: Run tests on JSDOM
-          command: pnpm test:jsdom:coverage
+          command: pnpm test:jsdom
           environment:
             MUI_DISABLE_WORKSPACE_ALIASES: 1
       - store_test_results:
@@ -237,6 +238,7 @@ jobs:
 
   test_browser_compiler:
     <<: *default-job
+    resource_class: large
     executor:
       name: code-infra/mui-node-browser
       playwright-img-version: v1.58.2-noble
@@ -246,7 +248,7 @@ jobs:
       - build-with-compiler
       - run:
           name: Run tests on headless Chromium
-          command: pnpm test:chromium --coverage
+          command: pnpm test:chromium
           environment:
             MUI_DISABLE_WORKSPACE_ALIASES: 1
       - store_test_results:

@@ -1,3 +1,4 @@
+import { expect, vi } from 'vitest';
 import { Select } from '@base-ui/react/select';
 import {
   act,
@@ -8,7 +9,6 @@ import {
   waitFor,
 } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { expect, vi } from 'vitest';
 
 describe('<Select.Item />', () => {
   const { render } = createRenderer();
@@ -38,7 +38,7 @@ describe('<Select.Item />', () => {
     const trigger = screen.getByTestId('trigger');
     const positioner = screen.getByTestId('positioner');
 
-    expect(value.textContent).to.equal('');
+    expect(value.textContent).toBe('');
 
     fireEvent.click(trigger);
 
@@ -48,7 +48,7 @@ describe('<Select.Item />', () => {
 
     await flushMicrotasks();
 
-    expect(value.textContent).to.equal('one');
+    expect(value.textContent).toBe('one');
 
     expect(positioner).not.toBeVisible();
   });
@@ -75,7 +75,7 @@ describe('<Select.Item />', () => {
     await flushMicrotasks();
 
     await waitFor(() => {
-      expect(screen.getByRole('listbox')).not.to.equal(null);
+      expect(screen.getByRole('listbox')).not.toBe(null);
     });
     await waitFor(() => {
       expect(screen.getByText('one')).toHaveFocus();
@@ -117,7 +117,7 @@ describe('<Select.Item />', () => {
     await user.keyboard('{Enter}');
 
     await waitFor(() => {
-      expect(screen.getByTestId('value').textContent).to.equal('two');
+      expect(screen.getByTestId('value').textContent).toBe('two');
     });
   });
 
@@ -169,7 +169,7 @@ describe('<Select.Item />', () => {
     await flushMicrotasks();
 
     fireEvent.click(screen.getByText('two'));
-    expect(screen.getByTestId('value').textContent).to.equal('');
+    expect(screen.getByTestId('value').textContent).toBe('');
   });
 
   it('should call onClick exactly once for a regular click', async () => {
@@ -199,7 +199,7 @@ describe('<Select.Item />', () => {
     fireEvent.click(screen.getByRole('option', { name: 'one' }));
     await flushMicrotasks();
 
-    expect(screen.getByTestId('value').textContent).to.equal('one');
+    expect(screen.getByTestId('value').textContent).toBe('one');
     expect(handleClick).toHaveBeenCalledOnce();
   });
 
@@ -231,6 +231,45 @@ describe('<Select.Item />', () => {
       expect(screen.getByRole('option', { name: 'three' })).toHaveFocus();
     });
   });
+
+  it.skipIf(isJSDOM)(
+    'should allow pointer click after a typeahead sequence that ends with Space',
+    async () => {
+      const { user } = await render(
+        <Select.Root defaultOpen>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value data-testid="value" />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="one">Item One</Select.Item>
+                <Select.Item value="two">Item Two</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const [firstItem, secondItem] = screen.getAllByRole('option');
+
+      await act(async () => {
+        firstItem.focus();
+      });
+
+      await user.keyboard('item t ');
+
+      await waitFor(() => {
+        expect(secondItem).toHaveFocus();
+      });
+
+      await user.click(secondItem);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('value').textContent).toBe('two');
+      });
+    },
+  );
 
   describe.skipIf(!isJSDOM)('quick selection', () => {
     const { render: renderFakeTimers, clock } = createRenderer({
@@ -272,13 +311,13 @@ describe('<Select.Item />', () => {
       const trigger = screen.getByTestId('trigger');
       const value = screen.getByTestId('value');
 
-      expect(value.textContent).to.equal('Select font');
+      expect(value.textContent).toBe('Select font');
 
       // Open on mousedown and keep the mouse button "held" (no mouseup yet).
       fireEvent.mouseDown(trigger);
 
       await waitFor(() => {
-        expect(screen.queryByRole('listbox')).not.to.equal(null);
+        expect(screen.queryByRole('listbox')).not.toBe(null);
       });
 
       const option = screen.getByRole('option', { name: 'Sans-serif' });
@@ -289,7 +328,7 @@ describe('<Select.Item />', () => {
       fireEvent.mouseUp(option);
 
       await waitFor(() => {
-        expect(value.textContent).to.equal('Select font');
+        expect(value.textContent).toBe('Select font');
       });
     });
 
@@ -317,7 +356,7 @@ describe('<Select.Item />', () => {
 
       const trigger = screen.getByTestId('trigger');
       fireEvent.mouseDown(trigger);
-      await waitFor(() => expect(screen.queryByRole('listbox')).not.to.equal(null));
+      await waitFor(() => expect(screen.queryByRole('listbox')).not.toBe(null));
 
       const option = screen.getByRole('option', { name: 'one' });
       fireEvent.pointerEnter(option, { pointerType: 'mouse' });
@@ -329,7 +368,7 @@ describe('<Select.Item />', () => {
       });
       fireEvent.mouseUp(option);
 
-      await waitFor(() => expect(screen.getByTestId('value').textContent).to.equal('one'));
+      await waitFor(() => expect(screen.getByTestId('value').textContent).toBe('one'));
       expect(handleClick).toHaveBeenCalledOnce();
     });
 
@@ -357,7 +396,7 @@ describe('<Select.Item />', () => {
 
       const trigger = screen.getByTestId('trigger');
       fireEvent.mouseDown(trigger);
-      await waitFor(() => expect(screen.queryByRole('listbox')).not.to.equal(null));
+      await waitFor(() => expect(screen.queryByRole('listbox')).not.toBe(null));
 
       const option = screen.getByRole('option', { name: 'one' });
       fireEvent.pointerEnter(option, { pointerType: 'mouse' });
@@ -370,8 +409,8 @@ describe('<Select.Item />', () => {
       fireEvent.mouseUp(option);
 
       expect(handleClick).toHaveBeenCalledOnce();
-      expect(screen.getByTestId('value').textContent).to.equal('Select font');
-      expect(screen.queryByRole('listbox')).not.to.equal(null);
+      expect(screen.getByTestId('value').textContent).toBe('Select font');
+      expect(screen.queryByRole('listbox')).not.toBe(null);
     });
   });
 
@@ -394,14 +433,14 @@ describe('<Select.Item />', () => {
       fireEvent.click(screen.getByTestId('trigger'));
       await flushMicrotasks();
 
-      expect(screen.getByRole('option', { name: 'a' })).to.have.attribute('data-highlighted', '');
-      expect(screen.getByRole('option', { name: 'b' })).not.to.have.attribute('data-highlighted');
+      expect(screen.getByRole('option', { name: 'a' })).toHaveAttribute('data-highlighted', '');
+      expect(screen.getByRole('option', { name: 'b' })).not.toHaveAttribute('data-highlighted');
 
       await user.keyboard('{ArrowDown}');
       await flushMicrotasks();
 
-      expect(screen.getByRole('option', { name: 'a' })).not.to.have.attribute('data-highlighted');
-      expect(screen.getByRole('option', { name: 'b' })).to.have.attribute('data-highlighted', '');
+      expect(screen.getByRole('option', { name: 'a' })).not.toHaveAttribute('data-highlighted');
+      expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('data-highlighted', '');
     });
 
     it('should apply data-selected attribute when item is selected', async () => {
@@ -427,9 +466,9 @@ describe('<Select.Item />', () => {
 
       fireEvent.click(screen.getByTestId('trigger'));
       await waitFor(() => {
-        expect(screen.getByRole('option', { name: 'a' })).to.have.attribute('data-selected', '');
+        expect(screen.getByRole('option', { name: 'a' })).toHaveAttribute('data-selected', '');
       });
-      expect(screen.getByRole('option', { name: 'b' })).not.to.have.attribute('data-selected');
+      expect(screen.getByRole('option', { name: 'b' })).not.toHaveAttribute('data-selected');
     });
   });
 });

@@ -21,7 +21,7 @@ import { useDrawerRootContext, type DrawerSwipeDirection } from '../root/DrawerR
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useTriggerRegistration } from '../../utils/popups';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
-import { CommonPopupDataAttributes } from '../../utils/popupStateMapping';
+import { DrawerSwipeAreaDataAttributes } from './DrawerSwipeAreaDataAttributes';
 
 const DEFAULT_SWIPE_OPEN_RATIO = 0.5;
 const MIN_SWIPE_START_DISTANCE = 1;
@@ -29,25 +29,33 @@ const VELOCITY_THRESHOLD = 0.1;
 const FALLBACK_SWIPE_OPEN_THRESHOLD = 40;
 
 const SWIPE_AREA_OPEN_HOOK: Record<string, string> = {
-  [CommonPopupDataAttributes.open]: '',
+  [DrawerSwipeAreaDataAttributes.open]: '',
 };
 
 const SWIPE_AREA_CLOSED_HOOK: Record<string, string> = {
-  [CommonPopupDataAttributes.closed]: '',
+  [DrawerSwipeAreaDataAttributes.closed]: '',
 };
 
-const stateAttributesMapping: StateAttributesMapping<DrawerSwipeArea.State> = {
+const SWIPE_AREA_SWIPING_HOOK: Record<string, string> = {
+  [DrawerSwipeAreaDataAttributes.swiping]: '',
+};
+
+const SWIPE_AREA_DISABLED_HOOK: Record<string, string> = {
+  [DrawerSwipeAreaDataAttributes.disabled]: '',
+};
+
+const stateAttributesMapping: StateAttributesMapping<DrawerSwipeAreaState> = {
   open(value) {
     return value ? SWIPE_AREA_OPEN_HOOK : SWIPE_AREA_CLOSED_HOOK;
   },
   swiping(value) {
-    return value ? { 'data-swiping': '' } : null;
+    return value ? SWIPE_AREA_SWIPING_HOOK : null;
   },
   swipeDirection(value) {
-    return value ? { 'data-swipe-direction': value } : null;
+    return value ? { [DrawerSwipeAreaDataAttributes.swipeDirection]: value } : null;
   },
   disabled(value) {
-    return value ? { 'data-disabled': '' } : null;
+    return value ? SWIPE_AREA_DISABLED_HOOK : null;
   },
 };
 
@@ -380,7 +388,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     };
   }, [store]);
 
-  const state: DrawerSwipeArea.State = {
+  const state: DrawerSwipeAreaState = {
     open,
     swiping: swipe.swiping,
     swipeDirection: resolvedSwipeDirection,
@@ -435,7 +443,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
   });
 });
 
-export interface DrawerSwipeAreaProps extends BaseUIComponentProps<'div', DrawerSwipeArea.State> {
+export interface DrawerSwipeAreaProps extends BaseUIComponentProps<'div', DrawerSwipeAreaState> {
   /**
    * Whether the swipe area is disabled.
    * @default false

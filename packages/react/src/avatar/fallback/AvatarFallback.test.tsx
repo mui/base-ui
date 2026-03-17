@@ -1,5 +1,5 @@
+import { Mock, vi, expect } from 'vitest';
 import * as React from 'react';
-import { Mock } from 'vitest';
 import { Avatar } from '@base-ui/react/avatar';
 import { waitFor, screen } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
@@ -32,7 +32,7 @@ describe('<Avatar.Fallback />', () => {
     );
 
     await waitFor(() => {
-      expect(screen.queryByTestId('fallback')).to.equal(null);
+      expect(screen.queryByTestId('fallback')).toBe(null);
     });
   });
 
@@ -47,7 +47,7 @@ describe('<Avatar.Fallback />', () => {
     );
 
     await waitFor(() => {
-      expect(screen.queryByText('AC')).not.to.equal(null);
+      expect(screen.queryByText('AC')).not.toBe(null);
     });
   });
 
@@ -64,11 +64,11 @@ describe('<Avatar.Fallback />', () => {
         </Avatar.Root>,
       );
 
-      expect(screen.queryByText('AC')).to.equal(null);
+      expect(screen.queryByText('AC')).toBe(null);
 
       clock.tick(100);
 
-      expect(screen.queryByText('AC')).not.to.equal(null);
+      expect(screen.queryByText('AC')).not.toBe(null);
     });
   });
 
@@ -98,14 +98,14 @@ describe('<Avatar.Fallback />', () => {
 
       const { user } = await render(<Test />);
 
-      expect(screen.queryByTestId('image')).to.equal(null);
-      expect(screen.getByTestId('fallback')).not.to.equal(null);
+      expect(screen.queryByTestId('image')).toBe(null);
+      expect(screen.getByTestId('fallback')).not.toBe(null);
 
       await user.click(screen.getByText('Show image'));
 
       await waitFor(() => {
-        expect(screen.queryByTestId('image')).to.equal(null);
-        expect(screen.getByTestId('fallback')).not.to.equal(null);
+        expect(screen.queryByTestId('image')).toBe(null);
+        expect(screen.getByTestId('fallback')).not.toBe(null);
       });
     },
   );
@@ -157,14 +157,14 @@ describe('<Avatar.Fallback />', () => {
 
       const { user } = await render(<Test />);
 
-      expect(screen.queryByTestId('image')).to.equal(null);
-      expect(screen.getByTestId('fallback')).not.to.equal(null);
+      expect(screen.queryByTestId('image')).toBe(null);
+      expect(screen.getByTestId('fallback')).not.toBe(null);
 
       await user.click(screen.getByText('Show image'));
 
       await waitFor(() => {
-        expect(screen.queryByTestId('image')).not.to.equal(null);
-        expect(screen.queryByTestId('fallback')).to.equal(null);
+        expect(screen.queryByTestId('image')).not.toBe(null);
+        expect(screen.queryByTestId('fallback')).toBe(null);
       });
     });
   });

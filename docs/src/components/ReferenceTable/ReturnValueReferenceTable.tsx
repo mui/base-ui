@@ -46,9 +46,9 @@ export async function ReturnValueReferenceTable({
 
   return (
     <React.Fragment>
-      <Accordion.Root {...props} className={clsx(props.className, 'xs:hidden')}>
+      <Accordion.Root {...props} className={clsx(props.className, 'bp0:bui-d-n')}>
         <Accordion.HeaderRow>
-          <Accordion.HeaderCell className="pl-3">Type</Accordion.HeaderCell>
+          <Accordion.HeaderCell className="bui-pl-3">Type</Accordion.HeaderCell>
         </Accordion.HeaderRow>
         {entries.map(async ([name, def], index) => {
           const typeValue = def.type ?? def.detailedType;
@@ -77,10 +77,10 @@ export async function ReturnValueReferenceTable({
                 {ReturnType ? (
                   <ReturnType />
                 ) : (
-                  <TableCode className="text-(--syntax-nullish)">—</TableCode>
+                  <TableCode style={{ color: 'var(--syntax-nullish)' }}>—</TableCode>
                 )}
                 <svg
-                  className="AccordionIcon ml-auto mr-1"
+                  className="AccordionIcon bui-ml-a bui-mr-1"
                   width="10"
                   height="10"
                   viewBox="0 0 10 10"
@@ -91,11 +91,11 @@ export async function ReturnValueReferenceTable({
                 </svg>
               </Accordion.Trigger>
               <Accordion.Panel>
-                <Accordion.Content className="flex flex-col gap-3 p-4 text-md text-pretty">
+                <Accordion.Content className="ReferenceCompactPanel">
                   {ReturnDescription ? (
                     <ReturnDescription />
                   ) : (
-                    <TableCode className="text-(--syntax-nullish)">—</TableCode>
+                    <TableCode style={{ color: 'var(--syntax-nullish)' }}>—</TableCode>
                   )}
                 </Accordion.Content>
               </Accordion.Panel>
@@ -104,12 +104,12 @@ export async function ReturnValueReferenceTable({
         })}
       </Accordion.Root>
 
-      <Table.Root {...props} className={clsx('hidden xs:block', props.className)}>
+      <Table.Root {...props} className={clsx('bui-d-n', 'bp0:bui-d-b', props.className)}>
         <Table.Head>
           <Table.Row>
-            <Table.ColumnHeader className="xs:w-2/5">Type</Table.ColumnHeader>
-            <Table.ColumnHeader className="xs:w-3/5">
-              <span className="sr-only xs:not-sr-only xs:contents">Description</span>
+            <Table.ColumnHeader className="ReferenceReturnTypeColumn">Type</Table.ColumnHeader>
+            <Table.ColumnHeader className="ReferenceReturnDescriptionColumn">
+              Description
             </Table.ColumnHeader>
           </Table.Row>
         </Table.Head>
@@ -132,14 +132,14 @@ export async function ReturnValueReferenceTable({
                   {ReturnType ? (
                     <ReturnType />
                   ) : (
-                    <TableCode className="text-(--syntax-nullish)">—</TableCode>
+                    <TableCode style={{ color: 'var(--syntax-nullish)' }}>—</TableCode>
                   )}
                 </Table.Cell>
                 <Table.Cell>
                   {ReturnDescription ? (
                     <ReturnDescription />
                   ) : (
-                    <TableCode className="text-(--syntax-nullish)">—</TableCode>
+                    <TableCode style={{ color: 'var(--syntax-nullish)' }}>—</TableCode>
                   )}
                 </Table.Cell>
               </Table.Row>

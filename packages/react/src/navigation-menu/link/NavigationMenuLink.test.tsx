@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
@@ -47,15 +47,15 @@ describe('<NavigationMenu.Link />', () => {
       await user.click(trigger);
 
       await waitFor(() => {
-        expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+        expect(screen.queryByTestId('popup-1')).not.toBe(null);
       });
-      expect(trigger).to.have.attribute('aria-expanded', 'true');
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
 
       const link = screen.getByRole('link', { name: 'Link 1' });
       await user.click(link);
 
-      await waitFor(() => expect(screen.queryByTestId('popup-1')).to.equal(null));
-      expect(trigger).to.have.attribute('aria-expanded', 'false');
+      await waitFor(() => expect(screen.queryByTestId('popup-1')).toBe(null));
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
     });
 
     it('does not close the menu when clicking a link when false', async () => {
@@ -87,15 +87,15 @@ describe('<NavigationMenu.Link />', () => {
       await user.click(trigger);
 
       await waitFor(() => {
-        expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+        expect(screen.queryByTestId('popup-1')).not.toBe(null);
       });
-      expect(trigger).to.have.attribute('aria-expanded', 'true');
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
 
       const link = screen.getByRole('link', { name: 'Link 1' });
       await user.click(link);
 
-      await waitFor(() => expect(screen.queryByTestId('popup-1')).not.to.equal(null));
-      expect(trigger).to.have.attribute('aria-expanded', 'true');
+      await waitFor(() => expect(screen.queryByTestId('popup-1')).not.toBe(null));
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
     });
   });
 
@@ -112,10 +112,7 @@ describe('<NavigationMenu.Link />', () => {
           </NavigationMenu.List>
         </NavigationMenu.Root>,
       );
-      expect(screen.getByRole('link', { name: 'active' })).to.have.attribute(
-        'aria-current',
-        'page',
-      );
+      expect(screen.getByRole('link', { name: 'active' })).toHaveAttribute('aria-current', 'page');
     });
 
     it('when `false`, does not render with aria-current="page"', async () => {
@@ -130,7 +127,7 @@ describe('<NavigationMenu.Link />', () => {
           </NavigationMenu.List>
         </NavigationMenu.Root>,
       );
-      expect(screen.getByRole('link', { name: 'inactive' })).not.to.have.attribute('aria-current');
+      expect(screen.getByRole('link', { name: 'inactive' })).not.toHaveAttribute('aria-current');
     });
   });
 });

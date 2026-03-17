@@ -98,6 +98,8 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
   );
 };
 
+export interface LabelableProviderState {}
+
 export interface LabelableProviderProps {
   controlId?: string | null | undefined;
   labelId?: string | undefined;
@@ -105,5 +107,6 @@ export interface LabelableProviderProps {
 }
 
 export namespace LabelableProvider {
+  export type State = LabelableProviderState;
   export type Props = LabelableProviderProps;
 }

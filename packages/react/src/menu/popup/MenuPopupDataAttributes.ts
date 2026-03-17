@@ -29,7 +29,7 @@ export enum MenuPopupDataAttributes {
   align = CommonPopupDataAttributes.align,
   /**
    * Present if animations should be instant.
-   * @type {'click' | 'dismiss' | 'group'}
+   * @type {'click' | 'dismiss' | 'group' | 'trigger-change'}
    */
   instant = 'data-instant',
 }

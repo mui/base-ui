@@ -2,18 +2,16 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useTimeout } from '@base-ui/utils/useTimeout';
-import { useInterval } from '@base-ui/utils/useInterval';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
-import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import { ownerDocument } from '@base-ui/utils/owner';
 import { isIOS } from '@base-ui/utils/detectBrowser';
 import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import type { FieldRoot } from '../../field/root/FieldRoot';
+import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
@@ -28,13 +26,12 @@ import {
   PLUS_SIGNS_WITH_ASCII,
 } from '../utils/parse';
 import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
-import { CHANGE_VALUE_TICK_DELAY, DEFAULT_STEP, START_AUTO_CHANGE_DELAY } from '../utils/constants';
+import { DEFAULT_STEP } from '../utils/constants';
 import { toValidatedNumber } from '../utils/validate';
 import { EventWithOptionalKeyState } from '../utils/types';
 import type { ChangeEventCustomProperties, IncrementValueParameters } from '../utils/types';
 import {
   createChangeEventDetails,
-  createGenericEventDetails,
   type BaseUIChangeEventDetails,
   type BaseUIGenericEventDetails,
   type ReasonToEvent,
@@ -132,15 +129,8 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     },
   );
 
-  const startTickTimeout = useTimeout();
-  const tickInterval = useInterval();
-  const intentionalTouchCheckTimeout = useTimeout();
-
-  const isPressedRef = React.useRef(false);
-  const movesAfterTouchRef = React.useRef(0);
   const allowInputSyncRef = React.useRef(true);
   const lastChangedValueRef = React.useRef<number | null>(null);
-  const unsubscribeFromGlobalContextMenuRef = React.useRef<() => void>(() => {});
 
   // During SSR, the value is formatted on the server, whose locale may differ from the client's
   // locale. This causes a hydration mismatch, which we manually suppress. This is preferable to
@@ -297,71 +287,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     },
   );
 
-  const stopAutoChange = useStableCallback(() => {
-    intentionalTouchCheckTimeout.clear();
-    startTickTimeout.clear();
-    tickInterval.clear();
-    unsubscribeFromGlobalContextMenuRef.current();
-    movesAfterTouchRef.current = 0;
-  });
-
-  const startAutoChange = useStableCallback(
-    (isIncrement: boolean, triggerEvent?: React.MouseEvent | Event) => {
-      stopAutoChange();
-
-      if (!inputRef.current) {
-        return;
-      }
-
-      const win = ownerWindow(inputRef.current);
-
-      function handleContextMenu(event: Event) {
-        event.preventDefault();
-      }
-
-      // A global context menu is necessary to prevent the context menu from appearing when the touch
-      // is slightly outside of the element's hit area.
-      win.addEventListener('contextmenu', handleContextMenu);
-      unsubscribeFromGlobalContextMenuRef.current = () => {
-        win.removeEventListener('contextmenu', handleContextMenu);
-      };
-
-      win.addEventListener(
-        'pointerup',
-        (event) => {
-          isPressedRef.current = false;
-          stopAutoChange();
-          const committed = lastChangedValueRef.current ?? valueRef.current;
-          const commitReason = isIncrement ? 'increment' : 'decrement';
-          onValueCommitted(committed, createGenericEventDetails(commitReason, event));
-        },
-        { once: true },
-      );
-
-      function tick() {
-        const amount = getStepAmount(triggerEvent as EventWithOptionalKeyState) ?? DEFAULT_STEP;
-        return incrementValue(amount, {
-          direction: isIncrement ? 1 : -1,
-          event: triggerEvent,
-          reason: isIncrement ? 'increment-press' : 'decrement-press',
-        });
-      }
-
-      if (!tick()) {
-        stopAutoChange();
-        return;
-      }
-
-      startTickTimeout.start(START_AUTO_CHANGE_DELAY, () => {
-        tickInterval.start(CHANGE_VALUE_TICK_DELAY, () => {
-          if (!tick()) {
-            stopAutoChange();
-          }
-        });
-      });
-    },
-  );
-
   // We need to update the input value when the external `value` prop changes. This ends up acting
   // as a single source of truth to update the input value, bypassing the need to manually set it in
   // each event handler internally in this hook.
@@ -410,10 +335,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     [minWithDefault, formatStyle],
   );
 
-  React.useEffect(() => {
-    return () => stopAutoChange();
-  }, [stopAutoChange]);
-
   // The `onWheel` prop can't be prevented, so we need to use a global event listener.
   React.useEffect(
     function registerElementWheelListener() {
@@ -452,7 +373,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     [allowWheelScrub, incrementValue, disabled, readOnly, largeStep, step, getStepAmount],
   );
 
-  const state: NumberFieldRoot.State = React.useMemo(
+  const state: NumberFieldRootState = React.useMemo(
     () => ({
       ...fieldState,
       disabled,
@@ -470,8 +391,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       inputRef,
       inputValue,
       value,
-      startAutoChange,
-      stopAutoChange,
       minWithDefault,
       maxWithDefault,
       disabled,
@@ -485,9 +404,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       valueRef,
       lastChangedValueRef,
       hasPendingCommitRef,
-      isPressedRef,
-      intentionalTouchCheckTimeout,
-      movesAfterTouchRef,
       name,
       required,
       invalid,
@@ -506,8 +422,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       inputRef,
       inputValue,
       value,
-      startAutoChange,
-      stopAutoChange,
       minWithDefault,
       maxWithDefault,
       disabled,
@@ -518,7 +432,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       getStepAmount,
       formatOptionsRef,
       valueRef,
-      intentionalTouchCheckTimeout,
       name,
       required,
       invalid,
@@ -713,7 +626,7 @@ export interface NumberFieldRootProps extends Omit<
   inputRef?: React.Ref<HTMLInputElement> | undefined;
 }
 
-export interface NumberFieldRootState extends FieldRoot.State {
+export interface NumberFieldRootState extends FieldRootState {
   /**
    * The raw numeric value of the field.
    */

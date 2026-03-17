@@ -1,8 +1,7 @@
+import { expect, vi } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance } from '#test-utils';
 import { act, screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
-import { spy } from 'sinon';
 
 describe('<Combobox.ChipRemove />', () => {
   const { render } = createRenderer();
@@ -35,11 +34,11 @@ describe('<Combobox.ChipRemove />', () => {
       );
 
       const remove = screen.getByTestId('remove');
-      expect(remove).to.have.attribute('aria-disabled', 'true');
+      expect(remove).toHaveAttribute('aria-disabled', 'true');
     });
 
     it('should not remove chip when disabled', async () => {
-      const handleValueChange = spy();
+      const handleValueChange = vi.fn();
       const { user } = await render(
         <Combobox.Root
           multiple
@@ -65,14 +64,14 @@ describe('<Combobox.ChipRemove />', () => {
 
       await user.click(removeApple);
 
-      expect(handleValueChange.callCount).to.equal(0);
-      expect(screen.getByTestId('chip-apple')).not.to.equal(null);
+      expect(handleValueChange.mock.calls.length).toBe(0);
+      expect(screen.getByTestId('chip-apple')).not.toBe(null);
     });
   });
 
   describe('prop: readOnly', () => {
     it('should not remove chip when readOnly', async () => {
-      const handleValueChange = spy();
+      const handleValueChange = vi.fn();
       const { user } = await render(
         <Combobox.Root
           multiple
@@ -98,8 +97,8 @@ describe('<Combobox.ChipRemove />', () => {
 
       await user.click(removeApple);
 
-      expect(handleValueChange.callCount).to.equal(0);
-      expect(screen.getByTestId('chip-apple')).not.to.equal(null);
+      expect(handleValueChange.mock.calls.length).toBe(0);
+      expect(screen.getByTestId('chip-apple')).not.toBe(null);
     });
 
     it('should be focusable but not functional when readOnly', async () => {
@@ -124,13 +123,13 @@ describe('<Combobox.ChipRemove />', () => {
 
       // But should not trigger action
       await user.keyboard('{Enter}');
-      expect(screen.getByTestId('remove')).not.to.equal(null);
+      expect(screen.getByTestId('remove')).not.toBe(null);
     });
   });
 
   describe('interaction behavior', () => {
     it('should remove chip on click when enabled', async () => {
-      const handleValueChange = spy();
+      const handleValueChange = vi.fn();
       const { user } = await render(
         <Combobox.Root
           multiple
@@ -155,8 +154,8 @@ describe('<Combobox.ChipRemove />', () => {
 
       await user.click(removeApple);
 
-      expect(handleValueChange.callCount).to.equal(1);
-      expect(handleValueChange.args[0][0]).to.deep.equal(['banana']);
+      expect(handleValueChange.mock.calls.length).toBe(1);
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['banana']);
     });
 
     it('should focus input after removing chip', async () => {
@@ -181,8 +180,8 @@ describe('<Combobox.ChipRemove />', () => {
     });
 
     it('should prevent event propagation', async () => {
-      const handleChipClick = spy();
-      const handleRemoveClick = spy();
+      const handleChipClick = vi.fn();
+      const handleRemoveClick = vi.fn();
       const { user } = await render(
         <Combobox.Root multiple defaultValue={['apple']}>
           <Combobox.Input data-testid="input" />
@@ -200,12 +199,12 @@ describe('<Combobox.ChipRemove />', () => {
       await user.click(remove);
 
       // Remove click should happen but not propagate to chip
-      expect(handleRemoveClick.callCount).to.equal(1);
-      expect(handleChipClick.callCount).to.equal(0);
+      expect(handleRemoveClick.mock.calls.length).toBe(1);
+      expect(handleChipClick.mock.calls.length).toBe(0);
     });
 
     it('should handle keyboard activation', async () => {
-      const handleValueChange = spy();
+      const handleValueChange = vi.fn();
       const { user } = await render(
         <Combobox.Root
           multiple
@@ -230,8 +229,8 @@ describe('<Combobox.ChipRemove />', () => {
       });
       await user.keyboard('{Enter}');
 
-      expect(handleValueChange.callCount).to.equal(1);
-      expect(handleValueChange.args[0][0]).to.deep.equal(['banana']);
+      expect(handleValueChange.mock.calls.length).toBe(1);
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['banana']);
     });
 
     it('should have proper tab index', async () => {
@@ -247,7 +246,7 @@ describe('<Combobox.ChipRemove />', () => {
       );
 
       const remove = screen.getByTestId('remove');
-      expect(remove).to.have.attribute('tabindex', '-1');
+      expect(remove).toHaveAttribute('tabindex', '-1');
     });
   });
 });

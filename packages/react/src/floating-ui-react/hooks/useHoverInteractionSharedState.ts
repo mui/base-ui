@@ -4,10 +4,8 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Timeout } from '@base-ui/utils/useTimeout';
 
 import type { ContextData, FloatingRootContext, SafePolygonOptions } from '../types';
-import { createAttribute } from '../utils/createAttribute';
 import { TYPEABLE_SELECTOR } from '../utils/constants';
 
-export const safePolygonIdentifier = createAttribute('safe-polygon');
 const interactiveSelector = `button,a,[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`;
 
 export function isInteractiveElement(element: Element | null) {
@@ -20,7 +18,9 @@ export class HoverInteraction {
   handler: ((event: MouseEvent) => void) | undefined;
   blockMouseMove: boolean;
   performedPointerEventsMutation: boolean;
-  unbindMouseMove: () => void;
+  pointerEventsScopeElement: HTMLElement | SVGSVGElement | null;
+  pointerEventsReferenceElement: HTMLElement | SVGSVGElement | null;
+  pointerEventsFloatingElement: HTMLElement | null;
   restTimeoutPending: boolean;
   openChangeTimeout: Timeout;
   restTimeout: Timeout;
@@ -32,7 +32,9 @@ export class HoverInteraction {
     this.handler = undefined;
     this.blockMouseMove = true;
     this.performedPointerEventsMutation = false;
-    this.unbindMouseMove = () => {};
+    this.pointerEventsScopeElement = null;
+    this.pointerEventsReferenceElement = null;
+    this.pointerEventsFloatingElement = null;
     this.restTimeoutPending = false;
     this.openChangeTimeout = new Timeout();
     this.restTimeout = new Timeout();
@@ -51,6 +53,49 @@ export class HoverInteraction {
   disposeEffect = () => {
     return this.dispose;
   };
+}
+
+type PointerEventsMutationState = Pick<
+  HoverInteraction,
+  | 'performedPointerEventsMutation'
+  | 'pointerEventsScopeElement'
+  | 'pointerEventsReferenceElement'
+  | 'pointerEventsFloatingElement'
+>;
+
+export function clearSafePolygonPointerEventsMutation(instance: PointerEventsMutationState) {
+  if (!instance.performedPointerEventsMutation) {
+    return;
+  }
+
+  instance.pointerEventsScopeElement?.style.removeProperty('pointer-events');
+  instance.pointerEventsReferenceElement?.style.removeProperty('pointer-events');
+  instance.pointerEventsFloatingElement?.style.removeProperty('pointer-events');
+  instance.performedPointerEventsMutation = false;
+  instance.pointerEventsScopeElement = null;
+  instance.pointerEventsReferenceElement = null;
+  instance.pointerEventsFloatingElement = null;
+}
+
+export function applySafePolygonPointerEventsMutation(
+  instance: PointerEventsMutationState,
+  options: {
+    scopeElement: HTMLElement | SVGSVGElement;
+    referenceElement: HTMLElement | SVGSVGElement;
+    floatingElement: HTMLElement;
+  },
+) {
+  const { scopeElement, referenceElement, floatingElement } = options;
+
+  clearSafePolygonPointerEventsMutation(instance);
+  instance.performedPointerEventsMutation = true;
+  instance.pointerEventsScopeElement = scopeElement;
+  instance.pointerEventsReferenceElement = referenceElement;
+  instance.pointerEventsFloatingElement = floatingElement;
+
+  scopeElement.style.pointerEvents = 'none';
+  referenceElement.style.pointerEvents = 'auto';
+  floatingElement.style.pointerEvents = 'auto';
 }
 
 type HoverContextData = ContextData & {

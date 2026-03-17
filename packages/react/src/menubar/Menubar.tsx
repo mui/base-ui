@@ -16,7 +16,7 @@ import { useBaseUiId } from '../utils/useBaseUiId';
 import { MenuOpenEventDetails } from '../menu/utils/types';
 import { StateAttributesMapping } from '../utils/getStateAttributesProps';
 
-const menubarStateAttributesMapping: StateAttributesMapping<Menubar.State> = {
+const menubarStateAttributesMapping: StateAttributesMapping<MenubarState> = {
   hasSubmenuOpen(value) {
     return {
       'data-has-submenu-open': value ? 'true' : 'false',
@@ -47,23 +47,13 @@ export const Menubar = React.forwardRef(function Menubar(
   const [contentElement, setContentElement] = React.useState<HTMLElement | null>(null);
   const [hasSubmenuOpen, setHasSubmenuOpen] = React.useState(false);
 
-  const {
-    openMethod,
-    triggerProps: interactionTypeProps,
-    reset: resetOpenInteractionType,
-  } = useOpenInteractionType(hasSubmenuOpen);
-
-  React.useEffect(() => {
-    if (!hasSubmenuOpen) {
-      resetOpenInteractionType();
-    }
-  }, [hasSubmenuOpen, resetOpenInteractionType]);
+  const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(hasSubmenuOpen);
 
   useScrollLock(modal && hasSubmenuOpen && openMethod !== 'touch', contentElement);
 
   const id = useBaseUiId(idProp);
 
-  const state: Menubar.State = {
+  const state: MenubarState = {
     orientation,
     modal,
     hasSubmenuOpen,
@@ -153,7 +143,7 @@ export interface MenubarState {
   hasSubmenuOpen: boolean;
 }
 
-export interface MenubarProps extends BaseUIComponentProps<'div', Menubar.State> {
+export interface MenubarProps extends BaseUIComponentProps<'div', MenubarState> {
   /**
    * Whether the menubar is modal.
    * @default true

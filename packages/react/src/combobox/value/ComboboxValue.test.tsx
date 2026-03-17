@@ -1,5 +1,5 @@
+import { expect } from 'vitest';
 import * as React from 'react';
-import { expect } from 'chai';
 import { screen } from '@mui/internal-test-utils';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer } from '#test-utils';
@@ -25,7 +25,7 @@ describe('<Combobox.Value />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByTestId('value')).to.have.text('b');
+      expect(screen.getByTestId('value')).toHaveTextContent('b');
     });
 
     it('renders function child with null when no value selected', async () => {
@@ -46,7 +46,7 @@ describe('<Combobox.Value />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByTestId('value')).to.have.text('null');
+      expect(screen.getByTestId('value')).toHaveTextContent('null');
     });
 
     it('renders function child with complex objects', async () => {
@@ -69,7 +69,7 @@ describe('<Combobox.Value />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByTestId('value')).to.have.text('Test (1)');
+      expect(screen.getByTestId('value')).toHaveTextContent('Test (1)');
     });
 
     it('overrides the value display when children is a static ReactNode', async () => {
@@ -88,7 +88,7 @@ describe('<Combobox.Value />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByText('Custom Display Text')).not.to.equal(null);
+      expect(screen.getByText('Custom Display Text')).not.toBe(null);
     });
 
     it('renders complex ReactNode children', async () => {
@@ -112,8 +112,8 @@ describe('<Combobox.Value />', () => {
       );
 
       const element = screen.getByTestId('complex');
-      expect(element.querySelector('strong')).to.have.text('Bold');
-      expect(element.querySelector('em')).to.have.text('italic');
+      expect(element.querySelector('strong')).toHaveTextContent('Bold');
+      expect(element.querySelector('em')).toHaveTextContent('italic');
     });
   });
 
@@ -138,7 +138,7 @@ describe('<Combobox.Value />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByTestId('value')).to.have.text('Test Label');
+      expect(screen.getByTestId('value')).toHaveTextContent('Test Label');
     });
 
     it('renders ReactNode label from selected value object', async () => {
@@ -164,7 +164,7 @@ describe('<Combobox.Value />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByTestId('label-node')).to.have.text('Formatted Label');
+      expect(screen.getByTestId('label-node')).toHaveTextContent('Formatted Label');
     });
 
     it('handles selected value with null label', async () => {
@@ -188,7 +188,7 @@ describe('<Combobox.Value />', () => {
       );
 
       // Should fall back to stringifyItem behavior
-      expect(screen.getByTestId('value')).to.have.text('test');
+      expect(screen.getByTestId('value')).toHaveTextContent('test');
     });
   });
 
@@ -217,7 +217,7 @@ describe('<Combobox.Value />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByTestId('value')).to.have.text('Select item');
+      expect(screen.getByTestId('value')).toHaveTextContent('Select item');
     });
 
     it('renders null item label when input is inside popup and no defaultValue', async () => {
@@ -248,7 +248,7 @@ describe('<Combobox.Value />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByTestId('value')).to.have.text('Select country');
+      expect(screen.getByTestId('value')).toHaveTextContent('Select country');
     });
 
     it('displays the label from items array when value is selected', async () => {
@@ -277,7 +277,7 @@ describe('<Combobox.Value />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByTestId('value')).to.have.text('Serif');
+      expect(screen.getByTestId('value')).toHaveTextContent('Serif');
     });
 
     it('updates the label when value changes with items array', async () => {
@@ -316,16 +316,16 @@ describe('<Combobox.Value />', () => {
 
       const { user } = await render(<App />);
 
-      expect(screen.getByTestId('value')).to.have.text('Sans-serif');
+      expect(screen.getByTestId('value')).toHaveTextContent('Sans-serif');
 
       await user.click(screen.getByRole('button', { name: 'serif' }));
-      expect(screen.getByTestId('value')).to.have.text('Serif');
+      expect(screen.getByTestId('value')).toHaveTextContent('Serif');
 
       await user.click(screen.getByRole('button', { name: 'mono' }));
-      expect(screen.getByTestId('value')).to.have.text('Monospace');
+      expect(screen.getByTestId('value')).toHaveTextContent('Monospace');
 
       await user.click(screen.getByRole('button', { name: 'clear' }));
-      expect(screen.getByTestId('value')).to.have.text('');
+      expect(screen.getByTestId('value')).toHaveTextContent('');
     });
 
     it('supports ReactNode labels in items array', async () => {
@@ -352,7 +352,7 @@ describe('<Combobox.Value />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByTestId('value').querySelector('strong')).to.have.text('Bold Text');
+      expect(screen.getByTestId('value').querySelector('strong')).toHaveTextContent('Bold Text');
     });
 
     it('handles duplicate values in items array (uses first match)', async () => {
@@ -381,7 +381,7 @@ describe('<Combobox.Value />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByTestId('value')).to.have.text('First Label');
+      expect(screen.getByTestId('value')).toHaveTextContent('First Label');
     });
 
     it('is not stale after items are updated', async () => {
@@ -430,13 +430,13 @@ describe('<Combobox.Value />', () => {
 
       const { user } = await render(<App />);
 
-      expect(screen.getByTestId('value')).to.have.text('a');
+      expect(screen.getByTestId('value')).toHaveTextContent('a');
 
       await user.click(screen.getByRole('button', { name: 'update' }));
-      expect(screen.getByTestId('value')).to.have.text('a new');
+      expect(screen.getByTestId('value')).toHaveTextContent('a new');
 
       await user.click(screen.getByRole('button', { name: 'select c' }));
-      expect(screen.getByTestId('value')).to.have.text('c');
+      expect(screen.getByTestId('value')).toHaveTextContent('c');
     });
   });
 
@@ -483,7 +483,7 @@ describe('<Combobox.Value />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByTestId('value')).to.have.text('Serif');
+      expect(screen.getByTestId('value')).toHaveTextContent('Serif');
     });
 
     it('handles null items in grouped structure', async () => {
@@ -517,7 +517,7 @@ describe('<Combobox.Value />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByTestId('value')).to.have.text('None selected');
+      expect(screen.getByTestId('value')).toHaveTextContent('None selected');
     });
   });
 
@@ -553,7 +553,7 @@ describe('<Combobox.Value />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByTestId('value')).to.have.text('Sans-serif, Serif');
+      expect(screen.getByTestId('value')).toHaveTextContent('Sans-serif, Serif');
     });
 
     it('supports ReactNode labels for multiple selections', async () => {
@@ -586,9 +586,9 @@ describe('<Combobox.Value />', () => {
       );
 
       const value = screen.getByTestId('value');
-      expect(value.querySelector('strong')).to.have.text('Bold Text');
-      expect(value.querySelector('em')).to.have.text('Italic Text');
-      expect(value).to.have.text('Bold Text, Italic Text');
+      expect(value.querySelector('strong')).toHaveTextContent('Bold Text');
+      expect(value.querySelector('em')).toHaveTextContent('Italic Text');
+      expect(value).toHaveTextContent('Bold Text, Italic Text');
     });
 
     it('falls back to raw values when items are not provided', async () => {
@@ -612,7 +612,7 @@ describe('<Combobox.Value />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByTestId('value')).to.have.text('serif, mono');
+      expect(screen.getByTestId('value')).toHaveTextContent('serif, mono');
     });
   });
 
@@ -635,7 +635,7 @@ describe('<Combobox.Value />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByTestId('value')).to.have.text('test-string');
+      expect(screen.getByTestId('value')).toHaveTextContent('test-string');
     });
 
     it('handles number values correctly', async () => {
@@ -656,7 +656,7 @@ describe('<Combobox.Value />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByTestId('value')).to.have.text('42');
+      expect(screen.getByTestId('value')).toHaveTextContent('42');
     });
 
     it('handles boolean values correctly', async () => {
@@ -678,7 +678,7 @@ describe('<Combobox.Value />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByTestId('value')).to.have.text('true');
+      expect(screen.getByTestId('value')).toHaveTextContent('true');
     });
   });
 
@@ -710,7 +710,7 @@ describe('<Combobox.Value />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByTestId('value')).to.have.text('Custom: Test Item');
+      expect(screen.getByTestId('value')).toHaveTextContent('Custom: Test Item');
     });
   });
 
@@ -733,7 +733,7 @@ describe('<Combobox.Value />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByTestId('value')).to.have.text('Select an option');
+      expect(screen.getByTestId('value')).toHaveTextContent('Select an option');
     });
 
     it('does not display placeholder when value is selected', async () => {
@@ -754,7 +754,7 @@ describe('<Combobox.Value />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByTestId('value')).to.have.text('option1');
+      expect(screen.getByTestId('value')).toHaveTextContent('option1');
     });
 
     it('children prop takes precedence over placeholder', async () => {
@@ -775,7 +775,7 @@ describe('<Combobox.Value />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByTestId('value')).to.have.text('Custom Text');
+      expect(screen.getByTestId('value')).toHaveTextContent('Custom Text');
     });
 
     it('children function takes precedence over placeholder', async () => {
@@ -798,7 +798,7 @@ describe('<Combobox.Value />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByTestId('value')).to.have.text('Function fallback');
+      expect(screen.getByTestId('value')).toHaveTextContent('Function fallback');
     });
 
     it('null item label in items takes precedence over placeholder', async () => {
@@ -825,7 +825,7 @@ describe('<Combobox.Value />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByTestId('value')).to.have.text('None');
+      expect(screen.getByTestId('value')).toHaveTextContent('None');
     });
 
     it('uses placeholder when items have null value without label', async () => {
@@ -852,7 +852,7 @@ describe('<Combobox.Value />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByTestId('value')).to.have.text('Select an option');
+      expect(screen.getByTestId('value')).toHaveTextContent('Select an option');
     });
 
     it('supports ReactNode as placeholder', async () => {
@@ -873,7 +873,7 @@ describe('<Combobox.Value />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByTestId('placeholder')).to.have.text('Select an option');
+      expect(screen.getByTestId('placeholder')).toHaveTextContent('Select an option');
     });
 
     it('displays placeholder when multiple mode has empty array', async () => {
@@ -894,7 +894,7 @@ describe('<Combobox.Value />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByTestId('value')).to.have.text('Select options');
+      expect(screen.getByTestId('value')).toHaveTextContent('Select options');
     });
   });
 });
