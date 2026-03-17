@@ -211,7 +211,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     if (inset) {
       queueMicrotask(getInsetPosition);
     }
-  }, [getInsetPosition, inset]);
+  }, [controlRef, getInsetPosition, inset]);
 
   useIsoLayoutEffect(() => {
     if (inset) {
@@ -239,7 +239,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     return () => {
       resizeObserver.disconnect();
     };
-  }, [getInsetPosition, inset]);
+  }, [controlRef, getInsetPosition, inset]);
 
   const getThumbStyle = React.useCallback(() => {
     const startEdge = vertical ? 'bottom' : 'insetInlineStart';
