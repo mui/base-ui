@@ -2541,41 +2541,133 @@ describe('<Combobox.Root />', () => {
       expect(input).toHaveValue('');
     });
 
-    it('does not close popup when filtering with input inside popup in multiple mode', async () => {
-      const items = ['apple', 'apricot', 'banana'];
-      const { user } = await render(
-        <Combobox.Root multiple items={items}>
-          <Combobox.Trigger data-testid="trigger">
-            <Combobox.Value />
-          </Combobox.Trigger>
-          <Combobox.Portal>
-            <Combobox.Positioner>
-              <Combobox.Popup>
-                <Combobox.Input data-testid="input" />
-                <Combobox.List>
-                  {(item: string) => (
-                    <Combobox.Item key={item} value={item}>
-                      {item}
-                    </Combobox.Item>
+    describe('item click behavior matrix', () => {
+      const behaviorValues = ['auto', 'always', 'never'] as const;
+      const selectionModes = [
+        { multiple: false, label: 'single' },
+        { multiple: true, label: 'multiple' },
+      ] as const;
+      const inputLocations = [
+        { inputInsidePopup: false, label: 'outside' },
+        { inputInsidePopup: true, label: 'inside' },
+      ] as const;
+      const filteringStates = [
+        { filtering: false, label: 'not filtering' },
+        { filtering: true, label: 'filtering' },
+      ] as const;
+
+      function resolveBehavior(
+        behavior: (typeof behaviorValues)[number],
+        autoValue: boolean,
+      ): boolean {
+        if (behavior === 'always') {
+          return true;
+        }
+
+        if (behavior === 'never') {
+          return false;
+        }
+
+        return autoValue;
+      }
+
+      async function renderItemClickScenario({
+        multiple,
+        inputInsidePopup,
+        closeOnItemClick,
+        clearOnItemClick,
+      }: {
+        multiple: boolean;
+        inputInsidePopup: boolean;
+        closeOnItemClick: (typeof behaviorValues)[number];
+        clearOnItemClick: (typeof behaviorValues)[number];
+      }) {
+        const { user } = await render(
+          <Combobox.Root
+            defaultOpen
+            multiple={multiple || undefined}
+            closeOnItemClick={closeOnItemClick}
+          >
+            {inputInsidePopup ? (
+              <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+            ) : (
+              <Combobox.Input data-testid="input" clearOnItemClick={clearOnItemClick} />
+            )}
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  {inputInsidePopup && (
+                    <Combobox.Input data-testid="input" clearOnItemClick={clearOnItemClick} />
                   )}
-                </Combobox.List>
-              </Combobox.Popup>
-            </Combobox.Positioner>
-          </Combobox.Portal>
-        </Combobox.Root>,
-      );
+                  <Combobox.List>
+                    <Combobox.Item value="apple">apple</Combobox.Item>
+                    <Combobox.Item value="banana">banana</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
 
-      const trigger = screen.getByTestId('trigger');
-      await user.click(trigger);
+        return { user, input: screen.getByTestId('input') };
+      }
 
-      const input = await screen.findByTestId('input');
-      await user.type(input, 'app');
-      await user.click(screen.getByRole('option', { name: 'apple' }));
+      for (const { multiple, label: selectionModeLabel } of selectionModes) {
+        for (const { inputInsidePopup, label: inputLocationLabel } of inputLocations) {
+          for (const { filtering, label: filteringLabel } of filteringStates) {
+            for (const closeOnItemClick of behaviorValues) {
+              for (const clearOnItemClick of behaviorValues) {
+                it(`${selectionModeLabel}, ${inputLocationLabel} popup input, ${filteringLabel}, close=${closeOnItemClick}, clear=${clearOnItemClick}`, async () => {
+                  const { user, input } = await renderItemClickScenario({
+                    multiple,
+                    inputInsidePopup,
+                    closeOnItemClick,
+                    clearOnItemClick,
+                  });
 
-      await waitFor(() => {
-        expect(screen.queryByRole('listbox')).not.toBe(null);
-      });
-      expect(input).toHaveValue('');
+                  if (filtering) {
+                    await user.type(input, 'app');
+                    await flushMicrotasks();
+                  }
+
+                  await user.click(screen.getByRole('option', { name: 'apple' }));
+                  await flushMicrotasks();
+
+                  const shouldClearInput = resolveBehavior(
+                    clearOnItemClick,
+                    multiple ? filtering : inputInsidePopup,
+                  );
+                  const shouldClose = resolveBehavior(
+                    closeOnItemClick,
+                    multiple ? filtering && !inputInsidePopup : true,
+                  );
+                  let expectedInputValue = '';
+
+                  if (!shouldClearInput) {
+                    if (multiple || inputInsidePopup) {
+                      expectedInputValue = filtering ? 'app' : '';
+                    } else {
+                      expectedInputValue = 'apple';
+                    }
+                  }
+
+                  if (shouldClose) {
+                    await waitFor(() => {
+                      expect(screen.queryByRole('listbox')).toBe(null);
+                    });
+                  } else {
+                    await waitFor(() => {
+                      expect(screen.queryByRole('listbox')).not.toBe(null);
+                    });
+                  }
+
+                  expect(input).toHaveValue(expectedInputValue);
+                });
+              }
+            }
+          }
+        }
+      }
     });
 
     it('"multiple" clears typed input on close when no selection made', async () => {

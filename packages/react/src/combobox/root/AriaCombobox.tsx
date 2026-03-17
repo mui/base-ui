@@ -31,7 +31,11 @@ import {
   ComboboxRootContext,
   ComboboxInputValueContext,
 } from './ComboboxRootContext';
-import { selectors, type State as StoreState } from '../store';
+import {
+  selectors,
+  type ItemClickBehavior as ComboboxItemClickBehavior,
+  type State as StoreState,
+} from '../store';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useField } from '../../field/useField';
@@ -112,6 +116,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     formAutoComplete,
     locale,
     submitOnItemClick = false,
+    closeOnItemClick = 'auto',
   } = props;
 
   const { clearErrors } = useFormContext();
@@ -143,6 +148,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const emptyRef = React.useRef<HTMLDivElement | null>(null);
   const keyboardActiveRef = React.useRef(true);
   const hadInputClearRef = React.useRef(false);
+  const inputClearActionOnCloseRef = React.useRef<'default' | 'skip' | 'force'>('default');
+  const skipSelectedValueInputSyncRef = React.useRef(false);
   const chipsContainerRef = React.useRef<HTMLDivElement | null>(null);
   const clearRef = React.useRef<HTMLButtonElement | null>(null);
   const selectionEventRef = React.useRef<MouseEvent | PointerEvent | KeyboardEvent | null>(null);
@@ -373,6 +380,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         modal,
         autoHighlight: autoHighlightMode,
         submitOnItemClick,
+        closeOnItemClick,
+        clearOnItemClick: 'auto',
         hasInputValue,
         mounted: false,
         forceMounted: false,
@@ -551,6 +560,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       props.onOpenChange?.(nextOpen, eventDetails);
 
       if (eventDetails.isCanceled) {
+        if (!nextOpen) {
+          inputClearActionOnCloseRef.current = 'default';
+        }
         return;
       }
 
@@ -572,7 +584,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           }
           // Clear the input immediately on close while retaining filtering via closeQuery for exit animations
           // if the input is outside the popup.
-          setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
+          if (inputClearActionOnCloseRef.current !== 'skip') {
+            setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
+          }
         }
       }
 
@@ -629,6 +643,21 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   );
 
+  function resolveItemClickBehavior(
+    behavior: ComboboxItemClickBehavior,
+    autoValue: boolean,
+  ): boolean {
+    if (behavior === 'always') {
+      return true;
+    }
+
+    if (behavior === 'never') {
+      return false;
+    }
+
+    return autoValue;
+  }
+
   const handleSelection = useStableCallback(
     (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => {
       let itemValue = passedValue;
@@ -665,20 +694,36 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           : [...currentSelectedValue, itemValue];
 
         setSelectedValue(nextValue, eventDetails);
-
-        const wasFiltering = inputRef.current ? inputRef.current.value.trim() !== '' : false;
-        if (!wasFiltering) {
-          return;
-        }
-
-        if (store.state.inputInsidePopup) {
-          setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
-        } else {
-          setOpen(false, eventDetails);
-        }
       } else {
         setSelectedValue(itemValue, eventDetails);
+      }
+
+      const inputInsidePopupOnSelect = store.state.inputInsidePopup;
+      const wasFiltering = inputRef.current ? inputRef.current.value.trim() !== '' : false;
+      const shouldClearInput = resolveItemClickBehavior(
+        store.state.clearOnItemClick,
+        multiple ? wasFiltering : inputInsidePopupOnSelect,
+      );
+      const shouldClose = resolveItemClickBehavior(
+        store.state.closeOnItemClick,
+        multiple ? wasFiltering && !inputInsidePopupOnSelect : true,
+      );
+
+      if (shouldClose) {
+        if (!shouldClearInput) {
+          inputClearActionOnCloseRef.current = 'skip';
+        } else if (selectionMode === 'none' || (single && !inputInsidePopupOnSelect)) {
+          inputClearActionOnCloseRef.current = 'force';
+        } else {
+          inputClearActionOnCloseRef.current = 'default';
+        }
         setOpen(false, eventDetails);
+        return;
+      }
+
+      if (shouldClearInput) {
+        skipSelectedValueInputSyncRef.current = single && !inputInsidePopupOnSelect;
+        setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
       }
     },
   );
@@ -713,7 +758,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       multiple &&
       inputRef.current &&
       inputRef.current.value !== '' &&
-      !hadInputClearRef.current
+      !hadInputClearRef.current &&
+      inputClearActionOnCloseRef.current !== 'skip'
     ) {
       setInputValue('', createChangeEventDetails(REASONS.inputClear));
     }
@@ -723,7 +769,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     // - If input is outside the popup, sync it to the selected value
     if (single) {
       if (store.state.inputInsidePopup) {
-        if (inputRef.current && inputRef.current.value !== '') {
+        if (
+          inputRef.current &&
+          inputRef.current.value !== '' &&
+          inputClearActionOnCloseRef.current !== 'skip'
+        ) {
           setInputValue('', createChangeEventDetails(REASONS.inputClear));
         }
       } else {
@@ -735,6 +785,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         }
       }
     }
+
+    if (inputClearActionOnCloseRef.current === 'force' && inputRef.current?.value !== '') {
+      setInputValue('', createChangeEventDetails(REASONS.inputClear));
+    }
+
+    inputClearActionOnCloseRef.current = 'default';
   });
 
   // Support composing the Dialog component around an inline combobox.
@@ -911,6 +967,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       validation.commit(selectedValue);
     } else {
       validation.commit(selectedValue, true);
+    }
+
+    if (skipSelectedValueInputSyncRef.current) {
+      skipSelectedValueInputSyncRef.current = false;
+      return;
     }
 
     if (single && !hasInputValue && !inputInsidePopup) {
@@ -1120,6 +1181,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       autoHighlight: autoHighlightMode,
       isItemEqualToValue,
       submitOnItemClick,
+      closeOnItemClick,
       hasInputValue,
       requestSubmit,
     });
@@ -1151,6 +1213,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     modal,
     isItemEqualToValue,
     submitOnItemClick,
+    closeOnItemClick,
     hasInputValue,
     inlineProp,
     requestSubmit,
@@ -1503,6 +1566,14 @@ interface ComboboxRootProps<ItemValue> {
    */
   submitOnItemClick?: boolean | undefined;
   /**
+   * Whether the popup closes after selecting an item.
+   * - `'auto'` (default): preserve the default behavior for the current selection mode and filter state.
+   * - `'always'`: always close after selecting an item.
+   * - `'never'`: never close after selecting an item.
+   * @default 'auto'
+   */
+  closeOnItemClick?: ComboboxItemClickBehavior | undefined;
+  /**
    * INTERNAL: When `selectionMode` is `none`, controls whether selecting an item fills the input.
    */
   fillInputOnItemPress?: boolean | undefined;
@@ -1546,6 +1617,7 @@ export type AriaComboboxProps<
 export namespace AriaCombobox {
   export type Props<Value, Mode extends SelectionMode = 'none'> = AriaComboboxProps<Value, Mode>;
   export type State = AriaComboboxState;
+  export type ItemClickBehavior = import('../store').ItemClickBehavior;
 
   export interface Actions {
     unmount: () => void;

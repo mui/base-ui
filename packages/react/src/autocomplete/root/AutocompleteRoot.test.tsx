@@ -123,6 +123,61 @@ describe('<Autocomplete.Root />', () => {
     expect(hiddenInput).not.toHaveAttribute('autocomplete');
   });
 
+  it('ignores closeOnItemClick when passed to Root at runtime', async () => {
+    const rootProps = {
+      closeOnItemClick: 'never',
+    } as any;
+
+    const { user } = await render(
+      <Autocomplete.Root items={['alpha', 'beta']} defaultOpen {...rootProps}>
+        <Autocomplete.Input data-testid="input" />
+        <Autocomplete.Portal>
+          <Autocomplete.Positioner>
+            <Autocomplete.Popup>
+              <Autocomplete.List>
+                <Autocomplete.Item value="alpha">alpha</Autocomplete.Item>
+                <Autocomplete.Item value="beta">beta</Autocomplete.Item>
+              </Autocomplete.List>
+            </Autocomplete.Popup>
+          </Autocomplete.Positioner>
+        </Autocomplete.Portal>
+      </Autocomplete.Root>,
+    );
+
+    await user.click(screen.getByRole('option', { name: 'alpha' }));
+    await flushMicrotasks();
+
+    expect(screen.queryByRole('listbox')).toBe(null);
+  });
+
+  it('ignores clearOnItemClick when passed to Input at runtime', async () => {
+    const inputProps = {
+      clearOnItemClick: 'always',
+    } as any;
+
+    const { user } = await render(
+      <Autocomplete.Root items={['alpha', 'beta']} defaultOpen>
+        <Autocomplete.Input data-testid="input" {...inputProps} />
+        <Autocomplete.Portal>
+          <Autocomplete.Positioner>
+            <Autocomplete.Popup>
+              <Autocomplete.List>
+                <Autocomplete.Item value="alpha">alpha</Autocomplete.Item>
+                <Autocomplete.Item value="beta">beta</Autocomplete.Item>
+              </Autocomplete.List>
+            </Autocomplete.Popup>
+          </Autocomplete.Positioner>
+        </Autocomplete.Portal>
+      </Autocomplete.Root>,
+    );
+
+    const input = screen.getByTestId<HTMLInputElement>('input');
+    await user.click(screen.getByRole('option', { name: 'alpha' }));
+    await flushMicrotasks();
+
+    expect(input.value).toBe('alpha');
+  });
+
   describe('prop: autoHighlight', () => {
     it('calls onItemHighlighted when the popup auto highlights on open', async () => {
       const onItemHighlighted = vi.fn();

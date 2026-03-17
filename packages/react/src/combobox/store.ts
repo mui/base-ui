@@ -7,6 +7,8 @@ import { compareItemEquality } from '../utils/itemEquality';
 import { hasNullItemLabel } from '../utils/resolveValueLabel';
 import type { AriaCombobox } from './root/AriaCombobox';
 
+export type ItemClickBehavior = 'auto' | 'always' | 'never';
+
 export type State = {
   id: string | undefined;
   labelId: string | undefined;
@@ -90,6 +92,8 @@ export type State = {
   modal: boolean;
   autoHighlight: false | 'always' | 'input-change';
   submitOnItemClick: boolean;
+  closeOnItemClick: ItemClickBehavior;
+  clearOnItemClick: ItemClickBehavior;
   hasInputValue: boolean;
 };
 
@@ -188,4 +192,6 @@ export const selectors = {
   modal: createSelector((state: State) => state.modal),
   autoHighlight: createSelector((state: State) => state.autoHighlight),
   submitOnItemClick: createSelector((state: State) => state.submitOnItemClick),
+  closeOnItemClick: createSelector((state: State) => state.closeOnItemClick),
+  clearOnItemClick: createSelector((state: State) => state.clearOnItemClick),
 };

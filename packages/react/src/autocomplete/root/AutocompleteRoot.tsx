@@ -40,8 +40,12 @@ export function AutocompleteRoot<ItemValue>(
     onValueChange,
     mode = 'list',
     itemToStringValue,
-    ...other
+    ...unsafeOther
   } = props;
+  const { closeOnItemClick: closeOnItemClickProp, ...other } = unsafeOther as typeof unsafeOther & {
+    closeOnItemClick?: unknown;
+  };
+  void closeOnItemClickProp;
 
   const enableInline = mode === 'inline' || mode === 'both';
   const staticItems = mode === 'inline' || mode === 'none';
@@ -167,6 +171,7 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
   | 'autoComplete' // mode
   | 'formAutoComplete'
   | 'itemToStringLabel' // itemToStringValue
+  | 'closeOnItemClick'
   // Custom JSDoc
   | 'autoHighlight'
   | 'keepHighlight'

@@ -75,6 +75,12 @@
       "description": "Provides a hint to the browser for autofill.",
       "detailedType": "string | undefined"
     },
+    "closeOnItemClick": {
+      "type": "Combobox.Root.ItemClickBehavior",
+      "default": "'auto'",
+      "description": "Whether the popup closes after selecting an item.\n- `'auto'` (default): preserve the default behavior for the current selection mode and filter state.\n- `'always'`: always close after selecting an item.\n- `'never'`: never close after selecting an item.",
+      "detailedType": "'auto' | 'always' | 'never' | undefined"
+    },
     "filter": {
       "type": "((itemValue: Value, query: string, itemToString: ((itemValue: Value) => string) | undefined) => boolean) | null",
       "description": "Filter function used to match items vs input query.",
