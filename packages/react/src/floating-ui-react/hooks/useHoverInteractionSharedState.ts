@@ -230,25 +230,29 @@ export function closeHoverPopup(
     return;
   }
 
-  // --- Verification phase: did the popup actually close? ---
-  // Re-read the effective `open` selector (`openProp ?? state.open`).
-  // Controlled consumers may silently ignore the close by not updating their
-  // state and not calling `cancel()`. If `open` is still `true`, no
-  // committed close occurred — skip grace recording and tree signaling.
-  if (store.select('open')) {
-    return;
-  }
-
-  // --- Commit phase: the popup closed synchronously. ---
+  // --- Pending phase: record intent to close. ---
+  // The popup may not have closed yet — some stores (e.g. Menu) update state
+  // asynchronously. The pending close is finalized by `emitCommittedHoverClose`
+  // either synchronously below (if the store updated already) or in the
+  // `open` watcher effect when the state transitions to `false`.
+  //
+  // If a controlled consumer silently ignores the close (without calling
+  // `cancel()`), `open` never transitions to `false` so the pending close
+  // is never finalized. It will be discarded by `clearPendingHoverClose` at
+  // the top of the next `closeHoverPopup` call, or by `clearRecentHoverClose`
+  // when the next open cycle starts.
   instance.pendingHoverClose = {
     event,
     shouldRecordGrace: isHoverOpen && hoverCloseGracePeriod != null && hoverCloseGracePeriod > 0,
   };
 
-  // Finalize immediately. For controlled consumers that update state
-  // asynchronously, the pending close will instead be finalized by the
-  // `emitCommittedHoverClose` call inside the `open` watcher effect.
-  emitCommittedHoverClose(instance, tree);
+  // If the store already reflects the closed state (e.g. Popover uses
+  // `flushSync`), finalize immediately so tree coordination doesn't wait
+  // for the next render. For async stores this is a no-op — the effect
+  // path handles it.
+  if (!store.select('open')) {
+    emitCommittedHoverClose(instance, tree);
+  }
 }
 
 export function clearRecentHoverClose(instance: HoverInteraction): void {
