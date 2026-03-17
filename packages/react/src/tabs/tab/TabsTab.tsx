@@ -35,16 +35,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
     ...elementProps
   } = componentProps;
 
-  const {
-    value: activeTabValue,
-    getTabPanelIdByValue,
-    orientation,
-    tabRenderOrderRef,
-  } = useTabsRootContext();
-
-  // Register value in render order so panels can compute activation direction
-  // even when this tab isn't yet in the tab map (e.g., just added).
-  tabRenderOrderRef.current.push(value);
+  const { value: activeTabValue, getTabPanelIdByValue, orientation } = useTabsRootContext();
 
   const {
     activateOnFocus,

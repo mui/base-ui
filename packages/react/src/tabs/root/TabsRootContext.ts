@@ -39,17 +39,6 @@ export interface TabsRootContext {
    * The position of the active tab relative to the previously active tab.
    */
   tabActivationDirection: TabsTab.ActivationDirection;
-  /**
-   * Ref populated by tabs during render with their values in render order.
-   * Used for lazy direction computation when a tab is not yet in the map.
-   */
-  tabRenderOrderRef: React.RefObject<TabsTab.Value[]>;
-  /**
-   * Resolves the activation direction, falling back to render-order-based
-   * computation when the state-based direction is 'none' due to a newly
-   * added tab not yet being in the tab map.
-   */
-  resolveTabActivationDirection: () => TabsTab.ActivationDirection;
 }
 
 /**
