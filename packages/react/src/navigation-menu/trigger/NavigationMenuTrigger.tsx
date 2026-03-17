@@ -550,6 +550,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   });
 
   const hoverInteractionState = useHoverInteractionSharedState(context);
+  const shouldBlockSafePolygonPointerEvents = pointerType !== 'touch' && (!isWebKit || nested);
 
   React.useEffect(() => {
     if (!open) {
@@ -572,6 +573,10 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   });
 
   function getScope() {
+    if (!nested || positionerElement) {
+      return null;
+    }
+
     return triggerElementRef.current?.closest('ul') ?? null;
   }
 
@@ -579,7 +584,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     enabled: hoverInteractionsEnabled,
     move: false,
     handleClose: safePolygon({
-      blockPointerEvents: pointerType !== 'touch' && (!isWebKit || nested),
+      blockPointerEvents: shouldBlockSafePolygonPointerEvents,
       getScope,
     }),
     restMs: mounted && positionerElement ? 0 : delay,
@@ -646,17 +651,12 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
       if (
         event.type === 'mouseenter' &&
-        nested &&
-        !positionerElement &&
-        pointerType !== 'touch' &&
+        shouldBlockSafePolygonPointerEvents &&
+        (!nested || !positionerElement) &&
         hoverFloatingElement &&
         isHTMLElement(event.currentTarget)
       ) {
-        const scopeElement = getScope();
-
-        if (!scopeElement) {
-          return;
-        }
+        const scopeElement = getScope() ?? event.currentTarget.ownerDocument.body;
 
         applySafePolygonPointerEventsMutation(hoverInteractionState, {
           scopeElement,

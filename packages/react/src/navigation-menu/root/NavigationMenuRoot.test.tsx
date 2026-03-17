@@ -39,6 +39,40 @@ function TestNavigationMenu(props: NavigationMenu.Root.Props) {
   );
 }
 
+function TestNavigationMenuWithTopLevelLink(props: NavigationMenu.Root.Props = {}) {
+  return (
+    <NavigationMenu.Root {...props}>
+      <NavigationMenu.List>
+        <NavigationMenu.Item value="item-1">
+          <NavigationMenu.Trigger data-testid="trigger-1">Item 1</NavigationMenu.Trigger>
+          <NavigationMenu.Content data-testid="popup-1">
+            <NavigationMenu.Link href="#link-1">Link 1</NavigationMenu.Link>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+        <NavigationMenu.Item value="item-2">
+          <NavigationMenu.Trigger data-testid="trigger-2">Item 2</NavigationMenu.Trigger>
+          <NavigationMenu.Content data-testid="popup-2">
+            <NavigationMenu.Link href="#link-2">Link 2</NavigationMenu.Link>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+        <NavigationMenu.Item>
+          <NavigationMenu.Link href="#top-level-link" data-testid="top-level-link">
+            Top level link
+          </NavigationMenu.Link>
+        </NavigationMenu.Item>
+      </NavigationMenu.List>
+
+      <NavigationMenu.Portal>
+        <NavigationMenu.Positioner data-testid="top-level-positioner">
+          <NavigationMenu.Popup>
+            <NavigationMenu.Viewport />
+          </NavigationMenu.Popup>
+        </NavigationMenu.Positioner>
+      </NavigationMenu.Portal>
+    </NavigationMenu.Root>
+  );
+}
+
 function TestNestedNavigationMenu(props: NavigationMenu.Root.Props = {}) {
   return (
     <NavigationMenu.Root {...props}>
@@ -929,6 +963,51 @@ describe('<NavigationMenu.Root />', () => {
       await flushMicrotasks();
 
       expect(document.body.style.pointerEvents).toBe('');
+    });
+
+    it('reapplies top-level safePolygon pointer events after returning from the popup and switching triggers', async () => {
+      await render(<TestNavigationMenuWithTopLevelLink />);
+      const trigger1 = screen.getByTestId('trigger-1');
+      const trigger2 = screen.getByTestId('trigger-2');
+      const topLevelLink = screen.getByTestId('top-level-link');
+
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
+      clock.tick(OPEN_DELAY);
+      await flushMicrotasks();
+
+      const positioner = screen.getByTestId('top-level-positioner');
+
+      expect(document.body.style.pointerEvents).toBe('none');
+      expect(getComputedStyle(topLevelLink).pointerEvents).toBe('none');
+
+      fireEvent.mouseEnter(positioner);
+      await flushMicrotasks();
+
+      expect(document.body.style.pointerEvents).toBe('');
+
+      fireEvent.mouseLeave(positioner, { relatedTarget: trigger1 });
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
+      await flushMicrotasks();
+
+      expect(document.body.style.pointerEvents).toBe('none');
+      expect(getComputedStyle(topLevelLink).pointerEvents).toBe('none');
+
+      fireEvent.mouseEnter(positioner);
+      await flushMicrotasks();
+
+      expect(document.body.style.pointerEvents).toBe('');
+
+      fireEvent.mouseLeave(positioner, { relatedTarget: trigger2 });
+      fireEvent.mouseEnter(trigger2);
+      fireEvent.mouseMove(trigger2);
+      await flushMicrotasks();
+
+      expect(document.body.style.pointerEvents).toBe('none');
+      expect(getComputedStyle(topLevelLink).pointerEvents).toBe('none');
+      expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.queryByTestId('popup-2')).not.toBe(null);
     });
 
     it.skipIf(isJSDOM)(
