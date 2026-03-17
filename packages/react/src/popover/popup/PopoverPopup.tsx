@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floating-ui-react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
@@ -92,14 +91,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     transitionStatus,
   };
   const focusManagerModal = modal !== false && hasClosePart;
-
-  useIsoLayoutEffect(() => {
-    store.set('focusManagerModal', focusManagerModal);
-
-    return () => {
-      store.set('focusManagerModal', false);
-    };
-  }, [focusManagerModal, store]);
+  store.useSyncedValue('focusManagerModal', focusManagerModal);
 
   const setPopupElement = React.useCallback(
     (element: HTMLElement | null) => {

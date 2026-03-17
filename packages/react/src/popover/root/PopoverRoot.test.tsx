@@ -1056,13 +1056,15 @@ describe('<Popover.Root />', () => {
           expect(screen.queryByRole('dialog')).not.to.equal(null);
         });
 
-        expect(trigger.previousElementSibling?.hasAttribute('data-base-ui-focus-guard')).not.to
-          .equal(true);
+        expect(
+          trigger.previousElementSibling?.hasAttribute('data-base-ui-focus-guard'),
+        ).not.to.equal(true);
         expect(trigger.nextElementSibling?.hasAttribute('data-base-ui-focus-guard')).not.to.equal(
           true,
         );
-        expect(document.querySelectorAll('[data-base-ui-focus-guard][data-type="inside"]')).to
-          .have.length(2);
+        expect(
+          document.querySelectorAll('[data-base-ui-focus-guard][data-type="inside"]'),
+        ).to.have.length(2);
       });
 
       it('should keep trigger focus guards when `true` without a close part', async () => {
