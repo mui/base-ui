@@ -303,7 +303,7 @@ type TabsTabSize = { width: number; height: number };
 
 ## Canonical Types
 
-Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+Maps `Canonical`: `Alias` — Use Canonical when its namespace is already imported; otherwise use Alias.
 
 - `Tabs.Root.State`: `TabsRootState`
 - `Tabs.Root.Props`: `TabsRootProps`

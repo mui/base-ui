@@ -87,7 +87,7 @@ type RadioGroupChangeEventDetails = {
 
 ## Canonical Types
 
-Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+Maps `Canonical`: `Alias` — Use Canonical when its namespace is already imported; otherwise use Alias.
 
 - `RadioGroup.State`: `RadioGroupState`
 - `RadioGroup.Props`: `RadioGroupProps`

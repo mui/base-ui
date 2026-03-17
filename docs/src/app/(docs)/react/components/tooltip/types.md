@@ -501,7 +501,7 @@ type OffsetFunction = (data: {
 
 ## Canonical Types
 
-Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+Maps `Canonical`: `Alias` — Use Canonical when its namespace is already imported; otherwise use Alias.
 
 - `Tooltip.Root.State`: `TooltipRootState`
 - `Tooltip.Root.Props`: `TooltipRootProps`

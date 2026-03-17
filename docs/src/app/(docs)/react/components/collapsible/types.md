@@ -154,7 +154,7 @@ type CollapsiblePanelState = {
 
 ## Canonical Types
 
-Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+Maps `Canonical`: `Alias` — Use Canonical when its namespace is already imported; otherwise use Alias.
 
 - `Collapsible.Root.State`: `CollapsibleRootState`
 - `Collapsible.Root.Props`: `CollapsibleRootProps`

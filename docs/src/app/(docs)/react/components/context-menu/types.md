@@ -1045,7 +1045,7 @@ type preventUnmountOnClose = () => void;
 
 ## Canonical Types
 
-Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+Maps `Canonical`: `Alias` — Use Canonical when its namespace is already imported; otherwise use Alias.
 
 - `ContextMenu.Root.State`: `ContextMenuRootState`
 - `ContextMenu.Root.Props`: `ContextMenuRootProps`

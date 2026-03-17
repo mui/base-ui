@@ -84,7 +84,7 @@ type InputChangeEventDetails = {
 
 ## Canonical Types
 
-Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+Maps `Canonical`: `Alias` — Use Canonical when its namespace is already imported; otherwise use Alias.
 
 - `Input.Props`: `InputProps`
 - `Input.State`: `InputState`

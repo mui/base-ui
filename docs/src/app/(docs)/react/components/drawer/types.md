@@ -675,7 +675,7 @@ type SwipeDirection = 'up' | 'down' | 'left' | 'right';
 
 ## Canonical Types
 
-Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+Maps `Canonical`: `Alias` — Use Canonical when its namespace is already imported; otherwise use Alias.
 
 - `Drawer.Backdrop.Props`: `DrawerBackdropProps`
 - `Drawer.Backdrop.State`: `DrawerBackdropState`

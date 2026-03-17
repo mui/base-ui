@@ -64,7 +64,7 @@ type FieldsetLegendState = {
 
 ## Canonical Types
 
-Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+Maps `Canonical`: `Alias` — Use Canonical when its namespace is already imported; otherwise use Alias.
 
 - `Fieldset.Root.State`: `FieldsetRootState`
 - `Fieldset.Root.Props`: `FieldsetRootProps`
