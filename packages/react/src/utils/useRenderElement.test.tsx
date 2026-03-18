@@ -40,6 +40,19 @@ describe('useRenderElement', () => {
     });
   });
 
+  const ArrayPropsTestComponent = React.forwardRef(function ArrayPropsTestComponent(
+    componentProps: BaseUIComponentProps<'div', { active?: boolean }> & { active?: boolean },
+    forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  ) {
+    const { className, render: renderProp, active, ...elementProps } = componentProps;
+
+    return useRenderElement('div', componentProps, {
+      state: { active },
+      ref: forwardedRef,
+      props: [elementProps, { className: 'test-component' }],
+    });
+  });
+
   function DisabledPropsTestComponent(props: {
     propsGetter: () => React.ComponentPropsWithRef<'div'>;
   }) {
@@ -105,6 +118,21 @@ describe('useRenderElement', () => {
     });
 
     const { container } = await render(<DirectPropsTestComponent onMouseDown={handleMouseDown} />);
+
+    const element = container.firstElementChild as HTMLDivElement;
+
+    expect(() =>
+      element.dispatchEvent(new MouseEvent('mousedown', { bubbles: true })),
+    ).not.to.throw();
+    expect(handleMouseDown.mock.calls.length).to.equal(1);
+  });
+
+  it('makes multi-prop arrays preventable when the event handler is first', async () => {
+    const handleMouseDown = vi.fn((event) => {
+      event.preventBaseUIHandler();
+    });
+
+    const { container } = await render(<ArrayPropsTestComponent onMouseDown={handleMouseDown} />);
 
     const element = container.firstElementChild as HTMLDivElement;
 

@@ -61,8 +61,7 @@ export function mergeProps<T extends ElementType>(
 ): PropsOf<T>;
 export function mergeProps<T extends ElementType>(a: InputProps<T>, b: InputProps<T>): PropsOf<T>;
 export function mergeProps(a: any, b: any, c?: any, d?: any, e?: any) {
-  // We need to mutably own `merged`
-  let merged = { ...resolvePropsGetter(a, EMPTY_PROPS) };
+  let merged = createInitialMergedProps(a);
 
   if (b) {
     merged = mergeOne(merged, b);
@@ -108,8 +107,7 @@ export function mergePropsN<T extends ElementType>(props: InputProps<T>[]): Prop
     return mutablyMergeInto({}, firstProps) as PropsOf<T>;
   }
 
-  // We need to mutably own `merged`
-  let merged = { ...resolvePropsGetter(props[0], EMPTY_PROPS) };
+  let merged = createInitialMergedProps(props[0]);
 
   for (let i = 1; i < props.length; i += 1) {
     merged = mergeOne(merged, props[i]);
@@ -123,6 +121,15 @@ function mergeOne<T extends ElementType>(merged: Record<string, any>, inputProps
     return inputProps(merged);
   }
   return mutablyMergeInto(merged, inputProps);
+}
+
+function createInitialMergedProps<T extends ElementType>(inputProps: InputProps<T>) {
+  if (isPropsGetter(inputProps)) {
+    // Getter-returned handlers intentionally keep their existing semantics.
+    return { ...resolvePropsGetter(inputProps, EMPTY_PROPS) };
+  }
+
+  return mutablyMergeInto({}, inputProps);
 }
 
 /**

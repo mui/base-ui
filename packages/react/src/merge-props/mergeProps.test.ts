@@ -1,5 +1,5 @@
 import { expect, vi } from 'vitest';
-import { mergeProps } from '@base-ui/react/merge-props';
+import { mergeProps, mergePropsN } from '@base-ui/react/merge-props';
 import type { BaseUIEvent } from '../utils/types';
 
 describe('mergeProps', () => {
@@ -90,7 +90,47 @@ describe('mergeProps', () => {
 
     mergedProps.onMouseDown?.({ nativeEvent: new MouseEvent('mousedown') } as any);
 
-    expect(prevented).to.equal(true);
+    expect(prevented).toBe(true);
+  });
+
+  it('makes a first-position synthetic event handler preventable', () => {
+    let prevented = false;
+
+    const mergedProps = mergeProps<'button'>(
+      {
+        onMouseDown(event) {
+          event.preventBaseUIHandler();
+          prevented = event.baseUIHandlerPrevented === true;
+        },
+      },
+      {
+        id: 'test-button',
+      },
+    );
+
+    mergedProps.onMouseDown?.({ nativeEvent: new MouseEvent('mousedown') } as any);
+
+    expect(prevented).toBe(true);
+  });
+
+  it('makes a first-position synthetic event handler preventable in mergePropsN', () => {
+    let prevented = false;
+
+    const mergedProps = mergePropsN<'button'>([
+      {
+        onMouseDown(event) {
+          event.preventBaseUIHandler();
+          prevented = event.baseUIHandlerPrevented === true;
+        },
+      },
+      {
+        id: 'test-button',
+      },
+    ]);
+
+    mergedProps.onMouseDown?.({ nativeEvent: new MouseEvent('mousedown') } as any);
+
+    expect(prevented).toBe(true);
   });
 
   it('merges styles', () => {
