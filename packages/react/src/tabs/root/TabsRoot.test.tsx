@@ -300,11 +300,9 @@ describe('<Tabs.Root />', () => {
       expect(tabs[3]).toHaveAttribute('aria-selected', 'false');
     });
 
-    it('falls back from an explicit disabled defaultValue on initial render', async () => {
-      const handleChange = vi.fn();
-
+    it('should still honor explicit defaultValue even if it points to a disabled tab', async () => {
       await render(
-        <Tabs.Root defaultValue={0} onValueChange={handleChange}>
+        <Tabs.Root defaultValue={0}>
           <Tabs.List>
             <Tabs.Tab value={0} disabled data-testid="tab-0">
               Tab 0
@@ -316,31 +314,18 @@ describe('<Tabs.Root />', () => {
               Tab 2
             </Tabs.Tab>
           </Tabs.List>
-          <Tabs.Panel value={0} keepMounted>
-            Panel 0
-          </Tabs.Panel>
-          <Tabs.Panel value={1} keepMounted>
-            Panel 1
-          </Tabs.Panel>
-          <Tabs.Panel value={2} keepMounted>
-            Panel 2
-          </Tabs.Panel>
+          <Tabs.Panel value={0}>Panel 0</Tabs.Panel>
+          <Tabs.Panel value={1}>Panel 1</Tabs.Panel>
+          <Tabs.Panel value={2}>Panel 2</Tabs.Panel>
         </Tabs.Root>,
       );
 
       const tabs = screen.getAllByRole('tab');
-      const panels = screen.getAllByRole('tabpanel', { hidden: true });
 
-      expect(handleChange.mock.calls.length).toBe(1);
-      expect(handleChange.mock.calls[0][0]).toBe(1);
-      expect(handleChange.mock.calls[0][1].reason).toBe('disabled');
-
-      expect(tabs[0]).toHaveAttribute('aria-selected', 'false');
-      expect(tabs[1]).toHaveAttribute('aria-selected', 'true');
+      // The explicitly set disabled tab should be selected
+      expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
+      expect(tabs[1]).toHaveAttribute('aria-selected', 'false');
       expect(tabs[2]).toHaveAttribute('aria-selected', 'false');
-      expect(panels[0]).toHaveAttribute('hidden');
-      expect(panels[1]).not.toHaveAttribute('hidden');
-      expect(panels[2]).toHaveAttribute('hidden');
     });
 
     it('should still honor explicit value prop even if it points to a disabled tab', async () => {
@@ -769,6 +754,47 @@ describe('<Tabs.Root />', () => {
       expect(handleChange.mock.calls[0][1].reason).toBe('initial');
 
       const tabs = screen.getAllByRole('tab');
+      expect(tabs[0]).toHaveAttribute('aria-selected', 'false');
+      expect(tabs[1]).toHaveAttribute('aria-selected', 'true');
+    });
+
+    it('stops honoring an initially disabled explicit default after that tab becomes enabled', async () => {
+      const handleChange = vi.fn();
+
+      function TestComponent({ disableFirst }: { disableFirst: boolean }) {
+        return (
+          <Tabs.Root defaultValue={0} onValueChange={handleChange}>
+            <Tabs.List>
+              <Tabs.Tab value={0} disabled={disableFirst}>
+                Tab 0
+              </Tabs.Tab>
+              <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
+            </Tabs.List>
+          </Tabs.Root>
+        );
+      }
+
+      const { setProps } = await render(<TestComponent disableFirst={true} />);
+
+      await flushMicrotasks();
+
+      expect(handleChange.mock.calls.length).toBe(0);
+
+      const tabs = screen.getAllByRole('tab');
+      expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
+
+      await setProps({ disableFirst: false });
+      await flushMicrotasks();
+
+      expect(handleChange.mock.calls.length).toBe(0);
+      expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
+
+      await setProps({ disableFirst: true });
+      await flushMicrotasks();
+
+      expect(handleChange.mock.calls.length).toBe(1);
+      expect(handleChange.mock.calls[0][0]).toBe(1);
+      expect(handleChange.mock.calls[0][1].reason).toBe('disabled');
       expect(tabs[0]).toHaveAttribute('aria-selected', 'false');
       expect(tabs[1]).toHaveAttribute('aria-selected', 'true');
     });
