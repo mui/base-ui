@@ -20,6 +20,9 @@
   border: 0;
   border-radius: 0.25rem;
   background-color: transparent;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 500;
   color: var(--color-gray-600);
   user-select: none;
 
@@ -37,9 +40,4 @@
     background-color: var(--color-gray-100);
     color: var(--color-gray-900);
   }
-}
-
-.Icon {
-  width: 1rem;
-  height: 1rem;
 }
