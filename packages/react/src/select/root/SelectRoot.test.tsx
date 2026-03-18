@@ -963,6 +963,83 @@ describe('<Select.Root />', () => {
         expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('data-highlighted');
       });
     });
+
+    it('clears the preserved touch interaction type once the close transition finishes', async ({
+      onTestFinished,
+    }) => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
+      const style = `
+        @keyframes select-close-test {
+          to {
+            opacity: 0;
+          }
+        }
+
+        .animation-test-popup[data-ending-style] {
+          animation: select-close-test 20ms linear;
+        }
+      `;
+
+      await render(
+        <div style={{ paddingTop: 700 }}>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
+          <button data-testid="outside">Outside</button>
+          <Select.Root>
+            <Select.Trigger>Open</Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner data-testid="positioner">
+                <Select.Popup className="animation-test-popup" style={{ width: 120, height: 300 }}>
+                  <Select.Item>Item</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </div>,
+      );
+
+      const trigger = screen.getByRole('combobox');
+      const outside = screen.getByTestId('outside');
+
+      function fireTouchPress() {
+        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+        fireEvent.mouseDown(trigger);
+      }
+
+      fireTouchPress();
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).not.toBe(null);
+      });
+
+      const positioner = screen.getByTestId('positioner');
+      const availableHeight = positioner.style.getPropertyValue('--available-height');
+
+      expect(positioner).toHaveAttribute('data-side', 'top');
+
+      fireEvent.pointerDown(outside, { pointerType: 'touch' });
+      fireEvent.mouseDown(outside);
+
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      });
+
+      fireTouchPress();
+
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      });
+
+      expect(screen.getByTestId('positioner')).toHaveAttribute('data-side', 'top');
+      expect(screen.getByTestId('positioner').style.getPropertyValue('--available-height')).toBe(
+        availableHeight,
+      );
+    });
   });
 
   describe('prop: actionsRef', () => {
