@@ -990,7 +990,5 @@ Maps \`Canonical\`: \`Alias\` — Use Canonical when its namespace is already im
 - \`DirectionProvider.Props\`: \`DirectionProviderProps\`
 
 Use this hook to read the current text direction. This is useful for wrapping portaled components that may be rendered outside your application root and are unaffected by the \`dir\` attribute set within.
-
-## Additional Types
 "
 `;
