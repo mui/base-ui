@@ -2374,7 +2374,6 @@ packages:
   '@lerna/create@9.0.5':
     resolution: {integrity: sha512-Gwd6ooSqXMdkdhiCGvHAfLRstj7W3ttr72WQB3Jf9HPP1A6mWtw0O80D0X+T/2hakqfe7lNLuKrEid4f7C0qbg==}
     engines: {node: ^20.19.0 || ^22.12.0 || >=24.0.0}
-    deprecated: This package is an implementation detail of Lerna and is no longer published separately.
 
   '@loaderkit/resolve@1.0.4':
     resolution: {integrity: sha512-rJzYKVcV4dxJv+vW6jlvagF8zvGxHJ2+HTr1e2qOejfmGhAApgJHl8Aog4mMszxceTRiKTTbnpgmTO1bEZHV/A==}
@@ -10624,8 +10623,7 @@ packages:
 
 snapshots:
 
-  '@acemir/cssom@0.9.31':
-    optional: true
+  '@acemir/cssom@0.9.31': {}
 
   '@actions/core@3.0.0':
     dependencies:
@@ -10716,10 +10714,8 @@ snapshots:
       css-tree: 3.2.1
       is-potential-custom-element-name: 1.0.1
       lru-cache: 11.2.7
-    optional: true
 
-  '@asamuzakjp/nwsapi@2.3.9':
-    optional: true
+  '@asamuzakjp/nwsapi@2.3.9': {}
 
   '@aws-crypto/crc32@5.2.0':
     dependencies:
@@ -12079,8 +12075,7 @@ snapshots:
       '@csstools/css-parser-algorithms': 4.0.0(@csstools/css-tokenizer@4.0.0)
       '@csstools/css-tokenizer': 4.0.0
 
-  '@csstools/color-helpers@6.0.2':
-    optional: true
+  '@csstools/color-helpers@6.0.2': {}
 
   '@csstools/css-calc@3.1.1(@csstools/css-parser-algorithms@4.0.0(@csstools/css-tokenizer@4.0.0))(@csstools/css-tokenizer@4.0.0)':
     dependencies:
@@ -12093,7 +12088,6 @@ snapshots:
       '@csstools/css-calc': 3.1.1(@csstools/css-parser-algorithms@4.0.0(@csstools/css-tokenizer@4.0.0))(@csstools/css-tokenizer@4.0.0)
       '@csstools/css-parser-algorithms': 4.0.0(@csstools/css-tokenizer@4.0.0)
       '@csstools/css-tokenizer': 4.0.0
-    optional: true
 
   '@csstools/css-parser-algorithms@4.0.0(@csstools/css-tokenizer@4.0.0)':
     dependencies:
@@ -12264,8 +12258,7 @@ snapshots:
       '@eslint/core': 1.1.1
       levn: 0.4.1
 
-  '@exodus/bytes@1.15.0':
-    optional: true
+  '@exodus/bytes@1.15.0': {}
 
   '@floating-ui/core@1.7.5':
     dependencies:
@@ -16185,7 +16178,6 @@ snapshots:
   bidi-js@1.0.3:
     dependencies:
       require-from-string: 2.0.2
-    optional: true
 
   bin-links@5.0.0:
     dependencies:
@@ -16758,8 +16750,7 @@ snapshots:
 
   decamelize@1.2.0: {}
 
-  decimal.js@10.6.0:
-    optional: true
+  decimal.js@10.6.0: {}
 
   decode-named-character-reference@1.2.0:
     dependencies:
@@ -18054,7 +18045,6 @@ snapshots:
       '@exodus/bytes': 1.15.0
     transitivePeerDependencies:
       - '@noble/hashes'
-    optional: true
 
   html-escaper@2.0.2: {}
 
@@ -18295,8 +18285,7 @@ snapshots:
 
   is-port-reachable@4.0.0: {}
 
-  is-potential-custom-element-name@1.0.1:
-    optional: true
+  is-potential-custom-element-name@1.0.1: {}
 
   is-regex@1.2.1:
     dependencies:
@@ -20168,7 +20157,6 @@ snapshots:
   parse5@8.0.0:
     dependencies:
       entities: 6.0.1
-    optional: true
 
   path-exists@3.0.0: {}
 
@@ -20985,7 +20973,6 @@ snapshots:
   saxes@6.0.0:
     dependencies:
       xmlchars: 2.2.0
-    optional: true
 
   scheduler@0.27.0: {}
 
@@ -21497,8 +21484,7 @@ snapshots:
 
   svg-tags@1.0.0: {}
 
-  symbol-tree@3.2.4:
-    optional: true
+  symbol-tree@3.2.4: {}
 
   system-architecture@0.1.0: {}
 
@@ -21588,13 +21574,11 @@ snapshots:
 
   tinyrainbow@3.0.3: {}
 
-  tldts-core@7.0.19:
-    optional: true
+  tldts-core@7.0.19: {}
 
   tldts@7.0.19:
     dependencies:
       tldts-core: 7.0.19
-    optional: true
 
   tmp@0.2.5: {}
 
@@ -21613,12 +21597,10 @@ snapshots:
   tough-cookie@6.0.0:
     dependencies:
       tldts: 7.0.19
-    optional: true
 
   tr46@6.0.0:
     dependencies:
       punycode: 2.3.1
-    optional: true
 
   tree-kill@1.2.2: {}
 
@@ -22133,7 +22115,6 @@ snapshots:
   w3c-xmlserializer@5.0.0:
     dependencies:
       xml-name-validator: 5.0.0
-    optional: true
 
   walk-up-path@4.0.0: {}
 
@@ -22148,8 +22129,7 @@ snapshots:
 
   web-namespaces@2.0.1: {}
 
-  webidl-conversions@8.0.1:
-    optional: true
+  webidl-conversions@8.0.1: {}
 
   webpack-sources@3.3.4: {}
 
@@ -22193,8 +22173,7 @@ snapshots:
 
   whatwg-mimetype@4.0.0: {}
 
-  whatwg-mimetype@5.0.0:
-    optional: true
+  whatwg-mimetype@5.0.0: {}
 
   whatwg-url@15.1.0:
     dependencies:
@@ -22353,8 +22332,7 @@ snapshots:
       is-wsl: 3.1.1
       powershell-utils: 0.1.0
 
-  xml-name-validator@5.0.0:
-    optional: true
+  xml-name-validator@5.0.0: {}
 
   xmlbuilder2@4.0.3:
     dependencies:
@@ -22363,8 +22341,7 @@ snapshots:
       '@oozcitak/util': 10.0.0
       js-yaml: 4.1.1
 
-  xmlchars@2.2.0:
-    optional: true
+  xmlchars@2.2.0: {}
 
   xtend@4.0.2: {}
 
