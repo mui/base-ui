@@ -682,7 +682,7 @@ describe('<Tabs.Root />', () => {
       expect(tabs[2]).toHaveAttribute('aria-selected', 'false');
     });
 
-    it('calls onValueChange with "missing" reason when defaultValue is explicitly invalid on mount', async () => {
+    it('calls onValueChange with "missing" reason when defaultValue does not match any rendered tab on mount', async () => {
       const handleChange = vi.fn();
 
       await render(
@@ -797,6 +797,41 @@ describe('<Tabs.Root />', () => {
       const updatedTabs = screen.getAllByRole('tab');
       expect(updatedTabs[0]).toHaveAttribute('aria-selected', 'true');
       expect(updatedTabs[0]).toHaveTextContent('Tab 1');
+    });
+
+    it('falls back to null with "missing" reason when the last selected tab is removed', async () => {
+      const handleChange = vi.fn();
+
+      function TestComponent({ showOnlyTab }: { showOnlyTab: boolean }) {
+        return (
+          <Tabs.Root defaultValue={0} onValueChange={handleChange}>
+            <Tabs.List>{showOnlyTab && <Tabs.Tab value={0}>Tab 0</Tabs.Tab>}</Tabs.List>
+            <Tabs.Panel value={0} keepMounted>
+              Panel 0
+            </Tabs.Panel>
+          </Tabs.Root>
+        );
+      }
+
+      const { setProps } = await render(<TestComponent showOnlyTab={true} />);
+
+      const [tab] = screen.getAllByRole('tab');
+      const [panel] = screen.getAllByRole('tabpanel', { hidden: true });
+
+      expect(tab).toHaveAttribute('aria-selected', 'true');
+      expect(panel).not.toHaveAttribute('hidden');
+
+      await setProps({ showOnlyTab: false });
+      await flushMicrotasks();
+
+      expect(handleChange.mock.calls.length).toBe(1);
+      expect(handleChange.mock.calls[0][0]).toBe(null);
+      expect(handleChange.mock.calls[0][1].reason).toBe('missing');
+      expect(screen.queryAllByRole('tab')).toHaveLength(0);
+
+      await waitFor(() => {
+        expect(panel).toHaveAttribute('hidden');
+      });
     });
 
     it('ignores cancel() for automatic fallback selections', async () => {

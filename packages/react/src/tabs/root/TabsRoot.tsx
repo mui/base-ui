@@ -197,9 +197,10 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   // Automatically switch to the first enabled tab when:
   // - Initial render with no explicit value (fires onValueChange with 'initial' reason)
   // - The current selection is disabled (and wasn't explicitly set via defaultValue on initial render)
-  // - The current selection is missing (tab was removed from DOM)
+  // - The current selection is missing (no rendered tab matches the current value)
   // Falls back to null if all tabs are disabled and preserves that empty selection on later renders.
   const hasRunOnceRef = React.useRef(false);
+  const hasRegisteredTabRef = React.useRef(false);
 
   // When `defaultValue` explicitly points to a disabled tab, we honor that choice
   // on mount (keeping the disabled tab selected). But once the tab becomes enabled
@@ -208,7 +209,10 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   const honorDisabledDefaultRef = React.useRef(false);
 
   useIsoLayoutEffect(() => {
-    if (isControlled || tabMap.size === 0) {
+    if (tabMap.size > 0) {
+      hasRegisteredTabRef.current = true;
+    }
+    if (isControlled || (tabMap.size === 0 && !hasRegisteredTabRef.current)) {
       return;
     }
 
@@ -239,7 +243,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
     // Need to auto-select if:
     // - Selection is disabled
-    // - Selection is missing (tab removed or invalid value)
+    // - Selection is missing (no rendered tab matches the current value)
     // - Initial run with no explicit defaultValue (automatic default to 0)
     const hasImplicitDefaultValue = !hasExplicitDefaultValueProp;
     const isAutomaticDefault = isInitialRun && hasImplicitDefaultValue;
@@ -354,12 +358,12 @@ export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRootState
    * - `'none'`: User-initiated change (click, keyboard navigation).
    * - `'initial'`: Automatic selection on mount when no `value`/`defaultValue` is provided.
    * - `'disabled'`: The selected tab became disabled.
-   * - `'missing'`: The selected tab was removed from the DOM.
+   * - `'missing'`: The current value no longer maps to any rendered tab.
    *
    * Calling `eventDetails.cancel()` prevents the value change for user-initiated
    * actions (`'none'`). It is a no-op for automatic selections (`'initial'`,
    * `'disabled'`, `'missing'`), as the component must move away from a
-   * disabled or missing tab.
+   * disabled or missing selection.
    */
   onValueChange?:
     | ((value: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => void)
