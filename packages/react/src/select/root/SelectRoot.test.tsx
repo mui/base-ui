@@ -969,16 +969,33 @@ describe('<Select.Root />', () => {
 
       function Test() {
         const [open, setOpen] = React.useState(false);
+        const [paddingTop, setPaddingTop] = React.useState(0);
+        const triggerRef = React.useRef<HTMLButtonElement | null>(null);
+
+        React.useLayoutEffect(() => {
+          const trigger = triggerRef.current;
+          if (!trigger) {
+            return;
+          }
+
+          const gap =
+            document.documentElement.clientHeight - trigger.getBoundingClientRect().bottom;
+          if (Math.abs(gap - 20) <= 1) {
+            return;
+          }
+
+          setPaddingTop((prev) => prev + gap - 20);
+        }, [paddingTop]);
 
         return (
-          <div style={{ paddingTop: 700 }}>
+          <div style={{ paddingTop }}>
             <button data-testid="outside">Outside</button>
             <Select.Root
               open={open}
               onOpenChange={setOpen}
               onOpenChangeComplete={onOpenChangeComplete}
             >
-              <Select.Trigger>Open</Select.Trigger>
+              <Select.Trigger ref={triggerRef}>Open</Select.Trigger>
               <Select.Portal>
                 <Select.Positioner data-testid="positioner">
                   <Select.Popup style={{ width: 120, height: 300 }}>
@@ -995,6 +1012,11 @@ describe('<Select.Root />', () => {
 
       const trigger = screen.getByRole('combobox');
       const outside = screen.getByTestId('outside');
+
+      await waitFor(() => {
+        const gap = document.documentElement.clientHeight - trigger.getBoundingClientRect().bottom;
+        expect(Math.abs(gap - 20)).toBeLessThanOrEqual(1);
+      });
 
       function fireTouchPress() {
         fireEvent.pointerDown(trigger, { pointerType: 'touch' });
