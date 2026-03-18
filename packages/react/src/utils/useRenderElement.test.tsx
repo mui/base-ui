@@ -121,6 +121,22 @@ describe('useRenderElement', () => {
       warnSpy.mockRestore();
     });
 
+    it('warns when render is passed a function with an uppercase acronym prefix', async () => {
+      const warnSpy = vi
+        .spyOn(console, 'warn')
+        .mockName('console.warn')
+        .mockImplementation(() => {});
+
+      function UIInput(props: React.ComponentPropsWithRef<'span'>) {
+        return <span {...props} />;
+      }
+
+      await render(<TestComponent render={UIInput} />);
+
+      expect(warnSpy.mock.calls.length).toBe(1);
+      warnSpy.mockRestore();
+    });
+
     it('does not warn when render is passed a lowercase callback', async () => {
       const warnSpy = vi
         .spyOn(console, 'warn')
@@ -128,6 +144,23 @@ describe('useRenderElement', () => {
         .mockImplementation(() => {});
 
       const renderFn = (props: React.ComponentPropsWithRef<'span'>) => <span {...props} />;
+
+      await render(<TestComponent render={renderFn} />);
+
+      expect(warnSpy.mock.calls.length).toBe(0);
+      warnSpy.mockRestore();
+    });
+
+    it('does not warn when render is passed a screaming snake case callback', async () => {
+      const warnSpy = vi
+        .spyOn(console, 'warn')
+        .mockName('console.warn')
+        .mockImplementation(() => {});
+
+      const renderFn = (props: React.ComponentPropsWithRef<'span'>) => <span {...props} />;
+      Object.defineProperty(renderFn, 'name', {
+        value: 'DEFAULT_RENDER',
+      });
 
       await render(<TestComponent render={renderFn} />);
 
