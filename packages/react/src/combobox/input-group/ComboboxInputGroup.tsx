@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useStore } from '@base-ui/utils/store';
 import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIComponentProps, BaseUIEvent } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import {
@@ -63,7 +63,7 @@ export const ComboboxInputGroup = React.forwardRef(function ComboboxInputGroup(
     props: [
       {
         role: 'group',
-        onMouseDown(event: BaseUIEvent<React.MouseEvent<HTMLDivElement>>) {
+        onMouseDown(event) {
           handleInputPress(event, store, disabled, readOnly, (target) => {
             return contains(store.state.chipsContainerRef.current, target);
           });

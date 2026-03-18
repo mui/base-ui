@@ -96,10 +96,10 @@ export function isTypeableElement(element: unknown): boolean {
 }
 
 export function isInteractiveElement(element: Element | null) {
-  return Boolean(
+  return (
     element?.closest(
       `button,a[href],[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`,
-    ),
+    ) != null
   );
 }
 

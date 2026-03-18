@@ -2,12 +2,11 @@ import { isElement } from '@floating-ui/utils/dom';
 import type * as React from 'react';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import type { BaseUIEvent } from '../../utils/types';
 import { getTarget, isInteractiveElement } from '../../floating-ui-react/utils/element';
 import type { ComboboxStore } from '../store';
 
 export function handleInputPress(
-  event: BaseUIEvent<React.MouseEvent<HTMLElement>>,
+  event: React.MouseEvent<HTMLElement>,
   store: ComboboxStore,
   disabled: boolean,
   readOnly: boolean,

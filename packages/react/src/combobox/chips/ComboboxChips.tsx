@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIComponentProps, BaseUIEvent } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { ComboboxChipsContext } from './ComboboxChipsContext';
 import { CompositeList } from '../../composite/list/CompositeList';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
@@ -42,7 +42,7 @@ export const ComboboxChips = React.forwardRef(function ComboboxChips(
     props: [
       hasSelectionChips ? { role: 'toolbar' } : EMPTY_OBJECT,
       {
-        onMouseDown(event: BaseUIEvent<React.MouseEvent<HTMLDivElement>>) {
+        onMouseDown(event) {
           handleInputPress(event, store, store.state.disabled, store.state.readOnly);
         },
       },
