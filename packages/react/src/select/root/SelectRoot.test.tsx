@@ -964,37 +964,18 @@ describe('<Select.Root />', () => {
       });
     });
 
-    it('clears the preserved touch interaction type once the close transition finishes', async ({
-      onTestFinished,
-    }) => {
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-      onTestFinished(() => {
-        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
-      });
-
-      const style = `
-        @keyframes select-close-test {
-          to {
-            opacity: 0;
-          }
-        }
-
-        .animation-test-popup[data-ending-style] {
-          animation: select-close-test 20ms linear;
-        }
-      `;
+    it('recomputes positioning before the popup becomes visible again after touch dismiss', async () => {
+      ignoreActWarnings();
+      const actionsRef = React.createRef<Select.Root.Actions>();
 
       await render(
         <div style={{ paddingTop: 700 }}>
-          {/* eslint-disable-next-line react/no-danger */}
-          <style dangerouslySetInnerHTML={{ __html: style }} />
           <button data-testid="outside">Outside</button>
-          <Select.Root>
+          <Select.Root actionsRef={actionsRef}>
             <Select.Trigger>Open</Select.Trigger>
             <Select.Portal>
               <Select.Positioner data-testid="positioner">
-                <Select.Popup className="animation-test-popup" style={{ width: 120, height: 300 }}>
+                <Select.Popup style={{ width: 120, height: 300 }}>
                   <Select.Item>Item</Select.Item>
                 </Select.Popup>
               </Select.Positioner>
@@ -1017,28 +998,31 @@ describe('<Select.Root />', () => {
         expect(screen.queryByRole('listbox')).not.toBe(null);
       });
 
-      const positioner = screen.getByTestId('positioner');
-      const availableHeight = positioner.style.getPropertyValue('--available-height');
+      const initialPositioner = screen.getByTestId('positioner');
+      const availableHeight = initialPositioner.style.getPropertyValue('--available-height');
 
-      expect(positioner).toHaveAttribute('data-side', 'top');
+      expect(initialPositioner).toHaveAttribute('data-side', 'top');
 
       fireEvent.pointerDown(outside, { pointerType: 'touch' });
       fireEvent.mouseDown(outside);
 
+      await act(async () => {
+        actionsRef.current?.unmount();
+      });
+
       await waitFor(() => {
-        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+        expect(screen.getByTestId('positioner').style.opacity).toBe('0');
       });
 
       fireTouchPress();
 
       await waitFor(() => {
-        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+        expect(screen.getByTestId('positioner').style.opacity).not.toBe('0');
       });
 
-      expect(screen.getByTestId('positioner')).toHaveAttribute('data-side', 'top');
-      expect(screen.getByTestId('positioner').style.getPropertyValue('--available-height')).toBe(
-        availableHeight,
-      );
+      const reopenedPositioner = screen.getByTestId('positioner');
+      expect(reopenedPositioner).toHaveAttribute('data-side', 'top');
+      expect(reopenedPositioner.style.getPropertyValue('--available-height')).toBe(availableHeight);
     });
   });
 
