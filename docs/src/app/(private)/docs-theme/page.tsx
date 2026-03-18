@@ -9,6 +9,7 @@ const coreScaleSteps = ['s1', 's2', 'c1', 'c2', 'c3', 'p1', 'p2', 't1', 't2'] as
 const coreColorRows = ['gray', 'indigo'] as const;
 const accentColorRows = ['poppy', 'blue', 'green', 'orange', 'pink', 'grape', 'lime'] as const;
 const alphaColorRows = ['blackA'] as const;
+const alphaScaleSteps = ['1', '2', '3', '4', '5', '6'] as const;
 const allCoreRows = [...coreColorRows, ...accentColorRows];
 
 const typefaces = [
@@ -20,7 +21,7 @@ const typefaces = [
 const fontWeights = [
   { token: 'font-weight-1', sample: 'Regular' },
   { token: 'font-weight-2', sample: 'Medium' },
-  { token: 'font-weight-3', sample: 'Bold' },
+  { token: 'font-weight-3', sample: 'Semi-bold' },
 ] as const;
 
 const textScale = ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as const;
@@ -85,9 +86,9 @@ export default function ThemePage() {
           <div className={styles.colorMatrixGrid}>
             <div className={styles.colorMatrixRow}>
               <div className={styles.colorMatrixHeaderCell} />
-              {coreScaleSteps.map((step, index) => (
+              {alphaScaleSteps.map((step) => (
                 <div key={`alpha-step-${step}`} className={styles.colorMatrixHeaderCell}>
-                  {index < 6 ? index + 1 : ''}
+                  {step}
                 </div>
               ))}
             </div>
@@ -98,12 +99,8 @@ export default function ThemePage() {
                 className={`${styles.colorMatrixRow} ${styles.colorMatrixRowAlpha}`}
               >
                 <div className={styles.colorMatrixRowLabel}>{row}</div>
-                {coreScaleSteps.map((step, index) => {
-                  if (index > 5) {
-                    return <div key={`${row}-${step}`} />;
-                  }
-
-                  const token = `${row}-${index + 1}`;
+                {alphaScaleSteps.map((step) => {
+                  const token = `${row}-${step}`;
                   const swatchStyle = {
                     backgroundColor: `var(--${token})`,
                     '--swatch-color': `var(--${token})`,
