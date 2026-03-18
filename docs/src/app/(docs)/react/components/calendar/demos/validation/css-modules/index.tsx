@@ -6,9 +6,8 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import indexStyles from './index.module.css';
 import styles from '../../calendar.module.css';
 
-const today = new Date();
-
 export default function MinMaxDateCalendars() {
+  const today = new Date();
   return (
     <div className={indexStyles.Wrapper}>
       <ValidationCalendar minDate={today} />
