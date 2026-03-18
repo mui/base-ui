@@ -964,8 +964,41 @@ describe('<Select.Root />', () => {
       });
     });
 
-    it('recomputes positioning before the popup becomes visible again after touch dismiss', async () => {
+    it('recomputes positioning before the popup becomes visible again after touch dismiss', async ({
+      onTestFinished,
+    }) => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
       const onOpenChangeComplete = vi.fn();
+      const items = Array.from({ length: 80 }, (_, index) => `Item ${index + 1}`);
+      const style = `
+        @keyframes select-reopen-test {
+          to {
+            opacity: 0;
+            transform: scale(0.9);
+          }
+        }
+
+        .reopen-test-popup {
+          width: 120px;
+          transition:
+            transform 150ms,
+            opacity 150ms;
+        }
+
+        .reopen-test-popup[data-starting-style],
+        .reopen-test-popup[data-ending-style] {
+          animation: select-reopen-test 20ms linear;
+        }
+
+        .reopen-test-list {
+          max-height: var(--available-height);
+          overflow-y: auto;
+        }
+      `;
 
       function Test() {
         const [open, setOpen] = React.useState(false);
@@ -980,15 +1013,17 @@ describe('<Select.Root />', () => {
 
           const gap =
             document.documentElement.clientHeight - trigger.getBoundingClientRect().bottom;
-          if (Math.abs(gap - 20) <= 1) {
+          if (Math.abs(gap - 100) <= 1) {
             return;
           }
 
-          setPaddingTop((prev) => prev + gap - 20);
+          setPaddingTop((prev) => prev + gap - 100);
         }, [paddingTop]);
 
         return (
           <div style={{ paddingTop }}>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
             <button data-testid="outside">Outside</button>
             <Select.Root
               open={open}
@@ -997,9 +1032,24 @@ describe('<Select.Root />', () => {
             >
               <Select.Trigger ref={triggerRef}>Open</Select.Trigger>
               <Select.Portal>
-                <Select.Positioner data-testid="positioner">
-                  <Select.Popup style={{ width: 120, height: 300 }}>
-                    <Select.Item>Item</Select.Item>
+                <Select.Positioner data-testid="positioner" sideOffset={8}>
+                  <Select.Popup className="reopen-test-popup">
+                    <Select.ScrollUpArrow />
+                    <Select.Arrow />
+                    <Select.List className="reopen-test-list">
+                      <div aria-hidden style={{ height: 75 }}>
+                        Start
+                      </div>
+                      {items.map((item) => (
+                        <Select.Item key={item} value={item}>
+                          {item}
+                        </Select.Item>
+                      ))}
+                      <div aria-hidden style={{ height: 75 }}>
+                        End
+                      </div>
+                    </Select.List>
+                    <Select.ScrollDownArrow />
                   </Select.Popup>
                 </Select.Positioner>
               </Select.Portal>
@@ -1015,7 +1065,7 @@ describe('<Select.Root />', () => {
 
       await waitFor(() => {
         const gap = document.documentElement.clientHeight - trigger.getBoundingClientRect().bottom;
-        expect(Math.abs(gap - 20)).toBeLessThanOrEqual(1);
+        expect(Math.abs(gap - 100)).toBeLessThanOrEqual(1);
       });
 
       function fireTouchPress() {
@@ -1030,7 +1080,6 @@ describe('<Select.Root />', () => {
       });
 
       const initialPositioner = screen.getByTestId('positioner');
-      const availableHeight = initialPositioner.style.getPropertyValue('--available-height');
 
       expect(initialPositioner).toHaveAttribute('data-side', 'top');
 
@@ -1050,8 +1099,9 @@ describe('<Select.Root />', () => {
       });
 
       const reopenedPositioner = screen.getByTestId('positioner');
+      const reopenedList = screen.getByRole('listbox');
       expect(reopenedPositioner).toHaveAttribute('data-side', 'top');
-      expect(reopenedPositioner.style.getPropertyValue('--available-height')).toBe(availableHeight);
+      expect(reopenedList.getBoundingClientRect().height).toBeGreaterThan(200);
 
       await user.click(outside);
     });
