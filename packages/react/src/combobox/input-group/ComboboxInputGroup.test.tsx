@@ -104,6 +104,35 @@ describe('<Combobox.InputGroup />', () => {
     expect(onOpenChange).toHaveBeenCalledTimes(1);
   });
 
+  it('focuses the input without opening when openOnInputClick is false', async () => {
+    await render(
+      <Combobox.Root items={['a', 'b']} multiple openOnInputClick={false} defaultValue={['a']}>
+        <Combobox.InputGroup data-testid="group" style={{ padding: 10 }}>
+          <Combobox.Chips>
+            <Combobox.Chip>a</Combobox.Chip>
+            <Combobox.Input data-testid="input" />
+          </Combobox.Chips>
+        </Combobox.InputGroup>
+
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="a">a</Combobox.Item>
+                <Combobox.Item value="b">b</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    fireEvent.mouseDown(screen.getByTestId('group'));
+
+    expect(screen.getByTestId('input')).toHaveFocus();
+    expect(screen.queryByRole('listbox')).toBe(null);
+  });
+
   it('has role prop', async () => {
     await render(
       <Combobox.Root items={['a']}>

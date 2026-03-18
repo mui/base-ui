@@ -156,4 +156,30 @@ describe('<Combobox.Chips />', () => {
     expect(screen.getByTestId('input')).not.toHaveFocus();
     expect(screen.queryByRole('listbox')).toBe(null);
   });
+
+  it('does not focus or open when readOnly', async () => {
+    await render(
+      <Combobox.Root items={['apple', 'banana']} multiple readOnly defaultValue={['apple']}>
+        <Combobox.Chips data-testid="chips">
+          <Combobox.Chip>apple</Combobox.Chip>
+          <Combobox.Input data-testid="input" />
+        </Combobox.Chips>
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="apple">apple</Combobox.Item>
+                <Combobox.Item value="banana">banana</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    fireEvent.mouseDown(screen.getByTestId('chips'));
+
+    expect(screen.getByTestId('input')).not.toHaveFocus();
+    expect(screen.queryByRole('listbox')).toBe(null);
+  });
 });

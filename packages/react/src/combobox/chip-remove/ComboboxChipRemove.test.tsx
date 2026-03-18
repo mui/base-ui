@@ -204,11 +204,11 @@ describe('<Combobox.ChipRemove />', () => {
       );
 
       await user.click(screen.getByRole('button', { name: 'Open' }));
-      expect(screen.queryByRole('listbox')).not.to.equal(null);
+      await screen.findByRole('listbox');
 
       await user.click(screen.getByTestId('remove'));
 
-      expect(screen.queryByRole('listbox')).not.to.equal(null);
+      await screen.findByRole('listbox');
       expect(screen.getByTestId('input')).toHaveFocus();
     });
 
