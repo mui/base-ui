@@ -322,7 +322,11 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   useIsoLayoutEffect(() => {
     if (tabMap.size > 0 || mountedTabPanels.size === 0 || value === null) {
       noRenderedTabsTimeout.clear();
-      setHidePanelsWithoutMatchingTab(false);
+
+      if (hidePanelsWithoutMatchingTab) {
+        setHidePanelsWithoutMatchingTab(false);
+      }
+
       return undefined;
     }
 
@@ -334,11 +338,11 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
         return;
       }
 
-      setHidePanelsWithoutMatchingTab(true);
+      setHidePanelsWithoutMatchingTab((prev) => (prev ? prev : true));
     });
 
     return noRenderedTabsTimeout.clear;
-  }, [mountedTabPanels, noRenderedTabsTimeout, tabMap, value]);
+  }, [hidePanelsWithoutMatchingTab, mountedTabPanels, noRenderedTabsTimeout, tabMap, value]);
 
   const state: TabsRootState = {
     orientation,
