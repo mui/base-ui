@@ -5,7 +5,7 @@ import type { Side, Align } from '../../utils/useAnchorPositioning';
 export interface PreviewCardPositionerContext {
   side: Side;
   align: Align;
-  arrowRef: React.MutableRefObject<Element | null>;
+  arrowRef: React.RefObject<Element | null>;
   arrowUncentered: boolean;
   arrowStyles: React.CSSProperties;
 }

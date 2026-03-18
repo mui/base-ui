@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { UseFieldValidationReturnValue } from '../field/root/useFieldValidation';
-import { useCheckboxGroupParent } from './useCheckboxGroupParent';
+import type { UseCheckboxGroupParentReturnValue } from './useCheckboxGroupParent';
 import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
 import type { BaseUIEventReasons } from '../utils/reasons';
 
@@ -13,7 +13,7 @@ export interface CheckboxGroupContext {
     eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none']>,
   ) => void;
   allValues: string[] | undefined;
-  parent: useCheckboxGroupParent.ReturnValue;
+  parent: UseCheckboxGroupParentReturnValue;
   disabled: boolean;
   validation: UseFieldValidationReturnValue;
   registerControlRef: (element: HTMLButtonElement | null) => void;

@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { createRenderer } from '#test-utils';
 import { CompositeList } from './CompositeList';
 import { useCompositeListItem } from './useCompositeListItem';
@@ -26,12 +26,12 @@ describe('<CompositeList />', () => {
         </CompositeList>,
       );
 
-      expect(elementsRef.current).to.have.length(3);
-      expect(labelsRef.current).to.have.length(3);
+      expect(elementsRef.current).toHaveLength(3);
+      expect(labelsRef.current).toHaveLength(3);
 
       unmount();
-      expect(elementsRef.current).to.have.length(0);
-      expect(labelsRef.current).to.have.length(0);
+      expect(elementsRef.current).toHaveLength(0);
+      expect(labelsRef.current).toHaveLength(0);
     });
   });
 });

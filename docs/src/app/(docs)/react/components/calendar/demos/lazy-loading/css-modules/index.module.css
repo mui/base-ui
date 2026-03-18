@@ -1,0 +1,104 @@
+.Root {
+  height: 420px;
+}
+
+.DayGrid {
+  height: 384px;
+}
+
+.DayGridHeaderCell {
+  width: 44px;
+}
+
+.DayButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+  width: 44px;
+  gap: 2px;
+}
+
+.DayNumber {
+  font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.Price {
+  font-size: 0.625rem;
+  line-height: 1;
+  color: var(--color-gray-500);
+
+  @media (prefers-reduced-motion: no-preference) {
+    animation: fadeIn 0.2s ease both;
+  }
+}
+
+.PriceDeal {
+  color: #16a34a;
+  font-weight: 600;
+
+  @media (prefers-color-scheme: dark) {
+    color: #4ade80;
+  }
+}
+
+.PriceSoldOut {
+  font-size: 0.625rem;
+  line-height: 1;
+  color: var(--color-gray-400);
+
+  @media (prefers-reduced-motion: no-preference) {
+    animation: fadeIn 0.2s ease both;
+  }
+}
+
+.Skeleton {
+  display: block;
+  width: 24px;
+  height: 10px;
+  border-radius: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--color-gray-200) 25%,
+    var(--color-gray-100) 50%,
+    var(--color-gray-200) 75%
+  );
+  background-size: 200% 100%;
+
+  @media (prefers-color-scheme: dark) {
+    background: linear-gradient(
+      90deg,
+      var(--color-gray-700) 25%,
+      var(--color-gray-600) 50%,
+      var(--color-gray-700) 75%
+    );
+    background-size: 200% 100%;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

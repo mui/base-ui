@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -8,8 +9,6 @@ import { getCssDimensions } from './getCssDimensions';
 import { Dimensions } from '../floating-ui-react/types';
 import { Side } from './useAnchorPositioning';
 import { EMPTY_OBJECT } from './constants';
-
-const supportsResizeObserver = typeof ResizeObserver !== 'undefined';
 
 const DEFAULT_ENABLED = () => true;
 
@@ -65,7 +64,7 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
 
   useIsoLayoutEffect(() => {
     // Reset the state when the popup is closed.
-    if (!mounted || !enabled() || !supportsResizeObserver) {
+    if (!mounted || !enabled() || typeof ResizeObserver !== 'function') {
       restoreAnchoringStylesRef.current = NOOP;
       isInitialRenderRef.current = true;
       committedDimensionsRef.current = null;

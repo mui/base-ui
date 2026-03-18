@@ -1,8 +1,9 @@
-import { fireEvent, screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
+import { expect } from 'vitest';
+import * as React from 'react';
+import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Field.Error />', () => {
   const { render } = createRenderer();
@@ -22,7 +23,7 @@ describe('<Field.Error />', () => {
       </Field.Root>,
     );
 
-    expect(screen.getByRole('textbox')).to.have.attribute(
+    expect(screen.getByRole('textbox')).toHaveAttribute(
       'aria-describedby',
       screen.getByText('Message').id,
     );
@@ -39,7 +40,7 @@ describe('<Field.Error />', () => {
       </Form>,
     );
 
-    expect(screen.queryByText('Message')).to.equal(null);
+    expect(screen.queryByText('Message')).toBe(null);
 
     const input = screen.getByRole<HTMLInputElement>('textbox');
 
@@ -47,10 +48,10 @@ describe('<Field.Error />', () => {
     fireEvent.change(input, { target: { value: 'a' } });
     fireEvent.change(input, { target: { value: '' } });
     fireEvent.blur(input);
-    expect(screen.queryByText('Message')).to.equal(null);
+    expect(screen.queryByText('Message')).toBe(null);
 
     fireEvent.click(screen.getByText('submit'));
-    expect(screen.queryByText('Message')).not.to.equal(null);
+    expect(screen.queryByText('Message')).not.toBe(null);
   });
 
   describe('prop: match', () => {
@@ -65,19 +66,19 @@ describe('<Field.Error />', () => {
         </Form>,
       );
 
-      expect(screen.queryByText('Message')).to.equal(null);
+      expect(screen.queryByText('Message')).toBe(null);
 
       fireEvent.click(screen.getByText('submit'));
-      expect(screen.queryByText('Message')).not.to.equal(null);
+      expect(screen.queryByText('Message')).not.toBe(null);
 
       const input = screen.getByRole<HTMLInputElement>('textbox');
 
       fireEvent.focus(input);
       fireEvent.change(input, { target: { value: 'a' } });
-      expect(screen.queryByText('Message')).to.equal(null);
+      expect(screen.queryByText('Message')).toBe(null);
 
       fireEvent.change(input, { target: { value: '' } });
-      expect(screen.queryByText('Message')).not.to.equal(null);
+      expect(screen.queryByText('Message')).not.toBe(null);
     });
 
     it('should show custom errors', async () => {
@@ -96,10 +97,10 @@ describe('<Field.Error />', () => {
       fireEvent.focus(input);
       fireEvent.change(input, { target: { value: 'a' } });
       fireEvent.blur(input);
-      expect(screen.queryByText('Message')).to.equal(null);
+      expect(screen.queryByText('Message')).toBe(null);
 
       fireEvent.click(screen.getByText('submit'));
-      expect(screen.queryByText('Message')).not.to.equal(null);
+      expect(screen.queryByText('Message')).not.toBe(null);
     });
 
     it('always renders the error message when `match` is true', async () => {
@@ -110,7 +111,124 @@ describe('<Field.Error />', () => {
         </Field.Root>,
       );
 
-      expect(screen.queryByText('Message')).not.to.equal(null);
+      expect(screen.queryByText('Message')).not.toBe(null);
+    });
+  });
+
+  describe.skipIf(isJSDOM)('animations', () => {
+    afterEach(() => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+    });
+
+    it('triggers enter animation via data-starting-style when mounting', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      let transitionFinished = false;
+      function notifyTransitionFinished() {
+        transitionFinished = true;
+      }
+
+      const style = `
+        .animation-test-error {
+          transition: opacity 1ms;
+        }
+
+        .animation-test-error[data-starting-style],
+        .animation-test-error[data-ending-style] {
+          opacity: 0;
+        }
+      `;
+
+      function Test() {
+        const [showError, setShowError] = React.useState(false);
+
+        function handleShowError() {
+          setShowError(true);
+        }
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={handleShowError}>Show</button>
+            <Field.Root>
+              <Field.Control required />
+              <Field.Error
+                className="animation-test-error"
+                data-testid="error"
+                match={showError}
+                onTransitionEnd={notifyTransitionFinished}
+              >
+                Message
+              </Field.Error>
+            </Field.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      expect(screen.queryByTestId('error')).toBe(null);
+
+      await user.click(screen.getByText('Show'));
+
+      await waitFor(() => {
+        expect(transitionFinished).toBe(true);
+      });
+
+      expect(screen.getByTestId('error')).not.toBe(null);
+    });
+
+    it('applies data-ending-style before unmount', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const style = `
+        @keyframes test-anim {
+          to {
+            opacity: 0;
+          }
+        }
+
+        .animation-test-error[data-ending-style] {
+          animation: test-anim 1ms;
+        }
+      `;
+
+      function Test() {
+        const [showError, setShowError] = React.useState(true);
+
+        function handleHideError() {
+          setShowError(false);
+        }
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={handleHideError}>Hide</button>
+            <Field.Root>
+              <Field.Control required />
+              <Field.Error className="animation-test-error" data-testid="error" match={showError}>
+                Message
+              </Field.Error>
+            </Field.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      expect(screen.getByTestId('error')).not.toBe(null);
+
+      await user.click(screen.getByText('Hide'));
+
+      await waitFor(() => {
+        const error = screen.queryByTestId('error');
+        expect(error).not.toBe(null);
+        expect(error).toHaveAttribute('data-ending-style');
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('error')).toBe(null);
+      });
     });
   });
 });

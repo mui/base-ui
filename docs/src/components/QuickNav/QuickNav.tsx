@@ -1,6 +1,9 @@
 'use client';
 import * as React from 'react';
 import clsx from 'clsx';
+import { usePathname } from 'next/navigation';
+import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
+import './QuickNav.css';
 
 export function Container({ className, ...props }: React.ComponentProps<'div'>) {
   return <div className={clsx('QuickNavContainer', className)} {...props} />;
@@ -90,7 +93,7 @@ function onMounted(ref: React.RefObject<HTMLDivElement | null>) {
     ref.current.style.bottom = initialStyles.bottom;
     ref.current.style.marginTop = initialStyles.marginTop;
     ref.current.style.marginBottom = initialStyles.marginBottom;
-    // Remove the style attibute if it's empty so that the DOM is tidy
+    // Remove the style attribute if it's empty so that the DOM is tidy
     if (ref.current?.style.length === 0) {
       ref.current.removeAttribute('style');
     }
@@ -279,6 +282,27 @@ export function Item({ className, ...props }: React.ComponentProps<'li'>) {
   return <li className={clsx('QuickNavItem', className)} {...props} />;
 }
 
-export function Link({ className, ...props }: React.ComponentProps<'a'>) {
-  return <a className={clsx('QuickNavLink', className)} {...props} />;
+export function Link({ className, onClick, ...props }: React.ComponentProps<'a'>) {
+  const ga = useGoogleAnalytics();
+  const pathname = usePathname();
+
+  const handleClick = React.useCallback(
+    (event: React.MouseEvent<HTMLAnchorElement>) => {
+      const slug = props.href ?? undefined;
+      const tocId = slug ? `${pathname}${slug}` : pathname;
+      ga?.trackEvent({
+        category: 'table_of_contents',
+        action: 'click',
+        label: tocId,
+        params: { click: tocId, slug: slug || '' },
+      });
+      onClick?.(event);
+    },
+    [ga, props.href, onClick, pathname],
+  );
+
+  // The anchor element is interactive via `href` from `...props`, but the
+  // lint rules can't see through the spread to know that.
+  // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+  return <a className={clsx('QuickNavLink', className)} {...props} onClick={handleClick} />;
 }

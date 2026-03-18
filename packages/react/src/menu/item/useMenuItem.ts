@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';
-import { HTMLProps, BaseUIEvent } from '../../utils/types';
+import { HTMLProps } from '../../utils/types';
 import { MenuStore } from '../store/MenuStore';
 import { useMenuItemCommonProps } from './useMenuItemCommonProps';
 
@@ -11,13 +11,14 @@ export const REGULAR_ITEM = {
   type: 'regular-item' as const,
 };
 
-export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnValue {
+export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnValue {
   const {
     closeOnClick,
     disabled = false,
     highlighted,
     id,
     store,
+    typingRef = store.context.typingRef,
     nativeButton,
     itemMetadata,
     nodeId,
@@ -29,6 +30,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     disabled,
     focusableWhenDisabled: true,
     native: nativeButton,
+    composite: true,
   });
 
   const commonProps = useMenuItemCommonProps({
@@ -37,6 +39,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     id,
     nodeId,
     store,
+    typingRef,
     itemRef,
     itemMetadata,
   });
@@ -53,17 +56,12 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
 
             itemMetadata.setActive();
           },
-          onKeyUp(event: BaseUIEvent<React.KeyboardEvent>) {
-            if (event.key === ' ' && store.context.typingRef.current) {
-              event.preventBaseUIHandler();
-            }
-          },
         },
         externalProps,
         getButtonProps,
       );
     },
-    [commonProps, getButtonProps, store, itemMetadata],
+    [commonProps, getButtonProps, itemMetadata],
   );
 
   const mergedRef = useMergedRefs(itemRef, buttonRef);
@@ -104,7 +102,7 @@ export interface UseMenuItemParameters {
   /**
    * Additional data specific to the item type.
    */
-  itemMetadata: useMenuItem.Metadata;
+  itemMetadata: UseMenuItemMetadata;
   /**
    * The node id of the menu positioner.
    */
@@ -113,6 +111,11 @@ export interface UseMenuItemParameters {
    * The menu store.
    */
   store: MenuStore<any>;
+  /**
+   * Whether a typeahead session is in progress.
+   * @default store.context.typingRef
+   */
+  typingRef?: React.RefObject<boolean> | undefined;
 }
 
 export type UseMenuItemMetadata =
@@ -135,8 +138,4 @@ export interface UseMenuItemReturnValue {
   itemRef: React.RefCallback<HTMLElement> | null;
 }
 
-export namespace useMenuItem {
-  export type Parameters = UseMenuItemParameters;
-  export type Metadata = UseMenuItemMetadata;
-  export type ReturnValue = UseMenuItemReturnValue;
-}
+export interface UseMenuItemState {}

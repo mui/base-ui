@@ -85,6 +85,8 @@ export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
   );
 }
 
+export interface DialogRootState {}
+
 export interface DialogRootProps<Payload = unknown> {
   /**
    * Whether the dialog is currently open.
@@ -102,9 +104,12 @@ export interface DialogRootProps<Payload = unknown> {
    * - `true`: user interaction is limited to just the dialog: focus is trapped, document page scroll is locked, and pointer interactions on outside elements are disabled.
    * - `false`: user interaction with the rest of the document is allowed.
    * - `'trap-focus'`: focus is trapped inside the dialog, but document page scroll is not locked and pointer interactions outside of it remain enabled.
+   *
+   * When `modal` is `true` or `'trap-focus'`, render `<Dialog.Close>` inside `<Dialog.Popup>` so
+   * touch screen readers can escape the popup.
    * @default true
    */
-  modal?: (boolean | 'trap-focus') | undefined;
+  modal?: boolean | 'trap-focus' | undefined;
   /**
    * Event handler called when the dialog is opened or closed.
    */
@@ -142,12 +147,12 @@ export interface DialogRootProps<Payload = unknown> {
    * This is useful in conjunction with the `open` prop to create a controlled dialog.
    * There's no need to specify this prop when the popover is uncontrolled (i.e. when the `open` prop is not set).
    */
-  triggerId?: (string | null) | undefined;
+  triggerId?: string | null | undefined;
   /**
    * ID of the trigger that the dialog is associated with.
    * This is useful in conjunction with the `defaultOpen` prop to create an initially open dialog.
    */
-  defaultTriggerId?: (string | null) | undefined;
+  defaultTriggerId?: string | null | undefined;
 }
 
 export interface DialogRootActions {
@@ -170,6 +175,7 @@ export type DialogRootChangeEventDetails =
   };
 
 export namespace DialogRoot {
+  export type State = DialogRootState;
   export type Props<Payload = unknown> = DialogRootProps<Payload>;
   export type Actions = DialogRootActions;
   export type ChangeEventReason = DialogRootChangeEventReason;

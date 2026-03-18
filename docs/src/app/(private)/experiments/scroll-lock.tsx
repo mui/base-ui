@@ -6,14 +6,19 @@ import { isWebKit } from '@base-ui/utils/detectBrowser';
 export default function ScrollLock() {
   const [enabled, setEnabled] = React.useState(false);
   const [bodyScrollY, setBodyScrollY] = React.useState(false);
+  const [htmlScrollY, setHtmlScrollY] = React.useState(false);
   const [longContent, setLongContent] = React.useState(true);
   const [webkitScrollbars, setWebkitScrollbars] = React.useState(false);
 
   useScrollLock(enabled);
 
   React.useEffect(() => {
-    document.body.style.overflowY = bodyScrollY ? 'scroll' : '';
+    document.body.style.overflowY = bodyScrollY ? 'scroll' : 'visible';
   }, [bodyScrollY]);
+
+  React.useEffect(() => {
+    document.documentElement.style.overflowY = htmlScrollY ? 'scroll' : '';
+  }, [htmlScrollY]);
 
   React.useEffect(() => {
     if (isWebKit && webkitScrollbars) {
@@ -90,6 +95,16 @@ export default function ScrollLock() {
               onChange={(event) => setBodyScrollY(event.target.checked)}
             />
             body `overflow`
+          </label>
+        </div>
+        <div>
+          <label>
+            <input
+              type="checkbox"
+              checked={htmlScrollY}
+              onChange={(event) => setHtmlScrollY(event.target.checked)}
+            />
+            html `overflow`
           </label>
         </div>
         <div>

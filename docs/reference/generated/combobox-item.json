@@ -8,9 +8,9 @@
       "description": "A unique value that identifies this item."
     },
     "onClick": {
-      "type": "MouseEventHandler<HTMLElement>",
+      "type": "((event: BaseUIEvent<MouseEvent<HTMLDivElement, MouseEvent>>) => void)",
       "description": "An optional click handler for the item when selected.\nIt fires when clicking the item with the pointer, as well as when pressing `Enter` with the keyboard if the item is highlighted when the `Input` or `List` element has focus.",
-      "detailedType": "React.MouseEventHandler<HTMLElement> | undefined"
+      "detailedType": "| ((\n    event: BaseUIEvent<\n      MouseEvent<HTMLDivElement, MouseEvent>\n    >,\n  ) => void)\n| undefined"
     },
     "index": {
       "type": "number",

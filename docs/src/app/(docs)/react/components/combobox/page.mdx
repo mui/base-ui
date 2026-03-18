@@ -15,7 +15,7 @@ import { DemoComboboxHero } from './demos/hero';
 - **Combobox is a filterable Select**: Use Combobox when the input is restricted to a set of predefined selectable items, similar to [Select](/react/components/select) but whose items are filterable using an input. Prefer using Combobox over Select when the number of items is sufficiently large to warrant filtering.
 - **Avoid for simple search widgets**: Combobox does not allow free-form text input. For search widgets, consider using [Autocomplete](/react/components/autocomplete) instead.
 - **Avoid when not rendering an input**: Use [Select](/react/components/select) instead of Combobox if no input is being rendered, which includes accessibility features specific to a listbox without an input.
-- **Form controls must have an accessible name**: It can be created using a `<label>` element or the `Field` component. See [Labeling a combobox](#input-inside-popup) and the [forms guide](/react/handbook/forms).
+- **Form controls must have an accessible name**: If `<Combobox.Input>` is the form control, label it with a native `<label>` or `<Field.Label>`, or provide an `aria-label` when no visible label is rendered. `<Combobox.Label>` labels `<Combobox.Trigger>` and is intended for the [input-inside-popup](#input-inside-popup) pattern, where the trigger is the form control. See the [forms guide](/react/handbook/forms).
 
 ## Anatomy
 
@@ -25,17 +25,21 @@ Import the components and place them together:
 import { Combobox } from '@base-ui/react/combobox';
 
 <Combobox.Root>
-  <Combobox.Input />
-  <Combobox.Trigger />
-  <Combobox.Icon />
-  <Combobox.Clear />
-  <Combobox.Value />
+  <Combobox.Label />
 
-  <Combobox.Chips>
-    <Combobox.Chip>
-      <Combobox.ChipRemove />
-    </Combobox.Chip>
-  </Combobox.Chips>
+  <Combobox.InputGroup>
+    <Combobox.Input />
+    <Combobox.Trigger />
+    <Combobox.Icon />
+    <Combobox.Clear />
+    <Combobox.Value />
+
+    <Combobox.Chips>
+      <Combobox.Chip>
+        <Combobox.ChipRemove />
+      </Combobox.Chip>
+    </Combobox.Chips>
+  </Combobox.InputGroup>
 
   <Combobox.Portal>
     <Combobox.Backdrop />
@@ -106,18 +110,16 @@ import { DemoComboboxInputInsidePopup } from './demos/input-inside-popup';
 
 <DemoComboboxInputInsidePopup compact />
 
-Use the [Field](/react/components/field) component to provide a visible label for the combobox trigger:
+Use `<Combobox.Label>` to provide a visible label for the combobox trigger in this pattern:
 
-```tsx title="Using Field to label a combobox" {2,4}
-<Field.Root>
-  <Field.Label nativeLabel={false} render={<div />}>
-    Favorite fruit
-  </Field.Label>
-  <Combobox.Root>{/* ... */}</Combobox.Root>
-</Field.Root>
+```tsx title="Using Combobox.Label to label a combobox" {2}
+<Combobox.Root>
+  <Combobox.Label>Favorite fruit</Combobox.Label>
+  {/* ... */}
+</Combobox.Root>
 ```
 
-Replace the rendered `<label>` element with a `<div>` element and add `nativeLabel={false}` so it does not inherit native label behaviors. This ensures clicking on the label will focus the combobox trigger without opening the associated popup to match native `<select>` behavior, and prevents CSS `:hover` from activating on the trigger when hovering over the label.
+`<Combobox.Label>` renders a `<div>`, so clicking it focuses the combobox trigger without opening the popup.
 
 ### Grouped
 
@@ -191,7 +193,7 @@ import { DemoComboboxTanstackQuery } from './demos/tanstack-query';
 
 <Reference
   component="Combobox"
-  parts="Root, Value, Icon, Input, Clear, Trigger, Chips, Chip, ChipRemove, List, Portal, Backdrop, Positioner, Popup, Arrow, Status, Empty, Collection, Row, Item, ItemIndicator, Group, GroupLabel, Separator"
+  parts="Root, Label, Value, Icon, Input, InputGroup, Clear, Trigger, Chips, Chip, ChipRemove, List, Portal, Backdrop, Positioner, Popup, Arrow, Status, Empty, Collection, Row, Item, ItemIndicator, Group, GroupLabel, Separator"
 />
 
 ## useFilter

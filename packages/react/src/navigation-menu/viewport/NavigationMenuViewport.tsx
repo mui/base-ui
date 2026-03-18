@@ -87,7 +87,8 @@ export const NavigationMenuViewport = React.forwardRef(function NavigationMenuVi
     setViewportInert,
   } = useNavigationMenuRootContext();
 
-  const hasPositioner = Boolean(useNavigationMenuPositionerContext(true));
+  const positioning = useNavigationMenuPositionerContext(true);
+  const hasPositioner = Boolean(positioning);
   const domReference = (floatingRootContext || EMPTY_ROOT_CONTEXT).useState('domReferenceElement');
 
   useIsoLayoutEffect(() => {
@@ -135,7 +136,7 @@ export interface NavigationMenuViewportState {}
 
 export interface NavigationMenuViewportProps extends BaseUIComponentProps<
   'div',
-  NavigationMenuViewport.State
+  NavigationMenuViewportState
 > {}
 
 export namespace NavigationMenuViewport {

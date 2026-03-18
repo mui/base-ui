@@ -1,9 +1,10 @@
+import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { screen, waitFor } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 import { Field } from '@base-ui/react/field';
+import { REASONS } from '../../utils/reasons';
 
 describe('<Combobox.Input />', () => {
   const { render } = createRenderer();
@@ -24,7 +25,7 @@ describe('<Combobox.Input />', () => {
       );
 
       const input = screen.getByTestId('input');
-      expect(input).to.have.attribute('disabled');
+      expect(input).toHaveAttribute('disabled');
     });
 
     it('should inherit disabled state from ComboboxRoot', async () => {
@@ -35,7 +36,7 @@ describe('<Combobox.Input />', () => {
       );
 
       const input = screen.getByTestId('input');
-      expect(input).to.have.attribute('disabled');
+      expect(input).toHaveAttribute('disabled');
     });
 
     it('should inherit disabled state from Field.Root', async () => {
@@ -48,7 +49,7 @@ describe('<Combobox.Input />', () => {
       );
 
       const input = screen.getByTestId('input');
-      expect(input).to.have.attribute('disabled');
+      expect(input).toHaveAttribute('disabled');
     });
 
     it('should not open popup when disabled', async () => {
@@ -71,7 +72,7 @@ describe('<Combobox.Input />', () => {
       const input = screen.getByTestId('input');
       await user.click(input);
 
-      expect(screen.queryByRole('listbox')).to.equal(null);
+      expect(screen.queryByRole('listbox')).toBe(null);
     });
 
     it('should prioritize local disabled over root disabled', async () => {
@@ -82,7 +83,7 @@ describe('<Combobox.Input />', () => {
       );
 
       const input = screen.getByTestId('input');
-      expect(input).to.have.attribute('disabled');
+      expect(input).toHaveAttribute('disabled');
     });
   });
 
@@ -95,8 +96,8 @@ describe('<Combobox.Input />', () => {
       );
 
       const input = screen.getByTestId('input');
-      expect(input).to.have.attribute('aria-readonly', 'true');
-      expect(input).to.have.attribute('readonly');
+      expect(input).toHaveAttribute('aria-readonly', 'true');
+      expect(input).toHaveAttribute('readonly');
     });
 
     it('should not open popup when readOnly', async () => {
@@ -119,7 +120,7 @@ describe('<Combobox.Input />', () => {
       const input = screen.getByTestId('input');
       await user.click(input);
 
-      expect(screen.queryByRole('listbox')).to.equal(null);
+      expect(screen.queryByRole('listbox')).toBe(null);
     });
 
     it('should prevent keyboard interactions when readOnly', async () => {
@@ -142,7 +143,7 @@ describe('<Combobox.Input />', () => {
       const input = screen.getByTestId('input');
 
       await user.type(input, 'a');
-      expect(screen.queryByRole('listbox')).to.equal(null);
+      expect(screen.queryByRole('listbox')).toBe(null);
     });
 
     it('allows interactions when readOnly={false}', async () => {
@@ -163,13 +164,13 @@ describe('<Combobox.Input />', () => {
 
       const input = screen.getByTestId('input');
       await user.click(input);
-      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
 
       await waitFor(() => {
         screen.getByRole('option', { name: 'a' });
       });
       await user.click(screen.getByRole('option', { name: 'a' }));
-      expect(input).to.have.value('a');
+      expect(input).toHaveValue('a');
     });
   });
 
@@ -182,7 +183,39 @@ describe('<Combobox.Input />', () => {
       );
 
       const input = screen.getByTestId('input');
-      expect(input).to.have.attribute('aria-required', 'true');
+      expect(input).toHaveAttribute('aria-required', 'true');
+    });
+  });
+
+  describe('onOpenChange reason', () => {
+    it('fires with reason input-press when Input is clicked', async () => {
+      const onOpenChange = vi.fn();
+
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'banana']} onOpenChange={onOpenChange}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+
+      expect(onOpenChange.mock.calls.length).toBeGreaterThan(0);
+      expect(onOpenChange.mock.lastCall?.[0]).toBe(true);
+      expect(onOpenChange.mock.lastCall?.[1].reason).toBe(REASONS.inputPress);
     });
   });
 
@@ -209,18 +242,18 @@ describe('<Combobox.Input />', () => {
 
       const input = screen.getByRole<HTMLInputElement>('combobox');
 
-      expect(input.value).to.equal('apple');
+      expect(input.value).toBe('apple');
 
       await user.clear(input);
 
-      expect(input.value).to.equal('');
+      expect(input.value).toBe('');
 
       await user.type(input, 'a');
-      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
 
       const options = screen.getAllByRole('option');
       options.forEach((opt) => {
-        expect(opt).to.not.have.attribute('aria-selected', 'true');
+        expect(opt).not.toHaveAttribute('aria-selected', 'true');
       });
     });
 
@@ -244,7 +277,7 @@ describe('<Combobox.Input />', () => {
       const input = screen.getByTestId('input');
       await user.type(input, 'a');
 
-      expect(screen.getByRole('listbox')).not.to.equal(null);
+      expect(screen.getByRole('listbox')).not.toBe(null);
     });
 
     it('should handle multiple selection with chips when disabled', async () => {
@@ -274,12 +307,12 @@ describe('<Combobox.Input />', () => {
       const chip = screen.getByTestId('chip');
       const remove = screen.getByTestId('remove');
 
-      expect(input).to.have.attribute('disabled');
-      expect(chip).to.have.attribute('aria-disabled', 'true');
-      expect(remove).to.have.attribute('aria-disabled', 'true');
+      expect(input).toHaveAttribute('disabled');
+      expect(chip).toHaveAttribute('aria-disabled', 'true');
+      expect(remove).toHaveAttribute('aria-disabled', 'true');
 
       await user.type(input, '{backspace}');
-      expect(screen.getByTestId('chip')).not.to.equal(null);
+      expect(screen.getByTestId('chip')).not.toBe(null);
     });
 
     it('should handle multiple selection with chips when readOnly', async () => {
@@ -308,11 +341,11 @@ describe('<Combobox.Input />', () => {
       const input = screen.getByTestId('input');
       const chip = screen.getByTestId('chip');
 
-      expect(input).to.have.attribute('aria-readonly', 'true');
-      expect(chip).to.have.attribute('aria-readonly', 'true');
+      expect(input).toHaveAttribute('aria-readonly', 'true');
+      expect(chip).toHaveAttribute('aria-readonly', 'true');
 
       await user.type(input, '{backspace}');
-      expect(screen.getByTestId('chip')).not.to.equal(null);
+      expect(screen.getByTestId('chip')).not.toBe(null);
     });
 
     it('should move focus to clear button when pressing Escape and popup is closed', async () => {
@@ -339,32 +372,32 @@ describe('<Combobox.Input />', () => {
       await user.keyboard('{Escape}');
 
       await waitFor(() => {
-        expect(input.value).to.equal('');
+        expect(input.value).toBe('');
       });
 
       await user.type(input, 'a');
 
       await waitFor(() => {
-        expect(screen.getByRole('listbox')).not.to.equal(null);
+        expect(screen.getByRole('listbox')).not.toBe(null);
       });
       await user.click(screen.getByRole('option', { name: 'apple' }));
 
       await user.type(input, 'a');
       await waitFor(() => {
-        expect(screen.getByRole('listbox')).not.to.equal(null);
+        expect(screen.getByRole('listbox')).not.toBe(null);
       });
 
       await user.keyboard('{Escape}');
 
       await waitFor(() => {
-        expect(input.value).to.equal('apple');
+        expect(input.value).toBe('apple');
       });
-      expect(screen.queryByRole('listbox')).to.equal(null);
+      expect(screen.queryByRole('listbox')).toBe(null);
 
       await user.keyboard('{Escape}');
 
       await waitFor(() => {
-        expect(input.value).to.equal('');
+        expect(input.value).toBe('');
       });
     });
 
@@ -379,12 +412,12 @@ describe('<Combobox.Input />', () => {
 
       input.focus();
       await user.type(input, 'banana');
-      expect(input.value).to.equal('banana');
+      expect(input.value).toBe('banana');
 
       await user.keyboard('{Home}');
 
-      expect(input.selectionStart).to.equal(0);
-      expect(input.selectionEnd).to.equal(0);
+      expect(input.selectionStart).toBe(0);
+      expect(input.selectionEnd).toBe(0);
     });
 
     it('pressing End moves caret to end', async () => {
@@ -398,12 +431,12 @@ describe('<Combobox.Input />', () => {
 
       input.focus();
       await user.type(input, 'apple');
-      expect(input.value).to.equal('apple');
+      expect(input.value).toBe('apple');
 
       await user.keyboard('{End}');
 
-      expect(input.selectionStart).to.equal(input.value.length);
-      expect(input.selectionEnd).to.equal(input.value.length);
+      expect(input.selectionStart).toBe(input.value.length);
+      expect(input.selectionEnd).toBe(input.value.length);
     });
 
     it.skipIf(isJSDOM)(
@@ -420,24 +453,24 @@ describe('<Combobox.Input />', () => {
 
         await user.type(input, 'this is a very long combobox value');
 
-        expect(input.scrollWidth).to.be.greaterThan(input.clientWidth);
+        expect(input.scrollWidth).toBeGreaterThan(input.clientWidth);
 
         const expectedScroll = input.scrollWidth - input.clientWidth;
 
-        expect(expectedScroll).to.be.greaterThan(0);
+        expect(expectedScroll).toBeGreaterThan(0);
 
         input.scrollLeft = expectedScroll;
         input.setSelectionRange(input.value.length, input.value.length);
 
         await user.keyboard('{Home}');
-        expect(input.selectionStart).to.equal(0);
-        expect(input.selectionEnd).to.equal(0);
-        expect(input.scrollLeft).to.equal(0);
+        expect(input.selectionStart).toBe(0);
+        expect(input.selectionEnd).toBe(0);
+        expect(input.scrollLeft).toBe(0);
 
         await user.keyboard('{End}');
-        expect(input.selectionStart).to.equal(input.value.length);
-        expect(input.selectionEnd).to.equal(input.value.length);
-        expect(input.scrollLeft).to.be.closeTo(expectedScroll, 2);
+        expect(input.selectionStart).toBe(input.value.length);
+        expect(input.selectionEnd).toBe(input.value.length);
+        expect(Math.abs(input.scrollLeft - expectedScroll)).toBeLessThanOrEqual(2);
       },
     );
 
@@ -456,22 +489,22 @@ describe('<Combobox.Input />', () => {
       const input = screen.getByRole<HTMLInputElement>('combobox');
 
       await user.type(input, 'abcd');
-      expect(input.value).to.equal('abcd');
+      expect(input.value).toBe('abcd');
 
       // Move caret left twice to position after "ab"
       await user.keyboard('{ArrowLeft}{ArrowLeft}');
-      expect(input.selectionStart).to.equal(2);
-      expect(input.selectionEnd).to.equal(2);
+      expect(input.selectionStart).toBe(2);
+      expect(input.selectionEnd).toBe(2);
 
       await user.keyboard('xxx');
-      expect(input.value).to.equal('abxxxcd');
-      expect(input.selectionStart).to.equal(5);
-      expect(input.selectionEnd).to.equal(5);
+      expect(input.value).toBe('abxxxcd');
+      expect(input.selectionStart).toBe(5);
+      expect(input.selectionEnd).toBe(5);
 
       await user.keyboard('y');
-      expect(input.value).to.equal('abxxxycd');
-      expect(input.selectionStart).to.equal(6);
-      expect(input.selectionEnd).to.equal(6);
+      expect(input.value).toBe('abxxxycd');
+      expect(input.selectionStart).toBe(6);
+      expect(input.selectionEnd).toBe(6);
     });
 
     it('closes the popup when tabbing out', async () => {
@@ -502,7 +535,7 @@ describe('<Combobox.Input />', () => {
       await user.click(input);
 
       await waitFor(() => {
-        expect(screen.getByRole('listbox')).not.to.equal(null);
+        expect(screen.getByRole('listbox')).not.toBe(null);
       });
 
       await user.tab();
@@ -510,12 +543,12 @@ describe('<Combobox.Input />', () => {
       await waitFor(() => {
         expect(button).toHaveFocus();
       });
-      expect(screen.queryByRole('listbox')).to.equal(null);
+      expect(screen.queryByRole('listbox')).toBe(null);
 
       await user.click(input);
 
       await waitFor(() => {
-        expect(screen.getByRole('listbox')).not.to.equal(null);
+        expect(screen.getByRole('listbox')).not.toBe(null);
       });
 
       await user.tab();
@@ -523,7 +556,7 @@ describe('<Combobox.Input />', () => {
       await waitFor(() => {
         expect(button).toHaveFocus();
       });
-      expect(screen.queryByRole('listbox')).to.equal(null);
+      expect(screen.queryByRole('listbox')).toBe(null);
     });
   });
 
@@ -549,17 +582,17 @@ describe('<Combobox.Input />', () => {
       );
 
       const input = screen.getByRole('combobox');
-      expect(input).not.to.have.attribute('data-popup-side');
+      expect(input).not.toHaveAttribute('data-popup-side');
 
       await user.click(input);
 
-      await waitFor(() => expect(screen.queryByRole('listbox')).not.to.equal(null));
-      expect(input).to.have.attribute('data-popup-side', 'right');
+      await waitFor(() => expect(screen.queryByRole('listbox')).not.toBe(null));
+      expect(input).toHaveAttribute('data-popup-side', 'right');
 
       await user.click(document.body);
 
-      await waitFor(() => expect(screen.queryByRole('listbox')).to.equal(null));
-      expect(input).not.to.have.attribute('data-popup-side');
+      await waitFor(() => expect(screen.queryByRole('listbox')).toBe(null));
+      expect(input).not.toHaveAttribute('data-popup-side');
     });
 
     it('toggles data-empty when the filtered list is empty', async () => {
@@ -580,8 +613,8 @@ describe('<Combobox.Input />', () => {
 
       await user.click(input);
 
-      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
-      expect(input).to.have.attribute('data-list-empty');
+      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+      expect(input).toHaveAttribute('data-list-empty');
     });
   });
 });

@@ -1,7 +1,7 @@
+import { expect } from 'vitest';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { createRenderer, isJSDOM, describeConformance } from '#test-utils';
-import { fireEvent, screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
+import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { SCROLL_TIMEOUT } from '../constants';
 
 describe('<ScrollArea.Viewport />', () => {
@@ -30,26 +30,26 @@ describe('<ScrollArea.Viewport />', () => {
 
       const viewport = screen.getByTestId('viewport');
 
-      expect(viewport).not.to.have.attribute('data-scrolling');
+      expect(viewport).not.toHaveAttribute('data-scrolling');
 
       fireEvent.pointerEnter(viewport);
       fireEvent.scroll(viewport, { target: { scrollTop: 1 } });
 
-      expect(viewport).to.have.attribute('data-scrolling', '');
+      expect(viewport).toHaveAttribute('data-scrolling', '');
 
       await clock.tickAsync(SCROLL_TIMEOUT);
 
-      expect(viewport).not.to.have.attribute('data-scrolling');
+      expect(viewport).not.toHaveAttribute('data-scrolling');
 
       // Test horizontal scrolling
       fireEvent.pointerEnter(viewport);
       fireEvent.scroll(viewport, { target: { scrollLeft: 1 } });
 
-      expect(viewport).to.have.attribute('data-scrolling', '');
+      expect(viewport).toHaveAttribute('data-scrolling', '');
 
       await clock.tickAsync(SCROLL_TIMEOUT);
 
-      expect(viewport).not.to.have.attribute('data-scrolling');
+      expect(viewport).not.toHaveAttribute('data-scrolling');
     });
 
     it('removes [data-scrolling] after timeout', async () => {
@@ -67,17 +67,17 @@ describe('<ScrollArea.Viewport />', () => {
       fireEvent.pointerEnter(viewport);
       fireEvent.scroll(viewport, { target: { scrollTop: 1 } });
 
-      expect(viewport).to.have.attribute('data-scrolling', '');
+      expect(viewport).toHaveAttribute('data-scrolling', '');
 
       // Wait less than timeout - should still be scrolling
       await clock.tickAsync(SCROLL_TIMEOUT - 1);
 
-      expect(viewport).to.have.attribute('data-scrolling', '');
+      expect(viewport).toHaveAttribute('data-scrolling', '');
 
       // Wait for remaining timeout
       await clock.tickAsync(1);
 
-      expect(viewport).not.to.have.attribute('data-scrolling');
+      expect(viewport).not.toHaveAttribute('data-scrolling');
     });
   });
 
@@ -96,12 +96,16 @@ describe('<ScrollArea.Viewport />', () => {
 
       const viewport = screen.getByTestId('viewport');
 
-      expect(viewport).to.have.attribute('data-has-overflow-x');
-      expect(viewport).to.have.attribute('data-has-overflow-y');
-      expect(viewport).not.to.have.attribute('data-overflow-x-start');
-      expect(viewport).to.have.attribute('data-overflow-x-end');
-      expect(viewport).not.to.have.attribute('data-overflow-y-start');
-      expect(viewport).to.have.attribute('data-overflow-y-end');
+      /* eslint-disable testing-library/no-wait-for-multiple-assertions */
+      await waitFor(() => {
+        expect(viewport).toHaveAttribute('data-has-overflow-x');
+        expect(viewport).toHaveAttribute('data-has-overflow-y');
+        expect(viewport).not.toHaveAttribute('data-overflow-x-start');
+        expect(viewport).toHaveAttribute('data-overflow-x-end');
+        expect(viewport).not.toHaveAttribute('data-overflow-y-start');
+        expect(viewport).toHaveAttribute('data-overflow-y-end');
+      });
+      /* eslint-enable testing-library/no-wait-for-multiple-assertions */
     });
   });
 });

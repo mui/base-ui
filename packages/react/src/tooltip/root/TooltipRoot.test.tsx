@@ -1,8 +1,7 @@
+import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
-import { expect } from 'chai';
-import { spy } from 'sinon';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { OPEN_DELAY } from '../utils/constants';
@@ -57,7 +56,7 @@ describe('<Tooltip.Root />', () => {
 
         await flushMicrotasks();
 
-        expect(screen.getByText('Content')).not.to.equal(null);
+        expect(screen.getByText('Content')).not.toBe(null);
       });
 
       it('should close when the trigger is unhovered', async () => {
@@ -76,7 +75,7 @@ describe('<Tooltip.Root />', () => {
         fireEvent.mouseLeave(trigger);
 
         await flushMicrotasks();
-        expect(screen.queryByText('Content')).to.equal(null);
+        expect(screen.queryByText('Content')).toBe(null);
       });
 
       it('should open when the trigger is focused', async ({ skip }) => {
@@ -92,7 +91,7 @@ describe('<Tooltip.Root />', () => {
 
         await flushMicrotasks();
 
-        expect(screen.getByText('Content')).not.to.equal(null);
+        expect(screen.getByText('Content')).not.toBe(null);
       });
 
       it('should close when the trigger is blurred', async () => {
@@ -113,14 +112,14 @@ describe('<Tooltip.Root />', () => {
 
         clock.tick(OPEN_DELAY);
 
-        expect(screen.queryByText('Content')).to.equal(null);
+        expect(screen.queryByText('Content')).toBe(null);
       });
     });
 
     describe('controlled open', () => {
       clock.withFakeTimers();
       it('should call onOpenChange when the open state changes', async () => {
-        const handleChange = spy();
+        const handleChange = vi.fn();
 
         function App() {
           const [open, setOpen] = React.useState(false);
@@ -140,7 +139,7 @@ describe('<Tooltip.Root />', () => {
 
         await render(<App />);
 
-        expect(screen.queryByText('Content')).to.equal(null);
+        expect(screen.queryByText('Content')).toBe(null);
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });
 
@@ -151,18 +150,18 @@ describe('<Tooltip.Root />', () => {
 
         await flushMicrotasks();
 
-        expect(screen.getByText('Content')).not.to.equal(null);
+        expect(screen.getByText('Content')).not.toBe(null);
 
         fireEvent.mouseLeave(trigger);
 
-        expect(screen.queryByText('Content')).to.equal(null);
-        expect(handleChange.callCount).to.equal(2);
-        expect(handleChange.firstCall.args[0]).to.equal(false);
-        expect(handleChange.secondCall.args[0]).to.equal(true);
+        expect(screen.queryByText('Content')).toBe(null);
+        expect(handleChange.mock.calls.length).toBe(2);
+        expect(handleChange.mock.calls[0][0]).toBe(false);
+        expect(handleChange.mock.calls[1][0]).toBe(true);
       });
 
       it('should not call onChange when the open state does not change', async () => {
-        const handleChange = spy();
+        const handleChange = vi.fn();
 
         function App() {
           const [open, setOpen] = React.useState(false);
@@ -182,7 +181,7 @@ describe('<Tooltip.Root />', () => {
 
         await render(<App />);
 
-        expect(screen.queryByText('Content')).to.equal(null);
+        expect(screen.queryByText('Content')).toBe(null);
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });
 
@@ -193,9 +192,9 @@ describe('<Tooltip.Root />', () => {
 
         await flushMicrotasks();
 
-        expect(screen.getByText('Content')).not.to.equal(null);
-        expect(handleChange.callCount).to.equal(1);
-        expect(handleChange.firstCall.args[0]).to.equal(false);
+        expect(screen.getByText('Content')).not.toBe(null);
+        expect(handleChange.mock.calls.length).toBe(1);
+        expect(handleChange.mock.calls[0][0]).toBe(false);
       });
     });
 
@@ -205,7 +204,7 @@ describe('<Tooltip.Root />', () => {
 
         await flushMicrotasks();
 
-        expect(screen.getByText('Content')).not.to.equal(null);
+        expect(screen.getByText('Content')).not.toBe(null);
       });
 
       it('should not open when the component is rendered and open is controlled', async () => {
@@ -213,7 +212,7 @@ describe('<Tooltip.Root />', () => {
 
         await flushMicrotasks();
 
-        expect(screen.queryByText('Content')).to.equal(null);
+        expect(screen.queryByText('Content')).toBe(null);
       });
 
       it('should not close when the component is rendered and open is controlled', async () => {
@@ -221,7 +220,7 @@ describe('<Tooltip.Root />', () => {
 
         await flushMicrotasks();
 
-        expect(screen.getByText('Content')).not.to.equal(null);
+        expect(screen.getByText('Content')).not.toBe(null);
       });
 
       it('should remain uncontrolled', async () => {
@@ -229,7 +228,7 @@ describe('<Tooltip.Root />', () => {
 
         await flushMicrotasks();
 
-        expect(screen.getByText('Content')).not.to.equal(null);
+        expect(screen.getByText('Content')).not.toBe(null);
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });
 
@@ -237,7 +236,7 @@ describe('<Tooltip.Root />', () => {
 
         await flushMicrotasks();
 
-        expect(screen.queryByText('Content')).to.equal(null);
+        expect(screen.queryByText('Content')).toBe(null);
       });
     });
 
@@ -254,13 +253,13 @@ describe('<Tooltip.Root />', () => {
 
         await flushMicrotasks();
 
-        expect(screen.queryByText('Content')).to.equal(null);
+        expect(screen.queryByText('Content')).toBe(null);
 
         clock.tick(100);
 
         await flushMicrotasks();
 
-        expect(screen.getByText('Content')).not.to.equal(null);
+        expect(screen.getByText('Content')).not.toBe(null);
       });
     });
 
@@ -279,15 +278,15 @@ describe('<Tooltip.Root />', () => {
 
         await flushMicrotasks();
 
-        expect(screen.getByText('Content')).not.to.equal(null);
+        expect(screen.getByText('Content')).not.toBe(null);
 
         fireEvent.mouseLeave(trigger);
 
-        expect(screen.getByText('Content')).not.to.equal(null);
+        expect(screen.getByText('Content')).not.toBe(null);
 
         clock.tick(100);
 
-        expect(screen.queryByText('Content')).to.equal(null);
+        expect(screen.queryByText('Content')).toBe(null);
       });
     });
 
@@ -295,8 +294,8 @@ describe('<Tooltip.Root />', () => {
       it('unmounts the tooltip when the `unmount` method is called', async () => {
         const actionsRef = {
           current: {
-            unmount: spy(),
-            close: spy(),
+            unmount: vi.fn(),
+            close: vi.fn(),
           },
         };
 
@@ -315,26 +314,26 @@ describe('<Tooltip.Root />', () => {
         await user.hover(trigger);
 
         await waitFor(() => {
-          expect(screen.queryByTestId('positioner')).not.to.equal(null);
+          expect(screen.queryByTestId('positioner')).not.toBe(null);
         });
 
         await user.unhover(trigger);
 
         await waitFor(() => {
-          expect(screen.queryByTestId('positioner')).not.to.equal(null);
+          expect(screen.queryByTestId('positioner')).not.toBe(null);
         });
 
         await act(async () => actionsRef.current.unmount());
 
         await waitFor(() => {
-          expect(screen.queryByTestId('positioner')).to.equal(null);
+          expect(screen.queryByTestId('positioner')).toBe(null);
         });
       });
     });
 
     describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
       it('is called on close when there is no exit animation defined', async () => {
-        const onOpenChangeComplete = spy();
+        const onOpenChangeComplete = vi.fn();
 
         function Test() {
           const [open, setOpen] = React.useState(true);
@@ -358,17 +357,17 @@ describe('<Tooltip.Root />', () => {
         await user.click(closeButton);
 
         await waitFor(() => {
-          expect(screen.queryByTestId('popup')).to.equal(null);
+          expect(screen.queryByTestId('popup')).toBe(null);
         });
 
-        expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
-        expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
+        expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
+        expect(onOpenChangeComplete.mock.lastCall?.[0]).toBe(false);
       });
 
       it('is called on close when the exit animation finishes', async () => {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
-        const onOpenChangeComplete = spy();
+        const onOpenChangeComplete = vi.fn();
 
         function Test() {
           const style = `
@@ -403,25 +402,25 @@ describe('<Tooltip.Root />', () => {
 
         const { user } = await render(<Test />);
 
-        expect(screen.getByTestId('popup')).not.to.equal(null);
+        expect(screen.getByTestId('popup')).not.toBe(null);
 
         // Wait for open animation to finish
         await waitFor(() => {
-          expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+          expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
         });
 
         const closeButton = screen.getByText('Close');
         await user.click(closeButton);
 
         await waitFor(() => {
-          expect(screen.queryByTestId('popup')).to.equal(null);
+          expect(screen.queryByTestId('popup')).toBe(null);
         });
 
-        expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
+        expect(onOpenChangeComplete.mock.lastCall?.[0]).toBe(false);
       });
 
       it('is called on open when there is no enter animation defined', async () => {
-        const onOpenChangeComplete = spy();
+        const onOpenChangeComplete = vi.fn();
 
         function Test() {
           const [open, setOpen] = React.useState(false);
@@ -445,17 +444,17 @@ describe('<Tooltip.Root />', () => {
         await user.click(openButton);
 
         await waitFor(() => {
-          expect(screen.queryByTestId('popup')).not.to.equal(null);
+          expect(screen.queryByTestId('popup')).not.toBe(null);
         });
 
-        expect(onOpenChangeComplete.callCount).to.equal(2);
-        expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+        expect(onOpenChangeComplete.mock.calls.length).toBe(2);
+        expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
       });
 
       it('is called on open when the enter animation finishes', async () => {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
-        const onOpenChangeComplete = spy();
+        const onOpenChangeComplete = vi.fn();
 
         function Test() {
           const style = `
@@ -499,14 +498,14 @@ describe('<Tooltip.Root />', () => {
 
         // Wait for open animation to finish
         await waitFor(() => {
-          expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+          expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
         });
 
-        expect(screen.queryByTestId('popup')).not.to.equal(null);
+        expect(screen.queryByTestId('popup')).not.toBe(null);
       });
 
       it('does not get called on mount when not open', async () => {
-        const onOpenChangeComplete = spy();
+        const onOpenChangeComplete = vi.fn();
 
         await render(
           <Tooltip.Root onOpenChangeComplete={onOpenChangeComplete}>
@@ -518,7 +517,7 @@ describe('<Tooltip.Root />', () => {
           </Tooltip.Root>,
         );
 
-        expect(onOpenChangeComplete.callCount).to.equal(0);
+        expect(onOpenChangeComplete.mock.calls.length).toBe(0);
       });
     });
 
@@ -577,7 +576,7 @@ describe('<Tooltip.Root />', () => {
         await user.hover(firstTrigger);
 
         const firstPopup = await screen.findByTestId('popup-1');
-        expect(firstPopup.dataset.instant).to.equal(undefined);
+        expect(firstPopup.dataset.instant).toBe(undefined);
 
         await user.unhover(firstTrigger);
         await user.hover(secondTrigger);
@@ -585,16 +584,61 @@ describe('<Tooltip.Root />', () => {
         const secondPopup = await screen.findByTestId('popup-2');
 
         await waitFor(() => {
-          expect(secondPopup.dataset.instant).to.equal('delay');
-          expect(secondPopup.getAnimations().length).to.equal(0);
+          expect(secondPopup.dataset.instant).toBe('delay');
+          expect(secondPopup.getAnimations().length).toBe(0);
         });
 
         await user.unhover(secondTrigger);
 
         await waitFor(() => {
-          expect(secondPopup.dataset.endingStyle).to.equal('');
-          expect(secondPopup.dataset.instant).to.equal(undefined);
-          expect(secondPopup.getAnimations().length).to.equal(1);
+          expect(secondPopup.dataset.endingStyle).toBe('');
+          expect(secondPopup.dataset.instant).toBe(undefined);
+          expect(secondPopup.getAnimations().length).toBe(1);
+        });
+      });
+
+      it('inline opacity: 0 is removed before user CSS transitions run', async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        // The inline opacity: 0 applied before positioning must be removed
+        // before CSS transitions start, so it does not trigger an unwanted
+        // opacity transition.
+        const style = `
+          .tooltip {
+            transition: opacity 200ms;
+            opacity: 1;
+          }
+        `;
+
+        const { user } = await render(
+          <Tooltip.Root>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <Tooltip.Trigger data-testid="trigger" delay={0}>
+              Trigger
+            </Tooltip.Trigger>
+            <Tooltip.Portal>
+              <Tooltip.Positioner>
+                <Tooltip.Popup className="tooltip" data-testid="popup">
+                  Tooltip
+                </Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
+          </Tooltip.Root>,
+        );
+
+        await user.hover(screen.getByTestId('trigger'));
+
+        const popup = await screen.findByTestId('popup');
+
+        // Opacity should be 1 immediately — no unwanted fade from 0 to 1.
+        // No opacity transition should be running.
+        await waitFor(() => {
+          expect(Number(getComputedStyle(popup).opacity)).toBe(1);
+          const opacityAnimations = popup
+            .getAnimations()
+            .filter((a) => (a as CSSTransition).transitionProperty === 'opacity');
+          expect(opacityAnimations.length).toBe(0);
         });
       });
     });
@@ -611,11 +655,22 @@ describe('<Tooltip.Root />', () => {
 
         await flushMicrotasks();
 
-        expect(screen.queryByText('Content')).to.equal(null);
+        expect(screen.queryByText('Content')).toBe(null);
 
         await act(async () => trigger.focus());
 
-        expect(screen.queryByText('Content')).to.equal(null);
+        expect(screen.queryByText('Content')).toBe(null);
+      });
+
+      it('should not open on focus when the trigger is disabled', async () => {
+        await render(<TestTooltip triggerProps={{ disabled: true, delay: 0 }} />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        await act(async () => trigger.focus());
+        await flushMicrotasks();
+
+        expect(screen.queryByText('Content')).toBe(null);
       });
 
       it('should close if open when becoming disabled', async () => {
@@ -639,18 +694,18 @@ describe('<Tooltip.Root />', () => {
 
         await render(<App />);
 
-        expect(screen.queryByText('Content')).not.to.equal(null);
+        expect(screen.queryByText('Content')).not.toBe(null);
 
         const disabledButton = screen.getByTestId('disabled');
         fireEvent.click(disabledButton);
 
-        expect(screen.queryByText('Content')).to.equal(null);
+        expect(screen.queryByText('Content')).toBe(null);
       });
 
       it('does not throw error when combined with defaultOpen', async () => {
         await render(<TestTooltip rootProps={{ defaultOpen: true, disabled: true }} />);
 
-        expect(screen.queryByText('Content')).to.equal(null);
+        expect(screen.queryByText('Content')).toBe(null);
       });
     });
 
@@ -668,7 +723,7 @@ describe('<Tooltip.Root />', () => {
 
         await flushMicrotasks();
 
-        expect(screen.getByTestId('positioner').style.pointerEvents).to.equal('none');
+        expect(screen.getByTestId('positioner').style.pointerEvents).toBe('none');
       });
 
       it('does not apply pointer-events: none to the positioner when `disableHoverablePopup = false`', async () => {
@@ -684,7 +739,7 @@ describe('<Tooltip.Root />', () => {
 
         await flushMicrotasks();
 
-        expect(screen.getByTestId('positioner').style.pointerEvents).to.equal('');
+        expect(screen.getByTestId('positioner').style.pointerEvents).toBe('');
       });
     });
 
@@ -710,11 +765,11 @@ describe('<Tooltip.Root />', () => {
 
         await flushMicrotasks();
 
-        expect(screen.queryByText('Content')).to.equal(null);
+        expect(screen.queryByText('Content')).toBe(null);
       });
 
       it('allowPropagation() prevents stopPropagation on Escape while still closing', async () => {
-        const stopPropagationSpy = spy(Event.prototype as any, 'stopPropagation');
+        const stopPropagationSpy = vi.spyOn(Event.prototype as any, 'stopPropagation');
 
         await render(
           <TestTooltip
@@ -730,16 +785,16 @@ describe('<Tooltip.Root />', () => {
           />,
         );
 
-        expect(screen.getByText('Content')).not.to.equal(null);
+        expect(screen.getByText('Content')).not.toBe(null);
 
         fireEvent.keyDown(document.body, { key: 'Escape' });
 
         await waitFor(() => {
-          expect(screen.queryByText('Content')).to.equal(null);
+          expect(screen.queryByText('Content')).toBe(null);
         });
 
-        expect(stopPropagationSpy.called).to.equal(false);
-        stopPropagationSpy.restore();
+        expect(stopPropagationSpy).toHaveBeenCalledTimes(0);
+        stopPropagationSpy.mockRestore();
       });
     });
 
@@ -763,7 +818,27 @@ describe('<Tooltip.Root />', () => {
 
         await flushMicrotasks();
 
-        expect(screen.queryByText('Content')).to.equal(null);
+        expect(screen.queryByText('Content')).toBe(null);
+      });
+
+      it('should open when the trigger was clicked before delay duration and closeOnClick is false', async () => {
+        await render(<TestTooltip triggerProps={{ closeOnClick: false }} />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        clock.tick(OPEN_DELAY / 2);
+
+        fireEvent.click(trigger);
+
+        clock.tick(OPEN_DELAY / 2);
+
+        await flushMicrotasks();
+
+        expect(screen.getByText('Content')).not.toBe(null);
       });
 
       it('should close when the trigger is clicked after delay duration', async () => {
@@ -779,11 +854,31 @@ describe('<Tooltip.Root />', () => {
 
         await flushMicrotasks();
 
-        expect(screen.getByText('Content')).not.to.equal(null);
+        expect(screen.getByText('Content')).not.toBe(null);
 
         fireEvent.click(trigger);
 
-        expect(screen.queryByText('Content')).to.equal(null);
+        expect(screen.queryByText('Content')).toBe(null);
+      });
+
+      it('should not close when the trigger is clicked after delay duration and closeOnClick is false', async () => {
+        await render(<TestTooltip triggerProps={{ closeOnClick: false }} />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        clock.tick(OPEN_DELAY);
+
+        await flushMicrotasks();
+
+        expect(screen.getByText('Content')).not.toBe(null);
+
+        fireEvent.click(trigger);
+
+        expect(screen.getByText('Content')).not.toBe(null);
       });
     });
   });

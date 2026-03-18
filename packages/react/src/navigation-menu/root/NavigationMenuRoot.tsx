@@ -5,6 +5,7 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument } from '@base-ui/utils/owner';
 import {
+  FloatingNode,
   FloatingTree,
   useFloatingNodeId,
   useFloatingParentNodeId,
@@ -20,15 +21,36 @@ import {
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { setFixedSize } from '../utils/setFixedSize';
+import { getCssDimensions } from '../../utils/getCssDimensions';
 import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
+import { NavigationMenuPopupCssVars } from '../popup/NavigationMenuPopupCssVars';
+import { NavigationMenuPositionerCssVars } from '../positioner/NavigationMenuPositionerCssVars';
 
 const blockedReturnFocusReasons = new Set<string>([
   REASONS.triggerHover,
   REASONS.outsidePress,
   REASONS.focusOut,
 ]);
+
+function setSharedFixedSize(popupElement: HTMLElement, positionerElement: HTMLElement) {
+  const { width, height } = getCssDimensions(popupElement);
+
+  if (width === 0 || height === 0) {
+    return;
+  }
+
+  popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${width}px`);
+  popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${height}px`);
+  positionerElement.style.setProperty(
+    NavigationMenuPositionerCssVars.positionerWidth,
+    `${width}px`,
+  );
+  positionerElement.style.setProperty(
+    NavigationMenuPositionerCssVars.positionerHeight,
+    `${height}px`,
+  );
+}
 
 /**
  * Groups all parts of the navigation menu.
@@ -52,6 +74,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   } = componentProps;
 
   const nested = useFloatingParentNodeId() != null;
+  const parentRootContext = useNavigationMenuRootContext(true);
 
   const [value, setValueUnwrapped] = useControlled({
     controlled: valueParam,
@@ -100,8 +123,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
         setFloatingRootContext(undefined);
 
         if (positionerElement && popupElement) {
-          setFixedSize(popupElement, 'popup');
-          setFixedSize(positionerElement, 'positioner');
+          setSharedFixedSize(popupElement, positionerElement);
         }
       }
 
@@ -114,6 +136,10 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
       }
 
       setValueUnwrapped(nextValue);
+
+      if (nested && !nextValue && eventDetails.reason === REASONS.linkPress && parentRootContext) {
+        parentRootContext.setValue(null, eventDetails);
+      }
     },
   );
 
@@ -259,7 +285,7 @@ function TreeContext(props: {
 
   const { open } = useNavigationMenuRootContext();
 
-  const state: NavigationMenuRoot.State = {
+  const state: NavigationMenuRootState = {
     open,
     nested,
   };
@@ -267,12 +293,12 @@ function TreeContext(props: {
   const element = useRenderElement(nested ? 'div' : 'nav', props.componentProps, {
     state,
     ref: [props.forwardedRef, rootRef],
-    props: [{ 'aria-orientation': orientation }, elementProps],
+    props: elementProps,
   });
 
   return (
     <NavigationMenuTreeContext.Provider value={nodeId}>
-      {element}
+      <FloatingNode id={nodeId}>{element}</FloatingNode>
     </NavigationMenuTreeContext.Provider>
   );
 }
@@ -290,7 +316,7 @@ export interface NavigationMenuRootState {
 
 export interface NavigationMenuRootProps extends BaseUIComponentProps<
   'nav',
-  NavigationMenuRoot.State
+  NavigationMenuRootState
 > {
   /**
    * A ref to imperative actions.
@@ -322,12 +348,12 @@ export interface NavigationMenuRootProps extends BaseUIComponentProps<
     | ((value: any, eventDetails: NavigationMenuRoot.ChangeEventDetails) => void)
     | undefined;
   /**
-   * How long to wait before opening the navigation menu. Specified in milliseconds.
+   * How long to wait before opening the navigation popup. Specified in milliseconds.
    * @default 50
    */
   delay?: number | undefined;
   /**
-   * How long to wait before closing the navigation menu. Specified in milliseconds.
+   * How long to wait before closing the navigation popup. Specified in milliseconds.
    * @default 50
    */
   closeDelay?: number | undefined;
@@ -335,7 +361,7 @@ export interface NavigationMenuRootProps extends BaseUIComponentProps<
    * The orientation of the navigation menu.
    * @default 'horizontal'
    */
-  orientation?: ('horizontal' | 'vertical') | undefined;
+  orientation?: 'horizontal' | 'vertical' | undefined;
 }
 
 export interface NavigationMenuRootActions {

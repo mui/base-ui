@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { toValidatedNumber, removeFloatingPointErrors } from './validate';
 
 const min = Number.MIN_SAFE_INTEGER;
@@ -12,49 +12,61 @@ const defaultOptions = {
   format: undefined,
   snapOnStep: true,
   small: false,
+  clamp: true,
 } as const;
 
 describe('NumberField validate', () => {
   describe('removeFloatingPointErrors', () => {
     it('returns 0.3 for 0.2 + 0.1', () => {
-      expect(removeFloatingPointErrors(0.2 + 0.1)).to.equal(0.3);
+      expect(removeFloatingPointErrors(0.2 + 0.1)).toBe(0.3);
     });
 
     it('returns 0.3 for 0.2 + 0.1 with maximumFractionDigits', () => {
-      expect(removeFloatingPointErrors(0.2 + 0.1, { maximumFractionDigits: 1 })).to.equal(0.3);
+      expect(removeFloatingPointErrors(0.2 + 0.1, { maximumFractionDigits: 1 })).toBe(0.3);
     });
 
     it('returns 1000 for 1000, ignoring grouping', () => {
-      expect(removeFloatingPointErrors(1000)).to.equal(1000);
+      expect(removeFloatingPointErrors(1000)).toBe(1000);
     });
 
     it('ignores formatting style', () => {
-      expect(removeFloatingPointErrors(1000, { style: 'currency', currency: 'USD' })).to.equal(
-        1000,
-      );
+      expect(removeFloatingPointErrors(1000, { style: 'currency', currency: 'USD' })).toBe(1000);
     });
 
     it('uses resolved maximumFractionDigits when only minimum is provided', () => {
-      expect(removeFloatingPointErrors(1.234567, { minimumFractionDigits: 5 })).to.equal(1.23457);
+      expect(removeFloatingPointErrors(1.234567, { minimumFractionDigits: 5 })).toBe(1.23457);
     });
   });
 
   describe('toValidatedNumber', () => {
     it('returns null when value is null', () => {
-      expect(toValidatedNumber(null, defaultOptions)).to.equal(null);
+      expect(toValidatedNumber(null, defaultOptions)).toBe(null);
+    });
+
+    it('skips clamping when clamp is false', () => {
+      expect(
+        toValidatedNumber(12, {
+          ...defaultOptions,
+          minWithDefault: 0,
+          maxWithDefault: 10,
+          step: undefined,
+          snapOnStep: false,
+          clamp: false,
+        }),
+      ).toBe(12);
     });
 
     describe('incrementing', () => {
       it('snaps 5 to 5 when step is 1', () => {
-        expect(toValidatedNumber(5, defaultOptions)).to.equal(5);
+        expect(toValidatedNumber(5, defaultOptions)).toBe(5);
       });
 
       it('snaps 5.5 to 5 when step is 1', () => {
-        expect(toValidatedNumber(5.5, defaultOptions)).to.equal(5);
+        expect(toValidatedNumber(5.5, defaultOptions)).toBe(5);
       });
 
       it('snaps -0.3 to -1 when step is 1', () => {
-        expect(toValidatedNumber(-0.3, defaultOptions)).to.equal(-1);
+        expect(toValidatedNumber(-0.3, defaultOptions)).toBe(-1);
       });
 
       it('be same value when step is undefined and within bounds', () => {
@@ -63,7 +75,7 @@ describe('NumberField validate', () => {
             ...defaultOptions,
             step: undefined,
           }),
-        ).to.equal(5.5);
+        ).toBe(5.5);
       });
 
       it('snaps 9 to 5 when step is 5 and within bounds', () => {
@@ -72,7 +84,7 @@ describe('NumberField validate', () => {
             ...defaultOptions,
             step: 5,
           }),
-        ).to.equal(5);
+        ).toBe(5);
       });
 
       it('snaps 12 to 10 when step is 5 and within bounds', () => {
@@ -81,7 +93,7 @@ describe('NumberField validate', () => {
             ...defaultOptions,
             step: 5,
           }),
-        ).to.equal(10);
+        ).toBe(10);
       });
 
       it('preserves exact value when snapOnStep is false', () => {
@@ -91,7 +103,7 @@ describe('NumberField validate', () => {
             step: 5,
             snapOnStep: false,
           }),
-        ).to.equal(9.7);
+        ).toBe(9.7);
       });
     });
 
@@ -102,7 +114,7 @@ describe('NumberField validate', () => {
             ...defaultOptions,
             step: -1,
           }),
-        ).to.equal(5);
+        ).toBe(5);
       });
 
       it('snaps 5.5 to 6 when step is -1', () => {
@@ -111,7 +123,7 @@ describe('NumberField validate', () => {
             ...defaultOptions,
             step: -1,
           }),
-        ).to.equal(6);
+        ).toBe(6);
       });
 
       it('snaps -0.3 to 0 when step is -1', () => {
@@ -120,7 +132,7 @@ describe('NumberField validate', () => {
             ...defaultOptions,
             step: -1,
           }),
-        ).to.equal(0);
+        ).toBe(0);
       });
 
       it('be same value when step is undefined and within bounds', () => {
@@ -129,7 +141,7 @@ describe('NumberField validate', () => {
             ...defaultOptions,
             step: undefined,
           }),
-        ).to.equal(5.5);
+        ).toBe(5.5);
       });
 
       it('snaps 9 to 10 when step is -5', () => {
@@ -138,7 +150,7 @@ describe('NumberField validate', () => {
             ...defaultOptions,
             step: -5,
           }),
-        ).to.equal(10);
+        ).toBe(10);
       });
 
       it('snaps 12 to 15 when step is -5', () => {
@@ -147,7 +159,7 @@ describe('NumberField validate', () => {
             ...defaultOptions,
             step: -5,
           }),
-        ).to.equal(15);
+        ).toBe(15);
       });
 
       it('preserves exact value when snapOnStep is false', () => {
@@ -157,7 +169,7 @@ describe('NumberField validate', () => {
             step: -5,
             snapOnStep: false,
           }),
-        ).to.equal(12.3);
+        ).toBe(12.3);
       });
     });
   });
@@ -169,7 +181,7 @@ describe('NumberField validate', () => {
         step: undefined,
         snapOnStep: false,
       }),
-    ).to.equal(0.3);
+    ).toBe(0.3);
   });
 
   describe('fractional step with snapOnStep', () => {
@@ -182,7 +194,7 @@ describe('NumberField validate', () => {
           step: 0.1,
           snapOnStep: true,
         }),
-      ).to.equal(100.2);
+      ).toBe(100.2);
     });
 
     it('handles decrement with step -0.1 without getting stuck', () => {
@@ -193,7 +205,7 @@ describe('NumberField validate', () => {
           step: -0.1,
           snapOnStep: true,
         }),
-      ).to.equal(100);
+      ).toBe(100);
     });
 
     it('handles multiple increments with step 0.01', () => {
@@ -203,7 +215,7 @@ describe('NumberField validate', () => {
           step: 0.01,
           snapOnStep: true,
         }),
-      ).to.equal(0.02);
+      ).toBe(0.02);
     });
 
     it('handles fractional step when a minimum is set', () => {
@@ -214,7 +226,7 @@ describe('NumberField validate', () => {
           minWithDefault: 3,
           minWithZeroDefault: 3,
         }),
-      ).to.equal(3.4);
+      ).toBe(3.4);
     });
 
     it('rounds to the nearest value when using small step', () => {
@@ -225,7 +237,7 @@ describe('NumberField validate', () => {
           snapOnStep: true,
           small: true,
         }),
-      ).to.equal(0.2);
+      ).toBe(0.2);
     });
 
     it('rounds negative small steps to the nearest value', () => {
@@ -236,7 +248,7 @@ describe('NumberField validate', () => {
           snapOnStep: true,
           small: true,
         }),
-      ).to.equal(-0.2);
+      ).toBe(-0.2);
     });
   });
 });

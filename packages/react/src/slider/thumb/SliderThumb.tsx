@@ -19,6 +19,8 @@ import {
   HOME,
   END,
   COMPOSITE_KEYS,
+  PAGE_UP,
+  PAGE_DOWN,
 } from '../../composite/composite';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useDirection } from '../../direction-provider/DirectionContext';
@@ -29,14 +31,11 @@ import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { getMidpoint } from '../utils/getMidpoint';
 import { getSliderValue } from '../utils/getSliderValue';
 import { roundValueToStep } from '../utils/roundValueToStep';
-import type { SliderRoot } from '../root/SliderRoot';
+import type { SliderRootState } from '../root/SliderRoot';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import { SliderThumbDataAttributes } from './SliderThumbDataAttributes';
 import { script as prehydrationScript } from './prehydrationScript.min';
-
-const PAGE_UP = 'PageUp';
-const PAGE_DOWN = 'PageDown';
 
 const ALL_KEYS = new Set([
   ARROW_UP,
@@ -277,11 +276,13 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     cssWritingMode = rtl ? 'vertical-rl' : 'vertical-lr';
   }
 
+  const ariaLabel =
+    typeof getAriaLabelProp === 'function' ? getAriaLabelProp(index) : ariaLabelProp;
+
   const inputProps = mergeProps<'input'>(
     {
-      'aria-label':
-        typeof getAriaLabelProp === 'function' ? getAriaLabelProp(index) : ariaLabelProp,
-      'aria-labelledby': ariaLabelledByProp ?? labelId,
+      'aria-label': ariaLabel,
+      'aria-labelledby': ariaLabelledByProp ?? (ariaLabel == null ? labelId : undefined),
       'aria-describedby': ariaDescribedByProp,
       'aria-orientation': orientation,
       'aria-valuenow': thumbValue,
@@ -467,10 +468,10 @@ export interface ThumbMetadata {
   inputId: LabelableContext['controlId'];
 }
 
-export interface SliderThumbState extends SliderRoot.State {}
+export interface SliderThumbState extends SliderRootState {}
 
 export interface SliderThumbProps extends Omit<
-  BaseUIComponentProps<'div', SliderThumb.State>,
+  BaseUIComponentProps<'div', SliderThumbState>,
   'onBlur' | 'onFocus'
 > {
   /**
@@ -481,13 +482,14 @@ export interface SliderThumbProps extends Omit<
   /**
    * A function which returns a string value for the [`aria-label`](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-label) attribute of the `input`.
    */
-  getAriaLabel?: (((index: number) => string) | null) | undefined;
+  getAriaLabel?: ((index: number) => string) | null | undefined;
   /**
    * A function which returns a string value for the [`aria-valuetext`](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-valuetext) attribute of the `input`.
    * This is important for screen reader users.
    */
   getAriaValueText?:
-    | (((formattedValue: string, value: number, index: number) => string) | null)
+    | ((formattedValue: string, value: number, index: number) => string)
+    | null
     | undefined;
   /**
    * The index of the thumb which corresponds to the index of its value in the

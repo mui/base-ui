@@ -102,6 +102,7 @@
 
 .Viewport {
   --viewport-inline-padding: 1.5rem;
+  box-sizing: border-box;
   /* Required to clip the overflowing content during the slide in/out animations */
   position: relative;
   overflow: clip;
