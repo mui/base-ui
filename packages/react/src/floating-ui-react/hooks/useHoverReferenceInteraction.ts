@@ -12,6 +12,7 @@ import { REASONS } from '../../utils/reasons';
 import { useFloatingTree } from '../components/FloatingTree';
 import type { FloatingTreeStore } from '../components/FloatingTreeStore';
 import {
+  applySafePolygonPointerEventsMutation,
   clearSafePolygonPointerEventsMutation,
   useHoverInteractionSharedState,
 } from './useHoverInteractionSharedState';
@@ -347,6 +348,21 @@ export function useHoverReferenceInteraction(
 
         if (mouseOnly && !isMouseLikePointerType(instance.pointerType)) {
           return;
+        }
+
+        if (currentOpen && isOverInactive && instance.handleCloseOptions?.blockPointerEvents) {
+          const floatingElement = store.select('floatingElement');
+
+          if (floatingElement) {
+            const scopeElement =
+              instance.handleCloseOptions?.getScope?.() ?? trigger.ownerDocument.body;
+
+            applySafePolygonPointerEventsMutation(instance, {
+              scopeElement,
+              referenceElement: trigger,
+              floatingElement,
+            });
+          }
         }
 
         const restMsValue = getRestMs(restMsRef.current);

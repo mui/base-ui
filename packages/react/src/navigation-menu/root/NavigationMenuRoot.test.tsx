@@ -1010,6 +1010,29 @@ describe('<NavigationMenu.Root />', () => {
       expect(screen.queryByTestId('popup-2')).not.toBe(null);
     });
 
+    it('keeps top-level safePolygon pointer events active when switching directly to a different trigger', async () => {
+      await render(<TestNavigationMenuWithTopLevelLink />);
+      const trigger1 = screen.getByTestId('trigger-1');
+      const trigger2 = screen.getByTestId('trigger-2');
+      const topLevelLink = screen.getByTestId('top-level-link');
+
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
+      clock.tick(OPEN_DELAY);
+      await flushMicrotasks();
+
+      fireEvent.mouseEnter(trigger2);
+      fireEvent.mouseMove(trigger2);
+      await flushMicrotasks();
+
+      expect(document.body.style.pointerEvents).toBe('none');
+      expect(getComputedStyle(trigger1).pointerEvents).toBe('none');
+      expect(getComputedStyle(topLevelLink).pointerEvents).toBe('none');
+      expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+      expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.queryByTestId('popup-2')).not.toBe(null);
+    });
+
     it.skipIf(isJSDOM)(
       'blocks pointer events on sibling top-level triggers when opened through real hover',
       async () => {

@@ -77,6 +77,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     open,
     positionerElement,
     setActivationDirection,
+    floatingRootContext,
     setFloatingRootContext,
     popupElement,
     viewportElement,
@@ -550,6 +551,9 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   });
 
   const hoverInteractionState = useHoverInteractionSharedState(context);
+  const activeHoverInteractionState = useHoverInteractionSharedState(
+    floatingRootContext ?? context,
+  );
   const shouldBlockSafePolygonPointerEvents = pointerType !== 'touch' && (!isWebKit || nested);
 
   React.useEffect(() => {
@@ -614,6 +618,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   function handleActivation(event: React.MouseEvent | React.KeyboardEvent) {
     ReactDOM.flushSync(() => {
+      const currentTarget = isHTMLElement(event.currentTarget) ? event.currentTarget : null;
       const prevTriggerRect = prevTriggerElementRef.current?.getBoundingClientRect();
 
       if (mounted && prevTriggerRect && triggerElement) {
@@ -654,15 +659,27 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         shouldBlockSafePolygonPointerEvents &&
         (!nested || !positionerElement) &&
         hoverFloatingElement &&
-        isHTMLElement(event.currentTarget)
+        currentTarget
       ) {
-        const scopeElement = getScope() ?? event.currentTarget.ownerDocument.body;
+        const applyPointerEventsMutation = () => {
+          if (activeHoverInteractionState !== hoverInteractionState) {
+            clearSafePolygonPointerEventsMutation(activeHoverInteractionState);
+          }
 
-        applySafePolygonPointerEventsMutation(hoverInteractionState, {
-          scopeElement,
-          referenceElement: event.currentTarget,
-          floatingElement: hoverFloatingElement,
-        });
+          const scopeElement = getScope() ?? currentTarget.ownerDocument.body;
+
+          applySafePolygonPointerEventsMutation(hoverInteractionState, {
+            scopeElement,
+            referenceElement: currentTarget,
+            floatingElement: hoverFloatingElement,
+          });
+        };
+
+        if (value != null && value !== itemValue) {
+          queueMicrotask(applyPointerEventsMutation);
+        } else {
+          applyPointerEventsMutation();
+        }
       }
     });
   }
