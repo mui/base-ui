@@ -13,9 +13,10 @@ const alphaScaleSteps = ['1', '2', '3', '4', '5', '6'] as const;
 const allCoreRows = [...coreColorRows, ...accentColorRows];
 
 const typefaces = [
-  { token: 'font-sans', label: 'Sans', sample: 'Die Grotesk for UI copy' },
-  { token: 'font-mono', label: 'Mono', sample: 'Söhne Mono for code and data' },
-  { token: 'font-serif', label: 'Serif', sample: 'Georgia for editorial accents' },
+  { token: 'font-sans-a', sample: 'Die Grotesk A for UI copy' },
+  { token: 'font-sans-b', sample: 'Die Grotesk B for UI copy' },
+  { token: 'font-mono', sample: 'Söhne Mono for code and data' },
+  { token: 'font-serif', sample: 'Georgia for editorial accents' },
 ] as const;
 
 const fontWeights = [
