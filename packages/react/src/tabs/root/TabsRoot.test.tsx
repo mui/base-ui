@@ -1313,7 +1313,9 @@ describe('<Tabs.Root />', () => {
         expect.objectContaining({ tabActivationDirection: 'right' }),
       );
       expect(root).toHaveAttribute('data-activation-direction', 'right');
+
       panelRenderMock.mockClear();
+      await flushMicrotasks();
 
       await user.click(tab1);
 
@@ -1354,6 +1356,7 @@ describe('<Tabs.Root />', () => {
       expect(root).toHaveAttribute('data-activation-direction', 'down');
 
       panelRenderMock.mockClear();
+      await flushMicrotasks();
 
       await user.click(tab1);
 
