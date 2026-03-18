@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { randomStringValue, screen } from '@mui/internal-test-utils';
 import type {
   ConformantComponentProps,
@@ -52,10 +52,10 @@ export function testRenderProp(
       );
 
       if (wrappingAllowed) {
-        expect(screen.queryByTestId('base-ui-wrapper')).not.to.equal(null);
+        expect(screen.queryByTestId('base-ui-wrapper')).not.toBe(null);
       }
-      expect(screen.queryByTestId('wrapped')).not.to.equal(null);
-      expect(screen.queryByTestId('wrapped')).to.have.attribute('data-test-value', testValue);
+      expect(screen.queryByTestId('wrapped')).not.toBe(null);
+      expect(screen.queryByTestId('wrapped')).toHaveAttribute('data-test-value', testValue);
     });
 
     it('renders a customized root element with an element', async () => {
@@ -69,10 +69,10 @@ export function testRenderProp(
       );
 
       if (wrappingAllowed) {
-        expect(screen.queryByTestId('base-ui-wrapper')).not.to.equal(null);
+        expect(screen.queryByTestId('base-ui-wrapper')).not.toBe(null);
       }
-      expect(screen.queryByTestId('wrapped')).not.to.equal(null);
-      expect(screen.queryByTestId('wrapped')).to.have.attribute('data-test-value', testValue);
+      expect(screen.queryByTestId('wrapped')).not.toBe(null);
+      expect(screen.queryByTestId('wrapped')).toHaveAttribute('data-test-value', testValue);
     });
 
     it('renders a customized root element with an element', async () => {
@@ -84,9 +84,9 @@ export function testRenderProp(
       );
 
       if (wrappingAllowed) {
-        expect(screen.queryByTestId('base-ui-wrapper')).not.to.equal(null);
+        expect(screen.queryByTestId('base-ui-wrapper')).not.toBe(null);
       } else {
-        expect(screen.queryByTestId('wrapped')).not.to.equal(null);
+        expect(screen.queryByTestId('wrapped')).not.toBe(null);
       }
     });
 
@@ -108,8 +108,8 @@ export function testRenderProp(
       }
 
       await render(<Test />);
-      expect(instanceFromRef!.tagName).to.equal(Element.toUpperCase());
-      expect(instanceFromRef!).to.have.attribute('data-testid', 'wrapped');
+      expect(instanceFromRef!.tagName).toBe(Element.toUpperCase());
+      expect(instanceFromRef!).toHaveAttribute('data-testid', 'wrapped');
     });
 
     it('should merge the rendering element ref with the custom component ref', async () => {
@@ -135,12 +135,12 @@ export function testRenderProp(
 
       await render(<Test />);
 
-      expect(refA).not.to.equal(null);
-      expect(refA!.tagName).to.equal(Element.toUpperCase());
-      expect(refA!).to.have.attribute('data-testid', 'wrapped');
-      expect(refB).not.to.equal(null);
-      expect(refB!.tagName).to.equal(Element.toUpperCase());
-      expect(refB!).to.have.attribute('data-testid', 'wrapped');
+      expect(refA).not.toBe(null);
+      expect(refA!.tagName).toBe(Element.toUpperCase());
+      expect(refA!).toHaveAttribute('data-testid', 'wrapped');
+      expect(refB).not.toBe(null);
+      expect(refB!.tagName).toBe(Element.toUpperCase());
+      expect(refB!).toHaveAttribute('data-testid', 'wrapped');
     });
 
     it('should merge the rendering element className with the custom component className', async () => {
@@ -156,8 +156,8 @@ export function testRenderProp(
       await render(<Test />);
 
       const component = screen.getByTestId('test-component');
-      expect(component.classList.contains('component-classname')).to.equal(true);
-      expect(component.classList.contains('render-prop-classname')).to.equal(true);
+      expect(component.classList.contains('component-classname')).toBe(true);
+      expect(component.classList.contains('render-prop-classname')).toBe(true);
     });
 
     it('should merge the rendering element resolved className with the custom component className', async () => {
@@ -173,8 +173,8 @@ export function testRenderProp(
       await render(<Test />);
 
       const component = screen.getByTestId('test-component');
-      expect(component.classList.contains('conditional-component-classname')).to.equal(true);
-      expect(component.classList.contains('render-prop-classname')).to.equal(true);
+      expect(component.classList.contains('conditional-component-classname')).toBe(true);
+      expect(component.classList.contains('render-prop-classname')).toBe(true);
     });
   });
 }

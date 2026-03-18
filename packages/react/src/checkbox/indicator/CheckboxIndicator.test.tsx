@@ -1,5 +1,5 @@
+import { expect } from 'vitest';
 import * as React from 'react';
-import { expect } from 'chai';
 import { Checkbox } from '@base-ui/react/checkbox';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { screen, waitFor } from '@mui/internal-test-utils';
@@ -41,7 +41,7 @@ describe('<Checkbox.Indicator />', () => {
       </Checkbox.Root>,
     );
     const indicator = screen.queryByTestId('indicator');
-    expect(indicator).to.equal(null);
+    expect(indicator).toBe(null);
   });
 
   it('should render indicator when checked', async () => {
@@ -51,7 +51,7 @@ describe('<Checkbox.Indicator />', () => {
       </Checkbox.Root>,
     );
     const indicator = screen.getByTestId('indicator');
-    expect(indicator).not.to.equal(null);
+    expect(indicator).not.toBe(null);
   });
 
   it('should spread extra props', async () => {
@@ -61,7 +61,7 @@ describe('<Checkbox.Indicator />', () => {
       </Checkbox.Root>,
     );
     const indicator = screen.getByTestId('indicator');
-    expect(indicator).to.have.attribute('data-extra-prop', 'Lorem ipsum');
+    expect(indicator).toHaveAttribute('data-extra-prop', 'Lorem ipsum');
   });
 
   describe('prop: keepMounted', () => {
@@ -72,7 +72,7 @@ describe('<Checkbox.Indicator />', () => {
         </Checkbox.Root>,
       );
       const indicator = screen.getByTestId('indicator');
-      expect(indicator).not.to.equal(null);
+      expect(indicator).not.toBe(null);
     });
 
     it('should keep indicator mounted when checked', async () => {
@@ -82,7 +82,7 @@ describe('<Checkbox.Indicator />', () => {
         </Checkbox.Root>,
       );
       const indicator = screen.getByTestId('indicator');
-      expect(indicator).not.to.equal(null);
+      expect(indicator).not.toBe(null);
     });
 
     it('should keep indicator mounted when indeterminate', async () => {
@@ -92,7 +92,7 @@ describe('<Checkbox.Indicator />', () => {
         </Checkbox.Root>,
       );
       const indicator = screen.getByTestId('indicator');
-      expect(indicator).not.to.equal(null);
+      expect(indicator).not.toBe(null);
     });
   });
 
@@ -115,14 +115,14 @@ describe('<Checkbox.Indicator />', () => {
 
     const { user } = await render(<Test />);
 
-    expect(screen.getByTestId('indicator')).not.to.equal(null);
+    expect(screen.getByTestId('indicator')).not.toBe(null);
 
     const closeButton = screen.getByText('Close');
 
     await user.click(closeButton);
 
     await waitFor(() => {
-      expect(screen.queryByTestId('indicator')).to.equal(null);
+      expect(screen.queryByTestId('indicator')).toBe(null);
     });
   });
 
@@ -171,13 +171,13 @@ describe('<Checkbox.Indicator />', () => {
     }
 
     const { user } = await render(<Test />);
-    expect(screen.getByTestId('indicator')).not.to.equal(null);
+    expect(screen.getByTestId('indicator')).not.toBe(null);
 
     const closeButton = screen.getByText('Close');
     await user.click(closeButton);
 
     await waitFor(() => {
-      expect(animationFinished).to.equal(true);
+      expect(animationFinished).toBe(true);
     });
   });
 
@@ -229,15 +229,15 @@ describe('<Checkbox.Indicator />', () => {
       }
 
       const { user } = await render(<Test />);
-      expect(screen.queryByTestId('indicator')).to.equal(null);
+      expect(screen.queryByTestId('indicator')).toBe(null);
 
       await user.click(screen.getByText('Check'));
 
       await waitFor(() => {
-        expect(transitionFinished).to.equal(true);
+        expect(transitionFinished).toBe(true);
       });
 
-      expect(screen.getByTestId('indicator')).not.to.equal(null);
+      expect(screen.getByTestId('indicator')).not.toBe(null);
     });
 
     it('applies data-ending-style before unmount', async () => {
@@ -275,18 +275,18 @@ describe('<Checkbox.Indicator />', () => {
       }
 
       const { user } = await render(<Test />);
-      expect(screen.getByTestId('indicator')).not.to.equal(null);
+      expect(screen.getByTestId('indicator')).not.toBe(null);
 
       await user.click(screen.getByText('Uncheck'));
 
       await waitFor(() => {
         const indicator = screen.queryByTestId('indicator');
-        expect(indicator).not.to.equal(null);
-        expect(indicator).to.have.attribute('data-ending-style');
+        expect(indicator).not.toBe(null);
+        expect(indicator).toHaveAttribute('data-ending-style');
       });
 
       await waitFor(() => {
-        expect(screen.queryByTestId('indicator')).to.equal(null);
+        expect(screen.queryByTestId('indicator')).toBe(null);
       });
     });
   });

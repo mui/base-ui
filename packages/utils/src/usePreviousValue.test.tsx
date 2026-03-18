@@ -1,5 +1,5 @@
+import { expect } from 'vitest';
 import * as React from 'react';
-import { expect } from 'chai';
 import { act, createRenderer } from '@mui/internal-test-utils';
 import { usePreviousValue } from './usePreviousValue';
 
@@ -28,7 +28,7 @@ describe('usePrevious', () => {
       </TestComponent>,
     );
 
-    expect(previousValue).to.equal(null);
+    expect(previousValue).toBe(null);
   });
 
   it('should return the previous value on subsequent renders', () => {
@@ -42,13 +42,13 @@ describe('usePrevious', () => {
       </TestComponent>,
     );
 
-    expect(previousValue).to.equal(null);
+    expect(previousValue).toBe(null);
 
     setProps({ value: 'second' });
-    expect(previousValue).to.equal('first');
+    expect(previousValue).toBe('first');
 
     setProps({ value: 'third' });
-    expect(previousValue).to.equal('second');
+    expect(previousValue).toBe('second');
   });
 
   it('should work with primitive values', () => {
@@ -62,16 +62,16 @@ describe('usePrevious', () => {
       </TestComponent>,
     );
 
-    expect(previousValue).to.equal(null);
+    expect(previousValue).toBe(null);
 
     setProps({ value: 100 });
-    expect(previousValue).to.equal(42);
+    expect(previousValue).toBe(42);
 
     setProps({ value: true });
-    expect(previousValue).to.equal(100);
+    expect(previousValue).toBe(100);
 
     setProps({ value: false });
-    expect(previousValue).to.equal(true);
+    expect(previousValue).toBe(true);
   });
 
   it('should ignore renders where the value does not change', () => {
@@ -85,13 +85,13 @@ describe('usePrevious', () => {
       </TestComponent>,
     );
 
-    expect(previousValue).to.equal(null);
+    expect(previousValue).toBe(null);
 
     setProps({ unrelatedProp: 1 });
-    expect(previousValue).to.equal(null);
+    expect(previousValue).toBe(null);
 
     setProps({ unrelatedProp: 2 });
-    expect(previousValue).to.equal(null);
+    expect(previousValue).toBe(null);
   });
 
   it('should work with object values', () => {
@@ -109,13 +109,13 @@ describe('usePrevious', () => {
       </TestComponent>,
     );
 
-    expect(previousValue).to.equal(null);
+    expect(previousValue).toBe(null);
 
     setProps({ value: obj2 });
-    expect(previousValue).to.equal(obj1);
+    expect(previousValue).toBe(obj1);
 
     setProps({ value: obj3 });
-    expect(previousValue).to.equal(obj2);
+    expect(previousValue).toBe(obj2);
   });
 
   it('should handle undefined and null values', () => {
@@ -129,16 +129,16 @@ describe('usePrevious', () => {
       </TestComponent>,
     );
 
-    expect(previousValue).to.equal(null);
+    expect(previousValue).toBe(null);
 
     setProps({ value: null });
-    expect(previousValue).to.equal(undefined);
+    expect(previousValue).toBe(undefined);
 
     setProps({ value: 'defined' });
-    expect(previousValue).to.equal(null);
+    expect(previousValue).toBe(null);
 
     setProps({ value: undefined });
-    expect(previousValue).to.equal('defined');
+    expect(previousValue).toBe('defined');
   });
 
   it('should handle rapid value changes', () => {
@@ -152,7 +152,7 @@ describe('usePrevious', () => {
       </TestComponent>,
     );
 
-    expect(previousValue).to.equal(null);
+    expect(previousValue).toBe(null);
 
     act(() => {
       setProps({ value: 'first' });
@@ -162,7 +162,7 @@ describe('usePrevious', () => {
 
     // With React batching, only the final value 'third' causes a render,
     // so the previous value should be 'initial' (from the first render)
-    expect(previousValue).to.equal('initial');
+    expect(previousValue).toBe('initial');
   });
 
   it('should maintain type safety', () => {
@@ -176,10 +176,10 @@ describe('usePrevious', () => {
       </TestComponent>,
     );
 
-    expect(previousValue).to.equal(null);
+    expect(previousValue).toBe(null);
 
     setProps({ value: 'world' });
-    expect(previousValue).to.equal('hello');
-    expect(typeof previousValue).to.equal('string');
+    expect(previousValue).toBe('hello');
+    expect(typeof previousValue).toBe('string');
   });
 });

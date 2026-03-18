@@ -1,5 +1,5 @@
+import { Mock, vi, expect } from 'vitest';
 import * as React from 'react';
-import { Mock } from 'vitest';
 import { Avatar } from '@base-ui/react/avatar';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
@@ -78,15 +78,15 @@ describe('<Avatar.Image />', () => {
       }
 
       const { user } = await render(<Test />);
-      expect(screen.queryByTestId('image')).to.equal(null);
+      expect(screen.queryByTestId('image')).toBe(null);
 
       await user.click(screen.getByText('Show image'));
 
       await waitFor(() => {
-        expect(transitionFinished).to.equal(true);
+        expect(transitionFinished).toBe(true);
       });
 
-      expect(screen.getByTestId('image')).not.to.equal(null);
+      expect(screen.getByTestId('image')).not.toBe(null);
     });
 
     it('applies data-ending-style before unmount', async () => {
@@ -130,18 +130,18 @@ describe('<Avatar.Image />', () => {
       }
 
       const { user } = await render(<Test />);
-      expect(screen.getByTestId('image')).not.to.equal(null);
+      expect(screen.getByTestId('image')).not.toBe(null);
 
       await user.click(screen.getByText('Hide image'));
 
       await waitFor(() => {
         const image = screen.queryByTestId('image');
-        expect(image).not.to.equal(null);
-        expect(image).to.have.attribute('data-ending-style');
+        expect(image).not.toBe(null);
+        expect(image).toHaveAttribute('data-ending-style');
       });
 
       await waitFor(() => {
-        expect(screen.queryByTestId('image')).to.equal(null);
+        expect(screen.queryByTestId('image')).toBe(null);
       });
     });
   });

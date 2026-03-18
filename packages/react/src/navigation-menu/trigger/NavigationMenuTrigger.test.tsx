@@ -1,8 +1,8 @@
+import { expect } from 'vitest';
 import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { screen, flushMicrotasks, waitFor, act } from '@mui/internal-test-utils';
 import userEvent from '@testing-library/user-event';
-import { expect } from 'chai';
 
 describe('<NavigationMenu.Trigger />', () => {
   const { render } = createRenderer();
@@ -63,8 +63,10 @@ describe('<NavigationMenu.Trigger />', () => {
     const positioner = screen.getByTestId('positioner');
     await waitFor(() => {
       expect(
-        parseInt(getComputedStyle(positioner).getPropertyValue('--positioner-height'), 10),
-      ).to.be.approximately(18, 1);
+        Math.abs(
+          parseInt(getComputedStyle(positioner).getPropertyValue('--positioner-height'), 10) - 18,
+        ),
+      ).toBeLessThanOrEqual(1);
     });
 
     const overviewLink = screen.getByRole('link', { name: 'Quick Start' });
@@ -89,8 +91,10 @@ describe('<NavigationMenu.Trigger />', () => {
 
     await waitFor(() => {
       expect(
-        parseInt(getComputedStyle(positioner).getPropertyValue('--positioner-height'), 10),
-      ).to.be.approximately(36, 1);
+        Math.abs(
+          parseInt(getComputedStyle(positioner).getPropertyValue('--positioner-height'), 10) - 36,
+        ),
+      ).toBeLessThanOrEqual(1);
     });
 
     const handbookLink = screen.getByRole('link', { name: 'Styling Base UI components' });
@@ -112,8 +116,10 @@ describe('<NavigationMenu.Trigger />', () => {
     await flushMicrotasks();
     await waitFor(() => {
       expect(
-        parseInt(getComputedStyle(positioner).getPropertyValue('--positioner-height'), 10),
-      ).to.be.approximately(18, 1);
+        Math.abs(
+          parseInt(getComputedStyle(positioner).getPropertyValue('--positioner-height'), 10) - 18,
+        ),
+      ).toBeLessThanOrEqual(1);
     });
   });
 
@@ -160,8 +166,10 @@ describe('<NavigationMenu.Trigger />', () => {
 
     await waitFor(() => {
       expect(
-        parseInt(getComputedStyle(positioner).getPropertyValue('--positioner-width'), 10),
-      ).to.be.approximately(183, 1);
+        Math.abs(
+          parseInt(getComputedStyle(positioner).getPropertyValue('--positioner-width'), 10) - 183,
+        ),
+      ).toBeLessThanOrEqual(1);
     });
   });
 
@@ -212,7 +220,7 @@ describe('<NavigationMenu.Trigger />', () => {
 
     await waitFor(() => {
       const secondLeft = positioner.getBoundingClientRect().left;
-      expect(Math.abs(secondLeft - firstLeft)).to.be.greaterThan(20);
+      expect(Math.abs(secondLeft - firstLeft)).toBeGreaterThan(20);
     });
   });
 });

@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { spy } from 'sinon';
+import { vi } from 'vitest';
 import { Calendar } from '@base-ui/react/calendar';
+import type { CalendarRoot } from '@base-ui/react/calendar';
 import { act, screen } from '@mui/internal-test-utils';
 import { createTemporalRenderer } from '#test-utils';
 
@@ -12,8 +13,8 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
     options?: {
       minDate?: ReturnType<ReturnType<typeof createTemporalRenderer>['adapter']['date']>;
       maxDate?: ReturnType<ReturnType<typeof createTemporalRenderer>['adapter']['date']>;
-      onVisibleDateChange?: ReturnType<typeof spy>;
-      onValueChange?: ReturnType<typeof spy>;
+      onVisibleDateChange?: CalendarRoot.Props['onVisibleDateChange'];
+      onValueChange?: CalendarRoot.Props['onValueChange'];
       focusableWhenDisabled?: boolean;
     },
   ) {
@@ -72,7 +73,7 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
 
   describe('PageDown', () => {
     it('should move focus to the same day in the next month when pressing PageDown', async () => {
-      const onVisibleDateChange = spy();
+      const onVisibleDateChange = vi.fn();
 
       const { user } = renderCalendar(feb15, { onVisibleDateChange });
 
@@ -81,16 +82,16 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
       });
       await user.keyboard('[PageDown]');
 
-      expect(onVisibleDateChange.callCount).to.equal(1);
-      expect(onVisibleDateChange.firstCall.args[1].reason).to.equal('keyboard');
+      expect(onVisibleDateChange.mock.calls.length).toBe(1);
+      expect(onVisibleDateChange.mock.calls[0][1].reason).toBe('keyboard');
       const newDate = adapter.addMonths(feb15, 1);
-      expect(onVisibleDateChange.firstCall.args[0]).toEqual(adapter.startOfMonth(newDate));
+      expect(onVisibleDateChange.mock.calls[0][0]).toEqual(adapter.startOfMonth(newDate));
       expect(getDayButton(newDate)).toHaveFocus();
     });
 
     it('should find the nearest day to focus in the next month when same day does not exist', async () => {
       const jan31 = adapter.date('2025-01-31', 'default');
-      const onVisibleDateChange = spy();
+      const onVisibleDateChange = vi.fn();
 
       const { user } = renderCalendar(jan31, { onVisibleDateChange });
 
@@ -99,17 +100,17 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
       });
       await user.keyboard('[PageDown]');
 
-      expect(onVisibleDateChange.callCount).to.equal(1);
-      expect(onVisibleDateChange.firstCall.args[1].reason).to.equal('keyboard');
+      expect(onVisibleDateChange.mock.calls.length).toBe(1);
+      expect(onVisibleDateChange.mock.calls[0][1].reason).toBe('keyboard');
       const newDate = adapter.addMonths(jan31, 1);
-      expect(onVisibleDateChange.firstCall.args[0]).toEqual(adapter.startOfMonth(newDate));
+      expect(onVisibleDateChange.mock.calls[0][0]).toEqual(adapter.startOfMonth(newDate));
       expect(getDayButton(newDate)).toHaveFocus();
     });
   });
 
   describe('PageUp', () => {
     it('should move focus to the same day in the previous month when pressing PageUp', async () => {
-      const onVisibleDateChange = spy();
+      const onVisibleDateChange = vi.fn();
 
       const { user } = renderCalendar(feb15, { onVisibleDateChange });
 
@@ -118,15 +119,15 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
       });
       await user.keyboard('[PageUp]');
 
-      expect(onVisibleDateChange.callCount).to.equal(1);
-      expect(onVisibleDateChange.firstCall.args[1].reason).to.equal('keyboard');
+      expect(onVisibleDateChange.mock.calls.length).toBe(1);
+      expect(onVisibleDateChange.mock.calls[0][1].reason).toBe('keyboard');
       const newDate = adapter.addMonths(feb15, -1);
-      expect(onVisibleDateChange.firstCall.args[0]).toEqual(adapter.startOfMonth(newDate));
+      expect(onVisibleDateChange.mock.calls[0][0]).toEqual(adapter.startOfMonth(newDate));
       expect(getDayButton(newDate)).toHaveFocus();
     });
 
     it('should find the nearest day to focus in the previous month when same day does not exist', async () => {
-      const onVisibleDateChange = spy();
+      const onVisibleDateChange = vi.fn();
 
       const { user } = renderCalendar(mar31, { onVisibleDateChange });
 
@@ -135,17 +136,17 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
       });
       await user.keyboard('[PageUp]');
 
-      expect(onVisibleDateChange.callCount).to.equal(1);
-      expect(onVisibleDateChange.firstCall.args[1].reason).to.equal('keyboard');
+      expect(onVisibleDateChange.mock.calls.length).toBe(1);
+      expect(onVisibleDateChange.mock.calls[0][1].reason).toBe('keyboard');
       const newDate = adapter.addMonths(mar31, -1);
-      expect(onVisibleDateChange.firstCall.args[0]).toEqual(adapter.startOfMonth(newDate));
+      expect(onVisibleDateChange.mock.calls[0][0]).toEqual(adapter.startOfMonth(newDate));
       expect(getDayButton(newDate)).toHaveFocus();
     });
   });
 
   describe('Shift+PageDown', () => {
     it('should move focus to the same day 12 months forward when pressing Shift+PageDown', async () => {
-      const onVisibleDateChange = spy();
+      const onVisibleDateChange = vi.fn();
 
       const { user } = renderCalendar(feb15, { onVisibleDateChange });
 
@@ -154,17 +155,17 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
       });
       await user.keyboard('[ShiftLeft>][PageDown][/ShiftLeft]');
 
-      expect(onVisibleDateChange.callCount).to.equal(1);
-      expect(onVisibleDateChange.firstCall.args[1].reason).to.equal('keyboard');
+      expect(onVisibleDateChange.mock.calls.length).toBe(1);
+      expect(onVisibleDateChange.mock.calls[0][1].reason).toBe('keyboard');
       const newDate = adapter.addMonths(feb15, 12);
-      expect(onVisibleDateChange.firstCall.args[0]).toEqual(adapter.startOfMonth(newDate));
+      expect(onVisibleDateChange.mock.calls[0][0]).toEqual(adapter.startOfMonth(newDate));
       expect(getDayButton(newDate)).toHaveFocus();
     });
   });
 
   describe('Shift+PageUp', () => {
     it('should move focus to the same day 12 months backward when pressing Shift+PageUp', async () => {
-      const onVisibleDateChange = spy();
+      const onVisibleDateChange = vi.fn();
 
       const { user } = renderCalendar(feb15, { onVisibleDateChange });
 
@@ -173,10 +174,10 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
       });
       await user.keyboard('[ShiftLeft>][PageUp][/ShiftLeft]');
 
-      expect(onVisibleDateChange.callCount).to.equal(1);
-      expect(onVisibleDateChange.firstCall.args[1].reason).to.equal('keyboard');
+      expect(onVisibleDateChange.mock.calls.length).toBe(1);
+      expect(onVisibleDateChange.mock.calls[0][1].reason).toBe('keyboard');
       const newDate = adapter.addMonths(feb15, -12);
-      expect(onVisibleDateChange.firstCall.args[0]).toEqual(adapter.startOfMonth(newDate));
+      expect(onVisibleDateChange.mock.calls[0][0]).toEqual(adapter.startOfMonth(newDate));
       expect(getDayButton(newDate)).toHaveFocus();
     });
   });
@@ -210,7 +211,7 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
     // handleItemLooping(ArrowRight, 34) → newHighlightedIndex = 0
     // August 2021 starts on Sunday → index 0 = Aug 1 (in-month, enabled).
     it('should wrap to the next month and focus the first day when on the last day', async () => {
-      const onVisibleDateChange = spy();
+      const onVisibleDateChange = vi.fn();
 
       const { user } = renderCalendar(adapter.startOfMonth(jul31), { onVisibleDateChange });
 
@@ -219,9 +220,9 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
       });
       await user.keyboard('{ArrowRight}');
 
-      expect(onVisibleDateChange.callCount).to.equal(1);
-      expect(onVisibleDateChange.firstCall.args[1].reason).to.equal('keyboard');
-      expect(onVisibleDateChange.firstCall.args[0]).toEqual(adapter.startOfMonth(aug1));
+      expect(onVisibleDateChange.mock.calls.length).toBe(1);
+      expect(onVisibleDateChange.mock.calls[0][1].reason).toBe('keyboard');
+      expect(onVisibleDateChange.mock.calls[0][0]).toEqual(adapter.startOfMonth(aug1));
       expect(getDayButton(aug1)).toHaveFocus();
     });
   });
@@ -244,7 +245,7 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
     // handleItemLooping(ArrowLeft, 0) → newHighlightedIndex = 5×7-1 = 34
     // July 2021: index 34 = Jul 31 (Saturday, in-month, enabled).
     it('should wrap to the previous month and focus the last day when on the first day', async () => {
-      const onVisibleDateChange = spy();
+      const onVisibleDateChange = vi.fn();
 
       const { user } = renderCalendar(adapter.startOfMonth(aug1), { onVisibleDateChange });
 
@@ -253,9 +254,9 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
       });
       await user.keyboard('{ArrowLeft}');
 
-      expect(onVisibleDateChange.callCount).to.equal(1);
-      expect(onVisibleDateChange.firstCall.args[1].reason).to.equal('keyboard');
-      expect(onVisibleDateChange.firstCall.args[0]).toEqual(adapter.startOfMonth(jul31));
+      expect(onVisibleDateChange.mock.calls.length).toBe(1);
+      expect(onVisibleDateChange.mock.calls[0][1].reason).toBe('keyboard');
+      expect(onVisibleDateChange.mock.calls[0][0]).toEqual(adapter.startOfMonth(jul31));
       expect(getDayButton(jul31)).toHaveFocus();
     });
   });
@@ -278,7 +279,7 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
     // handleItemLooping(ArrowDown, 34) → newHighlightedIndex = 34 % 7 = 6
     // August 2021: index 6 = Aug 7 (Saturday, in-month, enabled).
     it('should wrap to the next month and focus the same weekday when on the last week', async () => {
-      const onVisibleDateChange = spy();
+      const onVisibleDateChange = vi.fn();
 
       const { user } = renderCalendar(adapter.startOfMonth(jul31), { onVisibleDateChange });
 
@@ -287,9 +288,9 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
       });
       await user.keyboard('{ArrowDown}');
 
-      expect(onVisibleDateChange.callCount).to.equal(1);
-      expect(onVisibleDateChange.firstCall.args[1].reason).to.equal('keyboard');
-      expect(onVisibleDateChange.firstCall.args[0]).toEqual(adapter.startOfMonth(aug7));
+      expect(onVisibleDateChange.mock.calls.length).toBe(1);
+      expect(onVisibleDateChange.mock.calls[0][1].reason).toBe('keyboard');
+      expect(onVisibleDateChange.mock.calls[0][0]).toEqual(adapter.startOfMonth(aug7));
       expect(getDayButton(aug7)).toHaveFocus();
     });
 
@@ -298,7 +299,7 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
     // April 2025: index 1 = Mar 31 (outside-month, disabled), so the algorithm
     // skips by +7 to index 8, which is Apr 7 (Monday, in-month, enabled).
     it('should skip disabled previous-month day in the next month when wrapping down', async () => {
-      const onVisibleDateChange = spy();
+      const onVisibleDateChange = vi.fn();
 
       const { user } = renderCalendar(adapter.startOfMonth(mar31), { onVisibleDateChange });
 
@@ -307,9 +308,9 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
       });
       await user.keyboard('{ArrowDown}');
 
-      expect(onVisibleDateChange.callCount).to.equal(1);
-      expect(onVisibleDateChange.firstCall.args[1].reason).to.equal('keyboard');
-      expect(onVisibleDateChange.firstCall.args[0]).toEqual(adapter.startOfMonth(apr7));
+      expect(onVisibleDateChange.mock.calls.length).toBe(1);
+      expect(onVisibleDateChange.mock.calls[0][1].reason).toBe('keyboard');
+      expect(onVisibleDateChange.mock.calls[0][0]).toEqual(adapter.startOfMonth(apr7));
       expect(getDayButton(apr7)).toHaveFocus();
     });
   });
@@ -399,7 +400,7 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
     // handleItemLooping(ArrowUp, 0) → newHighlightedIndex = 5×7-(7-0) = 28
     // July 2021: index 28 = Jul 25 (Sunday, in-month, enabled).
     it('should wrap to the previous month and focus the same weekday when on the first week', async () => {
-      const onVisibleDateChange = spy();
+      const onVisibleDateChange = vi.fn();
 
       const { user } = renderCalendar(adapter.startOfMonth(aug1), { onVisibleDateChange });
 
@@ -408,9 +409,9 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
       });
       await user.keyboard('{ArrowUp}');
 
-      expect(onVisibleDateChange.callCount).to.equal(1);
-      expect(onVisibleDateChange.firstCall.args[1].reason).to.equal('keyboard');
-      expect(onVisibleDateChange.firstCall.args[0]).toEqual(adapter.startOfMonth(jul25));
+      expect(onVisibleDateChange.mock.calls.length).toBe(1);
+      expect(onVisibleDateChange.mock.calls[0][1].reason).toBe('keyboard');
+      expect(onVisibleDateChange.mock.calls[0][0]).toEqual(adapter.startOfMonth(jul25));
       expect(getDayButton(jul25)).toHaveFocus();
     });
 
@@ -419,7 +420,7 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
     // onLoop: setVisibleDate(March) + executeAfterItemMapUpdate
     // March grid: guessedIndex = 42 - 7 + (8 % 7) = 36 = Mar 31 (Mon, in-month, enabled).
     it('should change to previous month and focus same weekday when navigating up from the second week', async () => {
-      const onVisibleDateChange = spy();
+      const onVisibleDateChange = vi.fn();
 
       const { user } = renderCalendar(adapter.startOfMonth(apr7), { onVisibleDateChange });
 
@@ -428,9 +429,9 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
       });
       await user.keyboard('{ArrowUp}');
 
-      expect(onVisibleDateChange.callCount).to.equal(1);
-      expect(onVisibleDateChange.firstCall.args[1].reason).to.equal('keyboard');
-      expect(onVisibleDateChange.firstCall.args[0]).toEqual(adapter.startOfMonth(mar31));
+      expect(onVisibleDateChange.mock.calls.length).toBe(1);
+      expect(onVisibleDateChange.mock.calls[0][1].reason).toBe('keyboard');
+      expect(onVisibleDateChange.mock.calls[0][0]).toEqual(adapter.startOfMonth(mar31));
       expect(getDayButton(mar31)).toHaveFocus();
     });
   });
@@ -521,7 +522,7 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
     });
 
     it('should not select a day when Enter is pressed on a focused disabled day', async () => {
-      const onValueChange = spy();
+      const onValueChange = vi.fn();
 
       const { user } = renderCalendar(adapter.startOfMonth(feb14), {
         focusableWhenDisabled: true,
@@ -538,7 +539,7 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
 
       await user.keyboard('{Enter}');
 
-      expect(onValueChange.callCount).to.equal(0);
+      expect(onValueChange.mock.calls.length).toBe(0);
     });
 
     it('should skip disabled days when focusableWhenDisabled is false (default)', async () => {
@@ -562,7 +563,7 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
   describe('disabled day boundary (minDate / maxDate)', () => {
     describe('PageDown', () => {
       it('should not navigate to the next month if the same day would be after maxDate', async () => {
-        const onVisibleDateChange = spy();
+        const onVisibleDateChange = vi.fn();
 
         const { user } = renderCalendar(adapter.startOfMonth(feb15), {
           onVisibleDateChange,
@@ -574,13 +575,13 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
         });
         await user.keyboard('[PageDown]');
 
-        expect(onVisibleDateChange.callCount).to.equal(0);
+        expect(onVisibleDateChange.mock.calls.length).toBe(0);
         expect(getDayButton(feb15)).toHaveFocus();
       });
     });
 
     it('should find the closest day to navigate to the next month if the same day would be after maxDate', async () => {
-      const onVisibleDateChange = spy();
+      const onVisibleDateChange = vi.fn();
 
       const { user } = renderCalendar(adapter.startOfMonth(mar31), {
         onVisibleDateChange,
@@ -592,15 +593,15 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
       });
       await user.keyboard('[PageDown]');
 
-      expect(onVisibleDateChange.callCount).to.equal(1);
-      expect(onVisibleDateChange.firstCall.args[1].reason).to.equal('keyboard');
-      expect(onVisibleDateChange.firstCall.args[0]).toEqual(adapter.startOfMonth(apr7));
+      expect(onVisibleDateChange.mock.calls.length).toBe(1);
+      expect(onVisibleDateChange.mock.calls[0][1].reason).toBe('keyboard');
+      expect(onVisibleDateChange.mock.calls[0][0]).toEqual(adapter.startOfMonth(apr7));
       expect(getDayButton(apr7)).toHaveFocus();
     });
 
     describe('PageUp', () => {
       it('should not navigate to the previous month if the same day would be before minDate', async () => {
-        const onVisibleDateChange = spy();
+        const onVisibleDateChange = vi.fn();
 
         const { user } = renderCalendar(adapter.startOfMonth(feb15), {
           onVisibleDateChange,
@@ -612,12 +613,12 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
         });
         await user.keyboard('[PageUp]');
 
-        expect(onVisibleDateChange.callCount).to.equal(0);
+        expect(onVisibleDateChange.mock.calls.length).toBe(0);
         expect(getDayButton(feb15)).toHaveFocus();
       });
 
       it('should find the closest day to navigate to the previous month if the same day would be before minDate', async () => {
-        const onVisibleDateChange = spy();
+        const onVisibleDateChange = vi.fn();
 
         const { user } = renderCalendar(adapter.startOfMonth(aug7), {
           onVisibleDateChange,
@@ -629,9 +630,9 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
         });
         await user.keyboard('[PageUp]');
 
-        expect(onVisibleDateChange.callCount).to.equal(1);
-        expect(onVisibleDateChange.firstCall.args[1].reason).to.equal('keyboard');
-        expect(onVisibleDateChange.firstCall.args[0]).toEqual(adapter.startOfMonth(jul25));
+        expect(onVisibleDateChange.mock.calls.length).toBe(1);
+        expect(onVisibleDateChange.mock.calls[0][1].reason).toBe('keyboard');
+        expect(onVisibleDateChange.mock.calls[0][0]).toEqual(adapter.startOfMonth(jul25));
         expect(getDayButton(jul25)).toHaveFocus();
       });
     });
@@ -639,7 +640,7 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
     describe('Shift+PageDown', () => {
       it('should not navigate 12 months forward if the same day would be after maxDate', async () => {
         const maxDate = adapter.date('2025-12-31', 'default');
-        const onVisibleDateChange = spy();
+        const onVisibleDateChange = vi.fn();
 
         const { user } = renderCalendar(adapter.startOfMonth(feb15), {
           onVisibleDateChange,
@@ -651,14 +652,14 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
         });
         await user.keyboard('[ShiftLeft>][PageDown][/ShiftLeft]');
 
-        expect(onVisibleDateChange.callCount).to.equal(0);
+        expect(onVisibleDateChange.mock.calls.length).toBe(0);
         expect(getDayButton(feb15)).toHaveFocus();
       });
     });
 
     describe('Shift+PageUp', () => {
       it('should not navigate 12 months backward if the same day would be before minDate', async () => {
-        const onVisibleDateChange = spy();
+        const onVisibleDateChange = vi.fn();
         const minDate = adapter.date('2025-01-01', 'default');
 
         const { user } = renderCalendar(adapter.startOfMonth(feb15), {
@@ -671,14 +672,14 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
         });
         await user.keyboard('[ShiftLeft>][PageUp][/ShiftLeft]');
 
-        expect(onVisibleDateChange.callCount).to.equal(0);
+        expect(onVisibleDateChange.mock.calls.length).toBe(0);
         expect(getDayButton(feb15)).toHaveFocus();
       });
     });
 
     describe('ArrowRight', () => {
       it('should not wrap to the next month when the last day is at maxDate', async () => {
-        const onVisibleDateChange = spy();
+        const onVisibleDateChange = vi.fn();
 
         const { user } = renderCalendar(adapter.startOfMonth(feb28), {
           onVisibleDateChange,
@@ -690,14 +691,14 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
         });
         await user.keyboard('{ArrowRight}');
 
-        expect(onVisibleDateChange.callCount).to.equal(0);
+        expect(onVisibleDateChange.mock.calls.length).toBe(0);
         expect(getDayButton(feb28)).toHaveFocus();
       });
     });
 
     describe('ArrowLeft', () => {
       it('should not wrap to the previous month when the first day is at minDate', async () => {
-        const onVisibleDateChange = spy();
+        const onVisibleDateChange = vi.fn();
 
         const { user } = renderCalendar(adapter.startOfMonth(feb1), {
           onVisibleDateChange,
@@ -709,14 +710,14 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
         });
         await user.keyboard('{ArrowLeft}');
 
-        expect(onVisibleDateChange.callCount).to.equal(0);
+        expect(onVisibleDateChange.mock.calls.length).toBe(0);
         expect(getDayButton(feb1)).toHaveFocus();
       });
     });
 
     describe('ArrowDown', () => {
       it('should not wrap to the next month when the day in the same weekday column would be after maxDate', async () => {
-        const onVisibleDateChange = spy();
+        const onVisibleDateChange = vi.fn();
 
         const { user } = renderCalendar(adapter.startOfMonth(feb28), {
           onVisibleDateChange,
@@ -728,14 +729,14 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
         });
         await user.keyboard('{ArrowDown}');
 
-        expect(onVisibleDateChange.callCount).to.equal(0);
+        expect(onVisibleDateChange.mock.calls.length).toBe(0);
         expect(getDayButton(feb28)).toHaveFocus();
       });
     });
 
     describe('ArrowUp', () => {
       it('should not wrap to the previous month when the day in the same weekday column would be before minDate', async () => {
-        const onVisibleDateChange = spy();
+        const onVisibleDateChange = vi.fn();
 
         const { user } = renderCalendar(adapter.startOfMonth(feb1), {
           onVisibleDateChange,
@@ -747,7 +748,7 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
         });
         await user.keyboard('{ArrowUp}');
 
-        expect(onVisibleDateChange.callCount).to.equal(0);
+        expect(onVisibleDateChange.mock.calls.length).toBe(0);
         expect(getDayButton(feb1)).toHaveFocus();
       });
     });
