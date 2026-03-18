@@ -34,9 +34,8 @@ export const TabsPanel = React.forwardRef(function TabPanel(
   const { className, value, render, keepMounted = false, ...elementProps } = componentProps;
 
   const {
-    hidePanelsWithoutMatchingTab,
-    value: selectedValue,
     getTabIdByPanelValue,
+    isPanelOpen,
     orientation,
     tabActivationDirection,
     registerMountedTabPanel,
@@ -58,8 +57,7 @@ export const TabsPanel = React.forwardRef(function TabPanel(
   });
 
   const correspondingTabId = getTabIdByPanelValue(value);
-  const open =
-    value === selectedValue && (!hidePanelsWithoutMatchingTab || correspondingTabId != null);
+  const open = isPanelOpen(value);
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(open);
   const hidden = !mounted;
 

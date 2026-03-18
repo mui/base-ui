@@ -19,6 +19,35 @@ import {
 } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 
+interface DerivedTabData {
+  firstEnabledTabValue: TabsTab.Value | undefined;
+  selectedTabMetadata: TabsTab.Metadata | undefined;
+  tabElementByValue: Map<TabsTab.Value | number, HTMLElement>;
+  tabIdByValue: Map<TabsTab.Value, string | undefined>;
+}
+
+interface ResolveAutoSelectionInput {
+  firstEnabledTabValue: TabsTab.Value | undefined;
+  hasExplicitDefaultValueProp: boolean;
+  isInitialRun: boolean;
+  previousHonorDisabledDefault: boolean;
+  resolvedDefaultValue: TabsTab.Value;
+  selectedTabMetadata: TabsTab.Metadata | undefined;
+  value: TabsTab.Value;
+}
+
+type ResolveAutoSelectionResult =
+  | {
+      action: 'none';
+      nextHonorDisabledDefault: boolean;
+    }
+  | {
+      action: 'apply';
+      nextHonorDisabledDefault: boolean;
+      nextValue: TabsTab.Value;
+      reason: typeof REASONS.disabled | typeof REASONS.initial | typeof REASONS.missing | null;
+    };
+
 /**
  * Groups the tabs and the corresponding panels.
  * Renders a `<div>` element.
@@ -118,17 +147,51 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     [mountedTabPanels],
   );
 
+  const derivedTabData = React.useMemo<DerivedTabData>(() => {
+    // Derive all tab lookups from a single pass so selection, ids, and element
+    // access stay in sync as the rendered tab set changes.
+    const tabElementByValue = new Map<TabsTab.Value | number, HTMLElement>();
+    const tabIdByValue = new Map<TabsTab.Value, string | undefined>();
+    let firstEnabledTabValue: TabsTab.Value | undefined;
+    let selectedTabMetadata: TabsTab.Metadata | undefined;
+
+    for (const [tabElement, tabMetadata] of tabMap.entries()) {
+      if (tabMetadata == null) {
+        continue;
+      }
+
+      if (selectedTabMetadata == null && tabMetadata.value === value) {
+        selectedTabMetadata = tabMetadata;
+      }
+
+      if (firstEnabledTabValue === undefined && !tabMetadata.disabled) {
+        firstEnabledTabValue = tabMetadata.value;
+      }
+
+      if (!tabIdByValue.has(tabMetadata.value)) {
+        tabIdByValue.set(tabMetadata.value, tabMetadata.id);
+      }
+
+      const selectedValue = tabMetadata.value ?? tabMetadata.index;
+      if (!tabElementByValue.has(selectedValue)) {
+        tabElementByValue.set(selectedValue, tabElement as HTMLElement);
+      }
+    }
+
+    return {
+      firstEnabledTabValue,
+      selectedTabMetadata,
+      tabElementByValue,
+      tabIdByValue,
+    };
+  }, [tabMap, value]);
+
   // get the `id` attribute of <Tabs.Tab> to set as the value of `aria-labelledby` on <Tabs.Panel>
   const getTabIdByPanelValue = React.useCallback(
     (tabPanelValue: TabsTab.Value) => {
-      for (const tabMetadata of tabMap.values()) {
-        if (tabPanelValue === tabMetadata?.value) {
-          return tabMetadata?.id;
-        }
-      }
-      return undefined;
+      return derivedTabData.tabIdByValue.get(tabPanelValue);
     },
-    [tabMap],
+    [derivedTabData],
   );
 
   // used in `useActivationDirectionDetector` for setting data-activation-direction
@@ -138,24 +201,29 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
         return null;
       }
 
-      for (const [tabElement, tabMetadata] of tabMap.entries()) {
-        if (tabMetadata != null && selectedValue === (tabMetadata.value ?? tabMetadata.index)) {
-          return tabElement as HTMLElement;
-        }
+      return derivedTabData.tabElementByValue.get(selectedValue) ?? null;
+    },
+    [derivedTabData],
+  );
+
+  const isPanelOpen = React.useCallback(
+    (panelValue: TabsTab.Value) => {
+      if (panelValue !== value) {
+        return false;
       }
 
-      return null;
+      return !hidePanelsWithoutMatchingTab || derivedTabData.tabIdByValue.has(panelValue);
     },
-    [tabMap],
+    [derivedTabData, hidePanelsWithoutMatchingTab, value],
   );
 
   const tabsContextValue: TabsRootContext = React.useMemo(
     () => ({
-      hidePanelsWithoutMatchingTab,
       direction,
       getTabElementBySelectedValue,
       getTabIdByPanelValue,
       getTabPanelIdByValue,
+      isPanelOpen,
       onValueChange,
       orientation,
       registerMountedTabPanel,
@@ -165,11 +233,11 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       value,
     }),
     [
-      hidePanelsWithoutMatchingTab,
       direction,
       getTabElementBySelectedValue,
       getTabIdByPanelValue,
       getTabPanelIdByValue,
+      isPanelOpen,
       onValueChange,
       orientation,
       registerMountedTabPanel,
@@ -179,26 +247,6 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       value,
     ],
   );
-
-  const selectedTabMetadata = React.useMemo(() => {
-    for (const tabMetadata of tabMap.values()) {
-      if (tabMetadata != null && tabMetadata.value === value) {
-        return tabMetadata;
-      }
-    }
-    return undefined;
-  }, [tabMap, value]);
-
-  // Find the first non-disabled tab value.
-  // Used as a fallback when the current selection is disabled or missing.
-  const firstEnabledTabValue = React.useMemo(() => {
-    for (const tabMetadata of tabMap.values()) {
-      if (tabMetadata != null && !tabMetadata.disabled) {
-        return tabMetadata.value;
-      }
-    }
-    return undefined;
-  }, [tabMap]);
 
   // Automatically switch to the first enabled tab when:
   // - Initial render with no explicit value (fires onValueChange with 'initial' reason)
@@ -222,71 +270,31 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       return;
     }
 
-    const selectionIsDisabled = selectedTabMetadata?.disabled === true;
-    const selectionIsMissing = selectedTabMetadata == null && value !== null;
     const isInitialRun = !hasRunOnceRef.current;
-
-    // On the first run, record whether we're in the "honor disabled default" scenario.
-    if (isInitialRun) {
-      honorDisabledDefaultRef.current =
-        hasExplicitDefaultValueProp && value === resolvedDefaultValue && selectionIsDisabled;
-    }
-
-    // Expire the grace period once the tab is no longer the default or no longer disabled
-    // (e.g., the tab was enabled then disabled again — that's a dynamic change).
-    if (
-      honorDisabledDefaultRef.current &&
-      (value !== resolvedDefaultValue || !selectionIsDisabled)
-    ) {
-      honorDisabledDefaultRef.current = false;
-    }
-
-    // Honor the user's explicit defaultValue pointing to a disabled tab while
-    // the grace period is still active. No fallback, no callback.
-    if (honorDisabledDefaultRef.current) {
-      hasRunOnceRef.current = true;
-      return;
-    }
+    const decision = resolveAutoSelection({
+      firstEnabledTabValue: derivedTabData.firstEnabledTabValue,
+      hasExplicitDefaultValueProp,
+      isInitialRun,
+      previousHonorDisabledDefault: honorDisabledDefaultRef.current,
+      resolvedDefaultValue,
+      selectedTabMetadata: derivedTabData.selectedTabMetadata,
+      value,
+    });
 
     hasRunOnceRef.current = true;
+    honorDisabledDefaultRef.current = decision.nextHonorDisabledDefault;
 
-    // Need to auto-select if:
-    // - Selection is disabled
-    // - Selection is missing (no rendered tab matches the current value)
-    // - Initial run with no explicit defaultValue (automatic default to 0)
-    const hasImplicitDefaultValue = !hasExplicitDefaultValueProp;
-    const isAutomaticDefault = isInitialRun && hasImplicitDefaultValue;
-    const needsAutoSelection = selectionIsDisabled || selectionIsMissing || isAutomaticDefault;
-
-    if (!needsAutoSelection) {
+    if (decision.action === 'none') {
       return;
     }
 
-    const fallbackValue = firstEnabledTabValue ?? null;
-
-    // Skip if value already matches fallback, UNLESS this is an automatic default selection
-    // (where value happens to match fallback but we still need to notify)
-    if (value === fallbackValue && !isAutomaticDefault) {
-      return;
-    }
-
-    // When all tabs are disabled on initial render with no explicit default,
-    // set value to null silently (no callback) — there's no meaningful selection
-    // to report to the user.
-    if (isAutomaticDefault && fallbackValue === null) {
-      setValue(fallbackValue);
+    if (decision.reason == null) {
+      setValue(decision.nextValue);
       setTabActivationDirection('none');
       return;
     }
 
-    let reason: TabsRoot.ChangeEventReason = REASONS.missing;
-    if (isAutomaticDefault) {
-      reason = REASONS.initial;
-    } else if (selectionIsDisabled) {
-      reason = REASONS.disabled;
-    }
-
-    const eventDetails = createChangeEventDetails(reason, undefined, undefined, {
+    const eventDetails = createChangeEventDetails(decision.reason, undefined, undefined, {
       activationDirection: 'none' as const,
     });
 
@@ -295,16 +303,16 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     // ensures cancel() is a no-op for automatic selections — the disabled/missing
     // tab can't stay selected. React deduplicates the redundant setState when
     // the user doesn't cancel.
-    onValueChange(fallbackValue, eventDetails);
-    setValue(fallbackValue);
+    onValueChange(decision.nextValue, eventDetails);
+    setValue(decision.nextValue);
     setTabActivationDirection('none');
   }, [
-    firstEnabledTabValue,
+    derivedTabData.firstEnabledTabValue,
+    derivedTabData.selectedTabMetadata,
     hasExplicitDefaultValueProp,
     isControlled,
     onValueChange,
     resolvedDefaultValue,
-    selectedTabMetadata,
     setTabActivationDirection,
     setValue,
     tabMap,
@@ -318,6 +326,9 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       return undefined;
     }
 
+    // When panels exist without any rendered tabs, hide the selected panel on the
+    // client after registration settles. This preserves SSR-selected content while
+    // still cleaning up stale keepMounted panels in the "no tabs rendered" case.
     noRenderedTabsTimeout.start(0, () => {
       if (tabMap.size > 0 || mountedTabPanels.size === 0 || value === null) {
         return;
@@ -413,4 +424,83 @@ export namespace TabsRoot {
   export type Orientation = TabsRootOrientation;
   export type ChangeEventReason = TabsRootChangeEventReason;
   export type ChangeEventDetails = TabsRootChangeEventDetails;
+}
+
+function resolveAutoSelection(input: ResolveAutoSelectionInput): ResolveAutoSelectionResult {
+  const {
+    firstEnabledTabValue,
+    hasExplicitDefaultValueProp,
+    isInitialRun,
+    previousHonorDisabledDefault,
+    resolvedDefaultValue,
+    selectedTabMetadata,
+    value,
+  } = input;
+
+  const selectionIsDisabled = selectedTabMetadata?.disabled === true;
+  const selectionIsMissing = selectedTabMetadata == null && value !== null;
+
+  let nextHonorDisabledDefault = previousHonorDisabledDefault;
+
+  // An explicit disabled default is honored only for the initial mount state.
+  // Once that tab becomes enabled and later disabled again, we treat it like any
+  // other dynamic disabled-selection fallback.
+  if (isInitialRun) {
+    nextHonorDisabledDefault =
+      hasExplicitDefaultValueProp && value === resolvedDefaultValue && selectionIsDisabled;
+  }
+
+  if (nextHonorDisabledDefault && (value !== resolvedDefaultValue || !selectionIsDisabled)) {
+    nextHonorDisabledDefault = false;
+  }
+
+  if (nextHonorDisabledDefault) {
+    return {
+      action: 'none',
+      nextHonorDisabledDefault,
+    };
+  }
+
+  const hasImplicitDefaultValue = !hasExplicitDefaultValueProp;
+  const isAutomaticDefault = isInitialRun && hasImplicitDefaultValue;
+  const needsAutoSelection = selectionIsDisabled || selectionIsMissing || isAutomaticDefault;
+
+  if (!needsAutoSelection) {
+    return {
+      action: 'none',
+      nextHonorDisabledDefault,
+    };
+  }
+
+  const fallbackValue = firstEnabledTabValue ?? null;
+  if (value === fallbackValue && !isAutomaticDefault) {
+    return {
+      action: 'none',
+      nextHonorDisabledDefault,
+    };
+  }
+
+  if (isAutomaticDefault && fallbackValue === null) {
+    return {
+      action: 'apply',
+      nextHonorDisabledDefault,
+      nextValue: fallbackValue,
+      reason: null,
+    };
+  }
+
+  let reason: typeof REASONS.disabled | typeof REASONS.initial | typeof REASONS.missing =
+    REASONS.missing;
+  if (isAutomaticDefault) {
+    reason = REASONS.initial;
+  } else if (selectionIsDisabled) {
+    reason = REASONS.disabled;
+  }
+
+  return {
+    action: 'apply',
+    nextHonorDisabledDefault,
+    nextValue: fallbackValue,
+    reason,
+  };
 }

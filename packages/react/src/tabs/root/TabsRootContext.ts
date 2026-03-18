@@ -5,10 +5,6 @@ import type { TabsRoot } from './TabsRoot';
 
 export interface TabsRootContext {
   /**
-   * Whether panels whose matching tab has not rendered yet should stay hidden.
-   */
-  hidePanelsWithoutMatchingTab: boolean;
-  /**
    * The currently active tab's value.
    */
   value: TabsTab.Value;
@@ -29,6 +25,10 @@ export interface TabsRootContext {
    * @param (any) panelValue Value to find the Tab for.
    */
   getTabIdByPanelValue: (panelValue: TabsTab.Value) => string | undefined;
+  /**
+   * Whether the panel matching the given value should currently be open.
+   */
+  isPanelOpen: (panelValue: TabsTab.Value) => boolean;
   /**
    * Gets the `id` attribute of the TabPanel that corresponds to the given Tab value.
    * @param (any) tabValue Value to find the TabPanel for.
