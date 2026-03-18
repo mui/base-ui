@@ -1441,6 +1441,61 @@ describe('<Tabs.Root />', () => {
       );
       expect(root).toHaveAttribute('data-activation-direction', 'up');
     });
+
+    it('should update `data-activation-direction` on programmatic change after a canceled click', async () => {
+      const { user, setProps } = await render(
+        <Tabs.Root
+          data-testid="root"
+          value={0}
+          onValueChange={(_value, eventDetails) => {
+            eventDetails.cancel();
+          }}
+        >
+          <Tabs.List>
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} />
+          </Tabs.List>
+          <Tabs.Panel value={0} />
+          <Tabs.Panel value={1} />
+        </Tabs.Root>,
+      );
+
+      const root = screen.getByTestId('root');
+      const [, tab2] = screen.getAllByRole('tab');
+
+      // Click is canceled — value stays at 0
+      await user.click(tab2);
+      expect(root).toHaveAttribute('data-activation-direction', 'none');
+
+      // A later programmatic change should still compute direction correctly
+      await setProps({ value: 1 });
+
+      expect(root).toHaveAttribute('data-activation-direction', 'right');
+    });
+
+    it('should update `data-activation-direction` on programmatic change after a controlled parent ignores click', async () => {
+      const { user, setProps } = await render(
+        <Tabs.Root data-testid="root" value={0} onValueChange={() => {}}>
+          <Tabs.List>
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} />
+          </Tabs.List>
+          <Tabs.Panel value={0} />
+          <Tabs.Panel value={1} />
+        </Tabs.Root>,
+      );
+
+      const root = screen.getByTestId('root');
+      const [, tab2] = screen.getAllByRole('tab');
+
+      // Click fires onValueChange but parent doesn't update value
+      await user.click(tab2);
+
+      // A later programmatic change should still compute direction correctly
+      await setProps({ value: 1 });
+
+      expect(root).toHaveAttribute('data-activation-direction', 'right');
+    });
   });
 
   describe('popups', () => {

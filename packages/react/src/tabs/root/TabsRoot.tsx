@@ -101,13 +101,12 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   useIsoLayoutEffect(() => {
     previousValueRef.current = value;
     directionJustComputedRef.current = false;
-  }, [value]);
+  });
 
   const onValueChange = useStableCallback(
     (newValue: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => {
       const activationDirection = computeActivationDirection(value, newValue, orientation, tabMap);
       eventDetails.activationDirection = activationDirection;
-      directionJustComputedRef.current = true;
 
       onValueChangeProp?.(newValue, eventDetails);
 
@@ -115,6 +114,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
         return;
       }
 
+      directionJustComputedRef.current = true;
       setValue(newValue);
       setTabActivationDirection(activationDirection);
     },
