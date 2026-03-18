@@ -3,8 +3,8 @@ import { Slider } from '@base-ui/react/slider';
 export default function VerticalSlider() {
   return (
     <Slider.Root orientation="vertical" defaultValue={35}>
-      <Slider.Control className="flex h-32 touch-none items-center px-3 select-none">
-        <Slider.Track className="h-full w-1 rounded-sm bg-gray-200 shadow-[inset_0_0_0_1px] shadow-gray-200 select-none">
+      <Slider.Control className="flex touch-none select-none data-[orientation=vertical]:h-32 data-[orientation=vertical]:px-3">
+        <Slider.Track className="rounded-sm bg-gray-200 shadow-[inset_0_0_0_1px] shadow-gray-200 select-none data-[orientation=vertical]:h-full data-[orientation=vertical]:w-1">
           <Slider.Indicator className="rounded-sm bg-gray-700 select-none" />
           <Slider.Thumb
             aria-label="Volume"
