@@ -77,7 +77,6 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     open,
     positionerElement,
     setActivationDirection,
-    floatingRootContext,
     setFloatingRootContext,
     popupElement,
     viewportElement,
@@ -551,9 +550,6 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   });
 
   const hoverInteractionState = useHoverInteractionSharedState(context);
-  const activeHoverInteractionState = useHoverInteractionSharedState(
-    floatingRootContext ?? context,
-  );
   const shouldBlockSafePolygonPointerEvents = pointerType !== 'touch' && (!isWebKit || nested);
 
   React.useEffect(() => {
@@ -662,10 +658,6 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         currentTarget
       ) {
         const applyPointerEventsMutation = () => {
-          if (activeHoverInteractionState !== hoverInteractionState) {
-            clearSafePolygonPointerEventsMutation(activeHoverInteractionState);
-          }
-
           const scopeElement = getScope() ?? currentTarget.ownerDocument.body;
 
           applySafePolygonPointerEventsMutation(hoverInteractionState, {
