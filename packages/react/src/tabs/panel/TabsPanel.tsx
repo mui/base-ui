@@ -56,11 +56,10 @@ export const TabsPanel = React.forwardRef(function TabPanel(
     metadata,
   });
 
-  const open = value === selectedValue;
+  const correspondingTabId = getTabIdByPanelValue(value);
+  const open = value === selectedValue && correspondingTabId != null;
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(open);
   const hidden = !mounted;
-
-  const correspondingTabId = getTabIdByPanelValue(value);
 
   const state: TabsPanelState = {
     hidden,

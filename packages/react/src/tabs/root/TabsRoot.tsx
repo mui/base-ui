@@ -30,7 +30,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 ) {
   const {
     className,
-    defaultValue: defaultValueProp = 0,
+    defaultValue: defaultValueProp,
     onValueChange: onValueChangeProp,
     orientation = 'horizontal',
     render,
@@ -40,9 +40,10 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   const direction = useDirection();
 
-  // Track whether the user explicitly provided a `defaultValue` prop.
-  // Used to determine if we should honor a disabled tab selection.
-  const hasExplicitDefaultValueProp = Object.hasOwn(componentProps, 'defaultValue');
+  // Treat `defaultValue={undefined}` the same as omitting the prop entirely.
+  // This keeps mount-time fallback behavior aligned with React's usual prop semantics.
+  const hasExplicitDefaultValueProp = defaultValueProp !== undefined;
+  const resolvedDefaultValue = hasExplicitDefaultValueProp ? defaultValueProp : 0;
 
   const tabPanelRefs = React.useRef<(HTMLElement | null)[]>([]);
   const [mountedTabPanels, setMountedTabPanels] = React.useState(
@@ -51,7 +52,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   const [value, setValue] = useControlled({
     controlled: valueProp,
-    default: defaultValueProp,
+    default: resolvedDefaultValue,
     name: 'Tabs',
     state: 'value',
   });
@@ -223,12 +224,12 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     // On the first run, record whether we're in the "honor disabled default" scenario.
     if (isInitialRun) {
       honorDisabledDefaultRef.current =
-        hasExplicitDefaultValueProp && value === defaultValueProp && selectionIsDisabled;
+        hasExplicitDefaultValueProp && value === resolvedDefaultValue && selectionIsDisabled;
     }
 
     // Expire the grace period once the tab is no longer the default or no longer disabled
     // (e.g., the tab was enabled then disabled again — that's a dynamic change).
-    if (honorDisabledDefaultRef.current && (value !== defaultValueProp || !selectionIsDisabled)) {
+    if (honorDisabledDefaultRef.current && (value !== resolvedDefaultValue || !selectionIsDisabled)) {
       honorDisabledDefaultRef.current = false;
     }
 
@@ -290,11 +291,11 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     setValue(fallbackValue);
     setTabActivationDirection('none');
   }, [
-    defaultValueProp,
     firstEnabledTabValue,
     hasExplicitDefaultValueProp,
     isControlled,
     onValueChange,
+    resolvedDefaultValue,
     selectedTabMetadata,
     setTabActivationDirection,
     setValue,

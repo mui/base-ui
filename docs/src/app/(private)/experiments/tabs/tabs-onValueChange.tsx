@@ -33,6 +33,7 @@ const INITIAL_TABS: TabConfig[] = [
 export default function TabsRegressionExperiment() {
   const [tabs, setTabs] = React.useState(INITIAL_TABS);
   const [defaultValueInput, setDefaultValueInput] = React.useState('0');
+  const [appliedDefaultValue, setAppliedDefaultValue] = React.useState<Tabs.Tab.Value | undefined>(0);
   const [mountKey, setMountKey] = React.useState(0);
   const [events, setEvents] = React.useState<ChangeEventEntry[]>([]);
 
@@ -56,12 +57,14 @@ export default function TabsRegressionExperiment() {
 
   const handleRemount = React.useCallback(() => {
     setEvents([]);
+    setAppliedDefaultValue(parsedDefaultValue);
     setMountKey((prevKey) => prevKey + 1);
-  }, []);
+  }, [parsedDefaultValue]);
 
   const handleReset = React.useCallback(() => {
     setTabs(INITIAL_TABS);
     setDefaultValueInput('0');
+    setAppliedDefaultValue(0);
     setEvents([]);
     setMountKey((prevKey) => prevKey + 1);
   }, []);
@@ -152,7 +155,7 @@ export default function TabsRegressionExperiment() {
             <Tabs.Root
               key={mountKey}
               className={sharedTabsClasses.tabs}
-              defaultValue={parsedDefaultValue}
+              defaultValue={appliedDefaultValue}
               onValueChange={handleValueChange}
             >
               <Tabs.List className={sharedTabsClasses.list}>
@@ -180,8 +183,7 @@ export default function TabsRegressionExperiment() {
                   <div className={classes.panelDetails}>
                     <strong>{tab.label}</strong>
                     <span>Panel value: {tab.id}</span>
-                    <span>Rendered tab: {tab.rendered ? 'yes' : 'no'}</span>
-                    <span>Disabled tab: {tab.disabled ? 'yes' : 'no'}</span>
+                    <span>Tab disabled: {tab.disabled ? 'yes' : 'no'}</span>
                   </div>
                 </Tabs.Panel>
               ))}
