@@ -38,9 +38,7 @@ function FixtureRenderer({ component: FixtureComponent }: { component: React.Ele
   return null;
 }
 
-function App(props: { fixtures: Fixture[] }) {
-  const { fixtures } = props;
-
+function App() {
   function computeIsDev() {
     if (window.location.hash === '#dev') {
       return true;
@@ -114,7 +112,7 @@ function App(props: { fixtures: Fixture[] }) {
 }
 
 const container = document.getElementById('react-root');
-const children = <App fixtures={fixtures} />;
+const children = <App />;
 
 if (container != null) {
   const reactRoot = ReactDOMClient.createRoot(container);
