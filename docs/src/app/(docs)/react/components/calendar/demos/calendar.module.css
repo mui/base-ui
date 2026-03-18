@@ -36,6 +36,7 @@
 .DecrementMonth,
 .IncrementMonth {
   border: none;
+  -webkit-user-select: none;
   user-select: none;
   background-color: transparent;
   border-radius: 4px;
