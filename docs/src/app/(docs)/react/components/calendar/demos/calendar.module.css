@@ -44,8 +44,10 @@
   padding: 0;
   display: flex;
 
-  &:hover {
-    background-color: var(--calendar-button-hover-bg-color);
+  @media (hover: hover) {
+    &:hover {
+      background-color: var(--calendar-button-hover-bg-color);
+    }
   }
 
   &:focus-visible {
@@ -131,8 +133,10 @@
     }
   }
 
-  &:not([data-selected]):hover::before {
-    background-color: var(--calendar-button-hover-bg-color);
+  @media (hover: hover) {
+    &:not([data-selected]):hover::before {
+      background-color: var(--calendar-button-hover-bg-color);
+    }
   }
 
   &[data-selected]:not([data-outside-month]) {
