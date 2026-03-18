@@ -1,0 +1,77 @@
+# OTP Field
+
+<Subtitle>A one-time password input composed of individual digit slots.</Subtitle>
+
+<Meta
+  name="description"
+  content="A high-quality, unstyled React OTP field component for one-time password and verification code entry."
+/>
+
+import { DemoOTPFieldHero } from './demos/hero';
+
+> **Note:** OTP Field is currently in preview. Its API may change before it becomes stable.
+
+<DemoOTPFieldHero />
+
+## Usage guidelines
+
+- **Form controls must have an accessible name**: It can be created using a `<label>` element or the `Field` component. See the [forms guide](/react/handbook/forms).
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { OTPField } from '@base-ui/react/otp-field';
+
+<OTPField.Root>
+  <OTPField.Group>
+    <OTPField.Input />
+  </OTPField.Group>
+</OTPField.Root>;
+```
+
+## Examples
+
+### Form integration
+
+Use [Field](/react/components/field) to handle label associations and form integration:
+
+```tsx title="Using OTP Field in a form" {2}
+<Form>
+  <Field.Root name="verificationCode">
+    <Field.Label>Verification code</Field.Label>
+    <Field.Description>Enter the 6-digit code we sent to your device.</Field.Description>
+    <OTPField.Root length={6}>
+      <OTPField.Group>
+        <OTPField.Input aria-label="Digit 1 of 6" />
+        <OTPField.Input aria-label="Digit 2 of 6" />
+        <OTPField.Input aria-label="Digit 3 of 6" />
+        <OTPField.Input aria-label="Digit 4 of 6" />
+        <OTPField.Input aria-label="Digit 5 of 6" />
+        <OTPField.Input aria-label="Digit 6 of 6" />
+      </OTPField.Group>
+    </OTPField.Root>
+  </Field.Root>
+</Form>
+```
+
+## API reference
+
+<Reference component="OTPField" parts="Root, Group, Input" />
+
+export const metadata = {
+  keywords: [
+    'React OTP Field',
+    'One-Time Password Input',
+    'Verification Code Input',
+    'OTP Input Component',
+    'Passcode Input',
+    'Two-Factor Authentication Input',
+    '2FA Input',
+    'Multi-Slot Input',
+    'Accessible OTP Field',
+    'Headless React Components',
+    'Base UI',
+  ],
+};
