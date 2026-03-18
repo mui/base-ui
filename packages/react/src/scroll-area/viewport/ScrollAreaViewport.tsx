@@ -288,11 +288,10 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 
   useIsoLayoutEffect(() => {
     if (!viewportRef.current) {
-      return undefined;
+      return;
     }
 
     removeCSSVariableInheritance();
-    return undefined;
   }, [viewportRef]);
 
   useIsoLayoutEffect(() => {
