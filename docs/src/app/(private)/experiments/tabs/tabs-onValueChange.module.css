@@ -132,9 +132,7 @@
 }
 
 .panelGhost {
-  background:
-    linear-gradient(135deg, rgb(239 68 68 / 0.08), transparent 65%),
-    white;
+  background: linear-gradient(135deg, rgb(239 68 68 / 0.08), transparent 65%), white;
 }
 
 .logCard {
@@ -187,5 +185,3 @@
     grid-template-columns: 1fr;
   }
 }
-
-

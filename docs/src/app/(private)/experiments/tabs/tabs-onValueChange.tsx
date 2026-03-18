@@ -33,7 +33,9 @@ const INITIAL_TABS: TabConfig[] = [
 export default function TabsRegressionExperiment() {
   const [tabs, setTabs] = React.useState(INITIAL_TABS);
   const [defaultValueInput, setDefaultValueInput] = React.useState('0');
-  const [appliedDefaultValue, setAppliedDefaultValue] = React.useState<Tabs.Tab.Value | undefined>(0);
+  const [appliedDefaultValue, setAppliedDefaultValue] = React.useState<Tabs.Tab.Value | undefined>(
+    0,
+  );
   const [mountKey, setMountKey] = React.useState(0);
   const [events, setEvents] = React.useState<ChangeEventEntry[]>([]);
 
