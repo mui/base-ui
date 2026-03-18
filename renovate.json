@@ -22,7 +22,8 @@
       "allowedVersions": "!/-dev/"
     },
     {
-      "groupName": "JSDom",
+      "groupName": "JSDOM",
+      "description": "v28 is causing further performance issues and timeouts in our tests, so we will stay on v27 until the issues are resolved. https://github.com/mui/base-ui/pull/4372",
       "matchPackageNames": ["jsdom"],
       "allowedVersions": "<28"
     }
