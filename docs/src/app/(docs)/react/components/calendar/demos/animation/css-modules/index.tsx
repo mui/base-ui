@@ -3,7 +3,6 @@ import * as React from 'react';
 import clsx from 'clsx';
 import { format } from 'date-fns/format';
 import { Calendar } from '@base-ui/react/calendar';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import styles from '../../calendar.module.css';
 import indexStyles from './index.module.css';
 
@@ -14,7 +13,7 @@ export default function AnimatedCalendar() {
         <React.Fragment>
           <header className={styles.Header}>
             <Calendar.DecrementMonth className={styles.DecrementMonth}>
-              <ChevronLeft />
+              <ChevronLeftIcon />
             </Calendar.DecrementMonth>
             <div className={indexStyles.HeaderLabelWrapper}>
               <Calendar.Viewport>
@@ -24,7 +23,7 @@ export default function AnimatedCalendar() {
               </Calendar.Viewport>
             </div>
             <Calendar.IncrementMonth className={styles.IncrementMonth}>
-              <ChevronRight />
+              <ChevronRightIcon />
             </Calendar.IncrementMonth>
           </header>
           <Calendar.DayGrid className={clsx(styles.DayGrid, indexStyles.DayGrid)}>
@@ -64,5 +63,41 @@ export default function AnimatedCalendar() {
         </React.Fragment>
       )}
     </Calendar.Root>
+  );
+}
+
+function ChevronLeftIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentcolor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="m15 18-6-6 6-6" />
+    </svg>
+  );
+}
+
+function ChevronRightIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentcolor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="m9 18 6-6-6-6" />
+    </svg>
   );
 }

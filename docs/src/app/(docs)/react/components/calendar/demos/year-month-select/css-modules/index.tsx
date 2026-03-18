@@ -4,7 +4,6 @@ import { format } from 'date-fns/format';
 import { getMonth } from 'date-fns/getMonth';
 import { getYear } from 'date-fns/getYear';
 import { Calendar } from '@base-ui/react/calendar';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import styles from '../../calendar.module.css';
 import indexStyles from './index.module.css';
 
@@ -26,7 +25,7 @@ function CalendarContent() {
     <React.Fragment>
       <header className={styles.Header}>
         <Calendar.DecrementMonth className={styles.DecrementMonth}>
-          <ChevronLeft />
+          <ChevronLeftIcon />
         </Calendar.DecrementMonth>
         <select
           className={indexStyles.Select}
@@ -65,7 +64,7 @@ function CalendarContent() {
           ))}
         </select>
         <Calendar.IncrementMonth className={styles.IncrementMonth}>
-          <ChevronRight />
+          <ChevronRightIcon />
         </Calendar.IncrementMonth>
       </header>
       <Calendar.DayGrid className={styles.DayGrid}>
@@ -105,5 +104,41 @@ export default function ExampleCalendarYearMonthSelect() {
     <Calendar.Root className={styles.Root}>
       <CalendarContent />
     </Calendar.Root>
+  );
+}
+
+function ChevronLeftIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentcolor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="m15 18-6-6 6-6" />
+    </svg>
+  );
+}
+
+function ChevronRightIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentcolor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="m9 18 6-6-6-6" />
+    </svg>
   );
 }
