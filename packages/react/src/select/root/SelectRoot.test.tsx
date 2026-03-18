@@ -965,24 +965,33 @@ describe('<Select.Root />', () => {
     });
 
     it('recomputes positioning before the popup becomes visible again after touch dismiss', async () => {
-      ignoreActWarnings();
-      const actionsRef = React.createRef<Select.Root.Actions>();
+      const onOpenChangeComplete = vi.fn();
 
-      await render(
-        <div style={{ paddingTop: 700 }}>
-          <button data-testid="outside">Outside</button>
-          <Select.Root actionsRef={actionsRef}>
-            <Select.Trigger>Open</Select.Trigger>
-            <Select.Portal>
-              <Select.Positioner data-testid="positioner">
-                <Select.Popup style={{ width: 120, height: 300 }}>
-                  <Select.Item>Item</Select.Item>
-                </Select.Popup>
-              </Select.Positioner>
-            </Select.Portal>
-          </Select.Root>
-        </div>,
-      );
+      function Test() {
+        const [open, setOpen] = React.useState(false);
+
+        return (
+          <div style={{ paddingTop: 700 }}>
+            <button data-testid="outside">Outside</button>
+            <Select.Root
+              open={open}
+              onOpenChange={setOpen}
+              onOpenChangeComplete={onOpenChangeComplete}
+            >
+              <Select.Trigger>Open</Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner data-testid="positioner">
+                  <Select.Popup style={{ width: 120, height: 300 }}>
+                    <Select.Item>Item</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
 
       const trigger = screen.getByRole('combobox');
       const outside = screen.getByTestId('outside');
@@ -1006,11 +1015,9 @@ describe('<Select.Root />', () => {
       fireEvent.pointerDown(outside, { pointerType: 'touch' });
       fireEvent.mouseDown(outside);
 
-      await act(async () => {
-        actionsRef.current?.unmount();
-      });
-
       await waitFor(() => {
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+        expect(onOpenChangeComplete.mock.calls.some(([value]) => value === false)).toBe(true);
         expect(screen.getByTestId('positioner').style.opacity).toBe('0');
       });
 
@@ -1023,6 +1030,8 @@ describe('<Select.Root />', () => {
       const reopenedPositioner = screen.getByTestId('positioner');
       expect(reopenedPositioner).toHaveAttribute('data-side', 'top');
       expect(reopenedPositioner.style.getPropertyValue('--available-height')).toBe(availableHeight);
+
+      await user.click(outside);
     });
   });
 
