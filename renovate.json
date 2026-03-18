@@ -20,6 +20,11 @@
       "groupName": "MUI public packages",
       "matchPackageNames": ["@mui/*", "!@mui/internal-*", "!@mui/docs"],
       "allowedVersions": "!/-dev/"
+    },
+    {
+      "groupName": "JSDom",
+      "matchPackageNames": ["jsdom"],
+      "allowedVersions": "<28"
     }
   ]
 }
