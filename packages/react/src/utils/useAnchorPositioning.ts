@@ -322,29 +322,26 @@ export function useAnchorPositioning(
   }
 
   middleware.push(
-    size(
-      {
-        ...commonCollisionProps,
-        apply({ elements: { floating }, availableWidth, availableHeight, rects }) {
-          if (!mountedRef.current) {
-            return;
-          }
-          const floatingStyle = floating.style;
-          floatingStyle.setProperty('--available-width', `${availableWidth}px`);
-          floatingStyle.setProperty('--available-height', `${availableHeight}px`);
+    size({
+      ...commonCollisionProps,
+      apply({ elements: { floating }, availableWidth, availableHeight, rects }) {
+        if (!mountedRef.current) {
+          return;
+        }
+        const floatingStyle = floating.style;
+        floatingStyle.setProperty('--available-width', `${availableWidth}px`);
+        floatingStyle.setProperty('--available-height', `${availableHeight}px`);
 
-          // Snap anchor dimensions to device pixels to ensure the popup's visual width matches the anchor's one.
-          const dpr = window.devicePixelRatio || 1;
-          const { x, y, width, height } = rects.reference;
-          const anchorWidth = (Math.round((x + width) * dpr) - Math.round(x * dpr)) / dpr;
-          const anchorHeight = (Math.round((y + height) * dpr) - Math.round(y * dpr)) / dpr;
+        // Snap anchor dimensions to device pixels to ensure the popup's visual width matches the anchor's one.
+        const dpr = window.devicePixelRatio || 1;
+        const { x, y, width, height } = rects.reference;
+        const anchorWidth = (Math.round((x + width) * dpr) - Math.round(x * dpr)) / dpr;
+        const anchorHeight = (Math.round((y + height) * dpr) - Math.round(y * dpr)) / dpr;
 
-          floatingStyle.setProperty('--anchor-width', `${anchorWidth}px`);
-          floatingStyle.setProperty('--anchor-height', `${anchorHeight}px`);
-        },
+        floatingStyle.setProperty('--anchor-width', `${anchorWidth}px`);
+        floatingStyle.setProperty('--anchor-height', `${anchorHeight}px`);
       },
-      [],
-    ),
+    }),
     arrow(
       () => ({
         // `transform-origin` calculations rely on an element existing. If the arrow hasn't been set,
