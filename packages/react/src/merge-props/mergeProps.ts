@@ -141,7 +141,6 @@ function copyPropsWithWrappedEventHandlers<T extends ElementType>(
 ) {
   const copiedProps = { ...inputProps } as Record<string, any>;
 
-  // eslint-disable-next-line guard-for-in
   for (const propName in copiedProps) {
     if (isEventHandler(propName, copiedProps[propName])) {
       copiedProps[propName] = wrapEventHandler(copiedProps[propName]);
