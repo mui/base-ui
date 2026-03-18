@@ -61,6 +61,10 @@ export function mergeProps<T extends ElementType>(
 ): PropsOf<T>;
 export function mergeProps<T extends ElementType>(a: InputProps<T>, b: InputProps<T>): PropsOf<T>;
 export function mergeProps(a: any, b: any, c?: any, d?: any, e?: any) {
+  if (!c && !d && !e && !a) {
+    return createInitialMergedProps(b);
+  }
+
   let merged = createInitialMergedProps(a);
 
   if (b) {
@@ -104,7 +108,7 @@ export function mergePropsN<T extends ElementType>(props: InputProps<T>[]): Prop
       return resolvePropsGetter(firstProps, EMPTY_PROPS) as PropsOf<T>;
     }
 
-    return mutablyMergeInto({}, firstProps) as PropsOf<T>;
+    return copyPropsWithWrappedEventHandlers(firstProps) as PropsOf<T>;
   }
 
   let merged = createInitialMergedProps(props[0]);
@@ -129,7 +133,22 @@ function createInitialMergedProps<T extends ElementType>(inputProps: InputProps<
     return { ...resolvePropsGetter(inputProps, EMPTY_PROPS) };
   }
 
-  return mutablyMergeInto({}, inputProps);
+  return copyPropsWithWrappedEventHandlers(inputProps);
+}
+
+function copyPropsWithWrappedEventHandlers<T extends ElementType>(
+  inputProps: React.ComponentPropsWithRef<T> | undefined,
+) {
+  const copiedProps = { ...inputProps } as Record<string, any>;
+
+  // eslint-disable-next-line guard-for-in
+  for (const propName in copiedProps) {
+    if (isEventHandler(propName, copiedProps[propName])) {
+      copiedProps[propName] = wrapEventHandler(copiedProps[propName]);
+    }
+  }
+
+  return copiedProps;
 }
 
 /**
