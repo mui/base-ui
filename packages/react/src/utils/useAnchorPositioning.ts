@@ -425,7 +425,7 @@ export function useAnchorPositioning(
     floatingStyles: originalFloatingStyles,
   } = useFloating({
     rootContext: floatingRootContext,
-    open: mounted,
+    open: keepMounted ? mounted : undefined,
     placement,
     middleware,
     strategy: positionMethod,
