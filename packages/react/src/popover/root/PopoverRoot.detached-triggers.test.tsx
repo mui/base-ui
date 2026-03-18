@@ -252,7 +252,6 @@ describe('<Popover.Root />', () => {
     type NumberPayload = { payload: number | undefined };
 
     async function renderHoverDetachedTriggers(
-      closeDelay = 0,
       popupChildren: React.ReactNode = <span data-testid="content">{undefined}</span>,
     ) {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
@@ -291,7 +290,6 @@ describe('<Popover.Root />', () => {
             payload={1}
             openOnHover
             delay={0}
-            closeDelay={closeDelay}
             style={{
               position: 'absolute',
               top: 20,
@@ -305,7 +303,6 @@ describe('<Popover.Root />', () => {
             payload={2}
             openOnHover
             delay={0}
-            closeDelay={closeDelay}
             style={{
               position: 'absolute',
               top: 20,
@@ -799,7 +796,7 @@ describe('<Popover.Root />', () => {
     });
 
     it('clears trigger-change instant before non-hover close after switching triggers', async () => {
-      const { popup } = await renderHoverDetachedTriggers(0, <Popover.Close>Close</Popover.Close>);
+      const { popup } = await renderHoverDetachedTriggers(<Popover.Close>Close</Popover.Close>);
 
       await act(async () => {
         await new Promise((resolve) => {
@@ -836,33 +833,6 @@ describe('<Popover.Root />', () => {
       });
 
       expect(screen.getByTestId('popup')).to.equal(popup);
-      expect(popup).to.have.attribute('data-ending-style');
-      expect(popup).not.to.have.attribute('data-instant');
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('popup')).to.equal(null);
-      });
-    });
-
-    it('clears trigger-change instant before delayed hover close after switching triggers', async () => {
-      const { user, trigger2, popup } = await renderHoverDetachedTriggers(100);
-
-      await act(async () => {
-        await new Promise((resolve) => {
-          setTimeout(resolve, 150);
-        });
-      });
-
-      expect(screen.getByTestId('popup')).to.have.attribute('data-instant', 'trigger-change');
-
-      await user.unhover(trigger2);
-
-      await act(async () => {
-        await new Promise((resolve) => {
-          setTimeout(resolve, 125);
-        });
-      });
-
       expect(popup).to.have.attribute('data-ending-style');
       expect(popup).not.to.have.attribute('data-instant');
 

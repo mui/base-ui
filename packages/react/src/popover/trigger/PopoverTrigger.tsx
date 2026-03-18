@@ -273,7 +273,7 @@ export type PopoverTriggerProps<Payload = unknown> = NativeButtonProps &
      * Specified in milliseconds.
      *
      * Requires the `openOnHover` prop.
-     * @default 100
+     * @default 0
      */
     closeDelay?: number | undefined;
   };

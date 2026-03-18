@@ -294,9 +294,7 @@ describe('<Popover.Root />', () => {
       });
 
       it('bypasses open delay when re-hovering the same trigger shortly after hover close', async () => {
-        await render(
-          <TestPopover triggerProps={{ openOnHover: true, delay: OPEN_DELAY_MS, closeDelay: 0 }} />,
-        );
+        await render(<TestPopover triggerProps={{ openOnHover: true, delay: OPEN_DELAY_MS }} />);
 
         const anchor = screen.getByRole('button', { name: 'Toggle' });
 
@@ -319,9 +317,7 @@ describe('<Popover.Root />', () => {
       });
 
       it('restores open delay after the hover-close grace period expires', async () => {
-        await render(
-          <TestPopover triggerProps={{ openOnHover: true, delay: OPEN_DELAY_MS, closeDelay: 0 }} />,
-        );
+        await render(<TestPopover triggerProps={{ openOnHover: true, delay: OPEN_DELAY_MS }} />);
 
         const anchor = screen.getByRole('button', { name: 'Toggle' });
 
@@ -347,9 +343,7 @@ describe('<Popover.Root />', () => {
       });
 
       it('does not reuse hover-close grace after a click open/close cycle', async () => {
-        await render(
-          <TestPopover triggerProps={{ openOnHover: true, delay: OPEN_DELAY_MS, closeDelay: 0 }} />,
-        );
+        await render(<TestPopover triggerProps={{ openOnHover: true, delay: OPEN_DELAY_MS }} />);
 
         const anchor = screen.getByRole('button', { name: 'Toggle' });
 
@@ -390,7 +384,7 @@ describe('<Popover.Root />', () => {
               <button onClick={() => setOpen(false)}>Programmatic close</button>
               <TestPopover
                 rootProps={{ open, onOpenChange: setOpen }}
-                triggerProps={{ openOnHover: true, delay: OPEN_DELAY_MS, closeDelay: 0 }}
+                triggerProps={{ openOnHover: true, delay: OPEN_DELAY_MS }}
               />
             </React.Fragment>
           );
@@ -443,7 +437,7 @@ describe('<Popover.Root />', () => {
                     setOpen(nextOpen);
                   },
                 }}
-                triggerProps={{ openOnHover: true, delay: OPEN_DELAY_MS, closeDelay: 0 }}
+                triggerProps={{ openOnHover: true, delay: OPEN_DELAY_MS }}
               />
             </React.Fragment>
           );
@@ -491,7 +485,7 @@ describe('<Popover.Root />', () => {
                     }
                   },
                 }}
-                triggerProps={{ openOnHover: true, delay: OPEN_DELAY_MS, closeDelay: 0 }}
+                triggerProps={{ openOnHover: true, delay: OPEN_DELAY_MS }}
               />
             </React.Fragment>
           );
@@ -533,7 +527,7 @@ describe('<Popover.Root />', () => {
           return (
             <TestPopover
               rootProps={{ open, onOpenChange: setOpen }}
-              triggerProps={{ openOnHover: true, delay: OPEN_DELAY_MS, closeDelay: 0 }}
+              triggerProps={{ openOnHover: true, delay: OPEN_DELAY_MS }}
             />
           );
         }
@@ -569,7 +563,7 @@ describe('<Popover.Root />', () => {
                     }
                   },
                 }}
-                triggerProps={{ openOnHover: true, delay: OPEN_DELAY_MS, closeDelay: 0 }}
+                triggerProps={{ openOnHover: true, delay: OPEN_DELAY_MS }}
               />
             </React.Fragment>
           );
@@ -741,7 +735,7 @@ describe('<Popover.Root />', () => {
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <input type="text" data-testid="first-input" />
             <TestPopover
-              triggerProps={{ openOnHover: true, delay: 0, closeDelay: 0 }}
+              triggerProps={{ openOnHover: true, delay: 0 }}
               popupProps={{ className: 'popup', children: null }}
             />
             <input type="text" data-testid="last-input" />
@@ -1781,10 +1775,10 @@ describe('<Popover.Root />', () => {
 
       await render(
         <React.Fragment>
-          <Popover.Trigger handle={popoverHandle} openOnHover delay={100} closeDelay={0}>
+          <Popover.Trigger handle={popoverHandle} openOnHover delay={100}>
             Trigger 1
           </Popover.Trigger>
-          <Popover.Trigger handle={popoverHandle} openOnHover delay={100} closeDelay={0}>
+          <Popover.Trigger handle={popoverHandle} openOnHover delay={100}>
             Trigger 2
           </Popover.Trigger>
           <Popover.Root handle={popoverHandle}>
