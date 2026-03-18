@@ -6,9 +6,8 @@ import { Calendar } from '@base-ui/react/calendar';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import styles from './calendar.module.css';
 
-const today = new Date();
-
 export default function CalendarValidation() {
+  const today = new Date();
   return (
     <Calendar.Root
       className={styles.Root}
