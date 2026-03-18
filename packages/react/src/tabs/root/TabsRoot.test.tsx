@@ -624,8 +624,6 @@ describe('<Tabs.Root />', () => {
         </Tabs.Root>,
       );
 
-      await flushMicrotasks();
-
       // onValueChange should be called with the first tab (0)
       expect(handleChange.mock.calls.length).toBe(1);
       expect(handleChange.mock.calls[0][0]).toBe(0);
@@ -650,8 +648,6 @@ describe('<Tabs.Root />', () => {
           </Tabs.List>
         </Tabs.Root>,
       );
-
-      await flushMicrotasks();
 
       // onValueChange should be called with the first enabled tab (1)
       expect(handleChange.mock.calls.length).toBe(1);
@@ -678,8 +674,6 @@ describe('<Tabs.Root />', () => {
         </Tabs.Root>,
       );
 
-      await flushMicrotasks();
-
       expect(handleChange.mock.calls.length).toBe(0);
 
       const tabs = screen.getAllByRole('tab');
@@ -700,8 +694,6 @@ describe('<Tabs.Root />', () => {
         </Tabs.Root>,
       );
 
-      await flushMicrotasks();
-
       // onValueChange should NOT be called because user provided explicit defaultValue
       expect(handleChange.mock.calls.length).toBe(0);
 
@@ -721,8 +713,6 @@ describe('<Tabs.Root />', () => {
           </Tabs.List>
         </Tabs.Root>,
       );
-
-      await flushMicrotasks();
 
       expect(handleChange.mock.calls.length).toBe(1);
       expect(handleChange.mock.calls[0][0]).toBe(0);
@@ -746,8 +736,6 @@ describe('<Tabs.Root />', () => {
           </Tabs.List>
         </Tabs.Root>,
       );
-
-      await flushMicrotasks();
 
       expect(handleChange.mock.calls.length).toBe(1);
       expect(handleChange.mock.calls[0][0]).toBe(1);
@@ -775,8 +763,6 @@ describe('<Tabs.Root />', () => {
       }
 
       const { setProps } = await render(<TestComponent disableFirst={true} />);
-
-      await flushMicrotasks();
 
       expect(handleChange.mock.calls.length).toBe(0);
 
@@ -835,8 +821,6 @@ describe('<Tabs.Root />', () => {
         </Tabs.Root>,
       );
 
-      await flushMicrotasks();
-
       expect(handleChange.mock.calls.length).toBe(1);
       expect(handleChange.mock.calls[0][0]).toBe(0);
       expect(handleChange.mock.calls[0][1].reason).toBe('missing');
@@ -857,8 +841,6 @@ describe('<Tabs.Root />', () => {
           </Tabs.List>
         </Tabs.Root>,
       );
-
-      await flushMicrotasks();
 
       expect(handleChange.mock.calls.length).toBe(1);
       expect(handleChange.mock.calls[0][0]).toBe(1);
@@ -881,8 +863,6 @@ describe('<Tabs.Root />', () => {
           </Tabs.List>
         </Tabs.Root>,
       );
-
-      await flushMicrotasks();
 
       // onValueChange should NOT be called in controlled mode
       expect(handleChange.mock.calls.length).toBe(0);
