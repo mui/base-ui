@@ -61,8 +61,8 @@ export const ComboboxInputGroup = React.forwardRef(function ComboboxInputGroup(
   return useRenderElement('div', componentProps, {
     ref: [forwardedRef, setInputGroupElement],
     props: [
-      { role: 'group' },
       {
+        role: 'group',
         onMouseDown(event: BaseUIEvent<React.MouseEvent<HTMLDivElement>>) {
           handleInputPress(event, store, disabled, readOnly, (target) => {
             return contains(store.state.chipsContainerRef.current, target);
