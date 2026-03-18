@@ -326,7 +326,7 @@ export function useAnchorPositioning(
       {
         ...commonCollisionProps,
         apply({ elements: { floating }, availableWidth, availableHeight, rects }) {
-          if (keepMounted && !mountedRef.current) {
+          if (!mountedRef.current) {
             return;
           }
           const floatingStyle = floating.style;
@@ -343,7 +343,7 @@ export function useAnchorPositioning(
           floatingStyle.setProperty('--anchor-height', `${anchorHeight}px`);
         },
       },
-      [keepMounted, mountedRef],
+      [],
     ),
     arrow(
       () => ({
