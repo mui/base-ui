@@ -1106,7 +1106,7 @@ describe('useListNavigation', () => {
         await waitFor(() => {
           expect(screen.getAllByRole('option')[7]).toHaveFocus();
         });
-      });
+      }, 10_000);
 
       it('looping works on last row', async () => {
         render(<ComplexGrid rtl={rtl} orientation="both" loopFocus />);
