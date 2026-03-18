@@ -171,11 +171,20 @@ export const SelectItem = React.memo(
         }
       },
       onMouseLeave(event) {
-        if (!highlightItemOnHover || keyboardActiveRef.current || isMouseWithinBounds(event)) {
+        if (
+          !highlightItemOnHover ||
+          keyboardActiveRef.current ||
+          pointerTypeRef.current === 'touch' ||
+          isMouseWithinBounds(event)
+        ) {
           return;
         }
 
         highlightTimeout.start(0, () => {
+          if (pointerTypeRef.current === 'touch') {
+            return;
+          }
+
           if (store.state.activeIndex === index) {
             store.set('activeIndex', null);
           }
