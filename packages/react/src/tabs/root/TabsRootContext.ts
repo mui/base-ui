@@ -5,6 +5,10 @@ import type { TabsRoot } from './TabsRoot';
 
 export interface TabsRootContext {
   /**
+   * Whether panels whose matching tab has not rendered yet should stay hidden.
+   */
+  hidePanelsWithoutMatchingTab: boolean;
+  /**
    * The currently active tab's value.
    */
   value: TabsTab.Value;

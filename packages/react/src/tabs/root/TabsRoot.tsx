@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import type { BaseUIComponentProps, Orientation as BaseOrientation } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { CompositeList } from '../../composite/list/CompositeList';
@@ -65,6 +66,8 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   const [tabActivationDirection, setTabActivationDirection] =
     React.useState<TabsTab.ActivationDirection>('none');
+  const [hidePanelsWithoutMatchingTab, setHidePanelsWithoutMatchingTab] = React.useState(false);
+  const noRenderedTabsTimeout = useTimeout();
 
   const onValueChange = useStableCallback(
     (newValue: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => {
@@ -148,6 +151,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   const tabsContextValue: TabsRootContext = React.useMemo(
     () => ({
+      hidePanelsWithoutMatchingTab,
       direction,
       getTabElementBySelectedValue,
       getTabIdByPanelValue,
@@ -161,6 +165,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       value,
     }),
     [
+      hidePanelsWithoutMatchingTab,
       direction,
       getTabElementBySelectedValue,
       getTabIdByPanelValue,
@@ -197,17 +202,11 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   // Automatically switch to the first enabled tab when:
   // - Initial render with no explicit value (fires onValueChange with 'initial' reason)
-  // - The current selection is disabled (and wasn't explicitly set via defaultValue on initial render)
+  // - The current selection is disabled
   // - The current selection is missing (no rendered tab matches the current value)
   // Falls back to null if all tabs are disabled and preserves that empty selection on later renders.
   const hasRunOnceRef = React.useRef(false);
   const hasRegisteredTabRef = React.useRef(false);
-
-  // When `defaultValue` explicitly points to a disabled tab, we honor that choice
-  // on mount (keeping the disabled tab selected). But once the tab becomes enabled
-  // and then disabled again, we treat it as a dynamic change and fire onValueChange.
-  // This ref tracks whether the initial "honor disabled default" grace period is active.
-  const honorDisabledDefaultRef = React.useRef(false);
 
   useIsoLayoutEffect(() => {
     if (tabMap.size > 0) {
@@ -220,28 +219,6 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     const selectionIsDisabled = selectedTabMetadata?.disabled === true;
     const selectionIsMissing = selectedTabMetadata == null && value !== null;
     const isInitialRun = !hasRunOnceRef.current;
-
-    // On the first run, record whether we're in the "honor disabled default" scenario.
-    if (isInitialRun) {
-      honorDisabledDefaultRef.current =
-        hasExplicitDefaultValueProp && value === resolvedDefaultValue && selectionIsDisabled;
-    }
-
-    // Expire the grace period once the tab is no longer the default or no longer disabled
-    // (e.g., the tab was enabled then disabled again — that's a dynamic change).
-    if (
-      honorDisabledDefaultRef.current &&
-      (value !== resolvedDefaultValue || !selectionIsDisabled)
-    ) {
-      honorDisabledDefaultRef.current = false;
-    }
-
-    // Honor the user's explicit defaultValue pointing to a disabled tab while
-    // the grace period is still active. No fallback, no callback.
-    if (honorDisabledDefaultRef.current) {
-      hasRunOnceRef.current = true;
-      return;
-    }
 
     hasRunOnceRef.current = true;
 
@@ -298,13 +275,30 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     hasExplicitDefaultValueProp,
     isControlled,
     onValueChange,
-    resolvedDefaultValue,
     selectedTabMetadata,
     setTabActivationDirection,
     setValue,
     tabMap,
     value,
   ]);
+
+  useIsoLayoutEffect(() => {
+    if (tabMap.size > 0 || mountedTabPanels.size === 0 || value === null) {
+      noRenderedTabsTimeout.clear();
+      setHidePanelsWithoutMatchingTab(false);
+      return undefined;
+    }
+
+    noRenderedTabsTimeout.start(0, () => {
+      if (tabMap.size > 0 || mountedTabPanels.size === 0 || value === null) {
+        return;
+      }
+
+      setHidePanelsWithoutMatchingTab(true);
+    });
+
+    return noRenderedTabsTimeout.clear;
+  }, [mountedTabPanels, noRenderedTabsTimeout, tabMap, value]);
 
   const state: TabsRootState = {
     orientation,
