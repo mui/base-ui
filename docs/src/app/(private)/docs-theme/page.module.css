@@ -14,7 +14,6 @@
   font-family: var(--font-sans-b);
   font-size: var(--font-size-9);
   line-height: var(--line-height-9);
-  letter-spacing: var(--letter-spacing-9);
   font-weight: var(--font-weight-2);
 }
 
@@ -41,7 +40,6 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-1);
   line-height: var(--line-height-1);
-  letter-spacing: var(--letter-spacing-1);
 }
 
 .colorMatrixSection + .colorMatrixSection {
@@ -70,7 +68,6 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-1);
   line-height: var(--line-height-1);
-  letter-spacing: var(--letter-spacing-1);
 }
 
 .colorMatrixHeaderCell {
@@ -78,7 +75,6 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-1);
   line-height: var(--line-height-1);
-  letter-spacing: var(--letter-spacing-1);
   text-transform: lowercase;
   text-align: center;
 }
@@ -111,7 +107,6 @@
   font-family: var(--font-mono);
   font-size: var(--font-size-1);
   line-height: var(--line-height-1);
-  letter-spacing: var(--letter-spacing-1);
   opacity: 0;
   pointer-events: none;
 }
@@ -186,7 +181,6 @@
   margin: var(--space-2) 0 0;
   font-size: var(--font-size-4);
   line-height: var(--line-height-4);
-  letter-spacing: var(--letter-spacing-4);
 }
 
 .typeScale {
