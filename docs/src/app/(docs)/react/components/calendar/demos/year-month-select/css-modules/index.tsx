@@ -43,7 +43,7 @@ function CalendarContent() {
               }
             }}
           >
-            <Select.Trigger className={indexStyles.Select} data-month-select>
+            <Select.Trigger className={indexStyles.Select} aria-label="Month" data-month-select>
               <Select.Value>{(value: number) => MONTHS[value]}</Select.Value>
               <Select.Icon className={indexStyles.SelectIcon}>
                 <ChevronUpDownIcon />
@@ -81,7 +81,7 @@ function CalendarContent() {
               }
             }}
           >
-            <Select.Trigger className={indexStyles.Select}>
+            <Select.Trigger className={indexStyles.Select} aria-label="Year">
               <Select.Value />
               <Select.Icon className={indexStyles.SelectIcon}>
                 <ChevronUpDownIcon />
