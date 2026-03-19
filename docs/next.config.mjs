@@ -68,6 +68,20 @@ function loadPackageJson() {
 
 const rootPackage = loadPackageJson();
 
+/** @type {import('@mui/internal-docs-infra/pipeline/loadPrecomputedTypes').LoaderOptions} */
+const typesGenerationOptions = {
+  socketDir: '.next/docs-infra',
+  updateParentIndex: {
+    baseDir,
+    onlyUpdateIndexes: true,
+  },
+  ordering,
+  descriptionReplacements: [
+    { pattern: '\\n\\nDocumentation: .*$', replacement: '', flags: 'm' },
+    { pattern: 'Base UI', replacement: 'Base UI', flags: 'g' },
+  ],
+};
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   trailingSlash: false,
@@ -79,14 +93,7 @@ const nextConfig = {
         loaders: [
           {
             loader: '@mui/internal-docs-infra/pipeline/loadPrecomputedTypes',
-            options: {
-              socketDir: '.next/cache/docs-infra/types-meta-worker',
-              updateParentIndex: {
-                baseDir,
-                onlyUpdateIndexes: true,
-              },
-              ordering,
-            },
+            options: typesGenerationOptions,
           },
         ],
       },
@@ -107,23 +114,12 @@ const nextConfig = {
   webpack: (config, { defaultLoaders }) => {
     // for production builds
     config.module.rules.push({
-      test: /[/\\\\]app[/\\\\].*[/\\\\]types\.ts$/,
+      test: /[/\\\\]src[/\\\\]app[/\\\\].*[/\\\\]types\.ts$/,
       use: [
         defaultLoaders.babel,
         {
           loader: '@mui/internal-docs-infra/pipeline/loadPrecomputedTypes',
-          options: {
-            socketDir: '.next/cache/docs-infra/types-meta-worker',
-            updateParentIndex: {
-              baseDir,
-              onlyUpdateIndexes: true,
-            },
-            ordering,
-            descriptionReplacements: [
-              { pattern: '\\n\\nDocumentation: .*$', replacement: '', flags: 'm' },
-              { pattern: 'Base UI', replacement: 'Base UI', flags: 'g' },
-            ],
-          },
+          options: typesGenerationOptions,
         },
       ],
     });
