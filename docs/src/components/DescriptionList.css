@@ -59,7 +59,7 @@
   .DescriptionListDetails {
     font-size: var(--text-sm);
     line-height: var(--text-sm--line-height);
-    letter-spacing: var(--text-sm--letter-spacing);
+
     color: var(--color-foreground);
     grid-column: span 2;
   }

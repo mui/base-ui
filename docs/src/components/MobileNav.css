@@ -70,7 +70,6 @@
 
     font-size: var(--text-base);
     line-height: var(--text-base--line-height);
-    letter-spacing: var(--text-base--letter-spacing);
 
     /* Native apps don't show scrollbars on sheets like this */
     scrollbar-width: none;
@@ -157,7 +156,6 @@
   .MobileNavHeading {
     font-size: var(--text-lg);
     line-height: var(--text-lg--line-height);
-    letter-spacing: var(--text-lg--letter-spacing);
     font-weight: 700;
     padding-inline: var(--mobile-nav-item-padding-x);
 

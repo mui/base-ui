@@ -2,7 +2,6 @@
   .TableRoot {
     font-size: var(--text-sm);
     line-height: var(--text-sm--line-height);
-    letter-spacing: var(--text-sm--letter-spacing);
     color: var(--color-gray);
     border: 1px solid var(--color-gray-200);
     border-collapse: separate;
@@ -29,7 +28,6 @@
   .TableColumnHeader {
     text-align: initial;
     font-weight: 700;
-    letter-spacing: 0.00625em;
     color: var(--color-foreground);
     background-color: var(--color-gray-50);
     border-bottom: 1px solid var(--color-gray-200);

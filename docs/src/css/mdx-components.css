@@ -10,7 +10,6 @@
     font-family: var(--font-sans-b);
     font-size: var(--text-3xl);
     line-height: var(--text-3xl--line-height);
-    letter-spacing: var(--text-3xl--letter-spacing);
     font-weight: 700;
     text-wrap: balance;
   }
@@ -22,7 +21,6 @@
     font-family: var(--font-sans-b);
     font-size: var(--text-xl);
     line-height: var(--text-xl--line-height);
-    letter-spacing: var(--text-xl--letter-spacing);
     font-weight: 700;
     text-wrap: balance;
   }
@@ -34,7 +32,6 @@
     font-family: var(--font-sans-b);
     font-size: var(--text-lg);
     line-height: var(--text-lg--line-height);
-    letter-spacing: var(--text-lg--letter-spacing);
     font-weight: 700;
     text-wrap: balance;
   }

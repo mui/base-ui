@@ -20,7 +20,6 @@
 
     font-size: var(--text-md);
     line-height: var(--text-md--line-height);
-    letter-spacing: var(--text-md--letter-spacing);
     position: sticky;
     top: 0;
 
@@ -99,7 +98,6 @@
     display: inline-flex;
     padding-block: var(--side-nav-item-padding-y);
     font-weight: 400;
-    letter-spacing: 0.00625em;
     color: var(--color-gray-500);
   }
 
@@ -116,7 +114,6 @@
     border-block: 1px solid transparent; /* Maintain a 1px gap between active an inactive item */
     background-clip: padding-box;
     border-radius: var(--radius-md);
-    letter-spacing: var(--text-md--letter-spacing);
     user-select: none;
 
     @media (hover: hover) {
@@ -132,7 +129,6 @@
       outline: 1px solid var(--color-gray-200);
       outline-offset: -1px;
       font-weight: 400;
-      letter-spacing: 0.00625em;
       word-spacing: -0.005em;
       cursor: default;
     }
