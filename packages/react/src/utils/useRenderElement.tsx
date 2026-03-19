@@ -110,7 +110,8 @@ function useRenderElementProps<
 //
 // TODO delete once https://github.com/facebook/react/issues/32392 is fixed
 const REACT_LAZY_TYPE = Symbol.for('react.lazy');
-const COMPONENT_IDENTIFIER_PATTERN = /^[A-Z][A-Za-z0-9_$]*$/;
+const COMPONENT_IDENTIFIER_PATTERN = /^[A-Z][A-Za-z0-9$]*$/;
+const LOWERCASE_CHARACTER_PATTERN = /[a-z]/;
 
 function evaluateRenderProp<T extends React.ElementType, S>(
   element: IntrinsicTagName | undefined,
@@ -175,6 +176,10 @@ function warnIfRenderPropLooksLikeComponent(renderFn: { name: string }) {
   }
 
   if (!COMPONENT_IDENTIFIER_PATTERN.test(functionName)) {
+    return;
+  }
+
+  if (!LOWERCASE_CHARACTER_PATTERN.test(functionName)) {
     return;
   }
 
