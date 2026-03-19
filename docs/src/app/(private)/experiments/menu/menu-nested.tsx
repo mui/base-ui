@@ -17,7 +17,7 @@ export default function NestedMenu() {
         <Menu.Portal>
           <Menu.Positioner side="bottom" align="start" sideOffset={6}>
             <Menu.Popup className={styles.MenuPopup}>
-              <Menu.SubmenuRoot defaultOpen>
+              <Menu.SubmenuRoot>
                 <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>
                   Text color
                 </Menu.SubmenuTrigger>
