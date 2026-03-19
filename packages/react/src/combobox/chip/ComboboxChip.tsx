@@ -96,6 +96,8 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
         tabIndex: -1,
         'aria-disabled': disabled || undefined,
         'aria-readonly': readOnly || undefined,
+        // Keep chip mouse events preventable for parent press handlers.
+        onMouseDown() {},
         onKeyDown(event) {
           if (disabled || readOnly) {
             return;
@@ -112,18 +114,6 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
           } else {
             chipsRef.current[nextIndex]?.focus();
           }
-        },
-        onMouseDown(event) {
-          if (readOnly) {
-            return;
-          }
-
-          event.preventDefault();
-
-          if (disabled) {
-            return;
-          }
-          store.state.inputRef.current?.focus();
         },
       },
       elementProps,
