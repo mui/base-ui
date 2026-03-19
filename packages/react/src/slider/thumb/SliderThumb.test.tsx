@@ -326,56 +326,53 @@ describe('<Slider.Thumb />', () => {
   });
 
   describe('prop: thumbAlignment', () => {
-    it.skipIf(isJSDOM)(
-      'recomputes inset positions when the slider becomes visible',
-      async () => {
-        function App() {
-          const [visible, setVisible] = React.useState(false);
+    it.skipIf(isJSDOM)('recomputes inset positions when the slider becomes visible', async () => {
+      function App() {
+        const [visible, setVisible] = React.useState(false);
 
-          return (
-            <React.Fragment>
-              <button type="button" onClick={() => setVisible(true)}>
-                show
-              </button>
-              <div style={{ display: visible ? 'block' : 'none' }}>
-                <Slider.Root defaultValue={30} thumbAlignment="edge" style={{ width: '100px' }}>
-                  <Slider.Control
-                    data-testid="control"
-                    style={{ position: 'relative', width: '100%', height: '10px' }}
-                  >
-                    <Slider.Track style={{ position: 'relative', width: '100%', height: '10px' }}>
-                      <Slider.Indicator data-testid="indicator" />
-                      <Slider.Thumb data-testid="thumb" style={{ width: '10px', height: '10px' }} />
-                    </Slider.Track>
-                  </Slider.Control>
-                </Slider.Root>
-              </div>
-            </React.Fragment>
-          );
-        }
+        return (
+          <React.Fragment>
+            <button type="button" onClick={() => setVisible(true)}>
+              show
+            </button>
+            <div style={{ display: visible ? 'block' : 'none' }}>
+              <Slider.Root defaultValue={30} thumbAlignment="edge" style={{ width: '100px' }}>
+                <Slider.Control
+                  data-testid="control"
+                  style={{ position: 'relative', width: '100%', height: '10px' }}
+                >
+                  <Slider.Track style={{ position: 'relative', width: '100%', height: '10px' }}>
+                    <Slider.Indicator data-testid="indicator" />
+                    <Slider.Thumb data-testid="thumb" style={{ width: '10px', height: '10px' }} />
+                  </Slider.Track>
+                </Slider.Control>
+              </Slider.Root>
+            </div>
+          </React.Fragment>
+        );
+      }
 
-        const { user } = await render(<App />);
+      const { user } = await render(<App />);
 
-        const thumb = screen.getByTestId('thumb');
-        const indicator = screen.getByTestId('indicator');
+      const thumb = screen.getByTestId('thumb');
+      const indicator = screen.getByTestId('indicator');
 
-        await waitFor(() => {
-          expect(thumb.style.visibility).toBe('hidden');
-          expect(thumb.style.getPropertyValue('--position')).toBe('0%');
-          expect(indicator.style.visibility).toBe('hidden');
-          expect(indicator.style.getPropertyValue('--start-position')).toBe('0%');
-        });
+      await waitFor(() => {
+        expect(thumb.style.visibility).toBe('hidden');
+        expect(thumb.style.getPropertyValue('--position')).toBe('0%');
+        expect(indicator.style.visibility).toBe('hidden');
+        expect(indicator.style.getPropertyValue('--start-position')).toBe('0%');
+      });
 
-        await user.click(screen.getByRole('button', { name: 'show' }));
+      await user.click(screen.getByRole('button', { name: 'show' }));
 
-        await waitFor(() => {
-          expect(thumb.style.visibility).toBe('');
-          expect(thumb.style.getPropertyValue('--position')).toBe('32%');
-          expect(indicator.style.visibility).toBe('');
-          expect(indicator.style.getPropertyValue('--start-position')).toBe('32%');
-        });
-      },
-    );
+      await waitFor(() => {
+        expect(thumb.style.visibility).toBe('');
+        expect(thumb.style.getPropertyValue('--position')).toBe('32%');
+        expect(indicator.style.visibility).toBe('');
+        expect(indicator.style.getPropertyValue('--start-position')).toBe('32%');
+      });
+    });
   });
 
   /**
