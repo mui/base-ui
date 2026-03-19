@@ -223,7 +223,7 @@ function resolvePropsGetter<T extends ElementType>(
 
 function mergeEventHandlers(ourHandler: Function | undefined, theirHandler: Function | undefined) {
   if (!theirHandler) {
-    return wrapEventHandler(ourHandler);
+    return ourHandler;
   }
   if (!ourHandler) {
     return wrapEventHandler(theirHandler);
