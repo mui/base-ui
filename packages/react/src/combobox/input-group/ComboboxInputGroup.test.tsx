@@ -1,6 +1,7 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
+import { Field } from '@base-ui/react/field';
 import { createRenderer, describeConformance } from '#test-utils';
 import { fireEvent, screen } from '@mui/internal-test-utils';
 
@@ -130,6 +131,66 @@ describe('<Combobox.InputGroup />', () => {
     fireEvent.mouseDown(screen.getByTestId('group'));
 
     expect(screen.getByTestId('input')).toHaveFocus();
+    expect(screen.queryByRole('listbox')).toBe(null);
+  });
+
+  it('does not focus or open when disabled by Field.Root', async () => {
+    await render(
+      <Field.Root disabled>
+        <Combobox.Root items={['a', 'b']} multiple defaultValue={['a']}>
+          <Combobox.InputGroup data-testid="group" style={{ padding: 10 }}>
+            <Combobox.Chips>
+              <Combobox.Chip>a</Combobox.Chip>
+              <Combobox.Input data-testid="input" />
+            </Combobox.Chips>
+          </Combobox.InputGroup>
+
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                  <Combobox.Item value="b">b</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>
+      </Field.Root>,
+    );
+
+    fireEvent.mouseDown(screen.getByTestId('group'));
+
+    expect(screen.getByTestId('input')).not.toHaveFocus();
+    expect(screen.queryByRole('listbox')).toBe(null);
+  });
+
+  it('does not focus or open when readOnly', async () => {
+    await render(
+      <Combobox.Root items={['a', 'b']} multiple readOnly defaultValue={['a']}>
+        <Combobox.InputGroup data-testid="group" style={{ padding: 10 }}>
+          <Combobox.Chips>
+            <Combobox.Chip>a</Combobox.Chip>
+            <Combobox.Input data-testid="input" />
+          </Combobox.Chips>
+        </Combobox.InputGroup>
+
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="a">a</Combobox.Item>
+                <Combobox.Item value="b">b</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    fireEvent.mouseDown(screen.getByTestId('group'));
+
+    expect(screen.getByTestId('input')).not.toHaveFocus();
     expect(screen.queryByRole('listbox')).toBe(null);
   });
 
