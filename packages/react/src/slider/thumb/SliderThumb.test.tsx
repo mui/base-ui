@@ -373,6 +373,75 @@ describe('<Slider.Thumb />', () => {
         expect(indicator.style.getPropertyValue('--start-position')).toBe('32%');
       });
     });
+
+    it.skipIf(isJSDOM)(
+      'recomputes range inset positions when the slider becomes visible',
+      async () => {
+        function App() {
+          const [visible, setVisible] = React.useState(false);
+
+          return (
+            <React.Fragment>
+              <button type="button" onClick={() => setVisible(true)}>
+                show
+              </button>
+              <div style={{ display: visible ? 'block' : 'none' }}>
+                <Slider.Root
+                  defaultValue={[30, 70]}
+                  thumbAlignment="edge"
+                  style={{ width: '100px' }}
+                >
+                  <Slider.Control
+                    data-testid="control"
+                    style={{ position: 'relative', width: '100%', height: '10px' }}
+                  >
+                    <Slider.Track style={{ position: 'relative', width: '100%', height: '10px' }}>
+                      <Slider.Indicator data-testid="indicator" />
+                      <Slider.Thumb
+                        data-testid="start-thumb"
+                        style={{ width: '10px', height: '10px' }}
+                      />
+                      <Slider.Thumb
+                        data-testid="end-thumb"
+                        style={{ width: '10px', height: '10px' }}
+                      />
+                    </Slider.Track>
+                  </Slider.Control>
+                </Slider.Root>
+              </div>
+            </React.Fragment>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        const startThumb = screen.getByTestId('start-thumb');
+        const endThumb = screen.getByTestId('end-thumb');
+        const indicator = screen.getByTestId('indicator');
+
+        await waitFor(() => {
+          expect(startThumb.style.visibility).toBe('hidden');
+          expect(startThumb.style.getPropertyValue('--position')).toBe('0%');
+          expect(endThumb.style.visibility).toBe('hidden');
+          expect(endThumb.style.getPropertyValue('--position')).toBe('0%');
+          expect(indicator.style.visibility).toBe('hidden');
+          expect(indicator.style.getPropertyValue('--start-position')).toBe('0%');
+          expect(indicator.style.getPropertyValue('--relative-size')).toBe('0%');
+        });
+
+        await user.click(screen.getByRole('button', { name: 'show' }));
+
+        await waitFor(() => {
+          expect(startThumb.style.visibility).toBe('');
+          expect(startThumb.style.getPropertyValue('--position')).toBe('32%');
+          expect(endThumb.style.visibility).toBe('');
+          expect(endThumb.style.getPropertyValue('--position')).toBe('68%');
+          expect(indicator.style.visibility).toBe('');
+          expect(indicator.style.getPropertyValue('--start-position')).toBe('32%');
+          expect(indicator.style.getPropertyValue('--relative-size')).toBe('36%');
+        });
+      },
+    );
   });
 
   /**
