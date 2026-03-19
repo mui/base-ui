@@ -14,6 +14,7 @@ import {
 import { activeElement, contains } from '../../floating-ui-react/utils';
 import { useRenderElement } from '../../utils/useRenderElement';
 import {
+  type NavigationMenuPopupAutoSizeResetState,
   NavigationMenuRootContext,
   NavigationMenuTreeContext,
   useNavigationMenuRootContext,
@@ -58,8 +59,8 @@ function setSharedFixedSize(popupElement: HTMLElement, positionerElement: HTMLEl
  *
  * Documentation: [Base UI Navigation Menu](https://base-ui.com/react/components/navigation-menu)
  */
-export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
-  componentProps: NavigationMenuRoot.Props,
+export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<Value = any>(
+  componentProps: NavigationMenuRoot.Props<Value>,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
@@ -108,6 +109,12 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   const afterInsideRef = React.useRef<HTMLSpanElement | null>(null);
   const beforeOutsideRef = React.useRef<HTMLSpanElement | null>(null);
   const afterOutsideRef = React.useRef<HTMLSpanElement | null>(null);
+  // Shared across triggers so a newly active trigger can cancel a stale
+  // popup auto-size reset scheduled by the previously active trigger.
+  const popupAutoSizeResetRef = React.useRef<NavigationMenuPopupAutoSizeResetState>({
+    abortController: null,
+    owner: null,
+  });
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
@@ -116,7 +123,10 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   }, [value]);
 
   const setValue = useStableCallback(
-    (nextValue: any, eventDetails: NavigationMenuRoot.ChangeEventDetails) => {
+    (
+      nextValue: NavigationMenuRoot.Value<Value>,
+      eventDetails: NavigationMenuRoot.ChangeEventDetails,
+    ) => {
       if (!nextValue) {
         closeReasonRef.current = eventDetails.reason;
         setActivationDirection(null);
@@ -192,7 +202,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
     },
   });
 
-  const contextValue: NavigationMenuRootContext = React.useMemo(
+  const contextValue: NavigationMenuRootContext<Value> = React.useMemo(
     () => ({
       open,
       value,
@@ -219,6 +229,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
       beforeOutsideRef,
       afterOutsideRef,
       prevTriggerElementRef,
+      popupAutoSizeResetRef,
       delay,
       closeDelay,
       orientation,
@@ -259,10 +270,12 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   }
 
   return jsx;
-});
+}) as {
+  <Value = any>(props: NavigationMenuRoot.Props<Value>): React.JSX.Element;
+};
 
-function TreeContext(props: {
-  componentProps: NavigationMenuRoot.Props;
+function TreeContext<Value>(props: {
+  componentProps: NavigationMenuRoot.Props<Value>;
   forwardedRef: React.ForwardedRef<HTMLElement>;
   children: React.ReactNode;
 }) {
@@ -314,7 +327,7 @@ export interface NavigationMenuRootState {
   nested: boolean;
 }
 
-export interface NavigationMenuRootProps extends BaseUIComponentProps<
+export interface NavigationMenuRootProps<Value = any> extends BaseUIComponentProps<
   'nav',
   NavigationMenuRootState
 > {
@@ -333,19 +346,19 @@ export interface NavigationMenuRootProps extends BaseUIComponentProps<
    * To render an uncontrolled navigation menu, use the `defaultValue` prop instead.
    * @default null
    */
-  value?: any;
+  value?: Value | null | undefined;
   /**
    * The uncontrolled value of the item that should be initially selected.
    *
    * To render a controlled navigation menu, use the `value` prop instead.
    * @default null
    */
-  defaultValue?: any;
+  defaultValue?: Value | null | undefined;
   /**
    * Callback fired when the value changes.
    */
   onValueChange?:
-    | ((value: any, eventDetails: NavigationMenuRoot.ChangeEventDetails) => void)
+    | ((value: Value | null, eventDetails: NavigationMenuRoot.ChangeEventDetails) => void)
     | undefined;
   /**
    * How long to wait before opening the navigation popup. Specified in milliseconds.
@@ -383,7 +396,8 @@ export type NavigationMenuRootChangeEventDetails =
 
 export namespace NavigationMenuRoot {
   export type State = NavigationMenuRootState;
-  export type Props = NavigationMenuRootProps;
+  export type Props<TValue = any> = NavigationMenuRootProps<TValue>;
+  export type Value<TValue = any> = TValue | null;
   export type Actions = NavigationMenuRootActions;
   export type ChangeEventReason = NavigationMenuRootChangeEventReason;
   export type ChangeEventDetails = NavigationMenuRootChangeEventDetails;

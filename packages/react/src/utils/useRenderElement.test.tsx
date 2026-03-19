@@ -5,6 +5,7 @@ import { createRenderer } from '#test-utils';
 import { reactMajor } from '@mui/internal-test-utils';
 import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from '../utils/types';
 import { useRenderElement } from './useRenderElement';
+import { EMPTY_OBJECT } from './constants';
 
 describe('useRenderElement', () => {
   const { render } = createRenderer();
@@ -121,6 +122,22 @@ describe('useRenderElement', () => {
       warnSpy.mockRestore();
     });
 
+    it('warns when render is passed a function with an uppercase acronym prefix', async () => {
+      const warnSpy = vi
+        .spyOn(console, 'warn')
+        .mockName('console.warn')
+        .mockImplementation(() => {});
+
+      function UIInput(props: React.ComponentPropsWithRef<'span'>) {
+        return <span {...props} />;
+      }
+
+      await render(<TestComponent render={UIInput} />);
+
+      expect(warnSpy.mock.calls.length).toBe(1);
+      warnSpy.mockRestore();
+    });
+
     it('does not warn when render is passed a lowercase callback', async () => {
       const warnSpy = vi
         .spyOn(console, 'warn')
@@ -128,6 +145,23 @@ describe('useRenderElement', () => {
         .mockImplementation(() => {});
 
       const renderFn = (props: React.ComponentPropsWithRef<'span'>) => <span {...props} />;
+
+      await render(<TestComponent render={renderFn} />);
+
+      expect(warnSpy.mock.calls.length).toBe(0);
+      warnSpy.mockRestore();
+    });
+
+    it('does not warn when render is passed a screaming snake case callback', async () => {
+      const warnSpy = vi
+        .spyOn(console, 'warn')
+        .mockName('console.warn')
+        .mockImplementation(() => {});
+
+      const renderFn = (props: React.ComponentPropsWithRef<'span'>) => <span {...props} />;
+      Object.defineProperty(renderFn, 'name', {
+        value: 'DEFAULT_RENDER',
+      });
 
       await render(<TestComponent render={renderFn} />);
 
@@ -323,6 +357,38 @@ describe('useRenderElement', () => {
       expect(renderRef.current).toBeInstanceOf(HTMLDivElement);
       expect(componentRef.current).toBeInstanceOf(HTMLDivElement);
       expect(renderRef.current).toBe(componentRef.current);
+    });
+  });
+
+  describe('EMPTY_OBJECT mutation safety', () => {
+    // This test verifies that the hook doesn't attempt to mutate EMPTY_OBJECT
+    // which would throw a TypeError in strict mode since it's frozen.
+    const MinimalComponent = React.forwardRef(function MinimalComponent(
+      componentProps: BaseUIComponentProps<'div', Record<string, never>>,
+      forwardedRef: React.ForwardedRef<HTMLDivElement>,
+    ) {
+      // Using EMPTY_OBJECT as state and no additional props simulates the edge case
+      // where mergeObjects might return undefined and fall back to EMPTY_OBJECT
+      const element = useRenderElement('div', componentProps, {
+        state: EMPTY_OBJECT,
+        ref: forwardedRef,
+        // No props passed - relies on stateProps which will be {}
+      });
+
+      return element;
+    });
+
+    it('does not throw when className is provided with minimal props', async () => {
+      const { container } = await render(<MinimalComponent className="test-class" />);
+      expect(container.firstElementChild).to.not.equal(null);
+      expect(container.firstElementChild).to.have.attribute('class', 'test-class');
+    });
+
+    it('does not throw when style is provided with minimal props', async () => {
+      const { container } = await render(<MinimalComponent style={{ color: 'red' }} />);
+      expect(container.firstElementChild).to.not.equal(null);
+      const element = container.firstElementChild as HTMLElement;
+      expect(element.style.color).to.equal('red');
     });
   });
 });
