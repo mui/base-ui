@@ -39,13 +39,25 @@ export default function Layout({ children }: React.PropsWithChildren) {
                 className="bui-d-f bui-fd-c bui-g-2 bui-gcs-5 bui-gce-8 bp2:bui-gcs-5 bp2:bui-gce-9 bp3:bui-gcs-5 bp3:bui-gce-7"
                 aria-label="social links"
               >
-                <Link className="Text size-1" href="https://x.com/base_ui">
+                <Link
+                  className="Text size-1"
+                  href="https://x.com/base_ui"
+                  rel="noopener noreferrer"
+                >
                   X
                 </Link>
-                <Link className="Text size-1" href="https://github.com/mui/base-ui">
+                <Link
+                  className="Text size-1"
+                  href="https://github.com/mui/base-ui"
+                  rel="noopener noreferrer"
+                >
                   GitHub
                 </Link>
-                <Link className="Text size-1" href="https://discord.com/invite/g6C3hUtuxz">
+                <Link
+                  className="Text size-1"
+                  href="https://discord.com/invite/g6C3hUtuxz"
+                  rel="noopener noreferrer"
+                >
                   Discord
                 </Link>
               </nav>
@@ -69,21 +81,38 @@ export default function Layout({ children }: React.PropsWithChildren) {
                 className="bui-d-f bui-fd-c bui-g-2 bui-gcs-1 bui-gce-9 bp2:bui-gcs-3 bp4:bui-gce-7"
                 aria-label="social links"
               >
-                <Link className="Text size-1" href="https://x.com/base_ui">
+                <Link
+                  className="Text size-1"
+                  href="https://x.com/base_ui"
+                  rel="noopener noreferrer"
+                >
                   X
                 </Link>
-                <Link className="Text size-1" href="https://github.com/mui/base-ui">
+                <Link
+                  className="Text size-1"
+                  href="https://github.com/mui/base-ui"
+                  rel="noopener noreferrer"
+                >
                   GitHub
                 </Link>
-                <Link className="Text size-1" href="https://discord.com/invite/g6C3hUtuxz">
+                <Link
+                  className="Text size-1"
+                  href="https://discord.com/invite/g6C3hUtuxz"
+                  rel="noopener noreferrer"
+                >
                   Discord
                 </Link>
-                <Link className="Text size-1" href="https://www.npmjs.com/package/@base-ui/react">
+                <Link
+                  className="Text size-1"
+                  href="https://www.npmjs.com/package/@base-ui/react"
+                  rel="noopener noreferrer"
+                >
                   npm
                 </Link>
                 <a
                   className="Text size-1 Link"
                   href="https://bsky.app/profile/did:plc:nwr6peuxqzdzlbi72qr5kldc"
+                  rel="noopener noreferrer"
                 >
                   Bluesky
                 </a>
@@ -96,10 +125,12 @@ export default function Layout({ children }: React.PropsWithChildren) {
   );
 }
 
+const SITE_TITLE = 'Unstyled UI components for accessible design systems · Base UI';
+
 export const metadata: Metadata = {
   title: {
     template: '%s · Base UI',
-    default: 'Base UI',
+    default: SITE_TITLE,
   },
   twitter: {
     site: '@base_ui',
@@ -108,13 +139,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
+    url: './',
     title: {
       template: '%s · Base UI',
-      default: 'Base UI',
+      default: SITE_TITLE,
     },
     ttl: 604800,
   },
-  metadataBase: new URL('https://base-ui.com'),
+  metadataBase: process.env.BASE_URL,
   alternates: {
     canonical: './',
   },
