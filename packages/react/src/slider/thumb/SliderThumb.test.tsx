@@ -326,7 +326,7 @@ describe('<Slider.Thumb />', () => {
   });
 
   describe('prop: thumbAlignment', () => {
-    it.skipIf(isJSDOM || isWebKit || /Firefox/i.test(window.navigator.userAgent))(
+    it.skipIf(isJSDOM)(
       'recomputes inset positions when the slider becomes visible',
       async () => {
         function App() {
