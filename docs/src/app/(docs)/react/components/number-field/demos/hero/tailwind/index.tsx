@@ -6,7 +6,7 @@ export default function ExampleNumberField() {
   return (
     <NumberField.Root id={id} defaultValue={100} className="flex flex-col items-start gap-1">
       <NumberField.ScrubArea className="cursor-ew-resize">
-        <label htmlFor={id} className="cursor-ew-resize text-sm font-medium text-gray-900">
+        <label htmlFor={id} className="cursor-ew-resize text-sm font-semibold text-gray-900">
           Amount
         </label>
         <NumberField.ScrubAreaCursor className="drop-shadow-[0_1px_1px_#0008] filter">
@@ -18,7 +18,7 @@ export default function ExampleNumberField() {
         <NumberField.Decrement className="flex size-10 items-center justify-center rounded-tl-md rounded-bl-md border border-gray-200 bg-gray-50 bg-clip-padding text-gray-900 select-none hover:bg-gray-100 active:bg-gray-100">
           <MinusIcon />
         </NumberField.Decrement>
-        <NumberField.Input className="h-10 w-24 border-t border-b border-gray-200 text-center text-base text-gray-900 tabular-nums focus:z-1 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800" />
+        <NumberField.Input className="h-10 w-24 border-t border-b border-gray-200 text-center text-base text-gray-900 tabular-nums focus:z-1 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 font-normal" />
         <NumberField.Increment className="flex size-10 items-center justify-center rounded-tr-md rounded-br-md border border-gray-200 bg-gray-50 bg-clip-padding text-gray-900 select-none hover:bg-gray-100 active:bg-gray-100">
           <PlusIcon />
         </NumberField.Increment>

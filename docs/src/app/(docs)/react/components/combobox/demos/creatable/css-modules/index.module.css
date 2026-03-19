@@ -11,7 +11,7 @@
   gap: 0.25rem;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--color-gray-900);
 }
 
@@ -286,7 +286,7 @@
   font-size: 1.125rem;
   line-height: 1.75rem;
   letter-spacing: -0.0025em;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .Description {
@@ -334,7 +334,7 @@
   background-color: var(--color-gray-50);
   font-family: inherit;
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1.5rem;
   color: var(--color-gray-900);
   user-select: none;

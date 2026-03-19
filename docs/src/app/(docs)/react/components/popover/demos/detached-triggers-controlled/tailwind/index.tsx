@@ -43,7 +43,7 @@ export default function PopoverDetachedTriggersSimpleDemo() {
 
         <button
           type="button"
-          className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100"
+          className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-normal text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100"
           onClick={() => {
             setTriggerId('trigger-2');
             setOpen(true);
@@ -86,7 +86,7 @@ export default function PopoverDetachedTriggersSimpleDemo() {
               <Popover.Arrow className="data-[side=bottom]:top-[-8px] data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180">
                 <ArrowSvg />
               </Popover.Arrow>
-              <Popover.Title className="text-base font-medium">Notifications</Popover.Title>
+              <Popover.Title className="text-base font-semibold">Notifications</Popover.Title>
               <Popover.Description className="text-base text-gray-600">
                 You are all caught up. Good job!
               </Popover.Description>

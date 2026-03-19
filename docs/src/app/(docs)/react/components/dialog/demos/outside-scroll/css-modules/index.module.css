@@ -12,7 +12,7 @@
   background-color: var(--color-gray-50);
   font-family: inherit;
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1.5rem;
   color: var(--color-gray-900);
   user-select: none;
@@ -255,6 +255,7 @@
 
 .FooterLink {
   color: var(--color-gray-900);
+  text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 0.16em;
 

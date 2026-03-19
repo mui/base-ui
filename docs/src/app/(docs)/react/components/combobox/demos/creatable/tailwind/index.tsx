@@ -122,7 +122,7 @@ export default function ExampleCreatableCombobox() {
         }}
       >
         <div className="max-w-112 flex flex-col gap-1">
-          <label className="text-sm leading-5 font-medium text-gray-900" htmlFor={id}>
+          <label className="text-sm leading-5 font-semibold text-gray-900" htmlFor={id}>
             Labels
           </label>
           <Combobox.InputGroup className="w-64 cursor-text rounded-md border border-gray-200 bg-[canvas] px-1.5 py-1 focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-blue-800 min-[500px]:w-[22rem]">
@@ -204,7 +204,7 @@ export default function ExampleCreatableCombobox() {
             className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 mt-[-2rem] w-[24rem] max-w-[calc(100vw-3rem)] rounded-lg bg-[canvas] p-6 text-gray-900 outline-1 outline-gray-200 transition-all data-[starting-style]:opacity-0 data-[starting-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:scale-90 dark:-outline-offset-1 dark:outline-gray-300"
             initialFocus={createInputRef}
           >
-            <Dialog.Title className="-mt-1.5 mb-1 text-lg leading-7 tracking-[-0.0025em] font-medium">
+            <Dialog.Title className="-mt-1.5 mb-1 text-lg leading-7 tracking-[-0.0025em] font-semibold">
               Create new label
             </Dialog.Title>
             <Dialog.Description className="mb-4 text-base leading-6 text-gray-600">
@@ -213,17 +213,17 @@ export default function ExampleCreatableCombobox() {
             <form onSubmit={handleCreateSubmit}>
               <input
                 ref={createInputRef}
-                className="w-full h-10 rounded-md border border-gray-200 bg-[canvas] text-gray-900 px-2.5 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
+                className="w-full h-10 rounded-md border border-gray-200 bg-[canvas] text-gray-900 px-2.5 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 font-normal"
                 placeholder="Label name"
                 defaultValue={pendingQueryRef.current}
               />
               <div className="mt-4 flex justify-end gap-4">
-                <Dialog.Close className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100">
+                <Dialog.Close className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base text-gray-900 select-none hover:bg-gray-100 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 font-normal">
                   Cancel
                 </Dialog.Close>
                 <button
                   type="submit"
-                  className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100"
+                  className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-normal text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100"
                 >
                   Create
                 </button>

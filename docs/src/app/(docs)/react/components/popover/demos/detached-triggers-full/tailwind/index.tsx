@@ -15,7 +15,7 @@ export default function PopoverDetachedTriggersFullDemo() {
           size-10 items-center justify-center
           rounded-md border border-gray-200
           bg-gray-50
-          text-base font-bold text-gray-900
+          text-base font-normal text-gray-900
           select-none
           hover:bg-gray-100 focus-visible:outline-2
           focus-visible:-outline-offset-1
@@ -32,7 +32,7 @@ export default function PopoverDetachedTriggersFullDemo() {
           size-10 items-center justify-center
           rounded-md border border-gray-200
           bg-gray-50
-          text-base font-bold text-gray-900
+          text-base font-normal text-gray-900
           select-none
           hover:bg-gray-100 focus-visible:outline-2
           focus-visible:-outline-offset-1
@@ -49,7 +49,7 @@ export default function PopoverDetachedTriggersFullDemo() {
           size-10 items-center justify-center
           rounded-md border border-gray-200
           bg-gray-50
-          text-base font-bold text-gray-900
+          text-base font-normal text-gray-900
           select-none
           hover:bg-gray-100 focus-visible:outline-2
           focus-visible:-outline-offset-1
@@ -146,7 +146,7 @@ export default function PopoverDetachedTriggersFullDemo() {
 function NotificationsPanel() {
   return (
     <React.Fragment>
-      <Popover.Title className="m-0 text-base font-medium">Notifications</Popover.Title>
+      <Popover.Title className="m-0 text-base font-semibold">Notifications</Popover.Title>
       <Popover.Description className="m-0 text-base text-gray-600">
         You are all caught up. Good job!
       </Popover.Description>
@@ -157,10 +157,10 @@ function NotificationsPanel() {
 function ProfilePanel() {
   return (
     <div className="-mx-2 grid grid-cols-[auto_auto] gap-x-4">
-      <Popover.Title className="col-start-2 col-end-3 row-start-1 row-end-2 m-0 text-base font-medium">
+      <Popover.Title className="col-start-2 col-end-3 row-start-1 row-end-2 m-0 text-base font-semibold">
         Jason Eventon
       </Popover.Title>
-      <Avatar.Root className="col-start-1 col-end-2 row-start-1 row-end-3 inline-flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-gray-100 align-middle text-base leading-none font-medium text-gray-900 select-none">
+      <Avatar.Root className="col-start-1 col-end-2 row-start-1 row-end-3 inline-flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-gray-100 align-middle text-base leading-none font-semibold text-gray-900 select-none">
         <Avatar.Image
           src="https://images.unsplash.com/photo-1543610892-0b1f7e6d8ac1?w=128&h=128&dpr=2&q=80"
           width="48"
@@ -186,7 +186,7 @@ function ProfilePanel() {
 function ActivityPanel() {
   return (
     <React.Fragment>
-      <Popover.Title className="m-0 text-base font-medium">Activity</Popover.Title>
+      <Popover.Title className="m-0 text-base font-semibold">Activity</Popover.Title>
       <Popover.Description className="m-0 text-base text-gray-600">
         Nothing interesting happened recently.
       </Popover.Description>

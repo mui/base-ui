@@ -81,7 +81,8 @@ export default function TooltipDetachedTriggersControlledDemo() {
             select-none
             focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800
             hover:bg-gray-100
-            active:bg-gray-100"
+            active:bg-gray-100
+            font-normal"
           onClick={() => {
             setTriggerId('trigger-2');
             setOpen(true);

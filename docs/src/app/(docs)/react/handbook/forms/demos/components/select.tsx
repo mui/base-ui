@@ -8,7 +8,7 @@ export function Root(props: Select.Root.Props<any>) {
 
 export function Label({ className, ...props }: Select.Label.Props) {
   return (
-    <Select.Label className={clsx('text-sm font-medium text-gray-900', className)} {...props} />
+    <Select.Label className={clsx('text-sm font-semibold text-gray-900', className)} {...props} />
   );
 }
 

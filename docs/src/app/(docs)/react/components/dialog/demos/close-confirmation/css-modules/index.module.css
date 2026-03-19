@@ -12,7 +12,7 @@
   background-color: var(--color-gray-50);
   font-family: inherit;
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1.5rem;
   color: var(--color-gray-900);
   user-select: none;
@@ -29,50 +29,6 @@
 
   &:focus-visible {
     outline: 2px solid var(--color-blue);
-    outline-offset: -1px;
-  }
-}
-
-.GhostButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: inherit;
-  font-size: 1rem;
-  font-weight: 500;
-  line-height: 1.5rem;
-  background-color: transparent;
-  color: var(--color-red);
-  border-radius: 0.25rem;
-  padding: 0.125rem 0.375rem;
-  margin: -0.125rem -0.375rem;
-  border: 0;
-  outline: 0;
-
-  @media (hover: hover) {
-    &:hover {
-      background-color: color-mix(in oklch, var(--color-red), transparent 95%);
-    }
-  }
-
-  &:active {
-    background-color: color-mix(in oklch, var(--color-red), transparent 90%);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    @media (hover: hover) {
-      &:hover {
-        background-color: color-mix(in oklch, var(--color-red), transparent 85%);
-      }
-    }
-
-    &:active {
-      background-color: color-mix(in oklch, var(--color-red), transparent 75%);
-    }
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--color-red);
     outline-offset: -1px;
   }
 }
@@ -145,7 +101,7 @@
   font-size: 1.125rem;
   line-height: 1.75rem;
   letter-spacing: -0.0025em;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .Description {

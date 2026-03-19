@@ -123,7 +123,7 @@
   margin: 0;
   font-size: 1rem;
   line-height: 1.5rem;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .Description {
@@ -155,7 +155,7 @@
   background-color: var(--color-gray-50);
   font-family: inherit;
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1.5rem;
   color: var(--color-gray-900);
   user-select: none;

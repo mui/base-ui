@@ -6,14 +6,14 @@ export default function ExampleSelectGrouped() {
   return (
     <Field.Root className="flex flex-col gap-1">
       <Field.Label
-        className="cursor-default text-sm leading-5 font-medium text-gray-900"
+        className="cursor-default text-sm leading-5 font-semibold text-gray-900"
         nativeLabel={false}
         render={<div />}
       >
         Produce
       </Field.Label>
       <Select.Root items={groupedProduce}>
-        <Select.Trigger className="flex h-10 min-w-44 items-center justify-between gap-3 rounded-md border border-gray-200 pr-3 pl-3.5 text-base bg-[canvas] text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100">
+        <Select.Trigger className="flex h-10 min-w-44 items-center justify-between gap-3 rounded-md border border-gray-200 pr-3 pl-3.5 text-base bg-[canvas] text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100 font-normal">
           <Select.Value className="data-[placeholder]:opacity-60" placeholder="Select produce" />
           <Select.Icon className="flex">
             <ChevronUpDownIcon />

@@ -254,18 +254,6 @@
   margin-bottom: 0.25rem;
 }
 
-.Name {
-  font-size: 0.625rem;
-  text-align: center;
-  opacity: 0.8;
-  line-height: 1.2;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-weight: 500;
-}
-
 .Item[data-highlighted] .Name {
   opacity: 1;
 }
