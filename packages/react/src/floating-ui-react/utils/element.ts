@@ -95,6 +95,14 @@ export function isTypeableElement(element: unknown): boolean {
   return isHTMLElement(element) && element.matches(TYPEABLE_SELECTOR);
 }
 
+export function isInteractiveElement(element: Element | null) {
+  return (
+    element?.closest(
+      `button,a[href],[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`,
+    ) != null
+  );
+}
+
 export function isTypeableCombobox(element: Element | null) {
   if (!element) {
     return false;
