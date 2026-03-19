@@ -102,6 +102,43 @@ describe('<Combobox.Chips />', () => {
     expect(screen.queryByRole('listbox')).toBe(null);
   });
 
+  it('lets nested chip onMouseDown prevent the built-in focus and open behavior', async () => {
+    const handleMouseDown = vi.fn();
+
+    await render(
+      <Combobox.Root items={['apple', 'banana']} multiple defaultValue={['apple']}>
+        <Combobox.Chips data-testid="chips">
+          <Combobox.Chip
+            data-testid="chip"
+            onMouseDown={(event) => {
+              handleMouseDown(event);
+              event.preventBaseUIHandler();
+            }}
+          >
+            apple
+          </Combobox.Chip>
+          <Combobox.Input data-testid="input" />
+        </Combobox.Chips>
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="apple">apple</Combobox.Item>
+                <Combobox.Item value="banana">banana</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    fireEvent.mouseDown(screen.getByTestId('chip'));
+
+    expect(handleMouseDown).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('input')).not.toHaveFocus();
+    expect(screen.queryByRole('listbox')).toBe(null);
+  });
+
   it('does not treat chip remove presses as chips-area presses', async () => {
     await render(
       <Combobox.Root items={['apple', 'banana']} multiple defaultValue={['apple']}>

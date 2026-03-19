@@ -6,13 +6,13 @@ import { getTarget, isInteractiveElement } from '../../floating-ui-react/utils/e
 import type { ComboboxStore } from '../store';
 
 export function handleInputPress(
-  event: React.MouseEvent<HTMLElement>,
+  event: React.MouseEvent<HTMLElement> & { baseUIHandlerPrevented?: boolean | undefined },
   store: ComboboxStore,
   disabled: boolean,
   readOnly: boolean,
   shouldIgnoreTarget?: ((target: Element | null) => boolean) | undefined,
 ) {
-  if (readOnly) {
+  if (event.baseUIHandlerPrevented || readOnly) {
     return;
   }
 
