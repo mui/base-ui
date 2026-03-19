@@ -93,6 +93,9 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
     props: [
       {
         tabIndex: -1,
+        onMouseDown(event) {
+          event.preventDefault();
+        },
         onClick(event) {
           if (disabled || readOnly) {
             return;

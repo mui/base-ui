@@ -13,9 +13,9 @@ Renders a `<nav>` element at the root, or `<div>` element when nested.
 
 | Prop                 | Type                                                                                              | Default        | Description                                                                                                                                                                                                                                         |
 | :------------------- | :------------------------------------------------------------------------------------------------ | :------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| defaultValue         | `any`                                                                                             | `null`         | The uncontrolled value of the item that should be initially selected. To render a controlled navigation menu, use the `value` prop instead.                                                                                                         |
-| value                | `any`                                                                                             | `null`         | The controlled value of the navigation menu item that should be currently open.&#xA;When non-nullish, the menu will be open. When nullish, the menu will be closed. To render an uncontrolled navigation menu, use the `defaultValue` prop instead. |
-| onValueChange        | `((value: any, eventDetails: NavigationMenu.Root.ChangeEventDetails) => void)`                    | -              | Callback fired when the value changes.                                                                                                                                                                                                              |
+| defaultValue         | `Value \| null`                                                                                   | `null`         | The uncontrolled value of the item that should be initially selected. To render a controlled navigation menu, use the `value` prop instead.                                                                                                         |
+| value                | `Value \| null`                                                                                   | `null`         | The controlled value of the navigation menu item that should be currently open.&#xA;When non-nullish, the menu will be open. When nullish, the menu will be closed. To render an uncontrolled navigation menu, use the `defaultValue` prop instead. |
+| onValueChange        | `((value: Value \| null, eventDetails: NavigationMenu.Root.ChangeEventDetails) => void)`          | -              | Callback fired when the value changes.                                                                                                                                                                                                              |
 | actionsRef           | `React.RefObject<NavigationMenu.Root.Actions \| null>`                                            | -              | A ref to imperative actions.                                                                                                                                                                                                                        |
 | onOpenChangeComplete | `((open: boolean) => void)`                                                                       | -              | Event handler called after any animations complete when the navigation menu is closed.                                                                                                                                                              |
 | delay                | `number`                                                                                          | `50`           | How long to wait before opening the navigation popup. Specified in milliseconds.                                                                                                                                                                    |
@@ -84,6 +84,12 @@ type NavigationMenuRootChangeEventDetails = (
   /** The element that triggered the event, if applicable. */
   trigger: Element | undefined;
 };
+```
+
+### Root.Value
+
+```typescript
+type NavigationMenuRootValue<TValue = any> = TValue | null;
 ```
 
 ### Trigger
@@ -580,7 +586,7 @@ type OffsetFunction = (data: {
 
 ## Export Groups
 
-- `NavigationMenu.Root`: `NavigationMenu.Root`, `NavigationMenu.Root.State`, `NavigationMenu.Root.Props`, `NavigationMenu.Root.Actions`, `NavigationMenu.Root.ChangeEventReason`, `NavigationMenu.Root.ChangeEventDetails`
+- `NavigationMenu.Root`: `NavigationMenu.Root`, `NavigationMenu.Root.State`, `NavigationMenu.Root.Props`, `NavigationMenu.Root.Value`, `NavigationMenu.Root.Actions`, `NavigationMenu.Root.ChangeEventReason`, `NavigationMenu.Root.ChangeEventDetails`
 - `NavigationMenu.List`: `NavigationMenu.List`, `NavigationMenu.List.State`, `NavigationMenu.List.Props`
 - `NavigationMenu.Item`: `NavigationMenu.Item`, `NavigationMenu.Item.State`, `NavigationMenu.Item.Props`
 - `NavigationMenu.Content`: `NavigationMenu.Content`, `NavigationMenu.Content.State`, `NavigationMenu.Content.Props`
