@@ -88,6 +88,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   const openReason = store.useState('openChangeReason');
   const stickIfOpen = store.useState('stickIfOpen');
   const openMethod = store.useState('openMethod');
+  const focusManagerModal = store.useState('focusManagerModal');
 
   const hoverProps = useHoverReferenceInteraction(floatingContext, {
     enabled:
@@ -204,7 +205,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   // A fragment with key is required to ensure that the `element` is mounted to the same DOM node
   // regardless of whether the focus guards are rendered or not.
 
-  if (isTriggerActive) {
+  if (isTriggerActive && !focusManagerModal) {
     return (
       <React.Fragment>
         <FocusGuard ref={preFocusGuardRef} onFocus={handlePreFocusGuardFocus} />

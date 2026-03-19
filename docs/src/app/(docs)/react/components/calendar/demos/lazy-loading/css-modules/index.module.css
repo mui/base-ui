@@ -37,11 +37,11 @@
 }
 
 .PriceDeal {
-  color: #16a34a;
+  color: oklch(52% 40% 150deg);
   font-weight: 600;
 
   @media (prefers-color-scheme: dark) {
-    color: #4ade80;
+    color: oklch(72% 35% 150deg);
   }
 }
 
@@ -55,6 +55,11 @@
   }
 }
 
+.DayButton[data-selected]:not([data-outside-month]) .Price,
+.DayButton[data-selected]:not([data-outside-month]) .PriceSoldOut {
+  color: inherit;
+}
+
 .Skeleton {
   display: block;
   width: 24px;
@@ -62,21 +67,11 @@
   border-radius: 2px;
   background: linear-gradient(
     90deg,
-    var(--color-gray-200) 25%,
-    var(--color-gray-100) 50%,
-    var(--color-gray-200) 75%
+    var(--color-gray-300) 25%,
+    var(--color-gray-200) 50%,
+    var(--color-gray-300) 75%
   );
   background-size: 200% 100%;
-
-  @media (prefers-color-scheme: dark) {
-    background: linear-gradient(
-      90deg,
-      var(--color-gray-700) 25%,
-      var(--color-gray-600) 50%,
-      var(--color-gray-700) 75%
-    );
-    background-size: 200% 100%;
-  }
 
   @media (prefers-reduced-motion: no-preference) {
     animation: shimmer 1.5s ease-in-out infinite;

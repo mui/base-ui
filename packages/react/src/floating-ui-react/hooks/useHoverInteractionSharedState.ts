@@ -11,9 +11,8 @@ import type {
   FloatingTreeType,
   SafePolygonOptions,
 } from '../types';
-import { TYPEABLE_SELECTOR } from '../utils/constants';
+import { isInteractiveElement } from '../utils';
 
-const interactiveSelector = `button,a,[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`;
 /**
  * Sentinel value for `lastHoverCloseTime` indicating that no hover-close has
  * been committed yet. Using a named constant avoids confusion with a real
@@ -34,10 +33,7 @@ type PendingHoverClose = {
   /** Whether to record `lastHoverCloseTime` when this close is committed. */
   shouldRecordGrace: boolean;
 };
-
-export function isInteractiveElement(element: Element | null) {
-  return element ? Boolean(element.closest(interactiveSelector)) : false;
-}
+export { isInteractiveElement };
 
 export class HoverInteraction {
   pointerType: string | undefined;
