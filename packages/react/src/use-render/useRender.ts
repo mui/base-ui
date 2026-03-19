@@ -1,4 +1,3 @@
-/* eslint-disable no-irregular-whitespace */
 import * as React from 'react';
 import type { ComponentRenderFn } from '../utils/types';
 import { HTMLProps } from '../utils/types';
@@ -6,7 +5,7 @@ import { useRenderElement } from '../utils/useRenderElement';
 import { StateAttributesMapping } from '../utils/getStateAttributesProps';
 
 /**
- * Renders a Base UI element.
+ * Renders a Base UI element.
  *
  * @public
  */

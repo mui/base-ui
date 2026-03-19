@@ -119,6 +119,10 @@ const nextConfig = {
               onlyUpdateIndexes: true,
             },
             ordering,
+            descriptionReplacements: [
+              { pattern: '\\n\\nDocumentation: .*$', replacement: '', flags: 'm' },
+              { pattern: 'Base UI', replacement: 'Base UI', flags: 'g' },
+            ],
           },
         },
       ],
