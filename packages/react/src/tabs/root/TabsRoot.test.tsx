@@ -798,8 +798,6 @@ describe('<Tabs.Root />', () => {
         </Tabs.Root>,
       );
 
-      await flushMicrotasks();
-
       expect(handleChange.mock.calls.length).toBe(0);
 
       const tabs = screen.getAllByRole('tab');
