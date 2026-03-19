@@ -130,7 +130,7 @@
       background-color: var(--color-gray-50);
       outline: 1px solid var(--color-gray-200);
       outline-offset: -1px;
-      font-weight: 700;
+      font-weight: 400;
       letter-spacing: 0.00625em;
       word-spacing: -0.005em;
       cursor: default;
