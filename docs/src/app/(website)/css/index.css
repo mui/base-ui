@@ -6,7 +6,7 @@
 @import './theme.css';
 
 /* Fonts */
-@import './fonts/index.css';
+@import 'docs/src/css/fonts/index.css';
 
 /* Components */
 @import './components/Accordion.css';
