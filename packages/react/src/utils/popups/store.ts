@@ -27,6 +27,10 @@ export type PopupStoreState<Payload> = {
    * The current enter/exit transition status of the popup.
    */
   transitionStatus: TransitionStatus;
+  /**
+   * Whether the popup has finished its most recent open transition.
+   */
+  openTransitionComplete: boolean;
 
   floatingRootContext: FloatingRootContext;
   /**
@@ -81,6 +85,7 @@ export function createInitialPopupStoreState<Payload>(): PopupStoreState<Payload
     openProp: undefined,
     mounted: false,
     transitionStatus: 'idle',
+    openTransitionComplete: false,
     floatingRootContext: getEmptyRootContext(),
     preventUnmountingOnClose: false,
     payload: undefined,
@@ -124,6 +129,7 @@ export const popupStoreSelectors = {
   open: createSelector((state: S) => state.openProp ?? state.open),
   mounted: createSelector((state: S) => state.mounted),
   transitionStatus: createSelector((state: S) => state.transitionStatus),
+  openTransitionComplete: createSelector((state: S) => state.openTransitionComplete),
   floatingRootContext: createSelector((state: S) => state.floatingRootContext),
   preventUnmountingOnClose: createSelector((state: S) => state.preventUnmountingOnClose),
   payload: createSelector((state: S) => state.payload),

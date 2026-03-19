@@ -323,6 +323,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       const updatedState: Partial<MenuStoreState<Payload>> = {
         open: nextOpen,
         openChangeReason: reason,
+        openTransitionComplete: nextOpen === open ? store.select('openTransitionComplete') : false,
       };
       openEventRef.current = eventDetails.event ?? null;
 

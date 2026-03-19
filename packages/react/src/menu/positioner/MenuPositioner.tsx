@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { FloatingNode } from '../../floating-ui-react';
@@ -76,9 +77,58 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const floatingNodeId = store.useState('floatingNodeId');
   const floatingParentNodeId = store.useState('floatingParentNodeId');
   const domReference = floatingRootContext.useState('domReferenceElement');
+  const parentMenuStore = parent.type === 'menu' ? parent.store : null;
+  const parentReadyFrame = useAnimationFrame();
+  const positionerUpdateFrame = useAnimationFrame();
+  const revealFrame = useAnimationFrame();
+  const [parentReadyToPosition, setParentReadyToPosition] = React.useState(
+    () => parentMenuStore?.select('openTransitionComplete') ?? true,
+  );
+  const [submenuReadyToReveal, setSubmenuReadyToReveal] = React.useState(
+    () => parent.type !== 'menu',
+  );
 
   const previousTriggerRef = React.useRef<Element | null>(null);
+  const blockedByParentAnimationRef = React.useRef(false);
   const runOnceAnimationsFinish = useAnimationsFinished(positionerElement, false, false);
+
+  useIsoLayoutEffect(() => {
+    if (parentMenuStore == null) {
+      parentReadyFrame.cancel();
+      setParentReadyToPosition(true);
+      return undefined;
+    }
+
+    const menuStore = parentMenuStore;
+
+    function syncParentReadyState() {
+      if (!menuStore.select('openTransitionComplete')) {
+        parentReadyFrame.cancel();
+        setParentReadyToPosition(false);
+        return;
+      }
+
+      // Submenu triggers live inside the parent popup and can still move for one paint after the
+      // parent's open animation reports completion. Wait one extra frame so the child positions
+      // against the settled trigger rect rather than the last in-flight transformed rect.
+      parentReadyFrame.request(() => {
+        setParentReadyToPosition(menuStore.select('openTransitionComplete'));
+      });
+    }
+
+    syncParentReadyState();
+
+    // This positioner lives in the child menu store but needs to react to the parent menu's
+    // open-complete state, so subscribe directly rather than mirroring that state through the child.
+    const unsubscribe = menuStore.subscribe(syncParentReadyState);
+
+    return () => {
+      parentReadyFrame.cancel();
+      unsubscribe();
+    };
+  }, [parentMenuStore, parentReadyFrame]);
+
+  const positionerMounted = mounted && (parent.type !== 'menu' || parentReadyToPosition);
 
   let anchor = anchorProp;
   let sideOffset = sideOffsetProp;
@@ -111,7 +161,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     anchor,
     floatingRootContext,
     positionMethod: contextMenuContext ? 'fixed' : positionMethodProp,
-    mounted,
+    mounted: positionerMounted,
     side: computedSide,
     sideOffset,
     align: computedAlign,
@@ -129,11 +179,75 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     externalTree: floatingTreeRoot,
     adaptiveOrigin: hasViewport ? adaptiveOrigin : undefined,
   });
+  const updatePositioner = positioner.update;
+
+  useIsoLayoutEffect(() => {
+    if (parent.type !== 'menu') {
+      positionerUpdateFrame.cancel();
+      revealFrame.cancel();
+      blockedByParentAnimationRef.current = false;
+      setSubmenuReadyToReveal(true);
+      return undefined;
+    }
+
+    if (!mounted) {
+      positionerUpdateFrame.cancel();
+      revealFrame.cancel();
+      blockedByParentAnimationRef.current = false;
+      setSubmenuReadyToReveal(true);
+      return undefined;
+    }
+
+    if (!parentReadyToPosition) {
+      positionerUpdateFrame.cancel();
+      revealFrame.cancel();
+      blockedByParentAnimationRef.current = true;
+      setSubmenuReadyToReveal(false);
+      return undefined;
+    }
+
+    if (!blockedByParentAnimationRef.current) {
+      setSubmenuReadyToReveal(true);
+      return undefined;
+    }
+
+    blockedByParentAnimationRef.current = false;
+    setSubmenuReadyToReveal(false);
+
+    positionerUpdateFrame.request(() => {
+      updatePositioner();
+
+      revealFrame.request(() => {
+        updatePositioner();
+        setSubmenuReadyToReveal(true);
+      });
+    });
+
+    return () => {
+      positionerUpdateFrame.cancel();
+      revealFrame.cancel();
+    };
+  }, [
+    mounted,
+    parent.type,
+    parentReadyToPosition,
+    updatePositioner,
+    positionerUpdateFrame,
+    revealFrame,
+  ]);
 
   const positionerProps = React.useMemo(() => {
     const hiddenStyles: React.CSSProperties = {};
 
     if (!open) {
+      hiddenStyles.pointerEvents = 'none';
+    }
+
+    if (
+      parent.type === 'menu' &&
+      (!parentReadyToPosition || !submenuReadyToReveal || !positioner.isPositioned)
+    ) {
+      hiddenStyles.visibility = 'hidden';
       hiddenStyles.pointerEvents = 'none';
     }
 
@@ -145,7 +259,15 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
         ...hiddenStyles,
       },
     };
-  }, [open, mounted, positioner.positionerStyles]);
+  }, [
+    open,
+    mounted,
+    parent.type,
+    parentReadyToPosition,
+    submenuReadyToReveal,
+    positioner.isPositioned,
+    positioner.positionerStyles,
+  ]);
 
   React.useEffect(() => {
     function onMenuOpenChange(details: MenuOpenEventDetails) {
@@ -284,6 +406,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       arrowUncentered: positioner.arrowUncentered,
       arrowStyles: positioner.arrowStyles,
       nodeId: positioner.context.nodeId,
+      deferEnterTransition: parent.type === 'menu' && !submenuReadyToReveal,
     }),
     [
       positioner.side,
@@ -292,6 +415,8 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       positioner.arrowUncentered,
       positioner.arrowStyles,
       positioner.context.nodeId,
+      parent.type,
+      submenuReadyToReveal,
     ],
   );
 
