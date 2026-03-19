@@ -1038,6 +1038,63 @@ describe('<Popover.Root />', () => {
         expect(positioner.previousElementSibling).toHaveAttribute('role', 'presentation');
       });
 
+      it('should only render focus guards inside the popup when `true`', async () => {
+        const { user } = await render(
+          <div>
+            <TestPopover
+              rootProps={{ modal: true }}
+              popupProps={{ children: <Popover.Close>Close</Popover.Close> }}
+            />
+          </div>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        await user.click(trigger);
+
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).not.to.equal(null);
+        });
+
+        expect(
+          trigger.previousElementSibling?.hasAttribute('data-base-ui-focus-guard'),
+        ).not.to.equal(true);
+        expect(trigger.nextElementSibling?.hasAttribute('data-base-ui-focus-guard')).not.to.equal(
+          true,
+        );
+        expect(
+          document.querySelectorAll('[data-base-ui-focus-guard][data-type="inside"]'),
+        ).to.have.length(2);
+      });
+
+      it('should keep trigger focus guards when `true` without a close part', async () => {
+        const { user } = await render(
+          <div>
+            <TestPopover
+              rootProps={{ defaultOpen: true, modal: true }}
+              popupProps={{ children: <input data-testid="input-inside" /> }}
+              afterTrigger={<input data-testid="focus-target" />}
+            />
+          </div>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        expect(trigger.previousElementSibling).to.have.attribute('data-base-ui-focus-guard');
+        expect(trigger.nextElementSibling).to.have.attribute('data-base-ui-focus-guard');
+
+        await act(async () => {
+          screen.getByTestId('input-inside').focus();
+        });
+
+        await user.tab();
+
+        expect(screen.getByTestId('focus-target')).toHaveFocus();
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('popover-popup')).to.equal(null);
+        });
+      });
+
       it('should not render an internal backdrop when `false`', async () => {
         const { user } = await render(
           <div>
