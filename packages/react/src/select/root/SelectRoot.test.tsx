@@ -920,6 +920,191 @@ describe('<Select.Root />', () => {
 
       expect(getComputedStyle(positioner).position).toBe('absolute');
     });
+
+    it('keeps the selected item highlighted when reopening after a touch-driven mouseleave', async () => {
+      await render(
+        <Select.Root>
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+                <Select.Item value="c">c</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByRole('combobox');
+
+      function fireTouchPress(element: HTMLElement) {
+        fireEvent.pointerDown(element, { pointerType: 'touch' });
+        fireEvent.mouseDown(element);
+      }
+
+      fireTouchPress(trigger);
+
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).toBeInTheDocument();
+      });
+
+      const optionB = screen.getByRole('option', { name: 'b' });
+      fireEvent.pointerDown(optionB, { pointerType: 'touch' });
+      fireEvent.click(optionB);
+      fireEvent.mouseLeave(optionB, { clientX: -1, clientY: -1 });
+
+      fireTouchPress(trigger);
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('data-highlighted');
+      });
+    });
+
+    it('recomputes positioning before the popup becomes visible again after touch dismiss', async ({
+      onTestFinished,
+    }) => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
+      const onOpenChangeComplete = vi.fn();
+      const items = Array.from({ length: 80 }, (_, index) => `Item ${index + 1}`);
+      const style = `
+        @keyframes select-reopen-test {
+          to {
+            opacity: 0;
+            transform: scale(0.9);
+          }
+        }
+
+        .reopen-test-popup {
+          width: 120px;
+          transition:
+            transform 150ms,
+            opacity 150ms;
+        }
+
+        .reopen-test-popup[data-starting-style],
+        .reopen-test-popup[data-ending-style] {
+          animation: select-reopen-test 20ms linear;
+        }
+
+        .reopen-test-list {
+          max-height: var(--available-height);
+          overflow-y: auto;
+        }
+      `;
+
+      function Test() {
+        const [open, setOpen] = React.useState(false);
+        const [paddingTop, setPaddingTop] = React.useState(0);
+        const triggerRef = React.useRef<HTMLButtonElement | null>(null);
+
+        React.useLayoutEffect(() => {
+          const trigger = triggerRef.current;
+          if (!trigger) {
+            return;
+          }
+
+          const gap =
+            document.documentElement.clientHeight - trigger.getBoundingClientRect().bottom;
+          if (Math.abs(gap - 100) <= 1) {
+            return;
+          }
+
+          setPaddingTop((prev) => prev + gap - 100);
+        }, [paddingTop]);
+
+        return (
+          <div style={{ paddingTop }}>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button data-testid="outside">Outside</button>
+            <Select.Root
+              open={open}
+              onOpenChange={setOpen}
+              onOpenChangeComplete={onOpenChangeComplete}
+            >
+              <Select.Trigger ref={triggerRef}>Open</Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner data-testid="positioner" sideOffset={8}>
+                  <Select.Popup className="reopen-test-popup">
+                    <Select.ScrollUpArrow />
+                    <Select.Arrow />
+                    <Select.List className="reopen-test-list">
+                      <div aria-hidden style={{ height: 75 }}>
+                        Start
+                      </div>
+                      {items.map((item) => (
+                        <Select.Item key={item} value={item}>
+                          {item}
+                        </Select.Item>
+                      ))}
+                      <div aria-hidden style={{ height: 75 }}>
+                        End
+                      </div>
+                    </Select.List>
+                    <Select.ScrollDownArrow />
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const trigger = screen.getByRole('combobox');
+      const outside = screen.getByTestId('outside');
+
+      await waitFor(() => {
+        const gap = document.documentElement.clientHeight - trigger.getBoundingClientRect().bottom;
+        expect(Math.abs(gap - 100)).toBeLessThanOrEqual(1);
+      });
+
+      function fireTouchPress() {
+        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+        fireEvent.mouseDown(trigger);
+      }
+
+      fireTouchPress();
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).not.toBe(null);
+      });
+
+      const initialPositioner = screen.getByTestId('positioner');
+
+      expect(initialPositioner).toHaveAttribute('data-side', 'top');
+
+      fireEvent.pointerDown(outside, { pointerType: 'touch' });
+      fireEvent.mouseDown(outside);
+
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+        expect(onOpenChangeComplete.mock.calls.some(([value]) => value === false)).toBe(true);
+        expect(screen.getByTestId('positioner').style.opacity).toBe('0');
+      });
+
+      fireTouchPress();
+
+      await waitFor(() => {
+        expect(screen.getByTestId('positioner').style.opacity).not.toBe('0');
+      });
+
+      const reopenedPositioner = screen.getByTestId('positioner');
+      const reopenedList = screen.getByRole('listbox');
+      expect(reopenedPositioner).toHaveAttribute('data-side', 'top');
+      expect(reopenedList.getBoundingClientRect().height).toBeGreaterThan(200);
+
+      await user.click(outside);
+    });
   });
 
   describe('prop: actionsRef', () => {
