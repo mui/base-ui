@@ -14,6 +14,7 @@ import {
 import { activeElement, contains } from '../../floating-ui-react/utils';
 import { useRenderElement } from '../../utils/useRenderElement';
 import {
+  type NavigationMenuPopupAutoSizeResetState,
   NavigationMenuRootContext,
   NavigationMenuTreeContext,
   useNavigationMenuRootContext,
@@ -108,6 +109,12 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
   const afterInsideRef = React.useRef<HTMLSpanElement | null>(null);
   const beforeOutsideRef = React.useRef<HTMLSpanElement | null>(null);
   const afterOutsideRef = React.useRef<HTMLSpanElement | null>(null);
+  // Shared across triggers so a newly active trigger can cancel a stale
+  // popup auto-size reset scheduled by the previously active trigger.
+  const popupAutoSizeResetRef = React.useRef<NavigationMenuPopupAutoSizeResetState>({
+    abortController: null,
+    owner: null,
+  });
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
@@ -222,6 +229,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
       beforeOutsideRef,
       afterOutsideRef,
       prevTriggerElementRef,
+      popupAutoSizeResetRef,
       delay,
       closeDelay,
       orientation,
