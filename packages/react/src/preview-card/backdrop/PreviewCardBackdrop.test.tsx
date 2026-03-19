@@ -1,3 +1,4 @@
+import { expect } from 'vitest';
 import { PreviewCard } from '@base-ui/react/preview-card';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -30,7 +31,7 @@ describe('<PreviewCard.Backdrop />', () => {
     await user.hover(screen.getByText('Open'));
 
     await waitFor(() => {
-      expect(screen.getByTestId('backdrop').style.pointerEvents).to.equal('none');
+      expect(screen.getByTestId('backdrop').style.pointerEvents).toBe('none');
     });
   });
 });

@@ -1,5 +1,5 @@
+import { expect } from 'vitest';
 import * as React from 'react';
-import { expect } from 'chai';
 import { act, screen } from '@mui/internal-test-utils';
 import { Tabs } from '@base-ui/react/tabs';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -28,33 +28,33 @@ describe('<Tabs.List />', () => {
       const tab2 = screen.getByText('Tab 2');
       const tab3 = screen.getByText('Tab 3');
 
-      expect(tab1).to.have.attribute('aria-selected', 'true');
-      expect(tab2).to.have.attribute('aria-selected', 'false');
-      expect(tab3).to.have.attribute('aria-selected', 'false');
+      expect(tab1).toHaveAttribute('aria-selected', 'true');
+      expect(tab2).toHaveAttribute('aria-selected', 'false');
+      expect(tab3).toHaveAttribute('aria-selected', 'false');
 
       await act(async () => {
         tab2.click();
       });
 
-      expect(tab1).to.have.attribute('aria-selected', 'false');
-      expect(tab2).to.have.attribute('aria-selected', 'true');
-      expect(tab3).to.have.attribute('aria-selected', 'false');
+      expect(tab1).toHaveAttribute('aria-selected', 'false');
+      expect(tab2).toHaveAttribute('aria-selected', 'true');
+      expect(tab3).toHaveAttribute('aria-selected', 'false');
 
       await act(async () => {
         tab3.click();
       });
 
-      expect(tab1).to.have.attribute('aria-selected', 'false');
-      expect(tab2).to.have.attribute('aria-selected', 'false');
-      expect(tab3).to.have.attribute('aria-selected', 'true');
+      expect(tab1).toHaveAttribute('aria-selected', 'false');
+      expect(tab2).toHaveAttribute('aria-selected', 'false');
+      expect(tab3).toHaveAttribute('aria-selected', 'true');
 
       await act(async () => {
         tab1.click();
       });
 
-      expect(tab1).to.have.attribute('aria-selected', 'true');
-      expect(tab2).to.have.attribute('aria-selected', 'false');
-      expect(tab3).to.have.attribute('aria-selected', 'false');
+      expect(tab1).toHaveAttribute('aria-selected', 'true');
+      expect(tab2).toHaveAttribute('aria-selected', 'false');
+      expect(tab3).toHaveAttribute('aria-selected', 'false');
     });
   });
 

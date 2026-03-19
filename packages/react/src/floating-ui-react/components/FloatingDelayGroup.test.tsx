@@ -1,8 +1,8 @@
+import { vi, expect } from 'vitest';
 /* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable react/jsx-fragments */
 import * as React from 'react';
 import { act, fireEvent, render, screen } from '@mui/internal-test-utils';
-import { vi } from 'vitest';
 
 import { isJSDOM } from '@base-ui/utils/detectBrowser';
 import {

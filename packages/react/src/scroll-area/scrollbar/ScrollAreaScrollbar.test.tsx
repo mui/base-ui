@@ -1,7 +1,7 @@
+import { expect } from 'vitest';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { screen, fireEvent, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, describeConformance } from '#test-utils';
-import { expect } from 'chai';
 import { SCROLL_TIMEOUT } from '../constants';
 
 describe('<ScrollArea.Scrollbar />', () => {
@@ -35,8 +35,8 @@ describe('<ScrollArea.Scrollbar />', () => {
       const horizontalScrollbar = screen.getByTestId('horizontal');
       const viewport = screen.getByTestId('viewport');
 
-      expect(verticalScrollbar).not.to.have.attribute('data-scrolling');
-      expect(horizontalScrollbar).not.to.have.attribute('data-scrolling');
+      expect(verticalScrollbar).not.toHaveAttribute('data-scrolling');
+      expect(horizontalScrollbar).not.toHaveAttribute('data-scrolling');
 
       fireEvent.pointerEnter(viewport);
       fireEvent.scroll(viewport, {
@@ -45,13 +45,13 @@ describe('<ScrollArea.Scrollbar />', () => {
         },
       });
 
-      expect(verticalScrollbar).to.have.attribute('data-scrolling', '');
-      expect(horizontalScrollbar).not.to.have.attribute('data-scrolling', '');
+      expect(verticalScrollbar).toHaveAttribute('data-scrolling', '');
+      expect(horizontalScrollbar).not.toHaveAttribute('data-scrolling', '');
 
       await clock.tickAsync(SCROLL_TIMEOUT - 1);
 
-      expect(verticalScrollbar).to.have.attribute('data-scrolling', '');
-      expect(horizontalScrollbar).not.to.have.attribute('data-scrolling', '');
+      expect(verticalScrollbar).toHaveAttribute('data-scrolling', '');
+      expect(horizontalScrollbar).not.toHaveAttribute('data-scrolling', '');
 
       fireEvent.pointerEnter(viewport);
       fireEvent.scroll(viewport, {
@@ -62,18 +62,18 @@ describe('<ScrollArea.Scrollbar />', () => {
 
       await clock.tickAsync(1); // vertical just finished
 
-      expect(verticalScrollbar).not.to.have.attribute('data-scrolling');
-      expect(horizontalScrollbar).to.have.attribute('data-scrolling');
+      expect(verticalScrollbar).not.toHaveAttribute('data-scrolling');
+      expect(horizontalScrollbar).toHaveAttribute('data-scrolling');
 
       await clock.tickAsync(SCROLL_TIMEOUT - 2); // already ticked 1ms above
 
-      expect(verticalScrollbar).not.to.have.attribute('data-scrolling');
-      expect(horizontalScrollbar).to.have.attribute('data-scrolling');
+      expect(verticalScrollbar).not.toHaveAttribute('data-scrolling');
+      expect(horizontalScrollbar).toHaveAttribute('data-scrolling');
 
       await clock.tickAsync(1);
 
-      expect(verticalScrollbar).not.to.have.attribute('data-scrolling');
-      expect(horizontalScrollbar).not.to.have.attribute('data-scrolling');
+      expect(verticalScrollbar).not.toHaveAttribute('data-scrolling');
+      expect(horizontalScrollbar).not.toHaveAttribute('data-scrolling');
     });
   });
 
@@ -100,15 +100,17 @@ describe('<ScrollArea.Scrollbar />', () => {
       const vScrollbar = screen.getByTestId('scrollbar-vertical');
       const hScrollbar = screen.getByTestId('scrollbar-horizontal');
 
+      /* eslint-disable testing-library/no-wait-for-multiple-assertions */
       await waitFor(() => {
-        expect(vScrollbar).to.have.attribute('data-has-overflow-y');
-        expect(vScrollbar).not.to.have.attribute('data-overflow-y-start');
-        expect(vScrollbar).to.have.attribute('data-overflow-y-end');
+        expect(vScrollbar).toHaveAttribute('data-has-overflow-y');
+        expect(vScrollbar).not.toHaveAttribute('data-overflow-y-start');
+        expect(vScrollbar).toHaveAttribute('data-overflow-y-end');
 
-        expect(hScrollbar).to.have.attribute('data-has-overflow-x');
-        expect(hScrollbar).not.to.have.attribute('data-overflow-x-start');
-        expect(hScrollbar).to.have.attribute('data-overflow-x-end');
+        expect(hScrollbar).toHaveAttribute('data-has-overflow-x');
+        expect(hScrollbar).not.toHaveAttribute('data-overflow-x-start');
+        expect(hScrollbar).toHaveAttribute('data-overflow-x-end');
       });
+      /* eslint-enable testing-library/no-wait-for-multiple-assertions */
 
       // Scroll to middle
       const halfY = (viewport.scrollHeight - viewport.clientHeight) / 2;
@@ -118,10 +120,10 @@ describe('<ScrollArea.Scrollbar />', () => {
       });
       await flushMicrotasks();
 
-      expect(vScrollbar).to.have.attribute('data-overflow-y-start');
-      expect(vScrollbar).to.have.attribute('data-overflow-y-end');
-      expect(hScrollbar).to.have.attribute('data-overflow-x-start');
-      expect(hScrollbar).to.have.attribute('data-overflow-x-end');
+      expect(vScrollbar).toHaveAttribute('data-overflow-y-start');
+      expect(vScrollbar).toHaveAttribute('data-overflow-y-end');
+      expect(hScrollbar).toHaveAttribute('data-overflow-x-start');
+      expect(hScrollbar).toHaveAttribute('data-overflow-x-end');
     });
   });
 });

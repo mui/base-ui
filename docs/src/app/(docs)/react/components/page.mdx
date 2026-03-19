@@ -220,6 +220,57 @@ A button component that can be rendered as another tag or focusable when disable
 
 An easily stylable calendar component.
 
+<details>
+
+<summary>Outline</summary>
+
+- Keywords: React Calendar, React Date Picker, React Date Calendar, Calendar, Date Picker, Temporal, Base UI
+- Sections:
+  - Anatomy
+  - Examples
+    - Unavailable dates
+    - Validation
+    - Lazy loading
+    - Display week numbers
+    - Timezone support
+    - Month and year select
+    - Animating month changes
+      - Animating with `motion/react`
+    - Localization
+  - API reference
+- Exports:
+  - Calendar - DayButton
+    - Props: className, focusableWhenDisabled, format, nativeButton, render, style
+    - Data Attributes: data-current, data-disabled, data-outside-month, data-selected, data-unavailable
+  - Calendar - DayGrid
+    - Props: className, render, style
+  - Calendar - DayGridBody
+    - Props: children, className, fixedWeekNumber, offset, render, style
+  - Calendar - DayGridCell
+    - Props: className, render, style, value
+  - Calendar - DayGridHeader
+    - Props: className, render, style
+  - Calendar - DayGridHeaderCell
+    - Props: className, formatter, render, style, value
+  - Calendar - DayGridHeaderRow
+    - Props: children, className, render, style
+  - Calendar - DayGridRow
+    - Props: children, className, render, style, value
+  - Calendar - DecrementMonth
+    - Props: className, nativeButton, render, style
+    - Data Attributes: data-disabled
+  - Calendar - IncrementMonth
+    - Props: className, nativeButton, render, style
+    - Data Attributes: data-disabled
+  - Calendar - Root
+    - Props: children, className, defaultValue, defaultVisibleDate, disabled, invalid, isDateUnavailable, maxDate, minDate, monthPageSize, onValueChange, onVisibleDateChange, readOnly, referenceDate, render, style, timezone, value, visibleDate
+    - Data Attributes: data-disabled, data-empty, data-invalid, data-navigation-direction, data-readonly
+  - Calendar - Viewport
+    - Props: children
+    - Data Attributes: data-current, data-ending-style, data-navigation-direction, data-previous, data-starting-style
+
+</details>
+
 [Read more](./calendar/page.mdx)
 
 ## Checkbox
@@ -1204,6 +1255,7 @@ An easily stylable range input.
     - Range slider
     - Thumb alignment
     - Labeling a slider
+    - Vertical
     - Form integration
   - API reference
 - Exports:
@@ -1272,6 +1324,8 @@ A component for toggling between related panels on the same page.
 - Keywords: React Tabs, Tabbed Interface Component, Tab Panel, Tab Control, Tabbed Navigation, Tabbed UI, Page Switcher, Content Switcher, View Switcher, Carousel Alternative, Tab List Indicator, Accessible Tabs, Headless React Components, Base UI
 - Sections:
   - Anatomy
+  - Examples
+    - Links
   - API reference
 - Exports:
   - Tabs - Root
@@ -1396,6 +1450,8 @@ Provides a shared state to a series of toggle buttons.
 - Keywords: React Toggle Group, Toggle Button Group, Segmented Control, Button Set, Radio Group Alternative, Exclusive Selection Toggle, Multi Select Toggle Buttons, Accessible Toggle Group, Headless React Components, Base UI
 - Sections:
   - Anatomy
+  - Examples
+    - Multiple
   - API reference
 - Exports:
   - ToggleGroup
