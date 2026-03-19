@@ -4,7 +4,7 @@ import { Autocomplete } from '@base-ui/react/autocomplete';
 export default function ExampleAutocompleteAutoHighlight() {
   return (
     <Autocomplete.Root items={tags} autoHighlight>
-      <label className="flex flex-col gap-1 text-sm leading-5 font-semibold text-gray-900">
+      <label className="flex flex-col gap-1 text-sm leading-5 font-bold text-gray-900">
         Auto highlight on type
         <Autocomplete.Input
           placeholder="e.g. feature"

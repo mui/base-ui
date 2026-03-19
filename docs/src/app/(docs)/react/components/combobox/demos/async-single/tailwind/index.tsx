@@ -108,7 +108,7 @@ export default function ExampleAsyncSingleCombobox() {
         });
       }}
     >
-      <div className="relative flex flex-col gap-1 text-sm font-semibold leading-5 text-gray-900">
+      <div className="relative flex flex-col gap-1 text-sm font-bold leading-5 text-gray-900">
         <label htmlFor={id}>Assign reviewer</label>
         <Combobox.InputGroup className="relative box-content h-10 w-[16rem] rounded-md border border-gray-200 bg-[canvas] focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-blue-800 md:w-[20rem] [&>input]:pr-[calc(0.5rem+1.5rem)] has-[.combobox-clear]:[&>input]:pr-[calc(0.5rem+1.5rem*2)]">
           <Combobox.Input
@@ -156,7 +156,7 @@ export default function ExampleAsyncSingleCombobox() {
                     <CheckIcon className="size-3" />
                   </Combobox.ItemIndicator>
                   <div className="col-start-2 flex flex-col gap-1">
-                    <div className="text-[0.95rem] font-semibold">{user.name}</div>
+                    <div className="text-[0.95rem] font-bold">{user.name}</div>
                     <div className="flex flex-wrap gap-3 text-[0.8125rem] text-gray-600">
                       <span className="opacity-80">@{user.username}</span>
                       <span>{user.title}</span>

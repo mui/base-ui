@@ -13,7 +13,7 @@ export default function InsideScrollDialog() {
         <Dialog.Viewport className="fixed inset-0 flex items-center justify-center overflow-hidden py-6 [@media(min-height:600px)]:pb-12 [@media(min-height:600px)]:pt-8">
           <Dialog.Popup className="relative flex w-[min(40rem,calc(100vw-2rem))] max-h-full max-w-full min-h-0 flex-col overflow-hidden rounded-lg bg-gray-50 p-8 text-gray-900 shadow-[0_24px_45px_rgba(15,23,42,0.18)] outline-1 outline-gray-200 transition-all duration-[300ms] ease-[cubic-bezier(0.45,1.005,0,1.005)] data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0 dark:outline-gray-300">
             <div className="mb-2 flex items-start justify-between gap-3">
-              <Dialog.Title className="m-0 text-xl font-semibold leading-[1.875rem]">
+              <Dialog.Title className="m-0 text-xl font-bold leading-[1.875rem]">
                 Dialog
               </Dialog.Title>
             </div>
@@ -25,9 +25,7 @@ export default function InsideScrollDialog() {
                 <ScrollArea.Content className="flex flex-col gap-6">
                   {CONTENT_SECTIONS.map((item) => (
                     <section key={item.title}>
-                      <h3 className="mb-[0.4rem] text-base font-semibold leading-6">
-                        {item.title}
-                      </h3>
+                      <h3 className="mb-[0.4rem] text-base font-bold leading-6">{item.title}</h3>
                       <p className="m-0 text-[0.95rem] leading-[1.55rem] text-gray-700">
                         {item.body}
                       </p>

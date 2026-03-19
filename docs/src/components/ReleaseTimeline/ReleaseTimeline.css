@@ -159,7 +159,7 @@
     font-size: var(--text-lg);
     line-height: var(--text-lg--line-height);
     letter-spacing: var(--text-lg--letter-spacing);
-    font-weight: 600;
+    font-weight: 700;
     color: var(--color-foreground);
   }
 
@@ -192,7 +192,7 @@
     font-size: var(--text-xxs);
     line-height: var(--text-xxs--line-height);
     letter-spacing: var(--text-xxs--letter-spacing);
-    font-weight: 600;
+    font-weight: 700;
     color: var(--color-green);
     border: 1px solid currentColor;
     border-radius: 999px;

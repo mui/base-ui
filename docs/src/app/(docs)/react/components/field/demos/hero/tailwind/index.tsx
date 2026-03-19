@@ -3,7 +3,7 @@ import { Field } from '@base-ui/react/field';
 export default function ExampleField() {
   return (
     <Field.Root className="flex w-full max-w-64 flex-col items-start gap-1">
-      <Field.Label className="text-sm font-semibold text-gray-900">Name</Field.Label>
+      <Field.Label className="text-sm font-bold text-gray-900">Name</Field.Label>
       <Field.Control
         required
         placeholder="Required"

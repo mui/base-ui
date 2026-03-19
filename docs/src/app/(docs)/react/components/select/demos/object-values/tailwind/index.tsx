@@ -6,7 +6,7 @@ export default function ObjectValueSelect() {
   return (
     <div className="flex flex-col gap-1">
       <Select.Root defaultValue={shippingMethods[0]} itemToStringValue={(item) => item.id}>
-        <Select.Label className="cursor-default text-sm leading-5 font-semibold text-gray-900">
+        <Select.Label className="cursor-default text-sm leading-5 font-bold text-gray-900">
           Shipping method
         </Select.Label>
         <Select.Trigger className="flex min-h-10 min-w-[16rem] items-start justify-between gap-3 rounded-md border border-gray-200 pr-3 pl-3.5 py-2 text-base bg-[canvas] text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100">

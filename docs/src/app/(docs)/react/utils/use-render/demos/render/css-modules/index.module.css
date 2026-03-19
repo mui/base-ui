@@ -4,6 +4,6 @@
   color: var(--color-gray-900);
 
   strong& {
-    font-weight: 600;
+    font-weight: 700;
   }
 }

@@ -13,7 +13,7 @@ export default function ExampleSelect() {
   return (
     <div className="flex flex-col gap-1">
       <Select.Root items={apples}>
-        <Select.Label className="cursor-default text-sm leading-5 font-semibold text-gray-900">
+        <Select.Label className="cursor-default text-sm leading-5 font-bold text-gray-900">
           Apple
         </Select.Label>
         <Select.Trigger className="flex h-10 min-w-40 items-center justify-between gap-3 rounded-md border border-gray-200 pr-3 pl-3.5 text-base bg-[canvas] text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100 font-normal">

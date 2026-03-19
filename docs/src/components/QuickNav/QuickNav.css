@@ -49,7 +49,7 @@
 
   .QuickNavTitle {
     padding-block: var(--quick-nav-item-padding-y);
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: calc(var(--text-md--letter-spacing) * -1);
   }
 

@@ -11,7 +11,7 @@ export default function ExampleCheckboxGroup() {
       defaultValue={['fuji-apple']}
       className="flex flex-col items-start gap-1 text-gray-900"
     >
-      <div className="font-semibold" id={id}>
+      <div className="font-bold" id={id}>
         Apples
       </div>
 

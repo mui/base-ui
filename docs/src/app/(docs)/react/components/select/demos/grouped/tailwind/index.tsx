@@ -6,7 +6,7 @@ export default function ExampleSelectGrouped() {
   return (
     <Field.Root className="flex flex-col gap-1">
       <Field.Label
-        className="cursor-default text-sm leading-5 font-semibold text-gray-900"
+        className="cursor-default text-sm leading-5 font-bold text-gray-900"
         nativeLabel={false}
         render={<div />}
       >
@@ -27,7 +27,7 @@ export default function ExampleSelectGrouped() {
                 {groupedProduce.map((group, index) => (
                   <React.Fragment key={group.value}>
                     <Select.Group className="block pb-0.5">
-                      <Select.GroupLabel className="sticky top-0 z-[1] bg-[canvas] pr-4 pb-1 pl-[1.875rem] pt-2 text-[0.6875rem] font-semibold text-[var(--color-gray-700)] uppercase tracking-wider">
+                      <Select.GroupLabel className="sticky top-0 z-[1] bg-[canvas] pr-4 pb-1 pl-[1.875rem] pt-2 text-[0.6875rem] font-bold text-[var(--color-gray-700)] uppercase tracking-wider">
                         {group.value}
                       </Select.GroupLabel>
                       {group.items.map((item) => (

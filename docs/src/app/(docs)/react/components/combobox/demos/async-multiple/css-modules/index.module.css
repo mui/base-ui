@@ -10,7 +10,7 @@
 .Label {
   display: inline-flex;
   color: inherit;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .InputGroup {
@@ -251,7 +251,7 @@
 
 .ItemTitle {
   font-size: 0.95rem;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .ItemSubtitle {

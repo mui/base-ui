@@ -6,7 +6,7 @@ export default function ExampleGroupedCombobox() {
   const id = React.useId();
   return (
     <Combobox.Root items={groupedProduce}>
-      <div className="relative flex flex-col gap-1 text-sm leading-5 font-semibold text-gray-900">
+      <div className="relative flex flex-col gap-1 text-sm leading-5 font-bold text-gray-900">
         <label htmlFor={id}>Select produce</label>
         <Combobox.InputGroup className="relative box-content h-10 w-[16rem] rounded-md border border-gray-200 bg-[canvas] focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-blue-800 [&>input]:pr-[calc(0.5rem+1.5rem)] has-[.combobox-clear]:[&>input]:pr-[calc(0.5rem+1.5rem*2)]">
           <Combobox.Input
@@ -40,7 +40,7 @@ export default function ExampleGroupedCombobox() {
             <Combobox.List className="outline-0 overflow-y-auto scroll-pt-[2.25rem] scroll-pb-[0.5rem] overscroll-contain max-h-[min(23rem,var(--available-height))]">
               {(group: ProduceGroup) => (
                 <Combobox.Group key={group.value} items={group.items} className="block pb-2">
-                  <Combobox.GroupLabel className="sticky top-0 z-[1] mb-0 mr-2 mt-0 ml-0 w-[calc(100%-0.5rem)] bg-[canvas] pr-4 pl-[2.25rem] pt-3 pb-1 text-[0.7rem] font-semibold uppercase tracking-wider">
+                  <Combobox.GroupLabel className="sticky top-0 z-[1] mb-0 mr-2 mt-0 ml-0 w-[calc(100%-0.5rem)] bg-[canvas] pr-4 pl-[2.25rem] pt-3 pb-1 text-[0.7rem] font-bold uppercase tracking-wider">
                     {group.value}
                   </Combobox.GroupLabel>
                   <Combobox.Collection>

@@ -241,7 +241,7 @@
   font-size: 1.125rem;
   line-height: 1.75rem;
   letter-spacing: -0.0025em;
-  font-weight: 600;
+  font-weight: 700;
   text-align: center;
 }
 
@@ -279,7 +279,7 @@
 .Label {
   font-size: 0.925rem;
   line-height: 1.25rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--color-gray-700);
 }
 

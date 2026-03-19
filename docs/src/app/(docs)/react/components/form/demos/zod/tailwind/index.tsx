@@ -37,7 +37,7 @@ export default function Page() {
       }}
     >
       <Field.Root name="name" className="flex flex-col items-start gap-1">
-        <Field.Label className="text-sm font-semibold text-gray-900">Name</Field.Label>
+        <Field.Label className="text-sm font-bold text-gray-900">Name</Field.Label>
         <Field.Control
           placeholder="Enter name"
           className="h-10 w-full rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 font-normal"
@@ -45,7 +45,7 @@ export default function Page() {
         <Field.Error className="text-sm text-red-800" />
       </Field.Root>
       <Field.Root name="age" className="flex flex-col items-start gap-1">
-        <Field.Label className="text-sm font-semibold text-gray-900">Age</Field.Label>
+        <Field.Label className="text-sm font-bold text-gray-900">Age</Field.Label>
         <Field.Control
           placeholder="Enter age"
           className="h-10 w-full rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 font-normal"

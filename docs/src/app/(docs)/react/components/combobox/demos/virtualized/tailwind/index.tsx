@@ -32,7 +32,7 @@ export default function ExampleVirtualizedCombobox() {
         }
       }}
     >
-      <label className="flex flex-col gap-1 text-sm leading-5 font-semibold text-gray-900">
+      <label className="flex flex-col gap-1 text-sm leading-5 font-bold text-gray-900">
         Search 10,000 items
         <Combobox.Input className="h-10 w-64 rounded-md font-normal border border-gray-200 pl-3.5 text-base text-gray-900 bg-[canvas] focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800" />
       </label>

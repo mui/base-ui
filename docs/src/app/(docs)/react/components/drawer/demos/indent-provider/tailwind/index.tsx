@@ -21,7 +21,7 @@ export default function ExampleDrawer() {
                   <Drawer.Popup className="box-border w-full max-h-[calc(80vh+var(--bleed))] -mb-[var(--bleed)] rounded-t-2xl outline outline-1 outline-gray-200 bg-gray-50 px-6 py-4 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px)+var(--bleed))] text-gray-900 overflow-y-auto overscroll-contain transition-transform duration-[450ms] ease-[cubic-bezier(0.32,0.72,0,1)] [transform:translateY(var(--drawer-swipe-movement-y))] data-[swiping]:select-none data-[ending-style]:[transform:translateY(calc(100%-var(--bleed)+2px))] data-[starting-style]:[transform:translateY(calc(100%-var(--bleed)+2px))] data-[ending-style]:duration-[calc(var(--drawer-swipe-strength)*400ms)] dark:outline-gray-300">
                     <div className="mx-auto mb-4 h-1 w-12 rounded-full bg-gray-300" />
                     <Drawer.Content className="mx-auto w-full max-w-[32rem]">
-                      <Drawer.Title className="mt-0 mb-1 text-lg leading-7 font-semibold tracking-[-0.0025em] text-center">
+                      <Drawer.Title className="mt-0 mb-1 text-lg leading-7 font-bold tracking-[-0.0025em] text-center">
                         Notifications
                       </Drawer.Title>
                       <Drawer.Description className="mb-6 text-base leading-6 text-gray-600 text-center">

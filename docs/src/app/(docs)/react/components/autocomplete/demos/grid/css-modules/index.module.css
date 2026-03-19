@@ -191,7 +191,7 @@
   box-sizing: border-box;
   padding: 0.5rem 1rem 0.25rem;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--color-gray-600);
   text-transform: uppercase;
   letter-spacing: 0.025em;
@@ -252,10 +252,6 @@
   font-size: 1.5rem;
   line-height: 1;
   margin-bottom: 0.25rem;
-}
-
-.Item[data-highlighted] .Name {
-  opacity: 1;
 }
 
 .Empty:not(:empty) {

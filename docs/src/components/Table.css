@@ -28,7 +28,7 @@
 
   .TableColumnHeader {
     text-align: initial;
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 0.00625em;
     color: var(--color-foreground);
     background-color: var(--color-gray-50);

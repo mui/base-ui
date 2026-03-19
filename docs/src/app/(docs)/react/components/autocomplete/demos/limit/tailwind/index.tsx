@@ -21,7 +21,7 @@ export default function ExampleAutocompleteLimit() {
 
   return (
     <Autocomplete.Root items={tags} value={value} onValueChange={setValue} limit={limit}>
-      <label className="flex flex-col gap-1 text-sm leading-5 font-semibold text-gray-900">
+      <label className="flex flex-col gap-1 text-sm leading-5 font-bold text-gray-900">
         Limit results to 8
         <Autocomplete.Input
           placeholder="e.g. component"

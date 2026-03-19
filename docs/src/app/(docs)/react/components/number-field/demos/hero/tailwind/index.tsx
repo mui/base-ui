@@ -6,7 +6,7 @@ export default function ExampleNumberField() {
   return (
     <NumberField.Root id={id} defaultValue={100} className="flex flex-col items-start gap-1">
       <NumberField.ScrubArea className="cursor-ew-resize">
-        <label htmlFor={id} className="cursor-ew-resize text-sm font-semibold text-gray-900">
+        <label htmlFor={id} className="cursor-ew-resize text-sm font-bold text-gray-900">
           Amount
         </label>
         <NumberField.ScrubAreaCursor className="drop-shadow-[0_1px_1px_#0008] filter">

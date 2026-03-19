@@ -7,6 +7,6 @@
   font-size: 0.75rem;
   color: var(--calendar-day-grid-header-color);
   /* Avoid the bold font weight from the th element */
-  font-weight: 600;
+  font-weight: 700;
   padding: 0;
 }

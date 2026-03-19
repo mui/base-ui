@@ -7,7 +7,7 @@
 
 .ScrubArea {
   cursor: ew-resize;
-  font-weight: 600;
+  font-weight: 700;
   user-select: none;
 }
 
@@ -19,7 +19,7 @@
   cursor: ew-resize;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--color-gray-900);
 }
 

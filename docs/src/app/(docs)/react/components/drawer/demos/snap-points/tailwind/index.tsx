@@ -26,7 +26,7 @@ export default function ExampleDrawerSnapPoints() {
           >
             <div className="shrink-0 border-b border-gray-200 px-6 pt-3.5 pb-3 touch-none dark:border-gray-300">
               <div className="mx-auto h-1 w-12 rounded-full bg-gray-300" />
-              <Drawer.Title className="mt-2.5 cursor-default text-center text-lg font-semibold">
+              <Drawer.Title className="mt-2.5 cursor-default text-center text-lg font-bold">
                 Snap points
               </Drawer.Title>
             </div>

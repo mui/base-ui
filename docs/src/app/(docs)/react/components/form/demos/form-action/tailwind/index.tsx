@@ -18,7 +18,7 @@ export default function ActionStateForm() {
       className="flex w-full max-w-64 flex-col gap-4"
     >
       <Field.Root name="username" className="flex flex-col items-start gap-1">
-        <Field.Label className="text-sm font-semibold text-gray-900">Username</Field.Label>
+        <Field.Label className="text-sm font-bold text-gray-900">Username</Field.Label>
         <Field.Control
           type="username"
           required

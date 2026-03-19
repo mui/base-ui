@@ -6,7 +6,7 @@
 
 @font-face {
   font-family: 'die grotesk a';
-  font-weight: 600;
+  font-weight: 700;
   src: url('/fonts/die-grotesk-a-bold.woff2') format('woff2');
 }
 
@@ -18,7 +18,7 @@
 
 @font-face {
   font-family: 'die grotesk b';
-  font-weight: 600;
+  font-weight: 700;
   src: url('/fonts/die-grotesk-b-bold.woff2') format('woff2');
 }
 

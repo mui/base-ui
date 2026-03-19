@@ -13,9 +13,7 @@ export default function ExampleDrawerNested() {
           <Drawer.Popup className={popupClassName}>
             <div className={handleClassName} />
             <Drawer.Content className={contentClassName}>
-              <Drawer.Title className="mb-1 text-lg font-semibold text-center">
-                Account
-              </Drawer.Title>
+              <Drawer.Title className="mb-1 text-lg font-bold text-center">Account</Drawer.Title>
               <Drawer.Description className="mb-6 text-base text-gray-600 text-center">
                 Nested drawers can be styled to stack, while each drawer remains independently focus
                 managed.
@@ -32,7 +30,7 @@ export default function ExampleDrawerNested() {
                         <Drawer.Popup className={popupClassName}>
                           <div className={handleClassName} />
                           <Drawer.Content className={contentClassName}>
-                            <Drawer.Title className="mb-1 text-lg font-semibold text-center">
+                            <Drawer.Title className="mb-1 text-lg font-bold text-center">
                               Security
                             </Drawer.Title>
                             <Drawer.Description className="mb-6 text-base text-gray-600 text-center">
@@ -56,7 +54,7 @@ export default function ExampleDrawerNested() {
                                       <Drawer.Popup className={popupClassName}>
                                         <div className={handleClassName} />
                                         <Drawer.Content className={contentClassName}>
-                                          <Drawer.Title className="mb-1 text-lg font-semibold text-center">
+                                          <Drawer.Title className="mb-1 text-lg font-bold text-center">
                                             Advanced
                                           </Drawer.Title>
                                           <Drawer.Description className="mb-6 text-base text-gray-600 text-center">
@@ -66,7 +64,7 @@ export default function ExampleDrawerNested() {
 
                                           <div className="grid gap-1.5 mb-4">
                                             <label
-                                              className="text-sm font-semibold text-gray-700"
+                                              className="text-sm font-bold text-gray-700"
                                               htmlFor="device-name-tw"
                                             >
                                               Device name
@@ -80,7 +78,7 @@ export default function ExampleDrawerNested() {
 
                                           <div className="grid gap-1.5 mb-6">
                                             <label
-                                              className="text-sm font-semibold text-gray-700"
+                                              className="text-sm font-bold text-gray-700"
                                               htmlFor="notes-tw"
                                             >
                                               Notes

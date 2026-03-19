@@ -11,7 +11,7 @@ export default function ExampleRadioGroup() {
       defaultValue="fuji-apple"
       className="flex flex-col items-start gap-1 text-gray-900"
     >
-      <div className="font-semibold" id={id}>
+      <div className="font-bold" id={id}>
         Best apple
       </div>
 

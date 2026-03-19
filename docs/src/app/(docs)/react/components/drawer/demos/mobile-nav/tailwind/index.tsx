@@ -89,7 +89,7 @@ export default function ExampleDrawerMobileNav() {
                     </div>
 
                     <Drawer.Content className="w-full">
-                      <Drawer.Title className="m-0 mb-1 text-lg font-semibold leading-7 tracking-[-0.0025em]">
+                      <Drawer.Title className="m-0 mb-1 text-lg font-bold leading-7 tracking-[-0.0025em]">
                         Menu
                       </Drawer.Title>
                       <Drawer.Description className="m-0 mb-5 text-base leading-6 text-gray-600">

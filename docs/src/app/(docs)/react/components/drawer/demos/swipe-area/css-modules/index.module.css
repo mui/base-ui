@@ -54,7 +54,7 @@
   transform-origin: center;
   z-index: 0;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--color-blue);
@@ -195,7 +195,7 @@
   font-size: 1.125rem;
   line-height: 1.75rem;
   letter-spacing: -0.0025em;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .Description {
