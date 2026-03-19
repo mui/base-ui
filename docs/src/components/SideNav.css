@@ -98,7 +98,7 @@
   .SideNavHeading {
     display: inline-flex;
     padding-block: var(--side-nav-item-padding-y);
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: 0.00625em;
   }
 
@@ -130,7 +130,7 @@
       background-color: var(--color-gray-50);
       outline: 1px solid var(--color-gray-200);
       outline-offset: -1px;
-      font-weight: 500;
+      font-weight: 600;
       letter-spacing: 0.00625em;
       word-spacing: -0.005em;
       cursor: default;
@@ -149,7 +149,7 @@
     user-select: none;
     text-transform: uppercase;
     font-size: 0.6875rem;
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: 0.035em;
     padding-inline: 2px;
     translate: 0 -2px;

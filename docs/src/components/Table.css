@@ -28,7 +28,7 @@
 
   .TableColumnHeader {
     text-align: initial;
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: 0.00625em;
     color: var(--color-foreground);
     background-color: var(--color-gray-50);
@@ -37,7 +37,7 @@
 
   .TableCell {
     text-align: initial;
-    font-weight: normal;
+    font-weight: 400;
 
     :not(:last-child) > & {
       border-bottom: 1px solid var(--color-gray-200);
