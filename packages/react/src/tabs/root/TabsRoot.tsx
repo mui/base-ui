@@ -338,7 +338,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
         return;
       }
 
-      setHidePanelsWithoutMatchingTab((prev) => (prev ? prev : true));
+      setHidePanelsWithoutMatchingTab((prev) => prev || true);
     });
 
     return noRenderedTabsTimeout.clear;
