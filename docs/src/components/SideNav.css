@@ -98,8 +98,9 @@
   .SideNavHeading {
     display: inline-flex;
     padding-block: var(--side-nav-item-padding-y);
-    font-weight: 700;
+    font-weight: 400;
     letter-spacing: 0.00625em;
+    color: var(--color-gray-500);
   }
 
   .SideNavItem {
