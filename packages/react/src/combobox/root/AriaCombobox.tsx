@@ -999,9 +999,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     enabled: !readOnly && !disabled && openOnInputClick,
     event: 'mousedown-only',
     toggle: false,
-    // Apply a small delay for touch to let iOS viewport centering settle.
+    // Apply a small delay for touch to let mobile viewport/keyboard positioning settle.
     // This avoids top-bottom flip flickers if the preferred position is "top" when first tapping.
-    touchOpenDelay: inputInsidePopup ? 0 : 50,
+    touchOpenDelay: inputInsidePopup ? 0 : 100,
     reason: REASONS.inputPress,
   });
 
