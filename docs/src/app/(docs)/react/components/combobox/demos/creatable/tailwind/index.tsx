@@ -149,7 +149,7 @@ export default function ExampleCreatableCombobox() {
                       ref={comboboxInputRef}
                       id={id}
                       placeholder={value.length > 0 ? '' : 'e.g. bug'}
-                      className="min-w-12 flex-1 h-8 rounded-md border-0 bg-transparent pl-2 text-base text-gray-900 outline-none"
+                      className="min-w-12 flex-1 h-8 rounded-md border-0 bg-transparent pl-2 text-base font-normal text-gray-900 outline-none"
                       onKeyDown={handleInputKeyDown}
                     />
                   </React.Fragment>

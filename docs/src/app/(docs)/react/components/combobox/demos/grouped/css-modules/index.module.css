@@ -27,6 +27,7 @@
   border-radius: inherit;
   font-family: inherit;
   font-size: 1rem;
+  font-weight: 400;
   background-color: transparent;
   color: var(--color-gray-900);
   outline: none;
