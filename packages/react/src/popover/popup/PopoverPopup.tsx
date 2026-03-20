@@ -91,6 +91,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     transitionStatus,
   };
   const focusManagerModal = modal !== false && hasClosePart;
+  store.useSyncedValue('focusManagerModal', focusManagerModal);
 
   const setPopupElement = React.useCallback(
     (element: HTMLElement | null) => {

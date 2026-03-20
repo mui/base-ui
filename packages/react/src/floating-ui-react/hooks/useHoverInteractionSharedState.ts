@@ -4,13 +4,9 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Timeout } from '@base-ui/utils/useTimeout';
 
 import type { ContextData, FloatingRootContext, SafePolygonOptions } from '../types';
-import { TYPEABLE_SELECTOR } from '../utils/constants';
+import { isInteractiveElement } from '../utils';
 
-const interactiveSelector = `button,a,[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`;
-
-export function isInteractiveElement(element: Element | null) {
-  return element ? Boolean(element.closest(interactiveSelector)) : false;
-}
+export { isInteractiveElement };
 
 export class HoverInteraction {
   pointerType: string | undefined;

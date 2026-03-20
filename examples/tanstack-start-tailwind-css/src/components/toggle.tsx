@@ -2,7 +2,7 @@ import * as React from 'react';
 import clsx from 'clsx';
 import { Toggle as BaseToggle } from '@base-ui/react/toggle';
 
-export const Toggle = React.forwardRef<HTMLButtonElement, BaseToggle.Props>(function Toggle(
+export const Toggle = React.forwardRef<HTMLButtonElement, BaseToggle.Props>(function (
   { className, ...props }: BaseToggle.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
@@ -17,3 +17,5 @@ export const Toggle = React.forwardRef<HTMLButtonElement, BaseToggle.Props>(func
     />
   );
 });
+
+Toggle.displayName = 'Toggle';
