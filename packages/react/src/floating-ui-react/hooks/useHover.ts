@@ -19,11 +19,9 @@ import type {
 } from '../types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import { createAttribute } from '../utils/createAttribute';
 import { FloatingUIOpenChangeDetails } from '../../utils/types';
 import { TYPEABLE_SELECTOR } from '../utils/constants';
 
-const safePolygonIdentifier = createAttribute('safe-polygon');
 const interactiveSelector = `button,[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`;
 
 function isInteractiveElement(element: Element | null) {
@@ -220,7 +218,6 @@ export function useHover(
     if (performedPointerEventsMutationRef.current) {
       const body = ownerDocument(floatingElement).body;
       body.style.pointerEvents = '';
-      body.removeAttribute(safePolygonIdentifier);
       performedPointerEventsMutationRef.current = false;
     }
   });
@@ -448,7 +445,6 @@ export function useHover(
 
       if (isElement(domReferenceElement) && floatingEl) {
         const body = ownerDocument(floatingElement).body;
-        body.setAttribute(safePolygonIdentifier, '');
 
         const ref = domReferenceElement as HTMLElement | SVGSVGElement;
 
