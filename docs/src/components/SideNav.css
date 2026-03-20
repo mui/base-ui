@@ -98,7 +98,7 @@
     display: inline-flex;
     padding-block: var(--side-nav-item-padding-y);
     font-weight: 400;
-    color: var(--color-gray-500);
+    color: var(--color-gray-600);
   }
 
   .SideNavItem {
