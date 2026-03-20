@@ -1,4 +1,6 @@
 import { beforeAll, describe, expect, it, vi } from 'vitest';
+import * as ReactDOM from 'react-dom';
+import { Combobox } from '@base-ui/react/combobox';
 import { Drawer } from '@base-ui/react/drawer';
 import { Slider } from '@base-ui/react/slider';
 import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
@@ -23,6 +25,15 @@ describe('<Drawer.Viewport />', () => {
     }
 
     return point;
+  }
+
+  function createNativeTouchMove(target: EventTarget, point: { clientX: number; clientY: number }) {
+    const touchMove = new Event('touchmove', { bubbles: true, cancelable: true });
+    Object.defineProperty(touchMove, 'touches', {
+      value: [createTouch(target, point)],
+      configurable: true,
+    });
+    return touchMove;
   }
 
   it('clears text selection on swipe start', async () => {
@@ -282,6 +293,155 @@ describe('<Drawer.Viewport />', () => {
     expect(backdrop).not.toHaveAttribute('data-swiping');
     expect(handleOpenChange).not.toHaveBeenCalled();
   });
+
+  it('does not prevent native touch scrolling in portaled descendants', async () => {
+    const portalContainer = document.createElement('div');
+    document.body.append(portalContainer);
+
+    function PortaledPopup() {
+      return ReactDOM.createPortal(
+        <div data-testid="portaled-popup">Portaled popup</div>,
+        portalContainer,
+      );
+    }
+
+    await render(
+      <Drawer.Root open>
+        <Drawer.Portal>
+          <Drawer.Viewport>
+            <Drawer.Popup>
+              <Drawer.Content>Content</Drawer.Content>
+              <PortaledPopup />
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const portaledPopup = screen.getByTestId('portaled-popup');
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => portaledPopup;
+
+    try {
+      fireEvent.touchStart(portaledPopup, {
+        touches: [
+          createTouch(portaledPopup, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      const touchMove = createNativeTouchMove(portaledPopup, {
+        clientX: 0,
+        clientY: 40,
+      });
+      portaledPopup.dispatchEvent(touchMove);
+
+      expect(touchMove.defaultPrevented).toBe(false);
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+      portalContainer.remove();
+    }
+  });
+
+  it.skipIf(isJSDOM)(
+    'allows touch gestures on a portaled combobox popup without starting drawer swipe',
+    async () => {
+      const handleOpenChange = vi.fn();
+      const { user } = await render(
+        <Drawer.Root open onOpenChange={handleOpenChange}>
+          <Drawer.Portal>
+            <Drawer.Backdrop data-testid="backdrop" />
+            <Drawer.Viewport>
+              <Drawer.Popup>
+                <Drawer.Content>
+                  <Combobox.Root
+                    defaultOpen
+                    items={[
+                      'Apple',
+                      'Banana',
+                      'Cherry',
+                      'Date',
+                      'Elderberry',
+                      'Fig',
+                      'Grape',
+                      'Honeydew',
+                      'Kiwi',
+                      'Lime',
+                    ]}
+                  >
+                    <Combobox.Input />
+                    <Combobox.Portal>
+                      <Combobox.Positioner>
+                        <Combobox.Popup>
+                          <Combobox.List style={{ maxHeight: 40, overflow: 'auto' }}>
+                            {(item: string) => (
+                              <Combobox.Item key={item} value={item}>
+                                {item}
+                              </Combobox.Item>
+                            )}
+                          </Combobox.List>
+                        </Combobox.Popup>
+                      </Combobox.Positioner>
+                    </Combobox.Portal>
+                  </Combobox.Root>
+                </Drawer.Content>
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>,
+      );
+
+      const listbox = await screen.findByRole('listbox');
+      const backdrop = screen.getByTestId('backdrop');
+      await waitFor(() => {
+        expect(listbox.scrollHeight).toBeGreaterThan(listbox.clientHeight);
+      });
+      expect(listbox.scrollHeight).toBeGreaterThan(listbox.clientHeight);
+
+      const originalElementFromPoint = document.elementFromPoint;
+      document.elementFromPoint = () => listbox;
+
+      try {
+        const rect = listbox.getBoundingClientRect();
+
+        await user.pointer([
+          {
+            target: listbox,
+            coords: {
+              clientX: rect.left + rect.width / 2,
+              clientY: rect.top + rect.height - 8,
+            },
+            keys: '[TouchA>]',
+          },
+          {
+            target: listbox,
+            coords: {
+              clientX: rect.left + rect.width / 2,
+              clientY: rect.top + rect.height / 2,
+            },
+            pointerName: 'TouchA',
+          },
+          {
+            target: listbox,
+            coords: {
+              clientX: rect.left + rect.width / 2,
+              clientY: rect.top + 8,
+            },
+            pointerName: 'TouchA',
+          },
+          { keys: '[/TouchA]' },
+        ]);
+
+        expect(backdrop).not.toHaveAttribute('data-swiping');
+        expect(handleOpenChange).not.toHaveBeenCalled();
+        expect(listbox).toBeVisible();
+      } finally {
+        document.elementFromPoint = originalElementFromPoint;
+      }
+    },
+  );
 
   it('still allows touch swipes from elements with legacy data-swipe-ignore', async () => {
     const handleOpenChange = vi.fn();

@@ -87,6 +87,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     afterInsideRef,
     beforeInsideRef,
     prevTriggerElementRef,
+    popupAutoSizeResetRef,
     currentContentRef,
     delay,
     closeDelay,
@@ -112,7 +113,6 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
   const allowFocusRef = React.useRef(false);
   const prevSizeRef = React.useRef(DEFAULT_SIZE);
-  const animationAbortControllerRef = React.useRef<AbortController | null>(null);
   const skipAutoSizeSyncRef = React.useRef(false);
 
   const isActiveItem = open && value === itemValue;
@@ -128,9 +128,17 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     setTriggerElement(element);
   }, []);
 
-  React.useEffect(() => {
-    animationAbortControllerRef.current?.abort();
-  }, [isActiveItem]);
+  const cancelAutoSizeReset = useStableCallback((force = false) => {
+    if (!force && popupAutoSizeResetRef.current.owner !== itemValue) {
+      return;
+    }
+
+    popupAutoSizeResetRef.current.abortController?.abort();
+    popupAutoSizeResetRef.current.abortController = null;
+    popupAutoSizeResetRef.current.owner = null;
+  });
+
+  React.useEffect(cancelAutoSizeReset, [isActiveItem, cancelAutoSizeReset]);
 
   function setAutoSizes() {
     if (!popupElement) {
@@ -170,8 +178,24 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   }
 
   function scheduleAutoSizeReset() {
-    animationAbortControllerRef.current = new AbortController();
-    runOnceAnimationsFinish(setAutoSizes, animationAbortControllerRef.current.signal);
+    cancelAutoSizeReset(true);
+
+    const abortController = new AbortController();
+    popupAutoSizeResetRef.current.abortController = abortController;
+    popupAutoSizeResetRef.current.owner = itemValue;
+
+    runOnceAnimationsFinish(() => {
+      if (
+        popupAutoSizeResetRef.current.abortController !== abortController ||
+        popupAutoSizeResetRef.current.owner !== itemValue
+      ) {
+        return;
+      }
+
+      popupAutoSizeResetRef.current.abortController = null;
+      popupAutoSizeResetRef.current.owner = null;
+      setAutoSizes();
+    }, abortController.signal);
   }
 
   const handleValueChange = useStableCallback(
@@ -186,6 +210,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         return;
       }
 
+      cancelAutoSizeReset(true);
       const { syncPositioner = false } = options;
 
       clearFixedSizes();
@@ -241,8 +266,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
       sizeFrame.cancel();
       mutationFrame.cancel();
-      animationAbortControllerRef.current?.abort();
-      animationAbortControllerRef.current = null;
+      cancelAutoSizeReset(true);
 
       if (currentWidth === 0 || currentHeight === 0) {
         return;
@@ -275,8 +299,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     }
 
     sizeFrame.cancel();
-    animationAbortControllerRef.current?.abort();
-    animationAbortControllerRef.current = null;
+    cancelAutoSizeReset(true);
 
     clearFixedSizes();
 
@@ -327,12 +350,11 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       mutationFrame.cancel();
       resizeFrame.cancel();
       sizeFrame.cancel();
-      animationAbortControllerRef.current?.abort();
-      animationAbortControllerRef.current = null;
+      cancelAutoSizeReset(true);
       skipAutoSizeSyncRef.current = false;
       setPointerType('');
     }
-  }, [stickIfOpenTimeout, open, mutationFrame, resizeFrame, sizeFrame]);
+  }, [stickIfOpenTimeout, open, mutationFrame, resizeFrame, sizeFrame, cancelAutoSizeReset]);
 
   React.useEffect(() => {
     if (!mounted) {
