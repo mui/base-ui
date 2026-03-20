@@ -10,7 +10,7 @@ import { useDialogRootContext } from '../root/DialogRootContext';
 import { useDialogPortalContext } from '../portal/DialogPortalContext';
 import { DialogViewportDataAttributes } from './DialogViewportDataAttributes';
 
-const stateAttributesMapping: StateAttributesMapping<DialogViewport.State> = {
+const stateAttributesMapping: StateAttributesMapping<DialogViewportState> = {
   ...baseMapping,
   ...transitionStatusMapping,
   nested(value) {
@@ -44,7 +44,7 @@ export const DialogViewport = React.forwardRef(function DialogViewport(
 
   const nestedDialogOpen = nestedOpenDialogCount > 0;
 
-  const state: DialogViewport.State = {
+  const state: DialogViewportState = {
     open,
     nested,
     transitionStatus,
@@ -77,6 +77,9 @@ export interface DialogViewportState {
    * Whether the dialog is currently open.
    */
   open: boolean;
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
   /**
    * Whether the dialog is nested within another dialog.

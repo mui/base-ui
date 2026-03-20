@@ -6,71 +6,17 @@ import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { contains, getTarget, isMouseLikePointerType } from '../utils';
+import { contains, getTarget, isInteractiveElement } from '../utils';
 
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
-import type {
-  Delay,
-  ElementProps,
-  FloatingContext,
-  FloatingRootContext,
-  FloatingTreeType,
-  SafePolygonOptions,
-} from '../types';
+import type { Delay, ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import { createAttribute } from '../utils/createAttribute';
 import { FloatingUIOpenChangeDetails } from '../../utils/types';
-import { TYPEABLE_SELECTOR } from '../utils/constants';
+import type { HandleClose } from './useHoverShared';
+import { getDelay, getRestMs } from './useHoverShared';
 
-const safePolygonIdentifier = createAttribute('safe-polygon');
-const interactiveSelector = `button,[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`;
-
-function isInteractiveElement(element: Element | null) {
-  return element ? Boolean(element.closest(interactiveSelector)) : false;
-}
-
-export interface HandleCloseContext extends FloatingContext {
-  onClose: () => void;
-  tree?: FloatingTreeType | null | undefined;
-  leave?: boolean | undefined;
-}
-
-export interface HandleClose {
-  (context: HandleCloseContext): (event: MouseEvent) => void;
-  __options?: SafePolygonOptions | undefined;
-}
-
-export function getDelay(
-  value: UseHoverProps['delay'],
-  prop: 'open' | 'close',
-  pointerType?: PointerEvent['pointerType'],
-) {
-  if (pointerType && !isMouseLikePointerType(pointerType)) {
-    return 0;
-  }
-
-  if (typeof value === 'number') {
-    return value;
-  }
-
-  if (typeof value === 'function') {
-    const result = value();
-    if (typeof result === 'number') {
-      return result;
-    }
-    return result?.[prop];
-  }
-
-  return value?.[prop];
-}
-
-function getRestMs(value: number | (() => number)) {
-  if (typeof value === 'function') {
-    return value();
-  }
-  return value;
-}
+export type { HandleCloseContext, HandleClose } from './useHoverShared';
 
 export interface UseHoverProps {
   /**
@@ -220,7 +166,6 @@ export function useHover(
     if (performedPointerEventsMutationRef.current) {
       const body = ownerDocument(floatingElement).body;
       body.style.pointerEvents = '';
-      body.removeAttribute(safePolygonIdentifier);
       performedPointerEventsMutationRef.current = false;
     }
   });
@@ -448,7 +393,6 @@ export function useHover(
 
       if (isElement(domReferenceElement) && floatingEl) {
         const body = ownerDocument(floatingElement).body;
-        body.setAttribute(safePolygonIdentifier, '');
 
         const ref = domReferenceElement as HTMLElement | SVGSVGElement;
 

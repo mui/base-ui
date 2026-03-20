@@ -1,11 +1,11 @@
+import { vi, expect } from 'vitest';
 /* eslint-disable testing-library/render-result-naming-convention */
 import * as React from 'react';
-import { expect } from 'chai';
-import { vi } from 'vitest';
 import { createRenderer } from '#test-utils';
 import { reactMajor } from '@mui/internal-test-utils';
 import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from '../utils/types';
 import { useRenderElement } from './useRenderElement';
+import { EMPTY_OBJECT } from './constants';
 
 describe('useRenderElement', () => {
   const { render } = createRenderer();
@@ -27,6 +27,45 @@ describe('useRenderElement', () => {
     return element;
   });
 
+  const DirectPropsTestComponent = React.forwardRef(function DirectPropsTestComponent(
+    componentProps: BaseUIComponentProps<'div', { active?: boolean }> & { active?: boolean },
+    forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  ) {
+    const { className, render: renderProp, active, ...elementProps } = componentProps;
+
+    return useRenderElement('div', componentProps, {
+      state: { active },
+      ref: forwardedRef,
+      props: elementProps,
+    });
+  });
+
+  const ArrayPropsTestComponent = React.forwardRef(function ArrayPropsTestComponent(
+    componentProps: BaseUIComponentProps<'div', { active?: boolean }> & { active?: boolean },
+    forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  ) {
+    const { className, render: renderProp, active, ...elementProps } = componentProps;
+
+    return useRenderElement('div', componentProps, {
+      state: { active },
+      ref: forwardedRef,
+      props: [elementProps, { className: 'test-component' }],
+    });
+  });
+
+  function DisabledPropsTestComponent(props: {
+    propsGetter: () => React.ComponentPropsWithRef<'div'>;
+  }) {
+    return useRenderElement(
+      'div',
+      {},
+      {
+        enabled: false,
+        props: [props.propsGetter],
+      },
+    );
+  }
+
   it('accepts className as function', async () => {
     const { container } = await render(
       <TestComponent
@@ -37,7 +76,7 @@ describe('useRenderElement', () => {
 
     const element = container.firstElementChild;
 
-    expect(element).to.have.attribute('class', 'active-class test-component');
+    expect(element).toHaveAttribute('class', 'active-class test-component');
   });
 
   it('accepts className as function that returns undefined', async () => {
@@ -47,7 +86,7 @@ describe('useRenderElement', () => {
 
     const element = container.firstElementChild;
 
-    expect(element).to.have.attribute('class', 'test-component');
+    expect(element).toHaveAttribute('class', 'test-component');
   });
 
   it('accepts style as function', async () => {
@@ -60,7 +99,7 @@ describe('useRenderElement', () => {
 
     const element = container.firstElementChild;
 
-    expect(element?.getAttribute('style')).to.equal('padding: 10px; color: rgb(255, 0, 0);');
+    expect(element?.getAttribute('style')).toBe('padding: 10px; color: rgb(255, 0, 0);');
   });
 
   it('accepts style as function that returns undefined', async () => {
@@ -70,7 +109,82 @@ describe('useRenderElement', () => {
 
     const element = container.firstElementChild;
 
-    expect(element?.getAttribute('style')).to.equal('padding: 10px;');
+    expect(element?.getAttribute('style')).toBe('padding: 10px;');
+  });
+
+  it('makes single prop objects preventable', async () => {
+    const handleMouseDown = vi.fn((event) => {
+      event.preventBaseUIHandler();
+    });
+
+    const { container } = await render(<DirectPropsTestComponent onMouseDown={handleMouseDown} />);
+
+    const element = container.firstElementChild as HTMLDivElement;
+
+    expect(() =>
+      element.dispatchEvent(new MouseEvent('mousedown', { bubbles: true })),
+    ).not.toThrow();
+    expect(handleMouseDown).toHaveBeenCalledTimes(1);
+  });
+
+  it('makes multi-prop arrays preventable when the event handler is first', async () => {
+    const handleMouseDown = vi.fn((event) => {
+      event.preventBaseUIHandler();
+    });
+
+    const { container } = await render(<ArrayPropsTestComponent onMouseDown={handleMouseDown} />);
+
+    const element = container.firstElementChild as HTMLDivElement;
+
+    expect(() =>
+      element.dispatchEvent(new MouseEvent('mousedown', { bubbles: true })),
+    ).not.toThrow();
+    expect(handleMouseDown).toHaveBeenCalledTimes(1);
+  });
+
+  it('makes obscure single-prop events preventable', async () => {
+    const handleContextMenu = vi.fn((event) => {
+      event.preventBaseUIHandler();
+    });
+
+    const { container } = await render(
+      <DirectPropsTestComponent onContextMenu={handleContextMenu} />,
+    );
+
+    const element = container.firstElementChild as HTMLDivElement;
+
+    expect(() =>
+      element.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true })),
+    ).not.toThrow();
+    expect(handleContextMenu).toHaveBeenCalledTimes(1);
+  });
+
+  it('makes obscure multi-prop array events preventable when the event handler is first', async () => {
+    const handleContextMenu = vi.fn((event) => {
+      event.preventBaseUIHandler();
+    });
+
+    const { container } = await render(
+      <ArrayPropsTestComponent onContextMenu={handleContextMenu} />,
+    );
+
+    const element = container.firstElementChild as HTMLDivElement;
+
+    expect(() =>
+      element.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true })),
+    ).not.toThrow();
+    expect(handleContextMenu).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not resolve props when disabled', async () => {
+    const propsGetter = vi.fn(() => ({
+      onMouseDown() {},
+    }));
+
+    const { container } = await render(<DisabledPropsTestComponent propsGetter={propsGetter} />);
+
+    expect(container.firstElementChild).toBeNull();
+    expect(propsGetter).not.toHaveBeenCalled();
   });
 
   describe('prop: render', () => {
@@ -87,17 +201,17 @@ describe('useRenderElement', () => {
 
       const element = container.firstElementChild;
 
-      expect(renderCalls.length).to.be.greaterThan(0);
+      expect(renderCalls.length).toBeGreaterThan(0);
       const [firstCallProps, firstCallState] = renderCalls[0];
-      expect(firstCallProps).to.include({
+      expect(firstCallProps).toMatchObject({
         className: 'test-component',
         'data-testid': 'custom',
       });
-      expect(firstCallProps.style).to.deep.equal({ padding: '10px' });
-      expect(firstCallState).to.deep.equal({ active: true });
-      expect(element?.tagName).to.equal('SPAN');
-      expect(element).to.have.attribute('data-testid', 'custom');
-      expect(element).to.have.attribute('data-active', 'true');
+      expect(firstCallProps.style).toEqual({ padding: '10px' });
+      expect(firstCallState).toEqual({ active: true });
+      expect(element?.tagName).toBe('SPAN');
+      expect(element).toHaveAttribute('data-testid', 'custom');
+      expect(element).toHaveAttribute('data-active', 'true');
     });
 
     it('warns when render is passed a function with an uppercase name', async () => {
@@ -112,13 +226,29 @@ describe('useRenderElement', () => {
 
       await render(<TestComponent render={UppercaseRenderPropWarningTestComponent} />);
 
-      expect(warnSpy.mock.calls.length).to.equal(1);
-      expect(warnSpy.mock.calls[0][0]).to.contain(
+      expect(warnSpy.mock.calls.length).toBe(1);
+      expect(warnSpy.mock.calls[0][0]).toContain(
         'Base UI: The `render` prop received a function named `UppercaseRenderPropWarningTestComponent` that starts with an uppercase letter.',
       );
-      expect(warnSpy.mock.calls[0][0]).to.contain(
+      expect(warnSpy.mock.calls[0][0]).toContain(
         'Use `render={<Component />}` or `render={(props) => <Component {...props} />}` instead.',
       );
+      warnSpy.mockRestore();
+    });
+
+    it('warns when render is passed a function with an uppercase acronym prefix', async () => {
+      const warnSpy = vi
+        .spyOn(console, 'warn')
+        .mockName('console.warn')
+        .mockImplementation(() => {});
+
+      function UIInput(props: React.ComponentPropsWithRef<'span'>) {
+        return <span {...props} />;
+      }
+
+      await render(<TestComponent render={UIInput} />);
+
+      expect(warnSpy.mock.calls.length).toBe(1);
       warnSpy.mockRestore();
     });
 
@@ -132,7 +262,41 @@ describe('useRenderElement', () => {
 
       await render(<TestComponent render={renderFn} />);
 
-      expect(warnSpy.mock.calls.length).to.equal(0);
+      expect(warnSpy.mock.calls.length).toBe(0);
+      warnSpy.mockRestore();
+    });
+
+    it('does not warn when render is passed a screaming snake case callback', async () => {
+      const warnSpy = vi
+        .spyOn(console, 'warn')
+        .mockName('console.warn')
+        .mockImplementation(() => {});
+
+      const renderFn = (props: React.ComponentPropsWithRef<'span'>) => <span {...props} />;
+      Object.defineProperty(renderFn, 'name', {
+        value: 'DEFAULT_RENDER',
+      });
+
+      await render(<TestComponent render={renderFn} />);
+
+      expect(warnSpy.mock.calls.length).toBe(0);
+      warnSpy.mockRestore();
+    });
+
+    it('does not warn when render is passed a callback with an inferred useCallback name', async () => {
+      const warnSpy = vi
+        .spyOn(console, 'warn')
+        .mockName('console.warn')
+        .mockImplementation(() => {});
+
+      const renderFn = (props: React.ComponentPropsWithRef<'span'>) => <span {...props} />;
+      Object.defineProperty(renderFn, 'name', {
+        value: 'DropdownMenuExample.useCallback[renderSearchInput]',
+      });
+
+      await render(<TestComponent render={renderFn} />);
+
+      expect(warnSpy.mock.calls.length).toBe(0);
       warnSpy.mockRestore();
     });
 
@@ -148,7 +312,7 @@ describe('useRenderElement', () => {
 
       await render(<TestComponent render={<UppercaseRenderElement />} />);
 
-      expect(warnSpy.mock.calls.length).to.equal(0);
+      expect(warnSpy.mock.calls.length).toBe(0);
       warnSpy.mockRestore();
     });
 
@@ -165,9 +329,9 @@ describe('useRenderElement', () => {
 
       const element = container.firstElementChild;
 
-      expect(element?.tagName).to.equal('SPAN');
-      expect(element).to.have.attribute('data-testid', 'custom');
-      expect(element).to.have.attribute('data-active', 'true');
+      expect(element?.tagName).toBe('SPAN');
+      expect(element).toHaveAttribute('data-testid', 'custom');
+      expect(element).toHaveAttribute('data-active', 'true');
     });
 
     it('forwards ref to render element', async () => {
@@ -180,7 +344,7 @@ describe('useRenderElement', () => {
       const ref = React.createRef<HTMLDivElement>();
       const { container } = await render(<TestComponent ref={ref} render={<CustomElement />} />);
       const element = container.firstElementChild;
-      expect(ref.current).to.equal(element);
+      expect(ref.current).toBe(element);
     });
 
     it('merges className from render element and component props', async () => {
@@ -194,9 +358,9 @@ describe('useRenderElement', () => {
 
       const element = container.firstElementChild;
 
-      expect(element?.className).to.contain('component-class');
-      expect(element?.className).to.contain('render-class');
-      expect(element?.className).to.contain('test-component');
+      expect(element?.className).toContain('component-class');
+      expect(element?.className).toContain('render-class');
+      expect(element?.className).toContain('test-component');
     });
 
     it('merges className function with render element', async () => {
@@ -210,9 +374,9 @@ describe('useRenderElement', () => {
 
       const element = container.firstElementChild;
 
-      expect(element?.className).to.contain('active-class');
-      expect(element?.className).to.contain('render-class');
-      expect(element?.className).to.contain('test-component');
+      expect(element?.className).toContain('active-class');
+      expect(element?.className).toContain('render-class');
+      expect(element?.className).toContain('test-component');
     });
 
     it('merges style from render element and component props', async () => {
@@ -225,9 +389,9 @@ describe('useRenderElement', () => {
       );
 
       const element = container.firstElementChild as HTMLElement;
-      expect(element.style.padding).to.equal('10px');
-      expect(element.style.color).to.equal('rgb(255, 0, 0)');
-      expect(element.style.fontSize).to.equal('16px');
+      expect(element.style.padding).toBe('10px');
+      expect(element.style.color).toBe('rgb(255, 0, 0)');
+      expect(element.style.fontSize).toBe('16px');
     });
 
     it('merges style function with render element', async () => {
@@ -240,9 +404,9 @@ describe('useRenderElement', () => {
       );
 
       const element = container.firstElementChild as HTMLElement;
-      expect(element.style.padding).to.equal('10px');
-      expect(element.style.color).to.equal('rgb(255, 0, 0)');
-      expect(element.style.fontSize).to.equal('16px');
+      expect(element.style.padding).toBe('10px');
+      expect(element.style.color).toBe('rgb(255, 0, 0)');
+      expect(element.style.fontSize).toBe('16px');
     });
 
     it('handles lazy elements', async () => {
@@ -263,10 +427,10 @@ describe('useRenderElement', () => {
       );
 
       const element = container.firstElementChild;
-      expect(element).to.not.equal(null);
-      expect(element?.getAttribute('data-testid')).to.equal('lazy');
-      expect(element?.getAttribute('data-lazy')).to.equal('true');
-      expect(element?.className).to.contain('test-component');
+      expect(element).not.toBe(null);
+      expect(element?.getAttribute('data-testid')).toBe('lazy');
+      expect(element?.getAttribute('data-lazy')).toBe('true');
+      expect(element?.className).toContain('test-component');
     });
 
     // React 18 also log console error, React 19 fixed that. Ignoring this test for React 18.
@@ -285,8 +449,8 @@ describe('useRenderElement', () => {
           process.env.NODE_ENV = originalEnv;
         }
 
-        expect(error).to.not.equal(null);
-        expect(error?.message).to.match(
+        expect(error).not.toBe(null);
+        expect(error?.message).toMatch(
           /Base UI: The `render` prop was provided an invalid React element/,
         );
       },
@@ -304,9 +468,41 @@ describe('useRenderElement', () => {
 
       await render(<TestComponent ref={componentRef} render={<CustomElement ref={renderRef} />} />);
 
-      expect(renderRef.current).to.be.instanceOf(HTMLDivElement);
-      expect(componentRef.current).to.be.instanceOf(HTMLDivElement);
-      expect(renderRef.current).to.equal(componentRef.current);
+      expect(renderRef.current).toBeInstanceOf(HTMLDivElement);
+      expect(componentRef.current).toBeInstanceOf(HTMLDivElement);
+      expect(renderRef.current).toBe(componentRef.current);
+    });
+  });
+
+  describe('EMPTY_OBJECT mutation safety', () => {
+    // This test verifies that the hook doesn't attempt to mutate EMPTY_OBJECT
+    // which would throw a TypeError in strict mode since it's frozen.
+    const MinimalComponent = React.forwardRef(function MinimalComponent(
+      componentProps: BaseUIComponentProps<'div', Record<string, never>>,
+      forwardedRef: React.ForwardedRef<HTMLDivElement>,
+    ) {
+      // Using EMPTY_OBJECT as state and no additional props simulates the edge case
+      // where mergeObjects might return undefined and fall back to EMPTY_OBJECT
+      const element = useRenderElement('div', componentProps, {
+        state: EMPTY_OBJECT,
+        ref: forwardedRef,
+        // No props passed - relies on stateProps which will be {}
+      });
+
+      return element;
+    });
+
+    it('does not throw when className is provided with minimal props', async () => {
+      const { container } = await render(<MinimalComponent className="test-class" />);
+      expect(container.firstElementChild).not.toBeNull();
+      expect(container.firstElementChild).toHaveAttribute('class', 'test-class');
+    });
+
+    it('does not throw when style is provided with minimal props', async () => {
+      const { container } = await render(<MinimalComponent style={{ color: 'red' }} />);
+      expect(container.firstElementChild).not.toBeNull();
+      const element = container.firstElementChild as HTMLElement;
+      expect(element.style.color).toBe('red');
     });
   });
 });

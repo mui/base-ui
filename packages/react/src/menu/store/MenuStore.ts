@@ -22,7 +22,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   activeIndex: number | null;
   hoverEnabled: boolean;
   stickIfOpen: boolean;
-  instantType: 'dismiss' | 'click' | 'group' | undefined;
+  instantType: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
   openChangeReason: MenuRoot.ChangeEventReason | null;
   floatingTreeRoot: FloatingTreeStore;
   floatingNodeId: string | undefined;
@@ -30,6 +30,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   itemProps: HTMLProps;
   closeDelay: number;
   keyboardEventRelay: ((event: React.KeyboardEvent<any>) => void) | undefined;
+  hasViewport: boolean;
 };
 
 type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
@@ -50,7 +51,6 @@ const selectors = {
       ? state.parent.context.disabled || state.disabled
       : state.disabled,
   ),
-
   modal: createSelector(
     (state: State<unknown>) =>
       (state.parent.type === undefined || state.parent.type === 'context-menu') &&
@@ -85,6 +85,7 @@ const selectors = {
   floatingParentNodeId: createSelector((state: State<unknown>) => state.floatingParentNodeId),
   itemProps: createSelector((state: State<unknown>) => state.itemProps),
   closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
+  hasViewport: createSelector((state: State<unknown>) => state.hasViewport),
   keyboardEventRelay: createSelector(
     (state: State<unknown>): React.KeyboardEventHandler<any> | undefined => {
       if (state.keyboardEventRelay) {
@@ -128,7 +129,26 @@ export class MenuStore<Payload> extends ReactStore<
       this.unsubscribeParentListener?.();
 
       if (parent.type === 'menu') {
+        let rootId = parent.store.select('rootId');
+        let floatingTreeRoot = parent.store.select('floatingTreeRoot');
+        let keyboardEventRelay = parent.store.select('keyboardEventRelay');
+
         this.unsubscribeParentListener = parent.store.subscribe(() => {
+          const nextRootId = parent.store.select('rootId');
+          const nextFloatingTreeRoot = parent.store.select('floatingTreeRoot');
+          const nextKeyboardEventRelay = parent.store.select('keyboardEventRelay');
+
+          if (
+            rootId === nextRootId &&
+            floatingTreeRoot === nextFloatingTreeRoot &&
+            keyboardEventRelay === nextKeyboardEventRelay
+          ) {
+            return;
+          }
+
+          rootId = nextRootId;
+          floatingTreeRoot = nextFloatingTreeRoot;
+          keyboardEventRelay = nextKeyboardEventRelay;
           this.notifyAll();
         });
 
@@ -184,5 +204,6 @@ function createInitialState<Payload>(): State<Payload> {
     itemProps: EMPTY_OBJECT as HTMLProps,
     keyboardEventRelay: undefined,
     closeDelay: 0,
+    hasViewport: false,
   };
 }

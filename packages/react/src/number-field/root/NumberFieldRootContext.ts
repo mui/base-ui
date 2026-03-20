@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Timeout } from '@base-ui/utils/useTimeout';
-import type { NumberFieldRoot } from './NumberFieldRoot';
+import type { NumberFieldRoot, NumberFieldRootState } from './NumberFieldRoot';
 import { EventWithOptionalKeyState } from '../utils/types';
 import type { IncrementValueParameters } from '../utils/types';
 
@@ -10,8 +9,6 @@ export type InputMode = 'numeric' | 'decimal' | 'text';
 export interface NumberFieldRootContext {
   inputValue: string;
   value: number | null;
-  startAutoChange: (isIncrement: boolean, event?: React.MouseEvent | Event) => void;
-  stopAutoChange: () => void;
   minWithDefault: number;
   maxWithDefault: number;
   disabled: boolean;
@@ -26,9 +23,6 @@ export interface NumberFieldRootContext {
   valueRef: React.RefObject<number | null>;
   lastChangedValueRef: React.RefObject<number | null>;
   hasPendingCommitRef: React.RefObject<boolean>;
-  isPressedRef: React.RefObject<boolean | null>;
-  intentionalTouchCheckTimeout: Timeout;
-  movesAfterTouchRef: React.RefObject<number | null>;
   name: string | undefined;
   required: boolean;
   invalid: boolean | undefined;
@@ -40,7 +34,7 @@ export interface NumberFieldRootContext {
   locale: Intl.LocalesArgument;
   isScrubbing: boolean;
   setIsScrubbing: React.Dispatch<React.SetStateAction<boolean>>;
-  state: NumberFieldRoot.State;
+  state: NumberFieldRootState;
   onValueCommitted: (
     value: number | null,
     eventDetails: NumberFieldRoot.CommitEventDetails,

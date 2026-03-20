@@ -14,12 +14,13 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button/useButton';
-import type { FieldRoot } from '../../field/root/FieldRoot';
+import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useFieldItemContext } from '../../field/item/FieldItemContext';
 import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import { useAriaLabelledBy } from '../../labelable-provider/useAriaLabelledBy';
 import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
 import { CheckboxRootContext } from './CheckboxRootContext';
 import {
@@ -45,6 +46,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     checked: checkedProp,
     className,
     defaultChecked = false,
+    'aria-labelledby': ariaLabelledByProp,
     disabled: disabledProp = false,
     id: idProp,
     indeterminate = false,
@@ -175,6 +177,13 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const inputRef = React.useRef<HTMLInputElement>(null);
   const mergedInputRef = useMergedRefs(inputRefProp, inputRef, validation.inputRef);
+  const ariaLabelledBy = useAriaLabelledBy(
+    ariaLabelledByProp,
+    labelId,
+    inputRef,
+    !nativeButton,
+    inputId ?? undefined,
+  );
 
   useIsoLayoutEffect(() => {
     if (inputRef.current) {
@@ -273,7 +282,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     };
   }, [parentContext, disabled, value]);
 
-  const state: CheckboxRoot.State = React.useMemo(
+  const state: CheckboxRootState = React.useMemo(
     () => ({
       ...fieldState,
       checked: computedChecked,
@@ -297,7 +306,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
         'aria-checked': groupIndeterminate ? 'mixed' : checked,
         'aria-readonly': readOnly || undefined,
         'aria-required': required || undefined,
-        'aria-labelledby': labelId,
+        'aria-labelledby': ariaLabelledBy,
         [PARENT_CHECKBOX as string]: parent ? '' : undefined,
         onFocus() {
           setFocused(true);
@@ -353,7 +362,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   );
 });
 
-export interface CheckboxRootState extends FieldRoot.State {
+export interface CheckboxRootState extends FieldRootState {
   /**
    * Whether the checkbox is currently ticked.
    */
@@ -379,7 +388,7 @@ export interface CheckboxRootState extends FieldRoot.State {
 export interface CheckboxRootProps
   extends
     NonNativeButtonProps,
-    Omit<BaseUIComponentProps<'span', CheckboxRoot.State>, 'onChange' | 'value'> {
+    Omit<BaseUIComponentProps<'span', CheckboxRootState>, 'onChange' | 'value'> {
   /**
    * The id of the input element.
    */

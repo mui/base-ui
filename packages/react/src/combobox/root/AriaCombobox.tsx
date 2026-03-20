@@ -138,6 +138,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const labelsRef = React.useRef<Array<string | null>>([]);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
   const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const startDismissRef = React.useRef<HTMLSpanElement | null>(null);
+  const endDismissRef = React.useRef<HTMLSpanElement | null>(null);
   const emptyRef = React.useRef<HTMLDivElement | null>(null);
   const keyboardActiveRef = React.useRef(true);
   const hadInputClearRef = React.useRef(false);
@@ -338,6 +340,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     () =>
       new Store<StoreState>({
         id,
+        labelId: undefined,
         selectedValue,
         open,
         filter,
@@ -349,6 +352,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         popupRef,
         emptyRef,
         inputRef,
+        startDismissRef,
+        endDismissRef,
         keyboardActiveRef,
         chipsContainerRef,
         clearRef,
@@ -382,6 +387,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         listElement: null,
         triggerElement: null,
         inputElement: null,
+        inputGroupElement: null,
         popupSide: null,
         openMethod: null,
         inputInsidePopup: true,
@@ -419,17 +425,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const listElement = useStore(store, selectors.listElement);
   const triggerElement = useStore(store, selectors.triggerElement);
   const inputElement = useStore(store, selectors.inputElement);
+  const inputGroupElement = useStore(store, selectors.inputGroupElement);
   const inline = useStore(store, selectors.inline);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
 
   const triggerRef = useValueAsRef(triggerElement);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
-  const {
-    openMethod,
-    triggerProps,
-    reset: resetOpenInteractionType,
-  } = useOpenInteractionType(open);
+  const { openMethod, triggerProps } = useOpenInteractionType(open);
 
   useField({
     id,
@@ -467,7 +470,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }) => {
       store.update(options);
       const type: AriaCombobox.HighlightEventReason = options.type || 'none';
-
       if (options.activeIndex === undefined) {
         return;
       }
@@ -696,7 +698,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     setMounted(false);
     onOpenChangeComplete?.(false);
     setQueryChangedAfterOpen(false);
-    resetOpenInteractionType();
     setCloseQuery(null);
 
     if (selectionMode === 'none') {
@@ -966,9 +967,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const role: ElementProps = React.useMemo(() => {
     const isPlainInput = inputElement?.tagName === 'INPUT';
-    const shouldApplyAria = isPlainInput || open;
+    // During SSR and initial hydration, the input ref is not available yet.
+    // Assume an input-like control so combobox ARIA attributes are present.
+    const shouldTreatAsInput = inputElement == null || isPlainInput;
+    const shouldApplyAria = shouldTreatAsInput || open;
 
-    const reference = isPlainInput
+    const reference = shouldTreatAsInput
       ? ({
           autoComplete: 'off',
           spellCheck: 'false',
@@ -995,9 +999,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     enabled: !readOnly && !disabled && openOnInputClick,
     event: 'mousedown-only',
     toggle: false,
-    // Apply a small delay for touch to let iOS viewport centering settle.
+    // Apply a small delay for touch to let mobile viewport/keyboard positioning settle.
     // This avoids top-bottom flip flickers if the preferred position is "top" when first tapping.
-    touchOpenDelay: inputInsidePopup ? 0 : 50,
+    touchOpenDelay: inputInsidePopup ? 0 : 100,
     reason: REASONS.inputPress,
   });
 
@@ -1017,7 +1021,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       return (
         !contains(triggerElement, target) &&
         !contains(clearRef.current, target) &&
-        !contains(chipsContainerRef.current, target)
+        !contains(chipsContainerRef.current, target) &&
+        !contains(inputGroupElement, target)
       );
     },
   });
@@ -1503,6 +1508,8 @@ interface ComboboxRootProps<ItemValue> {
   fillInputOnItemPress?: boolean | undefined;
 }
 
+export interface AriaComboboxState {}
+
 export type AriaComboboxProps<
   Value,
   Mode extends SelectionMode = 'none',
@@ -1538,8 +1545,7 @@ export type AriaComboboxProps<
 
 export namespace AriaCombobox {
   export type Props<Value, Mode extends SelectionMode = 'none'> = AriaComboboxProps<Value, Mode>;
-
-  export interface State {}
+  export type State = AriaComboboxState;
 
   export interface Actions {
     unmount: () => void;
@@ -1555,6 +1561,7 @@ export namespace AriaCombobox {
     | typeof REASONS.triggerPress
     | typeof REASONS.outsidePress
     | typeof REASONS.itemPress
+    | typeof REASONS.closePress
     | typeof REASONS.escapeKey
     | typeof REASONS.listNavigation
     | typeof REASONS.focusOut

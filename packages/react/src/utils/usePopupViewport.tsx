@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { usePreviousValue } from '@base-ui/utils/usePreviousValue';
@@ -152,13 +153,13 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
       setNewTriggerOffset(offset);
 
       cleanupFrame.request(() => {
-        cleanupFrame.request(() => {
+        ReactDOM.flushSync(() => {
           setShowStartingStyleAttribute(false);
-          onAnimationsFinished(() => {
-            setPreviousContentNode(null);
-            setPreviousContentDimensions(null);
-            capturedNodeRef.current = null;
-          });
+        });
+        onAnimationsFinished(() => {
+          setPreviousContentNode(null);
+          setPreviousContentDimensions(null);
+          capturedNodeRef.current = null;
         });
       });
 
@@ -211,8 +212,12 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
           ref={previousContainerRef}
           style={
             {
-              [cssVars.popupWidth]: `${previousContentDimensions?.width}px`,
-              [cssVars.popupHeight]: `${previousContentDimensions?.height}px`,
+              ...(previousContentDimensions
+                ? {
+                    [cssVars.popupWidth]: `${previousContentDimensions.width}px`,
+                    [cssVars.popupHeight]: `${previousContentDimensions.height}px`,
+                  }
+                : null),
               position: 'absolute',
             } as React.CSSProperties
           }

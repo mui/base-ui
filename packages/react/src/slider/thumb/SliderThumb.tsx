@@ -19,6 +19,8 @@ import {
   HOME,
   END,
   COMPOSITE_KEYS,
+  PAGE_UP,
+  PAGE_DOWN,
 } from '../../composite/composite';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useDirection } from '../../direction-provider/DirectionContext';
@@ -29,14 +31,11 @@ import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { getMidpoint } from '../utils/getMidpoint';
 import { getSliderValue } from '../utils/getSliderValue';
 import { roundValueToStep } from '../utils/roundValueToStep';
-import type { SliderRoot } from '../root/SliderRoot';
+import type { SliderRootState } from '../root/SliderRoot';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import { SliderThumbDataAttributes } from './SliderThumbDataAttributes';
 import { script as prehydrationScript } from './prehydrationScript.min';
-
-const PAGE_UP = 'PageUp';
-const PAGE_DOWN = 'PageDown';
 
 const ALL_KEYS = new Set([
   ARROW_UP,
@@ -197,11 +196,16 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     const thumbOffsetFromControlEdge =
       thumbRect[side] / 2 + (controlSize * thumbValuePercent) / 100;
     const nextPositionPercent = (thumbOffsetFromControlEdge / controlRect[side]) * 100;
-    setPositionPercent(nextPositionPercent);
+    const nextInsetPosition = Number.isFinite(nextPositionPercent)
+      ? nextPositionPercent
+      : undefined;
+
+    setPositionPercent(nextInsetPosition);
+
     if (index === 0) {
-      setIndicatorPosition((prevPosition) => [nextPositionPercent, prevPosition[1]]);
+      setIndicatorPosition((prevPosition) => [nextInsetPosition, prevPosition[1]]);
     } else if (last) {
-      setIndicatorPosition((prevPosition) => [prevPosition[0], nextPositionPercent]);
+      setIndicatorPosition((prevPosition) => [prevPosition[0], nextInsetPosition]);
     }
   });
 
@@ -216,6 +220,28 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       getInsetPosition();
     }
   }, [getInsetPosition, inset, thumbValuePercent]);
+
+  useIsoLayoutEffect(() => {
+    if (!inset || typeof ResizeObserver !== 'function') {
+      return undefined;
+    }
+
+    const control = controlRef.current;
+    const thumb = thumbRef.current;
+
+    if (!control || !thumb) {
+      return undefined;
+    }
+
+    const resizeObserver = new ResizeObserver(getInsetPosition);
+
+    resizeObserver.observe(control);
+    resizeObserver.observe(thumb);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [controlRef, getInsetPosition, inset]);
 
   const getThumbStyle = React.useCallback(() => {
     const startEdge = vertical ? 'bottom' : 'insetInlineStart';
@@ -247,7 +273,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     }
 
     return {
-      ['--position' as string]: `${positionPercent}%`,
+      ['--position' as string]: `${positionPercent ?? 0}%`,
       visibility:
         (renderBeforeHydration && !isMounted) || positionPercent === undefined
           ? 'hidden'
@@ -277,11 +303,13 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     cssWritingMode = rtl ? 'vertical-rl' : 'vertical-lr';
   }
 
+  const ariaLabel =
+    typeof getAriaLabelProp === 'function' ? getAriaLabelProp(index) : ariaLabelProp;
+
   const inputProps = mergeProps<'input'>(
     {
-      'aria-label':
-        typeof getAriaLabelProp === 'function' ? getAriaLabelProp(index) : ariaLabelProp,
-      'aria-labelledby': ariaLabelledByProp ?? labelId,
+      'aria-label': ariaLabel,
+      'aria-labelledby': ariaLabelledByProp ?? (ariaLabel == null ? labelId : undefined),
       'aria-describedby': ariaDescribedByProp,
       'aria-orientation': orientation,
       'aria-valuenow': thumbValue,
@@ -467,10 +495,10 @@ export interface ThumbMetadata {
   inputId: LabelableContext['controlId'];
 }
 
-export interface SliderThumbState extends SliderRoot.State {}
+export interface SliderThumbState extends SliderRootState {}
 
 export interface SliderThumbProps extends Omit<
-  BaseUIComponentProps<'div', SliderThumb.State>,
+  BaseUIComponentProps<'div', SliderThumbState>,
   'onBlur' | 'onFocus'
 > {
   /**

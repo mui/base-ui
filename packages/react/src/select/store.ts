@@ -3,16 +3,18 @@ import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { TransitionStatus } from '../utils/useTransitionStatus';
 import type { HTMLProps } from '../utils/types';
 import { compareItemEquality } from '../utils/itemEquality';
-import { hasNullItemLabel, stringifyAsValue } from '../utils/resolveValueLabel';
+import { type Group, hasNullItemLabel, stringifyAsValue } from '../utils/resolveValueLabel';
 
 export type State = {
   id: string | undefined;
+  labelId: string | undefined;
   modal: boolean;
   multiple: boolean;
 
   items:
     | Record<string, React.ReactNode>
     | ReadonlyArray<{ label: React.ReactNode; value: any }>
+    | ReadonlyArray<Group<any>>
     | undefined;
   itemToStringLabel: ((item: any) => string) | undefined;
   itemToStringValue: ((item: any) => string) | undefined;
@@ -45,6 +47,7 @@ export type SelectStore = Store<State>;
 
 export const selectors = {
   id: createSelector((state: State) => state.id),
+  labelId: createSelector((state: State) => state.labelId),
   modal: createSelector((state: State) => state.modal),
   multiple: createSelector((state: State) => state.multiple),
 

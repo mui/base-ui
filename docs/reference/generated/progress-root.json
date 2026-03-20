@@ -59,7 +59,7 @@
       "description": "Present when the progress has completed."
     },
     "data-indeterminate": {
-      "description": "Present when the progress is in interminate state."
+      "description": "Present when the progress is in indeterminate state."
     },
     "data-progressing": {
       "description": "Present while the progress is progressing."

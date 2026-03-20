@@ -1,19 +1,53 @@
 'use client';
 import * as React from 'react';
-import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
+import { Drawer } from '@base-ui/react/drawer';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 
 const ITEMS = [
-  { href: '#', label: 'Overview' },
-  { href: '#', label: 'Components' },
-  { href: '#', label: 'Utilities' },
-  { href: '#', label: 'Releases' },
+  { href: '/react/overview', label: 'Overview' },
+  { href: '/react/components', label: 'Components' },
+  { href: '/react/utils', label: 'Utilities' },
+  { href: '/react/overview/releases', label: 'Releases' },
 ] as const;
 
-const LONG_LIST = Array.from({ length: 50 }, (_, i) => ({
-  href: '#',
-  label: `Item ${i + 1}`,
-}));
+const LONG_LIST = [
+  { href: '/react/components/accordion', label: 'Accordion' },
+  { href: '/react/components/alert-dialog', label: 'Alert Dialog' },
+  { href: '/react/components/autocomplete', label: 'Autocomplete' },
+  { href: '/react/components/avatar', label: 'Avatar' },
+  { href: '/react/components/button', label: 'Button' },
+  { href: '/react/components/checkbox', label: 'Checkbox' },
+  { href: '/react/components/checkbox-group', label: 'Checkbox Group' },
+  { href: '/react/components/collapsible', label: 'Collapsible' },
+  { href: '/react/components/combobox', label: 'Combobox' },
+  { href: '/react/components/context-menu', label: 'Context Menu' },
+  { href: '/react/components/dialog', label: 'Dialog' },
+  { href: '/react/components/drawer', label: 'Drawer' },
+  { href: '/react/components/field', label: 'Field' },
+  { href: '/react/components/fieldset', label: 'Fieldset' },
+  { href: '/react/components/form', label: 'Form' },
+  { href: '/react/components/input', label: 'Input' },
+  { href: '/react/components/menu', label: 'Menu' },
+  { href: '/react/components/menubar', label: 'Menubar' },
+  { href: '/react/components/meter', label: 'Meter' },
+  { href: '/react/components/navigation-menu', label: 'Navigation Menu' },
+  { href: '/react/components/number-field', label: 'Number Field' },
+  { href: '/react/components/popover', label: 'Popover' },
+  { href: '/react/components/preview-card', label: 'Preview Card' },
+  { href: '/react/components/progress', label: 'Progress' },
+  { href: '/react/components/radio', label: 'Radio' },
+  { href: '/react/components/scroll-area', label: 'Scroll Area' },
+  { href: '/react/components/select', label: 'Select' },
+  { href: '/react/components/separator', label: 'Separator' },
+  { href: '/react/components/slider', label: 'Slider' },
+  { href: '/react/components/switch', label: 'Switch' },
+  { href: '/react/components/tabs', label: 'Tabs' },
+  { href: '/react/components/toast', label: 'Toast' },
+  { href: '/react/components/toggle', label: 'Toggle' },
+  { href: '/react/components/toggle-group', label: 'Toggle Group' },
+  { href: '/react/components/toolbar', label: 'Toolbar' },
+  { href: '/react/components/tooltip', label: 'Tooltip' },
+] as const;
 
 export default function ExampleDrawerMobileNav() {
   return (
@@ -30,10 +64,10 @@ export default function ExampleDrawerMobileNav() {
           >
             <ScrollArea.Viewport className="box-border h-full overscroll-contain touch-auto">
               <ScrollArea.Content className="flex min-h-full items-end justify-center pt-8 md:py-16 md:px-16">
-                <Drawer.Popup className="group box-border w-full max-w-[42rem] outline-none transition-transform duration-[800ms] ease-[cubic-bezier(0.45,1.005,0,1.005)] [transform:translateY(var(--drawer-swipe-movement-y))] data-[swiping]:select-none data-[ending-style]:[transform:translateY(max(100dvh,100%))] data-[ending-style]:duration-[350ms] data-[ending-style]:ease-[cubic-bezier(0.375,0.015,0.545,0.455)]">
+                <Drawer.Popup className="group box-border w-full max-w-[42rem] outline-none transition-transform duration-[800ms] ease-[cubic-bezier(0.45,1.005,0,1.005)] [transform:translateY(var(--drawer-swipe-movement-y))] data-[swiping]:select-none data-[ending-style]:[transform:translateY(calc(max(100dvh,100%)+2px))] data-[ending-style]:duration-[350ms] data-[ending-style]:ease-[cubic-bezier(0.375,0.015,0.545,0.455)]">
                   <nav
                     aria-label="Navigation"
-                    className="relative flex flex-col rounded-t-2xl bg-gray-50 px-6 pt-4 pb-6 text-gray-900 shadow-[0_10px_64px_-10px_rgb(36_40_52/20%),0_0.25px_0_1px_var(--color-gray-200)] outline outline-1 outline-gray-200 transition-shadow duration-[350ms] ease-[cubic-bezier(0.375,0.015,0.545,0.455)] group-data-[ending-style]:shadow-[0_10px_64px_-10px_rgb(36_40_52/0%),0_0.25px_0_1px_rgb(0_0_0/0%)] dark:outline-gray-300 dark:shadow-[0_0_0_1px_var(--color-gray-200)] dark:group-data-[ending-style]:shadow-[0_0_0_1px_rgb(0_0_0/0%)] md:rounded-xl"
+                    className="relative flex flex-col rounded-t-2xl bg-gray-50 px-6 pt-4 pb-6 text-gray-900 shadow-[0_10px_64px_-10px_rgb(36_40_52/20%),0_0.25px_0_1px_oklch(12%_9%_264deg/7%)] outline outline-1 outline-gray-200 transition-shadow duration-[350ms] ease-[cubic-bezier(0.375,0.015,0.545,0.455)] group-data-[ending-style]:shadow-[0_10px_64px_-10px_rgb(36_40_52/0%),0_0.25px_0_1px_rgb(0_0_0/0%)] dark:outline-gray-300 dark:shadow-[0_0_0_1px_oklch(29%_0.75%_264deg/80%)] dark:group-data-[ending-style]:shadow-[0_0_0_1px_rgb(0_0_0/0%)] md:rounded-xl"
                   >
                     <div className="mb-3 grid grid-cols-[1fr_auto_1fr] items-center">
                       <div aria-hidden className="h-9 w-9" />
@@ -76,7 +110,10 @@ export default function ExampleDrawerMobileNav() {
                           ))}
                         </ul>
 
-                        <ul aria-label="Long list" className="mt-6 grid list-none gap-1 p-0 m-0">
+                        <ul
+                          aria-label="Component links"
+                          className="mt-6 grid list-none gap-1 p-0 m-0"
+                        >
                           {LONG_LIST.map((item) => (
                             <li key={item.label} className="flex">
                               <a

@@ -99,7 +99,7 @@
 
   &[data-starting-style],
   &[data-ending-style] {
-    transform: translateY(calc(100% - var(--bleed)));
+    transform: translateY(calc(100% - var(--bleed) + 2px));
   }
 
   &[data-ending-style] {

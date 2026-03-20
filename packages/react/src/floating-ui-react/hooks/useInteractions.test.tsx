@@ -1,6 +1,6 @@
+import { vi, expect } from 'vitest';
 import * as React from 'react';
 import { render } from '@testing-library/react';
-import { vi } from 'vitest';
 
 import {
   useClick,
