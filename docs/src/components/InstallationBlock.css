@@ -40,7 +40,7 @@
 
     &[data-active] {
       color: var(--color-foreground);
-      font-weight: bold;
+      font-weight: 700;
 
       &::before {
         background-color: white;
@@ -66,5 +66,18 @@
       outline: 2px solid var(--color-blue);
       outline-offset: -1px;
     }
+  }
+
+  .InstallationBlockTabLabel {
+    display: inline-grid;
+  }
+
+  .InstallationBlockTabLabel::before {
+    content: attr(data-text);
+    font-weight: 700;
+    visibility: hidden;
+    height: 0;
+    pointer-events: none;
+    grid-area: 1 / 1;
   }
 }

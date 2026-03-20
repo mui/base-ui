@@ -72,7 +72,9 @@ export function InstallationBlock(props: InstallationBlockProps) {
           <Tabs.List className="InstallationBlockTabsList" aria-label="Package manager">
             {PACKAGE_MANAGERS.map((pm) => (
               <Tabs.Tab key={pm.value} value={pm.value} className="InstallationBlockTab">
-                {pm.label}
+                <span className="InstallationBlockTabLabel" data-text={pm.label}>
+                  {pm.label}
+                </span>
               </Tabs.Tab>
             ))}
           </Tabs.List>
