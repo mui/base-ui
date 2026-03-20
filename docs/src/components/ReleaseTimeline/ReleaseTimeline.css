@@ -190,7 +190,7 @@
     font-size: var(--text-xxs);
     line-height: var(--text-xxs--line-height);
     letter-spacing: var(--text-xxs--letter-spacing);
-    font-weight: 700;
+    font-weight: 400;
     color: var(--color-green);
     border: 1px solid currentColor;
     border-radius: 999px;
