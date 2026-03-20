@@ -21,8 +21,7 @@ const typefaces = [
 
 const fontWeights = [
   { token: 'font-weight-1', sample: 'Regular' },
-  { token: 'font-weight-2', sample: 'Medium' },
-  { token: 'font-weight-3', sample: 'Semi-bold' },
+  { token: 'font-weight-2', sample: 'Bold' },
 ] as const;
 
 const textScale = ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as const;
