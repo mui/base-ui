@@ -149,7 +149,7 @@ Some symptoms of this issue are:
 - `AlertDialogPopupProps` is shown in `types.md` instead of `AlertDialog.Popup.Props`
 - `DialogPopupProps` is shown in `types.md` instead of `AlertDialog.Popup.Props`
 
-Check the export's `index.ts` file, e.g. `packages/react/alert-dialog/index.ts`, to verify that the type is exported at the top level. If not, add an export for it:
+Check the export's `index.ts` file, for example, `packages/react/alert-dialog/index.ts`, to verify that the type is exported at the top level. If not, add an export for it:
 
 ```ts
 export type {
