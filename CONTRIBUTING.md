@@ -121,7 +121,7 @@ export const DemoButtonHero = createDemoWithVariants(import.meta.url, { CssModul
 
 <Subtitle>A two-state button that can be on or off.</Subtitle>
 
-<!-- page content -->
+[//]: # 'page content'
 
 export const metadata = {
   keywords: ['React Toggle', 'Toggle Button Component'],
