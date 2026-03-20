@@ -36,9 +36,6 @@ export function MethodsReferenceAccordion({
         // anchor hash for each method
         const id = `${partName}-${name}`;
 
-        // Build parameter list for display
-        const paramEntries = Object.entries(method.parameters);
-
         return (
           <Accordion.Item
             key={name}
@@ -56,10 +53,10 @@ export function MethodsReferenceAccordion({
                 <code className="Code language-ts TableCode" data-table-code="">
                   <span className="pl-en">{name}</span>
                   {'('}
-                  {paramEntries.map(([paramName, param], i) => (
-                    <React.Fragment key={paramName}>
+                  {method.parameters.map((param, i) => (
+                    <React.Fragment key={param.name}>
                       {i !== 0 && ', '}
-                      <span className="pl-v">{paramName}</span>
+                      <span className="pl-v">{param.name}</span>
                       {param.optional && '?'}
                     </React.Fragment>
                   ))}
@@ -103,16 +100,16 @@ export function MethodsReferenceAccordion({
                     </DescriptionList.Item>
                   )}
 
-                  {paramEntries.length > 0 && (
+                  {method.parameters.length > 0 && (
                     <DescriptionList.Item>
                       <DescriptionList.Term separator>Parameters</DescriptionList.Term>
                       <DescriptionList.Details>
                         <ul className="MethodParamList">
-                          {paramEntries.map(([paramName, param]) => (
-                            <li key={paramName}>
+                          {method.parameters.map((param) => (
+                            <li key={param.name}>
                               <div className="MethodParamRow">
                                 <TableCode style={{ color: 'var(--color-navy)' }}>
-                                  {paramName}
+                                  {param.name}
                                   {param.optional && '?'}
                                 </TableCode>
                                 <span className="MethodParamSep">—</span>

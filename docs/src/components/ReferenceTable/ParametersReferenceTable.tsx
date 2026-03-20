@@ -1,16 +1,16 @@
 import * as React from 'react';
-import type { EnhancedHookParameter, EnhancedProperty } from '@mui/internal-docs-infra/useTypes';
+import type { EnhancedParameter, EnhancedProperty } from '@mui/internal-docs-infra/useTypes';
 import { ReferenceAccordion } from './ReferenceAccordion';
 
 interface ParametersReferenceTableProps extends React.ComponentPropsWithoutRef<any> {
-  data: Record<string, EnhancedHookParameter>;
+  data: EnhancedParameter[];
   name: string;
 }
 
-function normalizeParameters(data: Record<string, EnhancedHookParameter>) {
+function normalizeParameters(data: EnhancedParameter[]) {
   return Object.fromEntries(
-    Object.entries(data).map(([name, param]) => {
-      const { optional, ...rest } = param as EnhancedHookParameter & { optional?: boolean };
+    data.map((param) => {
+      const { optional, name, ...rest } = param;
       return [
         name,
         {

@@ -78,52 +78,37 @@ function CallableReferenceSection({
     <React.Fragment>
       {multiple && !hideDescription && data.description && data.description}
 
-      {data.optionsProperties && (
+      {data.expandedProperties && Object.keys(data.expandedProperties).length > 0 && (
         <React.Fragment>
-          <SectionHeading>Parameters</SectionHeading>
-          <p className="ReferenceSectionSubtext">
-            <code>
-              <span className="pl-en">{data.optionsTypeName}</span>
-            </code>
-          </p>
+          <SectionHeading>{data.expandedTypeName ? 'Parameters' : 'Properties'}</SectionHeading>
+          {data.expandedTypeName && (
+            <p className="ReferenceSectionSubtext">
+              <code>
+                <span className="pl-en">{data.expandedTypeName}</span>
+              </code>
+            </p>
+          )}
           <ReferenceAccordion
             name={data.name}
-            data={data.optionsProperties}
-            nameLabel="Prop"
-            caption="Parameter properties table"
+            data={data.expandedProperties}
+            nameLabel={data.expandedTypeName ? 'Prop' : 'Property'}
+            caption={data.expandedTypeName ? 'Parameter properties table' : 'Properties table'}
             hideDefault
             className="ReferenceBlock"
           />
         </React.Fragment>
       )}
 
-      {!data.optionsProperties && data.properties && Object.keys(data.properties).length > 0 && (
+      {!data.expandedProperties && data.parameters && data.parameters.length > 0 && (
         <React.Fragment>
-          <SectionHeading>Properties</SectionHeading>
-          <ReferenceAccordion
+          {showFallbackParametersHeading && <SectionHeading>Parameters</SectionHeading>}
+          <ParametersReferenceTable
             name={data.name}
-            data={data.properties}
-            nameLabel="Property"
-            caption="Properties table"
-            hideDefault
-            className="ReferenceBlock"
+            data={data.parameters}
+            className={fallbackParametersClassName}
           />
         </React.Fragment>
       )}
-
-      {!data.optionsProperties &&
-        !data.properties &&
-        data.parameters &&
-        Object.keys(data.parameters).length > 0 && (
-          <React.Fragment>
-            {showFallbackParametersHeading && <SectionHeading>Parameters</SectionHeading>}
-            <ParametersReferenceTable
-              name={data.name}
-              data={data.parameters}
-              className={fallbackParametersClassName}
-            />
-          </React.Fragment>
-        )}
 
       <CallableReturnValue name={data.name} data={data.returnValue} />
 
@@ -222,7 +207,7 @@ export function ReferenceTable(props: ReferenceTableProps) {
           </React.Fragment>
         )}
 
-        {Object.keys(data.constructorParameters).length > 0 && (
+        {data.constructorParameters.length > 0 && (
           <React.Fragment>
             <SectionHeading>Constructor parameters</SectionHeading>
             <ParametersReferenceTable
