@@ -1047,9 +1047,15 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
 
           const rootElement = viewportElement ?? popupElementState;
           const target = isElement(event.target) ? event.target : null;
+          if (rootElement && target && !contains(rootElement, target)) {
+            ignoreTouchSwipeRef.current = true;
+            touchScrollStateRef.current = null;
+            return;
+          }
+
           let scrollTarget: HTMLElement | null = null;
           let hasCrossAxisScrollableContent = false;
-          if (rootElement && target && contains(rootElement, target)) {
+          if (rootElement && target) {
             scrollTarget = findScrollableTouchTarget(target, rootElement, scrollAxis);
             hasCrossAxisScrollableContent =
               findScrollableTouchTarget(target, rootElement, crossScrollAxis) != null;
