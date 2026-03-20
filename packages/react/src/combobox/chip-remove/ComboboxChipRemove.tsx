@@ -44,7 +44,7 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
     focusableWhenDisabled: true,
   });
 
-  const state: ComboboxChipRemove.State = {
+  const state: ComboboxChipRemoveState = {
     disabled,
   };
 
@@ -93,6 +93,9 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
     props: [
       {
         tabIndex: -1,
+        onMouseDown(event) {
+          event.preventDefault();
+        },
         onClick(event) {
           if (disabled || readOnly) {
             return;
@@ -132,7 +135,7 @@ export interface ComboboxChipRemoveState {
 }
 
 export interface ComboboxChipRemoveProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', ComboboxChipRemove.State> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', ComboboxChipRemoveState> {}
 
 export namespace ComboboxChipRemove {
   export type State = ComboboxChipRemoveState;

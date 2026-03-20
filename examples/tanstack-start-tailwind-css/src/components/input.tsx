@@ -2,7 +2,7 @@ import * as React from 'react';
 import clsx from 'clsx';
 import { Input as BaseInput } from '@base-ui/react/input';
 
-export const Input = React.forwardRef<HTMLInputElement, BaseInput.Props>(function Input(
+export const Input = React.forwardRef<HTMLInputElement, BaseInput.Props>(function (
   { className, ...props }: BaseInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
@@ -17,3 +17,5 @@ export const Input = React.forwardRef<HTMLInputElement, BaseInput.Props>(functio
     />
   );
 });
+
+Input.displayName = 'Input';

@@ -16,7 +16,7 @@ function Toasts() {
         <Toast.Description className="text-[0.925rem] leading-5 text-gray-700" />
         <div
           className="text-xs mt-2 p-3 py-2 bg-gray-100 text-gray-900 font-medium rounded-md select-text"
-          data-swipe-ignore
+          data-base-ui-swipe-ignore
         >
           <pre className="whitespace-pre-wrap">{JSON.stringify(toast.data, null, 2)}</pre>
         </div>

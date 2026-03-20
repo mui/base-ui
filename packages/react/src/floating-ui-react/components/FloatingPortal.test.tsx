@@ -1,3 +1,4 @@
+import { expect } from 'vitest';
 import * as React from 'react';
 import { fireEvent, flushMicrotasks, render, screen } from '@mui/internal-test-utils';
 import { isJSDOM } from '@base-ui/utils/detectBrowser';

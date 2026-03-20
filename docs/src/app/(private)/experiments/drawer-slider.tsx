@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
+import { Drawer } from '@base-ui/react/drawer';
 import { Slider } from '@base-ui/react/slider';
 import styles from './drawer-slider.module.css';
 

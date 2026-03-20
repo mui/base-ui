@@ -1,7 +1,7 @@
+import { vi, expect } from 'vitest';
 import * as React from 'react';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { vi } from 'vitest';
 
 import { useClick, useFloating, useInteractions, useTypeahead } from '../index';
 import type { UseTypeaheadProps } from './useTypeahead';
@@ -68,6 +68,58 @@ function Combobox(
     <React.Fragment>
       <input {...getReferenceProps()} />
       <div {...getFloatingProps()} />
+    </React.Fragment>
+  );
+}
+
+function ComboboxWithElementsRef(
+  props: Pick<UseTypeaheadProps, 'onMatch'> & {
+    list?: Array<string>;
+    hiddenIndices?: Array<number>;
+  },
+) {
+  const [activeIndex, setActiveIndex] = React.useState<null | number>(null);
+  const [open, setOpen] = React.useState(true);
+  const { refs, context } = useFloating({
+    open,
+    onOpenChange: setOpen,
+  });
+  const listRef = React.useRef(props.list ?? ['apple', 'apricot', 'banana']);
+  const elementsRef = React.useRef<Array<HTMLElement | null>>([]);
+  const typeahead = useTypeahead(context, {
+    listRef,
+    elementsRef,
+    activeIndex,
+    onMatch(index) {
+      setActiveIndex(index);
+      props.onMatch?.(index);
+    },
+  });
+
+  const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([typeahead]);
+
+  return (
+    <React.Fragment>
+      <input {...getReferenceProps({ role: 'combobox', ref: refs.setReference })} />
+      {open && (
+        <div {...getFloatingProps({ role: 'listbox', ref: refs.setFloating })}>
+          {listRef.current.map((value, index) => (
+            <div
+              key={value}
+              role="option"
+              aria-selected={activeIndex === index}
+              style={props.hiddenIndices?.includes(index) ? { display: 'none' } : undefined}
+              {...getItemProps({
+                ref(node) {
+                  elementsRef.current[index] = node;
+                },
+              })}
+            >
+              {value}
+            </div>
+          ))}
+        </div>
+      )}
     </React.Fragment>
   );
 }
@@ -222,5 +274,15 @@ describe('useTypeahead', () => {
     vi.advanceTimersByTime(750);
     expect(spy).toHaveBeenCalledTimes(2);
     expect(spy).toHaveBeenCalledWith(false);
+  });
+
+  it('skips hidden items when matching with elementsRef', async () => {
+    const spy = vi.fn();
+    render(<ComboboxWithElementsRef onMatch={spy} hiddenIndices={[0]} />);
+
+    await userEvent.click(screen.getByRole('combobox'));
+
+    await userEvent.keyboard('a');
+    expect(spy).toHaveBeenCalledWith(1);
   });
 });

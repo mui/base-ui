@@ -13,7 +13,7 @@ import {
 } from '../root/ComboboxRootContext';
 import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { selectors } from '../store';
-import type { FieldRoot } from '../../field/root/FieldRoot';
+import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { DEFAULT_FIELD_STATE_ATTRIBUTES } from '../../field/utils/constants';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
@@ -24,6 +24,8 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import type { Side } from '../../utils/useAnchorPositioning';
 import { useDirection } from '../../direction-provider/DirectionContext';
+import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
+import { ComboboxInternalDismissButton } from '../utils/ComboboxInternalDismissButton';
 
 /**
  * A text input to search for items in the list.
@@ -49,7 +51,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     validationMode,
     validation,
   } = useFieldRootContext();
-  const { labelId } = useLabelableContext();
+  const { labelId: fieldLabelId } = useLabelableContext();
   const comboboxChipsContext = useComboboxChipsContext();
   const positioning = useComboboxPositionerContext(true);
   const hasPositionerParent = Boolean(positioning);
@@ -75,6 +77,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const positionerElement = useStore(store, selectors.positionerElement);
   const rootId = useStore(store, selectors.id);
   const inline = useStore(store, selectors.inline);
+  const modal = useStore(store, selectors.modal);
 
   const autoHighlightEnabled = Boolean(autoHighlightMode);
   const popupSide = mounted && positionerElement ? popupSideValue : null;
@@ -82,7 +85,9 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const listEmpty = filteredItems.length === 0;
 
   const isInsidePopup = hasPositionerParent || inline;
+  const focusManagerModal = !isInsidePopup || modal;
   const id = useBaseUiId(idProp ?? (!isInsidePopup ? rootId : undefined));
+  const ariaLabelledBy = resolveAriaLabelledBy(fieldLabelId, undefined);
   const fieldStateForInput = hasPositionerParent ? DEFAULT_FIELD_STATE_ATTRIBUTES : fieldState;
 
   const [composingValue, setComposingValue] = React.useState<string | null>(null);
@@ -106,7 +111,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const validationProps =
     hasPositionerParent || !validation ? elementProps : validation.getValidationProps(elementProps);
 
-  const state: ComboboxInput.State = {
+  const state: ComboboxInputState = {
     ...fieldStateForInput,
     open,
     disabled,
@@ -185,7 +190,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         value: componentProps.value ?? composingValue ?? inputValue,
         'aria-readonly': readOnly || undefined,
         'aria-required': required || undefined,
-        'aria-labelledby': labelId,
+        'aria-labelledby': ariaLabelledBy,
         disabled,
         readOnly,
         required: selectionMode === 'none' ? required : undefined,
@@ -468,10 +473,17 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     stateAttributesMapping: triggerStateAttributesMapping,
   });
 
-  return element;
+  return (
+    <React.Fragment>
+      {open && focusManagerModal && (
+        <ComboboxInternalDismissButton ref={store.state.startDismissRef} />
+      )}
+      {element}
+    </React.Fragment>
+  );
 });
 
-export interface ComboboxInputState extends FieldRoot.State {
+export interface ComboboxInputState extends FieldRootState {
   /**
    * Whether the corresponding popup is open.
    */
@@ -490,7 +502,7 @@ export interface ComboboxInputState extends FieldRoot.State {
   readOnly: boolean;
 }
 
-export interface ComboboxInputProps extends BaseUIComponentProps<'input', ComboboxInput.State> {
+export interface ComboboxInputProps extends BaseUIComponentProps<'input', ComboboxInputState> {
   /**
    * Whether the component should ignore user interaction.
    * @default false

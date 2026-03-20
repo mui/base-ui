@@ -245,7 +245,7 @@ export function useDismiss(
     dataRef.current.__outsidePressBubbles = outsidePressBubbles;
 
     const compositionTimeout = new Timeout();
-    const preventedPressSupressionTimeout = new Timeout();
+    const preventedPressSuppressionTimeout = new Timeout();
 
     function handleCompositionStart() {
       compositionTimeout.clear();
@@ -270,7 +270,7 @@ export function useDismiss(
       suppressNextOutsideClickRef.current = true;
       // Firefox can emit the synthetic outside click in a later task after
       // pointer lock exit, so microtask clearing is too early here.
-      preventedPressSupressionTimeout.start(0, () => {
+      preventedPressSuppressionTimeout.start(0, () => {
         suppressNextOutsideClickRef.current = false;
       });
     }
@@ -333,13 +333,13 @@ export function useDismiss(
 
       const target = getTarget(event);
       const inertSelector = `[${createAttribute('inert')}]`;
-      let markers = Array.from(
-        ownerDocument(store.select('floatingElement')).querySelectorAll(inertSelector),
-      );
       const targetRoot = isElement(target) ? target.getRootNode() : null;
-      if (isShadowRoot(targetRoot)) {
-        markers = markers.concat(Array.from(targetRoot.querySelectorAll(inertSelector)));
-      }
+      const markers = Array.from(
+        (isShadowRoot(targetRoot)
+          ? targetRoot
+          : ownerDocument(store.select('floatingElement'))
+        ).querySelectorAll(inertSelector),
+      );
 
       const triggers = store.context.triggerElements;
 
@@ -419,7 +419,7 @@ export function useDismiss(
       // one suppressed outside click. Run this after inside-target checks so
       // inside clicks don't consume the one-shot suppression.
       if (getOutsidePressEvent() === 'intentional' && suppressNextOutsideClickRef.current) {
-        preventedPressSupressionTimeout.clear();
+        preventedPressSuppressionTimeout.clear();
         suppressNextOutsideClickRef.current = false;
         return;
       }
@@ -568,7 +568,7 @@ export function useDismiss(
         return;
       }
 
-      preventedPressSupressionTimeout.clear();
+      preventedPressSuppressionTimeout.clear();
       suppressNextOutsideClickRef.current = true;
       clearInsideReactTree();
     }
@@ -679,7 +679,7 @@ export function useDismiss(
       }
 
       compositionTimeout.clear();
-      preventedPressSupressionTimeout.clear();
+      preventedPressSuppressionTimeout.clear();
       resetPressStartState();
       suppressNextOutsideClickRef.current = false;
     };

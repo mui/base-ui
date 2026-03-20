@@ -8,7 +8,7 @@ import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { TooltipViewportCssVars } from './TooltipViewportCssVars';
 import { usePopupViewport } from '../../utils/usePopupViewport';
 
-const stateAttributesMapping: StateAttributesMapping<TooltipViewport.State> = {
+const stateAttributesMapping: StateAttributesMapping<TooltipViewportState> = {
   activationDirection: (value) =>
     value
       ? {
@@ -42,7 +42,7 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
     children,
   });
 
-  const state: TooltipViewport.State = {
+  const state: TooltipViewportState = {
     activationDirection: viewportState.activationDirection,
     transitioning: viewportState.transitioning,
     instant: instantType,
@@ -56,23 +56,28 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
   });
 });
 
+export interface TooltipViewportState {
+  /**
+   * The activation direction of the transitioned content.
+   */
+  activationDirection: string | undefined;
+  /**
+   * Whether the viewport is currently transitioning between contents.
+   */
+  transitioning: boolean;
+  /**
+   * Present if animations should be instant.
+   */
+  instant: 'delay' | 'dismiss' | 'focus' | undefined;
+}
+
 export namespace TooltipViewport {
-  export interface Props extends BaseUIComponentProps<'div', State> {
+  export interface Props extends BaseUIComponentProps<'div', TooltipViewportState> {
     /**
      * The content to render inside the transition container.
      */
     children?: React.ReactNode;
   }
 
-  export interface State {
-    activationDirection: string | undefined;
-    /**
-     * Whether the viewport is currently transitioning between contents.
-     */
-    transitioning: boolean;
-    /**
-     * Present if animations should be instant.
-     */
-    instant: 'delay' | 'dismiss' | 'focus' | undefined;
-  }
+  export type State = TooltipViewportState;
 }

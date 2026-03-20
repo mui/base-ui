@@ -1,7 +1,7 @@
+import { afterEach, expect } from 'vitest';
 import { Tabs } from '@base-ui/react/tabs';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { afterEach, expect } from 'vitest';
 
 describe('<Tabs.Panel />', () => {
   const { render } = createRenderer();

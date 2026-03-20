@@ -12,7 +12,7 @@ import { DemoSliderHero } from './demos/hero';
 
 ## Usage guidelines
 
-- **Form controls must have an accessible name**: See [Labeling a slider](#labeling-a-slider) and the [forms guide](/react/handbook/forms).
+- **Form controls must have an accessible name**: Prefer `<Slider.Label>`, or provide an `aria-label` on each `<Slider.Thumb>` when no visible label is rendered. See [Labeling a slider](#labeling-a-slider) and the [forms guide](/react/handbook/forms).
 
 ## Anatomy
 
@@ -22,6 +22,7 @@ Import the component and assemble its parts:
 import { Slider } from '@base-ui/react/slider';
 
 <Slider.Root>
+  <Slider.Label />
   <Slider.Value />
   <Slider.Control>
     <Slider.Track>
@@ -72,11 +73,11 @@ A single-thumb slider without a visible label (such as a volume control) can be 
 </Slider.Root>
 ```
 
-A visible label can be created using `aria-labelledby` on `<Slider.Root>` that references the `id` of a sibling element, such as a `<div>`:
+A visible label can be created using `<Slider.Label>`:
 
-```tsx title="Slider with visible label" {1,2}
-<div id="volume-label">Volume</div>
-<Slider.Root aria-labelledby="volume-label">
+```tsx title="Slider with visible label" {2}
+<Slider.Root>
+  <Slider.Label>Volume</Slider.Label>
   <Slider.Control>
     <Slider.Track>
       <Slider.Indicator />
@@ -89,8 +90,8 @@ A visible label can be created using `aria-labelledby` on `<Slider.Root>` that r
 For a multi-thumb range slider with a visible label, add `aria-label` on each `<Slider.Thumb>` to distinguish them:
 
 ```tsx title="Labeling multi-thumb range sliders" {6-7}
-<div id="price-label">Price range</div>
-<Slider.Root defaultValue={[25, 75]} aria-labelledby="price-label">
+<Slider.Root defaultValue={[25, 75]}>
+  <Slider.Label>Price range</Slider.Label>
   <Slider.Control>
     <Slider.Track>
       <Slider.Indicator />
@@ -101,14 +102,22 @@ For a multi-thumb range slider with a visible label, add `aria-label` on each `<
 </Slider.Root>
 ```
 
-The [Field](/react/components/field) and [Fieldset](/react/components/fieldset) components can also be used to provide accessible labels for sliders, eliminating the need to track `id` or `aria-labelledby` associations manually. Field comes with a UX improvement to prevent double clicks from selecting the label text.
+### Vertical
 
-For a single-thumb slider, use [Field](/react/components/field) to provide a visible label:
+Set `orientation="vertical"` on `<Slider.Root>` to build a vertical slider.
 
-```tsx title="Using Field to label a slider" {2}
-<Field.Root>
-  <Field.Label>Volume</Field.Label>
-  <Slider.Root>
+import { DemoSliderVertical } from './demos/vertical';
+
+<DemoSliderVertical compact />
+
+### Form integration
+
+To use a slider in a form, pass the slider `name` to `<Slider.Root>`:
+
+```tsx title="Using Slider in a form" {2}
+<Form>
+  <Slider.Root name="volume">
+    <Slider.Label>Volume</Slider.Label>
     <Slider.Control>
       <Slider.Track>
         <Slider.Indicator />
@@ -116,12 +125,12 @@ For a single-thumb slider, use [Field](/react/components/field) to provide a vis
       </Slider.Track>
     </Slider.Control>
   </Slider.Root>
-</Field.Root>
+</Form>
 ```
 
-For a multi-thumb range slider, use [Fieldset](/react/components/fieldset) by replacing the `<Fieldset.Root>` element with `<Slider.Root>` via the `render` prop. `<Fieldset.Legend>` provides the visible label for the group:
+For grouped multi-thumb range sliders in forms, [Fieldset](/react/components/fieldset) can provide the shared visible label while each thumb keeps its own `aria-label`:
 
-```tsx title="Using Fieldset to label a multi-thumb slider" {2,3,7-8}
+```tsx title="Using Fieldset with a multi-thumb slider" {2,3,7-8}
 <Field.Root>
   <Fieldset.Root render={<Slider.Root />}>
     <Fieldset.Legend>Price range</Fieldset.Legend>
@@ -136,29 +145,9 @@ For a multi-thumb range slider, use [Fieldset](/react/components/fieldset) by re
 </Field.Root>
 ```
 
-### Form integration
-
-To use a slider in a form, pass the slider's `name` to `<Field.Root>`:
-
-```tsx title="Using Slider in a form" {2}
-<Form>
-  <Field.Root name="volume">
-    <Field.Label>Volume</Field.Label>
-    <Slider.Root>
-      <Slider.Control>
-        <Slider.Track>
-          <Slider.Indicator />
-          <Slider.Thumb />
-        </Slider.Track>
-      </Slider.Control>
-    </Slider.Root>
-  </Field.Root>
-</Form>
-```
-
 ## API reference
 
-<Reference component="Slider" parts="Root, Value, Control, Track, Indicator, Thumb" />
+<Reference component="Slider" parts="Root, Label, Value, Control, Track, Indicator, Thumb" />
 
 export const metadata = {
   keywords: [

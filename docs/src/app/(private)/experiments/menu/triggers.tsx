@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
 import { StoreInspector } from '@base-ui/utils/store';
 import demoStyles from 'docs/src/app/(docs)/react/components/menu/demos/submenu/css-modules/index.module.css';
+import viewportStyles from 'docs/src/app/(docs)/react/components/menu/demos/detached-triggers-full/css-modules/index.module.css';
 import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
 import styles from './triggers.module.css';
 
@@ -290,16 +291,22 @@ function renderMenuContent(contentKey: ContentKey | undefined, settings: Setting
 
   return (
     <Menu.Portal keepMounted={settings.keepMounted}>
-      <Menu.Positioner sideOffset={8} className={demoStyles.Positioner} side={settings.side}>
-        <Menu.Popup className={demoStyles.Popup}>
-          <Menu.Arrow className={demoStyles.Arrow}>
+      <Menu.Positioner
+        sideOffset={8}
+        className={`${demoStyles.Positioner} ${viewportStyles.Positioner}`}
+        side={settings.side}
+      >
+        <Menu.Popup className={`${demoStyles.Popup} ${viewportStyles.Popup}`}>
+          <Menu.Arrow className={`${demoStyles.Arrow} ${viewportStyles.Arrow}`}>
             <ArrowSvg />
           </Menu.Arrow>
-          {items ? (
-            items.map((item, index) => renderMenuContentItem(item, `item-${index}`))
-          ) : (
-            <div className={styles.MenuSection}>No content for this trigger.</div>
-          )}
+          <Menu.Viewport className={viewportStyles.Viewport}>
+            {items ? (
+              items.map((item, index) => renderMenuContentItem(item, `item-${index}`))
+            ) : (
+              <div className={styles.MenuSection}>No content for this trigger.</div>
+            )}
+          </Menu.Viewport>
         </Menu.Popup>
       </Menu.Positioner>
     </Menu.Portal>
@@ -369,7 +376,7 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
   modal: {
     type: 'boolean',
     label: 'Modal',
-    default: true,
+    default: false,
   },
   keepMounted: {
     type: 'boolean',
