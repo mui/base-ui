@@ -192,7 +192,7 @@ function ExampleTanstackQueryCombobox() {
         }
       }}
     >
-      <div className="relative flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">
+      <div className="relative flex flex-col gap-1 text-sm leading-5 font-bold text-gray-900">
         <label htmlFor={id}>Find a movie</label>
         <div className="relative w-64 sm:w-80 has-[.combobox-clear]:[&>input]:pr-[calc(0.5rem+1.5rem*2)]">
           <Combobox.Input
@@ -241,7 +241,7 @@ function ExampleTanstackQueryCombobox() {
                     <CheckIcon className="block size-3" />
                   </Combobox.ItemIndicator>
                   <div className="col-start-2 flex flex-col gap-1">
-                    <div className="text-[0.95rem] font-medium">{movie.title}</div>
+                    <div className="text-[0.95rem] font-bold">{movie.title}</div>
                     <div className="flex flex-wrap gap-3 text-[0.8125rem] text-gray-600">
                       <span>{movie.releaseDate.slice(0, 4)}</span>
                     </div>
