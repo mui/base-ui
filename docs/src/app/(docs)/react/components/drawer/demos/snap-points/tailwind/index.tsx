@@ -14,7 +14,7 @@ const snapPoints = [...VISIBLE_SNAP_POINTS_REM.map(toViewportSnapPoint), 1];
 export default function ExampleDrawerSnapPoints() {
   return (
     <Drawer.Root snapPoints={snapPoints}>
-      <Drawer.Trigger className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100">
+      <Drawer.Trigger className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-normal text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100">
         Open snap drawer
       </Drawer.Trigger>
       <Drawer.Portal>
@@ -26,7 +26,7 @@ export default function ExampleDrawerSnapPoints() {
           >
             <div className="shrink-0 border-b border-gray-200 px-6 pt-3.5 pb-3 touch-none dark:border-gray-300">
               <div className="mx-auto h-1 w-12 rounded-full bg-gray-300" />
-              <Drawer.Title className="mt-2.5 cursor-default text-center text-lg font-medium">
+              <Drawer.Title className="mt-2.5 cursor-default text-center text-lg font-bold">
                 Snap points
               </Drawer.Title>
             </div>
@@ -44,7 +44,7 @@ export default function ExampleDrawerSnapPoints() {
                   ))}
                 </div>
                 <div className="flex items-center justify-end gap-4">
-                  <Drawer.Close className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100">
+                  <Drawer.Close className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-normal text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100">
                     Close
                   </Drawer.Close>
                 </div>

@@ -27,6 +27,45 @@ describe('useRenderElement', () => {
     return element;
   });
 
+  const DirectPropsTestComponent = React.forwardRef(function DirectPropsTestComponent(
+    componentProps: BaseUIComponentProps<'div', { active?: boolean }> & { active?: boolean },
+    forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  ) {
+    const { className, render: renderProp, active, ...elementProps } = componentProps;
+
+    return useRenderElement('div', componentProps, {
+      state: { active },
+      ref: forwardedRef,
+      props: elementProps,
+    });
+  });
+
+  const ArrayPropsTestComponent = React.forwardRef(function ArrayPropsTestComponent(
+    componentProps: BaseUIComponentProps<'div', { active?: boolean }> & { active?: boolean },
+    forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  ) {
+    const { className, render: renderProp, active, ...elementProps } = componentProps;
+
+    return useRenderElement('div', componentProps, {
+      state: { active },
+      ref: forwardedRef,
+      props: [elementProps, { className: 'test-component' }],
+    });
+  });
+
+  function DisabledPropsTestComponent(props: {
+    propsGetter: () => React.ComponentPropsWithRef<'div'>;
+  }) {
+    return useRenderElement(
+      'div',
+      {},
+      {
+        enabled: false,
+        props: [props.propsGetter],
+      },
+    );
+  }
+
   it('accepts className as function', async () => {
     const { container } = await render(
       <TestComponent
@@ -71,6 +110,81 @@ describe('useRenderElement', () => {
     const element = container.firstElementChild;
 
     expect(element?.getAttribute('style')).toBe('padding: 10px;');
+  });
+
+  it('makes single prop objects preventable', async () => {
+    const handleMouseDown = vi.fn((event) => {
+      event.preventBaseUIHandler();
+    });
+
+    const { container } = await render(<DirectPropsTestComponent onMouseDown={handleMouseDown} />);
+
+    const element = container.firstElementChild as HTMLDivElement;
+
+    expect(() =>
+      element.dispatchEvent(new MouseEvent('mousedown', { bubbles: true })),
+    ).not.toThrow();
+    expect(handleMouseDown).toHaveBeenCalledTimes(1);
+  });
+
+  it('makes multi-prop arrays preventable when the event handler is first', async () => {
+    const handleMouseDown = vi.fn((event) => {
+      event.preventBaseUIHandler();
+    });
+
+    const { container } = await render(<ArrayPropsTestComponent onMouseDown={handleMouseDown} />);
+
+    const element = container.firstElementChild as HTMLDivElement;
+
+    expect(() =>
+      element.dispatchEvent(new MouseEvent('mousedown', { bubbles: true })),
+    ).not.toThrow();
+    expect(handleMouseDown).toHaveBeenCalledTimes(1);
+  });
+
+  it('makes obscure single-prop events preventable', async () => {
+    const handleContextMenu = vi.fn((event) => {
+      event.preventBaseUIHandler();
+    });
+
+    const { container } = await render(
+      <DirectPropsTestComponent onContextMenu={handleContextMenu} />,
+    );
+
+    const element = container.firstElementChild as HTMLDivElement;
+
+    expect(() =>
+      element.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true })),
+    ).not.toThrow();
+    expect(handleContextMenu).toHaveBeenCalledTimes(1);
+  });
+
+  it('makes obscure multi-prop array events preventable when the event handler is first', async () => {
+    const handleContextMenu = vi.fn((event) => {
+      event.preventBaseUIHandler();
+    });
+
+    const { container } = await render(
+      <ArrayPropsTestComponent onContextMenu={handleContextMenu} />,
+    );
+
+    const element = container.firstElementChild as HTMLDivElement;
+
+    expect(() =>
+      element.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true })),
+    ).not.toThrow();
+    expect(handleContextMenu).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not resolve props when disabled', async () => {
+    const propsGetter = vi.fn(() => ({
+      onMouseDown() {},
+    }));
+
+    const { container } = await render(<DisabledPropsTestComponent propsGetter={propsGetter} />);
+
+    expect(container.firstElementChild).toBeNull();
+    expect(propsGetter).not.toHaveBeenCalled();
   });
 
   describe('prop: render', () => {
@@ -380,15 +494,15 @@ describe('useRenderElement', () => {
 
     it('does not throw when className is provided with minimal props', async () => {
       const { container } = await render(<MinimalComponent className="test-class" />);
-      expect(container.firstElementChild).to.not.equal(null);
-      expect(container.firstElementChild).to.have.attribute('class', 'test-class');
+      expect(container.firstElementChild).not.toBeNull();
+      expect(container.firstElementChild).toHaveAttribute('class', 'test-class');
     });
 
     it('does not throw when style is provided with minimal props', async () => {
       const { container } = await render(<MinimalComponent style={{ color: 'red' }} />);
-      expect(container.firstElementChild).to.not.equal(null);
+      expect(container.firstElementChild).not.toBeNull();
       const element = container.firstElementChild as HTMLElement;
-      expect(element.style.color).to.equal('red');
+      expect(element.style.color).toBe('red');
     });
   });
 });

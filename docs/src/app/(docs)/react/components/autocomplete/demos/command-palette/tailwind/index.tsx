@@ -13,7 +13,7 @@ export default function ExampleAutocompleteCommandPalette() {
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger className="flex h-10 cursor-default items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100">
+      <Dialog.Trigger className="flex h-10 cursor-default items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-normal text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100">
         Open command palette
       </Dialog.Trigger>
       <Dialog.Portal>
@@ -31,7 +31,7 @@ export default function ExampleAutocompleteCommandPalette() {
               keepHighlight
             >
               <Autocomplete.Input
-                className="w-full border-0 border-b border-gray-100 bg-transparent p-4 text-base tracking-[0.016em] text-gray-900 placeholder:text-gray-500 outline-none"
+                className="w-full border-0 border-b border-gray-100 bg-transparent p-4 text-base font-normal tracking-[0.016em] text-gray-900 placeholder:text-gray-500 outline-none"
                 placeholder="Search for apps and commands..."
               />
               <Dialog.Close className="sr-only">Close command palette</Dialog.Close>
@@ -81,16 +81,16 @@ export default function ExampleAutocompleteCommandPalette() {
               <div className="flex items-center justify-between border-t border-gray-200 bg-gray-50 px-3 py-2.5 text-xs text-gray-600">
                 <div className="flex items-center gap-2">
                   <span>Activate</span>
-                  <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-gray-300 bg-gray-100 px-1 text-[0.625rem] font-medium text-gray-700">
+                  <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-gray-300 bg-gray-100 px-1 text-[0.625rem] font-normal text-gray-700">
                     Enter
                   </kbd>
                 </div>
                 <div className="flex items-center gap-2">
                   <span>Actions</span>
-                  <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-gray-300 bg-gray-100 px-1 text-[0.625rem] font-medium text-gray-700">
+                  <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-gray-300 bg-gray-100 px-1 text-[0.625rem] font-normal text-gray-700">
                     Cmd
                   </kbd>
-                  <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-gray-300 bg-gray-100 px-1 text-[0.625rem] font-medium text-gray-700">
+                  <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-gray-300 bg-gray-100 px-1 text-[0.625rem] font-normal text-gray-700">
                     K
                   </kbd>
                 </div>

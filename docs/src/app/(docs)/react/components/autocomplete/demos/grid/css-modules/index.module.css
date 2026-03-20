@@ -19,6 +19,7 @@
   border-radius: 0.375rem;
   font-family: inherit;
   font-size: 1rem;
+  font-weight: 400;
   background-color: canvas;
   color: var(--color-gray-900);
   outline: none;
@@ -191,7 +192,7 @@
   box-sizing: border-box;
   padding: 0.5rem 1rem 0.25rem;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--color-gray-600);
   text-transform: uppercase;
   letter-spacing: 0.025em;
@@ -252,22 +253,6 @@
   font-size: 1.5rem;
   line-height: 1;
   margin-bottom: 0.25rem;
-}
-
-.Name {
-  font-size: 0.625rem;
-  text-align: center;
-  opacity: 0.8;
-  line-height: 1.2;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-weight: 500;
-}
-
-.Item[data-highlighted] .Name {
-  opacity: 1;
 }
 
 .Empty:not(:empty) {

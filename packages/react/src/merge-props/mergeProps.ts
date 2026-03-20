@@ -61,8 +61,11 @@ export function mergeProps<T extends ElementType>(
 ): PropsOf<T>;
 export function mergeProps<T extends ElementType>(a: InputProps<T>, b: InputProps<T>): PropsOf<T>;
 export function mergeProps(a: any, b: any, c?: any, d?: any, e?: any) {
-  // We need to mutably own `merged`
-  let merged = { ...resolvePropsGetter(a, EMPTY_PROPS) };
+  if (!c && !d && !e && !a) {
+    return createInitialMergedProps(b);
+  }
+
+  let merged = createInitialMergedProps(a);
 
   if (b) {
     merged = mergeOne(merged, b);
@@ -99,11 +102,16 @@ export function mergePropsN<T extends ElementType>(props: InputProps<T>[]): Prop
     return EMPTY_PROPS as PropsOf<T>;
   }
   if (props.length === 1) {
-    return resolvePropsGetter(props[0], EMPTY_PROPS) as PropsOf<T>;
+    const firstProps = props[0];
+
+    if (isPropsGetter(firstProps)) {
+      return resolvePropsGetter(firstProps, EMPTY_PROPS) as PropsOf<T>;
+    }
+
+    return copyPropsWithWrappedEventHandlers(firstProps) as PropsOf<T>;
   }
 
-  // We need to mutably own `merged`
-  let merged = { ...resolvePropsGetter(props[0], EMPTY_PROPS) };
+  let merged = createInitialMergedProps(props[0]);
 
   for (let i = 1; i < props.length; i += 1) {
     merged = mergeOne(merged, props[i]);
@@ -117,6 +125,29 @@ function mergeOne<T extends ElementType>(merged: Record<string, any>, inputProps
     return inputProps(merged);
   }
   return mutablyMergeInto(merged, inputProps);
+}
+
+function createInitialMergedProps<T extends ElementType>(inputProps: InputProps<T>) {
+  if (isPropsGetter(inputProps)) {
+    // Getter-returned handlers intentionally keep their existing semantics.
+    return { ...resolvePropsGetter(inputProps, EMPTY_PROPS) };
+  }
+
+  return copyPropsWithWrappedEventHandlers(inputProps);
+}
+
+function copyPropsWithWrappedEventHandlers<T extends ElementType>(
+  inputProps: React.ComponentPropsWithRef<T> | undefined,
+) {
+  const copiedProps = { ...inputProps } as Record<string, any>;
+
+  for (const propName in copiedProps) {
+    if (isEventHandler(propName, copiedProps[propName])) {
+      copiedProps[propName] = wrapEventHandler(copiedProps[propName]);
+    }
+  }
+
+  return copiedProps;
 }
 
 /**
@@ -195,7 +226,7 @@ function mergeEventHandlers(ourHandler: Function | undefined, theirHandler: Func
     return ourHandler;
   }
   if (!ourHandler) {
-    return theirHandler;
+    return wrapEventHandler(theirHandler);
   }
 
   return (event: unknown) => {
@@ -216,6 +247,20 @@ function mergeEventHandlers(ourHandler: Function | undefined, theirHandler: Func
     const result = theirHandler(event);
     ourHandler?.(event);
     return result;
+  };
+}
+
+function wrapEventHandler(handler: Function | undefined) {
+  if (!handler) {
+    return handler;
+  }
+
+  return (event: unknown) => {
+    if (isSyntheticEvent(event)) {
+      makeEventPreventable(event as BaseUIEvent<typeof event>);
+    }
+
+    return handler(event);
   };
 }
 

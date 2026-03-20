@@ -4,13 +4,13 @@
   gap: 0.25rem;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  font-weight: 500;
   color: var(--color-gray-900);
 }
 
 .Label {
   display: inline-flex;
   color: inherit;
+  font-weight: 700;
 }
 
 .InputGroup {
@@ -102,6 +102,7 @@
   background: none;
   font-family: inherit;
   font-size: 1rem;
+  font-weight: 400;
   color: var(--color-gray-900);
 
   &:focus {
@@ -251,7 +252,7 @@
 
 .ItemTitle {
   font-size: 0.95rem;
-  font-weight: 500;
+  font-weight: 700;
 }
 
 .ItemSubtitle {
