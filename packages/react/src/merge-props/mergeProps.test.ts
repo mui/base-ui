@@ -133,6 +133,24 @@ describe('mergeProps', () => {
     expect(prevented).toBe(true);
   });
 
+  it('makes a lone obscure synthetic event handler preventable', () => {
+    let prevented = false;
+
+    const mergedProps = mergeProps<'button'>(
+      {},
+      {
+        onContextMenu(event) {
+          event.preventBaseUIHandler();
+          prevented = event.baseUIHandlerPrevented === true;
+        },
+      },
+    );
+
+    mergedProps.onContextMenu?.({ nativeEvent: new MouseEvent('contextmenu') } as any);
+
+    expect(prevented).toBe(true);
+  });
+
   it('merges styles', () => {
     const theirProps = {
       style: { color: 'red' },

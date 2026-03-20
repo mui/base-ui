@@ -142,6 +142,40 @@ describe('useRenderElement', () => {
     expect(handleMouseDown.mock.calls.length).to.equal(1);
   });
 
+  it('makes obscure single-prop events preventable', async () => {
+    const handleContextMenu = vi.fn((event) => {
+      event.preventBaseUIHandler();
+    });
+
+    const { container } = await render(
+      <DirectPropsTestComponent onContextMenu={handleContextMenu} />,
+    );
+
+    const element = container.firstElementChild as HTMLDivElement;
+
+    expect(() =>
+      element.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true })),
+    ).not.toThrow();
+    expect(handleContextMenu).toHaveBeenCalledTimes(1);
+  });
+
+  it('makes obscure multi-prop array events preventable when the event handler is first', async () => {
+    const handleContextMenu = vi.fn((event) => {
+      event.preventBaseUIHandler();
+    });
+
+    const { container } = await render(
+      <ArrayPropsTestComponent onContextMenu={handleContextMenu} />,
+    );
+
+    const element = container.firstElementChild as HTMLDivElement;
+
+    expect(() =>
+      element.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true })),
+    ).not.toThrow();
+    expect(handleContextMenu).toHaveBeenCalledTimes(1);
+  });
+
   it('does not resolve props when disabled', async () => {
     const propsGetter = vi.fn(() => ({
       onMouseDown() {},
