@@ -9,6 +9,7 @@ import { usePackageManagerSnippetContext } from 'docs/src/blocks/PackageManagerS
 import { GhostButton } from './GhostButton';
 import { CopyIcon } from '../icons/CopyIcon';
 import { CheckIcon } from '../icons/CheckIcon';
+import './InstallationBlock.css';
 
 const PACKAGE_MANAGERS = [
   { value: 'pnpm', label: 'pnpm', command: 'add' },
