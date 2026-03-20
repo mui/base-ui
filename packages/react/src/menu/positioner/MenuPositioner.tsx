@@ -81,73 +81,69 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const parentReadyFrame = useAnimationFrame();
   const positionerUpdateFrame = useAnimationFrame();
   const revealFrame = useAnimationFrame();
+  // Only defer nested reveal for submenus that are already open while their parent is animating.
+  // Keyboard- and pointer-opened submenus should still reveal eagerly so focus behavior stays intact.
+  const shouldDeferNestedReveal = parent.type === 'menu' && lastOpenChangeReason == null;
   const [parentReadyToPosition, setParentReadyToPosition] = React.useState(
-    () => parentMenuStore?.select('openTransitionComplete') ?? true,
+    () => !shouldDeferNestedReveal,
   );
   const [submenuReadyToReveal, setSubmenuReadyToReveal] = React.useState(
-    () => parent.type !== 'menu',
+    () => !shouldDeferNestedReveal,
   );
 
   const previousTriggerRef = React.useRef<Element | null>(null);
   const blockedByParentAnimationRef = React.useRef(false);
   const runOnceAnimationsFinish = useAnimationsFinished(positionerElement, false, false);
-  // Only defer nested reveal for submenus that are already open while their parent is animating.
-  // Keyboard- and pointer-opened submenus should still reveal eagerly so focus behavior stays intact.
-  const shouldDeferNestedReveal = parent.type === 'menu' && lastOpenChangeReason == null;
+  const runOnceParentAnimationsFinish = useAnimationsFinished(
+    parentMenuStore?.context.popupRef ?? null,
+    true,
+    false,
+  );
 
   useIsoLayoutEffect(() => {
-    if (parentMenuStore == null) {
+    if (parentMenuStore == null || !mounted || !shouldDeferNestedReveal) {
       parentReadyFrame.cancel();
       setParentReadyToPosition(true);
       return undefined;
     }
 
     const menuStore = parentMenuStore;
+    const abortController = new AbortController();
+    setParentReadyToPosition(false);
 
-    function syncParentReadyState() {
-      if (!menuStore.select('openTransitionComplete')) {
-        const parentPopup = menuStore.context.popupRef.current;
-        const parentPopupStyles = parentPopup ? getComputedStyle(parentPopup) : null;
-        const parentPopupAnimations =
-          parentPopup && typeof parentPopup.getAnimations === 'function'
-            ? parentPopup.getAnimations()
-            : null;
-        const parentIsActuallyAnimating =
-          (parentPopupAnimations != null && parentPopupAnimations.length > 0) ||
-          (parentPopupStyles != null &&
-            (hasMotionDuration(parentPopupStyles.transitionDuration) ||
-              hasMotionDuration(parentPopupStyles.animationDuration)));
-
-        if (!parentIsActuallyAnimating) {
-          parentReadyFrame.cancel();
-          setParentReadyToPosition(true);
-          return;
-        }
-
-        parentReadyFrame.cancel();
-        setParentReadyToPosition(false);
+    function waitForParentPopup() {
+      if (abortController.signal.aborted) {
         return;
       }
 
-      // Submenu triggers live inside the parent popup and can still move for one paint after the
-      // parent's open animation reports completion. Wait one extra frame so the child positions
-      // against the settled trigger rect rather than the last in-flight transformed rect.
-      parentReadyFrame.request(() => {
-        setParentReadyToPosition(menuStore.select('openTransitionComplete'));
-      });
+      if (menuStore.context.popupRef.current == null) {
+        parentReadyFrame.request(waitForParentPopup);
+        return;
+      }
+
+      runOnceParentAnimationsFinish(() => {
+        // The submenu trigger lives inside the parent popup and can still move for one paint after
+        // the parent animation itself finishes. Wait one extra frame before allowing the child
+        // positioner to measure against that trigger.
+        parentReadyFrame.request(() => {
+          setParentReadyToPosition(true);
+        });
+      }, abortController.signal);
     }
 
-    syncParentReadyState();
-
-    // This positioner lives in the child menu store but needs to react to the parent menu's
-    // open-complete state, so subscribe directly rather than mirroring that state through the child.
-    const unsubscribe = menuStore.subscribe(syncParentReadyState);
+    waitForParentPopup();
 
     return () => {
+      abortController.abort();
       parentReadyFrame.cancel();
-      unsubscribe();
     };
-  }, [parentMenuStore, parentReadyFrame]);
+  }, [
+    mounted,
+    parentMenuStore,
+    parentReadyFrame,
+    runOnceParentAnimationsFinish,
+    shouldDeferNestedReveal,
+  ]);
 
   const positionerMounted = mounted && (parent.type !== 'menu' || parentReadyToPosition);
 
@@ -211,7 +207,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       return undefined;
     }
 
-    if (!parentReadyToPosition) {
+    if (!parentReadyToPosition || domReference == null) {
       positionerUpdateFrame.cancel();
       revealFrame.cancel();
       blockedByParentAnimationRef.current = true;
@@ -246,6 +242,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     mounted,
     parent.type,
     parentReadyToPosition,
+    domReference,
     shouldDeferNestedReveal,
     updatePositioner,
     positionerUpdateFrame,
@@ -517,16 +514,4 @@ export interface MenuPositionerProps
 export namespace MenuPositioner {
   export type State = MenuPositionerState;
   export type Props = MenuPositionerProps;
-}
-
-/**
- * Returns whether a computed CSS duration list contains any non-zero entry.
- * @param value A computed CSS duration string such as
- *   `getComputedStyle(element).transitionDuration` or `.animationDuration`.
- *   These values are comma-separated when multiple properties or keyframes are involved.
- */
-function hasMotionDuration(value: string) {
-  return value
-    .split(',')
-    .some((part) => Number.parseFloat(part) > 0 && !Number.isNaN(Number.parseFloat(part)));
 }
