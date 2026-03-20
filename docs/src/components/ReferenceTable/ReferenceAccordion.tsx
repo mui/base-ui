@@ -61,7 +61,7 @@ export function ReferenceAccordion({
         const displayDetailedType = prop.detailedType ?? prop.type;
 
         // anchor hash for each prop
-        const id = `${partName}-${name}`;
+        const id = `${partName.replace('.', '')}-${name}`;
 
         const shortTypeText = prop.shortTypeText ?? 'type';
         const defaultText = prop.defaultText;
