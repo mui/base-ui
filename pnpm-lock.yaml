@@ -329,9 +329,6 @@ importers:
       baseline-browser-mapping:
         specifier: 2.10.0
         version: 2.10.0
-      chai:
-        specifier: 6.2.2
-        version: 6.2.2
       cross-env:
         specifier: 10.1.0
         version: 10.1.0
