@@ -14,7 +14,7 @@ const allCoreRows = [...coreColorRows, ...accentColorRows];
 
 const typefaces = [
   { token: 'font-sans-a', sample: 'Die Grotesk A for UI copy' },
-  { token: 'font-sans-b', sample: 'Die Grotesk B for UI copy' },
+  { token: 'font-sans-b', sample: 'Die Grotesk B for headings' },
   { token: 'font-mono', sample: 'Söhne Mono for code and data' },
   { token: 'font-serif', sample: 'Georgia for editorial accents' },
 ] as const;
@@ -25,8 +25,8 @@ const fontWeights = [
 ] as const;
 
 const textScale = ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as const;
-const spaceScale = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] as const;
-const radiusScale = ['1', '2', '3', '4', '5', '6', '7', 'pill', 'circle'] as const;
+const spaceScale = ['4', '8', '12', '16', '20', '24', '28', '32', '40', '48'] as const;
+const radiusScale = ['2', '3', '4', '6', '8', '12', '16', 'pill', 'circle'] as const;
 const shadows = ['1', '2', '3', '4', '5'] as const;
 
 export default function ThemePage() {

@@ -1,5 +1,5 @@
 .page {
-  padding: var(--space-8);
+  padding: var(--space-40);
   color: var(--gray-t2);
   background: var(--gray-s1);
   font-family: var(--font-sans-a);
@@ -18,7 +18,7 @@
 }
 
 .kicker {
-  margin: 0 0 var(--space-2);
+  margin: 0 0 var(--space-8);
   color: var(--gray-t1);
   font-size: var(--font-size-1);
   line-height: var(--line-height-1);
@@ -27,7 +27,7 @@
 }
 
 .section {
-  padding: var(--space-10) 0;
+  padding: var(--space-48) 0;
 }
 
 .section + .section {
@@ -43,7 +43,7 @@
 }
 
 .colorMatrixSection + .colorMatrixSection {
-  margin-top: var(--space-8);
+  margin-top: var(--space-32);
 }
 
 .colorMatrixGrid {
@@ -156,19 +156,19 @@
 .typeGrid {
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
+  gap: var(--space-24);
 }
 
 .radiusGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr));
-  gap: var(--space-6);
+  gap: var(--space-24);
 }
 
 .shadowGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr));
-  gap: var(--space-6);
+  gap: var(--space-24);
 }
 
 .typeCard,
@@ -178,14 +178,14 @@
 }
 
 .typeSample {
-  margin: var(--space-2) 0 0;
+  margin: var(--space-8) 0 0;
   font-size: var(--font-size-4);
   line-height: var(--line-height-4);
 }
 
 .typeScale {
   display: grid;
-  gap: var(--space-7);
+  gap: var(--space-32);
 }
 
 .typeScaleRow {
@@ -193,19 +193,19 @@
 }
 
 .typeScaleRow p:last-child {
-  margin: var(--space-2) 0 0;
+  margin: var(--space-8) 0 0;
 }
 
 .spaceList {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-16);
 }
 
 .spaceRow {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
+  gap: var(--space-16);
   border-radius: var(--radius-5);
 }
 
@@ -221,7 +221,7 @@
 }
 
 .radiusShape {
-  margin-top: var(--space-3);
+  margin-top: var(--space-12);
   background: var(--gray-t2);
 }
 
@@ -237,7 +237,7 @@
 
 .shadowSurface {
   height: 5rem;
-  margin-top: var(--space-3);
+  margin-top: var(--space-12);
   border-radius: var(--radius-4);
   background: var(--gray-s1);
 
@@ -249,7 +249,7 @@
 
 @media (max-width: 48rem) {
   .page {
-    padding: var(--space-6);
+    padding: var(--space-24);
   }
 
   .hero h1 {
