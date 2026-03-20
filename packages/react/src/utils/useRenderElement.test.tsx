@@ -123,8 +123,8 @@ describe('useRenderElement', () => {
 
     expect(() =>
       element.dispatchEvent(new MouseEvent('mousedown', { bubbles: true })),
-    ).not.to.throw();
-    expect(handleMouseDown.mock.calls.length).to.equal(1);
+    ).not.toThrow();
+    expect(handleMouseDown).toHaveBeenCalledTimes(1);
   });
 
   it('makes multi-prop arrays preventable when the event handler is first', async () => {
@@ -138,8 +138,8 @@ describe('useRenderElement', () => {
 
     expect(() =>
       element.dispatchEvent(new MouseEvent('mousedown', { bubbles: true })),
-    ).not.to.throw();
-    expect(handleMouseDown.mock.calls.length).to.equal(1);
+    ).not.toThrow();
+    expect(handleMouseDown).toHaveBeenCalledTimes(1);
   });
 
   it('makes obscure single-prop events preventable', async () => {
@@ -183,8 +183,8 @@ describe('useRenderElement', () => {
 
     const { container } = await render(<DisabledPropsTestComponent propsGetter={propsGetter} />);
 
-    expect(container.firstElementChild).to.equal(null);
-    expect(propsGetter.mock.calls.length).to.equal(0);
+    expect(container.firstElementChild).toBeNull();
+    expect(propsGetter).not.toHaveBeenCalled();
   });
 
   describe('prop: render', () => {
@@ -494,15 +494,15 @@ describe('useRenderElement', () => {
 
     it('does not throw when className is provided with minimal props', async () => {
       const { container } = await render(<MinimalComponent className="test-class" />);
-      expect(container.firstElementChild).to.not.equal(null);
-      expect(container.firstElementChild).to.have.attribute('class', 'test-class');
+      expect(container.firstElementChild).not.toBeNull();
+      expect(container.firstElementChild).toHaveAttribute('class', 'test-class');
     });
 
     it('does not throw when style is provided with minimal props', async () => {
       const { container } = await render(<MinimalComponent style={{ color: 'red' }} />);
-      expect(container.firstElementChild).to.not.equal(null);
+      expect(container.firstElementChild).not.toBeNull();
       const element = container.firstElementChild as HTMLElement;
-      expect(element.style.color).to.equal('red');
+      expect(element.style.color).toBe('red');
     });
   });
 });

@@ -258,7 +258,7 @@ describe('<Accordion.Root />', () => {
 
     const trigger = screen.getByRole('button', { name: 'Trigger 1' });
 
-    expect(() => fireEvent.mouseUp(trigger)).not.to.throw();
+    expect(() => fireEvent.mouseUp(trigger)).not.toThrow();
   });
 
   describe.skipIf(isJSDOM)('keyboard interactions', () => {

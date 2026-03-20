@@ -83,7 +83,7 @@ describe('<Menu.Item />', () => {
 
     const item = screen.getByRole('menuitem');
 
-    expect(() => fireEvent.mouseDown(item)).not.to.throw();
+    expect(() => fireEvent.mouseDown(item)).not.toThrow();
   });
 
   it('perf: does not rerender menu items unnecessarily', async ({ skip }) => {
