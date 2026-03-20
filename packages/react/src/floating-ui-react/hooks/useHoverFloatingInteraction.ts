@@ -12,6 +12,7 @@ import { getNodeChildren, getTarget, isTargetInsideEnabledTrigger } from '../uti
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import {
   closeHoverPopup,
+  closeWithOptionalDelay,
   applySafePolygonPointerEventsMutation,
   emitCommittedHoverClose,
   clearSafePolygonPointerEventsMutation,
@@ -83,20 +84,13 @@ export function useHoverFloatingInteraction(
 
   const closeWithDelay = React.useCallback(
     (event: MouseEvent) => {
-      // Bail out if the popup is already closed (e.g. mouseleave fired on an
-      // already-closed kept-mounted popup). Avoids a spurious `setOpen(false)`.
-      if (!store.select('open')) {
-        instance.openChangeTimeout.clear();
-        return;
-      }
-
-      const closeDelay = getDelay(closeDelayProp, 'close', instance.pointerType);
-      if (closeDelay) {
-        instance.openChangeTimeout.start(closeDelay, () => handleHoverClose(event));
-      } else {
-        instance.openChangeTimeout.clear();
-        handleHoverClose(event);
-      }
+      closeWithOptionalDelay(
+        store,
+        instance,
+        handleHoverClose,
+        event,
+        getDelay(closeDelayProp, 'close', instance.pointerType),
+      );
     },
     [closeDelayProp, handleHoverClose, instance, store],
   );

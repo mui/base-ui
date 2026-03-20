@@ -66,7 +66,7 @@ describe('closeHoverPopup', () => {
     expect(instance.lastHoverCloseTime).to.equal(HOVER_CLOSE_UNSET);
   });
 
-  it('does not emit a tree event synchronously when the controlled open state stays true', () => {
+  it('does not record a pending close when a controlled consumer ignores the request', () => {
     const store = createMockStore({ controlledOpen: true });
     const instance = HoverInteraction.create();
     const tree = createMockTree();
@@ -80,15 +80,13 @@ describe('closeHoverPopup', () => {
       400,
     );
 
-    // No tree event emitted synchronously — the store still reports open.
+    // The consumer silently ignored the close request — the popup store's
+    // effective open is still `true` after `flushSync`. No hover-close
+    // bookkeeping is recorded, preventing a later unrelated close from
+    // inheriting a stale hover grace window.
     expect(tree.emittedEvents).toEqual([]);
     expect(instance.lastHoverCloseTime).to.equal(HOVER_CLOSE_UNSET);
-    // The pending close is recorded but not finalized. It will be either:
-    // - finalized by the `open` watcher effect if the controlled consumer
-    //   later updates `open` to `false`, or
-    // - discarded by `clearPendingHoverClose` on the next close attempt, or
-    // - discarded by `clearRecentHoverClose` on a non-hover open change.
-    expect(instance.pendingHoverClose).not.to.equal(null);
+    expect(instance.pendingHoverClose).to.equal(null);
   });
 });
 
@@ -101,6 +99,9 @@ function createMockStore(
   let open = true;
 
   return {
+    context: {
+      isPopupEffectivelyOpen: options.controlledOpen != null ? () => options.controlledOpen : undefined,
+    },
     select(key: string) {
       if (key === 'open') {
         return options.controlledOpen ?? open;

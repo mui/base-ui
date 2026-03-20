@@ -13,6 +13,7 @@ import { useFloatingTree } from '../components/FloatingTree';
 import type { FloatingTreeStore } from '../components/FloatingTreeStore';
 import {
   closeHoverPopup,
+  closeWithOptionalDelay,
   clearRecentHoverClose,
   clearSafePolygonPointerEventsMutation,
   emitCommittedHoverClose,
@@ -112,20 +113,14 @@ export function useHoverReferenceInteraction(
   });
 
   const closeWithDelay = useStableCallback((event: MouseEvent, runElseBranch = true) => {
-    // Bail out if the popup is already closed (e.g. mouseleave fired on an
-    // already-closed kept-mounted popup). Avoids a spurious `setOpen(false)`.
-    if (!store.select('open')) {
-      instance.openChangeTimeout.clear();
-      return;
-    }
-
-    const closeDelay = getDelay(delayRef.current, 'close', instance.pointerType);
-    if (closeDelay) {
-      instance.openChangeTimeout.start(closeDelay, () => handleHoverClose(event));
-    } else if (runElseBranch) {
-      instance.openChangeTimeout.clear();
-      handleHoverClose(event);
-    }
+    closeWithOptionalDelay(
+      store,
+      instance,
+      handleHoverClose,
+      event,
+      getDelay(delayRef.current, 'close', instance.pointerType),
+      runElseBranch,
+    );
   });
 
   React.useEffect(() => {
@@ -139,8 +134,8 @@ export function useHoverReferenceInteraction(
   }, [hoverCloseGracePeriod, instance, open]);
 
   // Finalize any pending hover-close when `open` transitions to `false`.
-  // This handles controlled consumers that update their state asynchronously
-  // in `onOpenChange` — the synchronous path inside `closeHoverPopup` won't
+  // This handles controlled consumers that defer their state update (e.g.
+  // `startTransition`) — the synchronous path inside `closeHoverPopup` won't
   // see the transition, so this effect acts as a fallback. The call is
   // idempotent: if the synchronous path already consumed the pending close,
   // this is a no-op.

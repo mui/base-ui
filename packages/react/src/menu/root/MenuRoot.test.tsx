@@ -1407,6 +1407,36 @@ describe('<Menu.Root />', () => {
 
           expect(screen.queryByRole('menu')).not.to.equal(null);
         });
+
+        it('restores open delay after the hover-close grace period expires', async () => {
+          await renderFakeTimers(<TestMenu triggerProps={{ openOnHover: true, delay: 100 }} />);
+
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+          // Open and close via hover
+          fireEvent.mouseEnter(trigger);
+          fireEvent.mouseMove(trigger);
+          await flushMicrotasks();
+          clock.tick(100);
+          await flushMicrotasks();
+          expect(screen.queryByRole('menu')).not.toBe(null);
+
+          fireEvent.mouseLeave(trigger);
+          await flushMicrotasks();
+          expect(screen.queryByRole('menu')).toBe(null);
+
+          // Grace window is 400ms; after it expires, delay should apply again.
+          clock.tick(401);
+
+          fireEvent.mouseEnter(trigger);
+          fireEvent.mouseMove(trigger);
+          await flushMicrotasks();
+          expect(screen.queryByRole('menu')).toBe(null);
+
+          clock.tick(100);
+          await flushMicrotasks();
+          expect(screen.queryByRole('menu')).not.toBe(null);
+        });
       });
 
       it('opens the submenu on hover with zero delay', async () => {

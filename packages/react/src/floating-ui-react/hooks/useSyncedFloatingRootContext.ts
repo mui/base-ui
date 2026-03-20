@@ -78,6 +78,7 @@ export function useSyncedFloatingRootContext<State extends PopupStoreState<any>>
   store.context.onOpenChange = onOpenChange;
   store.context.nested = nested;
   store.context.noEmit = noEmit;
+  store.context.isPopupEffectivelyOpen = () => popupStore.select('open');
 
   return store;
 }

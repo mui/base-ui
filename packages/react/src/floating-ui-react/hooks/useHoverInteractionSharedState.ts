@@ -1,4 +1,5 @@
 'use client';
+import * as ReactDOM from 'react-dom';
 import { useOnMount } from '@base-ui/utils/useOnMount';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Timeout } from '@base-ui/utils/useTimeout';
@@ -19,6 +20,17 @@ import { isInteractiveElement } from '../utils';
  * `performance.now()` timestamp.
  */
 export const HOVER_CLOSE_UNSET = -1;
+
+/**
+ * Default grace period (ms) after a committed hover-close during which a
+ * subsequent hover-open bypasses the configured delay. This enables smooth
+ * trigger-to-trigger and popup-to-trigger handoffs.
+ *
+ * Note: the grace window intentionally applies to same-trigger re-entry as
+ * well, not only cross-trigger handoffs. Consumers who need a strict reopen
+ * delay should not rely on the hover close delay alone during this window.
+ */
+export const HOVER_CLOSE_GRACE_PERIOD = 400;
 
 /**
  * Captures the context of a hover-close that has been accepted by the store
@@ -226,26 +238,50 @@ export function closeHoverPopup(
     return;
   }
 
-  // --- Pending phase: record intent to close. ---
-  // The popup may not have closed yet — some stores (e.g. Menu) update state
-  // asynchronously. The pending close is finalized by `emitCommittedHoverClose`
-  // either synchronously below (if the store updated already) or in the
-  // `open` watcher effect when the state transitions to `false`.
+  // --- Commit verification phase ---
+  // Force React to process any batched state updates that the consumer's
+  // `onOpenChange` callback may have enqueued. This lets us detect whether
+  // the consumer actually committed the close by checking the popup store's
+  // effective `open` state (which accounts for the controlled `openProp`).
+  ReactDOM.flushSync(() => {});
+
+  // Check the popup store's effective open state. After the flushSync above,
+  // regular `setState` calls from `onOpenChange` are committed, so:
+  //  - Consumer accepted → effective open is `false`
+  //  - Consumer ignored (no cancel, no setState) → effective open is `true`
+  //  - Consumer deferred via `startTransition` → effective open is `true`
+  //    (transitions are not flushed by flushSync)
   //
-  // If a controlled consumer silently ignores the close (without calling
-  // `cancel()`), `open` never transitions to `false` so the pending close
-  // is never finalized. It will be discarded by `clearPendingHoverClose` at
-  // the top of the next `closeHoverPopup` call, or by `clearRecentHoverClose`
-  // when the next open cycle starts.
+  // When the consumer ignored the request, we must NOT record a pending
+  // hover-close — otherwise a later unrelated close would inherit the hover
+  // grace window.
+  //
+  // Tradeoff: the same early return also drops deferred controlled closes
+  // (`startTransition`, timers, etc.). Those consumers won't get the hover
+  // grace window or the `floating.closed` tree coordination signal, but this
+  // avoids misattributing a later unrelated `open=false` update to the earlier
+  // hover-close request.
+  const isEffectivelyOpen = store.context.isPopupEffectivelyOpen?.() ?? store.select('open');
+
+  if (isEffectivelyOpen) {
+    // Consumer silently ignored the close (or used startTransition).
+    // Do not record a pending hover-close.
+    return;
+  }
+
+  // --- Pending phase: record intent to close. ---
+  // The pending close will be finalized by `emitCommittedHoverClose` either
+  // synchronously below (if the floating root store already reflects the
+  // closed state) or in the `open` watcher effect when the floating root
+  // store syncs the popup store's closed state.
   instance.pendingHoverClose = {
     event,
     shouldRecordGrace: isHoverOpen && hoverCloseGracePeriod != null && hoverCloseGracePeriod > 0,
   };
 
-  // If the store already reflects the closed state (e.g. Popover uses
-  // `flushSync`), finalize immediately so tree coordination doesn't wait
-  // for the next render. For async stores this is a no-op — the effect
-  // path handles it.
+  // If the floating root store already reflects the closed state (e.g.
+  // Popover uses `flushSync` internally), finalize immediately so tree
+  // coordination doesn't wait for the next render.
   if (!store.select('open')) {
     emitCommittedHoverClose(instance, tree);
   }
@@ -262,7 +298,7 @@ export function wasHoverClosedRecently(
   thresholdMs?: number,
 ): boolean {
   // Used by hover-open flows to suppress delay during quick handoffs
-  // (trigger-to-trigger or popup-to-trigger).
+  // (trigger-to-trigger, popup-to-trigger, and same-trigger re-entry).
   if (
     thresholdMs == null ||
     thresholdMs <= 0 ||
@@ -272,4 +308,34 @@ export function wasHoverClosedRecently(
   }
 
   return now - instance.lastHoverCloseTime <= thresholdMs;
+}
+
+/**
+ * Closes the hover popup, applying an optional delay. This is the shared
+ * close-with-delay helper used by both the reference and floating hover hooks.
+ *
+ * @param runElseBranch When `true` (default), closes immediately if no delay
+ *   is configured. When `false`, only the delayed path runs.
+ */
+export function closeWithOptionalDelay(
+  store: FloatingRootContext,
+  instance: HoverInteraction,
+  handleHoverClose: (event: MouseEvent) => void,
+  event: MouseEvent,
+  closeDelay: number | undefined,
+  runElseBranch = true,
+): void {
+  // Bail out if the popup is already closed (e.g. mouseleave fired on an
+  // already-closed kept-mounted popup). Avoids a spurious `setOpen(false)`.
+  if (!store.select('open')) {
+    instance.openChangeTimeout.clear();
+    return;
+  }
+
+  if (closeDelay) {
+    instance.openChangeTimeout.start(closeDelay, () => handleHoverClose(event));
+  } else if (runElseBranch) {
+    instance.openChangeTimeout.clear();
+    handleHoverClose(event);
+  }
 }

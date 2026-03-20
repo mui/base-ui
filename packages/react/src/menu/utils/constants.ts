@@ -1,3 +1,3 @@
 'use client';
 
-export const HOVER_CLOSE_GRACE_PERIOD = 400;
+export { HOVER_CLOSE_GRACE_PERIOD } from '../../floating-ui-react/hooks/useHoverInteractionSharedState';
