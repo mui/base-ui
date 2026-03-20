@@ -17,6 +17,123 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
   return <h4 className="ReferenceSectionHeading">{children}</h4>;
 }
 
+type UseTypesResult = ReturnType<typeof useTypes>;
+type CallableType = Extract<NonNullable<UseTypesResult['type']>, { type: 'hook' | 'function' }>;
+type CallableData = CallableType['data'];
+
+function CallableReturnValue({ name, data }: { name: string; data: CallableData['returnValue'] }) {
+  if (!data) {
+    return null;
+  }
+
+  if (data.kind === 'object') {
+    return (
+      <React.Fragment>
+        <SectionHeading>Return value</SectionHeading>
+        {data.typeName && (
+          <p className="ReferenceSectionSubtext">
+            <code>
+              <span className="pl-en">{data.typeName}</span>
+            </code>
+          </p>
+        )}
+        <ReferenceAccordion
+          name={name}
+          data={data.properties}
+          nameLabel="Property"
+          caption="Return value properties table"
+          hideRequired
+          hideDefault
+          className="ReferenceBlock"
+        />
+      </React.Fragment>
+    );
+  }
+
+  return (
+    <div className="ReferenceBlock">
+      <SectionHeading>Return value</SectionHeading>
+      {data.type}
+      {data.detailedType && <CodeBlock.Root>{data.detailedType}</CodeBlock.Root>}
+    </div>
+  );
+}
+
+function CallableReferenceSection({
+  data,
+  multiple,
+  hideDescription,
+  additionalTypes,
+  showFallbackParametersHeading,
+  fallbackParametersClassName,
+}: {
+  data: CallableData;
+  multiple?: boolean;
+  hideDescription?: boolean;
+  additionalTypes?: React.ComponentProps<typeof AdditionalTypes>['data'];
+  showFallbackParametersHeading: boolean;
+  fallbackParametersClassName: string;
+}) {
+  return (
+    <React.Fragment>
+      {multiple && !hideDescription && data.description && data.description}
+
+      {data.optionsProperties && (
+        <React.Fragment>
+          <SectionHeading>Parameters</SectionHeading>
+          <p className="ReferenceSectionSubtext">
+            <code>
+              <span className="pl-en">{data.optionsTypeName}</span>
+            </code>
+          </p>
+          <ReferenceAccordion
+            name={data.name}
+            data={data.optionsProperties}
+            nameLabel="Prop"
+            caption="Parameter properties table"
+            hideDefault
+            className="ReferenceBlock"
+          />
+        </React.Fragment>
+      )}
+
+      {!data.optionsProperties && data.properties && Object.keys(data.properties).length > 0 && (
+        <React.Fragment>
+          <SectionHeading>Properties</SectionHeading>
+          <ReferenceAccordion
+            name={data.name}
+            data={data.properties}
+            nameLabel="Property"
+            caption="Properties table"
+            hideDefault
+            className="ReferenceBlock"
+          />
+        </React.Fragment>
+      )}
+
+      {!data.optionsProperties &&
+        !data.properties &&
+        data.parameters &&
+        Object.keys(data.parameters).length > 0 && (
+          <React.Fragment>
+            {showFallbackParametersHeading && <SectionHeading>Parameters</SectionHeading>}
+            <ParametersReferenceTable
+              name={data.name}
+              data={data.parameters}
+              className={fallbackParametersClassName}
+            />
+          </React.Fragment>
+        )}
+
+      <CallableReturnValue name={data.name} data={data.returnValue} />
+
+      {additionalTypes && additionalTypes.length > 0 && (
+        <AdditionalTypes data={additionalTypes} multiple={multiple} />
+      )}
+    </React.Fragment>
+  );
+}
+
 type ReferenceTableProps = TypesTableProps<{
   hideDescription?: boolean;
   showAdditionalTypes?: string[];
@@ -58,182 +175,19 @@ export function ReferenceTable(props: ReferenceTableProps) {
     );
   }
 
-  if (type?.type === 'hook') {
+  if (type?.type === 'hook' || type?.type === 'function') {
     const data = type.data;
     return (
-      <React.Fragment>
-        {multiple && !hideDescription && data.description && data.description}
-
-        {data.optionsProperties && (
-          <React.Fragment>
-            <SectionHeading>Parameters</SectionHeading>
-            <p className="ReferenceSectionSubtext">
-              <code>
-                <span className="pl-en">{data.optionsTypeName}</span>
-              </code>
-            </p>
-            <ReferenceAccordion
-              name={data.name}
-              data={data.optionsProperties}
-              nameLabel="Prop"
-              caption="Parameter properties table"
-              hideDefault
-              className="ReferenceBlock"
-            />
-          </React.Fragment>
-        )}
-
-        {!data.optionsProperties && data.properties && Object.keys(data.properties).length > 0 && (
-          <React.Fragment>
-            <SectionHeading>Properties</SectionHeading>
-            <ReferenceAccordion
-              name={data.name}
-              data={data.properties}
-              nameLabel="Property"
-              caption="Properties table"
-              hideDefault
-              className="ReferenceBlock"
-            />
-          </React.Fragment>
-        )}
-
-        {!data.optionsProperties &&
-          !data.properties &&
-          data.parameters &&
-          Object.keys(data.parameters).length > 0 && (
-            <ParametersReferenceTable
-              name={data.name}
-              data={data.parameters}
-              className="ReferenceBlockSpaced"
-            />
-          )}
-
-        {data.returnValue && data.returnValue.kind === 'object' && (
-          <React.Fragment>
-            <SectionHeading>Return value</SectionHeading>
-            {data.returnValue.typeName && (
-              <p className="ReferenceSectionSubtext">
-                <code>
-                  <span className="pl-en">{data.returnValue.typeName}</span>
-                </code>
-              </p>
-            )}
-            <ReferenceAccordion
-              name={data.name}
-              data={data.returnValue.properties}
-              nameLabel="Property"
-              caption="Return value properties table"
-              hideRequired
-              hideDefault
-              className="ReferenceBlock"
-            />
-          </React.Fragment>
-        )}
-
-        {data.returnValue && data.returnValue.kind === 'simple' && (
-          <div className="ReferenceBlock">
-            <SectionHeading>Return value</SectionHeading>
-            {data.returnValue.type}
-            {data.returnValue.detailedType && (
-              <CodeBlock.Root>{data.returnValue.detailedType}</CodeBlock.Root>
-            )}
-          </div>
-        )}
-
-        {additionalTypes && additionalTypes.length > 0 && (
-          <AdditionalTypes data={additionalTypes} multiple={multiple} />
-        )}
-      </React.Fragment>
-    );
-  }
-
-  if (type?.type === 'function') {
-    const data = type.data;
-    return (
-      <React.Fragment>
-        {multiple && !hideDescription && data.description && data.description}
-
-        {data.optionsProperties && (
-          <React.Fragment>
-            <SectionHeading>Parameters</SectionHeading>
-            <p className="ReferenceSectionSubtext">
-              <code>
-                <span className="pl-en">{data.optionsTypeName}</span>
-              </code>
-            </p>
-            <ReferenceAccordion
-              name={data.name}
-              data={data.optionsProperties}
-              nameLabel="Prop"
-              caption="Parameter properties table"
-              hideDefault
-              className="ReferenceBlock"
-            />
-          </React.Fragment>
-        )}
-
-        {!data.optionsProperties && data.properties && Object.keys(data.properties).length > 0 && (
-          <React.Fragment>
-            <SectionHeading>Properties</SectionHeading>
-            <ReferenceAccordion
-              name={data.name}
-              data={data.properties}
-              nameLabel="Property"
-              caption="Properties table"
-              hideDefault
-              className="ReferenceBlock"
-            />
-          </React.Fragment>
-        )}
-
-        {!data.optionsProperties &&
-          !data.properties &&
-          data.parameters &&
-          Object.keys(data.parameters).length > 0 && (
-            <React.Fragment>
-              <SectionHeading>Parameters</SectionHeading>
-              <ParametersReferenceTable
-                name={data.name}
-                data={data.parameters}
-                className="ReferenceBlock"
-              />
-            </React.Fragment>
-          )}
-
-        {data.returnValue && data.returnValue.kind === 'object' && (
-          <React.Fragment>
-            <SectionHeading>Return value</SectionHeading>
-            {data.returnValue.typeName && (
-              <p className="ReferenceSectionSubtext">
-                <code>
-                  <span className="pl-en">{data.returnValue.typeName}</span>
-                </code>
-              </p>
-            )}
-            <ReferenceAccordion
-              name={data.name}
-              data={data.returnValue.properties}
-              nameLabel="Property"
-              caption="Return value properties table"
-              hideRequired
-              hideDefault
-              className="ReferenceBlock"
-            />
-          </React.Fragment>
-        )}
-
-        {data.returnValue && data.returnValue.kind === 'simple' && (
-          <div className="ReferenceBlock">
-            <SectionHeading>Return value</SectionHeading>
-            {data.returnValue.type}
-            {data.returnValue.detailedType && data.returnValue.detailedType}
-          </div>
-        )}
-
-        {additionalTypes && additionalTypes.length > 0 && (
-          <AdditionalTypes data={additionalTypes} multiple={multiple} />
-        )}
-      </React.Fragment>
+      <CallableReferenceSection
+        data={data}
+        multiple={multiple}
+        hideDescription={hideDescription}
+        additionalTypes={additionalTypes}
+        showFallbackParametersHeading={type.type === 'function'}
+        fallbackParametersClassName={
+          type.type === 'function' ? 'ReferenceBlock' : 'ReferenceBlockSpaced'
+        }
+      />
     );
   }
 
