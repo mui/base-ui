@@ -10,7 +10,7 @@ import {
 import { Combobox } from '@base-ui/react/combobox';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import styles from './index.module.css';
-import { movies, type Movie } from '../movies';
+import type { Movie } from '../movies';
 
 const client = new QueryClient({
   defaultOptions: {
@@ -242,6 +242,11 @@ interface SearchMoviesResponse {
   totalResults: number;
 }
 
+async function getMovies() {
+  const { movies } = await import('../movies');
+  return movies;
+}
+
 async function searchMovies(
   query: string,
   filter: (item: string, query: string) => boolean,
@@ -263,6 +268,7 @@ async function searchMovies(
     throw new Error('Request cancelled');
   }
 
+  const movies = await getMovies();
   const allMatches = movies.filter((movie) => {
     return filter(movie.title, query);
   });
