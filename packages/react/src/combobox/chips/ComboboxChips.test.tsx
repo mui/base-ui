@@ -139,6 +139,30 @@ describe('<Combobox.Chips />', () => {
     expect(screen.queryByRole('listbox')).toBe(null);
   });
 
+  it('lets nested chip onContextMenu call preventBaseUIHandler', async () => {
+    const handleContextMenu = vi.fn();
+
+    await render(
+      <Combobox.Root items={['apple', 'banana']} multiple defaultValue={['apple']}>
+        <Combobox.Chips>
+          <Combobox.Chip
+            data-testid="chip"
+            onContextMenu={(event) => {
+              handleContextMenu(event);
+              event.preventBaseUIHandler();
+            }}
+          >
+            apple
+          </Combobox.Chip>
+          <Combobox.Input />
+        </Combobox.Chips>
+      </Combobox.Root>,
+    );
+
+    expect(() => fireEvent.contextMenu(screen.getByTestId('chip'))).not.toThrow();
+    expect(handleContextMenu).toHaveBeenCalledTimes(1);
+  });
+
   it('does not treat chip remove presses as chips-area presses', async () => {
     await render(
       <Combobox.Root items={['apple', 'banana']} multiple defaultValue={['apple']}>
