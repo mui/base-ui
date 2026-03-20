@@ -1,4 +1,5 @@
 import { expect, vi } from 'vitest';
+import * as React from 'react';
 import { act, flushMicrotasks, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
 import { Popover } from '@base-ui/react/popover';
@@ -1497,6 +1498,105 @@ describe('<Tabs.Root />', () => {
       // A later programmatic change should still compute direction correctly
       await setProps({ value: 1 });
 
+      expect(root).toHaveAttribute('data-activation-direction', 'right');
+    });
+
+    it('should compute correct direction when adding and selecting a new tab in one controlled update', async () => {
+      const panelRenderMock = vi.fn();
+      function DynamicTabs() {
+        const [tabs, setTabs] = React.useState([0, 1]);
+        const [value, setValue] = React.useState(0);
+
+        return (
+          <div>
+            <button
+              type="button"
+              onClick={() => {
+                setTabs([0, 1, 2]);
+                setValue(2);
+              }}
+            >
+              Add and Select
+            </button>
+            <Tabs.Root data-testid="root" value={value}>
+              <Tabs.List>
+                {tabs.map((tab) => (
+                  <Tabs.Tab key={tab} value={tab} />
+                ))}
+              </Tabs.List>
+              {tabs.map((tab) => (
+                <Tabs.Panel key={tab} value={tab} render={(_, state) => panelRenderMock(state)} />
+              ))}
+            </Tabs.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<DynamicTabs />);
+
+      // clear the initial render calls from mounting the component
+      panelRenderMock.mockClear();
+
+      const root = screen.getByTestId('root');
+      expect(root).toHaveAttribute('data-activation-direction', 'none');
+
+      await user.click(screen.getByText('Add and Select'));
+
+      expect(panelRenderMock).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({ tabActivationDirection: 'right' }),
+      );
+      expect(root).toHaveAttribute('data-activation-direction', 'right');
+    });
+
+    it('should compute correct direction on final render when adding and selecting a new tab in one controlled update with out of order string values', async () => {
+      const panelRenderMock = vi.fn();
+      function DynamicTabs() {
+        const [tabs, setTabs] = React.useState(['Overview', 'Projects']);
+        const [value, setValue] = React.useState('Overview');
+
+        return (
+          <div>
+            <button
+              type="button"
+              onClick={() => {
+                setTabs(['Overview', 'Projects', 'Account']);
+                setValue('Account');
+              }}
+            >
+              Add and Select
+            </button>
+            <Tabs.Root data-testid="root" value={value}>
+              <Tabs.List>
+                {tabs.map((tab) => (
+                  <Tabs.Tab key={tab} value={tab} />
+                ))}
+              </Tabs.List>
+              {tabs.map((tab) => (
+                <Tabs.Panel key={tab} value={tab} render={(_, state) => panelRenderMock(state)} />
+              ))}
+            </Tabs.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<DynamicTabs />);
+
+      // clear the initial render calls from mounting the component
+      panelRenderMock.mockClear();
+
+      const root = screen.getByTestId('root');
+      expect(root).toHaveAttribute('data-activation-direction', 'none');
+
+      await user.click(screen.getByText('Add and Select'));
+
+      expect(panelRenderMock).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({ tabActivationDirection: 'left' }),
+      );
+      expect(panelRenderMock).toHaveBeenLastCalledWith(
+        expect.objectContaining({ tabActivationDirection: 'right' }),
+      );
       expect(root).toHaveAttribute('data-activation-direction', 'right');
     });
   });

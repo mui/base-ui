@@ -79,6 +79,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   const previousValueRef = React.useRef(value);
   const directionJustComputedRef = React.useRef(false);
+  const directionComputationIncompleteRef = React.useRef(false);
 
   // Compute activation direction during render when value changes programmatically
   // so that children see the correct direction on their very first render.
@@ -92,14 +93,30 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       orientation,
       tabMap,
     );
+
+    // When a new tab is added and selected in the same controlled update,
+    // the tab element may not yet be registered in tabMap, so direction was
+    // computed from a value-based fallback. Keep previousValueRef stale so
+    // we re-compute from DOM positions once tabMap is up to date.
+    const isIncomplete =
+      previousValueRef.current != null &&
+      value != null &&
+      getTabElementBySelectedValue(value) == null;
+
+    directionComputationIncompleteRef.current = isIncomplete;
+
     if (activationDirection !== tabActivationDirection) {
       setTabActivationDirection(activationDirection);
     }
   }
 
   // Sync the previous value ref after commit and reset the direction flag.
+  // When direction computation was incomplete (new tab not yet in tabMap),
+  // keep previousValueRef stale so a tabMap update triggers re-computation.
   useIsoLayoutEffect(() => {
-    previousValueRef.current = value;
+    if (!directionComputationIncompleteRef.current) {
+      previousValueRef.current = value;
+    }
     directionJustComputedRef.current = false;
   });
 
@@ -308,6 +325,19 @@ function computeActivationDirection(
   }
 
   if (oldTab == null || newTab == null) {
+    // Fallback for dynamic tabs: when a tab element isn't registered yet
+    // (e.g. added and selected in the same update), infer direction from
+    // the values themselves. Works for comparable types (numbers, strings).
+    if (
+      oldTab !== newTab &&
+      (typeof oldValue === 'number' || typeof oldValue === 'string') &&
+      typeof oldValue === typeof newValue
+    ) {
+      if (orientation === 'horizontal') {
+        return newValue > oldValue ? 'right' : 'left';
+      }
+      return newValue > oldValue ? 'down' : 'up';
+    }
     return 'none';
   }
 
