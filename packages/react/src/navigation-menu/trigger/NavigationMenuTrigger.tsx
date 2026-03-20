@@ -573,11 +573,11 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   });
 
   function getScope() {
-    if (!nested || positionerElement) {
-      return null;
+    if (!nested || !positionerElement) {
+      return triggerElementRef.current?.closest('ul') ?? null;
     }
 
-    return triggerElementRef.current?.closest('ul') ?? null;
+    return null;
   }
 
   const hoverProps = useHoverReferenceInteraction(context, {
@@ -703,12 +703,17 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     setPointerType(event.pointerType);
   }
 
+  function handleTriggerPointerDown(event: React.PointerEvent) {
+    handleSetPointerType(event);
+    clearSafePolygonPointerEventsMutation(hoverInteractionState);
+  }
+
   const defaultProps: HTMLProps = {
     tabIndex: 0,
     onMouseEnter: handleOpenEvent,
     onClick: handleOpenEvent,
     onPointerEnter: handleSetPointerType,
-    onPointerDown: handleSetPointerType,
+    onPointerDown: handleTriggerPointerDown,
     'aria-expanded': isActiveItem,
     'aria-controls': isActiveItem ? popupElement?.id : undefined,
     [NAVIGATION_MENU_TRIGGER_IDENTIFIER as string]: '',
