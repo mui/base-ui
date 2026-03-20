@@ -7,6 +7,7 @@ import { type Group, hasNullItemLabel, stringifyAsValue } from '../utils/resolve
 
 export type State = {
   id: string | undefined;
+  labelId: string | undefined;
   modal: boolean;
   multiple: boolean;
 
@@ -46,6 +47,7 @@ export type SelectStore = Store<State>;
 
 export const selectors = {
   id: createSelector((state: State) => state.id),
+  labelId: createSelector((state: State) => state.labelId),
   modal: createSelector((state: State) => state.modal),
   multiple: createSelector((state: State) => state.multiple),
 

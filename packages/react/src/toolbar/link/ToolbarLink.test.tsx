@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { Toolbar } from '@base-ui/react/toolbar';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -44,7 +44,7 @@ describe('<Toolbar.Link />', () => {
         </Toolbar.Root>,
       );
 
-      expect(screen.getByTestId('link')).to.equal(screen.getByRole('link'));
+      expect(screen.getByTestId('link')).toBe(screen.getByRole('link'));
     });
   });
 });

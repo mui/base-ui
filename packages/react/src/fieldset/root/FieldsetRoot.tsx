@@ -17,7 +17,7 @@ export const FieldsetRoot = React.forwardRef(function FieldsetRoot(
   const { render, className, disabled = false, ...elementProps } = componentProps;
   const [legendId, setLegendId] = React.useState<string | undefined>(undefined);
 
-  const state: FieldsetRoot.State = {
+  const state: FieldsetRootState = {
     disabled,
   };
 
@@ -52,7 +52,7 @@ export interface FieldsetRootState {
    */
   disabled: boolean;
 }
-export interface FieldsetRootProps extends BaseUIComponentProps<'fieldset', FieldsetRoot.State> {}
+export interface FieldsetRootProps extends BaseUIComponentProps<'fieldset', FieldsetRootState> {}
 
 export namespace FieldsetRoot {
   export type State = FieldsetRootState;

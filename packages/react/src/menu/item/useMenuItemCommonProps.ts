@@ -131,6 +131,4 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
   );
 }
 
-export namespace useMenuItemCommonProps {
-  export type Parameters = UseMenuItemCommonPropsParameters;
-}
+export interface UseMenuItemCommonPropsState {}

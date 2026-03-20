@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { hasNullItemLabel } from './resolveValueLabel';
 
 describe('resolveValueLabel', () => {
@@ -14,7 +14,7 @@ describe('resolveValueLabel', () => {
         },
       ];
 
-      expect(hasNullItemLabel(items)).to.equal(true);
+      expect(hasNullItemLabel(items)).toBe(true);
     });
 
     it('returns false when grouped items contain a null-valued item without a label', () => {
@@ -28,7 +28,7 @@ describe('resolveValueLabel', () => {
         },
       ];
 
-      expect(hasNullItemLabel(items)).to.equal(false);
+      expect(hasNullItemLabel(items)).toBe(false);
     });
 
     it('returns false when grouped items do not contain a null-valued item', () => {
@@ -39,7 +39,7 @@ describe('resolveValueLabel', () => {
         },
       ];
 
-      expect(hasNullItemLabel(items)).to.equal(false);
+      expect(hasNullItemLabel(items)).toBe(false);
     });
 
     it('supports grouped items with custom heading keys', () => {
@@ -53,7 +53,7 @@ describe('resolveValueLabel', () => {
         },
       ];
 
-      expect(hasNullItemLabel(items)).to.equal(true);
+      expect(hasNullItemLabel(items)).toBe(true);
     });
 
     it('returns true when flat items contain a null-valued item with a label', () => {
@@ -62,7 +62,7 @@ describe('resolveValueLabel', () => {
         { value: null, label: 'None' },
       ];
 
-      expect(hasNullItemLabel(items)).to.equal(true);
+      expect(hasNullItemLabel(items)).toBe(true);
     });
 
     it('returns false when flat items do not contain a null-valued item', () => {
@@ -71,7 +71,7 @@ describe('resolveValueLabel', () => {
         { value: 'b', label: 'B' },
       ];
 
-      expect(hasNullItemLabel(items)).to.equal(false);
+      expect(hasNullItemLabel(items)).toBe(false);
     });
 
     it('returns false when items is a Record without a "null" key', () => {
@@ -81,7 +81,7 @@ describe('resolveValueLabel', () => {
         mono: 'Monospace',
       };
 
-      expect(hasNullItemLabel(items)).to.equal(false);
+      expect(hasNullItemLabel(items)).toBe(false);
     });
 
     it('returns true when items is a Record with a "null" key', () => {
@@ -91,11 +91,11 @@ describe('resolveValueLabel', () => {
         serif: 'Serif',
       };
 
-      expect(hasNullItemLabel(items)).to.equal(true);
+      expect(hasNullItemLabel(items)).toBe(true);
     });
 
     it('returns false when items is undefined', () => {
-      expect(hasNullItemLabel(undefined)).to.equal(false);
+      expect(hasNullItemLabel(undefined)).toBe(false);
     });
   });
 });

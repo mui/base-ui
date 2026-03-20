@@ -22,6 +22,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
   instantType: 'dismiss' | 'click' | undefined;
   modal: boolean | 'trap-focus';
+  focusManagerModal: boolean;
   openMethod: InteractionType | null;
   openChangeReason: PopoverRoot.ChangeEventReason | null;
   stickIfOpen: boolean;
@@ -47,6 +48,7 @@ function createInitialState<Payload>(): State<Payload> {
     ...createInitialPopupStoreState(),
     disabled: false,
     modal: false,
+    focusManagerModal: false,
     instantType: undefined,
     openMethod: null,
     openChangeReason: null,
@@ -67,6 +69,7 @@ const selectors = {
   openMethod: createSelector((state: State<unknown>) => state.openMethod),
   openChangeReason: createSelector((state: State<unknown>) => state.openChangeReason),
   modal: createSelector((state: State<unknown>) => state.modal),
+  focusManagerModal: createSelector((state: State<unknown>) => state.focusManagerModal),
   stickIfOpen: createSelector((state: State<unknown>) => state.stickIfOpen),
   titleElementId: createSelector((state: State<unknown>) => state.titleElementId),
   descriptionElementId: createSelector((state: State<unknown>) => state.descriptionElementId),

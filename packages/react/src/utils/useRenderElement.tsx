@@ -26,8 +26,8 @@ export function useRenderElement<
   Enabled extends boolean | undefined = undefined,
 >(
   element: TagName,
-  componentProps: useRenderElement.ComponentProps<State>,
-  params: useRenderElement.Parameters<State, RenderedElementType, TagName, Enabled> = {},
+  componentProps: UseRenderElementComponentProps<State>,
+  params: UseRenderElementParameters<State, RenderedElementType, TagName, Enabled> = {},
 ): Enabled extends false ? null : React.ReactElement {
   const renderProp = componentProps.render;
   const outProps = useRenderElementProps(componentProps, params);
@@ -50,8 +50,8 @@ function useRenderElementProps<
   TagName extends IntrinsicTagName | undefined,
   Enabled extends boolean | undefined,
 >(
-  componentProps: useRenderElement.ComponentProps<State>,
-  params: useRenderElement.Parameters<State, RenderedElementType, TagName, Enabled> = {},
+  componentProps: UseRenderElementComponentProps<State>,
+  params: UseRenderElementParameters<State, RenderedElementType, TagName, Enabled> = {},
 ): React.HTMLAttributes<any> & React.RefAttributes<any> {
   const { className: classNameProp, style: styleProp, render: renderProp } = componentProps;
 
@@ -70,8 +70,11 @@ function useRenderElementProps<
     ? getStateAttributesProps(state, stateAttributesMapping)
     : EMPTY_OBJECT;
 
+  // Ensure outProps is always a new mutable object when enabled, never EMPTY_OBJECT.
+  // This prevents potential TypeError when setting ref, className, or style properties,
+  // since EMPTY_OBJECT is frozen and mutations would fail in strict mode.
   const outProps: React.HTMLAttributes<any> & React.RefAttributes<any> = enabled
-    ? (mergeObjects(stateProps, Array.isArray(props) ? mergePropsN(props) : props) ?? EMPTY_OBJECT)
+    ? (mergeObjects(stateProps, Array.isArray(props) ? mergePropsN(props) : props) ?? {})
     : EMPTY_OBJECT;
 
   // SAFETY: The `useMergedRefs` functions use a single hook to store the same value,
@@ -110,6 +113,8 @@ function useRenderElementProps<
 //
 // TODO delete once https://github.com/facebook/react/issues/32392 is fixed
 const REACT_LAZY_TYPE = Symbol.for('react.lazy');
+const COMPONENT_IDENTIFIER_PATTERN = /^[A-Z][A-Za-z0-9$]*$/;
+const LOWERCASE_CHARACTER_PATTERN = /[a-z]/;
 
 function evaluateRenderProp<T extends React.ElementType, S>(
   element: IntrinsicTagName | undefined,
@@ -173,8 +178,11 @@ function warnIfRenderPropLooksLikeComponent(renderFn: { name: string }) {
     return;
   }
 
-  const firstCharacterCode = functionName.charCodeAt(0);
-  if (firstCharacterCode < 65 || firstCharacterCode > 90) {
+  if (!COMPONENT_IDENTIFIER_PATTERN.test(functionName)) {
+    return;
+  }
+
+  if (!LOWERCASE_CHARACTER_PATTERN.test(functionName)) {
     return;
   }
 
@@ -260,12 +268,4 @@ export interface UseRenderElementComponentProps<State> {
   style?: React.CSSProperties | ((state: State) => React.CSSProperties | undefined) | undefined;
 }
 
-export namespace useRenderElement {
-  export type Parameters<
-    State,
-    RenderedElementType extends Element,
-    TagName,
-    Enabled extends boolean | undefined,
-  > = UseRenderElementParameters<State, RenderedElementType, TagName, Enabled>;
-  export type ComponentProps<State> = UseRenderElementComponentProps<State>;
-}
+export interface UseRenderElementState {}

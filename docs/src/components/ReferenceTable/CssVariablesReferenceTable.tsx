@@ -91,7 +91,7 @@ export async function CssVariablesReferenceTable({
           {Object.keys(data).map(async (name) => {
             const cssVariable = data[name];
 
-            const CssVaribleDescription = await createMdxComponent(
+            const CssVariableDescription = await createMdxComponent(
               cssVariable.description,
               CREATE_MDX_OPTIONS,
             );
@@ -102,7 +102,7 @@ export async function CssVariablesReferenceTable({
                   <TableCode style={{ color: 'var(--color-navy)' }}>{name}</TableCode>
                 </Table.RowHeader>
                 <Table.Cell colSpan={2}>
-                  <CssVaribleDescription />
+                  <CssVariableDescription />
                 </Table.Cell>
               </Table.Row>
             );

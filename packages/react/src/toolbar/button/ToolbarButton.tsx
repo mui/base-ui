@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useButton } from '../../use-button';
-import type { ToolbarRoot } from '../root/ToolbarRoot';
+import type { ToolbarRootState } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 import { useToolbarGroupContext } from '../group/ToolbarGroupContext';
 import { CompositeItem } from '../../composite/item/CompositeItem';
@@ -40,7 +40,7 @@ export const ToolbarButton = React.forwardRef(function ToolbarButton(
     native: nativeButton,
   });
 
-  const state: ToolbarButton.State = {
+  const state: ToolbarButtonState = {
     disabled,
     orientation,
     focusable: focusableWhenDisabled,
@@ -66,20 +66,26 @@ export const ToolbarButton = React.forwardRef(function ToolbarButton(
   );
 });
 
-export interface ToolbarButtonState extends ToolbarRoot.State {
+export interface ToolbarButtonState extends ToolbarRootState {
+  /**
+   * Whether the component is disabled.
+   */
   disabled: boolean;
+  /**
+   * Whether the component remains focusable when disabled.
+   */
   focusable: boolean;
 }
 
 export interface ToolbarButtonProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', ToolbarButton.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', ToolbarButtonState> {
   /**
    * When `true` the item is disabled.
    * @default false
    */
   disabled?: boolean | undefined;
   /**
-   * When `true` the item remains focuseable when disabled.
+   * When `true` the item remains focusable when disabled.
    * @default true
    */
   focusableWhenDisabled?: boolean | undefined;

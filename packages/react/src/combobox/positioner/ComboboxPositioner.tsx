@@ -11,7 +11,12 @@ import {
   useComboboxDerivedItemsContext,
 } from '../root/ComboboxRootContext';
 import { ComboboxPositionerContext } from './ComboboxPositionerContext';
-import { type Side, type Align, useAnchorPositioning } from '../../utils/useAnchorPositioning';
+import {
+  type Side,
+  type Align,
+  useAnchorPositioning,
+  type UseAnchorPositioningSharedParameters,
+} from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useComboboxPortalContext } from '../portal/ComboboxPortalContext';
@@ -58,11 +63,13 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   const openMethod = useStore(store, selectors.openMethod);
   const triggerElement = useStore(store, selectors.triggerElement);
   const inputElement = useStore(store, selectors.inputElement);
+  const inputGroupElement = useStore(store, selectors.inputGroupElement);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
   const transitionStatus = useStore(store, selectors.transitionStatus);
 
   const empty = filteredItems.length === 0;
-  const resolvedAnchor = anchor ?? (inputInsidePopup ? triggerElement : inputElement);
+  const resolvedAnchor =
+    anchor ?? (inputInsidePopup ? triggerElement : (inputGroupElement ?? inputElement));
 
   const positioning = useAnchorPositioning({
     anchor: resolvedAnchor,
@@ -101,7 +108,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     };
   }, [open, mounted, positioning.positionerStyles]);
 
-  const state: ComboboxPositioner.State = {
+  const state: ComboboxPositionerState = {
     open,
     side: positioning.side,
     align: positioning.align,
@@ -148,7 +155,10 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   return (
     <ComboboxPositionerContext.Provider value={contextValue}>
       {mounted && modal && (
-        <InternalBackdrop inert={inertValue(!open)} cutout={inputElement ?? triggerElement} />
+        <InternalBackdrop
+          inert={inertValue(!open)}
+          cutout={inputGroupElement ?? inputElement ?? triggerElement}
+        />
       )}
       {element}
     </ComboboxPositionerContext.Provider>
@@ -160,16 +170,28 @@ export interface ComboboxPositionerState {
    * Whether the popup is currently open.
    */
   open: boolean;
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
   align: Align;
+  /**
+   * Whether the anchor element is hidden.
+   */
   anchorHidden: boolean;
+  /**
+   * Whether there are no items to display.
+   */
   empty: boolean;
 }
 
 export interface ComboboxPositionerProps
   extends
-    useAnchorPositioning.SharedParameters,
-    BaseUIComponentProps<'div', ComboboxPositioner.State> {}
+    UseAnchorPositioningSharedParameters,
+    BaseUIComponentProps<'div', ComboboxPositionerState> {}
 
 export namespace ComboboxPositioner {
   export type State = ComboboxPositionerState;

@@ -219,7 +219,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
 
   const localInteractionProps = useInteractions([click, focus]);
 
-  const state: MenuTrigger.State = {
+  const state: MenuTriggerState = {
     disabled,
     open: isOpenedByThisTrigger,
   };
@@ -359,7 +359,7 @@ export interface MenuTrigger {
 }
 
 export interface MenuTriggerProps<Payload = unknown>
-  extends NativeButtonProps, BaseUIComponentProps<'button', MenuTrigger.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', MenuTriggerState> {
   children?: React.ReactNode;
   /**
    * Whether the component should ignore user interaction.
@@ -395,7 +395,7 @@ export interface MenuTriggerProps<Payload = unknown>
   openOnHover?: boolean | undefined;
 }
 
-export type MenuTriggerState = {
+export interface MenuTriggerState {
   /**
    * Whether the menu is currently open.
    */
@@ -404,7 +404,7 @@ export type MenuTriggerState = {
    * Whether the trigger is disabled.
    */
   disabled: boolean;
-};
+}
 
 export namespace MenuTrigger {
   export type Props<Payload = unknown> = MenuTriggerProps<Payload>;

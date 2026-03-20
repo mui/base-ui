@@ -9,7 +9,7 @@ export default function ExampleCombobox() {
     <Combobox.Root items={fruits}>
       <div className={styles.Label}>
         <label htmlFor={id}>Choose a fruit</label>
-        <div className={styles.InputWrapper}>
+        <Combobox.InputGroup className={styles.InputGroup}>
           <Combobox.Input placeholder="e.g. Apple" id={id} className={styles.Input} />
           <div className={styles.ActionButtons}>
             <Combobox.Clear className={styles.Clear} aria-label="Clear selection">
@@ -19,7 +19,7 @@ export default function ExampleCombobox() {
               <ChevronDownIcon className={styles.TriggerIcon} />
             </Combobox.Trigger>
           </div>
-        </div>
+        </Combobox.InputGroup>
       </div>
 
       <Combobox.Portal>

@@ -1,8 +1,8 @@
+import { expect } from 'vitest';
 import * as React from 'react';
-import { expect } from 'chai';
 import { Select } from '@base-ui/react/select';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Select.Popup />', () => {
   const { render } = createRenderer();
@@ -34,20 +34,20 @@ describe('<Select.Popup />', () => {
 
     const trigger = screen.getByRole('combobox');
 
-    expect(trigger).not.to.have.attribute('aria-controls');
-    expect(trigger).to.have.attribute('aria-expanded', 'false');
+    expect(trigger).not.toHaveAttribute('aria-controls');
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
 
     await user.click(trigger);
 
     const popup = await screen.findByTestId('popup');
     const listbox = await screen.findByRole('listbox');
 
-    expect(popup).to.equal(listbox);
-    expect(popup.id).not.to.equal('');
-    expect(popup).to.have.attribute('aria-multiselectable', 'true');
-    expect(trigger).to.have.attribute('aria-controls', popup.id);
-    expect(trigger).to.have.attribute('aria-expanded', 'true');
-    expect(trigger).to.have.attribute('aria-haspopup', 'listbox');
+    expect(popup).toBe(listbox);
+    expect(popup.id).not.toBe('');
+    expect(popup).toHaveAttribute('aria-multiselectable', 'true');
+    expect(trigger).toHaveAttribute('aria-controls', popup.id);
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    expect(trigger).toHaveAttribute('aria-haspopup', 'listbox');
   });
 
   it('places aria attributes on Select.List instead if it is present', async () => {
@@ -69,9 +69,9 @@ describe('<Select.Popup />', () => {
 
     const trigger = screen.getByRole('combobox');
 
-    expect(trigger).not.to.have.attribute('aria-controls');
-    expect(trigger).to.have.attribute('aria-expanded', 'false');
-    expect(trigger).to.have.attribute('aria-haspopup', 'listbox');
+    expect(trigger).not.toHaveAttribute('aria-controls');
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    expect(trigger).toHaveAttribute('aria-haspopup', 'listbox');
 
     await user.click(trigger);
 
@@ -79,15 +79,15 @@ describe('<Select.Popup />', () => {
     const list = await screen.findByTestId('list');
     const listbox = await screen.findByRole('listbox');
 
-    expect(list).to.equal(listbox);
-    expect(list).to.have.attribute('aria-multiselectable');
-    expect(popup).to.have.attribute('role', 'presentation');
-    expect(popup).not.to.have.attribute('aria-multiselectable');
-    expect(list.id).not.to.equal('');
-    expect(trigger).to.have.attribute('aria-controls', list.id);
-    expect(trigger).not.to.have.attribute('aria-controls', popup.id);
-    expect(trigger).to.have.attribute('aria-expanded', 'true');
-    expect(trigger).to.have.attribute('aria-haspopup', 'listbox');
+    expect(list).toBe(listbox);
+    expect(list).toHaveAttribute('aria-multiselectable');
+    expect(popup).toHaveAttribute('role', 'presentation');
+    expect(popup).not.toHaveAttribute('aria-multiselectable');
+    expect(list.id).not.toBe('');
+    expect(trigger).toHaveAttribute('aria-controls', list.id);
+    expect(trigger).not.toHaveAttribute('aria-controls', popup.id);
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    expect(trigger).toHaveAttribute('aria-haspopup', 'listbox');
   });
 
   it('restores transform-related inline styles after measurement', async () => {
@@ -119,11 +119,259 @@ describe('<Select.Popup />', () => {
 
     await new Promise<void>(queueMicrotask);
 
-    expect(popupElement).not.to.equal(null);
-    expect(popupElement!.style.getPropertyValue('transform')).to.equal('translateX(10px)');
-    expect(popupElement!.style.getPropertyValue('scale')).to.equal('0.8');
-    expect(popupElement!.style.getPropertyValue('translate')).to.equal('1px 2px');
+    expect(popupElement).not.toBe(null);
+    expect(popupElement!.style.getPropertyValue('transform')).toBe('translateX(10px)');
+    expect(popupElement!.style.getPropertyValue('scale')).toBe('0.8');
+    expect(popupElement!.style.getPropertyValue('translate')).toBe('1px 2px');
   });
+
+  it.skipIf(isJSDOM)('keeps alignItemWithTrigger active at browser zoom', async () => {
+    const docEl = document.documentElement;
+    const previousZoom = docEl.style.zoom;
+
+    try {
+      docEl.style.zoom = '0.9';
+
+      await render(
+        <div style={{ paddingTop: 100, paddingLeft: 10 }}>
+          <Select.Root open defaultValue="css-modules">
+            <Select.Trigger data-testid="trigger" style={{ width: 108, height: 30 }}>
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner data-testid="positioner">
+                <Select.Popup data-testid="popup" style={{ maxHeight: 'none' }}>
+                  <Select.Item value="css-modules">
+                    <Select.ItemText>CSS Modules</Select.ItemText>
+                  </Select.Item>
+                  <Select.Item value="tailwind-v4">
+                    <Select.ItemText>Tailwind v4</Select.ItemText>
+                  </Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </div>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('positioner')).toHaveAttribute('data-side', 'none');
+      });
+    } finally {
+      docEl.style.zoom = previousZoom;
+    }
+  });
+
+  it.skipIf(isJSDOM)(
+    'treats short popups as top-positioned when maxScrollTop is off by 1px',
+    async () => {
+      const docEl = document.documentElement;
+      const clientHeightDescriptor = Object.getOwnPropertyDescriptor(docEl, 'clientHeight');
+      const clientWidthDescriptor = Object.getOwnPropertyDescriptor(docEl, 'clientWidth');
+
+      const restoreDescriptor = (
+        target: object,
+        property: 'clientHeight' | 'clientWidth',
+        descriptor: PropertyDescriptor | undefined,
+      ) => {
+        if (descriptor) {
+          Object.defineProperty(target, property, descriptor);
+        } else {
+          delete (target as Record<string, unknown>)[property];
+        }
+      };
+
+      const createRect = (left: number, top: number, width: number, height: number) => ({
+        x: left,
+        y: top,
+        left,
+        top,
+        width,
+        height,
+        right: left + width,
+        bottom: top + height,
+        toJSON: () => ({}),
+      });
+
+      try {
+        Object.defineProperty(docEl, 'clientHeight', { value: 646, configurable: true });
+        Object.defineProperty(docEl, 'clientWidth', { value: 300, configurable: true });
+
+        await render(
+          <Select.Root open defaultValue="1">
+            <Select.Trigger
+              data-testid="trigger"
+              ref={(node) => {
+                if (!node) {
+                  return;
+                }
+
+                Object.defineProperty(node, 'offsetWidth', { value: 80, configurable: true });
+                Object.defineProperty(node, 'offsetHeight', { value: 30, configurable: true });
+                Object.defineProperty(node, 'getBoundingClientRect', {
+                  value: () => createRect(10, 170.3793487548828, 80, 30),
+                  configurable: true,
+                });
+              }}
+            >
+              Trigger
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner
+                data-testid="positioner"
+                ref={(node) => {
+                  if (!node) {
+                    return;
+                  }
+
+                  Object.defineProperty(node, 'getBoundingClientRect', {
+                    value: () => createRect(10, 0, 108, 63.96739196777344),
+                    configurable: true,
+                  });
+                }}
+              >
+                <Select.Popup
+                  data-testid="popup"
+                  ref={(node) => {
+                    if (!node) {
+                      return;
+                    }
+
+                    Object.defineProperty(node, 'scrollHeight', {
+                      value: 64,
+                      configurable: true,
+                    });
+                    Object.defineProperty(node, 'clientHeight', {
+                      value: 63,
+                      configurable: true,
+                    });
+                  }}
+                >
+                  <Select.Item value="1">Item 1</Select.Item>
+                  <Select.Item value="2">Item 2</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>,
+        );
+
+        const positioner = screen.getByTestId('positioner');
+
+        await waitFor(() => {
+          expect(positioner).toHaveAttribute('data-side', 'none');
+          expect(positioner.style.top).not.toBe('');
+          expect(positioner.style.bottom).toBe('');
+        });
+      } finally {
+        restoreDescriptor(docEl, 'clientHeight', clientHeightDescriptor);
+        restoreDescriptor(docEl, 'clientWidth', clientWidthDescriptor);
+      }
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'keeps alignItemWithTrigger active when the aligned height is fractionally below minHeight',
+    async () => {
+      const docEl = document.documentElement;
+      const clientHeightDescriptor = Object.getOwnPropertyDescriptor(docEl, 'clientHeight');
+      const clientWidthDescriptor = Object.getOwnPropertyDescriptor(docEl, 'clientWidth');
+
+      const restoreDescriptor = (
+        target: object,
+        property: 'clientHeight' | 'clientWidth',
+        descriptor: PropertyDescriptor | undefined,
+      ) => {
+        if (descriptor) {
+          Object.defineProperty(target, property, descriptor);
+        } else {
+          delete (target as Record<string, unknown>)[property];
+        }
+      };
+
+      const createRect = (left: number, top: number, width: number, height: number) => ({
+        x: left,
+        y: top,
+        left,
+        top,
+        width,
+        height,
+        right: left + width,
+        bottom: top + height,
+        toJSON: () => ({}),
+      });
+
+      try {
+        Object.defineProperty(docEl, 'clientHeight', { value: 646, configurable: true });
+        Object.defineProperty(docEl, 'clientWidth', { value: 300, configurable: true });
+
+        await render(
+          <Select.Root open defaultValue="1">
+            <Select.Trigger
+              data-testid="trigger"
+              ref={(node) => {
+                if (!node) {
+                  return;
+                }
+
+                Object.defineProperty(node, 'offsetWidth', { value: 80, configurable: true });
+                Object.defineProperty(node, 'offsetHeight', { value: 30, configurable: true });
+                Object.defineProperty(node, 'getBoundingClientRect', {
+                  value: () => createRect(10, 170.3793487548828, 80, 30),
+                  configurable: true,
+                });
+              }}
+            >
+              Trigger
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner
+                data-testid="positioner"
+                ref={(node) => {
+                  if (!node) {
+                    return;
+                  }
+
+                  Object.defineProperty(node, 'getBoundingClientRect', {
+                    value: () => createRect(10, 0, 108, 63.96739196777344),
+                    configurable: true,
+                  });
+                }}
+              >
+                <Select.Popup
+                  data-testid="popup"
+                  style={{ minHeight: 65 }}
+                  ref={(node) => {
+                    if (!node) {
+                      return;
+                    }
+
+                    Object.defineProperty(node, 'scrollHeight', {
+                      value: 64,
+                      configurable: true,
+                    });
+                    Object.defineProperty(node, 'clientHeight', {
+                      value: 63,
+                      configurable: true,
+                    });
+                  }}
+                >
+                  <Select.Item value="1">Item 1</Select.Item>
+                  <Select.Item value="2">Item 2</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>,
+        );
+
+        await waitFor(() => {
+          expect(screen.getByTestId('positioner')).toHaveAttribute('data-side', 'none');
+        });
+      } finally {
+        restoreDescriptor(docEl, 'clientHeight', clientHeightDescriptor);
+        restoreDescriptor(docEl, 'clientWidth', clientWidthDescriptor);
+      }
+    },
+  );
 
   describe('prop: finalFocus', () => {
     it('should focus the trigger by default when closed', async () => {

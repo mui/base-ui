@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
+import { Drawer } from '@base-ui/react/drawer';
 
 const TOP_MARGIN_REM = 1;
 const VISIBLE_SNAP_POINTS_REM = [30];

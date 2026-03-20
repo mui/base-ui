@@ -7,21 +7,18 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerDocument } from '@base-ui/utils/owner';
 
 import type { FloatingContext, FloatingRootContext } from '../types';
-import {
-  getNodeChildren,
-  getTarget,
-  isMouseLikePointerType,
-  isTargetInsideEnabledTrigger,
-} from '../utils';
+import { getNodeChildren, getTarget, isTargetInsideEnabledTrigger } from '../utils';
 
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import {
+  applySafePolygonPointerEventsMutation,
   clearSafePolygonPointerEventsMutation,
   isInteractiveElement,
   useHoverInteractionSharedState,
 } from './useHoverInteractionSharedState';
+import { getDelay, isClickLikeOpenEvent as isClickLikeOpenEventShared } from './useHoverShared';
 
 export type UseHoverFloatingInteractionProps = {
   /**
@@ -37,8 +34,6 @@ export type UseHoverFloatingInteractionProps = {
    */
   closeDelay?: number | (() => number) | undefined;
 };
-
-const clickLikeEvents = new Set(['click', 'mousedown']);
 
 /**
  * Provides hover interactions that should be attached to the floating element.
@@ -61,11 +56,7 @@ export function useHoverFloatingInteraction(
   const parentId = useFloatingParentNodeId();
 
   const isClickLikeOpenEvent = useStableCallback(() => {
-    if (instance.interactedInside) {
-      return true;
-    }
-
-    return dataRef.current.openEvent ? clickLikeEvents.has(dataRef.current.openEvent.type) : false;
+    return isClickLikeOpenEventShared(dataRef.current.openEvent?.type, instance.interactedInside);
   });
 
   const isHoverOpen = useStableCallback(() => {
@@ -79,7 +70,7 @@ export function useHoverFloatingInteraction(
 
   const closeWithDelay = React.useCallback(
     (event: MouseEvent) => {
-      const closeDelay = getDelay(closeDelayProp, instance.pointerType);
+      const closeDelay = getDelay(closeDelayProp, 'close', instance.pointerType);
       const close = () => {
         store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
         tree?.events.emit('floating.closed', event);
@@ -95,7 +86,7 @@ export function useHoverFloatingInteraction(
   );
 
   const clearPointerEvents = useStableCallback(() => {
-    clearSafePolygonPointerEventsMutation(instance, ownerDocument(floatingElement).body);
+    clearSafePolygonPointerEventsMutation(instance);
   });
 
   const handleInteractInside = useStableCallback((event: PointerEvent) => {
@@ -105,7 +96,7 @@ export function useHoverFloatingInteraction(
       return;
     }
 
-    instance.interactedInside = true;
+    instance.interactedInside = target?.closest('[aria-haspopup]') != null;
   });
 
   useIsoLayoutEffect(() => {
@@ -133,7 +124,6 @@ export function useHoverFloatingInteraction(
       isElement(domReferenceElement) &&
       floatingElement
     ) {
-      instance.performedPointerEventsMutation = true;
       const ref = domReferenceElement as HTMLElement | SVGSVGElement;
       const floatingEl = floatingElement;
       const doc = ownerDocument(floatingElement);
@@ -145,16 +135,20 @@ export function useHoverFloatingInteraction(
         parentFloating.style.pointerEvents = '';
       }
 
-      const scopeElement = parentFloating ?? ref.closest('[data-rootownerid]') ?? doc.body;
+      const scopeElement =
+        instance.handleCloseOptions?.getScope?.() ??
+        instance.pointerEventsScopeElement ??
+        parentFloating ??
+        (ref.closest('[data-rootownerid]') as HTMLElement | SVGSVGElement | null) ??
+        doc.body;
 
-      instance.pointerEventsScopeElement = scopeElement;
-      scopeElement.style.pointerEvents = 'none';
-      ref.style.pointerEvents = 'auto';
-      floatingEl.style.pointerEvents = 'auto';
+      applySafePolygonPointerEventsMutation(instance, {
+        scopeElement,
+        referenceElement: ref,
+        floatingElement: floatingEl,
+      });
 
       return () => {
-        ref.style.pointerEvents = '';
-        floatingEl.style.pointerEvents = '';
         clearPointerEvents();
       };
     }
@@ -252,19 +246,4 @@ export function useHoverFloatingInteraction(
     parentId,
     childClosedTimeout,
   ]);
-}
-
-export function getDelay(
-  value: number | (() => number),
-  pointerType?: PointerEvent['pointerType'],
-) {
-  if (pointerType && !isMouseLikePointerType(pointerType)) {
-    return 0;
-  }
-
-  if (typeof value === 'function') {
-    return value();
-  }
-
-  return value;
 }
