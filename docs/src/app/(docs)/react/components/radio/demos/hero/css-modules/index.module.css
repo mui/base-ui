@@ -7,13 +7,14 @@
 }
 
 .Caption {
-  font-weight: 500;
+  font-weight: 700;
 }
 
 .Item {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  font-weight: 400;
 }
 
 .Radio {

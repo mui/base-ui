@@ -12,7 +12,7 @@
   background-color: var(--color-gray-50);
   font-family: inherit;
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1.5rem;
   color: var(--color-gray-900);
   user-select: none;
@@ -116,6 +116,7 @@
   outline: none;
 
   &::placeholder {
+    font-weight: 400;
     color: var(--color-gray-500);
   }
 
@@ -286,7 +287,7 @@
   font-size: 0.625rem;
   font-family:
     ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1;
   color: var(--color-gray-700);
   background-color: var(--color-gray-100);

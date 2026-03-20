@@ -4,7 +4,6 @@
   .Header {
     font-size: var(--text-md);
     line-height: var(--text-md--line-height);
-    letter-spacing: var(--text-md--letter-spacing);
     position: absolute;
     left: 0;
     top: 0;
@@ -162,7 +161,6 @@
   .HeaderVersion {
     font-size: var(--text-md);
     line-height: var(--text-md--line-height);
-    letter-spacing: var(--text-md--letter-spacing);
     color: var(--color-gray-600);
   }
 

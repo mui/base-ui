@@ -2,7 +2,7 @@
   .GhostButton {
     font-size: var(--text-xs);
     line-height: var(--text-xs--line-height);
-    letter-spacing: var(--text-xs--letter-spacing);
+
     color: var(--color-gray);
     cursor: default;
     position: relative;

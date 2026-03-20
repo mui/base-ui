@@ -4,11 +4,11 @@ import { Autocomplete } from '@base-ui/react/autocomplete';
 export default function ExampleGroupAutocomplete() {
   return (
     <Autocomplete.Root items={groupedTags}>
-      <label className="flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">
+      <label className="flex flex-col gap-1 text-sm leading-5 font-bold text-gray-900">
         Select a tag
         <Autocomplete.Input
           placeholder="e.g. feature"
-          className="bg-[canvas] h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+          className="bg-[canvas] h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-gray-200 pl-3.5 text-base font-normal text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
         />
       </label>
 
@@ -21,7 +21,7 @@ export default function ExampleGroupAutocomplete() {
             <Autocomplete.List className="outline-0 overflow-y-auto scroll-pt-[2.25rem] scroll-pb-[0.5rem] overscroll-contain max-h-[min(22.5rem,var(--available-height))] data-[empty]:p-0">
               {(group: TagGroup) => (
                 <Autocomplete.Group key={group.value} items={group.items} className="block pb-2">
-                  <Autocomplete.GroupLabel className="sticky top-0 z-[1] mb-0 mr-2 mt-0 ml-0 w-[calc(100%-0.5rem)] bg-[canvas] px-4 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider">
+                  <Autocomplete.GroupLabel className="sticky top-0 z-[1] mb-0 mr-2 mt-0 ml-0 w-[calc(100%-0.5rem)] bg-[canvas] px-4 pb-1 pt-2 text-xs font-bold uppercase tracking-wider">
                     {group.value}
                   </Autocomplete.GroupLabel>
                   <Autocomplete.Collection>

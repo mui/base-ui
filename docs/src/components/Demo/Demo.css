@@ -64,7 +64,6 @@
   .DemoToolbar {
     font-size: var(--text-xs);
     line-height: var(--text-xs--line-height);
-    letter-spacing: var(--text-xs--letter-spacing);
     white-space: nowrap;
     color: var(--color-gray);
     background-color: var(--color-gray-50);
@@ -126,7 +125,6 @@
 
   .DemoFilename {
     font-family: var(--font-mono);
-    letter-spacing: normal;
     color: var(--color-foreground);
     font-weight: bold;
     user-select: text;
@@ -143,7 +141,6 @@
 
   .DemoTab {
     font-family: var(--font-mono);
-    letter-spacing: normal;
     cursor: default;
     position: relative;
     z-index: 0;
@@ -285,7 +282,6 @@
   .DemoCollapseButton {
     font-size: var(--text-xs);
     line-height: var(--text-xs--line-height);
-    letter-spacing: var(--text-xs--letter-spacing);
     background-color: var(--color-gray-50);
     cursor: default;
     width: 100%;

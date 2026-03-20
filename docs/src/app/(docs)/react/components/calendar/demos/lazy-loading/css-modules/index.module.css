@@ -38,7 +38,7 @@
 
 .PriceDeal {
   color: oklch(52% 40% 150deg);
-  font-weight: 600;
+  font-weight: 700;
 
   @media (prefers-color-scheme: dark) {
     color: oklch(72% 35% 150deg);
