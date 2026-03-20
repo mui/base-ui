@@ -95,6 +95,8 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   }, [deferEnterTransition, open, replayEnterTransitionFrame, transitionStatus]);
 
   let effectiveTransitionStatus = transitionStatus;
+  // Hide the original "starting" phase while the submenu itself is hidden, then replay a fresh
+  // enter phase on reveal so the popup still animates once the corrected position is ready.
   if (deferEnterTransition && transitionStatus === 'starting') {
     effectiveTransitionStatus = undefined;
   }
@@ -103,6 +105,9 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   }
 
   useOpenChangeComplete({
+    // While a hidden submenu is deferring its reveal, its real open transition has not completed
+    // from the user's perspective. Wait until the replayed enter transition runs before reporting
+    // completion so deeper nested menus can use the same parent-ready signal.
     enabled: !deferEnterTransition,
     open,
     ref: store.context.popupRef,

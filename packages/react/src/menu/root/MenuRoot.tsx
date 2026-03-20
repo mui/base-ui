@@ -323,6 +323,8 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       const updatedState: Partial<MenuStoreState<Payload>> = {
         open: nextOpen,
         openChangeReason: reason,
+        // Preserve the current completion flag for redundant `setOpen` calls that don't change
+        // the open state, while still clearing it synchronously for real open/close transitions.
         openTransitionComplete: nextOpen === open ? store.select('openTransitionComplete') : false,
       };
       openEventRef.current = eventDetails.event ?? null;

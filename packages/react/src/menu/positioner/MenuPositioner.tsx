@@ -91,6 +91,9 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const previousTriggerRef = React.useRef<Element | null>(null);
   const blockedByParentAnimationRef = React.useRef(false);
   const runOnceAnimationsFinish = useAnimationsFinished(positionerElement, false, false);
+  // Only defer nested reveal for submenus that are already open while their parent is animating.
+  // Keyboard- and pointer-opened submenus should still reveal eagerly so focus behavior stays intact.
+  const shouldDeferNestedReveal = parent.type === 'menu' && lastOpenChangeReason == null;
 
   useIsoLayoutEffect(() => {
     if (parentMenuStore == null) {
@@ -103,6 +106,24 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
 
     function syncParentReadyState() {
       if (!menuStore.select('openTransitionComplete')) {
+        const parentPopup = menuStore.context.popupRef.current;
+        const parentPopupStyles = parentPopup ? getComputedStyle(parentPopup) : null;
+        const parentPopupAnimations =
+          parentPopup && typeof parentPopup.getAnimations === 'function'
+            ? parentPopup.getAnimations()
+            : null;
+        const parentIsActuallyAnimating =
+          (parentPopupAnimations != null && parentPopupAnimations.length > 0) ||
+          (parentPopupStyles != null &&
+            (hasMotionDuration(parentPopupStyles.transitionDuration) ||
+              hasMotionDuration(parentPopupStyles.animationDuration)));
+
+        if (!parentIsActuallyAnimating) {
+          parentReadyFrame.cancel();
+          setParentReadyToPosition(true);
+          return;
+        }
+
         parentReadyFrame.cancel();
         setParentReadyToPosition(false);
         return;
@@ -198,6 +219,14 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       return undefined;
     }
 
+    if (!shouldDeferNestedReveal) {
+      positionerUpdateFrame.cancel();
+      revealFrame.cancel();
+      blockedByParentAnimationRef.current = false;
+      setSubmenuReadyToReveal(true);
+      return undefined;
+    }
+
     if (!parentReadyToPosition) {
       positionerUpdateFrame.cancel();
       revealFrame.cancel();
@@ -211,6 +240,8 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       return undefined;
     }
 
+    // The submenu was held hidden for a parent animation, so force one hidden remeasure first and
+    // only reveal on the following frame. This avoids painting the stale pre-animation position.
     blockedByParentAnimationRef.current = false;
     setSubmenuReadyToReveal(false);
 
@@ -231,6 +262,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     mounted,
     parent.type,
     parentReadyToPosition,
+    shouldDeferNestedReveal,
     updatePositioner,
     positionerUpdateFrame,
     revealFrame,
@@ -245,6 +277,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
 
     if (
       parent.type === 'menu' &&
+      shouldDeferNestedReveal &&
       (!parentReadyToPosition || !submenuReadyToReveal || !positioner.isPositioned)
     ) {
       hiddenStyles.visibility = 'hidden';
@@ -264,6 +297,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     mounted,
     parent.type,
     parentReadyToPosition,
+    shouldDeferNestedReveal,
     submenuReadyToReveal,
     positioner.isPositioned,
     positioner.positionerStyles,
@@ -406,7 +440,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       arrowUncentered: positioner.arrowUncentered,
       arrowStyles: positioner.arrowStyles,
       nodeId: positioner.context.nodeId,
-      deferEnterTransition: parent.type === 'menu' && !submenuReadyToReveal,
+      deferEnterTransition: shouldDeferNestedReveal && !submenuReadyToReveal,
     }),
     [
       positioner.side,
@@ -415,7 +449,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       positioner.arrowUncentered,
       positioner.arrowStyles,
       positioner.context.nodeId,
-      parent.type,
+      shouldDeferNestedReveal,
       submenuReadyToReveal,
     ],
   );
@@ -499,4 +533,16 @@ export interface MenuPositionerProps
 export namespace MenuPositioner {
   export type State = MenuPositionerState;
   export type Props = MenuPositionerProps;
+}
+
+/**
+ * Returns whether a computed CSS duration list contains any non-zero entry.
+ * @param value A computed CSS duration string such as
+ *   `getComputedStyle(element).transitionDuration` or `.animationDuration`.
+ *   These values are comma-separated when multiple properties or keyframes are involved.
+ */
+function hasMotionDuration(value: string) {
+  return value
+    .split(',')
+    .some((part) => Number.parseFloat(part) > 0 && !Number.isNaN(Number.parseFloat(part)));
 }
