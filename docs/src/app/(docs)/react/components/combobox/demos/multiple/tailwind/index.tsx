@@ -11,7 +11,7 @@ export default function ExampleMultipleCombobox() {
         <label className="text-sm leading-5 font-medium text-gray-900" htmlFor={id}>
           Programming languages
         </label>
-        <Combobox.InputGroup className="w-64 rounded-md border border-gray-200 bg-[canvas] px-1.5 py-1 focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-blue-800 min-[500px]:w-[22rem]">
+        <Combobox.InputGroup className="w-64 cursor-text rounded-md border border-gray-200 bg-[canvas] px-1.5 py-1 focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-blue-800 min-[500px]:w-[22rem]">
           <Combobox.Chips className="flex w-full flex-wrap items-center gap-0.5">
             <Combobox.Value>
               {(value: ProgrammingLanguage[]) => (

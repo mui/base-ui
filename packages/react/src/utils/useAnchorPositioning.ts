@@ -160,6 +160,7 @@ export function useAnchorPositioning(
   const anchorFnCallback = useStableCallback(anchorFn);
   const anchorDep = anchorFn ? anchorFnCallback : anchor;
   const anchorValueRef = useValueAsRef(anchor);
+  const mountedRef = useValueAsRef(mounted);
 
   const direction = useDirection();
   const isRtl = direction === 'rtl';
@@ -324,6 +325,9 @@ export function useAnchorPositioning(
     size({
       ...commonCollisionProps,
       apply({ elements: { floating }, availableWidth, availableHeight, rects }) {
+        if (!mountedRef.current) {
+          return;
+        }
         const floatingStyle = floating.style;
         floatingStyle.setProperty('--available-width', `${availableWidth}px`);
         floatingStyle.setProperty('--available-height', `${availableHeight}px`);
@@ -425,6 +429,7 @@ export function useAnchorPositioning(
     floatingStyles: originalFloatingStyles,
   } = useFloating({
     rootContext: floatingRootContext,
+    open: keepMounted ? mounted : undefined,
     placement,
     middleware,
     strategy: positionMethod,

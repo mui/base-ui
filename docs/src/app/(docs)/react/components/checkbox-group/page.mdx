@@ -121,6 +121,8 @@ A checkbox that controls other checkboxes within a `<CheckboxGroup>` can be crea
 2. Pass an array of all the child checkbox values to the `allValues` prop on the `<CheckboxGroup>` component
 3. Add the `parent` boolean prop to the parent `<Checkbox.Root>`
 
+The group controls the parent checkbox's [indeterminate](/react/components/checkbox#CheckboxRoot-indeterminate) state when some, but not all, child checkboxes are checked.
+
 import { DemoCheckboxGroupParent } from './demos/parent';
 
 <DemoCheckboxGroupParent />
