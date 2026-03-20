@@ -16,6 +16,9 @@ interface Settings {
   align: Menu.Positioner.Props['align'];
 }
 
+type MenuPopupPropsWithDataAttributes = React.ComponentProps<typeof Menu.Popup> &
+  Partial<Record<`data-${string}`, string | undefined>>;
+
 export default function MenuSubmenus() {
   const { settings } = useExperimentSettings<Settings>();
 
@@ -35,6 +38,7 @@ export default function MenuSubmenus() {
     submenuTriggerDelay?: Menu.SubmenuTrigger.Props['delay'],
     submenuTriggerClassName: string = classes.SubmenuTrigger,
     popupClassName: string = classes.Popup,
+    popupProps: MenuPopupPropsWithDataAttributes = {},
   ) => (
     <Menu.Root modal={settings.modal} disabled={settings.disabled}>
       <Menu.Trigger
@@ -56,6 +60,7 @@ export default function MenuSubmenus() {
           <Menu.Popup
             className={popupClassName}
             style={{ maxHeight: 'var(--available-height)', overflowY: 'scroll' }}
+            {...popupProps}
           >
             {Array.from({ length: 50 }).map((_, submenuIndex) => (
               <Menu.SubmenuRoot key={submenuIndex}>
@@ -109,6 +114,25 @@ export default function MenuSubmenus() {
 
   return (
     <div>
+      <style>
+        {`
+          [data-ending-style-popup] {
+            transition:
+              transform 440ms cubic-bezier(0.2, 0.8, 0.2, 1),
+              opacity 440ms cubic-bezier(0.2, 0.8, 0.2, 1);
+          }
+
+          [data-ending-style-popup][data-starting-style] {
+            opacity: 0;
+            transform: translateX(-48px) scale(0.96);
+          }
+
+          [data-ending-style-popup][data-ending-style] {
+            opacity: 0;
+            transform: translateX(48px) scale(0.96);
+          }
+        `}
+      </style>
       <h1>Many adjacent submenus</h1>
       <div className={classes.TriggerRow}>
         {renderMenu('Menu')}
@@ -118,6 +142,9 @@ export default function MenuSubmenus() {
           `${classes.SubmenuTrigger} ${classes.PopupOpenAsHighlighted}`,
           `${classes.Popup} ${classes.PopupNoAnimation}`,
         )}
+        {renderMenu('Menu (ending style)', undefined, classes.SubmenuTrigger, classes.Popup, {
+          'data-ending-style-popup': '',
+        })}
       </div>
 
       {settings.customAnchor && (

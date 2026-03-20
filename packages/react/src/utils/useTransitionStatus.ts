@@ -25,6 +25,10 @@ export function useTransitionStatus(
     setTransitionStatus('starting');
   }
 
+  if (open && mounted && transitionStatus === 'ending') {
+    setTransitionStatus('starting');
+  }
+
   if (!open && mounted && transitionStatus !== 'ending' && !deferEndingState) {
     setTransitionStatus('ending');
   }
