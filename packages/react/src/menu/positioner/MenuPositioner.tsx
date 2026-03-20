@@ -203,23 +203,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const updatePositioner = positioner.update;
 
   useIsoLayoutEffect(() => {
-    if (parent.type !== 'menu') {
-      positionerUpdateFrame.cancel();
-      revealFrame.cancel();
-      blockedByParentAnimationRef.current = false;
-      setSubmenuReadyToReveal(true);
-      return undefined;
-    }
-
-    if (!mounted) {
-      positionerUpdateFrame.cancel();
-      revealFrame.cancel();
-      blockedByParentAnimationRef.current = false;
-      setSubmenuReadyToReveal(true);
-      return undefined;
-    }
-
-    if (!shouldDeferNestedReveal) {
+    if (parent.type !== 'menu' || !mounted || !shouldDeferNestedReveal) {
       positionerUpdateFrame.cancel();
       revealFrame.cancel();
       blockedByParentAnimationRef.current = false;
