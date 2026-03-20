@@ -127,3 +127,33 @@ export const metadata = {
   keywords: ['React Toggle', 'Toggle Button Component'],
 };
 ```
+
+### Troubleshooting
+
+#### Namespaces in `types.md`
+
+For types exposed within a namespace, they must also be exposed as a globally accessible type for `createTypes` to work. For example, `ToggleProps` is exposed within the `Toggle` namespace, but it also needs to be exported at the top level of the module:
+
+```ts
+export type AlertDialogPopupProps = {
+  // ...
+};
+export declare namespace AlertDialogPopup {
+  // ...
+  type Props = AlertDialogPopupProps;
+}
+```
+
+Some symptoms of this issue are:
+
+- `AlertDialogPopupProps` is shown in `types.md` instead of `AlertDialog.Popup.Props`
+- `DialogPopupProps` is shown in `types.md` instead of `AlertDialog.Popup.Props`
+
+Check the export's `index.ts` file, e.g. `packages/react/alert-dialog/index.ts`, to verify that the type is exported at the top level. If not, add an export for it:
+
+```ts
+export type {
+  DialogPopupProps as AlertDialogPopupProps,
+  DialogPopupState as AlertDialogPopupState,
+} from '../dialog/popup/DialogPopup';
+```
