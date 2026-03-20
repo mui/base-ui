@@ -26,11 +26,11 @@ Renders a `<div>` element.
 
 **Root Data Attributes:**
 
-| Attribute          | Type | Description                                        |
-| :----------------- | :--- | :------------------------------------------------- |
-| data-complete      | -    | Present when the progress has completed.           |
-| data-indeterminate | -    | Present when the progress is in interminate state. |
-| data-progressing   | -    | Present while the progress is progressing.         |
+| Attribute          | Type | Description                                          |
+| :----------------- | :--- | :--------------------------------------------------- |
+| data-complete      | -    | Present when the progress has completed.             |
+| data-indeterminate | -    | Present when the progress is in indeterminate state. |
+| data-progressing   | -    | Present while the progress is progressing.           |
 
 ### Root.Props
 
@@ -61,11 +61,11 @@ Renders a `<span>` element.
 
 **Value Data Attributes:**
 
-| Attribute          | Type | Description                                        |
-| :----------------- | :--- | :------------------------------------------------- |
-| data-complete      | -    | Present when the progress has completed.           |
-| data-indeterminate | -    | Present when the progress is in interminate state. |
-| data-progressing   | -    | Present while the progress is progressing.         |
+| Attribute          | Type | Description                                          |
+| :----------------- | :--- | :--------------------------------------------------- |
+| data-complete      | -    | Present when the progress has completed.             |
+| data-indeterminate | -    | Present when the progress is in indeterminate state. |
+| data-progressing   | -    | Present while the progress is progressing.           |
 
 ### Value.Props
 
@@ -95,11 +95,11 @@ Renders a `<div>` element.
 
 **Indicator Data Attributes:**
 
-| Attribute          | Type | Description                                        |
-| :----------------- | :--- | :------------------------------------------------- |
-| data-complete      | -    | Present when the progress has completed.           |
-| data-indeterminate | -    | Present when the progress is in interminate state. |
-| data-progressing   | -    | Present while the progress is progressing.         |
+| Attribute          | Type | Description                                          |
+| :----------------- | :--- | :--------------------------------------------------- |
+| data-complete      | -    | Present when the progress has completed.             |
+| data-indeterminate | -    | Present when the progress is in indeterminate state. |
+| data-progressing   | -    | Present while the progress is progressing.           |
 
 ### Indicator.Props
 
@@ -129,11 +129,11 @@ Renders a `<div>` element.
 
 **Track Data Attributes:**
 
-| Attribute          | Type | Description                                        |
-| :----------------- | :--- | :------------------------------------------------- |
-| data-complete      | -    | Present when the progress has completed.           |
-| data-indeterminate | -    | Present when the progress is in interminate state. |
-| data-progressing   | -    | Present while the progress is progressing.         |
+| Attribute          | Type | Description                                          |
+| :----------------- | :--- | :--------------------------------------------------- |
+| data-complete      | -    | Present when the progress has completed.             |
+| data-indeterminate | -    | Present when the progress is in indeterminate state. |
+| data-progressing   | -    | Present while the progress is progressing.           |
 
 ### Track.Props
 
@@ -163,11 +163,11 @@ Renders a `<span>` element.
 
 **Label Data Attributes:**
 
-| Attribute          | Type | Description                                        |
-| :----------------- | :--- | :------------------------------------------------- |
-| data-complete      | -    | Present when the progress has completed.           |
-| data-indeterminate | -    | Present when the progress is in interminate state. |
-| data-progressing   | -    | Present while the progress is progressing.         |
+| Attribute          | Type | Description                                          |
+| :----------------- | :--- | :--------------------------------------------------- |
+| data-complete      | -    | Present when the progress has completed.             |
+| data-indeterminate | -    | Present when the progress is in indeterminate state. |
+| data-progressing   | -    | Present while the progress is progressing.           |
 
 ### Label.Props
 

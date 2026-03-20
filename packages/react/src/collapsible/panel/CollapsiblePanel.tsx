@@ -147,7 +147,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     stateAttributesMapping: collapsibleStateAttributesMapping,
   });
 
-  const shouldRender = keepMounted || hiddenUntilFound || (!keepMounted && mounted);
+  const shouldRender = keepMounted || hiddenUntilFound || mounted;
 
   if (!shouldRender) {
     return null;
