@@ -23,7 +23,6 @@
 
     font-size: var(--text-md);
     line-height: var(--text-md--line-height);
-    letter-spacing: var(--text-md--letter-spacing);
     z-index: 1;
     position: sticky;
     top: var(--top);
@@ -49,8 +48,7 @@
 
   .QuickNavTitle {
     padding-block: var(--quick-nav-item-padding-y);
-    font-weight: 500;
-    letter-spacing: calc(var(--text-md--letter-spacing) * -1);
+    font-weight: 700;
   }
 
   .QuickNavList {

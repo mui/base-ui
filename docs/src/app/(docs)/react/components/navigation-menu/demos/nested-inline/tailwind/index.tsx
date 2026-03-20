@@ -29,13 +29,13 @@ export default function ExampleNavigationMenu() {
                   {audienceMenus.map((menu) => (
                     <NavigationMenu.Item key={menu.value} value={menu.value}>
                       <NavigationMenu.Trigger className={submenuTriggerClassName}>
-                        <span className="text-base leading-[1.2] font-medium text-gray-900">
+                        <span className="text-base leading-[1.2] font-normal text-gray-900">
                           {menu.label}
                         </span>
                         <span className="text-sm leading-[1.35] text-gray-500">{menu.hint}</span>
                       </NavigationMenu.Trigger>
                       <NavigationMenu.Content className={submenuContentClassName}>
-                        <h4 className="m-0 text-[1.125rem] leading-[1.3] font-medium">
+                        <h4 className="m-0 text-[1.125rem] leading-[1.3] font-normal">
                           {menu.title}
                         </h4>
                         <p className="m-0 mt-2.5 text-base leading-[1.5] text-gray-500">
@@ -45,7 +45,7 @@ export default function ExampleNavigationMenu() {
                           {menu.links.map((link) => (
                             <li key={link.href}>
                               <Link className={linkCardClassName} href={link.href}>
-                                <h5 className="m-0 text-base leading-[1.25] font-medium">
+                                <h5 className="m-0 text-base leading-[1.25] font-normal">
                                   {link.title}
                                 </h5>
                                 <p className="m-0 mt-[0.35rem] text-[0.95rem] leading-[1.45] text-gray-500">
@@ -75,7 +75,7 @@ export default function ExampleNavigationMenu() {
 
           <NavigationMenu.Content className={guidesContentClassName}>
             <div className="p-7 text-gray-900 min-[700px]:p-8">
-              <h4 className="m-0 text-[1.125rem] leading-[1.3] font-medium">{guidesPanel.title}</h4>
+              <h4 className="m-0 text-[1.125rem] leading-[1.3] font-normal">{guidesPanel.title}</h4>
               <p className="m-0 mt-2.5 text-base leading-[1.5] text-gray-500">
                 {guidesPanel.description}
               </p>
@@ -83,7 +83,7 @@ export default function ExampleNavigationMenu() {
                 {guideLinks.map((link) => (
                   <li key={link.href}>
                     <Link className={linkCardClassName} href={link.href}>
-                      <h5 className="m-0 text-base leading-[1.25] font-medium">{link.title}</h5>
+                      <h5 className="m-0 text-base leading-[1.25] font-normal">{link.title}</h5>
                       <p className="m-0 mt-[0.35rem] text-[0.95rem] leading-[1.45] text-gray-500">
                         {link.description}
                       </p>
@@ -174,7 +174,7 @@ function ArrowSvg(props: React.ComponentProps<'svg'>) {
 
 const triggerClassName =
   'box-border flex items-center justify-center gap-1.5 h-10 ' +
-  'px-2 sm:px-3.5 m-0 rounded-md bg-gray-50 text-gray-900 font-medium ' +
+  'px-2 sm:px-3.5 m-0 rounded-md bg-gray-50 text-gray-900 font-normal' +
   'text-[0.925rem] sm:text-base leading-6 select-none no-underline ' +
   'hover:bg-gray-100 active:bg-gray-100 data-[popup-open]:bg-gray-100 ' +
   'focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 focus-visible:relative';

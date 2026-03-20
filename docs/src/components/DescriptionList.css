@@ -20,10 +20,10 @@
   }
 
   .DescriptionTerm {
-    font-size: var(--text-md);
-    line-height: var(--text-md--line-height);
-    letter-spacing: var(--text-md--letter-spacing);
-    font-weight: 500;
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    letter-spacing: var(--text-sm--letter-spacing);
+    font-weight: 700;
     color: var(--color-foreground);
     white-space: nowrap;
     word-break: keep-all;
@@ -33,9 +33,6 @@
     margin-bottom: --spacing(1);
 
     @media (--xs) {
-      font-size: var(--text-sm);
-      line-height: var(--text-sm--line-height);
-      letter-spacing: var(--text-sm--letter-spacing);
       font-weight: revert-layer;
       color: revert-layer;
       margin-bottom: 0;
@@ -62,7 +59,7 @@
   .DescriptionListDetails {
     font-size: var(--text-sm);
     line-height: var(--text-sm--line-height);
-    letter-spacing: var(--text-sm--letter-spacing);
+
     color: var(--color-foreground);
     grid-column: span 2;
   }

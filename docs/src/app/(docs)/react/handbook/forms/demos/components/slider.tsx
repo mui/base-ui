@@ -8,7 +8,7 @@ export function Root({ className, ...props }: Slider.Root.Props<any>) {
 
 export function Value({ className, ...props }: Slider.Value.Props) {
   return (
-    <Slider.Value className={clsx('text-sm font-medium text-gray-900', className)} {...props} />
+    <Slider.Value className={clsx('text-sm font-normal text-gray-900', className)} {...props} />
   );
 }
 
