@@ -36,6 +36,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
     checked: checkedProp,
     defaultChecked,
     onCheckedChange,
+    style,
     ...elementProps
   } = componentProps;
 

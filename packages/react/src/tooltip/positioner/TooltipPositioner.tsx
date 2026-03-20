@@ -41,6 +41,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     sticky = false,
     disableAnchorTracking = false,
     collisionAvoidance = POPUP_COLLISION_AVOIDANCE,
+    style,
     ...elementProps
   } = componentProps;
 

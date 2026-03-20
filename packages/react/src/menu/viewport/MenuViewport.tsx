@@ -29,7 +29,7 @@ export const MenuViewport = React.forwardRef(function MenuViewport(
   componentProps: MenuViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, children, ...elementProps } = componentProps;
+  const { render, className, style, children, ...elementProps } = componentProps;
 
   const { store } = useMenuRootContext();
   const { side } = useMenuPositionerContext();

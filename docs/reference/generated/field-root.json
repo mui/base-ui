@@ -57,6 +57,7 @@
     },
     "style": {
       "type": "CSSProperties | ((state: Field.Root.State) => CSSProperties | undefined)",
+      "description": "Style applied to the element, or a function that\nreturns a style object based on the component’s state.",
       "detailedType": "| React.CSSProperties\n| ((state: Field.Root.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {

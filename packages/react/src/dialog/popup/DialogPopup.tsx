@@ -33,7 +33,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   componentProps: DialogPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, finalFocus, initialFocus, render, ...elementProps } = componentProps;
+  const { className, finalFocus, initialFocus, render, style, ...elementProps } = componentProps;
 
   const { store } = useDialogRootContext();
 

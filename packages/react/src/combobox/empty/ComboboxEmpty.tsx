@@ -17,7 +17,7 @@ export const ComboboxEmpty = React.forwardRef(function ComboboxEmpty(
   componentProps: ComboboxEmpty.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, children: childrenProp, ...elementProps } = componentProps;
+  const { render, className, style, children: childrenProp, ...elementProps } = componentProps;
 
   const { filteredItems } = useComboboxDerivedItemsContext();
   const store = useComboboxRootContext();

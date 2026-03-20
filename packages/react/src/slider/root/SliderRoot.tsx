@@ -83,6 +83,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     thumbCollisionBehavior = 'push',
     thumbAlignment = 'center',
     value: valueProp,
+    style,
     ...elementProps
   } = componentProps;
 

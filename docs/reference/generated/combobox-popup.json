@@ -19,6 +19,7 @@
     },
     "style": {
       "type": "CSSProperties | ((state: Combobox.Popup.State) => CSSProperties | undefined)",
+      "description": "Style applied to the element, or a function that\nreturns a style object based on the component’s state.",
       "detailedType": "| React.CSSProperties\n| ((\n    state: Combobox.Popup.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "render": {

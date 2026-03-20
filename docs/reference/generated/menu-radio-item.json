@@ -42,6 +42,7 @@
     },
     "style": {
       "type": "CSSProperties | ((state: Menu.RadioItem.State) => CSSProperties | undefined)",
+      "description": "Style applied to the element, or a function that\nreturns a style object based on the component’s state.",
       "detailedType": "| React.CSSProperties\n| ((\n    state: Menu.RadioItem.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "render": {

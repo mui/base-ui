@@ -19,7 +19,14 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   componentProps: SelectScrollArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, direction, keepMounted = false, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    style,
+    direction,
+    keepMounted = false,
+    ...elementProps
+  } = componentProps;
 
   const { store, popupRef, listRef, handleScrollArrowVisibility, scrollArrowsMountedCountRef } =
     useSelectRootContext();

@@ -57,7 +57,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   componentProps: NumberFieldInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const {
     allowInputSyncRef,

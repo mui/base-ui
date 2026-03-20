@@ -41,6 +41,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
     orientation = 'vertical',
     value: valueProp,
     defaultValue: defaultValueProp,
+    style,
     ...elementProps
   } = componentProps;
 

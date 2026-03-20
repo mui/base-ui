@@ -57,6 +57,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
     id: idProp,
     render,
     nativeButton = true,
+    style,
     ...elementProps
   } = componentProps;
 

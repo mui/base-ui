@@ -17,7 +17,7 @@ export const ProgressIndicator = React.forwardRef(function ProgressIndicator(
   componentProps: ProgressIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const { max, min, value, state } = useProgressRootContext();
 

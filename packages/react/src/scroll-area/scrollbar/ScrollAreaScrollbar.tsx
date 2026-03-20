@@ -26,6 +26,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
     className,
     orientation = 'vertical',
     keepMounted = false,
+    style,
     ...elementProps
   } = componentProps;
 

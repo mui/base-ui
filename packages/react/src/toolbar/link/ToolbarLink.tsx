@@ -21,7 +21,7 @@ export const ToolbarLink = React.forwardRef(function ToolbarLink(
   componentProps: ToolbarLink.Props,
   forwardedRef: React.ForwardedRef<HTMLAnchorElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, style, ...elementProps } = componentProps;
 
   const { orientation } = useToolbarRootContext();
 

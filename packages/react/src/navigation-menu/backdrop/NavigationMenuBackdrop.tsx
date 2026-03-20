@@ -23,7 +23,7 @@ export const NavigationMenuBackdrop = React.forwardRef(function NavigationMenuBa
   componentProps: NavigationMenuBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, style, ...elementProps } = componentProps;
 
   const { open, mounted, transitionStatus } = useNavigationMenuRootContext();
 

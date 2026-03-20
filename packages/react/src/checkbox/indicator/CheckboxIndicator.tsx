@@ -21,7 +21,7 @@ export const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
   componentProps: CheckboxIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, keepMounted = false, ...elementProps } = componentProps;
+  const { render, className, style, keepMounted = false, ...elementProps } = componentProps;
 
   const rootState = useCheckboxRootContext();
 

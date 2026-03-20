@@ -16,7 +16,7 @@ export const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
   componentProps: ScrollAreaThumb.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const {
     thumbYRef,

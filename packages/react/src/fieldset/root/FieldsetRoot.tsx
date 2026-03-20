@@ -14,7 +14,7 @@ export const FieldsetRoot = React.forwardRef(function FieldsetRoot(
   componentProps: FieldsetRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { render, className, disabled = false, ...elementProps } = componentProps;
+  const { render, className, style, disabled = false, ...elementProps } = componentProps;
   const [legendId, setLegendId] = React.useState<string | undefined>(undefined);
 
   const state: FieldsetRootState = {

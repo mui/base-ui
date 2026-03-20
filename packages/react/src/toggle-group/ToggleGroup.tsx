@@ -39,6 +39,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends s
     value: valueProp,
     className,
     render,
+    style,
     ...elementProps
   } = componentProps;
 

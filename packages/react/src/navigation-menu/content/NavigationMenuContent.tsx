@@ -43,7 +43,7 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
   componentProps: NavigationMenuContent.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, keepMounted = false, ...elementProps } = componentProps;
+  const { className, render, keepMounted = false, style, ...elementProps } = componentProps;
 
   const {
     mounted: popupMounted,

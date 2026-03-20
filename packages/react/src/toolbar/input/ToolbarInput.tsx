@@ -23,6 +23,7 @@ export const ToolbarInput = React.forwardRef(function ToolbarInput(
     focusableWhenDisabled = true,
     render,
     disabled: disabledProp = false,
+    style,
     ...elementProps
   } = componentProps;
 

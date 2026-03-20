@@ -26,6 +26,7 @@ export const TabsList = React.forwardRef(function TabsList(
     className,
     loopFocus = true,
     render,
+    style,
     ...elementProps
   } = componentProps;
 

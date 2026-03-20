@@ -26,6 +26,7 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
     render,
     active = false,
     closeOnClick = false,
+    style,
     ...elementProps
   } = componentProps;
 

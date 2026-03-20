@@ -41,6 +41,7 @@ export const Menubar = React.forwardRef(function Menubar(
     modal = true,
     disabled = false,
     id: idProp,
+    style,
     ...elementProps
   } = props;
 

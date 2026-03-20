@@ -28,6 +28,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     keepMounted: keepMountedProp,
     render,
     id: idProp,
+    style,
     ...elementProps
   } = componentProps;
 

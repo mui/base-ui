@@ -15,7 +15,7 @@ export const CalendarDayGridRow = React.forwardRef(function CalendarDayGridRow(
   componentProps: CalendarDayGridRow.Props,
   forwardedRef: React.ForwardedRef<HTMLTableRowElement>,
 ) {
-  const { className, render, value, children, ...elementProps } = componentProps;
+  const { className, render, value, children, style, ...elementProps } = componentProps;
 
   const getDayList = useCalendarDayList();
   const days = React.useMemo(() => getDayList({ date: value, amount: 7 }), [getDayList, value]);

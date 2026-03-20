@@ -40,6 +40,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
     onValueChange,
     defaultValue,
     autoFocus = false,
+    style,
     ...elementProps
   } = componentProps;
 

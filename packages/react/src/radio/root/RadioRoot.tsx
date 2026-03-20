@@ -46,6 +46,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     inputRef: inputRefProp,
     nativeButton = false,
     id: idProp,
+    style,
     ...elementProps
   } = componentProps;
 

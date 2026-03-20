@@ -30,7 +30,13 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
   componentProps: TabsIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, renderBeforeHydration = false, ...elementProps } = componentProps;
+  const {
+    className,
+    render,
+    renderBeforeHydration = false,
+    style: styleProp,
+    ...elementProps
+  } = componentProps;
 
   const { nonce } = useCSPContext();
 

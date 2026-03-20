@@ -21,7 +21,7 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
   componentProps: NavigationMenuList.Props,
   forwardedRef: React.ForwardedRef<HTMLUListElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, style, ...elementProps } = componentProps;
 
   const {
     orientation,

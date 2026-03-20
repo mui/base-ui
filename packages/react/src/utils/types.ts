@@ -36,7 +36,7 @@ export type BaseUIComponentProps<
   RenderFunctionProps = HTMLProps,
 > = Omit<
   WithBaseUIEvent<React.ComponentPropsWithRef<ElementType>>,
-  'className' | 'color' | 'defaultValue' | 'defaultChecked'
+  'className' | 'color' | 'defaultValue' | 'defaultChecked' | 'style'
 > & {
   /**
    * CSS class applied to the element, or a function that

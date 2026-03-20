@@ -54,6 +54,7 @@
     },
     "style": {
       "type": "CSSProperties | ((state: Accordion.Root.State<Value>) => CSSProperties | undefined)",
+      "description": "Style applied to the element, or a function that\nreturns a style object based on the component’s state.",
       "detailedType": "| React.CSSProperties\n| ((\n    state: Accordion.Root.State<Value>,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "keepMounted": {

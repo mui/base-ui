@@ -15,6 +15,7 @@
     },
     "style": {
       "type": "CSSProperties | ((state: Toast.Action.State) => CSSProperties | undefined)",
+      "description": "Style applied to the element, or a function that\nreturns a style object based on the component’s state.",
       "detailedType": "| React.CSSProperties\n| ((state: Toast.Action.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
