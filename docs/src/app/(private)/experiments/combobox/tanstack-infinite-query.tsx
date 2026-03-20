@@ -175,7 +175,12 @@ function ExampleAutocomplete() {
             }
           }}
           onItemHighlighted={(highlightedItem, eventDetails) => {
-            if (highlightedItem && hasNextPage && eventDetails.reason === 'keyboard') {
+            if (
+              highlightedItem &&
+              hasNextPage &&
+              !isFetchingNextPage &&
+              eventDetails.reason === 'keyboard'
+            ) {
               const highlightedIndex = searchResults.indexOf(highlightedItem);
               // fetch if the highlighted index is close to the end
               const shouldFetch = highlightedIndex >= searchResults.length - 10;

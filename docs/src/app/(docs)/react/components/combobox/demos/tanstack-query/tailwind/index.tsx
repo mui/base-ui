@@ -178,7 +178,12 @@ function ExampleTanstackQueryCombobox() {
         }
       }}
       onItemHighlighted={(highlightedItem, eventDetails) => {
-        if (highlightedItem && hasNextPage && eventDetails.reason === 'keyboard') {
+        if (
+          highlightedItem &&
+          hasNextPage &&
+          !isFetchingNextPage &&
+          eventDetails.reason === 'keyboard'
+        ) {
           const highlightedIndex = items.indexOf(highlightedItem);
           // Fetch if the highlighted index is close to the end
           if (highlightedIndex >= items.length - 10) {
