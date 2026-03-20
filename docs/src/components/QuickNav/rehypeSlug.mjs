@@ -1,6 +1,6 @@
 import { headingRank } from 'hast-util-heading-rank';
 import { toString } from 'hast-util-to-string';
-import { visit, EXIT } from 'unist-util-visit';
+import { visit } from 'unist-util-visit';
 
 // This is a fork of https://github.com/rehypejs/rehype-slug/blob/main/lib/index.js, but better
 
@@ -39,9 +39,6 @@ export function rehypeSlug(options) {
   return (tree) => {
     visit(tree, 'element', (node) => {
       if (headingRank(node) && !node.properties.id) {
-        if (headingRank(node) === 1 && toString(node) === 'Releases') {
-          return EXIT;
-        }
         node.properties.id = prefix + stringToUrl(toString(node));
       }
       return undefined;
