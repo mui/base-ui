@@ -545,11 +545,11 @@ Renders an \`<h3>\` element.
 
 **Header Props:**
 
-| Prop      | Type                                                                                | Default | Description                                                                                                                                                                                  |
-| :-------- | :---------------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | \`string \\| ((state: Accordion.Item.State) => string \\| undefined)\`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| style     | \`CSSProperties \\| ((state: Accordion.Item.State) => CSSProperties \\| undefined)\`    | -       | -                                                                                                                                                                                            |
-| render    | \`ReactElement \\| ((props: HTMLProps, state: Accordion.Item.State) => ReactElement)\` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a \`ReactElement\` or a function that returns the element to render. |
+| Prop      | Type                                                                                  | Default | Description                                                                                                                                                                                  |
+| :-------- | :------------------------------------------------------------------------------------ | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | \`string \\| ((state: Accordion.Header.State) => string \\| undefined)\`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| style     | \`CSSProperties \\| ((state: Accordion.Header.State) => CSSProperties \\| undefined)\`    | -       | -                                                                                                                                                                                            |
+| render    | \`ReactElement \\| ((props: HTMLProps, state: Accordion.Header.State) => ReactElement)\` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a \`ReactElement\` or a function that returns the element to render. |
 
 **Header Data Attributes:**
 
@@ -568,12 +568,12 @@ Renders a \`<button>\` element.
 
 **Trigger Props:**
 
-| Prop         | Type                                                                                | Default | Description                                                                                                                                                                                  |
-| :----------- | :---------------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| nativeButton | \`boolean\`                                                                           | \`true\`  | Whether the component renders a native \`<button>\` element when replacing it&#xA;via the \`render\` prop.&#xA;Set to \`false\` if the rendered element is not a button (e.g. \`<div>\`).            |
-| className    | \`string \\| ((state: Accordion.Item.State) => string \\| undefined)\`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
-| style        | \`CSSProperties \\| ((state: Accordion.Item.State) => CSSProperties \\| undefined)\`    | -       | -                                                                                                                                                                                            |
-| render       | \`ReactElement \\| ((props: HTMLProps, state: Accordion.Item.State) => ReactElement)\` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a \`ReactElement\` or a function that returns the element to render. |
+| Prop         | Type                                                                                   | Default | Description                                                                                                                                                                                  |
+| :----------- | :------------------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| nativeButton | \`boolean\`                                                                              | \`true\`  | Whether the component renders a native \`<button>\` element when replacing it&#xA;via the \`render\` prop.&#xA;Set to \`false\` if the rendered element is not a button (e.g. \`<div>\`).            |
+| className    | \`string \\| ((state: Accordion.Trigger.State) => string \\| undefined)\`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                     |
+| style        | \`CSSProperties \\| ((state: Accordion.Trigger.State) => CSSProperties \\| undefined)\`    | -       | -                                                                                                                                                                                            |
+| render       | \`ReactElement \\| ((props: HTMLProps, state: Accordion.Trigger.State) => ReactElement)\` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component.Accepts a \`ReactElement\` or a function that returns the element to render. |
 
 **Trigger Data Attributes:**
 

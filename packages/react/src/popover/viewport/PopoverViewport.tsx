@@ -8,7 +8,7 @@ import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { PopoverViewportCssVars } from './PopoverViewportCssVars';
 import { usePopupViewport } from '../../utils/usePopupViewport';
 
-const stateAttributesMapping: StateAttributesMapping<PopoverViewport.State> = {
+const stateAttributesMapping: StateAttributesMapping<PopoverViewportState> = {
   activationDirection: (value) =>
     value
       ? {
@@ -42,7 +42,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     children,
   });
 
-  const state: PopoverViewport.State = {
+  const state: PopoverViewportState = {
     activationDirection: viewportState.activationDirection,
     transitioning: viewportState.transitioning,
     instant: instantType,
@@ -56,23 +56,28 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
   });
 });
 
+export interface PopoverViewportState {
+  /**
+   * The activation direction of the transitioned content.
+   */
+  activationDirection: string | undefined;
+  /**
+   * Whether the viewport is currently transitioning between contents.
+   */
+  transitioning: boolean;
+  /**
+   * Present if animations should be instant.
+   */
+  instant: 'dismiss' | 'click' | undefined;
+}
+
 export namespace PopoverViewport {
-  export interface Props extends BaseUIComponentProps<'div', State> {
+  export interface Props extends BaseUIComponentProps<'div', PopoverViewportState> {
     /**
      * The content to render inside the transition container.
      */
     children?: React.ReactNode;
   }
 
-  export interface State {
-    activationDirection: string | undefined;
-    /**
-     * Whether the viewport is currently transitioning between contents.
-     */
-    transitioning: boolean;
-    /**
-     * Present if animations should be instant.
-     */
-    instant: 'dismiss' | 'click' | undefined;
-  }
+  export type State = PopoverViewportState;
 }

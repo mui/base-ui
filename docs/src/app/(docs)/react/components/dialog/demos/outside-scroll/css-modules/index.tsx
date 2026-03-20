@@ -36,6 +36,19 @@ export default function OutsideScrollDialog() {
                       </section>
                     ))}
                   </div>
+
+                  <p className={styles.FooterNote}>
+                    Related docs:{' '}
+                    {RELATED_LINKS.map((item, index) => (
+                      <React.Fragment key={item.href}>
+                        {index > 0 ? ', ' : null}
+                        <a className={styles.FooterLink} href={item.href}>
+                          {item.label}
+                        </a>
+                      </React.Fragment>
+                    ))}
+                    .
+                  </p>
                 </Dialog.Popup>
               </ScrollArea.Content>
             </ScrollArea.Viewport>
@@ -155,3 +168,9 @@ const CONTENT_SECTIONS = [
     body: 'After a successful action, close the dialog and show confirmation in context (toast, inline message, or updated UI) so people can see the result of what they just did.',
   },
 ];
+
+const RELATED_LINKS = [
+  { href: '/react/components/scroll-area', label: 'Scroll Area' },
+  { href: '/react/components/drawer', label: 'Drawer' },
+  { href: '/react/components/popover', label: 'Popover' },
+] as const;

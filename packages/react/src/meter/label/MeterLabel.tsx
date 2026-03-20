@@ -1,11 +1,10 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useMeterRootContext } from '../root/MeterRootContext';
-import type { MeterRoot } from '../root/MeterRoot';
+import type { MeterRootState } from '../root/MeterRoot';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useRegisteredLabelId } from '../../utils/useRegisteredLabelId';
 
 /**
  * An accessible label for the meter.
@@ -19,14 +18,9 @@ export const MeterLabel = React.forwardRef(function MeterLabel(
 ) {
   const { render, className, id: idProp, ...elementProps } = componentProps;
 
-  const id = useBaseUiId(idProp);
-
   const { setLabelId } = useMeterRootContext();
 
-  useIsoLayoutEffect(() => {
-    setLabelId(id);
-    return () => setLabelId(undefined);
-  }, [id, setLabelId]);
+  const id = useRegisteredLabelId(idProp, setLabelId);
 
   return useRenderElement('span', componentProps, {
     ref: forwardedRef,
@@ -40,8 +34,11 @@ export const MeterLabel = React.forwardRef(function MeterLabel(
   });
 });
 
-export interface MeterLabelProps extends BaseUIComponentProps<'span', MeterRoot.State> {}
+export interface MeterLabelState extends MeterRootState {}
+
+export interface MeterLabelProps extends BaseUIComponentProps<'span', MeterLabelState> {}
 
 export namespace MeterLabel {
+  export type State = MeterLabelState;
   export type Props = MeterLabelProps;
 }

@@ -13,7 +13,7 @@
   color: inherit;
 }
 
-.Chips {
+.InputGroup {
   box-sizing: border-box;
   position: relative;
   display: flex;
@@ -23,6 +23,7 @@
   padding: 0.25rem 0.375rem;
   min-height: 2.5rem;
   width: 16rem;
+  cursor: text;
 
   border: 1px solid var(--color-gray-200);
   border-radius: 0.375rem;
@@ -36,6 +37,14 @@
   @media (min-width: 500px) {
     width: 20rem;
   }
+}
+
+.Chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  width: 100%;
 }
 
 .Chip {

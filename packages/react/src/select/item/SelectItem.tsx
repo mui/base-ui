@@ -112,7 +112,7 @@ export const SelectItem = React.memo(
       return undefined;
     }, [hasRegistered, index, multiple, isItemEqualToValue, store, itemValue]);
 
-    const state: SelectItem.State = {
+    const state: SelectItemState = {
       disabled,
       selected,
       highlighted,
@@ -171,11 +171,20 @@ export const SelectItem = React.memo(
         }
       },
       onMouseLeave(event) {
-        if (!highlightItemOnHover || keyboardActiveRef.current || isMouseWithinBounds(event)) {
+        if (
+          !highlightItemOnHover ||
+          keyboardActiveRef.current ||
+          pointerTypeRef.current === 'touch' ||
+          isMouseWithinBounds(event)
+        ) {
           return;
         }
 
         highlightTimeout.start(0, () => {
+          if (pointerTypeRef.current === 'touch') {
+            return;
+          }
+
           if (store.state.activeIndex === index) {
             store.set('activeIndex', null);
           }
@@ -284,7 +293,7 @@ export interface SelectItemState {
 }
 
 export interface SelectItemProps
-  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'div', SelectItem.State>, 'id'> {
+  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'div', SelectItemState>, 'id'> {
   children?: React.ReactNode;
   /**
    * A unique value that identifies this select item.

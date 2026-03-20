@@ -85,6 +85,8 @@ export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
   );
 }
 
+export interface DialogRootState {}
+
 export interface DialogRootProps<Payload = unknown> {
   /**
    * Whether the dialog is currently open.
@@ -102,6 +104,9 @@ export interface DialogRootProps<Payload = unknown> {
    * - `true`: user interaction is limited to just the dialog: focus is trapped, document page scroll is locked, and pointer interactions on outside elements are disabled.
    * - `false`: user interaction with the rest of the document is allowed.
    * - `'trap-focus'`: focus is trapped inside the dialog, but document page scroll is not locked and pointer interactions outside of it remain enabled.
+   *
+   * When `modal` is `true` or `'trap-focus'`, render `<Dialog.Close>` inside `<Dialog.Popup>` so
+   * touch screen readers can escape the popup.
    * @default true
    */
   modal?: boolean | 'trap-focus' | undefined;
@@ -170,6 +175,7 @@ export type DialogRootChangeEventDetails =
   };
 
 export namespace DialogRoot {
+  export type State = DialogRootState;
   export type Props<Payload = unknown> = DialogRootProps<Payload>;
   export type Actions = DialogRootActions;
   export type ChangeEventReason = DialogRootChangeEventReason;

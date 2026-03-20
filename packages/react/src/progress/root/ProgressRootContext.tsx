@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { ProgressRoot, ProgressStatus } from './ProgressRoot';
+import type { ProgressStatus, ProgressRootState } from './ProgressRoot';
 
 export type ProgressRootContext = {
   /**
@@ -20,7 +20,7 @@ export type ProgressRootContext = {
    */
   value: number | null;
   setLabelId: React.Dispatch<React.SetStateAction<string | undefined>>;
-  state: ProgressRoot.State;
+  state: ProgressRootState;
   status: ProgressStatus;
 };
 

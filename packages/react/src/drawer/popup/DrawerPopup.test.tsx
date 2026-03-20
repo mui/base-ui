@@ -1,7 +1,7 @@
-import * as React from 'react';
-import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { describe, expect, it } from 'vitest';
+import * as React from 'react';
+import { Drawer } from '@base-ui/react/drawer';
+import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Drawer.Popup />', () => {

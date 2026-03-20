@@ -1,6 +1,6 @@
+import { expect, vi } from 'vitest';
 import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
-import { expect } from 'chai';
 import { describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Field.Control />', () => {
@@ -37,8 +37,8 @@ describe('<Field.Control />', () => {
     fireEvent.change(control, { target: { value: 'ab' } });
     fireEvent.change(control, { target: { value: 'abc' } });
 
-    expect(renderCountRef.current).to.equal(afterFirstChange);
-    expect(afterFirstChange).to.be.at.most(initialRenderCount + 1);
+    expect(renderCountRef.current).toBe(afterFirstChange);
+    expect(afterFirstChange).toBeLessThanOrEqual(initialRenderCount + 1);
   });
 
   it.skipIf(isJSDOM)('should sync focused state when autoFocus is used with SSR', async () => {
@@ -58,16 +58,16 @@ describe('<Field.Control />', () => {
     const { hydrate } = renderToString(<App />);
 
     const control = screen.getByRole('textbox');
-    expect(control).to.have.attribute('autofocus');
+    expect(control).toHaveAttribute('autofocus');
 
     // Simulate focused by browser before hydration
     control.focus();
-    expect(control).to.equal(document.activeElement);
+    expect(control).toBe(document.activeElement);
 
     hydrate();
 
-    expect(screen.getByTestId('root')).to.have.attribute('data-focused', '');
-    expect(control).to.have.attribute('data-focused', '');
-    expect(screen.getByText('Name')).to.have.attribute('data-focused', '');
+    expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+    expect(control).toHaveAttribute('data-focused', '');
+    expect(screen.getByText('Name')).toHaveAttribute('data-focused', '');
   });
 });

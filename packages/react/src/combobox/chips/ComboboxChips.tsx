@@ -2,12 +2,13 @@
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { ComboboxChipsContext } from './ComboboxChipsContext';
 import { CompositeList } from '../../composite/list/CompositeList';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { selectors } from '../store';
 import { EMPTY_OBJECT } from '../../utils/constants';
+import { handleInputPress } from '../utils/handleInputPress';
 
 /**
  * A container for the chips in a multiselectable input.
@@ -38,7 +39,15 @@ export const ComboboxChips = React.forwardRef(function ComboboxChips(
     ref: [forwardedRef, store.state.chipsContainerRef],
     // NVDA enters browse mode instead of staying in focus mode when navigating with
     // arrow keys inside a container unless it has a toolbar role.
-    props: [hasSelectionChips ? { role: 'toolbar' } : EMPTY_OBJECT, elementProps],
+    props: [
+      hasSelectionChips ? { role: 'toolbar' } : EMPTY_OBJECT,
+      {
+        onMouseDown(event) {
+          handleInputPress(event, store, store.state.disabled, store.state.readOnly);
+        },
+      },
+      elementProps,
+    ],
   });
 
   const contextValue: ComboboxChipsContext = React.useMemo(
@@ -59,7 +68,7 @@ export const ComboboxChips = React.forwardRef(function ComboboxChips(
 
 export interface ComboboxChipsState {}
 
-export interface ComboboxChipsProps extends BaseUIComponentProps<'div', ComboboxChips.State> {}
+export interface ComboboxChipsProps extends BaseUIComponentProps<'div', ComboboxChipsState> {}
 
 export namespace ComboboxChips {
   export type State = ComboboxChipsState;

@@ -72,9 +72,9 @@ describe('<Menu.SubmenuTrigger />', () => {
 
       submenuItems.forEach((item) => {
         if (item === submenuItem1) {
-          expect(item).to.have.attribute('data-highlighted');
+          expect(item).toHaveAttribute('data-highlighted');
         } else {
-          expect(item).not.to.have.attribute('data-highlighted');
+          expect(item).not.toHaveAttribute('data-highlighted');
         }
       });
 
@@ -83,7 +83,7 @@ describe('<Menu.SubmenuTrigger />', () => {
         .getAllByRole('menuitem')
         .filter((item) => item.textContent !== '2.1' && item.textContent !== '2.2');
       parentMenuItems.forEach((item) => {
-        expect(item).not.to.have.attribute('data-highlighted');
+        expect(item).not.toHaveAttribute('data-highlighted');
       });
     });
   });
@@ -96,7 +96,7 @@ describe('<Menu.SubmenuTrigger />', () => {
     fireEvent.keyDown(submenuTrigger, { key: 'ArrowRight' });
 
     await waitFor(() => {
-      expect(submenuTrigger).to.have.attribute('tabIndex', '0');
+      expect(submenuTrigger).toHaveAttribute('tabIndex', '0');
     });
   });
 

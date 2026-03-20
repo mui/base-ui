@@ -9,6 +9,20 @@ export interface Release {
 export const releases: Release[] = [
   {
     latest: true,
+    version: 'v1.3.0',
+    versionSlug: 'v1-3-0',
+    date: '2026-03-12',
+    highlights: [
+      '`Drawer` is now stable.',
+      '`Menu` now supports content transitions with `Viewport`.',
+      'New `Label` parts for `Select`, `Combobox`, and `Slider`.',
+      'New `SwipeArea` part for `Drawer`.',
+      'New `InputGroup` parts for `Combobox` and `Autocomplete`.',
+      'New `closeOnClick` prop for `Tooltip`.',
+      'Many accessibility, performance, and bug fixes.',
+    ],
+  },
+  {
     version: 'v1.2.0',
     versionSlug: 'v1-2-0',
     date: '2026-02-12',

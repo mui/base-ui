@@ -1,6 +1,6 @@
-import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
-import { screen } from '@mui/internal-test-utils';
 import { describe, expect, it } from 'vitest';
+import { Drawer } from '@base-ui/react/drawer';
+import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Drawer.Content />', () => {
@@ -21,7 +21,7 @@ describe('<Drawer.Content />', () => {
     },
   }));
 
-  it('adds data-swipe-ignore', async () => {
+  it('does not add public swipe-ignore attributes', async () => {
     await render(
       <Drawer.Root open>
         <Drawer.Portal>
@@ -34,6 +34,7 @@ describe('<Drawer.Content />', () => {
       </Drawer.Root>,
     );
 
-    expect(screen.getByTestId('content').getAttribute('data-swipe-ignore')).toBe('');
+    expect(screen.getByTestId('content')).not.toHaveAttribute('data-swipe-ignore');
+    expect(screen.getByTestId('content')).not.toHaveAttribute('data-base-ui-swipe-ignore');
   });
 });

@@ -47,7 +47,7 @@ export const ToastContent = React.forwardRef(function ToastContent(
 
   const behind = visibleIndex > 0;
 
-  const state: ToastContent.State = {
+  const state: ToastContentState = {
     expanded,
     behind,
   };
@@ -72,7 +72,7 @@ export interface ToastContentState {
   behind: boolean;
 }
 
-export interface ToastContentProps extends BaseUIComponentProps<'div', ToastContent.State> {}
+export interface ToastContentProps extends BaseUIComponentProps<'div', ToastContentState> {}
 
 export namespace ToastContent {
   export type State = ToastContentState;

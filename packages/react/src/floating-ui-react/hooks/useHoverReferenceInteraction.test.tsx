@@ -1,6 +1,6 @@
+import { vi, expect } from 'vitest';
 import { fireEvent, flushMicrotasks, render, screen } from '@mui/internal-test-utils';
 import * as React from 'react';
-import { vi } from 'vitest';
 import { isJSDOM } from '@base-ui/utils/detectBrowser';
 import { useFloating } from './useFloating';
 import { useHoverReferenceInteraction } from './useHoverReferenceInteraction';
@@ -57,7 +57,7 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
 
     // Moving over the active trigger should not emit a redundant openchange.
     expect(onOpenChange).toHaveBeenCalledTimes(0);
-    expect(screen.queryByRole('tooltip')).not.to.equal(null);
+    expect(screen.queryByRole('tooltip')).not.toBe(null);
   });
 
   it('treats disabled child trigger as inactive in wrapper fallback mode', async () => {
@@ -121,6 +121,6 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
     await flushMicrotasks();
 
     expect(onOpenChange).toHaveBeenCalledTimes(1);
-    expect(screen.queryByRole('tooltip')).not.to.equal(null);
+    expect(screen.queryByRole('tooltip')).not.toBe(null);
   });
 });
