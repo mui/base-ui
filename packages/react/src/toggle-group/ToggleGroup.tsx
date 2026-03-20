@@ -129,6 +129,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends s
         <CompositeRoot
           render={render}
           className={className}
+          style={style}
           state={state}
           refs={[forwardedRef]}
           props={[defaultProps, elementProps]}

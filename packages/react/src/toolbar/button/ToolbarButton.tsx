@@ -52,6 +52,7 @@ export const ToolbarButton = React.forwardRef(function ToolbarButton(
       tag="button"
       render={render}
       className={className}
+      style={style}
       metadata={itemMetadata}
       state={state}
       refs={[forwardedRef, buttonRef]}

@@ -321,6 +321,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
         tag="button"
         render={render}
         className={className}
+        style={style}
         state={state}
         refs={ref}
         props={props}

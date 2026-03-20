@@ -34,6 +34,7 @@ export const ToolbarLink = React.forwardRef(function ToolbarLink(
       tag="a"
       render={render}
       className={className}
+      style={style}
       metadata={TOOLBAR_LINK_METADATA}
       state={state}
       refs={[forwardedRef]}

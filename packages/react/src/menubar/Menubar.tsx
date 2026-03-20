@@ -85,6 +85,7 @@ export const Menubar = React.forwardRef(function Menubar(
           <CompositeRoot
             render={render}
             className={className}
+            style={style}
             state={state}
             stateAttributesMapping={menubarStateAttributesMapping}
             refs={[forwardedRef, setContentElement, contentRef]}

@@ -143,6 +143,7 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
       <CompositeRoot
         render={render}
         className={className}
+        style={style}
         state={state}
         refs={[forwardedRef]}
         props={[defaultProps, { hidden: true }, elementProps]}
@@ -160,6 +161,7 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
       <CompositeRoot
         render={render}
         className={className}
+        style={style}
         state={state}
         refs={[forwardedRef, ref, handleCurrentContentRef]}
         props={[defaultProps, hidden ? { hidden: true } : EMPTY_OBJECT, elementProps]}

@@ -123,6 +123,7 @@ export const Toggle = React.forwardRef(function Toggle<Value extends string>(
         tag="button"
         render={render}
         className={className}
+        style={style}
         state={state}
         refs={refs}
         props={props}

@@ -110,6 +110,7 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
       <CompositeRoot
         render={render}
         className={className}
+        style={style}
         state={state}
         refs={[forwardedRef]}
         props={props}

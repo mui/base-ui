@@ -71,6 +71,7 @@ export const ToolbarInput = React.forwardRef(function ToolbarInput(
       tag="input"
       render={render}
       className={className}
+      style={style}
       metadata={itemMetadata}
       state={state}
       refs={[forwardedRef]}
