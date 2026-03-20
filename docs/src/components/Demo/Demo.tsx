@@ -236,7 +236,7 @@ export function Demo({
                         rel="noopener"
                         onClick={onViewSource}
                       >
-                        <GitHubIcon aria-hidden="true" className="DemoIconSize" />
+                        <GitHubIcon aria-hidden="true" height={14} width={14} />
                         View source on GitHub
                       </Menu.LinkItem>
 
