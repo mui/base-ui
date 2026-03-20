@@ -137,14 +137,11 @@ export default function ThemePage() {
         <div className={styles.typeScale}>
           {textScale.map((step) => (
             <article key={step} className={styles.typeScaleRow}>
-              <p className={styles.tokenName}>
-                --font-size-{step} / --line-height-{step}
-              </p>
+              <p className={styles.tokenName}>--font-size-{step}</p>
               <p
                 style={{
                   fontFamily: 'var(--font-sans-a)',
                   fontSize: `var(--font-size-${step})`,
-                  lineHeight: `var(--line-height-${step})`,
                 }}
               >
                 The quick brown fox jumps over the lazy dog.
