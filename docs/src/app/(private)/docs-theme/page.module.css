@@ -12,14 +12,14 @@
 .hero h1 {
   margin: 0;
   font-family: var(--font-sans-b);
-  font-size: var(--font-size-9);
-  font-weight: var(--font-weight-2);
+  font-size: var(--font-size-42);
+  font-weight: var(--font-weight-700);
 }
 
 .kicker {
   margin: 0 0 var(--space-8);
   color: var(--gray-t1);
-  font-size: var(--font-size-1);
+  font-size: var(--font-size-12);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -36,7 +36,7 @@
   margin: 0;
   color: var(--gray-t1);
   font-family: var(--font-mono);
-  font-size: var(--font-size-1);
+  font-size: var(--font-size-12);
 }
 
 .colorMatrixSection + .colorMatrixSection {
@@ -63,13 +63,13 @@
   align-items: center;
   color: var(--gray-t1);
   font-family: var(--font-mono);
-  font-size: var(--font-size-1);
+  font-size: var(--font-size-12);
 }
 
 .colorMatrixHeaderCell {
   color: var(--gray-p2);
   font-family: var(--font-mono);
-  font-size: var(--font-size-1);
+  font-size: var(--font-size-12);
   text-transform: lowercase;
   text-align: center;
 }
@@ -100,7 +100,7 @@
   justify-content: center;
   color: black;
   font-family: var(--font-mono);
-  font-size: var(--font-size-1);
+  font-size: var(--font-size-12);
   opacity: 0;
   pointer-events: none;
 }
@@ -173,7 +173,7 @@
 
 .typeSample {
   margin: var(--space-8) 0 0;
-  font-size: var(--font-size-4);
+  font-size: var(--font-size-16);
 }
 
 .typeScale {
@@ -246,6 +246,6 @@
   }
 
   .hero h1 {
-    font-size: var(--font-size-8);
+    font-size: var(--font-size-36);
   }
 }

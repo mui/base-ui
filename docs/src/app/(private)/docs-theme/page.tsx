@@ -20,11 +20,11 @@ const typefaces = [
 ] as const;
 
 const fontWeights = [
-  { token: 'font-weight-1', sample: 'Regular' },
-  { token: 'font-weight-2', sample: 'Bold' },
+  { token: 'font-weight-400', sample: 'Regular' },
+  { token: 'font-weight-700', sample: 'Bold' },
 ] as const;
 
-const textScale = ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as const;
+const fontSizeScale = ['12', '14', '15', '16', '18', '21', '24', '36', '42'] as const;
 const spaceScale = ['4', '8', '12', '16', '20', '24', '28', '32', '40', '48'] as const;
 const radiusScale = ['2', '3', '4', '6', '8', '12', '16', 'pill', 'circle'] as const;
 const shadows = ['1', '2', '3', '4', '5'] as const;
@@ -135,7 +135,7 @@ export default function ThemePage() {
 
       <section className={styles.section}>
         <div className={styles.typeScale}>
-          {textScale.map((step) => (
+          {fontSizeScale.map((step) => (
             <article key={step} className={styles.typeScaleRow}>
               <p className={styles.tokenName}>--font-size-{step}</p>
               <p
