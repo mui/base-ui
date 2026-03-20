@@ -1,0 +1,147 @@
+@layer theme {
+  [data-theme='redesign'] {
+    color-scheme: light dark;
+
+    /* Typeface */
+    --font-sans-a:
+      'die grotesk a', system-ui, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', arial,
+      sans-serif;
+    --font-sans-b:
+      'die grotesk b', system-ui, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', arial,
+      sans-serif;
+    --font-mono:
+      'Söhne Mono', 'SF Mono', Menlo, 'DejaVu Sans Mono', Consolas, Inconsolata, monospace;
+    --font-serif: Georgia, 'Times New Roman', Times, 'Noto Serif', 'DejaVu Serif', serif;
+
+    /* Font size */
+    --font-size-12: 0.75rem; /* 12px */
+    --font-size-14: 0.875rem; /* 14px */
+    --font-size-15: 0.9375rem; /* 15px */
+    --font-size-16: 1rem; /* 16px */
+    --font-size-18: 1.125rem; /* 18px */
+    --font-size-21: 1.3125rem; /* 21px */
+    --font-size-24: 1.5rem; /* 24px */
+    --font-size-36: 2.25rem; /* 36px */
+    --font-size-42: 2.625rem; /* 42px */
+
+    /* Font weight */
+    --font-weight-400: 400;
+    --font-weight-700: 700;
+
+    /* Spacing */
+    --space-4: 0.25rem; /* 4px */
+    --space-8: 0.5rem; /* 8px */
+    --space-12: 0.75rem; /* 12px */
+    --space-16: 1rem; /* 16px */
+    --space-20: 1.25rem; /* 20px */
+    --space-24: 1.5rem; /* 24px */
+    --space-28: 1.75rem; /* 28px */
+    --space-32: 2rem; /* 32px */
+    --space-40: 2.5rem; /* 40px */
+    --space-48: 3rem; /* 48px */
+
+    /* Radius */
+    --radius-2: 0.125rem; /* 2px */
+    --radius-3: 0.1875rem; /* 3px */
+    --radius-4: 0.25rem; /* 4px */
+    --radius-6: 0.375rem; /* 6px */
+    --radius-8: 0.5rem; /* 8px */
+    --radius-12: 0.75rem; /* 12px */
+    --radius-16: 1rem; /* 16px */
+    --radius-pill: 9999px;
+    --radius-circle: 50%;
+
+    /* Shadow */
+    --shadow-1:
+      0 1px 1px 0 var(--blackA-1), 0 2px 1px -1px var(--blackA-1), 0 1px 3px 0 var(--blackA-1);
+    --shadow-2:
+      0 1px 1px 0 var(--blackA-1), 0 1px 3px -1px var(--blackA-1), 0 4px 8px -2px var(--blackA-1);
+    --shadow-3:
+      0 1px 1px 0 var(--blackA-1), 0 2px 6px -1px var(--blackA-1), 0 6px 12px -3px var(--blackA-1),
+      0 8px 16px -4px var(--blackA-1);
+    --shadow-4:
+      0 1px 1px 0 var(--blackA-1), 0 2px 4px -1px var(--blackA-1), 0 4px 8px -2px var(--blackA-1),
+      0 12px 32px -6px var(--blackA-3), 0 20px 48px -10px var(--blackA-1);
+    --shadow-5:
+      0 10px 32px var(--blackA-5), 0 1px 1px var(--blackA-1), 0 4px 6px var(--blackA-2),
+      0 1px 1px var(--blackA-2), 0 24px 68px var(--blackA-4);
+
+    /* Gray */
+    --gray-s1: hsl(0deg 0% 99%);
+    --gray-s2: hsl(0deg 0% 97.5%);
+    --gray-c1: hsl(0deg 0% 95.25%);
+    --gray-c2: hsl(0deg 0% 94%);
+    --gray-c3: hsl(0deg 0% 93.1%);
+    --gray-p1: hsl(0deg 0% 55%);
+    --gray-p2: hsl(0deg 0% 51%);
+    --gray-t1: hsl(0deg 0% 46.4%);
+    --gray-t2: hsl(0deg 0% 18%);
+
+    /* Indigo */
+    --indigo-s1: hsl(204deg 100% 98.75%);
+    --indigo-s2: hsl(198deg 100% 97.5%);
+    --indigo-c1: hsl(204deg 100% 95%);
+    --indigo-c2: hsl(205deg 100% 93.5%);
+    --indigo-c3: hsl(206deg 100% 92.5%);
+    --indigo-p1: hsl(214deg 98% 50%);
+    --indigo-p2: hsl(207deg 96% 48%);
+    --indigo-t1: hsl(221deg 74% 51%);
+    --indigo-t2: hsl(221deg 74% 19.8%);
+
+    /* Alpha for shadows/borders/backdrops */
+    --blackA-1: hsl(0deg 0% 0% / 4%);
+    --blackA-2: hsl(0deg 0% 0% / 8%);
+    --blackA-3: hsl(0deg 0% 0% / 12%);
+    --blackA-4: hsl(0deg 0% 0% / 16%);
+    --blackA-5: hsl(0deg 0% 0% / 24%);
+    --blackA-6: hsl(0deg 0% 0% / 64%);
+
+    /* Syntax + accent copy */
+    --poppy-t1: hsl(10deg 86% 48%);
+    --blue-t1: hsl(211deg 100% 49%);
+    --green-t1: hsl(156deg 81% 29%);
+    --orange-t1: hsl(14deg 96% 52.5%);
+    --pink-t1: hsl(316deg 84% 51%);
+    --grape-t1: hsl(276deg 66% 54%);
+    --lime-t1: hsl(91deg 64% 38.75%);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    [data-theme='redesign'] {
+      --gray-s1: hsl(0deg 0% 7.5%);
+      --gray-s2: hsl(0deg 0% 10%);
+      --gray-c1: hsl(0deg 0% 13%);
+      --gray-c2: hsl(0deg 0% 16%);
+      --gray-c3: hsl(0deg 0% 20%);
+      --gray-p1: hsl(0deg 0% 60%);
+      --gray-p2: hsl(0deg 0% 64%);
+      --gray-t1: hsl(0deg 0% 70%);
+      --gray-t2: hsl(0deg 0% 90%);
+
+      --indigo-s1: hsl(223deg 38% 10%);
+      --indigo-s2: hsl(223deg 42% 12%);
+      --indigo-c1: hsl(222deg 50% 16%);
+      --indigo-c2: hsl(221deg 56% 20%);
+      --indigo-c3: hsl(220deg 62% 24%);
+      --indigo-p1: hsl(214deg 94% 60%);
+      --indigo-p2: hsl(207deg 96% 64%);
+      --indigo-t1: hsl(214deg 93% 66%);
+      --indigo-t2: hsl(210deg 100% 86%);
+
+      --blackA-1: transparent;
+      --blackA-2: transparent;
+      --blackA-3: transparent;
+      --blackA-4: transparent;
+      --blackA-5: transparent;
+      --blackA-6: transparent;
+
+      --poppy-t1: hsl(10deg 96% 63%);
+      --blue-t1: hsl(210deg 98% 66%);
+      --green-t1: hsl(156deg 68% 54%);
+      --orange-t1: hsl(26deg 98% 63%);
+      --pink-t1: hsl(316deg 86% 68%);
+      --grape-t1: hsl(276deg 86% 70%);
+      --lime-t1: hsl(91deg 72% 56%);
+    }
+  }
+}
