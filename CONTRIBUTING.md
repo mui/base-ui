@@ -157,3 +157,25 @@ export type {
   DialogPopupState as AlertDialogPopupState,
 } from '../dialog/popup/DialogPopup';
 ```
+
+### Broken Type Links
+
+If the broken links checker finds some links that don't have a corresponding `id`, check that all an exports parts are rendered.
+
+If all parts are present, you might need to render the additional types component. By default, they are hidden on the page so they don't need a heading, but are needed to enable popovers.
+
+```mdx
+## API reference
+
+import { TypesCheckbox, TypesCheckboxAdditional } from './types';
+
+### Root
+
+<TypesCheckbox.Root />
+
+### Indicator
+
+<TypesCheckbox.Indicator />
+
+<TypesCheckboxAdditional />
+```
