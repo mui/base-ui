@@ -2,8 +2,6 @@ import * as React from 'react';
 import { OTPField } from '@base-ui/react/otp-field';
 
 const CODE_LENGTH = 6;
-const inputClassName =
-  'box-border m-0 h-11 w-10 rounded-lg border border-gray-300 bg-transparent text-center font-inherit text-lg font-medium text-gray-900 outline-none focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800';
 
 export default function OTPFieldPasswordDemo() {
   const id = React.useId();
@@ -24,7 +22,7 @@ export default function OTPFieldPasswordDemo() {
         {Array.from({ length: CODE_LENGTH }, (_, index) => (
           <OTPField.Input
             key={index}
-            className={inputClassName}
+            className="box-border m-0 h-11 w-10 rounded-lg border border-gray-300 bg-transparent text-center font-inherit text-lg font-medium text-gray-900 outline-none focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
             aria-label={`Character ${index + 1} of ${CODE_LENGTH}`}
           />
         ))}
