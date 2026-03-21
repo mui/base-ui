@@ -14,7 +14,7 @@ export function CodeBlockPreComputed(props: PreProps) {
   if (!props['data-precompute']) {
     return (
       <div>
-        Expected precompute data to be provided. Ensure that transformHtmlCodePrecomputed rehype
+        Expected precompute data to be provided. Ensure that transformHtmlCodeBlock rehype
         plugin is used.
       </div>
     );
