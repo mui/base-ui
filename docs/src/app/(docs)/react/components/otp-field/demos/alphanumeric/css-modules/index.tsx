@@ -6,20 +6,24 @@ const CODE_LENGTH = 6;
 
 export default function OTPFieldAlphanumericDemo() {
   const id = React.useId();
-  const inputId = `${id}-input`;
   const descriptionId = `${id}-description`;
 
   return (
-    <OTPField.Root length={CODE_LENGTH} validationType="alphanumeric" className={styles.Field}>
-      <label htmlFor={inputId} className={styles.Label}>
+    <OTPField.Root
+      id={id}
+      length={CODE_LENGTH}
+      validationType="alphanumeric"
+      aria-describedby={descriptionId}
+      className={styles.Field}
+    >
+      <label htmlFor={id} className={styles.Label}>
         Recovery code
       </label>
-      <OTPField.Group aria-describedby={descriptionId} className={styles.Group}>
+      <OTPField.Group className={styles.Group}>
         {Array.from({ length: CODE_LENGTH }, (_, index) => (
           <OTPField.Input
             key={index}
             className={styles.Input}
-            id={index === 0 ? inputId : undefined}
             aria-label={`Character ${index + 1} of ${CODE_LENGTH}`}
           />
         ))}

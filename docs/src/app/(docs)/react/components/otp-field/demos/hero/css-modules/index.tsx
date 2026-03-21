@@ -8,11 +8,16 @@ export default function ExampleOTPField() {
   const id = React.useId();
   const descriptionId = `${id}-description`;
   return (
-    <OTPField.Root id={id} length={OTP_LENGTH} className={styles.Field}>
+    <OTPField.Root
+      id={id}
+      length={OTP_LENGTH}
+      aria-describedby={descriptionId}
+      className={styles.Field}
+    >
       <label htmlFor={id} className={styles.Label}>
         Verification code
       </label>
-      <OTPField.Group aria-describedby={descriptionId} className={styles.Group}>
+      <OTPField.Group className={styles.Group}>
         {Array.from({ length: OTP_LENGTH }, (_, index) => (
           <OTPField.Input
             key={index}

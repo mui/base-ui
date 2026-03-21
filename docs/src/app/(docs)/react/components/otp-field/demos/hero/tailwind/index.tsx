@@ -10,12 +10,13 @@ export default function ExampleOTPField() {
     <OTPField.Root
       id={id}
       length={OTP_LENGTH}
+      aria-describedby={descriptionId}
       className="flex w-full max-w-80 flex-col items-start gap-1"
     >
       <label htmlFor={id} className="text-sm font-medium text-gray-900">
         Verification code
       </label>
-      <OTPField.Group aria-describedby={descriptionId} className="flex w-full gap-2">
+      <OTPField.Group className="flex w-full gap-2">
         {Array.from({ length: OTP_LENGTH }, (_, index) => (
           <OTPField.Input
             key={index}

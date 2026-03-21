@@ -11,25 +11,25 @@ function sanitizeInviteCode(value: string) {
 
 export default function OTPFieldCustomSanitizeDemo() {
   const id = React.useId();
-  const inputId = `${id}-input`;
   const descriptionId = `${id}-description`;
 
   return (
     <OTPField.Root
+      id={id}
       length={CODE_LENGTH}
       validationType="none"
       sanitizeValue={sanitizeInviteCode}
+      aria-describedby={descriptionId}
       className={styles.Field}
     >
-      <label htmlFor={inputId} className={styles.Label}>
+      <label htmlFor={id} className={styles.Label}>
         Invite code
       </label>
-      <OTPField.Group aria-describedby={descriptionId} className={styles.Group}>
+      <OTPField.Group className={styles.Group}>
         {Array.from({ length: CODE_LENGTH }, (_, index) => (
           <OTPField.Input
             key={index}
             className={styles.Input}
-            id={index === 0 ? inputId : undefined}
             aria-label={`Character ${index + 1} of ${CODE_LENGTH}`}
           />
         ))}
