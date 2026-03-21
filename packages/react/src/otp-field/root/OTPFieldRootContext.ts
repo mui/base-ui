@@ -4,6 +4,7 @@ import type { OTPFieldRoot, OTPFieldRootState } from './OTPFieldRoot';
 import type { OTPFieldInputState } from '../input/OTPFieldInput';
 
 export interface OTPFieldRootContext {
+  ariaDescribedBy: string | undefined;
   activeIndex: number;
   ariaLabelledBy: string | undefined;
   autoComplete: string | undefined;

@@ -245,6 +245,29 @@ describe('<OTPField />', () => {
       expect(group).toHaveAttribute('aria-describedby', description.id);
     });
 
+    it('forwards root `aria-describedby` to the group', async () => {
+      await render(<OTPField aria-describedby="description-id" />);
+
+      expect(screen.getByRole('group')).toHaveAttribute('aria-describedby', 'description-id');
+    });
+
+    it('forwards root `aria-labelledby` to the group and slots', async () => {
+      await render(
+        <React.Fragment>
+          <span id="label-id">Verification code</span>
+          <OTPField aria-labelledby="label-id" />
+        </React.Fragment>,
+      );
+
+      const group = screen.getByRole('group', { name: 'Verification code' });
+      const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+      expect(group).toHaveAttribute('aria-labelledby', 'label-id');
+      inputs.forEach((input) => {
+        expect(input).toHaveAttribute('aria-labelledby', 'label-id');
+      });
+    });
+
     describe('prop: autoComplete', () => {
       it('applies the default autocomplete to the first slot only', async () => {
         await render(<OTPField />);

@@ -42,12 +42,12 @@
     "length": {
       "type": "number",
       "required": true,
-      "description": "The number of OTP input slots."
+      "description": "The number of OTP input slots.\nRequired so the root can clamp values, detect completion, and generate\nconsistent validation markup before all slots hydrate."
     },
     "mask": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the slot inputs should mask entered characters.\nUsers who need a custom input type can pass `type` directly to individual\n`<OTPField.Input>` parts.",
+      "description": "Whether the slot inputs should mask entered characters.\nPass `type` directly to individual `<OTPField.Input>` parts to use a custom\ninput type.",
       "detailedType": "boolean | undefined"
     },
     "onValueComplete": {

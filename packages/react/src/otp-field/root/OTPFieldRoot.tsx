@@ -40,6 +40,8 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
+    'aria-describedby': ariaDescribedBy,
+    'aria-labelledby': ariaLabelledByProp,
     id: idProp,
     autoComplete = 'one-time-code',
     defaultValue,
@@ -107,7 +109,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   );
 
   const id = useLabelableId({ id: idProp });
-  const ariaLabelledBy = useAriaLabelledBy(undefined, labelId, firstInputRef, true, id);
+  const ariaLabelledBy = useAriaLabelledBy(ariaLabelledByProp, labelId, firstInputRef, true, id);
   const validationConfig = getOTPValidationConfig(validationType);
   const pattern = validationConfig?.pattern;
   const hiddenInputPattern = pattern?.replace('{1}', `{${length}}`);
@@ -291,6 +293,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
 
   const contextValue = React.useMemo(
     () => ({
+      ariaDescribedBy,
       ariaLabelledBy,
       autoComplete,
       activeIndex,
@@ -316,6 +319,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       value,
     }),
     [
+      ariaDescribedBy,
       ariaLabelledBy,
       autoComplete,
       activeIndex,
@@ -481,6 +485,8 @@ export interface OTPFieldRootProps extends Omit<
   form?: string | undefined;
   /**
    * The number of OTP input slots.
+   * Required so the root can clamp values, detect completion, and generate
+   * consistent validation markup before all slots hydrate.
    */
   length: number;
   /**
@@ -490,8 +496,8 @@ export interface OTPFieldRootProps extends Omit<
   autoSubmit?: boolean | undefined;
   /**
    * Whether the slot inputs should mask entered characters.
-   * Users who need a custom input type can pass `type` directly to individual
-   * `<OTPField.Input>` parts.
+   * Pass `type` directly to individual `<OTPField.Input>` parts to use a custom
+   * input type.
    * @default false
    */
   mask?: boolean | undefined;

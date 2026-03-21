@@ -18,15 +18,26 @@ export const OTPFieldGroup = React.forwardRef(function OTPFieldGroup(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, ...elementProps } = componentProps;
-  const { ariaLabelledBy, state } = useOTPFieldRootContext();
+  const { ariaDescribedBy, ariaLabelledBy, state } = useOTPFieldRootContext();
   const { getDescriptionProps } = useLabelableContext();
-
-  const describedElementProps = getDescriptionProps(elementProps);
+  const fieldDescriptionProps = getDescriptionProps({});
+  const describedBy = mergeAriaIds(
+    fieldDescriptionProps['aria-describedby'],
+    ariaDescribedBy,
+    elementProps['aria-describedby'],
+  );
 
   const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,
     state,
-    props: [{ role: 'group', 'aria-labelledby': ariaLabelledBy }, describedElementProps],
+    props: [
+      {
+        role: 'group',
+        'aria-describedby': describedBy,
+        'aria-labelledby': ariaLabelledBy,
+      },
+      elementProps,
+    ],
     stateAttributesMapping: rootStateAttributesMapping,
   });
 
@@ -40,4 +51,10 @@ export interface OTPFieldGroupProps extends BaseUIComponentProps<'div', OTPField
 export namespace OTPFieldGroup {
   export type State = OTPFieldGroupState;
   export type Props = OTPFieldGroupProps;
+}
+
+function mergeAriaIds(...values: Array<string | undefined>) {
+  const ids = values.flatMap((value) => value?.split(/\s+/).filter(Boolean) ?? []);
+
+  return ids.length > 0 ? Array.from(new Set(ids)).join(' ') : undefined;
 }

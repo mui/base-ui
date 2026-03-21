@@ -6,11 +6,10 @@ const OTP_LENGTH = 6;
 
 export default function ExampleOTPField() {
   const id = React.useId();
-  const inputId = `${id}-input`;
   const descriptionId = `${id}-description`;
   return (
-    <OTPField.Root length={OTP_LENGTH} className={styles.Field}>
-      <label htmlFor={inputId} className={styles.Label}>
+    <OTPField.Root id={id} length={OTP_LENGTH} className={styles.Field}>
+      <label htmlFor={id} className={styles.Label}>
         Verification code
       </label>
       <OTPField.Group aria-describedby={descriptionId} className={styles.Group}>
@@ -18,7 +17,6 @@ export default function ExampleOTPField() {
           <OTPField.Input
             key={index}
             className={styles.Input}
-            id={index === 0 ? inputId : undefined}
             aria-label={`Character ${index + 1} of ${OTP_LENGTH}`}
           />
         ))}

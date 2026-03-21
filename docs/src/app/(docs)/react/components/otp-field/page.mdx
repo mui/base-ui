@@ -18,7 +18,7 @@ import { DemoOTPFieldCustomSanitize } from './demos/custom-sanitize';
 
 ## Usage guidelines
 
-- **Form controls must have an accessible name**: It can be created using a `<label>` element or the `Field` component. See the [forms guide](/react/handbook/forms).
+- **Form controls must have an accessible name**: It can be created using a `<label>` element or the `Field` component. See [Labeling an OTP field](#labeling-an-otp-field) and the [forms guide](/react/handbook/forms).
 
 ## Anatomy
 
@@ -29,12 +29,32 @@ import { OTPField } from '@base-ui/react/otp-field';
 
 <OTPField.Root length={6}>
   <OTPField.Group>
-    <OTPField.Input></OTPField.Input>
+    <OTPField.Input />
   </OTPField.Group>
 </OTPField.Root>;
 ```
 
 ## Examples
+
+### Labeling an OTP field
+
+Use a native `<label>` with the root `id` to label the OTP field, and place `aria-describedby` on
+`<OTPField.Group>` when you need supporting description text:
+
+```tsx title="OTP Field with a native label and description" {2,4,14}
+<OTPField.Root id="verification-code" length={6}>
+  <label htmlFor="verification-code">Verification code</label>
+  <OTPField.Group aria-describedby="verification-code-description">
+    <OTPField.Input aria-label="Character 1 of 6" />
+    <OTPField.Input aria-label="Character 2 of 6" />
+    <OTPField.Input aria-label="Character 3 of 6" />
+    <OTPField.Input aria-label="Character 4 of 6" />
+    <OTPField.Input aria-label="Character 5 of 6" />
+    <OTPField.Input aria-label="Character 6 of 6" />
+  </OTPField.Group>
+  <p id="verification-code-description">Enter the 6-character code we sent to your device.</p>
+</OTPField.Root>
+```
 
 ### Form integration
 
@@ -47,12 +67,12 @@ Use [Field](/react/components/field) to handle label associations and form integ
     <Field.Description>Enter the 6-character code we sent to your device.</Field.Description>
     <OTPField.Root length={6}>
       <OTPField.Group>
-        <OTPField.Input aria-label="Character 1 of 6"></OTPField.Input>
-        <OTPField.Input aria-label="Character 2 of 6"></OTPField.Input>
-        <OTPField.Input aria-label="Character 3 of 6"></OTPField.Input>
-        <OTPField.Input aria-label="Character 4 of 6"></OTPField.Input>
-        <OTPField.Input aria-label="Character 5 of 6"></OTPField.Input>
-        <OTPField.Input aria-label="Character 6 of 6"></OTPField.Input>
+        <OTPField.Input aria-label="Character 1 of 6" />
+        <OTPField.Input aria-label="Character 2 of 6" />
+        <OTPField.Input aria-label="Character 3 of 6" />
+        <OTPField.Input aria-label="Character 4 of 6" />
+        <OTPField.Input aria-label="Character 5 of 6" />
+        <OTPField.Input aria-label="Character 6 of 6" />
       </OTPField.Group>
     </OTPField.Root>
   </Field.Root>
