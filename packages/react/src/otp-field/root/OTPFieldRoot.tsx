@@ -19,7 +19,9 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 import {
   createChangeEventDetails,
+  createGenericEventDetails,
   type BaseUIChangeEventDetails,
+  type BaseUIGenericEventDetails,
 } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { OTPFieldRootContext } from './OTPFieldRootContext';
@@ -42,7 +44,9 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     defaultValue,
     value: valueProp,
     onValueChange,
+    onValueComplete: onValueCompleteProp,
     length,
+    autoSubmit = false,
     disabled: disabledProp = false,
     readOnly = false,
     required = false,
@@ -82,7 +86,10 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   const rootRef = React.useRef<HTMLDivElement | null>(null);
   const inputRefs = React.useRef<Array<HTMLInputElement | null>>([]);
   const pendingFocusIndexRef = React.useRef<number | null>(null);
-  const pendingSubmitValueRef = React.useRef<string | null>(null);
+  const pendingCompleteValueRef = React.useRef<{
+    value: string;
+    eventDetails: OTPFieldRoot.CompleteEventDetails;
+  } | null>(null);
   const [inputCount, setInputCount] = React.useState(0);
   const firstInputRef = React.useMemo(
     () =>
@@ -151,21 +158,31 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     }
   });
 
+  const onValueComplete = useStableCallback(
+    (nextValue: string, eventDetails: OTPFieldRoot.CompleteEventDetails) => {
+      onValueCompleteProp?.(nextValue, eventDetails);
+    },
+  );
+
   useIsoLayoutEffect(() => {
-    if (pendingSubmitValueRef.current == null) {
+    const pendingCompleteValue = pendingCompleteValueRef.current;
+
+    if (pendingCompleteValue == null) {
       return;
     }
 
-    if (pendingSubmitValueRef.current !== value) {
-      if (value.length !== length) {
-        pendingSubmitValueRef.current = null;
-      }
+    if (pendingCompleteValue.value !== value) {
+      pendingCompleteValueRef.current = null;
       return;
     }
 
-    pendingSubmitValueRef.current = null;
-    requestSubmit();
-  }, [length, requestSubmit, value]);
+    pendingCompleteValueRef.current = null;
+    onValueComplete(value, pendingCompleteValue.eventDetails);
+
+    if (autoSubmit) {
+      requestSubmit();
+    }
+  }, [autoSubmit, onValueComplete, requestSubmit, value]);
 
   useIsoLayoutEffect(() => {
     const pendingFocusIndex = pendingFocusIndexRef.current;
@@ -197,9 +214,12 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
 
       setValueUnwrapped(normalizedValue);
       if (normalizedValue.length === length && valueRef.current.length !== length) {
-        pendingSubmitValueRef.current = normalizedValue;
+        pendingCompleteValueRef.current = {
+          value: normalizedValue,
+          eventDetails: createGenericEventDetails(details.reason, details.event),
+        };
       } else if (normalizedValue.length !== length) {
-        pendingSubmitValueRef.current = null;
+        pendingCompleteValueRef.current = null;
       }
 
       setDirty(normalizedValue !== validityData.initialValue);
@@ -437,6 +457,11 @@ export interface OTPFieldRootProps extends Omit<
    */
   length: number;
   /**
+   * Whether to submit the owning form when the OTP becomes complete.
+   * @default false
+   */
+  autoSubmit?: boolean | undefined;
+  /**
    * Whether the user must enter a value before submitting a form.
    * @default false
    */
@@ -475,6 +500,18 @@ export interface OTPFieldRootProps extends Omit<
   onValueChange?:
     | ((value: string, eventDetails: OTPFieldRoot.ChangeEventDetails) => void)
     | undefined;
+  /**
+   * Callback function that is fired when the OTP value becomes complete.
+   *
+   * It runs later than `onValueChange`, after the internal value update is applied.
+   *
+   * If `autoSubmit` is enabled, it runs immediately before the owning form is submitted.
+   *
+   * **Warning**: This is a generic event not a change event.
+   */
+  onValueComplete?:
+    | ((value: string, eventDetails: OTPFieldRoot.CompleteEventDetails) => void)
+    | undefined;
 }
 
 export interface OTPFieldRootState extends FieldRootState {
@@ -512,9 +549,18 @@ export type OTPFieldRootChangeEventReason =
 export type OTPFieldRootChangeEventDetails =
   BaseUIChangeEventDetails<OTPFieldRoot.ChangeEventReason>;
 
+export type OTPFieldRootCompleteEventReason =
+  | typeof REASONS.inputChange
+  | typeof REASONS.inputPaste
+  | typeof REASONS.keyboard;
+export type OTPFieldRootCompleteEventDetails =
+  BaseUIGenericEventDetails<OTPFieldRoot.CompleteEventReason>;
+
 export namespace OTPFieldRoot {
   export type State = OTPFieldRootState;
   export type Props = OTPFieldRootProps;
   export type ChangeEventReason = OTPFieldRootChangeEventReason;
   export type ChangeEventDetails = OTPFieldRootChangeEventDetails;
+  export type CompleteEventReason = OTPFieldRootCompleteEventReason;
+  export type CompleteEventDetails = OTPFieldRootCompleteEventDetails;
 }

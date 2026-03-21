@@ -243,6 +243,30 @@ describe('<OTPField />', () => {
     expect(onValueChange.mock.calls[0]?.[1].reason).toBe(REASONS.inputClear);
   });
 
+  it('fires `onValueComplete` when typing completes the OTP', async () => {
+    const onValueComplete = vi.fn();
+
+    await render(<OTPField onValueComplete={onValueComplete} />);
+
+    const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+    fireEvent.change(firstInput, { target: { value: '123456' } });
+
+    expect(onValueComplete).toHaveBeenCalledTimes(1);
+    expect(onValueComplete.mock.calls[0]?.[0]).toBe('123456');
+    expect(onValueComplete.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
+  });
+
+  it('does not fire `onValueComplete` before the OTP becomes complete', async () => {
+    const onValueComplete = vi.fn();
+
+    await render(<OTPField onValueComplete={onValueComplete} />);
+
+    const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+    fireEvent.change(firstInput, { target: { value: '12345' } });
+
+    expect(onValueComplete).not.toHaveBeenCalled();
+  });
+
   it('blocks form submission while the code is incomplete', async () => {
     await render(
       <form data-testid="form">
@@ -272,8 +296,11 @@ describe('<OTPField />', () => {
 
   it('handles password manager autofill through the hidden input', async () => {
     const onValueChange = vi.fn();
+    const onValueComplete = vi.fn();
 
-    await render(<OTPField name="otp" onValueChange={onValueChange} />);
+    await render(
+      <OTPField name="otp" onValueChange={onValueChange} onValueComplete={onValueComplete} />,
+    );
 
     const hiddenInput = document.querySelector<HTMLInputElement>('input[name="otp"]');
 
@@ -287,9 +314,32 @@ describe('<OTPField />', () => {
     expect(onValueChange.mock.calls.length).toBe(1);
     expect(onValueChange.mock.calls[0]?.[0]).toBe('123456');
     expect(onValueChange.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
+    expect(onValueComplete.mock.calls.length).toBe(1);
+    expect(onValueComplete.mock.calls[0]?.[0]).toBe('123456');
+    expect(onValueComplete.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
   });
 
-  it('submits the completed named OTP value from the owning form', async () => {
+  it('does not auto-submit the owning form when the OTP becomes complete by default', async () => {
+    const handleSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+    });
+
+    await render(
+      <form onSubmit={handleSubmit}>
+        <OTPField />
+        <button type="submit">Submit</button>
+      </form>,
+    );
+
+    const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+
+    fireEvent.change(firstInput, { target: { value: '123456' } });
+
+    expect(getValues()).toBe('123456');
+    expect(handleSubmit).not.toHaveBeenCalled();
+  });
+
+  it('submits the completed named OTP value from the owning form when `autoSubmit` is enabled', async () => {
     const handleSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
 
@@ -298,7 +348,7 @@ describe('<OTPField />', () => {
 
     await render(
       <form onSubmit={handleSubmit}>
-        <OTPField name="otp" required />
+        <OTPField name="otp" required autoSubmit />
         <button type="submit">Submit</button>
       </form>,
     );
@@ -311,14 +361,14 @@ describe('<OTPField />', () => {
     expect(handleSubmit).toHaveBeenCalledTimes(1);
   });
 
-  it('does not submit the owning form before the OTP becomes complete', async () => {
+  it('does not submit the owning form before the OTP becomes complete when `autoSubmit` is enabled', async () => {
     const handleSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
     });
 
     await render(
       <form onSubmit={handleSubmit}>
-        <OTPField />
+        <OTPField autoSubmit />
         <button type="submit">Submit</button>
       </form>,
     );

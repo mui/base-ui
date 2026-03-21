@@ -24,7 +24,7 @@ Import the component and assemble its parts:
 ```jsx title="Anatomy"
 import { OTPField } from '@base-ui/react/otp-field';
 
-<OTPField.Root>
+<OTPField.Root length={6}>
   <OTPField.Group>
     <OTPField.Input />
   </OTPField.Group>
@@ -55,6 +55,9 @@ Use [Field](/react/components/field) to handle label associations and form integ
   </Field.Root>
 </Form>
 ```
+
+Pass `autoSubmit` to submit the owning form automatically when all digits are filled, or use
+`onValueComplete` to react to completion without submitting.
 
 ## API reference
 
