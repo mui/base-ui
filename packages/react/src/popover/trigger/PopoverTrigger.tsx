@@ -41,7 +41,7 @@ import { useTriggerDataForwarding } from '../../utils/popups';
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
-  componentProps: PopoverTrigger.Props,
+  componentProps: PopoverTriggerPropsInternal,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
@@ -236,7 +236,8 @@ export interface PopoverTriggerState {
 }
 
 export type PopoverTriggerProps<Payload = unknown> = NativeButtonProps &
-  BaseUIComponentProps<'button', PopoverTriggerState> & {
+  Omit<BaseUIComponentProps<'button', PopoverTriggerState>, 'ref'> & {
+    ref?: React.Ref<HTMLElement> | undefined;
     /**
      * Whether the component renders a native `<button>` element when replacing it
      * via the `render` prop.
@@ -278,6 +279,9 @@ export type PopoverTriggerProps<Payload = unknown> = NativeButtonProps &
      */
     closeDelay?: number | undefined;
   };
+
+type PopoverTriggerPropsInternal<Payload = unknown> = Omit<PopoverTriggerProps<Payload>, 'ref'> &
+  BaseUIComponentProps<'button', PopoverTriggerState>;
 
 export namespace PopoverTrigger {
   export type State = PopoverTriggerState;
