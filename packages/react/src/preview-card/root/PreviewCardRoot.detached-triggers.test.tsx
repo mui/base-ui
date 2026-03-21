@@ -515,6 +515,70 @@ describe('<PreviewCard.Root />', () => {
       expect(screen.queryByText('Content')).toBe(null);
     });
 
+    it('should reposition to a different trigger when reopened with keepMounted=true', async () => {
+      const previewCardHandle = PreviewCard.createHandle();
+      const { user } = await render(
+        <div style={{ margin: 50 }}>
+          <PreviewCard.Trigger
+            href="#"
+            handle={previewCardHandle}
+            delay={0}
+          >
+            Trigger 1
+          </PreviewCard.Trigger>
+          <PreviewCard.Trigger
+            href="#"
+            handle={previewCardHandle}
+            delay={0}
+          >
+            Trigger 2
+          </PreviewCard.Trigger>
+
+          <PreviewCard.Root handle={previewCardHandle}>
+            <PreviewCard.Portal keepMounted>
+              <PreviewCard.Positioner data-testid="positioner" side="bottom" align="start">
+                <PreviewCard.Popup>Content</PreviewCard.Popup>
+              </PreviewCard.Positioner>
+            </PreviewCard.Portal>
+          </PreviewCard.Root>
+        </div>,
+      );
+
+      const trigger1 = screen.getByRole('link', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('link', { name: 'Trigger 2' });
+      const positioner = screen.getByTestId('positioner');
+
+      await user.hover(trigger1);
+
+      await waitFor(() => {
+        expect(screen.getByText('Content')).toBeVisible();
+      });
+
+      await waitFor(() => {
+        expect(
+          Math.abs(positioner.getBoundingClientRect().left - trigger1.getBoundingClientRect().left),
+        ).toBeLessThanOrEqual(1);
+      });
+
+      await user.unhover(trigger1);
+
+      await waitFor(() => {
+        expect(positioner).toHaveAttribute('hidden');
+      });
+
+      await user.hover(trigger2);
+
+      await waitFor(() => {
+        expect(screen.getByText('Content')).toBeVisible();
+      });
+
+      await waitFor(() => {
+        expect(
+          Math.abs(positioner.getBoundingClientRect().left - trigger2.getBoundingClientRect().left),
+        ).toBeLessThanOrEqual(1);
+      });
+    });
+
     it('should set the payload and render content based on its value', async () => {
       const testPreviewCard = PreviewCard.createHandle<number>();
       const { user } = await render(
