@@ -47,3 +47,8 @@
   line-height: 1.25rem;
   color: var(--color-gray-600);
 }
+
+.Code {
+  font-family:
+    ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
+}

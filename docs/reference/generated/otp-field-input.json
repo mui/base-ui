@@ -1,6 +1,6 @@
 {
   "name": "OTPFieldInput",
-  "description": "An individual OTP digit input.\nRenders an `<input>` element.",
+  "description": "An individual OTP character input.\nRenders an `<input>` element.",
   "props": {
     "className": {
       "type": "string | ((state: OTPField.Input.State) => string | undefined)",
@@ -43,7 +43,7 @@
       "description": "Present when all slots are filled."
     },
     "data-filled": {
-      "description": "Present when the input contains a digit."
+      "description": "Present when the input contains a character."
     },
     "data-focused": {
       "description": "Present when one of the OTP field inputs is focused."

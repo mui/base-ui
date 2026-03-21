@@ -43,7 +43,7 @@
       "description": "Present when all slots are filled."
     },
     "data-filled": {
-      "description": "Present when the OTP field contains at least one digit."
+      "description": "Present when the OTP field contains at least one character."
     },
     "data-focused": {
       "description": "Present when one of the OTP field inputs is focused."

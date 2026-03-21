@@ -4,7 +4,7 @@ export enum OTPFieldInputDataAttributes {
    */
   complete = 'data-complete',
   /**
-   * Present when the input contains a digit.
+   * Present when the input contains a character.
    */
   filled = 'data-filled',
   /**

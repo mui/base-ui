@@ -1,6 +1,6 @@
 # OTP Field
 
-<Subtitle>A one-time password input composed of individual digit slots.</Subtitle>
+<Subtitle>A one-time password input composed of individual character slots.</Subtitle>
 
 <Meta
   name="description"
@@ -8,6 +8,9 @@
 />
 
 import { DemoOTPFieldHero } from './demos/hero';
+import { DemoOTPFieldAlphanumeric } from './demos/alphanumeric';
+import { DemoOTPFieldPassword } from './demos/password';
+import { DemoOTPFieldCustomSanitize } from './demos/custom-sanitize';
 
 > **Note:** OTP Field is currently in preview. Its API may change before it becomes stable.
 
@@ -41,23 +44,43 @@ Use [Field](/react/components/field) to handle label associations and form integ
 <Form>
   <Field.Root name="verificationCode">
     <Field.Label>Verification code</Field.Label>
-    <Field.Description>Enter the 6-digit code we sent to your device.</Field.Description>
+    <Field.Description>Enter the 6-character code we sent to your device.</Field.Description>
     <OTPField.Root length={6}>
       <OTPField.Group>
-        <OTPField.Input aria-label="Digit 1 of 6" />
-        <OTPField.Input aria-label="Digit 2 of 6" />
-        <OTPField.Input aria-label="Digit 3 of 6" />
-        <OTPField.Input aria-label="Digit 4 of 6" />
-        <OTPField.Input aria-label="Digit 5 of 6" />
-        <OTPField.Input aria-label="Digit 6 of 6" />
+        <OTPField.Input aria-label="Character 1 of 6" />
+        <OTPField.Input aria-label="Character 2 of 6" />
+        <OTPField.Input aria-label="Character 3 of 6" />
+        <OTPField.Input aria-label="Character 4 of 6" />
+        <OTPField.Input aria-label="Character 5 of 6" />
+        <OTPField.Input aria-label="Character 6 of 6" />
       </OTPField.Group>
     </OTPField.Root>
   </Field.Root>
 </Form>
 ```
 
-Pass `autoSubmit` to submit the owning form automatically when all digits are filled, or use
+Pass `autoSubmit` to submit the owning form automatically when all slots are filled, or use
 `onValueComplete` to react to completion without submitting.
+
+### Alphanumeric verification codes
+
+Use `validationType="alphanumeric"` for recovery, backup, or invite codes that mix letters and
+numbers.
+
+<DemoOTPFieldAlphanumeric compact />
+
+### Masked entry
+
+Use `type="password"` when the code should be obscured while it is being typed.
+
+<DemoOTPFieldPassword compact />
+
+### Custom sanitization
+
+Set `validationType="none"` with `sanitizeValue` when you need to normalize pasted values before
+they reach state, such as removing spaces or hyphens and uppercasing invite codes.
+
+<DemoOTPFieldCustomSanitize compact />
 
 ## API reference
 

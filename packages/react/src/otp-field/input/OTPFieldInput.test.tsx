@@ -88,7 +88,7 @@ describe('<OTPField.Input />', () => {
     expect(firstInput.selectionEnd).toBe(1);
   });
 
-  it('moves focus to the next slot when typing the same digit into a filled slot', async () => {
+  it('moves focus to the next slot when typing the same character into a filled slot', async () => {
     const user = userEvent.setup();
 
     await render(<OTPFieldTest defaultValue="12" />);
@@ -128,7 +128,7 @@ describe('<OTPField.Input />', () => {
     expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Next' }));
   });
 
-  it('deletes the current digit and moves focus to the previous slot on backspace', async () => {
+  it('deletes the current character and moves focus to the previous slot on backspace', async () => {
     await render(<OTPFieldTest defaultValue="1234" />);
 
     const inputs = screen.getAllByRole<HTMLInputElement>('textbox');

@@ -8,7 +8,7 @@ export default function ExampleOTPField() {
   const inputId = `${id}-input`;
   const descriptionId = `${id}-description`;
   const inputClassName =
-    'box-border m-0 h-11 w-11 rounded-lg border border-gray-300 bg-transparent text-center font-inherit text-lg font-medium text-gray-900 outline-none focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800';
+    'box-border m-0 h-11 w-10 rounded-lg border border-gray-300 bg-transparent text-center font-inherit text-lg font-medium text-gray-900 outline-none focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800';
 
   return (
     <OTPField.Root length={OTP_LENGTH} className="flex w-full max-w-80 flex-col items-start gap-1">
@@ -21,12 +21,12 @@ export default function ExampleOTPField() {
             key={index}
             className={inputClassName}
             id={index === 0 ? inputId : undefined}
-            aria-label={`Digit ${index + 1} of ${OTP_LENGTH}`}
+            aria-label={`Character ${index + 1} of ${OTP_LENGTH}`}
           />
         ))}
       </OTPField.Group>
       <p id={descriptionId} className="m-0 text-sm text-gray-600">
-        Enter the 6-digit code we sent to your device.
+        Enter the 6-character code we sent to your device.
       </p>
     </OTPField.Root>
   );

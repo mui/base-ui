@@ -54,6 +54,10 @@ const handleOTPFieldComplete: OTPFieldCompleteHandler = (value, details) => {
 const otpFieldEventNarrowing = (
   <OTPField.Root
     length={6}
+    form="verification-form"
+    type="password"
+    validationType="alphanumeric"
+    sanitizeValue={(value) => value.toUpperCase()}
     onValueChange={handleOTPFieldChange}
     onValueComplete={handleOTPFieldComplete}
   />

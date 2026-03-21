@@ -8,18 +8,24 @@ export interface OTPFieldRootContext {
   ariaLabelledBy: string | undefined;
   autoComplete: string | undefined;
   disabled: boolean;
+  form: string | undefined;
   focusInput: (index: number) => void;
   queueFocusInput: (index: number) => void;
   getInputId: (index: number) => string | undefined;
   handleInputBlur: (event: React.FocusEvent<HTMLInputElement>) => void;
   handleInputFocus: (index: number, event: React.FocusEvent<HTMLInputElement>) => void;
   id: string | undefined;
+  inputMode: React.HTMLAttributes<HTMLInputElement>['inputMode'];
   invalid: boolean | undefined;
   length: number;
+  pattern: string | undefined;
   readOnly: boolean;
   required: boolean;
+  sanitizeValue: ((value: string) => string) | undefined;
   setValue: (value: string, details: OTPFieldRoot.ChangeEventDetails) => void;
   state: OTPFieldRootState;
+  type: OTPFieldRoot.InputType;
+  validationType: OTPFieldRoot.ValidationType;
   value: string;
 }
 

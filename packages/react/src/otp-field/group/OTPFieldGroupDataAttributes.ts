@@ -32,7 +32,7 @@ export enum OTPFieldGroupDataAttributes {
    */
   dirty = 'data-dirty',
   /**
-   * Present when the OTP field contains at least one digit.
+   * Present when the OTP field contains at least one character.
    */
   filled = 'data-filled',
   /**

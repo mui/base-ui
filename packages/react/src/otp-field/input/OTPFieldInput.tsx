@@ -15,7 +15,7 @@ import { inputStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { normalizeOTPValue, removeOTPCharacter, replaceOTPValue } from '../utils/otp';
 
 /**
- * An individual OTP digit input.
+ * An individual OTP character input.
  * Renders an `<input>` element.
  *
  * Documentation: [Base UI OTP Field](https://base-ui.com/react/components/otp-field)
@@ -31,17 +31,23 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     ariaLabelledBy,
     autoComplete,
     disabled,
+    form,
     focusInput,
     queueFocusInput,
     getInputId,
     handleInputBlur,
     handleInputFocus,
+    inputMode,
     invalid,
     length,
+    pattern,
     readOnly,
     required,
+    sanitizeValue,
     setValue,
     state,
+    type,
+    validationType,
     value,
   } = useOTPFieldRootContext();
 
@@ -55,8 +61,8 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
   const inputProps: React.ComponentProps<'input'> = {
     id: getInputId(index),
     value: slotValue,
-    type: 'text',
-    inputMode: 'numeric',
+    type,
+    inputMode,
     autoComplete: index === 0 ? autoComplete : 'off',
     autoCorrect: 'off',
     spellCheck: 'false',
@@ -64,6 +70,8 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     maxLength: index === 0 ? length : 1,
     tabIndex: activeIndex === index ? 0 : -1,
     disabled,
+    form,
+    pattern,
     readOnly,
     required,
     'aria-labelledby':
@@ -106,7 +114,12 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
       }
 
       const rawValue = event.currentTarget.value;
-      const nextDigits = normalizeOTPValue(event.currentTarget.value, length);
+      const nextDigits = normalizeOTPValue(
+        event.currentTarget.value,
+        length,
+        validationType,
+        sanitizeValue,
+      );
 
       if (nextDigits === '') {
         if (rawValue === '') {
@@ -118,12 +131,16 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
         return;
       }
 
-      const nextValue = replaceOTPValue(value, index, nextDigits, length);
-
-      setValue(
-        nextValue,
-        createChangeEventDetails(REASONS.inputChange, event.nativeEvent),
+      const nextValue = replaceOTPValue(
+        value,
+        index,
+        nextDigits,
+        length,
+        validationType,
+        sanitizeValue,
       );
+
+      setValue(nextValue, createChangeEventDetails(REASONS.inputChange, event.nativeEvent));
 
       const nextInput = Math.min(index + nextDigits.length, length - 1);
       queueFocusInput(nextInput);
@@ -171,7 +188,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
         event.currentTarget.selectionStart === 0 &&
         event.currentTarget.selectionEnd === inputValue.length;
 
-      if (event.key >= '0' && event.key <= '9' && fullSelection && slotValue === event.key) {
+      if (event.key.length === 1 && fullSelection && slotValue === event.key) {
         stopEvent(event);
         focusInput(Math.min(length - 1, index + 1));
         return;
@@ -194,14 +211,19 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
       }
 
       event.preventDefault();
-      const nextDigits = normalizeOTPValue(event.clipboardData.getData('text/plain'), length);
+      const nextDigits = normalizeOTPValue(
+        event.clipboardData.getData('text/plain'),
+        length,
+        validationType,
+        sanitizeValue,
+      );
 
       if (nextDigits === '') {
         return;
       }
 
       setValue(
-        replaceOTPValue(value, index, nextDigits, length),
+        replaceOTPValue(value, index, nextDigits, length, validationType, sanitizeValue),
         createChangeEventDetails(REASONS.inputPaste, event.nativeEvent),
       );
 
@@ -222,7 +244,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
 
 export interface OTPFieldInputState extends OTPFieldRootState {
   /**
-   * Whether this input contains a digit.
+   * Whether this input contains a character.
    */
   filled: boolean;
   /**
@@ -230,7 +252,7 @@ export interface OTPFieldInputState extends OTPFieldRootState {
    */
   index: number;
   /**
-   * The digit rendered in this slot.
+   * The character rendered in this slot.
    */
   value: string;
 }

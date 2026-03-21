@@ -16,6 +16,7 @@ import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { useAriaLabelledBy } from '../../labelable-provider/useAriaLabelledBy';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useValueChanged } from '../../utils/useValueChanged';
 import type { BaseUIComponentProps } from '../../utils/types';
 import {
   createChangeEventDetails,
@@ -26,7 +27,7 @@ import {
 import { REASONS } from '../../utils/reasons';
 import { OTPFieldRootContext } from './OTPFieldRootContext';
 import { rootStateAttributesMapping } from '../utils/stateAttributesMapping';
-import { normalizeOTPValue } from '../utils/otp';
+import { getOTPValidationConfig, normalizeOTPValue, type OTPValidationType } from '../utils/otp';
 
 /**
  * Groups all OTP field parts and manages their state.
@@ -45,8 +46,12 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     value: valueProp,
     onValueChange,
     onValueComplete: onValueCompleteProp,
+    form,
     length,
     autoSubmit = false,
+    type = 'text',
+    validationType = 'numeric',
+    sanitizeValue,
     disabled: disabledProp = false,
     readOnly = false,
     required = false,
@@ -103,8 +108,12 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
 
   const id = useLabelableId({ id: idProp });
   const ariaLabelledBy = useAriaLabelledBy(undefined, labelId, firstInputRef, true, id);
+  const validationConfig = getOTPValidationConfig(validationType);
+  const pattern = validationConfig?.pattern;
+  const hiddenInputPattern = pattern?.replace('{1}', `{${length}}`);
+  const inputMode = validationConfig?.inputMode;
 
-  const value = normalizeOTPValue(valueUnwrapped, length);
+  const value = normalizeOTPValue(valueUnwrapped, length, validationType, sanitizeValue);
   const valueRef = useValueAsRef(value);
   const filled = value !== '';
 
@@ -144,67 +153,67 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     controlRef: firstInputRef,
   });
 
-  function focusInput(index: number) {
+  const focusInput = useStableCallback((index: number) => {
     const targetIndex = Math.min(Math.max(index, 0), Math.max(inputRefs.current.length - 1, 0));
     const target = inputRefs.current[targetIndex];
     target?.focus();
     target?.select();
-  }
+  });
+
+  const queueFocusInput = useStableCallback((index: number) => {
+    pendingFocusIndexRef.current = index;
+  });
 
   const requestSubmit = useStableCallback(() => {
-    const form = validation.inputRef.current?.form ?? inputRefs.current[0]?.form;
-    if (form && typeof form.requestSubmit === 'function') {
-      form.requestSubmit();
+    let formElement = validation.inputRef.current?.form ?? inputRefs.current[0]?.form ?? null;
+
+    if (form) {
+      const associatedElement = (rootRef.current?.ownerDocument ?? document).getElementById(form);
+      if (associatedElement?.tagName === 'FORM') {
+        formElement = associatedElement as HTMLFormElement;
+      }
+    }
+
+    if (formElement && typeof formElement.requestSubmit === 'function') {
+      formElement.requestSubmit();
     }
   });
 
-  const onValueComplete = useStableCallback(
-    (nextValue: string, eventDetails: OTPFieldRoot.CompleteEventDetails) => {
-      onValueCompleteProp?.(nextValue, eventDetails);
-    },
-  );
+  useValueChanged(value, () => {
+    clearErrors(name);
+    setDirty(value !== validityData.initialValue);
 
-  useIsoLayoutEffect(() => {
+    if (shouldValidateOnChange()) {
+      validation.commit(value);
+    } else {
+      validation.commit(value, true);
+    }
+
     const pendingCompleteValue = pendingCompleteValueRef.current;
 
-    if (pendingCompleteValue == null) {
-      return;
-    }
-
-    if (pendingCompleteValue.value !== value) {
+    if (pendingCompleteValue != null) {
       pendingCompleteValueRef.current = null;
-      return;
+
+      if (pendingCompleteValue.value === value) {
+        onValueCompleteProp?.(value, pendingCompleteValue.eventDetails);
+
+        if (autoSubmit) {
+          requestSubmit();
+        }
+      }
     }
 
-    pendingCompleteValueRef.current = null;
-    onValueComplete(value, pendingCompleteValue.eventDetails);
-
-    if (autoSubmit) {
-      requestSubmit();
-    }
-  }, [autoSubmit, onValueComplete, requestSubmit, value]);
-
-  useIsoLayoutEffect(() => {
     const pendingFocusIndex = pendingFocusIndexRef.current;
 
-    if (pendingFocusIndex == null) {
-      return;
+    if (pendingFocusIndex != null) {
+      pendingFocusIndexRef.current = null;
+      focusInput(pendingFocusIndex);
     }
-
-    const targetIndex = Math.min(
-      Math.max(pendingFocusIndex, 0),
-      Math.max(inputRefs.current.length - 1, 0),
-    );
-    const target = inputRefs.current[targetIndex];
-
-    pendingFocusIndexRef.current = null;
-    target?.focus();
-    target?.select();
-  }, [value]);
+  });
 
   const setValue = useStableCallback(
     (nextValue: string, details: OTPFieldRoot.ChangeEventDetails) => {
-      const normalizedValue = normalizeOTPValue(nextValue, length);
+      const normalizedValue = normalizeOTPValue(nextValue, length, validationType, sanitizeValue);
 
       onValueChange?.(normalizedValue, details);
 
@@ -220,16 +229,6 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
         };
       } else if (normalizedValue.length !== length) {
         pendingCompleteValueRef.current = null;
-      }
-
-      setDirty(normalizedValue !== validityData.initialValue);
-      setFilled(normalizedValue !== '');
-      clearErrors(name);
-
-      if (shouldValidateOnChange()) {
-        validation.commit(normalizedValue);
-      } else {
-        validation.commit(normalizedValue, true);
       }
     },
   );
@@ -296,25 +295,24 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       autoComplete,
       activeIndex,
       disabled,
-      focusInput(index: number) {
-        const targetIndex = Math.min(Math.max(index, 0), Math.max(inputRefs.current.length - 1, 0));
-        const target = inputRefs.current[targetIndex];
-        target?.focus();
-        target?.select();
-      },
-      queueFocusInput(index: number) {
-        pendingFocusIndexRef.current = index;
-      },
+      form,
+      focusInput,
+      queueFocusInput,
       getInputId,
       handleInputBlur,
       handleInputFocus,
       id,
+      inputMode,
       invalid,
       length,
+      pattern,
       readOnly,
       required,
+      sanitizeValue,
       setValue,
       state,
+      type,
+      validationType,
       value,
     }),
     [
@@ -322,16 +320,24 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       autoComplete,
       activeIndex,
       disabled,
+      focusInput,
+      form,
       getInputId,
       handleInputBlur,
       handleInputFocus,
       id,
+      inputMode,
       invalid,
       length,
+      pattern,
+      queueFocusInput,
       readOnly,
       required,
+      sanitizeValue,
       setValue,
       state,
+      type,
+      validationType,
       value,
     ],
   );
@@ -356,12 +362,17 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
           autoComplete={autoComplete}
           disabled={disabled}
           focusInput={focusInput}
+          form={form}
           id={id}
+          inputMode={inputMode}
           length={length}
           name={name}
+          pattern={hiddenInputPattern}
           readOnly={readOnly}
+          sanitizeValue={sanitizeValue}
           required={required}
           setValue={setValue}
+          validationType={validationType}
           validation={validation}
           value={value}
         />
@@ -374,12 +385,17 @@ interface OTPFieldHiddenInputProps {
   autoComplete: string | undefined;
   disabled: boolean;
   focusInput: (index: number) => void;
+  form: string | undefined;
   id: string | undefined;
+  inputMode: React.HTMLAttributes<HTMLInputElement>['inputMode'];
   length: number;
   name: string | undefined;
+  pattern: string | undefined;
   readOnly: boolean;
+  sanitizeValue: ((value: string) => string) | undefined;
   required: boolean;
   setValue: (value: string, details: OTPFieldRoot.ChangeEventDetails) => void;
+  validationType: OTPFieldRoot.ValidationType;
   validation: ReturnType<typeof useFieldRootContext>['validation'];
   value: string;
 }
@@ -389,12 +405,17 @@ function OTPFieldHiddenInput(props: OTPFieldHiddenInputProps) {
     autoComplete,
     disabled,
     focusInput,
+    form,
     id,
+    inputMode,
     length,
     name,
+    pattern,
     readOnly,
+    sanitizeValue,
     required,
     setValue,
+    validationType,
     validation,
     value,
   } = props;
@@ -414,7 +435,7 @@ function OTPFieldHiddenInput(props: OTPFieldHiddenInputProps) {
           }
 
           setValue(
-            normalizeOTPValue(event.currentTarget.value, length),
+            normalizeOTPValue(event.currentTarget.value, length, validationType, sanitizeValue),
             createChangeEventDetails(REASONS.inputChange, event.nativeEvent),
           );
         },
@@ -422,13 +443,14 @@ function OTPFieldHiddenInput(props: OTPFieldHiddenInputProps) {
       ref={validation.inputRef}
       type="text"
       id={id && name == null ? `${id}-hidden-input` : undefined}
+      form={form}
       name={name}
       value={value}
       autoComplete={autoComplete}
-      inputMode="numeric"
+      inputMode={inputMode}
       minLength={length}
       maxLength={length}
-      pattern={`\\d{${length}}`}
+      pattern={pattern}
       disabled={disabled}
       readOnly={readOnly}
       required={required}
@@ -453,6 +475,11 @@ export interface OTPFieldRootProps extends Omit<
    */
   autoComplete?: string | undefined;
   /**
+   * A string specifying the `form` element with which the hidden input is associated.
+   * This string's value must match the id of a `form` element in the same document.
+   */
+  form?: string | undefined;
+  /**
    * The number of OTP input slots.
    */
   length: number;
@@ -461,6 +488,21 @@ export interface OTPFieldRootProps extends Omit<
    * @default false
    */
   autoSubmit?: boolean | undefined;
+  /**
+   * The input type of the OTP slots.
+   * @default 'text'
+   */
+  type?: OTPFieldRoot.InputType | undefined;
+  /**
+   * The type of input validation to apply to the OTP value.
+   * @default 'numeric'
+   */
+  validationType?: OTPFieldRoot.ValidationType | undefined;
+  /**
+   * Function for custom sanitization when `validationType` is set to `'none'`.
+   * This function runs before updating the OTP value from user interactions.
+   */
+  sanitizeValue?: ((value: string) => string) | undefined;
   /**
    * Whether the user must enter a value before submitting a form.
    * @default false
@@ -493,7 +535,7 @@ export interface OTPFieldRootProps extends Omit<
    *
    * The `eventDetails.reason` indicates what triggered the change:
    * - `'input-change'` for typing or autofill
-   * - `'input-clear'` when a digit is removed by text input
+   * - `'input-clear'` when a character is removed by text input
    * - `'input-paste'` for paste interactions
    * - `'keyboard'` for keyboard navigation that changes the value
    */
@@ -557,8 +599,10 @@ export type OTPFieldRootCompleteEventDetails =
   BaseUIGenericEventDetails<OTPFieldRoot.CompleteEventReason>;
 
 export namespace OTPFieldRoot {
+  export type InputType = 'text' | 'password';
   export type State = OTPFieldRootState;
   export type Props = OTPFieldRootProps;
+  export type ValidationType = OTPValidationType;
   export type ChangeEventReason = OTPFieldRootChangeEventReason;
   export type ChangeEventDetails = OTPFieldRootChangeEventDetails;
   export type CompleteEventReason = OTPFieldRootCompleteEventReason;
