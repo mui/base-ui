@@ -519,18 +519,10 @@ describe('<PreviewCard.Root />', () => {
       const previewCardHandle = PreviewCard.createHandle();
       const { user } = await render(
         <div style={{ margin: 50 }}>
-          <PreviewCard.Trigger
-            href="#"
-            handle={previewCardHandle}
-            delay={0}
-          >
+          <PreviewCard.Trigger href="#" handle={previewCardHandle} delay={0}>
             Trigger 1
           </PreviewCard.Trigger>
-          <PreviewCard.Trigger
-            href="#"
-            handle={previewCardHandle}
-            delay={0}
-          >
+          <PreviewCard.Trigger href="#" handle={previewCardHandle} delay={0}>
             Trigger 2
           </PreviewCard.Trigger>
 
