@@ -7,7 +7,8 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerDocument } from '@base-ui/utils/owner';
 
 import type { FloatingContext, FloatingRootContext } from '../types';
-import { getNodeChildren, getTarget, isTargetInsideEnabledTrigger } from '../utils';
+import { getTarget, isTargetInsideEnabledTrigger } from '../utils/element';
+import { getNodeChildren } from '../utils/nodes';
 
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';

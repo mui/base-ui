@@ -1,4 +1,5 @@
-import { Store, createSelector } from '@base-ui/utils/store';
+import { Store } from '@base-ui/utils/store';
+import { createSelector } from '@base-ui/utils/store/createSelector';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { TransitionStatus } from '../utils/useTransitionStatus';
 import type { HTMLProps } from '../utils/types';
@@ -100,8 +101,6 @@ export const selectors = {
   id: createSelector((state: State) => state.id),
   labelId: createSelector((state: State) => state.labelId),
 
-  query: createSelector((state: State) => state.query),
-
   items: createSelector((state: State) => state.items),
 
   selectedValue: createSelector((state: State) => state.selectedValue),
@@ -164,16 +163,6 @@ export const selectors = {
   inputInsidePopup: createSelector((state: State) => state.inputInsidePopup),
 
   selectionMode: createSelector((state: State) => state.selectionMode),
-  listRef: createSelector((state: State) => state.listRef),
-  labelsRef: createSelector((state: State) => state.labelsRef),
-  popupRef: createSelector((state: State) => state.popupRef),
-  emptyRef: createSelector((state: State) => state.emptyRef),
-  inputRef: createSelector((state: State) => state.inputRef),
-  keyboardActiveRef: createSelector((state: State) => state.keyboardActiveRef),
-  chipsContainerRef: createSelector((state: State) => state.chipsContainerRef),
-  clearRef: createSelector((state: State) => state.clearRef),
-  valuesRef: createSelector((state: State) => state.valuesRef),
-  allValuesRef: createSelector((state: State) => state.allValuesRef),
 
   name: createSelector((state: State) => state.name),
   form: createSelector((state: State) => state.form),
@@ -181,10 +170,7 @@ export const selectors = {
   readOnly: createSelector((state: State) => state.readOnly),
   required: createSelector((state: State) => state.required),
   grid: createSelector((state: State) => state.grid),
-  isGrouped: createSelector((state: State) => state.isGrouped),
   virtualized: createSelector((state: State) => state.virtualized),
-  onOpenChangeComplete: createSelector((state: State) => state.onOpenChangeComplete),
-  openOnInputClick: createSelector((state: State) => state.openOnInputClick),
   itemToStringLabel: createSelector((state: State) => state.itemToStringLabel),
   isItemEqualToValue: createSelector((state: State) => state.isItemEqualToValue),
   modal: createSelector((state: State) => state.modal),

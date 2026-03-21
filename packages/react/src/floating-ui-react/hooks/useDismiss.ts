@@ -12,14 +12,9 @@ import {
 import { Timeout, useTimeout } from '@base-ui/utils/useTimeout';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument } from '@base-ui/utils/owner';
-import {
-  contains,
-  getTarget,
-  isEventTargetWithin,
-  isReactEvent,
-  isRootElement,
-  getNodeChildren,
-} from '../utils';
+import { contains, getTarget, isEventTargetWithin, isRootElement } from '../utils/element';
+import { isReactEvent } from '../utils/event';
+import { getNodeChildren } from '../utils/nodes';
 
 /* eslint-disable no-underscore-dangle */
 

@@ -53,6 +53,68 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       expect(screen.queryByTestId('root')).toBe(null);
     });
 
+    it('keeps multiple providers isolated when one provider updates', async () => {
+      function ProviderContents(props: { label: string; title: string }) {
+        const { add, update, toasts } = useToastManager();
+        const idRef = React.useRef<string | null>(null);
+
+        return (
+          <React.Fragment>
+            <Toast.Viewport>
+              {toasts.map((toast) => (
+                <Toast.Root key={toast.id} toast={toast}>
+                  <Toast.Title>{toast.title}</Toast.Title>
+                </Toast.Root>
+              ))}
+            </Toast.Viewport>
+            <button
+              onClick={() => {
+                idRef.current = add({
+                  title: props.title,
+                });
+              }}
+            >
+              add {props.label}
+            </button>
+            <button
+              onClick={() => {
+                if (idRef.current) {
+                  update(idRef.current, {
+                    title: `${props.title} updated`,
+                  });
+                }
+              }}
+            >
+              update {props.label}
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <React.Fragment>
+          <Toast.Provider>
+            <ProviderContents label="first" title="First toast" />
+          </Toast.Provider>
+          <Toast.Provider>
+            <ProviderContents label="second" title="Second toast" />
+          </Toast.Provider>
+        </React.Fragment>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add first' }));
+      fireEvent.click(screen.getByRole('button', { name: 'add second' }));
+
+      expect(screen.getByText('First toast')).not.toBe(null);
+      expect(screen.getByText('Second toast')).not.toBe(null);
+
+      fireEvent.click(screen.getByRole('button', { name: 'update first' }));
+
+      expect(screen.getByText('First toast updated')).not.toBe(null);
+      expect(screen.queryByText('Second toast updated')).toBe(null);
+      expect(screen.getByText('Second toast')).not.toBe(null);
+    });
+
     it('replaces a closing toast when adding again with the same id', async () => {
       function Buttons() {
         const { add, close, toasts } = useToastManager();

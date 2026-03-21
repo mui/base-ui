@@ -3,7 +3,6 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
-import { usePreviousValue } from '@base-ui/utils/usePreviousValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument } from '@base-ui/utils/owner';
@@ -85,7 +84,8 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
   const popupElement = store.useState('popupElement');
   const positionerElement = store.useState('positionerElement');
 
-  const previousActiveTrigger = usePreviousValue(open ? activeTrigger : null);
+  const previousActiveTriggerRef = React.useRef<typeof activeTrigger>(null);
+  const previousActiveTrigger = previousActiveTriggerRef.current;
   // Remount current content on trigger changes (and once more when payload lags) to avoid DOM reuse flashes.
   // The key bumps immediately on trigger switches, then again if the payload arrives on a later render.
   const currentContentKey = usePopupContentKey(activeTriggerId, payload);
@@ -107,6 +107,10 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
   } | null>(null);
 
   const [showStartingStyleAttribute, setShowStartingStyleAttribute] = React.useState(false);
+
+  useIsoLayoutEffect(() => {
+    previousActiveTriggerRef.current = open ? activeTrigger : null;
+  });
 
   useIsoLayoutEffect(() => {
     store.set('hasViewport', true);

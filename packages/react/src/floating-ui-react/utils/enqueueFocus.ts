@@ -1,4 +1,4 @@
-import type { FocusableElement } from 'tabbable';
+import type { FocusableElement } from './tabbable';
 
 interface Options {
   preventScroll?: boolean | undefined;
