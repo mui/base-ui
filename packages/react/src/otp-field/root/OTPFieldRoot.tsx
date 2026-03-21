@@ -29,8 +29,6 @@ import { OTPFieldRootContext } from './OTPFieldRootContext';
 import { rootStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { getOTPValidationConfig, normalizeOTPValue, type OTPValidationType } from '../utils/otp';
 
-const DEFAULT_MASK_CHARACTER = '•';
-
 /**
  * Groups all OTP field parts and manages their state.
  * Renders a `<div>` element.
@@ -114,10 +112,6 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   const pattern = validationConfig?.pattern;
   const hiddenInputPattern = pattern?.replace('{1}', `{${length}}`);
   const inputMode = validationConfig?.inputMode;
-  const maskCharacter =
-    mask === false
-      ? null
-      : (Array.from(mask === true ? DEFAULT_MASK_CHARACTER : mask)[0] ?? DEFAULT_MASK_CHARACTER);
 
   const value = normalizeOTPValue(valueUnwrapped, length, validationType, sanitizeValue);
   const valueRef = useValueAsRef(value);
@@ -311,7 +305,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       inputMode,
       invalid,
       length,
-      mask: maskCharacter,
+      mask,
       pattern,
       readOnly,
       required,
@@ -335,7 +329,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       inputMode,
       invalid,
       length,
-      maskCharacter,
+      mask,
       pattern,
       queueFocusInput,
       readOnly,
@@ -496,12 +490,11 @@ export interface OTPFieldRootProps extends Omit<
   autoSubmit?: boolean | undefined;
   /**
    * Whether the slot inputs should mask entered characters.
-   * Pass a string to use a custom mask character.
    * Users who need a custom input type can pass `type` directly to individual
-   * `<OTPField.Input />` parts.
+   * `<OTPField.Input>` parts.
    * @default false
    */
-  mask?: boolean | string | undefined;
+  mask?: boolean | undefined;
   /**
    * The type of input validation to apply to the OTP value.
    * @default 'numeric'

@@ -29,7 +29,7 @@ import { OTPField } from '@base-ui/react/otp-field';
 
 <OTPField.Root length={6}>
   <OTPField.Group>
-    <OTPField.Input />
+    <OTPField.Input></OTPField.Input>
   </OTPField.Group>
 </OTPField.Root>;
 ```
@@ -47,12 +47,12 @@ Use [Field](/react/components/field) to handle label associations and form integ
     <Field.Description>Enter the 6-character code we sent to your device.</Field.Description>
     <OTPField.Root length={6}>
       <OTPField.Group>
-        <OTPField.Input aria-label="Character 1 of 6" />
-        <OTPField.Input aria-label="Character 2 of 6" />
-        <OTPField.Input aria-label="Character 3 of 6" />
-        <OTPField.Input aria-label="Character 4 of 6" />
-        <OTPField.Input aria-label="Character 5 of 6" />
-        <OTPField.Input aria-label="Character 6 of 6" />
+        <OTPField.Input aria-label="Character 1 of 6"></OTPField.Input>
+        <OTPField.Input aria-label="Character 2 of 6"></OTPField.Input>
+        <OTPField.Input aria-label="Character 3 of 6"></OTPField.Input>
+        <OTPField.Input aria-label="Character 4 of 6"></OTPField.Input>
+        <OTPField.Input aria-label="Character 5 of 6"></OTPField.Input>
+        <OTPField.Input aria-label="Character 6 of 6"></OTPField.Input>
       </OTPField.Group>
     </OTPField.Root>
   </Field.Root>
@@ -71,9 +71,8 @@ numbers.
 
 ### Masked entry
 
-Use `mask` when the code should be obscured while it is being typed, or pass a custom character
-like `mask="*"` to control how filled slots are displayed. If you need a custom input type, pass
-`type` directly to individual `<OTPField.Input />` parts.
+Use `mask` when the code should be obscured while it is being typed. If you need a custom input
+type, pass `type` directly to individual `<OTPField.Input>` parts.
 
 <DemoOTPFieldPassword compact />
 

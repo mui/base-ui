@@ -45,10 +45,10 @@
       "description": "The number of OTP input slots."
     },
     "mask": {
-      "type": "boolean | string",
+      "type": "boolean",
       "default": "false",
-      "description": "Whether the slot inputs should mask entered characters.\nPass a string to use a custom mask character.\nUsers who need a custom input type can pass `type` directly to individual\n`<OTPField.Input />` parts.",
-      "detailedType": "boolean | string | undefined"
+      "description": "Whether the slot inputs should mask entered characters.\nUsers who need a custom input type can pass `type` directly to individual\n`<OTPField.Input>` parts.",
+      "detailedType": "boolean | undefined"
     },
     "onValueComplete": {
       "type": "((value: string, eventDetails: OTPField.Root.CompleteEventDetails) => void)",

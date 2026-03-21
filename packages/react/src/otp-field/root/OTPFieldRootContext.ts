@@ -18,7 +18,7 @@ export interface OTPFieldRootContext {
   inputMode: React.HTMLAttributes<HTMLInputElement>['inputMode'];
   invalid: boolean | undefined;
   length: number;
-  mask: string | null;
+  mask: boolean;
   pattern: string | undefined;
   readOnly: boolean;
   required: boolean;

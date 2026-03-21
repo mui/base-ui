@@ -57,12 +57,11 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
 
   const slotValue = value[index] ?? '';
   const inputState = getOTPFieldInputState(state, slotValue, index);
-  const displayedValue = mask && slotValue !== '' ? mask : slotValue;
 
   const inputProps: React.ComponentProps<'input'> = {
     id: getInputId(index),
-    value: displayedValue,
-    type: 'text',
+    value: slotValue,
+    type: mask ? 'password' : 'text',
     inputMode,
     autoComplete: index === 0 ? autoComplete : 'off',
     autoCorrect: 'off',

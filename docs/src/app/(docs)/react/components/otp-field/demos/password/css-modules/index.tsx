@@ -10,7 +10,7 @@ export default function OTPFieldPasswordDemo() {
   const descriptionId = `${id}-description`;
 
   return (
-    <OTPField.Root length={CODE_LENGTH} mask="*" className={styles.Field}>
+    <OTPField.Root length={CODE_LENGTH} mask className={styles.Field}>
       <label htmlFor={inputId} className={styles.Label}>
         Access code
       </label>
@@ -25,8 +25,7 @@ export default function OTPFieldPasswordDemo() {
         ))}
       </OTPField.Group>
       <p id={descriptionId} className={styles.Description}>
-        Use <span className={styles.Code}>mask=&quot;*&quot;</span> to obscure the code on shared
-        screens.
+        Use <span className={styles.Code}>mask</span> to obscure the code on shared screens.
       </p>
     </OTPField.Root>
   );
