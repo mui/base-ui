@@ -55,7 +55,7 @@ const otpFieldEventNarrowing = (
   <OTPField.Root
     length={6}
     form="verification-form"
-    type="password"
+    mask="*"
     validationType="alphanumeric"
     sanitizeValue={(value) => value.toUpperCase()}
     onValueChange={handleOTPFieldChange}

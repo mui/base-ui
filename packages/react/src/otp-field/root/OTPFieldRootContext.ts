@@ -18,13 +18,13 @@ export interface OTPFieldRootContext {
   inputMode: React.HTMLAttributes<HTMLInputElement>['inputMode'];
   invalid: boolean | undefined;
   length: number;
+  mask: string | null;
   pattern: string | undefined;
   readOnly: boolean;
   required: boolean;
   sanitizeValue: ((value: string) => string) | undefined;
   setValue: (value: string, details: OTPFieldRoot.ChangeEventDetails) => void;
   state: OTPFieldRootState;
-  type: OTPFieldRoot.InputType;
   validationType: OTPFieldRoot.ValidationType;
   value: string;
 }

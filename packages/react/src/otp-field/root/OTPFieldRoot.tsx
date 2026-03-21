@@ -29,6 +29,8 @@ import { OTPFieldRootContext } from './OTPFieldRootContext';
 import { rootStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { getOTPValidationConfig, normalizeOTPValue, type OTPValidationType } from '../utils/otp';
 
+const DEFAULT_MASK_CHARACTER = '•';
+
 /**
  * Groups all OTP field parts and manages their state.
  * Renders a `<div>` element.
@@ -49,7 +51,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     form,
     length,
     autoSubmit = false,
-    type = 'text',
+    mask = false,
     validationType = 'numeric',
     sanitizeValue,
     disabled: disabledProp = false,
@@ -112,6 +114,10 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   const pattern = validationConfig?.pattern;
   const hiddenInputPattern = pattern?.replace('{1}', `{${length}}`);
   const inputMode = validationConfig?.inputMode;
+  const maskCharacter =
+    mask === false
+      ? null
+      : (Array.from(mask === true ? DEFAULT_MASK_CHARACTER : mask)[0] ?? DEFAULT_MASK_CHARACTER);
 
   const value = normalizeOTPValue(valueUnwrapped, length, validationType, sanitizeValue);
   const valueRef = useValueAsRef(value);
@@ -305,13 +311,13 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       inputMode,
       invalid,
       length,
+      mask: maskCharacter,
       pattern,
       readOnly,
       required,
       sanitizeValue,
       setValue,
       state,
-      type,
       validationType,
       value,
     }),
@@ -329,6 +335,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       inputMode,
       invalid,
       length,
+      maskCharacter,
       pattern,
       queueFocusInput,
       readOnly,
@@ -336,7 +343,6 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       sanitizeValue,
       setValue,
       state,
-      type,
       validationType,
       value,
     ],
@@ -489,10 +495,13 @@ export interface OTPFieldRootProps extends Omit<
    */
   autoSubmit?: boolean | undefined;
   /**
-   * The input type of the OTP slots.
-   * @default 'text'
+   * Whether the slot inputs should mask entered characters.
+   * Pass a string to use a custom mask character.
+   * Users who need a custom input type can pass `type` directly to individual
+   * `<OTPField.Input />` parts.
+   * @default false
    */
-  type?: OTPFieldRoot.InputType | undefined;
+  mask?: boolean | string | undefined;
   /**
    * The type of input validation to apply to the OTP value.
    * @default 'numeric'
@@ -599,7 +608,6 @@ export type OTPFieldRootCompleteEventDetails =
   BaseUIGenericEventDetails<OTPFieldRoot.CompleteEventReason>;
 
 export namespace OTPFieldRoot {
-  export type InputType = 'text' | 'password';
   export type State = OTPFieldRootState;
   export type Props = OTPFieldRootProps;
   export type ValidationType = OTPValidationType;

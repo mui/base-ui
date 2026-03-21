@@ -301,11 +301,37 @@ describe('<OTPField />', () => {
     });
   });
 
-  describe('prop: type', () => {
-    it('renders password slot inputs when set to `password`', async () => {
-      await render(<OTPField type="password" />);
+  describe('prop: mask', () => {
+    describe('display behavior', () => {
+      it('renders masked characters when enabled', async () => {
+        await render(<OTPField defaultValue="123" mask />);
 
-      expect(document.querySelectorAll('input[type="password"]')).toHaveLength(6);
+        const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+        expect(inputs.map((input) => input.value)).toEqual(['•', '•', '•', '', '', '']);
+      });
+
+      it('supports a custom mask character', async () => {
+        await render(<OTPField defaultValue="123" mask="*" />);
+
+        const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+        expect(inputs.map((input) => input.value)).toEqual(['*', '*', '*', '', '', '']);
+      });
+    });
+
+    describe('slot overrides', () => {
+      it('allows overriding the input type on individual slots', async () => {
+        await render(
+          <OTPFieldBase.Root length={1} mask="*">
+            <OTPFieldBase.Group>
+              <OTPFieldBase.Input type="tel" />
+            </OTPFieldBase.Group>
+          </OTPFieldBase.Root>,
+        );
+
+        expect(screen.getByRole('textbox')).toHaveAttribute('type', 'tel');
+      });
     });
   });
 

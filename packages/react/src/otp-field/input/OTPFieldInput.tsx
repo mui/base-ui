@@ -40,13 +40,13 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     inputMode,
     invalid,
     length,
+    mask,
     pattern,
     readOnly,
     required,
     sanitizeValue,
     setValue,
     state,
-    type,
     validationType,
     value,
   } = useOTPFieldRootContext();
@@ -57,11 +57,12 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
 
   const slotValue = value[index] ?? '';
   const inputState = getOTPFieldInputState(state, slotValue, index);
+  const displayedValue = mask && slotValue !== '' ? mask : slotValue;
 
   const inputProps: React.ComponentProps<'input'> = {
     id: getInputId(index),
-    value: slotValue,
-    type,
+    value: displayedValue,
+    type: 'text',
     inputMode,
     autoComplete: index === 0 ? autoComplete : 'off',
     autoCorrect: 'off',

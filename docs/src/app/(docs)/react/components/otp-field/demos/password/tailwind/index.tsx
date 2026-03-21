@@ -13,7 +13,7 @@ export default function OTPFieldPasswordDemo() {
   return (
     <OTPField.Root
       length={CODE_LENGTH}
-      type="password"
+      mask="*"
       className="flex w-full max-w-80 flex-col items-start gap-1"
     >
       <label htmlFor={inputId} className="text-sm font-medium text-gray-900">
@@ -30,7 +30,7 @@ export default function OTPFieldPasswordDemo() {
         ))}
       </OTPField.Group>
       <p id={descriptionId} className="m-0 text-sm text-gray-600">
-        Use <code>type=&quot;password&quot;</code> to mask the code on shared screens.
+        Use <code>mask=&quot;*&quot;</code> to obscure the code on shared screens.
       </p>
     </OTPField.Root>
   );

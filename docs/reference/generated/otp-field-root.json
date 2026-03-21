@@ -44,6 +44,12 @@
       "required": true,
       "description": "The number of OTP input slots."
     },
+    "mask": {
+      "type": "boolean | string",
+      "default": "false",
+      "description": "Whether the slot inputs should mask entered characters.\nPass a string to use a custom mask character.\nUsers who need a custom input type can pass `type` directly to individual\n`<OTPField.Input />` parts.",
+      "detailedType": "boolean | string | undefined"
+    },
     "onValueComplete": {
       "type": "((value: string, eventDetails: OTPField.Root.CompleteEventDetails) => void)",
       "description": "Callback function that is fired when the OTP value becomes complete.\n\nIt runs later than `onValueChange`, after the internal value update is applied.\n\nIf `autoSubmit` is enabled, it runs immediately before the owning form is submitted.\n\n**Warning**: This is a generic event not a change event.",
@@ -53,12 +59,6 @@
       "type": "((value: string) => string)",
       "description": "Function for custom sanitization when `validationType` is set to `'none'`.\nThis function runs before updating the OTP value from user interactions.",
       "detailedType": "((value: string) => string) | undefined"
-    },
-    "type": {
-      "type": "OTPField.Root.InputType",
-      "default": "'text'",
-      "description": "The input type of the OTP slots.",
-      "detailedType": "'text' | 'password' | undefined"
     },
     "validationType": {
       "type": "OTPField.Root.ValidationType",
