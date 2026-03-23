@@ -94,5 +94,8 @@
   "94": "Base UI: LocalizationContext is missing. Temporal components must be place within <LocalizationProvider />",
   "95": "Base UI: SharedCalendarDayGridBodyContext is missing. <Calendar.DayGridRow /> must be placed within <Calendar.DayGridBody /> and <RangeCalendar.DayGridRow /> must be placed within <RangeCalendar.DayGridBody />.",
   "96": "Base UI: SharedCalendarDayGridCellContext is missing. <Calendar.DayButton /> must be placed within <Calendar.DayGridCell /> and <RangeCalendar.DayButton /> must be placed within <RangeCalendar.DayGridCell />.",
-  "97": "Base UI: SharedCalendarRootContext is missing. Calendar parts must be placed within <Calendar.Root /> and Range Calendar parts must be placed within <RangeCalendar.Root />."
+  "97": "Base UI: SharedCalendarRootContext is missing. Calendar parts must be placed within <Calendar.Root /> and Range Calendar parts must be placed within <RangeCalendar.Root />.",
+  "98": "Base UI: ListboxGroupContext is missing. ListboxGroup parts must be placed within <Listbox.Group>.",
+  "99": "Base UI: ListboxItemContext is missing. ListboxItem parts must be placed within <Listbox.Item>.",
+  "100": "Base UI: ListboxRootContext is missing. Listbox parts must be placed within <Listbox.Root>."
 }
