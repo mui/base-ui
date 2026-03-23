@@ -10,13 +10,6 @@
     text-decoration-thickness: 1px;
     text-underline-offset: 4px;
 
-    &[target='_blank'] {
-      margin-right: 0.125em;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25em;
-    }
-
     &:active {
       background-color: var(--gray-t2, var(--color-foreground));
       color: var(--gray-s1, var(--color-background));

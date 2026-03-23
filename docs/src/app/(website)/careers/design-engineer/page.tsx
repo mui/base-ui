@@ -11,26 +11,11 @@ export default function DesignEngineerPage() {
         </h1>
         <div className="bui-gcs-1 bui-gce-9">
           <Link
-            className="Text size-2 Link bui-d-if"
+            className="Text size-2 bui-d-if"
             href="https://jobs.ashbyhq.com/MUI/353c3d7c-7e58-44f7-83b0-3b87edb6bebd/application"
-            skipExternalIcon
+            withArrow
           >
             Apply now
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 16 16"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="Icon"
-            >
-              <path className="LinkArrowCaret" d="M6 12L10 8L6 4"></path>
-              <path className="LinkArrowLine" d="M2 8L13 8"></path>
-            </svg>
           </Link>
         </div>
       </section>
@@ -204,26 +189,11 @@ export default function DesignEngineerPage() {
           </ul>
           <p className="Text size-2">
             <Link
-              className="Text size-2 Link bui-d-if"
+              className="Text size-2 bui-d-if"
               href="https://jobs.ashbyhq.com/MUI/353c3d7c-7e58-44f7-83b0-3b87edb6bebd/application"
-              skipExternalIcon
+              withArrow
             >
               Apply now
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 16 16"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="Icon"
-              >
-                <path className="LinkArrowCaret" d="M6 12L10 8L6 4"></path>
-                <path className="LinkArrowLine" d="M2 8L13 8"></path>
-              </svg>
             </Link>
           </p>
         </div>
