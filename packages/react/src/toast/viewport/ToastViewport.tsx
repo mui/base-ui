@@ -164,9 +164,11 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   }
 
   function flushMouseLeave() {
+    const hasEndingToasts = store.state.toasts.some((toast) => toast.transitionStatus === 'ending');
+
     if (
       !store.state.isWindowFocused ||
-      hasTransitioningToasts ||
+      hasEndingToasts ||
       touchActiveRef.current ||
       !markedReadyForMouseLeaveRef.current
     ) {
