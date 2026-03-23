@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { isMouseWithinBounds } from '@base-ui/utils/isMouseWithinBounds';
 import { useTimeout } from '@base-ui/utils/useTimeout';
@@ -22,7 +21,8 @@ import { selectors } from '../store';
 import { useButton } from '../../use-button';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import { compareItemEquality, removeItem } from '../../utils/itemEquality';
+import { removeItem } from '../../utils/itemEquality';
+import { useListItemValueRegistration } from '../../utils/useListItemValueRegistration';
 
 /**
  * An individual option in the select popup.
@@ -78,39 +78,15 @@ export const SelectItem = React.memo(
     const itemRef = React.useRef<HTMLDivElement | null>(null);
     const indexRef = useValueAsRef(index);
 
-    useIsoLayoutEffect(() => {
-      if (!hasRegistered) {
-        return undefined;
-      }
-
-      const values = valuesRef.current;
-      values[index] = itemValue;
-
-      return () => {
-        delete values[index];
-      };
-    }, [hasRegistered, index, itemValue, valuesRef]);
-
-    useIsoLayoutEffect(() => {
-      if (!hasRegistered) {
-        return undefined;
-      }
-
-      const selectedValue = store.state.value;
-
-      let selectedCandidate = selectedValue;
-      if (multiple && Array.isArray(selectedValue) && selectedValue.length > 0) {
-        selectedCandidate = selectedValue[selectedValue.length - 1];
-      }
-
-      if (
-        selectedCandidate !== undefined &&
-        compareItemEquality(itemValue, selectedCandidate, isItemEqualToValue)
-      ) {
-        store.set('selectedIndex', index);
-      }
-      return undefined;
-    }, [hasRegistered, index, multiple, isItemEqualToValue, store, itemValue]);
+    useListItemValueRegistration({
+      store,
+      index,
+      itemValue,
+      isItemEqualToValue,
+      multiple,
+      hasRegistered,
+      valuesRef,
+    });
 
     const state: SelectItemState = {
       disabled,

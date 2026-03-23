@@ -35,6 +35,7 @@ import { type Group, stringifyAsValue } from '../../utils/resolveValueLabel';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '../../utils/constants';
 import { defaultItemEquality, findItemIndex } from '../../utils/itemEquality';
 import { useValueChanged } from '../../utils/useValueChanged';
+import { useSerializedListValue } from '../../utils/useSerializedListValue';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { mergeProps } from '../../merge-props';
 
@@ -164,19 +165,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const previousOpenMethod = usePreviousValue(openMethod);
   const renderedOpenMethod = openMethod ?? previousOpenMethod;
 
-  const serializedValue = React.useMemo(() => {
-    if (multiple && Array.isArray(value) && value.length === 0) {
-      return '';
-    }
-    return stringifyAsValue(value, itemToStringValue);
-  }, [multiple, value, itemToStringValue]);
-
-  const fieldStringValue = React.useMemo(() => {
-    if (multiple && Array.isArray(value)) {
-      return value.map((currentValue) => stringifyAsValue(currentValue, itemToStringValue));
-    }
-    return stringifyAsValue(value, itemToStringValue);
-  }, [multiple, value, itemToStringValue]);
+  const { serializedValue, fieldStringValue } = useSerializedListValue({
+    multiple,
+    value,
+    itemToStringValue,
+  });
 
   const controlRef = useValueAsRef(store.state.triggerElement);
 

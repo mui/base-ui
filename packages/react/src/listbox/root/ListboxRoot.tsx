@@ -23,6 +23,7 @@ import { stringifyAsValue } from '../../utils/resolveValueLabel';
 import { EMPTY_ARRAY } from '../../utils/constants';
 import { defaultItemEquality, findItemIndex } from '../../utils/itemEquality';
 import { useValueChanged } from '../../utils/useValueChanged';
+import { useSerializedListValue } from '../../utils/useSerializedListValue';
 
 /**
  * Groups all parts of the listbox.
@@ -107,19 +108,11 @@ export function ListboxRoot<Value, Multiple extends boolean | undefined = false>
       }),
   ).current;
 
-  const serializedValue = React.useMemo(() => {
-    if (multiple && Array.isArray(value) && value.length === 0) {
-      return '';
-    }
-    return stringifyAsValue(value, itemToStringValue);
-  }, [multiple, value, itemToStringValue]);
-
-  const fieldStringValue = React.useMemo(() => {
-    if (multiple && Array.isArray(value)) {
-      return value.map((currentValue) => stringifyAsValue(currentValue, itemToStringValue));
-    }
-    return stringifyAsValue(value, itemToStringValue);
-  }, [multiple, value, itemToStringValue]);
+  const { serializedValue, fieldStringValue } = useSerializedListValue({
+    multiple,
+    value,
+    itemToStringValue,
+  });
 
   const controlRef = useValueAsRef(store.state.listElement);
 

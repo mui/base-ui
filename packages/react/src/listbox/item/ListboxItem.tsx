@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { isMouseWithinBounds } from '@base-ui/utils/isMouseWithinBounds';
 import { useTimeout } from '@base-ui/utils/useTimeout';
@@ -23,6 +22,7 @@ import { useButton } from '../../use-button';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { compareItemEquality, removeItem } from '../../utils/itemEquality';
+import { useListItemValueRegistration } from '../../utils/useListItemValueRegistration';
 import { useListboxItemDnD } from '../utils/useListboxDnD';
 import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 
@@ -102,43 +102,15 @@ export const ListboxItem = React.memo(
       onItemsReorder,
     });
 
-    useIsoLayoutEffect(() => {
-      if (!hasRegistered) {
-        return undefined;
-      }
-
-      const values = valuesRef.current;
-      values[index] = itemValue;
-
-      return () => {
-        delete values[index];
-      };
-    }, [hasRegistered, index, itemValue, valuesRef]);
-
-    // Sync selectedIndex from the item side on mount. The root also syncs
-    // selectedIndex (syncSelectedIndex in ListboxRoot), but items mount
-    // asynchronously — valuesRef may still be empty when the root's effect
-    // runs for the first time. This item-level effect covers that race.
-    useIsoLayoutEffect(() => {
-      if (!hasRegistered) {
-        return undefined;
-      }
-
-      const selectedValue = store.state.value;
-
-      let selectedCandidate = selectedValue;
-      if (multiple && Array.isArray(selectedValue) && selectedValue.length > 0) {
-        selectedCandidate = selectedValue[selectedValue.length - 1];
-      }
-
-      if (
-        selectedCandidate !== undefined &&
-        compareItemEquality(itemValue, selectedCandidate, isItemEqualToValue)
-      ) {
-        store.set('selectedIndex', index);
-      }
-      return undefined;
-    }, [hasRegistered, index, multiple, isItemEqualToValue, store, itemValue]);
+    useListItemValueRegistration({
+      store,
+      index,
+      itemValue,
+      isItemEqualToValue,
+      multiple,
+      hasRegistered,
+      valuesRef,
+    });
 
     const state: ListboxItemState = {
       disabled,
