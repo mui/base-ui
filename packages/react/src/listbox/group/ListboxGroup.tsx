@@ -40,7 +40,9 @@ export const ListboxGroup = React.forwardRef(function ListboxGroup(
     ],
   });
 
-  return <ListboxGroupContext.Provider value={contextValue}>{element}</ListboxGroupContext.Provider>;
+  return (
+    <ListboxGroupContext.Provider value={contextValue}>{element}</ListboxGroupContext.Provider>
+  );
 });
 
 export interface ListboxGroupState {}

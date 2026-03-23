@@ -9,9 +9,7 @@ import { useSelectItemContext } from '../item/SelectItemContext';
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-export const SelectItemIndicator = createItemIndicator(
-  () => useSelectItemContext().selected,
-);
+export const SelectItemIndicator = createItemIndicator(() => useSelectItemContext().selected);
 
 export type SelectItemIndicatorState = ItemIndicatorState;
 export type SelectItemIndicatorProps = ItemIndicatorProps;

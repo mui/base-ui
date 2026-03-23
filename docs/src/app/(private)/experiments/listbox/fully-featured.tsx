@@ -150,7 +150,9 @@ export default function ListboxFullyFeatured() {
   const isDraggable = settings.draggable !== 'off';
   const draggableProp =
     settings.draggable === 'within-group' ? ('within-group' as const) : isDraggable;
-  const itemClassName = isDraggable ? styles.DraggableItemWithHandle : styles.Item;
+  const itemClassName = isDraggable
+    ? `${styles.Item} ${styles.DraggableItemWithHandle}`
+    : styles.Item;
 
   const fontGroups = groupItems(fonts);
   const sizeGroups = groupItems(sizes);
@@ -220,7 +222,7 @@ export default function ListboxFullyFeatured() {
             onItemsReorder={isDraggable ? (event) => handleReorder(event, setSizes) : undefined}
           >
             <Listbox.Label className={styles.Label}>Available sizes</Listbox.Label>
-            <Listbox.List className={styles.HorizontalList}>
+            <Listbox.List className={`${styles.List} ${styles.HorizontalList}`}>
               {settings.groups
                 ? sizeGroups.map((group) => (
                     <Listbox.Group key={group.label} className={styles.HorizontalGroup}>

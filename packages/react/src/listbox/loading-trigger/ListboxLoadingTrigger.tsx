@@ -99,8 +99,10 @@ export interface ListboxLoadingTriggerState {
   loading: boolean;
 }
 
-export interface ListboxLoadingTriggerProps
-  extends BaseUIComponentProps<'div', ListboxLoadingTriggerState> {
+export interface ListboxLoadingTriggerProps extends BaseUIComponentProps<
+  'div',
+  ListboxLoadingTriggerState
+> {
   /**
    * Whether to keep the HTML element in the DOM when not loading.
    */

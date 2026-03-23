@@ -181,9 +181,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
             ) {
               nextValue = [...nextValue, anchorValue];
             }
-            if (
-              !nextValue.some((v) => compareItemEquality(v, targetValue, isItemEqualToValue))
-            ) {
+            if (!nextValue.some((v) => compareItemEquality(v, targetValue, isItemEqualToValue))) {
               nextValue = [...nextValue, targetValue];
             }
             setValue(
@@ -200,11 +198,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
     if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'Home') {
       event.preventDefault();
       if (currentIndex != null) {
-        dispatchSelection(
-          { type: 'selectRange', from: 0, to: currentIndex },
-          event.nativeEvent,
-          0,
-        );
+        dispatchSelection({ type: 'selectRange', from: 0, to: currentIndex }, event.nativeEvent, 0);
         focusItem(0);
       }
     }
@@ -234,10 +228,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
         allValues.every((v) =>
           currentValue.some((cv) => compareItemEquality(cv, v, isItemEqualToValue)),
         );
-      dispatchSelection(
-        allSelected ? { type: 'clear' } : { type: 'selectAll' },
-        event.nativeEvent,
-      );
+      dispatchSelection(allSelected ? { type: 'clear' } : { type: 'selectAll' }, event.nativeEvent);
     }
   });
 

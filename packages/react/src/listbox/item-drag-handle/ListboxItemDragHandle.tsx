@@ -34,8 +34,10 @@ export const ListboxItemDragHandle = React.forwardRef(function ListboxItemDragHa
 
 export interface ListboxItemDragHandleState {}
 
-export interface ListboxItemDragHandleProps
-  extends BaseUIComponentProps<'div', ListboxItemDragHandleState> {}
+export interface ListboxItemDragHandleProps extends BaseUIComponentProps<
+  'div',
+  ListboxItemDragHandleState
+> {}
 
 export namespace ListboxItemDragHandle {
   export type State = ListboxItemDragHandleState;

@@ -37,7 +37,12 @@ export default function DraggableItemsListbox() {
             <Listbox.Label className={styles.Label}>Fruits</Listbox.Label>
             <Listbox.List className={styles.List}>
               {items.map(({ label, value }) => (
-                <Listbox.Item key={value} value={value} draggable className={styles.DraggableItem}>
+                <Listbox.Item
+                  key={value}
+                  value={value}
+                  draggable
+                  className={`${styles.Item} ${styles.DraggableItem}`}
+                >
                   <Listbox.ItemIndicator className={styles.DraggableItemIndicator}>
                     <CheckIcon className={styles.ItemIndicatorIcon} />
                   </Listbox.ItemIndicator>

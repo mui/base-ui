@@ -32,9 +32,7 @@ import { isMultipleSelectionMode } from '../utils/selectionReducer';
  *
  * Documentation: [Base UI Listbox](https://base-ui.com/react/components/listbox)
  */
-export function ListboxRoot<Value>(
-  props: ListboxRoot.Props<Value>,
-): React.JSX.Element {
+export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.Element {
   const {
     id,
     value: valueProp,
@@ -433,8 +431,7 @@ export type ListboxRootChangeEventReason =
   | typeof REASONS.listNavigation
   | typeof REASONS.none;
 
-export type ListboxRootChangeEventDetails =
-  BaseUIChangeEventDetails<ListboxRootChangeEventReason>;
+export type ListboxRootChangeEventDetails = BaseUIChangeEventDetails<ListboxRootChangeEventReason>;
 
 export namespace ListboxRoot {
   export type Props<Value> = ListboxRootProps<Value>;

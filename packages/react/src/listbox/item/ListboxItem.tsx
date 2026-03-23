@@ -169,7 +169,10 @@ export const ListboxItem = React.memo(
      */
     function commitSelection(
       event: MouseEvent | KeyboardEvent,
-      { shiftKey = false, ctrlKey = false }: { shiftKey?: boolean | undefined; ctrlKey?: boolean | undefined } = {},
+      {
+        shiftKey = false,
+        ctrlKey = false,
+      }: { shiftKey?: boolean | undefined; ctrlKey?: boolean | undefined } = {},
     ) {
       if (selectionMode === 'none') {
         return;
@@ -366,7 +369,9 @@ export const ListboxItem = React.memo(
       [selected, indexRef, textRef, dragHandleRef, hasRegistered],
     );
 
-    return <ListboxItemContext.Provider value={contextValue}>{element}</ListboxItemContext.Provider>;
+    return (
+      <ListboxItemContext.Provider value={contextValue}>{element}</ListboxItemContext.Provider>
+    );
   }),
 );
 
@@ -398,7 +403,8 @@ export interface ListboxItemState {
 }
 
 export interface ListboxItemProps
-  extends NonNativeButtonProps,
+  extends
+    NonNativeButtonProps,
     Omit<BaseUIComponentProps<'div', ListboxItemState>, 'id' | 'draggable'> {
   children?: React.ReactNode;
   /**

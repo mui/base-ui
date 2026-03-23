@@ -15,7 +15,7 @@ describe('<Listbox.Root />', () => {
   describe('prop: defaultValue', () => {
     it('should select the item by default', async () => {
       await render(
-        <Listbox.Root defaultValue={["b"]}>
+        <Listbox.Root defaultValue={['b']}>
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
@@ -33,7 +33,7 @@ describe('<Listbox.Root />', () => {
   describe('prop: value (controlled)', () => {
     it('should select the item matching the value', async () => {
       await render(
-        <Listbox.Root value={["a"]}>
+        <Listbox.Root value={['a']}>
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
@@ -103,7 +103,11 @@ describe('<Listbox.Root />', () => {
       const handleValueChange = vi.fn();
 
       await render(
-        <Listbox.Root selectionMode="multiple" defaultValue={['a']} onValueChange={handleValueChange}>
+        <Listbox.Root
+          selectionMode="multiple"
+          defaultValue={['a']}
+          onValueChange={handleValueChange}
+        >
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
@@ -171,7 +175,7 @@ describe('<Listbox.Root />', () => {
 
     it('should set aria-selected on selected items', async () => {
       await render(
-        <Listbox.Root defaultValue={["a"]}>
+        <Listbox.Root defaultValue={['a']}>
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
@@ -352,7 +356,11 @@ describe('<Listbox.Root />', () => {
       const handleValueChange = vi.fn();
 
       await render(
-        <Listbox.Root selectionMode="multiple" defaultValue={['a', 'b']} onValueChange={handleValueChange}>
+        <Listbox.Root
+          selectionMode="multiple"
+          defaultValue={['a', 'b']}
+          onValueChange={handleValueChange}
+        >
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
@@ -385,7 +393,11 @@ describe('<Listbox.Root />', () => {
       const handleValueChange = vi.fn();
 
       await render(
-        <Listbox.Root selectionMode="multiple" defaultValue={['c']} onValueChange={handleValueChange}>
+        <Listbox.Root
+          selectionMode="multiple"
+          defaultValue={['c']}
+          onValueChange={handleValueChange}
+        >
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
@@ -575,7 +587,11 @@ describe('<Listbox.Root />', () => {
       const handleValueChange = vi.fn();
 
       await render(
-        <Listbox.Root selectionMode="multiple" defaultValue={['a', 'b']} onValueChange={handleValueChange}>
+        <Listbox.Root
+          selectionMode="multiple"
+          defaultValue={['a', 'b']}
+          onValueChange={handleValueChange}
+        >
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
@@ -635,7 +651,11 @@ describe('<Listbox.Root />', () => {
       const handleValueChange = vi.fn();
 
       await render(
-        <Listbox.Root selectionMode="multiple" defaultValue={['d']} onValueChange={handleValueChange}>
+        <Listbox.Root
+          selectionMode="multiple"
+          defaultValue={['d']}
+          onValueChange={handleValueChange}
+        >
           <Listbox.List>
             <Listbox.Item value="a">a</Listbox.Item>
             <Listbox.Item value="b">b</Listbox.Item>
@@ -1142,7 +1162,7 @@ describe('<Listbox.Root />', () => {
   describe('form integration', () => {
     it('should render hidden input with value', async () => {
       await render(
-        <Listbox.Root name="fruit" defaultValue={["apple"]}>
+        <Listbox.Root name="fruit" defaultValue={['apple']}>
           <Listbox.List>
             <Listbox.Item value="apple">Apple</Listbox.Item>
           </Listbox.List>

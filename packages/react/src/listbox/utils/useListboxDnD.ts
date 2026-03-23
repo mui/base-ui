@@ -191,7 +191,18 @@ export function useListboxItemDnD(params: UseListboxItemDnDParameters) {
       cleanupDraggable();
       cleanupDropTarget();
     };
-  }, [enabled, index, itemValue, groupId, itemRef, dragHandleRef, store, handleDrop, valuesRef, groupIdsRef]);
+  }, [
+    enabled,
+    index,
+    itemValue,
+    groupId,
+    itemRef,
+    dragHandleRef,
+    store,
+    handleDrop,
+    valuesRef,
+    groupIdsRef,
+  ]);
 
   return { closestEdge };
 }

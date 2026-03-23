@@ -9,9 +9,7 @@ import { useListboxItemContext } from '../item/ListboxItemContext';
  *
  * Documentation: [Base UI Listbox](https://base-ui.com/react/components/listbox)
  */
-export const ListboxItemIndicator = createItemIndicator(
-  () => useListboxItemContext().selected,
-);
+export const ListboxItemIndicator = createItemIndicator(() => useListboxItemContext().selected);
 
 export type ListboxItemIndicatorState = ItemIndicatorState;
 export type ListboxItemIndicatorProps = ItemIndicatorProps;

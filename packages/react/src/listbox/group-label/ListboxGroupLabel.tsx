@@ -36,8 +36,10 @@ export const ListboxGroupLabel = React.forwardRef(function ListboxGroupLabel(
 
 export interface ListboxGroupLabelState {}
 
-export interface ListboxGroupLabelProps
-  extends BaseUIComponentProps<'div', ListboxGroupLabelState> {}
+export interface ListboxGroupLabelProps extends BaseUIComponentProps<
+  'div',
+  ListboxGroupLabelState
+> {}
 
 export namespace ListboxGroupLabel {
   export type State = ListboxGroupLabelState;

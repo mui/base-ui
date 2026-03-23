@@ -14,13 +14,9 @@ import { transitionStatusMapping } from './stateAttributesMapping';
  * paying hook costs. The `Inner` component handles transition animations.
  */
 export function createItemIndicator(useItemSelected: () => boolean) {
-
   const Inner = React.memo(
     React.forwardRef(
-      (
-        componentProps: ItemIndicatorProps,
-        forwardedRef: React.ForwardedRef<HTMLSpanElement>,
-      ) => {
+      (componentProps: ItemIndicatorProps, forwardedRef: React.ForwardedRef<HTMLSpanElement>) => {
         const { render, className, keepMounted, ...elementProps } = componentProps;
 
         const selected = useItemSelected();
