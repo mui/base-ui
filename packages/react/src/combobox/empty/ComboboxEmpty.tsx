@@ -12,16 +12,17 @@ import { useInitialLiveRegionTextMutation } from '../utils/useInitialLiveRegionT
  * Renders its children only when the list is empty.
  * Requires the `items` prop on the root component.
  * Announces changes politely to screen readers.
- * To announce updates reliably, keep this element mounted instead of conditionally
- * hiding or removing it with `display: none`, `hidden`, or `aria-hidden`; prefer
- * CSS such as `:empty` to conditionally apply layout styles when it has no content.
+ * This component's root element must remain mounted in the DOM to announce
+ * changes consistently across screen readers. Avoid hiding or removing the
+ * component itself with `display: none`, `hidden`, `aria-hidden`, or conditional
+ * rendering. Prefer updating or conditionally rendering its children instead.
  * Renders a `<div>` element.
  */
 export const ComboboxEmpty = React.forwardRef(function ComboboxEmpty(
   componentProps: ComboboxEmpty.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, children: childrenProp, ...elementProps } = componentProps;
+  const { render, className, children: childrenProp, ...elementProps } = componentProps;
 
   const { filteredItems } = useComboboxDerivedItemsContext();
   const store = useComboboxRootContext();
@@ -33,10 +34,10 @@ export const ComboboxEmpty = React.forwardRef(function ComboboxEmpty(
     ref: [forwardedRef, store.state.emptyRef, emptyRef],
     props: [
       {
+        children,
         role: 'status',
         'aria-live': 'polite',
         'aria-atomic': true,
-        children,
       },
       elementProps,
     ],

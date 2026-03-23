@@ -1160,6 +1160,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   ]);
 
   const hiddenInputRef = useMergedRefs(inputRefProp, validation.inputRef);
+
   const itemsContextValue: ComboboxDerivedItemsContext = React.useMemo(
     () => ({
       query,
