@@ -231,7 +231,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
           return;
         }
 
-        const nextChecked = event.target.checked;
+        const nextChecked = event.currentTarget.checked;
         const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
         groupOnChange?.(nextChecked, details);

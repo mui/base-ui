@@ -53,7 +53,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
         return;
       }
 
-      if (event.key === 'F6' && event.target !== viewport) {
+      if (event.key === 'F6' && getTarget(event) !== viewport) {
         event.preventDefault();
         store.setPrevFocusElement(activeElement(ownerDocument(viewport)) as HTMLElement | null);
         viewport?.focus({ preventScroll: true });
@@ -80,7 +80,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     const win = ownerWindow(viewport);
 
     function handleWindowBlur(event: FocusEvent) {
-      if (event.target !== win) {
+      if (getTarget(event) !== win) {
         return;
       }
 
@@ -89,7 +89,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     }
 
     function handleWindowFocus(event: FocusEvent) {
-      if (event.relatedTarget || event.target === win) {
+      if (event.relatedTarget || getTarget(event) === win) {
         return;
       }
 
@@ -151,7 +151,11 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   }
 
   function handleKeyDown(event: React.KeyboardEvent) {
-    if (event.key === 'Tab' && event.shiftKey && event.target === store.state.viewport) {
+    if (
+      event.key === 'Tab' &&
+      event.shiftKey &&
+      getTarget(event.nativeEvent) === store.state.viewport
+    ) {
       event.preventDefault();
       store.restoreFocusToPrevElement();
       store.resumeTimers();
@@ -205,7 +209,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     // Only set focused when the active element is focus-visible.
     // This prevents the viewport from staying expanded when clicking inside without
     // keyboard navigation.
-    if (isFocusVisible(ownerDocument(store.state.viewport).activeElement)) {
+    if (isFocusVisible(activeElement(ownerDocument(store.state.viewport)))) {
       store.setFocused(true);
       store.pauseTimers();
     }

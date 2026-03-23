@@ -332,7 +332,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       min,
       name,
       onChange(event: React.ChangeEvent<HTMLInputElement>) {
-        handleInputChange(event.target.valueAsNumber, index, event);
+        handleInputChange(event.currentTarget.valueAsNumber, index, event);
       },
       onFocus() {
         setActive(index);

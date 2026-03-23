@@ -533,7 +533,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
                 return;
               }
 
-              const nextValue = event.target.value;
+              const nextValue = event.currentTarget.value;
               const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
               function handleChange() {

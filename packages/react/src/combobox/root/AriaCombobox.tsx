@@ -1218,7 +1218,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
               return;
             }
 
-            const nextValue = event.target.value;
+            const nextValue = event.currentTarget.value;
             const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
             function handleChange() {

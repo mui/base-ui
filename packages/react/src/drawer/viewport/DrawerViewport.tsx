@@ -23,7 +23,7 @@ import { DrawerBackdropCssVars } from '../backdrop/DrawerBackdropCssVars';
 import { DRAWER_CONTENT_ATTRIBUTE } from '../content/DrawerContentDataAttributes';
 import { REASONS } from '../../utils/reasons';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { contains } from '../../floating-ui-react/utils';
+import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import { DrawerViewportContext } from './DrawerViewportContext';
 import { TransitionStatusDataAttributes } from '../../utils/stateAttributesMapping';
 import { findScrollableTouchTarget, type ScrollAxis } from '../../utils/scrollable';
@@ -1046,7 +1046,8 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           }
 
           const rootElement = viewportElement ?? popupElementState;
-          const target = isElement(event.target) ? event.target : null;
+          const eventTarget = getTarget(event.nativeEvent);
+          const target = isElement(eventTarget) ? eventTarget : null;
           if (rootElement && target && !contains(rootElement, target)) {
             ignoreTouchSwipeRef.current = true;
             touchScrollStateRef.current = null;
@@ -1224,11 +1225,11 @@ function hasExpandedSelectionWithinTarget(selection: Selection, target: Element)
 }
 
 function shouldIgnoreSwipeForTextSelection(doc: Document, rootElement: HTMLElement): boolean {
-  const activeElement = doc.activeElement;
-  const activeElementWithinRoot = Boolean(activeElement && contains(rootElement, activeElement));
+  const activeEl = activeElement(doc);
+  const activeElementWithinRoot = Boolean(activeEl && contains(rootElement, activeEl));
 
-  if (activeElementWithinRoot && isTextSelectionControl(activeElement)) {
-    const { selectionStart, selectionEnd } = activeElement;
+  if (activeElementWithinRoot && isTextSelectionControl(activeEl)) {
+    const { selectionStart, selectionEnd } = activeEl;
     if (selectionStart != null && selectionEnd != null && selectionStart < selectionEnd) {
       return true;
     }
@@ -1248,7 +1249,7 @@ function isEventOnRangeInput(event: TouchEvent, win: ReturnType<typeof ownerWind
     return composedPath.some((pathTarget) => isRangeInput(pathTarget, win));
   }
 
-  return isRangeInput(event.target, win);
+  return isRangeInput(getTarget(event), win);
 }
 
 function isReactTouchEventOnRangeInput(event: React.TouchEvent<Element>): boolean {
