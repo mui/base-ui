@@ -3039,6 +3039,33 @@ describe('<Combobox.Root />', () => {
       expect(input).not.toHaveAttribute('aria-activedescendant');
     });
 
+    it('highlights the first item immediately when behavior is "always"', async () => {
+      await render(
+        <Combobox.Root items={['alpha', 'beta', 'gamma']} autoHighlight="always" defaultOpen>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      const firstOption = screen.getByRole('option', { name: 'alpha' });
+
+      expect(input).to.have.attribute('aria-activedescendant', firstOption.id);
+      expect(firstOption).to.have.attribute('data-highlighted');
+    });
+
     it('shows the selected item as selected on initial open (no active highlight)', async () => {
       await render(
         <Combobox.Root
