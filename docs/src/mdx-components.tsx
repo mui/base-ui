@@ -48,7 +48,6 @@ export const mdxComponents: MDXComponents = {
   ul: (props) => <ul className="MdUl" {...props} />,
   ol: (props) => <ol className="MdOl" {...props} />,
   kbd: Kbd,
-  strong: (props) => <strong className="MdStrong" {...props} />,
   figure: (props) => {
     if ('data-rehype-pretty-code-figure' in props) {
       return <CodeBlock.Root {...props} />;
