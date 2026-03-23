@@ -41,6 +41,17 @@
       "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Menubar.State,\n  ) => ReactElement)"
     }
   },
-  "dataAttributes": {},
+  "dataAttributes": {
+    "data-orientation": {
+      "description": "Determines the orientation of the menubar.",
+      "type": "'horizontal' | 'vertical'"
+    },
+    "data-has-submenu-open": {
+      "description": "Present when any submenu within the menubar is open."
+    },
+    "data-modal": {
+      "description": "Present when the corresponding menubar is modal."
+    }
+  },
   "cssVariables": {}
 }

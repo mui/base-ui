@@ -18,7 +18,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { clamp } from '../../utils/clamp';
 import { areArraysEqual } from '../../utils/areArraysEqual';
-import { activeElement } from '../../floating-ui-react/utils';
+import { activeElement, contains } from '../../floating-ui-react/utils';
 import { CompositeList, type CompositeMetadata } from '../../composite/list/CompositeList';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useField } from '../../field/useField';
@@ -75,6 +75,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     max = 100,
     min = 0,
     minStepsBetweenValues = 0,
+    form,
     name: nameProp,
     onValueChange: onValueChangeProp,
     onValueCommitted: onValueCommittedProp,
@@ -277,7 +278,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
   useIsoLayoutEffect(() => {
     const activeEl = activeElement(ownerDocument(sliderRef.current));
-    if (disabled && activeEl && sliderRef.current?.contains(activeEl)) {
+    if (disabled && contains(sliderRef.current, activeEl)) {
       // This is necessary because Firefox and Safari will keep focus
       // on a disabled element:
       // https://codesandbox.io/p/sandbox/mui-pr-22247-forked-h151h?file=/src/App.js
@@ -333,6 +334,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       lastUsedThumbIndex,
       lastChangedValueRef,
       lastChangeReasonRef,
+      form,
       locale,
       max,
       min,
@@ -373,6 +375,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       lastUsedThumbIndex,
       lastChangedValueRef,
       lastChangeReasonRef,
+      form,
       locale,
       max,
       min,
@@ -516,6 +519,11 @@ export interface SliderRootProps<
    * Identifies the field when a form is submitted.
    */
   name?: string | undefined;
+  /**
+   * Identifies the form that owns the slider inputs.
+   * Useful when the slider is rendered outside the form.
+   */
+  form?: string | undefined;
   /**
    * The component orientation.
    * @default 'horizontal'

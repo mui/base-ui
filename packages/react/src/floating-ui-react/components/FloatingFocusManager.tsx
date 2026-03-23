@@ -44,7 +44,7 @@ import { FloatingUIOpenChangeDetails } from '../../utils/types';
 import { resolveRef } from '../../utils/resolveRef';
 
 function getEventType(event: Event, lastInteractionType?: InteractionType): InteractionType {
-  const win = ownerWindow(event.target);
+  const win = ownerWindow(getTarget(event));
   if (event instanceof win.KeyboardEvent) {
     return 'keyboard';
   }
@@ -792,12 +792,14 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         preventReturnFocusRef.current = false;
       } else {
         let isPreventScrollSupported = false;
-        document.createElement('div').focus({
-          get preventScroll() {
-            isPreventScrollSupported = true;
-            return false;
-          },
-        });
+        ownerDocument(floatingFocusElement)
+          .createElement('div')
+          .focus({
+            get preventScroll() {
+              isPreventScrollSupported = true;
+              return false;
+            },
+          });
 
         if (isPreventScrollSupported) {
           preventReturnFocusRef.current = false;

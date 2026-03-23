@@ -40,6 +40,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     onValueChange: onValueChangeProp,
     value: externalValue,
     defaultValue,
+    form,
     name: nameProp,
     inputRef: inputRefProp,
     id: idProp,
@@ -188,6 +189,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
       ...fieldState,
       checkedValue,
       disabled,
+      form,
       validation,
       name,
       onValueChange,
@@ -202,6 +204,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     [
       checkedValue,
       disabled,
+      form,
       validation,
       fieldState,
       name,
@@ -296,6 +299,11 @@ export interface RadioGroupProps<Value = any> extends Omit<
    * Identifies the field when a form is submitted.
    */
   name?: string | undefined;
+  /**
+   * Identifies the form that owns the radio inputs.
+   * Useful when the radio group is rendered outside the form.
+   */
+  form?: string | undefined;
   /**
    * The controlled value of the radio item that should be currently selected.
    *
