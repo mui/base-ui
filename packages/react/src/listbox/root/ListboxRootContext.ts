@@ -9,7 +9,6 @@ export interface ListboxRootContext {
   store: ListboxStore;
   name: string | undefined;
   disabled: boolean;
-  readOnly: boolean;
   required: boolean;
   selectionMode: SelectionMode;
   highlightItemOnHover: boolean;

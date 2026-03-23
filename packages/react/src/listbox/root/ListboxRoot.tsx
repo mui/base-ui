@@ -42,7 +42,6 @@ export function ListboxRoot<Value>(
     onValueChange,
     name: nameProp,
     disabled: disabledProp = false,
-    readOnly = false,
     required = false,
     selectionMode = 'single',
     orientation = 'vertical',
@@ -107,7 +106,6 @@ export function ListboxRoot<Value>(
         loading,
         orientation,
         disabled,
-        readOnly,
       }),
   ).current;
 
@@ -196,7 +194,6 @@ export function ListboxRoot<Value>(
       loading,
       orientation,
       disabled,
-      readOnly,
     });
   }, [
     store,
@@ -209,7 +206,6 @@ export function ListboxRoot<Value>(
     loading,
     orientation,
     disabled,
-    readOnly,
   ]);
 
   const contextValue: ListboxRootContext = React.useMemo(
@@ -218,7 +214,6 @@ export function ListboxRoot<Value>(
       name,
       required,
       disabled,
-      readOnly,
       selectionMode,
       highlightItemOnHover,
       orientation,
@@ -239,7 +234,6 @@ export function ListboxRoot<Value>(
       name,
       required,
       disabled,
-      readOnly,
       selectionMode,
       highlightItemOnHover,
       orientation,
@@ -320,7 +314,6 @@ export function ListboxRoot<Value>(
         }}
         disabled={disabled}
         required={required && !hasSelection}
-        readOnly={readOnly}
         ref={ref}
         style={name ? visuallyHiddenInput : visuallyHidden}
         tabIndex={-1}
@@ -350,11 +343,6 @@ export interface ListboxRootProps<Value> {
    * @default false
    */
   required?: boolean | undefined;
-  /**
-   * Whether the user should be unable to change the selected value.
-   * @default false
-   */
-  readOnly?: boolean | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false

@@ -37,7 +37,6 @@ export const ListboxList = React.forwardRef(function ListboxList(
     orientation,
     loopFocus,
     disabled,
-    readOnly,
     selectionMode,
     setValue,
     lastSelectedIndexRef,
@@ -70,7 +69,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
   const typeaheadTimeout = useTimeout();
 
   const handleTypeahead = useStableCallback((event: React.KeyboardEvent) => {
-    if (disabled || readOnly) {
+    if (disabled) {
       return;
     }
 
@@ -259,7 +258,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
     'aria-orientation': orientation,
     tabIndex: disabled ? undefined : 0,
     onKeyDown(event: React.KeyboardEvent) {
-      if (disabled || readOnly) {
+      if (disabled) {
         return;
       }
 

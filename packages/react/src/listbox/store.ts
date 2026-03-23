@@ -29,7 +29,6 @@ export type State = {
   orientation: 'vertical' | 'horizontal';
 
   disabled: boolean;
-  readOnly: boolean;
 };
 
 export type ListboxStore = Store<State>;
@@ -72,5 +71,4 @@ export const selectors = {
   orientation: createSelector((state: State) => state.orientation),
 
   disabled: createSelector((state: State) => state.disabled),
-  readOnly: createSelector((state: State) => state.readOnly),
 };

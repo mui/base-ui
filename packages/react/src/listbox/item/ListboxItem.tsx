@@ -81,7 +81,6 @@ export const ListboxItem = React.memo(
       selectionMode,
       highlightItemOnHover,
       lastSelectedIndexRef,
-      readOnly,
       disabled: rootDisabled,
       onItemsReorder,
     } = useListboxRootContext();
@@ -114,7 +113,7 @@ export const ListboxItem = React.memo(
       itemValue,
       itemRef,
       dragHandleRef,
-      enabled: isDraggable && hasRegistered,
+      enabled: isDraggable && hasRegistered && !rootDisabled && !disabled,
       valuesRef,
       groupId,
       onItemsReorder,
@@ -171,7 +170,7 @@ export const ListboxItem = React.memo(
       event: MouseEvent | KeyboardEvent,
       { shiftKey = false, ctrlKey = false }: { shiftKey?: boolean | undefined; ctrlKey?: boolean | undefined } = {},
     ) {
-      if (readOnly || selectionMode === 'none') {
+      if (selectionMode === 'none') {
         return;
       }
 
@@ -234,7 +233,7 @@ export const ListboxItem = React.memo(
         store.set('activeIndex', index);
 
         // Keyboard-based reordering: Alt+Arrow
-        if (event.altKey && onItemsReorder && isDraggable) {
+        if (event.altKey && onItemsReorder && isDraggable && !rootDisabled) {
           const isVertical = store.state.orientation === 'vertical';
           const moveUp =
             (isVertical && event.key === 'ArrowUp') || (!isVertical && event.key === 'ArrowLeft');

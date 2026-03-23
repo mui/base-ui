@@ -965,48 +965,6 @@ describe('<Listbox.Root />', () => {
     });
   });
 
-  describe('prop: readOnly', () => {
-    it('should not allow selection when readOnly', async () => {
-      const handleValueChange = vi.fn();
-
-      await render(
-        <Listbox.Root readOnly onValueChange={handleValueChange}>
-          <Listbox.List>
-            <Listbox.Item value="a">a</Listbox.Item>
-            <Listbox.Item value="b">b</Listbox.Item>
-          </Listbox.List>
-        </Listbox.Root>,
-      );
-
-      fireEvent.click(screen.getByRole('option', { name: 'a' }));
-
-      expect(handleValueChange).not.toHaveBeenCalled();
-    });
-
-    it('should not allow typeahead when readOnly', async () => {
-      await render(
-        <Listbox.Root readOnly>
-          <Listbox.List>
-            <Listbox.Item value="apple">Apple</Listbox.Item>
-            <Listbox.Item value="banana">Banana</Listbox.Item>
-          </Listbox.List>
-        </Listbox.Root>,
-      );
-
-      const list = screen.getByRole('listbox');
-      list.focus();
-
-      fireEvent.keyDown(list, { key: 'b' });
-
-      await flushMicrotasks();
-
-      // Typeahead should not move highlight when readOnly
-      expect(screen.getByRole('option', { name: 'Banana' })).not.toHaveAttribute(
-        'data-highlighted',
-      );
-    });
-  });
-
   describe('typeahead', () => {
     it('should highlight matching item when typing', async () => {
       await render(
