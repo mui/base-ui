@@ -14,7 +14,7 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { FloatingUIOpenChangeDetails } from '../../utils/types';
 import type { HandleClose } from './useHoverShared';
-import { getDelay, getRestMs } from './useHoverShared';
+import { getDelay, getRestMs, isHoverOpen as isHoverOpenShared } from './useHoverShared';
 
 export type { HandleCloseContext, HandleClose } from './useHoverShared';
 
@@ -78,8 +78,7 @@ export function useHover(
   const restTimeoutPendingRef = React.useRef(false);
 
   const isHoverOpen = useStableCallback(() => {
-    const type = dataRef.current.openEvent?.type;
-    return type?.includes('mouse') && type !== 'mousedown';
+    return isHoverOpenShared(dataRef.current.openEvent?.type);
   });
 
   const isClickLikeOpenEvent = useStableCallback(() => {

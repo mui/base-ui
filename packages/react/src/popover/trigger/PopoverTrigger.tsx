@@ -19,7 +19,7 @@ import {
   useHoverReferenceInteraction,
   useInteractions,
 } from '../../floating-ui-react';
-import { OPEN_DELAY } from '../utils/constants';
+import { OPEN_DELAY, CLOSE_DELAY, HOVER_CLOSE_GRACE_PERIOD } from '../utils/constants';
 import { PopoverHandle } from '../store/PopoverHandle';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
@@ -53,7 +53,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     payload,
     openOnHover = false,
     delay = OPEN_DELAY,
-    closeDelay = 0,
+    closeDelay = CLOSE_DELAY,
     id: idProp,
     ...elementProps
   } = componentProps;
@@ -102,6 +102,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     delay: {
       close: closeDelay,
     },
+    hoverCloseGracePeriod: HOVER_CLOSE_GRACE_PERIOD,
     triggerElementRef,
     isActiveTrigger: isTriggerActive,
   });

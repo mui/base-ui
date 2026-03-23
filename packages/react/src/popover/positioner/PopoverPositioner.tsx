@@ -133,8 +133,16 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     ) {
       store.set('instantType', undefined);
       const ac = new AbortController();
+      const triggerElementOnSwitch = currentTriggerElement;
       runOnceAnimationsFinish(() => {
-        store.set('instantType', 'trigger-change');
+        // The switch animation may finish after a hover-close has already started.
+        // Only restore `trigger-change` while the same trigger still owns an open popover.
+        if (
+          store.select('open') &&
+          floatingRootContext.select('domReferenceElement') === triggerElementOnSwitch
+        ) {
+          store.set('instantType', 'trigger-change');
+        }
       }, ac.signal);
 
       return () => {
@@ -143,7 +151,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     }
 
     return undefined;
-  }, [domReference, runOnceAnimationsFinish, store]);
+  }, [domReference, floatingRootContext, runOnceAnimationsFinish, store]);
 
   const state: PopoverPositionerState = {
     open,

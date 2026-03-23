@@ -1379,6 +1379,36 @@ describe('<Menu.Root />', () => {
         });
       });
 
+      describe('hover close grace period', () => {
+        const { render: renderFakeTimers, clock } = createRenderer();
+
+        clock.withFakeTimers();
+
+        it('reopens immediately shortly after a hover close', async () => {
+          await renderFakeTimers(<TestMenu triggerProps={{ openOnHover: true, delay: 100 }} />);
+
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+          fireEvent.mouseEnter(trigger);
+          fireEvent.mouseMove(trigger);
+          await flushMicrotasks();
+
+          clock.tick(100);
+          await flushMicrotasks();
+          expect(screen.queryByRole('menu')).not.to.equal(null);
+
+          fireEvent.mouseLeave(trigger);
+          await flushMicrotasks();
+          expect(screen.queryByRole('menu')).to.equal(null);
+
+          fireEvent.mouseEnter(trigger);
+          fireEvent.mouseMove(trigger);
+          await flushMicrotasks();
+
+          expect(screen.queryByRole('menu')).not.to.equal(null);
+        });
+      });
+
       it('opens the submenu on hover with zero delay', async () => {
         await render(
           <ContainedTriggerMenu

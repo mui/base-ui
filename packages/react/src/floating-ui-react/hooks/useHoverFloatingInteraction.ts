@@ -9,16 +9,21 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import type { FloatingContext, FloatingRootContext } from '../types';
 import { getNodeChildren, getTarget, isTargetInsideEnabledTrigger } from '../utils';
 
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import {
+  closeHoverPopup,
   applySafePolygonPointerEventsMutation,
+  emitCommittedHoverClose,
   clearSafePolygonPointerEventsMutation,
+  HoverInteraction,
   isInteractiveElement,
   useHoverInteractionSharedState,
 } from './useHoverInteractionSharedState';
-import { getDelay, isClickLikeOpenEvent as isClickLikeOpenEventShared } from './useHoverShared';
+import {
+  getDelay,
+  isClickLikeOpenEvent as isClickLikeOpenEventShared,
+  isHoverOpen,
+} from './useHoverShared';
 
 export type UseHoverFloatingInteractionProps = {
   /**
@@ -33,6 +38,12 @@ export type UseHoverFloatingInteractionProps = {
    * @default 0
    */
   closeDelay?: number | (() => number) | undefined;
+  /**
+   * Reopens instantly for this many milliseconds after a committed hover close.
+   * Useful for trigger-to-trigger and popup-to-trigger handoffs.
+   * @default undefined
+   */
+  hoverCloseGracePeriod?: number | undefined;
 };
 
 /**
@@ -48,7 +59,7 @@ export function useHoverFloatingInteraction(
   const domReferenceElement = store.useState('domReferenceElement');
   const { dataRef } = store.context;
 
-  const { enabled = true, closeDelay: closeDelayProp = 0 } = parameters;
+  const { enabled = true, closeDelay: closeDelayProp = 0, hoverCloseGracePeriod } = parameters;
 
   const instance = useHoverInteractionSharedState(store);
 
@@ -59,54 +70,55 @@ export function useHoverFloatingInteraction(
     return isClickLikeOpenEventShared(dataRef.current.openEvent?.type, instance.interactedInside);
   });
 
-  const isHoverOpen = useStableCallback(() => {
-    const type = dataRef.current.openEvent?.type;
-    return type?.includes('mouse') && type !== 'mousedown';
-  });
-
-  const isRelatedTargetInsideEnabledTrigger = useStableCallback((target: EventTarget | null) => {
-    return isTargetInsideEnabledTrigger(target, store.context.triggerElements);
+  const handleHoverClose = useStableCallback((event: MouseEvent) => {
+    closeHoverPopup(
+      store,
+      instance,
+      tree,
+      event,
+      isHoverOpen(dataRef.current.openEvent?.type),
+      hoverCloseGracePeriod,
+    );
   });
 
   const closeWithDelay = React.useCallback(
     (event: MouseEvent) => {
+      // Bail out if the popup is already closed (e.g. mouseleave fired on an
+      // already-closed kept-mounted popup). Avoids a spurious `setOpen(false)`.
+      if (!store.select('open')) {
+        instance.openChangeTimeout.clear();
+        return;
+      }
+
       const closeDelay = getDelay(closeDelayProp, 'close', instance.pointerType);
-      const close = () => {
-        store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
-        tree?.events.emit('floating.closed', event);
-      };
       if (closeDelay) {
-        instance.openChangeTimeout.start(closeDelay, close);
+        instance.openChangeTimeout.start(closeDelay, () => handleHoverClose(event));
       } else {
         instance.openChangeTimeout.clear();
-        close();
+        handleHoverClose(event);
       }
     },
-    [closeDelayProp, store, instance, tree],
+    [closeDelayProp, handleHoverClose, instance, store],
   );
 
   const clearPointerEvents = useStableCallback(() => {
     clearSafePolygonPointerEventsMutation(instance);
   });
 
-  const handleInteractInside = useStableCallback((event: PointerEvent) => {
-    const target = getTarget(event) as Element | null;
-    if (!isInteractiveElement(target)) {
-      instance.interactedInside = false;
-      return;
-    }
-
-    instance.interactedInside = target?.closest('[aria-haspopup]') != null;
-  });
-
+  // Reset transient interaction state and finalize any pending hover-close
+  // when the popup closes. Uses a layout effect so pointer-event mutations
+  // are cleaned up before the browser paints. The `emitCommittedHoverClose`
+  // call is the layout-phase counterpart of the reference hook's regular
+  // effect — see the comment on `emitCommittedHoverClose` for details.
   useIsoLayoutEffect(() => {
     if (!open) {
       instance.pointerType = undefined;
       instance.restTimeoutPending = false;
       instance.interactedInside = false;
+      emitCommittedHoverClose(instance, tree);
       clearPointerEvents();
     }
-  }, [open, instance, clearPointerEvents]);
+  }, [open, instance, clearPointerEvents, tree]);
 
   React.useEffect(() => {
     return clearPointerEvents;
@@ -120,7 +132,7 @@ export function useHoverFloatingInteraction(
     if (
       open &&
       instance.handleCloseOptions?.blockPointerEvents &&
-      isHoverOpen() &&
+      isHoverOpen(dataRef.current.openEvent?.type) &&
       isElement(domReferenceElement) &&
       floatingElement
     ) {
@@ -160,7 +172,7 @@ export function useHoverFloatingInteraction(
     domReferenceElement,
     floatingElement,
     instance,
-    isHoverOpen,
+    dataRef,
     tree,
     parentId,
     clearPointerEvents,
@@ -186,7 +198,7 @@ export function useHoverFloatingInteraction(
         return;
       }
 
-      if (isRelatedTargetInsideEnabledTrigger(event.relatedTarget)) {
+      if (isTargetInsideEnabledTrigger(event.relatedTarget, store.context.triggerElements)) {
         // If the mouse is leaving the reference element to another trigger, don't explicitly close the popup
         // as it will be moved.
         return;
@@ -211,39 +223,55 @@ export function useHoverFloatingInteraction(
       // Allow the mouseenter event to fire in case child was closed because mouse moved into parent.
       childClosedTimeout.start(0, () => {
         tree.events.off('floating.closed', onNodeClosed);
-        store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
-        tree.events.emit('floating.closed', event);
+        handleHoverClose(event);
       });
     }
 
     const floating = floatingElement;
     if (floating) {
+      function onPointerDown(event: PointerEvent) {
+        handleInteractInside(instance, event);
+      }
+
       floating.addEventListener('mouseenter', onFloatingMouseEnter);
       floating.addEventListener('mouseleave', onFloatingMouseLeave);
-      floating.addEventListener('pointerdown', handleInteractInside, true);
+      floating.addEventListener('pointerdown', onPointerDown, true);
+
+      return () => {
+        floating.removeEventListener('mouseenter', onFloatingMouseEnter);
+        floating.removeEventListener('mouseleave', onFloatingMouseLeave);
+        floating.removeEventListener('pointerdown', onPointerDown, true);
+        tree?.events.off('floating.closed', onNodeClosed);
+      };
     }
 
     return () => {
-      if (floating) {
-        floating.removeEventListener('mouseenter', onFloatingMouseEnter);
-        floating.removeEventListener('mouseleave', onFloatingMouseLeave);
-        floating.removeEventListener('pointerdown', handleInteractInside, true);
-      }
       tree?.events.off('floating.closed', onNodeClosed);
     };
   }, [
     enabled,
     floatingElement,
     store,
-    dataRef,
     isClickLikeOpenEvent,
-    isRelatedTargetInsideEnabledTrigger,
     closeWithDelay,
+    handleHoverClose,
     clearPointerEvents,
-    handleInteractInside,
     instance,
     tree,
     parentId,
     childClosedTimeout,
   ]);
+}
+
+/**
+ * Tracks whether pointer interaction happened inside an interactive popup element.
+ */
+function handleInteractInside(instance: HoverInteraction, event: PointerEvent) {
+  const target = getTarget(event) as Element | null;
+  if (!isInteractiveElement(target)) {
+    instance.interactedInside = false;
+    return;
+  }
+
+  instance.interactedInside = target?.closest('[aria-haspopup]') != null;
 }
