@@ -810,6 +810,89 @@ describe('<Drawer.Viewport />', () => {
     }
   });
 
+  it('clears nested swiping when a nested drawer swipe is reversed before release', async () => {
+    await render(
+      <Drawer.Root open swipeDirection="down">
+        <Drawer.Portal>
+          <Drawer.Viewport>
+            <Drawer.Popup data-testid="parent-popup">
+              <Drawer.Root open swipeDirection="down">
+                <Drawer.Portal>
+                  <Drawer.Viewport>
+                    <Drawer.Popup data-testid="child-popup">
+                      <button type="button" data-testid="child-button">
+                        Action
+                      </button>
+                    </Drawer.Popup>
+                  </Drawer.Viewport>
+                </Drawer.Portal>
+              </Drawer.Root>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const parentPopup = screen.getByTestId('parent-popup');
+    const childPopup = screen.getByTestId('child-popup');
+    const button = screen.getByTestId('child-button');
+    Object.defineProperty(childPopup, 'offsetHeight', { value: 200, configurable: true });
+
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => childPopup;
+
+    try {
+      fireEvent.touchStart(button, {
+        touches: [
+          createTouch(button, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      await flushMicrotasks();
+
+      fireEvent.touchMove(button, {
+        touches: [
+          createTouch(button, {
+            clientX: 0,
+            clientY: 5,
+          }),
+        ],
+      });
+
+      fireEvent.touchMove(button, {
+        touches: [
+          createTouch(button, {
+            clientX: 0,
+            clientY: 20,
+          }),
+        ],
+      });
+
+      await flushMicrotasks();
+
+      expect(parentPopup).toHaveAttribute('data-nested-drawer-swiping', '');
+
+      fireEvent.touchMove(button, {
+        touches: [
+          createTouch(button, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      await flushMicrotasks();
+
+      expect(parentPopup).not.toHaveAttribute('data-nested-drawer-swiping');
+      expect(parentPopup.style.getPropertyValue('--drawer-swipe-progress')).toBe('0');
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+  });
+
   it('prevents touchmove at scroll top when swiping down on scrollable content', async () => {
     await render(
       <Drawer.Root open swipeDirection="down">
