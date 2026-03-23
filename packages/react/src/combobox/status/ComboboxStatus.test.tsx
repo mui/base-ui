@@ -1,8 +1,24 @@
 import * as React from 'react';
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance } from '#test-utils';
 import { screen, waitFor } from '@mui/internal-test-utils';
+import { INITIAL_LIVE_REGION_TEXT_MUTATION_RESET_DELAY } from '../utils/constants';
+
+const browser = vi.hoisted(() => ({ isIOS: false }));
+
+vi.mock('@base-ui/utils/detectBrowser', async () => {
+  const actual = await vi.importActual<typeof import('@base-ui/utils/detectBrowser')>(
+    '@base-ui/utils/detectBrowser',
+  );
+
+  return {
+    ...actual,
+    get isIOS() {
+      return browser.isIOS;
+    },
+  };
+});
 
 describe('<Combobox.Status />', () => {
   const { render } = createRenderer();
@@ -59,13 +75,13 @@ describe('<Combobox.Status />', () => {
       );
     }
 
-    it('removes the initial text mutation one tick after mount', async () => {
+    it('removes the initial text mutation after the reset delay', async () => {
       await renderFakeTimers(<StatusTest>Searching…</StatusTest>);
 
       expect(screen.getByRole('status')).toBe(screen.getByTestId('status'));
       expect(screen.getByTestId('status').textContent).toBe('Searching…\u2060');
 
-      clock.tick(0);
+      clock.tick(INITIAL_LIVE_REGION_TEXT_MUTATION_RESET_DELAY);
 
       expect(screen.getByTestId('status').textContent).toBe('Searching…');
     });
@@ -104,9 +120,26 @@ describe('<Combobox.Status />', () => {
       expect(screen.getByRole('status')).toBe(screen.getByTestId('custom-status'));
       expect(screen.getByTestId('custom-status').textContent).toBe('Searching…\u2060');
 
-      clock.tick(0);
+      clock.tick(INITIAL_LIVE_REGION_TEXT_MUTATION_RESET_DELAY);
 
       expect(screen.getByTestId('custom-status').textContent).toBe('Searching…');
+    });
+
+    it('skips the initial text mutation on iOS', async () => {
+      browser.isIOS = true;
+
+      try {
+        await renderFakeTimers(<StatusTest>Searching…</StatusTest>);
+
+        expect(screen.getByRole('status')).toBe(screen.getByTestId('status'));
+        expect(screen.getByTestId('status').textContent).toBe('Searching…');
+
+        clock.tick(INITIAL_LIVE_REGION_TEXT_MUTATION_RESET_DELAY);
+
+        expect(screen.getByTestId('status').textContent).toBe('Searching…');
+      } finally {
+        browser.isIOS = false;
+      }
     });
   });
 });

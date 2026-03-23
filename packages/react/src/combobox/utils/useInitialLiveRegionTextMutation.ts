@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { isIOS } from '@base-ui/utils/detectBrowser';
 import { useTimeout } from '@base-ui/utils/useTimeout';
+import { INITIAL_LIVE_REGION_TEXT_MUTATION_RESET_DELAY } from './constants';
 
 const LIVE_REGION_MARKER = '\u2060';
 
@@ -42,7 +43,7 @@ export function useInitialLiveRegionTextMutation<T extends HTMLElement>() {
     const markedValue = `${originalValue}${LIVE_REGION_MARKER}`;
     textNode.nodeValue = markedValue;
 
-    timeout.start(200, () => {
+    timeout.start(INITIAL_LIVE_REGION_TEXT_MUTATION_RESET_DELAY, () => {
       if (textNode.nodeValue === markedValue) {
         textNode.nodeValue = originalValue;
       }

@@ -2,6 +2,7 @@ import { expect } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance } from '#test-utils';
 import { screen } from '@mui/internal-test-utils';
+import { INITIAL_LIVE_REGION_TEXT_MUTATION_RESET_DELAY } from '../utils/constants';
 
 describe('<Combobox.Empty />', () => {
   const { render } = createRenderer();
@@ -126,7 +127,7 @@ describe('<Combobox.Empty />', () => {
 
     clock.withFakeTimers();
 
-    it('removes the initial text mutation one tick after mount', async () => {
+    it('removes the initial text mutation after the reset delay', async () => {
       await renderFakeTimers(
         <Combobox.Root items={[]} defaultOpen>
           <Combobox.Input />
@@ -144,7 +145,7 @@ describe('<Combobox.Empty />', () => {
       expect(screen.getByRole('status')).toBe(screen.getByTestId('empty'));
       expect(screen.getByTestId('empty').textContent).toBe('No results\u2060');
 
-      clock.tick(0);
+      clock.tick(INITIAL_LIVE_REGION_TEXT_MUTATION_RESET_DELAY);
 
       expect(screen.getByTestId('empty').textContent).toBe('No results');
     });
@@ -205,7 +206,7 @@ describe('<Combobox.Empty />', () => {
       expect(screen.getByRole('status')).toBe(screen.getByTestId('custom-empty'));
       expect(screen.getByTestId('custom-empty').textContent).toBe('No results\u2060');
 
-      clock.tick(0);
+      clock.tick(INITIAL_LIVE_REGION_TEXT_MUTATION_RESET_DELAY);
 
       expect(screen.getByTestId('custom-empty').textContent).toBe('No results');
     });
