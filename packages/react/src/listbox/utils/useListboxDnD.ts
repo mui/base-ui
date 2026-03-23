@@ -47,6 +47,9 @@ export function useListboxItemDnD(params: UseListboxItemDnDParameters) {
       const values = valuesRef.current.filter((v) => v !== undefined);
       const newItems = [...values];
       const [moved] = newItems.splice(sourceIndex, 1);
+      // When dropping on the bottom/right edge, the visual intent is "after this item",
+      // so bump the target by 1. Then compensate: if sourceIndex < adjustedTarget,
+      // the earlier splice(sourceIndex, 1) shifted all higher indices down by 1.
       const adjustedTarget = edge === 'bottom' || edge === 'right' ? targetIndex + 1 : targetIndex;
       const insertAt = sourceIndex < adjustedTarget ? adjustedTarget - 1 : adjustedTarget;
       newItems.splice(insertAt, 0, moved);

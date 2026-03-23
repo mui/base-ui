@@ -115,6 +115,10 @@ export const ListboxItem = React.memo(
       };
     }, [hasRegistered, index, itemValue, valuesRef]);
 
+    // Sync selectedIndex from the item side on mount. The root also syncs
+    // selectedIndex (syncSelectedIndex in ListboxRoot), but items mount
+    // asynchronously — valuesRef may still be empty when the root's effect
+    // runs for the first time. This item-level effect covers that race.
     useIsoLayoutEffect(() => {
       if (!hasRegistered) {
         return undefined;
@@ -261,6 +265,10 @@ export const ListboxItem = React.memo(
         }
       },
       onClick(event) {
+        // useButton in composite mode synthesizes a click from keydown (Space/Enter).
+        // lastKeyRef is set in our onKeyDown and cleared below. If lastKeyRef is
+        // null but the event type is 'keydown', it means a synthetic click arrived
+        // without a real keydown we tracked — ignore it to avoid double-selection.
         if (event.type === 'keydown' && lastKeyRef.current === null) {
           return;
         }

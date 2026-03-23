@@ -12,7 +12,10 @@ import { ListboxRootContext } from './ListboxRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { type State as StoreState } from '../store';
-import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import {
+  type BaseUIChangeEventDetails,
+  createChangeEventDetails,
+} from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { useFormContext } from '../../form/FormContext';
 import { useField } from '../../field/useField';
@@ -282,9 +285,34 @@ export function ListboxRoot<Value, Multiple extends boolean | undefined = false>
         id={generatedId && hiddenInputName == null ? `${generatedId}-hidden-input` : undefined}
         name={hiddenInputName}
         value={serializedValue}
-        // The `onChange` handler is only needed for browser autofill. For now, mark as readOnly
-        // to suppress the React warning about uncontrolled value.
-        onChange={() => {}}
+        // Handle browser autofill: match the autofilled string against registered
+        // values to resolve back to the original value type.
+        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+          // Workaround for https://github.com/facebook/react/issues/9023
+          if (event.nativeEvent.defaultPrevented) {
+            return;
+          }
+
+          if (multiple) {
+            // Browser autofill only writes a single scalar value.
+            return;
+          }
+
+          const nextValue = event.target.value;
+          const matchingValue = valuesRef.current.find((v) => {
+            const candidate = stringifyAsValue(v, itemToStringValue);
+            return candidate.toLowerCase() === nextValue.toLowerCase();
+          });
+
+          if (matchingValue != null) {
+            const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
+            setDirty(matchingValue !== validityData.initialValue);
+            setValue(matchingValue, details);
+            if (shouldValidateOnChange()) {
+              validation.commit(matchingValue);
+            }
+          }
+        }}
         disabled={disabled}
         required={required && !hasMultipleSelection}
         readOnly={readOnly}

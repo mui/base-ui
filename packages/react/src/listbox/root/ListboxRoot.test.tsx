@@ -234,10 +234,48 @@ describe('<Listbox.Root />', () => {
         </Listbox.Root>,
       );
 
-      const itemA = screen.getByRole('option', { name: 'a' });
-      fireEvent.click(itemA);
+      const list = screen.getByRole('listbox');
+      list.focus();
 
-      expect(handleValueChange).toHaveBeenCalledWith('a', expect.anything());
+      // Navigate to item b
+      fireEvent.keyDown(list, { key: 'ArrowDown' });
+
+      await flushMicrotasks();
+
+      const itemB = screen.getByRole('option', { name: 'b' });
+      fireEvent.keyDown(itemB, { key: 'Enter' });
+
+      await flushMicrotasks();
+
+      expect(handleValueChange).toHaveBeenCalledWith('b', expect.anything());
+    });
+
+    it('should select item with Space key', async () => {
+      const handleValueChange = vi.fn();
+
+      await render(
+        <Listbox.Root onValueChange={handleValueChange}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      const list = screen.getByRole('listbox');
+      list.focus();
+
+      // Navigate to item b
+      fireEvent.keyDown(list, { key: 'ArrowDown' });
+
+      await flushMicrotasks();
+
+      const itemB = screen.getByRole('option', { name: 'b' });
+      fireEvent.keyDown(itemB, { key: ' ' });
+
+      await flushMicrotasks();
+
+      expect(handleValueChange).toHaveBeenCalledWith('b', expect.anything());
     });
   });
 
@@ -927,6 +965,222 @@ describe('<Listbox.Root />', () => {
     });
   });
 
+  describe('prop: readOnly', () => {
+    it('should not allow selection when readOnly', async () => {
+      const handleValueChange = vi.fn();
+
+      await render(
+        <Listbox.Root readOnly onValueChange={handleValueChange}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      fireEvent.click(screen.getByRole('option', { name: 'a' }));
+
+      expect(handleValueChange).not.toHaveBeenCalled();
+    });
+
+    it('should not allow typeahead when readOnly', async () => {
+      await render(
+        <Listbox.Root readOnly>
+          <Listbox.List>
+            <Listbox.Item value="apple">Apple</Listbox.Item>
+            <Listbox.Item value="banana">Banana</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      const list = screen.getByRole('listbox');
+      list.focus();
+
+      fireEvent.keyDown(list, { key: 'b' });
+
+      await flushMicrotasks();
+
+      // Typeahead should not move highlight when readOnly
+      expect(screen.getByRole('option', { name: 'Banana' })).not.toHaveAttribute(
+        'data-highlighted',
+      );
+    });
+  });
+
+  describe('typeahead', () => {
+    it('should highlight matching item when typing', async () => {
+      await render(
+        <Listbox.Root>
+          <Listbox.List>
+            <Listbox.Item value="apple">Apple</Listbox.Item>
+            <Listbox.Item value="banana">Banana</Listbox.Item>
+            <Listbox.Item value="cherry">Cherry</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      const list = screen.getByRole('listbox');
+      list.focus();
+
+      fireEvent.keyDown(list, { key: 'b' });
+
+      await flushMicrotasks();
+
+      expect(screen.getByRole('option', { name: 'Banana' })).toHaveAttribute(
+        'data-highlighted',
+        '',
+      );
+    });
+
+    it('should match multi-character typeahead', async () => {
+      await render(
+        <Listbox.Root>
+          <Listbox.List>
+            <Listbox.Item value="cherry">Cherry</Listbox.Item>
+            <Listbox.Item value="chocolate">Chocolate</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      const list = screen.getByRole('listbox');
+      list.focus();
+
+      // Each typed character may move focus to a new item. After 'c' matches
+      // Cherry, focus moves there; 'ch' then 'cho' refine to Chocolate.
+      fireEvent.keyDown(list, { key: 'c' });
+
+      await flushMicrotasks();
+
+      const cherry = screen.getByRole('option', { name: 'Cherry' });
+      fireEvent.keyDown(cherry, { key: 'h' });
+
+      await flushMicrotasks();
+
+      // After 'ch', Chocolate is the first match — focus moves there
+      const chocolate = screen.getByRole('option', { name: 'Chocolate' });
+      fireEvent.keyDown(chocolate, { key: 'o' });
+
+      await flushMicrotasks();
+
+      expect(chocolate).toHaveAttribute('data-highlighted', '');
+    });
+  });
+
+  describe('prop: loopFocus', () => {
+    it('should wrap from last to first item when loopFocus is true (default)', async () => {
+      await render(
+        <Listbox.Root>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      const list = screen.getByRole('listbox');
+      list.focus();
+
+      // Move to last item
+      fireEvent.keyDown(list, { key: 'End' });
+
+      await flushMicrotasks();
+
+      expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('data-highlighted', '');
+
+      // ArrowDown from last should wrap to first
+      fireEvent.keyDown(screen.getByRole('option', { name: 'b' }), { key: 'ArrowDown' });
+
+      await flushMicrotasks();
+
+      expect(screen.getByRole('option', { name: 'a' })).toHaveAttribute('data-highlighted', '');
+    });
+
+    it('should not wrap when loopFocus is false', async () => {
+      await render(
+        <Listbox.Root loopFocus={false}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      const list = screen.getByRole('listbox');
+      list.focus();
+
+      // Move to last item
+      fireEvent.keyDown(list, { key: 'End' });
+
+      await flushMicrotasks();
+
+      expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('data-highlighted', '');
+
+      // ArrowDown from last should stay on last
+      fireEvent.keyDown(screen.getByRole('option', { name: 'b' }), { key: 'ArrowDown' });
+
+      await flushMicrotasks();
+
+      expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('data-highlighted', '');
+    });
+  });
+
+  describe('label', () => {
+    it('should wire aria-labelledby from Listbox.Label to Listbox.List', async () => {
+      await render(
+        <Listbox.Root>
+          <Listbox.Label>Choose one</Listbox.Label>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      await flushMicrotasks();
+
+      const list = screen.getByRole('listbox');
+      const labelId = list.getAttribute('aria-labelledby');
+      expect(labelId).not.toBeNull();
+
+      const label = document.getElementById(labelId!);
+      expect(label).toHaveTextContent('Choose one');
+    });
+  });
+
+  describe('controlled value', () => {
+    it('should update selection when value prop changes externally', async () => {
+      function TestComponent() {
+        const [value, setValue] = React.useState<string | null>('a');
+        return (
+          <div>
+            <button type="button" onClick={() => setValue('b')}>
+              switch
+            </button>
+            <Listbox.Root value={value} onValueChange={(v) => setValue(v)}>
+              <Listbox.List>
+                <Listbox.Item value="a">a</Listbox.Item>
+                <Listbox.Item value="b">b</Listbox.Item>
+              </Listbox.List>
+            </Listbox.Root>
+          </div>
+        );
+      }
+
+      await render(<TestComponent />);
+
+      await flushMicrotasks();
+
+      expect(screen.getByRole('option', { name: 'a' })).toHaveAttribute('data-selected', '');
+      expect(screen.getByRole('option', { name: 'b' })).not.toHaveAttribute('data-selected');
+
+      fireEvent.click(screen.getByRole('button', { name: 'switch' }));
+
+      await flushMicrotasks();
+
+      expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('data-selected', '');
+      expect(screen.getByRole('option', { name: 'a' })).not.toHaveAttribute('data-selected');
+    });
+  });
+
   describe('form integration', () => {
     it('should render hidden input with value', async () => {
       await render(
@@ -942,6 +1196,28 @@ describe('<Listbox.Root />', () => {
       const hiddenInput = document.querySelector('input[name="fruit"]') as HTMLInputElement;
       expect(hiddenInput).not.toBeNull();
       expect(hiddenInput.value).toBe('apple');
+    });
+
+    it('should render multiple hidden inputs for multi-select', async () => {
+      await render(
+        <Listbox.Root multiple name="fruits" defaultValue={['apple', 'banana']}>
+          <Listbox.List>
+            <Listbox.Item value="apple">Apple</Listbox.Item>
+            <Listbox.Item value="banana">Banana</Listbox.Item>
+            <Listbox.Item value="cherry">Cherry</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      await flushMicrotasks();
+
+      const hiddenInputs = document.querySelectorAll(
+        'input[name="fruits"]',
+      ) as NodeListOf<HTMLInputElement>;
+      expect(hiddenInputs.length).toBe(2);
+
+      const values = Array.from(hiddenInputs).map((input) => input.value);
+      expect(values).toEqual(['apple', 'banana']);
     });
   });
 });

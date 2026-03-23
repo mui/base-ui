@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useStore } from '@base-ui/utils/store';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useListboxRootContext } from '../root/ListboxRootContext';
@@ -41,6 +42,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
   } = useListboxRootContext();
 
   const id = useStore(store, selectors.id);
+  const labelId = useStore(store, selectors.labelId);
   const activeIndex = useStore(store, selectors.activeIndex);
   const direction = useDirection();
 
@@ -58,9 +60,12 @@ export const ListboxList = React.forwardRef(function ListboxList(
     stopEventPropagation: false,
   });
 
-  // Typeahead logic
+  // Typeahead: accumulates characters into a search string, then matches against
+  // item labels. The search wraps around starting from activeIndex + 1 so typing
+  // the same character repeatedly cycles through matches. The buffer resets after
+  // TYPEAHEAD_RESET_MS of inactivity.
   const typeaheadStringRef = React.useRef('');
-  const typeaheadTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const typeaheadTimeout = useTimeout();
 
   const handleTypeahead = useStableCallback((event: React.KeyboardEvent) => {
     if (disabled || readOnly) {
@@ -80,21 +85,16 @@ export const ListboxList = React.forwardRef(function ListboxList(
 
     typingRef.current = true;
 
-    if (typeaheadTimeoutRef.current !== undefined) {
-      clearTimeout(typeaheadTimeoutRef.current);
-    }
-
     typeaheadStringRef.current += event.key.toLowerCase();
 
-    typeaheadTimeoutRef.current = setTimeout(() => {
+    typeaheadTimeout.start(TYPEAHEAD_RESET_MS, () => {
       typeaheadStringRef.current = '';
       typingRef.current = false;
-    }, TYPEAHEAD_RESET_MS);
+    });
 
     const labels = labelsRef.current;
     const searchString = typeaheadStringRef.current;
 
-    // Find matching item starting from current active index
     const startIndex = activeIndex != null ? activeIndex + 1 : 0;
     const length = labels.length;
 
@@ -228,6 +228,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
   const defaultProps: HTMLProps = {
     id: id ? `${id}-list` : undefined,
     role: 'listbox',
+    'aria-labelledby': labelId,
     'aria-multiselectable': multiple || undefined,
     'aria-orientation': orientation,
     tabIndex: disabled ? undefined : 0,

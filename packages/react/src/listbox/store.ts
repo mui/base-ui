@@ -58,6 +58,9 @@ export const selectors = {
       );
     }
 
+    // Fast-path for single-select: if selectedIndex is already known and matches,
+    // skip the full compareItemEquality scan. This avoids O(n) per-item equality
+    // checks on every render when items are simple values.
     if (state.selectedIndex === index && state.selectedIndex !== null) {
       return true;
     }
