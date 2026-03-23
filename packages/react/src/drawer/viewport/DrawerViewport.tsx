@@ -3,7 +3,6 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isElement } from '@floating-ui/utils/dom';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
-import { isEventOnRangeInput, shouldIgnoreTouchMoveForSelection } from '@base-ui/utils/touch';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
@@ -27,6 +26,7 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import { DrawerViewportContext } from './DrawerViewportContext';
 import { TransitionStatusDataAttributes } from '../../utils/stateAttributesMapping';
+import { isEventOnRangeInput, shouldIgnoreTouchMoveForSelection } from '../../utils/touch';
 import {
   findScrollableTouchTarget,
   getScrollMetrics,

@@ -2,8 +2,6 @@
 import { isOverflowElement } from '@floating-ui/utils/dom';
 import { isIOS, isWebKit } from './detectBrowser';
 import { ownerDocument, ownerWindow } from './owner';
-import { findScrollableTouchTarget, getScrollMetrics, type ScrollAxis } from './scrollable';
-import { isEventOnRangeInput, shouldIgnoreTouchMoveForSelection } from './touch';
 import { useIsoLayoutEffect } from './useIsoLayoutEffect';
 import { Timeout } from './useTimeout';
 import { AnimationFrame } from './useAnimationFrame';
@@ -18,6 +16,8 @@ interface TouchScrollState {
 
 type TouchWithTouchType = Touch & { touchType: string | undefined };
 type EventWithPointerType = { pointerType: PointerEvent['pointerType'] };
+type ScrollAxis = 'horizontal' | 'vertical';
+type WindowWithGlobals = Window & typeof globalThis;
 
 function isStylusTouch(event: TouchEvent) {
   const touch = event.touches[0] ?? event.changedTouches[0];
@@ -30,6 +30,109 @@ function getDominantScrollAxis(touchState: TouchScrollState, touch: Touch): Scro
   const deltaX = Math.abs(touch.clientX - touchState.startX);
   const deltaY = Math.abs(touch.clientY - touchState.startY);
   return deltaX > deltaY ? 'horizontal' : 'vertical';
+}
+
+function isScrollable(element: HTMLElement, axis: ScrollAxis): boolean {
+  const style = getComputedStyle(element);
+
+  if (axis === 'vertical') {
+    const overflowY = style.overflowY;
+    return (
+      (overflowY === 'auto' || overflowY === 'scroll') &&
+      element.scrollHeight > element.clientHeight
+    );
+  }
+
+  const overflowX = style.overflowX;
+  return (
+    (overflowX === 'auto' || overflowX === 'scroll') && element.scrollWidth > element.clientWidth
+  );
+}
+
+function findScrollableTouchTarget(
+  target: EventTarget | null,
+  root: HTMLElement,
+  axis: ScrollAxis = 'vertical',
+): HTMLElement | null {
+  const defaultView = root.ownerDocument.defaultView;
+  let node = defaultView && target instanceof defaultView.HTMLElement ? target : null;
+  while (node && node !== root) {
+    if (isScrollable(node, axis)) {
+      return node;
+    }
+    node = node.parentElement;
+  }
+
+  return isScrollable(root, axis) ? root : null;
+}
+
+function getScrollMetrics(scrollTarget: HTMLElement, axis: ScrollAxis) {
+  if (axis === 'vertical') {
+    const max = Math.max(0, scrollTarget.scrollHeight - scrollTarget.clientHeight);
+    return { offset: scrollTarget.scrollTop, max };
+  }
+
+  const max = Math.max(0, scrollTarget.scrollWidth - scrollTarget.clientWidth);
+  return { offset: scrollTarget.scrollLeft, max };
+}
+
+function isTextSelectionControl(
+  target: EventTarget | null,
+  win: WindowWithGlobals,
+): target is HTMLInputElement | HTMLTextAreaElement {
+  return target instanceof win.HTMLInputElement || target instanceof win.HTMLTextAreaElement;
+}
+
+function hasExpandedSelectionWithinTarget(selection: Selection, target: Element): boolean {
+  const anchorNode = selection.anchorNode;
+  const focusNode = selection.focusNode;
+  const anchorElement = anchorNode instanceof Element ? anchorNode : anchorNode?.parentElement;
+  const focusElement = focusNode instanceof Element ? focusNode : focusNode?.parentElement;
+
+  return (
+    selection.containsNode(target, true) ||
+    target.contains(anchorElement ?? null) ||
+    target.contains(focusElement ?? null)
+  );
+}
+
+function shouldIgnoreTouchMoveForSelection(
+  doc: Document,
+  target: Element,
+  win: WindowWithGlobals,
+): boolean {
+  const activeElement = doc.activeElement;
+  const activeElementWithinTarget = Boolean(activeElement && target.contains(activeElement));
+
+  if (activeElementWithinTarget && isTextSelectionControl(activeElement, win)) {
+    const { selectionStart, selectionEnd } = activeElement;
+    if (selectionStart != null && selectionEnd != null && selectionStart < selectionEnd) {
+      return true;
+    }
+  }
+
+  const selection = doc.getSelection?.();
+  if (!selection || selection.isCollapsed) {
+    return false;
+  }
+
+  return hasExpandedSelectionWithinTarget(selection, target);
+}
+
+function isRangeInput(
+  target: EventTarget | null,
+  win: WindowWithGlobals,
+): target is HTMLInputElement {
+  return target instanceof win.HTMLInputElement && target.type === 'range';
+}
+
+function isEventOnRangeInput(event: TouchEvent, win: WindowWithGlobals): boolean {
+  const composedPath = event.composedPath();
+  if (composedPath) {
+    return composedPath.some((pathTarget) => isRangeInput(pathTarget, win));
+  }
+
+  return isRangeInput(event.target, win);
 }
 
 function shouldPreventScrollChaining(
@@ -55,7 +158,7 @@ function shouldPreventScrollChaining(
 
 export function preventScrollIOS(referenceElement: Element | null = null) {
   const doc = ownerDocument(referenceElement);
-  const win = ownerWindow(doc);
+  const win = ownerWindow(doc) as WindowWithGlobals;
 
   let touchState: TouchScrollState | null = null;
   let allowTouchMove = false;
@@ -69,7 +172,7 @@ export function preventScrollIOS(referenceElement: Element | null = null) {
     allowTouchMove =
       stylusActive ||
       isEventOnRangeInput(event, win) ||
-      (target instanceof win.Element && shouldIgnoreTouchMoveForSelection(doc, target));
+      (target instanceof win.Element && shouldIgnoreTouchMoveForSelection(doc, target, win));
 
     if (!touch) {
       touchState = null;
