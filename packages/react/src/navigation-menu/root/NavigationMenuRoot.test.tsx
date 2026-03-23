@@ -1064,11 +1064,12 @@ describe('<NavigationMenu.Root />', () => {
         const { user } = await render(<TestNavigationMenu />);
         const trigger = screen.getByTestId('trigger-1');
         const siblingTrigger = screen.getByTestId('trigger-2');
+        const topLevelList = trigger.closest('ul') as HTMLElement;
 
         await user.hover(trigger);
 
         await waitFor(() => {
-          expect(document.body.style.pointerEvents).toBe('none');
+          expect(topLevelList.style.pointerEvents).toBe('none');
         });
 
         expect(getComputedStyle(siblingTrigger).pointerEvents).toBe('none');
