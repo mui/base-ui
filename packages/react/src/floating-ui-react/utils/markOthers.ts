@@ -2,7 +2,6 @@
 // https://github.com/theKashey/aria-hidden/blob/9220c8f4a4fd35f63bee5510a9f41a37264382d4/src/index.ts
 import { getNodeName, isShadowRoot } from '@floating-ui/utils/dom';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { contains } from './shadowDom';
 
 type Undo = () => void;
 
@@ -46,13 +45,13 @@ function unwrapHost(node: Node | null): Element | null {
 const correctElements = (parent: HTMLElement, targets: Element[]): Element[] =>
   targets
     .map((target) => {
-      if (contains(parent, target)) {
+      if (parent.contains(target)) {
         return target;
       }
 
       const correctedTarget = unwrapHost(target);
 
-      if (contains(parent, correctedTarget)) {
+      if (parent.contains(correctedTarget)) {
         return correctedTarget;
       }
 
