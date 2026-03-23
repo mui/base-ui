@@ -18,6 +18,7 @@ import { selectors } from '../store';
 import { useButton } from '../../use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
 import { compareItemEquality, findItemIndex } from '../../utils/itemEquality';
+import { inferItemValue } from '../../utils/resolveValueLabel';
 
 /**
  * An individual item in the list.
@@ -57,11 +58,16 @@ export const ComboboxItem = React.memo(
     const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
     const selectable = selectionMode !== 'none';
-    const index =
-      indexProp ??
-      (virtualized
-        ? findItemIndex(flatFilteredItems, itemValue, isItemEqualToValue)
-        : listItem.index);
+    const getVisibleItemValue =
+      hasItems && itemValue != null && typeof itemValue !== 'object' ? inferItemValue : undefined;
+    let index = indexProp;
+    if (index == null) {
+      if (virtualized) {
+        index = findItemIndex(flatFilteredItems, itemValue, isItemEqualToValue, getVisibleItemValue);
+      } else {
+        index = listItem.index;
+      }
+    }
     const hasRegistered = listItem.index !== -1;
 
     const rootId = useStore(store, selectors.id);
@@ -89,17 +95,16 @@ export const ComboboxItem = React.memo(
     }, [hasRegistered, virtualized, index, indexProp, store]);
 
     useIsoLayoutEffect(() => {
-      if (!hasRegistered || hasItems) {
+      if (!hasRegistered) {
         return undefined;
       }
 
       const visibleMap = store.state.valuesRef.current;
       visibleMap[index] = itemValue;
 
-      // Stable registry that doesn't depend on filtering. Assume that no
-      // filtering had occurred at this point; otherwise, an `items` prop is
-      // required.
-      if (selectionMode !== 'none') {
+      // Stable registry that doesn't depend on filtering. This is only needed
+      // when the combobox is driven by mounted items rather than the `items` prop.
+      if (selectionMode !== 'none' && !hasItems) {
         store.state.allValuesRef.current.push(itemValue);
       }
 

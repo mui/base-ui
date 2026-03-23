@@ -71,24 +71,123 @@ import { Combobox } from '@base-ui/react/combobox';
 </Combobox.Root>;
 ```
 
-## TypeScript
+## Value modes
 
-Combobox infers the item type from the `defaultValue` or `value` props passed to `<Combobox.Root>`.
-The type of items held in the `items` array must also match the `value` prop type passed to `<Combobox.Item>`.
+Combobox supports two value modes:
+
+- **Item values**: `value` / `defaultValue` has the same shape as the entries in the `items` array.
+- **Keyed values**: `value` / `defaultValue` is a primitive while `items` use the `{ value, label }` object shape.
+
+In the keyed mode, the combobox uses `item.label` for display and filtering, and `item.value` as the selected value. Other object shapes such as `{ id, name }` are not supported by the keyed mode; use item-shaped values instead.
+
+### Item values
+
+Use object-shaped values when the selected value should keep the full item data instead of a primitive key.
+
+- Use `itemToStringLabel` when the object does not already have a `label` field, or when you want to override the default `label` text shown in the input or trigger.
+- Use `itemToStringValue` when form submission should serialize the object as a string, such as an `id`.
+- Use `isItemEqualToValue` when items are re-created across renders or loaded asynchronously and object identity is not stable.
+
+```tsx title="Object-shaped values" {13-15} "value={user}"
+interface User {
+  id: number;
+  name: string;
+}
+
+const users: User[] = [
+  { id: 1, name: 'Alice' },
+  { id: 2, name: 'Bob' },
+];
+
+<Combobox.Root
+  items={users}
+  itemToStringLabel={(user) => user.name}
+  itemToStringValue={(user) => String(user.id)}
+  isItemEqualToValue={(item, value) => item.id === value.id}
+>
+  <Combobox.Input />
+  <Combobox.Portal>
+    <Combobox.Positioner>
+      <Combobox.Popup>
+        <Combobox.List>
+          {(user: User) => (
+            <Combobox.Item key={user.id} value={user}>
+              {user.name}
+            </Combobox.Item>
+          )}
+        </Combobox.List>
+      </Combobox.Popup>
+    </Combobox.Positioner>
+  </Combobox.Portal>
+</Combobox.Root>;
+```
+
+### Keyed values
+
+Use keyed values when `items` already have a `{ value, label }` shape and the selected value should be the primitive `item.value`.
+Closed-trigger typeahead is only available once a primitive keyed value has already been selected.
+
+```tsx title="Keyed values" "value"2,3,5 "defaultValue"
+interface FruitItem {
+  value: string;
+  label: string;
+}
+
+const items: FruitItem[] = [
+  { value: 'apple', label: 'Apple' },
+  { value: 'banana', label: 'Banana' },
+];
+
+<Combobox.Root items={items} defaultValue="banana">
+  <Combobox.Input />
+  <Combobox.Portal>
+    <Combobox.Positioner>
+      <Combobox.Popup>
+        <Combobox.List>
+          {(item) => (
+            <Combobox.Item key={item.value} value={item.value}>
+              {item.label}
+            </Combobox.Item>
+          )}
+        </Combobox.List>
+      </Combobox.Popup>
+    </Combobox.Positioner>
+  </Combobox.Portal>
+</Combobox.Root>;
+```
 
 ## Examples
 
 ### Typed wrapper component
 
-The following example shows a typed wrapper around the Combobox component with correct type inference and type safety:
+Use a two-generic wrapper when the selected value has the same shape as the `items` entries:
 
-```tsx title="Specifying generic type parameters"
+```tsx title="Wrapper for item-shaped values"
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
 
 export function MyCombobox<Value, Multiple extends boolean | undefined = false>(
   props: Combobox.Root.Props<Value, Multiple>,
-): React.JSX.Element {
+): React.JSX.Element;
+export function MyCombobox(props: Combobox.Root.Props<any, any>): React.JSX.Element {
+  return <Combobox.Root {...props}>{/* ... */}</Combobox.Root>;
+}
+```
+
+Forward the `Items` generic as well when the wrapper should support keyed `{ value, label }` items:
+
+```tsx title="Wrapper that also supports keyed values"
+import * as React from 'react';
+import { Combobox } from '@base-ui/react/combobox';
+
+type KeyedItems<Value> = readonly Value[] | readonly { value: Value; label: string }[] | undefined;
+
+export function MyKeyedCombobox<
+  Value,
+  Multiple extends boolean | undefined = false,
+  Items extends KeyedItems<Value> = readonly Value[] | undefined,
+>(props: Combobox.Root.Props<Value, Multiple, Items>): React.JSX.Element;
+export function MyKeyedCombobox(props: Combobox.Root.Props<any, any, any>): React.JSX.Element {
   return <Combobox.Root {...props}>{/* ... */}</Combobox.Root>;
 }
 ```

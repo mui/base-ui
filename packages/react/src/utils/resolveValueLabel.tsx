@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { compareItemEquality, type ItemEqualityComparer } from './itemEquality';
 import { serializeValue } from './serializeValue';
 
 type ItemRecord = Record<string, React.ReactNode>;
@@ -25,6 +26,27 @@ export function isGroupedItems(
     items[0] != null &&
     'items' in items[0]
   );
+}
+
+function hasValueAndLabelItems(items: readonly any[]): boolean {
+  return (
+    items.length > 0 &&
+    items.every((item) => item && typeof item === 'object' && 'value' in item && 'label' in item)
+  );
+}
+
+export function hasValueAndLabelItemsInput(
+  items: ReadonlyArray<any | Group<any>> | undefined,
+): boolean {
+  if (!items || items.length === 0) {
+    return false;
+  }
+
+  if (isGroupedItems(items)) {
+    return items.every((group) => hasValueAndLabelItems(group.items));
+  }
+
+  return hasValueAndLabelItems(items);
 }
 
 /**
@@ -82,17 +104,46 @@ export function stringifyAsValue(item: any, itemToStringValue?: (item: any) => s
   return serializeValue(item);
 }
 
+export function inferItemValue(item: any) {
+  if (item && typeof item === 'object' && 'value' in item) {
+    return item.value;
+  }
+
+  return item;
+}
+
+export function mapItemValues(
+  items: readonly any[],
+  getItemValue?: ((item: any) => any) | undefined,
+) {
+  return items.map((item) => (getItemValue ? getItemValue(item) : item));
+}
+
+function findMatchingItem(
+  items: ReadonlyArray<LabeledItem>,
+  value: any,
+  isItemEqualToValue?: ItemEqualityComparer<any, any>,
+) {
+  return items.find((item) => {
+    const itemValue = inferItemValue(item);
+    return isItemEqualToValue
+      ? compareItemEquality(itemValue, value, isItemEqualToValue)
+      : itemValue === value;
+  });
+}
+
+function findItemByValueProperty(items: ReadonlyArray<LabeledItem>, value: any) {
+  return items.find((item) => item && item.value === value);
+}
+
 export function resolveSelectedLabel(
   value: any,
   items: ItemsInput,
   itemToStringLabel?: (item: any) => string,
+  isItemEqualToValue?: ItemEqualityComparer<any, any>,
 ): React.ReactNode {
   function fallback() {
     return stringifyAsLabel(value, itemToStringLabel);
-  }
-
-  if (itemToStringLabel && value != null) {
-    return itemToStringLabel(value);
   }
 
   // Custom object with explicit label takes precedence
@@ -113,29 +164,49 @@ export function resolveSelectedLabel(
       : arrayItems;
 
     if (value == null || typeof value !== 'object') {
-      const match = flatItems.find((item) => item.value === value);
+      const match = findMatchingItem(flatItems, value, isItemEqualToValue);
       if (match && match.label != null) {
         return match.label;
       }
-      return fallback();
-    }
-
-    // Object without explicit label: try matching by its `value` property
-    if ('value' in value) {
-      const match = flatItems.find((item) => item && item.value === value.value);
+    } else if ('value' in value) {
+      const match = findItemByValueProperty(flatItems, value.value);
       if (match && match.label != null) {
         return match.label;
       }
     }
   }
 
+  if (itemToStringLabel && value != null) {
+    return itemToStringLabel(value);
+  }
+
   return fallback();
+}
+
+export function resolveSelectedLabelString(
+  value: any,
+  items: ItemsInput,
+  itemToStringLabel?: (item: any) => string,
+  isItemEqualToValue?: ItemEqualityComparer<any, any>,
+): string {
+  const label = resolveSelectedLabel(value, items, itemToStringLabel, isItemEqualToValue);
+
+  if (label == null || typeof label === 'boolean') {
+    return '';
+  }
+
+  if (typeof label === 'string' || typeof label === 'number') {
+    return String(label);
+  }
+
+  return stringifyAsLabel(value);
 }
 
 export function resolveMultipleLabels(
   values: any[],
   items: ItemsInput,
   itemToStringLabel?: (item: any) => string,
+  isItemEqualToValue?: ItemEqualityComparer<any, any>,
 ): React.ReactNode {
   return values.reduce((acc, value, index) => {
     if (index > 0) {
@@ -143,7 +214,7 @@ export function resolveMultipleLabels(
     }
     acc.push(
       <React.Fragment key={index}>
-        {resolveSelectedLabel(value, items, itemToStringLabel)}
+        {resolveSelectedLabel(value, items, itemToStringLabel, isItemEqualToValue)}
       </React.Fragment>,
     );
     return acc;

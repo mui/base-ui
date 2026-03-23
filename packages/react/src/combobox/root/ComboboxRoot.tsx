@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { AriaCombobox, type AriaComboboxState } from './AriaCombobox';
+import type { Group } from '../../utils/resolveValueLabel';
 
 /**
  * Groups all parts of the combobox.
@@ -8,9 +9,14 @@ import { AriaCombobox, type AriaComboboxState } from './AriaCombobox';
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
-export function ComboboxRoot<Value, Multiple extends boolean | undefined = false>(
-  props: ComboboxRoot.Props<Value, Multiple>,
-): React.JSX.Element {
+export function ComboboxRoot<
+  Value,
+  Multiple extends boolean | undefined = false,
+  Items extends readonly any[] | readonly Group<any>[] | undefined =
+    | readonly Value[]
+    | readonly Group<Value>[]
+    | undefined,
+>(props: ComboboxRoot.Props<Value, Multiple, Items>): React.JSX.Element {
   const {
     multiple = false as Multiple,
     defaultValue,
@@ -40,7 +46,66 @@ type ComboboxValueType<Value, Multiple extends boolean | undefined> = Multiple e
   ? Value[]
   : Value;
 
-export type ComboboxRootProps<Value, Multiple extends boolean | undefined = false> = Omit<
+type ItemsInput = readonly any[] | readonly Group<any>[] | undefined;
+
+type ItemFromItems<Items extends readonly any[] | readonly Group<any>[]> =
+  Items extends readonly (infer Item)[]
+    ? Item extends { items: readonly (infer GroupItem)[] }
+      ? GroupItem
+      : Item
+    : never;
+
+type IsAny<T> = 0 extends 1 & T ? true : false;
+
+type IsUnknown<T> =
+  IsAny<T> extends true
+    ? false
+    : unknown extends T
+      ? [T] extends [unknown]
+        ? true
+        : false
+      : false;
+
+type PrimitiveSelectableItemShape<Value> = {
+  value: Value;
+  label: unknown;
+};
+
+type CompatibleItems<Value, Items extends ItemsInput> =
+  IsAny<Value> extends true
+    ? Items
+    : IsUnknown<Value> extends true
+      ? Items
+      : [NonNullable<Value>] extends [never]
+        ? Items
+        : [ItemFromItems<NonNullable<Items>>] extends [never]
+          ? Items
+          : [ItemFromItems<NonNullable<Items>>] extends [NonNullable<Value>]
+            ? Items
+            : [NonNullable<Value>] extends [ItemFromItems<NonNullable<Items>>]
+              ? Items
+              : ItemFromItems<NonNullable<Items>> extends PrimitiveSelectableItemShape<
+                    infer ItemValue
+                  >
+                ? [ItemValue] extends [NonNullable<Value>]
+                  ? Items
+                  : [NonNullable<Value>] extends [ItemValue]
+                    ? Items
+                    : never
+                : never;
+
+type CompatibleItemsConstraint<Value, Items extends ItemsInput> =
+  CompatibleItems<Value, Items> extends never
+    ? {
+        __invalidItemsShapeForValue: never;
+      }
+    : {};
+
+export type ComboboxRootProps<
+  Value,
+  Multiple extends boolean | undefined = false,
+  Items extends ItemsInput = readonly Value[] | readonly Group<Value>[] | undefined,
+> = Omit<
   AriaCombobox.Props<Value, ModeFromMultiple<Multiple>>,
   | 'fillInputOnItemPress'
   | 'autoComplete'
@@ -51,6 +116,7 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
   | 'highlightItemOnHover'
   | 'itemToStringLabel'
   | 'itemToStringValue'
+  | 'items'
   | 'isItemEqualToValue'
   // Different names
   | 'selectionMode'
@@ -85,8 +151,15 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
    */
   highlightItemOnHover?: boolean | undefined;
   /**
+   * The items to be displayed in the list.
+   * Can be either a flat array of items or an array of groups with items.
+   * Primitive `value`/`defaultValue` is only supported implicitly when each item has the shape `{ value, label }`.
+   */
+  items?: Items | undefined;
+  /**
    * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.
-   * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.
+   * If the shape of the object is `{ value, label }`, the label will be used automatically for display and filtering without needing to specify this prop.
+   * In that keyed mode, this prop is bypassed for the `{ value, label }` item array itself and only applies as a fallback when resolving other value shapes.
    */
   itemToStringLabel?: ((itemValue: Value) => string) | undefined;
   /**
@@ -101,6 +174,7 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
   isItemEqualToValue?: ((itemValue: Value, value: Value) => boolean) | undefined;
   /**
    * The uncontrolled selected value of the combobox when it's initially rendered.
+   * Must match the item value shape, except when `items` use the `{ value, label }` shape, in which case a primitive `item.value` is also supported.
    *
    * To render a controlled combobox, use the `value` prop instead.
    */
@@ -140,6 +214,7 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
     | undefined;
   /**
    * The selected value of the combobox. Use when controlled.
+   * Must match the item value shape, except when `items` use the `{ value, label }` shape, in which case a primitive `item.value` is also supported.
    */
   value?: ComboboxValueType<Value, Multiple> | null | undefined;
   /**
@@ -151,7 +226,7 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
         eventDetails: ComboboxRoot.ChangeEventDetails,
       ) => void)
     | undefined;
-};
+} & CompatibleItemsConstraint<Value, Items>;
 
 export interface ComboboxRootState extends AriaComboboxState {}
 
@@ -164,10 +239,11 @@ export type ComboboxRootHighlightEventReason = AriaCombobox.HighlightEventReason
 export type ComboboxRootHighlightEventDetails = AriaCombobox.HighlightEventDetails;
 
 export namespace ComboboxRoot {
-  export type Props<Value, Multiple extends boolean | undefined = false> = ComboboxRootProps<
+  export type Props<
     Value,
-    Multiple
-  >;
+    Multiple extends boolean | undefined = false,
+    Items extends ItemsInput = readonly Value[] | readonly Group<Value>[] | undefined,
+  > = ComboboxRootProps<Value, Multiple, Items>;
   export type State = ComboboxRootState;
   export type Actions = ComboboxRootActions;
   export type ChangeEventReason = ComboboxRootChangeEventReason;

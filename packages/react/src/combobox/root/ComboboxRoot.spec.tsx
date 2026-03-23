@@ -14,6 +14,18 @@ const objectItemsReadonly = [
   { value: 'c', label: 'cherry' },
 ] as const;
 
+const arbitraryObjectItems = [
+  { id: 'a', label: 'apple' },
+  { id: 'b', label: 'banana' },
+  { id: 'c', label: 'cherry' },
+] as const;
+
+const valueOnlyObjectItems = [
+  { value: 'a', name: 'apple' },
+  { value: 'b', name: 'banana' },
+  { value: 'c', name: 'cherry' },
+] as const;
+
 const groupItemsReadonly = [
   {
     value: 'fruits',
@@ -94,6 +106,12 @@ const groupItemsReadonly = [
     value.label;
   }}
 />;
+
+// @ts-expect-error - primitive selected values require primitive items or object items with a `value`
+<Combobox.Root items={arbitraryObjectItems} defaultValue="a" />;
+
+// @ts-expect-error - implicit primitive selected values require object items with both `value` and `label`
+<Combobox.Root items={valueOnlyObjectItems} defaultValue="a" />;
 
 <Combobox.Root
   items={objectItems}
@@ -274,6 +292,22 @@ mergeProps<typeof Combobox.Root<any>>(
 
 export function Wrapper<Value, Multiple extends boolean | undefined = false>(
   props: Combobox.Root.Props<Value, Multiple>,
-) {
+): React.JSX.Element;
+export function Wrapper(props: Combobox.Root.Props<any, any>): React.JSX.Element {
   return <Combobox.Root {...props} />;
 }
+
+<Wrapper items={['a', 'b', 'c']} defaultValue="a" />;
+
+type KeyedItems<Value> = readonly Value[] | readonly { value: Value; label: string }[] | undefined;
+
+export function KeyedWrapper<
+  Value,
+  Multiple extends boolean | undefined = false,
+  Items extends KeyedItems<Value> = readonly Value[] | undefined,
+>(props: Combobox.Root.Props<Value, Multiple, Items>): React.JSX.Element;
+export function KeyedWrapper(props: Combobox.Root.Props<any, any, any>): React.JSX.Element {
+  return <Combobox.Root {...props} />;
+}
+
+<KeyedWrapper items={objectItems} defaultValue="a" />;
