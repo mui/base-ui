@@ -201,7 +201,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
               return;
             }
 
-            const nextChecked = event.target.checked;
+            const nextChecked = event.currentTarget.checked;
             const eventDetails = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
             onCheckedChange?.(nextChecked, eventDetails);

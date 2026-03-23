@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { getSide, getAlignment, type Rect, getSideAxis } from '@floating-ui/utils';
-import { ownerDocument } from '@base-ui/utils/owner';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -333,7 +333,7 @@ export function useAnchorPositioning(
         floatingStyle.setProperty('--available-height', `${availableHeight}px`);
 
         // Snap anchor dimensions to device pixels to ensure the popup's visual width matches the anchor's one.
-        const dpr = window.devicePixelRatio || 1;
+        const dpr = ownerWindow(floating).devicePixelRatio || 1;
         const { x, y, width, height } = rects.reference;
         const anchorWidth = (Math.round((x + width) * dpr) - Math.round(x * dpr)) / dpr;
         const anchorHeight = (Math.round((y + height) * dpr) - Math.round(y * dpr)) / dpr;
@@ -346,7 +346,7 @@ export function useAnchorPositioning(
       () => ({
         // `transform-origin` calculations rely on an element existing. If the arrow hasn't been set,
         // we'll create a fake element.
-        element: arrowRef.current || document.createElement('div'),
+        element: arrowRef.current || ownerDocument(arrowRef.current).createElement('div'),
         padding: arrowPadding,
         offsetParent: 'floating',
       }),

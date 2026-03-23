@@ -209,7 +209,7 @@ export function useFocus(
         // Wait for the window blur listener to fire.
         timeout.start(0, () => {
           const domReference = store.select('domReferenceElement');
-          const activeEl = activeElement(domReference ? domReference.ownerDocument : document);
+          const activeEl = activeElement(ownerDocument(domReference));
 
           // Focus left the page, keep it open.
           if (!relatedTarget && activeEl === domReference) {

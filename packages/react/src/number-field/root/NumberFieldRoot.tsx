@@ -9,6 +9,7 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { isIOS } from '@base-ui/utils/detectBrowser';
+import { activeElement } from '../../floating-ui-react/utils';
 import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import type { FieldRootState } from '../../field/root/FieldRoot';
@@ -348,7 +349,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         if (
           // Allow pinch-zooming.
           event.ctrlKey ||
-          ownerDocument(inputRef.current).activeElement !== inputRef.current
+          activeElement(ownerDocument(inputRef.current)) !== inputRef.current
         ) {
           return;
         }

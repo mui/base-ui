@@ -6,7 +6,12 @@ import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument } from '@base-ui/utils/owner';
 import type { Delay, FloatingContext, FloatingRootContext } from '../types';
-import { contains, isMouseLikePointerType, isTargetInsideEnabledTrigger } from '../utils';
+import {
+  contains,
+  getTarget,
+  isMouseLikePointerType,
+  isTargetInsideEnabledTrigger,
+} from '../utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { useFloatingTree } from '../components/FloatingTree';
@@ -204,7 +209,7 @@ export function useHoverReferenceInteraction(
       const isOverInactive =
         triggerNode == null
           ? false
-          : isOverInactiveTrigger(currentDomReference, triggerNode, event.target);
+          : isOverInactiveTrigger(currentDomReference, triggerNode, getTarget(event));
 
       const isOpen = store.select('open');
       const shouldOpen = !isOpen || isOverInactive;
@@ -343,7 +348,11 @@ export function useHoverReferenceInteraction(
 
         const currentDomReference = store.select('domReferenceElement');
         const currentOpen = store.select('open');
-        const isOverInactive = isOverInactiveTrigger(currentDomReference, trigger, event.target);
+        const isOverInactive = isOverInactiveTrigger(
+          currentDomReference,
+          trigger,
+          getTarget(nativeEvent),
+        );
 
         if (mouseOnly && !isMouseLikePointerType(instance.pointerType)) {
           return;
