@@ -2134,6 +2134,8 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       });
 
       it('submits to an external form when `form` is provided', async () => {
+        let submitValue: FormDataEntryValue | null = null;
+
         await render(
           <React.Fragment>
             <form
@@ -2141,7 +2143,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
               onSubmit={(event) => {
                 event.preventDefault();
                 const formData = new FormData(event.currentTarget);
-                expect(formData.get('slider')).to.equal('25');
+                submitValue = formData.get('slider');
               }}
             >
               <button type="submit">Submit</button>
@@ -2155,6 +2157,8 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         );
 
         fireEvent.click(screen.getByRole('button'));
+
+        expect(submitValue).toBe('25');
       });
     });
   });

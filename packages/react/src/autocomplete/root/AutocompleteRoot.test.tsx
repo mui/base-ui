@@ -938,8 +938,8 @@ describe('<Autocomplete.Root />', () => {
         await user.type(input, 'al');
         await user.click(screen.getByRole('option', { name: 'alpha' }));
 
-        expect(submitValue).to.equal('alpha');
-        expect(submitCount).to.equal(1);
+        expect(submitValue).toBe('alpha');
+        expect(submitCount).toBe(1);
       },
     );
 
