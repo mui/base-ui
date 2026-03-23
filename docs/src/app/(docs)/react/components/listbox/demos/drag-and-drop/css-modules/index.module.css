@@ -78,7 +78,7 @@
     opacity: 0.5;
   }
 
-  &[data-drop-target-edge='top']::after {
+  &[data-drop-target-edge='before']::after {
     content: '';
     position: absolute;
     top: -1px;
@@ -88,7 +88,7 @@
     background-color: var(--color-blue);
   }
 
-  &[data-drop-target-edge='bottom']::after {
+  &[data-drop-target-edge='after']::after {
     content: '';
     position: absolute;
     bottom: -1px;

@@ -26,10 +26,16 @@ import { useListItemValueRegistration } from '../../utils/useListItemValueRegist
 import { useListboxItemDnD } from '../utils/useListboxDnD';
 import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 
+// Map the raw edge from Pragmatic DnD (top/bottom/left/right) to logical
+// before/after values for the data attribute, so consumers can style with a
+// single pair of selectors regardless of orientation.
 const dropTargetEdgeMapping: StateAttributesMapping<ListboxItemState> = {
   dropTargetEdge(value) {
-    if (value === 'top' || value === 'bottom') {
-      return { 'data-drop-target-edge': value };
+    if (value === 'top' || value === 'left') {
+      return { 'data-drop-target-edge': 'before' };
+    }
+    if (value === 'bottom' || value === 'right') {
+      return { 'data-drop-target-edge': 'after' };
     }
     return null;
   },

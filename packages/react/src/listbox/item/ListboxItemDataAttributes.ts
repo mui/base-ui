@@ -21,7 +21,7 @@ export enum ListboxItemDataAttributes {
   dropTarget = 'data-drop-target',
   /**
    * Indicates the closest edge when the item is a drop target.
-   * The value is `'top'` or `'bottom'`.
+   * The value is `'before'` or `'after'`.
    */
   dropTargetEdge = 'data-drop-target-edge',
 }

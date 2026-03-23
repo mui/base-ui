@@ -84,7 +84,8 @@ export function useListboxItemDnD(params: UseListboxItemDnDParameters) {
           {
             input,
             element: el,
-            allowedEdges: ['top', 'bottom'],
+            allowedEdges:
+              store.state.orientation === 'horizontal' ? ['left', 'right'] : ['top', 'bottom'],
           },
         );
       },
