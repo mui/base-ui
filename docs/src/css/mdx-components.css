@@ -1,10 +1,6 @@
 @import './custom-media.css';
 
 @layer components {
-  .MdInlineCode[data-inline] {
-    margin-inline: 0.1em;
-  }
-
   .MdH1 {
     margin-bottom: 1rem;
     font-family: var(--font-sans-b);

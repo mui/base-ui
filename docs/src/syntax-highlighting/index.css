@@ -1,3 +1,5 @@
+/* Syntax highlighting for <code> tags transformed by rehype-pretty-code */
+
 @layer theme {
   :root {
     --syntax-default: var(--color-foreground);
@@ -37,6 +39,7 @@
   }
 
   /* Recover some of the syntax highlighting colors in tables */
+  /* [data-table-code] is set by our TableCode component */
   [data-table-code] {
     --syntax-default: var(--color-foreground);
     --syntax-entity: var(--color-violet);

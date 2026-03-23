@@ -1,6 +1,6 @@
 import * as React from 'react';
 import clsx from 'clsx';
-import { Code } from './Code';
+import { CodeWithSyntax } from './CodeWithSyntax';
 import { getChildrenText } from '../utils/getChildrenText';
 
 export interface TableCodeProps extends React.ComponentProps<'code'> {
@@ -72,8 +72,8 @@ export function TableCode({ children, className, printWidth = 40, ...props }: Ta
   }
 
   return (
-    <Code data-table-code="" className={clsx('TableCode', className)} {...props}>
+    <CodeWithSyntax data-table-code="" className={clsx('TableCode', className)} {...props}>
       {children}
-    </Code>
+    </CodeWithSyntax>
   );
 }

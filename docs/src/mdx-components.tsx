@@ -3,6 +3,7 @@ import * as CodeBlock from './components/CodeBlock';
 import * as Table from './components/Table';
 import * as QuickNav from './components/QuickNav/QuickNav';
 import { Code } from './components/Code';
+import { CodeWithSyntax } from './components/CodeWithSyntax';
 import { ReferenceAccordion } from './components/ReferenceTable/ReferenceAccordion';
 import { ParametersReferenceTable } from './components/ReferenceTable/ParametersReferenceTable';
 import { ReturnValueReferenceTable } from './components/ReferenceTable/ReturnValueReferenceTable';
@@ -21,7 +22,10 @@ interface MDXComponents {
 // Maintain spacing between MDX components here
 export const mdxComponents: MDXComponents = {
   a: Link,
-  code: (props) => <Code className="MdInlineCode" {...props} />,
+  // Render a different component for <code> tags that need syntax highlighting (e.g. inside prop tables).
+  // When [data-language] is present, it means the <code> tag was tokenized by rehype-pretty-code.
+  code: (props) =>
+    props['data-language'] !== undefined ? <CodeWithSyntax {...props} /> : <Code {...props} />,
   h1: (props) => (
     // Do not wrap heading tags in divs, that confuses Safari Reader
     <h1 className="MdH1" {...props} />
@@ -74,6 +78,7 @@ export const mdxComponents: MDXComponents = {
     props.scope === 'row' ? <Table.RowHeader {...props} /> : <Table.ColumnHeader {...props} />,
   td: Table.Cell,
   // Custom components
+  Code,
   QuickNav,
   Meta: (props: React.ComponentProps<'meta'>) => {
     if (props.name === 'description' && String(props.content).length > 170) {

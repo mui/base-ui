@@ -173,7 +173,7 @@
 
     &[data-active] {
       color: var(--color-foreground);
-      font-weight: bold;
+      font-weight: 600;
 
       &::before {
         background-color: white;
