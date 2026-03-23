@@ -183,6 +183,15 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     setSwipeRelease(null);
   });
 
+  const finishNestedSwipe = useStableCallback(() => {
+    if (!nestedSwipeActiveRef.current) {
+      return;
+    }
+
+    nestedSwipeActiveRef.current = false;
+    notifyParentSwipingChange?.(false);
+  });
+
   const applySwipeProgress = useStableCallback(
     ({
       resolvedProgress,
@@ -195,10 +204,14 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     }) => {
       const isActive = open && !nested && shouldTrackProgress;
       const swipeProgress = isActive ? resolvedProgress : 0;
+      const nestedSwipeProgress = open && shouldTrackProgress ? resolvedProgress : 0;
 
       if (notifyParent && notifyParentSwipeProgressChange) {
-        const nestedSwipeProgress = open && shouldTrackProgress ? resolvedProgress : 0;
         notifyParentSwipeProgressChange(nestedSwipeProgress);
+
+        if (nestedSwipeProgress <= 0) {
+          finishNestedSwipe();
+        }
       }
 
       visualStateStore?.set({
@@ -379,9 +392,8 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     onSwipingChange(swiping) {
       setBackdropSwipingAttribute(store.context.backdropRef.current, swiping);
 
-      if (!swiping) {
-        nestedSwipeActiveRef.current = false;
-        notifyParentSwipingChange?.(false);
+      if (!swiping && !notifyParentSwipeProgressChange) {
+        finishNestedSwipe();
       }
     },
     swipeThreshold({ element, direction }) {
@@ -494,7 +506,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           return;
         }
 
-        notifyParentSwipingChange?.(false);
+        finishNestedSwipe();
         setSwipeDismissed(true);
 
         popupElement.style.removeProperty('transition');
@@ -928,9 +940,9 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     return () => {
       visualStateStore?.set({ swipeProgress: 0, frontmostHeight: 0 });
       setBackdropSwipingAttribute(store.context.backdropRef.current, false);
-      notifyParentSwipingChange?.(false);
+      finishNestedSwipe();
     };
-  }, [notifyParentSwipingChange, store, visualStateStore]);
+  }, [finishNestedSwipe, store, visualStateStore]);
 
   const swipeProviderValue = React.useMemo(
     () => ({
