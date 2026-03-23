@@ -101,7 +101,7 @@ importers:
         specifier: 0.21.0
         version: 0.21.0
       pkg-pr-new:
-        specifier: ^0.0.66
+        specifier: 0.0.66
         version: 0.0.66
       prettier:
         specifier: 3.8.1
@@ -516,7 +516,7 @@ importers:
         version: 1.6.0(react@19.2.4)
     devDependencies:
       '@date-fns/tz':
-        specifier: ^1.4.1
+        specifier: 1.4.1
         version: 1.4.1
       '@testing-library/react':
         specifier: 16.3.2
@@ -540,10 +540,10 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       date-fns:
-        specifier: ^4.1.0
+        specifier: 4.1.0
         version: 4.1.0
       luxon:
-        specifier: ^3.7.2
+        specifier: 3.7.2
         version: 3.7.2
       react:
         specifier: 19.2.4

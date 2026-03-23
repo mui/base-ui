@@ -92,7 +92,7 @@
     "use-sync-external-store": "^1.6.0"
   },
   "devDependencies": {
-    "@date-fns/tz": "^1.4.1",
+    "@date-fns/tz": "1.4.1",
     "@testing-library/react": "16.3.2",
     "@testing-library/user-event": "14.6.1",
     "@types/luxon": "3.7.1",
@@ -100,8 +100,8 @@
     "@types/react-dom": "19.2.3",
     "@types/use-sync-external-store": "1.5.0",
     "clsx": "2.1.1",
-    "date-fns": "^4.1.0",
-    "luxon": "^3.7.2",
+    "date-fns": "4.1.0",
+    "luxon": "3.7.2",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-router": "7.13.1",
