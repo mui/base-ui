@@ -136,7 +136,17 @@ export const ComboboxItem = React.memo(
       if (compareItemEquality(lastSelectedValue, itemValue, isItemEqualToValue)) {
         store.set('selectedIndex', index);
       }
-    }, [hasRegistered, items, open, store, index, itemValue, isItemEqualToValue, selectionMode, filterQuery]);
+    }, [
+      hasRegistered,
+      items,
+      open,
+      store,
+      index,
+      itemValue,
+      isItemEqualToValue,
+      selectionMode,
+      filterQuery,
+    ]);
 
     useIsoLayoutEffect(() => {
       const registerItem = groupContext?.registerVisibleItem;

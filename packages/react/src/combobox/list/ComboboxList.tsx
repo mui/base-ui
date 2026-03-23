@@ -16,7 +16,7 @@ import { CompositeList } from '../../composite/list/CompositeList';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import { itemIncludes } from '../../utils/itemEquality';
+import { findItemIndex } from '../../utils/itemEquality';
 
 /**
  * A list container for the items.
@@ -162,17 +162,20 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
 
     if (selectionMode === 'multiple') {
       const current = Array.isArray(currentSelectedValue) ? currentSelectedValue : [];
-      const next = current.filter((value) => itemIncludes(nextValues, value, comparer));
+      const next = current.filter((value) => findItemIndex(nextValues, value, comparer) !== -1);
       if (next.length !== current.length) {
         store.state.setSelectedValue(next, eventDetails);
       }
       return;
     }
 
-    if (currentSelectedValue != null && !itemIncludes(nextValues, currentSelectedValue, comparer)) {
+    if (
+      currentSelectedValue != null &&
+      findItemIndex(nextValues, currentSelectedValue, comparer) === -1
+    ) {
       const fallback = store.state.defaultSelectedValue;
       const nextValue =
-        fallback != null && itemIncludes(nextValues, fallback, comparer) ? fallback : null;
+        fallback != null && findItemIndex(nextValues, fallback, comparer) !== -1 ? fallback : null;
       store.state.setSelectedValue(nextValue, eventDetails);
     }
   });
