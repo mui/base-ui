@@ -157,7 +157,7 @@ An input that suggests options as you type.
     - Return value
 - Exports:
   - Autocomplete - Root
-    - Props: actionsRef, autoHighlight, children, defaultOpen, defaultValue, disabled, filter, filteredItems, grid, highlightItemOnHover, id, inline, inputRef, itemToStringValue, items, keepHighlight, limit, locale, loopFocus, modal, mode, name, onItemHighlighted, onOpenChange, onOpenChangeComplete, onValueChange, open, openOnInputClick, readOnly, required, submitOnItemClick, value, virtualized
+    - Props: actionsRef, autoHighlight, children, defaultOpen, defaultValue, disabled, filter, filteredItems, form, grid, highlightItemOnHover, id, inline, inputRef, itemToStringValue, items, keepHighlight, limit, locale, loopFocus, modal, mode, name, onItemHighlighted, onOpenChange, onOpenChangeComplete, onValueChange, open, openOnInputClick, readOnly, required, submitOnItemClick, value, virtualized
   - Autocomplete - Value
     - Props: children
 
@@ -292,7 +292,7 @@ An easily stylable checkbox component.
   - API reference
 - Exports:
   - Checkbox - Root
-    - Props: checked, className, defaultChecked, disabled, id, indeterminate, inputRef, name, nativeButton, onCheckedChange, parent, readOnly, render, required, style, uncheckedValue, value
+    - Props: checked, className, defaultChecked, disabled, form, id, indeterminate, inputRef, name, nativeButton, onCheckedChange, parent, readOnly, render, required, style, uncheckedValue, value
     - Data Attributes: data-checked, data-dirty, data-disabled, data-filled, data-focused, data-indeterminate, data-invalid, data-readonly, data-required, data-touched, data-unchecked, data-valid
   - Checkbox - Indicator
     - Props: className, keepMounted, render, style
@@ -387,7 +387,7 @@ An input combined with a list of predefined items to select.
     - Return value
 - Exports:
   - Combobox - Root
-    - Props: actionsRef, autoComplete, autoHighlight, children, defaultInputValue, defaultOpen, defaultValue, disabled, filter, filteredItems, grid, highlightItemOnHover, id, inline, inputRef, inputValue, isItemEqualToValue, itemToStringLabel, itemToStringValue, items, limit, locale, loopFocus, modal, multiple, name, onInputValueChange, onItemHighlighted, onOpenChange, onOpenChangeComplete, onValueChange, open, openOnInputClick, readOnly, required, value, virtualized
+    - Props: actionsRef, autoComplete, autoHighlight, children, defaultInputValue, defaultOpen, defaultValue, disabled, filter, filteredItems, form, grid, highlightItemOnHover, id, inline, inputRef, inputValue, isItemEqualToValue, itemToStringLabel, itemToStringValue, items, limit, locale, loopFocus, modal, multiple, name, onInputValueChange, onItemHighlighted, onOpenChange, onOpenChangeComplete, onValueChange, open, openOnInputClick, readOnly, required, value, virtualized
   - Combobox - Label
     - Props: className, render, style
   - Combobox - Trigger
@@ -909,7 +909,7 @@ A numeric input element with increment and decrement buttons, and a scrub area.
   - API reference
 - Exports:
   - Number Field - Root
-    - Props: allowOutOfRange, allowWheelScrub, className, defaultValue, disabled, format, id, inputRef, largeStep, locale, max, min, name, onValueChange, onValueCommitted, readOnly, render, required, smallStep, snapOnStep, step, style, value
+    - Props: allowOutOfRange, allowWheelScrub, className, defaultValue, disabled, form, format, id, inputRef, largeStep, locale, max, min, name, onValueChange, onValueCommitted, readOnly, render, required, smallStep, snapOnStep, step, style, value
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-readonly, data-required, data-scrubbing, data-touched, data-valid
   - Number Field - Group
     - Props: className, render, style
@@ -1168,7 +1168,7 @@ A common form component for choosing a predefined value in a dropdown menu.
   - API reference
 - Exports:
   - Select - Root
-    - Props: actionsRef, autoComplete, children, defaultOpen, defaultValue, disabled, highlightItemOnHover, id, inputRef, isItemEqualToValue, itemToStringLabel, itemToStringValue, items, modal, multiple, name, onOpenChange, onOpenChangeComplete, onValueChange, open, readOnly, required, value
+    - Props: actionsRef, autoComplete, children, defaultOpen, defaultValue, disabled, form, highlightItemOnHover, id, inputRef, isItemEqualToValue, itemToStringLabel, itemToStringValue, items, modal, multiple, name, onOpenChange, onOpenChangeComplete, onValueChange, open, readOnly, required, value
   - Select - Label
     - Props: className, render, style
   - Select - Trigger
@@ -1261,7 +1261,7 @@ An easily stylable range input.
   - API reference
 - Exports:
   - Slider - Root
-    - Props: className, defaultValue, disabled, format, largeStep, locale, max, min, minStepsBetweenValues, name, onValueChange, onValueCommitted, orientation, render, step, style, thumbAlignment, thumbCollisionBehavior, value
+    - Props: className, defaultValue, disabled, form, format, largeStep, locale, max, min, minStepsBetweenValues, name, onValueChange, onValueCommitted, orientation, render, step, style, thumbAlignment, thumbCollisionBehavior, value
     - Data Attributes: data-dirty, data-disabled, data-dragging, data-focused, data-invalid, data-orientation, data-touched, data-valid
   - Slider - Label
     - Props: className, render, style
@@ -1304,7 +1304,7 @@ A control that indicates whether a setting is on or off.
   - API reference
 - Exports:
   - Switch - Root
-    - Props: checked, className, defaultChecked, disabled, id, inputRef, name, nativeButton, onCheckedChange, readOnly, render, required, style, uncheckedValue, value
+    - Props: checked, className, defaultChecked, disabled, form, id, inputRef, name, nativeButton, onCheckedChange, readOnly, render, required, style, uncheckedValue, value
     - Data Attributes: data-checked, data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-readonly, data-required, data-touched, data-unchecked, data-valid
   - Switch - Thumb
     - Props: className, render, style

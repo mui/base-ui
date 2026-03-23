@@ -10,7 +10,6 @@
 
   .CodeBlockPanel {
     font-size: var(--text-xs);
-    letter-spacing: var(--text-xs--letter-spacing);
     line-height: 1;
     background-color: var(--color-gray-50);
     background-clip: padding-box;
@@ -47,7 +46,6 @@
   .CodeBlockPanelTitle {
     font-size: var(--text-sm);
     line-height: var(--text-sm--line-height);
-    letter-spacing: var(--text-sm--letter-spacing);
     color: var(--color-gray-700);
     font-weight: 400;
   }

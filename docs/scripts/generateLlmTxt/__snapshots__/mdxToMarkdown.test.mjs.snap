@@ -23,7 +23,7 @@ export default function ExampleAccordion() {
     <Accordion.Root className="flex w-96 max-w-[calc(100vw-8rem)] flex-col justify-center text-gray-900">
       <Accordion.Item className="border-b border-gray-200">
         <Accordion.Header>
-          <Accordion.Trigger className="group relative flex w-full items-baseline justify-between gap-4 bg-gray-50 py-2 pr-1 pl-3 text-left font-medium hover:bg-gray-100 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800">
+          <Accordion.Trigger className="group relative flex w-full items-baseline justify-between gap-4 bg-gray-50 py-2 pr-1 pl-3 text-left font-normal hover:bg-gray-100 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800">
             What is Base UI?
             <PlusIcon className="mr-2 size-3 shrink-0 transition-all ease-out group-data-[panel-open]:scale-110 group-data-[panel-open]:rotate-45" />
           </Accordion.Trigger>
@@ -38,7 +38,7 @@ export default function ExampleAccordion() {
 
       <Accordion.Item className="border-b border-gray-200">
         <Accordion.Header>
-          <Accordion.Trigger className="group relative flex w-full items-baseline justify-between gap-4 bg-gray-50 py-2 pr-1 pl-3 text-left font-medium hover:bg-gray-100 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800">
+          <Accordion.Trigger className="group relative flex w-full items-baseline justify-between gap-4 bg-gray-50 py-2 pr-1 pl-3 text-left font-normal hover:bg-gray-100 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800">
             How do I get started?
             <PlusIcon className="mr-2 size-3 shrink-0 transition-all ease-out group-data-[panel-open]:scale-110 group-data-[panel-open]:rotate-45" />
           </Accordion.Trigger>
@@ -53,7 +53,7 @@ export default function ExampleAccordion() {
 
       <Accordion.Item className="border-b border-gray-200">
         <Accordion.Header>
-          <Accordion.Trigger className="group relative flex w-full items-baseline justify-between gap-4 bg-gray-50 py-2 pr-1 pl-3 text-left font-medium hover:bg-gray-100 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800">
+          <Accordion.Trigger className="group relative flex w-full items-baseline justify-between gap-4 bg-gray-50 py-2 pr-1 pl-3 text-left font-normal hover:bg-gray-100 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800">
             Can I use it for my project?
             <PlusIcon className="mr-2 size-3 shrink-0 transition-all ease-out group-data-[panel-open]:scale-110 group-data-[panel-open]:rotate-45" />
           </Accordion.Trigger>
@@ -112,7 +112,7 @@ This example shows how to implement the component using CSS Modules.
   padding-inline: 0.75rem 0.25rem;
   color: var(--color-gray-900);
   font-family: inherit;
-  font-weight: 500;
+  font-weight: 400;
   font-size: 1rem;
   line-height: 1.5rem;
   background: var(--color-gray-50);
@@ -272,7 +272,7 @@ export default function ExampleAccordion() {
     >
       <Accordion.Item className="border-b border-gray-200">
         <Accordion.Header>
-          <Accordion.Trigger className="group relative flex w-full items-baseline justify-between gap-4 bg-gray-50 py-2 pr-1 pl-3 text-left font-medium hover:bg-gray-100 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800">
+          <Accordion.Trigger className="group relative flex w-full items-baseline justify-between gap-4 bg-gray-50 py-2 pr-1 pl-3 text-left font-normal hover:bg-gray-100 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800">
             What is Base UI?
             <PlusIcon className="mr-2 size-3 shrink-0 transition-all ease-out group-data-[panel-open]:scale-110 group-data-[panel-open]:rotate-45" />
           </Accordion.Trigger>
@@ -287,7 +287,7 @@ export default function ExampleAccordion() {
 
       <Accordion.Item className="border-b border-gray-200">
         <Accordion.Header>
-          <Accordion.Trigger className="group relative flex w-full items-baseline justify-between gap-4 bg-gray-50 py-2 pr-1 pl-3 text-left font-medium hover:bg-gray-100 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800">
+          <Accordion.Trigger className="group relative flex w-full items-baseline justify-between gap-4 bg-gray-50 py-2 pr-1 pl-3 text-left font-normal hover:bg-gray-100 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800">
             How do I get started?
             <PlusIcon className="mr-2 size-3 shrink-0 transition-all ease-out group-data-[panel-open]:scale-110 group-data-[panel-open]:rotate-45" />
           </Accordion.Trigger>
@@ -302,7 +302,7 @@ export default function ExampleAccordion() {
 
       <Accordion.Item className="border-b border-gray-200">
         <Accordion.Header>
-          <Accordion.Trigger className="group relative flex w-full items-baseline justify-between gap-4 bg-gray-50 py-2 pr-1 pl-3 text-left font-medium hover:bg-gray-100 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800">
+          <Accordion.Trigger className="group relative flex w-full items-baseline justify-between gap-4 bg-gray-50 py-2 pr-1 pl-3 text-left font-normal hover:bg-gray-100 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800">
             Can I use it for my project?
             <PlusIcon className="mr-2 size-3 shrink-0 transition-all ease-out group-data-[panel-open]:scale-110 group-data-[panel-open]:rotate-45" />
           </Accordion.Trigger>
@@ -361,7 +361,7 @@ This example shows how to implement the component using CSS Modules.
   padding-inline: 0.75rem 0.25rem;
   color: var(--color-gray-900);
   font-family: inherit;
-  font-weight: 500;
+  font-weight: 400;
   font-size: 1rem;
   line-height: 1.5rem;
   background: var(--color-gray-50);
