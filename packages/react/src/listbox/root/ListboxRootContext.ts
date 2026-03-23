@@ -1,0 +1,40 @@
+'use client';
+import * as React from 'react';
+import type { ListboxStore } from '../store';
+import type { UseFieldValidationReturnValue } from '../../field/root/useFieldValidation';
+import type { ListboxRoot } from './ListboxRoot';
+
+export interface ListboxRootContext {
+  store: ListboxStore;
+  name: string | undefined;
+  disabled: boolean;
+  readOnly: boolean;
+  required: boolean;
+  multiple: boolean;
+  highlightItemOnHover: boolean;
+  orientation: 'vertical' | 'horizontal';
+  loopFocus: boolean;
+  setValue: (nextValue: any, eventDetails: ListboxRoot.ChangeEventDetails) => void;
+  listRef: React.RefObject<Array<HTMLElement | null>>;
+  valuesRef: React.RefObject<Array<any>>;
+  labelsRef: React.RefObject<Array<string | null>>;
+  typingRef: React.RefObject<boolean>;
+  lastSelectedIndexRef: React.RefObject<number | null>;
+  validation: UseFieldValidationReturnValue;
+  onItemsReorder:
+    | ((event: { items: any[]; reason: 'drag' | 'keyboard' }) => void)
+    | undefined;
+  onLoadMore: (() => void) | undefined;
+}
+
+export const ListboxRootContext = React.createContext<ListboxRootContext | null>(null);
+
+export function useListboxRootContext() {
+  const context = React.useContext(ListboxRootContext);
+  if (context === null) {
+    throw new Error(
+      'Base UI: ListboxRootContext is missing. Listbox parts must be placed within <Listbox.Root>.',
+    );
+  }
+  return context;
+}

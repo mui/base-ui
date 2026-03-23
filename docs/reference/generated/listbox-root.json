@@ -1,0 +1,115 @@
+{
+  "name": "ListboxRoot",
+  "description": "Groups all parts of the listbox.\nDoesn't render its own HTML element.",
+  "props": {
+    "name": {
+      "type": "string",
+      "description": "Identifies the field when a form is submitted.",
+      "detailedType": "string | undefined"
+    },
+    "defaultValue": {
+      "type": "Value[] | Value | null",
+      "description": "The uncontrolled value of the listbox when it's initially rendered.\n\nTo render a controlled listbox, use the `value` prop instead.",
+      "detailedType": "Value[] | Value | null | undefined"
+    },
+    "value": {
+      "type": "Value[] | Value | null",
+      "description": "The value of the listbox. Use when controlled.",
+      "detailedType": "Value[] | Value | null | undefined"
+    },
+    "onValueChange": {
+      "type": "((value: Value[] | Value | any | null, eventDetails: Listbox.Root.ChangeEventDetails) => void)",
+      "description": "Event handler called when the value of the listbox changes.",
+      "detailedType": "| ((\n    value: Value[] | Value | any | null,\n    eventDetails: Listbox.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+    },
+    "highlightItemOnHover": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether moving the pointer over items should highlight them.",
+      "detailedType": "boolean | undefined"
+    },
+    "isItemEqualToValue": {
+      "type": "((itemValue: Value, value: Value) => boolean)",
+      "description": "Custom comparison logic used to determine if a listbox item value matches the current selected value.\nDefaults to `Object.is` comparison.",
+      "detailedType": "| ((itemValue: Value, value: Value) => boolean)\n| undefined"
+    },
+    "itemToStringLabel": {
+      "type": "((itemValue: Value) => string)",
+      "description": "Converts an object value to a string label for display.",
+      "detailedType": "((itemValue: Value) => string) | undefined"
+    },
+    "itemToStringValue": {
+      "type": "((itemValue: Value) => string)",
+      "description": "Converts an object value to a string representation for form submission.",
+      "detailedType": "((itemValue: Value) => string) | undefined"
+    },
+    "loading": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether items are currently being loaded.",
+      "detailedType": "boolean | undefined"
+    },
+    "loopFocus": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether keyboard navigation loops back to the first/last item.",
+      "detailedType": "boolean | undefined"
+    },
+    "multiple": {
+      "type": "boolean | undefined",
+      "default": "false",
+      "description": "Whether multiple items can be selected.",
+      "detailedType": "boolean | undefined"
+    },
+    "onItemsReorder": {
+      "type": "((event: { items: Value[], reason: 'drag' | 'keyboard' }) => void)",
+      "description": "Event handler called when items are reordered via drag-and-drop or keyboard.",
+      "detailedType": "| ((event: {\n    items: Value[]\n    reason: 'drag' | 'keyboard'\n  }) => void)\n| undefined"
+    },
+    "onLoadMore": {
+      "type": "(() => void)",
+      "description": "Event handler called when more items should be loaded.",
+      "detailedType": "(() => void) | undefined"
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the component should ignore user interaction.",
+      "detailedType": "boolean | undefined"
+    },
+    "readOnly": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the user should be unable to change the selected value.",
+      "detailedType": "boolean | undefined"
+    },
+    "required": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the user must choose a value before submitting a form.",
+      "detailedType": "boolean | undefined"
+    },
+    "orientation": {
+      "type": "'vertical' | 'horizontal'",
+      "default": "'vertical'",
+      "description": "The orientation of the listbox for keyboard navigation.",
+      "detailedType": "'vertical' | 'horizontal' | undefined"
+    },
+    "inputRef": {
+      "type": "Ref<HTMLInputElement>",
+      "description": "A ref to access the hidden input element.",
+      "detailedType": "React.Ref<HTMLInputElement> | undefined"
+    },
+    "id": {
+      "type": "string",
+      "description": "The id of the Listbox.",
+      "detailedType": "string | undefined"
+    },
+    "children": {
+      "type": "ReactNode",
+      "detailedType": "React.ReactNode"
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

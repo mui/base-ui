@@ -1,0 +1,73 @@
+{
+  "name": "ListboxItem",
+  "description": "An individual option in the listbox.\nRenders a `<div>` element.",
+  "props": {
+    "label": {
+      "type": "string",
+      "description": "Specifies the text label to use when the item is matched during keyboard text navigation.",
+      "detailedType": "string | undefined"
+    },
+    "value": {
+      "type": "any",
+      "default": "null",
+      "description": "A unique value that identifies this listbox item."
+    },
+    "draggable": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the item can be reordered via drag-and-drop.",
+      "detailedType": "boolean | undefined"
+    },
+    "nativeButton": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `true` if the rendered element is a native button.",
+      "detailedType": "boolean | undefined"
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the component should ignore user interaction.",
+      "detailedType": "boolean | undefined"
+    },
+    "children": {
+      "type": "ReactNode",
+      "detailedType": "React.ReactNode"
+    },
+    "className": {
+      "type": "string | ((state: Listbox.Item.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Listbox.Item.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Listbox.Item.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Listbox.Item.State) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Listbox.Item.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Listbox.Item.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {
+    "data-selected": {
+      "description": "Present when the listbox item is selected."
+    },
+    "data-highlighted": {
+      "description": "Present when the listbox item is highlighted."
+    },
+    "data-dragging": {
+      "description": "Present when the listbox item is being dragged."
+    },
+    "data-disabled": {
+      "description": "Present when the listbox item is disabled."
+    },
+    "data-drop-target": {
+      "description": "Present when the listbox item is a drop target."
+    },
+    "data-drop-target-edge": {
+      "description": "Indicates the closest edge when the item is a drop target.\nThe value is `'top'` or `'bottom'`."
+    }
+  },
+  "cssVariables": {}
+}

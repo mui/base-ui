@@ -44,6 +44,7 @@
     "./fieldset": "./src/fieldset/index.ts",
     "./form": "./src/form/index.ts",
     "./input": "./src/input/index.ts",
+    "./listbox": "./src/listbox/index.ts",
     "./menu": "./src/menu/index.ts",
     "./menubar": "./src/menubar/index.ts",
     "./merge-props": "./src/merge-props/index.ts",
@@ -84,6 +85,8 @@
     "typescript": "tsc -b tsconfig.json"
   },
   "dependencies": {
+    "@atlaskit/pragmatic-drag-and-drop": "^1.5.2",
+    "@atlaskit/pragmatic-drag-and-drop-hitbox": "^1.1.0",
     "@babel/runtime": "^7.29.2",
     "@base-ui/utils": "workspace:*",
     "@floating-ui/react-dom": "^2.1.8",

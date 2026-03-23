@@ -1,0 +1,105 @@
+.Field {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 0.25rem;
+}
+
+.Label {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  color: var(--color-gray-900);
+  cursor: default;
+}
+
+.List {
+  box-sizing: border-box;
+  width: 14rem;
+  max-height: 24rem;
+  overflow-y: auto;
+  padding-block: 0.25rem;
+  border-radius: 0.375rem;
+  outline: 0;
+
+  @media (prefers-color-scheme: light) {
+    outline: 1px solid var(--color-gray-200);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    outline: 1px solid var(--color-gray-300);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
+  }
+}
+
+.Group {
+  display: block;
+  padding-bottom: 0.125rem;
+}
+
+.GroupLabel {
+  box-sizing: border-box;
+  padding: 0.5rem 1rem 0.25rem calc(0.625rem + 0.75rem + 0.5rem);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-gray-600);
+  cursor: default;
+}
+
+.Item {
+  box-sizing: border-box;
+  outline: 0;
+  font-size: 0.875rem;
+  line-height: 1rem;
+  color: var(--color-gray-900);
+  padding-block: 0.5rem;
+  padding-left: 0.625rem;
+  padding-right: 1rem;
+  display: grid;
+  gap: 0.5rem;
+  align-items: center;
+  grid-template-columns: 0.75rem 1fr;
+  cursor: default;
+  -webkit-user-select: none;
+  user-select: none;
+
+  @media (pointer: coarse) {
+    padding-block: 0.625rem;
+    font-size: 0.925rem;
+  }
+
+  &[data-highlighted] {
+    z-index: 0;
+    position: relative;
+  }
+
+  &[data-highlighted]::before {
+    content: '';
+    z-index: -1;
+    position: absolute;
+    inset-block: 0;
+    inset-inline: 0.25rem;
+    border-radius: 0.25rem;
+    background-color: var(--color-gray-100);
+  }
+}
+
+.ItemIndicator {
+  grid-column-start: 1;
+}
+
+.ItemIndicatorIcon {
+  display: block;
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.ItemText {
+  grid-column-start: 2;
+}

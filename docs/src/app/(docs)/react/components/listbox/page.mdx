@@ -1,0 +1,88 @@
+# Listbox
+
+<Subtitle>An always-visible list for selecting one or more options.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React listbox component for selecting options from an always-visible list."
+/>
+
+import { DemoListboxHero } from './demos/hero';
+
+<DemoListboxHero />
+
+## Usage guidelines
+
+- **Always visible**: Unlike [Select](/react/components/select), the Listbox is always open and does not use a popup or trigger. Use it when all options should be visible at once.
+- **Multi-select support**: Set `multiple` to allow selecting more than one item. Hold Shift and click to select a contiguous range.
+- **Form controls must have an accessible name**: Prefer `<Listbox.Label>`, or provide an `aria-label` on `<Listbox.List>` when no visible label is rendered. See the [forms guide](/react/handbook/forms).
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { Listbox } from '@base-ui/react/listbox';
+
+<Listbox.Root>
+  <Listbox.Label />
+  <Listbox.List>
+    <Listbox.Item>
+      <Listbox.ItemIndicator />
+      <Listbox.ItemText />
+      <Listbox.ItemDragHandle />
+    </Listbox.Item>
+    <Listbox.Group>
+      <Listbox.GroupLabel />
+    </Listbox.Group>
+    <Listbox.LoadingTrigger />
+  </Listbox.List>
+</Listbox.Root>;
+```
+
+## Examples
+
+### Multiple selection
+
+Set `multiple` to allow selecting more than one item. Click an item to toggle it, or hold Shift and click to select a range.
+
+import { DemoListboxMultiSelection } from './demos/multi-selection';
+
+<DemoListboxMultiSelection />
+
+### Lazy loading
+
+Use `Listbox.LoadingTrigger` as a sentinel at the end of the list. When it scrolls into view, the `onLoadMore` callback fires.
+
+import { DemoListboxLazyLoading } from './demos/lazy-loading';
+
+<DemoListboxLazyLoading />
+
+### Drag and drop
+
+Set `draggable` on items and provide an `onItemsReorder` callback on the root. Use `Listbox.ItemDragHandle` to restrict drag initiation to a handle. Items can also be reordered with the keyboard using Alt+Arrow keys.
+
+import { DemoListboxDragAndDrop } from './demos/drag-and-drop';
+
+<DemoListboxDragAndDrop />
+
+## API reference
+
+<Reference
+  component="Listbox"
+  parts="Root, Label, List, Item, ItemText, ItemIndicator, ItemDragHandle, Group, GroupLabel, LoadingTrigger"
+/>
+
+export const metadata = {
+  keywords: [
+    'React Listbox Component',
+    'Listbox',
+    'Option List',
+    'Multi Select',
+    'Drag and Drop List',
+    'Reorderable List',
+    'Accessible Listbox',
+    'Lazy Loading List',
+    'Headless React Components',
+    'Base UI',
+  ],
+};
