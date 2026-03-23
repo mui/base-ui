@@ -3,7 +3,7 @@ import { isOverflowElement } from '@floating-ui/utils/dom';
 import { isIOS, isWebKit } from './detectBrowser';
 import { ownerDocument, ownerWindow } from './owner';
 import { findScrollableTouchTarget, getScrollMetrics, type ScrollAxis } from './scrollable';
-import { isEventOnRangeInput, shouldIgnoreTouchMoveForSelection } from './touch';
+import { getTouchMoveAxis, isEventOnRangeInput, shouldIgnoreTouchMoveForSelection } from './touch';
 import { useIsoLayoutEffect } from './useIsoLayoutEffect';
 import { Timeout } from './useTimeout';
 import { AnimationFrame } from './useAnimationFrame';
@@ -24,12 +24,6 @@ function isStylusTouch(event: TouchEvent) {
   const touchType = (touch as TouchWithTouchType | undefined)?.touchType;
   const pointerType = (event as unknown as EventWithPointerType).pointerType;
   return touchType === 'stylus' || touchType === 'pen' || pointerType === 'pen';
-}
-
-function getDominantScrollAxis(touchState: TouchScrollState, touch: Touch): ScrollAxis {
-  const deltaX = Math.abs(touch.clientX - touchState.startX);
-  const deltaY = Math.abs(touch.clientY - touchState.startY);
-  return deltaX > deltaY ? 'horizontal' : 'vertical';
 }
 
 function shouldPreventScrollChaining(
@@ -96,7 +90,16 @@ export function preventScrollIOS(referenceElement: Element | null = null) {
       return;
     }
 
-    const axis = getDominantScrollAxis(activeTouchState, touch);
+    const axis = getTouchMoveAxis(
+      activeTouchState.startX,
+      activeTouchState.startY,
+      touch.clientX,
+      touch.clientY,
+    );
+    if (!axis) {
+      return;
+    }
+
     const scrollTarget =
       axis === 'vertical'
         ? activeTouchState.verticalScrollTarget

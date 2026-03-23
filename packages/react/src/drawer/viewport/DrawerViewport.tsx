@@ -3,7 +3,11 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isElement } from '@floating-ui/utils/dom';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
-import { isEventOnRangeInput, shouldIgnoreTouchMoveForSelection } from '@base-ui/utils/touch';
+import {
+  getTouchMoveAxis,
+  isEventOnRangeInput,
+  shouldIgnoreTouchMoveForSelection,
+} from '@base-ui/utils/touch';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
@@ -1232,16 +1236,15 @@ function preserveNativeCrossAxisScrollOnMove(
     return false;
   }
 
-  const drawerAxisGestureDelta = isVerticalScrollAxis
-    ? touch.clientY - touchState.startY
-    : touch.clientX - touchState.startX;
-  const crossAxisGestureDelta = isVerticalScrollAxis
-    ? touch.clientX - touchState.startX
-    : touch.clientY - touchState.startY;
-  const absDrawerAxisGestureDelta = Math.abs(drawerAxisGestureDelta);
-  const absCrossAxisGestureDelta = Math.abs(crossAxisGestureDelta);
+  const gestureAxis = getTouchMoveAxis(
+    touchState.startX,
+    touchState.startY,
+    touch.clientX,
+    touch.clientY,
+  );
+  const crossAxis: ScrollAxis = isVerticalScrollAxis ? 'horizontal' : 'vertical';
 
-  if (absCrossAxisGestureDelta < 6 || absCrossAxisGestureDelta <= absDrawerAxisGestureDelta + 2) {
+  if (gestureAxis !== crossAxis) {
     return false;
   }
 

@@ -140,6 +140,43 @@ it('allows touchmove inside a scrollable container on iOS', async () => {
   expect(touchMove.defaultPrevented).toBe(false);
 });
 
+it('does not commit to an axis on ambiguous diagonal movement inside a scrollable container on iOS', async () => {
+  vi.useFakeTimers();
+
+  const { useScrollLock } = await importUseScrollLockIOS();
+
+  function TestComponent() {
+    useScrollLock(true, document.body);
+    return (
+      <div data-testid="scroll" style={{ overflowY: 'auto', maxHeight: 40 }}>
+        <div style={{ height: 120 }}>Scrollable content</div>
+      </div>
+    );
+  }
+
+  render(<TestComponent />);
+
+  act(() => {
+    vi.runAllTimers();
+  });
+
+  const scroll = screen.getByTestId('scroll');
+  Object.defineProperty(scroll, 'scrollHeight', { value: 120, configurable: true });
+  Object.defineProperty(scroll, 'clientHeight', { value: 40, configurable: true });
+  scroll.scrollTop = 10;
+
+  scroll.dispatchEvent(createTouchEvent('touchstart', scroll, { clientX: 0, clientY: 0 }));
+
+  const diagonalTouchMove = createTouchEvent('touchmove', scroll, { clientX: 7, clientY: 6 });
+  scroll.dispatchEvent(diagonalTouchMove);
+
+  const verticalTouchMove = createTouchEvent('touchmove', scroll, { clientX: 8, clientY: 12 });
+  scroll.dispatchEvent(verticalTouchMove);
+
+  expect(diagonalTouchMove.defaultPrevented).toBe(false);
+  expect(verticalTouchMove.defaultPrevented).toBe(false);
+});
+
 it('prevents touchmove at scroll top when dragging past the boundary on iOS', async () => {
   vi.useFakeTimers();
 
