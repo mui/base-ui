@@ -22,6 +22,11 @@
       "description": "Callback fired when the value changes.",
       "detailedType": "| ((\n    value: Value,\n    eventDetails: Radio.Group.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
+    "form": {
+      "type": "string",
+      "description": "Identifies the form that owns the radio inputs.\nUseful when the radio group is rendered outside the form.",
+      "detailedType": "string | undefined"
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",

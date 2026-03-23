@@ -427,6 +427,51 @@ describe('<Checkbox.Root />', () => {
       },
     );
 
+    it.skipIf(isJSDOM)('submits to an external form when `form` is provided', async () => {
+      const submitSpy = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        return formData.get('test-checkbox');
+      });
+
+      const { user } = await render(
+        <React.Fragment>
+          <form id="external-form" onSubmit={submitSpy}>
+            <button type="submit">Submit</button>
+          </form>
+          <Checkbox.Root name="test-checkbox" form="external-form" />
+        </React.Fragment>,
+      );
+
+      await user.click(screen.getByRole('checkbox'));
+      await user.click(screen.getByRole('button'));
+
+      expect(submitSpy.mock.calls.length).toBe(1);
+      expect(submitSpy.mock.results.at(-1)?.value).toBe('on');
+    });
+
+    it.skipIf(isJSDOM)('submits uncheckedValue to an external form when unchecked', async () => {
+      const submitSpy = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        return formData.get('test-checkbox');
+      });
+
+      await render(
+        <React.Fragment>
+          <form id="external-form" onSubmit={submitSpy}>
+            <button type="submit">Submit</button>
+          </form>
+          <Checkbox.Root name="test-checkbox" form="external-form" uncheckedValue="off" />
+        </React.Fragment>,
+      );
+
+      fireEvent.click(screen.getByRole('button'));
+
+      expect(submitSpy.mock.calls.length).toBe(1);
+      expect(submitSpy.mock.results.at(-1)?.value).toBe('off');
+    });
+
     it.skipIf(isJSDOM)(
       'should include the custom checkbox value in form submission, matching native checkbox behavior',
       async () => {
