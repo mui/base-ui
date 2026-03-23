@@ -1,10 +1,7 @@
 import { isElement } from '@floating-ui/utils/dom';
 import type { ScrollAxis } from './scrollable';
 
-const TOUCH_AXIS_COMMIT_THRESHOLD = 6;
-const TOUCH_AXIS_COMMIT_MARGIN = 2;
-
-export function isTextSelectionControl(
+function isTextSelectionControl(
   target: EventTarget | null,
 ): target is HTMLInputElement | HTMLTextAreaElement {
   if (!isElement(target)) {
@@ -14,7 +11,7 @@ export function isTextSelectionControl(
   return target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
 }
 
-export function hasExpandedSelectionWithinTarget(selection: Selection, target: Element): boolean {
+function hasExpandedSelectionWithinTarget(selection: Selection, target: Element): boolean {
   const anchorElement = isElement(selection.anchorNode)
     ? selection.anchorNode
     : selection.anchorNode?.parentElement;
@@ -31,9 +28,8 @@ export function hasExpandedSelectionWithinTarget(selection: Selection, target: E
 
 export function shouldIgnoreTouchMoveForSelection(doc: Document, target: Element): boolean {
   const activeElement = doc.activeElement;
-  const activeElementWithinTarget = Boolean(activeElement && target.contains(activeElement));
 
-  if (activeElementWithinTarget && isTextSelectionControl(activeElement)) {
+  if (target.contains(activeElement) && isTextSelectionControl(activeElement)) {
     const { selectionStart, selectionEnd } = activeElement;
     if (selectionStart != null && selectionEnd != null && selectionStart < selectionEnd) {
       return true;
@@ -48,7 +44,7 @@ export function shouldIgnoreTouchMoveForSelection(doc: Document, target: Element
   return hasExpandedSelectionWithinTarget(selection, target);
 }
 
-export function isRangeInput(
+function isRangeInput(
   target: EventTarget | null,
   win: Window & typeof globalThis,
 ): target is HTMLInputElement {
@@ -73,11 +69,11 @@ export function getTouchMoveAxis(
   const deltaX = Math.abs(currentX - startX);
   const deltaY = Math.abs(currentY - startY);
 
-  if (deltaX >= TOUCH_AXIS_COMMIT_THRESHOLD && deltaX > deltaY + TOUCH_AXIS_COMMIT_MARGIN) {
+  if (deltaX >= 6 && deltaX > deltaY + 2) {
     return 'horizontal';
   }
 
-  if (deltaY >= TOUCH_AXIS_COMMIT_THRESHOLD && deltaY > deltaX + TOUCH_AXIS_COMMIT_MARGIN) {
+  if (deltaY >= 6 && deltaY > deltaX + 2) {
     return 'vertical';
   }
 

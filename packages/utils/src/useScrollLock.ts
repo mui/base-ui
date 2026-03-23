@@ -2,7 +2,7 @@
 import { isOverflowElement } from '@floating-ui/utils/dom';
 import { isIOS, isWebKit } from './detectBrowser';
 import { ownerDocument, ownerWindow } from './owner';
-import { findScrollableTouchTarget, getScrollMetrics, type ScrollAxis } from './scrollable';
+import { findScrollableTouchTarget, getScrollMetrics } from './scrollable';
 import { getTouchMoveAxis, isEventOnRangeInput, shouldIgnoreTouchMoveForSelection } from './touch';
 import { useIsoLayoutEffect } from './useIsoLayoutEffect';
 import { Timeout } from './useTimeout';
@@ -26,42 +26,19 @@ function isStylusTouch(event: TouchEvent) {
   return touchType === 'stylus' || touchType === 'pen' || pointerType === 'pen';
 }
 
-function shouldPreventScrollChaining(
-  scrollTarget: HTMLElement,
-  axis: ScrollAxis,
-  touchState: TouchScrollState,
-  touch: Touch,
-): boolean {
-  const { offset, max } = getScrollMetrics(scrollTarget, axis);
-  const delta =
-    axis === 'vertical' ? touch.clientY - touchState.startY : touch.clientX - touchState.startX;
-
-  if (delta > 0) {
-    return offset <= 0;
-  }
-
-  if (delta < 0) {
-    return offset >= max;
-  }
-
-  return false;
-}
-
 export function preventScrollIOS(referenceElement: Element | null = null) {
   const doc = ownerDocument(referenceElement);
   const win = ownerWindow(doc);
 
   let touchState: TouchScrollState | null = null;
   let allowTouchMove = false;
-  let stylusActive = false;
 
   function onTouchStart(event: TouchEvent) {
     const touch = event.touches[0];
     const target = event.target;
 
-    stylusActive = isStylusTouch(event);
     allowTouchMove =
-      stylusActive ||
+      isStylusTouch(event) ||
       isEventOnRangeInput(event, win) ||
       (target instanceof win.Element && shouldIgnoreTouchMoveForSelection(doc, target));
 
@@ -81,7 +58,7 @@ export function preventScrollIOS(referenceElement: Element | null = null) {
   function onTouchMove(event: TouchEvent) {
     const touch = event.touches[0];
 
-    if (!touch || event.touches.length === 2 || allowTouchMove || stylusActive) {
+    if (!touch || event.touches.length === 2 || allowTouchMove) {
       return;
     }
 
@@ -108,13 +85,21 @@ export function preventScrollIOS(referenceElement: Element | null = null) {
     const isScrollRoot =
       !scrollTarget || scrollTarget === doc.documentElement || scrollTarget === doc.body;
 
-    if (isScrollRoot && event.cancelable) {
-      event.preventDefault();
-    } else if (
-      scrollTarget &&
-      shouldPreventScrollChaining(scrollTarget, axis, activeTouchState, touch) &&
-      event.cancelable
-    ) {
+    const { offset, max } = scrollTarget
+      ? getScrollMetrics(scrollTarget, axis)
+      : { offset: 0, max: 0 };
+    const delta =
+      axis === 'vertical'
+        ? touch.clientY - activeTouchState.startY
+        : touch.clientX - activeTouchState.startX;
+    let shouldPreventScrollChaining = false;
+    if (delta > 0) {
+      shouldPreventScrollChaining = offset <= 0;
+    } else if (delta < 0) {
+      shouldPreventScrollChaining = offset >= max;
+    }
+
+    if (event.cancelable && (isScrollRoot || shouldPreventScrollChaining)) {
       event.preventDefault();
     }
   }
