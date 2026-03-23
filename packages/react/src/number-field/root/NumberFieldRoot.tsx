@@ -59,6 +59,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     required = false,
     disabled: disabledProp = false,
     readOnly = false,
+    form,
     name: nameProp,
     defaultValue,
     value: valueProp,
@@ -484,6 +485,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         })}
         ref={hiddenInputRef}
         type="number"
+        form={form}
         name={name}
         value={value ?? ''}
         min={min}
@@ -562,6 +564,11 @@ export interface NumberFieldRootProps extends Omit<
    * Identifies the field when a form is submitted.
    */
   name?: string | undefined;
+  /**
+   * Identifies the form that owns the hidden input.
+   * Useful when the number field is rendered outside the form.
+   */
+  form?: string | undefined;
   /**
    * The raw numeric value of the field.
    */
