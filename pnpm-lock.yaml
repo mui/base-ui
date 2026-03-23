@@ -525,7 +525,7 @@ importers:
         specifier: 14.6.1
         version: 14.6.1(@testing-library/dom@10.4.1)
       '@types/luxon':
-        specifier: ^3.7.1
+        specifier: 3.7.1
         version: 3.7.1
       '@types/react':
         specifier: 19.2.14
