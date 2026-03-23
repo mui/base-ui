@@ -1,4 +1,4 @@
-import { ComboboxItemDataAttributes } from '../../combobox/item/ComboboxtemDataAttributes';
+import { ComboboxItemDataAttributes } from '../../combobox/item/ComboboxItemDataAttributes';
 
 export enum AutocompleteItemDataAttributes {
   /**
