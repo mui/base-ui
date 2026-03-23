@@ -22,6 +22,8 @@ import { compareItemEquality, findItemIndex } from '../../utils/itemEquality';
 /**
  * An individual item in the list.
  * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxItem = React.memo(
   React.forwardRef(function ComboboxItem(

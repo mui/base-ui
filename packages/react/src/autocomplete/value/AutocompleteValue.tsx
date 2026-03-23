@@ -25,8 +25,14 @@ export function AutocompleteValue(props: AutocompleteValue.Props): React.ReactEl
   return <React.Fragment>{returnValue}</React.Fragment>;
 }
 
+/**
+ * The state of the autocomplete value component.
+ */
 export interface AutocompleteValueState {}
 
+/**
+ * The props of the autocomplete value component.
+ */
 export interface AutocompleteValueProps {
   children?: React.ReactNode | ((value: string) => React.ReactNode);
 }

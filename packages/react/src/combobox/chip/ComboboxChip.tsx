@@ -16,6 +16,8 @@ import { REASONS } from '../../utils/reasons';
 /**
  * An individual chip that represents a value in a multiselectable input.
  * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxChip = React.forwardRef(function ComboboxChip(
   componentProps: ComboboxChip.Props,

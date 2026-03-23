@@ -27,6 +27,8 @@ import { usePositioner } from '../../utils/usePositioner';
 /**
  * Positions the popup against the trigger.
  * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   componentProps: ComboboxPositioner.Props,
