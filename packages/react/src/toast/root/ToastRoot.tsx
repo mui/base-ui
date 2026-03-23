@@ -74,6 +74,27 @@ function getElementTransform(element: HTMLElement) {
   return { x: translateX, y: translateY, scale };
 }
 
+function safelyChangePointerCapture(
+  element: HTMLElement,
+  pointerId: number,
+  method: 'setPointerCapture' | 'releasePointerCapture',
+) {
+  const pointerCaptureMethod = element[method];
+  if (typeof pointerCaptureMethod !== 'function') {
+    return;
+  }
+
+  try {
+    pointerCaptureMethod.call(element, pointerId);
+  } catch (error) {
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'NotFoundError') {
+      return;
+    }
+
+    throw error;
+  }
+}
+
 /**
  * Groups all parts of an individual toast.
  * Renders a `<div>` element.
@@ -269,7 +290,9 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     setLockedDirection(null);
     isFirstPointerMoveRef.current = true;
 
-    rootRef.current?.setPointerCapture(event.pointerId);
+    if (rootRef.current) {
+      safelyChangePointerCapture(rootRef.current, event.pointerId, 'setPointerCapture');
+    }
   }
 
   function handlePointerMove(event: React.PointerEvent) {
@@ -401,7 +424,9 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     setIsRealSwipe(false);
     setLockedDirection(null);
 
-    rootRef.current?.releasePointerCapture(event.pointerId);
+    if (rootRef.current) {
+      safelyChangePointerCapture(rootRef.current, event.pointerId, 'releasePointerCapture');
+    }
 
     if (cancelledSwipeRef.current) {
       setDragOffset({ x: initialTransform.x, y: initialTransform.y });
@@ -456,6 +481,25 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       setDragOffset({ x: initialTransform.x, y: initialTransform.y });
       setCurrentSwipeDirection(undefined);
     }
+  }
+
+  function handlePointerCancel(event: React.PointerEvent) {
+    if (!isSwiping) {
+      finishTouchSwipe();
+      return;
+    }
+
+    finishTouchSwipe();
+    setIsSwiping(false);
+    setIsRealSwipe(false);
+    setLockedDirection(null);
+
+    if (rootRef.current) {
+      safelyChangePointerCapture(rootRef.current, event.pointerId, 'releasePointerCapture');
+    }
+
+    setDragOffset({ x: initialTransform.x, y: initialTransform.y });
+    setCurrentSwipeDirection(undefined);
   }
 
   function handleKeyDown(event: React.KeyboardEvent) {
@@ -532,7 +576,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     onPointerDown: swipeEnabled ? handlePointerDown : undefined,
     onPointerMove: swipeEnabled ? handlePointerMove : undefined,
     onPointerUp: swipeEnabled ? handlePointerUp : undefined,
-    onPointerCancel: swipeEnabled ? handlePointerUp : undefined,
+    onPointerCancel: swipeEnabled ? handlePointerCancel : undefined,
     onKeyDown: handleKeyDown,
     inert: inertValue(toast.limited),
     style: {
