@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { isIOS } from '@base-ui/utils/detectBrowser';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 
 const LIVE_REGION_MARKER = '\u2060';
@@ -23,6 +24,10 @@ export function useInitialLiveRegionTextMutation<T extends HTMLElement>() {
   const rootRef = React.useRef<T | null>(null);
 
   React.useEffect(() => {
+    if (isIOS) {
+      return undefined;
+    }
+
     const root = rootRef.current;
     if (root == null) {
       return undefined;
@@ -37,8 +42,7 @@ export function useInitialLiveRegionTextMutation<T extends HTMLElement>() {
     const markedValue = `${originalValue}${LIVE_REGION_MARKER}`;
     textNode.nodeValue = markedValue;
 
-    // macOS Safari requires a longer delay to ensure the live region update is announced.
-    timeout.start(200, () => {
+    timeout.start(0, () => {
       if (textNode.nodeValue === markedValue) {
         textNode.nodeValue = originalValue;
       }

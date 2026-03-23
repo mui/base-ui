@@ -144,7 +144,7 @@ describe('<Combobox.Empty />', () => {
       expect(screen.getByRole('status')).toBe(screen.getByTestId('empty'));
       expect(screen.getByTestId('empty').textContent).toBe('No results\u2060');
 
-      clock.tick(200);
+      clock.tick(0);
 
       expect(screen.getByTestId('empty').textContent).toBe('No results');
     });
@@ -205,7 +205,7 @@ describe('<Combobox.Empty />', () => {
       expect(screen.getByRole('status')).toBe(screen.getByTestId('custom-empty'));
       expect(screen.getByTestId('custom-empty').textContent).toBe('No results\u2060');
 
-      clock.tick(200);
+      clock.tick(0);
 
       expect(screen.getByTestId('custom-empty').textContent).toBe('No results');
     });

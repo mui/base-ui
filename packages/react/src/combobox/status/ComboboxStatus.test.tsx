@@ -65,7 +65,7 @@ describe('<Combobox.Status />', () => {
       expect(screen.getByRole('status')).toBe(screen.getByTestId('status'));
       expect(screen.getByTestId('status').textContent).toBe('Searching…\u2060');
 
-      clock.tick(200);
+      clock.tick(0);
 
       expect(screen.getByTestId('status').textContent).toBe('Searching…');
     });
@@ -104,7 +104,7 @@ describe('<Combobox.Status />', () => {
       expect(screen.getByRole('status')).toBe(screen.getByTestId('custom-status'));
       expect(screen.getByTestId('custom-status').textContent).toBe('Searching…\u2060');
 
-      clock.tick(200);
+      clock.tick(0);
 
       expect(screen.getByTestId('custom-status').textContent).toBe('Searching…');
     });
