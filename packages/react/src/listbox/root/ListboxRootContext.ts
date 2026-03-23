@@ -18,11 +18,17 @@ export interface ListboxRootContext {
   listRef: React.RefObject<Array<HTMLElement | null>>;
   valuesRef: React.RefObject<Array<any>>;
   labelsRef: React.RefObject<Array<string | null>>;
+  groupIdsRef: React.RefObject<Array<string | undefined>>;
   typingRef: React.RefObject<boolean>;
   lastSelectedIndexRef: React.RefObject<number | null>;
   validation: UseFieldValidationReturnValue;
   onItemsReorder:
-    | ((event: { items: any[]; reason: 'drag' | 'keyboard' }) => void)
+    | ((event: {
+        items: any[];
+        referenceItem: any;
+        edge: 'before' | 'after';
+        reason: 'drag' | 'keyboard';
+      }) => void)
     | undefined;
   onLoadMore: (() => void) | undefined;
 }

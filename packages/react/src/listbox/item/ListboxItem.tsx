@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { isMouseWithinBounds } from '@base-ui/utils/isMouseWithinBounds';
 import { useTimeout } from '@base-ui/utils/useTimeout';
@@ -24,6 +25,7 @@ import { REASONS } from '../../utils/reasons';
 import { compareItemEquality, removeItem } from '../../utils/itemEquality';
 import { useListItemValueRegistration } from '../../utils/useListItemValueRegistration';
 import { useListboxItemDnD } from '../utils/useListboxDnD';
+import { useListboxGroupContext } from '../group/ListboxGroupContext';
 import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 
 // Map the raw edge from Pragmatic DnD (top/bottom/left/right) to logical
@@ -74,6 +76,7 @@ export const ListboxItem = React.memo(
       store,
       setValue,
       valuesRef,
+      groupIdsRef,
       multiple,
       highlightItemOnHover,
       lastSelectedIndexRef,
@@ -81,6 +84,8 @@ export const ListboxItem = React.memo(
       disabled: rootDisabled,
       onItemsReorder,
     } = useListboxRootContext();
+
+    const groupContext = useListboxGroupContext(true);
 
     const highlightTimeout = useTimeout();
 
@@ -92,6 +97,11 @@ export const ListboxItem = React.memo(
 
     const index = listItem.index;
     const hasRegistered = index !== -1;
+    const isDraggable = draggableProp !== false;
+
+    // When draggable='within-group', constrain DnD to the item's group.
+    // When draggable=true, pass undefined to allow unrestricted drops.
+    const groupId = draggableProp === 'within-group' ? groupContext?.groupId : undefined;
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
     const dragHandleRef = React.useRef<HTMLElement | null>(null);
@@ -103,8 +113,9 @@ export const ListboxItem = React.memo(
       itemValue,
       itemRef,
       dragHandleRef,
-      enabled: draggableProp && hasRegistered,
+      enabled: isDraggable && hasRegistered,
       valuesRef,
+      groupId,
       onItemsReorder,
     });
 
@@ -117,6 +128,21 @@ export const ListboxItem = React.memo(
       hasRegistered,
       valuesRef,
     });
+
+    // Register this item's groupId so the keyboard reorder handler can check
+    // whether the target index belongs to the same group.
+    useIsoLayoutEffect(() => {
+      if (!hasRegistered) {
+        return undefined;
+      }
+
+      const groupIds = groupIdsRef.current;
+      groupIds[index] = groupContext?.groupId;
+
+      return () => {
+        delete groupIds[index];
+      };
+    }, [hasRegistered, index, groupContext?.groupId, groupIdsRef]);
 
     const state: ListboxItemState = {
       disabled,
@@ -208,7 +234,7 @@ export const ListboxItem = React.memo(
         store.set('activeIndex', index);
 
         // Keyboard-based reordering: Alt+Arrow
-        if (event.altKey && onItemsReorder && draggableProp) {
+        if (event.altKey && onItemsReorder && isDraggable) {
           const isVertical = store.state.orientation === 'vertical';
           const moveUp =
             (isVertical && event.key === 'ArrowUp') || (!isVertical && event.key === 'ArrowLeft');
@@ -218,24 +244,31 @@ export const ListboxItem = React.memo(
 
           if (moveUp || moveDown) {
             event.preventDefault();
-            const values = valuesRef.current.filter((v) => v !== undefined);
-            const currentIdx = values.findIndex((v) =>
-              compareItemEquality(v, itemValue, isItemEqualToValue),
-            );
 
-            if (currentIdx === -1) {
+            const targetIdx = moveUp ? index - 1 : index + 1;
+            if (targetIdx < 0 || targetIdx >= valuesRef.current.length) {
               return;
             }
 
-            const targetIdx = moveUp ? currentIdx - 1 : currentIdx + 1;
-            if (targetIdx < 0 || targetIdx >= values.length) {
+            // When constrained to a group, block moves across group boundaries
+            if (
+              draggableProp === 'within-group' &&
+              groupIdsRef.current[targetIdx] !== groupIdsRef.current[index]
+            ) {
               return;
             }
 
-            const newItems = [...values];
-            const [moved] = newItems.splice(currentIdx, 1);
-            newItems.splice(targetIdx, 0, moved);
-            onItemsReorder({ items: newItems, reason: 'keyboard' });
+            const targetValue = valuesRef.current[targetIdx];
+            if (targetValue === undefined) {
+              return;
+            }
+
+            onItemsReorder({
+              items: [itemValue],
+              referenceItem: targetValue,
+              edge: moveUp ? 'before' : 'after',
+              reason: 'keyboard',
+            });
 
             // Move the highlight to follow the reordered item
             store.set('activeIndex', targetIdx);
@@ -304,14 +337,14 @@ export interface ListboxItemState {
    */
   dropTarget: boolean;
   /**
-   * The edge closest to the pointer when the item is a drop target (`'top'` or `'bottom'`), or `null`.
+   * The edge closest to the pointer when the item is a drop target (`'before'` or `'after'`), or `null`.
    */
   dropTargetEdge: string | null;
 }
 
 export interface ListboxItemProps
   extends NonNativeButtonProps,
-    Omit<BaseUIComponentProps<'div', ListboxItemState>, 'id'> {
+    Omit<BaseUIComponentProps<'div', ListboxItemState>, 'id' | 'draggable'> {
   children?: React.ReactNode;
   /**
    * A unique value that identifies this listbox item.
@@ -329,9 +362,11 @@ export interface ListboxItemProps
   label?: string | undefined;
   /**
    * Whether the item can be reordered via drag-and-drop.
+   * Set to `true` for unrestricted reordering, or `'within-group'` to
+   * constrain reordering to the item's parent group.
    * @default false
    */
-  draggable?: boolean | undefined;
+  draggable?: boolean | 'within-group' | undefined;
 }
 
 export namespace ListboxItem {

@@ -72,9 +72,13 @@ export default function HorizontalListbox() {
             orientation="horizontal"
             defaultValue="text"
             onItemsReorder={(event) => {
-              setLayers((prev) =>
-                event.items.map((value) => prev.find((item) => item.value === value)!),
-              );
+              setLayers((prev) => {
+                const movedItem = prev.find((item) => item.value === event.items[0])!;
+                const next = prev.filter((item) => item.value !== event.items[0]);
+                const refIndex = next.findIndex((item) => item.value === event.referenceItem);
+                next.splice(event.edge === 'after' ? refIndex + 1 : refIndex, 0, movedItem);
+                return next;
+              });
             }}
           >
             <Listbox.Label className={styles.Label}>Layer order</Listbox.Label>

@@ -3,64 +3,74 @@ import * as React from 'react';
 import { Listbox } from '@base-ui/react/listbox';
 import styles from './listbox.module.css';
 
-interface Item {
-  label: string;
-  value: string;
-  group: string;
-}
-
-const initialItems: Item[] = [
-  { label: 'Die Grotesk', value: 'die-grotesk', group: 'Sans-serif' },
-  { label: 'Roboto', value: 'roboto', group: 'Sans-serif' },
-  { label: 'Open Sans', value: 'open-sans', group: 'Sans-serif' },
-  { label: 'JetBrains Mono', value: 'jetbrains-mono', group: 'Monospace' },
-  { label: 'Fira Code', value: 'fira-code', group: 'Monospace' },
-  { label: 'Source Code Pro', value: 'source-code-pro', group: 'Monospace' },
-  { label: 'Merriweather', value: 'merriweather', group: 'Serif' },
-  { label: 'Playfair Display', value: 'playfair-display', group: 'Serif' },
+const initialGroups = [
+  {
+    label: 'Letters',
+    items: [
+      { label: 'A', value: 'a' },
+      { label: 'B', value: 'b' },
+      { label: 'C', value: 'c' },
+      { label: 'D', value: 'd' },
+    ],
+  },
+  {
+    label: 'Numbers',
+    items: [
+      { label: '1', value: '1' },
+      { label: '2', value: '2' },
+      { label: '3', value: '3' },
+      { label: '4', value: '4' },
+    ],
+  },
+  {
+    label: 'Symbols',
+    items: [
+      { label: '@', value: 'at' },
+      { label: '#', value: 'hash' },
+      { label: '&', value: 'amp' },
+    ],
+  },
 ];
 
-function groupItems(items: Item[]) {
-  const groups: { label: string; items: Item[] }[] = [];
-  for (const item of items) {
-    let group = groups.find((g) => g.label === item.group);
-    if (!group) {
-      group = { label: item.group, items: [] };
-      groups.push(group);
-    }
-    group.items.push(item);
-  }
-  return groups;
-}
+export default function DraggableWithinGroupListbox() {
+  const [groups, setGroups] = React.useState(initialGroups);
 
-export default function DraggableGroupsListbox() {
-  const [items, setItems] = React.useState(initialItems);
-  const groups = groupItems(items);
+  function handleReorder(event: {
+    items: string[];
+    referenceItem: string;
+    edge: 'before' | 'after';
+  }) {
+    const movedValue = event.items[0];
+
+    setGroups((prev) => {
+      // Find the group containing the moved item
+      const sourceGroupIdx = prev.findIndex((g) => g.items.some((i) => i.value === movedValue));
+      if (sourceGroupIdx === -1) {
+        return prev;
+      }
+
+      const sourceGroup = prev[sourceGroupIdx];
+      const movedItem = sourceGroup.items.find((i) => i.value === movedValue)!;
+      const filteredItems = sourceGroup.items.filter((i) => i.value !== movedValue);
+      const refIndex = filteredItems.findIndex((i) => i.value === event.referenceItem);
+      const insertAt = event.edge === 'after' ? refIndex + 1 : refIndex;
+      filteredItems.splice(insertAt, 0, movedItem);
+
+      const next = [...prev];
+      next[sourceGroupIdx] = { ...sourceGroup, items: filteredItems };
+      return next;
+    });
+  }
 
   return (
     <div className={styles.Wrapper}>
       <div className={styles.Section}>
         <span className={styles.SectionTitle}>
-          Drag and drop with groups (items can cross groups)
+          Items can only be reordered within their group
         </span>
         <div className={styles.Field}>
-          <Listbox.Root
-            defaultValue="die-grotesk"
-            onItemsReorder={(event) => {
-              setItems((prev) => {
-                const movedValue = event.items[0] as string;
-                const movedItem = prev.find((item) => item.value === movedValue)!;
-                const refItem = prev.find((item) => item.value === event.referenceItem)!;
-                // Move to the reference item's group
-                const updated = { ...movedItem, group: refItem.group };
-                const next = prev.filter((item) => item.value !== movedValue);
-                const refIndex = next.findIndex((item) => item.value === event.referenceItem);
-                next.splice(event.edge === 'after' ? refIndex + 1 : refIndex, 0, updated);
-                return next;
-              });
-            }}
-          >
-            <Listbox.Label className={styles.Label}>Font family</Listbox.Label>
+          <Listbox.Root defaultValue="a" onItemsReorder={handleReorder}>
+            <Listbox.Label className={styles.Label}>Constrained reorder</Listbox.Label>
             <Listbox.List className={styles.List}>
               {groups.map((group) => (
                 <Listbox.Group key={group.label} className={styles.Group}>
@@ -71,7 +81,7 @@ export default function DraggableGroupsListbox() {
                     <Listbox.Item
                       key={value}
                       value={value}
-                      draggable
+                      draggable="within-group"
                       className={styles.DraggableItemWithHandle}
                     >
                       <Listbox.ItemDragHandle className={styles.DragHandle}>

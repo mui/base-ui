@@ -83,6 +83,7 @@ export function ListboxRoot<Value, Multiple extends boolean | undefined = false>
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
   const valuesRef = React.useRef<Array<any>>([]);
+  const groupIdsRef = React.useRef<Array<string | undefined>>([]);
   const typingRef = React.useRef(false);
   const lastSelectedIndexRef = React.useRef<number | null>(null);
 
@@ -217,6 +218,7 @@ export function ListboxRoot<Value, Multiple extends boolean | undefined = false>
       listRef,
       valuesRef,
       labelsRef,
+      groupIdsRef,
       typingRef,
       lastSelectedIndexRef,
       validation,
@@ -406,9 +408,16 @@ export interface ListboxRootProps<Value, Multiple extends boolean | undefined = 
     | undefined;
   /**
    * Event handler called when items are reordered via drag-and-drop or keyboard.
+   * `items` contains the moved item(s). `referenceItem` is the item that was
+   * dropped on or moved next to, and `edge` indicates placement relative to it.
    */
   onItemsReorder?:
-    | ((event: { items: Value[]; reason: 'drag' | 'keyboard' }) => void)
+    | ((event: {
+        items: Value[];
+        referenceItem: Value;
+        edge: 'before' | 'after';
+        reason: 'drag' | 'keyboard';
+      }) => void)
     | undefined;
   /**
    * Whether items are currently being loaded.

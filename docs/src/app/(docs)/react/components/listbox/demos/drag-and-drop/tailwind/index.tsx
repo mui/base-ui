@@ -18,9 +18,13 @@ export default function ExampleListboxDragAndDrop() {
       <Listbox.Root
         defaultValue="first"
         onItemsReorder={(event) => {
-          setItems((prev) =>
-            event.items.map((value) => prev.find((item) => item.value === value)!),
-          );
+          setItems((prev) => {
+            const movedItem = prev.find((item) => item.value === event.items[0])!;
+            const next = prev.filter((item) => item.value !== event.items[0]);
+            const refIndex = next.findIndex((item) => item.value === event.referenceItem);
+            next.splice(event.edge === 'after' ? refIndex + 1 : refIndex, 0, movedItem);
+            return next;
+          });
         }}
       >
         <Listbox.Label className="cursor-default text-sm leading-5 font-medium text-gray-900">

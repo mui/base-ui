@@ -21,7 +21,27 @@ export interface UseListboxItemDnDParameters {
   dragHandleRef: React.RefObject<HTMLElement | null>;
   enabled: boolean;
   valuesRef: React.RefObject<Array<any>>;
-  onItemsReorder: ((event: { items: any[]; reason: 'drag' | 'keyboard' }) => void) | undefined;
+  /**
+   * Group ID for constraining drops. When defined, only items with the same
+   * groupId can be drop targets. When `undefined`, drops are unrestricted.
+   */
+  groupId: string | undefined;
+  onItemsReorder:
+    | ((event: {
+        items: any[];
+        referenceItem: any;
+        edge: 'before' | 'after';
+        reason: 'drag' | 'keyboard';
+      }) => void)
+    | undefined;
+}
+
+/**
+ * Converts a physical edge (top/bottom/left/right) from Pragmatic DnD into
+ * a logical 'before' | 'after' value.
+ */
+function toLogicalEdge(edge: Edge | null): 'before' | 'after' {
+  return edge === 'bottom' || edge === 'right' ? 'after' : 'before';
 }
 
 export function useListboxItemDnD(params: UseListboxItemDnDParameters) {
@@ -33,6 +53,7 @@ export function useListboxItemDnD(params: UseListboxItemDnDParameters) {
     dragHandleRef,
     enabled,
     valuesRef,
+    groupId,
     onItemsReorder,
   } = params;
 
@@ -44,16 +65,19 @@ export function useListboxItemDnD(params: UseListboxItemDnDParameters) {
         return;
       }
 
-      const values = valuesRef.current.filter((v) => v !== undefined);
-      const newItems = [...values];
-      const [moved] = newItems.splice(sourceIndex, 1);
-      // When dropping on the bottom/right edge, the visual intent is "after this item",
-      // so bump the target by 1. Then compensate: if sourceIndex < adjustedTarget,
-      // the earlier splice(sourceIndex, 1) shifted all higher indices down by 1.
-      const adjustedTarget = edge === 'bottom' || edge === 'right' ? targetIndex + 1 : targetIndex;
-      const insertAt = sourceIndex < adjustedTarget ? adjustedTarget - 1 : adjustedTarget;
-      newItems.splice(insertAt, 0, moved);
-      onItemsReorder({ items: newItems, reason: 'drag' });
+      const sourceValue = valuesRef.current[sourceIndex];
+      const targetValue = valuesRef.current[targetIndex];
+
+      if (sourceValue === undefined || targetValue === undefined) {
+        return;
+      }
+
+      onItemsReorder({
+        items: [sourceValue],
+        referenceItem: targetValue,
+        edge: toLogicalEdge(edge),
+        reason: 'drag',
+      });
     },
   );
 
@@ -67,7 +91,7 @@ export function useListboxItemDnD(params: UseListboxItemDnDParameters) {
 
     const cleanupDraggable = draggable({
       element: dragHandle,
-      getInitialData: () => ({ index, value: itemValue }),
+      getInitialData: () => ({ index, value: itemValue, groupId }),
       onDragStart() {
         store.set('dragActiveIndex', index);
       },
@@ -78,9 +102,20 @@ export function useListboxItemDnD(params: UseListboxItemDnDParameters) {
 
     const cleanupDropTarget = dropTargetForElements({
       element,
+      canDrop({ source }) {
+        const sourceGroupId = source.data.groupId as string | undefined;
+        // If either source or target has a groupId constraint, they must match.
+        if (sourceGroupId !== undefined && groupId !== undefined) {
+          return sourceGroupId === groupId;
+        }
+        if (sourceGroupId !== undefined || groupId !== undefined) {
+          return sourceGroupId === groupId;
+        }
+        return true;
+      },
       getData: ({ input, element: el }) => {
         return attachClosestEdge(
-          { index, value: itemValue },
+          { index, value: itemValue, groupId },
           {
             input,
             element: el,
@@ -116,7 +151,7 @@ export function useListboxItemDnD(params: UseListboxItemDnDParameters) {
       cleanupDraggable();
       cleanupDropTarget();
     };
-  }, [enabled, index, itemValue, itemRef, dragHandleRef, store, handleDrop]);
+  }, [enabled, index, itemValue, groupId, itemRef, dragHandleRef, store, handleDrop]);
 
   return { closestEdge };
 }
