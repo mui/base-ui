@@ -63,7 +63,12 @@ export const ComboboxItem = React.memo(
     let index = indexProp;
     if (index == null) {
       if (virtualized) {
-        index = findItemIndex(flatFilteredItems, itemValue, isItemEqualToValue, getVisibleItemValue);
+        index = findItemIndex(
+          flatFilteredItems,
+          itemValue,
+          isItemEqualToValue,
+          getVisibleItemValue,
+        );
       } else {
         index = listItem.index;
       }
