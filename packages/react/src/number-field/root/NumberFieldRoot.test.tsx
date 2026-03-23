@@ -1165,11 +1165,7 @@ describe('<NumberField />', () => {
       expect(fieldValue).toBe('54.5');
     });
 
-    it('submits to an external form when `form` is provided', async ({ skip }) => {
-      if (isJSDOM) {
-        skip();
-      }
-
+    it.skipIf(isJSDOM)('submits to an external form when `form` is provided', async () => {
       let fieldValue = '';
 
       await render(

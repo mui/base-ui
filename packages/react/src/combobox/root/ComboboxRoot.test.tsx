@@ -4622,56 +4622,59 @@ describe('<Combobox.Root />', () => {
       expect(submitSpy.mock.results.at(-1)?.value).toBe('US');
     });
 
-    it.skipIf(isJSDOM)('submits multiple values to an external form when `form` is provided', async () => {
-      const submitSpy = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const formData = new FormData(event.currentTarget);
-        return formData.getAll('countries');
-      });
+    it.skipIf(isJSDOM)(
+      'submits multiple values to an external form when `form` is provided',
+      async () => {
+        const submitSpy = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+          event.preventDefault();
+          const formData = new FormData(event.currentTarget);
+          return formData.getAll('countries');
+        });
 
-      const items = [
-        { code: 'US', label: 'United States' },
-        { code: 'CA', label: 'Canada' },
-        { code: 'AU', label: 'Australia' },
-      ];
+        const items = [
+          { code: 'US', label: 'United States' },
+          { code: 'CA', label: 'Canada' },
+          { code: 'AU', label: 'Australia' },
+        ];
 
-      await render(
-        <React.Fragment>
-          <form id="external-form" onSubmit={submitSpy}>
-            <button type="submit">Submit</button>
-          </form>
-          <Combobox.Root
-            multiple
-            name="countries"
-            form="external-form"
-            items={items}
-            itemToStringLabel={(item) => item.label}
-            itemToStringValue={(item) => item.code}
-            defaultValue={[items[0], items[2]]}
-          >
-            <Combobox.Input />
-            <Combobox.Portal>
-              <Combobox.Positioner>
-                <Combobox.Popup>
-                  <Combobox.List>
-                    {(item: (typeof items)[number]) => (
-                      <Combobox.Item key={item.code} value={item}>
-                        {item.label}
-                      </Combobox.Item>
-                    )}
-                  </Combobox.List>
-                </Combobox.Popup>
-              </Combobox.Positioner>
-            </Combobox.Portal>
-          </Combobox.Root>
-        </React.Fragment>,
-      );
+        await render(
+          <React.Fragment>
+            <form id="external-form" onSubmit={submitSpy}>
+              <button type="submit">Submit</button>
+            </form>
+            <Combobox.Root
+              multiple
+              name="countries"
+              form="external-form"
+              items={items}
+              itemToStringLabel={(item) => item.label}
+              itemToStringValue={(item) => item.code}
+              defaultValue={[items[0], items[2]]}
+            >
+              <Combobox.Input />
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      {(item: (typeof items)[number]) => (
+                        <Combobox.Item key={item.code} value={item}>
+                          {item.label}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </React.Fragment>,
+        );
 
-      fireEvent.click(screen.getByRole('button'));
+        fireEvent.click(screen.getByRole('button'));
 
-      expect(submitSpy.mock.calls.length).toBe(1);
-      expect(submitSpy.mock.results.at(-1)?.value).toEqual(['US', 'AU']);
-    });
+        expect(submitSpy.mock.calls.length).toBe(1);
+        expect(submitSpy.mock.results.at(-1)?.value).toEqual(['US', 'AU']);
+      },
+    );
 
     describe('serialization for object values', () => {
       const items = [
