@@ -116,6 +116,7 @@ export const ListboxItem = React.memo(
       enabled: isDraggable && hasRegistered && !rootDisabled && !disabled,
       valuesRef,
       groupId,
+      groupIdsRef,
       onItemsReorder,
     });
 
@@ -244,33 +245,85 @@ export const ListboxItem = React.memo(
           if (moveUp || moveDown) {
             event.preventDefault();
 
-            const targetIdx = moveUp ? index - 1 : index + 1;
-            if (targetIdx < 0 || targetIdx >= valuesRef.current.length) {
-              return;
+            // In multi-select modes, if the current item is selected, move
+            // all selected items together (preserving relative order).
+            const isMultiMove = isMultipleSelectionMode(selectionMode) && selected;
+
+            if (isMultiMove) {
+              const currentValue = store.state.value;
+              const eqFn = store.state.isItemEqualToValue;
+              const selectedIndices: number[] = [];
+              for (let i = 0; i < valuesRef.current.length; i += 1) {
+                const v = valuesRef.current[i];
+                if (currentValue.some((sv) => eqFn(v, sv))) {
+                  selectedIndices.push(i);
+                }
+              }
+
+              const firstIdx = selectedIndices[0];
+              const lastIdx = selectedIndices[selectedIndices.length - 1];
+              const targetIdx = moveUp ? firstIdx - 1 : lastIdx + 1;
+
+              if (targetIdx < 0 || targetIdx >= valuesRef.current.length) {
+                return;
+              }
+
+              // Within-group: all selected items must share the target's group
+              if (draggableProp === 'within-group') {
+                const targetGroupId = groupIdsRef.current[targetIdx];
+                if (selectedIndices.some((si) => groupIdsRef.current[si] !== targetGroupId)) {
+                  return;
+                }
+              }
+
+              const targetValue = valuesRef.current[targetIdx];
+              if (targetValue === undefined) {
+                return;
+              }
+
+              const selectedValues = selectedIndices.map((i) => valuesRef.current[i]);
+
+              onItemsReorder({
+                items: selectedValues,
+                referenceItem: targetValue,
+                edge: moveUp ? 'before' : 'after',
+                reason: 'keyboard',
+              });
+
+              // Move highlight to follow the initiating item
+              const offsetInSelection = selectedIndices.indexOf(index);
+              const newFirstIdx = moveUp ? firstIdx - 1 : firstIdx + 1;
+              store.set('activeIndex', newFirstIdx + offsetInSelection);
+            } else {
+              // Single-item reorder
+              const targetIdx = moveUp ? index - 1 : index + 1;
+              if (targetIdx < 0 || targetIdx >= valuesRef.current.length) {
+                return;
+              }
+
+              // When constrained to a group, block moves across group boundaries
+              if (
+                draggableProp === 'within-group' &&
+                groupIdsRef.current[targetIdx] !== groupIdsRef.current[index]
+              ) {
+                return;
+              }
+
+              const targetValue = valuesRef.current[targetIdx];
+              if (targetValue === undefined) {
+                return;
+              }
+
+              onItemsReorder({
+                items: [itemValue],
+                referenceItem: targetValue,
+                edge: moveUp ? 'before' : 'after',
+                reason: 'keyboard',
+              });
+
+              // Move the highlight to follow the reordered item
+              store.set('activeIndex', targetIdx);
             }
-
-            // When constrained to a group, block moves across group boundaries
-            if (
-              draggableProp === 'within-group' &&
-              groupIdsRef.current[targetIdx] !== groupIdsRef.current[index]
-            ) {
-              return;
-            }
-
-            const targetValue = valuesRef.current[targetIdx];
-            if (targetValue === undefined) {
-              return;
-            }
-
-            onItemsReorder({
-              items: [itemValue],
-              referenceItem: targetValue,
-              edge: moveUp ? 'before' : 'after',
-              reason: 'keyboard',
-            });
-
-            // Move the highlight to follow the reordered item
-            store.set('activeIndex', targetIdx);
           }
         }
       },

@@ -12,6 +12,7 @@ import {
   type Edge,
 } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
 import type { ListboxStore } from '../store';
+import { isMultipleSelectionMode } from './selectionReducer';
 
 export interface UseListboxItemDnDParameters {
   store: ListboxStore;
@@ -26,6 +27,8 @@ export interface UseListboxItemDnDParameters {
    * groupId can be drop targets. When `undefined`, drops are unrestricted.
    */
   groupId: string | undefined;
+  /** Ref mapping each item index to its group ID (used for multi-item within-group checks). */
+  groupIdsRef: React.RefObject<Array<string | undefined>>;
   onItemsReorder:
     | ((event: {
         items: any[];
@@ -54,26 +57,31 @@ export function useListboxItemDnD(params: UseListboxItemDnDParameters) {
     enabled,
     valuesRef,
     groupId,
+    groupIdsRef,
     onItemsReorder,
   } = params;
 
   const [closestEdge, setClosestEdge] = React.useState<Edge | null>(null);
 
   const handleDrop = useStableCallback(
-    (sourceIndex: number, targetIndex: number, edge: Edge | null) => {
-      if (!onItemsReorder || sourceIndex === targetIndex) {
+    (sourceData: Record<string, unknown>, targetIndex: number, edge: Edge | null) => {
+      if (!onItemsReorder) {
         return;
       }
 
-      const sourceValue = valuesRef.current[sourceIndex];
       const targetValue = valuesRef.current[targetIndex];
-
-      if (sourceValue === undefined || targetValue === undefined) {
+      if (targetValue === undefined) {
         return;
       }
+
+      // In multi-drag, `values` contains all dragged items in index order.
+      // In single-drag, wrap the single value in an array.
+      const items: any[] = sourceData.isMultiDrag
+        ? (sourceData.values as any[])
+        : [sourceData.value];
 
       onItemsReorder({
-        items: [sourceValue],
+        items,
         referenceItem: targetValue,
         edge: toLogicalEdge(edge),
         reason: 'drag',
@@ -91,20 +99,53 @@ export function useListboxItemDnD(params: UseListboxItemDnDParameters) {
 
     const cleanupDraggable = draggable({
       element: dragHandle,
-      getInitialData: () => ({ index, value: itemValue, groupId }),
-      onDragStart() {
-        store.set('dragActiveIndex', index);
+      getInitialData: () => {
+        // In multi-select modes, dragging a selected item drags all selected
+        // items together, preserving their relative order.
+        const { value: selectedValues, selectionMode, isItemEqualToValue } = store.state;
+        const isSelected = selectedValues.some((sv) => isItemEqualToValue(itemValue, sv));
+
+        if (isMultipleSelectionMode(selectionMode) && isSelected) {
+          const indices: number[] = [];
+          const values: any[] = [];
+          const groupIds: (string | undefined)[] = [];
+          for (let i = 0; i < valuesRef.current.length; i += 1) {
+            const v = valuesRef.current[i];
+            if (selectedValues.some((sv) => isItemEqualToValue(v, sv))) {
+              indices.push(i);
+              values.push(v);
+              groupIds.push(groupIdsRef.current[i]);
+            }
+          }
+          return { index, indices, values, groupIds, groupId, isMultiDrag: true };
+        }
+
+        return { index, value: itemValue, groupId, isMultiDrag: false };
+      },
+      onDragStart({ source }) {
+        if (source.data.isMultiDrag) {
+          store.set('dragActiveIndices', source.data.indices as number[]);
+        } else {
+          store.set('dragActiveIndices', [index]);
+        }
       },
       onDrop() {
-        store.update({ dragActiveIndex: null, dropTargetIndex: null });
+        store.update({ dragActiveIndices: null, dropTargetIndex: null });
       },
     });
 
     const cleanupDropTarget = dropTargetForElements({
       element,
       canDrop({ source }) {
+        // For multi-drag with within-group constraint, ALL dragged items'
+        // groups must match the target's group.
+        if (source.data.isMultiDrag && groupId !== undefined) {
+          const sourceGroupIds = source.data.groupIds as (string | undefined)[];
+          return sourceGroupIds.every((gid) => gid === groupId);
+        }
+
+        // Single-item group constraint (existing logic).
         const sourceGroupId = source.data.groupId as string | undefined;
-        // If either source or target has a groupId constraint, they must match.
         if (sourceGroupId !== undefined && groupId !== undefined) {
           return sourceGroupId === groupId;
         }
@@ -139,10 +180,9 @@ export function useListboxItemDnD(params: UseListboxItemDnDParameters) {
         setClosestEdge(null);
       },
       onDrop(args) {
-        const sourceIndex = args.source.data.index as number;
         const edge = extractClosestEdge(args.self.data);
-        handleDrop(sourceIndex, index, edge);
-        store.update({ dragActiveIndex: null, dropTargetIndex: null });
+        handleDrop(args.source.data, index, edge);
+        store.update({ dragActiveIndices: null, dropTargetIndex: null });
         setClosestEdge(null);
       },
     });
@@ -151,7 +191,7 @@ export function useListboxItemDnD(params: UseListboxItemDnDParameters) {
       cleanupDraggable();
       cleanupDropTarget();
     };
-  }, [enabled, index, itemValue, groupId, itemRef, dragHandleRef, store, handleDrop]);
+  }, [enabled, index, itemValue, groupId, itemRef, dragHandleRef, store, handleDrop, valuesRef, groupIdsRef]);
 
   return { closestEdge };
 }

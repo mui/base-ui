@@ -101,7 +101,7 @@ export function ListboxRoot<Value>(
         activeIndex: null,
         selectedIndex: null,
         listElement: null,
-        dragActiveIndex: null,
+        dragActiveIndices: null,
         dropTargetIndex: null,
         loading,
         orientation,

@@ -20,7 +20,8 @@ export type State = {
   listElement: HTMLElement | null;
 
   // DnD state
-  dragActiveIndex: number | null;
+  /** Indices of all items currently being dragged (multi-select drags all selected items). */
+  dragActiveIndices: number[] | null;
   dropTargetIndex: number | null;
 
   // Loading state
@@ -61,9 +62,12 @@ export const selectors = {
 
   listElement: createSelector((state: State) => state.listElement),
 
-  dragActiveIndex: createSelector((state: State) => state.dragActiveIndex),
+  dragActiveIndices: createSelector((state: State) => state.dragActiveIndices),
   dropTargetIndex: createSelector((state: State) => state.dropTargetIndex),
-  isDragging: createSelector((state: State, index: number) => state.dragActiveIndex === index),
+  isDragging: createSelector(
+    (state: State, index: number) =>
+      state.dragActiveIndices != null && state.dragActiveIndices.includes(index),
+  ),
   isDropTarget: createSelector((state: State, index: number) => state.dropTargetIndex === index),
 
   loading: createSelector((state: State) => state.loading),

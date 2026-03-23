@@ -110,29 +110,33 @@ function handleReorder<T extends { value: string; group: string }>(
   event: { items: string[]; referenceItem: string; edge: 'before' | 'after' },
   setItems: React.Dispatch<React.SetStateAction<T[]>>,
 ) {
-  const movedValue = event.items[0];
-  if (movedValue.startsWith(PLACEHOLDER_PREFIX)) {
+  if (event.items.some((v) => v.startsWith(PLACEHOLDER_PREFIX))) {
     return;
   }
 
   setItems((prev) => {
-    const movedItem = prev.find((item) => item.value === movedValue)!;
+    const movedValues = new Set(event.items);
     const refValue = event.referenceItem;
 
-    // If dropped on a placeholder, just move to that group
+    // If dropped on a placeholder, move all items to that group
     if (refValue.startsWith(PLACEHOLDER_PREFIX)) {
       const targetGroup = refValue.slice(PLACEHOLDER_PREFIX.length);
       return prev.map((item) =>
-        item.value === movedValue ? { ...item, group: targetGroup } : item,
+        movedValues.has(item.value) ? { ...item, group: targetGroup } : item,
       );
     }
 
     const refItem = prev.find((item) => item.value === refValue)!;
-    const updated = { ...movedItem, group: refItem.group };
-    const next = prev.filter((item) => item.value !== movedValue);
-    const refIndex = next.findIndex((item) => item.value === refValue);
-    next.splice(event.edge === 'after' ? refIndex + 1 : refIndex, 0, updated);
-    return next;
+    // Extract moved items in their original order, updating their group
+    const movedItems = prev
+      .filter((item) => movedValues.has(item.value))
+      .map((item) => ({ ...item, group: refItem.group }));
+    // Remove moved items from the list
+    const rest = prev.filter((item) => !movedValues.has(item.value));
+    // Insert at reference position
+    const refIndex = rest.findIndex((item) => item.value === refValue);
+    rest.splice(event.edge === 'after' ? refIndex + 1 : refIndex, 0, ...movedItems);
+    return rest;
   });
 }
 
