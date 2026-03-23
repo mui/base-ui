@@ -36,7 +36,7 @@ export default function HorizontalListbox() {
       <div className={styles.Section}>
         <span className={styles.SectionTitle}>Single selection</span>
         <div className={styles.Field}>
-          <Listbox.Root orientation="horizontal" defaultValue="center">
+          <Listbox.Root orientation="horizontal" defaultValue={["center"]}>
             <Listbox.Label className={styles.Label}>Text alignment</Listbox.Label>
             <Listbox.List className={styles.HorizontalList}>
               {alignOptions.map(({ label, value }) => (
@@ -52,7 +52,7 @@ export default function HorizontalListbox() {
       <div className={styles.Section}>
         <span className={styles.SectionTitle}>Multiple selection</span>
         <div className={styles.Field}>
-          <Listbox.Root orientation="horizontal" multiple defaultValue={['m']}>
+          <Listbox.Root orientation="horizontal" selectionMode="multiple" defaultValue={['m']}>
             <Listbox.Label className={styles.Label}>Available sizes</Listbox.Label>
             <Listbox.List className={styles.HorizontalList}>
               {sizes.map(({ label, value }) => (
@@ -70,7 +70,7 @@ export default function HorizontalListbox() {
         <div className={styles.Field}>
           <Listbox.Root
             orientation="horizontal"
-            defaultValue="text"
+            defaultValue={["text"]}
             onItemsReorder={(event) => {
               setLayers((prev) => {
                 const movedItem = prev.find((item) => item.value === event.items[0])!;

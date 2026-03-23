@@ -1,16 +1,18 @@
 import { Store, createSelector } from '@base-ui/utils/store';
 import { compareItemEquality } from '../utils/itemEquality';
+import type { SelectionMode } from './utils/selectionReducer';
 
 export type State = {
   id: string | undefined;
   labelId: string | undefined;
-  multiple: boolean;
+  selectionMode: SelectionMode;
 
   itemToStringLabel: ((item: any) => string) | undefined;
   itemToStringValue: ((item: any) => string) | undefined;
   isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean;
 
-  value: any;
+  /** Always an array, regardless of selection mode. */
+  value: any[];
 
   activeIndex: number | null;
   selectedIndex: number | null;
@@ -35,7 +37,7 @@ export type ListboxStore = Store<State>;
 export const selectors = {
   id: createSelector((state: State) => state.id),
   labelId: createSelector((state: State) => state.labelId),
-  multiple: createSelector((state: State) => state.multiple),
+  selectionMode: createSelector((state: State) => state.selectionMode),
 
   itemToStringLabel: createSelector((state: State) => state.itemToStringLabel),
   itemToStringValue: createSelector((state: State) => state.itemToStringValue),
@@ -47,25 +49,15 @@ export const selectors = {
   selectedIndex: createSelector((state: State) => state.selectedIndex),
   isActive: createSelector((state: State, index: number) => state.activeIndex === index),
 
+  // Value is always an array now, so isSelected always does array membership check.
   isSelected: createSelector((state: State, index: number, itemValue: any) => {
     const comparer = state.isItemEqualToValue;
     const storeValue = state.value;
 
-    if (state.multiple) {
-      return (
-        Array.isArray(storeValue) &&
-        storeValue.some((selectedItem) => compareItemEquality(itemValue, selectedItem, comparer))
-      );
-    }
-
-    // Fast-path for single-select: if selectedIndex is already known and matches,
-    // skip the full compareItemEquality scan. This avoids O(n) per-item equality
-    // checks on every render when items are simple values.
-    if (state.selectedIndex === index && state.selectedIndex !== null) {
-      return true;
-    }
-
-    return compareItemEquality(itemValue, storeValue, comparer);
+    return (
+      Array.isArray(storeValue) &&
+      storeValue.some((selectedItem) => compareItemEquality(itemValue, selectedItem, comparer))
+    );
   }),
 
   listElement: createSelector((state: State) => state.listElement),

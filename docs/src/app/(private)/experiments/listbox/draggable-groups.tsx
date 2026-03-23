@@ -45,7 +45,7 @@ export default function DraggableGroupsListbox() {
         </span>
         <div className={styles.Field}>
           <Listbox.Root
-            defaultValue="die-grotesk"
+            defaultValue={["die-grotesk"]}
             onItemsReorder={(event) => {
               setItems((prev) => {
                 const movedValue = event.items[0] as string;

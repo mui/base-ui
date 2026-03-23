@@ -25,7 +25,7 @@ const fontGroups = [
 export default function ExampleListbox() {
   return (
     <div className="flex flex-col gap-1">
-      <Listbox.Root defaultValue="die-grotesk">
+      <Listbox.Root defaultValue={["die-grotesk"]}>
         <Listbox.Label className="cursor-default text-sm leading-5 font-medium text-gray-900">
           Font family
         </Listbox.Label>

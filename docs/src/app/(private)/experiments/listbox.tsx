@@ -6,7 +6,7 @@ import styles from './listbox.module.css';
 const fruits = ['Apple', 'Banana', 'Cherry', 'Date', 'Elderberry', 'Fig', 'Grape'];
 
 export default function ListboxExperiment() {
-  const [singleValue, setSingleValue] = React.useState<string | null>('Cherry');
+  const [singleValue, setSingleValue] = React.useState<string[]>(['Cherry']);
   const [multiValue, setMultiValue] = React.useState<string[]>(['Apple', 'Grape']);
 
   return (
@@ -29,13 +29,13 @@ export default function ListboxExperiment() {
             ))}
           </Listbox.List>
         </Listbox.Root>
-        <p>Selected: {singleValue ?? 'none'}</p>
+        <p>Selected: {singleValue[0] ?? 'none'}</p>
       </div>
 
       <div>
         <h3>Multiple Selection (Shift+Click for range)</h3>
         <Listbox.Root
-          multiple
+          selectionMode="multiple"
           value={multiValue}
           onValueChange={(value) => setMultiValue(value)}
         >

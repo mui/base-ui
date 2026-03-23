@@ -23,7 +23,8 @@ import { stringifyAsValue } from '../../utils/resolveValueLabel';
 import { EMPTY_ARRAY } from '../../utils/constants';
 import { defaultItemEquality, findItemIndex } from '../../utils/itemEquality';
 import { useValueChanged } from '../../utils/useValueChanged';
-import { useSerializedListValue } from '../../utils/useSerializedListValue';
+import type { SelectionMode } from '../utils/selectionReducer';
+import { isMultipleSelectionMode } from '../utils/selectionReducer';
 
 /**
  * Groups all parts of the listbox.
@@ -31,19 +32,19 @@ import { useSerializedListValue } from '../../utils/useSerializedListValue';
  *
  * Documentation: [Base UI Listbox](https://base-ui.com/react/components/listbox)
  */
-export function ListboxRoot<Value, Multiple extends boolean | undefined = false>(
-  props: ListboxRoot.Props<Value, Multiple>,
+export function ListboxRoot<Value>(
+  props: ListboxRoot.Props<Value>,
 ): React.JSX.Element {
   const {
     id,
     value: valueProp,
-    defaultValue = null,
+    defaultValue,
     onValueChange,
     name: nameProp,
     disabled: disabledProp = false,
     readOnly = false,
     required = false,
-    multiple = false,
+    selectionMode = 'single',
     orientation = 'vertical',
     loopFocus = true,
     highlightItemOnHover = true,
@@ -73,9 +74,10 @@ export function ListboxRoot<Value, Multiple extends boolean | undefined = false>
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 
+  // Value is always an array regardless of selection mode.
   const [value, setValueUnwrapped] = useControlled({
     controlled: valueProp,
-    default: multiple ? (defaultValue ?? EMPTY_ARRAY) : defaultValue,
+    default: defaultValue ?? (EMPTY_ARRAY as any[]),
     name: 'Listbox',
     state: 'value',
   });
@@ -92,7 +94,7 @@ export function ListboxRoot<Value, Multiple extends boolean | undefined = false>
       new Store<StoreState>({
         id: generatedId,
         labelId: undefined,
-        multiple,
+        selectionMode,
         itemToStringLabel,
         itemToStringValue,
         isItemEqualToValue,
@@ -109,11 +111,23 @@ export function ListboxRoot<Value, Multiple extends boolean | undefined = false>
       }),
   ).current;
 
-  const { serializedValue, fieldStringValue } = useSerializedListValue({
-    multiple,
-    value,
-    itemToStringValue,
-  });
+  // Value is always an array — serialize each element for form submission.
+  const serializedValue = React.useMemo(() => {
+    if (Array.isArray(value) && value.length === 0) {
+      return '';
+    }
+    if (Array.isArray(value)) {
+      return value.map((v) => stringifyAsValue(v, itemToStringValue)).join(',');
+    }
+    return '';
+  }, [value, itemToStringValue]);
+
+  const fieldStringValue = React.useMemo(() => {
+    if (Array.isArray(value)) {
+      return value.map((v) => stringifyAsValue(v, itemToStringValue));
+    }
+    return '';
+  }, [value, itemToStringValue]);
 
   const controlRef = useValueAsRef(store.state.listElement);
 
@@ -127,30 +141,25 @@ export function ListboxRoot<Value, Multiple extends boolean | undefined = false>
   });
 
   useIsoLayoutEffect(() => {
-    setFilled(multiple ? Array.isArray(value) && value.length > 0 : value != null);
-  }, [multiple, value, setFilled]);
+    setFilled(Array.isArray(value) && value.length > 0);
+  }, [value, setFilled]);
 
+  // selectedIndex tracks the "primary" selected item for the isSelected fast-path.
+  // Always uses the last item in the array.
   useIsoLayoutEffect(
     function syncSelectedIndex() {
       const registry = valuesRef.current;
-
-      if (multiple) {
-        const currentValue = Array.isArray(value) ? value : [];
-        if (currentValue.length === 0) {
-          store.set('selectedIndex', null);
-          return;
-        }
-
-        const lastValue = currentValue[currentValue.length - 1];
-        const lastIndex = findItemIndex(registry, lastValue, isItemEqualToValue);
-        store.set('selectedIndex', lastIndex === -1 ? null : lastIndex);
+      const currentValue = Array.isArray(value) ? value : [];
+      if (currentValue.length === 0) {
+        store.set('selectedIndex', null);
         return;
       }
 
-      const index = findItemIndex(registry, value as Value, isItemEqualToValue);
-      store.set('selectedIndex', index === -1 ? null : index);
+      const lastValue = currentValue[currentValue.length - 1];
+      const lastIndex = findItemIndex(registry, lastValue, isItemEqualToValue);
+      store.set('selectedIndex', lastIndex === -1 ? null : lastIndex);
     },
-    [multiple, value, valuesRef, isItemEqualToValue, store],
+    [value, valuesRef, isItemEqualToValue, store],
   );
 
   useValueChanged(value, () => {
@@ -179,8 +188,8 @@ export function ListboxRoot<Value, Multiple extends boolean | undefined = false>
   useIsoLayoutEffect(() => {
     store.update({
       id: generatedId,
-      multiple,
-      value,
+      selectionMode,
+      value: value as any[],
       itemToStringLabel,
       itemToStringValue,
       isItemEqualToValue,
@@ -192,7 +201,7 @@ export function ListboxRoot<Value, Multiple extends boolean | undefined = false>
   }, [
     store,
     generatedId,
-    multiple,
+    selectionMode,
     value,
     itemToStringLabel,
     itemToStringValue,
@@ -210,7 +219,7 @@ export function ListboxRoot<Value, Multiple extends boolean | undefined = false>
       required,
       disabled,
       readOnly,
-      multiple,
+      selectionMode,
       highlightItemOnHover,
       orientation,
       loopFocus,
@@ -231,7 +240,7 @@ export function ListboxRoot<Value, Multiple extends boolean | undefined = false>
       required,
       disabled,
       readOnly,
-      multiple,
+      selectionMode,
       highlightItemOnHover,
       orientation,
       loopFocus,
@@ -244,11 +253,12 @@ export function ListboxRoot<Value, Multiple extends boolean | undefined = false>
 
   const ref = useMergedRefs(inputRef, validation.inputRef);
 
-  const hasMultipleSelection = multiple && Array.isArray(value) && value.length > 0;
-  const hiddenInputName = multiple ? undefined : name;
+  const hasSelection = Array.isArray(value) && value.length > 0;
 
+  // Render one hidden <input> per selected value for form submission.
+  // The first input carries validation attributes; additional inputs are type="hidden".
   const hiddenInputs = React.useMemo(() => {
-    if (!multiple || !Array.isArray(value) || !name) {
+    if (!Array.isArray(value) || !name || value.length === 0) {
       return null;
     }
 
@@ -263,7 +273,7 @@ export function ListboxRoot<Value, Multiple extends boolean | undefined = false>
         />
       );
     });
-  }, [multiple, value, name, itemToStringValue]);
+  }, [value, name, itemToStringValue]);
 
   return (
     <ListboxRootContext.Provider value={contextValue}>
@@ -277,8 +287,8 @@ export function ListboxRoot<Value, Multiple extends boolean | undefined = false>
             });
           },
         })}
-        id={generatedId && hiddenInputName == null ? `${generatedId}-hidden-input` : undefined}
-        name={hiddenInputName}
+        id={generatedId ? `${generatedId}-hidden-input` : undefined}
+        name={hasSelection ? undefined : name}
         value={serializedValue}
         // Handle browser autofill: match the autofilled string against registered
         // values to resolve back to the original value type.
@@ -288,7 +298,7 @@ export function ListboxRoot<Value, Multiple extends boolean | undefined = false>
             return;
           }
 
-          if (multiple) {
+          if (isMultipleSelectionMode(selectionMode)) {
             // Browser autofill only writes a single scalar value.
             return;
           }
@@ -302,14 +312,14 @@ export function ListboxRoot<Value, Multiple extends boolean | undefined = false>
           if (matchingValue != null) {
             const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
             setDirty(matchingValue !== validityData.initialValue);
-            setValue(matchingValue, details);
+            setValue([matchingValue], details);
             if (shouldValidateOnChange()) {
-              validation.commit(matchingValue);
+              validation.commit([matchingValue]);
             }
           }
         }}
         disabled={disabled}
-        required={required && !hasMultipleSelection}
+        required={required && !hasSelection}
         readOnly={readOnly}
         ref={ref}
         style={name ? visuallyHiddenInput : visuallyHidden}
@@ -321,11 +331,7 @@ export function ListboxRoot<Value, Multiple extends boolean | undefined = false>
   );
 }
 
-type ListboxValueType<Value, Multiple extends boolean | undefined> = Multiple extends true
-  ? Value[]
-  : Value;
-
-export interface ListboxRootProps<Value, Multiple extends boolean | undefined = false> {
+export interface ListboxRootProps<Value> {
   children?: React.ReactNode;
   /**
    * A ref to access the hidden input element.
@@ -355,10 +361,15 @@ export interface ListboxRootProps<Value, Multiple extends boolean | undefined = 
    */
   disabled?: boolean | undefined;
   /**
-   * Whether multiple items can be selected.
-   * @default false
+   * Determines how user interactions affect the selection.
+   * - `'none'` — Items cannot be selected.
+   * - `'single'` — Only one item can be selected at a time.
+   * - `'multiple'` — Clicking toggles items. Shift+Click selects a range.
+   * - `'explicitMultiple'` — Like a file browser: plain click replaces the selection,
+   *    Ctrl/Cmd+Click toggles, Shift+Click selects a range.
+   * @default 'single'
    */
-  multiple?: Multiple | undefined;
+  selectionMode?: SelectionMode | undefined;
   /**
    * The orientation of the listbox for keyboard navigation.
    * @default 'vertical'
@@ -392,19 +403,16 @@ export interface ListboxRootProps<Value, Multiple extends boolean | undefined = 
    *
    * To render a controlled listbox, use the `value` prop instead.
    */
-  defaultValue?: ListboxValueType<Value, Multiple> | null | undefined;
+  defaultValue?: Value[] | undefined;
   /**
-   * The value of the listbox. Use when controlled.
+   * The value of the listbox. Use when controlled. Always an array.
    */
-  value?: ListboxValueType<Value, Multiple> | null | undefined;
+  value?: Value[] | undefined;
   /**
    * Event handler called when the value of the listbox changes.
    */
   onValueChange?:
-    | ((
-        value: ListboxValueType<Value, Multiple> | (Multiple extends true ? never : null),
-        eventDetails: ListboxRootChangeEventDetails,
-      ) => void)
+    | ((value: Value[], eventDetails: ListboxRootChangeEventDetails) => void)
     | undefined;
   /**
    * Event handler called when items are reordered via drag-and-drop or keyboard.
@@ -441,10 +449,7 @@ export type ListboxRootChangeEventDetails =
   BaseUIChangeEventDetails<ListboxRootChangeEventReason>;
 
 export namespace ListboxRoot {
-  export type Props<Value, Multiple extends boolean | undefined = false> = ListboxRootProps<
-    Value,
-    Multiple
-  >;
+  export type Props<Value> = ListboxRootProps<Value>;
   export type State = ListboxRootState;
   export type ChangeEventReason = ListboxRootChangeEventReason;
   export type ChangeEventDetails = ListboxRootChangeEventDetails;

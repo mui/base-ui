@@ -16,7 +16,7 @@ export default function ExampleListboxDragAndDrop() {
   return (
     <div className="flex flex-col gap-1">
       <Listbox.Root
-        defaultValue="first"
+        defaultValue={["first"]}
         onItemsReorder={(event) => {
           setItems((prev) => {
             const movedItem = prev.find((item) => item.value === event.items[0])!;

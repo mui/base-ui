@@ -13,7 +13,7 @@ const channels = [
 export default function ExampleListboxMultiSelection() {
   return (
     <div className={styles.Field}>
-      <Listbox.Root multiple defaultValue={['email']}>
+      <Listbox.Root selectionMode="multiple" defaultValue={['email']}>
         <Listbox.Label className={styles.Label}>Notifications</Listbox.Label>
         <Listbox.List className={styles.List}>
           {channels.map(({ label, value }) => (

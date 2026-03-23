@@ -3,6 +3,7 @@ import * as React from 'react';
 import type { ListboxStore } from '../store';
 import type { UseFieldValidationReturnValue } from '../../field/root/useFieldValidation';
 import type { ListboxRoot } from './ListboxRoot';
+import type { SelectionMode } from '../utils/selectionReducer';
 
 export interface ListboxRootContext {
   store: ListboxStore;
@@ -10,7 +11,7 @@ export interface ListboxRootContext {
   disabled: boolean;
   readOnly: boolean;
   required: boolean;
-  multiple: boolean;
+  selectionMode: SelectionMode;
   highlightItemOnHover: boolean;
   orientation: 'vertical' | 'horizontal';
   loopFocus: boolean;

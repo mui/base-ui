@@ -13,7 +13,7 @@ import { DemoListboxHero } from './demos/hero';
 ## Usage guidelines
 
 - **Always visible**: Unlike [Select](/react/components/select), the Listbox is always open and does not use a popup or trigger. Use it when all options should be visible at once.
-- **Multi-select support**: Set `multiple` to allow selecting more than one item. Hold Shift and click to select a contiguous range.
+- **Multi-select support**: Set `selectionMode="multiple"` to allow selecting more than one item. Hold Shift and click to select a contiguous range.
 - **Form controls must have an accessible name**: Prefer `<Listbox.Label>`, or provide an `aria-label` on `<Listbox.List>` when no visible label is rendered. See the [forms guide](/react/handbook/forms).
 
 ## Anatomy
@@ -43,7 +43,7 @@ import { Listbox } from '@base-ui/react/listbox';
 
 ### Multiple selection
 
-Set `multiple` to allow selecting more than one item. Click an item to toggle it, or hold Shift and click to select a range.
+Set `selectionMode="multiple"` to allow selecting more than one item. Click an item to toggle it, or hold Shift and click to select a range.
 
 import { DemoListboxMultiSelection } from './demos/multi-selection';
 

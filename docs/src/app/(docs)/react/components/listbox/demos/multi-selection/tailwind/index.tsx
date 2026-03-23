@@ -12,7 +12,7 @@ const channels = [
 export default function ExampleListboxMultiSelection() {
   return (
     <div className="flex flex-col gap-1">
-      <Listbox.Root multiple defaultValue={['email']}>
+      <Listbox.Root selectionMode="multiple" defaultValue={['email']}>
         <Listbox.Label className="cursor-default text-sm leading-5 font-medium text-gray-900">
           Notifications
         </Listbox.Label>

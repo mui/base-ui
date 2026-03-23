@@ -17,7 +17,7 @@ export default function ExampleListboxDragAndDrop() {
   return (
     <div className={styles.Field}>
       <Listbox.Root
-        defaultValue="first"
+        defaultValue={["first"]}
         onItemsReorder={(event) => {
           setItems((prev) => {
             const movedItem = prev.find((item) => item.value === event.items[0])!;

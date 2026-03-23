@@ -24,7 +24,7 @@ export default function DraggableItemsListbox() {
         </span>
         <div className={styles.Field}>
           <Listbox.Root
-            defaultValue="cherry"
+            defaultValue={["cherry"]}
             onItemsReorder={(event) => {
               setItems((prev) => {
                 const movedItem = prev.find((item) => item.value === event.items[0])!;

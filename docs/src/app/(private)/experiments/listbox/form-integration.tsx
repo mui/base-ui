@@ -61,7 +61,7 @@ export default function FormIntegrationListbox() {
       </Field.Root>
 
       <Field.Root name="features">
-        <Listbox.Root name="features" multiple defaultValue={['typescript']}>
+        <Listbox.Root name="features" selectionMode="multiple" defaultValue={['typescript']}>
           <Listbox.Label className={styles.Label}>Features (multi-select)</Listbox.Label>
           <Listbox.List className={styles.List}>
             {features.map(({ label, value }) => (

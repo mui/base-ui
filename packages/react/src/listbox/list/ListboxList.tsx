@@ -14,6 +14,8 @@ import { TYPEAHEAD_RESET_MS } from '../../utils/constants';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { compareItemEquality } from '../../utils/itemEquality';
+import { selectionReducer, isMultipleSelectionMode } from '../utils/selectionReducer';
+import type { SelectionAction } from '../utils/selectionReducer';
 
 /**
  * A container for the listbox items.
@@ -36,7 +38,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
     loopFocus,
     disabled,
     readOnly,
-    multiple,
+    selectionMode,
     setValue,
     lastSelectedIndexRef,
   } = useListboxRootContext();
@@ -110,7 +112,37 @@ export const ListboxList = React.forwardRef(function ListboxList(
     }
   });
 
-  const handleMultiSelectKeyDown = useStableCallback((event: React.KeyboardEvent) => {
+  /**
+   * Dispatches a selection action through the reducer and commits the result.
+   * Centralizes the pattern of: compute next value → setValue → update anchor.
+   */
+  const dispatchSelection = useStableCallback(
+    (action: SelectionAction, event: KeyboardEvent, anchorIndex?: number) => {
+      const currentValue = store.state.value;
+      const isItemEqualToValue = store.state.isItemEqualToValue;
+      const nextValue = selectionReducer(
+        action,
+        currentValue,
+        valuesRef.current,
+        isItemEqualToValue,
+      );
+      setValue(nextValue, createChangeEventDetails(REASONS.listNavigation, event));
+      if (anchorIndex !== undefined) {
+        lastSelectedIndexRef.current = anchorIndex;
+      }
+    },
+  );
+
+  /**
+   * Maps keyboard events to selection actions based on the current selection mode.
+   * Only handles multi-item keyboard shortcuts (Shift+Arrow, Ctrl+Shift+Home/End, Ctrl+A).
+   * Single-item selection (Enter/Space) is handled in ListboxItem.
+   */
+  const handleSelectionKeyDown = useStableCallback((event: React.KeyboardEvent) => {
+    if (!isMultipleSelectionMode(selectionMode)) {
+      return;
+    }
+
     const isVertical = orientation === 'vertical';
     const currentIndex = store.state.activeIndex;
     const elements = composite.elementsRef.current;
@@ -122,33 +154,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
       elements[targetIndex]?.focus();
     }
 
-    function getSelectedValues(): any[] {
-      const val = store.state.value;
-      return Array.isArray(val) ? val : [];
-    }
-
-    function addValue(value: any, currentValue: any[]) {
-      if (!currentValue.some((v) => compareItemEquality(v, value, isItemEqualToValue))) {
-        return [...currentValue, value];
-      }
-      return currentValue;
-    }
-
-    function selectRange(from: number, to: number) {
-      const start = Math.min(from, to);
-      const end = Math.max(from, to);
-      const currentValue = getSelectedValues();
-      let nextValue = [...currentValue];
-      for (let i = start; i <= end; i += 1) {
-        const val = values[i];
-        if (val !== undefined) {
-          nextValue = addValue(val, nextValue);
-        }
-      }
-      return nextValue;
-    }
-
-    // Shift+ArrowDown / Shift+ArrowUp: Move focus and add target to selection
+    // Shift+Arrow: Move focus and extend selection to adjacent item
     if (event.shiftKey && !event.ctrlKey && !event.metaKey) {
       const isRtl = direction === 'rtl';
       const isPrev =
@@ -166,53 +172,73 @@ export const ListboxList = React.forwardRef(function ListboxList(
           focusItem(targetIndex);
           const targetValue = values[targetIndex];
           if (targetValue !== undefined) {
-            let nextValue = getSelectedValues();
-            // Ensure the anchor (current) item is also selected
-            const currentValue = values[currentIndex];
-            if (currentValue !== undefined) {
-              nextValue = addValue(currentValue, nextValue);
+            // Ensure both anchor and target are selected
+            const currentValue = store.state.value;
+            const anchorValue = values[currentIndex];
+            let nextValue = Array.isArray(currentValue) ? [...currentValue] : [];
+            if (
+              anchorValue !== undefined &&
+              !nextValue.some((v) => compareItemEquality(v, anchorValue, isItemEqualToValue))
+            ) {
+              nextValue = [...nextValue, anchorValue];
             }
-            nextValue = addValue(targetValue, nextValue);
-            setValue(nextValue, createChangeEventDetails(REASONS.listNavigation, event.nativeEvent));
+            if (
+              !nextValue.some((v) => compareItemEquality(v, targetValue, isItemEqualToValue))
+            ) {
+              nextValue = [...nextValue, targetValue];
+            }
+            setValue(
+              nextValue,
+              createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
+            );
             lastSelectedIndexRef.current = targetIndex;
           }
         }
       }
     }
 
-    // Ctrl+Shift+Home: Select focused option and all options up to the first
+    // Ctrl+Shift+Home: Select from focus to first
     if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'Home') {
       event.preventDefault();
       if (currentIndex != null) {
-        const nextValue = selectRange(0, currentIndex);
-        setValue(nextValue, createChangeEventDetails(REASONS.listNavigation, event.nativeEvent));
+        dispatchSelection(
+          { type: 'selectRange', from: 0, to: currentIndex },
+          event.nativeEvent,
+          0,
+        );
         focusItem(0);
-        lastSelectedIndexRef.current = 0;
       }
     }
 
-    // Ctrl+Shift+End: Select focused option and all options down to the last
+    // Ctrl+Shift+End: Select from focus to last
     if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'End') {
       event.preventDefault();
       if (currentIndex != null) {
         const lastIndex = elements.length - 1;
-        const nextValue = selectRange(currentIndex, lastIndex);
-        setValue(nextValue, createChangeEventDetails(REASONS.listNavigation, event.nativeEvent));
+        dispatchSelection(
+          { type: 'selectRange', from: currentIndex, to: lastIndex },
+          event.nativeEvent,
+          lastIndex,
+        );
         focusItem(lastIndex);
-        lastSelectedIndexRef.current = lastIndex;
       }
     }
 
-    // Ctrl+A: Select all / deselect all
+    // Ctrl+A / Cmd+A: Toggle select all
     if ((event.ctrlKey || event.metaKey) && (event.key === 'a' || event.key === 'A')) {
       event.preventDefault();
       const allValues = values.filter((v) => v !== undefined);
-      const currentValue = getSelectedValues();
-      const allSelected = allValues.length > 0 && allValues.every((v) =>
-        currentValue.some((cv) => compareItemEquality(cv, v, isItemEqualToValue)),
+      const currentValue = store.state.value;
+      const allSelected =
+        Array.isArray(currentValue) &&
+        allValues.length > 0 &&
+        allValues.every((v) =>
+          currentValue.some((cv) => compareItemEquality(cv, v, isItemEqualToValue)),
+        );
+      dispatchSelection(
+        allSelected ? { type: 'clear' } : { type: 'selectAll' },
+        event.nativeEvent,
       );
-      const nextValue = allSelected ? [] : [...allValues];
-      setValue(nextValue, createChangeEventDetails(REASONS.listNavigation, event.nativeEvent));
     }
   });
 
@@ -229,7 +255,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
     id: id ? `${id}-list` : undefined,
     role: 'listbox',
     'aria-labelledby': labelId,
-    'aria-multiselectable': multiple || undefined,
+    'aria-multiselectable': isMultipleSelectionMode(selectionMode) || undefined,
     'aria-orientation': orientation,
     tabIndex: disabled ? undefined : 0,
     onKeyDown(event: React.KeyboardEvent) {
@@ -240,10 +266,8 @@ export const ListboxList = React.forwardRef(function ListboxList(
       // Let composite handle unmodified arrow keys, Home, End
       composite.props.onKeyDown?.(event);
 
-      // Multi-select keyboard shortcuts (ARIA recommended selection model)
-      if (multiple && !disabled && !readOnly) {
-        handleMultiSelectKeyDown(event);
-      }
+      // Selection keyboard shortcuts (runs for multiple/explicitMultiple modes)
+      handleSelectionKeyDown(event);
 
       // Handle typeahead
       handleTypeahead(event);

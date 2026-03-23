@@ -22,10 +22,11 @@ import { selectors } from '../store';
 import { useButton } from '../../use-button';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import { compareItemEquality, removeItem } from '../../utils/itemEquality';
 import { useListItemValueRegistration } from '../../utils/useListItemValueRegistration';
 import { useListboxItemDnD } from '../utils/useListboxDnD';
 import { useListboxGroupContext } from '../group/ListboxGroupContext';
+import { selectionReducer, isMultipleSelectionMode } from '../utils/selectionReducer';
+import type { SelectionAction } from '../utils/selectionReducer';
 import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 
 // Map the raw edge from Pragmatic DnD (top/bottom/left/right) to logical
@@ -77,7 +78,7 @@ export const ListboxItem = React.memo(
       setValue,
       valuesRef,
       groupIdsRef,
-      multiple,
+      selectionMode,
       highlightItemOnHover,
       lastSelectedIndexRef,
       readOnly,
@@ -124,7 +125,7 @@ export const ListboxItem = React.memo(
       index,
       itemValue,
       isItemEqualToValue,
-      multiple,
+      multiple: isMultipleSelectionMode(selectionMode),
       hasRegistered,
       valuesRef,
     });
@@ -162,45 +163,44 @@ export const ListboxItem = React.memo(
       composite: true,
     });
 
-    function commitSelection(event: MouseEvent | KeyboardEvent, shiftKey = false) {
-      if (readOnly) {
+    /**
+     * Maps a click event (with modifier keys) to a SelectionAction based on
+     * the current selectionMode, then dispatches it through the reducer.
+     */
+    function commitSelection(
+      event: MouseEvent | KeyboardEvent,
+      { shiftKey = false, ctrlKey = false }: { shiftKey?: boolean | undefined; ctrlKey?: boolean | undefined } = {},
+    ) {
+      if (readOnly || selectionMode === 'none') {
         return;
       }
 
-      const selectedValue = store.state.value;
+      let action: SelectionAction;
 
-      if (multiple) {
-        const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
-
-        if (shiftKey && lastSelectedIndexRef.current !== null) {
-          // Range selection with Shift+Click
-          const start = Math.min(lastSelectedIndexRef.current, index);
-          const end = Math.max(lastSelectedIndexRef.current, index);
-          const rangeValues: any[] = [];
-          for (let i = start; i <= end; i += 1) {
-            const val = valuesRef.current[i];
-            if (val !== undefined) {
-              rangeValues.push(val);
-            }
-          }
-          // Merge: keep existing selections outside the range, plus the range
-          const outsideRange = currentValue.filter((v) => {
-            const idx = valuesRef.current.findIndex((rv) =>
-              compareItemEquality(v, rv, isItemEqualToValue),
-            );
-            return idx < start || idx > end;
-          });
-          const nextValue = [...outsideRange, ...rangeValues];
-          setValue(nextValue, createChangeEventDetails(REASONS.itemPress, event));
-        } else {
-          const nextValue = selected
-            ? removeItem(currentValue, itemValue, isItemEqualToValue)
-            : [...currentValue, itemValue];
-          setValue(nextValue, createChangeEventDetails(REASONS.itemPress, event));
-          lastSelectedIndexRef.current = index;
-        }
+      if (shiftKey && isMultipleSelectionMode(selectionMode)) {
+        action = { type: 'extendTo', index, anchorIndex: lastSelectedIndexRef.current };
+      } else if (selectionMode === 'multiple') {
+        // In 'multiple' mode, every click toggles
+        action = { type: 'toggle', index };
+      } else if (selectionMode === 'explicitMultiple' && ctrlKey) {
+        // In 'explicitMultiple' mode, Ctrl/Cmd+Click toggles
+        action = { type: 'toggle', index };
       } else {
-        setValue(itemValue, createChangeEventDetails(REASONS.itemPress, event));
+        // 'single' or 'explicitMultiple' without modifier → replace
+        action = { type: 'select', index };
+      }
+
+      const currentValue = store.state.value;
+      const nextValue = selectionReducer(
+        action,
+        currentValue,
+        valuesRef.current,
+        isItemEqualToValue,
+      );
+      setValue(nextValue, createChangeEventDetails(REASONS.itemPress, event));
+
+      // Update selection anchor (used by Shift+Click range selection)
+      if (action.type !== 'extendTo') {
         lastSelectedIndexRef.current = index;
       }
     }
@@ -289,7 +289,10 @@ export const ListboxItem = React.memo(
         }
 
         lastKeyRef.current = null;
-        commitSelection(event.nativeEvent, event.shiftKey);
+        commitSelection(event.nativeEvent, {
+          shiftKey: event.shiftKey,
+          ctrlKey: event.ctrlKey || event.metaKey,
+        });
       },
     };
 

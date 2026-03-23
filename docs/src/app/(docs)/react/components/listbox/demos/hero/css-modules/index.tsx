@@ -26,7 +26,7 @@ const fontGroups = [
 export default function ExampleListbox() {
   return (
     <div className={styles.Field}>
-      <Listbox.Root defaultValue="die-grotesk">
+      <Listbox.Root defaultValue={["die-grotesk"]}>
         <Listbox.Label className={styles.Label}>Font family</Listbox.Label>
         <Listbox.List className={styles.List}>
           {fontGroups.map((group) => (

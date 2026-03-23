@@ -69,7 +69,7 @@ export default function DraggableWithinGroupListbox() {
           Items can only be reordered within their group
         </span>
         <div className={styles.Field}>
-          <Listbox.Root defaultValue="a" onItemsReorder={handleReorder}>
+          <Listbox.Root defaultValue={["a"]} onItemsReorder={handleReorder}>
             <Listbox.Label className={styles.Label}>Constrained reorder</Listbox.Label>
             <Listbox.List className={styles.List}>
               {groups.map((group) => (
