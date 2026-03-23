@@ -18,6 +18,7 @@ export const ComboboxStatus = React.forwardRef(function ComboboxStatus(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, children: childrenProp, ...elementProps } = componentProps;
+
   const statusRef = useInitialLiveRegionTextMutation<HTMLDivElement>();
 
   return useRenderElement('div', componentProps, {

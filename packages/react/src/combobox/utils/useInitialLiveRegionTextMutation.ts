@@ -6,7 +6,7 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 const LIVE_REGION_MARKER = '\u2060';
 
 function findLastTextNode(root: HTMLElement): Text | null {
-  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const walker = root.ownerDocument.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   let lastTextNode: Text | null = null;
 
   while (walker.nextNode()) {
@@ -42,7 +42,7 @@ export function useInitialLiveRegionTextMutation<T extends HTMLElement>() {
     const markedValue = `${originalValue}${LIVE_REGION_MARKER}`;
     textNode.nodeValue = markedValue;
 
-    timeout.start(0, () => {
+    timeout.start(200, () => {
       if (textNode.nodeValue === markedValue) {
         textNode.nodeValue = originalValue;
       }
