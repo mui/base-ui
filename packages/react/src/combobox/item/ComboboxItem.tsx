@@ -18,6 +18,7 @@ import { selectors } from '../store';
 import { useButton } from '../../use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
 import { compareItemEquality, findItemIndex } from '../../utils/itemEquality';
+import { ComboboxGroupContext } from '../group/ComboboxGroupContext';
 
 /**
  * An individual item in the list.
@@ -40,21 +41,25 @@ export const ComboboxItem = React.memo(
 
     const didPointerDownRef = React.useRef(false);
     const textRef = React.useRef<HTMLElement | null>(null);
-    const listItem = useCompositeListItem({
+    const listItem = useCompositeListItem<{ value: any }>({
       index: indexProp,
+      metadata: { value: itemValue },
       textRef,
       indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
     });
 
     const store = useComboboxRootContext();
     const isRow = useComboboxRowContext();
-    const { flatFilteredItems, hasItems } = useComboboxDerivedItemsContext();
+    const { filterQuery, flatFilteredItems } = useComboboxDerivedItemsContext();
+    const groupContext = React.useContext(ComboboxGroupContext);
 
     const open = useStore(store, selectors.open);
     const selectionMode = useStore(store, selectors.selectionMode);
+    const filter = useStore(store, selectors.filter);
     const readOnly = useStore(store, selectors.readOnly);
     const virtualized = useStore(store, selectors.virtualized);
     const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
+    const hasFilteredItemsProp = useStore(store, selectors.hasFilteredItemsProp);
 
     const selectable = selectionMode !== 'none';
     const index =
@@ -67,6 +72,7 @@ export const ComboboxItem = React.memo(
     const rootId = useStore(store, selectors.id);
     const highlighted = useStore(store, selectors.isActive, index);
     const matchesSelectedValue = useStore(store, selectors.isSelected, itemValue);
+    const items = useStore(store, selectors.items);
     const getItemProps = useStore(store, selectors.getItemProps);
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
@@ -74,8 +80,15 @@ export const ComboboxItem = React.memo(
     const id = rootId != null && hasRegistered ? `${rootId}-${index}` : undefined;
     const selected = matchesSelectedValue && selectable;
 
+    const shouldFilterByQuery = !items && !hasFilteredItemsProp;
+    const matchesQuery =
+      !shouldFilterByQuery ||
+      itemValue == null ||
+      filterQuery === '' ||
+      filter(itemValue, filterQuery);
+
     useIsoLayoutEffect(() => {
-      const shouldRun = hasRegistered && (virtualized || indexProp != null);
+      const shouldRun = matchesQuery && hasRegistered && (virtualized || indexProp != null);
       if (!shouldRun) {
         return undefined;
       }
@@ -86,27 +99,22 @@ export const ComboboxItem = React.memo(
       return () => {
         delete list[index];
       };
-    }, [hasRegistered, virtualized, index, indexProp, store]);
+    }, [matchesQuery, hasRegistered, virtualized, index, indexProp, store]);
+
+    const shouldRegisterValue = shouldFilterByQuery && (virtualized || indexProp != null);
 
     useIsoLayoutEffect(() => {
-      if (!hasRegistered || hasItems) {
+      if (!shouldRegisterValue || !matchesQuery || !hasRegistered) {
         return undefined;
       }
 
       const visibleMap = store.state.valuesRef.current;
       visibleMap[index] = itemValue;
 
-      // Stable registry that doesn't depend on filtering. Assume that no
-      // filtering had occurred at this point; otherwise, an `items` prop is
-      // required.
-      if (selectionMode !== 'none') {
-        store.state.allValuesRef.current.push(itemValue);
-      }
-
       return () => {
         delete visibleMap[index];
       };
-    }, [hasRegistered, hasItems, index, itemValue, store, selectionMode]);
+    }, [shouldRegisterValue, matchesQuery, hasRegistered, index, itemValue, store]);
 
     useIsoLayoutEffect(() => {
       if (!open) {
@@ -114,7 +122,9 @@ export const ComboboxItem = React.memo(
         return;
       }
 
-      if (!hasRegistered || hasItems) {
+      // When the user starts filtering, avoid syncing `selectedIndex` from the selected value.
+      // Otherwise list navigation can restore the active highlight to the selected item after input edits.
+      if (!hasRegistered || items || selectionMode === 'none' || filterQuery !== '') {
         return;
       }
 
@@ -123,10 +133,29 @@ export const ComboboxItem = React.memo(
         ? selectedValue[selectedValue.length - 1]
         : selectedValue;
 
-      if (compareItemEquality(itemValue, lastSelectedValue, isItemEqualToValue)) {
+      if (compareItemEquality(lastSelectedValue, itemValue, isItemEqualToValue)) {
         store.set('selectedIndex', index);
       }
-    }, [hasRegistered, hasItems, open, store, index, itemValue, isItemEqualToValue]);
+    }, [
+      hasRegistered,
+      items,
+      open,
+      store,
+      index,
+      itemValue,
+      isItemEqualToValue,
+      selectionMode,
+      filterQuery,
+    ]);
+
+    useIsoLayoutEffect(() => {
+      const registerItem = groupContext?.registerVisibleItem;
+      if (!registerItem || !matchesQuery) {
+        return undefined;
+      }
+
+      return registerItem();
+    }, [groupContext?.registerVisibleItem, matchesQuery]);
 
     const state: ComboboxItemState = {
       disabled,
@@ -202,6 +231,10 @@ export const ComboboxItem = React.memo(
       }),
       [selected, textRef],
     );
+
+    if (!matchesQuery) {
+      return null;
+    }
 
     return (
       <ComboboxItemContext.Provider value={contextValue}>{element}</ComboboxItemContext.Provider>
