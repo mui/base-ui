@@ -348,7 +348,10 @@
   outline: 0;
   opacity: 0;
   position: relative;
-  transition: height 0.15s, padding 0.15s, opacity 0.15s;
+  transition:
+    height 0.15s,
+    padding 0.15s,
+    opacity 0.15s;
 
   &[data-drop-target] {
     height: 2rem;
@@ -384,7 +387,10 @@
   outline: 0;
   opacity: 0;
   position: relative;
-  transition: width 0.15s, padding 0.15s, opacity 0.15s;
+  transition:
+    width 0.15s,
+    padding 0.15s,
+    opacity 0.15s;
 
   &[data-drop-target] {
     width: 2rem;

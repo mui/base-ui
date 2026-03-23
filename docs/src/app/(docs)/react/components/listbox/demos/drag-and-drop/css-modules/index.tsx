@@ -17,14 +17,15 @@ export default function ExampleListboxDragAndDrop() {
   return (
     <div className={styles.Field}>
       <Listbox.Root
-        defaultValue={["first"]}
+        defaultValue={['first']}
         onItemsReorder={(event) => {
           setItems((prev) => {
-            const movedItem = prev.find((item) => item.value === event.items[0])!;
-            const next = prev.filter((item) => item.value !== event.items[0]);
-            const refIndex = next.findIndex((item) => item.value === event.referenceItem);
-            next.splice(event.edge === 'after' ? refIndex + 1 : refIndex, 0, movedItem);
-            return next;
+            const movedValues = new Set(event.items);
+            const movedItems = prev.filter((item) => movedValues.has(item.value));
+            const rest = prev.filter((item) => !movedValues.has(item.value));
+            const refIndex = rest.findIndex((item) => item.value === event.referenceItem);
+            rest.splice(event.edge === 'after' ? refIndex + 1 : refIndex, 0, ...movedItems);
+            return rest;
           });
         }}
       >

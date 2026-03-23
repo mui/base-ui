@@ -166,9 +166,7 @@ export default function ListboxFullyFeatured() {
             disabled={settings.disabled}
             loopFocus={settings.loopFocus}
             defaultValue={['die-grotesk']}
-            onItemsReorder={
-              isDraggable ? (event) => handleReorder(event, setFonts) : undefined
-            }
+            onItemsReorder={isDraggable ? (event) => handleReorder(event, setFonts) : undefined}
           >
             <Listbox.Label className={styles.Label}>Font family</Listbox.Label>
             <Listbox.List className={styles.List}>
@@ -219,9 +217,7 @@ export default function ListboxFullyFeatured() {
             disabled={settings.disabled}
             loopFocus={settings.loopFocus}
             defaultValue={['m']}
-            onItemsReorder={
-              isDraggable ? (event) => handleReorder(event, setSizes) : undefined
-            }
+            onItemsReorder={isDraggable ? (event) => handleReorder(event, setSizes) : undefined}
           >
             <Listbox.Label className={styles.Label}>Available sizes</Listbox.Label>
             <Listbox.List className={styles.HorizontalList}>

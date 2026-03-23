@@ -19,12 +19,10 @@ export default function DraggableItemsListbox() {
   return (
     <div className={styles.Wrapper}>
       <div className={styles.Section}>
-        <span className={styles.SectionTitle}>
-          Whole item is draggable (no drag handle)
-        </span>
+        <span className={styles.SectionTitle}>Whole item is draggable (no drag handle)</span>
         <div className={styles.Field}>
           <Listbox.Root
-            defaultValue={["cherry"]}
+            defaultValue={['cherry']}
             onItemsReorder={(event) => {
               setItems((prev) => {
                 const movedValues = new Set(event.items);
@@ -39,26 +37,17 @@ export default function DraggableItemsListbox() {
             <Listbox.Label className={styles.Label}>Fruits</Listbox.Label>
             <Listbox.List className={styles.List}>
               {items.map(({ label, value }) => (
-                <Listbox.Item
-                  key={value}
-                  value={value}
-                  draggable
-                  className={styles.DraggableItem}
-                >
+                <Listbox.Item key={value} value={value} draggable className={styles.DraggableItem}>
                   <Listbox.ItemIndicator className={styles.DraggableItemIndicator}>
                     <CheckIcon className={styles.ItemIndicatorIcon} />
                   </Listbox.ItemIndicator>
-                  <Listbox.ItemText className={styles.DraggableItemText}>
-                    {label}
-                  </Listbox.ItemText>
+                  <Listbox.ItemText className={styles.DraggableItemText}>{label}</Listbox.ItemText>
                 </Listbox.Item>
               ))}
             </Listbox.List>
           </Listbox.Root>
         </div>
-        <span className={styles.SectionTitle}>
-          Try Alt+Arrow to reorder with keyboard
-        </span>
+        <span className={styles.SectionTitle}>Try Alt+Arrow to reorder with keyboard</span>
       </div>
     </div>
   );

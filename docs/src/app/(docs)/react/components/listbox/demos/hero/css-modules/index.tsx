@@ -26,14 +26,12 @@ const fontGroups = [
 export default function ExampleListbox() {
   return (
     <div className={styles.Field}>
-      <Listbox.Root defaultValue={["die-grotesk"]}>
+      <Listbox.Root defaultValue={['die-grotesk']}>
         <Listbox.Label className={styles.Label}>Font family</Listbox.Label>
         <Listbox.List className={styles.List}>
           {fontGroups.map((group) => (
             <Listbox.Group key={group.label} className={styles.Group}>
-              <Listbox.GroupLabel className={styles.GroupLabel}>
-                {group.label}
-              </Listbox.GroupLabel>
+              <Listbox.GroupLabel className={styles.GroupLabel}>{group.label}</Listbox.GroupLabel>
               {group.fonts.map(({ label, value }) => (
                 <Listbox.Item key={value} value={value} className={styles.Item}>
                   <Listbox.ItemIndicator className={styles.ItemIndicator}>

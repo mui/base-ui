@@ -13,7 +13,7 @@ import { DemoListboxHero } from './demos/hero';
 ## Usage guidelines
 
 - **Always visible**: Unlike [Select](/react/components/select), the Listbox is always open and does not use a popup or trigger. Use it when all options should be visible at once.
-- **Multi-select support**: Set `selectionMode="multiple"` to allow selecting more than one item. Hold Shift and click to select a contiguous range.
+- **Multi-select support**: Set `selectionMode="multiple"` or `"explicitMultiple"` to allow selecting more than one item.
 - **Form controls must have an accessible name**: Prefer `<Listbox.Label>`, or provide an `aria-label` on `<Listbox.List>` when no visible label is rendered. See the [forms guide](/react/handbook/forms).
 
 ## Anatomy
@@ -41,9 +41,14 @@ import { Listbox } from '@base-ui/react/listbox';
 
 ## Examples
 
-### Multiple selection
+### Selection modes
 
-Set `selectionMode="multiple"` to allow selecting more than one item. Click an item to toggle it, or hold Shift and click to select a range.
+The `selectionMode` prop controls how items are selected:
+
+- `"single"` (default) — clicking an item selects it and deselects any other.
+- `"multiple"` — every click toggles an item. Hold Shift and click to select a contiguous range.
+- `"explicitMultiple"` — clicking an item replaces the selection. Hold Ctrl/Cmd and click to toggle, or Shift and click to select a range.
+- `"none"` — selection is disabled entirely.
 
 import { DemoListboxMultiSelection } from './demos/multi-selection';
 
@@ -61,16 +66,57 @@ import { DemoListboxLazyLoading } from './demos/lazy-loading';
 
 Set `draggable` on items and provide an `onItemsReorder` callback on the root. Use `Listbox.ItemDragHandle` to restrict drag initiation to a handle. Items can also be reordered with the keyboard using Alt+Arrow keys.
 
+Set `draggable="within-group"` to constrain reordering within the item's parent `Listbox.Group`. Items cannot be dragged across group boundaries.
+
+In `multiple` or `explicitMultiple` mode, dragging a selected item moves all selected items together, preserving their relative order.
+
 import { DemoListboxDragAndDrop } from './demos/drag-and-drop';
 
 <DemoListboxDragAndDrop />
 
 ## API reference
 
-<Reference
-  component="Listbox"
-  parts="Root, Label, List, Item, ItemText, ItemIndicator, ItemDragHandle, Group, GroupLabel, LoadingTrigger"
-/>
+import { TypesListbox } from './types';
+
+### Root
+
+<TypesListbox.Root />
+
+### Label
+
+<TypesListbox.Label />
+
+### List
+
+<TypesListbox.List />
+
+### Item
+
+<TypesListbox.Item />
+
+### ItemText
+
+<TypesListbox.ItemText />
+
+### ItemIndicator
+
+<TypesListbox.ItemIndicator />
+
+### ItemDragHandle
+
+<TypesListbox.ItemDragHandle />
+
+### Group
+
+<TypesListbox.Group />
+
+### GroupLabel
+
+<TypesListbox.GroupLabel />
+
+### LoadingTrigger
+
+<TypesListbox.LoadingTrigger />
 
 export const metadata = {
   keywords: [

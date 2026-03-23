@@ -56,7 +56,7 @@ export default function ScrollAreaListbox() {
       <div className={styles.Section}>
         <span className={styles.SectionTitle}>Listbox with ScrollArea</span>
         <div className={styles.Field}>
-          <Listbox.Root defaultValue={["France"]}>
+          <Listbox.Root defaultValue={['France']}>
             <Listbox.Label className={styles.Label}>Country</Listbox.Label>
             <ScrollArea.Root className={styles.ScrollAreaRoot}>
               <ScrollArea.Viewport className={styles.ScrollAreaViewport}>
