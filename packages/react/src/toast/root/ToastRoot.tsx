@@ -127,6 +127,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   const cancelledSwipeRef = React.useRef(false);
   const swipeCancelBaselineRef = React.useRef({ x: 0, y: 0 });
   const isFirstPointerMoveRef = React.useRef(false);
+  const touchSwipeActiveRef = React.useRef(false);
 
   const domIndex = store.useState('toastIndex', toast.id);
   const visibleIndex = store.useState('toastVisibleIndex', toast.id);
@@ -176,6 +177,17 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   });
 
   useIsoLayoutEffect(recalculateHeight, [recalculateHeight]);
+
+  const finishTouchSwipe = useStableCallback(() => {
+    if (!touchSwipeActiveRef.current) {
+      return;
+    }
+
+    touchSwipeActiveRef.current = false;
+    store.setSwiping(false);
+  });
+
+  React.useEffect(() => finishTouchSwipe, [finishTouchSwipe]);
 
   function applyDirectionalDamping(deltaX: number, deltaY: number) {
     let newDeltaX = deltaX;
@@ -248,6 +260,10 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     }
 
     store.setHovering(true);
+    if (event.pointerType === 'touch') {
+      touchSwipeActiveRef.current = true;
+      store.setSwiping(true);
+    }
     setIsSwiping(true);
     setIsRealSwipe(false);
     setLockedDirection(null);
@@ -376,9 +392,11 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
 
   function handlePointerUp(event: React.PointerEvent) {
     if (!isSwiping) {
+      finishTouchSwipe();
       return;
     }
 
+    finishTouchSwipe();
     setIsSwiping(false);
     setIsRealSwipe(false);
     setLockedDirection(null);
@@ -514,6 +532,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     onPointerDown: swipeEnabled ? handlePointerDown : undefined,
     onPointerMove: swipeEnabled ? handlePointerMove : undefined,
     onPointerUp: swipeEnabled ? handlePointerUp : undefined,
+    onPointerCancel: swipeEnabled ? handlePointerUp : undefined,
     onKeyDown: handleKeyDown,
     inert: inertValue(toast.limited),
     style: {

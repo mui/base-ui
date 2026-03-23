@@ -33,6 +33,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   const toasts = store.useState('toasts');
   const focused = store.useState('focused');
   const expanded = store.useState('expanded');
+  const swiping = store.useState('swiping');
   const prevFocusElement = store.useState('prevFocusElement');
   const frontmostHeight = toasts[0]?.height ?? 0;
 
@@ -166,6 +167,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     if (
       !store.state.isWindowFocused ||
       hasTransitioningToasts ||
+      swiping ||
       !markedReadyForMouseLeaveRef.current
     ) {
       return;
@@ -177,7 +179,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     store.resumeTimers();
     store.setHovering(false);
     markedReadyForMouseLeaveRef.current = false;
-  }, [hasTransitioningToasts, store]);
+  }, [hasTransitioningToasts, store, swiping]);
 
   function handleMouseEnter() {
     store.pauseTimers();
@@ -186,9 +188,9 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   }
 
   function handleMouseLeave() {
-    if (hasTransitioningToasts) {
+    if (hasTransitioningToasts || swiping) {
       // When swiping to dismiss, wait until the transitions have settled
-      // to avoid the viewport collapsing while the user is interacting.
+      // or the touch swipe ends to avoid collapsing mid-gesture.
       markedReadyForMouseLeaveRef.current = true;
     } else {
       store.resumeTimers();

@@ -23,6 +23,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
         toasts: [],
         hovering: false,
         focused: false,
+        swiping: false,
         isWindowFocused: true,
         prevFocusElement: null,
       }),

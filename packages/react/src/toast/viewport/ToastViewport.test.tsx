@@ -145,6 +145,64 @@ describe('<Toast.Viewport />', () => {
     expect(viewport).toHaveAttribute('data-expanded');
   });
 
+  it('keeps expanded during an active touch swipe even if mouseleave fires', async () => {
+    const { user } = await render(
+      <Toast.Provider>
+        <Toast.Viewport data-testid="viewport">
+          <List />
+        </Toast.Viewport>
+        <Button />
+      </Toast.Provider>,
+    );
+
+    const button = screen.getByRole('button', { name: 'add' });
+    await user.click(button);
+
+    const root = await screen.findByTestId('root');
+    const viewport = screen.getByTestId('viewport');
+
+    Object.defineProperty(root, 'setPointerCapture', {
+      value: () => {},
+      configurable: true,
+    });
+    Object.defineProperty(root, 'releasePointerCapture', {
+      value: () => {},
+      configurable: true,
+    });
+
+    fireEvent.pointerDown(root, {
+      clientX: 100,
+      clientY: 100,
+      button: 0,
+      bubbles: true,
+      pointerId: 1,
+      pointerType: 'touch',
+    });
+    fireEvent.pointerMove(root, {
+      clientX: 100,
+      clientY: 120,
+      bubbles: true,
+      pointerId: 1,
+      pointerType: 'touch',
+    });
+
+    expect(viewport).toHaveAttribute('data-expanded');
+
+    fireEvent.mouseLeave(viewport);
+
+    expect(viewport).toHaveAttribute('data-expanded');
+
+    fireEvent.pointerUp(root, {
+      clientX: 100,
+      clientY: 120,
+      bubbles: true,
+      pointerId: 1,
+      pointerType: 'touch',
+    });
+
+    expect(viewport).not.toHaveAttribute('data-expanded');
+  });
+
   describe('timers', () => {
     const { render: renderFakeTimers, clock } = createRenderer();
 
