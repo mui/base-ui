@@ -18,7 +18,6 @@ export type State = {
   toasts: ToastObject<any>[];
   hovering: boolean;
   focused: boolean;
-  swiping: boolean;
   timeout: number;
   limit: number;
   isWindowFocused: boolean;
@@ -72,10 +71,9 @@ export const selectors = {
   ),
   hovering: createSelector((state: State) => state.hovering),
   focused: createSelector((state: State) => state.focused),
-  swiping: createSelector((state: State) => state.swiping),
-  expanded: createSelector((state: State) => state.hovering || state.focused || state.swiping),
+  expanded: createSelector((state: State) => state.hovering || state.focused),
   expandedOrOutOfFocus: createSelector(
-    (state: State) => state.hovering || state.focused || state.swiping || !state.isWindowFocused,
+    (state: State) => state.hovering || state.focused || !state.isWindowFocused,
   ),
   prevFocusElement: createSelector((state: State) => state.prevFocusElement),
 };
@@ -95,10 +93,6 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
 
   setHovering(hovering: boolean) {
     this.set('hovering', hovering);
-  }
-
-  setSwiping(swiping: boolean) {
-    this.set('swiping', swiping);
   }
 
   setIsWindowFocused(isWindowFocused: boolean) {
@@ -407,7 +401,6 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     if (newToasts.length === 0) {
       updates.hovering = false;
       updates.focused = false;
-      updates.swiping = false;
     }
     this.update(updates);
   }

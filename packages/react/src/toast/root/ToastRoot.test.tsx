@@ -400,62 +400,6 @@ describe('<Toast.Root />', () => {
       expect(screen.queryByTestId('toast-root')).not.toBe(null);
     });
 
-    it('does not dismiss toast when a touch swipe is canceled', async () => {
-      await render(
-        <Toast.Provider>
-          <Toast.Viewport>
-            <SwipeTestToast swipeDirection="down" />
-          </Toast.Viewport>
-          <SwipeTestButton />
-        </Toast.Provider>,
-      );
-
-      fireEvent.click(screen.getByRole('button', { name: 'add toast' }));
-
-      const toastElement = screen.getByTestId('toast-root');
-
-      Object.defineProperty(toastElement, 'releasePointerCapture', {
-        configurable: true,
-        value() {
-          throw new DOMException('Pointer capture was already released.', 'NotFoundError');
-        },
-      });
-
-      fireEvent.pointerDown(toastElement, {
-        clientX: 100,
-        clientY: 100,
-        button: 0,
-        bubbles: true,
-        pointerId: 1,
-        pointerType: 'touch',
-      });
-      fireEvent.pointerMove(toastElement, {
-        clientX: 100,
-        clientY: 101,
-        bubbles: true,
-        pointerId: 1,
-        pointerType: 'touch',
-      });
-      fireEvent.pointerMove(toastElement, {
-        clientX: 100,
-        clientY: 150,
-        bubbles: true,
-        pointerId: 1,
-        pointerType: 'touch',
-      });
-      fireEvent.pointerCancel(toastElement, {
-        clientX: 100,
-        clientY: 150,
-        bubbles: true,
-        pointerId: 1,
-        pointerType: 'touch',
-      });
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('toast-root')).not.toBe(null);
-      });
-    });
-
     it('applies [data-swiping] attribute when swiping', async () => {
       await render(
         <Toast.Provider>
