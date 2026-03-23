@@ -75,6 +75,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     max = 100,
     min = 0,
     minStepsBetweenValues = 0,
+    form,
     name: nameProp,
     onValueChange: onValueChangeProp,
     onValueCommitted: onValueCommittedProp,
@@ -333,6 +334,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       lastUsedThumbIndex,
       lastChangedValueRef,
       lastChangeReasonRef,
+      form,
       locale,
       max,
       min,
@@ -373,6 +375,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       lastUsedThumbIndex,
       lastChangedValueRef,
       lastChangeReasonRef,
+      form,
       locale,
       max,
       min,
@@ -516,6 +519,11 @@ export interface SliderRootProps<
    * Identifies the field when a form is submitted.
    */
   name?: string | undefined;
+  /**
+   * Identifies the form that owns the slider inputs.
+   * Useful when the slider is rendered outside the form.
+   */
+  form?: string | undefined;
   /**
    * The component orientation.
    * @default 'horizontal'

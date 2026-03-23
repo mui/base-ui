@@ -71,6 +71,11 @@
       "description": "Filtered items to display in the list.\nWhen provided, the list will use these items instead of filtering the `items` prop internally.\nUse when you want to control filtering logic externally with the `useFilter()` hook.",
       "detailedType": "any[] | Group[] | undefined"
     },
+    "form": {
+      "type": "string",
+      "description": "Identifies the form that owns the internal input.\nUseful when the combobox is rendered outside the form.",
+      "detailedType": "string | undefined"
+    },
     "grid": {
       "type": "boolean",
       "default": "false",
