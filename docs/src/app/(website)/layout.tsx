@@ -39,15 +39,15 @@ export default function Layout({ children }: React.PropsWithChildren) {
                 className="bui-d-f bui-fd-c bui-g-2 bui-gcs-5 bui-gce-8 bp2:bui-gcs-5 bp2:bui-gce-9 bp3:bui-gcs-5 bp3:bui-gce-7"
                 aria-label="social links"
               >
-                <a className="Text size-1 Link" href="https://x.com/base_ui">
+                <Link className="Text size-1" href="https://x.com/base_ui">
                   X
-                </a>
-                <a className="Text size-1 Link" href="https://github.com/mui/base-ui">
+                </Link>
+                <Link className="Text size-1" href="https://github.com/mui/base-ui">
                   GitHub
-                </a>
-                <a className="Text size-1 Link" href="https://discord.com/invite/g6C3hUtuxz">
+                </Link>
+                <Link className="Text size-1" href="https://discord.com/invite/g6C3hUtuxz">
                   Discord
-                </a>
+                </Link>
               </nav>
               <div className="bui-d-n bp3:bui-d-b bui-gcs-7 bui-gce-9">
                 <Link className="Text size-1 Link" href="/react/components/accordion">
@@ -69,18 +69,18 @@ export default function Layout({ children }: React.PropsWithChildren) {
                 className="bui-d-f bui-fd-c bui-g-2 bui-gcs-1 bui-gce-9 bp2:bui-gcs-3 bp4:bui-gce-7"
                 aria-label="social links"
               >
-                <a className="Text size-1 Link" href="https://x.com/base_ui">
+                <Link className="Text size-1" href="https://x.com/base_ui">
                   X
-                </a>
-                <a className="Text size-1 Link" href="https://github.com/mui/base-ui">
+                </Link>
+                <Link className="Text size-1" href="https://github.com/mui/base-ui">
                   GitHub
-                </a>
-                <a className="Text size-1 Link" href="https://discord.com/invite/g6C3hUtuxz">
+                </Link>
+                <Link className="Text size-1" href="https://discord.com/invite/g6C3hUtuxz">
                   Discord
-                </a>
-                <a className="Text size-1 Link" href="https://www.npmjs.com/package/@base-ui/react">
+                </Link>
+                <Link className="Text size-1" href="https://www.npmjs.com/package/@base-ui/react">
                   npm
-                </a>
+                </Link>
                 <a
                   className="Text size-1 Link"
                   href="https://bsky.app/profile/did:plc:nwr6peuxqzdzlbi72qr5kldc"
