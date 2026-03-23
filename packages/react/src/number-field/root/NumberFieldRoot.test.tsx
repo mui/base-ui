@@ -1192,7 +1192,7 @@ describe('<NumberField />', () => {
 
       await act(async () => screen.getByText('Submit').click());
 
-      expect(fieldValue).to.equal('54.5');
+      expect(fieldValue).toBe('54.5');
     });
 
     it('triggers native HTML validation on submit', async () => {

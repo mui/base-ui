@@ -1773,6 +1773,41 @@ describe('<Select.Root />', () => {
       expect(submitSpy.mock.results.at(-1)?.value).toBe('US');
     });
 
+    it.skipIf(isJSDOM)('submits multiple values to an external form when `form` is provided', async () => {
+      const submitSpy = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        return formData.getAll('countries');
+      });
+
+      await render(
+        <React.Fragment>
+          <form id="external-form" onSubmit={submitSpy}>
+            <button type="submit">Submit</button>
+          </form>
+          <Select.Root multiple name="countries" form="external-form" value={['US', 'CA']}>
+            <Select.Trigger>
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="US">United States</Select.Item>
+                  <Select.Item value="CA">Canada</Select.Item>
+                  <Select.Item value="AU">Australia</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </React.Fragment>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(submitSpy.mock.calls.length).toBe(1);
+      expect(submitSpy.mock.results.at(-1)?.value).toEqual(['US', 'CA']);
+    });
+
     it('triggers native HTML validation on submit', async () => {
       const { user } = await render(
         <Form>

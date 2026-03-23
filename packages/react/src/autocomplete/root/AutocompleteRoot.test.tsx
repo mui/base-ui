@@ -1100,7 +1100,7 @@ describe('<Autocomplete.Root />', () => {
       await user.type(screen.getByTestId('input'), 'base ui');
       await user.click(screen.getByText('Submit'));
 
-      expect(submitted).to.equal('base ui');
+      expect(submitted).toBe('base ui');
     });
 
     it('triggers native validation when required and empty', async () => {

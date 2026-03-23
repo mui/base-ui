@@ -431,6 +431,28 @@ describe('<Switch.Root />', () => {
       expect(submitSpy.mock.results.at(-1)?.value).toBe('on');
     });
 
+    it.skipIf(isJSDOM)('submits uncheckedValue to an external form when off', async () => {
+      const submitSpy = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        return formData.get('test-switch');
+      });
+
+      await render(
+        <React.Fragment>
+          <form id="external-form" onSubmit={submitSpy}>
+            <button type="submit">Submit</button>
+          </form>
+          <Switch.Root name="test-switch" form="external-form" uncheckedValue="off" />
+        </React.Fragment>,
+      );
+
+      fireEvent.click(screen.getByRole('button'));
+
+      expect(submitSpy.mock.calls.length).toBe(1);
+      expect(submitSpy.mock.results.at(-1)?.value).toBe('off');
+    });
+
     it.skipIf(isJSDOM)('matches native checkbox form submission behavior', async () => {
       const nativeSubmitSpy = vi.fn((event) => {
         event.preventDefault();
