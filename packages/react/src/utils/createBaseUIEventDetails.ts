@@ -88,7 +88,7 @@ type BaseUIChangeEventDetail<Reason extends string, CustomProperties extends obj
 export type BaseUIChangeEventDetails<
   Reason extends string,
   CustomProperties extends object = {},
-> = Reason extends string ? BaseUIChangeEventDetail<Reason, CustomProperties> : never;
+> = Reason extends string ? BaseUIChangeEventDetail<Reason, CustomProperties> & {} : never;
 
 /**
  * Details of custom generic events emitted by Base UI components.
@@ -107,7 +107,7 @@ type BaseUIGenericEventDetail<Reason extends string, CustomProperties extends ob
 export type BaseUIGenericEventDetails<
   Reason extends string,
   CustomProperties extends object = {},
-> = Reason extends string ? BaseUIGenericEventDetail<Reason, CustomProperties> : never;
+> = Reason extends string ? BaseUIGenericEventDetail<Reason, CustomProperties> & {} : never;
 
 /**
  * Creates a Base UI event details object with the given reason and utilities

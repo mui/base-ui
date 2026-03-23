@@ -91,6 +91,11 @@
     margin-bottom: 1.5rem;
   }
 
+  .MdFigure {
+    margin-top: calc(var(--spacing) * 5);
+    margin-bottom: calc(var(--spacing) * 6);
+  }
+
   .MdEm {
     font-family: var(--font-serif);
     /* Adjust to visually match the sans-serif font */

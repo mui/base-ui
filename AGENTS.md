@@ -65,3 +65,5 @@ Format:
 You MUST run `pnpm extract-error-codes` to update `docs/src/error-codes.json` every time you add or update an error message in an `Error` constructor.
 
 **Important:** If the update created a new error code, but the new and original message have the same number of arguments and semantics haven't changed, update the original error in `error-codes.json` instead of creating a new code.
+
+Before any changes, review [CONTRIBUTING.md](./CONTRIBUTING.md) for more detailed guidelines on contributing to this repository.

@@ -27,7 +27,7 @@ const EMPTY_PROPS = {};
  * Props can either be provided as objects or as functions that take the previous props as an argument.
  * The function will receive the merged props up to that point (going from left to right):
  * so in the case of `(obj1, obj2, fn, obj3)`, `fn` will receive the merged props of `obj1` and `obj2`.
- * The function is responsible for chaining event handlers if needed (i.e. we don't run the merge logic).
+ * The function is responsible for chaining event handlers if needed (that is, we don't run the merge logic).
  *
  * Event handlers returned by the functions are not automatically prevented when `preventBaseUIHandler` is called.
  * They must check `event.baseUIHandlerPrevented` themselves and bail out if it's true.
