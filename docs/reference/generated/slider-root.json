@@ -27,6 +27,11 @@
       "description": "Callback function that is fired when the `pointerup` is triggered.\n**Warning**: This is a generic event not a change event.\n\nThe `eventDetails.reason` indicates what triggered the commit:\n\n- `'drag'` while dragging a thumb\n- `'track-press'` when the control track is pressed\n- `'keyboard'` for keyboard input\n- `'input-change'` when the hidden range input emits a change event (for example, via form integration)\n- `'none'` when the commit occurs without a specific interaction",
       "detailedType": "| ((\n    value: number | number[],\n    eventDetails: Slider.Root.CommitEventDetails,\n  ) => void)\n| undefined"
     },
+    "form": {
+      "type": "string",
+      "description": "Identifies the form that owns the slider inputs.\nUseful when the slider is rendered outside the form.",
+      "detailedType": "string | undefined"
+    },
     "locale": {
       "type": "Intl.LocalesArgument",
       "description": "The locale used by `Intl.NumberFormat` when formatting the value.\nDefaults to the user's runtime locale.",

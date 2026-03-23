@@ -36,6 +36,11 @@
       "description": "The value of the selected checkbox.",
       "detailedType": "string | undefined"
     },
+    "form": {
+      "type": "string",
+      "description": "Identifies the form that owns the hidden input.\nUseful when the checkbox is rendered outside the form.",
+      "detailedType": "string | undefined"
+    },
     "nativeButton": {
       "type": "boolean",
       "default": "false",

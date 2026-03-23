@@ -56,6 +56,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     defaultOpen = false,
     onOpenChange,
     name: nameProp,
+    form,
     autoComplete,
     disabled: disabledProp = false,
     readOnly = false,
@@ -505,12 +506,13 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         <input
           key={currentSerializedValue}
           type="hidden"
+          form={form}
           name={name}
           value={currentSerializedValue}
         />
       );
     });
-  }, [multiple, value, name, itemToStringValue]);
+  }, [multiple, value, form, name, itemToStringValue]);
 
   return (
     <SelectRootContext.Provider value={contextValue}>
@@ -566,6 +568,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
             },
           })}
           id={generatedId && hiddenInputName == null ? `${generatedId}-hidden-input` : undefined}
+          form={form}
           name={hiddenInputName}
           autoComplete={autoComplete}
           value={serializedValue}
@@ -597,6 +600,11 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    * Identifies the field when a form is submitted.
    */
   name?: string | undefined;
+  /**
+   * Identifies the form that owns the hidden input.
+   * Useful when the select is rendered outside the form.
+   */
+  form?: string | undefined;
   /**
    * Provides a hint to the browser for autofill.
    * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/autocomplete

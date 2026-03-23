@@ -404,6 +404,7 @@ export function useAnchorPositioning(
         referenceElement: null,
         floatingElement: null,
         domReferenceElement: null,
+        positionReference: null,
       });
     }
   }, [mounted, floatingRootContext]);
