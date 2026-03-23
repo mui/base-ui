@@ -37,7 +37,8 @@ export function useInitialLiveRegionTextMutation<T extends HTMLElement>() {
     const markedValue = `${originalValue}${LIVE_REGION_MARKER}`;
     textNode.nodeValue = markedValue;
 
-    timeout.start(0, () => {
+    // macOS Safari requires a longer delay to ensure the live region update is announced.
+    timeout.start(200, () => {
       if (textNode.nodeValue === markedValue) {
         textNode.nodeValue = originalValue;
       }
