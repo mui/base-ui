@@ -29,8 +29,8 @@ importers:
         specifier: workspace:*
         version: link:test
       '@mui/internal-code-infra':
-        specifier: 0.0.4-canary.8
-        version: 0.0.4-canary.8(@next/eslint-plugin-next@16.1.6)(@types/node@22.18.13)(eslint-import-resolver-node@0.3.9)(eslint-plugin-import-x@4.16.1(@typescript-eslint/utils@8.57.1(eslint@10.1.0(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint@10.1.0(jiti@2.6.1)))(eslint@10.1.0(jiti@2.6.1))(postcss@8.5.8)(prettier@3.8.1)(stylelint@17.4.0(typescript@5.9.3))(typescript@5.9.3)(vitest@4.0.18)
+        specifier: 0.0.4-canary.9
+        version: 0.0.4-canary.9(@next/eslint-plugin-next@16.1.6)(@types/node@22.18.13)(eslint-import-resolver-node@0.3.9)(eslint-plugin-import-x@4.16.1(@typescript-eslint/utils@8.57.1(eslint@10.1.0(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint@10.1.0(jiti@2.6.1)))(eslint@10.1.0(jiti@2.6.1))(postcss@8.5.8)(prettier@3.8.1)(stylelint@17.4.0(typescript@5.9.3))(typescript@5.9.3)(vitest@4.0.18)
       '@mui/internal-netlify-cache':
         specifier: 0.0.3-canary.2
         version: 0.0.3-canary.2
@@ -724,8 +724,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/utils/build
       '@mui/internal-bundle-size-checker':
-        specifier: 1.0.9-canary.65
-        version: 1.0.9-canary.65(@types/node@22.18.13)(esbuild@0.27.2)(jiti@2.6.1)(rolldown@1.0.0-rc.9)(rollup@4.55.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.2)
+        specifier: 1.0.9-canary.67
+        version: 1.0.9-canary.67(@types/node@22.18.13)(esbuild@0.27.2)(jiti@2.6.1)(rolldown@1.0.0-rc.9)(rollup@4.55.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.2)
       radix-ui:
         specifier: ^1.4.3
         version: 1.4.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -2382,12 +2382,12 @@ packages:
     peerDependencies:
       '@babel/core': ^7.29.0
 
-  '@mui/internal-bundle-size-checker@1.0.9-canary.65':
-    resolution: {integrity: sha512-/qAfTmBCRT6ZUrsU16booCw/EnHER6wnuArTL3k3wTVDDGakGBS4L5Do5b/wJN+UQ3eWCzw59OFHjPkPIEhzKQ==}
+  '@mui/internal-bundle-size-checker@1.0.9-canary.67':
+    resolution: {integrity: sha512-Bzbfs5OpTekYs66QJDgn8/s8AqcRvr9o9qdGsNElUY21SYup30DV0buKV8ILrZ073AHvqxhHc5Fgtxsb7eo1ng==}
     hasBin: true
 
-  '@mui/internal-code-infra@0.0.4-canary.8':
-    resolution: {integrity: sha512-wU2tzjz5WiHLLfGPgzRH/rckkQioziy8kFivh3ivNakoVxu56WA81r0+0EbgJi+ZTJFV1gvt8Z0O/BErluH66w==}
+  '@mui/internal-code-infra@0.0.4-canary.9':
+    resolution: {integrity: sha512-SdWvB7jSFMm6Cw3Dw1JsN7OeK1XigjoasBTf55QjlZ6qTpeU31doL4UQQUAiUMtKKj1cCce2kgN1L2qGrym+9w==}
     hasBin: true
     peerDependencies:
       '@next/eslint-plugin-next': '*'
@@ -12553,7 +12553,7 @@ snapshots:
       '@babel/core': 7.29.0
       resolve: 1.22.11
 
-  '@mui/internal-bundle-size-checker@1.0.9-canary.65(@types/node@22.18.13)(esbuild@0.27.2)(jiti@2.6.1)(rolldown@1.0.0-rc.9)(rollup@4.55.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.2)':
+  '@mui/internal-bundle-size-checker@1.0.9-canary.67(@types/node@22.18.13)(esbuild@0.27.2)(jiti@2.6.1)(rolldown@1.0.0-rc.9)(rollup@4.55.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.2)':
     dependencies:
       '@aws-sdk/client-s3': 3.1010.0
       '@aws-sdk/credential-providers': 3.1010.0
@@ -12567,6 +12567,7 @@ snapshots:
       rollup-plugin-visualizer: 7.0.1(rolldown@1.0.0-rc.9)(rollup@4.55.1)
       vite: 8.0.0(@types/node@22.18.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.2)
       yargs: 18.0.0
+      zod: 4.3.6
     transitivePeerDependencies:
       - '@types/node'
       - '@vitejs/devtools'
@@ -12584,7 +12585,7 @@ snapshots:
       - tsx
       - yaml
 
-  '@mui/internal-code-infra@0.0.4-canary.8(@next/eslint-plugin-next@16.1.6)(@types/node@22.18.13)(eslint-import-resolver-node@0.3.9)(eslint-plugin-import-x@4.16.1(@typescript-eslint/utils@8.57.1(eslint@10.1.0(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint@10.1.0(jiti@2.6.1)))(eslint@10.1.0(jiti@2.6.1))(postcss@8.5.8)(prettier@3.8.1)(stylelint@17.4.0(typescript@5.9.3))(typescript@5.9.3)(vitest@4.0.18)':
+  '@mui/internal-code-infra@0.0.4-canary.9(@next/eslint-plugin-next@16.1.6)(@types/node@22.18.13)(eslint-import-resolver-node@0.3.9)(eslint-plugin-import-x@4.16.1(@typescript-eslint/utils@8.57.1(eslint@10.1.0(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint@10.1.0(jiti@2.6.1)))(eslint@10.1.0(jiti@2.6.1))(postcss@8.5.8)(prettier@3.8.1)(stylelint@17.4.0(typescript@5.9.3))(typescript@5.9.3)(vitest@4.0.18)':
     dependencies:
       '@argos-ci/core': 5.1.1
       '@babel/cli': 7.28.6(@babel/core@7.29.0)
