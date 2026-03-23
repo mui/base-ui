@@ -9,7 +9,6 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { isWebKit } from '@base-ui/utils/detectBrowser';
 import {
   safePolygon,
   useClick,
@@ -550,7 +549,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   });
 
   const hoverInteractionState = useHoverInteractionSharedState(context);
-  const shouldBlockSafePolygonPointerEvents = pointerType !== 'touch' && (!isWebKit || nested);
+  const shouldBlockSafePolygonPointerEvents = pointerType !== 'touch';
 
   React.useEffect(() => {
     if (!open) {
