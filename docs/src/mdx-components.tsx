@@ -18,6 +18,7 @@ interface MDXComponents {
 // Maintain spacing between MDX components here
 export const mdxComponents: MDXComponents = {
   a: Link,
+  em: (props) => <em className="MdEm" {...props} />,
   code: (props) => <Code className="MdInlineCode" {...props} />,
   h1: (props) => (
     // Do not wrap heading tags in divs, that confuses Safari Reader
@@ -45,7 +46,6 @@ export const mdxComponents: MDXComponents = {
   ul: (props) => <ul className="MdUl" {...props} />,
   ol: (props) => <ol className="MdOl" {...props} />,
   kbd: Kbd,
-  strong: (props) => <strong className="MdStrong" {...props} />,
   figure: (props) => {
     if ('data-rehype-pretty-code-figure' in props) {
       return <CodeBlock.Root className="MdFigure" {...props} />;

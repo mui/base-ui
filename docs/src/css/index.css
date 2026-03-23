@@ -102,6 +102,7 @@
   --font-mono: 'SF Mono', 'Menlo', 'DejaVu Sans Mono', 'Consolas', 'Inconsolata', monospace;
   --font-sans: 'Die Grotesk A', system-ui, sans-serif;
   --font-sans-b: 'Die Grotesk B', system-ui, sans-serif;
+  --font-serif: Georgia, 'Times New Roman', Times, 'Noto Serif', 'DejaVu Serif', serif;
 
   --text-xs: 0.8125rem;
   --text-xs--line-height: 1.25rem;

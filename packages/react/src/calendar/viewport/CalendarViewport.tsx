@@ -3,6 +3,7 @@ import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { ownerDocument } from '@base-ui/utils/owner';
 import { useStore } from '@base-ui/utils/store';
 import { TemporalSupportedObject } from '../../types/temporal';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
@@ -110,7 +111,7 @@ export function CalendarViewport({ children }: CalendarViewport.Props): React.JS
 
     // Create the wrapper element of the same type as the source element.
     // It has to be an element of the same tag, especially if it's the calendar body (`tbody`).
-    const wrapper = document.createElement(getSafeTag(source.localName));
+    const wrapper = ownerDocument(source).createElement(getSafeTag(source.localName));
     for (const child of Array.from(source.childNodes)) {
       wrapper.appendChild(child.cloneNode(true));
     }

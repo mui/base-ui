@@ -20,6 +20,14 @@ The container for menus.
 | style       | `React.CSSProperties \| ((state: Menubar.State) => React.CSSProperties \| undefined)` | -              | -                                                                                                                                                                                             |
 | render      | `ReactElement \| ((props: HTMLProps, state: Menubar.State) => ReactElement)`          | -              | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
+**Menubar Data Attributes:**
+
+| Attribute             | Type                         | Description                                          |
+| :-------------------- | :--------------------------- | :--------------------------------------------------- |
+| data-orientation      | `'horizontal' \| 'vertical'` | Determines the orientation of the menubar.           |
+| data-has-submenu-open | -                            | Present when any submenu within the menubar is open. |
+| data-modal            | -                            | Present when the corresponding menubar is modal.     |
+
 ### Menubar.Props
 
 Re-export of [Menubar](#menubar) props.
