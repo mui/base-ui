@@ -17,6 +17,10 @@ import { processReleaseTimeline } from './releaseTimelineProcessor.mjs';
 import * as mdx from './mdxNodeHelpers.mjs';
 import { resolveMdLinks } from './resolver.mjs';
 import { processTypedoc } from './typedocProcessor.mjs';
+import {
+  getInstallCommand,
+  INSTALLATION_PACKAGE_MANAGERS,
+} from '../../src/components/InstallationBlock/model.ts'; // eslint-disable-line import/extensions
 
 /**
  * Plugin to extract metadata from the MDX content
@@ -228,19 +232,10 @@ function transformJsx() {
             const pkg =
               node.attributes?.find((attr) => attr.name === 'package')?.value || '@base-ui/react';
 
-            const nodes = [
-              mdx.heading(3, 'pnpm'),
-              mdx.code(`pnpm add ${pkg}`, 'bash'),
-
-              mdx.heading(3, 'npm'),
-              mdx.code(`npm install ${pkg}`, 'bash'),
-
-              mdx.heading(3, 'yarn'),
-              mdx.code(`yarn add ${pkg}`, 'bash'),
-
-              mdx.heading(3, 'bun'),
-              mdx.code(`bun add ${pkg}`, 'bash'),
-            ];
+            const nodes = INSTALLATION_PACKAGE_MANAGERS.flatMap((packageManager) => [
+              mdx.heading(3, packageManager.label),
+              mdx.code(getInstallCommand(packageManager, pkg), 'bash'),
+            ]);
 
             parent.children.splice(index, 1, ...nodes);
             return visit.CONTINUE;
