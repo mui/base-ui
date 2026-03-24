@@ -28,7 +28,12 @@ export function Root(props: React.ComponentPropsWithoutRef<'div'>) {
   );
 }
 
-export function Panel({ className, children, ...other }: React.ComponentPropsWithoutRef<'div'>) {
+interface CodeBlockPanelProps extends React.ComponentPropsWithoutRef<'div'> {
+  /** When provided, renders as a separate sr-only label instead of wrapping children. */
+  title?: string;
+}
+
+export function Panel({ className, title, children, ...other }: CodeBlockPanelProps) {
   const { codeId, titleId } = React.useContext(CodeBlockContext);
   const [copyTimeout, setCopyTimeout] = React.useState<number>(0);
   const ga = useGoogleAnalytics();
@@ -36,9 +41,18 @@ export function Panel({ className, children, ...other }: React.ComponentPropsWit
 
   return (
     <div className={clsx('CodeBlockPanel', className)} {...other}>
-      <div id={titleId} className="CodeBlockPanelTitle">
-        {children}
-      </div>
+      {title != null ? (
+        <React.Fragment>
+          <span id={titleId} className="sr-only">
+            {title}
+          </span>
+          {children}
+        </React.Fragment>
+      ) : (
+        <div id={titleId} className="CodeBlockPanelTitle">
+          {children}
+        </div>
+      )}
       <GhostButton
         aria-label="Copy code"
         onClick={async () => {
@@ -46,13 +60,13 @@ export function Panel({ className, children, ...other }: React.ComponentPropsWit
 
           if (code) {
             await copy(code);
-            const title = document.getElementById(titleId)?.textContent ?? undefined;
-            const codeBlockId = title ? `${pathname}#${title}` : pathname;
+            const titleText = document.getElementById(titleId)?.textContent ?? undefined;
+            const codeBlockId = titleText ? `${pathname}#${titleText}` : pathname;
             ga?.trackEvent({
               category: 'code_block',
               action: 'copy',
               label: codeBlockId,
-              params: { copy: codeBlockId, slug: title || '' },
+              params: { copy: codeBlockId, slug: titleText || '' },
             });
             /* eslint-disable no-restricted-syntax */
             const newTimeout = window.setTimeout(() => {
