@@ -124,6 +124,15 @@
     opacity: 0.5;
   }
 
+  &[data-disabled] {
+    color: var(--color-gray-500);
+    opacity: 0.65;
+  }
+
+  &[data-disabled]::before {
+    display: none;
+  }
+
   &[data-drop-target-edge='before']::after {
     content: '';
     position: absolute;
@@ -225,6 +234,20 @@
   &:active {
     cursor: grabbing;
   }
+
+  [data-disabled] & {
+    color: var(--color-gray-300);
+    cursor: default;
+  }
+
+  [data-disabled] &:active {
+    cursor: default;
+  }
+}
+
+.DisabledDragHandle {
+  grid-column-start: 1;
+  width: 1.5rem;
 }
 
 .ItemIndicator {
@@ -255,6 +278,10 @@
 
 .HandleItemText {
   grid-column-start: 3;
+}
+
+.Item[data-disabled] .ItemIndicatorIcon {
+  opacity: 0.45;
 }
 
 /* ScrollArea integration */

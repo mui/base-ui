@@ -34,6 +34,7 @@ export type SelectionAction =
  * @param action - What the user intends to do.
  * @param currentValue - The current selected values array.
  * @param valuesRef - The flat array of all registered item values (indexed by composite position).
+ * @param disabledItemsRef - The flat array of disabled item flags (indexed by composite position).
  * @param isItemEqualToValue - Custom equality comparator.
  * @returns The new selected values array.
  */
@@ -41,12 +42,13 @@ export function selectionReducer(
   action: SelectionAction,
   currentValue: any[],
   valuesRef: any[],
+  disabledItemsRef: Array<boolean | undefined>,
   isItemEqualToValue: (a: any, b: any) => boolean,
 ): any[] {
   switch (action.type) {
     case 'select': {
       const itemValue = valuesRef[action.index];
-      if (itemValue === undefined) {
+      if (itemValue === undefined || disabledItemsRef[action.index]) {
         return currentValue;
       }
       return [itemValue];
@@ -54,7 +56,7 @@ export function selectionReducer(
 
     case 'toggle': {
       const itemValue = valuesRef[action.index];
-      if (itemValue === undefined) {
+      if (itemValue === undefined || disabledItemsRef[action.index]) {
         return currentValue;
       }
       const isSelected = currentValue.some((v) =>
@@ -71,14 +73,14 @@ export function selectionReducer(
       if (anchorIndex === null) {
         // No anchor — treat as a single select
         const itemValue = valuesRef[action.index];
-        return itemValue !== undefined ? [itemValue] : currentValue;
+        return itemValue !== undefined && !disabledItemsRef[action.index] ? [itemValue] : currentValue;
       }
       const start = Math.min(anchorIndex, action.index);
       const end = Math.max(anchorIndex, action.index);
       const rangeValues: any[] = [];
       for (let i = start; i <= end; i += 1) {
         const val = valuesRef[i];
-        if (val !== undefined) {
+        if (val !== undefined && !disabledItemsRef[i]) {
           rangeValues.push(val);
         }
       }
@@ -100,6 +102,7 @@ export function selectionReducer(
         const val = valuesRef[i];
         if (
           val !== undefined &&
+          !disabledItemsRef[i] &&
           !nextValue.some((v) => compareItemEquality(v, val, isItemEqualToValue))
         ) {
           nextValue = [...nextValue, val];
@@ -109,7 +112,7 @@ export function selectionReducer(
     }
 
     case 'selectAll': {
-      return valuesRef.filter((v) => v !== undefined);
+      return valuesRef.filter((v, index) => v !== undefined && !disabledItemsRef[index]);
     }
 
     case 'clear': {

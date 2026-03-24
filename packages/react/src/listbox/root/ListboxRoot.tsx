@@ -82,6 +82,7 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
   const valuesRef = React.useRef<Array<any>>([]);
+  const disabledItemsRef = React.useRef<Array<boolean | undefined>>([]);
   const groupIdsRef = React.useRef<Array<string | undefined>>([]);
   const typingRef = React.useRef(false);
   const lastSelectedIndexRef = React.useRef<number | null>(null);
@@ -221,6 +222,7 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
       listRef,
       valuesRef,
       labelsRef,
+      disabledItemsRef,
       groupIdsRef,
       typingRef,
       lastSelectedIndexRef,

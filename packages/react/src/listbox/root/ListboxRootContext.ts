@@ -18,6 +18,7 @@ export interface ListboxRootContext {
   listRef: React.RefObject<Array<HTMLElement | null>>;
   valuesRef: React.RefObject<Array<any>>;
   labelsRef: React.RefObject<Array<string | null>>;
+  disabledItemsRef: React.RefObject<Array<boolean | undefined>>;
   groupIdsRef: React.RefObject<Array<string | undefined>>;
   typingRef: React.RefObject<boolean>;
   lastSelectedIndexRef: React.RefObject<number | null>;

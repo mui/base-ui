@@ -20,7 +20,8 @@ export interface UseListboxItemDnDParameters {
   itemValue: any;
   itemRef: React.RefObject<HTMLElement | null>;
   dragHandleRef: React.RefObject<HTMLElement | null>;
-  enabled: boolean;
+  dragEnabled: boolean;
+  dropTargetEnabled: boolean;
   valuesRef: React.RefObject<Array<any>>;
   /**
    * Group ID for constraining drops. When defined, only items with the same
@@ -54,7 +55,8 @@ export function useListboxItemDnD(params: UseListboxItemDnDParameters) {
     itemValue,
     itemRef,
     dragHandleRef,
-    enabled,
+    dragEnabled,
+    dropTargetEnabled,
     valuesRef,
     groupId,
     groupIdsRef,
@@ -91,108 +93,116 @@ export function useListboxItemDnD(params: UseListboxItemDnDParameters) {
 
   useIsoLayoutEffect(() => {
     const element = itemRef.current;
-    if (!element || !enabled) {
+    if (!element || (!dragEnabled && !dropTargetEnabled)) {
       return undefined;
     }
 
-    const dragHandle = dragHandleRef.current ?? element;
+    let cleanupDraggable: (() => void) | undefined;
+    let cleanupDropTarget: (() => void) | undefined;
 
-    const cleanupDraggable = draggable({
-      element: dragHandle,
-      getInitialData: () => {
-        // In multi-select modes, dragging a selected item drags all selected
-        // items together, preserving their relative order.
-        const { value: selectedValues, selectionMode, isItemEqualToValue } = store.state;
-        const isSelected = selectedValues.some((sv) => isItemEqualToValue(itemValue, sv));
+    if (dragEnabled) {
+      const dragHandle = dragHandleRef.current ?? element;
 
-        if (isMultipleSelectionMode(selectionMode) && isSelected) {
-          const indices: number[] = [];
-          const values: any[] = [];
-          const groupIds: (string | undefined)[] = [];
-          for (let i = 0; i < valuesRef.current.length; i += 1) {
-            const v = valuesRef.current[i];
-            if (selectedValues.some((sv) => isItemEqualToValue(v, sv))) {
-              indices.push(i);
-              values.push(v);
-              groupIds.push(groupIdsRef.current[i]);
+      cleanupDraggable = draggable({
+        element: dragHandle,
+        getInitialData: () => {
+          // In multi-select modes, dragging a selected item drags all selected
+          // items together, preserving their relative order.
+          const { value: selectedValues, selectionMode, isItemEqualToValue } = store.state;
+          const isSelected = selectedValues.some((sv) => isItemEqualToValue(itemValue, sv));
+
+          if (isMultipleSelectionMode(selectionMode) && isSelected) {
+            const indices: number[] = [];
+            const values: any[] = [];
+            const groupIds: (string | undefined)[] = [];
+            for (let i = 0; i < valuesRef.current.length; i += 1) {
+              const v = valuesRef.current[i];
+              if (selectedValues.some((sv) => isItemEqualToValue(v, sv))) {
+                indices.push(i);
+                values.push(v);
+                groupIds.push(groupIdsRef.current[i]);
+              }
             }
+            return { index, indices, values, groupIds, groupId, isMultiDrag: true };
           }
-          return { index, indices, values, groupIds, groupId, isMultiDrag: true };
-        }
 
-        return { index, value: itemValue, groupId, isMultiDrag: false };
-      },
-      onDragStart({ source }) {
-        if (source.data.isMultiDrag) {
-          store.set('dragActiveIndices', source.data.indices as number[]);
-        } else {
-          store.set('dragActiveIndices', [index]);
-        }
-      },
-      onDrop() {
-        store.update({ dragActiveIndices: null, dropTargetIndex: null });
-      },
-    });
+          return { index, value: itemValue, groupId, isMultiDrag: false };
+        },
+        onDragStart({ source }) {
+          if (source.data.isMultiDrag) {
+            store.set('dragActiveIndices', source.data.indices as number[]);
+          } else {
+            store.set('dragActiveIndices', [index]);
+          }
+        },
+        onDrop() {
+          store.update({ dragActiveIndices: null, dropTargetIndex: null });
+        },
+      });
+    }
 
-    const cleanupDropTarget = dropTargetForElements({
-      element,
-      canDrop({ source }) {
-        // For multi-drag with within-group constraint, ALL dragged items'
-        // groups must match the target's group.
-        if (source.data.isMultiDrag && groupId !== undefined) {
-          const sourceGroupIds = source.data.groupIds as (string | undefined)[];
-          return sourceGroupIds.every((gid) => gid === groupId);
-        }
+    if (dropTargetEnabled) {
+      cleanupDropTarget = dropTargetForElements({
+        element,
+        canDrop({ source }) {
+          // For multi-drag with within-group constraint, ALL dragged items'
+          // groups must match the target's group.
+          if (source.data.isMultiDrag && groupId !== undefined) {
+            const sourceGroupIds = source.data.groupIds as (string | undefined)[];
+            return sourceGroupIds.every((gid) => gid === groupId);
+          }
 
-        // Single-item group constraint (existing logic).
-        const sourceGroupId = source.data.groupId as string | undefined;
-        if (sourceGroupId !== undefined && groupId !== undefined) {
-          return sourceGroupId === groupId;
-        }
-        if (sourceGroupId !== undefined || groupId !== undefined) {
-          return sourceGroupId === groupId;
-        }
-        return true;
-      },
-      getData: ({ input, element: el }) => {
-        return attachClosestEdge(
-          { index, value: itemValue, groupId },
-          {
-            input,
-            element: el,
-            allowedEdges:
-              store.state.orientation === 'horizontal' ? ['left', 'right'] : ['top', 'bottom'],
-          },
-        );
-      },
-      onDragEnter(args) {
-        store.set('dropTargetIndex', index);
-        setClosestEdge(extractClosestEdge(args.self.data));
-      },
-      onDrag(args) {
-        store.set('dropTargetIndex', index);
-        setClosestEdge(extractClosestEdge(args.self.data));
-      },
-      onDragLeave() {
-        if (store.state.dropTargetIndex === index) {
-          store.set('dropTargetIndex', null);
-        }
-        setClosestEdge(null);
-      },
-      onDrop(args) {
-        const edge = extractClosestEdge(args.self.data);
-        handleDrop(args.source.data, index, edge);
-        store.update({ dragActiveIndices: null, dropTargetIndex: null });
-        setClosestEdge(null);
-      },
-    });
+          // Single-item group constraint (existing logic).
+          const sourceGroupId = source.data.groupId as string | undefined;
+          if (sourceGroupId !== undefined && groupId !== undefined) {
+            return sourceGroupId === groupId;
+          }
+          if (sourceGroupId !== undefined || groupId !== undefined) {
+            return sourceGroupId === groupId;
+          }
+          return true;
+        },
+        getData: ({ input, element: el }) => {
+          return attachClosestEdge(
+            { index, value: itemValue, groupId },
+            {
+              input,
+              element: el,
+              allowedEdges:
+                store.state.orientation === 'horizontal' ? ['left', 'right'] : ['top', 'bottom'],
+            },
+          );
+        },
+        onDragEnter(args) {
+          store.set('dropTargetIndex', index);
+          setClosestEdge(extractClosestEdge(args.self.data));
+        },
+        onDrag(args) {
+          store.set('dropTargetIndex', index);
+          setClosestEdge(extractClosestEdge(args.self.data));
+        },
+        onDragLeave() {
+          if (store.state.dropTargetIndex === index) {
+            store.set('dropTargetIndex', null);
+          }
+          setClosestEdge(null);
+        },
+        onDrop(args) {
+          const edge = extractClosestEdge(args.self.data);
+          handleDrop(args.source.data, index, edge);
+          store.update({ dragActiveIndices: null, dropTargetIndex: null });
+          setClosestEdge(null);
+        },
+      });
+    }
 
     return () => {
-      cleanupDraggable();
-      cleanupDropTarget();
+      cleanupDraggable?.();
+      cleanupDropTarget?.();
     };
   }, [
-    enabled,
+    dragEnabled,
+    dropTargetEnabled,
     index,
     itemValue,
     groupId,

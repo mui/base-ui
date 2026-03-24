@@ -48,6 +48,7 @@ interface FontItem {
   label: string;
   value: string;
   group: string;
+  disabled?: boolean;
 }
 
 const initialFonts: FontItem[] = [
@@ -59,8 +60,8 @@ const initialFonts: FontItem[] = [
   { label: 'Fira Code', value: 'fira-code', group: 'Monospace' },
   { label: 'Source Code Pro', value: 'source-code-pro', group: 'Monospace' },
   { label: 'IBM Plex Mono', value: 'ibm-plex-mono', group: 'Monospace' },
-  { label: 'Merriweather', value: 'merriweather', group: 'Serif' },
-  { label: 'Playfair Display', value: 'playfair-display', group: 'Serif' },
+  { label: 'Merriweather', value: 'merriweather', group: 'Serif', disabled: true },
+  { label: 'Playfair Display', value: 'playfair-display', group: 'Serif', disabled: true },
   { label: 'Lora', value: 'lora', group: 'Serif' },
   { label: 'PT Serif', value: 'pt-serif', group: 'Serif' },
 ];
@@ -178,11 +179,12 @@ export default function ListboxFullyFeatured() {
                       <Listbox.GroupLabel className={styles.GroupLabel}>
                         {group.label}
                       </Listbox.GroupLabel>
-                      {group.items.map(({ label, value }) => (
+                      {group.items.map(({ label, value, disabled }) => (
                         <VerticalItem
                           key={value}
                           label={label}
                           value={value}
+                          disabled={disabled}
                           draggable={draggableProp}
                           className={itemClassName}
                         />
@@ -196,11 +198,12 @@ export default function ListboxFullyFeatured() {
                       )}
                     </Listbox.Group>
                   ))
-                : fonts.map(({ label, value }) => (
+                : fonts.map(({ label, value, disabled }) => (
                     <VerticalItem
                       key={value}
                       label={label}
                       value={value}
+                      disabled={disabled}
                       draggable={draggableProp}
                       className={itemClassName}
                     />
@@ -280,19 +283,22 @@ export default function ListboxFullyFeatured() {
 function VerticalItem(props: {
   label: string;
   value: string;
+  disabled?: boolean;
   draggable: boolean | 'within-group';
   className: string;
 }) {
-  const { label, value, draggable: draggableProp, className } = props;
+  const { label, value, disabled = false, draggable: draggableProp, className } = props;
   const isDraggable = draggableProp !== false;
+  const showDragHandle = isDraggable && !disabled;
 
   return (
-    <Listbox.Item value={value} draggable={draggableProp} className={className}>
-      {isDraggable && (
+    <Listbox.Item value={value} disabled={disabled} draggable={draggableProp} className={className}>
+      {showDragHandle && (
         <Listbox.ItemDragHandle className={styles.DragHandle}>
           <GripIcon />
         </Listbox.ItemDragHandle>
       )}
+      {!showDragHandle && isDraggable && <div aria-hidden className={styles.DisabledDragHandle} />}
       <Listbox.ItemIndicator
         className={isDraggable ? styles.HandleItemIndicator : styles.ItemIndicator}
       >

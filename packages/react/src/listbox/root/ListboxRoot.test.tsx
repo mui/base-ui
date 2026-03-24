@@ -2,7 +2,7 @@ import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Listbox } from '@base-ui/react/listbox';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
-import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 
 describe('<Listbox.Root />', () => {
@@ -583,6 +583,65 @@ describe('<Listbox.Root />', () => {
       expect(handleValueChange.mock.calls[0][0]).toEqual([]);
     });
 
+    it('Ctrl+A ignores disabled options', async () => {
+      const handleValueChange = vi.fn();
+
+      await render(
+        <Listbox.Root selectionMode="multiple" defaultValue={[]} onValueChange={handleValueChange}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b" disabled>
+              b
+            </Listbox.Item>
+            <Listbox.Item value="c">c</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      await flushMicrotasks();
+
+      const list = screen.getByRole('listbox');
+      list.focus();
+      fireEvent.keyDown(list, { key: 'a', ctrlKey: true });
+
+      await flushMicrotasks();
+
+      expect(handleValueChange).toHaveBeenCalledTimes(1);
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['a', 'c']);
+    });
+
+    it('Ctrl+Shift+Home ignores disabled options in the selected range', async () => {
+      const handleValueChange = vi.fn();
+
+      await render(
+        <Listbox.Root selectionMode="multiple" defaultValue={[]} onValueChange={handleValueChange}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b" disabled>
+              b
+            </Listbox.Item>
+            <Listbox.Item value="c">c</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      await flushMicrotasks();
+
+      const list = screen.getByRole('listbox');
+      list.focus();
+      fireEvent.keyDown(list, { key: 'ArrowDown' });
+
+      await flushMicrotasks();
+
+      const itemC = screen.getByRole('option', { name: 'c' });
+      fireEvent.keyDown(itemC, { key: 'Home', ctrlKey: true, shiftKey: true });
+
+      await flushMicrotasks();
+
+      expect(handleValueChange).toHaveBeenCalledTimes(1);
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['a', 'c']);
+    });
+
     it('Shift+ArrowDown adds already selected item without duplicating', async () => {
       const handleValueChange = vi.fn();
 
@@ -620,6 +679,40 @@ describe('<Listbox.Root />', () => {
       // c was added, existing selections preserved
       expect(handleValueChange).toHaveBeenCalledTimes(1);
       expect(handleValueChange.mock.calls[0][0]).toEqual(['a', 'b', 'c']);
+    });
+
+    it('Shift+ArrowDown skips disabled options', async () => {
+      const handleValueChange = vi.fn();
+
+      await render(
+        <Listbox.Root
+          selectionMode="multiple"
+          defaultValue={['a']}
+          onValueChange={handleValueChange}
+        >
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b" disabled>
+              b
+            </Listbox.Item>
+            <Listbox.Item value="c">c</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      await flushMicrotasks();
+
+      const list = screen.getByRole('listbox');
+      list.focus();
+      fireEvent.keyDown(list, { key: 'Home' });
+
+      await flushMicrotasks();
+
+      fireEvent.keyDown(list, { key: 'ArrowDown', shiftKey: true });
+
+      await flushMicrotasks();
+
+      expect(handleValueChange).not.toHaveBeenCalled();
     });
 
     it('Meta+A (Cmd+A) selects all options', async () => {
@@ -957,6 +1050,251 @@ describe('<Listbox.Root />', () => {
       fireEvent.click(screen.getByRole('option', { name: 'a' }));
 
       expect(handleValueChange).not.toHaveBeenCalled();
+    });
+
+    it('should not include disabled items in Shift+Click ranges', async () => {
+      const handleValueChange = vi.fn();
+
+      await render(
+        <Listbox.Root selectionMode="multiple" defaultValue={[]} onValueChange={handleValueChange}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b" disabled>
+              b
+            </Listbox.Item>
+            <Listbox.Item value="c">c</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      await flushMicrotasks();
+
+      fireEvent.click(screen.getByRole('option', { name: 'a' }));
+      fireEvent.click(screen.getByRole('option', { name: 'c' }), { shiftKey: true });
+
+      expect(handleValueChange).toHaveBeenCalledTimes(2);
+      expect(handleValueChange.mock.calls[1][0]).toEqual(['a', 'c']);
+    });
+
+    it('should reorder relative to a disabled item with Alt+Arrow', async () => {
+      const handleItemsReorder = vi.fn();
+
+      await render(
+        <Listbox.Root onItemsReorder={handleItemsReorder}>
+          <Listbox.List>
+            <Listbox.Item value="a" draggable>
+              a
+            </Listbox.Item>
+            <Listbox.Item value="b" disabled draggable>
+              b
+            </Listbox.Item>
+            <Listbox.Item value="c" draggable>
+              c
+            </Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      await flushMicrotasks();
+
+      const list = screen.getByRole('listbox');
+      list.focus();
+      fireEvent.keyDown(list, { key: 'ArrowDown' });
+
+      await flushMicrotasks();
+
+      const itemC = screen.getByRole('option', { name: 'c' });
+      fireEvent.keyDown(itemC, { key: 'ArrowUp', altKey: true });
+
+      expect(handleItemsReorder).toHaveBeenCalledTimes(1);
+      expect(handleItemsReorder.mock.calls[0][0]).toEqual({
+        items: ['c'],
+        referenceItem: 'b',
+        edge: 'before',
+        reason: 'keyboard',
+      });
+    });
+
+    it('should not reorder a disabled item with Alt+Arrow', async () => {
+      const handleItemsReorder = vi.fn();
+
+      await render(
+        <Listbox.Root onItemsReorder={handleItemsReorder}>
+          <Listbox.List>
+            <Listbox.Item value="a" draggable>
+              a
+            </Listbox.Item>
+            <Listbox.Item value="b" disabled draggable>
+              b
+            </Listbox.Item>
+            <Listbox.Item value="c" draggable>
+              c
+            </Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      await flushMicrotasks();
+
+      const list = screen.getByRole('listbox');
+      list.focus();
+      fireEvent.keyDown(list, { key: 'ArrowDown' });
+
+      await flushMicrotasks();
+
+      const itemB = screen.getByRole('option', { name: 'b' });
+      await act(() => itemB.focus());
+      fireEvent.keyDown(itemB, { key: 'ArrowDown', altKey: true });
+
+      expect(handleItemsReorder).not.toHaveBeenCalled();
+    });
+
+    it('should support multiple consecutive keyboard reorders and preserve navigation', async () => {
+      function ReorderableListbox() {
+        const [items, setItems] = React.useState(['a', 'b', 'c', 'd', 'e']);
+
+        function handleReorder(event: {
+          items: string[];
+          referenceItem: string;
+          edge: 'before' | 'after';
+        }) {
+          setItems((prev) => {
+            const movedValues = new Set(event.items);
+            const movedItems = prev.filter((v) => movedValues.has(v));
+            const rest = prev.filter((v) => !movedValues.has(v));
+            const refIndex = rest.indexOf(event.referenceItem);
+            rest.splice(event.edge === 'after' ? refIndex + 1 : refIndex, 0, ...movedItems);
+            return rest;
+          });
+        }
+
+        return (
+          <Listbox.Root onItemsReorder={handleReorder}>
+            <Listbox.List>
+              {items.map((item) => (
+                <Listbox.Item key={item} value={item} draggable>
+                  {item}
+                </Listbox.Item>
+              ))}
+            </Listbox.List>
+          </Listbox.Root>
+        );
+      }
+
+      await render(<ReorderableListbox />);
+      await flushMicrotasks();
+
+      // Focus item 'b' (index 1)
+      const itemB = screen.getByRole('option', { name: 'b' });
+      await act(() => itemB.focus());
+      expect(document.activeElement).toBe(itemB);
+
+      // Move 'b' down 3 times rapidly (no flushMicrotasks between moves)
+      fireEvent.keyDown(itemB, { key: 'ArrowDown', altKey: true });
+      fireEvent.keyDown(itemB, { key: 'ArrowDown', altKey: true });
+      fireEvent.keyDown(itemB, { key: 'ArrowDown', altKey: true });
+      await flushMicrotasks();
+
+      // After 3 moves down, 'b' should be at index 4 (a, c, d, e, b)
+      const allItems = screen.getAllByRole('option');
+      expect(allItems.map((el) => el.textContent)).toEqual(['a', 'c', 'd', 'e', 'b']);
+
+      const movedItemB = screen.getByRole('option', { name: 'b' });
+      expect(document.activeElement).toBe(movedItemB);
+
+      // Now release Alt and use regular arrow keys — should still work
+      fireEvent.keyDown(movedItemB, { key: 'ArrowUp' });
+      await flushMicrotasks();
+
+      expect(document.activeElement).toBe(screen.getByRole('option', { name: 'e' }));
+    });
+
+    it('should preserve focus when keyboard reorder crosses a group boundary', async () => {
+      interface Item {
+        value: string;
+        group: string;
+      }
+
+      function GroupedReorderableListbox() {
+        const [items, setItems] = React.useState<Item[]>([
+          { value: 'a', group: 'g1' },
+          { value: 'b', group: 'g1' },
+          { value: 'c', group: 'g2' },
+          { value: 'd', group: 'g2' },
+        ]);
+
+        function handleReorder(event: {
+          items: string[];
+          referenceItem: string;
+          edge: 'before' | 'after';
+        }) {
+          setItems((prev) => {
+            const movedValues = new Set(event.items);
+            const refItem = prev.find((i) => i.value === event.referenceItem)!;
+            const movedItems = prev
+              .filter((i) => movedValues.has(i.value))
+              .map((i) => ({ ...i, group: refItem.group }));
+            const rest = prev.filter((i) => !movedValues.has(i.value));
+            const refIndex = rest.findIndex((i) => i.value === event.referenceItem);
+            rest.splice(event.edge === 'after' ? refIndex + 1 : refIndex, 0, ...movedItems);
+            return rest;
+          });
+        }
+
+        const groups = items.reduce(
+          (acc, item) => {
+            if (!acc[item.group]) {
+              acc[item.group] = [];
+            }
+            acc[item.group].push(item);
+            return acc;
+          },
+          {} as Record<string, Item[]>,
+        );
+
+        return (
+          <Listbox.Root onItemsReorder={handleReorder}>
+            <Listbox.List>
+              {Object.entries(groups).map(([groupName, groupItems]) => (
+                <Listbox.Group key={groupName}>
+                  <Listbox.GroupLabel>{groupName}</Listbox.GroupLabel>
+                  {groupItems.map((item) => (
+                    <Listbox.Item key={item.value} value={item.value} draggable>
+                      {item.value}
+                    </Listbox.Item>
+                  ))}
+                </Listbox.Group>
+              ))}
+            </Listbox.List>
+          </Listbox.Root>
+        );
+      }
+
+      await render(<GroupedReorderableListbox />);
+      await flushMicrotasks();
+
+      // Focus item 'b' (last in group g1)
+      const itemB = screen.getByRole('option', { name: 'b' });
+      await act(() => itemB.focus());
+      expect(document.activeElement).toBe(itemB);
+
+      // Move 'b' down — crosses from g1 to g2
+      fireEvent.keyDown(itemB, { key: 'ArrowDown', altKey: true });
+      await flushMicrotasks();
+
+      // 'b' should now be between 'c' and 'd' (in g2)
+      const allItems = screen.getAllByRole('option');
+      expect(allItems.map((el) => el.textContent)).toEqual(['a', 'c', 'b', 'd']);
+
+      // Focus must still be on 'b' after crossing the group boundary
+      const movedItemB = screen.getByRole('option', { name: 'b' });
+      expect(document.activeElement).toBe(movedItemB);
+
+      // Regular arrow key should still work
+      fireEvent.keyDown(movedItemB, { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      expect(document.activeElement).toBe(screen.getByRole('option', { name: 'd' }));
     });
   });
 

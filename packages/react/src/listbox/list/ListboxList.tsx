@@ -33,6 +33,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
     store,
     labelsRef,
     valuesRef,
+    disabledItemsRef,
     typingRef,
     orientation,
     loopFocus,
@@ -123,6 +124,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
         action,
         currentValue,
         valuesRef.current,
+        disabledItemsRef.current,
         isItemEqualToValue,
       );
       setValue(nextValue, createChangeEventDetails(REASONS.listNavigation, event));
@@ -175,20 +177,31 @@ export const ListboxList = React.forwardRef(function ListboxList(
             const currentValue = store.state.value;
             const anchorValue = values[currentIndex];
             let nextValue = Array.isArray(currentValue) ? [...currentValue] : [];
+            let changed = false;
             if (
+              !disabledItemsRef.current[currentIndex] &&
               anchorValue !== undefined &&
               !nextValue.some((v) => compareItemEquality(v, anchorValue, isItemEqualToValue))
             ) {
               nextValue = [...nextValue, anchorValue];
+              changed = true;
             }
-            if (!nextValue.some((v) => compareItemEquality(v, targetValue, isItemEqualToValue))) {
+            if (
+              !disabledItemsRef.current[targetIndex] &&
+              !nextValue.some((v) => compareItemEquality(v, targetValue, isItemEqualToValue))
+            ) {
               nextValue = [...nextValue, targetValue];
+              changed = true;
             }
-            setValue(
-              nextValue,
-              createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
-            );
-            lastSelectedIndexRef.current = targetIndex;
+            if (changed) {
+              setValue(
+                nextValue,
+                createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
+              );
+            }
+            if (!disabledItemsRef.current[targetIndex]) {
+              lastSelectedIndexRef.current = targetIndex;
+            }
           }
         }
       }
