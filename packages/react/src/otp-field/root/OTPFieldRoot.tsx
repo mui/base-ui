@@ -7,6 +7,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { warn } from '@base-ui/utils/warn';
+import { ownerDocument } from '@base-ui/utils/owner';
 import { CompositeList } from '../../composite/list/CompositeList';
 import { useField } from '../../field/useField';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
@@ -107,7 +108,6 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     value: string;
     eventDetails: OTPFieldRoot.CompleteEventDetails;
   } | null>(null);
-  const [inputCount, setInputCount] = React.useState(0);
   const firstInputRef = React.useMemo(
     () =>
       ({
@@ -121,14 +121,15 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   const id = useLabelableId({ id: idProp });
   const ariaLabelledBy = useAriaLabelledBy(ariaLabelledByProp, labelId, firstInputRef, true, id);
   const validationConfig = getOTPValidationConfig(validationType);
-  const pattern = validationConfig?.pattern;
-  const hiddenInputPattern = pattern?.replace('{1}', `{${length}}`);
+  const pattern = validationConfig?.slotPattern;
+  const hiddenInputPattern = validationConfig?.getRootPattern(length);
   const inputMode = inputModeProp ?? validationConfig?.inputMode;
 
   const value = normalizeOTPValue(valueUnwrapped, length, validationType, sanitizeValue);
   const valueRef = useValueAsRef(value);
   const filled = value !== '';
 
+  const [inputCount, setInputCount] = React.useState(0);
   const [focusedIndex, setFocusedIndex] = React.useState(() => Math.min(value.length, length - 1));
   const [focused, setFocusedState] = React.useState(false);
 
@@ -180,7 +181,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     let formElement = validation.inputRef.current?.form ?? inputRefs.current[0]?.form ?? null;
 
     if (form) {
-      const associatedElement = (rootRef.current?.ownerDocument ?? document).getElementById(form);
+      const associatedElement = ownerDocument(rootRef.current).getElementById(form);
       if (associatedElement?.tagName === 'FORM') {
         formElement = associatedElement as HTMLFormElement;
       }
@@ -229,6 +230,10 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   const setValue = useStableCallback(
     (nextValue: string, details: OTPFieldRoot.ChangeEventDetails) => {
       const normalizedValue = normalizeOTPValue(nextValue, length, validationType, sanitizeValue);
+
+      if (normalizedValue === valueRef.current) {
+        return null;
+      }
 
       onValueChange?.(normalizedValue, details);
 
@@ -297,20 +302,17 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     [id],
   );
 
-  const state: OTPFieldRootState = React.useMemo(
-    () => ({
-      ...fieldState,
-      complete: value.length === length,
-      disabled,
-      filled,
-      focused,
-      length,
-      readOnly,
-      required,
-      value,
-    }),
-    [fieldState, value, length, disabled, filled, focused, readOnly, required],
-  );
+  const state: OTPFieldRootState = {
+    ...fieldState,
+    complete: value.length === length,
+    disabled,
+    filled,
+    focused,
+    length,
+    readOnly,
+    required,
+    value,
+  };
 
   const contextValue = React.useMemo(
     () => ({

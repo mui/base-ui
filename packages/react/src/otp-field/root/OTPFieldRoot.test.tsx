@@ -554,6 +554,41 @@ describe('<OTPField />', () => {
         expect(onValueChange.mock.calls[0]?.[1].reason).toBe(REASONS.keyboard);
       });
 
+      it('does not fire `onValueChange` for Delete on an empty slot', async () => {
+        const onValueChange = vi.fn();
+
+        await render(<OTPField defaultValue="1" onValueChange={onValueChange} />);
+
+        const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+        await act(async () => {
+          inputs[1].focus();
+        });
+
+        fireEvent.keyDown(inputs[1], { key: 'Delete' });
+
+        expect(getValues()).toBe('1');
+        expect(onValueChange).not.toHaveBeenCalled();
+      });
+
+      it('does not fire `onValueChange` for Backspace on an already-empty first slot', async () => {
+        const onValueChange = vi.fn();
+
+        await render(<OTPField onValueChange={onValueChange} />);
+
+        const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+
+        await act(async () => {
+          firstInput.focus();
+        });
+
+        fireEvent.keyDown(firstInput, { key: 'Backspace' });
+
+        expect(getValues()).toBe('');
+        expect(document.activeElement).toBe(firstInput);
+        expect(onValueChange).not.toHaveBeenCalled();
+      });
+
       it('does not move focus later for a stale controlled change', async () => {
         vi.useFakeTimers();
 

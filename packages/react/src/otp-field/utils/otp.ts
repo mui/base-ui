@@ -1,5 +1,6 @@
 interface OTPValidationConfig {
-  pattern: string;
+  slotPattern: string;
+  getRootPattern: (length: number) => string;
   regexp: RegExp;
   inputMode: 'numeric' | 'text';
 }
@@ -8,17 +9,20 @@ export type OTPValidationType = 'numeric' | 'alpha' | 'alphanumeric' | 'none';
 
 const OTP_VALIDATION_CONFIG: Record<Exclude<OTPValidationType, 'none'>, OTPValidationConfig> = {
   numeric: {
-    pattern: '\\d{1}',
+    slotPattern: '\\d{1}',
+    getRootPattern: (length) => `\\d{${length}}`,
     regexp: /[^\d]/g,
     inputMode: 'numeric',
   },
   alpha: {
-    pattern: '[a-zA-Z]{1}',
+    slotPattern: '[a-zA-Z]{1}',
+    getRootPattern: (length) => `[a-zA-Z]{${length}}`,
     regexp: /[^a-zA-Z]/g,
     inputMode: 'text',
   },
   alphanumeric: {
-    pattern: '[a-zA-Z0-9]{1}',
+    slotPattern: '[a-zA-Z0-9]{1}',
+    getRootPattern: (length) => `[a-zA-Z0-9]{${length}}`,
     regexp: /[^a-zA-Z0-9]/g,
     inputMode: 'text',
   },
