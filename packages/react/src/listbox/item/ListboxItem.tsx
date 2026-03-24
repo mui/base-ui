@@ -356,7 +356,14 @@ export const ListboxItem = React.memo(
           return;
         }
 
-        const pointerType = lastPointerTypeRef.current;
+        // Read pointerType directly from the native event when available.
+        // Modern browsers dispatch `click` as a PointerEvent which carries
+        // `pointerType`. Fall back to the ref set in onPointerDown for older
+        // browsers or synthetic clicks.
+        const pointerType =
+          'pointerType' in event.nativeEvent
+            ? (event.nativeEvent as PointerEvent).pointerType
+            : lastPointerTypeRef.current;
         lastKeyRef.current = null;
         lastPointerTypeRef.current = null;
         commitSelection(event.nativeEvent, {
