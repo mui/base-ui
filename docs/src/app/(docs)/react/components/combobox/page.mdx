@@ -168,29 +168,12 @@ import { Combobox } from '@base-ui/react/combobox';
 
 export function MyCombobox<Value, Multiple extends boolean | undefined = false>(
   props: Combobox.Root.Props<Value, Multiple>,
-): React.JSX.Element;
-export function MyCombobox(props: Combobox.Root.Props<any, any>): React.JSX.Element {
+): React.JSX.Element {
   return <Combobox.Root {...props}>{/* ... */}</Combobox.Root>;
 }
 ```
 
-Forward the `Items` generic as well when the wrapper should support keyed `{ value, label }` items:
-
-```tsx title="Wrapper that also supports keyed values"
-import * as React from 'react';
-import { Combobox } from '@base-ui/react/combobox';
-
-type KeyedItems<Value> = readonly Value[] | readonly { value: Value; label: string }[] | undefined;
-
-export function MyKeyedCombobox<
-  Value,
-  Multiple extends boolean | undefined = false,
-  Items extends KeyedItems<Value> = readonly Value[] | undefined,
->(props: Combobox.Root.Props<Value, Multiple, Items>): React.JSX.Element;
-export function MyKeyedCombobox(props: Combobox.Root.Props<any, any, any>): React.JSX.Element {
-  return <Combobox.Root {...props}>{/* ... */}</Combobox.Root>;
-}
-```
+If the wrapper should also support keyed `{ value, label }` items, forward the third `Items` generic as well.
 
 ### Multiple select
 
