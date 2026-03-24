@@ -1,5 +1,4 @@
-import { ReactStore } from '@base-ui/utils/store';
-import { createSelector } from '@base-ui/utils/store/createSelector';
+import { ReactStore, createSelector, createSelectorMemoized } from '@base-ui/utils/store';
 import { generateId } from '@base-ui/utils/generateId';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { Timeout } from '@base-ui/utils/useTimeout';
@@ -33,33 +32,13 @@ export type State = {
   prevFocusElement: HTMLElement | null;
 };
 
-type ToastMap = Map<
-  string,
-  { value: ToastObject<any>; domIndex: number; visibleIndex: number; offsetY: number }
->;
-
-const toastMapSelector = (() => {
-  type CacheKey = object;
-  type StateWithCacheKey = State & { __cacheKey__?: CacheKey | undefined };
-
-  const cache = new WeakMap<CacheKey, { toasts: State['toasts']; map: ToastMap }>();
-
-  return (state: StateWithCacheKey) => {
-    const { toasts } = state;
-    // eslint-disable-next-line no-underscore-dangle
-    let cacheKey = state.__cacheKey__;
-    if (!cacheKey) {
-      cacheKey = {};
-      // eslint-disable-next-line no-underscore-dangle
-      state.__cacheKey__ = cacheKey;
-    }
-
-    const cached = cache.get(cacheKey);
-    if (cached?.toasts === toasts) {
-      return cached.map;
-    }
-
-    const map: ToastMap = new Map();
+const toastMapSelector = createSelectorMemoized(
+  (state: State) => state.toasts,
+  (toasts) => {
+    const map = new Map<
+      string,
+      { value: ToastObject<any>; domIndex: number; visibleIndex: number; offsetY: number }
+    >();
     let visibleIndex = 0;
     let offsetY = 0;
 
@@ -78,11 +57,9 @@ const toastMapSelector = (() => {
         visibleIndex += 1;
       }
     });
-
-    cache.set(cacheKey, { toasts, map });
     return map;
-  };
-})();
+  },
+);
 
 export const selectors = {
   toasts: createSelector((state: State) => state.toasts),
