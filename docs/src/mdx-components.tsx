@@ -76,9 +76,13 @@ export const mdxComponents: MDXComponents = {
   QuickNav,
   Meta: (props: React.ComponentProps<'meta'>) => {
     if (props.name === 'description' && String(props.content).length > 170) {
-      throw new Error('Meta description shouldn’t be longer than 170 chars');
+      throw new Error("Meta description shouldn't be longer than 170 chars");
     }
-    return <meta {...props} />;
+    // At build time, `transformMarkdownMetadata` extracts <Meta> attributes
+    // and injects them as `export const metadata = { ... }` into the compiled
+    // MDX. Next.js picks that export up and emits the <meta> tag itself, so
+    // rendering one here would produce a duplicate.
+    return null;
   },
   Subtitle: (props) => <Subtitle className="MdSubtitle" {...props} />,
 };

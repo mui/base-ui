@@ -148,6 +148,7 @@ const nextConfig = {
     // docs-infra
     LIB_VERSION: rootPackage.version,
     SOURCE_CODE_REPO: 'https://github.com/mui/base-ui',
+    BASE_URL: 'https://base-ui.com',
   },
   ...(process.env.NODE_ENV === 'production' && { distDir: 'export', output: 'export' }),
   devIndicators: false,
