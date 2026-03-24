@@ -424,10 +424,12 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         }
 
         if (newValue !== null) {
-          if (!matchesFocusVisible(event.currentTarget)) {
+          const input = event.currentTarget as HTMLInputElement;
+
+          if (!matchesFocusVisible(input)) {
             restoringFocusVisibleRef.current = true;
-            event.currentTarget.blur();
-            event.currentTarget.focus({
+            input.blur();
+            input.focus({
               preventScroll: true,
               // Show `:focus-visible` after keyboard interaction, even if the
               // thumb was previously focused by a pointer.
