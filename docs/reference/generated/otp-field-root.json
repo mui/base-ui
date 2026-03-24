@@ -19,7 +19,7 @@
     },
     "onValueChange": {
       "type": "((value: string, eventDetails: OTPField.Root.ChangeEventDetails) => void)",
-      "description": "Callback fired when the OTP value changes.\n\nThe `eventDetails.reason` indicates what triggered the change:\n- `'input-change'` for typing or autofill\n- `'input-clear'` when a character is removed by text input\n- `'input-paste'` for paste interactions\n- `'keyboard'` for keyboard navigation that changes the value",
+      "description": "Callback fired when the OTP value changes.\n\nThe `eventDetails.reason` indicates what triggered the change:\n- `'input-change'` for typing or autofill\n- `'input-clear'` when a character is removed by text input\n- `'input-paste'` for paste interactions\n- `'keyboard'` for keyboard interactions that change the value",
       "detailedType": "| ((\n    value: string,\n    eventDetails: OTPField.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "autoComplete": {
@@ -39,6 +39,11 @@
       "description": "A string specifying the `form` element with which the hidden input is associated.\nThis string's value must match the id of a `form` element in the same document.",
       "detailedType": "string | undefined"
     },
+    "inputMode": {
+      "type": "'search' | 'text' | 'none' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal'",
+      "description": "The virtual keyboard hint applied to the slot inputs and hidden validation input.\n\nBuilt-in validation modes provide sensible defaults, but you can override them when needed.",
+      "detailedType": "| 'search'\n| 'text'\n| 'none'\n| 'tel'\n| 'url'\n| 'email'\n| 'numeric'\n| 'decimal'\n| undefined"
+    },
     "length": {
       "type": "number",
       "required": true,
@@ -55,16 +60,21 @@
       "description": "Callback function that is fired when the OTP value becomes complete.\n\nIt runs later than `onValueChange`, after the internal value update is applied.\n\nIf `autoSubmit` is enabled, it runs immediately before the owning form is submitted.\n\n**Warning**: This is a generic event not a change event.",
       "detailedType": "| ((\n    value: string,\n    eventDetails: OTPField.Root.CompleteEventDetails,\n  ) => void)\n| undefined"
     },
+    "onValueInvalid": {
+      "type": "((value: string, eventDetails: OTPField.Root.InvalidEventDetails) => void)",
+      "description": "Callback fired when entered text is sanitized or clamped before the OTP value updates.\n\nThe `value` argument is the attempted user-entered string before sanitization.",
+      "detailedType": "| ((\n    value: string,\n    eventDetails: OTPField.Root.InvalidEventDetails,\n  ) => void)\n| undefined"
+    },
     "sanitizeValue": {
       "type": "((value: string) => string)",
       "description": "Function for custom sanitization when `validationType` is set to `'none'`.\nThis function runs before updating the OTP value from user interactions.",
       "detailedType": "((value: string) => string) | undefined"
     },
     "validationType": {
-      "type": "OTPField.Root.ValidationType",
+      "type": "'none' | 'numeric' | 'alphabetic' | 'alpha' | 'alphanumeric'",
       "default": "'numeric'",
       "description": "The type of input validation to apply to the OTP value.",
-      "detailedType": "| 'numeric'\n| 'alpha'\n| 'alphanumeric'\n| 'none'\n| undefined"
+      "detailedType": "| 'none'\n| 'numeric'\n| 'alphabetic'\n| 'alpha'\n| 'alphanumeric'\n| undefined"
     },
     "disabled": {
       "type": "boolean",

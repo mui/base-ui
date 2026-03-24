@@ -4,7 +4,7 @@ type OTPValidationConfig = {
   inputMode: 'numeric' | 'text';
 };
 
-export type OTPValidationType = 'numeric' | 'alpha' | 'alphanumeric' | 'none';
+export type OTPValidationType = 'numeric' | 'alpha' | 'alphabetic' | 'alphanumeric' | 'none';
 
 const OTP_VALIDATION_CONFIG: Record<Exclude<OTPValidationType, 'none'>, OTPValidationConfig> = {
   numeric: {
@@ -13,6 +13,11 @@ const OTP_VALIDATION_CONFIG: Record<Exclude<OTPValidationType, 'none'>, OTPValid
     inputMode: 'numeric',
   },
   alpha: {
+    pattern: '[a-zA-Z]{1}',
+    regexp: /[^a-zA-Z]/g,
+    inputMode: 'text',
+  },
+  alphabetic: {
     pattern: '[a-zA-Z]{1}',
     regexp: /[^a-zA-Z]/g,
     inputMode: 'text',
@@ -36,13 +41,17 @@ function removeWhitespace(value: string) {
   return value.replace(/\s/g, '');
 }
 
+export function stripOTPWhitespace(value: string | null | undefined) {
+  return removeWhitespace(value ?? '');
+}
+
 export function normalizeOTPValue(
   value: string | null | undefined,
   length: number,
   validationType: OTPValidationType,
   sanitizeValue?: ((value: string) => string) | undefined,
 ) {
-  let sanitizedValue = removeWhitespace(value ?? '');
+  let sanitizedValue = stripOTPWhitespace(value);
   const validation = getOTPValidationConfig(validationType);
 
   if (validation) {

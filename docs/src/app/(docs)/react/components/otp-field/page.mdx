@@ -99,7 +99,9 @@ type, pass `type` directly to individual `<OTPField.Input>` parts.
 ### Custom sanitization
 
 Set `validationType="none"` with `sanitizeValue` when you need to normalize pasted values before
-they reach state, such as removing spaces or hyphens and uppercasing invite codes.
+they reach state or apply custom validation rules. Use `inputMode` when a custom rule still needs a
+specific virtual keyboard hint, and `onValueInvalid` when you want to react to rejected
+characters.
 
 <DemoOTPFieldCustomSanitize compact />
 

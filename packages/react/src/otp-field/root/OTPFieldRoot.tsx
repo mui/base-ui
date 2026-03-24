@@ -4,6 +4,7 @@ import { SafeReact } from '@base-ui/utils/safeReact';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { warn } from '@base-ui/utils/warn';
@@ -27,7 +28,12 @@ import {
 import { REASONS } from '../../utils/reasons';
 import { OTPFieldRootContext } from './OTPFieldRootContext';
 import { rootStateAttributesMapping } from '../utils/stateAttributesMapping';
-import { getOTPValidationConfig, normalizeOTPValue, type OTPValidationType } from '../utils/otp';
+import {
+  getOTPValidationConfig,
+  normalizeOTPValue,
+  stripOTPWhitespace,
+  type OTPValidationType,
+} from '../utils/otp';
 
 /**
  * Groups all OTP field parts and manages their state.
@@ -52,12 +58,14 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     length,
     autoSubmit = false,
     mask = false,
+    inputMode: inputModeProp,
     validationType = 'numeric',
     sanitizeValue,
     disabled: disabledProp = false,
     readOnly = false,
     required = false,
     name: nameProp,
+    onValueInvalid,
     render,
     className,
     ...elementProps
@@ -92,11 +100,15 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
 
   const rootRef = React.useRef<HTMLDivElement | null>(null);
   const inputRefs = React.useRef<Array<HTMLInputElement | null>>([]);
-  const pendingFocusIndexRef = React.useRef<number | null>(null);
+  const pendingFocusRef = React.useRef<{
+    index: number;
+    value: string;
+  } | null>(null);
   const pendingCompleteValueRef = React.useRef<{
     value: string;
     eventDetails: OTPFieldRoot.CompleteEventDetails;
   } | null>(null);
+  const pendingInteractionTimeout = useTimeout();
   const [inputCount, setInputCount] = React.useState(0);
   const firstInputRef = React.useMemo(
     () =>
@@ -113,11 +125,12 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   const validationConfig = getOTPValidationConfig(validationType);
   const pattern = validationConfig?.pattern;
   const hiddenInputPattern = pattern?.replace('{1}', `{${length}}`);
-  const inputMode = validationConfig?.inputMode;
+  const inputMode = inputModeProp ?? validationConfig?.inputMode;
 
   const value = normalizeOTPValue(valueUnwrapped, length, validationType, sanitizeValue);
   const valueRef = useValueAsRef(value);
   const filled = value !== '';
+  const isControlled = valueProp !== undefined;
 
   const [focusedIndex, setFocusedIndex] = React.useState(() => Math.min(value.length, length - 1));
   const [focused, setFocusedState] = React.useState(false);
@@ -162,8 +175,8 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     target?.select();
   });
 
-  const queueFocusInput = useStableCallback((index: number) => {
-    pendingFocusIndexRef.current = index;
+  const queueFocusInput = useStableCallback((index: number, nextValue: string) => {
+    pendingFocusRef.current = { index, value: nextValue };
   });
 
   const requestSubmit = useStableCallback(() => {
@@ -182,6 +195,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   });
 
   useValueChanged(value, () => {
+    pendingInteractionTimeout.clear();
     clearErrors(name);
     setDirty(value !== validityData.initialValue);
 
@@ -205,11 +219,14 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       }
     }
 
-    const pendingFocusIndex = pendingFocusIndexRef.current;
+    const pendingFocus = pendingFocusRef.current;
 
-    if (pendingFocusIndex != null) {
-      pendingFocusIndexRef.current = null;
-      focusInput(pendingFocusIndex);
+    if (pendingFocus != null) {
+      pendingFocusRef.current = null;
+
+      if (pendingFocus.value === value) {
+        focusInput(pendingFocus.index);
+      }
     }
   });
 
@@ -220,7 +237,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       onValueChange?.(normalizedValue, details);
 
       if (details.isCanceled) {
-        return;
+        return null;
       }
 
       setValueUnwrapped(normalizedValue);
@@ -232,6 +249,23 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       } else if (normalizedValue.length !== length) {
         pendingCompleteValueRef.current = null;
       }
+
+      if (isControlled) {
+        pendingInteractionTimeout.start(0, () => {
+          pendingFocusRef.current = null;
+          pendingCompleteValueRef.current = null;
+        });
+      } else {
+        pendingInteractionTimeout.clear();
+      }
+
+      return normalizedValue;
+    },
+  );
+
+  const reportValueInvalid = useStableCallback(
+    (invalidValue: string, details: OTPFieldRoot.InvalidEventDetails) => {
+      onValueInvalid?.(invalidValue, details);
     },
   );
 
@@ -310,6 +344,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       length,
       mask,
       pattern,
+      reportValueInvalid,
       readOnly,
       required,
       sanitizeValue,
@@ -336,6 +371,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       mask,
       pattern,
       queueFocusInput,
+      reportValueInvalid,
       readOnly,
       required,
       sanitizeValue,
@@ -371,6 +407,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
           inputMode={inputMode}
           length={length}
           name={name}
+          onValueInvalid={reportValueInvalid}
           pattern={hiddenInputPattern}
           readOnly={readOnly}
           sanitizeValue={sanitizeValue}
@@ -394,11 +431,12 @@ interface OTPFieldHiddenInputProps {
   inputMode: React.HTMLAttributes<HTMLInputElement>['inputMode'];
   length: number;
   name: string | undefined;
+  onValueInvalid: (value: string, details: OTPFieldRoot.InvalidEventDetails) => void;
   pattern: string | undefined;
   readOnly: boolean;
   sanitizeValue: ((value: string) => string) | undefined;
   required: boolean;
-  setValue: (value: string, details: OTPFieldRoot.ChangeEventDetails) => void;
+  setValue: (value: string, details: OTPFieldRoot.ChangeEventDetails) => string | null;
   validationType: OTPFieldRoot.ValidationType;
   validation: ReturnType<typeof useFieldRootContext>['validation'];
   value: string;
@@ -414,6 +452,7 @@ function OTPFieldHiddenInput(props: OTPFieldHiddenInputProps) {
     inputMode,
     length,
     name,
+    onValueInvalid,
     pattern,
     readOnly,
     sanitizeValue,
@@ -438,8 +477,23 @@ function OTPFieldHiddenInput(props: OTPFieldHiddenInputProps) {
             return;
           }
 
+          const rawValue = event.currentTarget.value;
+          const normalizedValue = normalizeOTPValue(
+            rawValue,
+            length,
+            validationType,
+            sanitizeValue,
+          );
+
+          if (stripOTPWhitespace(rawValue).length > normalizedValue.length) {
+            onValueInvalid(
+              rawValue,
+              createGenericEventDetails(REASONS.inputChange, event.nativeEvent),
+            );
+          }
+
           setValue(
-            normalizeOTPValue(event.currentTarget.value, length, validationType, sanitizeValue),
+            normalizedValue,
             createChangeEventDetails(REASONS.inputChange, event.nativeEvent),
           );
         },
@@ -467,7 +521,7 @@ function OTPFieldHiddenInput(props: OTPFieldHiddenInputProps) {
 
 export interface OTPFieldRootProps extends Omit<
   BaseUIComponentProps<'div', OTPFieldRootState>,
-  'onChange' | 'inputMode'
+  'onChange'
 > {
   /**
    * The id of the first input element.
@@ -501,6 +555,12 @@ export interface OTPFieldRootProps extends Omit<
    * @default false
    */
   mask?: boolean | undefined;
+  /**
+   * The virtual keyboard hint applied to the slot inputs and hidden validation input.
+   *
+   * Built-in validation modes provide sensible defaults, but you can override them when needed.
+   */
+  inputMode?: React.HTMLAttributes<HTMLInputElement>['inputMode'] | undefined;
   /**
    * The type of input validation to apply to the OTP value.
    * @default 'numeric'
@@ -545,10 +605,18 @@ export interface OTPFieldRootProps extends Omit<
    * - `'input-change'` for typing or autofill
    * - `'input-clear'` when a character is removed by text input
    * - `'input-paste'` for paste interactions
-   * - `'keyboard'` for keyboard navigation that changes the value
+   * - `'keyboard'` for keyboard interactions that change the value
    */
   onValueChange?:
     | ((value: string, eventDetails: OTPFieldRoot.ChangeEventDetails) => void)
+    | undefined;
+  /**
+   * Callback fired when entered text is sanitized or clamped before the OTP value updates.
+   *
+   * The `value` argument is the attempted user-entered string before sanitization.
+   */
+  onValueInvalid?:
+    | ((value: string, eventDetails: OTPFieldRoot.InvalidEventDetails) => void)
     | undefined;
   /**
    * Callback function that is fired when the OTP value becomes complete.
@@ -599,6 +667,10 @@ export type OTPFieldRootChangeEventReason =
 export type OTPFieldRootChangeEventDetails =
   BaseUIChangeEventDetails<OTPFieldRoot.ChangeEventReason>;
 
+export type OTPFieldRootInvalidEventReason = typeof REASONS.inputChange | typeof REASONS.inputPaste;
+export type OTPFieldRootInvalidEventDetails =
+  BaseUIGenericEventDetails<OTPFieldRoot.InvalidEventReason>;
+
 export type OTPFieldRootCompleteEventReason =
   | typeof REASONS.inputChange
   | typeof REASONS.inputPaste
@@ -612,6 +684,8 @@ export namespace OTPFieldRoot {
   export type ValidationType = OTPValidationType;
   export type ChangeEventReason = OTPFieldRootChangeEventReason;
   export type ChangeEventDetails = OTPFieldRootChangeEventDetails;
+  export type InvalidEventReason = OTPFieldRootInvalidEventReason;
+  export type InvalidEventDetails = OTPFieldRootInvalidEventDetails;
   export type CompleteEventReason = OTPFieldRootCompleteEventReason;
   export type CompleteEventDetails = OTPFieldRootCompleteEventDetails;
 }

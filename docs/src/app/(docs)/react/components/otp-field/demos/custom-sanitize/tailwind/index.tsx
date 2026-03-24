@@ -4,25 +4,29 @@ import { OTPField } from '@base-ui/react/otp-field';
 
 const CODE_LENGTH = 6;
 
-function sanitizeInviteCode(value: string) {
-  return value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+function sanitizeTierCode(value: string) {
+  return value.replace(/[^0-3]/g, '');
 }
 
 export default function OTPFieldCustomSanitizeDemo() {
   const id = React.useId();
   const descriptionId = `${id}-description`;
+  const invalidId = `${id}-invalid`;
+  const [lastInvalidValue, setLastInvalidValue] = React.useState<string | null>(null);
 
   return (
     <OTPField.Root
       id={id}
       length={CODE_LENGTH}
       validationType="none"
-      sanitizeValue={sanitizeInviteCode}
-      aria-describedby={descriptionId}
+      inputMode="numeric"
+      sanitizeValue={sanitizeTierCode}
+      onValueInvalid={(value) => setLastInvalidValue(value)}
+      aria-describedby={`${descriptionId} ${invalidId}`}
       className="flex w-full max-w-80 flex-col items-start gap-1"
     >
       <label htmlFor={id} className="text-sm font-bold text-gray-900">
-        Invite code
+        Tier code
       </label>
       <OTPField.Group className="flex w-full gap-2">
         {Array.from({ length: CODE_LENGTH }, (_, index) => (
@@ -34,7 +38,17 @@ export default function OTPFieldCustomSanitizeDemo() {
         ))}
       </OTPField.Group>
       <p id={descriptionId} className="m-0 text-sm text-gray-600">
-        Normalize pasted values like <code>ab-12 cd</code> before they reach state.
+        Only digits <code>0-3</code> are accepted, while <code>inputMode="numeric"</code> keeps the
+        numeric keyboard hint.
+      </p>
+      <p id={invalidId} className="m-0 text-sm text-gray-600" aria-live="polite">
+        {lastInvalidValue == null ? (
+          'Try typing or pasting 1209 to see custom invalid-input feedback.'
+        ) : (
+          <React.Fragment>
+            Ignored unsupported characters from <code>{lastInvalidValue}</code>.
+          </React.Fragment>
+        )}
       </p>
     </OTPField.Root>
   );

@@ -11,7 +11,7 @@ export interface OTPFieldRootContext {
   disabled: boolean;
   form: string | undefined;
   focusInput: (index: number) => void;
-  queueFocusInput: (index: number) => void;
+  queueFocusInput: (index: number, value: string) => void;
   getInputId: (index: number) => string | undefined;
   handleInputBlur: (event: React.FocusEvent<HTMLInputElement>) => void;
   handleInputFocus: (index: number, event: React.FocusEvent<HTMLInputElement>) => void;
@@ -21,10 +21,11 @@ export interface OTPFieldRootContext {
   length: number;
   mask: boolean;
   pattern: string | undefined;
+  reportValueInvalid: (value: string, details: OTPFieldRoot.InvalidEventDetails) => void;
   readOnly: boolean;
   required: boolean;
   sanitizeValue: ((value: string) => string) | undefined;
-  setValue: (value: string, details: OTPFieldRoot.ChangeEventDetails) => void;
+  setValue: (value: string, details: OTPFieldRoot.ChangeEventDetails) => string | null;
   state: OTPFieldRootState;
   validationType: OTPFieldRoot.ValidationType;
   value: string;

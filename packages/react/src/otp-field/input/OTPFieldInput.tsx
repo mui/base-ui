@@ -7,12 +7,20 @@ import {
 } from '../../composite/list/useCompositeListItem';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import {
+  createChangeEventDetails,
+  createGenericEventDetails,
+} from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { useOTPFieldRootContext, getOTPFieldInputState } from '../root/OTPFieldRootContext';
 import type { OTPFieldRootState } from '../root/OTPFieldRoot';
 import { inputStateAttributesMapping } from '../utils/stateAttributesMapping';
-import { normalizeOTPValue, removeOTPCharacter, replaceOTPValue } from '../utils/otp';
+import {
+  normalizeOTPValue,
+  removeOTPCharacter,
+  replaceOTPValue,
+  stripOTPWhitespace,
+} from '../utils/otp';
 
 /**
  * An individual OTP character input.
@@ -42,6 +50,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     length,
     mask,
     pattern,
+    reportValueInvalid,
     readOnly,
     required,
     sanitizeValue,
@@ -120,6 +129,14 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
         validationType,
         sanitizeValue,
       );
+      const didSanitize = stripOTPWhitespace(rawValue).length > nextDigits.length;
+
+      if (didSanitize) {
+        reportValueInvalid(
+          rawValue,
+          createGenericEventDetails(REASONS.inputChange, event.nativeEvent),
+        );
+      }
 
       if (nextDigits === '') {
         if (rawValue === '') {
@@ -140,10 +157,15 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
         sanitizeValue,
       );
 
-      setValue(nextValue, createChangeEventDetails(REASONS.inputChange, event.nativeEvent));
+      const committedValue = setValue(
+        nextValue,
+        createChangeEventDetails(REASONS.inputChange, event.nativeEvent),
+      );
 
-      const nextInput = Math.min(index + nextDigits.length, length - 1);
-      queueFocusInput(nextInput);
+      if (committedValue != null) {
+        const nextInput = Math.min(index + nextDigits.length, length - 1);
+        queueFocusInput(nextInput, committedValue);
+      }
     },
     onKeyDown(event) {
       if (event.defaultPrevented || disabled || readOnly) {
@@ -198,11 +220,13 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
         stopEvent(event);
         const deleteIndex = slotValue === '' ? Math.max(0, index - 1) : index;
         const targetIndex = Math.max(0, index - 1);
-        setValue(
+        const committedValue = setValue(
           removeOTPCharacter(value, deleteIndex),
           createChangeEventDetails(REASONS.keyboard, event.nativeEvent),
         );
-        queueFocusInput(targetIndex);
+        if (committedValue != null) {
+          queueFocusInput(targetIndex, committedValue);
+        }
       }
     },
     onPaste(event) {
@@ -217,18 +241,29 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
         validationType,
         sanitizeValue,
       );
+      const rawValue = event.clipboardData.getData('text/plain');
+      const didSanitize = stripOTPWhitespace(rawValue).length > nextDigits.length;
+
+      if (didSanitize) {
+        reportValueInvalid(
+          rawValue,
+          createGenericEventDetails(REASONS.inputPaste, event.nativeEvent),
+        );
+      }
 
       if (nextDigits === '') {
         return;
       }
 
-      setValue(
+      const committedValue = setValue(
         replaceOTPValue(value, index, nextDigits, length, validationType, sanitizeValue),
         createChangeEventDetails(REASONS.inputPaste, event.nativeEvent),
       );
 
-      const nextInput = Math.min(index + nextDigits.length, length - 1);
-      queueFocusInput(nextInput);
+      if (committedValue != null) {
+        const nextInput = Math.min(index + nextDigits.length, length - 1);
+        queueFocusInput(nextInput, committedValue);
+      }
     },
   };
 

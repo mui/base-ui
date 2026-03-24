@@ -15,7 +15,9 @@ describe('<OTPField />', () => {
     render,
   }));
 
-  function OTPField(props: Partial<OTPFieldBase.Root.Props> = {}) {
+  type OTPFieldProps = Omit<OTPFieldBase.Root.Props, 'children' | 'length'>;
+
+  function OTPField(props: OTPFieldProps = {}) {
     return (
       <OTPFieldBase.Root length={OTP_LENGTH} {...props}>
         <OTPFieldBase.Group>
@@ -87,6 +89,13 @@ describe('<OTPField />', () => {
           expect(inputs.map((input) => input.value)).toEqual(['a', 'b', 'C', 'd', '', '']);
         });
 
+        it('supports alphabetic values when set to `alphabetic`', async () => {
+          await render(<OTPField defaultValue="1a2b3Cd4" validationType="alphabetic" />);
+
+          const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+          expect(inputs.map((input) => input.value)).toEqual(['a', 'b', 'C', 'd', '', '']);
+        });
+
         it('supports alphanumeric values when set to `alphanumeric`', async () => {
           await render(<OTPField validationType="alphanumeric" />);
 
@@ -139,6 +148,26 @@ describe('<OTPField />', () => {
           expect(hiddenInput).not.toBeNull();
           expect(hiddenInput).not.toHaveAttribute('pattern');
         });
+
+        it('allows a custom inputMode when validation is set to `none`', async () => {
+          await render(<OTPField name="otp" validationType="none" inputMode="numeric" />);
+
+          const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+          const hiddenInput = document.querySelector<HTMLInputElement>('input[name="otp"]');
+
+          expect(firstInput).toHaveAttribute('inputmode', 'numeric');
+          expect(hiddenInput).toHaveAttribute('inputmode', 'numeric');
+        });
+
+        it('allows overriding the built-in inputMode when needed', async () => {
+          await render(<OTPField name="otp" validationType="numeric" inputMode="text" />);
+
+          const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+          const hiddenInput = document.querySelector<HTMLInputElement>('input[name="otp"]');
+
+          expect(firstInput).toHaveAttribute('inputmode', 'text');
+          expect(hiddenInput).toHaveAttribute('inputmode', 'text');
+        });
       });
     });
 
@@ -186,6 +215,43 @@ describe('<OTPField />', () => {
       });
     });
 
+    describe('prop: onValueInvalid', () => {
+      it('fires when typing is sanitized before the OTP value updates', async () => {
+        const onValueInvalid = vi.fn();
+
+        await render(<OTPField onValueInvalid={onValueInvalid} />);
+
+        const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+        fireEvent.change(firstInput, { target: { value: '1a' } });
+
+        expect(getValues()).toBe('1');
+        expect(onValueInvalid).toHaveBeenCalledTimes(1);
+        expect(onValueInvalid.mock.calls[0]?.[0]).toBe('1a');
+        expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
+      });
+
+      it('fires when custom sanitization removes characters', async () => {
+        const onValueInvalid = vi.fn();
+
+        await render(
+          <OTPField
+            validationType="none"
+            inputMode="numeric"
+            sanitizeValue={(value) => value.replace(/[^0-3]/g, '')}
+            onValueInvalid={onValueInvalid}
+          />,
+        );
+
+        const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+        fireEvent.change(firstInput, { target: { value: '1209' } });
+
+        expect(getValues()).toBe('120');
+        expect(onValueInvalid).toHaveBeenCalledTimes(1);
+        expect(onValueInvalid.mock.calls[0]?.[0]).toBe('1209');
+        expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
+      });
+    });
+
     describe('prop: onValueComplete', () => {
       it('fires when typing completes the OTP', async () => {
         const onValueComplete = vi.fn();
@@ -209,6 +275,46 @@ describe('<OTPField />', () => {
         fireEvent.change(firstInput, { target: { value: '12345' } });
 
         expect(onValueComplete).not.toHaveBeenCalled();
+      });
+
+      it('does not fire later for a stale controlled completion attempt', async () => {
+        vi.useFakeTimers();
+
+        try {
+          const onValueComplete = vi.fn();
+
+          function Test() {
+            const [value, setValue] = React.useState('');
+
+            return (
+              <React.Fragment>
+                <OTPField
+                  value={value}
+                  onValueChange={() => {}}
+                  onValueComplete={onValueComplete}
+                />
+                <button type="button" onClick={() => setValue('654321')}>
+                  Apply value
+                </button>
+              </React.Fragment>
+            );
+          }
+
+          await render(<Test />);
+
+          const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+          fireEvent.change(firstInput, { target: { value: '123456' } });
+
+          await act(async () => {
+            vi.runAllTimers();
+          });
+
+          fireEvent.click(screen.getByRole('button', { name: 'Apply value' }));
+
+          expect(onValueComplete).not.toHaveBeenCalled();
+        } finally {
+          vi.useRealTimers();
+        }
       });
     });
   });
@@ -412,6 +518,45 @@ describe('<OTPField />', () => {
         expect(onValueChange).toHaveBeenCalledTimes(1);
         expect(onValueChange.mock.calls[0]?.[0]).toBe('134');
         expect(onValueChange.mock.calls[0]?.[1].reason).toBe(REASONS.keyboard);
+      });
+
+      it('does not move focus later for a stale controlled change', async () => {
+        vi.useFakeTimers();
+
+        try {
+          function Test() {
+            const [value, setValue] = React.useState('');
+
+            return (
+              <React.Fragment>
+                <OTPField value={value} onValueChange={() => {}} />
+                <button type="button" onClick={() => setValue('9')}>
+                  Apply value
+                </button>
+              </React.Fragment>
+            );
+          }
+
+          await render(<Test />);
+
+          const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+          await act(async () => {
+            inputs[0].focus();
+          });
+
+          fireEvent.change(inputs[0], { target: { value: '1' } });
+
+          await act(async () => {
+            vi.runAllTimers();
+          });
+
+          fireEvent.click(screen.getByRole('button', { name: 'Apply value' }));
+
+          expect(document.activeElement).toBe(inputs[0]);
+        } finally {
+          vi.useRealTimers();
+        }
       });
     });
   });
