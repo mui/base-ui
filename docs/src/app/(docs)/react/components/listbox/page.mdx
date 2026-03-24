@@ -47,7 +47,7 @@ The `selectionMode` prop controls how items are selected:
 
 - `"single"` (default) — clicking an item selects it and deselects any other.
 - `"multiple"` — every click toggles an item. Hold Shift and click to select a contiguous range.
-- `"explicitMultiple"` — clicking an item replaces the selection. Hold Ctrl/Cmd and click to toggle, or Shift and click to select a range.
+- `"explicitMultiple"` — clicking an item replaces the selection. Hold Ctrl/Cmd and click to toggle, or Shift and click to select a range. Touch and pen interactions toggle without a modifier, matching `"multiple"` behavior.
 - `"none"` — selection is disabled entirely.
 
 import { DemoListboxMultiSelection } from './demos/multi-selection';

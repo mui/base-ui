@@ -10,6 +10,7 @@ import { EMPTY_ARRAY } from '../../utils/constants';
  * - `'multiple'`  — Clicking toggles items. Shift+Click selects a range.
  * - `'explicitMultiple'`  — Like a file browser: clicking replaces the selection,
  *    Ctrl/Cmd+Click toggles individual items, Shift+Click selects a range.
+ *    Touch and pen interactions toggle without a modifier, matching `'multiple'` behavior.
  */
 export type SelectionMode = 'none' | 'single' | 'multiple' | 'explicitMultiple';
 

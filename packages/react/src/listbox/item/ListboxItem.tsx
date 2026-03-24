@@ -155,6 +155,7 @@ export const ListboxItem = React.memo(
     };
 
     const lastKeyRef = React.useRef<string | null>(null);
+    const lastPointerTypeRef = React.useRef<string | null>(null);
 
     const { getButtonProps, buttonRef } = useButton({
       disabled,
@@ -172,11 +173,20 @@ export const ListboxItem = React.memo(
       {
         shiftKey = false,
         ctrlKey = false,
-      }: { shiftKey?: boolean | undefined; ctrlKey?: boolean | undefined } = {},
+        pointerType,
+      }: {
+        shiftKey?: boolean | undefined;
+        ctrlKey?: boolean | undefined;
+        pointerType?: string | null | undefined;
+      } = {},
     ) {
       if (selectionMode === 'none') {
         return;
       }
+
+      // Touch and pen interactions in 'explicitMultiple' mode behave like
+      // 'multiple' — every tap toggles without requiring a modifier key.
+      const isCoarsePointer = pointerType === 'touch' || pointerType === 'pen';
 
       let action: SelectionAction;
 
@@ -185,8 +195,8 @@ export const ListboxItem = React.memo(
       } else if (selectionMode === 'multiple') {
         // In 'multiple' mode, every click toggles
         action = { type: 'toggle', index };
-      } else if (selectionMode === 'explicitMultiple' && ctrlKey) {
-        // In 'explicitMultiple' mode, Ctrl/Cmd+Click toggles
+      } else if (selectionMode === 'explicitMultiple' && (ctrlKey || isCoarsePointer)) {
+        // In 'explicitMultiple' mode, Ctrl/Cmd+Click or touch/pen toggles
         action = { type: 'toggle', index };
       } else {
         // 'single' or 'explicitMultiple' without modifier → replace
@@ -212,6 +222,9 @@ export const ListboxItem = React.memo(
       role: 'option',
       'aria-selected': selected,
       tabIndex: highlighted ? 0 : -1,
+      onPointerDown(event: React.PointerEvent) {
+        lastPointerTypeRef.current = event.pointerType;
+      },
       onFocus() {
         store.set('activeIndex', index);
       },
@@ -343,10 +356,13 @@ export const ListboxItem = React.memo(
           return;
         }
 
+        const pointerType = lastPointerTypeRef.current;
         lastKeyRef.current = null;
+        lastPointerTypeRef.current = null;
         commitSelection(event.nativeEvent, {
           shiftKey: event.shiftKey,
           ctrlKey: event.ctrlKey || event.metaKey,
+          pointerType,
         });
       },
     };
