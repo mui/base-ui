@@ -522,11 +522,10 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           {...validation.getInputValidationProps({
             onFocus() {
               // Move focus to the trigger element when the hidden input is focused.
-              const focusOptions: FocusOptions & { focusVisible?: boolean } = {
+              store.state.triggerElement?.focus({
                 // Supported in Chrome from 144 (January 2026)
                 focusVisible: true,
-              };
-              store.state.triggerElement?.focus(focusOptions);
+              });
             },
             // Handle browser autofill.
             onChange(event: React.ChangeEvent<HTMLInputElement>) {

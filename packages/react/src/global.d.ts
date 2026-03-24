@@ -1,4 +1,11 @@
 declare global {
+  interface FocusOptions {
+    /**
+     * Requests visible focus indication when supported by the browser.
+     */
+    focusVisible?: boolean;
+  }
+
   /**
    * When `true`, disables animation-related code, even if supported by the runtime environment.
    */
