@@ -195,8 +195,8 @@ describe('<Slider.Thumb />', () => {
         </Slider.Root>,
       );
 
-      expect(screen.getByTestId('thumb')).not.to.have.attribute('tabindex');
-      expect(screen.getByRole('slider')).to.have.property('tabIndex', 0);
+      expect(screen.getByTestId('thumb')).not.toHaveAttribute('tabindex');
+      expect(screen.getByRole('slider')).toHaveProperty('tabIndex', 0);
     });
 
     it('can be removed from the tab sequence', async () => {

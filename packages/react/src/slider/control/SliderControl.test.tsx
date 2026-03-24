@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { screen } from '@mui/internal-test-utils';
 import { Slider } from '@base-ui/react/slider';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -22,6 +22,6 @@ describe('<Slider.Control />', () => {
       </Slider.Root>,
     );
 
-    expect(screen.getByTestId('control')).not.to.have.attribute('tabindex');
+    expect(screen.getByTestId('control')).not.toHaveAttribute('tabindex');
   });
 });

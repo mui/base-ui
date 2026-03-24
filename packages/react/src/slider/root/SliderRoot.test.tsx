@@ -1154,6 +1154,39 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(details.reason).toBe('keyboard');
     });
 
+    it.skipIf(isJSDOM || isWebKit)(
+      'shows :focus-visible after keyboard interaction following a pointer press',
+      async () => {
+        await render(<TestSlider defaultValue={40} />);
+
+        const sliderControl = screen.getByTestId('control');
+        vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+
+        const slider = screen.getByRole('slider');
+
+        fireEvent.pointerDown(sliderControl, {
+          pointerId: 1,
+          pointerType: 'mouse',
+          button: 0,
+          buttons: 1,
+          clientX: 40,
+          clientY: 0,
+        });
+
+        await waitFor(() => {
+          expect(slider).toHaveFocus();
+        });
+
+        expect(slider.matches(':focus-visible')).toBe(false);
+
+        fireEvent.keyDown(slider, { key: ARROW_RIGHT });
+
+        await waitFor(() => {
+          expect(slider.matches(':focus-visible')).toBe(true);
+        });
+      },
+    );
+
     it('provides the change reason for track presses', async () => {
       const handleValueChange = vi.fn();
       await render(<TestSlider defaultValue={0} onValueChange={handleValueChange} />);
