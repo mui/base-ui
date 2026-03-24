@@ -38,8 +38,7 @@ export function InstallationBlock(props: InstallationBlockProps) {
       onValueChange={handleValueChange}
     >
       <CodeBlock.Root>
-        <CodeBlock.Panel>
-          <span className="sr-only">Installation command</span>
+        <CodeBlock.Panel title="Installation command">
           <Tabs.List className="InstallationBlockTabsList" aria-label="Package manager">
             {INSTALLATION_PACKAGE_MANAGERS.map((pm) => (
               <Tabs.Tab key={pm.value} value={pm.value} className="InstallationBlockTab">
