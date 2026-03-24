@@ -28,6 +28,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
 
   const handlingFocusGuardRef = React.useRef(false);
   const markedReadyForMouseLeaveRef = React.useRef(false);
+  const touchActiveRef = React.useRef(false);
 
   const isEmpty = store.useState('isEmpty');
   const toasts = store.useState('toasts');
@@ -162,10 +163,13 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     }
   }
 
-  React.useEffect(() => {
+  function flushMouseLeave() {
+    const hasEndingToasts = store.state.toasts.some((toast) => toast.transitionStatus === 'ending');
+
     if (
       !store.state.isWindowFocused ||
-      hasTransitioningToasts ||
+      hasEndingToasts ||
+      touchActiveRef.current ||
       !markedReadyForMouseLeaveRef.current
     ) {
       return;
@@ -177,7 +181,9 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     store.resumeTimers();
     store.setHovering(false);
     markedReadyForMouseLeaveRef.current = false;
-  }, [hasTransitioningToasts, store]);
+  }
+
+  React.useEffect(flushMouseLeave, [hasTransitioningToasts, store]);
 
   function handleMouseEnter() {
     store.pauseTimers();
@@ -186,14 +192,29 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   }
 
   function handleMouseLeave() {
-    if (hasTransitioningToasts) {
+    if (hasTransitioningToasts || touchActiveRef.current) {
       // When swiping to dismiss, wait until the transitions have settled
-      // to avoid the viewport collapsing while the user is interacting.
+      // or the touch interaction ends to avoid collapsing mid-gesture.
       markedReadyForMouseLeaveRef.current = true;
     } else {
       store.resumeTimers();
       store.setHovering(false);
     }
+  }
+
+  function handlePointerDown(event: React.PointerEvent) {
+    if (event.pointerType === 'touch') {
+      touchActiveRef.current = true;
+    }
+  }
+
+  function handlePointerEnd(event: React.PointerEvent) {
+    if (event.pointerType !== 'touch') {
+      return;
+    }
+
+    touchActiveRef.current = false;
+    flushMouseLeave();
   }
 
   function handleFocus() {
@@ -238,6 +259,9 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     onBlur: handleBlur,
     onKeyDown: handleKeyDown,
     onClick: handleFocus,
+    onPointerDown: handlePointerDown,
+    onPointerUp: handlePointerEnd,
+    onPointerCancel: handlePointerEnd,
   };
 
   const state: ToastViewportState = {

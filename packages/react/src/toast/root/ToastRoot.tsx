@@ -440,6 +440,18 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     }
   }
 
+  function handlePointerCancel() {
+    if (!isSwiping) {
+      return;
+    }
+
+    setIsSwiping(false);
+    setIsRealSwipe(false);
+    setLockedDirection(null);
+    setDragOffset({ x: initialTransform.x, y: initialTransform.y });
+    setCurrentSwipeDirection(undefined);
+  }
+
   function handleKeyDown(event: React.KeyboardEvent) {
     if (event.key === 'Escape') {
       if (
@@ -514,6 +526,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     onPointerDown: swipeEnabled ? handlePointerDown : undefined,
     onPointerMove: swipeEnabled ? handlePointerMove : undefined,
     onPointerUp: swipeEnabled ? handlePointerUp : undefined,
+    onPointerCancel: swipeEnabled ? handlePointerCancel : undefined,
     onKeyDown: handleKeyDown,
     inert: inertValue(toast.limited),
     style: {
