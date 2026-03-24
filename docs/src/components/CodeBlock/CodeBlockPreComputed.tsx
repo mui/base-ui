@@ -33,6 +33,8 @@ export function CodeBlockPreComputed(props: PreProps) {
       name={props['data-name']}
       slug={props['data-slug']}
       precompute={precompute}
+      highlightAfter="init"
+      enhanceAfter="idle"
       Content={CodeBlockPreComputedContent}
       contentProps={contentProps}
     />

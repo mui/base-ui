@@ -93,7 +93,9 @@ export function ReferenceAccordion({
               {!hideDefault && (
                 <Accordion.Scrollable className="ReferenceDefaultCell">
                   {prop.required || prop.default === undefined ? (
-                    <TableCode style={{ color: 'var(--syntax-nullish)' }}>—</TableCode>
+                    <TableCode style={{ color: 'var(--color-docs-infra-syntax-nullish)' }}>
+                      —
+                    </TableCode>
                   ) : (
                     <TableDefault>{prop.default}</TableDefault>
                   )}

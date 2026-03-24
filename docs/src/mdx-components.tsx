@@ -9,6 +9,7 @@ import { Subtitle } from './components/Subtitle/Subtitle';
 import { TypeRef } from './components/TypeRef';
 import { TypePropRef } from './components/TypePropRef';
 import { Kbd } from './components/Kbd/Kbd';
+import { CodeBlockPreComputed } from './components/CodeBlock/CodeBlockPreComputed';
 import './css/mdx-components.css';
 
 interface MDXComponents {
@@ -46,23 +47,18 @@ export const mdxComponents: MDXComponents = {
   ul: (props) => <ul className="MdUl" {...props} />,
   ol: (props) => <ol className="MdOl" {...props} />,
   kbd: Kbd,
-  figure: (props) => {
-    if ('data-rehype-pretty-code-figure' in props) {
-      return <CodeBlock.Root className="MdFigure" {...props} />;
+  figure: (props) => <figure className="MdFigure" {...props} />,
+  pre: ({ tabIndex, ...props }) => {
+    if ('data-precompute' in props) {
+      return (
+        <CodeBlock.Root className="MdFigure">
+          <CodeBlockPreComputed {...props} />
+        </CodeBlock.Root>
+      );
     }
 
-    return <figure className="MdFigure" {...props} />;
+    return <CodeBlock.Pre {...props} />;
   },
-  figcaption: (props) => {
-    if ('data-rehype-pretty-code-title' in props) {
-      return <CodeBlock.Panel {...props} />;
-    }
-
-    return <figcaption {...props} />;
-  },
-  // Don't pass the tabindex prop from shiki, most browsers
-  // now handle scroll containers focus out of the box
-  pre: ({ tabIndex, ...props }) => <CodeBlock.Pre {...props} />,
   table: (props) => <Table.Root className="MdTable" {...props} />,
   thead: Table.Head,
   tbody: Table.Body,

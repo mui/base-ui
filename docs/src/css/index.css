@@ -54,9 +54,6 @@
 @import '../components/DescriptionList.css';
 @import '../components/ReferenceTable/ReferenceTable.css';
 
-/* Rehype-based syntax highlighting (legacy) */
-@import '../syntax-highlighting/index.css';
-/* Prettylights-based syntax highlighting */
 @import './syntax.css';
 
 @import './utilities/index.css';

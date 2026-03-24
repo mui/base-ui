@@ -19,7 +19,7 @@ function renderHighlight(text: string): React.ReactNode {
     ? text
     : parts.map((part, i) =>
         i % 2 === 1 ? (
-          <Code key={i} data-inline style={{ color: 'var(--syntax-default)' }}>
+          <Code key={i} data-inline style={{ color: 'var(--color-blue)' }}>
             {part}
           </Code>
         ) : (
