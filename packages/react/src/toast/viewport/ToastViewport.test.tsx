@@ -203,7 +203,7 @@ describe('<Toast.Viewport />', () => {
     expect(viewport).not.toHaveAttribute('data-expanded');
   });
 
-  it('resets touch swipe state when the gesture is canceled', async () => {
+  it('keeps expanded when a touch swipe is canceled without leaving the viewport', async () => {
     const { user } = await render(
       <Toast.Provider>
         <Toast.Viewport data-testid="viewport">
@@ -243,6 +243,56 @@ describe('<Toast.Viewport />', () => {
     expect(root).toHaveAttribute('data-swiping');
     expect(viewport).toHaveAttribute('data-expanded');
 
+    fireEvent.pointerCancel(root, {
+      clientX: 100,
+      clientY: 120,
+      bubbles: true,
+      pointerId: 1,
+      pointerType: 'touch',
+    });
+
+    expect(root).not.toHaveAttribute('data-swiping');
+    expect(viewport).toHaveAttribute('data-expanded');
+  });
+
+  it('collapses after a touch swipe is canceled if mouseleave already fired', async () => {
+    const { user } = await render(
+      <Toast.Provider>
+        <Toast.Viewport data-testid="viewport">
+          <List />
+        </Toast.Viewport>
+        <Button />
+      </Toast.Provider>,
+    );
+
+    const button = screen.getByRole('button', { name: 'add' });
+    await user.click(button);
+
+    const root = await screen.findByTestId('root');
+    const viewport = screen.getByTestId('viewport');
+
+    Object.defineProperty(root, 'setPointerCapture', {
+      value: () => {},
+      configurable: true,
+    });
+
+    fireEvent.pointerDown(root, {
+      clientX: 100,
+      clientY: 100,
+      button: 0,
+      bubbles: true,
+      pointerId: 1,
+      pointerType: 'touch',
+    });
+    fireEvent.pointerMove(root, {
+      clientX: 100,
+      clientY: 120,
+      bubbles: true,
+      pointerId: 1,
+      pointerType: 'touch',
+    });
+
+    fireEvent.mouseLeave(viewport);
     fireEvent.pointerCancel(root, {
       clientX: 100,
       clientY: 120,

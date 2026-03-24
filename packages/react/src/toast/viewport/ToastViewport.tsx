@@ -214,7 +214,6 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     }
 
     touchActiveRef.current = false;
-    markedReadyForMouseLeaveRef.current = true;
     flushMouseLeave();
   }
 
