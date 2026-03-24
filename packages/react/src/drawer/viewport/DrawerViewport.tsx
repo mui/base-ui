@@ -4,6 +4,12 @@ import * as ReactDOM from 'react-dom';
 import { isElement } from '@floating-ui/utils/dom';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import {
+  findScrollableTouchTarget,
+  getScrollMetrics,
+  hasScrollableContentOnAxis,
+  type ScrollAxis,
+} from '@base-ui/utils/scrollable';
+import {
   getTouchMoveAxis,
   isEventOnRangeInput,
   shouldIgnoreTouchMoveForSelection,
@@ -31,12 +37,6 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import { DrawerViewportContext } from './DrawerViewportContext';
 import { TransitionStatusDataAttributes } from '../../utils/stateAttributesMapping';
-import {
-  findScrollableTouchTarget,
-  getScrollMetrics,
-  hasScrollableContentOnAxis,
-  type ScrollAxis,
-} from '@base-ui/utils/scrollable';
 import { BASE_UI_SWIPE_IGNORE_SELECTOR } from '../../utils/constants';
 import { getElementAtPoint } from '../../utils/getElementAtPoint';
 import type { BaseUIComponentProps } from '../../utils/types';
