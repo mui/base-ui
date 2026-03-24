@@ -16,21 +16,15 @@ interface InstallationBlockProps {
 }
 
 export function InstallationBlock(props: InstallationBlockProps) {
-  const packageManagers = INSTALLATION_PACKAGE_MANAGERS;
   const { packageManager: globalPreference, setPackageManager: setGlobalPreference } =
     usePackageManagerSnippetContext();
-  const initialPackageManager = packageManagers[0];
-  const [value, setValue] = React.useState<string>(initialPackageManager?.value ?? '');
+  const [value, setValue] = React.useState<string>(INSTALLATION_PACKAGE_MANAGERS[0].value);
 
   useIsoLayoutEffect(() => {
-    if (!initialPackageManager) {
-      return;
-    }
-
-    if (packageManagers.some((pm) => pm.value === globalPreference)) {
+    if (INSTALLATION_PACKAGE_MANAGERS.some((pm) => pm.value === globalPreference)) {
       setValue(globalPreference);
     }
-  }, [globalPreference, initialPackageManager, packageManagers]);
+  }, [globalPreference]);
 
   const handleValueChange = useStableCallback((newValue: string) => {
     setValue(newValue);
@@ -47,7 +41,7 @@ export function InstallationBlock(props: InstallationBlockProps) {
         <CodeBlock.Panel>
           <span className="sr-only">Installation command</span>
           <Tabs.List className="InstallationBlockTabsList" aria-label="Package manager">
-            {packageManagers.map((pm) => (
+            {INSTALLATION_PACKAGE_MANAGERS.map((pm) => (
               <Tabs.Tab key={pm.value} value={pm.value} className="InstallationBlockTab">
                 <span className="InstallationBlockTabLabel" data-text={pm.label}>
                   {pm.label}
@@ -57,7 +51,7 @@ export function InstallationBlock(props: InstallationBlockProps) {
           </Tabs.List>
         </CodeBlock.Panel>
 
-        {packageManagers.map((pm) => (
+        {INSTALLATION_PACKAGE_MANAGERS.map((pm) => (
           <Tabs.Panel key={pm.value} value={pm.value}>
             <CodeBlock.Pre data-language="bash">
               <Code data-language="bash">
