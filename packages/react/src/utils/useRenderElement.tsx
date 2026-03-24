@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useMergedRefsN } from '@base-ui/utils/useMergedRefs';
+import { useMergedRefs, useMergedRefsN } from '@base-ui/utils/useMergedRefs';
 import { getReactElementRef } from '@base-ui/utils/getReactElementRef';
 import { mergeObjects } from '@base-ui/utils/mergeObjects';
 import { warn } from '@base-ui/utils/warn';
@@ -78,21 +78,21 @@ function useRenderElementProps<
   const outProps: React.HTMLAttributes<any> & React.RefAttributes<any> = enabled
     ? (mergeObjects(stateProps, resolvedProps) ?? {})
     : EMPTY_OBJECT;
-  let refs: Array<React.Ref<any> | undefined> = [];
 
-  if (enabled) {
-    refs = [outProps.ref, getReactElementRef(renderProp)];
-    if (Array.isArray(ref)) {
-      refs.push(...ref);
+  // SAFETY: The `useMergedRefs` functions use a single hook to store the same value,
+  // switching between them at runtime is safe. If this assertion fails, React will
+  // throw at runtime anyway.
+  // This also skips the `useMergedRefs` call on the server, which is fine because
+  // refs are not used on the server side.
+  /* eslint-disable react-hooks/rules-of-hooks */
+  if (typeof document !== 'undefined') {
+    if (!enabled) {
+      useMergedRefs(null, null);
+    } else if (Array.isArray(ref)) {
+      outProps.ref = useMergedRefsN([outProps.ref, getReactElementRef(renderProp), ...ref]);
     } else {
-      refs.push(ref);
+      outProps.ref = useMergedRefs(outProps.ref, getReactElementRef(renderProp), ref);
     }
-  }
-
-  const mergedRef = useMergedRefsN(refs);
-
-  if (mergedRef !== null) {
-    outProps.ref = mergedRef;
   }
 
   if (!enabled) {
@@ -174,14 +174,10 @@ function evaluateRenderProp<T extends React.ElementType, S>(
 
     return React.cloneElement(newElement, mergedProps);
   }
-  if (typeof element === 'string') {
-    if (element === 'button') {
-      return <button type="button" {...props} key={props.key} />;
+  if (element) {
+    if (typeof element === 'string') {
+      return renderTag(element, props);
     }
-    if (element === 'img') {
-      return <img alt="" {...props} key={props.key} />;
-    }
-    return React.createElement(element, props);
   }
   // Unreachable, but the typings on `useRenderElement` need to be reworked
   // to annotate it correctly.
@@ -210,6 +206,16 @@ function warnIfRenderPropLooksLikeComponent(renderFn: { name: string }) {
     'Use `render={<Component />}` or `render={(props) => <Component {...props} />}` instead.',
     'https://base-ui.com/r/invalid-render-prop',
   );
+}
+
+function renderTag(Tag: string, props: Record<string, any>) {
+  if (Tag === 'button') {
+    return <button type="button" {...props} key={props.key} />;
+  }
+  if (Tag === 'img') {
+    return <img alt="" {...props} key={props.key} />;
+  }
+  return React.createElement(Tag, props);
 }
 
 type RenderFunctionProps<TagName> = TagName extends keyof React.JSX.IntrinsicElements
