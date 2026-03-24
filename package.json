@@ -75,7 +75,7 @@
     "@types/node": "22.18.13",
     "@types/react": "19.2.14",
     "@types/yargs": "17.0.35",
-    "@vitejs/plugin-react": "5.2.0",
+    "@vitejs/plugin-react": "6.0.1",
     "@vitest/browser-playwright": "4.1.0",
     "@vitest/coverage-istanbul": "4.1.0",
     "@vitest/ui": "4.1.0",
@@ -103,7 +103,7 @@
     "terser": "5.46.1",
     "tsx": "4.21.0",
     "typescript": "5.9.3",
-    "vite": "7.3.1",
+    "vite": "8.0.1",
     "vitest": "4.1.0"
   },
   "packageManager": "pnpm@10.32.1",
