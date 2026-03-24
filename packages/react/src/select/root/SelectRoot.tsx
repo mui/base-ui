@@ -9,7 +9,7 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { Store, useStore } from '@base-ui/utils/store';
+import { useStore, Store } from '@base-ui/utils/store';
 import {
   useClick,
   useDismiss,
