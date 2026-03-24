@@ -63,7 +63,9 @@ async function getUtilsExports() {
 export default defineConfig(async () => {
   return {
     entrypoints: [...(await getBaseUiExports()), ...(await getUtilsExports())],
-    upload: !!process.env.CI,
+    upload: process.env.CI
+      ? { apiUrl: 'https://code-infra-dashboard-pr-1242.onrender.com/' }
+      : false,
     comment: true,
   };
 });
