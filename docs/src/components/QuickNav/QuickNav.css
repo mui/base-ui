@@ -9,6 +9,13 @@
 
   .QuickNavRoot {
     --quick-nav-margin-x: 2rem;
+    --quick-nav-scrollbar-thumb-width: 0.25rem;
+    --quick-nav-scrollbar-width: 1.5rem;
+    --quick-nav-scrollbar-gap-right: 0.5rem;
+    --quick-nav-scrollbar-offset: calc(
+      var(--quick-nav-scrollbar-gap-right) - var(--quick-nav-scrollbar-width) / 2 +
+        var(--quick-nav-scrollbar-thumb-width) / 2
+    );
 
     /* Use line height instead of fixed item height in case text breaks into multiple lines */
     --quick-nav-item-height: 2rem;
@@ -17,10 +24,8 @@
       var(--quick-nav-item-height) / 2 - var(--quick-nav-item-line-height) / 2
     );
 
-    /* The variable is used in JS positioning logic */
-    --top: -1px;
+    --top: -1px; /* Keep border visually hidden when pinned. */
     --margin-top: 5.75rem; /* Match hero code block top */
-
     font-size: var(--text-md);
     line-height: var(--text-md--line-height);
     z-index: 1;
@@ -30,7 +35,21 @@
     width: 0;
     float: right;
     contain: layout;
+    margin-right: var(--quick-nav-scrollbar-offset);
     display: none;
+
+    @media (--show-quick-nav) {
+      display: block;
+    }
+  }
+
+  .QuickNavStickySentinel {
+    display: none;
+    width: 1px;
+    height: 1px;
+    margin-bottom: -1px;
+    pointer-events: none;
+    opacity: 0;
 
     @media (--show-quick-nav) {
       display: block;
@@ -41,9 +60,51 @@
     border-top: 1px solid var(--color-gray-200);
     position: relative;
     left: var(--quick-nav-margin-x);
-    padding-top: 0.75rem;
-    padding-bottom: 2.5rem;
     width: calc(var(--sidebar-width) - var(--quick-nav-margin-x) * 2);
+  }
+
+  .QuickNavViewport {
+    max-height: none;
+    padding-block: 0.75rem;
+    padding-right: 0.5rem;
+    padding-bottom: 1.5rem;
+    outline: 0;
+  }
+
+  .QuickNavRoot--sticky .QuickNavViewport {
+    max-height: 100dvh;
+  }
+
+  .QuickNavScrollbar {
+    display: flex;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    width: var(--quick-nav-scrollbar-width);
+    opacity: 0;
+    transition: opacity 200ms 500ms;
+
+    &:active,
+    &[data-scrolling],
+    .QuickNavViewport:focus-visible + & {
+      transition-duration: 0ms;
+      transition-delay: 0ms;
+      opacity: 1;
+    }
+  }
+
+  .QuickNavScrollbarThumb {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+
+    &::before {
+      content: '';
+      display: block;
+      height: 100%;
+      width: var(--quick-nav-scrollbar-thumb-width);
+      border-radius: var(--radius-sm);
+      background-color: var(--color-gray-400);
+    }
   }
 
   .QuickNavTitle {
