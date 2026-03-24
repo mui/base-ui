@@ -93,48 +93,55 @@ The `--toast-offset-y` CSS variable can be used to determine the vertical offset
 `<Toast.Content>` is used to hide overflow from taller toasts while the stack is collapsed.
 The `data-behind` attribute marks content that sits behind the frontmost toast and pairs with the `data-expanded` attribute so the content fades back in when the viewport expands:
 
-```css title="Collapsed content" "data-behind" "data-expanded"
+```css title="Collapsed content"
 .ToastContent {
   overflow: hidden;
   transition: opacity 0.25s;
 }
 
 .ToastContent[data-behind] {
+  /* @highlight-text "data-behind" */
   opacity: 0;
 }
 
 .ToastContent[data-expanded] {
+  /* @highlight-text "data-expanded" */
   opacity: 1;
 }
 ```
 
 The `--toast-swipe-movement-x` and `--toast-swipe-movement-y` CSS variables are used to determine the swipe movement of the toasts in order to add a translation offset.
 
-```css title="Swipe offset"  "--toast-swipe-movement-x" "--toast-swipe-movement-y"
+```css title="Swipe offset"
 .Toast {
   transform: scale(1 - calc(0.1 * var(--toast-index))) translateX(var(--toast-swipe-movement-x))
-    translateY(calc(var(--toast-swipe-movement-y) + (var(--toast-index) * -20%)));
+    /* @highlight-text "--toast-swipe-movement-x" */
+    translateY(calc(var(--toast-swipe-movement-y) + (var(--toast-index) * -20%))); /* @highlight-text "--toast-swipe-movement-y" */
 }
 ```
 
 The `data-swipe-direction` attribute can be used to determine the swipe direction of the toasts to add a translation offset upon dismissal.
 
-```css title="Swipe direction" "data-swipe-direction"
+```css title="Swipe direction"
 &[data-ending-style] {
   opacity: 0;
 
   &[data-swipe-direction='up'] {
+    /* @highlight-text "data-swipe-direction" */
     transform: translateY(calc(var(--toast-swipe-movement-y) - 150%));
   }
   &[data-swipe-direction='down'] {
+    /* @highlight-text "data-swipe-direction" */
     transform: translateY(calc(var(--toast-swipe-movement-y) + 150%));
   }
   /* Note: --offset-y is defined locally in these examples and derives from
    --toast-offset-y, --toast-index, and swipe movement values */
   &[data-swipe-direction='left'] {
+    /* @highlight-text "data-swipe-direction" */
     transform: translateX(calc(var(--toast-swipe-movement-x) - 150%)) translateY(var(--offset-y));
   }
   &[data-swipe-direction='right'] {
+    /* @highlight-text "data-swipe-direction" */
     transform: translateX(calc(var(--toast-swipe-movement-x) + 150%)) translateY(var(--offset-y));
   }
 }
@@ -335,16 +342,19 @@ const toastId = toastManager.add({
 });
 ```
 
-```jsx title="Example" {2,7-9}
+```jsx title="Example"
 function App() {
+  // @highlight
   const toastManager = Toast.useToastManager();
   return (
     <button
       type="button"
       onClick={() => {
+        // @highlight-start
         toastManager.add({
           description: 'Hello, world!',
         });
+        // @highlight-end
       }}
     >
       Add toast

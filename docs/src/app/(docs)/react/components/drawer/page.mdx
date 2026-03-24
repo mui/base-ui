@@ -254,15 +254,18 @@ When stacked drawers have varying heights, use the `--drawer-height` and `--draw
 
 The `data-nested-drawer-open` attribute marks drawers behind the frontmost drawer. Use it with `data-nested-drawer-swiping` to dim or hide parent drawer content while keeping it visible during nested swipe interactions.
 
-```css title="Nested content visibility" "data-nested-drawer-open" "data-nested-drawer-swiping"
+```css title="Nested content visibility"
 .DrawerContent {
   transition: opacity 300ms;
 }
 
+/* @highlight-text "data-nested-drawer-open" */
 .DrawerPopup[data-nested-drawer-open] .DrawerContent {
   opacity: 0;
 }
 
+/* @highlight-text "data-nested-drawer-swiping" */
+/* @highlight-text "data-nested-drawer-open" */
 .DrawerPopup[data-nested-drawer-open][data-nested-drawer-swiping] .DrawerContent {
   opacity: 1;
 }
@@ -270,24 +273,30 @@ The `data-nested-drawer-open` attribute marks drawers behind the frontmost drawe
 
 The `--drawer-swipe-movement-x`, `--drawer-swipe-movement-y`, and `--drawer-snap-point-offset` CSS variables can be used to create smooth drag and snap offsets:
 
-```css title="Swipe and snap offset" "--drawer-swipe-movement-x" "--drawer-swipe-movement-y"
+```css title="Swipe and snap offset"
 .DrawerPopup[data-swipe-direction='right'] {
-  transform: translateX(var(--drawer-swipe-movement-x));
+  transform: translateX(
+    var(--drawer-swipe-movement-x)
+  ); /* @highlight-text "--drawer-swipe-movement-x" */
 }
 
 .DrawerPopup[data-swipe-direction='down'] {
-  transform: translateY(calc(var(--drawer-snap-point-offset) + var(--drawer-swipe-movement-y)));
+  transform: translateY(
+    calc(var(--drawer-snap-point-offset) + var(--drawer-swipe-movement-y))
+  ); /* @highlight-text "--drawer-swipe-movement-y" */
 }
 ```
 
 The `data-swipe-direction` attribute can be used with `data-ending-style` to animate directional dismissal:
 
-```css title="Swipe dismissal direction" "data-swipe-direction"
+```css title="Swipe dismissal direction"
 .DrawerPopup[data-ending-style][data-swipe-direction='right'] {
+  /* @highlight-text "data-swipe-direction" */
   transform: translateX(100%);
 }
 
 .DrawerPopup[data-ending-style][data-swipe-direction='down'] {
+  /* @highlight-text "data-swipe-direction" */
   transform: translateY(100%);
 }
 ```
