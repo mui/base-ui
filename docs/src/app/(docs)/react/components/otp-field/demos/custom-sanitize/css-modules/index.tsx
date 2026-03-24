@@ -1,5 +1,7 @@
 'use client';
 import * as React from 'react';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { OTPField } from '@base-ui/react/otp-field';
 import styles from '../../shared.module.css';
 
@@ -12,8 +14,12 @@ function sanitizeTierCode(value: string) {
 export default function OTPFieldCustomSanitizeDemo() {
   const id = React.useId();
   const descriptionId = `${id}-description`;
-  const invalidId = `${id}-invalid`;
-  const [lastInvalidValue, setLastInvalidValue] = React.useState<string | null>(null);
+  const invalidTimeout = useTimeout();
+  const [invalidCount, setInvalidCount] = React.useState(0);
+  const [statusMessage, setStatusMessage] = React.useState('');
+
+  const invalidClassName =
+    invalidCount === 0 ? '' : invalidCount % 2 === 0 ? styles.InputInvalidB : styles.InputInvalidA;
 
   return (
     <OTPField.Root
@@ -22,8 +28,15 @@ export default function OTPFieldCustomSanitizeDemo() {
       validationType="none"
       inputMode="numeric"
       sanitizeValue={sanitizeTierCode}
-      onValueInvalid={(value) => setLastInvalidValue(value)}
-      aria-describedby={`${descriptionId} ${invalidId}`}
+      onValueInvalid={(value) => {
+        setInvalidCount((count) => count + 1);
+        setStatusMessage(`Unsupported characters were ignored from ${value}.`);
+        invalidTimeout.start(400, () => {
+          setInvalidCount(0);
+          setStatusMessage('');
+        });
+      }}
+      aria-describedby={descriptionId}
       className={styles.Field}
     >
       <label htmlFor={id} className={styles.Label}>
@@ -33,26 +46,17 @@ export default function OTPFieldCustomSanitizeDemo() {
         {Array.from({ length: CODE_LENGTH }, (_, index) => (
           <OTPField.Input
             key={index}
-            className={styles.Input}
+            className={`${styles.Input} ${invalidClassName}`.trim()}
             aria-label={`Character ${index + 1} of ${CODE_LENGTH}`}
           />
         ))}
       </OTPField.Group>
       <p id={descriptionId} className={styles.Description}>
-        Only digits <span className={styles.Code}>0-3</span> are accepted, while
-        <span className={styles.Code}> inputMode="numeric" </span>
-        keeps the numeric keyboard hint.
+        Digits <span className={styles.Code}>0-3</span> only.
       </p>
-      <p id={invalidId} className={styles.Description} aria-live="polite">
-        {lastInvalidValue == null ? (
-          'Try typing or pasting 1209 to see custom invalid-input feedback.'
-        ) : (
-          <React.Fragment>
-            Ignored unsupported characters from{' '}
-            <span className={styles.Code}>{lastInvalidValue}</span>.
-          </React.Fragment>
-        )}
-      </p>
+      <span aria-live="polite" style={visuallyHidden}>
+        {statusMessage}
+      </span>
     </OTPField.Root>
   );
 }

@@ -1,5 +1,7 @@
 'use client';
 import * as React from 'react';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { OTPField } from '@base-ui/react/otp-field';
 
 const CODE_LENGTH = 6;
@@ -11,8 +13,18 @@ function sanitizeTierCode(value: string) {
 export default function OTPFieldCustomSanitizeDemo() {
   const id = React.useId();
   const descriptionId = `${id}-description`;
-  const invalidId = `${id}-invalid`;
-  const [lastInvalidValue, setLastInvalidValue] = React.useState<string | null>(null);
+  const invalidTimeout = useTimeout();
+  const [invalidCount, setInvalidCount] = React.useState(0);
+  const [statusMessage, setStatusMessage] = React.useState('');
+  const invalidStyles =
+    invalidCount === 0
+      ? undefined
+      : {
+          borderColor: 'var(--color-red)',
+          outline: '2px solid var(--color-red-800)',
+          outlineOffset: '-1px',
+          animation: `${invalidCount % 2 === 0 ? 'otp-field-shake-b' : 'otp-field-shake-a'} 180ms ease-in-out`,
+        };
 
   return (
     <OTPField.Root
@@ -21,10 +33,30 @@ export default function OTPFieldCustomSanitizeDemo() {
       validationType="none"
       inputMode="numeric"
       sanitizeValue={sanitizeTierCode}
-      onValueInvalid={(value) => setLastInvalidValue(value)}
-      aria-describedby={`${descriptionId} ${invalidId}`}
+      onValueInvalid={(value) => {
+        setInvalidCount((count) => count + 1);
+        setStatusMessage(`Unsupported characters were ignored from ${value}.`);
+        invalidTimeout.start(400, () => {
+          setInvalidCount(0);
+          setStatusMessage('');
+        });
+      }}
+      aria-describedby={descriptionId}
       className="flex w-full max-w-80 flex-col items-start gap-1"
     >
+      <style>{`
+        @keyframes otp-field-shake-a {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-4px); }
+          75% { transform: translateX(4px); }
+        }
+
+        @keyframes otp-field-shake-b {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-4px); }
+          75% { transform: translateX(4px); }
+        }
+      `}</style>
       <label htmlFor={id} className="text-sm font-bold text-gray-900">
         Tier code
       </label>
@@ -33,23 +65,17 @@ export default function OTPFieldCustomSanitizeDemo() {
           <OTPField.Input
             key={index}
             className="box-border m-0 h-11 w-10 rounded-lg border border-gray-300 bg-transparent text-center font-inherit text-lg font-medium text-gray-900 outline-none focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+            style={invalidStyles}
             aria-label={`Character ${index + 1} of ${CODE_LENGTH}`}
           />
         ))}
       </OTPField.Group>
       <p id={descriptionId} className="m-0 text-sm text-gray-600">
-        Only digits <code>0-3</code> are accepted, while <code>inputMode="numeric"</code> keeps the
-        numeric keyboard hint.
+        Digits <code>0-3</code> only.
       </p>
-      <p id={invalidId} className="m-0 text-sm text-gray-600" aria-live="polite">
-        {lastInvalidValue == null ? (
-          'Try typing or pasting 1209 to see custom invalid-input feedback.'
-        ) : (
-          <React.Fragment>
-            Ignored unsupported characters from <code>{lastInvalidValue}</code>.
-          </React.Fragment>
-        )}
-      </p>
+      <span aria-live="polite" style={visuallyHidden}>
+        {statusMessage}
+      </span>
     </OTPField.Root>
   );
 }
