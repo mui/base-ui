@@ -7,7 +7,6 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { usePackageManagerSnippetContext } from 'docs/src/blocks/PackageManagerSnippet/PackageManagerSnippetProvider';
 import * as CodeBlock from '../CodeBlock';
 import { Code } from '../Code';
-import '../Demo/CodeHighlighting.css';
 import { INSTALLATION_PACKAGE_MANAGERS } from './model';
 import './InstallationBlock.css';
 
