@@ -103,10 +103,10 @@ export interface UseLabelParameters {
 export type UseLabelReturnValue = React.HTMLAttributes<any> & React.LabelHTMLAttributes<any>;
 
 export function focusElementWithVisible(element: HTMLElement) {
-  element.focus({
+  const focusOptions: FocusOptions & { focusVisible?: boolean } = {
     // Available from Chrome 144+ (January 2026).
     // Safari and Firefox already support it.
-    // @ts-expect-error not available in types yet
     focusVisible: true,
-  });
+  };
+  element.focus(focusOptions);
 }
