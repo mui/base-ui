@@ -7,21 +7,17 @@
 
   --calendar-root-color: var(--color-gray-900);
   --calendar-root-border-color: var(--color-gray-500);
-  --calendar-button-hover-bg-color: #e0f2fe;
-  --calendar-button-focus-border-color: #0ea5e9;
-  --calendar-day-grid-separator-bg-color: #9ca3af;
+  --calendar-button-hover-bg-color: var(--color-gray-100);
+  --calendar-button-focus-border-color: var(--color-blue);
+  --calendar-day-grid-separator-bg-color: var(--color-gray-400);
   --calendar-day-grid-header-color: var(--color-gray-500);
 
-  --calendar-cell-selected-bg-color: #7dd3fc;
+  --calendar-cell-selected-bg-color: var(--color-gray-900);
+  --calendar-cell-selected-color: var(--color-gray-50);
   --calendar-cell-outside-month-color: var(--color-gray-400);
   --calendar-cell-disabled-color: var(--color-gray-500);
   --calendar-cell-current-border-color: var(--color-gray-500);
-  --calendar-cell-unavailable-color: #f87171;
-
-  @media (prefers-color-scheme: dark) {
-    --calendar-button-hover-bg-color: #075985;
-    --calendar-cell-selected-bg-color: #0369a1;
-  }
+  --calendar-cell-unavailable-color: var(--color-red);
 }
 
 .Header {
@@ -40,6 +36,7 @@
 .DecrementMonth,
 .IncrementMonth {
   border: none;
+  -webkit-user-select: none;
   user-select: none;
   background-color: transparent;
   border-radius: 4px;
@@ -48,8 +45,10 @@
   padding: 0;
   display: flex;
 
-  &:hover {
-    background-color: var(--calendar-button-hover-bg-color);
+  @media (hover: hover) {
+    &:hover {
+      background-color: var(--calendar-button-hover-bg-color);
+    }
   }
 
   &:focus-visible {
@@ -89,7 +88,7 @@
   text-align: center;
   font-size: 0.75rem;
   color: var(--calendar-day-grid-header-color);
-  font-weight: 500;
+  font-weight: 700;
   padding: 0;
 }
 
@@ -135,8 +134,14 @@
     }
   }
 
-  &:not([data-selected]):hover::before {
-    background-color: var(--calendar-button-hover-bg-color);
+  @media (hover: hover) {
+    &:not([data-selected]):hover::before {
+      background-color: var(--calendar-button-hover-bg-color);
+    }
+  }
+
+  &[data-selected]:not([data-outside-month]) {
+    color: var(--calendar-cell-selected-color);
   }
 
   &[data-selected]:not([data-outside-month])::before {

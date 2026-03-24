@@ -92,7 +92,7 @@ import { DemoCalendarTimezoneDisplay } from './demos/timezone-display';
 
 ### Month and year select
 
-Use `Calendar.useContext()` inside the calendar to read `visibleDate` and call `setVisibleDate`, enabling custom controls like `<select>` dropdowns for direct month and year navigation.
+Use `Calendar.useContext()` inside the calendar to read `visibleDate` and call `setVisibleDate`, enabling custom controls like the [Select](/react/components/select) component for direct month and year navigation.
 
 import { DemoCalendarYearMonthSelect } from './demos/year-month-select';
 
@@ -122,10 +122,51 @@ You can use the [`<LocalizationProvider>`](/react/utils/localization-provider) t
 
 ## API reference
 
-<Reference
-  component="Calendar"
-  parts="Root, DayGrid, DayGridHeader, DayGridHeaderCell, DayGridBody, DayGridRow, DayGridCell, DayButton, DecrementMonth, IncrementMonth, Viewport"
-/>
+import { TypesCalendar } from './types';
+
+### Root
+
+<TypesCalendar.Root />
+
+### DayGrid
+
+<TypesCalendar.DayGrid />
+
+### DayGridHeader
+
+<TypesCalendar.DayGridHeader />
+
+### DayGridHeaderCell
+
+<TypesCalendar.DayGridHeaderCell />
+
+### DayGridBody
+
+<TypesCalendar.DayGridBody />
+
+### DayGridRow
+
+<TypesCalendar.DayGridRow />
+
+### DayGridCell
+
+<TypesCalendar.DayGridCell />
+
+### DayButton
+
+<TypesCalendar.DayButton />
+
+### DecrementMonth
+
+<TypesCalendar.DecrementMonth />
+
+### IncrementMonth
+
+<TypesCalendar.IncrementMonth />
+
+### Viewport
+
+<TypesCalendar.Viewport />
 
 export const metadata =
   /** @type {import('@mui/internal-docs-infra/createSitemap/types').NextMetadata} */ ({

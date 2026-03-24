@@ -127,6 +127,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     max,
     min,
     minStepsBetweenValues,
+    form,
     name,
     orientation,
     pressedInputRef,
@@ -196,11 +197,16 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     const thumbOffsetFromControlEdge =
       thumbRect[side] / 2 + (controlSize * thumbValuePercent) / 100;
     const nextPositionPercent = (thumbOffsetFromControlEdge / controlRect[side]) * 100;
-    setPositionPercent(nextPositionPercent);
+    const nextInsetPosition = Number.isFinite(nextPositionPercent)
+      ? nextPositionPercent
+      : undefined;
+
+    setPositionPercent(nextInsetPosition);
+
     if (index === 0) {
-      setIndicatorPosition((prevPosition) => [nextPositionPercent, prevPosition[1]]);
+      setIndicatorPosition((prevPosition) => [nextInsetPosition, prevPosition[1]]);
     } else if (last) {
-      setIndicatorPosition((prevPosition) => [prevPosition[0], nextPositionPercent]);
+      setIndicatorPosition((prevPosition) => [prevPosition[0], nextInsetPosition]);
     }
   });
 
@@ -215,6 +221,28 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       getInsetPosition();
     }
   }, [getInsetPosition, inset, thumbValuePercent]);
+
+  useIsoLayoutEffect(() => {
+    if (!inset || typeof ResizeObserver !== 'function') {
+      return undefined;
+    }
+
+    const control = controlRef.current;
+    const thumb = thumbRef.current;
+
+    if (!control || !thumb) {
+      return undefined;
+    }
+
+    const resizeObserver = new ResizeObserver(getInsetPosition);
+
+    resizeObserver.observe(control);
+    resizeObserver.observe(thumb);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [controlRef, getInsetPosition, inset]);
 
   const getThumbStyle = React.useCallback(() => {
     const startEdge = vertical ? 'bottom' : 'insetInlineStart';
@@ -246,7 +274,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     }
 
     return {
-      ['--position' as string]: `${positionPercent}%`,
+      ['--position' as string]: `${positionPercent ?? 0}%`,
       visibility:
         (renderBeforeHydration && !isMounted) || positionPercent === undefined
           ? 'hidden'
@@ -300,12 +328,13 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
               locale,
             ),
       disabled,
+      form,
       id: inputId,
       max,
       min,
       name,
       onChange(event: React.ChangeEvent<HTMLInputElement>) {
-        handleInputChange(event.target.valueAsNumber, index, event);
+        handleInputChange(event.currentTarget.valueAsNumber, index, event);
       },
       onFocus() {
         setActive(index);

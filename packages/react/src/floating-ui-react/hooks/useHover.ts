@@ -6,22 +6,15 @@ import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { contains, getTarget } from '../utils';
+import { contains, getTarget, isInteractiveElement } from '../utils';
 
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import type { Delay, ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { FloatingUIOpenChangeDetails } from '../../utils/types';
-import { TYPEABLE_SELECTOR } from '../utils/constants';
 import type { HandleClose } from './useHoverShared';
 import { getDelay, getRestMs } from './useHoverShared';
-
-const interactiveSelector = `button,[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`;
-
-function isInteractiveElement(element: Element | null) {
-  return element ? Boolean(element.closest(interactiveSelector)) : false;
-}
 
 export type { HandleCloseContext, HandleClose } from './useHoverShared';
 
@@ -33,7 +26,7 @@ export interface UseHoverProps {
    */
   handleClose?: HandleClose | null | undefined;
   /**
-   * Waits until the user’s cursor is at “rest” over the reference element
+   * Waits until the user's cursor is at “rest” over the reference element
    * before changing the `open` state.
    * @default 0
    */
@@ -464,7 +457,7 @@ export function useHover(
         // wasn't used to open the floating element.
         const isOverInactiveTrigger =
           store.select('domReferenceElement') &&
-          !contains(store.select('domReferenceElement'), event.target as Element);
+          !contains(store.select('domReferenceElement'), getTarget(nativeEvent) as Element);
 
         function handleMouseMove() {
           if (!blockMouseMoveRef.current && (!store.select('open') || isOverInactiveTrigger)) {

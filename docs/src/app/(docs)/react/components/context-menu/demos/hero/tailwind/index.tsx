@@ -3,7 +3,7 @@ import { ContextMenu } from '@base-ui/react/context-menu';
 export default function ExampleMenu() {
   return (
     <ContextMenu.Root>
-      <ContextMenu.Trigger className="flex h-[12rem] w-[15rem] items-center justify-center rounded-sm border border-gray-300 text-gray-900 select-none">
+      <ContextMenu.Trigger className="flex h-[12rem] w-[15rem] items-center justify-center rounded-sm border border-gray-300 text-gray-900 select-none font-normal">
         Right click here
       </ContextMenu.Trigger>
       <ContextMenu.Portal>

@@ -1,44 +1,10 @@
-import { isElement, isHTMLElement, isShadowRoot } from '@floating-ui/utils/dom';
+import { isElement, isHTMLElement } from '@floating-ui/utils/dom';
 import { isJSDOM } from '@base-ui/utils/detectBrowser';
 import { FOCUSABLE_ATTRIBUTE, TYPEABLE_SELECTOR } from './constants';
 import { type PopupTriggerMap } from '../../utils/popups';
+import { activeElement, contains, getTarget } from './shadowDom';
 
-export function activeElement(doc: Document) {
-  let element = doc.activeElement;
-
-  while (element?.shadowRoot?.activeElement != null) {
-    element = element.shadowRoot.activeElement;
-  }
-
-  return element;
-}
-
-export function contains(parent?: Element | null, child?: Element | null) {
-  if (!parent || !child) {
-    return false;
-  }
-
-  const rootNode = child.getRootNode?.();
-
-  // First, attempt with faster native method
-  if (parent.contains(child)) {
-    return true;
-  }
-
-  // then fallback to custom implementation with Shadow DOM support
-  if (rootNode && isShadowRoot(rootNode)) {
-    let next = child;
-    while (next) {
-      if (parent === next) {
-        return true;
-      }
-      next = (next.parentNode as Element) || (next as unknown as ShadowRoot).host;
-    }
-  }
-
-  // Give up, the result is false
-  return false;
-}
+export { activeElement, contains, getTarget };
 
 export function isTargetInsideEnabledTrigger(
   target: EventTarget | null,
@@ -63,16 +29,6 @@ export function isTargetInsideEnabledTrigger(
   return false;
 }
 
-export function getTarget(event: Event) {
-  if ('composedPath' in event) {
-    return event.composedPath()[0];
-  }
-
-  // TS thinks `event` is of type never as it assumes all browsers support
-  // `composedPath()`, but browsers without shadow DOM don't.
-  return (event as Event).target;
-}
-
 export function isEventTargetWithin(event: Event, node: Node | null | undefined) {
   if (node == null) {
     return false;
@@ -93,6 +49,14 @@ export function isRootElement(element: Element): boolean {
 
 export function isTypeableElement(element: unknown): boolean {
   return isHTMLElement(element) && element.matches(TYPEABLE_SELECTOR);
+}
+
+export function isInteractiveElement(element: Element | null) {
+  return (
+    element?.closest(
+      `button,a[href],[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`,
+    ) != null
+  );
 }
 
 export function isTypeableCombobox(element: Element | null) {

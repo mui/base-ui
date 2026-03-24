@@ -6,7 +6,6 @@
   .MarkdownLink {
     font-size: var(--text-sm);
     line-height: var(--text-sm--line-height);
-    letter-spacing: var(--text-sm--letter-spacing);
     display: inline-flex;
     align-items: baseline;
     gap: 0.5em;

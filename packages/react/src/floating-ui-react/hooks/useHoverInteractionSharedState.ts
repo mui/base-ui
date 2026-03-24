@@ -4,13 +4,9 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Timeout } from '@base-ui/utils/useTimeout';
 
 import type { ContextData, FloatingRootContext, SafePolygonOptions } from '../types';
-import { TYPEABLE_SELECTOR } from '../utils/constants';
+import { isInteractiveElement } from '../utils';
 
-const interactiveSelector = `button,a,[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`;
-
-export function isInteractiveElement(element: Element | null) {
-  return element ? Boolean(element.closest(interactiveSelector)) : false;
-}
+export { isInteractiveElement };
 
 export class HoverInteraction {
   pointerType: string | undefined;
@@ -63,14 +59,25 @@ type PointerEventsMutationState = Pick<
   | 'pointerEventsFloatingElement'
 >;
 
+const pointerEventsMutationOwnerByScopeElement = new WeakMap<
+  HTMLElement | SVGSVGElement,
+  PointerEventsMutationState
+>();
+
 export function clearSafePolygonPointerEventsMutation(instance: PointerEventsMutationState) {
   if (!instance.performedPointerEventsMutation) {
     return;
   }
 
-  instance.pointerEventsScopeElement?.style.removeProperty('pointer-events');
-  instance.pointerEventsReferenceElement?.style.removeProperty('pointer-events');
-  instance.pointerEventsFloatingElement?.style.removeProperty('pointer-events');
+  const scopeElement = instance.pointerEventsScopeElement;
+
+  if (scopeElement && pointerEventsMutationOwnerByScopeElement.get(scopeElement) === instance) {
+    instance.pointerEventsScopeElement?.style.removeProperty('pointer-events');
+    instance.pointerEventsReferenceElement?.style.removeProperty('pointer-events');
+    instance.pointerEventsFloatingElement?.style.removeProperty('pointer-events');
+    pointerEventsMutationOwnerByScopeElement.delete(scopeElement);
+  }
+
   instance.performedPointerEventsMutation = false;
   instance.pointerEventsScopeElement = null;
   instance.pointerEventsReferenceElement = null;
@@ -87,11 +94,17 @@ export function applySafePolygonPointerEventsMutation(
 ) {
   const { scopeElement, referenceElement, floatingElement } = options;
 
+  const existingOwner = pointerEventsMutationOwnerByScopeElement.get(scopeElement);
+  if (existingOwner && existingOwner !== instance) {
+    clearSafePolygonPointerEventsMutation(existingOwner);
+  }
+
   clearSafePolygonPointerEventsMutation(instance);
   instance.performedPointerEventsMutation = true;
   instance.pointerEventsScopeElement = scopeElement;
   instance.pointerEventsReferenceElement = referenceElement;
   instance.pointerEventsFloatingElement = floatingElement;
+  pointerEventsMutationOwnerByScopeElement.set(scopeElement, instance);
 
   scopeElement.style.pointerEvents = 'none';
   referenceElement.style.pointerEvents = 'auto';

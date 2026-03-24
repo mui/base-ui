@@ -11,11 +11,11 @@ export default function ExampleRadioGroup() {
       defaultValue="fuji-apple"
       className="flex flex-col items-start gap-1 text-gray-900"
     >
-      <div className="font-medium" id={id}>
+      <div className="font-bold" id={id}>
         Best apple
       </div>
 
-      <label className="flex items-center gap-2">
+      <label className="flex items-center gap-2 font-normal">
         <Radio.Root
           value="fuji-apple"
           className="flex size-5 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
@@ -25,7 +25,7 @@ export default function ExampleRadioGroup() {
         Fuji
       </label>
 
-      <label className="flex items-center gap-2">
+      <label className="flex items-center gap-2 font-normal">
         <Radio.Root
           value="gala-apple"
           className="flex size-5 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
@@ -35,7 +35,7 @@ export default function ExampleRadioGroup() {
         Gala
       </label>
 
-      <label className="flex items-center gap-2">
+      <label className="flex items-center gap-2 font-normal">
         <Radio.Root
           value="granny-smith-apple"
           className="flex size-5 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"

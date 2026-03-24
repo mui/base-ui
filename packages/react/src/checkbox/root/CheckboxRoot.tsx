@@ -48,6 +48,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     defaultChecked = false,
     'aria-labelledby': ariaLabelledByProp,
     disabled: disabledProp = false,
+    form,
     id: idProp,
     indeterminate = false,
     inputRef: inputRefProp,
@@ -214,6 +215,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     {
       checked,
       disabled,
+      form,
       // parent checkboxes unset `name` to be excluded from form submission
       name: parent ? undefined : name,
       // Set `id` to stop Chrome warning about an unassociated input.
@@ -231,7 +233,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
           return;
         }
 
-        const nextChecked = event.target.checked;
+        const nextChecked = event.currentTarget.checked;
         const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
         groupOnChange?.(nextChecked, details);
@@ -355,7 +357,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     <CheckboxRootContext.Provider value={state}>
       {element}
       {!checked && !groupContext && name && !parent && uncheckedValue !== undefined && (
-        <input type="hidden" name={name} value={uncheckedValue} />
+        <input type="hidden" form={form} name={name} value={uncheckedValue} />
       )}
       <input {...inputProps} />
     </CheckboxRootContext.Provider>
@@ -398,6 +400,11 @@ export interface CheckboxRootProps
    * @default undefined
    */
   name?: string | undefined;
+  /**
+   * Identifies the form that owns the hidden input.
+   * Useful when the checkbox is rendered outside the form.
+   */
+  form?: string | undefined;
   /**
    * Whether the checkbox is currently ticked.
    *
