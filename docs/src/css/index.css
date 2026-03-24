@@ -214,7 +214,6 @@
     --color-selection: oklch(80% 28% 264deg / 50%);
     --color-line-highlight: oklch(80% 28% 264deg / 20%);
     --color-line-highlight-strong: oklch(80% 28% 264deg / 35%);
-    --color-inline-highlight: oklch(80% 28% 264deg / 20%);
 
     /* Syntax highlighting */
     --color-gray: var(--color-gray-600);
