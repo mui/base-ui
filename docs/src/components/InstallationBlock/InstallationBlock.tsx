@@ -37,13 +37,6 @@ export function InstallationBlock(props: InstallationBlockProps) {
     setGlobalPreference(newValue);
   });
 
-  const activePackageManager =
-    packageManagers.find((pm) => pm.value === value) ?? initialPackageManager;
-
-  if (!activePackageManager) {
-    return null;
-  }
-
   return (
     <Tabs.Root
       className={clsx('InstallationBlock', props.className)}
@@ -64,17 +57,19 @@ export function InstallationBlock(props: InstallationBlockProps) {
           </Tabs.List>
         </CodeBlock.Panel>
 
-        <Tabs.Panel value={value}>
-          <CodeBlock.Pre data-language="bash">
-            <Code data-language="bash">
-              <span data-line>
-                <span className="pl-en">{activePackageManager.value}</span>{' '}
-                <span className="pl-smi">{activePackageManager.command}</span>{' '}
-                <span className="pl-s">{props.package}</span>
-              </span>
-            </Code>
-          </CodeBlock.Pre>
-        </Tabs.Panel>
+        {packageManagers.map((pm) => (
+          <Tabs.Panel key={pm.value} value={pm.value}>
+            <CodeBlock.Pre data-language="bash">
+              <Code data-language="bash">
+                <span data-line>
+                  <span className="pl-en">{pm.value}</span>{' '}
+                  <span className="pl-smi">{pm.command}</span>{' '}
+                  <span className="pl-s">{props.package}</span>
+                </span>
+              </Code>
+            </CodeBlock.Pre>
+          </Tabs.Panel>
+        ))}
       </CodeBlock.Root>
     </Tabs.Root>
   );
