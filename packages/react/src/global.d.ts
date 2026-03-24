@@ -3,7 +3,7 @@ declare global {
     /**
      * Requests visible focus indication when supported by the browser.
      */
-    focusVisible?: boolean;
+    focusVisible?: boolean | undefined;
   }
 
   /**
