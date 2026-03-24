@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { ownerDocument } from '@base-ui/utils/owner';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -51,7 +51,7 @@ function getDisplacement(
 }
 
 function getElementTransform(element: HTMLElement) {
-  const computedStyle = window.getComputedStyle(element);
+  const computedStyle = ownerWindow(element).getComputedStyle(element);
   const transform = computedStyle.transform;
   let translateX = 0;
   let translateY = 0;
@@ -440,6 +440,18 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     }
   }
 
+  function handlePointerCancel() {
+    if (!isSwiping) {
+      return;
+    }
+
+    setIsSwiping(false);
+    setIsRealSwipe(false);
+    setLockedDirection(null);
+    setDragOffset({ x: initialTransform.x, y: initialTransform.y });
+    setCurrentSwipeDirection(undefined);
+  }
+
   function handleKeyDown(event: React.KeyboardEvent) {
     if (event.key === 'Escape') {
       if (
@@ -463,7 +475,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     }
 
     function preventDefaultTouchStart(event: TouchEvent) {
-      if (contains(element, event.target as HTMLElement | null)) {
+      if (contains(element, getTarget(event) as HTMLElement | null)) {
         event.preventDefault();
       }
     }
@@ -514,6 +526,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     onPointerDown: swipeEnabled ? handlePointerDown : undefined,
     onPointerMove: swipeEnabled ? handlePointerMove : undefined,
     onPointerUp: swipeEnabled ? handlePointerUp : undefined,
+    onPointerCancel: swipeEnabled ? handlePointerCancel : undefined,
     onKeyDown: handleKeyDown,
     inert: inertValue(toast.limited),
     style: {

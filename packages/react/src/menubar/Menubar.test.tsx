@@ -84,7 +84,7 @@ describe('<Menubar />', () => {
 
         await screen.findByTestId('file-menu');
         await waitFor(() => {
-          expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open', 'true');
+          expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open');
         });
 
         // Now hover over the edit trigger, it should open because a submenu is already open
@@ -126,7 +126,7 @@ describe('<Menubar />', () => {
           expect(screen.getByTestId('file-menu')).not.toBe(null);
         });
         await waitFor(() => {
-          expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open', 'true');
+          expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open');
         });
 
         await wait(50);
@@ -155,7 +155,7 @@ describe('<Menubar />', () => {
           expect(screen.getByTestId('file-menu')).not.toBe(null);
         });
         await waitFor(() => {
-          expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open', 'true');
+          expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open');
         });
 
         // Now hover over the share submenu trigger
@@ -778,7 +778,7 @@ describe('<Menubar />', () => {
           expect(screen.queryByTestId('file-menu')).not.toBe(null);
         });
         await waitFor(() => {
-          expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open', 'true');
+          expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open');
         });
 
         await user.hover(editTrigger);
@@ -793,7 +793,7 @@ describe('<Menubar />', () => {
           expect(screen.queryByTestId('edit-menu')).toBe(null);
         });
         await waitFor(() => {
-          expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open', 'false');
+          expect(screen.getByRole('menubar')).not.toHaveAttribute('data-has-submenu-open');
         });
 
         await user.click(fileTrigger);
@@ -802,7 +802,7 @@ describe('<Menubar />', () => {
           expect(screen.queryByTestId('file-menu')).not.toBe(null);
         });
         await waitFor(() => {
-          expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open', 'true');
+          expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open');
         });
 
         await user.hover(editTrigger);

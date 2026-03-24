@@ -17,6 +17,7 @@ This repository contains the source code and documentation for Base UI: a headl
 - Always use the `useTimeout` utility from `@base-ui/utils/useTimeout` instead of `window.setTimeout`, and `useAnimationFrame` from `@base-ui/utils/useAnimationFrame` instead of `requestAnimationFrame`. Search for other example usage in the codebase if unsure how to use them.
 - Use the `useStableCallback` utility from `@base-ui/utils/useStableCallback` instead of `React.useCallback` if the function is called within an effect or event handler. The utility cannot be used to memoize functions that are called directly in the body of a component (during render), so continue with `React.useCallback` in those scenarios.
 - Always use the `useIsoLayoutEffect` utility from `@base-ui/utils/useIsoLayoutEffect` instead of `React.useLayoutEffect`.
+- Always use the shadow DOM-safe utilities for DOM traversal and event targeting: `contains`, `getTarget`, and `activeElement`. Always use the owner utilities `ownerDocument` and `ownerWindow` instead of global `document`/`window` lookups when the code is tied to a DOM node, including realm-sensitive checks such as `instanceof`.
 - Avoid duplicating logic where necessary. If two components can share logic (such as event handlers), define the logic/handlers in the parent and share it through a context to the child; use the existing context if it exists.
 
 ## Linting, typechecking, and formatting
@@ -64,3 +65,5 @@ Format:
 You MUST run `pnpm extract-error-codes` to update `docs/src/error-codes.json` every time you add or update an error message in an `Error` constructor.
 
 **Important:** If the update created a new error code, but the new and original message have the same number of arguments and semantics haven't changed, update the original error in `error-codes.json` instead of creating a new code.
+
+Before any changes, review [CONTRIBUTING.md](./CONTRIBUTING.md) for more detailed guidelines on contributing to this repository.

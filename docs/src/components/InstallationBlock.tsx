@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import clsx from 'clsx';
 import copy from 'clipboard-copy';
 import { Tabs } from '@base-ui/react/tabs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -28,6 +29,7 @@ const STRING_STYLE = { color: 'var(--syntax-string)' } as const;
 
 interface InstallationBlockProps {
   package: string;
+  className?: string;
 }
 
 export function InstallationBlock(props: InstallationBlockProps) {
@@ -67,7 +69,11 @@ export function InstallationBlock(props: InstallationBlockProps) {
   });
 
   return (
-    <Tabs.Root value={value} onValueChange={handleValueChange}>
+    <Tabs.Root
+      className={clsx('InstallationBlock', props.className)}
+      value={value}
+      onValueChange={handleValueChange}
+    >
       <div role="figure" aria-label="Installation command" className="CodeBlockRoot">
         <div className="CodeBlockPanel">
           <Tabs.List className="InstallationBlockTabsList" aria-label="Package manager">
@@ -95,7 +101,7 @@ export function InstallationBlock(props: InstallationBlockProps) {
           <Tabs.Panel key={pm.value} value={pm.value}>
             <pre
               ref={pm.value === value ? codeRef : undefined}
-              className="CodeBlockPre"
+              className="CodeBlockPreInline"
               style={PRE_STYLE}
               data-language="bash"
               data-theme="base-ui"

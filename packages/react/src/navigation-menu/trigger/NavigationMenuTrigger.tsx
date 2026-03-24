@@ -9,7 +9,6 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { isWebKit } from '@base-ui/utils/detectBrowser';
 import {
   safePolygon,
   useClick,
@@ -550,6 +549,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   });
 
   const hoverInteractionState = useHoverInteractionSharedState(context);
+  const shouldBlockSafePolygonPointerEvents = pointerType !== 'touch';
 
   React.useEffect(() => {
     if (!open) {
@@ -572,14 +572,18 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   });
 
   function getScope() {
-    return triggerElementRef.current?.closest('ul') ?? null;
+    if (!nested || !positionerElement) {
+      return triggerElementRef.current?.closest('ul') ?? null;
+    }
+
+    return null;
   }
 
   const hoverProps = useHoverReferenceInteraction(context, {
     enabled: hoverInteractionsEnabled,
     move: false,
     handleClose: safePolygon({
-      blockPointerEvents: pointerType !== 'touch' && (!isWebKit || nested),
+      blockPointerEvents: shouldBlockSafePolygonPointerEvents,
       getScope,
     }),
     restMs: mounted && positionerElement ? 0 : delay,
@@ -609,6 +613,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   function handleActivation(event: React.MouseEvent | React.KeyboardEvent) {
     ReactDOM.flushSync(() => {
+      const currentTarget = isHTMLElement(event.currentTarget) ? event.currentTarget : null;
       const prevTriggerRect = prevTriggerElementRef.current?.getBoundingClientRect();
 
       if (mounted && prevTriggerRect && triggerElement) {
@@ -646,23 +651,26 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
       if (
         event.type === 'mouseenter' &&
-        nested &&
-        !positionerElement &&
-        pointerType !== 'touch' &&
+        shouldBlockSafePolygonPointerEvents &&
+        (!nested || !positionerElement) &&
         hoverFloatingElement &&
-        isHTMLElement(event.currentTarget)
+        currentTarget
       ) {
-        const scopeElement = getScope();
+        const applyPointerEventsMutation = () => {
+          const scopeElement = getScope() ?? currentTarget.ownerDocument.body;
 
-        if (!scopeElement) {
-          return;
+          applySafePolygonPointerEventsMutation(hoverInteractionState, {
+            scopeElement,
+            referenceElement: currentTarget,
+            floatingElement: hoverFloatingElement,
+          });
+        };
+
+        if (value != null && value !== itemValue) {
+          queueMicrotask(applyPointerEventsMutation);
+        } else {
+          applyPointerEventsMutation();
         }
-
-        applySafePolygonPointerEventsMutation(hoverInteractionState, {
-          scopeElement,
-          referenceElement: event.currentTarget,
-          floatingElement: hoverFloatingElement,
-        });
       }
     });
   }
@@ -694,12 +702,17 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     setPointerType(event.pointerType);
   }
 
+  function handleTriggerPointerDown(event: React.PointerEvent) {
+    handleSetPointerType(event);
+    clearSafePolygonPointerEventsMutation(hoverInteractionState);
+  }
+
   const defaultProps: HTMLProps = {
     tabIndex: 0,
     onMouseEnter: handleOpenEvent,
     onClick: handleOpenEvent,
     onPointerEnter: handleSetPointerType,
-    onPointerDown: handleSetPointerType,
+    onPointerDown: handleTriggerPointerDown,
     'aria-expanded': isActiveItem,
     'aria-controls': isActiveItem ? popupElement?.id : undefined,
     [NAVIGATION_MENU_TRIGGER_IDENTIFIER as string]: '',

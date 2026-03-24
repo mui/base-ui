@@ -33,23 +33,8 @@ export default function Homepage() {
           Unstyled UI components for building accessible user interfaces
         </h1>
         <div className="bui-gcs-1 bui-gce-9">
-          <Link className="Text size-2 Link bui-d-if" href="/react/overview/quick-start">
+          <Link className="Text size-2 bui-d-if" href="/react/overview/quick-start" withArrow>
             Documentation
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 16 16"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="Icon"
-            >
-              <path className="LinkArrowCaret" d="M6 12L10 8L6 4"></path>
-              <path className="LinkArrowLine" d="M2 8L13 8"></path>
-            </svg>
           </Link>
         </div>
       </section>
@@ -251,13 +236,13 @@ export default function Homepage() {
               <Accordion.Panel className="AccordionPanel">
                 <p className="Text size-2">
                   When designing and speccing components, we follow{' '}
-                  <a className="Link" href="https://www.w3.org/WAI/ARIA/apg/patterns/">
+                  <Link href="https://www.w3.org/WAI/ARIA/apg/patterns/">
                     ARIA Authoring Practices Guide patterns
-                  </a>
+                  </Link>
                   , and comply with the{' '}
-                  <a className="Link" href="https://www.w3.org/TR/WCAG22/#new-features-in-wcag-2-2">
+                  <Link href="https://www.w3.org/TR/WCAG22/#new-features-in-wcag-2-2">
                     WCAG 2.2 standard
-                  </a>
+                  </Link>
                   . Base UI is compliant with all Success Criteria levels relating to component
                   behavior. However, in most cases, we go way beyond these guides. Base UI
                   components are tested across a wide range of browsers, devices, platforms, and

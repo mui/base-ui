@@ -1,4 +1,14 @@
 @layer components {
+  .CodeBlockRoot {
+    align-self: stretch;
+    background-color: var(--color-content);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+
+    & pre {
+      white-space: normal;
+    }
+  }
   .InstallationBlockTabsList {
     display: flex;
     gap: 1rem;

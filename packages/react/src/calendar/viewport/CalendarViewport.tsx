@@ -3,6 +3,7 @@ import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { ownerDocument } from '@base-ui/utils/owner';
 import { useStore } from '@base-ui/utils/store';
 import { TemporalSupportedObject } from '../../types/temporal';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
@@ -28,6 +29,17 @@ function getSafeTag(localName: string): string {
   return ALLOWED_TAGS.has(localName) ? localName : 'div';
 }
 
+function getVisibleMonthKey(
+  adapter: ReturnType<typeof useTemporalAdapter>,
+  visibleMonth: TemporalSupportedObject | null,
+) {
+  if (!visibleMonth) {
+    return 'empty';
+  }
+
+  return `${adapter.getYear(visibleMonth)}-${adapter.getMonth(visibleMonth)}`;
+}
+
 const DATA_ATTRIBUTES = [
   CalendarViewportDataAttributes.current,
   CalendarViewportDataAttributes.startingStyle,
@@ -50,6 +62,9 @@ export function CalendarViewport({ children }: CalendarViewport.Props): React.JS
 
   const navigationDirection = useStore(store, selectors.navigationDirection);
   const visibleMonth = useStore(store, selectors.visibleMonth);
+  // Remount the entering month on visible-month changes so interrupted transitions
+  // restart from the correct starting styles instead of reusing the previous DOM.
+  const currentContentKey = getVisibleMonthKey(adapter, visibleMonth);
   const lastHandledVisibleMonth = React.useRef<TemporalSupportedObject | null>(visibleMonth);
 
   const capturedNodeRef = React.useRef<HTMLElement | null>(null);
@@ -110,7 +125,7 @@ export function CalendarViewport({ children }: CalendarViewport.Props): React.JS
 
     // Create the wrapper element of the same type as the source element.
     // It has to be an element of the same tag, especially if it's the calendar body (`tbody`).
-    const wrapper = document.createElement(getSafeTag(source.localName));
+    const wrapper = ownerDocument(source).createElement(getSafeTag(source.localName));
     for (const child of Array.from(source.childNodes)) {
       wrapper.appendChild(child.cloneNode(true));
     }
@@ -120,7 +135,7 @@ export function CalendarViewport({ children }: CalendarViewport.Props): React.JS
 
   const currentChildren = React.cloneElement(children, {
     ref: currentContainerRef,
-    key: 'current',
+    key: currentContentKey,
   });
 
   const isTransitioning = previousContentNode != null;

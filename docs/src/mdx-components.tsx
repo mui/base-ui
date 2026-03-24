@@ -3,14 +3,11 @@ import * as CodeBlock from './components/CodeBlock';
 import * as Table from './components/Table';
 import * as QuickNav from './components/QuickNav/QuickNav';
 import { Code } from './components/Code';
-import { ReferenceAccordion } from './components/ReferenceTable/ReferenceAccordion';
-import { ParametersReferenceTable } from './components/ReferenceTable/ParametersReferenceTable';
-import { ReturnValueReferenceTable } from './components/ReferenceTable/ReturnValueReferenceTable';
-import { AttributesReferenceTable } from './components/ReferenceTable/AttributesReferenceTable';
-import { CssVariablesReferenceTable } from './components/ReferenceTable/CssVariablesReferenceTable';
 import { Link } from './components/Link';
 import { HeadingLink } from './components/HeadingLink';
 import { Subtitle } from './components/Subtitle/Subtitle';
+import { TypeRef } from './components/TypeRef';
+import { TypePropRef } from './components/TypePropRef';
 import { Kbd } from './components/Kbd/Kbd';
 import './css/mdx-components.css';
 
@@ -21,6 +18,7 @@ interface MDXComponents {
 // Maintain spacing between MDX components here
 export const mdxComponents: MDXComponents = {
   a: Link,
+  em: (props) => <em className="MdEm" {...props} />,
   code: (props) => <Code className="MdInlineCode" {...props} />,
   h1: (props) => (
     // Do not wrap heading tags in divs, that confuses Safari Reader
@@ -48,13 +46,12 @@ export const mdxComponents: MDXComponents = {
   ul: (props) => <ul className="MdUl" {...props} />,
   ol: (props) => <ol className="MdOl" {...props} />,
   kbd: Kbd,
-  strong: (props) => <strong className="MdStrong" {...props} />,
   figure: (props) => {
     if ('data-rehype-pretty-code-figure' in props) {
-      return <CodeBlock.Root {...props} />;
+      return <CodeBlock.Root className="MdFigure" {...props} />;
     }
 
-    return <figure {...props} />;
+    return <figure className="MdFigure" {...props} />;
   },
   figcaption: (props) => {
     if ('data-rehype-pretty-code-title' in props) {
@@ -74,6 +71,8 @@ export const mdxComponents: MDXComponents = {
     props.scope === 'row' ? <Table.RowHeader {...props} /> : <Table.ColumnHeader {...props} />,
   td: Table.Cell,
   // Custom components
+  TypeRef,
+  TypePropRef,
   QuickNav,
   Meta: (props: React.ComponentProps<'meta'>) => {
     if (props.name === 'description' && String(props.content).length > 170) {
@@ -82,26 +81,6 @@ export const mdxComponents: MDXComponents = {
     return <meta {...props} />;
   },
   Subtitle: (props) => <Subtitle className="MdSubtitle" {...props} />,
-
-  // API reference components
-  AttributesReferenceTable: (props) => (
-    <AttributesReferenceTable className="MdReferenceBlock" {...props} />
-  ),
-  CssVariablesReferenceTable: (props) => (
-    <CssVariablesReferenceTable className="MdReferenceBlock" {...props} />
-  ),
-  PropsReferenceTable: (props) => <ReferenceAccordion className="MdReferenceBlock" {...props} />,
-  ParametersReferenceTable: (props) => (
-    <ParametersReferenceTable className="MdReferenceBlock" {...props} />
-  ),
-  ReturnValueReferenceTable: (props) => (
-    <ReturnValueReferenceTable className="MdReferenceBlock" {...props} />
-  ),
-};
-
-export const inlineMdxComponents: MDXComponents = {
-  ...mdxComponents,
-  p: (props) => props.children,
 };
 
 export function useMDXComponents(): MDXComponents {
