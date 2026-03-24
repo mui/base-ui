@@ -109,7 +109,7 @@
     "react-dom": "19.2.4",
     "react-router": "7.13.1",
     "typescript": "5.9.3",
-    "vitest-browser-react": "2.0.5"
+    "vitest-browser-react": "2.1.0"
   },
   "peerDependencies": {
     "@date-fns/tz": "^1.2.0",

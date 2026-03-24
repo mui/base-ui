@@ -185,7 +185,7 @@ export function useSharedCalendarDayGridBody(
         focusNextNonDisabledElement({
           elements: items,
           newHighlightedIndex,
-          decrement: eventKey === HOME,
+          decrement: eventKey === END,
           amount: 1,
         });
         break;
