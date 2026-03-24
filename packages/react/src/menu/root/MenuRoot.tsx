@@ -185,13 +185,13 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     }
   }
 
-  const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
-
   store.useSyncedValues({
     disabled: disabledProp,
     modal: parent.type === undefined ? modalProp : undefined,
     rootId: useId(),
   });
+
+  const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
 
   useImplicitActiveTrigger(store);
   const { forceUnmount } = useOpenStateTransitions(open, store, () => {

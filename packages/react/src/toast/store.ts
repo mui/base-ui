@@ -41,7 +41,6 @@ const toastMapSelector = createSelectorMemoized(
     >();
     let visibleIndex = 0;
     let offsetY = 0;
-
     toasts.forEach((toast, toastIndex) => {
       const isEnding = toast.transitionStatus === 'ending';
       map.set(toast.id, {

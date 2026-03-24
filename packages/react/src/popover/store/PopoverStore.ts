@@ -1,8 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { ReactStore } from '@base-ui/utils/store';
-import { createSelector } from '@base-ui/utils/store/createSelector';
+import { ReactStore, createSelector } from '@base-ui/utils/store';
 import { Timeout } from '@base-ui/utils/useTimeout';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useOnMount } from '@base-ui/utils/useOnMount';

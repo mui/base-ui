@@ -10,8 +10,6 @@
   "license": "MIT",
   "exports": {
     "./store": "./src/store/index.ts",
-    "./store/createSelector": "./src/store/createSelector.ts",
-    "./store/createSelectorMemoized": "./src/store/createSelectorMemoized.ts",
     "./*": "./src/*.ts"
   },
   "imports": {

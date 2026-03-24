@@ -113,16 +113,17 @@ export function mergePropsN<T extends ElementType>(props: InputProps<T>[]): Prop
 }
 
 function createInitialMergedProps<T extends ElementType>(inputProps: InputProps<T>) {
-  if (typeof inputProps === 'function') {
-    return { ...inputProps(EMPTY_PROPS as PropsOf<T>) };
+  if (isPropsGetter(inputProps)) {
+    // Getter-returned handlers intentionally keep their existing semantics.
+    return { ...resolvePropsGetter(inputProps, EMPTY_PROPS) };
   }
 
   return mutablyMergeInto({}, inputProps);
 }
 
 function mergeInto<T extends ElementType>(merged: Record<string, any>, inputProps: InputProps<T>) {
-  if (typeof inputProps === 'function') {
-    return inputProps(merged as PropsOf<T>);
+  if (isPropsGetter(inputProps)) {
+    return resolvePropsGetter(inputProps, merged as PropsOf<T>);
   }
   return mutablyMergeInto(merged, inputProps);
 }
@@ -179,6 +180,23 @@ function isEventHandler(key: string, value: unknown) {
     code2 <= 90 /* Z */ &&
     (typeof value === 'function' || typeof value === 'undefined')
   );
+}
+
+function isPropsGetter<T extends React.ComponentType>(
+  inputProps: InputProps<T>,
+): inputProps is (props: PropsOf<T>) => PropsOf<T> {
+  return typeof inputProps === 'function';
+}
+
+function resolvePropsGetter<T extends ElementType>(
+  inputProps: InputProps<ElementType>,
+  previousProps: PropsOf<T>,
+) {
+  if (isPropsGetter(inputProps)) {
+    return inputProps(previousProps);
+  }
+
+  return inputProps ?? (EMPTY_PROPS as PropsOf<T>);
 }
 
 function mergeEventHandlers(ourHandler: Function | undefined, theirHandler: Function | undefined) {
