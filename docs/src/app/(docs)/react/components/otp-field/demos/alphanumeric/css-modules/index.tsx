@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { OTPField } from '@base-ui/react/otp-field';
-import styles from '../../shared.module.css';
+import styles from './index.module.css';
 
 const CODE_LENGTH = 6;
 

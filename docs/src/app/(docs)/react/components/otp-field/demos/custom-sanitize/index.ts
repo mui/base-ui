@@ -1,8 +1,4 @@
-import { createDemoWithVariants } from 'docs/src/utils/createDemo';
+import { createDemo } from 'docs/src/utils/createDemo';
 import CssModules from './css-modules';
-import Tailwind from './tailwind';
 
-export const DemoOTPFieldCustomSanitize = createDemoWithVariants(import.meta.url, {
-  CssModules,
-  Tailwind,
-});
+export const DemoOTPFieldCustomSanitize = createDemo(import.meta.url, CssModules);

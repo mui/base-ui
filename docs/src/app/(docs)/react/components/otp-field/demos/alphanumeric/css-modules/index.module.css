@@ -41,20 +41,6 @@
   }
 }
 
-.InputInvalidA {
-  border-color: var(--color-red);
-  outline: 2px solid var(--color-red-800);
-  outline-offset: -1px;
-  animation: otp-field-shake-a 180ms ease-in-out;
-}
-
-.InputInvalidB {
-  border-color: var(--color-red);
-  outline: 2px solid var(--color-red-800);
-  outline-offset: -1px;
-  animation: otp-field-shake-b 180ms ease-in-out;
-}
-
 .Description {
   margin: 0;
   font-size: 0.875rem;
@@ -65,46 +51,4 @@
 .Code {
   font-family:
     ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
-}
-
-.ScreenReaderOnly {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-@keyframes otp-field-shake-a {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-
-  25% {
-    transform: translateX(-4px);
-  }
-
-  75% {
-    transform: translateX(4px);
-  }
-}
-
-@keyframes otp-field-shake-b {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-
-  25% {
-    transform: translateX(-4px);
-  }
-
-  75% {
-    transform: translateX(4px);
-  }
 }

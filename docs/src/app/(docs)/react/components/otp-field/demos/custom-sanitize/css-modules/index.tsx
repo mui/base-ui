@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { OTPField } from '@base-ui/react/otp-field';
 import { useInvalidFeedback } from '../useInvalidFeedback';
-import styles from '../../shared.module.css';
+import styles from './index.module.css';
 
 const CODE_LENGTH = 6;
 
@@ -20,6 +20,8 @@ function getInvalidClassName(invalidPulse: number, evenClassName: string, oddCla
 
 export default function OTPFieldCustomSanitizeDemo() {
   const id = React.useId();
+  const descriptionId = `${id}-description`;
+
   const {
     activeInvalidIndex,
     handleValueChange,
@@ -28,7 +30,7 @@ export default function OTPFieldCustomSanitizeDemo() {
     setFocusedIndex,
     statusMessage,
   } = useInvalidFeedback();
-  const descriptionId = `${id}-description`;
+
   const invalidClassName = getInvalidClassName(
     invalidPulse,
     styles.InputInvalidB,
