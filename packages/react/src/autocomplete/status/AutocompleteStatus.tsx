@@ -12,24 +12,13 @@ import type { BaseUIComponentProps } from '../../utils/types';
  */
 export const AutocompleteStatus = ComboboxStatus as AutocompleteStatus;
 
-/**
- * The state of the autocomplete status component.
- */
 export interface AutocompleteStatusState {}
 
-/**
- * The props of the autocomplete status component.
- */
 export interface AutocompleteStatusProps extends BaseUIComponentProps<
   'div',
   AutocompleteStatusState
 > {}
 
-/**
- * The type of the autocomplete status component.
- *
- * Documentation: [Base UI Autocomplete](https://base-ui.com/react/components/autocomplete)
- */
 export interface AutocompleteStatus {
   (
     componentProps: AutocompleteStatusProps & React.RefAttributes<HTMLDivElement>,

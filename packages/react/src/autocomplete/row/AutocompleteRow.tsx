@@ -12,21 +12,10 @@ import type { BaseUIComponentProps } from '../../utils/types';
  */
 export const AutocompleteRow = ComboboxRow as AutocompleteRow;
 
-/**
- * The state of the autocomplete row component.
- */
 export interface AutocompleteRowState {}
 
-/**
- * The props of the autocomplete row component.
- */
 export interface AutocompleteRowProps extends BaseUIComponentProps<'div', AutocompleteRowState> {}
 
-/**
- * The type of the autocomplete row component.
- *
- * Documentation: [Base UI Autocomplete](https://base-ui.com/react/components/autocomplete)
- */
 export interface AutocompleteRow {
   (componentProps: AutocompleteRowProps & React.RefAttributes<HTMLDivElement>): React.JSX.Element;
 }

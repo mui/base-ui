@@ -12,9 +12,6 @@ import type { Align, Side } from '../../utils/useAnchorPositioning';
  */
 export const AutocompleteArrow = ComboboxArrow as AutocompleteArrow;
 
-/**
- * The state of the autocomplete arrow component.
- */
 export interface AutocompleteArrowState {
   /**
    * Whether the popup is currently open.
@@ -34,19 +31,11 @@ export interface AutocompleteArrowState {
   uncentered: boolean;
 }
 
-/**
- * The props of the autocomplete arrow component.
- */
 export interface AutocompleteArrowProps extends BaseUIComponentProps<
   'div',
   AutocompleteArrowState
 > {}
 
-/**
- * The type of the autocomplete arrow component.
- *
- * Documentation: [Base UI Autocomplete](https://base-ui.com/react/components/autocomplete)
- */
 export interface AutocompleteArrow {
   (componentProps: AutocompleteArrowProps & React.RefAttributes<HTMLDivElement>): React.JSX.Element;
 }

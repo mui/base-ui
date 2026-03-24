@@ -12,14 +12,8 @@ import type { FloatingPortal } from '../../floating-ui-react';
  */
 export const AutocompletePortal = ComboboxPortal as AutocompletePortal;
 
-/**
- * The state of the autocomplete portal component.
- */
 export interface AutocompletePortalState {}
 
-/**
- * The props of the autocomplete portal component.
- */
 export interface AutocompletePortalProps extends FloatingPortal.Props<AutocompletePortalState> {
   /**
    * Whether to keep the portal mounted in the DOM while the popup is hidden.
@@ -32,11 +26,6 @@ export interface AutocompletePortalProps extends FloatingPortal.Props<Autocomple
   container?: FloatingPortal.Props<AutocompletePortalState>['container'] | undefined;
 }
 
-/**
- * The type of the autocomplete portal component.
- *
- * Documentation: [Base UI Autocomplete](https://base-ui.com/react/components/autocomplete)
- */
 export interface AutocompletePortal {
   (
     componentProps: AutocompletePortalProps & React.RefAttributes<HTMLDivElement>,

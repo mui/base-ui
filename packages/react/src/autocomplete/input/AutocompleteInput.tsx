@@ -13,9 +13,6 @@ import type { Side } from '../../utils/useAnchorPositioning';
  */
 export const AutocompleteInput = ComboboxInput as AutocompleteInput;
 
-/**
- * The state of the autocomplete input component.
- */
 export interface AutocompleteInputState extends FieldRootState {
   /**
    * Whether the corresponding popup is open.
@@ -35,9 +32,6 @@ export interface AutocompleteInputState extends FieldRootState {
   readOnly: boolean;
 }
 
-/**
- * The props of the autocomplete input component.
- */
 export interface AutocompleteInputProps extends BaseUIComponentProps<
   'input',
   AutocompleteInputState
@@ -49,11 +43,6 @@ export interface AutocompleteInputProps extends BaseUIComponentProps<
   disabled?: boolean | undefined;
 }
 
-/**
- * The type of the autocomplete input component.
- *
- * Documentation: [Base UI Autocomplete](https://base-ui.com/react/components/autocomplete)
- */
 export interface AutocompleteInput {
   (
     componentProps: AutocompleteInputProps & React.RefAttributes<HTMLInputElement>,

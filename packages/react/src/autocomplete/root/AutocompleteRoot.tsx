@@ -139,14 +139,8 @@ export function AutocompleteRoot<ItemValue>(
   );
 }
 
-/**
- * The state of the autocomplete root component.
- */
 export interface AutocompleteRootState extends AriaComboboxState {}
 
-/**
- * The actions of the autocomplete root component.
- */
 export interface AutocompleteRootActions {
   unmount: () => void;
 }
@@ -157,9 +151,6 @@ export type AutocompleteRootChangeEventDetails = AriaCombobox.ChangeEventDetails
 export type AutocompleteRootHighlightEventReason = AriaCombobox.HighlightEventReason;
 export type AutocompleteRootHighlightEventDetails = AriaCombobox.HighlightEventDetails;
 
-/**
- * The props of the autocomplete root component.
- */
 export interface AutocompleteRootProps<ItemValue> extends Omit<
   AriaCombobox.Props<ItemValue, 'none'>,
   | 'selectionMode'

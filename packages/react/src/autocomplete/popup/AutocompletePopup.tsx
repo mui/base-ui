@@ -14,9 +14,6 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
  */
 export const AutocompletePopup = ComboboxPopup as AutocompletePopup;
 
-/**
- * The state of the autocomplete popup component.
- */
 export interface AutocompletePopupState {
   /**
    * Whether the component is open.
@@ -44,9 +41,6 @@ export interface AutocompletePopupState {
   empty: boolean;
 }
 
-/**
- * The props of the autocomplete popup component.
- */
 export interface AutocompletePopupProps extends BaseUIComponentProps<
   'div',
   AutocompletePopupState
@@ -81,11 +75,6 @@ export interface AutocompletePopupProps extends BaseUIComponentProps<
     | undefined;
 }
 
-/**
- * The type of the autocomplete popup component.
- *
- * Documentation: [Base UI Autocomplete](https://base-ui.com/react/components/autocomplete)
- */
 export interface AutocompletePopup {
   (componentProps: AutocompletePopupProps & React.RefAttributes<HTMLDivElement>): React.JSX.Element;
 }

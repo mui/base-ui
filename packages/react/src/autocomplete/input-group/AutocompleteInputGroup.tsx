@@ -13,9 +13,6 @@ import type { Side } from '../../utils/useAnchorPositioning';
  */
 export const AutocompleteInputGroup = ComboboxInputGroup as AutocompleteInputGroup;
 
-/**
- * The state of the autocomplete input group component.
- */
 export interface AutocompleteInputGroupState extends FieldRoot.State {
   /**
    * Whether the corresponding popup is open.
@@ -43,19 +40,11 @@ export interface AutocompleteInputGroupState extends FieldRoot.State {
   placeholder: boolean;
 }
 
-/**
- * The props of the autocomplete input group component.
- */
 export interface AutocompleteInputGroupProps extends BaseUIComponentProps<
   'div',
   AutocompleteInputGroupState
 > {}
 
-/**
- * The type of the autocomplete input group component.
- *
- * Documentation: [Base UI Autocomplete](https://base-ui.com/react/components/autocomplete)
- */
 export interface AutocompleteInputGroup {
   (
     componentProps: AutocompleteInputGroupProps & React.RefAttributes<HTMLDivElement>,

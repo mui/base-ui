@@ -11,9 +11,6 @@ import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/typ
  */
 export const AutocompleteItem = ComboboxItem as AutocompleteItem;
 
-/**
- * The state of the autocomplete item component.
- */
 export interface AutocompleteItemState {
   /**
    * Whether the item should ignore user interaction.
@@ -25,9 +22,6 @@ export interface AutocompleteItemState {
   highlighted: boolean;
 }
 
-/**
- * The props of the autocomplete item component.
- */
 export interface AutocompleteItemProps
   extends NonNativeButtonProps, Omit<BaseUIComponentProps<'div', AutocompleteItemState>, 'id'> {
   children?: React.ReactNode;
@@ -52,11 +46,6 @@ export interface AutocompleteItemProps
   disabled?: boolean | undefined;
 }
 
-/**
- * The type of the autocomplete item component.
- *
- * Documentation: [Base UI Autocomplete](https://base-ui.com/react/components/autocomplete)
- */
 export interface AutocompleteItem {
   (componentProps: AutocompleteItemProps & React.RefAttributes<HTMLDivElement>): React.JSX.Element;
 }

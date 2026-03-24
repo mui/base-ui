@@ -12,23 +12,12 @@ import { ComboboxCollection } from '../../combobox/collection/ComboboxCollection
  */
 export const AutocompleteCollection = ComboboxCollection as AutocompleteCollection;
 
-/**
- * The state of the autocomplete collection component.
- */
 export interface AutocompleteCollectionState {}
 
-/**
- * The props of the autocomplete collection component.
- */
 export interface AutocompleteCollectionProps {
   children: (item: any, index: number) => React.ReactNode;
 }
 
-/**
- * The type of the autocomplete collection component.
- *
- * Documentation: [Base UI Autocomplete](https://base-ui.com/react/components/autocomplete)
- */
 export interface AutocompleteCollection {
   (componentProps: AutocompleteCollectionProps): React.JSX.Element | null;
 }

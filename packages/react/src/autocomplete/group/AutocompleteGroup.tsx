@@ -11,14 +11,8 @@ import type { BaseUIComponentProps } from '../../utils/types';
  */
 export const AutocompleteGroup = ComboboxGroup as AutocompleteGroup;
 
-/**
- * The state of the autocomplete group component.
- */
 export interface AutocompleteGroupState {}
 
-/**
- * The props of the autocomplete group component.
- */
 export interface AutocompleteGroupProps extends BaseUIComponentProps<
   'div',
   AutocompleteGroupState
@@ -30,11 +24,6 @@ export interface AutocompleteGroupProps extends BaseUIComponentProps<
   items?: readonly any[] | undefined;
 }
 
-/**
- * The type of the autocomplete group component.
- *
- * Documentation: [Base UI Autocomplete](https://base-ui.com/react/components/autocomplete)
- */
 export interface AutocompleteGroup {
   (componentProps: AutocompleteGroupProps & React.RefAttributes<HTMLDivElement>): React.JSX.Element;
 }

@@ -13,9 +13,6 @@ import type { Side } from '../../utils/useAnchorPositioning';
  */
 export const AutocompleteTrigger = ComboboxTrigger as AutocompleteTrigger;
 
-/**
- * The state of the autocomplete trigger component.
- */
 export interface AutocompleteTriggerState extends FieldRootState {
   /**
    * Whether the popup is open.
@@ -39,9 +36,6 @@ export interface AutocompleteTriggerState extends FieldRootState {
   placeholder: boolean;
 }
 
-/**
- * The props of the autocomplete trigger component.
- */
 export interface AutocompleteTriggerProps
   extends NativeButtonProps, BaseUIComponentProps<'button', AutocompleteTriggerState> {
   /**
@@ -51,11 +45,6 @@ export interface AutocompleteTriggerProps
   disabled?: boolean | undefined;
 }
 
-/**
- * The type of the autocomplete trigger component.
- *
- * Documentation: [Base UI Autocomplete](https://base-ui.com/react/components/autocomplete)
- */
 export interface AutocompleteTrigger {
   (
     componentProps: AutocompleteTriggerProps & React.RefAttributes<HTMLButtonElement>,

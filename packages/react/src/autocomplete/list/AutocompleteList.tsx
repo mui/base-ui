@@ -11,9 +11,6 @@ import type { BaseUIComponentProps } from '../../utils/types';
  */
 export const AutocompleteList = ComboboxList as AutocompleteList;
 
-/**
- * The state of the autocomplete list component.
- */
 export interface AutocompleteListState {
   /**
    * Whether the list is empty.
@@ -21,9 +18,6 @@ export interface AutocompleteListState {
   empty: boolean;
 }
 
-/**
- * The props of the autocomplete list component.
- */
 export interface AutocompleteListProps extends Omit<
   BaseUIComponentProps<'div', AutocompleteListState>,
   'children'
@@ -31,11 +25,6 @@ export interface AutocompleteListProps extends Omit<
   children?: React.ReactNode | ((item: any, index: number) => React.ReactNode);
 }
 
-/**
- * The type of the autocomplete list component.
- *
- * Documentation: [Base UI Autocomplete](https://base-ui.com/react/components/autocomplete)
- */
 export interface AutocompleteList {
   (componentProps: AutocompleteListProps & React.RefAttributes<HTMLDivElement>): React.JSX.Element;
 }

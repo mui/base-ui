@@ -11,24 +11,13 @@ import type { BaseUIComponentProps } from '../../utils/types';
  */
 export const AutocompleteIcon = ComboboxIcon as AutocompleteIcon;
 
-/**
- * The state of the autocomplete icon component.
- */
 export interface AutocompleteIconState {}
 
-/**
- * The props of the autocomplete icon component.
- */
 export interface AutocompleteIconProps extends BaseUIComponentProps<
   'span',
   AutocompleteIconState
 > {}
 
-/**
- * The type of the autocomplete icon component.
- *
- * Documentation: [Base UI Autocomplete](https://base-ui.com/react/components/autocomplete)
- */
 export interface AutocompleteIcon {
   (componentProps: AutocompleteIconProps & React.RefAttributes<HTMLSpanElement>): React.JSX.Element;
 }

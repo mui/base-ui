@@ -16,9 +16,6 @@ import type { BaseUIComponentProps } from '../../utils/types';
  */
 export const AutocompletePositioner = ComboboxPositioner as AutocompletePositioner;
 
-/**
- * The state of the autocomplete positioner component.
- */
 export interface AutocompletePositionerState {
   /**
    * Whether the popup is currently open.
@@ -42,19 +39,11 @@ export interface AutocompletePositionerState {
   empty: boolean;
 }
 
-/**
- * The props of the autocomplete positioner component.
- */
 export interface AutocompletePositionerProps
   extends
     UseAnchorPositioningSharedParameters,
     BaseUIComponentProps<'div', AutocompletePositionerState> {}
 
-/**
- * The type of the autocomplete positioner component.
- *
- * Documentation: [Base UI Autocomplete](https://base-ui.com/react/components/autocomplete)
- */
 export interface AutocompletePositioner {
   (
     componentProps: AutocompletePositionerProps & React.RefAttributes<HTMLDivElement>,

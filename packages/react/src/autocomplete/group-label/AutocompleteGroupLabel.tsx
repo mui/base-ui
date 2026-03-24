@@ -11,24 +11,13 @@ import type { BaseUIComponentProps } from '../../utils/types';
  */
 export const AutocompleteGroupLabel = ComboboxGroupLabel as AutocompleteGroupLabel;
 
-/**
- * The state of the autocomplete group label component.
- */
 export interface AutocompleteGroupLabelState {}
 
-/**
- * The props of the autocomplete group label component.
- */
 export interface AutocompleteGroupLabelProps extends BaseUIComponentProps<
   'div',
   AutocompleteGroupLabelState
 > {}
 
-/**
- * The type of the autocomplete group label component.
- *
- * Documentation: [Base UI Autocomplete](https://base-ui.com/react/components/autocomplete)
- */
 export interface AutocompleteGroupLabel {
   (
     componentProps: AutocompleteGroupLabelProps & React.RefAttributes<HTMLDivElement>,

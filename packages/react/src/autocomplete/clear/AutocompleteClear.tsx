@@ -12,9 +12,6 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
  */
 export const AutocompleteClear = ComboboxClear as AutocompleteClear;
 
-/**
- * The state of the autocomplete clear component.
- */
 export interface AutocompleteClearState {
   /**
    * Whether the popup is open.
@@ -30,9 +27,6 @@ export interface AutocompleteClearState {
   transitionStatus: TransitionStatus;
 }
 
-/**
- * The props of the autocomplete clear component.
- */
 export interface AutocompleteClearProps
   extends NativeButtonProps, BaseUIComponentProps<'button', AutocompleteClearState> {
   /**
@@ -47,11 +41,6 @@ export interface AutocompleteClearProps
   keepMounted?: boolean | undefined;
 }
 
-/**
- * The type of the autocomplete clear component.
- *
- * Documentation: [Base UI Autocomplete](https://base-ui.com/react/components/autocomplete)
- */
 export interface AutocompleteClear {
   (
     componentProps: AutocompleteClearProps & React.RefAttributes<HTMLButtonElement>,

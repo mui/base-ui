@@ -12,17 +12,11 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
  */
 export const AutocompleteBackdrop = ComboboxBackdrop as AutocompleteBackdrop;
 
-/**
- * The props of the autocomplete backdrop component.
- */
 export interface AutocompleteBackdropProps extends BaseUIComponentProps<
   'div',
   AutocompleteBackdropState
 > {}
 
-/**
- * The state of the autocomplete backdrop component.
- */
 export interface AutocompleteBackdropState {
   /**
    * Whether the popup is currently open.
@@ -34,11 +28,6 @@ export interface AutocompleteBackdropState {
   transitionStatus: TransitionStatus;
 }
 
-/**
- * The type of the autocomplete backdrop component.
- *
- * Documentation: [Base UI Autocomplete](https://base-ui.com/react/components/autocomplete)
- */
 export interface AutocompleteBackdrop {
   (
     componentProps: AutocompleteBackdropProps & React.RefAttributes<HTMLDivElement>,

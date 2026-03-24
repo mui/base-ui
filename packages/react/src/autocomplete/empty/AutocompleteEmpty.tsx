@@ -13,24 +13,13 @@ import type { BaseUIComponentProps } from '../../utils/types';
  */
 export const AutocompleteEmpty = ComboboxEmpty as AutocompleteEmpty;
 
-/**
- * The state of the autocomplete empty component.
- */
 export interface AutocompleteEmptyState {}
 
-/**
- * The props of the autocomplete empty component.
- */
 export interface AutocompleteEmptyProps extends BaseUIComponentProps<
   'div',
   AutocompleteEmptyState
 > {}
 
-/**
- * The type of the autocomplete empty component.
- *
- * Documentation: [Base UI Autocomplete](https://base-ui.com/react/components/autocomplete)
- */
 export interface AutocompleteEmpty {
   (componentProps: AutocompleteEmptyProps & React.RefAttributes<HTMLDivElement>): React.JSX.Element;
 }
