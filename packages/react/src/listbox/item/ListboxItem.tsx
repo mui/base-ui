@@ -81,6 +81,7 @@ export const ListboxItem = React.memo(
       selectionMode,
       highlightItemOnHover,
       lastSelectedIndexRef,
+      lastPointerTypeRef,
       disabled: rootDisabled,
       onItemsReorder,
     } = useListboxRootContext();
@@ -155,7 +156,6 @@ export const ListboxItem = React.memo(
     };
 
     const lastKeyRef = React.useRef<string | null>(null);
-    const lastPointerTypeRef = React.useRef<string | null>(null);
 
     const { getButtonProps, buttonRef } = useButton({
       disabled,
@@ -356,14 +356,18 @@ export const ListboxItem = React.memo(
           return;
         }
 
-        // Read pointerType directly from the native event when available.
-        // Modern browsers dispatch `click` as a PointerEvent which carries
-        // `pointerType`. Fall back to the ref set in onPointerDown for older
-        // browsers or synthetic clicks.
-        const pointerType =
-          'pointerType' in event.nativeEvent
+        // Determine the true pointer type that initiated this click.
+        // iOS Safari dispatches `click` as a PointerEvent but incorrectly
+        // reports pointerType as "mouse" even for touch interactions.
+        // The ref set in onPointerDown always has the correct value,
+        // so prefer it when available. The ref is shared across all items
+        // (via context) because on touch devices the pointerdown and click
+        // targets may differ when a finger lands near an item boundary.
+        const pointerType = lastPointerTypeRef.current
+          || ('pointerType' in event.nativeEvent
             ? (event.nativeEvent as PointerEvent).pointerType
-            : lastPointerTypeRef.current;
+            : null);
+
         lastKeyRef.current = null;
         lastPointerTypeRef.current = null;
         commitSelection(event.nativeEvent, {

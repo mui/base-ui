@@ -21,6 +21,7 @@ export interface ListboxRootContext {
   groupIdsRef: React.RefObject<Array<string | undefined>>;
   typingRef: React.RefObject<boolean>;
   lastSelectedIndexRef: React.RefObject<number | null>;
+  lastPointerTypeRef: React.RefObject<string | null>;
   validation: UseFieldValidationReturnValue;
   onItemsReorder:
     | ((event: {
