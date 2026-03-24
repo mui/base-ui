@@ -177,7 +177,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     pendingFocusRef.current = { index, value: nextValue };
   });
 
-  const requestSubmit = useStableCallback(() => {
+  function requestSubmit() {
     let formElement = validation.inputRef.current?.form ?? inputRefs.current[0]?.form ?? null;
 
     if (form) {
@@ -190,7 +190,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     if (formElement && typeof formElement.requestSubmit === 'function') {
       formElement.requestSubmit();
     }
-  });
+  }
 
   useValueChanged(value, () => {
     clearErrors(name);
@@ -302,19 +302,22 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     [id],
   );
 
-  const state: OTPFieldRootState = {
-    ...fieldState,
-    complete: value.length === length,
-    disabled,
-    filled,
-    focused,
-    length,
-    readOnly,
-    required,
-    value,
-  };
+  const state: OTPFieldRootState = React.useMemo(
+    () => ({
+      ...fieldState,
+      complete: value.length === length,
+      disabled,
+      filled,
+      focused,
+      length,
+      readOnly,
+      required,
+      value,
+    }),
+    [disabled, fieldState, filled, focused, length, readOnly, required, value],
+  );
 
-  const contextValue = React.useMemo(
+  const contextValue: OTPFieldRootContext = React.useMemo(
     () => ({
       ariaDescribedBy,
       ariaLabelledBy,
@@ -343,10 +346,10 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       value,
     }),
     [
+      activeIndex,
       ariaDescribedBy,
       ariaLabelledBy,
       autoComplete,
-      activeIndex,
       disabled,
       focusInput,
       form,
@@ -360,8 +363,8 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       mask,
       pattern,
       queueFocusInput,
-      reportValueInvalid,
       readOnly,
+      reportValueInvalid,
       required,
       sanitizeValue,
       setValue,
