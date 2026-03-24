@@ -18,7 +18,7 @@ describe('<Drawer.Popup />', () => {
     },
   }));
 
-  it('defaults initial focus to the popup element', async () => {
+  it('defaults initial focus behavior to first tabbable element', async () => {
     await render(
       <div>
         <input />
@@ -40,8 +40,8 @@ describe('<Drawer.Popup />', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByTestId('popup')).toHaveFocus();
-      expect(screen.getByTestId('popup-input')).not.toHaveFocus();
+      expect(screen.getByTestId('popup-input')).toHaveFocus();
+      expect(screen.getByTestId('popup')).not.toHaveFocus();
     });
   });
 

@@ -284,7 +284,17 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
     },
   });
 
-  const resolvedInitialFocus = initialFocus === undefined ? store.context.popupRef : initialFocus;
+  // Default initial focus logic:
+  // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
+  // (this is required for Android specifically as iOS handles this automatically).
+  function defaultInitialFocus(interactionType: InteractionType) {
+    if (interactionType === 'touch') {
+      return store.context.popupRef.current;
+    }
+    return true;
+  }
+
+  const resolvedInitialFocus = initialFocus === undefined ? defaultInitialFocus : initialFocus;
 
   const state: DrawerPopupState = {
     open,
