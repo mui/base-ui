@@ -1,0 +1,48 @@
+diff --git a/package.json b/package.json
+index 5092e5f2d8a51c96a2e780dd18fa516644fca989..f9ba01676a99c3a9ac041f1b00926e7d0711fa90 100644
+--- a/package.json
++++ b/package.json
+@@ -19,6 +19,43 @@
+ 	"module": "dist/esm/index.js",
+ 	"module:es2019": "dist/es2019/index.js",
+ 	"types": "dist/types/index.d.ts",
++	"exports": {
++		".": {
++			"types": "./dist/types/index.d.ts",
++			"import": "./dist/cjs/index.js",
++			"require": "./dist/cjs/index.js"
++		},
++		"./types": {
++			"types": "./dist/types/types.d.ts",
++			"import": "./dist/cjs/types.js",
++			"require": "./dist/cjs/types.js"
++		},
++		"./closest-edge": {
++			"types": "./dist/types/closest-edge.d.ts",
++			"import": "./dist/cjs/closest-edge.js",
++			"require": "./dist/cjs/closest-edge.js"
++		},
++		"./list-item": {
++			"types": "./dist/types/list-item.d.ts",
++			"import": "./dist/cjs/list-item.js",
++			"require": "./dist/cjs/list-item.js"
++		},
++		"./tree-item": {
++			"types": "./dist/types/tree-item.d.ts",
++			"import": "./dist/cjs/tree-item.js",
++			"require": "./dist/cjs/tree-item.js"
++		},
++		"./util/reorder-with-edge": {
++			"types": "./dist/types/reorder-with-edge.d.ts",
++			"import": "./dist/cjs/reorder-with-edge.js",
++			"require": "./dist/cjs/reorder-with-edge.js"
++		},
++		"./util/get-reorder-destination-index": {
++			"types": "./dist/types/get-reorder-destination-index.d.ts",
++			"import": "./dist/cjs/get-reorder-destination-index.js",
++			"require": "./dist/cjs/get-reorder-destination-index.js"
++		}
++	},
+ 	"typesVersions": {
+ 		">=4.5 <4.9": {
+ 			"*": [

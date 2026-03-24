@@ -1,0 +1,133 @@
+diff --git a/package.json b/package.json
+index 8d1ab02a4274f9c8c5263cfeca34b4b0ff6b8fa2..e431450af07df6c05238e25104fb5c3f09eec784 100644
+--- a/package.json
++++ b/package.json
+@@ -9,6 +9,128 @@
+ 	"module": "dist/esm/index.js",
+ 	"module:es2019": "dist/es2019/index.js",
+ 	"types": "dist/types/index.d.ts",
++	"exports": {
++		".": {
++			"types": "./dist/types/index.d.ts",
++			"import": "./dist/cjs/index.js",
++			"require": "./dist/cjs/index.js"
++		},
++		"./types": {
++			"types": "./dist/types/entry-point/types.d.ts",
++			"import": "./dist/cjs/entry-point/types.js",
++			"require": "./dist/cjs/entry-point/types.js"
++		},
++		"./combine": {
++			"types": "./dist/types/entry-point/combine.d.ts",
++			"import": "./dist/cjs/entry-point/combine.js",
++			"require": "./dist/cjs/entry-point/combine.js"
++		},
++		"./once": {
++			"types": "./dist/types/entry-point/once.d.ts",
++			"import": "./dist/cjs/entry-point/once.js",
++			"require": "./dist/cjs/entry-point/once.js"
++		},
++		"./reorder": {
++			"types": "./dist/types/entry-point/reorder.d.ts",
++			"import": "./dist/cjs/entry-point/reorder.js",
++			"require": "./dist/cjs/entry-point/reorder.js"
++		},
++		"./cancel-unhandled": {
++			"types": "./dist/types/entry-point/cancel-unhandled.d.ts",
++			"import": "./dist/cjs/entry-point/cancel-unhandled.js",
++			"require": "./dist/cjs/entry-point/cancel-unhandled.js"
++		},
++		"./prevent-unhandled": {
++			"types": "./dist/types/entry-point/prevent-unhandled.d.ts",
++			"import": "./dist/cjs/entry-point/prevent-unhandled.js",
++			"require": "./dist/cjs/entry-point/prevent-unhandled.js"
++		},
++		"./element/adapter": {
++			"types": "./dist/types/entry-point/element/adapter.d.ts",
++			"import": "./dist/cjs/entry-point/element/adapter.js",
++			"require": "./dist/cjs/entry-point/element/adapter.js"
++		},
++		"./element/block-dragging-to-iframes": {
++			"types": "./dist/types/entry-point/element/block-dragging-to-iframes.d.ts",
++			"import": "./dist/cjs/entry-point/element/block-dragging-to-iframes.js",
++			"require": "./dist/cjs/entry-point/element/block-dragging-to-iframes.js"
++		},
++		"./element/center-under-pointer": {
++			"types": "./dist/types/entry-point/element/center-under-pointer.d.ts",
++			"import": "./dist/cjs/entry-point/element/center-under-pointer.js",
++			"require": "./dist/cjs/entry-point/element/center-under-pointer.js"
++		},
++		"./element/disable-native-drag-preview": {
++			"types": "./dist/types/entry-point/element/disable-native-drag-preview.d.ts",
++			"import": "./dist/cjs/entry-point/element/disable-native-drag-preview.js",
++			"require": "./dist/cjs/entry-point/element/disable-native-drag-preview.js"
++		},
++		"./element/format-urls-for-external": {
++			"types": "./dist/types/entry-point/element/format-urls-for-external.d.ts",
++			"import": "./dist/cjs/entry-point/element/format-urls-for-external.js",
++			"require": "./dist/cjs/entry-point/element/format-urls-for-external.js"
++		},
++		"./element/pointer-outside-of-preview": {
++			"types": "./dist/types/entry-point/element/pointer-outside-of-preview.d.ts",
++			"import": "./dist/cjs/entry-point/element/pointer-outside-of-preview.js",
++			"require": "./dist/cjs/entry-point/element/pointer-outside-of-preview.js"
++		},
++		"./element/preserve-offset-on-source": {
++			"types": "./dist/types/entry-point/element/preserve-offset-on-source.d.ts",
++			"import": "./dist/cjs/entry-point/element/preserve-offset-on-source.js",
++			"require": "./dist/cjs/entry-point/element/preserve-offset-on-source.js"
++		},
++		"./element/scroll-just-enough-into-view": {
++			"types": "./dist/types/entry-point/element/scroll-just-enough-into-view.d.ts",
++			"import": "./dist/cjs/entry-point/element/scroll-just-enough-into-view.js",
++			"require": "./dist/cjs/entry-point/element/scroll-just-enough-into-view.js"
++		},
++		"./element/set-custom-native-drag-preview": {
++			"types": "./dist/types/entry-point/element/set-custom-native-drag-preview.d.ts",
++			"import": "./dist/cjs/entry-point/element/set-custom-native-drag-preview.js",
++			"require": "./dist/cjs/entry-point/element/set-custom-native-drag-preview.js"
++		},
++		"./external/adapter": {
++			"types": "./dist/types/entry-point/external/adapter.d.ts",
++			"import": "./dist/cjs/entry-point/external/adapter.js",
++			"require": "./dist/cjs/entry-point/external/adapter.js"
++		},
++		"./external/file": {
++			"types": "./dist/types/entry-point/external/file.d.ts",
++			"import": "./dist/cjs/entry-point/external/file.js",
++			"require": "./dist/cjs/entry-point/external/file.js"
++		},
++		"./external/html": {
++			"types": "./dist/types/entry-point/external/html.d.ts",
++			"import": "./dist/cjs/entry-point/external/html.js",
++			"require": "./dist/cjs/entry-point/external/html.js"
++		},
++		"./external/some": {
++			"types": "./dist/types/entry-point/external/some.d.ts",
++			"import": "./dist/cjs/entry-point/external/some.js",
++			"require": "./dist/cjs/entry-point/external/some.js"
++		},
++		"./external/text": {
++			"types": "./dist/types/entry-point/external/text.d.ts",
++			"import": "./dist/cjs/entry-point/external/text.js",
++			"require": "./dist/cjs/entry-point/external/text.js"
++		},
++		"./external/url": {
++			"types": "./dist/types/entry-point/external/url.d.ts",
++			"import": "./dist/cjs/entry-point/external/url.js",
++			"require": "./dist/cjs/entry-point/external/url.js"
++		},
++		"./text-selection/adapter": {
++			"types": "./dist/types/entry-point/text-selection/adapter.d.ts",
++			"import": "./dist/cjs/entry-point/text-selection/adapter.js",
++			"require": "./dist/cjs/entry-point/text-selection/adapter.js"
++		},
++		"./private/get-element-from-point-without-honey-pot": {
++			"types": "./dist/types/entry-point/private/get-element-from-point-without-honey-pot.d.ts",
++			"import": "./dist/cjs/entry-point/private/get-element-from-point-without-honey-pot.js",
++			"require": "./dist/cjs/entry-point/private/get-element-from-point-without-honey-pot.js"
++		}
++	},
+ 	"typesVersions": {
+ 		">=4.5 <4.9": {
+ 			"*": [

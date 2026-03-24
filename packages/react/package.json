@@ -84,6 +84,10 @@
     "test": "cross-env VITEST_ENV=jsdom vitest",
     "typescript": "tsc -b tsconfig.json"
   },
+  "bundledDependencies": [
+    "@atlaskit/pragmatic-drag-and-drop",
+    "@atlaskit/pragmatic-drag-and-drop-hitbox"
+  ],
   "dependencies": {
     "@atlaskit/pragmatic-drag-and-drop": "^1.5.2",
     "@atlaskit/pragmatic-drag-and-drop-hitbox": "^1.1.0",

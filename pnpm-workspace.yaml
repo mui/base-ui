@@ -7,6 +7,8 @@ packages:
   - examples/*
   - playground/*
 
+engineStrict: true
+
 onlyBuiltDependencies:
   - '@mui/internal-babel-plugin-display-name'
   - '@vvago/vale'
@@ -15,5 +17,6 @@ onlyBuiltDependencies:
   - nx
   - sharp
   - unrs-resolver
-
-engineStrict: true
+patchedDependencies:
+  '@atlaskit/pragmatic-drag-and-drop-hitbox@1.1.0': patches/@atlaskit__pragmatic-drag-and-drop-hitbox@1.1.0.patch
+  '@atlaskit/pragmatic-drag-and-drop@1.7.9': patches/@atlaskit__pragmatic-drag-and-drop@1.7.9.patch
