@@ -46,6 +46,8 @@ import { HTMLProps } from '../../utils/types';
 import { useValueChanged } from '../../utils/useValueChanged';
 import { NOOP } from '../../utils/noop';
 import {
+  hasEmptySelectionValue,
+  hasPrimitiveSelectionValue,
   inferItemValue,
   hasValueAndLabelItemsInput,
   mapItemValues,
@@ -63,24 +65,6 @@ import {
   selectedValueIncludes,
 } from '../../utils/itemEquality';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
-
-function hasPrimitiveSelectionValue(value: any, multiple: boolean): boolean {
-  if (multiple) {
-    return (
-      Array.isArray(value) && value.length > 0 && value.every((item) => typeof item !== 'object')
-    );
-  }
-
-  return value != null && typeof value !== 'object';
-}
-
-function hasEmptySelectionValue(value: any, multiple: boolean): boolean {
-  if (multiple) {
-    return Array.isArray(value) && value.length === 0;
-  }
-
-  return value == null;
-}
 
 /**
  * @internal
@@ -205,19 +189,20 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     name: 'Combobox',
     state: 'selectedValue',
   });
+
   const hasPrimitiveSelectableItems =
     hasItems && selectionMode !== 'none' && hasValueAndLabelItemsInput(items);
   const hasEmptySelection = hasEmptySelectionValue(selectedValue, multiple);
-  const shouldUsePrimitiveValuesForItems =
+  const usePrimitiveValuesForItems =
     hasPrimitiveSelectableItems && hasPrimitiveSelectionValue(selectedValue, multiple);
-  const shouldBypassItemToStringLabelForItems =
-    hasPrimitiveSelectableItems && (shouldUsePrimitiveValuesForItems || hasEmptySelection);
-  const shouldSkipPreMountItemRegistry =
-    hasPrimitiveSelectableItems && !shouldUsePrimitiveValuesForItems && hasEmptySelection;
-  const itemToStringLabelForItems = shouldBypassItemToStringLabelForItems
+  const disableItemToStringLabelForItems =
+    hasPrimitiveSelectableItems && (usePrimitiveValuesForItems || hasEmptySelection);
+  const skipPreMountItemRegistry =
+    hasPrimitiveSelectableItems && !usePrimitiveValuesForItems && hasEmptySelection;
+  const itemToStringLabelForItems = disableItemToStringLabelForItems
     ? undefined
     : itemToStringLabel;
-  const getVisibleItemValue = shouldUsePrimitiveValuesForItems ? inferItemValue : undefined;
+  const getVisibleItemValue = usePrimitiveValuesForItems ? inferItemValue : undefined;
 
   const filter = React.useMemo(() => {
     if (filterProp === null) {
@@ -500,7 +485,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const forceMount = useStableCallback(() => {
     if (items) {
-      if (shouldSkipPreMountItemRegistry) {
+      if (skipPreMountItemRegistry) {
         labelsRef.current = [];
         valuesRef.current = [];
         return;
@@ -868,7 +853,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   useIsoLayoutEffect(() => {
     if (items) {
       if (!open && !inlineProp) {
-        if (shouldSkipPreMountItemRegistry) {
+        if (skipPreMountItemRegistry) {
           valuesRef.current = [];
         } else {
           valuesRef.current = mapItemValues(flatFilteredItems, getVisibleItemValue);
@@ -876,14 +861,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       }
       listRef.current.length = flatFilteredItems.length;
     }
-  }, [
-    items,
-    flatFilteredItems,
-    inlineProp,
-    open,
-    getVisibleItemValue,
-    shouldSkipPreMountItemRegistry,
-  ]);
+  }, [items, flatFilteredItems, inlineProp, open, getVisibleItemValue, skipPreMountItemRegistry]);
 
   useIsoLayoutEffect(() => {
     const pendingHighlight = pendingQueryHighlightRef.current;

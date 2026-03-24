@@ -112,6 +112,24 @@ export function inferItemValue(item: any) {
   return item;
 }
 
+export function hasPrimitiveSelectionValue(value: any, multiple: boolean): boolean {
+  if (multiple) {
+    return (
+      Array.isArray(value) && value.length > 0 && value.every((item) => typeof item !== 'object')
+    );
+  }
+
+  return value != null && typeof value !== 'object';
+}
+
+export function hasEmptySelectionValue(value: any, multiple: boolean): boolean {
+  if (multiple) {
+    return Array.isArray(value) && value.length === 0;
+  }
+
+  return value == null;
+}
+
 export function mapItemValues(
   items: readonly any[],
   getItemValue?: ((item: any) => any) | undefined,
