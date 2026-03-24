@@ -208,12 +208,13 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     }
   }
 
-  function handlePointerUp(event: React.PointerEvent) {
+  function handlePointerEnd(event: React.PointerEvent) {
     if (event.pointerType !== 'touch') {
       return;
     }
 
     touchActiveRef.current = false;
+    markedReadyForMouseLeaveRef.current = true;
     flushMouseLeave();
   }
 
@@ -260,7 +261,8 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     onKeyDown: handleKeyDown,
     onClick: handleFocus,
     onPointerDown: handlePointerDown,
-    onPointerUp: handlePointerUp,
+    onPointerUp: handlePointerEnd,
+    onPointerCancel: handlePointerEnd,
   };
 
   const state: ToastViewportState = {
