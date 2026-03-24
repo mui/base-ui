@@ -29,7 +29,7 @@
     "@tanstack/devtools-vite": "^0.4.1",
     "@tanstack/eslint-config": "^0.3.4",
     "eslint": "^10.0.2",
-    "@types/node": "22.18.13",
+    "@types/node": "24.12.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^5.1.2",

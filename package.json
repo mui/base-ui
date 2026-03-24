@@ -72,7 +72,7 @@
     "@playwright/test": "1.58.2",
     "@tailwindcss/postcss": "4.2.1",
     "@testing-library/jest-dom": "6.9.1",
-    "@types/node": "22.18.13",
+    "@types/node": "24.12.0",
     "@types/react": "19.2.14",
     "@types/yargs": "17.0.35",
     "@vitejs/plugin-react": "5.2.0",
@@ -109,7 +109,7 @@
   "packageManager": "pnpm@10.32.1",
   "engines": {
     "pnpm": "10.32.1",
-    "node": ">=22.18.0"
+    "node": ">=24.13.0"
   },
   "resolutions": {
     "@babel/core": "^7.29.0",
@@ -118,7 +118,7 @@
     "@babel/preset-react": "^7.28.5",
     "@babel/preset-typescript": "^7.28.5",
     "@babel/types": "^7.29.0",
-    "@types/node": "22.18.13",
+    "@types/node": "24.12.0",
     "@types/react": "19.2.14",
     "@types/react-dom": "^19.2.3"
   }
