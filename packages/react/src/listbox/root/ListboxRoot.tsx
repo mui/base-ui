@@ -351,7 +351,7 @@ export interface ListboxRootProps<Value> {
    * - `'none'` — Items cannot be selected.
    * - `'single'` — Only one item can be selected at a time.
    * - `'multiple'` — Clicking toggles items. Shift+Click selects a range.
-   * - `'explicitMultiple'` — Like a file browser: plain click replaces the selection,
+   * - `'explicit-multiple'` — Like a file browser: plain click replaces the selection,
    *    Ctrl/Cmd+Click toggles, Shift+Click selects a range. Touch and pen
    *    interactions toggle without a modifier, matching `'multiple'` behavior.
    * @default 'single'

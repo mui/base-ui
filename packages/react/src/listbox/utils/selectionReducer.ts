@@ -8,11 +8,11 @@ import { EMPTY_ARRAY } from '../../utils/constants';
  * - `'none'`  — Items cannot be selected.
  * - `'single'`  — Only one item can be selected at a time. Clicking replaces the selection.
  * - `'multiple'`  — Clicking toggles items. Shift+Click selects a range.
- * - `'explicitMultiple'`  — Like a file browser: clicking replaces the selection,
+ * - `'explicit-multiple'`  — Like a file browser: clicking replaces the selection,
  *    Ctrl/Cmd+Click toggles individual items, Shift+Click selects a range.
  *    Touch and pen interactions toggle without a modifier, matching `'multiple'` behavior.
  */
-export type SelectionMode = 'none' | 'single' | 'multiple' | 'explicitMultiple';
+export type SelectionMode = 'none' | 'single' | 'multiple' | 'explicit-multiple';
 
 /**
  * Typed actions that describe selection intent. Both click handlers and
@@ -125,5 +125,5 @@ export function selectionReducer(
  * Returns true if the given selection mode supports multiple selected items.
  */
 export function isMultipleSelectionMode(mode: SelectionMode): boolean {
-  return mode === 'multiple' || mode === 'explicitMultiple';
+  return mode === 'multiple' || mode === 'explicit-multiple';
 }

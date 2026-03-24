@@ -13,7 +13,7 @@ import { DemoListboxHero } from './demos/hero';
 ## Usage guidelines
 
 - **Always visible**: Unlike [Select](/react/components/select), the Listbox is always open and does not use a popup or trigger. Use it when all options should be visible at once.
-- **Multi-select support**: Set `selectionMode="multiple"` or `"explicitMultiple"` to allow selecting more than one item.
+- **Multi-select support**: Set `selectionMode="multiple"` or `"explicit-multiple"` to allow selecting more than one item.
 - **Form controls must have an accessible name**: Prefer `<Listbox.Label>`, or provide an `aria-label` on `<Listbox.List>` when no visible label is rendered. See the [forms guide](/react/handbook/forms).
 
 ## Anatomy
@@ -47,7 +47,7 @@ The `selectionMode` prop controls how items are selected:
 
 - `"single"` (default) — clicking an item selects it and deselects any other.
 - `"multiple"` — every click toggles an item. Hold Shift and click to select a contiguous range.
-- `"explicitMultiple"` — clicking an item replaces the selection. Hold Ctrl/Cmd and click to toggle, or Shift and click to select a range. Touch and pen interactions toggle without a modifier, matching `"multiple"` behavior.
+- `"explicit-multiple"` — clicking an item replaces the selection. Hold Ctrl/Cmd and click to toggle, or Shift and click to select a range. Touch and pen interactions toggle without a modifier, matching `"multiple"` behavior.
 - `"none"` — selection is disabled entirely.
 
 import { DemoListboxMultiSelection } from './demos/multi-selection';
@@ -68,7 +68,7 @@ Set `draggable` on items and provide an `onItemsReorder` callback on the root. U
 
 Set `draggable="within-group"` to constrain reordering within the item's parent `Listbox.Group`. Items cannot be dragged across group boundaries.
 
-In `multiple` or `explicitMultiple` mode, dragging a selected item moves all selected items together, preserving their relative order.
+In `multiple` or `explicit-multiple` mode, dragging a selected item moves all selected items together, preserving their relative order.
 
 import { DemoListboxDragAndDrop } from './demos/drag-and-drop';
 

@@ -256,7 +256,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
       // Let composite handle unmodified arrow keys, Home, End
       composite.props.onKeyDown?.(event);
 
-      // Selection keyboard shortcuts (runs for multiple/explicitMultiple modes)
+      // Selection keyboard shortcuts (runs for multiple/explicit-multiple modes)
       handleSelectionKeyDown(event);
 
       // Handle typeahead

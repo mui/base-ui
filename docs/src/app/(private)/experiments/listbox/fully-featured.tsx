@@ -17,7 +17,7 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
   selectionMode: {
     type: 'string',
     label: 'Selection mode',
-    options: ['none', 'single', 'multiple', 'explicitMultiple'],
+    options: ['none', 'single', 'multiple', 'explicit-multiple'],
     default: 'single',
   },
   draggable: {

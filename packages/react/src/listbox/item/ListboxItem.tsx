@@ -184,7 +184,7 @@ export const ListboxItem = React.memo(
         return;
       }
 
-      // Touch and pen interactions in 'explicitMultiple' mode behave like
+      // Touch and pen interactions in 'explicit-multiple' mode behave like
       // 'multiple' — every tap toggles without requiring a modifier key.
       const isCoarsePointer = pointerType === 'touch' || pointerType === 'pen';
 
@@ -195,11 +195,11 @@ export const ListboxItem = React.memo(
       } else if (selectionMode === 'multiple') {
         // In 'multiple' mode, every click toggles
         action = { type: 'toggle', index };
-      } else if (selectionMode === 'explicitMultiple' && (ctrlKey || isCoarsePointer)) {
-        // In 'explicitMultiple' mode, Ctrl/Cmd+Click or touch/pen toggles
+      } else if (selectionMode === 'explicit-multiple' && (ctrlKey || isCoarsePointer)) {
+        // In 'explicit-multiple' mode, Ctrl/Cmd+Click or touch/pen toggles
         action = { type: 'toggle', index };
       } else {
-        // 'single' or 'explicitMultiple' without modifier → replace
+        // 'single' or 'explicit-multiple' without modifier → replace
         action = { type: 'select', index };
       }
 
