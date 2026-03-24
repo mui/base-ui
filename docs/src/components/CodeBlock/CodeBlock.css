@@ -6,11 +6,11 @@
     border-radius: var(--radius-6);
 
     & pre {
+      width: 100%;
       white-space: normal;
     }
 
-    & [data-line],
-    & .line {
+    & [data-ln] {
       padding-inline: 0.75rem;
     }
   }
@@ -87,19 +87,17 @@
       flex-grow: 1;
     }
 
-    & [data-line],
-    & .line {
+    & [data-ln] {
       display: block;
       white-space: pre;
     }
 
-    & [data-line]:empty,
-    & .line:empty {
+    & [data-ln]:empty {
       height: 1lh;
     }
 
     /* Hide JSDoc comment frames */
-    &:not(.CodeBlockPre) .frame[data-frame-type='comment'] {
+    &:not(.CodeBlockPre) [data-frame-type='comment'] {
       display: none;
     }
   }

@@ -257,7 +257,7 @@
   /* Target CSS property names in CSS code blocks
    Property names are .pl-c1 elements that are followed by a text node containing ':'
    This distinguishes them from function names like 'var' which are followed by '(' */
-  [data-language='css'] .line > .pl-c1:first-of-type {
+  [data-language='css'] [data-ln] > .pl-c1:first-of-type {
     color: var(--color-foreground);
   }
 
@@ -284,6 +284,7 @@
 
   /* Line highlighting */
   pre [data-hl] {
+    display: inline-flex;
     background-color: var(--color-line-highlight);
   }
 
@@ -294,12 +295,12 @@
   /* Character/word highlighting */
   pre [data-hlc] {
     color: var(--color-blue);
-    background-color: var(--color-inline-highlight);
+    background-color: var(--color-line-highlight);
   }
 
   /* Hide JSDoc comment frames in inline and table code contexts */
-  [data-inline] .frame[data-frame-type='comment'],
-  [data-table-code] .frame[data-frame-type='comment'] {
+  [data-inline] [data-frame-type='comment'],
+  [data-table-code] [data-frame-type='comment'] {
     display: none;
   }
 }

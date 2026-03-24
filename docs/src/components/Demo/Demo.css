@@ -255,20 +255,20 @@
       padding: 0.5rem 0;
     }
 
-    & code .frame {
+    & code [data-frame] {
       display: block;
       padding-left: 0.75rem;
       padding-right: 0.75rem;
     }
 
-    & code .frame[data-lined] {
+    & code [data-frame][data-lined] {
       display: block;
       white-space: normal;
       padding-left: 0;
       padding-right: 0;
     }
 
-    * code .frame[data-lined] .line {
+    * code [data-frame][data-lined] [data-ln] {
       display: block;
       white-space: pre;
       padding-left: 0.75rem;
