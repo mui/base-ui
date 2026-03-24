@@ -71,10 +71,10 @@
       "detailedType": "((value: string) => string) | undefined"
     },
     "validationType": {
-      "type": "'none' | 'numeric' | 'alphabetic' | 'alpha' | 'alphanumeric'",
+      "type": "'none' | 'numeric' | 'alpha' | 'alphanumeric'",
       "default": "'numeric'",
       "description": "The type of input validation to apply to the OTP value.",
-      "detailedType": "| 'none'\n| 'numeric'\n| 'alphabetic'\n| 'alpha'\n| 'alphanumeric'\n| undefined"
+      "detailedType": "| 'none'\n| 'numeric'\n| 'alpha'\n| 'alphanumeric'\n| undefined"
     },
     "disabled": {
       "type": "boolean",

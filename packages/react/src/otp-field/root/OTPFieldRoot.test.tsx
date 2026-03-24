@@ -89,13 +89,6 @@ describe('<OTPField />', () => {
           expect(inputs.map((input) => input.value)).toEqual(['a', 'b', 'C', 'd', '', '']);
         });
 
-        it('supports alphabetic values when set to `alphabetic`', async () => {
-          await render(<OTPField defaultValue="1a2b3Cd4" validationType="alphabetic" />);
-
-          const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
-          expect(inputs.map((input) => input.value)).toEqual(['a', 'b', 'C', 'd', '', '']);
-        });
-
         it('supports alphanumeric values when set to `alphanumeric`', async () => {
           await render(<OTPField validationType="alphanumeric" />);
 
@@ -319,7 +312,7 @@ describe('<OTPField />', () => {
     });
   });
 
-  describe('accessibility', () => {
+  describe('Field', () => {
     it('associates Field.Label with the first slot', async () => {
       await render(
         <Field.Root>
@@ -350,7 +343,9 @@ describe('<OTPField />', () => {
       expect(group).toHaveAttribute('aria-labelledby', label.id);
       expect(group).toHaveAttribute('aria-describedby', description.id);
     });
+  });
 
+  describe('accessibility', () => {
     it('forwards root `aria-describedby` to the group', async () => {
       await render(<OTPField aria-describedby="description-id" />);
 
@@ -561,7 +556,7 @@ describe('<OTPField />', () => {
     });
   });
 
-  describe('form integration', () => {
+  describe('Form', () => {
     it('blocks form submission while the code is incomplete', async () => {
       await render(
         <form data-testid="form">

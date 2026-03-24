@@ -18,6 +18,7 @@ export const OTPFieldGroup = React.forwardRef(function OTPFieldGroup(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, ...elementProps } = componentProps;
+
   const { ariaDescribedBy, ariaLabelledBy, state } = useOTPFieldRootContext();
   const { getDescriptionProps } = useLabelableContext();
   const fieldDescriptionProps = getDescriptionProps({});
@@ -55,6 +56,5 @@ export namespace OTPFieldGroup {
 
 function mergeAriaIds(...values: Array<string | undefined>) {
   const ids = values.flatMap((value) => value?.split(/\s+/).filter(Boolean) ?? []);
-
   return ids.length > 0 ? Array.from(new Set(ids)).join(' ') : undefined;
 }

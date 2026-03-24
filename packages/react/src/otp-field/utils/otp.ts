@@ -1,10 +1,10 @@
-type OTPValidationConfig = {
+interface OTPValidationConfig {
   pattern: string;
   regexp: RegExp;
   inputMode: 'numeric' | 'text';
-};
+}
 
-export type OTPValidationType = 'numeric' | 'alpha' | 'alphabetic' | 'alphanumeric' | 'none';
+export type OTPValidationType = 'numeric' | 'alpha' | 'alphanumeric' | 'none';
 
 const OTP_VALIDATION_CONFIG: Record<Exclude<OTPValidationType, 'none'>, OTPValidationConfig> = {
   numeric: {
@@ -13,11 +13,6 @@ const OTP_VALIDATION_CONFIG: Record<Exclude<OTPValidationType, 'none'>, OTPValid
     inputMode: 'numeric',
   },
   alpha: {
-    pattern: '[a-zA-Z]{1}',
-    regexp: /[^a-zA-Z]/g,
-    inputMode: 'text',
-  },
-  alphabetic: {
     pattern: '[a-zA-Z]{1}',
     regexp: /[^a-zA-Z]/g,
     inputMode: 'text',

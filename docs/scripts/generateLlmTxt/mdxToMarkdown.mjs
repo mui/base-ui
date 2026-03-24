@@ -189,6 +189,12 @@ function transformJsx() {
             return visit.CONTINUE;
           }
 
+          case 'Reference': {
+            // Omit runtime-only API reference widgets from llms markdown output.
+            parent.children.splice(index, 1);
+            return [visit.SKIP, index];
+          }
+
           case 'Meta': {
             // Check if it's a description meta tag
             const nameAttr = node.attributes?.find(
