@@ -4,7 +4,6 @@ import { SafeReact } from '@base-ui/utils/safeReact';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { warn } from '@base-ui/utils/warn';
@@ -108,7 +107,6 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     value: string;
     eventDetails: OTPFieldRoot.CompleteEventDetails;
   } | null>(null);
-  const pendingInteractionTimeout = useTimeout();
   const [inputCount, setInputCount] = React.useState(0);
   const firstInputRef = React.useMemo(
     () =>
@@ -130,7 +128,6 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   const value = normalizeOTPValue(valueUnwrapped, length, validationType, sanitizeValue);
   const valueRef = useValueAsRef(value);
   const filled = value !== '';
-  const isControlled = valueProp !== undefined;
 
   const [focusedIndex, setFocusedIndex] = React.useState(() => Math.min(value.length, length - 1));
   const [focused, setFocusedState] = React.useState(false);
@@ -195,7 +192,6 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   });
 
   useValueChanged(value, () => {
-    pendingInteractionTimeout.clear();
     clearErrors(name);
     setDirty(value !== validityData.initialValue);
 
@@ -248,15 +244,6 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
         };
       } else if (normalizedValue.length !== length) {
         pendingCompleteValueRef.current = null;
-      }
-
-      if (isControlled) {
-        pendingInteractionTimeout.start(0, () => {
-          pendingFocusRef.current = null;
-          pendingCompleteValueRef.current = null;
-        });
-      } else {
-        pendingInteractionTimeout.clear();
       }
 
       return normalizedValue;

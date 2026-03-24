@@ -309,6 +309,45 @@ describe('<OTPField />', () => {
           vi.useRealTimers();
         }
       });
+
+      it('fires after an asynchronously accepted controlled completion', async () => {
+        vi.useFakeTimers();
+
+        try {
+          const onValueComplete = vi.fn();
+
+          function Test() {
+            const [value, setValue] = React.useState('');
+
+            return (
+              <OTPField
+                value={value}
+                onValueChange={(nextValue) => {
+                  setTimeout(() => {
+                    setValue(nextValue);
+                  }, 10);
+                }}
+                onValueComplete={onValueComplete}
+              />
+            );
+          }
+
+          await render(<Test />);
+
+          const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+          fireEvent.change(firstInput, { target: { value: '123456' } });
+
+          await act(async () => {
+            vi.runAllTimers();
+          });
+
+          expect(onValueComplete).toHaveBeenCalledTimes(1);
+          expect(onValueComplete.mock.calls[0]?.[0]).toBe('123456');
+          expect(onValueComplete.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
+        } finally {
+          vi.useRealTimers();
+        }
+      });
     });
   });
 
@@ -549,6 +588,45 @@ describe('<OTPField />', () => {
           fireEvent.click(screen.getByRole('button', { name: 'Apply value' }));
 
           expect(document.activeElement).toBe(inputs[0]);
+        } finally {
+          vi.useRealTimers();
+        }
+      });
+
+      it('moves focus after an asynchronously accepted controlled change', async () => {
+        vi.useFakeTimers();
+
+        try {
+          function Test() {
+            const [value, setValue] = React.useState('');
+
+            return (
+              <OTPField
+                value={value}
+                onValueChange={(nextValue) => {
+                  setTimeout(() => {
+                    setValue(nextValue);
+                  }, 10);
+                }}
+              />
+            );
+          }
+
+          await render(<Test />);
+
+          const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+          await act(async () => {
+            inputs[0].focus();
+          });
+
+          fireEvent.change(inputs[0], { target: { value: '1' } });
+
+          await act(async () => {
+            vi.runAllTimers();
+          });
+
+          expect(document.activeElement).toBe(inputs[1]);
         } finally {
           vi.useRealTimers();
         }

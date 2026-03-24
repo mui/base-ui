@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useTimeout } from '@base-ui/utils/useTimeout';
-import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { OTPField } from '@base-ui/react/otp-field';
+import { useInvalidFeedback } from '../useInvalidFeedback';
 import styles from '../../shared.module.css';
 
 const CODE_LENGTH = 6;
@@ -11,15 +10,30 @@ function sanitizeTierCode(value: string) {
   return value.replace(/[^0-3]/g, '');
 }
 
+function getInvalidClassName(invalidPulse: number, evenClassName: string, oddClassName: string) {
+  if (invalidPulse === 0) {
+    return '';
+  }
+
+  return invalidPulse % 2 === 0 ? evenClassName : oddClassName;
+}
+
 export default function OTPFieldCustomSanitizeDemo() {
   const id = React.useId();
+  const {
+    activeInvalidIndex,
+    handleValueChange,
+    handleValueInvalid,
+    invalidPulse,
+    setFocusedIndex,
+    statusMessage,
+  } = useInvalidFeedback();
   const descriptionId = `${id}-description`;
-  const invalidTimeout = useTimeout();
-  const [invalidCount, setInvalidCount] = React.useState(0);
-  const [statusMessage, setStatusMessage] = React.useState('');
-
-  const invalidClassName =
-    invalidCount === 0 ? '' : invalidCount % 2 === 0 ? styles.InputInvalidB : styles.InputInvalidA;
+  const invalidClassName = getInvalidClassName(
+    invalidPulse,
+    styles.InputInvalidB,
+    styles.InputInvalidA,
+  );
 
   return (
     <OTPField.Root
@@ -28,14 +42,8 @@ export default function OTPFieldCustomSanitizeDemo() {
       validationType="none"
       inputMode="numeric"
       sanitizeValue={sanitizeTierCode}
-      onValueInvalid={(value) => {
-        setInvalidCount((count) => count + 1);
-        setStatusMessage(`Unsupported characters were ignored from ${value}.`);
-        invalidTimeout.start(400, () => {
-          setInvalidCount(0);
-          setStatusMessage('');
-        });
-      }}
+      onValueChange={handleValueChange}
+      onValueInvalid={handleValueInvalid}
       aria-describedby={descriptionId}
       className={styles.Field}
     >
@@ -46,15 +54,18 @@ export default function OTPFieldCustomSanitizeDemo() {
         {Array.from({ length: CODE_LENGTH }, (_, index) => (
           <OTPField.Input
             key={index}
-            className={`${styles.Input} ${invalidClassName}`.trim()}
+            className={`${styles.Input} ${activeInvalidIndex === index ? invalidClassName : ''}`.trim()}
             aria-label={`Character ${index + 1} of ${CODE_LENGTH}`}
+            onFocus={() => {
+              setFocusedIndex(index);
+            }}
           />
         ))}
       </OTPField.Group>
       <p id={descriptionId} className={styles.Description}>
         Digits <span className={styles.Code}>0-3</span> only.
       </p>
-      <span aria-live="polite" style={visuallyHidden}>
+      <span aria-live="polite" className={styles.ScreenReaderOnly}>
         {statusMessage}
       </span>
     </OTPField.Root>

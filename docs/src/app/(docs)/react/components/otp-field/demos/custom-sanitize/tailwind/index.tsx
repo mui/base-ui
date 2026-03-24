@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useTimeout } from '@base-ui/utils/useTimeout';
-import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { OTPField } from '@base-ui/react/otp-field';
+import { useInvalidFeedback } from '../useInvalidFeedback';
 
 const CODE_LENGTH = 6;
 
@@ -10,21 +9,30 @@ function sanitizeTierCode(value: string) {
   return value.replace(/[^0-3]/g, '');
 }
 
+function getInvalidClassName(invalidPulse: number, evenClassName: string, oddClassName: string) {
+  if (invalidPulse === 0) {
+    return '';
+  }
+
+  return invalidPulse % 2 === 0 ? evenClassName : oddClassName;
+}
+
 export default function OTPFieldCustomSanitizeDemo() {
   const id = React.useId();
+  const {
+    activeInvalidIndex,
+    handleValueChange,
+    handleValueInvalid,
+    invalidPulse,
+    setFocusedIndex,
+    statusMessage,
+  } = useInvalidFeedback();
   const descriptionId = `${id}-description`;
-  const invalidTimeout = useTimeout();
-  const [invalidCount, setInvalidCount] = React.useState(0);
-  const [statusMessage, setStatusMessage] = React.useState('');
-  const invalidStyles =
-    invalidCount === 0
-      ? undefined
-      : {
-          borderColor: 'var(--color-red)',
-          outline: '2px solid var(--color-red-800)',
-          outlineOffset: '-1px',
-          animation: `${invalidCount % 2 === 0 ? 'otp-field-shake-b' : 'otp-field-shake-a'} 180ms ease-in-out`,
-        };
+  const invalidClassName = getInvalidClassName(
+    invalidPulse,
+    'otp-field-input-invalid-b',
+    'otp-field-input-invalid-a',
+  );
 
   return (
     <OTPField.Root
@@ -33,14 +41,8 @@ export default function OTPFieldCustomSanitizeDemo() {
       validationType="none"
       inputMode="numeric"
       sanitizeValue={sanitizeTierCode}
-      onValueInvalid={(value) => {
-        setInvalidCount((count) => count + 1);
-        setStatusMessage(`Unsupported characters were ignored from ${value}.`);
-        invalidTimeout.start(400, () => {
-          setInvalidCount(0);
-          setStatusMessage('');
-        });
-      }}
+      onValueChange={handleValueChange}
+      onValueInvalid={handleValueInvalid}
       aria-describedby={descriptionId}
       className="flex w-full max-w-80 flex-col items-start gap-1"
     >
@@ -56,6 +58,20 @@ export default function OTPFieldCustomSanitizeDemo() {
           25% { transform: translateX(-4px); }
           75% { transform: translateX(4px); }
         }
+
+        .otp-field-input-invalid-a {
+          border-color: var(--color-red);
+          outline: 2px solid var(--color-red-800);
+          outline-offset: -1px;
+          animation: otp-field-shake-a 180ms ease-in-out;
+        }
+
+        .otp-field-input-invalid-b {
+          border-color: var(--color-red);
+          outline: 2px solid var(--color-red-800);
+          outline-offset: -1px;
+          animation: otp-field-shake-b 180ms ease-in-out;
+        }
       `}</style>
       <label htmlFor={id} className="text-sm font-bold text-gray-900">
         Tier code
@@ -64,16 +80,20 @@ export default function OTPFieldCustomSanitizeDemo() {
         {Array.from({ length: CODE_LENGTH }, (_, index) => (
           <OTPField.Input
             key={index}
-            className="box-border m-0 h-11 w-10 rounded-lg border border-gray-300 bg-transparent text-center font-inherit text-lg font-medium text-gray-900 outline-none focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
-            style={invalidStyles}
+            className={`box-border m-0 h-11 w-10 rounded-lg border border-gray-300 bg-transparent text-center font-inherit text-lg font-medium text-gray-900 outline-none focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 ${
+              activeInvalidIndex === index ? invalidClassName : ''
+            }`.trim()}
             aria-label={`Character ${index + 1} of ${CODE_LENGTH}`}
+            onFocus={() => {
+              setFocusedIndex(index);
+            }}
           />
         ))}
       </OTPField.Group>
       <p id={descriptionId} className="m-0 text-sm text-gray-600">
         Digits <code>0-3</code> only.
       </p>
-      <span aria-live="polite" style={visuallyHidden}>
+      <span aria-live="polite" className="sr-only">
         {statusMessage}
       </span>
     </OTPField.Root>
