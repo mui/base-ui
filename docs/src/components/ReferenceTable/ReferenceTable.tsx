@@ -11,8 +11,6 @@ import { MethodsReferenceAccordion } from './MethodsReferenceAccordion';
 import { AdditionalTypes } from './AdditionalTypes';
 import * as CodeBlock from '../CodeBlock';
 
-import '../Demo/CodeHighlighting.css';
-
 function SectionHeading({ children }: { children: React.ReactNode }) {
   return <h4 className="ReferenceSectionHeading">{children}</h4>;
 }
