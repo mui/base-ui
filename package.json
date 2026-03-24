@@ -109,7 +109,7 @@
   "packageManager": "pnpm@10.32.1",
   "engines": {
     "pnpm": "10.32.1",
-    "node": ">=24.14.0"
+    "node": ">=24.13.0"
   },
   "resolutions": {
     "@babel/core": "^7.29.0",
