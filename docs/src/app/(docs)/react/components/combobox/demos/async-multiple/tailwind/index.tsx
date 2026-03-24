@@ -131,11 +131,11 @@ export default function ExampleAsyncMultipleCombobox() {
         });
       }}
     >
-      <div className="flex flex-col gap-1 text-sm font-medium text-gray-900">
-        <label className="inline-flex text-inherit" htmlFor={id}>
+      <div className="flex flex-col gap-1 text-sm text-gray-900">
+        <label className="inline-flex text-inherit font-bold" htmlFor={id}>
           Assign reviewers
         </label>
-        <Combobox.InputGroup className="relative flex min-h-10 w-[16rem] rounded-md border border-gray-200 bg-[canvas] px-1.5 py-1 focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-blue-800 md:w-[20rem]">
+        <Combobox.InputGroup className="relative flex min-h-10 w-[16rem] cursor-text rounded-md border border-gray-200 bg-[canvas] px-1.5 py-1 focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-blue-800 md:w-[20rem]">
           <Combobox.Chips className="flex w-full flex-wrap items-center gap-1">
             <Combobox.Value>
               {(value: DirectoryUser[]) => (
@@ -190,7 +190,7 @@ export default function ExampleAsyncMultipleCombobox() {
                     <CheckIcon className="size-3" />
                   </Combobox.ItemIndicator>
                   <div className="col-start-2 flex flex-col gap-1">
-                    <div className="text-[0.95rem] font-medium">{user.name}</div>
+                    <div className="text-[0.95rem] font-bold">{user.name}</div>
                     <div className="flex flex-wrap gap-2 text-[0.8125rem] text-gray-600">
                       <span className="opacity-80">@{user.username}</span>
                       <span>{user.title}</span>

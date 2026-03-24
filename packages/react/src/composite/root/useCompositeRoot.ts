@@ -35,11 +35,20 @@ import {
 import { ACTIVE_COMPOSITE_ITEM } from '../constants';
 import { CompositeMetadata } from '../list/CompositeList';
 import { HTMLProps } from '../../utils/types';
+import { getTarget } from '../../floating-ui-react/utils';
 
 export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both' | undefined;
   cols?: number | undefined;
   loopFocus?: boolean | undefined;
+  onLoop?:
+    | ((
+        event: React.KeyboardEvent,
+        prevIndex: number,
+        nextIndex: number,
+        elementsRef: React.RefObject<(HTMLDivElement | null)[]>,
+      ) => number)
+    | undefined;
   highlightedIndex?: number | undefined;
   onHighlightedIndexChange?: ((index: number) => void) | undefined;
   dense?: boolean | undefined;
@@ -78,6 +87,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     itemSizes,
     cols = 1,
     loopFocus = true,
+    onLoop,
     dense = false,
     orientation = 'both',
     direction,
@@ -128,16 +138,26 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     scrollIntoViewIfNeeded(rootRef.current, activeItem, direction, orientation);
   });
 
+  const wrappedOnLoop = useStableCallback(
+    (event: React.KeyboardEvent, prevIndex: number, nextIndex: number) => {
+      if (!onLoop) {
+        return nextIndex;
+      }
+      return onLoop?.(event, prevIndex, nextIndex, elementsRef);
+    },
+  );
+
   const props = React.useMemo<HTMLProps>(
     () => ({
       'aria-orientation': orientation === 'both' ? undefined : orientation,
       ref: mergedRef,
       onFocus(event) {
         const element = rootRef.current;
-        if (!element || !isNativeInput(event.target)) {
+        const target = getTarget(event.nativeEvent);
+        if (!element || target == null || !isNativeInput(target)) {
           return;
         }
-        event.target.setSelectionRange(0, event.target.value.length ?? 0);
+        target.setSelectionRange(0, target.value.length ?? 0);
       },
       onKeyDown(event) {
         const RELEVANT_KEYS = enableHomeAndEndKeys ? ALL_KEYS : ARROW_KEYS;
@@ -168,10 +188,11 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
           both: horizontalBackwardKey,
         }[orientation];
 
-        if (isNativeInput(event.target) && !isElementDisabled(event.target)) {
-          const selectionStart = event.target.selectionStart;
-          const selectionEnd = event.target.selectionEnd;
-          const textContent = event.target.value ?? '';
+        const target = getTarget(event.nativeEvent);
+        if (target != null && isNativeInput(target) && !isElementDisabled(target)) {
+          const selectionStart = target.selectionStart;
+          const selectionEnd = target.selectionEnd;
+          const textContent = target.value ?? '';
           // return to native textbox behavior when
           // 1 - Shift is held to make a text selection, or if there already is a text selection
           if (selectionStart == null || event.shiftKey || selectionStart !== selectionEnd) {
@@ -202,12 +223,13 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
           // as if every item was 1x1, then convert back to real indices.
           const cellMap = createGridCellMap(sizes, cols, dense);
           const minGridIndex = cellMap.findIndex(
-            (index) => index != null && !isListIndexDisabled(elementsRef, index, disabledIndices),
+            (index) =>
+              index != null && !isListIndexDisabled(elementsRef.current, index, disabledIndices),
           );
           // last enabled index
           const maxGridIndex = cellMap.reduce(
             (foundIndex: number, index, cellIndex) =>
-              index != null && !isListIndexDisabled(elementsRef, index, disabledIndices)
+              index != null && !isListIndexDisabled(elementsRef.current, index, disabledIndices)
                 ? cellIndex
                 : foundIndex,
             -1,
@@ -215,15 +237,14 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
           nextIndex = cellMap[
             getGridNavigatedIndex(
-              {
-                current: cellMap.map((itemIndex) =>
-                  itemIndex ? elementsRef.current[itemIndex] : null,
-                ),
-              },
+              cellMap.map((itemIndex) =>
+                itemIndex != null ? elementsRef.current[itemIndex] : null,
+              ),
               {
                 event,
                 orientation,
                 loopFocus,
+                onLoop: wrappedOnLoop,
                 cols,
                 // treat undefined (empty grid spaces) as disabled indices so we
                 // don't end up in them
@@ -231,7 +252,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
                   [
                     ...(disabledIndices ||
                       elementsRef.current.map((_, index) =>
-                        isListIndexDisabled(elementsRef, index) ? index : undefined,
+                        isListIndexDisabled(elementsRef.current, index) ? index : undefined,
                       )),
                     undefined,
                   ],
@@ -290,10 +311,16 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         ) {
           if (loopFocus && nextIndex === maxIndex && forwardKeys.includes(event.key)) {
             nextIndex = minIndex;
+            if (onLoop) {
+              nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
+            }
           } else if (loopFocus && nextIndex === minIndex && backwardKeys.includes(event.key)) {
             nextIndex = maxIndex;
+            if (onLoop) {
+              nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
+            }
           } else {
-            nextIndex = findNonDisabledListIndex(elementsRef, {
+            nextIndex = findNonDisabledListIndex(elementsRef.current, {
               startingIndex: nextIndex,
               decrement: backwardKeys.includes(event.key),
               disabledIndices,
@@ -301,7 +328,10 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
           }
         }
 
-        if (nextIndex !== highlightedIndex && !isIndexOutOfListBounds(elementsRef, nextIndex)) {
+        if (
+          nextIndex !== highlightedIndex &&
+          !isIndexOutOfListBounds(elementsRef.current, nextIndex)
+        ) {
           if (stopEventPropagation) {
             event.stopPropagation();
           }
@@ -329,6 +359,8 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       isGrid,
       itemSizes,
       loopFocus,
+      onLoop,
+      wrappedOnLoop,
       mergedRef,
       modifierKeys,
       onHighlightedIndexChange,

@@ -5,7 +5,7 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { activeElement, contains } from '../../floating-ui-react/utils';
+import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import type { Coords } from '../../floating-ui-react/types';
 import { clamp } from '../../utils/clamp';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -433,12 +433,13 @@ export const SliderControl = React.forwardRef(function SliderControl(
         ['data-base-ui-slider-control' as string]: renderBeforeHydration ? '' : undefined,
         onPointerDown(event) {
           const control = controlRef.current;
+          const target = getTarget(event.nativeEvent);
 
           if (
             !control ||
             disabled ||
             event.defaultPrevented ||
-            !isElement(event.target) ||
+            !isElement(target) ||
             // Only handle left clicks
             event.button !== 0
           ) {

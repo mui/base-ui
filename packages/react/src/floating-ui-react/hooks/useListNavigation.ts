@@ -134,7 +134,7 @@ export interface UseListNavigationProps {
    */
   focusItemOnHover?: boolean | undefined;
   /**
-   * Whether pressing an arrow key on the navigation’s main axis opens the
+   * Whether pressing an arrow key on the navigation's main axis opens the
    * floating element.
    * @default true
    */
@@ -179,7 +179,7 @@ export interface UseListNavigationProps {
    */
   parentOrientation?: UseListNavigationProps['orientation'] | undefined;
   /**
-   * Whether the direction of the floating element’s navigation is in RTL
+   * Whether the direction of the floating element's navigation is in RTL
    * layout.
    * @default false
    */
@@ -190,7 +190,7 @@ export interface UseListNavigationProps {
    * (such as an input), but allow arrow keys to navigate list items.
    * This is common in autocomplete listbox components.
    * Your virtually-focused list items must have a unique `id` set on them.
-   * If you’re using a component role with the `useRole()` Hook, then an `id` is
+   * If you're using a component role with the `useRole()` Hook, then an `id` is
    * generated automatically.
    * @default false
    */
@@ -201,7 +201,7 @@ export interface UseListNavigationProps {
    */
   orientation?: 'vertical' | 'horizontal' | 'both' | undefined;
   /**
-   * Specifies how many columns the list has (i.e., it’s a grid). Use an
+   * Specifies how many columns the list has (i.e., it's a grid). Use an
    * orientation of 'horizontal' (e.g. for an emoji picker/date picker, where
    * pressing ArrowRight or ArrowLeft can change rows), or 'both' (where the
    * current row cannot be escaped with ArrowRight or ArrowLeft, only ArrowUp
@@ -440,7 +440,7 @@ export function useListNavigation(
 
         waitForListPopulated();
       }
-    } else if (!isIndexOutOfListBounds(listRef, activeIndex)) {
+    } else if (!isIndexOutOfListBounds(listRef.current, activeIndex)) {
       indexRef.current = activeIndex;
       focusItem();
       forceScrollIntoViewRef.current = false;
@@ -641,12 +641,12 @@ export function useListNavigation(
       // as if every item was 1x1, then convert back to real indices.
       const cellMap = createGridCellMap(sizes, cols, false);
       const minGridIndex = cellMap.findIndex(
-        (index) => index != null && !isListIndexDisabled(listRef, index, disabledIndices),
+        (index) => index != null && !isListIndexDisabled(listRef.current, index, disabledIndices),
       );
       // last enabled index
       const maxGridIndex = cellMap.reduce(
         (foundIndex: number, index, cellIndex) =>
-          index != null && !isListIndexDisabled(listRef, index, disabledIndices)
+          index != null && !isListIndexDisabled(listRef.current, index, disabledIndices)
             ? cellIndex
             : foundIndex,
         -1,
@@ -655,11 +655,7 @@ export function useListNavigation(
       const index =
         cellMap[
           getGridNavigatedIndex(
-            {
-              current: cellMap.map((itemIndex) =>
-                itemIndex != null ? listRef.current[itemIndex] : null,
-              ),
-            },
+            cellMap.map((itemIndex) => (itemIndex != null ? listRef.current[itemIndex] : null)),
             {
               event,
               orientation,
@@ -672,7 +668,7 @@ export function useListNavigation(
                 [
                   ...((typeof disabledIndices !== 'function' ? disabledIndices : null) ||
                     listRef.current.map((_, listIndex) =>
-                      isListIndexDisabled(listRef, listIndex, disabledIndices)
+                      isListIndexDisabled(listRef.current, listIndex, disabledIndices)
                         ? listIndex
                         : undefined,
                     )),
@@ -739,7 +735,7 @@ export function useListNavigation(
               indexRef.current = minIndex;
             }
           } else {
-            indexRef.current = findNonDisabledListIndex(listRef, {
+            indexRef.current = findNonDisabledListIndex(listRef.current, {
               startingIndex: currentIndex,
               disabledIndices,
             });
@@ -747,7 +743,7 @@ export function useListNavigation(
         } else {
           indexRef.current = Math.min(
             maxIndex,
-            findNonDisabledListIndex(listRef, {
+            findNonDisabledListIndex(listRef.current, {
               startingIndex: currentIndex,
               disabledIndices,
             }),
@@ -763,7 +759,7 @@ export function useListNavigation(
             indexRef.current = maxIndex;
           }
         } else {
-          indexRef.current = findNonDisabledListIndex(listRef, {
+          indexRef.current = findNonDisabledListIndex(listRef.current, {
             startingIndex: currentIndex,
             decrement: true,
             disabledIndices,
@@ -772,7 +768,7 @@ export function useListNavigation(
       } else {
         indexRef.current = Math.max(
           minIndex,
-          findNonDisabledListIndex(listRef, {
+          findNonDisabledListIndex(listRef.current, {
             startingIndex: currentIndex,
             decrement: true,
             disabledIndices,
@@ -780,7 +776,7 @@ export function useListNavigation(
         );
       }
 
-      if (isIndexOutOfListBounds(listRef, indexRef.current)) {
+      if (isIndexOutOfListBounds(listRef.current, indexRef.current)) {
         indexRef.current = -1;
       }
 

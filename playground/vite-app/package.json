@@ -20,15 +20,15 @@
     "@types/node": "22.18.13",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
-    "@vitejs/plugin-react": "5.1.4",
+    "@vitejs/plugin-react": "5.2.0",
     "cross-env": "10.1.0",
-    "eslint": "10.0.2",
+    "eslint": "10.1.0",
     "eslint-plugin-react-hooks": "7.0.1",
     "eslint-plugin-react-refresh": "0.5.2",
     "globals": "17.4.0",
     "tailwindcss": "4.2.1",
     "typescript": "5.9.3",
-    "typescript-eslint": "8.56.1",
+    "typescript-eslint": "8.57.1",
     "vite": "7.3.1"
   }
 }

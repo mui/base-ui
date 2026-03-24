@@ -1,7 +1,7 @@
-import * as React from 'react';
-import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
-import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
+import * as React from 'react';
+import { Drawer } from '@base-ui/react/drawer';
+import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, waitSingleFrame } from '#test-utils';
 import { REASONS } from '../../utils/reasons';
 import { useDrawerRootContext } from './DrawerRootContext';

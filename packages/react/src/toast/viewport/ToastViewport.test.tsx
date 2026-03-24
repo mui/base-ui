@@ -1,7 +1,7 @@
+import { expect } from 'vitest';
 import { Toast } from '@base-ui/react/toast';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 import { List, Button } from '../utils/test-utils';
 
 describe('<Toast.Viewport />', () => {
@@ -115,10 +115,10 @@ describe('<Toast.Viewport />', () => {
     const viewport = screen.getByTestId('viewport');
 
     fireEvent.mouseEnter(root);
-    expect(viewport).to.have.attribute('data-expanded');
+    expect(viewport).toHaveAttribute('data-expanded');
 
     fireEvent.mouseLeave(root);
-    expect(viewport).to.not.have.attribute('data-expanded');
+    expect(viewport).not.toHaveAttribute('data-expanded');
   });
 
   it('keeps expanded on mouseleave when focus-visible is inside', async () => {
@@ -140,9 +140,169 @@ describe('<Toast.Viewport />', () => {
     await user.tab();
 
     fireEvent.mouseEnter(root);
-    expect(viewport).to.have.attribute('data-expanded');
+    expect(viewport).toHaveAttribute('data-expanded');
     fireEvent.mouseLeave(root);
-    expect(viewport).to.have.attribute('data-expanded');
+    expect(viewport).toHaveAttribute('data-expanded');
+  });
+
+  it('keeps expanded during an active touch swipe even if mouseleave fires', async () => {
+    const { user } = await render(
+      <Toast.Provider>
+        <Toast.Viewport data-testid="viewport">
+          <List />
+        </Toast.Viewport>
+        <Button />
+      </Toast.Provider>,
+    );
+
+    const button = screen.getByRole('button', { name: 'add' });
+    await user.click(button);
+
+    const root = await screen.findByTestId('root');
+    const viewport = screen.getByTestId('viewport');
+
+    Object.defineProperty(root, 'setPointerCapture', {
+      value: () => {},
+      configurable: true,
+    });
+    Object.defineProperty(root, 'releasePointerCapture', {
+      value: () => {},
+      configurable: true,
+    });
+
+    fireEvent.pointerDown(root, {
+      clientX: 100,
+      clientY: 100,
+      button: 0,
+      bubbles: true,
+      pointerId: 1,
+      pointerType: 'touch',
+    });
+    fireEvent.pointerMove(root, {
+      clientX: 100,
+      clientY: 120,
+      bubbles: true,
+      pointerId: 1,
+      pointerType: 'touch',
+    });
+
+    expect(viewport).toHaveAttribute('data-expanded');
+
+    fireEvent.mouseLeave(viewport);
+
+    expect(viewport).toHaveAttribute('data-expanded');
+
+    fireEvent.pointerUp(root, {
+      clientX: 100,
+      clientY: 120,
+      bubbles: true,
+      pointerId: 1,
+      pointerType: 'touch',
+    });
+
+    expect(viewport).not.toHaveAttribute('data-expanded');
+  });
+
+  it('keeps expanded when a touch swipe is canceled without leaving the viewport', async () => {
+    const { user } = await render(
+      <Toast.Provider>
+        <Toast.Viewport data-testid="viewport">
+          <List />
+        </Toast.Viewport>
+        <Button />
+      </Toast.Provider>,
+    );
+
+    const button = screen.getByRole('button', { name: 'add' });
+    await user.click(button);
+
+    const root = await screen.findByTestId('root');
+    const viewport = screen.getByTestId('viewport');
+
+    Object.defineProperty(root, 'setPointerCapture', {
+      value: () => {},
+      configurable: true,
+    });
+
+    fireEvent.pointerDown(root, {
+      clientX: 100,
+      clientY: 100,
+      button: 0,
+      bubbles: true,
+      pointerId: 1,
+      pointerType: 'touch',
+    });
+    fireEvent.pointerMove(root, {
+      clientX: 100,
+      clientY: 120,
+      bubbles: true,
+      pointerId: 1,
+      pointerType: 'touch',
+    });
+
+    expect(root).toHaveAttribute('data-swiping');
+    expect(viewport).toHaveAttribute('data-expanded');
+
+    fireEvent.pointerCancel(root, {
+      clientX: 100,
+      clientY: 120,
+      bubbles: true,
+      pointerId: 1,
+      pointerType: 'touch',
+    });
+
+    expect(root).not.toHaveAttribute('data-swiping');
+    expect(viewport).toHaveAttribute('data-expanded');
+  });
+
+  it('collapses after a touch swipe is canceled if mouseleave already fired', async () => {
+    const { user } = await render(
+      <Toast.Provider>
+        <Toast.Viewport data-testid="viewport">
+          <List />
+        </Toast.Viewport>
+        <Button />
+      </Toast.Provider>,
+    );
+
+    const button = screen.getByRole('button', { name: 'add' });
+    await user.click(button);
+
+    const root = await screen.findByTestId('root');
+    const viewport = screen.getByTestId('viewport');
+
+    Object.defineProperty(root, 'setPointerCapture', {
+      value: () => {},
+      configurable: true,
+    });
+
+    fireEvent.pointerDown(root, {
+      clientX: 100,
+      clientY: 100,
+      button: 0,
+      bubbles: true,
+      pointerId: 1,
+      pointerType: 'touch',
+    });
+    fireEvent.pointerMove(root, {
+      clientX: 100,
+      clientY: 120,
+      bubbles: true,
+      pointerId: 1,
+      pointerType: 'touch',
+    });
+
+    fireEvent.mouseLeave(viewport);
+    fireEvent.pointerCancel(root, {
+      clientX: 100,
+      clientY: 120,
+      bubbles: true,
+      pointerId: 1,
+      pointerType: 'touch',
+    });
+
+    expect(root).not.toHaveAttribute('data-swiping');
+    expect(viewport).not.toHaveAttribute('data-expanded');
   });
 
   describe('timers', () => {
@@ -167,7 +327,7 @@ describe('<Toast.Viewport />', () => {
 
       clock.tick(5001);
 
-      expect(screen.queryByTestId('root')).not.to.equal(null);
+      expect(screen.queryByTestId('root')).not.toBe(null);
     });
 
     it('resumes timers when not hovering', async () => {
@@ -191,11 +351,11 @@ describe('<Toast.Viewport />', () => {
 
       clock.tick(4999);
 
-      expect(screen.queryByTestId('root')).not.to.equal(null);
+      expect(screen.queryByTestId('root')).not.toBe(null);
 
       clock.tick(2);
 
-      expect(screen.queryByTestId('root')).to.equal(null);
+      expect(screen.queryByTestId('root')).toBe(null);
     });
 
     it('pauses timers when the viewport is focused', async () => {
@@ -215,7 +375,7 @@ describe('<Toast.Viewport />', () => {
 
       clock.tick(5001);
 
-      expect(screen.queryByTestId('root')).not.to.equal(null);
+      expect(screen.queryByTestId('root')).not.toBe(null);
     });
 
     it.skipIf(!isJSDOM)('resumes timers when the viewport is blurred', async () => {
@@ -239,7 +399,7 @@ describe('<Toast.Viewport />', () => {
 
       clock.tick(5001);
 
-      expect(screen.queryByTestId('root')).to.equal(null);
+      expect(screen.queryByTestId('root')).toBe(null);
     });
   });
 });

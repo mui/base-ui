@@ -7,7 +7,7 @@ export default function OutsideScrollDialog() {
   const popupRef = React.useRef<HTMLDivElement>(null);
   return (
     <Dialog.Root>
-      <Dialog.Trigger className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100">
+      <Dialog.Trigger className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-normal text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100">
         Open dialog
       </Dialog.Trigger>
       <Dialog.Portal>
@@ -25,12 +25,12 @@ export default function OutsideScrollDialog() {
                   className="outline-0 relative mx-auto my-18 w-[min(40rem,calc(100vw-2rem))] rounded-lg bg-gray-50 p-8 text-gray-900 shadow-[0_10px_64px_-10px_rgb(36_40_52/20%),0_0.25px_0_1px_oklch(12%_9%_264deg/7%)] transition-transform duration-[700ms] ease-[cubic-bezier(0.45,1.005,0,1.005)] data-[starting-style]:translate-y-[100dvh] data-[ending-style]:translate-y-[max(100dvh,100%)] data-[ending-style]:duration-[350ms] data-[ending-style]:ease-[cubic-bezier(0.375,0.015,0.545,0.455)] dark:shadow-[0_0_0_1px_oklch(29%_0.75%_264deg/80%)] dark:outline-1 dark:outline-gray-300 motion-reduce:transition-none"
                 >
                   <div className="mb-4 flex items-start justify-between gap-3">
-                    <Dialog.Title className="m-0 text-xl font-semibold leading-[1.875rem]">
+                    <Dialog.Title className="m-0 text-xl font-bold leading-[1.875rem]">
                       Dialog
                     </Dialog.Title>
                     <Dialog.Close
                       aria-label="Close"
-                      className="relative top-[-0.5rem] right-[-0.5rem] flex items-center justify-center rounded-md border border-gray-200 bg-gray-50 w-[2.25rem] h-[2.25rem] text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100"
+                      className="relative top-[-0.5rem] right-[-0.5rem] flex items-center justify-center rounded-md border border-gray-200 bg-gray-50 w-[2.25rem] h-[2.25rem] text-base font-normal text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100"
                     >
                       <XIcon className="h-[1.1rem] w-[1.1rem]" />
                     </Dialog.Close>
@@ -44,7 +44,7 @@ export default function OutsideScrollDialog() {
                   <div className="mb-[1.75rem] flex flex-col gap-6">
                     {CONTENT_SECTIONS.map((item) => (
                       <section key={item.title}>
-                        <h3 className="m-0 mb-[0.4rem] text-base font-semibold leading-6">
+                        <h3 className="m-0 mb-[0.4rem] text-base font-bold leading-6">
                           {item.title}
                         </h3>
                         <p className="m-0 text-[0.95rem] leading-[1.55rem] text-gray-700">
@@ -53,6 +53,22 @@ export default function OutsideScrollDialog() {
                       </section>
                     ))}
                   </div>
+
+                  <p className="m-0 mb-6 text-[0.95rem] leading-6 text-gray-600">
+                    Related docs:{' '}
+                    {RELATED_LINKS.map((item, index) => (
+                      <React.Fragment key={item.href}>
+                        {index > 0 ? ', ' : null}
+                        <a
+                          className="text-gray-900 underline underline-offset-[0.16em] decoration-[1px] hover:no-underline focus-visible:rounded-[0.125rem] focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:outline-offset-2"
+                          href={item.href}
+                        >
+                          {item.label}
+                        </a>
+                      </React.Fragment>
+                    ))}
+                    .
+                  </p>
                 </Dialog.Popup>
               </ScrollArea.Content>
             </ScrollArea.Viewport>
@@ -172,3 +188,9 @@ const CONTENT_SECTIONS = [
     body: 'After a successful action, close the dialog and show confirmation in context (toast, inline message, or updated UI) so people can see the result of what they just did.',
   },
 ];
+
+const RELATED_LINKS = [
+  { href: '/react/components/scroll-area', label: 'Scroll Area' },
+  { href: '/react/components/drawer', label: 'Drawer' },
+  { href: '/react/components/popover', label: 'Popover' },
+] as const;

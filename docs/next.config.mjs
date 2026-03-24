@@ -12,13 +12,14 @@ import remarkTypography from 'remark-typography';
 import { rehypeQuickNav } from 'docs/src/components/QuickNav/rehypeQuickNav.mjs';
 import { rehypeConcatHeadings } from 'docs/src/components/QuickNav/rehypeConcatHeadings.mjs';
 import { rehypeKbd } from 'docs/src/components/Kbd/rehypeKbd.mjs';
-import { rehypeReference } from 'docs/src/components/ReferenceTable/rehypeReference.mjs';
 import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting/index.mjs';
 import { rehypeSlug } from 'docs/src/components/QuickNav/rehypeSlug.mjs';
 import { rehypeSubtitle } from 'docs/src/components/Subtitle/rehypeSubtitle.mjs';
+import { ordering } from 'docs/src/utils/typeOrder.mjs';
 
 const currentDirectory = url.fileURLToPath(new URL('.', import.meta.url));
 const workspaceRoot = path.resolve(currentDirectory, '../');
+const baseDir = path.dirname(url.fileURLToPath(import.meta.url));
 
 const withMdx = nextMdx({
   options: {
@@ -37,7 +38,7 @@ const withMdx = nextMdx({
               'src/app/experiments',
               'src/app/playground',
             ],
-            baseDir: path.dirname(url.fileURLToPath(import.meta.url)),
+            baseDir,
             useVisibleDescription: true,
           },
         },
@@ -46,7 +47,6 @@ const withMdx = nextMdx({
       transformMarkdownRelativePaths,
     ],
     rehypePlugins: [
-      rehypeReference,
       ...rehypeSyntaxHighlighting,
       rehypeSlug,
       rehypeConcatHeadings,
@@ -68,12 +68,35 @@ function loadPackageJson() {
 
 const rootPackage = loadPackageJson();
 
+/** @type {import('@mui/internal-docs-infra/pipeline/loadPrecomputedTypes').LoaderOptions} */
+const typesGenerationOptions = {
+  socketDir: '.next/docs-infra',
+  updateParentIndex: {
+    baseDir,
+    onlyUpdateIndexes: true,
+  },
+  ordering,
+  descriptionReplacements: [
+    { pattern: '\\n\\nDocumentation: .*$', replacement: '', flags: 'm' },
+    { pattern: 'Base UI', replacement: 'Base UI', flags: 'g' },
+  ],
+};
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   trailingSlash: false,
   pageExtensions: ['mdx', 'tsx'],
   turbopack: {
     rules: {
+      './src/app/**/types.ts': {
+        as: '*.ts',
+        loaders: [
+          {
+            loader: '@mui/internal-docs-infra/pipeline/loadPrecomputedTypes',
+            options: typesGenerationOptions,
+          },
+        ],
+      },
       './src/app/sitemap/index.ts': {
         as: '*.ts',
         loaders: ['@mui/internal-docs-infra/pipeline/loadPrecomputedSitemap'],
@@ -90,6 +113,16 @@ const nextConfig = {
   },
   webpack: (config, { defaultLoaders }) => {
     // for production builds
+    config.module.rules.push({
+      test: /[/\\\\]src[/\\\\]app[/\\\\].*[/\\\\]types\.ts$/,
+      use: [
+        defaultLoaders.babel,
+        {
+          loader: '@mui/internal-docs-infra/pipeline/loadPrecomputedTypes',
+          options: typesGenerationOptions,
+        },
+      ],
+    });
     config.module.rules.push({
       test: /[/\\\\]sitemap[/\\\\]index\.ts$/,
       use: [defaultLoaders.babel, '@mui/internal-docs-infra/pipeline/loadPrecomputedSitemap'],
@@ -115,6 +148,7 @@ const nextConfig = {
     // docs-infra
     LIB_VERSION: rootPackage.version,
     SOURCE_CODE_REPO: 'https://github.com/mui/base-ui',
+    BASE_URL: 'https://base-ui.com',
   },
   ...(process.env.NODE_ENV === 'production' && { distDir: 'export', output: 'export' }),
   devIndicators: false,

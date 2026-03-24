@@ -1,7 +1,7 @@
+import { expect } from 'vitest';
 import * as React from 'react';
 import { Dialog } from '@base-ui/react/dialog';
 import { createRenderer, describeConformance } from '#test-utils';
-import { expect } from 'vitest';
 import { screen } from '@mui/internal-test-utils';
 
 describe('<Dialog.Portal />', () => {
@@ -48,9 +48,9 @@ describe('<Dialog.Portal />', () => {
         </React.Suspense>,
       );
 
-      expect(await screen.findByText('Loading...')).not.to.equal(null);
+      expect(await screen.findByText('Loading...')).not.toBe(null);
       resolve({ default: () => <p>Greetings</p> });
-      expect(await screen.findByText('Greetings')).not.to.equal(null);
+      expect(await screen.findByText('Greetings')).not.toBe(null);
     });
   });
 });

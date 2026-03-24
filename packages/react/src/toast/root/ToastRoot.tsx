@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { ownerDocument } from '@base-ui/utils/owner';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -16,6 +16,7 @@ import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { ToastRootCssVars } from './ToastRootCssVars';
+import { BASE_UI_SWIPE_IGNORE_SELECTOR, LEGACY_SWIPE_IGNORE_SELECTOR } from '../../utils/constants';
 
 const stateAttributesMapping: StateAttributesMapping<ToastRootState> = {
   ...transitionStatusMapping,
@@ -28,6 +29,7 @@ const SWIPE_THRESHOLD = 40;
 const REVERSE_CANCEL_THRESHOLD = 10;
 const OPPOSITE_DIRECTION_DAMPING_FACTOR = 0.5;
 const MIN_DRAG_THRESHOLD = 1;
+const TOAST_SWIPE_IGNORE_SELECTOR = `${BASE_UI_SWIPE_IGNORE_SELECTOR},${LEGACY_SWIPE_IGNORE_SELECTOR}`;
 
 function getDisplacement(
   direction: 'up' | 'down' | 'left' | 'right',
@@ -49,7 +51,7 @@ function getDisplacement(
 }
 
 function getElementTransform(element: HTMLElement) {
-  const computedStyle = window.getComputedStyle(element);
+  const computedStyle = ownerWindow(element).getComputedStyle(element);
   const transform = computedStyle.transform;
   let translateX = 0;
   let translateY = 0;
@@ -222,7 +224,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     const target = getTarget(event.nativeEvent) as HTMLElement | null;
 
     const isInteractiveElement = target
-      ? target.closest('button,a,input,textarea,[role="button"],[data-swipe-ignore]')
+      ? target.closest(`button,a,input,textarea,[role="button"],${TOAST_SWIPE_IGNORE_SELECTOR}`)
       : false;
 
     if (isInteractiveElement) {
@@ -438,6 +440,18 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     }
   }
 
+  function handlePointerCancel() {
+    if (!isSwiping) {
+      return;
+    }
+
+    setIsSwiping(false);
+    setIsRealSwipe(false);
+    setLockedDirection(null);
+    setDragOffset({ x: initialTransform.x, y: initialTransform.y });
+    setCurrentSwipeDirection(undefined);
+  }
+
   function handleKeyDown(event: React.KeyboardEvent) {
     if (event.key === 'Escape') {
       if (
@@ -461,7 +475,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     }
 
     function preventDefaultTouchStart(event: TouchEvent) {
-      if (contains(element, event.target as HTMLElement | null)) {
+      if (contains(element, getTarget(event) as HTMLElement | null)) {
         event.preventDefault();
       }
     }
@@ -512,6 +526,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     onPointerDown: swipeEnabled ? handlePointerDown : undefined,
     onPointerMove: swipeEnabled ? handlePointerMove : undefined,
     onPointerUp: swipeEnabled ? handlePointerUp : undefined,
+    onPointerCancel: swipeEnabled ? handlePointerCancel : undefined,
     onKeyDown: handleKeyDown,
     inert: inertValue(toast.limited),
     style: {

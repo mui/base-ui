@@ -10,11 +10,11 @@ export default function ExampleFuzzyMatchingAutocomplete() {
       filter={fuzzyFilter}
       itemToStringValue={(item) => item.title}
     >
-      <label className="flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">
+      <label className="flex flex-col gap-1 text-sm leading-5 font-bold text-gray-900">
         Fuzzy search documentation
         <Autocomplete.Input
           placeholder="e.g. React"
-          className="bg-[canvas] h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+          className="bg-[canvas] h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-gray-200 pl-3.5 text-base font-normal text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
         />
       </label>
 
@@ -36,7 +36,7 @@ export default function ExampleFuzzyMatchingAutocomplete() {
                     {(value) => (
                       <div className="flex w-full flex-col gap-1">
                         <div className="flex items-center justify-between gap-3">
-                          <div className="flex-1 font-medium leading-5">
+                          <div className="flex-1 font-bold leading-5">
                             {highlightText(item.title, value)}
                           </div>
                         </div>

@@ -1,7 +1,7 @@
+import { expect } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance } from '#test-utils';
 import { screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 
 describe('<Combobox.Empty />', () => {
   const { render } = createRenderer();
@@ -45,8 +45,8 @@ describe('<Combobox.Empty />', () => {
       </Combobox.Root>,
     );
 
-    expect(screen.getByTestId('empty')).to.have.text('No results');
-    expect(screen.getByTestId('empty')).to.have.attribute('role', 'status');
+    expect(screen.getByTestId('empty')).toHaveTextContent('No results');
+    expect(screen.getByTestId('empty')).toHaveAttribute('role', 'status');
   });
 
   it('does not render when there are items', async () => {
@@ -70,7 +70,7 @@ describe('<Combobox.Empty />', () => {
       </Combobox.Root>,
     );
 
-    expect(screen.queryByText('No results')).to.equal(null);
+    expect(screen.queryByText('No results')).toBe(null);
   });
 
   it('renders when the search query matches no items', async () => {
@@ -94,7 +94,7 @@ describe('<Combobox.Empty />', () => {
       </Combobox.Root>,
     );
 
-    expect(screen.queryByText('No results')).not.to.equal(null);
+    expect(screen.queryByText('No results')).not.toBe(null);
   });
 
   it('does not render when the search query matches an item', async () => {
@@ -118,6 +118,6 @@ describe('<Combobox.Empty />', () => {
       </Combobox.Root>,
     );
 
-    expect(screen.queryByText('No results')).to.equal(null);
+    expect(screen.queryByText('No results')).toBe(null);
   });
 });

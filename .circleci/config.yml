@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  code-infra: https://raw.githubusercontent.com/mui/mui-public/96a7c608aa3603924622f70e8fe30cf084d59909/.circleci/orbs/code-infra.yml
+  code-infra: https://raw.githubusercontent.com/mui/mui-public/1eedf1bb22170479a7e6d236667e018c28ac9dd1/.circleci/orbs/code-infra.yml
 
 parameters:
   browserstack-force:
@@ -67,11 +67,9 @@ jobs:
           package-overrides: react@<< parameters.react-version >>
       - run:
           name: Run tests on JSDOM
-          command: pnpm test:jsdom:coverage
+          command: pnpm test:jsdom
       - store_test_results:
           path: test-results
-      - code-infra/upload-coverage:
-          key: << parameters.react-version >>-jsdom
   docs_validate:
     <<: *default-job
     steps:
@@ -92,12 +90,6 @@ jobs:
       - checkout
       - code-infra/install-deps
       - code-infra/check-static-changes
-      - run:
-          name: Generate the documentation
-          command: pnpm docs:api
-      - run:
-          name: '`pnpm docs:api` changes committed?'
-          command: git add -A && git diff --exit-code --staged
       - run:
           name: '`pnpm extract-error-codes` changes committed?'
           command: |
@@ -166,11 +158,9 @@ jobs:
           package-overrides: react@<< parameters.react-version >>
       - run:
           name: Run tests on headless Chromium
-          command: pnpm test:chromium --coverage
+          command: pnpm test:chromium
       - store_test_results:
           path: test-results
-      - code-infra/upload-coverage:
-          key: << parameters.react-version >>-browser
   test_regressions:
     <<: *default-job
     resource_class: 'medium+'
@@ -234,7 +224,7 @@ jobs:
       - build-with-compiler
       - run:
           name: Run tests on JSDOM
-          command: pnpm test:jsdom:coverage
+          command: pnpm test:jsdom
           environment:
             MUI_DISABLE_WORKSPACE_ALIASES: 1
       - store_test_results:
@@ -252,7 +242,7 @@ jobs:
       - build-with-compiler
       - run:
           name: Run tests on headless Chromium
-          command: pnpm test:chromium --coverage
+          command: pnpm test:chromium
           environment:
             MUI_DISABLE_WORKSPACE_ALIASES: 1
       - store_test_results:

@@ -1,4 +1,4 @@
-export * as DrawerPreview from './index.parts';
+export * as Drawer from './index.parts';
 
 export type * from './root/DrawerRoot';
 export type * from './provider/DrawerProvider';

@@ -136,7 +136,7 @@ export interface FieldErrorState extends FieldRootState {
 
 export interface FieldErrorProps extends BaseUIComponentProps<'div', FieldErrorState> {
   /**
-   * Determines whether to show the error message according to the field’s
+   * Determines whether to show the error message according to the field's
    * [ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState).
    * Specifying `true` will always show the error message, and lets external libraries
    * control the visibility.

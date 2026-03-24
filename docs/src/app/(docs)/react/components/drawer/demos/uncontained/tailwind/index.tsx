@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
+import { Drawer } from '@base-ui/react/drawer';
 
 const ACTIONS = ['Unfollow', 'Mute', 'Add to Favourites', 'Add to Close Friends', 'Restrict'];
 
@@ -9,7 +9,7 @@ export default function ExampleDrawerUncontained() {
 
   return (
     <Drawer.Root open={open} onOpenChange={setOpen}>
-      <Drawer.Trigger className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
+      <Drawer.Trigger className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-normal text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
         Open action sheet
       </Drawer.Trigger>
       <Drawer.Portal>

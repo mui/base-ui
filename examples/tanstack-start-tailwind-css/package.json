@@ -6,8 +6,8 @@
     "dev": "vite dev --port 3000",
     "build": "vite build",
     "serve": "vite preview",
-    "lint": "eslint",
-    "check": "prettier --write . && eslint --fix",
+    "lint": "eslint .",
+    "check": "prettier . --write && eslint . --fix",
     "typescript": "tsc -b tsconfig.json"
   },
   "dependencies": {
@@ -28,6 +28,7 @@
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/devtools-vite": "^0.4.1",
     "@tanstack/eslint-config": "^0.3.4",
+    "eslint": "^10.0.2",
     "@types/node": "22.18.13",
     "@types/react": "^19",
     "@types/react-dom": "^19",

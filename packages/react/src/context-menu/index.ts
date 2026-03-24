@@ -7,7 +7,10 @@ export type {
   MenuBackdropProps as ContextMenuBackdropProps,
   MenuBackdropState as ContextMenuBackdropState,
 } from '../menu/backdrop/MenuBackdrop';
-export type { MenuPortalProps as ContextMenuPortalProps } from '../menu/portal/MenuPortal';
+export type {
+  MenuPortalProps as ContextMenuPortalProps,
+  MenuPortalState as ContextMenuPortalState,
+} from '../menu/portal/MenuPortal';
 export type {
   MenuPositionerProps as ContextMenuPositionerProps,
   MenuPositionerState as ContextMenuPositionerState,

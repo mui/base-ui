@@ -1,6 +1,5 @@
+import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { expect } from 'chai';
-import { spy } from 'sinon';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Switch } from '@base-ui/react/switch';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
@@ -22,13 +21,13 @@ describe('<Switch.Root />', () => {
       await render(<Switch.Root />);
       const switchElement = screen.getByRole('switch');
 
-      expect(switchElement).to.have.attribute('aria-checked', 'false');
+      expect(switchElement).toHaveAttribute('aria-checked', 'false');
 
       await act(async () => {
         switchElement.click();
       });
 
-      expect(switchElement).to.have.attribute('aria-checked', 'true');
+      expect(switchElement).toHaveAttribute('aria-checked', 'true');
     });
 
     it('should update its state when changed from outside', async () => {
@@ -46,18 +45,18 @@ describe('<Switch.Root />', () => {
       const switchElement = screen.getByRole('switch');
       const button = screen.getByText('Toggle');
 
-      expect(switchElement).to.have.attribute('aria-checked', 'false');
+      expect(switchElement).toHaveAttribute('aria-checked', 'false');
       await act(async () => {
         button.click();
       });
 
-      expect(switchElement).to.have.attribute('aria-checked', 'true');
+      expect(switchElement).toHaveAttribute('aria-checked', 'true');
 
       await act(async () => {
         button.click();
       });
 
-      expect(switchElement).to.have.attribute('aria-checked', 'false');
+      expect(switchElement).toHaveAttribute('aria-checked', 'false');
     });
 
     it('should update its state if the underlying input is toggled', async () => {
@@ -69,7 +68,7 @@ describe('<Switch.Root />', () => {
         internalInput.click();
       });
 
-      expect(switchElement).to.have.attribute('aria-checked', 'true');
+      expect(switchElement).toHaveAttribute('aria-checked', 'true');
     });
 
     ['Enter', 'Space'].forEach((key) => {
@@ -77,13 +76,13 @@ describe('<Switch.Root />', () => {
         const { user } = await render(<Switch.Root />);
 
         const switchEl = screen.getByRole('switch');
-        expect(switchEl).to.have.attribute('aria-checked', 'false');
+        expect(switchEl).toHaveAttribute('aria-checked', 'false');
 
         await user.keyboard('[Tab]');
         expect(switchEl).toHaveFocus();
 
         await user.keyboard(`[${key}]`);
-        expect(switchEl).to.have.attribute('aria-checked', 'true');
+        expect(switchEl).toHaveAttribute('aria-checked', 'true');
       });
     });
   });
@@ -91,7 +90,7 @@ describe('<Switch.Root />', () => {
   describe('extra props', () => {
     it('should override the built-in attributes', async () => {
       await render(<Switch.Root role="checkbox" data-testid="switch" />);
-      expect(screen.getByTestId('switch')).to.have.attribute('role', 'checkbox');
+      expect(screen.getByTestId('switch')).toHaveAttribute('role', 'checkbox');
     });
 
     it('sets `aria-labelledby` from a sibling label associated with the hidden input', async () => {
@@ -103,8 +102,8 @@ describe('<Switch.Root />', () => {
       );
 
       const label = screen.getByText('Label');
-      expect(label.id).not.to.equal('');
-      expect(screen.getByRole('switch')).to.have.attribute('aria-labelledby', label.id);
+      expect(label.id).not.toBe('');
+      expect(screen.getByRole('switch')).toHaveAttribute('aria-labelledby', label.id);
     });
 
     it('updates fallback `aria-labelledby` when the hidden input id changes', async () => {
@@ -128,24 +127,24 @@ describe('<Switch.Root />', () => {
       const switchEl = screen.getByRole('switch');
       const labelA = screen.getByText('Label A');
 
-      expect(labelA.id).to.not.equal('');
-      expect(switchEl).to.have.attribute('aria-labelledby', labelA.id);
+      expect(labelA.id).not.toBe('');
+      expect(switchEl).toHaveAttribute('aria-labelledby', labelA.id);
 
       fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
 
       await waitFor(() => {
         const labelB = screen.getByText('Label B');
 
-        expect(labelB.id).to.not.equal('');
-        expect(labelA.id).to.not.equal(labelB.id);
-        expect(switchEl).to.have.attribute('aria-labelledby', labelB.id);
+        expect(labelB.id).not.toBe('');
+        expect(labelA.id).not.toBe(labelB.id);
+        expect(switchEl).toHaveAttribute('aria-labelledby', labelB.id);
       });
     });
   });
 
   describe('prop: onCheckedChange', () => {
     it('should call onCheckedChange when clicked', async () => {
-      const handleChange = spy();
+      const handleChange = vi.fn();
       await render(<Switch.Root onCheckedChange={handleChange} />);
       const switchElement = screen.getByRole('switch');
 
@@ -153,12 +152,12 @@ describe('<Switch.Root />', () => {
         switchElement.click();
       });
 
-      expect(handleChange.callCount).to.equal(1);
-      expect(handleChange.firstCall.args[0]).to.equal(true);
+      expect(handleChange.mock.calls.length).toBe(1);
+      expect(handleChange.mock.calls[0][0]).toBe(true);
     });
 
     it('should report keyboard modifier event properties when calling onCheckedChange', async () => {
-      const handleChange = spy((checked, eventDetails) => eventDetails);
+      const handleChange = vi.fn((checked, eventDetails) => eventDetails);
       const { user } = await render(<Switch.Root onCheckedChange={handleChange} />);
       const switchElement = screen.getByRole('switch');
 
@@ -166,14 +165,14 @@ describe('<Switch.Root />', () => {
       await user.click(switchElement);
       await user.keyboard('{/Shift}');
 
-      expect(handleChange.callCount).to.equal(1);
-      expect(handleChange.firstCall.returnValue.event.shiftKey).to.equal(true);
+      expect(handleChange.mock.calls.length).toBe(1);
+      expect(handleChange.mock.results[0]?.value.event.shiftKey).toBe(true);
     });
   });
 
   describe('prop: onClick', () => {
     it('should call onClick when clicked', async () => {
-      const handleClick = spy();
+      const handleClick = vi.fn();
       await render(<Switch.Root onClick={handleClick} />);
       const switchElement = screen.getByRole('switch');
 
@@ -181,70 +180,70 @@ describe('<Switch.Root />', () => {
         switchElement.click();
       });
 
-      expect(handleClick.callCount).to.equal(1);
+      expect(handleClick.mock.calls.length).toBe(1);
     });
   });
 
   describe('prop: disabled', () => {
     it('uses aria-disabled instead of HTML disabled', async () => {
       await render(<Switch.Root disabled />);
-      expect(screen.getByRole('switch')).to.not.have.attribute('disabled');
-      expect(screen.getByRole('switch')).to.have.attribute('aria-disabled', 'true');
+      expect(screen.getByRole('switch')).not.toHaveAttribute('disabled');
+      expect(screen.getByRole('switch')).toHaveAttribute('aria-disabled', 'true');
     });
 
     it('should not have the `disabled` attribute when `disabled` is not set', async () => {
       await render(<Switch.Root />);
-      expect(screen.getByRole('switch')).not.to.have.attribute('disabled');
+      expect(screen.getByRole('switch')).not.toHaveAttribute('disabled');
     });
 
     it('should not change its state when clicked', async () => {
       await render(<Switch.Root disabled />);
       const switchElement = screen.getByRole('switch');
 
-      expect(switchElement).to.have.attribute('aria-checked', 'false');
+      expect(switchElement).toHaveAttribute('aria-checked', 'false');
 
       await act(async () => {
         switchElement.click();
       });
 
-      expect(switchElement).to.have.attribute('aria-checked', 'false');
+      expect(switchElement).toHaveAttribute('aria-checked', 'false');
     });
   });
 
   describe('prop: readOnly', () => {
     it('should have the `aria-readonly` attribute', async () => {
       await render(<Switch.Root readOnly />);
-      expect(screen.getByRole('switch')).to.have.attribute('aria-readonly', 'true');
+      expect(screen.getByRole('switch')).toHaveAttribute('aria-readonly', 'true');
     });
 
     it('should not have the aria attribute when `readOnly` is not set', async () => {
       await render(<Switch.Root />);
-      expect(screen.getByRole('switch')).not.to.have.attribute('aria-readonly');
+      expect(screen.getByRole('switch')).not.toHaveAttribute('aria-readonly');
     });
 
     it('should not change its state when clicked', async () => {
       await render(<Switch.Root readOnly />);
       const switchElement = screen.getByRole('switch');
 
-      expect(switchElement).to.have.attribute('aria-checked', 'false');
+      expect(switchElement).toHaveAttribute('aria-checked', 'false');
 
       await act(async () => {
         switchElement.click();
       });
 
-      expect(switchElement).to.have.attribute('aria-checked', 'false');
+      expect(switchElement).toHaveAttribute('aria-checked', 'false');
     });
   });
 
   describe('prop: required', () => {
     it('should have the `aria-required` attribute', async () => {
       await render(<Switch.Root required />);
-      expect(screen.getByRole('switch')).to.have.attribute('aria-required', 'true');
+      expect(screen.getByRole('switch')).toHaveAttribute('aria-required', 'true');
     });
 
     it('should not have the aria attribute when `required` is not set', async () => {
       await render(<Switch.Root />);
-      expect(screen.getByRole('switch')).not.to.have.attribute('aria-required');
+      expect(screen.getByRole('switch')).not.toHaveAttribute('aria-required');
     });
   });
 
@@ -254,7 +253,7 @@ describe('<Switch.Root />', () => {
       await render(<Switch.Root inputRef={inputRef} />);
       const internalInput = screen.getByRole('checkbox', { hidden: true });
 
-      expect(inputRef.current).to.equal(internalInput);
+      expect(inputRef.current).toBe(internalInput);
     });
   });
 
@@ -268,24 +267,24 @@ describe('<Switch.Root />', () => {
     const switchElement = screen.getByRole('switch');
     const thumb = screen.getByTestId('thumb');
 
-    expect(switchElement).to.have.attribute('data-checked', '');
-    expect(switchElement).to.have.attribute('data-disabled', '');
-    expect(switchElement).to.have.attribute('data-readonly', '');
-    expect(switchElement).to.have.attribute('data-required', '');
+    expect(switchElement).toHaveAttribute('data-checked', '');
+    expect(switchElement).toHaveAttribute('data-disabled', '');
+    expect(switchElement).toHaveAttribute('data-readonly', '');
+    expect(switchElement).toHaveAttribute('data-required', '');
 
-    expect(thumb).to.have.attribute('data-checked', '');
-    expect(thumb).to.have.attribute('data-disabled', '');
-    expect(thumb).to.have.attribute('data-readonly', '');
-    expect(thumb).to.have.attribute('data-required', '');
+    expect(thumb).toHaveAttribute('data-checked', '');
+    expect(thumb).toHaveAttribute('data-disabled', '');
+    expect(thumb).toHaveAttribute('data-readonly', '');
+    expect(thumb).toHaveAttribute('data-required', '');
 
     await setProps({ disabled: false, readOnly: false });
     fireEvent.click(switchElement);
 
-    expect(switchElement).to.have.attribute('data-unchecked', '');
-    expect(switchElement).not.to.have.attribute('data-checked');
+    expect(switchElement).toHaveAttribute('data-unchecked', '');
+    expect(switchElement).not.toHaveAttribute('data-checked');
 
-    expect(thumb).to.have.attribute('data-unchecked', '');
-    expect(thumb).not.to.have.attribute('data-checked');
+    expect(thumb).toHaveAttribute('data-unchecked', '');
+    expect(thumb).not.toHaveAttribute('data-checked');
   });
 
   it('should set the name attribute only on the input', async () => {
@@ -294,8 +293,8 @@ describe('<Switch.Root />', () => {
     const switchElement = screen.getByRole('switch');
     const input = screen.getByRole('checkbox', { hidden: true });
 
-    expect(input).to.have.attribute('name', 'switch-name');
-    expect(switchElement).not.to.have.attribute('name');
+    expect(input).toHaveAttribute('name', 'switch-name');
+    expect(switchElement).not.toHaveAttribute('name');
   });
 
   it('should not set the value attribute by default', async () => {
@@ -303,7 +302,7 @@ describe('<Switch.Root />', () => {
 
     const input = screen.getByRole('checkbox', { hidden: true });
 
-    expect(input).not.to.have.attribute('value');
+    expect(input).not.toHaveAttribute('value');
   });
 
   it('should set the value attribute only on the input', async () => {
@@ -312,8 +311,8 @@ describe('<Switch.Root />', () => {
     const switchElement = screen.getByRole('switch');
     const input = screen.getByRole('checkbox', { hidden: true });
 
-    expect(input).to.have.attribute('value', '1');
-    expect(switchElement).not.to.have.attribute('value');
+    expect(input).toHaveAttribute('value', '1');
+    expect(switchElement).not.toHaveAttribute('value');
   });
 
   describe('with native <label>', () => {
@@ -326,10 +325,10 @@ describe('<Switch.Root />', () => {
       );
 
       const switchElement = screen.getByRole('switch');
-      expect(switchElement).to.have.attribute('aria-checked', 'false');
+      expect(switchElement).toHaveAttribute('aria-checked', 'false');
 
       await user.click(screen.getByTestId('label'));
-      expect(switchElement).to.have.attribute('aria-checked', 'true');
+      expect(switchElement).toHaveAttribute('aria-checked', 'true');
     });
 
     it('should toggle the switch when a explicitly linked <label> is clicked', async () => {
@@ -344,10 +343,10 @@ describe('<Switch.Root />', () => {
       );
 
       const switchElement = screen.getByRole('switch');
-      expect(switchElement).to.have.attribute('aria-checked', 'false');
+      expect(switchElement).toHaveAttribute('aria-checked', 'false');
 
       await user.click(screen.getByTestId('label'));
-      expect(switchElement).to.have.attribute('aria-checked', 'true');
+      expect(switchElement).toHaveAttribute('aria-checked', 'true');
     });
 
     it('should associate `id` with the native button when `nativeButton=true`', async () => {
@@ -362,14 +361,14 @@ describe('<Switch.Root />', () => {
       );
 
       const switchElement = screen.getByRole('switch');
-      expect(switchElement).to.have.attribute('id', 'mySwitch');
+      expect(switchElement).toHaveAttribute('id', 'mySwitch');
 
       const hiddenInput = screen.getByRole('checkbox', { hidden: true });
-      expect(hiddenInput).not.to.have.attribute('id', 'mySwitch');
+      expect(hiddenInput).not.toHaveAttribute('id', 'mySwitch');
 
-      expect(switchElement).to.have.attribute('aria-checked', 'false');
+      expect(switchElement).toHaveAttribute('aria-checked', 'false');
       await user.click(screen.getByTestId('label'));
-      expect(switchElement).to.have.attribute('aria-checked', 'true');
+      expect(switchElement).toHaveAttribute('aria-checked', 'true');
     });
   });
 
@@ -378,7 +377,7 @@ describe('<Switch.Root />', () => {
     it.skipIf(isJSDOM)(
       'should include the switch value in form submission, matching native checkbox behavior',
       async () => {
-        const submitSpy = spy((event) => {
+        const submitSpy = vi.fn((event) => {
           event.preventDefault();
           const formData = new FormData(event.currentTarget);
           return formData.get('test-switch');
@@ -398,19 +397,64 @@ describe('<Switch.Root />', () => {
 
         await user.click(submitButton);
 
-        expect(submitSpy.callCount).to.equal(1);
-        expect(submitSpy.lastCall.returnValue).to.equal(null);
+        expect(submitSpy.mock.calls.length).toBe(1);
+        expect(submitSpy.mock.results.at(-1)?.value).toBe(null);
 
         await user.click(switchElement);
         await user.click(submitButton);
 
-        expect(submitSpy.callCount).to.equal(2);
-        expect(submitSpy.lastCall.returnValue).to.equal('on');
+        expect(submitSpy.mock.calls.length).toBe(2);
+        expect(submitSpy.mock.results.at(-1)?.value).toBe('on');
       },
     );
 
+    it.skipIf(isJSDOM)('submits to an external form when `form` is provided', async () => {
+      const submitSpy = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        return formData.get('test-switch');
+      });
+
+      const { user } = await render(
+        <React.Fragment>
+          <form id="external-form" onSubmit={submitSpy}>
+            <button type="submit">Submit</button>
+          </form>
+          <Switch.Root name="test-switch" form="external-form" />
+        </React.Fragment>,
+      );
+
+      await user.click(screen.getByRole('switch'));
+      await user.click(screen.getByRole('button'));
+
+      expect(submitSpy.mock.calls.length).toBe(1);
+      expect(submitSpy.mock.results.at(-1)?.value).toBe('on');
+    });
+
+    it.skipIf(isJSDOM)('submits uncheckedValue to an external form when off', async () => {
+      const submitSpy = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        return formData.get('test-switch');
+      });
+
+      await render(
+        <React.Fragment>
+          <form id="external-form" onSubmit={submitSpy}>
+            <button type="submit">Submit</button>
+          </form>
+          <Switch.Root name="test-switch" form="external-form" uncheckedValue="off" />
+        </React.Fragment>,
+      );
+
+      fireEvent.click(screen.getByRole('button'));
+
+      expect(submitSpy.mock.calls.length).toBe(1);
+      expect(submitSpy.mock.results.at(-1)?.value).toBe('off');
+    });
+
     it.skipIf(isJSDOM)('matches native checkbox form submission behavior', async () => {
-      const nativeSubmitSpy = spy((event) => {
+      const nativeSubmitSpy = vi.fn((event) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
         return {
@@ -419,7 +463,7 @@ describe('<Switch.Root />', () => {
         };
       });
 
-      const customSubmitSpy = spy((event) => {
+      const customSubmitSpy = vi.fn((event) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
         return {
@@ -439,12 +483,12 @@ describe('<Switch.Root />', () => {
       const nativeSubmitButton = screen.getByRole('button')!;
 
       await nativeUser.click(nativeSubmitButton);
-      expect(nativeSubmitSpy.lastCall.returnValue.get).to.equal(null);
-      expect(nativeSubmitSpy.lastCall.returnValue.getAll).to.deep.equal([]);
+      expect(nativeSubmitSpy.mock.results.at(-1)?.value.get).toBe(null);
+      expect(nativeSubmitSpy.mock.results.at(-1)?.value.getAll).toEqual([]);
 
       await nativeUser.click(nativeCheckbox);
       await nativeUser.click(nativeSubmitButton);
-      expect(nativeSubmitSpy.lastCall.returnValue.get).to.equal('on');
+      expect(nativeSubmitSpy.mock.results.at(-1)?.value.get).toBe('on');
 
       const { user: customUser } = await render(
         <Form onSubmit={customSubmitSpy}>
@@ -459,18 +503,18 @@ describe('<Switch.Root />', () => {
       const customSubmitButton = screen.getAllByRole('button')[1]!;
 
       await customUser.click(customSubmitButton);
-      expect(customSubmitSpy.lastCall.returnValue.get).to.equal(null);
-      expect(customSubmitSpy.lastCall.returnValue.getAll).to.deep.equal([]);
+      expect(customSubmitSpy.mock.results.at(-1)?.value.get).toBe(null);
+      expect(customSubmitSpy.mock.results.at(-1)?.value.getAll).toEqual([]);
 
       await customUser.click(customSwitch);
       await customUser.click(customSubmitButton);
-      expect(customSubmitSpy.lastCall.returnValue.get).to.equal('on');
+      expect(customSubmitSpy.mock.results.at(-1)?.value.get).toBe('on');
     });
 
     it.skipIf(isJSDOM)(
       'should submit uncheckedValue when switch is off and uncheckedValue is specified',
       async () => {
-        const submitSpy = spy((event) => {
+        const submitSpy = vi.fn((event) => {
           event.preventDefault();
           const formData = new FormData(event.currentTarget);
           return formData.get('test-switch');
@@ -490,25 +534,25 @@ describe('<Switch.Root />', () => {
 
         await user.click(submitButton);
 
-        expect(submitSpy.callCount).to.equal(1);
-        expect(submitSpy.lastCall.returnValue).to.equal('off');
+        expect(submitSpy.mock.calls.length).toBe(1);
+        expect(submitSpy.mock.results.at(-1)?.value).toBe('off');
 
         await user.click(switchElement);
         await user.click(submitButton);
 
-        expect(submitSpy.callCount).to.equal(2);
-        expect(submitSpy.lastCall.returnValue).to.equal('on');
+        expect(submitSpy.mock.calls.length).toBe(2);
+        expect(submitSpy.mock.results.at(-1)?.value).toBe('on');
 
         await user.click(switchElement);
         await user.click(submitButton);
 
-        expect(submitSpy.callCount).to.equal(3);
-        expect(submitSpy.lastCall.returnValue).to.equal('off');
+        expect(submitSpy.mock.calls.length).toBe(3);
+        expect(submitSpy.mock.results.at(-1)?.value).toBe('off');
       },
     );
 
     it.skipIf(isJSDOM)('should submit custom uncheckedValue when switch is off', async () => {
-      const submitSpy = spy((event) => {
+      const submitSpy = vi.fn((event) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
         return formData.get('test-switch');
@@ -528,14 +572,14 @@ describe('<Switch.Root />', () => {
 
       await user.click(submitButton);
 
-      expect(submitSpy.callCount).to.equal(1);
-      expect(submitSpy.lastCall.returnValue).to.equal('false');
+      expect(submitSpy.mock.calls.length).toBe(1);
+      expect(submitSpy.mock.results.at(-1)?.value).toBe('false');
 
       await user.click(switchElement);
       await user.click(submitButton);
 
-      expect(submitSpy.callCount).to.equal(2);
-      expect(submitSpy.lastCall.returnValue).to.equal('on');
+      expect(submitSpy.mock.calls.length).toBe(2);
+      expect(submitSpy.mock.results.at(-1)?.value).toBe('on');
     });
 
     it('triggers native HTML validation on submit', async () => {
@@ -553,12 +597,12 @@ describe('<Switch.Root />', () => {
 
       const submit = screen.getByText('Submit');
 
-      expect(screen.queryByTestId('error')).to.equal(null);
+      expect(screen.queryByTestId('error')).toBe(null);
 
       await user.click(submit);
 
       const error = screen.getByTestId('error');
-      expect(error).to.have.text('required');
+      expect(error).toHaveTextContent('required');
     });
 
     it('clears external errors on change', async () => {
@@ -577,13 +621,13 @@ describe('<Switch.Root />', () => {
 
       const switchElement = screen.getByTestId('switch');
 
-      expect(switchElement).to.have.attribute('aria-invalid', 'true');
-      expect(screen.queryByTestId('error')).to.have.text('test');
+      expect(switchElement).toHaveAttribute('aria-invalid', 'true');
+      expect(screen.queryByTestId('error')).toHaveTextContent('test');
 
       fireEvent.click(switchElement);
 
-      expect(switchElement).not.to.have.attribute('aria-invalid');
-      expect(screen.queryByTestId('error')).to.equal(null);
+      expect(switchElement).not.toHaveAttribute('aria-invalid');
+      expect(screen.queryByTestId('error')).toBe(null);
     });
   });
 
@@ -596,7 +640,7 @@ describe('<Switch.Root />', () => {
       );
 
       const switchElement = screen.getByRole('switch');
-      expect(switchElement).to.have.attribute('data-disabled');
+      expect(switchElement).toHaveAttribute('data-disabled');
     });
 
     it('should receive name prop from Field.Root', async () => {
@@ -607,7 +651,7 @@ describe('<Switch.Root />', () => {
       );
 
       const input = screen.getByRole('checkbox', { hidden: true });
-      expect(input).to.have.attribute('name', 'field-switch');
+      expect(input).toHaveAttribute('name', 'field-switch');
     });
 
     it('[data-touched]', async () => {
@@ -622,7 +666,7 @@ describe('<Switch.Root />', () => {
       fireEvent.focus(button);
       fireEvent.blur(button);
 
-      expect(button).to.have.attribute('data-touched', '');
+      expect(button).toHaveAttribute('data-touched', '');
     });
 
     it('[data-dirty]', async () => {
@@ -634,11 +678,11 @@ describe('<Switch.Root />', () => {
 
       const button = screen.getByTestId('button');
 
-      expect(button).not.to.have.attribute('data-dirty');
+      expect(button).not.toHaveAttribute('data-dirty');
 
       fireEvent.click(button);
 
-      expect(button).to.have.attribute('data-dirty', '');
+      expect(button).toHaveAttribute('data-dirty', '');
     });
 
     describe('[data-filled]', () => {
@@ -651,15 +695,15 @@ describe('<Switch.Root />', () => {
 
         const button = screen.getByTestId('button');
 
-        expect(button).not.to.have.attribute('data-filled');
+        expect(button).not.toHaveAttribute('data-filled');
 
         fireEvent.click(button);
 
-        expect(button).to.have.attribute('data-filled', '');
+        expect(button).toHaveAttribute('data-filled', '');
 
         fireEvent.click(button);
 
-        expect(button).not.to.have.attribute('data-filled');
+        expect(button).not.toHaveAttribute('data-filled');
       });
 
       it('removes [data-filled] attribute when unchecked after being initially checked', async () => {
@@ -671,11 +715,11 @@ describe('<Switch.Root />', () => {
 
         const button = screen.getByTestId('button');
 
-        expect(button).to.have.attribute('data-filled');
+        expect(button).toHaveAttribute('data-filled');
 
         fireEvent.click(button);
 
-        expect(button).not.to.have.attribute('data-filled', '');
+        expect(button).not.toHaveAttribute('data-filled', '');
       });
     });
 
@@ -688,15 +732,15 @@ describe('<Switch.Root />', () => {
 
       const button = screen.getByTestId('button');
 
-      expect(button).not.to.have.attribute('data-focused');
+      expect(button).not.toHaveAttribute('data-focused');
 
       fireEvent.focus(button);
 
-      expect(button).to.have.attribute('data-focused', '');
+      expect(button).toHaveAttribute('data-focused', '');
 
       fireEvent.blur(button);
 
-      expect(button).not.to.have.attribute('data-focused');
+      expect(button).not.toHaveAttribute('data-focused');
     });
 
     it('prop: validationMode=onSubmit', async () => {
@@ -711,19 +755,19 @@ describe('<Switch.Root />', () => {
       );
 
       const button = screen.getByRole('switch');
-      expect(button).not.to.have.attribute('aria-invalid');
+      expect(button).not.toHaveAttribute('aria-invalid');
 
       fireEvent.click(screen.getByText('submit'));
-      expect(button).to.have.attribute('aria-invalid', 'true');
-      expect(screen.queryByTestId('error')).to.not.equal(null);
+      expect(button).toHaveAttribute('aria-invalid', 'true');
+      expect(screen.queryByTestId('error')).not.toBe(null);
 
       fireEvent.click(button);
-      expect(button).not.to.have.attribute('aria-invalid');
-      expect(screen.queryByTestId('error')).to.equal(null);
+      expect(button).not.toHaveAttribute('aria-invalid');
+      expect(screen.queryByTestId('error')).toBe(null);
 
       fireEvent.click(button);
-      expect(button).to.have.attribute('aria-invalid', 'true');
-      expect(screen.queryByTestId('error')).to.not.equal(null);
+      expect(button).toHaveAttribute('aria-invalid', 'true');
+      expect(screen.queryByTestId('error')).not.toBe(null);
     });
 
     it('prop: validationMode=onChange', async () => {
@@ -741,15 +785,15 @@ describe('<Switch.Root />', () => {
 
       const button = screen.getByTestId('button');
 
-      expect(button).not.to.have.attribute('aria-invalid');
+      expect(button).not.toHaveAttribute('aria-invalid');
 
       fireEvent.click(button);
 
-      expect(button).to.have.attribute('aria-invalid', 'true');
+      expect(button).toHaveAttribute('aria-invalid', 'true');
     });
 
     it('revalidates when a controlled value changes externally', async () => {
-      const validateSpy = spy((value: unknown) => ((value as boolean) ? 'error' : null));
+      const validateSpy = vi.fn((value: unknown) => ((value as boolean) ? 'error' : null));
 
       function App() {
         const [checked, setChecked] = React.useState(false);
@@ -771,14 +815,14 @@ describe('<Switch.Root />', () => {
       const button = screen.getByTestId('button');
       const toggle = screen.getByText('Toggle externally');
 
-      expect(button).not.to.have.attribute('aria-invalid');
-      const initialCallCount = validateSpy.callCount;
+      expect(button).not.toHaveAttribute('aria-invalid');
+      const initialCallCount = validateSpy.mock.calls.length;
 
       fireEvent.click(toggle);
 
-      expect(validateSpy.callCount).to.equal(initialCallCount + 1);
-      expect(validateSpy.lastCall.args[0]).to.equal(true);
-      expect(button).to.have.attribute('aria-invalid', 'true');
+      expect(validateSpy.mock.calls.length).toBe(initialCallCount + 1);
+      expect(validateSpy.mock.lastCall?.[0]).toBe(true);
+      expect(button).toHaveAttribute('aria-invalid', 'true');
     });
 
     it('prop: validationMode=onBlur', async () => {
@@ -797,12 +841,12 @@ describe('<Switch.Root />', () => {
 
       const button = screen.getByTestId('button');
 
-      expect(button).not.to.have.attribute('aria-invalid');
+      expect(button).not.toHaveAttribute('aria-invalid');
 
       fireEvent.click(button);
       fireEvent.blur(button);
 
-      expect(button).to.have.attribute('aria-invalid', 'true');
+      expect(button).toHaveAttribute('aria-invalid', 'true');
     });
 
     describe('Field.Label', () => {
@@ -818,17 +862,17 @@ describe('<Switch.Root />', () => {
           );
 
           const label = screen.getByTestId('label');
-          expect(label.getAttribute('for')).not.to.equal(null);
+          expect(label.getAttribute('for')).not.toBe(null);
 
           const input = document.querySelector('input[type="checkbox"]');
-          expect(label.getAttribute('for')).to.equal(input?.getAttribute('id'));
+          expect(label.getAttribute('for')).toBe(input?.getAttribute('id'));
 
           const switchEl = screen.getByRole('switch');
-          expect(switchEl.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
-          expect(switchEl).to.have.attribute('aria-checked', 'false');
+          expect(switchEl.getAttribute('aria-labelledby')).toBe(label.getAttribute('id'));
+          expect(switchEl).toHaveAttribute('aria-checked', 'false');
 
           fireEvent.click(label);
-          expect(switchEl).to.have.attribute('aria-checked', 'true');
+          expect(switchEl).toHaveAttribute('aria-checked', 'true');
         });
       });
 
@@ -845,15 +889,15 @@ describe('<Switch.Root />', () => {
           const switchEl = screen.getByRole('switch');
           const input = document.querySelector('input[type="checkbox"]');
 
-          expect(label.getAttribute('for')).not.to.equal(null);
+          expect(label.getAttribute('for')).not.toBe(null);
 
-          expect(label.getAttribute('for')).to.equal(input?.getAttribute('id'));
-          expect(switchEl.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
+          expect(label.getAttribute('for')).toBe(input?.getAttribute('id'));
+          expect(switchEl.getAttribute('aria-labelledby')).toBe(label.getAttribute('id'));
 
-          expect(switchEl).to.have.attribute('aria-checked', 'false');
+          expect(switchEl).toHaveAttribute('aria-checked', 'false');
 
           fireEvent.click(label);
-          expect(switchEl).to.have.attribute('aria-checked', 'true');
+          expect(switchEl).toHaveAttribute('aria-checked', 'true');
         });
 
         it('when rendering a non-native button', async () => {
@@ -865,11 +909,11 @@ describe('<Switch.Root />', () => {
           );
 
           const label = screen.getByTestId('label');
-          expect(label.getAttribute('for')).not.to.equal(null);
+          expect(label.getAttribute('for')).not.toBe(null);
           const input = document.querySelector('input[type="checkbox"]');
-          expect(input?.getAttribute('id')).to.equal(label.getAttribute('for'));
+          expect(input?.getAttribute('id')).toBe(label.getAttribute('for'));
           const switchEl = screen.getByRole('switch');
-          expect(switchEl.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
+          expect(switchEl.getAttribute('aria-labelledby')).toBe(label.getAttribute('id'));
         });
 
         it('when rendering a non-native label', async () => {
@@ -884,15 +928,15 @@ describe('<Switch.Root />', () => {
           const label = screen.getByTestId('label');
           const switchEl = screen.getByRole('switch');
 
-          expect(label.getAttribute('for')).to.equal(null);
-          expect(label.getAttribute('id')).not.to.equal(null);
+          expect(label.getAttribute('for')).toBe(null);
+          expect(label.getAttribute('id')).not.toBe(null);
 
-          expect(switchEl.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
-          expect(switchEl).to.have.attribute('aria-checked', 'false');
+          expect(switchEl.getAttribute('aria-labelledby')).toBe(label.getAttribute('id'));
+          expect(switchEl).toHaveAttribute('aria-checked', 'false');
 
           // non-native labels cannot toggle a non-native-button switch
           fireEvent.click(label);
-          expect(switchEl).to.not.have.attribute('aria-checked', 'true');
+          expect(switchEl).not.toHaveAttribute('aria-checked', 'true');
         });
       });
     });
@@ -907,7 +951,7 @@ describe('<Switch.Root />', () => {
 
       const internalInput = screen.queryByRole<HTMLInputElement>('checkbox', { hidden: true });
 
-      expect(internalInput).to.have.attribute(
+      expect(internalInput).toHaveAttribute(
         'aria-describedby',
         screen.getByTestId('description').id,
       );
@@ -918,20 +962,20 @@ describe('<Switch.Root />', () => {
     const { container, user } = await render(<Switch.Root render={<button />} nativeButton />);
 
     const switchEl = screen.getByRole('switch');
-    expect(switchEl).to.have.attribute('aria-checked', 'false');
+    expect(switchEl).toHaveAttribute('aria-checked', 'false');
     // eslint-disable-next-line testing-library/no-container
-    expect(container.querySelector('button')).to.equal(switchEl);
+    expect(container.querySelector('button')).toBe(switchEl);
 
     await user.keyboard('[Tab]');
     expect(switchEl).toHaveFocus();
 
     await user.keyboard('[Enter]');
-    expect(switchEl).to.have.attribute('aria-checked', 'true');
+    expect(switchEl).toHaveAttribute('aria-checked', 'true');
 
     await user.keyboard('[Space]');
-    expect(switchEl).to.have.attribute('aria-checked', 'false');
+    expect(switchEl).toHaveAttribute('aria-checked', 'false');
 
     await user.click(switchEl);
-    expect(switchEl).to.have.attribute('aria-checked', 'true');
+    expect(switchEl).toHaveAttribute('aria-checked', 'true');
   });
 });

@@ -1,10 +1,11 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { ownerDocument } from '@base-ui/utils/owner';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { contains, getTarget } from '../floating-ui-react/utils';
 import { findScrollableTouchTarget, hasScrollableAncestor, type ScrollAxis } from './scrollable';
 import { clamp } from './clamp';
+import { getElementAtPoint } from './getElementAtPoint';
 
 export type SwipeDirection = 'up' | 'down' | 'left' | 'right';
 
@@ -42,7 +43,7 @@ export function getDisplacement(direction: SwipeDirection, deltaX: number, delta
 }
 
 export function getElementTransform(element: HTMLElement) {
-  const computedStyle = window.getComputedStyle(element);
+  const computedStyle = ownerWindow(element).getComputedStyle(element);
   const transform = computedStyle.transform;
   let translateX = 0;
   let translateY = 0;
@@ -307,10 +308,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
 
   function getTargetAtPoint(position: { x: number; y: number }, nativeEvent: Event) {
     const doc = ownerDocument(elementRef.current);
-    const elementAtPoint =
-      typeof doc?.elementFromPoint === 'function'
-        ? doc.elementFromPoint(position.x, position.y)
-        : null;
+    const elementAtPoint = getElementAtPoint(doc, position.x, position.y);
     const target = elementAtPoint ?? getTarget(nativeEvent);
     return target as HTMLElement | null;
   }

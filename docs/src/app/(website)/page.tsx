@@ -27,29 +27,36 @@ export default function Homepage() {
           }),
         }}
       />
+      {/* Organization schema for Google Knowledge Panel and entity recognition.
+          https://developers.google.com/search/docs/appearance/structured-data/organization */}
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Organization',
+            name: 'Base UI',
+            url: process.env.BASE_URL,
+            logo: `${process.env.BASE_URL}/static/favicon.svg`,
+            sameAs: [
+              process.env.SOURCE_CODE_REPO,
+              'https://x.com/base_ui',
+              'https://www.npmjs.com/package/@base-ui/react',
+              'https://discord.com/invite/g6C3hUtuxz',
+              'https://bsky.app/profile/did:plc:nwr6peuxqzdzlbi72qr5kldc',
+            ],
+          }),
+        }}
+      />
 
       <section className="bui-d-c">
         <h1 className="Text size-3 bp2:size-4 bui-gcs-1 bui-gce-9 bp4:bui-gce-5">
           Unstyled UI components for building accessible user interfaces
         </h1>
         <div className="bui-gcs-1 bui-gce-9">
-          <Link className="Text size-2 Link bui-d-if" href="/react/overview/quick-start">
+          <Link className="Text size-2 bui-d-if" href="/react/overview/quick-start" withArrow>
             Documentation
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 16 16"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="Icon"
-            >
-              <path className="LinkArrowCaret" d="M6 12L10 8L6 4"></path>
-              <path className="LinkArrowLine" d="M2 8L13 8"></path>
-            </svg>
           </Link>
         </div>
       </section>
@@ -206,33 +213,59 @@ export default function Homepage() {
           <h2 className="Text size-2">The fine print</h2>
         </div>
         <div className="bui-gcs-1 bui-gce-9 bp2:bui-gcs-3 bp4:bui-gce-7">
-          <Accordion.Root className="AccordionRoot">
-            <Accordion.Item className="AccordionItem">
+          <Accordion.Root
+            className="AccordionRoot"
+            itemScope
+            itemType="https://schema.org/FAQPage"
+            // Setting `keepMounted` so that the content of all panels is available in the DOM for search engines. This is especially important for the homepage, which contains important SEO content.
+            keepMounted
+          >
+            <Accordion.Item
+              className="AccordionItem"
+              itemScope
+              itemProp="mainEntity"
+              itemType="https://schema.org/Question"
+            >
               <Accordion.Header className="AccordionHeader">
-                <Accordion.Trigger className="AccordionTrigger Text size-2">
+                <Accordion.Trigger className="AccordionTrigger Text size-2" itemProp="name">
                   What is Base UI?
                   <PlusIcon className="AccordionIcon AccordionIconPlus" />
                   <MinusIcon className="AccordionIcon AccordionIconMinus" />
                 </Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel className="AccordionPanel">
-                <p className="Text size-2">
+              <Accordion.Panel
+                className="AccordionPanel"
+                itemScope
+                itemProp="acceptedAnswer"
+                itemType="https://schema.org/Answer"
+              >
+                <p className="Text size-2" itemProp="text">
                   Base UI is a library of unstyled UI components for building accessible component
                   libraries, user interfaces, web applications, and websites with React. Base UI
                   components are highly configurable, composable, and customizable.
                 </p>
               </Accordion.Panel>
             </Accordion.Item>
-            <Accordion.Item className="AccordionItem">
+            <Accordion.Item
+              className="AccordionItem"
+              itemScope
+              itemProp="mainEntity"
+              itemType="https://schema.org/Question"
+            >
               <Accordion.Header className="AccordionHeader">
-                <Accordion.Trigger className="AccordionTrigger Text size-2">
+                <Accordion.Trigger className="AccordionTrigger Text size-2" itemProp="name">
                   Does Base UI work with any styling library?
                   <PlusIcon className="AccordionIcon AccordionIconPlus" />
                   <MinusIcon className="AccordionIcon AccordionIconMinus" />
                 </Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel className="AccordionPanel">
-                <p className="Text size-2">
+              <Accordion.Panel
+                className="AccordionPanel"
+                itemScope
+                itemProp="acceptedAnswer"
+                itemType="https://schema.org/Answer"
+              >
+                <p className="Text size-2" itemProp="text">
                   Yes. Base UI works with Tailwind, CSS Modules, CSS-in-JS, plain CSS, and any other
                   styling library you prefer. It also works with JavaScript animation libraries like
                   Motion, or just plain CSS transitions. Base UI is an unstyled component library.
@@ -240,24 +273,34 @@ export default function Homepage() {
                 </p>
               </Accordion.Panel>
             </Accordion.Item>
-            <Accordion.Item className="AccordionItem">
+            <Accordion.Item
+              className="AccordionItem"
+              itemScope
+              itemProp="mainEntity"
+              itemType="https://schema.org/Question"
+            >
               <Accordion.Header className="AccordionHeader">
-                <Accordion.Trigger className="AccordionTrigger Text size-2">
+                <Accordion.Trigger className="AccordionTrigger Text size-2" itemProp="name">
                   Which accessibility standards does Base UI follow?
                   <PlusIcon className="AccordionIcon AccordionIconPlus" />
                   <MinusIcon className="AccordionIcon AccordionIconMinus" />
                 </Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel className="AccordionPanel">
-                <p className="Text size-2">
+              <Accordion.Panel
+                className="AccordionPanel"
+                itemScope
+                itemProp="acceptedAnswer"
+                itemType="https://schema.org/Answer"
+              >
+                <p className="Text size-2" itemProp="text">
                   When designing and speccing components, we follow{' '}
-                  <a className="Link" href="https://www.w3.org/WAI/ARIA/apg/patterns/">
+                  <Link href="https://www.w3.org/WAI/ARIA/apg/patterns/">
                     ARIA Authoring Practices Guide patterns
-                  </a>
+                  </Link>
                   , and comply with the{' '}
-                  <a className="Link" href="https://www.w3.org/TR/WCAG22/#new-features-in-wcag-2-2">
+                  <Link href="https://www.w3.org/TR/WCAG22/#new-features-in-wcag-2-2">
                     WCAG 2.2 standard
-                  </a>
+                  </Link>
                   . Base UI is compliant with all Success Criteria levels relating to component
                   behavior. However, in most cases, we go way beyond these guides. Base UI
                   components are tested across a wide range of browsers, devices, platforms, and
@@ -265,16 +308,26 @@ export default function Homepage() {
                 </p>
               </Accordion.Panel>
             </Accordion.Item>
-            <Accordion.Item className="AccordionItem">
+            <Accordion.Item
+              className="AccordionItem"
+              itemScope
+              itemProp="mainEntity"
+              itemType="https://schema.org/Question"
+            >
               <Accordion.Header className="AccordionHeader">
-                <Accordion.Trigger className="AccordionTrigger Text size-2">
+                <Accordion.Trigger className="AccordionTrigger Text size-2" itemProp="name">
                   How does Base UI differ from Radix UI?
                   <PlusIcon className="AccordionIcon AccordionIconPlus" />
                   <MinusIcon className="AccordionIcon AccordionIconMinus" />
                 </Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel className="AccordionPanel">
-                <div className="bui-d-f bui-fd-c bui-g-4">
+              <Accordion.Panel
+                className="AccordionPanel"
+                itemScope
+                itemProp="acceptedAnswer"
+                itemType="https://schema.org/Answer"
+              >
+                <div className="bui-d-f bui-fd-c bui-g-4" itemProp="text">
                   <p className="Text size-2">
                     In terms of API design, both libraries are very similar. We intentionally kept
                     our APIs close to Radix UI for an easier migration path. Base UI provides more
@@ -291,48 +344,78 @@ export default function Homepage() {
                 </div>
               </Accordion.Panel>
             </Accordion.Item>
-            <Accordion.Item className="AccordionItem">
+            <Accordion.Item
+              className="AccordionItem"
+              itemScope
+              itemProp="mainEntity"
+              itemType="https://schema.org/Question"
+            >
               <Accordion.Header className="AccordionHeader">
-                <Accordion.Trigger className="AccordionTrigger Text size-2">
+                <Accordion.Trigger className="AccordionTrigger Text size-2" itemProp="name">
                   Can I use Base UI without React?
                   <PlusIcon className="AccordionIcon AccordionIconPlus" />
                   <MinusIcon className="AccordionIcon AccordionIconMinus" />
                 </Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel className="AccordionPanel">
-                <p className="Text size-2">
+              <Accordion.Panel
+                className="AccordionPanel"
+                itemScope
+                itemProp="acceptedAnswer"
+                itemType="https://schema.org/Answer"
+              >
+                <p className="Text size-2" itemProp="text">
                   Base UI is a React library. It is not designed to be used without React. We may
                   consider supporting other libraries at some point, but for the foreseeable future,
                   React is our primary focus.
                 </p>
               </Accordion.Panel>
             </Accordion.Item>
-            <Accordion.Item className="AccordionItem">
+            <Accordion.Item
+              className="AccordionItem"
+              itemScope
+              itemProp="mainEntity"
+              itemType="https://schema.org/Question"
+            >
               <Accordion.Header className="AccordionHeader">
-                <Accordion.Trigger className="AccordionTrigger Text size-2">
+                <Accordion.Trigger className="AccordionTrigger Text size-2" itemProp="name">
                   Is Base UI free for commercial use?
                   <PlusIcon className="AccordionIcon AccordionIconPlus" />
                   <MinusIcon className="AccordionIcon AccordionIconMinus" />
                 </Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel className="AccordionPanel">
-                <p className="Text size-2">
+              <Accordion.Panel
+                className="AccordionPanel"
+                itemScope
+                itemProp="acceptedAnswer"
+                itemType="https://schema.org/Answer"
+              >
+                <p className="Text size-2" itemProp="text">
                   Yes. Base UI is licensed under the MIT license, and is free for commercial use.
                   You are free to use it in your commercial projects, and to modify it to suit your
                   needs.
                 </p>
               </Accordion.Panel>
             </Accordion.Item>
-            <Accordion.Item className="AccordionItem">
+            <Accordion.Item
+              className="AccordionItem"
+              itemScope
+              itemProp="mainEntity"
+              itemType="https://schema.org/Question"
+            >
               <Accordion.Header className="AccordionHeader">
-                <Accordion.Trigger className="AccordionTrigger Text size-2">
+                <Accordion.Trigger className="AccordionTrigger Text size-2" itemProp="name">
                   Do you offer enterprise SLAs?
                   <PlusIcon className="AccordionIcon AccordionIconPlus" />
                   <MinusIcon className="AccordionIcon AccordionIconMinus" />
                 </Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel className="AccordionPanel">
-                <p className="Text size-2">
+              <Accordion.Panel
+                className="AccordionPanel"
+                itemScope
+                itemProp="acceptedAnswer"
+                itemType="https://schema.org/Answer"
+              >
+                <p className="Text size-2" itemProp="text">
                   Not currently. We do provide dedicated support channels to some very large
                   enterprise companies who are working with us as design partners. But we do not
                   currently provide Service Level Agreements, guaranteed response times, issue
@@ -352,9 +435,13 @@ const description = 'Unstyled UI components for building accessible web apps and
 export const metadata: Metadata = {
   description,
   twitter: {
+    site: '@base_ui',
+    card: 'summary_large_image',
     description,
   },
   openGraph: {
+    type: 'website',
+    url: './',
     description,
   },
 };

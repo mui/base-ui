@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { ScrollAreaScrollbarContext } from './ScrollAreaScrollbarContext';
@@ -125,7 +126,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
       }
 
       // Ignore clicks on thumb
-      if (event.currentTarget !== event.target) {
+      if (event.currentTarget !== getTarget(event.nativeEvent)) {
         return;
       }
 
@@ -256,7 +257,7 @@ export interface ScrollAreaScrollbarProps extends BaseUIComponentProps<
    */
   orientation?: 'vertical' | 'horizontal' | undefined;
   /**
-   * Whether to keep the HTML element in the DOM when the viewport isn’t scrollable.
+   * Whether to keep the HTML element in the DOM when the viewport isn't scrollable.
    * @default false
    */
   keepMounted?: boolean | undefined;

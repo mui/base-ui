@@ -8,8 +8,6 @@
 
 import { DemoDrawerHero } from './demos/hero';
 
-**Note**: `Drawer` is in preview for a temporary period and receives breaking changes in minor versions. `DrawerPreview` will be renamed to `Drawer` when it exits preview.
-
 <DemoDrawerHero />
 
 ## Usage guidelines
@@ -21,7 +19,7 @@ import { DemoDrawerHero } from './demos/hero';
 Import the component and assemble its parts:
 
 ```jsx title="Anatomy"
-import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
+import { Drawer } from '@base-ui/react/drawer';
 
 <Drawer.Provider>
   <Drawer.IndentBackground />
@@ -46,7 +44,7 @@ import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
 </Drawer.Provider>;
 ```
 
-Drawer supports swipe gestures to dismiss. Set `swipeDirection` to control which direction dismisses the drawer. `<Drawer.Content>` allows text selection of its children without swipe interference when using a mouse pointer.
+Drawer supports swipe gestures to dismiss. Set `swipeDirection` to control which direction dismisses the drawer. `<Drawer.Content>` allows text selection of its children without swipe interference when using a mouse pointer. Add `data-base-ui-swipe-ignore` to a descendant when you need to opt that element out of swipe dismissal for all input types.
 
 ## Examples
 
@@ -315,10 +313,71 @@ Use `--drawer-swipe-progress` to fade the backdrop as the drawer is swiped, and 
 
 ## API reference
 
-<Reference
-  component="Drawer"
-  parts="Provider, IndentBackground, Indent, Root, Trigger, SwipeArea, Portal, Backdrop, Viewport, Popup, Title, Description, Close"
-/>
+import { TypesDrawer } from './types';
+
+### Provider
+
+<TypesDrawer.Provider />
+
+### IndentBackground
+
+<TypesDrawer.IndentBackground />
+
+### Indent
+
+<TypesDrawer.Indent />
+
+### Root
+
+<TypesDrawer.Root />
+
+### Trigger
+
+<TypesDrawer.Trigger />
+
+### SwipeArea
+
+<TypesDrawer.SwipeArea />
+
+### Portal
+
+<TypesDrawer.Portal />
+
+### Backdrop
+
+<TypesDrawer.Backdrop />
+
+### Viewport
+
+<TypesDrawer.Viewport />
+
+### Popup
+
+<TypesDrawer.Popup />
+
+### Content
+
+<TypesDrawer.Content />
+
+### Title
+
+<TypesDrawer.Title />
+
+### Description
+
+<TypesDrawer.Description />
+
+### Close
+
+<TypesDrawer.Close />
+
+### createHandle
+
+<TypesDrawer.createHandle />
+
+### Handle
+
+<TypesDrawer.Handle />
 
 export const metadata = {
   keywords: [

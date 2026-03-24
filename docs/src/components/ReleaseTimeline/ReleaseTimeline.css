@@ -147,7 +147,6 @@
   .TimelineDate {
     font-size: var(--text-sm);
     line-height: var(--text-sm--line-height);
-    letter-spacing: var(--text-sm--letter-spacing);
     color: var(--color-gray-500);
   }
 
@@ -158,8 +157,7 @@
     margin: 0;
     font-size: var(--text-lg);
     line-height: var(--text-lg--line-height);
-    letter-spacing: var(--text-lg--letter-spacing);
-    font-weight: 500;
+    font-weight: 700;
     color: var(--color-foreground);
   }
 
@@ -192,7 +190,7 @@
     font-size: var(--text-xxs);
     line-height: var(--text-xxs--line-height);
     letter-spacing: var(--text-xxs--letter-spacing);
-    font-weight: 500;
+    font-weight: 400;
     color: var(--color-green);
     border: 1px solid currentColor;
     border-radius: 999px;
@@ -202,7 +200,6 @@
   .TimelineHighlights {
     list-style: none;
     padding: 0;
-    letter-spacing: var(--text-md--letter-spacing);
   }
 
   .TimelineHighlights li {

@@ -11,7 +11,7 @@
   gap: 0.25rem;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  font-weight: 500;
+  font-weight: 700;
   color: var(--color-gray-900);
 }
 
@@ -26,6 +26,7 @@
   background-color: canvas;
   padding: 0.25rem 0.375rem;
   width: 16rem;
+  cursor: text;
 
   &:focus-within {
     outline: 2px solid var(--color-blue);
@@ -96,6 +97,7 @@
   border-radius: 0.375rem;
   font-family: inherit;
   font-size: 1rem;
+  font-weight: 400;
   background-color: transparent;
   color: var(--color-gray-900);
   min-width: 3rem;
@@ -285,7 +287,7 @@
   font-size: 1.125rem;
   line-height: 1.75rem;
   letter-spacing: -0.0025em;
-  font-weight: 500;
+  font-weight: 700;
 }
 
 .Description {
@@ -333,7 +335,7 @@
   background-color: var(--color-gray-50);
   font-family: inherit;
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1.5rem;
   color: var(--color-gray-900);
   user-select: none;

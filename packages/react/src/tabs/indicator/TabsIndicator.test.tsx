@@ -1,6 +1,5 @@
+import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { expect } from 'chai';
-import { spy } from 'sinon';
 import { Tabs } from '@base-ui/react/tabs';
 import { waitFor, screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
@@ -34,12 +33,12 @@ describe('<Tabs.Indicator />', () => {
         </Tabs.Root>,
       );
 
-      expect(screen.queryByTestId('bubble')).to.equal(null);
+      expect(screen.queryByTestId('bubble')).toBe(null);
     });
 
     function assertSize(actual: string, expected: number) {
       const actualNumber = parseFloat(actual);
-      expect(actualNumber).to.be.closeTo(expected, 0.01);
+      expect(Math.abs(actualNumber - expected)).toBeLessThanOrEqual(0.01);
     }
 
     function assertBubblePositionVariables(
@@ -340,7 +339,7 @@ describe('<Tabs.Indicator />', () => {
     });
 
     it('perf: single tab resize does not fan out excessive indicator rerenders', async () => {
-      const renderIndicatorSpy = spy();
+      const renderIndicatorSpy = vi.fn();
 
       const LoggingIndicator = React.forwardRef(function LoggingIndicator(
         props: any & { renderSpy: () => void },
@@ -383,7 +382,7 @@ describe('<Tabs.Indicator />', () => {
       });
 
       const firstTab = screen.getByTestId('tab-1');
-      const initialRenderCount = renderIndicatorSpy.callCount;
+      const initialRenderCount = renderIndicatorSpy.mock.calls.length;
       firstTab.setAttribute('style', 'width: 180px; flex-shrink: 0;');
 
       await waitFor(() => {
@@ -391,7 +390,7 @@ describe('<Tabs.Indicator />', () => {
       });
 
       // React strict mode doubles render calls in tests.
-      expect(renderIndicatorSpy.callCount - initialRenderCount).to.be.lessThan(5);
+      expect(renderIndicatorSpy.mock.calls.length - initialRenderCount).toBeLessThan(5);
     });
   });
 });

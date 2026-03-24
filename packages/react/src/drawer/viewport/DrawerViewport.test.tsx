@@ -1,7 +1,9 @@
-import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
+import * as ReactDOM from 'react-dom';
+import { Combobox } from '@base-ui/react/combobox';
+import { Drawer } from '@base-ui/react/drawer';
 import { Slider } from '@base-ui/react/slider';
 import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
-import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { createRenderer, isJSDOM } from '#test-utils';
 
 describe('<Drawer.Viewport />', () => {
@@ -23,6 +25,15 @@ describe('<Drawer.Viewport />', () => {
     }
 
     return point;
+  }
+
+  function createNativeTouchMove(target: EventTarget, point: { clientX: number; clientY: number }) {
+    const touchMove = new Event('touchmove', { bubbles: true, cancelable: true });
+    Object.defineProperty(touchMove, 'touches', {
+      value: [createTouch(target, point)],
+      configurable: true,
+    });
+    return touchMove;
   }
 
   it('clears text selection on swipe start', async () => {
@@ -171,6 +182,369 @@ describe('<Drawer.Viewport />', () => {
     }
   });
 
+  it('allows clicks on non-interactive elements without data-base-ui-swipe-ignore', async () => {
+    const handleClick = vi.fn();
+    const handleOpenChange = vi.fn();
+
+    await render(
+      <Drawer.Root open onOpenChange={handleOpenChange}>
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport>
+            <Drawer.Popup>
+              <Drawer.Content>
+                <div data-testid="target" onClick={handleClick}>
+                  Action
+                </div>
+              </Drawer.Content>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const target = screen.getByTestId('target');
+    const backdrop = screen.getByTestId('backdrop');
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => target;
+
+    try {
+      fireEvent.touchStart(target, {
+        touches: [
+          createTouch(target, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+      fireEvent.pointerDown(target, { pointerType: 'touch' });
+      fireEvent.touchEnd(target, {
+        changedTouches: [
+          createTouch(target, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+      fireEvent.click(target, { detail: 1 });
+
+      await flushMicrotasks();
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+
+    expect(handleClick).toHaveBeenCalledTimes(1);
+    expect(handleOpenChange).not.toHaveBeenCalled();
+    expect(backdrop).not.toHaveAttribute('data-swiping');
+  });
+
+  it('does not start touch swipes from elements with data-base-ui-swipe-ignore', async () => {
+    const handleOpenChange = vi.fn();
+
+    await render(
+      <Drawer.Root open onOpenChange={handleOpenChange}>
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport data-testid="viewport">
+            <Drawer.Popup>
+              <Drawer.Content>
+                <div data-testid="target" data-base-ui-swipe-ignore>
+                  Action
+                </div>
+              </Drawer.Content>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const target = screen.getByTestId('target');
+    const backdrop = screen.getByTestId('backdrop');
+
+    fireEvent.touchStart(target, {
+      touches: [
+        createTouch(target, {
+          clientX: 0,
+          clientY: 0,
+        }),
+      ],
+    });
+
+    fireEvent.touchMove(target, {
+      touches: [
+        createTouch(target, {
+          clientX: 0,
+          clientY: 40,
+        }),
+      ],
+    });
+
+    fireEvent.touchEnd(target, {
+      changedTouches: [
+        createTouch(target, {
+          clientX: 0,
+          clientY: 40,
+        }),
+      ],
+    });
+
+    await flushMicrotasks();
+
+    expect(backdrop).not.toHaveAttribute('data-swiping');
+    expect(handleOpenChange).not.toHaveBeenCalled();
+  });
+
+  it('does not prevent native touch scrolling in portaled descendants', async () => {
+    const portalContainer = document.createElement('div');
+    document.body.append(portalContainer);
+
+    function PortaledPopup() {
+      return ReactDOM.createPortal(
+        <div data-testid="portaled-popup">Portaled popup</div>,
+        portalContainer,
+      );
+    }
+
+    await render(
+      <Drawer.Root open>
+        <Drawer.Portal>
+          <Drawer.Viewport>
+            <Drawer.Popup>
+              <Drawer.Content>Content</Drawer.Content>
+              <PortaledPopup />
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const portaledPopup = screen.getByTestId('portaled-popup');
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => portaledPopup;
+
+    try {
+      fireEvent.touchStart(portaledPopup, {
+        touches: [
+          createTouch(portaledPopup, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      const touchMove = createNativeTouchMove(portaledPopup, {
+        clientX: 0,
+        clientY: 40,
+      });
+      portaledPopup.dispatchEvent(touchMove);
+
+      expect(touchMove.defaultPrevented).toBe(false);
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+      portalContainer.remove();
+    }
+  });
+
+  it.skipIf(isJSDOM)(
+    'allows touch gestures on a portaled combobox popup without starting drawer swipe',
+    async () => {
+      const handleOpenChange = vi.fn();
+      const { user } = await render(
+        <Drawer.Root open onOpenChange={handleOpenChange}>
+          <Drawer.Portal>
+            <Drawer.Backdrop data-testid="backdrop" />
+            <Drawer.Viewport>
+              <Drawer.Popup>
+                <Drawer.Content>
+                  <Combobox.Root
+                    defaultOpen
+                    items={[
+                      'Apple',
+                      'Banana',
+                      'Cherry',
+                      'Date',
+                      'Elderberry',
+                      'Fig',
+                      'Grape',
+                      'Honeydew',
+                      'Kiwi',
+                      'Lime',
+                    ]}
+                  >
+                    <Combobox.Input />
+                    <Combobox.Portal>
+                      <Combobox.Positioner>
+                        <Combobox.Popup>
+                          <Combobox.List style={{ maxHeight: 40, overflow: 'auto' }}>
+                            {(item: string) => (
+                              <Combobox.Item key={item} value={item}>
+                                {item}
+                              </Combobox.Item>
+                            )}
+                          </Combobox.List>
+                        </Combobox.Popup>
+                      </Combobox.Positioner>
+                    </Combobox.Portal>
+                  </Combobox.Root>
+                </Drawer.Content>
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>,
+      );
+
+      const listbox = await screen.findByRole('listbox');
+      const backdrop = screen.getByTestId('backdrop');
+      await waitFor(() => {
+        expect(listbox.scrollHeight).toBeGreaterThan(listbox.clientHeight);
+      });
+      expect(listbox.scrollHeight).toBeGreaterThan(listbox.clientHeight);
+
+      const originalElementFromPoint = document.elementFromPoint;
+      document.elementFromPoint = () => listbox;
+
+      try {
+        const rect = listbox.getBoundingClientRect();
+
+        await user.pointer([
+          {
+            target: listbox,
+            coords: {
+              clientX: rect.left + rect.width / 2,
+              clientY: rect.top + rect.height - 8,
+            },
+            keys: '[TouchA>]',
+          },
+          {
+            target: listbox,
+            coords: {
+              clientX: rect.left + rect.width / 2,
+              clientY: rect.top + rect.height / 2,
+            },
+            pointerName: 'TouchA',
+          },
+          {
+            target: listbox,
+            coords: {
+              clientX: rect.left + rect.width / 2,
+              clientY: rect.top + 8,
+            },
+            pointerName: 'TouchA',
+          },
+          { keys: '[/TouchA]' },
+        ]);
+
+        expect(backdrop).not.toHaveAttribute('data-swiping');
+        expect(handleOpenChange).not.toHaveBeenCalled();
+        expect(listbox).toBeVisible();
+      } finally {
+        document.elementFromPoint = originalElementFromPoint;
+      }
+    },
+  );
+
+  it('still allows touch swipes from elements with legacy data-swipe-ignore', async () => {
+    const handleOpenChange = vi.fn();
+
+    await render(
+      <Drawer.Root open onOpenChange={handleOpenChange} swipeDirection="down">
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport data-testid="viewport">
+            <Drawer.Popup>
+              <div data-testid="target" data-swipe-ignore>
+                Action
+              </div>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const target = screen.getByTestId('target');
+    const backdrop = screen.getByTestId('backdrop');
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => target;
+
+    try {
+      fireEvent.touchStart(target, {
+        touches: [
+          createTouch(target, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      fireEvent.touchMove(target, {
+        touches: [
+          createTouch(target, {
+            clientX: 0,
+            clientY: 40,
+          }),
+        ],
+      });
+
+      await flushMicrotasks();
+
+      expect(backdrop).toHaveAttribute('data-swiping', '');
+
+      fireEvent.touchEnd(target, {
+        changedTouches: [
+          createTouch(target, {
+            clientX: 0,
+            clientY: 80,
+          }),
+        ],
+      });
+
+      await flushMicrotasks();
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+    expect(handleOpenChange).not.toHaveBeenCalled();
+  });
+
+  it('does not start non-touch swipes from Drawer.Content', async () => {
+    await render(
+      <Drawer.Root open>
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport>
+            <Drawer.Popup>
+              <Drawer.Content>
+                <div data-testid="target">Action</div>
+              </Drawer.Content>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const target = screen.getByTestId('target');
+    const backdrop = screen.getByTestId('backdrop');
+
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => target;
+
+    try {
+      fireEvent.pointerDown(target, {
+        button: 0,
+        buttons: 1,
+        pointerId: 1,
+        clientX: 0,
+        clientY: 0,
+        pointerType: 'mouse',
+      });
+
+      await flushMicrotasks();
+
+      expect(backdrop).not.toHaveAttribute('data-swiping');
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+  });
+
   it('does not jump when touch starts outside the popup and then enters it', async () => {
     await render(
       <Drawer.Root open swipeDirection="down">
@@ -292,7 +666,7 @@ describe('<Drawer.Viewport />', () => {
     );
   });
 
-  it('treats pen interactions on swipe-ignored content as non-touch swipes', async () => {
+  it('treats pen interactions on Drawer.Content as non-touch swipes', async () => {
     await render(
       <Drawer.Root open swipeDirection="down">
         <Drawer.Portal>
@@ -431,6 +805,89 @@ describe('<Drawer.Viewport />', () => {
       await flushMicrotasks();
 
       expect(parentPopup).toHaveAttribute('data-nested-drawer-swiping', '');
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+  });
+
+  it('clears nested swiping when a nested drawer swipe is reversed before release', async () => {
+    await render(
+      <Drawer.Root open swipeDirection="down">
+        <Drawer.Portal>
+          <Drawer.Viewport>
+            <Drawer.Popup data-testid="parent-popup">
+              <Drawer.Root open swipeDirection="down">
+                <Drawer.Portal>
+                  <Drawer.Viewport>
+                    <Drawer.Popup data-testid="child-popup">
+                      <button type="button" data-testid="child-button">
+                        Action
+                      </button>
+                    </Drawer.Popup>
+                  </Drawer.Viewport>
+                </Drawer.Portal>
+              </Drawer.Root>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const parentPopup = screen.getByTestId('parent-popup');
+    const childPopup = screen.getByTestId('child-popup');
+    const button = screen.getByTestId('child-button');
+    Object.defineProperty(childPopup, 'offsetHeight', { value: 200, configurable: true });
+
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => childPopup;
+
+    try {
+      fireEvent.touchStart(button, {
+        touches: [
+          createTouch(button, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      await flushMicrotasks();
+
+      fireEvent.touchMove(button, {
+        touches: [
+          createTouch(button, {
+            clientX: 0,
+            clientY: 5,
+          }),
+        ],
+      });
+
+      fireEvent.touchMove(button, {
+        touches: [
+          createTouch(button, {
+            clientX: 0,
+            clientY: 20,
+          }),
+        ],
+      });
+
+      await flushMicrotasks();
+
+      expect(parentPopup).toHaveAttribute('data-nested-drawer-swiping', '');
+
+      fireEvent.touchMove(button, {
+        touches: [
+          createTouch(button, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      await flushMicrotasks();
+
+      expect(parentPopup).not.toHaveAttribute('data-nested-drawer-swiping');
+      expect(parentPopup.style.getPropertyValue('--drawer-swipe-progress')).toBe('0');
     } finally {
       document.elementFromPoint = originalElementFromPoint;
     }
