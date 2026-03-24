@@ -101,7 +101,7 @@ export function InstallationBlock(props: InstallationBlockProps) {
           <Tabs.Panel key={pm.value} value={pm.value}>
             <pre
               ref={pm.value === value ? codeRef : undefined}
-              className="CodeBlockPre"
+              className="CodeBlockPreInline"
               style={PRE_STYLE}
               data-language="bash"
               data-theme="base-ui"
