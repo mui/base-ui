@@ -15,14 +15,6 @@ overrides:
   '@types/react': 19.2.14
   '@types/react-dom': ^19.2.3
 
-patchedDependencies:
-  '@atlaskit/pragmatic-drag-and-drop-hitbox@1.1.0':
-    hash: 58aada53cc95101f05ce75ca8fc56b0ca1cf25435943bf0d7f425643e0d388d8
-    path: patches/@atlaskit__pragmatic-drag-and-drop-hitbox@1.1.0.patch
-  '@atlaskit/pragmatic-drag-and-drop@1.7.9':
-    hash: 2101677690e47c1de221cc35ad92eb8e33ba89330f4137fa3918d5ac3ae6ec43
-    path: patches/@atlaskit__pragmatic-drag-and-drop@1.7.9.patch
-
 importers:
 
   .:
@@ -506,10 +498,10 @@ importers:
     dependencies:
       '@atlaskit/pragmatic-drag-and-drop':
         specifier: ^1.5.2
-        version: 1.7.9(patch_hash=2101677690e47c1de221cc35ad92eb8e33ba89330f4137fa3918d5ac3ae6ec43)
+        version: 1.7.9
       '@atlaskit/pragmatic-drag-and-drop-hitbox':
         specifier: ^1.1.0
-        version: 1.1.0(patch_hash=58aada53cc95101f05ce75ca8fc56b0ca1cf25435943bf0d7f425643e0d388d8)
+        version: 1.1.0
       '@babel/runtime':
         specifier: ^7.29.2
         version: 7.29.2
@@ -10613,12 +10605,12 @@ snapshots:
 
   '@asamuzakjp/nwsapi@2.3.9': {}
 
-  '@atlaskit/pragmatic-drag-and-drop-hitbox@1.1.0(patch_hash=58aada53cc95101f05ce75ca8fc56b0ca1cf25435943bf0d7f425643e0d388d8)':
+  '@atlaskit/pragmatic-drag-and-drop-hitbox@1.1.0':
     dependencies:
-      '@atlaskit/pragmatic-drag-and-drop': 1.7.9(patch_hash=2101677690e47c1de221cc35ad92eb8e33ba89330f4137fa3918d5ac3ae6ec43)
+      '@atlaskit/pragmatic-drag-and-drop': 1.7.9
       '@babel/runtime': 7.29.2
 
-  '@atlaskit/pragmatic-drag-and-drop@1.7.9(patch_hash=2101677690e47c1de221cc35ad92eb8e33ba89330f4137fa3918d5ac3ae6ec43)':
+  '@atlaskit/pragmatic-drag-and-drop@1.7.9':
     dependencies:
       '@babel/runtime': 7.29.2
       bind-event-listener: 3.0.0
