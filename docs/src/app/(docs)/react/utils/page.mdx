@@ -12,7 +12,7 @@
 
 ## CSP Provider
 
-A CSP provider component that applies a nonce to inline style and script tags rendered by Base UI components, and can disable inline style elements.
+Configures CSP-related behavior for inline tags rendered by Base UI components.
 
 <details>
 
@@ -28,6 +28,7 @@ A CSP provider component that applies a nonce to inline style and script tags re
 - Exports:
   - CSPProvider
     - Props: children, disableStyleElements, nonce
+- Types: CSPProvider.Props, CSPProvider.State
 
 </details>
 
@@ -35,7 +36,7 @@ A CSP provider component that applies a nonce to inline style and script tags re
 
 ## Direction Provider
 
-A direction provider component that enables RTL behavior for Base UI components.
+Enables RTL behavior for Base UI components.
 
 <details>
 
@@ -51,6 +52,7 @@ A direction provider component that enables RTL behavior for Base UI components
   - DirectionProvider
     - Props: children, direction
   - useDirection
+- Types: DirectionProvider.Props, DirectionProvider.State, TextDirection
 
 </details>
 
@@ -58,7 +60,7 @@ A direction provider component that enables RTL behavior for Base UI components
 
 ## mergeProps
 
-A utility to merge multiple sets of React props, handling event handlers, className, and style props intelligently.
+A utility to merge multiple sets of React props.
 
 <details>
 
@@ -73,9 +75,13 @@ A utility to merge multiple sets of React props, handling event handlers, classN
     - mergePropsN
 - Exports:
   - makeEventPreventable
+    - Parameters: event
   - mergeClassNames
+    - Parameters: ourClassName, theirClassName
   - mergeProps
+    - Parameters: a, b, c, d, e
   - mergePropsN
+    - Parameters: props
 
 </details>
 
@@ -101,6 +107,8 @@ Hook for enabling a render prop in custom components.
 - Exports:
   - ComponentRenderFn
   - useRender
+    - Parameters: params
+- Types: HTMLProps, UseRenderComponentProps, UseRenderElementProps, UseRenderParameters, UseRenderRenderProp, UseRenderReturnValue, UseRenderState, useRender.ComponentProps, useRender.ElementProps, useRender.Parameters, useRender.RenderProp, useRender.ReturnValue, useRender.State
 
 </details>
 
@@ -108,7 +116,7 @@ Hook for enabling a render prop in custom components.
 
 ## Localization Provider
 
-A localization provider component that defines the locale to use in the temporal components.
+Defines the locale to use in the temporal components.
 
 <details>
 
@@ -125,6 +133,7 @@ A localization provider component that defines the locale to use in the temporal
   - LocalizationProvider
     - Props: children, temporalLocale
   - useTemporalLocale
+- Types: LocalizationProvider.Props
 
 </details>
 
