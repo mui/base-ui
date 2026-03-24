@@ -39,8 +39,8 @@ import { OTPField } from '@base-ui/react/otp-field';
 
 ### Labeling an OTP field
 
-Use a native `<label>` linked to the root `id`, and add `aria-describedby` to `<OTPField.Root>`
-when you want supporting text announced with the field:
+Pass an `id` to `<OTPField.Root>` and use a native `<label>` with a matching `htmlFor`. Add
+`aria-describedby` to `<OTPField.Root>` when you want supporting text announced with the field:
 
 ```tsx title="OTP Field with a native label and description"
 <OTPField.Root id="verification-code" length={6} aria-describedby="verification-code-description">

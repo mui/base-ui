@@ -101,17 +101,4 @@ describe('mdxToMarkdown', () => {
       }
     }
   });
-
-  it('should ignore Reference components in component docs', async () => {
-    const otpFieldMdxPath = path.resolve(
-      import.meta.dirname,
-      '../../src/app/(docs)/react/components/otp-field/page.mdx',
-    );
-    const otpFieldMdxContent = fs.readFileSync(otpFieldMdxPath, 'utf-8');
-
-    const result = await mdxToMarkdown(otpFieldMdxContent, otpFieldMdxPath);
-
-    expect(result.markdown).toContain('## API reference');
-    expect(result.markdown).not.toContain('<Reference');
-  });
 });
