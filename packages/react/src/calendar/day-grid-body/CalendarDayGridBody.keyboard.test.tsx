@@ -317,13 +317,6 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
 
   // ---------------------------------------------------------------------------
   // Home / End
-  //
-  // February 2025 grid (en-US locale, weeks start Sunday):
-  //   Week 1: Jan 26(disabled, idx 0) … Jan 31(disabled, idx 5), Feb 1(Sat, idx 6)
-  //   Week 2: Feb 2(Sun, idx 7)  … Feb 8(Sat, idx 13)
-  //   Week 3: Feb 9(Sun, idx 14) … Feb 14(Fri, idx 19), Feb 15(Sat, idx 20)
-  //   Week 4: Feb 16(Sun, idx 21) … Feb 22(Sat, idx 27)
-  //   Week 5: Feb 23(Sun, idx 28) … Feb 28(Fri, idx 33), Mar 1(disabled, idx 34)
   // ---------------------------------------------------------------------------
 
   describe('Home', () => {
@@ -352,6 +345,18 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
 
       expect(getDayButton(feb1)).toHaveFocus();
     });
+
+    it('should move focus to the first day of the week when pressing Home from the first week of the month and first day is not the first day of the week', async () => {
+      const apr4 = adapter.date('2025-04-04', 'default');
+      const { user } = renderCalendar(adapter.startOfMonth(apr4));
+
+      await act(async () => {
+        getDayButton(apr4).focus();
+      });
+      await user.keyboard('{Home}');
+
+      expect(getDayButton(adapter.date('2025-04-01', 'default'))).toHaveFocus();
+    });
   });
 
   describe('End', () => {
@@ -379,6 +384,18 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
       await user.keyboard('{End}');
 
       expect(getDayButton(feb28)).toHaveFocus();
+    });
+
+    it('should move focus to the last day of the week when pressing End from the last week of the month and last day is not the last day of the week', async () => {
+      const mar30 = adapter.date('2025-03-30', 'default');
+      const { user } = renderCalendar(adapter.startOfMonth(mar30));
+
+      await act(async () => {
+        getDayButton(mar30).focus();
+      });
+      await user.keyboard('{End}');
+
+      expect(getDayButton(mar31)).toHaveFocus();
     });
   });
 
