@@ -26,9 +26,10 @@ function isStylusTouch(event: TouchEvent) {
   return touchType === 'stylus' || touchType === 'pen' || pointerType === 'pen';
 }
 
-export function preventScrollIOS(referenceElement: Element | null = null) {
+function preventScrollIOS(referenceElement: Element | null = null) {
   const doc = ownerDocument(referenceElement);
   const win = ownerWindow(doc);
+  const restoreOverlayScrollbars = preventScrollOverlayScrollbars(referenceElement);
 
   let touchState: TouchScrollState | null = null;
   let allowTouchMove = false;
@@ -111,6 +112,7 @@ export function preventScrollIOS(referenceElement: Element | null = null) {
   return () => {
     doc.removeEventListener('touchstart', onTouchStart, touchOptions);
     doc.removeEventListener('touchmove', onTouchMove, touchOptions);
+    restoreOverlayScrollbars();
   };
 }
 
@@ -365,12 +367,7 @@ class ScrollLocker {
     }
 
     if (isIOS) {
-      const restoreOverlayScrollbars = preventScrollOverlayScrollbars(referenceElement);
-      const restoreIOS = preventScrollIOS(referenceElement);
-      this.restore = () => {
-        restoreIOS();
-        restoreOverlayScrollbars();
-      };
+      this.restore = preventScrollIOS(referenceElement);
       return;
     }
 

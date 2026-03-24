@@ -36,7 +36,7 @@ import {
   getScrollMetrics,
   hasScrollableContentOnAxis,
   type ScrollAxis,
-} from '../../utils/scrollable';
+} from '@base-ui/utils/scrollable';
 import { BASE_UI_SWIPE_IGNORE_SELECTOR } from '../../utils/constants';
 import { getElementAtPoint } from '../../utils/getElementAtPoint';
 import type { BaseUIComponentProps } from '../../utils/types';

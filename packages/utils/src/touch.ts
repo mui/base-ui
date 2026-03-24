@@ -1,6 +1,9 @@
 import { isElement } from '@floating-ui/utils/dom';
 import type { ScrollAxis } from './scrollable';
 
+const TOUCH_AXIS_COMMIT_THRESHOLD = 6;
+const TOUCH_AXIS_COMMIT_MARGIN = 2;
+
 function isTextSelectionControl(
   target: EventTarget | null,
 ): target is HTMLInputElement | HTMLTextAreaElement {
@@ -69,11 +72,11 @@ export function getTouchMoveAxis(
   const deltaX = Math.abs(currentX - startX);
   const deltaY = Math.abs(currentY - startY);
 
-  if (deltaX >= 6 && deltaX > deltaY + 2) {
+  if (deltaX >= TOUCH_AXIS_COMMIT_THRESHOLD && deltaX > deltaY + TOUCH_AXIS_COMMIT_MARGIN) {
     return 'horizontal';
   }
 
-  if (deltaY >= 6 && deltaY > deltaX + 2) {
+  if (deltaY >= TOUCH_AXIS_COMMIT_THRESHOLD && deltaY > deltaX + TOUCH_AXIS_COMMIT_MARGIN) {
     return 'vertical';
   }
 
