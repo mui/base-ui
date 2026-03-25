@@ -423,7 +423,7 @@ describe('<Listbox.Root />', () => {
       await flushMicrotasks();
 
       expect(handleValueChange).toHaveBeenCalledTimes(1);
-      expect(handleValueChange.mock.calls[0][0]).toEqual(['c', 'b']);
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['b', 'c']);
     });
 
     it('Shift+Space selects contiguous items from most recently selected to focused', async () => {
@@ -858,7 +858,7 @@ describe('<Listbox.Root />', () => {
         await flushMicrotasks();
 
         expect(handleValueChange).toHaveBeenCalledTimes(1);
-        expect(handleValueChange.mock.calls[0][0]).toEqual(['b', 'a']);
+        expect(handleValueChange.mock.calls[0][0]).toEqual(['a', 'b']);
       });
 
       it('Shift+ArrowDown does not select in horizontal orientation', async () => {
@@ -979,7 +979,7 @@ describe('<Listbox.Root />', () => {
         await flushMicrotasks();
 
         expect(handleValueChange).toHaveBeenCalledTimes(1);
-        expect(handleValueChange.mock.calls[0][0]).toEqual(['b', 'a']);
+        expect(handleValueChange.mock.calls[0][0]).toEqual(['a', 'b']);
       });
 
       it('Ctrl+A selects all in RTL', async () => {
