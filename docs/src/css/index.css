@@ -152,8 +152,9 @@
 /* Undo `tailwindcss/preflight` in non-Tailwind demos. */
 
 @layer base {
-  [data-demo] {
-    /* Undo Die Grotesk OpenType features */
+  /* Undo Die Grotesk OpenType features in demos and regression tests */
+  [data-demo],
+  [data-testid='testcase'] {
     font-feature-settings: normal;
   }
 
