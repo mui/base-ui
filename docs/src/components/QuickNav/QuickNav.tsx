@@ -29,8 +29,8 @@ export function Root({ children, className, ...props }: React.ComponentProps<'di
   );
 }
 
-export function Title({ className, ...props }: React.ComponentProps<'span'>) {
-  return <span className={clsx('bui-sr-only', className)} {...props} />;
+export function Title({ className, ...props }: React.ComponentProps<'header'>) {
+  return <header className={clsx('bui-sr-only', className)} {...props} />;
 }
 
 export function List({ className, children, ...props }: React.ComponentProps<'ul'>) {
