@@ -211,16 +211,12 @@ export function useHoverReferenceInteraction(
       const openDelay = getDelay(delayRef.current, 'open', instance.pointerType);
       const triggerNode = (event.currentTarget as HTMLElement) ?? null;
       const currentDomReference = store.select('domReferenceElement');
-      const floatingElement = store.select('floatingElement');
       const isOverInactive =
         triggerNode == null
           ? false
           : isOverInactiveTrigger(currentDomReference, triggerNode, getTarget(event));
       const isOpen = store.select('open');
-      const isInClosingTransition =
-        isElement(floatingElement) &&
-        (floatingElement.hasAttribute('data-ending-style') ||
-          floatingElement.querySelector('[data-ending-style]') !== null);
+      const isInClosingTransition = store.select('transitionStatus') === 'ending';
       const isHoverCloseTransition =
         !isOpen && isInClosingTransition && isHoverCloseActiveRef.current;
       const isReenteringSameTriggerDuringCloseTransition =
@@ -232,8 +228,8 @@ export function useHoverReferenceInteraction(
 
       const shouldOpen = !isOpen || isOverInactive;
 
-      // Open immediately when moving between triggers while open, during close transition,
-      // or within a short post-close handoff window.
+      // Open immediately when moving between triggers while open, or during
+      // a hover-driven close transition (including same-trigger re-entry).
       if (
         (isOverInactive && (isOpen || isHoverCloseTransition)) ||
         isReenteringSameTriggerDuringCloseTransition
