@@ -1160,7 +1160,9 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         await render(<TestSlider defaultValue={40} />);
 
         const sliderControl = screen.getByTestId('control');
-        vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+        vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(
+          getHorizontalSliderRect,
+        );
 
         const slider = screen.getByRole('slider');
 
