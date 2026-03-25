@@ -49,6 +49,7 @@
       &::after {
         bottom: var(--header-height);
         margin-bottom: -1px;
+        z-index: 1;
       }
     }
   }
