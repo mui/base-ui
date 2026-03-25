@@ -99,13 +99,13 @@ The `data-behind` attribute marks content that sits behind the frontmost toast a
   transition: opacity 0.25s;
 }
 
+/* @highlight-text "data-behind" */
 .ToastContent[data-behind] {
-  /* @highlight-text "data-behind" */
   opacity: 0;
 }
 
+/* @highlight-text "data-expanded" */
 .ToastContent[data-expanded] {
-  /* @highlight-text "data-expanded" */
   opacity: 1;
 }
 ```
@@ -114,9 +114,10 @@ The `--toast-swipe-movement-x` and `--toast-swipe-movement-y` CSS variables are 
 
 ```css title="Swipe offset"
 .Toast {
+  /* @highlight-text "--toast-swipe-movement-x" */
   transform: scale(1 - calc(0.1 * var(--toast-index))) translateX(var(--toast-swipe-movement-x))
-    /* @highlight-text "--toast-swipe-movement-x" */
-    translateY(calc(var(--toast-swipe-movement-y) + (var(--toast-index) * -20%))); /* @highlight-text "--toast-swipe-movement-y" */
+    /* @highlight-text "--toast-swipe-movement-y" */
+    translateY(calc(var(--toast-swipe-movement-y) + (var(--toast-index) * -20%)));
 }
 ```
 
@@ -126,22 +127,22 @@ The `data-swipe-direction` attribute can be used to determine the swipe directio
 &[data-ending-style] {
   opacity: 0;
 
+  /* @highlight-text "data-swipe-direction" */
   &[data-swipe-direction='up'] {
-    /* @highlight-text "data-swipe-direction" */
     transform: translateY(calc(var(--toast-swipe-movement-y) - 150%));
   }
+  /* @highlight-text "data-swipe-direction" */
   &[data-swipe-direction='down'] {
-    /* @highlight-text "data-swipe-direction" */
     transform: translateY(calc(var(--toast-swipe-movement-y) + 150%));
   }
   /* Note: --offset-y is defined locally in these examples and derives from
    --toast-offset-y, --toast-index, and swipe movement values */
+  /* @highlight-text "data-swipe-direction" */
   &[data-swipe-direction='left'] {
-    /* @highlight-text "data-swipe-direction" */
     transform: translateX(calc(var(--toast-swipe-movement-x) - 150%)) translateY(var(--offset-y));
   }
+  /* @highlight-text "data-swipe-direction" */
   &[data-swipe-direction='right'] {
-    /* @highlight-text "data-swipe-direction" */
     transform: translateX(calc(var(--toast-swipe-movement-x) + 150%)) translateY(var(--offset-y));
   }
 }
