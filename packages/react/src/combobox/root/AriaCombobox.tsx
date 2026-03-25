@@ -144,11 +144,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const endDismissRef = React.useRef<HTMLSpanElement | null>(null);
   const emptyRef = React.useRef<HTMLDivElement | null>(null);
   const keyboardActiveRef = React.useRef(true);
-  const pendingInputBehaviorRef = React.useRef<{
-    didClearInput: boolean;
-    closeAction: 'default' | 'skip' | 'force';
-    skipSelectedValueSync: boolean;
-  }>({
+  const pendingInputBehaviorRef = React.useRef<PendingInputBehavior>({
     didClearInput: false,
     closeAction: 'default',
     skipSelectedValueSync: false,
@@ -1574,6 +1570,12 @@ interface ComboboxRootProps<ItemValue> {
    * INTERNAL: When `selectionMode` is `none`, controls whether selecting an item fills the input.
    */
   fillInputOnItemPress?: boolean | undefined;
+}
+
+interface PendingInputBehavior {
+  didClearInput: boolean;
+  closeAction: 'default' | 'skip' | 'force';
+  skipSelectedValueSync: boolean;
 }
 
 export interface AriaComboboxState {}
