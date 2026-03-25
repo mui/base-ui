@@ -20,10 +20,6 @@
     }
   }
 
-  .QuickNavOutlet {
-    display: contents;
-  }
-
   .QuickNavRoot {
     --quick-nav-margin-x: 2rem;
     --quick-nav-scrollbar-thumb-width: 0.25rem;
@@ -109,11 +105,6 @@
     }
   }
 
-  .QuickNavTitle {
-    padding-block: var(--quick-nav-item-padding-y);
-    font-weight: 700;
-  }
-
   .QuickNavList {
     color: var(--color-gray);
     display: flex;
@@ -128,7 +119,7 @@
   .QuickNavLink {
     display: flex;
     padding: var(--quick-nav-item-padding-y) 0.5rem;
-    margin-inline: var(--quick-nav-item-padding-y) -0.5rem;
+    margin-inline: 0 -0.5rem;
     border-radius: var(--radius-md);
 
     &:focus-visible {

@@ -1,31 +1,21 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import clsx from 'clsx';
 import { usePathname } from 'next/navigation';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
 import './QuickNav.css';
 
-const QuickNavOutletContext = React.createContext<HTMLElement | null>(null);
+export function Container({ className, ...props }: React.ComponentProps<'div'>) {
+  return <div className={clsx('QuickNavContainer', className)} {...props} />;
+}
 
-export function Container({ className, children, ...props }: React.ComponentProps<'div'>) {
-  const [quickNavOutlet, setQuickNavOutlet] = React.useState<HTMLElement | null>(null);
-
-  return (
-    <QuickNavOutletContext.Provider value={quickNavOutlet}>
-      <div className={clsx('QuickNavContainer', className)} {...props}>
-        <div ref={setQuickNavOutlet} className="QuickNavOutlet" />
-        <div className="QuickNavContent">{children}</div>
-      </div>
-    </QuickNavOutletContext.Provider>
-  );
+export function Content({ className, ...props }: React.ComponentProps<'div'>) {
+  return <div className={clsx('QuickNavContent', className)} {...props} />;
 }
 
 export function Root({ children, className, ...props }: React.ComponentProps<'div'>) {
-  const quickNavOutlet = React.useContext(QuickNavOutletContext);
-
-  const quickNav = (
+  return (
     <nav aria-label="On this page" className={clsx('QuickNavRoot', className)} {...props}>
       <div className="QuickNavInner">
         <ScrollArea.Root>
@@ -37,20 +27,18 @@ export function Root({ children, className, ...props }: React.ComponentProps<'di
       </div>
     </nav>
   );
-
-  if (quickNavOutlet) {
-    return ReactDOM.createPortal(quickNav, quickNavOutlet);
-  }
-
-  return quickNav;
 }
 
-export function Title({ className, ...props }: React.ComponentProps<'header'>) {
-  return <header className={clsx('QuickNavTitle', className)} {...props} />;
+export function Title({ className, ...props }: React.ComponentProps<'span'>) {
+  return <span className={clsx('bui-sr-only', className)} {...props} />;
 }
 
-export function List({ className, ...props }: React.ComponentProps<'ul'>) {
-  return <ul className={clsx('QuickNavList', className)} {...props} />;
+export function List({ className, children, ...props }: React.ComponentProps<'ul'>) {
+  return children ? (
+    <ul className={clsx('QuickNavList', className)} {...props}>
+      {children}
+    </ul>
+  ) : null;
 }
 
 export function Item({ className, ...props }: React.ComponentProps<'li'>) {
