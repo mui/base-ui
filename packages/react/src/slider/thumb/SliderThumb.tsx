@@ -335,10 +335,10 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       max,
       min,
       name,
-      onChange(event: React.ChangeEvent<HTMLInputElement>) {
+      onChange(event) {
         handleInputChange(event.currentTarget.valueAsNumber, index, event);
       },
-      onFocus(event: React.FocusEvent<HTMLInputElement>) {
+      onFocus(event) {
         const isRestoringFocusVisible = restoringFocusVisibleRef.current;
         restoringFocusVisibleRef.current = false;
         setActive(index);
@@ -348,7 +348,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
           event.stopPropagation();
         }
       },
-      onBlur(event: React.FocusEvent<HTMLInputElement>) {
+      onBlur(event) {
         if (restoringFocusVisibleRef.current) {
           event.stopPropagation();
           return;
