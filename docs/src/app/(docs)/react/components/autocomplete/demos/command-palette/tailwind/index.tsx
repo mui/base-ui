@@ -32,7 +32,7 @@ export default function ExampleAutocompleteCommandPalette() {
             >
               <Autocomplete.Input
                 className="w-full border-0 border-b border-gray-100 bg-transparent p-4 text-base font-normal tracking-[0.016em] text-gray-900 placeholder:text-gray-500 outline-none"
-                placeholder="Search for apps and commands..."
+                placeholder="Search for apps and commands…"
               />
               <Dialog.Close className="sr-only">Close command palette</Dialog.Close>
 
