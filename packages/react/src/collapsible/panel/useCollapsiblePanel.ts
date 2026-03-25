@@ -448,7 +448,7 @@ export interface UseCollapsiblePanelParameters {
    */
   mounted: boolean;
   onOpenChange: (open: boolean, eventDetails: CollapsibleRoot.ChangeEventDetails) => void;
-  onOpenChangeComplete: ((open: boolean) => void) | undefined;
+  onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   /**
    * Whether the collapsible panel is currently open.
    */
