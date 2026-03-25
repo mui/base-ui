@@ -314,6 +314,8 @@ const toastManager = Toast.useToastManager();
 
 Creates a toast by adding it to the toast list.
 
+If you pass an `id` that already exists, the existing toast is updated in place instead of creating a duplicate.
+
 Returns a `toastId` that can be used to update or close the toast later.
 
 ```jsx title="Usage"

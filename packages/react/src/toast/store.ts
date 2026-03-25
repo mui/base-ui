@@ -13,6 +13,9 @@ import { activeElement, contains, getTarget } from '../floating-ui-react/utils';
 import { isFocusVisible } from './utils/focusVisible';
 
 type ToastInternalUpdateOptions<Data extends object> = Partial<Omit<ToastObject<Data>, 'id'>>;
+type UpdateToastBehavior = {
+  resetTimer?: boolean | undefined;
+};
 
 export type State = {
   toasts: ToastObject<any>[];
@@ -133,6 +136,21 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
   addToast = <Data extends object>(toast: ToastManagerAddOptions<Data>): string => {
     const { toasts, timeout, limit } = this.state;
     const id = toast.id || generateId('toast');
+
+    if (toast.id) {
+      const existingToast = selectors.toast(this.state, toast.id);
+
+      if (existingToast) {
+        if (existingToast.transitionStatus === 'ending') {
+          this.removeToast(toast.id);
+        } else {
+          const { id: semanticId, ...updates } = toast;
+          this.updateToastInternal(toast.id, updates, { resetTimer: true });
+          return toast.id;
+        }
+      }
+    }
+
     const toastToAdd: ToastObject<Data> = {
       ...toast,
       id,
@@ -180,6 +198,7 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
   updateToastInternal = <Data extends object>(
     id: string,
     updates: ToastInternalUpdateOptions<Data>,
+    behavior: UpdateToastBehavior = {},
   ) => {
     const { timeout, toasts } = this.state;
     const prevToast = selectors.toast(this.state, id) ?? null;
@@ -218,7 +237,10 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     }
 
     // Schedule or reschedule timer if needed
-    if (shouldHaveTimer && (!hasTimer || timeoutChanged || timeoutUpdated || wasLoading)) {
+    if (
+      shouldHaveTimer &&
+      (!hasTimer || timeoutChanged || timeoutUpdated || wasLoading || behavior.resetTimer)
+    ) {
       const timer = this.timers.get(id);
       if (timer) {
         timer.timeout?.clear();

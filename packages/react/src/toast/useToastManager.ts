@@ -121,6 +121,10 @@ export interface ToastManagerAddOptions<Data extends object> extends Omit<
   ToastObject<Data>,
   'id' | 'animation' | 'height' | 'ref' | 'limited'
 > {
+  /**
+   * The unique identifier for the toast. Adding a toast with an existing ID
+   * updates it in place and refreshes its auto-dismiss timer.
+   */
   id?: string | undefined;
 }
 

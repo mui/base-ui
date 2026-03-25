@@ -53,6 +53,68 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       expect(screen.queryByTestId('root')).toBe(null);
     });
 
+    it('replaces a closing toast when adding again with the same id', async () => {
+      function Buttons() {
+        const { add, close } = useToastManager();
+        const toastIdRef = React.useRef<string | null>(null);
+
+        return (
+          <React.Fragment>
+            <button
+              onClick={() => {
+                toastIdRef.current = add({
+                  id: 'save',
+                  title: 'Saving...',
+                  timeout: 0,
+                });
+              }}
+            >
+              add
+            </button>
+            <button
+              onClick={() => {
+                if (toastIdRef.current) {
+                  close(toastIdRef.current);
+                }
+              }}
+            >
+              close
+            </button>
+            <button
+              onClick={() => {
+                toastIdRef.current = add({
+                  id: 'save',
+                  title: 'Saved',
+                  timeout: 0,
+                });
+              }}
+            >
+              re-add
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+          <Buttons />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      expect(screen.getByTestId('title')).toHaveTextContent('Saving...');
+      expect(screen.queryAllByTestId('root')).toHaveLength(1);
+
+      fireEvent.click(screen.getByRole('button', { name: 'close' }));
+      fireEvent.click(screen.getByRole('button', { name: 're-add' }));
+
+      expect(screen.getByTestId('title')).toHaveTextContent('Saved');
+      expect(screen.queryAllByTestId('root')).toHaveLength(1);
+    });
+
     describe('option: timeout', () => {
       it('dismisses the toast after the specified timeout', async () => {
         function AddButton() {
