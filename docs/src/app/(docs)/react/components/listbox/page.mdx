@@ -74,6 +74,14 @@ import { DemoListboxDragAndDrop } from './demos/drag-and-drop';
 
 <DemoListboxDragAndDrop />
 
+### Custom keyboard shortcuts
+
+You can add custom keyboard shortcuts by handling `onKeyDown` on `Listbox.List` and updating the items array directly. This example uses `[` and `]` to move the focused item to the beginning or the end of the list.
+
+import { DemoListboxCustomShortcuts } from './demos/custom-shortcuts';
+
+<DemoListboxCustomShortcuts />
+
 ## API reference
 
 import { TypesListbox } from './types';

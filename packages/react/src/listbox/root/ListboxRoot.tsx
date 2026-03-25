@@ -49,6 +49,7 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
     itemToStringLabel,
     itemToStringValue,
     inputRef,
+    actionsRef,
     onItemsReorder,
     loading = false,
     onLoadMore,
@@ -181,6 +182,46 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
 
       setValueUnwrapped(nextValue);
     },
+  );
+
+  React.useImperativeHandle(
+    actionsRef,
+    () => ({
+      highlightValue(itemValue: Value, element?: HTMLElement | null) {
+        // After a reorder, the composite item indices are stale until
+        // two render cycles complete:
+        // 1. React commits the new DOM → MutationObserver fires → setIndex scheduled
+        // 2. React re-renders items with updated indices
+        // setTimeout(0) waits past step 1; requestAnimationFrame waits past step 2.
+        setTimeout(() => {
+          requestAnimationFrame(() => {
+            const listEl = store.state.listElement;
+            if (!listEl) {
+              return;
+            }
+
+            let target = element;
+
+            if (!target || !target.isConnected) {
+              const idx = findItemIndex(valuesRef.current, itemValue, isItemEqualToValue);
+              if (idx !== -1) {
+                target = listEl.querySelectorAll<HTMLElement>('[role="option"]')[idx];
+              }
+            }
+
+            if (target) {
+              const idx = findItemIndex(valuesRef.current, itemValue, isItemEqualToValue);
+              if (idx !== -1) {
+                store.set('activeIndex', idx);
+                target.focus();
+                target.scrollIntoView({ block: 'nearest' });
+              }
+            }
+          });
+        }, 0);
+      },
+    }),
+    [store, valuesRef, isItemEqualToValue],
   );
 
   useIsoLayoutEffect(() => {
@@ -326,8 +367,24 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
   );
 }
 
+export interface ListboxRootActions<Value> {
+  /**
+   * Sets the highlighted item by value. Focuses the item and scrolls it into view.
+   * Useful when reordering items externally and needing to restore highlight.
+   *
+   * When called after a reorder, pass the item's DOM element as the second
+   * argument for reliable matching — the element reference survives React's
+   * keyed reconciliation even when its position changes.
+   */
+  highlightValue: (value: Value, element?: HTMLElement | null) => void;
+}
+
 export interface ListboxRootProps<Value> {
   children?: React.ReactNode;
+  /**
+   * A ref to imperative actions.
+   */
+  actionsRef?: React.Ref<ListboxRootActions<Value>> | undefined;
   /**
    * A ref to access the hidden input element.
    */
@@ -441,6 +498,7 @@ export type ListboxRootChangeEventDetails = BaseUIChangeEventDetails<ListboxRoot
 export namespace ListboxRoot {
   export type Props<Value> = ListboxRootProps<Value>;
   export type State = ListboxRootState;
+  export type Actions<Value> = ListboxRootActions<Value>;
   export type ChangeEventReason = ListboxRootChangeEventReason;
   export type ChangeEventDetails = ListboxRootChangeEventDetails;
 }
