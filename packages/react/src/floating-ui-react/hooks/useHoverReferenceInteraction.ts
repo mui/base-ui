@@ -265,13 +265,22 @@ export function useHoverReferenceInteraction(
         triggerNode == null
           ? false
           : isOverInactiveTrigger(currentDomReference, triggerNode, getTarget(event));
+      const isOpen = store.select('open');
       const isInClosingTransition =
         isElement(floatingElement) && floatingElement.hasAttribute('data-ending-style');
+      const isInCloseLifecycle = !isOpen && isElement(floatingElement);
       const closeDelay = getDelay(delayRef.current, 'close', instance.pointerType) ?? 0;
       const handoffWindowMs = Math.max(100, closeDelay + 50);
-      const justClosedFromHover = performance.now() - lastHoverCloseAtRef.current <= handoffWindowMs;
+      const justClosedFromHover =
+        performance.now() - lastHoverCloseAtRef.current <= handoffWindowMs;
+      const isReenteringSameTriggerInHandoffWindow =
+        !isOverInactive &&
+        isElement(triggerNode) &&
+        isElement(currentDomReference) &&
+        contains(currentDomReference, triggerNode) &&
+        isInCloseLifecycle &&
+        justClosedFromHover;
 
-      const isOpen = store.select('open');
       const shouldOpen = !isOpen || isOverInactive;
 
       // eslint-disable-next-line no-console
@@ -282,6 +291,8 @@ export function useHoverReferenceInteraction(
         isOpen,
         isOverInactive,
         isInClosingTransition,
+        isInCloseLifecycle,
+        isReenteringSameTriggerInHandoffWindow,
         justClosedFromHover,
         handoffWindowMs,
         shouldOpen,
@@ -292,8 +303,9 @@ export function useHoverReferenceInteraction(
       // Open immediately when moving between triggers while open, during close transition,
       // or within a short post-close handoff window.
       if (
-        isOverInactive &&
-        (isOpen || isInClosingTransition || (hasPreviousReference && justClosedFromHover))
+        (isOverInactive &&
+          (isOpen || isInClosingTransition || (hasPreviousReference && justClosedFromHover))) ||
+        isReenteringSameTriggerInHandoffWindow
       ) {
         store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
       } else if (openDelay) {
