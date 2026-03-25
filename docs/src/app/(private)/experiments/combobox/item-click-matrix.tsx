@@ -39,6 +39,10 @@ interface Scenario {
   keepFilterText: boolean;
 }
 
+function createInitialEventLog() {
+  return ['ready: empty input'];
+}
+
 export default function ComboboxItemClickMatrix() {
   const [selectionMode, setSelectionMode] = React.useState<SelectionMode>('multiple');
   const [inputLocation, setInputLocation] = React.useState<InputLocation>('outside-popup');
@@ -141,7 +145,7 @@ function SingleScenarioPreview({ scenario }: { scenario: Scenario }) {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState<string | null>(null);
   const [inputValue, setInputValue] = React.useState('');
-  const [eventLog, setEventLog] = React.useState<string[]>(['ready: empty input']);
+  const [eventLog, setEventLog] = React.useState<string[]>(createInitialEventLog);
 
   function appendEvent(message: string) {
     setEventLog((prev) => [message, ...prev].slice(0, 6));
@@ -151,23 +155,12 @@ function SingleScenarioPreview({ scenario }: { scenario: Scenario }) {
     setOpen(false);
     setValue(null);
     setInputValue('');
-    setEventLog(['ready: empty input']);
+    setEventLog(createInitialEventLog());
   }
-
-  const triggerLabel = value ?? 'Open popup';
-  const popupClassName =
-    scenario.inputLocation === 'inside-popup'
-      ? `${styles.Popup} ${styles.PopupWithInput}`
-      : styles.Popup;
 
   return (
     <div className={styles.PreviewStack}>
-      <div className={styles.Toolbar}>
-        <button type="button" className={styles.ResetButton} onClick={resetPreview}>
-          Reset preview
-        </button>
-        <span className={styles.ToolbarHint}>Selected value: {value ?? 'none'}</span>
-      </div>
+      <PreviewToolbar selectedLabel={`Selected value: ${value ?? 'none'}`} onReset={resetPreview} />
 
       <div className={styles.PreviewSurface}>
         <Combobox.Root
@@ -191,44 +184,7 @@ function SingleScenarioPreview({ scenario }: { scenario: Scenario }) {
             );
           }}
         >
-          {scenario.inputLocation === 'outside-popup' ? (
-            <Combobox.InputGroup className={styles.InputGroup}>
-              <Combobox.Input className={styles.Input} placeholder="Type to search" />
-              <div className={styles.ActionButtons}>
-                <Combobox.Trigger className={styles.Trigger} aria-label="Open popup">
-                  <ChevronDownIcon className={styles.TriggerIcon} />
-                </Combobox.Trigger>
-              </div>
-            </Combobox.InputGroup>
-          ) : (
-            <Combobox.Trigger className={styles.PopupTrigger}>
-              <span>{triggerLabel}</span>
-              <ChevronDownIcon className={styles.TriggerIcon} />
-            </Combobox.Trigger>
-          )}
-
-          <Combobox.Portal>
-            <Combobox.Positioner className={styles.Positioner} align="start" sideOffset={4}>
-              <Combobox.Popup className={popupClassName} aria-label="Item click matrix">
-                {scenario.inputLocation === 'inside-popup' && (
-                  <div className={styles.InputContainer}>
-                    <Combobox.Input className={styles.PopupInput} placeholder="Type to search" />
-                  </div>
-                )}
-
-                <Combobox.List className={styles.List}>
-                  {(item: string) => (
-                    <Combobox.Item key={item} value={item} className={styles.Item}>
-                      <Combobox.ItemIndicator className={styles.ItemIndicator}>
-                        <CheckIcon className={styles.ItemIndicatorIcon} />
-                      </Combobox.ItemIndicator>
-                      <span className={styles.ItemText}>{item}</span>
-                    </Combobox.Item>
-                  )}
-                </Combobox.List>
-              </Combobox.Popup>
-            </Combobox.Positioner>
-          </Combobox.Portal>
+          <PreviewComboboxContent inputLocation={scenario.inputLocation} triggerLabel={value} />
         </Combobox.Root>
       </div>
 
@@ -241,7 +197,7 @@ function MultipleScenarioPreview({ scenario }: { scenario: Scenario }) {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState<string[]>([]);
   const [inputValue, setInputValue] = React.useState('');
-  const [eventLog, setEventLog] = React.useState<string[]>(['ready: empty input']);
+  const [eventLog, setEventLog] = React.useState<string[]>(createInitialEventLog);
 
   function appendEvent(message: string) {
     setEventLog((prev) => [message, ...prev].slice(0, 6));
@@ -251,25 +207,15 @@ function MultipleScenarioPreview({ scenario }: { scenario: Scenario }) {
     setOpen(false);
     setValue([]);
     setInputValue('');
-    setEventLog(['ready: empty input']);
+    setEventLog(createInitialEventLog());
   }
-
-  const triggerLabel = value.length === 0 ? 'Open popup' : `${value.length} selected`;
-  const popupClassName =
-    scenario.inputLocation === 'inside-popup'
-      ? `${styles.Popup} ${styles.PopupWithInput}`
-      : styles.Popup;
 
   return (
     <div className={styles.PreviewStack}>
-      <div className={styles.Toolbar}>
-        <button type="button" className={styles.ResetButton} onClick={resetPreview}>
-          Reset preview
-        </button>
-        <span className={styles.ToolbarHint}>
-          Selected values: {value.length === 0 ? 'none' : value.join(', ')}
-        </span>
-      </div>
+      <PreviewToolbar
+        selectedLabel={`Selected values: ${value.length === 0 ? 'none' : value.join(', ')}`}
+        onReset={resetPreview}
+      />
 
       <div className={styles.PreviewSurface}>
         <Combobox.Root
@@ -296,49 +242,86 @@ function MultipleScenarioPreview({ scenario }: { scenario: Scenario }) {
             );
           }}
         >
-          {scenario.inputLocation === 'outside-popup' ? (
-            <Combobox.InputGroup className={styles.InputGroup}>
-              <Combobox.Input className={styles.Input} placeholder="Type to search" />
-              <div className={styles.ActionButtons}>
-                <Combobox.Trigger className={styles.Trigger} aria-label="Open popup">
-                  <ChevronDownIcon className={styles.TriggerIcon} />
-                </Combobox.Trigger>
-              </div>
-            </Combobox.InputGroup>
-          ) : (
-            <Combobox.Trigger className={styles.PopupTrigger}>
-              <span>{triggerLabel}</span>
-              <ChevronDownIcon className={styles.TriggerIcon} />
-            </Combobox.Trigger>
-          )}
-
-          <Combobox.Portal>
-            <Combobox.Positioner className={styles.Positioner} align="start" sideOffset={4}>
-              <Combobox.Popup className={popupClassName} aria-label="Item click matrix">
-                {scenario.inputLocation === 'inside-popup' && (
-                  <div className={styles.InputContainer}>
-                    <Combobox.Input className={styles.PopupInput} placeholder="Type to search" />
-                  </div>
-                )}
-
-                <Combobox.List className={styles.List}>
-                  {(item: string) => (
-                    <Combobox.Item key={item} value={item} className={styles.Item}>
-                      <Combobox.ItemIndicator className={styles.ItemIndicator}>
-                        <CheckIcon className={styles.ItemIndicatorIcon} />
-                      </Combobox.ItemIndicator>
-                      <span className={styles.ItemText}>{item}</span>
-                    </Combobox.Item>
-                  )}
-                </Combobox.List>
-              </Combobox.Popup>
-            </Combobox.Positioner>
-          </Combobox.Portal>
+          <PreviewComboboxContent
+            inputLocation={scenario.inputLocation}
+            triggerLabel={value.length === 0 ? 'Open popup' : `${value.length} selected`}
+          />
         </Combobox.Root>
       </div>
 
       <PreviewStatus open={open} inputValue={inputValue} eventLog={eventLog} />
     </div>
+  );
+}
+
+function PreviewToolbar({
+  selectedLabel,
+  onReset,
+}: {
+  selectedLabel: string;
+  onReset: () => void;
+}) {
+  return (
+    <div className={styles.Toolbar}>
+      <button type="button" className={styles.ResetButton} onClick={onReset}>
+        Reset preview
+      </button>
+      <span className={styles.ToolbarHint}>{selectedLabel}</span>
+    </div>
+  );
+}
+
+function PreviewComboboxContent({
+  inputLocation,
+  triggerLabel = 'Open popup',
+}: {
+  inputLocation: InputLocation;
+  triggerLabel?: string | null;
+}) {
+  const popupClassName =
+    inputLocation === 'inside-popup' ? `${styles.Popup} ${styles.PopupWithInput}` : styles.Popup;
+
+  return (
+    <>
+      {inputLocation === 'outside-popup' ? (
+        <Combobox.InputGroup className={styles.InputGroup}>
+          <Combobox.Input className={styles.Input} placeholder="Type to search" />
+          <div className={styles.ActionButtons}>
+            <Combobox.Trigger className={styles.Trigger} aria-label="Open popup">
+              <ChevronDownIcon className={styles.TriggerIcon} />
+            </Combobox.Trigger>
+          </div>
+        </Combobox.InputGroup>
+      ) : (
+        <Combobox.Trigger className={styles.PopupTrigger}>
+          <span>{triggerLabel ?? 'Open popup'}</span>
+          <ChevronDownIcon className={styles.TriggerIcon} />
+        </Combobox.Trigger>
+      )}
+
+      <Combobox.Portal>
+        <Combobox.Positioner className={styles.Positioner} align="start" sideOffset={4}>
+          <Combobox.Popup className={popupClassName} aria-label="Item click matrix">
+            {inputLocation === 'inside-popup' && (
+              <div className={styles.InputContainer}>
+                <Combobox.Input className={styles.PopupInput} placeholder="Type to search" />
+              </div>
+            )}
+
+            <Combobox.List className={styles.List}>
+              {(item: string) => (
+                <Combobox.Item key={item} value={item} className={styles.Item}>
+                  <Combobox.ItemIndicator className={styles.ItemIndicator}>
+                    <CheckIcon className={styles.ItemIndicatorIcon} />
+                  </Combobox.ItemIndicator>
+                  <span className={styles.ItemText}>{item}</span>
+                </Combobox.Item>
+              )}
+            </Combobox.List>
+          </Combobox.Popup>
+        </Combobox.Positioner>
+      </Combobox.Portal>
+    </>
   );
 }
 
