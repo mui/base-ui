@@ -37,7 +37,7 @@
         var(--side-nav-scrollbar-gap-left) + var(--side-nav-scrollbar-width) / 2 +
           var(--side-nav-scrollbar-thumb-width) / 2
       )
-      6rem 1.5rem;
+      5rem 1.5rem;
 
     /* Scroll containers are focusable */
     outline: 0;
@@ -57,7 +57,7 @@
   .SideNavScrollbar {
     display: flex;
     padding-top: 1.5rem;
-    padding-bottom: 3rem;
+    padding-bottom: 4.5rem;
 
     /* Click target width */
     width: var(--side-nav-scrollbar-width);
@@ -90,7 +90,7 @@
     }
   }
 
-  .SideNavSection {
+  .SideNavSection:not(:last-child) {
     margin-bottom: 1rem;
   }
 
