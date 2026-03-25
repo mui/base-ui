@@ -90,7 +90,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     }
 
     function handleWindowFocus(event: FocusEvent) {
-      if (event.relatedTarget || getTarget(event) === win) {
+      if (event.relatedTarget) {
         return;
       }
 
