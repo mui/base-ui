@@ -19,22 +19,22 @@
     "@tanstack/react-start": "^1.154.12",
     "@tanstack/router-plugin": "^1.154.12",
     "clsx": "^2.1.1",
-    "lucide-react": "^0.562.0",
+    "lucide-react": "^0.577.0",
     "react": "^19",
     "react-dom": "^19",
     "vite-tsconfig-paths": "^6.0.4"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "^4.1.18",
+    "@tailwindcss/vite": "^4.2.1",
     "@tanstack/devtools-vite": "^0.4.1",
     "@tanstack/eslint-config": "^0.3.4",
-    "eslint": "^10.0.2",
+    "eslint": "^10.1.0",
     "@types/node": "22.18.13",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^6.0.1",
     "prettier": "^3.8.1",
-    "tailwindcss": "^4.1.18",
+    "tailwindcss": "^4.2.1",
     "typescript": "^5.9.3",
     "vite": "^8.0.1"
   }

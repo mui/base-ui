@@ -396,8 +396,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       lucide-react:
-        specifier: ^0.562.0
-        version: 0.562.0(react@19.2.4)
+        specifier: ^0.577.0
+        version: 0.577.0(react@19.2.4)
       react:
         specifier: ^19
         version: 19.2.4
@@ -409,7 +409,7 @@ importers:
         version: 6.0.4(typescript@5.9.3)(vite@8.0.1(@types/node@22.18.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.2))
     devDependencies:
       '@tailwindcss/vite':
-        specifier: ^4.1.18
+        specifier: ^4.2.1
         version: 4.2.1(vite@8.0.1(@types/node@22.18.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.2))
       '@tanstack/devtools-vite':
         specifier: ^0.4.1
@@ -430,13 +430,13 @@ importers:
         specifier: ^6.0.1
         version: 6.0.1(babel-plugin-react-compiler@1.0.0)(vite@8.0.1(@types/node@22.18.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.2))
       eslint:
-        specifier: ^10.0.2
+        specifier: ^10.1.0
         version: 10.1.0(jiti@2.6.1)
       prettier:
         specifier: ^3.8.1
         version: 3.8.1
       tailwindcss:
-        specifier: ^4.1.18
+        specifier: ^4.2.1
         version: 4.2.1
       typescript:
         specifier: ^5.9.3
@@ -454,15 +454,15 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       react:
-        specifier: ^19.1.1
+        specifier: ^19
         version: 19.2.4
       react-dom:
-        specifier: ^19.1.1
+        specifier: ^19
         version: 19.2.4(react@19.2.4)
     devDependencies:
       '@eslint/js':
-        specifier: ^9.32.0
-        version: 9.39.3
+        specifier: ^10.0.1
+        version: 10.0.1(eslint@10.1.0(jiti@2.6.1))
       '@types/react':
         specifier: 19.2.14
         version: 19.2.14
@@ -473,22 +473,22 @@ importers:
         specifier: ^6.0.1
         version: 6.0.1(babel-plugin-react-compiler@1.0.0)(vite@8.0.1(@types/node@22.18.13)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.2))
       eslint:
-        specifier: ^10.0.2
+        specifier: ^10.1.0
         version: 10.1.0(jiti@2.6.1)
       eslint-plugin-react-hooks:
-        specifier: ^5.2.0
-        version: 5.2.0(eslint@10.1.0(jiti@2.6.1))
+        specifier: ^7.0.1
+        version: 7.0.1(eslint@10.1.0(jiti@2.6.1))
       eslint-plugin-react-refresh:
-        specifier: ^0.5.0
+        specifier: ^0.5.2
         version: 0.5.2(eslint@10.1.0(jiti@2.6.1))
       globals:
-        specifier: ^16.3.0
-        version: 16.5.0
+        specifier: ^17.4.0
+        version: 17.4.0
       typescript:
-        specifier: ^5.9.2
+        specifier: ^5.9.3
         version: 5.9.3
       typescript-eslint:
-        specifier: ^8.39.0
+        specifier: ^8.57.1
         version: 8.57.1(eslint@10.1.0(jiti@2.6.1))(typescript@5.9.3)
       vite:
         specifier: ^8.0.1
@@ -6290,12 +6290,6 @@ packages:
     peerDependencies:
       eslint: '>=7'
 
-  eslint-plugin-react-hooks@5.2.0:
-    resolution: {integrity: sha512-+f15FfK64YQwZdJNELETdn5ibXEUQmW1DZL6KXhNnc2heoy/sg9VJJeT7n8TlMWouzWqSWavFkIhHyIbIAEapg==}
-    engines: {node: '>=10'}
-    peerDependencies:
-      eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0 || ^9.0.0
-
   eslint-plugin-react-hooks@7.0.1:
     resolution: {integrity: sha512-O0d0m04evaNzEPoSW+59Mezf8Qt0InfgGIBJnpC0h3NH/WjUAR7BIKUfysC6todmtiZ/A0oUVS8Gce0WhBrHsA==}
     engines: {node: '>=18'}
@@ -7716,11 +7710,6 @@ packages:
   lru-cache@6.0.0:
     resolution: {integrity: sha512-Jo6dJ04CmSjuznwJSS3pUeWmd/H0ffTlkXXgwZi+eq1UCmqQwCh+eLsYOYCwY991i2Fah4h1BEMCx4qThGbsiA==}
     engines: {node: '>=10'}
-
-  lucide-react@0.562.0:
-    resolution: {integrity: sha512-82hOAu7y0dbVuFfmO4bYF1XEwYk/mEbM5E+b1jgci/udUBEE/R7LF5Ip0CCEmXe8AybRM8L+04eP+LGZeDvkiw==}
-    peerDependencies:
-      react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   lucide-react@0.577.0:
     resolution: {integrity: sha512-4LjoFv2eEPwYDPg/CUdBJQSDfPyzXCRrVW1X7jrx/trgxnxkHFjnVZINbzvzxjN70dxychOfg+FTYwBiS3pQ5A==}
@@ -16901,10 +16890,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-react-hooks@5.2.0(eslint@10.1.0(jiti@2.6.1)):
-    dependencies:
-      eslint: 10.1.0(jiti@2.6.1)
-
   eslint-plugin-react-hooks@7.0.1(eslint@10.1.0(jiti@2.6.1)):
     dependencies:
       '@babel/core': 7.29.0
@@ -18469,10 +18454,6 @@ snapshots:
   lru-cache@6.0.0:
     dependencies:
       yallist: 4.0.0
-
-  lucide-react@0.562.0(react@19.2.4):
-    dependencies:
-      react: 19.2.4
 
   lucide-react@0.577.0(react@19.2.4):
     dependencies:
