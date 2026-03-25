@@ -124,6 +124,7 @@ export const ListboxItem = React.memo(
       dragEnabled: isDraggable && hasRegistered && !rootDisabled && !disabled,
       dropTargetEnabled: isDraggable && hasRegistered && !rootDisabled,
       valuesRef,
+      pointerMoveSuppressedRef,
       groupId,
       groupIdsRef,
       onItemsReorder,

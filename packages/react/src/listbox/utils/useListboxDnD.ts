@@ -23,6 +23,7 @@ export interface UseListboxItemDnDParameters {
   dragEnabled: boolean;
   dropTargetEnabled: boolean;
   valuesRef: React.RefObject<Array<any>>;
+  pointerMoveSuppressedRef: React.RefObject<boolean>;
   /**
    * Group ID for constraining drops. When defined, only items with the same
    * groupId can be drop targets. When `undefined`, drops are unrestricted.
@@ -58,6 +59,7 @@ export function useListboxItemDnD(params: UseListboxItemDnDParameters) {
     dragEnabled,
     dropTargetEnabled,
     valuesRef,
+    pointerMoveSuppressedRef,
     groupId,
     groupIdsRef,
     onItemsReorder,
@@ -129,14 +131,36 @@ export function useListboxItemDnD(params: UseListboxItemDnDParameters) {
           return { index, value: itemValue, groupId, isMultiDrag: false };
         },
         onDragStart({ source }) {
+          pointerMoveSuppressedRef.current = true;
           if (source.data.isMultiDrag) {
             store.set('dragActiveIndices', source.data.indices as number[]);
           } else {
             store.set('dragActiveIndices', [index]);
           }
         },
-        onDrop() {
+        onDrop({ source }) {
           store.update({ dragActiveIndices: null, dropTargetIndex: null });
+
+          // After the drop, highlight the dragged item at its new position.
+          const draggedValue = source.data.isMultiDrag
+            ? (source.data.values as any[])[0]
+            : source.data.value;
+          const eqFn = store.state.isItemEqualToValue;
+
+          setTimeout(() => {
+            requestAnimationFrame(() => {
+              const idx = valuesRef.current.findIndex(
+                (v) => v !== undefined && eqFn(v, draggedValue),
+              );
+              if (idx !== -1) {
+                store.set('activeIndex', idx);
+                const listEl = store.state.listElement;
+                const target = listEl?.querySelectorAll<HTMLElement>('[role="option"]')[idx];
+                target?.focus();
+              }
+              pointerMoveSuppressedRef.current = false;
+            });
+          }, 0);
         },
       });
     }
