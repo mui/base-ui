@@ -8,6 +8,7 @@ export interface RadioGroupContext<Value> {
   disabled: boolean | undefined;
   readOnly: boolean | undefined;
   required: boolean | undefined;
+  form: string | undefined;
   name: string | undefined;
   checkedValue: Value | undefined;
   setCheckedValue: (

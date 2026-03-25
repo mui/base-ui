@@ -58,6 +58,9 @@ export default defineConfig(
           project: ['tsconfig.json'],
         },
       },
+      next: {
+        rootDir: 'docs',
+      },
     },
     /**
      * Sorted alphanumerically within each group. built-in and each plugin form

@@ -19,21 +19,21 @@ export default function Layout({ children }: React.PropsWithChildren) {
       <head>
         <link
           rel="preload"
-          href={new URL('../../css/fonts/regular.woff2', import.meta.url).toString()}
+          href="/fonts/die-grotesk-a-regular.woff2"
           as="font"
           type="font/woff2"
           crossOrigin="anonymous"
         />
         <link
           rel="preload"
-          href={new URL('../../css/fonts/medium.woff2', import.meta.url).toString()}
+          href="/fonts/die-grotesk-a-bold.woff2"
           as="font"
           type="font/woff2"
           crossOrigin="anonymous"
         />
         <link
           rel="preload"
-          href={new URL('../../css/fonts/bold.woff2', import.meta.url).toString()}
+          href="/fonts/die-grotesk-b-bold.woff2"
           as="font"
           type="font/woff2"
           crossOrigin="anonymous"
@@ -110,15 +110,15 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
   },
   openGraph: {
-    type: 'website',
+    // 'article' is more semantically correct for documentation pages and
+    // unlocks article-specific OG properties.
+    type: 'article',
     locale: 'en_US',
-    title: {
-      template: '%s · Base UI',
-      default: 'Base UI',
-    },
+    url: './',
+    authors: ['https://base-ui.com'],
     ttl: 604800,
   },
-  metadataBase: new URL('https://base-ui.com'),
+  metadataBase: process.env.BASE_URL,
   alternates: {
     canonical: './',
   },

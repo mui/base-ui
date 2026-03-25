@@ -39,6 +39,40 @@ function TestNavigationMenu(props: NavigationMenu.Root.Props) {
   );
 }
 
+function TestNavigationMenuWithTopLevelLink(props: NavigationMenu.Root.Props = {}) {
+  return (
+    <NavigationMenu.Root {...props}>
+      <NavigationMenu.List>
+        <NavigationMenu.Item value="item-1">
+          <NavigationMenu.Trigger data-testid="trigger-1">Item 1</NavigationMenu.Trigger>
+          <NavigationMenu.Content data-testid="popup-1">
+            <NavigationMenu.Link href="#link-1">Link 1</NavigationMenu.Link>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+        <NavigationMenu.Item value="item-2">
+          <NavigationMenu.Trigger data-testid="trigger-2">Item 2</NavigationMenu.Trigger>
+          <NavigationMenu.Content data-testid="popup-2">
+            <NavigationMenu.Link href="#link-2">Link 2</NavigationMenu.Link>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+        <NavigationMenu.Item>
+          <NavigationMenu.Link href="#top-level-link" data-testid="top-level-link">
+            Top level link
+          </NavigationMenu.Link>
+        </NavigationMenu.Item>
+      </NavigationMenu.List>
+
+      <NavigationMenu.Portal>
+        <NavigationMenu.Positioner data-testid="top-level-positioner">
+          <NavigationMenu.Popup>
+            <NavigationMenu.Viewport />
+          </NavigationMenu.Popup>
+        </NavigationMenu.Positioner>
+      </NavigationMenu.Portal>
+    </NavigationMenu.Root>
+  );
+}
+
 function TestNestedNavigationMenu(props: NavigationMenu.Root.Props = {}) {
   return (
     <NavigationMenu.Root {...props}>
@@ -415,6 +449,36 @@ function TestNavigationMenuWithKeepMountedContent() {
   );
 }
 
+function TestNavigationMenuWithKeepMountedContentClosed() {
+  return (
+    <NavigationMenu.Root>
+      <NavigationMenu.List>
+        <NavigationMenu.Item value="item-1">
+          <NavigationMenu.Trigger data-testid="trigger-product">Product</NavigationMenu.Trigger>
+          <NavigationMenu.Content keepMounted>
+            <div style={{ width: 675, height: 220 }}>Product panel</div>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+
+        <NavigationMenu.Item value="item-2">
+          <NavigationMenu.Trigger data-testid="trigger-learn">Learn</NavigationMenu.Trigger>
+          <NavigationMenu.Content keepMounted>
+            <div style={{ width: 500, height: 180 }}>Learn panel</div>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+      </NavigationMenu.List>
+
+      <NavigationMenu.Portal keepMounted>
+        <NavigationMenu.Positioner data-testid="positioner">
+          <NavigationMenu.Popup data-testid="popup-root">
+            <NavigationMenu.Viewport />
+          </NavigationMenu.Popup>
+        </NavigationMenu.Positioner>
+      </NavigationMenu.Portal>
+    </NavigationMenu.Root>
+  );
+}
+
 function TestNavigationMenuWithScopedPopupExitAnimation(
   props: {
     onOpenChangeComplete?: NavigationMenu.Root.Props['onOpenChangeComplete'];
@@ -527,23 +591,45 @@ function mockBoundingClientRect(
 }
 
 function mockAnimations(element: HTMLElement) {
-  let resolveFinished: (() => void) | null = null;
-  let finishedPromise = Promise.resolve();
+  type MockAnimation = {
+    finished: Promise<void>;
+    resolveFinished: (() => void) | null;
+  };
+
+  function createAnimation(): MockAnimation {
+    let resolveFinished: (() => void) | null = null;
+
+    return {
+      finished: new Promise<void>((resolve) => {
+        resolveFinished = resolve;
+      }),
+      resolveFinished,
+    };
+  }
+
+  let currentAnimation = createAnimation();
+  let activeAnimations: MockAnimation[] = [];
 
   Object.defineProperty(element, 'getAnimations', {
     configurable: true,
-    value: () => [{ finished: finishedPromise }],
+    value: () =>
+      activeAnimations.map((animation) => ({
+        finished: animation.finished,
+      })),
   });
 
   return {
     start() {
-      finishedPromise = new Promise<void>((resolve) => {
-        resolveFinished = resolve;
-      });
+      currentAnimation = createAnimation();
+      activeAnimations.push(currentAnimation);
+      return currentAnimation;
     },
-    finish() {
-      resolveFinished?.();
-      resolveFinished = null;
+    finish(animation: MockAnimation = currentAnimation) {
+      const finished = animation.finished;
+      animation.resolveFinished?.();
+      animation.resolveFinished = null;
+      activeAnimations = activeAnimations.filter((item) => item !== animation);
+      return finished;
     },
   };
 }
@@ -859,10 +945,11 @@ describe('<NavigationMenu.Root />', () => {
       expect(trigger).toHaveAttribute('aria-expanded', 'true');
     });
 
-    it('blocks pointer events on the body while traversing from a top-level trigger to the popup', async () => {
+    it('blocks pointer events on the list while traversing from a top-level trigger to the popup', async () => {
       await render(<TestNavigationMenu />);
       const trigger = screen.getByTestId('trigger-1');
       const siblingTrigger = screen.getByTestId('trigger-2');
+      const topLevelList = trigger.closest('ul') as HTMLElement;
 
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
@@ -870,13 +957,105 @@ describe('<NavigationMenu.Root />', () => {
       await flushMicrotasks();
 
       expect(screen.queryByTestId('popup-1')).not.toBe(null);
-      expect(document.body.style.pointerEvents).toBe('none');
+      expect(topLevelList.style.pointerEvents).toBe('none');
+      expect(document.body.style.pointerEvents).toBe('');
       expect(getComputedStyle(siblingTrigger).pointerEvents).toBe('none');
 
       fireEvent.mouseEnter(screen.getByTestId('top-level-positioner'));
       await flushMicrotasks();
 
+      expect(topLevelList.style.pointerEvents).toBe('');
+    });
+
+    it('reapplies top-level safePolygon pointer events after returning from the popup and switching triggers', async () => {
+      await render(<TestNavigationMenuWithTopLevelLink />);
+      const trigger1 = screen.getByTestId('trigger-1');
+      const trigger2 = screen.getByTestId('trigger-2');
+      const topLevelLink = screen.getByTestId('top-level-link');
+      const topLevelList = trigger1.closest('ul') as HTMLElement;
+
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
+      clock.tick(OPEN_DELAY);
+      await flushMicrotasks();
+
+      const positioner = screen.getByTestId('top-level-positioner');
+
+      expect(topLevelList.style.pointerEvents).toBe('none');
       expect(document.body.style.pointerEvents).toBe('');
+      expect(getComputedStyle(topLevelLink).pointerEvents).toBe('none');
+
+      fireEvent.mouseEnter(positioner);
+      await flushMicrotasks();
+
+      expect(topLevelList.style.pointerEvents).toBe('');
+
+      fireEvent.mouseLeave(positioner, { relatedTarget: trigger1 });
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
+      await flushMicrotasks();
+
+      expect(topLevelList.style.pointerEvents).toBe('none');
+      expect(document.body.style.pointerEvents).toBe('');
+      expect(getComputedStyle(topLevelLink).pointerEvents).toBe('none');
+
+      fireEvent.mouseEnter(positioner);
+      await flushMicrotasks();
+
+      expect(topLevelList.style.pointerEvents).toBe('');
+
+      fireEvent.mouseLeave(positioner, { relatedTarget: trigger2 });
+      fireEvent.mouseEnter(trigger2);
+      fireEvent.mouseMove(trigger2);
+      await flushMicrotasks();
+
+      expect(topLevelList.style.pointerEvents).toBe('none');
+      expect(document.body.style.pointerEvents).toBe('');
+      expect(getComputedStyle(topLevelLink).pointerEvents).toBe('none');
+      expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.queryByTestId('popup-2')).not.toBe(null);
+    });
+
+    it('keeps top-level safePolygon pointer events active when switching directly to a different trigger', async () => {
+      await render(<TestNavigationMenuWithTopLevelLink />);
+      const trigger1 = screen.getByTestId('trigger-1');
+      const trigger2 = screen.getByTestId('trigger-2');
+      const topLevelLink = screen.getByTestId('top-level-link');
+      const topLevelList = trigger1.closest('ul') as HTMLElement;
+
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
+      clock.tick(OPEN_DELAY);
+      await flushMicrotasks();
+
+      fireEvent.mouseEnter(trigger2);
+      fireEvent.mouseMove(trigger2);
+      await flushMicrotasks();
+
+      expect(topLevelList.style.pointerEvents).toBe('none');
+      expect(document.body.style.pointerEvents).toBe('');
+      expect(getComputedStyle(trigger1).pointerEvents).toBe('none');
+      expect(getComputedStyle(topLevelLink).pointerEvents).toBe('none');
+      expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+      expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.queryByTestId('popup-2')).not.toBe(null);
+    });
+
+    it('clears top-level safePolygon pointer events on trigger pointerdown', async () => {
+      await render(<TestNavigationMenu />);
+      const trigger = screen.getByTestId('trigger-1');
+      const topLevelList = trigger.closest('ul') as HTMLElement;
+
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+      clock.tick(OPEN_DELAY);
+      await flushMicrotasks();
+
+      expect(topLevelList.style.pointerEvents).toBe('none');
+
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+
+      expect(topLevelList.style.pointerEvents).toBe('');
     });
 
     it.skipIf(isJSDOM)(
@@ -885,11 +1064,12 @@ describe('<NavigationMenu.Root />', () => {
         const { user } = await render(<TestNavigationMenu />);
         const trigger = screen.getByTestId('trigger-1');
         const siblingTrigger = screen.getByTestId('trigger-2');
+        const topLevelList = trigger.closest('ul') as HTMLElement;
 
         await user.hover(trigger);
 
         await waitFor(() => {
-          expect(document.body.style.pointerEvents).toBe('none');
+          expect(topLevelList.style.pointerEvents).toBe('none');
         });
 
         expect(getComputedStyle(siblingTrigger).pointerEvents).toBe('none');
@@ -1805,7 +1985,7 @@ describe('<NavigationMenu.Root />', () => {
         });
 
         expect(nestedList.style.pointerEvents).toBe('none');
-        expect(document.body.style.pointerEvents).toBe('none');
+        expect(document.body.style.pointerEvents).toBe('');
 
         fireEvent.mouseMove(document, { clientX: 150, clientY: 80 });
         await flushMicrotasks();
@@ -2365,6 +2545,88 @@ describe('<NavigationMenu.Root />', () => {
             expect(popupRoot.style.getPropertyValue('--popup-height')).toBe('auto');
             expect(positioner.style.getPropertyValue('--positioner-width')).toBe('500px');
             expect(positioner.style.getPropertyValue('--positioner-height')).toBe('180px');
+          });
+        } finally {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
+          restoreResizeObserver();
+        }
+      });
+
+      it('ignores the initial open size reset once a trigger switch has started', async () => {
+        const restoreResizeObserver = mockResizeObserver();
+        const previousAnimationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        try {
+          function waitForAnimationFrame() {
+            return new Promise<void>((resolve) => {
+              requestAnimationFrame(() => {
+                resolve();
+              });
+            });
+          }
+
+          await render(<TestNavigationMenuWithKeepMountedContentClosed />);
+
+          const popupRoot = screen.getByTestId('popup-root');
+          const positioner = screen.getByTestId('positioner');
+          const animations = mockAnimations(popupRoot);
+
+          async function waitForSettledAnimations() {
+            await act(async () => {
+              await flushMicrotasks();
+              await waitForAnimationFrame();
+              await waitForAnimationFrame();
+            });
+          }
+
+          async function finishAnimation(animation: Parameters<typeof animations.finish>[0]) {
+            await act(async () => {
+              await animations.finish(animation);
+              await flushMicrotasks();
+              await waitForAnimationFrame();
+              await waitForAnimationFrame();
+            });
+          }
+
+          let popupWidth = 675;
+          let popupHeight = 220;
+
+          Object.defineProperty(popupRoot, 'offsetWidth', {
+            configurable: true,
+            get: () => popupWidth,
+          });
+          Object.defineProperty(popupRoot, 'offsetHeight', {
+            configurable: true,
+            get: () => popupHeight,
+          });
+
+          const openAnimation = animations.start();
+          fireEvent.click(screen.getByTestId('trigger-product'));
+          await waitForSettledAnimations();
+
+          popupWidth = 500;
+          popupHeight = 180;
+
+          const switchAnimation = animations.start();
+          fireEvent.click(screen.getByTestId('trigger-learn'));
+          await waitForSettledAnimations();
+
+          await waitFor(() => {
+            expect(positioner.style.getPropertyValue('--positioner-width')).toBe('500px');
+            expect(positioner.style.getPropertyValue('--positioner-height')).toBe('180px');
+          });
+
+          await finishAnimation(openAnimation);
+
+          expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('500px');
+          expect(popupRoot.style.getPropertyValue('--popup-height')).toBe('180px');
+
+          await finishAnimation(switchAnimation);
+
+          await waitFor(() => {
+            expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('auto');
+            expect(popupRoot.style.getPropertyValue('--popup-height')).toBe('auto');
           });
         } finally {
           globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;

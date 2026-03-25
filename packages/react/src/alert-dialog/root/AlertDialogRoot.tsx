@@ -10,7 +10,7 @@ import type { DialogRoot } from '../../dialog/root/DialogRoot';
 
 /**
  * Groups all parts of the alert dialog.
- * Doesn’t render its own HTML element.
+ * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */

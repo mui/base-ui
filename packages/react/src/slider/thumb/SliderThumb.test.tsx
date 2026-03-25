@@ -1,6 +1,6 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { fireEvent, screen } from '@mui/internal-test-utils';
+import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Slider } from '@base-ui/react/slider';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { isWebKit } from '@base-ui/utils/detectBrowser';
@@ -107,6 +107,47 @@ describe('<Slider.Thumb />', () => {
         expect(blurSpy.mock.results.at(-1)?.value).toBe(slider2);
         expect(document.body).toHaveFocus();
       });
+
+      it('does not emit extra blur and focus events when restoring focus-visible', async () => {
+        const focusSpy = vi.fn((event) => event.target);
+        const blurSpy = vi.fn((event) => event.target);
+
+        await render(
+          <Slider.Root defaultValue={40}>
+            <Slider.Control data-testid="control">
+              <Slider.Thumb onFocus={focusSpy} onBlur={blurSpy} />
+            </Slider.Control>
+          </Slider.Root>,
+        );
+
+        const sliderControl = screen.getByTestId('control');
+        vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(
+          getHorizontalSliderRect,
+        );
+
+        const slider = screen.getByRole('slider');
+
+        fireEvent.pointerDown(sliderControl, {
+          pointerId: 1,
+          pointerType: 'mouse',
+          button: 0,
+          buttons: 1,
+          clientX: 40,
+          clientY: 0,
+        });
+
+        await waitFor(() => {
+          expect(slider).toHaveFocus();
+        });
+        expect(focusSpy).toHaveBeenCalledTimes(1);
+        expect(focusSpy.mock.results[0]?.value).toBe(slider);
+        expect(blurSpy).not.toHaveBeenCalled();
+
+        fireEvent.keyDown(slider, { key: 'ArrowRight' });
+
+        expect(focusSpy).toHaveBeenCalledTimes(1);
+        expect(blurSpy).not.toHaveBeenCalled();
+      });
     });
 
     describe('change', () => {
@@ -186,6 +227,19 @@ describe('<Slider.Thumb />', () => {
   });
 
   describe('prop: tabIndex', () => {
+    it('does not apply tabIndex to the thumb element by default', async () => {
+      await render(
+        <Slider.Root defaultValue={50}>
+          <Slider.Control>
+            <Slider.Thumb data-testid="thumb" />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      expect(screen.getByTestId('thumb')).not.toHaveAttribute('tabindex');
+      expect(screen.getByRole('slider')).toHaveProperty('tabIndex', 0);
+    });
+
     it('can be removed from the tab sequence', async () => {
       const { user } = await render(
         <Slider.Root defaultValue={50}>
@@ -323,6 +377,125 @@ describe('<Slider.Thumb />', () => {
       expect(thumb1.style.zIndex).toBe('1');
       expect(thumb0.style.zIndex).toBe('');
     });
+  });
+
+  describe('prop: thumbAlignment', () => {
+    it.skipIf(isJSDOM)('recomputes inset positions when the slider becomes visible', async () => {
+      function App() {
+        const [visible, setVisible] = React.useState(false);
+
+        return (
+          <React.Fragment>
+            <button type="button" onClick={() => setVisible(true)}>
+              show
+            </button>
+            <div style={{ display: visible ? 'block' : 'none' }}>
+              <Slider.Root defaultValue={30} thumbAlignment="edge" style={{ width: '100px' }}>
+                <Slider.Control
+                  data-testid="control"
+                  style={{ position: 'relative', width: '100%', height: '10px' }}
+                >
+                  <Slider.Track style={{ position: 'relative', width: '100%', height: '10px' }}>
+                    <Slider.Indicator data-testid="indicator" />
+                    <Slider.Thumb data-testid="thumb" style={{ width: '10px', height: '10px' }} />
+                  </Slider.Track>
+                </Slider.Control>
+              </Slider.Root>
+            </div>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const thumb = screen.getByTestId('thumb');
+      const indicator = screen.getByTestId('indicator');
+
+      await waitFor(() => {
+        expect(thumb.style.visibility).toBe('hidden');
+        expect(thumb.style.getPropertyValue('--position')).toBe('0%');
+        expect(indicator.style.visibility).toBe('hidden');
+        expect(indicator.style.getPropertyValue('--start-position')).toBe('0%');
+      });
+
+      await user.click(screen.getByRole('button', { name: 'show' }));
+
+      await waitFor(() => {
+        expect(thumb.style.visibility).toBe('');
+        expect(thumb.style.getPropertyValue('--position')).toBe('32%');
+        expect(indicator.style.visibility).toBe('');
+        expect(indicator.style.getPropertyValue('--start-position')).toBe('32%');
+      });
+    });
+
+    it.skipIf(isJSDOM)(
+      'recomputes range inset positions when the slider becomes visible',
+      async () => {
+        function App() {
+          const [visible, setVisible] = React.useState(false);
+
+          return (
+            <React.Fragment>
+              <button type="button" onClick={() => setVisible(true)}>
+                show
+              </button>
+              <div style={{ display: visible ? 'block' : 'none' }}>
+                <Slider.Root
+                  defaultValue={[30, 70]}
+                  thumbAlignment="edge"
+                  style={{ width: '100px' }}
+                >
+                  <Slider.Control
+                    data-testid="control"
+                    style={{ position: 'relative', width: '100%', height: '10px' }}
+                  >
+                    <Slider.Track style={{ position: 'relative', width: '100%', height: '10px' }}>
+                      <Slider.Indicator data-testid="indicator" />
+                      <Slider.Thumb
+                        data-testid="start-thumb"
+                        style={{ width: '10px', height: '10px' }}
+                      />
+                      <Slider.Thumb
+                        data-testid="end-thumb"
+                        style={{ width: '10px', height: '10px' }}
+                      />
+                    </Slider.Track>
+                  </Slider.Control>
+                </Slider.Root>
+              </div>
+            </React.Fragment>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        const startThumb = screen.getByTestId('start-thumb');
+        const endThumb = screen.getByTestId('end-thumb');
+        const indicator = screen.getByTestId('indicator');
+
+        await waitFor(() => {
+          expect(startThumb.style.visibility).toBe('hidden');
+          expect(startThumb.style.getPropertyValue('--position')).toBe('0%');
+          expect(endThumb.style.visibility).toBe('hidden');
+          expect(endThumb.style.getPropertyValue('--position')).toBe('0%');
+          expect(indicator.style.visibility).toBe('hidden');
+          expect(indicator.style.getPropertyValue('--start-position')).toBe('0%');
+          expect(indicator.style.getPropertyValue('--relative-size')).toBe('0%');
+        });
+
+        await user.click(screen.getByRole('button', { name: 'show' }));
+
+        await waitFor(() => {
+          expect(startThumb.style.visibility).toBe('');
+          expect(startThumb.style.getPropertyValue('--position')).toBe('32%');
+          expect(endThumb.style.visibility).toBe('');
+          expect(endThumb.style.getPropertyValue('--position')).toBe('68%');
+          expect(indicator.style.visibility).toBe('');
+          expect(indicator.style.getPropertyValue('--start-position')).toBe('32%');
+          expect(indicator.style.getPropertyValue('--relative-size')).toBe('36%');
+        });
+      },
+    );
   });
 
   /**

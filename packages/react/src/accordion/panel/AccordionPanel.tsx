@@ -156,7 +156,7 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
     stateAttributesMapping: accordionStateAttributesMapping,
   });
 
-  const shouldRender = keepMounted || hiddenUntilFound || (!keepMounted && mounted);
+  const shouldRender = keepMounted || hiddenUntilFound || mounted;
   if (!shouldRender) {
     return null;
   }

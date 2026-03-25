@@ -104,6 +104,12 @@ const groupItemsReadonly = [
   }}
 />;
 
+// @ts-expect-error closeOnItemClick is combobox-only
+<Autocomplete.Root closeOnItemClick="never" />;
+
+// @ts-expect-error clearOnItemClick is combobox-only
+<Autocomplete.Input clearOnItemClick="always" />;
+
 function App2() {
   const [value, setValue] = React.useState('a');
   return (

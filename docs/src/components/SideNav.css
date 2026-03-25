@@ -20,7 +20,6 @@
 
     font-size: var(--text-md);
     line-height: var(--text-md--line-height);
-    letter-spacing: var(--text-md--letter-spacing);
     position: sticky;
     top: 0;
 
@@ -98,8 +97,8 @@
   .SideNavHeading {
     display: inline-flex;
     padding-block: var(--side-nav-item-padding-y);
-    font-weight: 500;
-    letter-spacing: 0.00625em;
+    font-weight: 400;
+    color: var(--color-gray-600);
   }
 
   .SideNavItem {
@@ -115,7 +114,6 @@
     border-block: 1px solid transparent; /* Maintain a 1px gap between active an inactive item */
     background-clip: padding-box;
     border-radius: var(--radius-md);
-    letter-spacing: var(--text-md--letter-spacing);
     user-select: none;
 
     @media (hover: hover) {
@@ -130,8 +128,7 @@
       background-color: var(--color-gray-50);
       outline: 1px solid var(--color-gray-200);
       outline-offset: -1px;
-      font-weight: 500;
-      letter-spacing: 0.00625em;
+      font-weight: 400;
       word-spacing: -0.005em;
       cursor: default;
     }
@@ -149,7 +146,7 @@
     user-select: none;
     text-transform: uppercase;
     font-size: 0.6875rem;
-    font-weight: 500;
+    font-weight: 700;
     letter-spacing: 0.035em;
     padding-inline: 2px;
     translate: 0 -2px;

@@ -79,6 +79,7 @@ export type State = {
   requestSubmit: () => void;
 
   name: string | undefined;
+  form: string | undefined;
   disabled: boolean;
   readOnly: boolean;
   required: boolean;
@@ -178,6 +179,7 @@ export const selectors = {
   allValuesRef: createSelector((state: State) => state.allValuesRef),
 
   name: createSelector((state: State) => state.name),
+  form: createSelector((state: State) => state.form),
   disabled: createSelector((state: State) => state.disabled),
   readOnly: createSelector((state: State) => state.readOnly),
   required: createSelector((state: State) => state.required),

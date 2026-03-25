@@ -108,7 +108,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
 
         let nextIndex = -1;
 
-        const thisIndex = triggers.indexOf(event.target as HTMLButtonElement);
+        const thisIndex = triggers.indexOf(event.currentTarget as HTMLButtonElement);
 
         function toNext() {
           if (loopFocus) {

@@ -26,6 +26,7 @@ import { useCompositeListItem } from '../../composite/list/useCompositeListItem'
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useCSPContext } from '../../csp-provider/CSPContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { matchesFocusVisible } from '../../floating-ui-react/utils/element';
 import { type LabelableContext } from '../../labelable-provider/LabelableContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { getMidpoint } from '../utils/getMidpoint';
@@ -127,6 +128,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     max,
     min,
     minStepsBetweenValues,
+    form,
     name,
     orientation,
     pressedInputRef,
@@ -151,6 +153,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const thumbRef = React.useRef<HTMLElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const restoringFocusVisibleRef = React.useRef(false);
 
   const defaultInputId = useBaseUiId();
   const labelableId = useLabelableId();
@@ -196,11 +199,16 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     const thumbOffsetFromControlEdge =
       thumbRect[side] / 2 + (controlSize * thumbValuePercent) / 100;
     const nextPositionPercent = (thumbOffsetFromControlEdge / controlRect[side]) * 100;
-    setPositionPercent(nextPositionPercent);
+    const nextInsetPosition = Number.isFinite(nextPositionPercent)
+      ? nextPositionPercent
+      : undefined;
+
+    setPositionPercent(nextInsetPosition);
+
     if (index === 0) {
-      setIndicatorPosition((prevPosition) => [nextPositionPercent, prevPosition[1]]);
+      setIndicatorPosition((prevPosition) => [nextInsetPosition, prevPosition[1]]);
     } else if (last) {
-      setIndicatorPosition((prevPosition) => [prevPosition[0], nextPositionPercent]);
+      setIndicatorPosition((prevPosition) => [prevPosition[0], nextInsetPosition]);
     }
   });
 
@@ -215,6 +223,28 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       getInsetPosition();
     }
   }, [getInsetPosition, inset, thumbValuePercent]);
+
+  useIsoLayoutEffect(() => {
+    if (!inset || typeof ResizeObserver !== 'function') {
+      return undefined;
+    }
+
+    const control = controlRef.current;
+    const thumb = thumbRef.current;
+
+    if (!control || !thumb) {
+      return undefined;
+    }
+
+    const resizeObserver = new ResizeObserver(getInsetPosition);
+
+    resizeObserver.observe(control);
+    resizeObserver.observe(thumb);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [controlRef, getInsetPosition, inset]);
 
   const getThumbStyle = React.useCallback(() => {
     const startEdge = vertical ? 'bottom' : 'insetInlineStart';
@@ -246,7 +276,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     }
 
     return {
-      ['--position' as string]: `${positionPercent}%`,
+      ['--position' as string]: `${positionPercent ?? 0}%`,
       visibility:
         (renderBeforeHydration && !isMounted) || positionPercent === undefined
           ? 'hidden'
@@ -300,18 +330,30 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
               locale,
             ),
       disabled,
+      form,
       id: inputId,
       max,
       min,
       name,
-      onChange(event: React.ChangeEvent<HTMLInputElement>) {
-        handleInputChange(event.target.valueAsNumber, index, event);
+      onChange(event) {
+        handleInputChange(event.currentTarget.valueAsNumber, index, event);
       },
-      onFocus() {
+      onFocus(event) {
+        const isRestoringFocusVisible = restoringFocusVisibleRef.current;
+        restoringFocusVisibleRef.current = false;
         setActive(index);
         setFocused(true);
+
+        if (isRestoringFocusVisible) {
+          event.stopPropagation();
+        }
       },
-      onBlur() {
+      onBlur(event) {
+        if (restoringFocusVisibleRef.current) {
+          event.stopPropagation();
+          return;
+        }
+
         if (!thumbRef.current) {
           return;
         }
@@ -388,6 +430,20 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         }
 
         if (newValue !== null) {
+          const input = event.currentTarget as HTMLInputElement;
+
+          if (!matchesFocusVisible(input)) {
+            restoringFocusVisibleRef.current = true;
+            input.blur();
+            input.focus({
+              preventScroll: true,
+              // Show `:focus-visible` after keyboard interaction, even if the
+              // thumb was previously focused by a pointer.
+              // @ts-expect-error - focusVisible is not yet in the lib.dom.d.ts
+              focusVisible: true,
+            });
+          }
+
           handleInputChange(newValue, index, event);
           event.preventDefault();
         }
@@ -454,7 +510,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         },
         style: getThumbStyle(),
         suppressHydrationWarning: renderBeforeHydration || undefined,
-        tabIndex: -1,
       },
       elementProps,
     ],

@@ -70,8 +70,13 @@ function useRenderElementProps<
     ? getStateAttributesProps(state, stateAttributesMapping)
     : EMPTY_OBJECT;
 
+  const resolvedProps = enabled && props ? resolveRenderFunctionProps<TagName>(props) : undefined;
+
+  // Ensure outProps is always a new mutable object when enabled, never EMPTY_OBJECT.
+  // This prevents potential TypeError when setting ref, className, or style properties,
+  // since EMPTY_OBJECT is frozen and mutations would fail in strict mode.
   const outProps: React.HTMLAttributes<any> & React.RefAttributes<any> = enabled
-    ? (mergeObjects(stateProps, Array.isArray(props) ? mergePropsN(props) : props) ?? EMPTY_OBJECT)
+    ? (mergeObjects(stateProps, resolvedProps) ?? {})
     : EMPTY_OBJECT;
 
   // SAFETY: The `useMergedRefs` functions use a single hook to store the same value,
@@ -105,12 +110,23 @@ function useRenderElementProps<
   return outProps;
 }
 
+function resolveRenderFunctionProps<TagName extends IntrinsicTagName | undefined>(
+  props: NonNullable<UseRenderElementParameters<any, any, TagName, any>['props']>,
+): RenderFunctionProps<TagName> {
+  if (Array.isArray(props)) {
+    return mergePropsN(props) as RenderFunctionProps<TagName>;
+  }
+
+  return mergeProps(undefined, props) as RenderFunctionProps<TagName>;
+}
+
 // The symbol React uses internally for lazy components
 // https://github.com/facebook/react/blob/a0566250b210499b4c5677f5ac2eedbd71d51a1b/packages/shared/ReactSymbols.js#L31
 //
 // TODO delete once https://github.com/facebook/react/issues/32392 is fixed
 const REACT_LAZY_TYPE = Symbol.for('react.lazy');
-const COMPONENT_IDENTIFIER_PATTERN = /^[A-Z][A-Za-z0-9_$]*$/;
+const COMPONENT_IDENTIFIER_PATTERN = /^[A-Z][A-Za-z0-9$]*$/;
+const LOWERCASE_CHARACTER_PATTERN = /[a-z]/;
 
 function evaluateRenderProp<T extends React.ElementType, S>(
   element: IntrinsicTagName | undefined,
@@ -175,6 +191,10 @@ function warnIfRenderPropLooksLikeComponent(renderFn: { name: string }) {
   }
 
   if (!COMPONENT_IDENTIFIER_PATTERN.test(functionName)) {
+    return;
+  }
+
+  if (!LOWERCASE_CHARACTER_PATTERN.test(functionName)) {
     return;
   }
 
