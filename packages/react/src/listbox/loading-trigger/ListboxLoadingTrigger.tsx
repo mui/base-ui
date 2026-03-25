@@ -49,6 +49,10 @@ const Inner = React.forwardRef(function ListboxLoadingTriggerInner(
 
   const handleIntersect = useStableCallback(() => {
     if (!store.state.loading && onLoadMore) {
+      // Set loading eagerly so the trigger's children can render
+      // "Loading…" content immediately, avoiding a flash of the
+      // idle content before the parent commits its own loading state.
+      store.set('loading', true);
       onLoadMore();
     }
   });
