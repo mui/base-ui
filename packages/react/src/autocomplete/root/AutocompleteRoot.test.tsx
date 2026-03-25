@@ -123,12 +123,10 @@ describe('<Autocomplete.Root />', () => {
     expect(hiddenInput).not.toHaveAttribute('autocomplete');
   });
 
-  it('ignores combobox-only item click behavior props passed via spread', async () => {
-    const unsafeRootProps = { closeOnItemClick: 'never' } as const;
-
+  it('supports item click behavior props intentionally', async () => {
     const { user } = await render(
-      <Autocomplete.Root items={['alpha', 'beta']} openOnInputClick {...unsafeRootProps}>
-        <Autocomplete.Input />
+      <Autocomplete.Root items={['alpha', 'beta']} openOnInputClick closeOnItemClick="never">
+        <Autocomplete.Input clearOnItemClick="always" />
         <Autocomplete.Portal>
           <Autocomplete.Positioner>
             <Autocomplete.Popup>
@@ -152,11 +150,11 @@ describe('<Autocomplete.Root />', () => {
 
     await user.click(option);
 
-    expect(input.value).toBe('alpha');
-
     await waitFor(() => {
-      expect(screen.queryByRole('listbox')).toBe(null);
+      expect(screen.queryByRole('listbox')).not.toBe(null);
     });
+
+    expect(input.value).toBe('');
   });
 
   describe('prop: autoHighlight', () => {

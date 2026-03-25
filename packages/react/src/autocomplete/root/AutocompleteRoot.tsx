@@ -6,10 +6,6 @@ import { useCoreFilter } from '../../combobox/root/utils/useFilter';
 import { stringifyAsLabel } from '../../utils/resolveValueLabel';
 import { REASONS } from '../../utils/reasons';
 
-type AutocompleteRootRuntimeProps<ItemValue> = AutocompleteRootProps<ItemValue> & {
-  closeOnItemClick?: AriaCombobox.Props<ItemValue, 'none'>['closeOnItemClick'] | undefined;
-};
-
 /**
  * Groups all parts of the autocomplete.
  * Doesn't render its own HTML element.
@@ -38,7 +34,6 @@ export function AutocompleteRoot<ItemValue>(
   props: AutocompleteRoot.Props<ItemValue>,
 ): React.JSX.Element {
   const {
-    closeOnItemClick: ignoredCloseOnItemClick,
     openOnInputClick = false,
     value,
     defaultValue,
@@ -46,8 +41,7 @@ export function AutocompleteRoot<ItemValue>(
     mode = 'list',
     itemToStringValue,
     ...other
-  } = props as AutocompleteRootRuntimeProps<ItemValue>;
-  void ignoredCloseOnItemClick;
+  } = props;
 
   const enableInline = mode === 'inline' || mode === 'both';
   const staticItems = mode === 'inline' || mode === 'none';
@@ -173,7 +167,6 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
   | 'autoComplete' // mode
   | 'formAutoComplete'
   | 'itemToStringLabel' // itemToStringValue
-  | 'closeOnItemClick'
   // Custom JSDoc
   | 'autoHighlight'
   | 'keepHighlight'

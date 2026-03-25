@@ -2,12 +2,15 @@ export * as Autocomplete from './index.parts';
 
 export type * from './root/AutocompleteRoot';
 export type * from './value/AutocompleteValue';
-export type * from './input/AutocompleteInput';
 
 export type {
   ComboboxTriggerProps as AutocompleteTriggerProps,
   ComboboxTriggerState as AutocompleteTriggerState,
 } from '../combobox/trigger/ComboboxTrigger';
+export type {
+  ComboboxInputProps as AutocompleteInputProps,
+  ComboboxInputState as AutocompleteInputState,
+} from '../combobox/input/ComboboxInput';
 export type {
   ComboboxIconProps as AutocompleteIconProps,
   ComboboxIconState as AutocompleteIconState,
