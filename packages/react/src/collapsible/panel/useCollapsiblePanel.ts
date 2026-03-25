@@ -307,12 +307,14 @@ export function useCollapsiblePanel(
       runOnceAnimationsFinish(() => {
         setMounted(false);
         setVisible(false);
+        onOpenChangeComplete?.(false);
         abortControllerRef.current = null;
       }, abortControllerRef.current.signal);
     }
   }, [
     abortControllerRef,
     animationTypeRef,
+    onOpenChangeComplete,
     open,
     panelRef,
     runOnceAnimationsFinish,

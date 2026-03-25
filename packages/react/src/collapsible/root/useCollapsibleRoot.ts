@@ -98,6 +98,7 @@ export function useCollapsibleRoot(
 
     if (animationTypeRef.current === 'none' && mounted && !nextOpen) {
       setMounted(false);
+      onOpenChangeComplete?.(false);
     }
   });
 
@@ -108,8 +109,9 @@ export function useCollapsibleRoot(
      */
     if (isControlled && animationTypeRef.current === 'none' && !keepMounted && !open) {
       setMounted(false);
+      onOpenChangeComplete?.(false);
     }
-  }, [isControlled, keepMounted, open, openParam, setMounted]);
+  }, [isControlled, keepMounted, onOpenChangeComplete, open, openParam, setMounted]);
 
   return React.useMemo(
     () => ({
