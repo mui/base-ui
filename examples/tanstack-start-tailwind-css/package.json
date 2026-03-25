@@ -21,8 +21,7 @@
     "clsx": "^2.1.1",
     "lucide-react": "^0.577.0",
     "react": "^19",
-    "react-dom": "^19",
-    "vite-tsconfig-paths": "^6.0.4"
+    "react-dom": "^19"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.2.1",
