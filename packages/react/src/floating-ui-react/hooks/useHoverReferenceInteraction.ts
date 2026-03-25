@@ -267,19 +267,20 @@ export function useHoverReferenceInteraction(
           : isOverInactiveTrigger(currentDomReference, triggerNode, getTarget(event));
       const isOpen = store.select('open');
       const isInClosingTransition =
-        isElement(floatingElement) && floatingElement.hasAttribute('data-ending-style');
+        isElement(floatingElement) &&
+        (floatingElement.hasAttribute('data-ending-style') ||
+          floatingElement.querySelector('[data-ending-style]') !== null);
       const isInCloseLifecycle = !isOpen && isElement(floatingElement);
       const closeDelay = getDelay(delayRef.current, 'close', instance.pointerType) ?? 0;
       const handoffWindowMs = Math.max(100, closeDelay + 50);
       const justClosedFromHover =
         performance.now() - lastHoverCloseAtRef.current <= handoffWindowMs;
-      const isReenteringSameTriggerInHandoffWindow =
+      const isReenteringSameTriggerDuringCloseTransition =
         !isOverInactive &&
         isElement(triggerNode) &&
         isElement(currentDomReference) &&
         contains(currentDomReference, triggerNode) &&
-        isInCloseLifecycle &&
-        justClosedFromHover;
+        isInClosingTransition;
 
       const shouldOpen = !isOpen || isOverInactive;
 
@@ -292,7 +293,7 @@ export function useHoverReferenceInteraction(
         isOverInactive,
         isInClosingTransition,
         isInCloseLifecycle,
-        isReenteringSameTriggerInHandoffWindow,
+        isReenteringSameTriggerDuringCloseTransition,
         justClosedFromHover,
         handoffWindowMs,
         shouldOpen,
@@ -305,7 +306,7 @@ export function useHoverReferenceInteraction(
       if (
         (isOverInactive &&
           (isOpen || isInClosingTransition || (hasPreviousReference && justClosedFromHover))) ||
-        isReenteringSameTriggerInHandoffWindow
+        isReenteringSameTriggerDuringCloseTransition
       ) {
         store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
       } else if (openDelay) {
