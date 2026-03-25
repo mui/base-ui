@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { ownerDocument } from '@base-ui/utils/owner';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { contains, getTarget } from '../floating-ui-react/utils';
 import { findScrollableTouchTarget, hasScrollableAncestor, type ScrollAxis } from './scrollable';
 import { clamp } from './clamp';
@@ -43,7 +43,7 @@ export function getDisplacement(direction: SwipeDirection, deltaX: number, delta
 }
 
 export function getElementTransform(element: HTMLElement) {
-  const computedStyle = window.getComputedStyle(element);
+  const computedStyle = ownerWindow(element).getComputedStyle(element);
   const transform = computedStyle.transform;
   let translateX = 0;
   let translateY = 0;

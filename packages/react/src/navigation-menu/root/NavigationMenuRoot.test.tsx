@@ -39,6 +39,40 @@ function TestNavigationMenu(props: NavigationMenu.Root.Props) {
   );
 }
 
+function TestNavigationMenuWithTopLevelLink(props: NavigationMenu.Root.Props = {}) {
+  return (
+    <NavigationMenu.Root {...props}>
+      <NavigationMenu.List>
+        <NavigationMenu.Item value="item-1">
+          <NavigationMenu.Trigger data-testid="trigger-1">Item 1</NavigationMenu.Trigger>
+          <NavigationMenu.Content data-testid="popup-1">
+            <NavigationMenu.Link href="#link-1">Link 1</NavigationMenu.Link>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+        <NavigationMenu.Item value="item-2">
+          <NavigationMenu.Trigger data-testid="trigger-2">Item 2</NavigationMenu.Trigger>
+          <NavigationMenu.Content data-testid="popup-2">
+            <NavigationMenu.Link href="#link-2">Link 2</NavigationMenu.Link>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+        <NavigationMenu.Item>
+          <NavigationMenu.Link href="#top-level-link" data-testid="top-level-link">
+            Top level link
+          </NavigationMenu.Link>
+        </NavigationMenu.Item>
+      </NavigationMenu.List>
+
+      <NavigationMenu.Portal>
+        <NavigationMenu.Positioner data-testid="top-level-positioner">
+          <NavigationMenu.Popup>
+            <NavigationMenu.Viewport />
+          </NavigationMenu.Popup>
+        </NavigationMenu.Positioner>
+      </NavigationMenu.Portal>
+    </NavigationMenu.Root>
+  );
+}
+
 function TestNestedNavigationMenu(props: NavigationMenu.Root.Props = {}) {
   return (
     <NavigationMenu.Root {...props}>
@@ -911,10 +945,11 @@ describe('<NavigationMenu.Root />', () => {
       expect(trigger).toHaveAttribute('aria-expanded', 'true');
     });
 
-    it('blocks pointer events on the body while traversing from a top-level trigger to the popup', async () => {
+    it('blocks pointer events on the list while traversing from a top-level trigger to the popup', async () => {
       await render(<TestNavigationMenu />);
       const trigger = screen.getByTestId('trigger-1');
       const siblingTrigger = screen.getByTestId('trigger-2');
+      const topLevelList = trigger.closest('ul') as HTMLElement;
 
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
@@ -922,13 +957,105 @@ describe('<NavigationMenu.Root />', () => {
       await flushMicrotasks();
 
       expect(screen.queryByTestId('popup-1')).not.toBe(null);
-      expect(document.body.style.pointerEvents).toBe('none');
+      expect(topLevelList.style.pointerEvents).toBe('none');
+      expect(document.body.style.pointerEvents).toBe('');
       expect(getComputedStyle(siblingTrigger).pointerEvents).toBe('none');
 
       fireEvent.mouseEnter(screen.getByTestId('top-level-positioner'));
       await flushMicrotasks();
 
+      expect(topLevelList.style.pointerEvents).toBe('');
+    });
+
+    it('reapplies top-level safePolygon pointer events after returning from the popup and switching triggers', async () => {
+      await render(<TestNavigationMenuWithTopLevelLink />);
+      const trigger1 = screen.getByTestId('trigger-1');
+      const trigger2 = screen.getByTestId('trigger-2');
+      const topLevelLink = screen.getByTestId('top-level-link');
+      const topLevelList = trigger1.closest('ul') as HTMLElement;
+
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
+      clock.tick(OPEN_DELAY);
+      await flushMicrotasks();
+
+      const positioner = screen.getByTestId('top-level-positioner');
+
+      expect(topLevelList.style.pointerEvents).toBe('none');
       expect(document.body.style.pointerEvents).toBe('');
+      expect(getComputedStyle(topLevelLink).pointerEvents).toBe('none');
+
+      fireEvent.mouseEnter(positioner);
+      await flushMicrotasks();
+
+      expect(topLevelList.style.pointerEvents).toBe('');
+
+      fireEvent.mouseLeave(positioner, { relatedTarget: trigger1 });
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
+      await flushMicrotasks();
+
+      expect(topLevelList.style.pointerEvents).toBe('none');
+      expect(document.body.style.pointerEvents).toBe('');
+      expect(getComputedStyle(topLevelLink).pointerEvents).toBe('none');
+
+      fireEvent.mouseEnter(positioner);
+      await flushMicrotasks();
+
+      expect(topLevelList.style.pointerEvents).toBe('');
+
+      fireEvent.mouseLeave(positioner, { relatedTarget: trigger2 });
+      fireEvent.mouseEnter(trigger2);
+      fireEvent.mouseMove(trigger2);
+      await flushMicrotasks();
+
+      expect(topLevelList.style.pointerEvents).toBe('none');
+      expect(document.body.style.pointerEvents).toBe('');
+      expect(getComputedStyle(topLevelLink).pointerEvents).toBe('none');
+      expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.queryByTestId('popup-2')).not.toBe(null);
+    });
+
+    it('keeps top-level safePolygon pointer events active when switching directly to a different trigger', async () => {
+      await render(<TestNavigationMenuWithTopLevelLink />);
+      const trigger1 = screen.getByTestId('trigger-1');
+      const trigger2 = screen.getByTestId('trigger-2');
+      const topLevelLink = screen.getByTestId('top-level-link');
+      const topLevelList = trigger1.closest('ul') as HTMLElement;
+
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
+      clock.tick(OPEN_DELAY);
+      await flushMicrotasks();
+
+      fireEvent.mouseEnter(trigger2);
+      fireEvent.mouseMove(trigger2);
+      await flushMicrotasks();
+
+      expect(topLevelList.style.pointerEvents).toBe('none');
+      expect(document.body.style.pointerEvents).toBe('');
+      expect(getComputedStyle(trigger1).pointerEvents).toBe('none');
+      expect(getComputedStyle(topLevelLink).pointerEvents).toBe('none');
+      expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+      expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.queryByTestId('popup-2')).not.toBe(null);
+    });
+
+    it('clears top-level safePolygon pointer events on trigger pointerdown', async () => {
+      await render(<TestNavigationMenu />);
+      const trigger = screen.getByTestId('trigger-1');
+      const topLevelList = trigger.closest('ul') as HTMLElement;
+
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+      clock.tick(OPEN_DELAY);
+      await flushMicrotasks();
+
+      expect(topLevelList.style.pointerEvents).toBe('none');
+
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+
+      expect(topLevelList.style.pointerEvents).toBe('');
     });
 
     it.skipIf(isJSDOM)(
@@ -937,11 +1064,12 @@ describe('<NavigationMenu.Root />', () => {
         const { user } = await render(<TestNavigationMenu />);
         const trigger = screen.getByTestId('trigger-1');
         const siblingTrigger = screen.getByTestId('trigger-2');
+        const topLevelList = trigger.closest('ul') as HTMLElement;
 
         await user.hover(trigger);
 
         await waitFor(() => {
-          expect(document.body.style.pointerEvents).toBe('none');
+          expect(topLevelList.style.pointerEvents).toBe('none');
         });
 
         expect(getComputedStyle(siblingTrigger).pointerEvents).toBe('none');
@@ -1857,7 +1985,7 @@ describe('<NavigationMenu.Root />', () => {
         });
 
         expect(nestedList.style.pointerEvents).toBe('none');
-        expect(document.body.style.pointerEvents).toBe('none');
+        expect(document.body.style.pointerEvents).toBe('');
 
         fireEvent.mouseMove(document, { clientX: 150, clientY: 80 });
         await flushMicrotasks();

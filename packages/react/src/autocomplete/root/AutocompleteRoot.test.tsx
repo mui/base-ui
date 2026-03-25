@@ -894,6 +894,55 @@ describe('<Autocomplete.Root />', () => {
       expect(submitCount).toBe(1);
     });
 
+    it.skipIf(isJSDOM)(
+      'when true, clicking with pointer submits an associated external form when `form` is provided',
+      async () => {
+        let submitValue: string | null = null;
+        let submitCount = 0;
+
+        const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+          event.preventDefault();
+          const data = new FormData(event.currentTarget);
+          submitValue = (data.get('q') as string) ?? null;
+          submitCount += 1;
+        };
+
+        const { user } = await render(
+          <React.Fragment>
+            <form id="external-form" onSubmit={handleSubmit} />
+            <Autocomplete.Root
+              items={['alpha', 'alpine']}
+              name="q"
+              form="external-form"
+              submitOnItemClick
+            >
+              <Autocomplete.Input />
+              <Autocomplete.Portal>
+                <Autocomplete.Positioner>
+                  <Autocomplete.Popup>
+                    <Autocomplete.List>
+                      {(item) => (
+                        <Autocomplete.Item key={item} value={item}>
+                          {item}
+                        </Autocomplete.Item>
+                      )}
+                    </Autocomplete.List>
+                  </Autocomplete.Popup>
+                </Autocomplete.Positioner>
+              </Autocomplete.Portal>
+            </Autocomplete.Root>
+          </React.Fragment>,
+        );
+
+        const input = screen.getByRole<HTMLInputElement>('combobox');
+        await user.type(input, 'al');
+        await user.click(screen.getByRole('option', { name: 'alpha' }));
+
+        expect(submitValue).toBe('alpha');
+        expect(submitCount).toBe(1);
+      },
+    );
+
     it('focusing the listbox should keep the input focused and maintain functionality', async () => {
       let submitValue: string | null = null;
       let submitCount = 0;
@@ -1023,6 +1072,32 @@ describe('<Autocomplete.Root />', () => {
       expect(input.getAttribute('name'), 'input should have name attribute').toBe('query');
       expect(input.value, 'input should have typed value').toBe('base ui');
 
+      await user.click(screen.getByText('Submit'));
+
+      expect(submitted).toBe('base ui');
+    });
+
+    it.skipIf(isJSDOM)('submits to an external form when `form` is provided', async () => {
+      let submitted: FormDataEntryValue | null = null;
+
+      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+        event.preventDefault();
+        const data = new FormData(event.currentTarget);
+        submitted = data.get('query');
+      };
+
+      const { user } = await render(
+        <React.Fragment>
+          <form id="external-form" onSubmit={handleSubmit}>
+            <button type="submit">Submit</button>
+          </form>
+          <Autocomplete.Root name="query" form="external-form">
+            <Autocomplete.Input data-testid="input" />
+          </Autocomplete.Root>
+        </React.Fragment>,
+      );
+
+      await user.type(screen.getByTestId('input'), 'base ui');
       await user.click(screen.getByText('Submit'));
 
       expect(submitted).toBe('base ui');

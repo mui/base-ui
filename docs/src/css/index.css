@@ -54,7 +54,10 @@
 @import '../components/DescriptionList.css';
 @import '../components/ReferenceTable/ReferenceTable.css';
 
+/* Rehype-based syntax highlighting (legacy) */
 @import '../syntax-highlighting/index.css';
+/* Prettylights-based syntax highlighting */
+@import './syntax.css';
 
 @import './utilities/index.css';
 
@@ -100,7 +103,9 @@
 
   /* Typography */
   --font-mono: 'SF Mono', 'Menlo', 'DejaVu Sans Mono', 'Consolas', 'Inconsolata', monospace;
-  --font-sans: 'Unica 77', system-ui, sans-serif;
+  --font-sans: 'Die Grotesk A', system-ui, sans-serif;
+  --font-sans-b: 'Die Grotesk B', system-ui, sans-serif;
+  --font-serif: Georgia, 'Times New Roman', Times, 'Noto Serif', 'DejaVu Serif', serif;
 
   --text-xs: 0.8125rem;
   --text-xs--line-height: 1.25rem;

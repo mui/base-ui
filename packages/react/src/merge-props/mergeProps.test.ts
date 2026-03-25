@@ -1,5 +1,5 @@
 import { expect, vi } from 'vitest';
-import { mergeProps } from '@base-ui/react/merge-props';
+import { mergeProps, mergePropsN } from '@base-ui/react/merge-props';
 import type { BaseUIEvent } from '../utils/types';
 
 describe('mergeProps', () => {
@@ -73,6 +73,82 @@ describe('mergeProps', () => {
 
     mergedProps.onClick?.({ nativeEvent: new MouseEvent('click') } as any);
     expect(log).toEqual(['1', '3']);
+  });
+
+  it('makes a lone synthetic event handler preventable', () => {
+    let prevented = false;
+
+    const mergedProps = mergeProps<'button'>(
+      {},
+      {
+        onMouseDown(event) {
+          event.preventBaseUIHandler();
+          prevented = event.baseUIHandlerPrevented === true;
+        },
+      },
+    );
+
+    mergedProps.onMouseDown?.({ nativeEvent: new MouseEvent('mousedown') } as any);
+
+    expect(prevented).toBe(true);
+  });
+
+  it('makes a first-position synthetic event handler preventable', () => {
+    let prevented = false;
+
+    const mergedProps = mergeProps<'button'>(
+      {
+        onMouseDown(event) {
+          event.preventBaseUIHandler();
+          prevented = event.baseUIHandlerPrevented === true;
+        },
+      },
+      {
+        id: 'test-button',
+      },
+    );
+
+    mergedProps.onMouseDown?.({ nativeEvent: new MouseEvent('mousedown') } as any);
+
+    expect(prevented).toBe(true);
+  });
+
+  it('makes a first-position synthetic event handler preventable in mergePropsN', () => {
+    let prevented = false;
+
+    const mergedProps = mergePropsN<'button'>([
+      {
+        onMouseDown(event) {
+          event.preventBaseUIHandler();
+          prevented = event.baseUIHandlerPrevented === true;
+        },
+      },
+      {
+        id: 'test-button',
+      },
+    ]);
+
+    mergedProps.onMouseDown?.({ nativeEvent: new MouseEvent('mousedown') } as any);
+
+    expect(prevented).toBe(true);
+  });
+
+  it('makes a lone obscure synthetic event handler preventable', () => {
+    let prevented = false;
+
+    const mergedProps = mergeProps<'button'>(
+      {},
+      {
+        onContextMenu(event) {
+          event.preventBaseUIHandler();
+          prevented = event.baseUIHandlerPrevented === true;
+        },
+      },
+    );
+
+    mergedProps.onContextMenu?.({ nativeEvent: new MouseEvent('contextmenu') } as any);
+
+    expect(prevented).toBe(true);
   });
 
   it('merges styles', () => {

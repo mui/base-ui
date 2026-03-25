@@ -18,24 +18,6 @@
       outline-offset: -1px;
     }
 
-    transform-origin: var(--transform-origin, center);
-    transition-duration: 120ms;
-    transition-property: opacity, transform;
-    transition-timing-function: var(--ease-out-fast);
-
-    &[data-starting-style],
-    &[data-ending-style] {
-      opacity: 0;
-
-      @media (prefers-reduced-motion: no-preference) {
-        transform: scale(0.98);
-      }
-    }
-
-    &[data-ending-style] {
-      transition-timing-function: var(--ease-in-slow);
-    }
-
     overflow: auto;
     overscroll-behavior-x: contain;
     scrollbar-width: none;

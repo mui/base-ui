@@ -70,11 +70,13 @@ function useRenderElementProps<
     ? getStateAttributesProps(state, stateAttributesMapping)
     : EMPTY_OBJECT;
 
+  const resolvedProps = enabled && props ? resolveRenderFunctionProps<TagName>(props) : undefined;
+
   // Ensure outProps is always a new mutable object when enabled, never EMPTY_OBJECT.
   // This prevents potential TypeError when setting ref, className, or style properties,
   // since EMPTY_OBJECT is frozen and mutations would fail in strict mode.
   const outProps: React.HTMLAttributes<any> & React.RefAttributes<any> = enabled
-    ? (mergeObjects(stateProps, Array.isArray(props) ? mergePropsN(props) : props) ?? {})
+    ? (mergeObjects(stateProps, resolvedProps) ?? {})
     : EMPTY_OBJECT;
 
   // SAFETY: The `useMergedRefs` functions use a single hook to store the same value,
@@ -106,6 +108,16 @@ function useRenderElementProps<
   }
 
   return outProps;
+}
+
+function resolveRenderFunctionProps<TagName extends IntrinsicTagName | undefined>(
+  props: NonNullable<UseRenderElementParameters<any, any, TagName, any>['props']>,
+): RenderFunctionProps<TagName> {
+  if (Array.isArray(props)) {
+    return mergePropsN(props) as RenderFunctionProps<TagName>;
+  }
+
+  return mergeProps(undefined, props) as RenderFunctionProps<TagName>;
 }
 
 // The symbol React uses internally for lazy components

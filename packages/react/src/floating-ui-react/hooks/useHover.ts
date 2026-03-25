@@ -26,7 +26,7 @@ export interface UseHoverProps {
    */
   handleClose?: HandleClose | null | undefined;
   /**
-   * Waits until the user’s cursor is at “rest” over the reference element
+   * Waits until the user's cursor is at “rest” over the reference element
    * before changing the `open` state.
    * @default 0
    */
@@ -457,7 +457,7 @@ export function useHover(
         // wasn't used to open the floating element.
         const isOverInactiveTrigger =
           store.select('domReferenceElement') &&
-          !contains(store.select('domReferenceElement'), event.target as Element);
+          !contains(store.select('domReferenceElement'), getTarget(nativeEvent) as Element);
 
         function handleMouseMove() {
           if (!blockMouseMoveRef.current && (!store.select('open') || isOverInactiveTrigger)) {
