@@ -48,6 +48,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     height,
     mounted,
     onOpenChange,
+    onOpenChangeComplete,
     open,
     panelId,
     panelRef,
@@ -97,6 +98,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     keepMounted,
     mounted,
     onOpenChange,
+    onOpenChangeComplete,
     open,
     panelRef,
     runOnceAnimationsFinish,
@@ -118,6 +120,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
       }
 
       setDimensions({ height: undefined, width: undefined });
+      onOpenChangeComplete(true);
     },
   });
 

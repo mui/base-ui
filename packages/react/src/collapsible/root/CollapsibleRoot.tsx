@@ -25,16 +25,19 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     defaultOpen = false,
     disabled = false,
     onOpenChange: onOpenChangeProp,
+    onOpenChangeComplete: onOpenChangeCompleteProp,
     open,
     ...elementProps
   } = componentProps;
 
   const onOpenChange = useStableCallback(onOpenChangeProp);
+  const onOpenChangeComplete = useStableCallback(onOpenChangeCompleteProp);
 
   const collapsible = useCollapsibleRoot({
     open,
     defaultOpen,
     onOpenChange,
+    onOpenChangeComplete,
     disabled,
   });
 
@@ -95,6 +98,10 @@ export interface CollapsibleRootProps extends BaseUIComponentProps<'div', Collap
   onOpenChange?:
     | ((open: boolean, eventDetails: CollapsibleRootChangeEventDetails) => void)
     | undefined;
+  /**
+   * Event handler called after any animations complete when the panel is opened or closed.
+   */
+  onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false
