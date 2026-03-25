@@ -28,7 +28,7 @@ export default function ExampleAutocompleteCommandPalette() {
             >
               <Autocomplete.Input
                 className={styles.Input}
-                placeholder="Search for apps and commands..."
+                placeholder="Search for apps and commands…"
               />
               <Dialog.Close className={styles.VisuallyHiddenClose}>
                 Close command palette
