@@ -3,7 +3,7 @@ import { expect } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance } from '#test-utils';
 import { screen, waitFor } from '@mui/internal-test-utils';
-import { INITIAL_LIVE_REGION_TEXT_MUTATION_RESET_DELAY } from '../utils/constants';
+import { INITIAL_LIVE_REGION_TEXT_MUTATION_RESET_DELAY } from '../utils/useInitialLiveRegionTextMutation';
 
 describe('<Combobox.Status />', () => {
   const { render } = createRenderer();
@@ -108,6 +108,17 @@ describe('<Combobox.Status />', () => {
       clock.tick(INITIAL_LIVE_REGION_TEXT_MUTATION_RESET_DELAY);
 
       expect(screen.getByTestId('custom-status').textContent).toBe('Searching…');
+    });
+
+    it('restores the marker before unmounting during the reset delay', async () => {
+      const { unmount } = await renderFakeTimers(<StatusTest>Searching…</StatusTest>);
+
+      const status = screen.getByTestId('status');
+      expect(status.textContent).toBe('Searching…\u2060');
+
+      unmount();
+
+      expect(status.textContent).toBe('Searching…');
     });
   });
 });

@@ -2,9 +2,11 @@
 import * as React from 'react';
 import { isIOS } from '@base-ui/utils/detectBrowser';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { INITIAL_LIVE_REGION_TEXT_MUTATION_RESET_DELAY } from './constants';
 
+// Word Joiner is invisible and zero-width, so it forces a text mutation without shifting layout.
 const LIVE_REGION_MARKER = '\u2060';
+// Safari VoiceOver needed roughly 200ms to reliably notice the initial polite live-region change.
+export const INITIAL_LIVE_REGION_TEXT_MUTATION_RESET_DELAY = 200;
 
 function findLastTextNode(root: HTMLElement): Text | null {
   const walker = root.ownerDocument.createTreeWalker(root, NodeFilter.SHOW_TEXT);
@@ -24,6 +26,7 @@ export function useInitialLiveRegionTextMutation<T extends HTMLElement>() {
   const timeout = useTimeout();
   const rootRef = React.useRef<T | null>(null);
 
+  // Only the initial mounted announcement needs the marker; later text updates announce naturally.
   React.useEffect(() => {
     if (isIOS) {
       return undefined;
