@@ -123,40 +123,6 @@ describe('<Autocomplete.Root />', () => {
     expect(hiddenInput).not.toHaveAttribute('autocomplete');
   });
 
-  it('supports item click behavior props intentionally', async () => {
-    const { user } = await render(
-      <Autocomplete.Root items={['alpha', 'beta']} openOnInputClick closeOnItemClick="never">
-        <Autocomplete.Input clearOnItemClick="always" />
-        <Autocomplete.Portal>
-          <Autocomplete.Positioner>
-            <Autocomplete.Popup>
-              <Autocomplete.List>
-                {(item: string) => (
-                  <Autocomplete.Item key={item} value={item}>
-                    {item}
-                  </Autocomplete.Item>
-                )}
-              </Autocomplete.List>
-            </Autocomplete.Popup>
-          </Autocomplete.Positioner>
-        </Autocomplete.Portal>
-      </Autocomplete.Root>,
-    );
-
-    const input = screen.getByRole<HTMLInputElement>('combobox');
-
-    await user.click(input);
-    const option = await screen.findByRole('option', { name: 'alpha' });
-
-    await user.click(option);
-
-    await waitFor(() => {
-      expect(screen.queryByRole('listbox')).not.toBe(null);
-    });
-
-    expect(input.value).toBe('');
-  });
-
   describe('prop: autoHighlight', () => {
     it('calls onItemHighlighted when the popup auto highlights on open', async () => {
       const onItemHighlighted = vi.fn();

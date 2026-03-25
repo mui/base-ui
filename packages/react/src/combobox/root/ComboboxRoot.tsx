@@ -46,7 +46,6 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
   | 'autoComplete'
   | 'formAutoComplete'
   | 'submitOnItemClick'
-  | 'closeOnItemClick'
   | 'autoHighlight'
   | 'keepHighlight'
   | 'highlightItemOnHover'
@@ -86,13 +85,11 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
    */
   highlightItemOnHover?: boolean | undefined;
   /**
-   * Whether the popup closes after selecting an item.
-   * - `'auto'` (default): preserve the default behavior for the current selection mode and filter state.
-   * - `'always'`: always close after selecting an item.
-   * - `'never'`: never close after selecting an item.
-   * @default 'auto'
+   * Whether the filter text should be preserved after selecting an item while filtering in multiple mode.
+   * Keeps the popup open so additional filtered selections can be made.
+   * @default false
    */
-  closeOnItemClick?: 'auto' | 'always' | 'never' | undefined;
+  keepFilterText?: boolean | undefined;
   /**
    * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.
    * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.

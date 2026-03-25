@@ -104,10 +104,6 @@ const groupItemsReadonly = [
   }}
 />;
 
-<Autocomplete.Root closeOnItemClick="never" />;
-
-<Autocomplete.Input clearOnItemClick="always" />;
-
 function App2() {
   const [value, setValue] = React.useState('a');
   return (

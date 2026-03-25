@@ -2541,64 +2541,14 @@ describe('<Combobox.Root />', () => {
       expect(input).toHaveValue('');
     });
 
-    describe('item click behavior matrix', () => {
-      const behaviorValues = ['auto', 'always', 'never'] as const;
-      const selectionModes = [
-        { multiple: false, label: 'single' },
-        { multiple: true, label: 'multiple' },
-      ] as const;
-      const inputLocations = [
-        { inputInsidePopup: false, label: 'outside' },
-        { inputInsidePopup: true, label: 'inside' },
-      ] as const;
-      const filteringStates = [
-        { filtering: false, label: 'not filtering' },
-        { filtering: true, label: 'filtering' },
-      ] as const;
-
-      function resolveBehavior(
-        behavior: (typeof behaviorValues)[number],
-        autoValue: boolean,
-      ): boolean {
-        if (behavior === 'always') {
-          return true;
-        }
-
-        if (behavior === 'never') {
-          return false;
-        }
-
-        return autoValue;
-      }
-
-      async function renderItemClickScenario({
-        multiple,
-        inputInsidePopup,
-        closeOnItemClick,
-        clearOnItemClick,
-      }: {
-        multiple: boolean;
-        inputInsidePopup: boolean;
-        closeOnItemClick: (typeof behaviorValues)[number];
-        clearOnItemClick: (typeof behaviorValues)[number];
-      }) {
+    describe('prop: keepFilterText', () => {
+      it('keeps the popup open and preserves the query in multiple mode when the input is outside the popup', async () => {
         const { user } = await render(
-          <Combobox.Root
-            defaultOpen
-            multiple={multiple || undefined}
-            closeOnItemClick={closeOnItemClick}
-          >
-            {inputInsidePopup ? (
-              <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
-            ) : (
-              <Combobox.Input data-testid="input" clearOnItemClick={clearOnItemClick} />
-            )}
+          <Combobox.Root defaultOpen multiple keepFilterText>
+            <Combobox.Input data-testid="input" />
             <Combobox.Portal>
               <Combobox.Positioner>
                 <Combobox.Popup>
-                  {inputInsidePopup && (
-                    <Combobox.Input data-testid="input" clearOnItemClick={clearOnItemClick} />
-                  )}
                   <Combobox.List>
                     <Combobox.Item value="apple">apple</Combobox.Item>
                     <Combobox.Item value="banana">banana</Combobox.Item>
@@ -2609,65 +2559,51 @@ describe('<Combobox.Root />', () => {
           </Combobox.Root>,
         );
 
-        return { user, input: screen.getByTestId('input') };
-      }
+        const input = screen.getByTestId('input');
 
-      for (const { multiple, label: selectionModeLabel } of selectionModes) {
-        for (const { inputInsidePopup, label: inputLocationLabel } of inputLocations) {
-          for (const { filtering, label: filteringLabel } of filteringStates) {
-            for (const closeOnItemClick of behaviorValues) {
-              for (const clearOnItemClick of behaviorValues) {
-                it(`${selectionModeLabel}, ${inputLocationLabel} popup input, ${filteringLabel}, close=${closeOnItemClick}, clear=${clearOnItemClick}`, async () => {
-                  const { user, input } = await renderItemClickScenario({
-                    multiple,
-                    inputInsidePopup,
-                    closeOnItemClick,
-                    clearOnItemClick,
-                  });
+        await user.type(input, 'app');
+        await flushMicrotasks();
+        await user.click(screen.getByRole('option', { name: 'apple' }));
+        await flushMicrotasks();
 
-                  if (filtering) {
-                    await user.type(input, 'app');
-                    await flushMicrotasks();
-                  }
+        await waitFor(() => {
+          expect(screen.queryByRole('listbox')).not.toBe(null);
+        });
 
-                  await user.click(screen.getByRole('option', { name: 'apple' }));
-                  await flushMicrotasks();
+        expect(input).toHaveValue('app');
+      });
 
-                  const shouldClearInput = resolveBehavior(
-                    clearOnItemClick,
-                    multiple ? filtering : inputInsidePopup,
-                  );
-                  const shouldClose = resolveBehavior(
-                    closeOnItemClick,
-                    multiple ? filtering && !inputInsidePopup : true,
-                  );
-                  let expectedInputValue = '';
+      it('keeps the popup open and preserves the query in multiple mode when the input is inside the popup', async () => {
+        const { user } = await render(
+          <Combobox.Root defaultOpen multiple keepFilterText>
+            <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.Input data-testid="input" />
+                  <Combobox.List>
+                    <Combobox.Item value="apple">apple</Combobox.Item>
+                    <Combobox.Item value="banana">banana</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
 
-                  if (!shouldClearInput) {
-                    if (multiple || inputInsidePopup) {
-                      expectedInputValue = filtering ? 'app' : '';
-                    } else {
-                      expectedInputValue = 'apple';
-                    }
-                  }
+        const input = screen.getByTestId('input');
 
-                  if (shouldClose) {
-                    await waitFor(() => {
-                      expect(screen.queryByRole('listbox')).toBe(null);
-                    });
-                  } else {
-                    await waitFor(() => {
-                      expect(screen.queryByRole('listbox')).not.toBe(null);
-                    });
-                  }
+        await user.type(input, 'app');
+        await flushMicrotasks();
+        await user.click(screen.getByRole('option', { name: 'apple' }));
+        await flushMicrotasks();
 
-                  expect(input).toHaveValue(expectedInputValue);
-                });
-              }
-            }
-          }
-        }
-      }
+        await waitFor(() => {
+          expect(screen.queryByRole('listbox')).not.toBe(null);
+        });
+
+        expect(input).toHaveValue('app');
+      });
     });
 
     it('"multiple" clears typed input on close when no selection made', async () => {

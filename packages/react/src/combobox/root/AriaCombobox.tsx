@@ -60,8 +60,6 @@ import {
 } from '../../utils/itemEquality';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
 
-type ItemClickBehavior = 'auto' | 'always' | 'never';
-
 export interface PendingInputBehavior {
   didClearInput: boolean;
   closeAction: 'default' | 'skip' | 'force';
@@ -121,7 +119,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     formAutoComplete,
     locale,
     submitOnItemClick = false,
-    closeOnItemClick = 'auto',
+    keepFilterText = false,
   } = props;
 
   const { clearErrors } = useFormContext();
@@ -157,7 +155,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     closeAction: 'default',
     skipSelectedValueSync: false,
   });
-  const clearOnItemClickRef = React.useRef<ItemClickBehavior>('auto');
   const chipsContainerRef = React.useRef<HTMLDivElement | null>(null);
   const clearRef = React.useRef<HTMLButtonElement | null>(null);
   const selectionEventRef = React.useRef<MouseEvent | PointerEvent | KeyboardEvent | null>(null);
@@ -389,7 +386,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         modal,
         autoHighlight: autoHighlightMode,
         submitOnItemClick,
-        clearOnItemClickRef,
         hasInputValue,
         mounted: false,
         forceMounted: false,
@@ -651,18 +647,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   );
 
-  function resolveItemClickBehavior(behavior: ItemClickBehavior, autoValue: boolean): boolean {
-    if (behavior === 'always') {
-      return true;
-    }
-
-    if (behavior === 'never') {
-      return false;
-    }
-
-    return autoValue;
-  }
-
   const handleSelection = useStableCallback(
     (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => {
       let itemValue = passedValue;
@@ -705,14 +689,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
       const inputInsidePopupOnSelect = store.state.inputInsidePopup;
       const wasFiltering = inputRef.current ? inputRef.current.value.trim() !== '' : false;
-      const shouldClearInput = resolveItemClickBehavior(
-        clearOnItemClickRef.current,
-        multiple ? wasFiltering : inputInsidePopupOnSelect,
-      );
-      const shouldClose = resolveItemClickBehavior(
-        closeOnItemClick,
-        multiple ? wasFiltering && !inputInsidePopupOnSelect : true,
-      );
+      const shouldKeepFilterText = keepFilterText && multiple && wasFiltering;
+      const shouldClearInput = shouldKeepFilterText
+        ? false
+        : multiple
+          ? wasFiltering
+          : inputInsidePopupOnSelect;
+      const shouldClose = shouldKeepFilterText
+        ? false
+        : multiple
+          ? wasFiltering && !inputInsidePopupOnSelect
+          : true;
 
       if (shouldClose) {
         if (!shouldClearInput) {
@@ -1578,13 +1565,11 @@ interface ComboboxRootProps<ItemValue> {
    */
   submitOnItemClick?: boolean | undefined;
   /**
-   * Whether the popup closes after selecting an item.
-   * - `'auto'` (default): preserve the default behavior for the current selection mode and filter state.
-   * - `'always'`: always close after selecting an item.
-   * - `'never'`: never close after selecting an item.
-   * @default 'auto'
+   * Whether the filter text should be preserved after selecting an item while filtering in multiple mode.
+   * Keeps the popup open so additional filtered selections can be made.
+   * @default false
    */
-  closeOnItemClick?: 'auto' | 'always' | 'never' | undefined;
+  keepFilterText?: boolean | undefined;
   /**
    * INTERNAL: When `selectionMode` is `none`, controls whether selecting an item fills the input.
    */

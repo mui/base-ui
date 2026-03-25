@@ -40,7 +40,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     render,
     className,
     disabled: disabledProp = false,
-    clearOnItemClick = 'auto',
     id: idProp,
     ...elementProps
   } = componentProps;
@@ -110,14 +109,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
       inputInsidePopup: nextIsInsidePopup,
     });
   });
-
-  useIsoLayoutEffect(() => {
-    store.state.clearOnItemClickRef.current = clearOnItemClick;
-
-    return () => {
-      store.state.clearOnItemClickRef.current = 'auto';
-    };
-  }, [store, clearOnItemClick]);
 
   const validationProps =
     hasPositionerParent || !validation ? elementProps : validation.getValidationProps(elementProps);
@@ -520,14 +511,6 @@ export interface ComboboxInputProps extends BaseUIComponentProps<'input', Combob
    * @default false
    */
   disabled?: boolean | undefined;
-  /**
-   * Whether the input is cleared after selecting an item.
-   * - `'auto'` (default): preserve the default behavior for the current selection mode and filter state.
-   * - `'always'`: always clear after selecting an item.
-   * - `'never'`: never clear after selecting an item.
-   * @default 'auto'
-   */
-  clearOnItemClick?: 'auto' | 'always' | 'never' | undefined;
 }
 
 export namespace ComboboxInput {
