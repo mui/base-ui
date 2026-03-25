@@ -25,7 +25,6 @@ export const ListboxItemDragHandle = React.forwardRef(function ListboxItemDragHa
     props: [
       {
         'aria-hidden': true,
-        style: { cursor: 'grab' },
       },
       elementProps,
     ],
