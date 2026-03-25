@@ -87,6 +87,7 @@ export const ListboxItem = React.memo(
       highlightItemOnHover,
       lastSelectedIndexRef,
       lastPointerTypeRef,
+      pointerMoveSuppressedRef,
       disabled: rootDisabled,
       onItemsReorder,
     } = useListboxRootContext();
@@ -250,13 +251,13 @@ export const ListboxItem = React.memo(
         store.set('activeIndex', index);
       },
       onMouseMove() {
-        if (highlightItemOnHover) {
+        if (highlightItemOnHover && !pointerMoveSuppressedRef.current) {
           store.set('activeIndex', index);
           itemRef.current?.focus();
         }
       },
       onMouseLeave(event) {
-        if (!highlightItemOnHover || isMouseWithinBounds(event)) {
+        if (!highlightItemOnHover || pointerMoveSuppressedRef.current || isMouseWithinBounds(event)) {
           return;
         }
 
@@ -282,6 +283,11 @@ export const ListboxItem = React.memo(
           if (moveUp || moveDown) {
             event.preventDefault();
 
+            // Suppress pointer-move highlighting while the DOM is being
+            // reordered to prevent the item under the pointer from
+            // stealing the highlight.
+            pointerMoveSuppressedRef.current = true;
+
             // After a keyboard reorder, we need to:
             // 1. Restore focus if it was lost (cross-group moves cause React to
             //    unmount/remount the item, moving focus to the document body).
@@ -295,6 +301,7 @@ export const ListboxItem = React.memo(
               setTimeout(() => {
                 const listEl = store.state.listElement;
                 if (!listEl) {
+                  pointerMoveSuppressedRef.current = false;
                   return;
                 }
 
@@ -302,20 +309,16 @@ export const ListboxItem = React.memo(
                 let target = activeElement(doc) as HTMLElement | null;
 
                 if (!contains(listEl, target)) {
-                  target = listEl.querySelector<HTMLElement>(
-                    '[role="option"][tabindex="0"]',
-                  );
+                  target = listEl.querySelector<HTMLElement>('[role="option"][tabindex="0"]');
                   target?.focus();
                 }
 
                 if (target) {
-                  scrollIntoViewIfNeeded(
-                    listEl,
-                    target,
-                    direction,
-                    store.state.orientation,
-                  );
+                  scrollIntoViewIfNeeded(listEl, target, direction, store.state.orientation);
                 }
+
+                // Re-enable pointer-move highlighting after the DOM has settled.
+                pointerMoveSuppressedRef.current = false;
               }, 0);
             }
 
@@ -342,10 +345,7 @@ export const ListboxItem = React.memo(
               const lastIdx = selectedIndices[selectedIndices.length - 1];
               const targetIdx = moveUp ? firstIdx - 1 : lastIdx + 1;
 
-              if (
-                targetIdx < 0 ||
-                targetIdx >= valuesRef.current.length
-              ) {
+              if (targetIdx < 0 || targetIdx >= valuesRef.current.length) {
                 return;
               }
 
@@ -379,10 +379,7 @@ export const ListboxItem = React.memo(
             } else {
               // Single-item reorder
               const targetIdx = moveUp ? index - 1 : index + 1;
-              if (
-                targetIdx < 0 ||
-                targetIdx >= valuesRef.current.length
-              ) {
+              if (targetIdx < 0 || targetIdx >= valuesRef.current.length) {
                 return;
               }
 
@@ -433,8 +430,9 @@ export const ListboxItem = React.memo(
         // so prefer it when available. The ref is shared across all items
         // (via context) because on touch devices the pointerdown and click
         // targets may differ when a finger lands near an item boundary.
-        const pointerType = lastPointerTypeRef.current
-          || ('pointerType' in event.nativeEvent
+        const pointerType =
+          lastPointerTypeRef.current ||
+          ('pointerType' in event.nativeEvent
             ? (event.nativeEvent as PointerEvent).pointerType
             : null);
 

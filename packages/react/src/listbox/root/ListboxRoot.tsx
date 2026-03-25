@@ -88,6 +88,7 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
   const typingRef = React.useRef(false);
   const lastSelectedIndexRef = React.useRef<number | null>(null);
   const lastPointerTypeRef = React.useRef<string | null>(null);
+  const pointerMoveSuppressedRef = React.useRef(false);
 
   const store = useRefWithInit(
     () =>
@@ -268,6 +269,7 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
       typingRef,
       lastSelectedIndexRef,
       lastPointerTypeRef,
+      pointerMoveSuppressedRef,
       validation,
       onItemsReorder,
       onLoadMore,
