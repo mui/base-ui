@@ -29,21 +29,6 @@ const selectors = {
   hasViewport: createSelector((state: State<unknown>) => state.hasViewport),
 };
 
-function getElementDebugName(element: Element | null | undefined): string {
-  if (!element) {
-    return 'null';
-  }
-
-  const id = element.id ? `#${element.id}` : '';
-  const testId = element.getAttribute('data-testid');
-  const role = element.getAttribute('role');
-  const text = element.textContent?.trim().slice(0, 40) ?? '';
-  const testIdPart = testId ? `[data-testid="${testId}"]` : '';
-  const rolePart = role ? `[role="${role}"]` : '';
-  const textPart = text ? `("${text}")` : '';
-  return `${element.tagName.toLowerCase()}${id}${testIdPart}${rolePart}${textPart}`;
-}
-
 export class PreviewCardStore<Payload> extends ReactStore<
   Readonly<State<Payload>>,
   Context,
@@ -67,17 +52,6 @@ export class PreviewCardStore<Payload> extends ReactStore<
     nextOpen: boolean,
     eventDetails: Omit<PreviewCardRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
   ) => {
-    // eslint-disable-next-line no-console
-    console.log('[PreviewCardDebug][Store] setOpen called', {
-      nextOpen,
-      reason: eventDetails.reason,
-      eventType: eventDetails.event?.type,
-      trigger: getElementDebugName(eventDetails.trigger ?? null),
-      prevOpen: this.state.open,
-      prevActiveTriggerId: this.state.activeTriggerId,
-      prevActiveTriggerElement: getElementDebugName(this.state.activeTriggerElement),
-    });
-
     const reason = eventDetails.reason;
 
     const isHover = reason === REASONS.triggerHover;
@@ -115,14 +89,6 @@ export class PreviewCardStore<Payload> extends ReactStore<
       }
 
       this.update(updatedState);
-      // eslint-disable-next-line no-console
-      console.log('[PreviewCardDebug][Store] state updated', {
-        open: this.state.open,
-        activeTriggerId: this.state.activeTriggerId,
-        activeTriggerElement: getElementDebugName(this.state.activeTriggerElement),
-        transitionStatus: this.state.transitionStatus,
-        mounted: this.state.mounted,
-      });
     };
 
     if (isHover) {

@@ -20,21 +20,6 @@ import {
 } from './useHoverInteractionSharedState';
 import { getDelay, isClickLikeOpenEvent as isClickLikeOpenEventShared } from './useHoverShared';
 
-function getElementDebugName(element: EventTarget | Element | null | undefined): string {
-  if (!isElement(element)) {
-    return 'null';
-  }
-
-  const id = element.id ? `#${element.id}` : '';
-  const testId = element.getAttribute('data-testid');
-  const role = element.getAttribute('role');
-  const text = element.textContent?.trim().slice(0, 40) ?? '';
-  const testIdPart = testId ? `[data-testid="${testId}"]` : '';
-  const rolePart = role ? `[role="${role}"]` : '';
-  const textPart = text ? `("${text}")` : '';
-  return `${element.tagName.toLowerCase()}${id}${testIdPart}${rolePart}${textPart}`;
-}
-
 export type UseHoverFloatingInteractionProps = {
   /**
    * Whether the Hook is enabled, including all internal Effects and event
@@ -86,21 +71,7 @@ export function useHoverFloatingInteraction(
   const closeWithDelay = React.useCallback(
     (event: MouseEvent) => {
       const closeDelay = getDelay(closeDelayProp, 'close', instance.pointerType);
-      // eslint-disable-next-line no-console
-      console.log('[PreviewCardDebug][Floating] closeWithDelay requested', {
-        closeDelay,
-        pointerType: instance.pointerType,
-        activeReference: getElementDebugName(store.select('domReferenceElement')),
-        floatingElement: getElementDebugName(store.select('floatingElement')),
-        eventType: event.type,
-      });
       const close = () => {
-        // eslint-disable-next-line no-console
-        console.log('[PreviewCardDebug][Floating] closeWithDelay fired', {
-          closeDelay,
-          activeReference: getElementDebugName(store.select('domReferenceElement')),
-          eventType: event.type,
-        });
         store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
         tree?.events.emit('floating.closed', event);
       };
@@ -203,11 +174,6 @@ export function useHoverFloatingInteraction(
     }
 
     function onFloatingMouseEnter() {
-      // eslint-disable-next-line no-console
-      console.log('[PreviewCardDebug][Floating] mouseenter', {
-        activeReference: getElementDebugName(store.select('domReferenceElement')),
-        floatingElement: getElementDebugName(store.select('floatingElement')),
-      });
       instance.openChangeTimeout.clear();
       childClosedTimeout.clear();
       tree?.events.off('floating.closed', onNodeClosed);
@@ -215,13 +181,6 @@ export function useHoverFloatingInteraction(
     }
 
     function onFloatingMouseLeave(event: MouseEvent) {
-      // eslint-disable-next-line no-console
-      console.log('[PreviewCardDebug][Floating] mouseleave', {
-        relatedTarget: getElementDebugName(event.relatedTarget as Element | null),
-        activeReference: getElementDebugName(store.select('domReferenceElement')),
-        floatingElement: getElementDebugName(store.select('floatingElement')),
-        hasSafePolygonHandler: Boolean(instance.handler),
-      });
       if (tree && parentId && getNodeChildren(tree.nodesRef.current, parentId).length > 0) {
         tree.events.on('floating.closed', onNodeClosed);
         return;

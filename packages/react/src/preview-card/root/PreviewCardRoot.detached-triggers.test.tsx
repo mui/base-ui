@@ -836,10 +836,22 @@ describe('<PreviewCard.Root />', () => {
       expect(popup.style.scale).toBe('');
     });
 
-    it('opens immediately when entering trigger B right after trigger A closes from hover', async () => {
+    it('opens immediately when entering trigger B during trigger A close transition', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
       const testPreviewCard = PreviewCard.createHandle<number>();
+      const style = `
+        @keyframes preview-card-a-to-b-close-transition {
+          from { opacity: 1; }
+          to { opacity: 0.01; }
+        }
+        [data-testid="popup"][data-ending-style] {
+          animation: preview-card-a-to-b-close-transition 800ms linear forwards;
+        }
+      `;
       const { user } = await render(
         <React.Fragment>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
           <button type="button" aria-label="Initial focus" autoFocus />
           <PreviewCard.Trigger href="#" handle={testPreviewCard} payload={1} delay={0}>
             Trigger 1
@@ -850,7 +862,7 @@ describe('<PreviewCard.Root />', () => {
 
           <PreviewCard.Root handle={testPreviewCard}>
             {({ payload }: NumberPayload) => (
-              <PreviewCard.Portal>
+              <PreviewCard.Portal keepMounted>
                 <PreviewCard.Positioner>
                   <PreviewCard.Popup data-testid="popup">
                     <span data-testid="content">{payload}</span>
@@ -872,7 +884,7 @@ describe('<PreviewCard.Root />', () => {
 
       await user.unhover(trigger1);
       await waitFor(() => {
-        expect(screen.queryByTestId('popup')).toBe(null);
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
       });
 
       await user.hover(trigger2);
@@ -885,10 +897,22 @@ describe('<PreviewCard.Root />', () => {
       );
     });
 
-    it('still respects trigger B open delay after waiting beyond the handoff window', async () => {
+    it('still respects trigger B open delay after trigger A close transition finishes', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
       const testPreviewCard = PreviewCard.createHandle<number>();
+      const style = `
+        @keyframes preview-card-a-to-b-post-close-delay {
+          from { opacity: 1; }
+          to { opacity: 0.01; }
+        }
+        [data-testid="popup"][data-ending-style] {
+          animation: preview-card-a-to-b-post-close-delay 800ms linear forwards;
+        }
+      `;
       const { user } = await render(
         <React.Fragment>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
           <button type="button" aria-label="Initial focus" autoFocus />
           <PreviewCard.Trigger href="#" handle={testPreviewCard} payload={1} delay={0}>
             Trigger 1
@@ -899,7 +923,7 @@ describe('<PreviewCard.Root />', () => {
 
           <PreviewCard.Root handle={testPreviewCard}>
             {({ payload }: NumberPayload) => (
-              <PreviewCard.Portal>
+              <PreviewCard.Portal keepMounted>
                 <PreviewCard.Positioner>
                   <PreviewCard.Popup data-testid="popup">
                     <span data-testid="content">{payload}</span>
@@ -921,26 +945,32 @@ describe('<PreviewCard.Root />', () => {
 
       await user.unhover(trigger1);
       await waitFor(() => {
-        expect(screen.queryByTestId('popup')).toBe(null);
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
       });
 
-      // Wait well beyond the handoff window so this behaves like a normal hover open.
-      await new Promise<void>((resolve) => {
-        setTimeout(resolve, OPEN_DELAY);
+      // Once close transition is done, this should behave like a normal delayed open.
+      await waitFor(
+        () => {
+          expect(screen.getByTestId('popup')).not.toHaveAttribute('data-ending-style');
+        },
+        { timeout: 1500 },
+      );
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-closed');
       });
 
       await user.hover(trigger2);
 
-      // Must not open immediately once the handoff window has elapsed.
+      // Must not open immediately once close transition has finished.
       await waitFor(
         () => {
-          expect(screen.queryByTestId('popup')).toBe(null);
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-closed');
         },
         { timeout: 200 },
       );
 
       await waitFor(() => {
-        expect(screen.getByTestId('content').textContent).toBe('2');
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
       });
     });
 

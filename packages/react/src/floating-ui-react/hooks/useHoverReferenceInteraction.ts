@@ -50,21 +50,6 @@ export interface UseHoverReferenceInteractionProps {
 
 const EMPTY_REF: Readonly<React.RefObject<Element | null>> = { current: null };
 
-function getElementDebugName(element: EventTarget | Element | null | undefined): string {
-  if (!isElement(element)) {
-    return 'null';
-  }
-
-  const id = element.id ? `#${element.id}` : '';
-  const testId = element.getAttribute('data-testid');
-  const role = element.getAttribute('role');
-  const text = element.textContent?.trim().slice(0, 40) ?? '';
-  const testIdPart = testId ? `[data-testid="${testId}"]` : '';
-  const rolePart = role ? `[role="${role}"]` : '';
-  const textPart = text ? `("${text}")` : '';
-  return `${element.tagName.toLowerCase()}${id}${testIdPart}${rolePart}${textPart}`;
-}
-
 /**
  * Provides hover interactions that should be attached to reference or trigger
  * elements.
@@ -92,7 +77,7 @@ export function useHoverReferenceInteraction(
   const tree = useFloatingTree(externalTree);
 
   const instance = useHoverInteractionSharedState(store);
-  const lastHoverCloseAtRef = React.useRef<number>(Number.NEGATIVE_INFINITY);
+  const isHoverCloseActiveRef = React.useRef(false);
 
   const handleCloseRef = useValueAsRef(handleClose);
   const delayRef = useValueAsRef(delay);
@@ -141,33 +126,13 @@ export function useHoverReferenceInteraction(
   const closeWithDelay = React.useCallback(
     (event: MouseEvent, runElseBranch = true) => {
       const closeDelay = getDelay(delayRef.current, 'close', instance.pointerType);
-      // eslint-disable-next-line no-console
-      console.log('[PreviewCardDebug][Reference] closeWithDelay requested', {
-        closeDelay,
-        runElseBranch,
-        pointerType: instance.pointerType,
-        activeReference: getElementDebugName(store.select('domReferenceElement')),
-        eventType: event.type,
-        eventTarget: getElementDebugName(getTarget(event)),
-      });
       if (closeDelay) {
         instance.openChangeTimeout.start(closeDelay, () => {
-          // eslint-disable-next-line no-console
-          console.log('[PreviewCardDebug][Reference] closeWithDelay fired', {
-            closeDelay,
-            activeReference: getElementDebugName(store.select('domReferenceElement')),
-            eventType: event.type,
-          });
           store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
           tree?.events.emit('floating.closed', event);
         });
       } else if (runElseBranch) {
         instance.openChangeTimeout.clear();
-        // eslint-disable-next-line no-console
-        console.log('[PreviewCardDebug][Reference] closeWithDelay immediate close', {
-          activeReference: getElementDebugName(store.select('domReferenceElement')),
-          eventType: event.type,
-        });
         store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
         tree?.events.emit('floating.closed', event);
       }
@@ -197,28 +162,15 @@ export function useHoverReferenceInteraction(
     }
 
     function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
-      // eslint-disable-next-line no-console
-      console.log('[PreviewCardDebug][Reference] openchange event', {
-        open: details.open,
-        reason: details.reason,
-        activeReference: getElementDebugName(store.select('domReferenceElement')),
-        triggerElement: getElementDebugName(details.triggerElement ?? null),
-      });
       if (!details.open) {
-        if (details.reason === REASONS.triggerHover) {
-          lastHoverCloseAtRef.current = performance.now();
-        }
-        // eslint-disable-next-line no-console
-        console.log('[PreviewCardDebug][Reference] openchange(false) clears timers', {
-          reason: details.reason,
-          activeReference: getElementDebugName(store.select('domReferenceElement')),
-          triggerRef: getElementDebugName(triggerElementRef.current),
-        });
+        isHoverCloseActiveRef.current = details.reason === REASONS.triggerHover;
         cleanupMouseMoveHandler();
         instance.openChangeTimeout.clear();
         instance.restTimeout.clear();
         instance.blockMouseMove = true;
         instance.restTimeoutPending = false;
+      } else {
+        isHoverCloseActiveRef.current = false;
       }
     }
 
@@ -226,7 +178,7 @@ export function useHoverReferenceInteraction(
     return () => {
       events.off('openchange', onOpenChangeLocal);
     };
-  }, [enabled, events, instance, cleanupMouseMoveHandler, store, triggerElementRef]);
+  }, [enabled, events, instance, cleanupMouseMoveHandler]);
 
   React.useEffect(() => {
     if (!enabled) {
@@ -260,7 +212,6 @@ export function useHoverReferenceInteraction(
       const triggerNode = (event.currentTarget as HTMLElement) ?? null;
       const currentDomReference = store.select('domReferenceElement');
       const floatingElement = store.select('floatingElement');
-      const hasPreviousReference = isElement(currentDomReference);
       const isOverInactive =
         triggerNode == null
           ? false
@@ -270,63 +221,26 @@ export function useHoverReferenceInteraction(
         isElement(floatingElement) &&
         (floatingElement.hasAttribute('data-ending-style') ||
           floatingElement.querySelector('[data-ending-style]') !== null);
-      const isInCloseLifecycle = !isOpen && isElement(floatingElement);
-      const closeDelay = getDelay(delayRef.current, 'close', instance.pointerType) ?? 0;
-      const handoffWindowMs = Math.max(100, closeDelay + 50);
-      const justClosedFromHover =
-        performance.now() - lastHoverCloseAtRef.current <= handoffWindowMs;
+      const isHoverCloseTransition =
+        !isOpen && isInClosingTransition && isHoverCloseActiveRef.current;
       const isReenteringSameTriggerDuringCloseTransition =
         !isOverInactive &&
         isElement(triggerNode) &&
         isElement(currentDomReference) &&
         contains(currentDomReference, triggerNode) &&
-        isInClosingTransition;
+        isHoverCloseTransition;
 
       const shouldOpen = !isOpen || isOverInactive;
-
-      // eslint-disable-next-line no-console
-      console.log('[PreviewCardDebug][Reference] mouseenter', {
-        trigger: getElementDebugName(triggerNode),
-        activeReference: getElementDebugName(currentDomReference),
-        hasPreviousReference,
-        isOpen,
-        isOverInactive,
-        isInClosingTransition,
-        isInCloseLifecycle,
-        isReenteringSameTriggerDuringCloseTransition,
-        justClosedFromHover,
-        handoffWindowMs,
-        shouldOpen,
-        openDelay,
-        pointerType: instance.pointerType,
-      });
 
       // Open immediately when moving between triggers while open, during close transition,
       // or within a short post-close handoff window.
       if (
-        (isOverInactive &&
-          (isOpen || isInClosingTransition || (hasPreviousReference && justClosedFromHover))) ||
+        (isOverInactive && (isOpen || isHoverCloseTransition)) ||
         isReenteringSameTriggerDuringCloseTransition
       ) {
         store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
       } else if (openDelay) {
-        // eslint-disable-next-line no-console
-        console.log('[PreviewCardDebug][Reference] openWithDelay scheduled', {
-          trigger: getElementDebugName(triggerNode),
-          openDelay,
-          activeReference: getElementDebugName(currentDomReference),
-          isOpen,
-          isOverInactive,
-        });
         instance.openChangeTimeout.start(openDelay, () => {
-          // eslint-disable-next-line no-console
-          console.log('[PreviewCardDebug][Reference] openWithDelay fired', {
-            trigger: getElementDebugName(triggerNode),
-            openDelay,
-            shouldOpen,
-            currentOpen: store.select('open'),
-            activeReference: getElementDebugName(store.select('domReferenceElement')),
-          });
           if (shouldOpen) {
             store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
           }
@@ -352,15 +266,6 @@ export function useHoverReferenceInteraction(
       const handleCloseContextBase = dataRef.current.floatingContext ?? getHandleCloseContext?.();
 
       const ignoreRelatedTargetTrigger = isRelatedTargetInsideEnabledTrigger(event.relatedTarget);
-
-      // eslint-disable-next-line no-console
-      console.log('[PreviewCardDebug][Reference] mouseleave', {
-        trigger: getElementDebugName(event.currentTarget as Element | null),
-        relatedTarget: getElementDebugName(event.relatedTarget as Element | null),
-        activeReference: getElementDebugName(store.select('domReferenceElement')),
-        ignoreRelatedTargetTrigger,
-        hasSafePolygonHandler: Boolean(handleCloseRef.current),
-      });
 
       if (ignoreRelatedTargetTrigger) {
         return;
@@ -401,13 +306,6 @@ export function useHoverReferenceInteraction(
         instance.pointerType === 'touch'
           ? !contains(store.select('floatingElement'), event.relatedTarget as Element | null)
           : true;
-
-      // eslint-disable-next-line no-console
-      console.log('[PreviewCardDebug][Reference] mouseleave shouldClose', {
-        shouldClose,
-        pointerType: instance.pointerType,
-        floatingElement: getElementDebugName(store.select('floatingElement')),
-      });
 
       if (shouldClose) {
         closeWithDelay(event);
