@@ -96,7 +96,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
 
       const target = getTarget(event);
       const activeEl = activeElement(ownerDocument(viewport));
-      if (!contains(viewport, target as HTMLElement | null) || !isFocusVisible(activeEl)) {
+      if (target === win || !contains(viewport, target as HTMLElement | null) || !isFocusVisible(activeEl)) {
         store.resumeTimers();
       }
 
