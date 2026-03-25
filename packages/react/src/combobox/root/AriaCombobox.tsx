@@ -60,12 +60,6 @@ import {
 } from '../../utils/itemEquality';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
 
-export interface PendingInputBehavior {
-  didClearInput: boolean;
-  closeAction: 'default' | 'skip' | 'force';
-  skipSelectedValueSync: boolean;
-}
-
 /**
  * @internal
  */
@@ -150,7 +144,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const endDismissRef = React.useRef<HTMLSpanElement | null>(null);
   const emptyRef = React.useRef<HTMLDivElement | null>(null);
   const keyboardActiveRef = React.useRef(true);
-  const pendingInputBehaviorRef = React.useRef<PendingInputBehavior>({
+  const pendingInputBehaviorRef = React.useRef<{
+    didClearInput: boolean;
+    closeAction: 'default' | 'skip' | 'force';
+    skipSelectedValueSync: boolean;
+  }>({
     didClearInput: false,
     closeAction: 'default',
     skipSelectedValueSync: false,
@@ -690,16 +688,18 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       const inputInsidePopupOnSelect = store.state.inputInsidePopup;
       const wasFiltering = inputRef.current ? inputRef.current.value.trim() !== '' : false;
       const shouldKeepFilterText = keepFilterText && multiple && wasFiltering;
-      const shouldClearInput = shouldKeepFilterText
-        ? false
-        : multiple
-          ? wasFiltering
-          : inputInsidePopupOnSelect;
-      const shouldClose = shouldKeepFilterText
-        ? false
-        : multiple
-          ? wasFiltering && !inputInsidePopupOnSelect
-          : true;
+      let shouldClearInput = false;
+      let shouldClose = false;
+
+      if (!shouldKeepFilterText) {
+        if (multiple) {
+          shouldClearInput = wasFiltering;
+          shouldClose = wasFiltering && !inputInsidePopupOnSelect;
+        } else {
+          shouldClearInput = inputInsidePopupOnSelect;
+          shouldClose = true;
+        }
+      }
 
       if (shouldClose) {
         if (!shouldClearInput) {

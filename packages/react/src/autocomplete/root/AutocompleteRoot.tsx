@@ -40,9 +40,10 @@ export function AutocompleteRoot<ItemValue>(
     onValueChange,
     mode = 'list',
     itemToStringValue,
-    keepFilterText: _keepFilterText,
+    keepFilterText,
     ...other
-  } = props as AutocompleteRoot.Props<ItemValue> & { keepFilterText?: never };
+  } = props as AutocompleteRoot.Props<ItemValue> & { keepFilterText?: never | undefined };
+  void keepFilterText;
 
   const enableInline = mode === 'inline' || mode === 'both';
   const staticItems = mode === 'inline' || mode === 'none';

@@ -282,7 +282,7 @@ function PreviewComboboxContent({
     inputLocation === 'inside-popup' ? `${styles.Popup} ${styles.PopupWithInput}` : styles.Popup;
 
   return (
-    <>
+    <React.Fragment>
       {inputLocation === 'outside-popup' ? (
         <Combobox.InputGroup className={styles.InputGroup}>
           <Combobox.Input className={styles.Input} placeholder="Type to search" />
@@ -321,7 +321,7 @@ function PreviewComboboxContent({
           </Combobox.Popup>
         </Combobox.Positioner>
       </Combobox.Portal>
-    </>
+    </React.Fragment>
   );
 }
 
