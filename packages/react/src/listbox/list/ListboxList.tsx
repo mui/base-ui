@@ -269,6 +269,14 @@ export const ListboxList = React.forwardRef(function ListboxList(
       // Let composite handle unmodified arrow keys, Home, End
       composite.props.onKeyDown?.(event);
 
+      // Escape: deselect all items (multi-select modes only)
+      if (event.key === 'Escape' && isMultipleSelectionMode(selectionMode)) {
+        const currentValue = store.state.value;
+        if (Array.isArray(currentValue) && currentValue.length > 0) {
+          dispatchSelection({ type: 'clear' }, event.nativeEvent);
+        }
+      }
+
       // Selection keyboard shortcuts (runs for multiple/explicit-multiple modes)
       handleSelectionKeyDown(event);
 
