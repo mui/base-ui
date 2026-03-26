@@ -155,5 +155,23 @@ describe('useControlled', () => {
         render(<TestComponentArray />);
       }).not.toErrorDev();
     });
+
+    it('does not warn on rerender', () => {
+      let setProps: (newProps: any) => void;
+
+      expect(() => {
+        ({ setProps } = render(<TestComponent defaultValue={0}>{() => null}</TestComponent>));
+      }).not.toErrorDev();
+
+      expect(() => {
+        setProps({ defaultValue: 1 });
+      }).toErrorDev(
+        'Base UI: A component is changing the default value state of an uncontrolled TestComponent after being initialized.',
+      );
+
+      expect(() => {
+        setProps({ defaultValue: 0 });
+      }).not.toErrorDev();
+    });
   });
 });
