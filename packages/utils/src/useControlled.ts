@@ -1,8 +1,8 @@
 'use client';
-import { isEqual } from 'es-toolkit';
 // TODO: uncomment once we enable eslint-plugin-react-compiler // eslint-disable-next-line react-compiler/react-compiler -- process.env never changes, dependency arrays are intentionally ignored
 /* eslint-disable react-hooks/rules-of-hooks, react-hooks/exhaustive-deps */
 import * as React from 'react';
+import { deepEqual } from './deepEquals';
 
 export interface UseControlledProps<T = unknown> {
   /**
@@ -56,7 +56,7 @@ export function useControlled<T = unknown>({
 
     React.useEffect(() => {
       // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is for more details.
-      if (!isControlled && !isEqual(defaultValue, defaultProp)) {
+      if (!isControlled && !deepEqual(defaultValue, defaultProp)) {
         console.error(
           [
             `Base UI: A component is changing the default ${state} state of an uncontrolled ${name} after being initialized. ` +
