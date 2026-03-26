@@ -46,11 +46,7 @@ import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { HTMLProps } from '../../utils/types';
 import { useValueChanged } from '../../utils/useValueChanged';
 import { NOOP } from '../../utils/noop';
-import {
-  stringifyAsValue,
-  Group,
-  isGroupedItems,
-} from '../../utils/resolveValueLabel';
+import { stringifyAsValue, Group, isGroupedItems } from '../../utils/resolveValueLabel';
 import {
   compareItemEquality,
   defaultItemEquality,
