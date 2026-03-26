@@ -135,7 +135,7 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
   }
 
   addToast = <Data extends object>(toast: ToastManagerAddOptions<Data>): string => {
-    const { toasts, timeout, limit } = this.state;
+    const { timeout, limit } = this.state;
     const id = toast.id || generateId('toast');
 
     if (toast.id) {
@@ -145,7 +145,7 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
         if (existingToast.transitionStatus === 'ending') {
           this.removeToast(toast.id);
         } else {
-          const { id: semanticId, ...updates } = toast;
+          const { id: semanticId, transitionStatus: nextTransitionStatus, ...updates } = toast;
           this.updateToastInternal(toast.id, updates, {
             resetTimer: true,
             markUpdated: true,
@@ -162,7 +162,7 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
       transitionStatus: 'starting',
     };
 
-    const updatedToasts = [toastToAdd, ...toasts];
+    const updatedToasts = [toastToAdd, ...this.state.toasts];
     const activeToasts = updatedToasts.filter((t) => t.transitionStatus !== 'ending');
 
     // Mark oldest toasts for removal when over limit

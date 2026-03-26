@@ -55,7 +55,7 @@ describe.skipIf(!isJSDOM)('useToast', () => {
 
     it('replaces a closing toast when adding again with the same id', async () => {
       function Buttons() {
-        const { add, close } = useToastManager();
+        const { add, close, toasts } = useToastManager();
         const toastIdRef = React.useRef<string | null>(null);
 
         return (
@@ -91,6 +91,7 @@ describe.skipIf(!isJSDOM)('useToast', () => {
             >
               re-add
             </button>
+            <div data-testid="toast-count">{toasts.length}</div>
           </React.Fragment>
         );
       }
@@ -113,6 +114,61 @@ describe.skipIf(!isJSDOM)('useToast', () => {
 
       expect(screen.getByTestId('title')).toHaveTextContent('Saved');
       expect(screen.queryAllByTestId('root')).toHaveLength(1);
+      expect(screen.getByTestId('toast-count')).toHaveTextContent('1');
+    });
+
+    it('ignores transitionStatus when upserting an existing toast', async () => {
+      function Buttons() {
+        const { add, toasts } = useToastManager();
+
+        return (
+          <React.Fragment>
+            <button
+              onClick={() => {
+                add({
+                  id: 'save',
+                  title: 'Saving...',
+                  timeout: 0,
+                });
+              }}
+            >
+              add
+            </button>
+            <button
+              onClick={() => {
+                add({
+                  id: 'save',
+                  title: 'Saved',
+                  timeout: 0,
+                  transitionStatus: 'ending',
+                });
+              }}
+            >
+              upsert
+            </button>
+            {toasts.map((toast) => (
+              <React.Fragment key={toast.id}>
+                <div data-testid="title-value">{toast.title}</div>
+                <div data-testid="transition-status">{toast.transitionStatus}</div>
+              </React.Fragment>
+            ))}
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <Buttons />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      expect(screen.getByTestId('title-value')).toHaveTextContent('Saving...');
+      expect(screen.getByTestId('transition-status')).toHaveTextContent('starting');
+
+      fireEvent.click(screen.getByRole('button', { name: 'upsert' }));
+      expect(screen.getByTestId('title-value')).toHaveTextContent('Saved');
+      expect(screen.getByTestId('transition-status')).toHaveTextContent('starting');
     });
 
     it('increments updateKey when adding again with the same id', async () => {
