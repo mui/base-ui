@@ -115,6 +115,23 @@ describe('<OTPField.Input />', () => {
     expect(document.activeElement).toBe(inputs[0]);
   });
 
+  it('keeps the filled slot selected when typing an invalid character', async () => {
+    await render(<OTPFieldTest defaultValue="1" />);
+
+    const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+
+    await act(async () => {
+      firstInput.focus();
+    });
+
+    fireEvent.change(firstInput, { target: { value: 'a' } });
+
+    expect(firstInput).toHaveValue('1');
+    expect(document.activeElement).toBe(firstInput);
+    expect(firstInput.selectionStart).toBe(0);
+    expect(firstInput.selectionEnd).toBe(1);
+  });
+
   it('selects the slot value on mousedown', async () => {
     await render(<OTPFieldTest defaultValue="1" />);
 

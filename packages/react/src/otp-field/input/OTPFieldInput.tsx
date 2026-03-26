@@ -144,6 +144,9 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
             removeOTPCharacter(value, index),
             createChangeEventDetails(REASONS.inputClear, event.nativeEvent),
           );
+        } else if (slotValue !== '') {
+          event.currentTarget.value = slotValue;
+          event.currentTarget.select();
         }
         return;
       }
