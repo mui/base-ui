@@ -121,6 +121,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
   const { render, className, style, finalFocus, initialFocus, ...elementProps } = componentProps;
 
   const { store } = useDialogRootContext();
+  const popupRef = store.context.popupRef;
 
   const {
     swipeDirection,
@@ -159,7 +160,6 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
   const swipeStrength = swipe?.swipeStrength ?? null;
 
   const [popupHeight, setPopupHeight] = React.useState(0);
-
   const popupHeightRef = React.useRef(0);
 
   if (process.env.NODE_ENV !== 'production') {
@@ -179,7 +179,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
   }
 
   const measureHeight = useStableCallback(() => {
-    const popupElement = store.context.popupRef.current;
+    const popupElement = popupRef.current;
     if (!popupElement) {
       return;
     }
@@ -221,7 +221,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
       return undefined;
     }
 
-    const popupElement = store.context.popupRef.current;
+    const popupElement = popupRef.current;
     if (!popupElement) {
       return undefined;
     }
@@ -239,11 +239,9 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
     return () => {
       resizeObserver.disconnect();
     };
-  }, [measureHeight, mounted, nestedDrawerOpen, onPopupHeightChange, store.context.popupRef]);
+  }, [measureHeight, mounted, nestedDrawerOpen, onPopupHeightChange, popupRef]);
 
   useIsoLayoutEffect(() => {
-    const popupRef = store.context.popupRef;
-
     const syncNestedSwipeProgress = () => {
       const popupElement = popupRef.current;
       if (!popupElement) {
@@ -260,15 +258,15 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
 
     syncNestedSwipeProgress();
     const unsubscribe = nestedSwipeProgressStore.subscribe(syncNestedSwipeProgress);
+    const popupElement = popupRef.current;
 
     return () => {
       unsubscribe();
-      const popupElement = popupRef.current;
       if (popupElement) {
         popupElement.style.setProperty(DrawerBackdropCssVars.swipeProgress, '0');
       }
     };
-  }, [nestedSwipeProgressStore, store.context.popupRef]);
+  }, [nestedSwipeProgressStore, popupRef]);
 
   React.useEffect(() => {
     if (!open) {
@@ -297,7 +295,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
 
   useOpenChangeComplete({
     open,
-    ref: store.context.popupRef,
+    ref: popupRef,
     onComplete() {
       if (open) {
         store.context.onOpenChangeComplete?.(true);
@@ -305,7 +303,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
     },
   });
 
-  const resolvedInitialFocus = initialFocus === undefined ? store.context.popupRef : initialFocus;
+  const resolvedInitialFocus = initialFocus === undefined ? popupRef : initialFocus;
 
   const setPopupElement = store.useStateSetter('popupElement');
 
@@ -394,7 +392,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
       },
       elementProps,
     ],
-    ref: [forwardedRef, store.context.popupRef, setPopupElement],
+    ref: [forwardedRef, popupRef, setPopupElement],
     stateAttributesMapping,
   });
 
