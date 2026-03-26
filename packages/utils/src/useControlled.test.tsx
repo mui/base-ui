@@ -138,5 +138,22 @@ describe('useControlled', () => {
         render(<TestComponentArray />);
       }).not.toErrorDev();
     });
+
+    it('does not throw - Converting circular structure to JSON', () => {
+      function TestComponentArray() {
+        useControlled({
+          controlled: undefined,
+          default: {
+            icon: <span />,
+          },
+          name: 'TestComponent',
+        });
+        return null;
+      }
+
+      expect(() => {
+        render(<TestComponentArray />);
+      }).not.toErrorDev();
+    });
   });
 });

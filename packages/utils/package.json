@@ -27,6 +27,7 @@
   "dependencies": {
     "@babel/runtime": "^7.29.2",
     "@floating-ui/utils": "^0.2.11",
+    "es-toolkit": "^1.45.1",
     "reselect": "^5.1.1",
     "use-sync-external-store": "^1.6.0"
   },
