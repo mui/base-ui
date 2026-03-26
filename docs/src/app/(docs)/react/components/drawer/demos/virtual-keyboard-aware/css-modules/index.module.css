@@ -114,7 +114,7 @@
 
   &[data-starting-style],
   &[data-ending-style] {
-    transform: translateY(calc(100% + 2px));
+    transform: translateY(calc(100% - var(--bleed) + 2px));
     box-shadow:
       0 -16px 48px rgb(0 0 0 / 0),
       0 6px 18px rgb(0 0 0 / 0);

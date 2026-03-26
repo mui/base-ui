@@ -325,7 +325,7 @@ export interface DrawerRootProps<Payload = unknown> {
    */
   swipeDirection?: DrawerSwipeDirection | undefined;
   /**
-   * Enables virtual-keyboard-aware iOS form handling and visible viewport sizing.
+   * Enables virtual-keyboard-aware form handling and visible viewport sizing for software keyboards.
    * @default false
    */
   virtualKeyboardAware?: boolean | undefined;

@@ -14,7 +14,7 @@ export interface DrawerNestedSwipeProgressStore {
 export interface DrawerRootContext {
   swipeDirection: DrawerSwipeDirection;
   /**
-   * Enables virtual-keyboard-aware iOS form handling and viewport sizing.
+   * Enables virtual-keyboard-aware form handling and viewport sizing for software keyboards.
    */
   virtualKeyboardAware: boolean;
   /**
