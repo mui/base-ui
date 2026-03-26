@@ -56,7 +56,7 @@ export function useControlled<T = unknown>({
 
     React.useEffect(() => {
       // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is for more details.
-      if (!isControlled && isEqual(defaultValue, defaultProp) === false) {
+      if (!isControlled && !isEqual(defaultValue, defaultProp)) {
         console.error(
           [
             `Base UI: A component is changing the default ${state} state of an uncontrolled ${name} after being initialized. ` +
