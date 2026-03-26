@@ -16,10 +16,10 @@ export default function PulseToast() {
 }
 
 function PulseToastButton() {
-  const { add } = Toast.useToastManager();
+  const toastManager = Toast.useToastManager();
 
   function createToast() {
-    add({
+    toastManager.add({
       id: 'save-status',
       title: 'Draft saved',
       description: 'Click again while it is visible to replay the pulse.',
