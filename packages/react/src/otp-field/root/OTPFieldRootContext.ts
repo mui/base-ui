@@ -4,9 +4,7 @@ import type { OTPFieldRoot, OTPFieldRootState } from './OTPFieldRoot';
 import type { OTPFieldInputState } from '../input/OTPFieldInput';
 
 export interface OTPFieldRootContext {
-  ariaDescribedBy: string | undefined;
   activeIndex: number;
-  ariaLabelledBy: string | undefined;
   autoComplete: string | undefined;
   disabled: boolean;
   form: string | undefined;
@@ -15,8 +13,8 @@ export interface OTPFieldRootContext {
   getInputId: (index: number) => string | undefined;
   handleInputBlur: (event: React.FocusEvent<HTMLInputElement>) => void;
   handleInputFocus: (index: number, event: React.FocusEvent<HTMLInputElement>) => void;
-  id: string | undefined;
   inputMode: React.HTMLAttributes<HTMLInputElement>['inputMode'];
+  inputAriaLabelledBy: string | undefined;
   invalid: boolean | undefined;
   length: number;
   mask: boolean;

@@ -8,17 +8,17 @@ export default function OTPFieldPasswordDemo() {
   const descriptionId = `${id}-description`;
 
   return (
-    <OTPField.Root
-      id={id}
-      length={CODE_LENGTH}
-      mask
-      aria-describedby={descriptionId}
-      className="flex w-full max-w-80 flex-col items-start gap-1"
-    >
+    <div className="flex w-full max-w-80 flex-col items-start gap-1">
       <label htmlFor={id} className="text-sm font-bold text-gray-900">
         Access code
       </label>
-      <OTPField.Group className="flex w-full gap-2">
+      <OTPField.Root
+        id={id}
+        length={CODE_LENGTH}
+        mask
+        aria-describedby={descriptionId}
+        className="flex w-full gap-2"
+      >
         {Array.from({ length: CODE_LENGTH }, (_, index) => (
           <OTPField.Input
             key={index}
@@ -26,10 +26,10 @@ export default function OTPFieldPasswordDemo() {
             aria-label={`Character ${index + 1} of ${CODE_LENGTH}`}
           />
         ))}
-      </OTPField.Group>
+      </OTPField.Root>
       <p id={descriptionId} className="m-0 text-sm text-gray-600">
         Use <code>mask</code> to obscure the code on shared screens.
       </p>
-    </OTPField.Root>
+    </div>
   );
 }

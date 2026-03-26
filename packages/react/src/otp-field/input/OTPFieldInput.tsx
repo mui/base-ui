@@ -36,7 +36,6 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
 
   const {
     activeIndex,
-    ariaLabelledBy,
     autoComplete,
     disabled,
     form,
@@ -46,6 +45,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     handleInputBlur,
     handleInputFocus,
     inputMode,
+    inputAriaLabelledBy,
     invalid,
     length,
     mask,
@@ -85,7 +85,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     required,
     'aria-labelledby':
       componentProps['aria-label'] == null
-        ? (componentProps['aria-labelledby'] ?? ariaLabelledBy)
+        ? (componentProps['aria-labelledby'] ?? inputAriaLabelledBy)
         : undefined,
     'aria-invalid': invalid || undefined,
     'aria-label': componentProps['aria-label'],

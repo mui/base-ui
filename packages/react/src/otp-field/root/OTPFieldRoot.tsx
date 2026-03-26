@@ -46,7 +46,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    'aria-describedby': ariaDescribedBy,
+    'aria-describedby': ariaDescribedByProp,
     'aria-labelledby': ariaLabelledByProp,
     id: idProp,
     autoComplete = 'one-time-code',
@@ -86,7 +86,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     setTouched,
   } = useFieldRootContext();
   const { clearErrors } = useFormContext();
-  const { labelId } = useLabelableContext();
+  const { getDescriptionProps, labelId } = useLabelableContext();
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -120,6 +120,12 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
 
   const id = useLabelableId({ id: idProp });
   const ariaLabelledBy = useAriaLabelledBy(ariaLabelledByProp, labelId, firstInputRef, true, id);
+  const inputAriaLabelledBy = ariaLabelledByProp == null ? ariaLabelledBy : undefined;
+  const fieldDescriptionProps = getDescriptionProps({});
+  const ariaDescribedBy = mergeAriaIds(
+    fieldDescriptionProps['aria-describedby'],
+    ariaDescribedByProp,
+  );
   const validationConfig = getOTPValidationConfig(validationType);
   const pattern = validationConfig?.slotPattern;
   const hiddenInputPattern = validationConfig?.getRootPattern(length);
@@ -319,8 +325,6 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
 
   const contextValue: OTPFieldRootContext = React.useMemo(
     () => ({
-      ariaDescribedBy,
-      ariaLabelledBy,
       autoComplete,
       activeIndex,
       disabled,
@@ -330,8 +334,8 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       getInputId,
       handleInputBlur,
       handleInputFocus,
-      id,
       inputMode,
+      inputAriaLabelledBy,
       invalid,
       length,
       mask,
@@ -347,8 +351,6 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     }),
     [
       activeIndex,
-      ariaDescribedBy,
-      ariaLabelledBy,
       autoComplete,
       disabled,
       focusInput,
@@ -356,8 +358,8 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       getInputId,
       handleInputBlur,
       handleInputFocus,
-      id,
       inputMode,
+      inputAriaLabelledBy,
       invalid,
       length,
       mask,
@@ -377,7 +379,14 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, rootRef],
     state,
-    props: elementProps,
+    props: [
+      {
+        role: 'group',
+        'aria-describedby': ariaDescribedBy,
+        'aria-labelledby': ariaLabelledBy,
+      },
+      elementProps,
+    ],
     stateAttributesMapping: rootStateAttributesMapping,
   });
 
@@ -680,4 +689,9 @@ export namespace OTPFieldRoot {
   export type InvalidEventDetails = OTPFieldRootInvalidEventDetails;
   export type CompleteEventReason = OTPFieldRootCompleteEventReason;
   export type CompleteEventDetails = OTPFieldRootCompleteEventDetails;
+}
+
+function mergeAriaIds(...values: Array<string | undefined>) {
+  const ids = values.flatMap((value) => value?.split(/\s+/).filter(Boolean) ?? []);
+  return ids.length > 0 ? Array.from(new Set(ids)).join(' ') : undefined;
 }

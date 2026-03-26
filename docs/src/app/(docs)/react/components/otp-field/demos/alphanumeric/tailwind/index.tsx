@@ -8,17 +8,17 @@ export default function OTPFieldAlphanumericDemo() {
   const descriptionId = `${id}-description`;
 
   return (
-    <OTPField.Root
-      id={id}
-      length={CODE_LENGTH}
-      validationType="alphanumeric"
-      aria-describedby={descriptionId}
-      className="flex w-full max-w-80 flex-col items-start gap-1"
-    >
+    <div className="flex w-full max-w-80 flex-col items-start gap-1">
       <label htmlFor={id} className="text-sm font-bold text-gray-900">
         Recovery code
       </label>
-      <OTPField.Group className="flex w-full gap-2">
+      <OTPField.Root
+        id={id}
+        length={CODE_LENGTH}
+        validationType="alphanumeric"
+        aria-describedby={descriptionId}
+        className="flex w-full gap-2"
+      >
         {Array.from({ length: CODE_LENGTH }, (_, index) => (
           <OTPField.Input
             key={index}
@@ -26,10 +26,10 @@ export default function OTPFieldAlphanumericDemo() {
             aria-label={`Character ${index + 1} of ${CODE_LENGTH}`}
           />
         ))}
-      </OTPField.Group>
+      </OTPField.Root>
       <p id={descriptionId} className="m-0 text-sm text-gray-600">
         Accept letters and numbers for backup codes such as <code>A7C9XZ</code>.
       </p>
-    </OTPField.Root>
+    </div>
   );
 }

@@ -22,11 +22,9 @@ describe('<OTPField.Input />', () => {
   function OTPFieldTest(props: OTPFieldTestProps = {}) {
     return (
       <OTPField.Root length={OTP_LENGTH} {...props}>
-        <OTPField.Group>
-          {Array.from({ length: OTP_LENGTH }, (_, index) => (
-            <OTPField.Input key={index} />
-          ))}
-        </OTPField.Group>
+        {Array.from({ length: OTP_LENGTH }, (_, index) => (
+          <OTPField.Input key={index} />
+        ))}
       </OTPField.Root>
     );
   }
@@ -326,14 +324,12 @@ describe('<OTPField.Input />', () => {
       <React.Fragment>
         <label htmlFor="verification-code">Verification code</label>
         <OTPField.Root id="verification-code" length={OTP_LENGTH}>
-          <OTPField.Group>
-            <OTPField.Input />
-            <OTPField.Input />
-            <OTPField.Input />
-            <OTPField.Input />
-            <OTPField.Input />
-            <OTPField.Input />
-          </OTPField.Group>
+          <OTPField.Input />
+          <OTPField.Input />
+          <OTPField.Input />
+          <OTPField.Input />
+          <OTPField.Input />
+          <OTPField.Input />
         </OTPField.Root>
       </React.Fragment>,
     );

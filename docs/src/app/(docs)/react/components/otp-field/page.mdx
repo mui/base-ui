@@ -29,9 +29,7 @@ Import the component and assemble its parts:
 import { OTPField } from '@base-ui/react/otp-field';
 
 <OTPField.Root>
-  <OTPField.Group>
-    <OTPField.Input />
-  </OTPField.Group>
+  <OTPField.Input />
 </OTPField.Root>;
 ```
 
@@ -43,18 +41,18 @@ Pass an `id` to `<OTPField.Root>` and use a native `<label>` with a matching `ht
 `aria-describedby` to `<OTPField.Root>` when you want supporting text announced with the field:
 
 ```tsx title="OTP Field with a native label and description"
-<OTPField.Root id="verification-code" length={6} aria-describedby="verification-code-description">
+<div>
   <label htmlFor="verification-code">Verification code</label>
-  <OTPField.Group>
+  <OTPField.Root id="verification-code" length={6} aria-describedby="verification-code-description">
     <OTPField.Input aria-label="Character 1 of 6" />
     <OTPField.Input aria-label="Character 2 of 6" />
     <OTPField.Input aria-label="Character 3 of 6" />
     <OTPField.Input aria-label="Character 4 of 6" />
     <OTPField.Input aria-label="Character 5 of 6" />
     <OTPField.Input aria-label="Character 6 of 6" />
-  </OTPField.Group>
+  </OTPField.Root>
   <p id="verification-code-description">Enter the 6-character code we sent to your device.</p>
-</OTPField.Root>
+</div>
 ```
 
 ### Form integration
@@ -67,14 +65,12 @@ Use [Field](/react/components/field) to handle label associations and form integ
     <Field.Label>Verification code</Field.Label>
     <Field.Description>Enter the 6-character code we sent to your device.</Field.Description>
     <OTPField.Root length={6}>
-      <OTPField.Group>
-        <OTPField.Input aria-label="Character 1 of 6" />
-        <OTPField.Input aria-label="Character 2 of 6" />
-        <OTPField.Input aria-label="Character 3 of 6" />
-        <OTPField.Input aria-label="Character 4 of 6" />
-        <OTPField.Input aria-label="Character 5 of 6" />
-        <OTPField.Input aria-label="Character 6 of 6" />
-      </OTPField.Group>
+      <OTPField.Input aria-label="Character 1 of 6" />
+      <OTPField.Input aria-label="Character 2 of 6" />
+      <OTPField.Input aria-label="Character 3 of 6" />
+      <OTPField.Input aria-label="Character 4 of 6" />
+      <OTPField.Input aria-label="Character 5 of 6" />
+      <OTPField.Input aria-label="Character 6 of 6" />
     </OTPField.Root>
   </Field.Root>
 </Form>
@@ -111,10 +107,6 @@ characters.
 ### Root
 
 <TypesOTPField.Root />
-
-### Group
-
-<TypesOTPField.Group />
 
 ### Input
 

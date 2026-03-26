@@ -6,17 +6,18 @@ const OTP_LENGTH = 6;
 export default function ExampleOTPField() {
   const id = React.useId();
   const descriptionId = `${id}-description`;
+
   return (
-    <OTPField.Root
-      id={id}
-      length={OTP_LENGTH}
-      aria-describedby={descriptionId}
-      className="flex w-full max-w-80 flex-col items-start gap-1"
-    >
+    <div className="flex w-full max-w-80 flex-col items-start gap-1">
       <label htmlFor={id} className="text-sm font-bold text-gray-900">
         Verification code
       </label>
-      <OTPField.Group className="flex w-full gap-2">
+      <OTPField.Root
+        id={id}
+        length={OTP_LENGTH}
+        aria-describedby={descriptionId}
+        className="flex w-full gap-2"
+      >
         {Array.from({ length: OTP_LENGTH }, (_, index) => (
           <OTPField.Input
             key={index}
@@ -24,10 +25,10 @@ export default function ExampleOTPField() {
             aria-label={`Character ${index + 1} of ${OTP_LENGTH}`}
           />
         ))}
-      </OTPField.Group>
+      </OTPField.Root>
       <p id={descriptionId} className="m-0 text-sm text-gray-600">
         Enter the 6-character code we sent to your device.
       </p>
-    </OTPField.Root>
+    </div>
   );
 }

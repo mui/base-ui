@@ -38,21 +38,21 @@ export default function OTPFieldCustomSanitizeDemo() {
   );
 
   return (
-    <OTPField.Root
-      id={id}
-      length={CODE_LENGTH}
-      validationType="none"
-      inputMode="numeric"
-      sanitizeValue={sanitizeTierCode}
-      onValueChange={handleValueChange}
-      onValueInvalid={handleValueInvalid}
-      aria-describedby={descriptionId}
-      className={styles.Field}
-    >
+    <div className={styles.Field}>
       <label htmlFor={id} className={styles.Label}>
         Tier code
       </label>
-      <OTPField.Group className={styles.Group}>
+      <OTPField.Root
+        id={id}
+        length={CODE_LENGTH}
+        validationType="none"
+        inputMode="numeric"
+        sanitizeValue={sanitizeTierCode}
+        onValueChange={handleValueChange}
+        onValueInvalid={handleValueInvalid}
+        aria-describedby={descriptionId}
+        className={styles.Root}
+      >
         {Array.from({ length: CODE_LENGTH }, (_, index) => (
           <OTPField.Input
             key={index}
@@ -63,13 +63,13 @@ export default function OTPFieldCustomSanitizeDemo() {
             }}
           />
         ))}
-      </OTPField.Group>
+      </OTPField.Root>
       <p id={descriptionId} className={styles.Description}>
         Digits <span className={styles.Code}>0-3</span> only.
       </p>
       <span aria-live="polite" className={styles.ScreenReaderOnly}>
         {statusMessage}
       </span>
-    </OTPField.Root>
+    </div>
   );
 }

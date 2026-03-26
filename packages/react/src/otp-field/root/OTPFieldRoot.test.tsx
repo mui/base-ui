@@ -20,11 +20,9 @@ describe('<OTPField />', () => {
   function OTPField(props: OTPFieldProps = {}) {
     return (
       <OTPFieldBase.Root length={OTP_LENGTH} {...props}>
-        <OTPFieldBase.Group>
-          {Array.from({ length: OTP_LENGTH }, (_, index) => (
-            <OTPFieldBase.Input key={index} />
-          ))}
-        </OTPFieldBase.Group>
+        {Array.from({ length: OTP_LENGTH }, (_, index) => (
+          <OTPFieldBase.Input key={index} />
+        ))}
       </OTPFieldBase.Root>
     );
   }
@@ -58,11 +56,9 @@ describe('<OTPField />', () => {
     it('assigns slot indexes from render order when omitted', async () => {
       await render(
         <OTPFieldBase.Root defaultValue="123" length={3}>
-          <OTPFieldBase.Group>
-            <OTPFieldBase.Input />
-            <OTPFieldBase.Input />
-            <OTPFieldBase.Input />
-          </OTPFieldBase.Group>
+          <OTPFieldBase.Input />
+          <OTPFieldBase.Input />
+          <OTPFieldBase.Input />
         </OTPFieldBase.Root>,
       );
 
@@ -116,14 +112,12 @@ describe('<OTPField />', () => {
               length={OTP_LENGTH}
               validationType="alphanumeric"
             >
-              <OTPFieldBase.Group>
-                <OTPFieldBase.Input />
-                <OTPFieldBase.Input />
-                <OTPFieldBase.Input />
-                <OTPFieldBase.Input />
-                <OTPFieldBase.Input />
-                <OTPFieldBase.Input />
-              </OTPFieldBase.Group>
+              <OTPFieldBase.Input />
+              <OTPFieldBase.Input />
+              <OTPFieldBase.Input />
+              <OTPFieldBase.Input />
+              <OTPFieldBase.Input />
+              <OTPFieldBase.Input />
             </OTPFieldBase.Root>,
           );
 
@@ -391,7 +385,7 @@ describe('<OTPField />', () => {
       expect(screen.getByRole('group')).toHaveAttribute('aria-describedby', 'description-id');
     });
 
-    it('forwards root `aria-labelledby` to the group and slots', async () => {
+    it('forwards root `aria-labelledby` to the group only', async () => {
       await render(
         <React.Fragment>
           <span id="label-id">Verification code</span>
@@ -404,7 +398,7 @@ describe('<OTPField />', () => {
 
       expect(group).toHaveAttribute('aria-labelledby', 'label-id');
       inputs.forEach((input) => {
-        expect(input).toHaveAttribute('aria-labelledby', 'label-id');
+        expect(input).not.toHaveAttribute('aria-labelledby', 'label-id');
       });
     });
 
@@ -477,9 +471,7 @@ describe('<OTPField />', () => {
       it('allows overriding the input type on individual slots', async () => {
         await render(
           <OTPFieldBase.Root length={1} mask>
-            <OTPFieldBase.Group>
-              <OTPFieldBase.Input type="tel" />
-            </OTPFieldBase.Group>
+            <OTPFieldBase.Input type="tel" />
           </OTPFieldBase.Root>,
         );
 
@@ -817,14 +809,12 @@ describe('<OTPField />', () => {
       it('renders a hidden validation input with the provided length', () => {
         renderToString(
           <OTPFieldBase.Root name="otp" required length={OTP_LENGTH}>
-            <OTPFieldBase.Group>
-              <OTPFieldBase.Input />
-              <OTPFieldBase.Input />
-              <OTPFieldBase.Input />
-              <OTPFieldBase.Input />
-              <OTPFieldBase.Input />
-              <OTPFieldBase.Input />
-            </OTPFieldBase.Group>
+            <OTPFieldBase.Input />
+            <OTPFieldBase.Input />
+            <OTPFieldBase.Input />
+            <OTPFieldBase.Input />
+            <OTPFieldBase.Input />
+            <OTPFieldBase.Input />
           </OTPFieldBase.Root>,
         );
 
@@ -838,43 +828,37 @@ describe('<OTPField />', () => {
     });
   });
 
-  it('updates standalone filled and focused state on the root and group', async () => {
+  it('updates standalone filled and focused state on the root', async () => {
     await render(
       <OTPFieldBase.Root data-testid="root" length={OTP_LENGTH}>
-        <OTPFieldBase.Group data-testid="group">
-          <OTPFieldBase.Input />
-          <OTPFieldBase.Input />
-          <OTPFieldBase.Input />
-          <OTPFieldBase.Input />
-          <OTPFieldBase.Input />
-          <OTPFieldBase.Input />
-        </OTPFieldBase.Group>
+        <OTPFieldBase.Input />
+        <OTPFieldBase.Input />
+        <OTPFieldBase.Input />
+        <OTPFieldBase.Input />
+        <OTPFieldBase.Input />
+        <OTPFieldBase.Input />
       </OTPFieldBase.Root>,
     );
 
     const root = screen.getByTestId('root');
-    const group = screen.getByTestId('group');
     const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
 
     expect(root).not.toHaveAttribute('data-filled');
-    expect(group).not.toHaveAttribute('data-focused');
+    expect(root).not.toHaveAttribute('data-focused');
 
     await act(async () => {
       firstInput.focus();
     });
 
     expect(root).toHaveAttribute('data-focused', '');
-    expect(group).toHaveAttribute('data-focused', '');
 
     fireEvent.change(firstInput, { target: { value: '1' } });
 
     expect(root).toHaveAttribute('data-filled', '');
-    expect(group).toHaveAttribute('data-filled', '');
 
     fireEvent.blur(firstInput);
 
     expect(root).not.toHaveAttribute('data-focused');
-    expect(group).not.toHaveAttribute('data-focused');
   });
 
   it('renders a fallback hidden input id when name is not provided', async () => {
@@ -891,13 +875,11 @@ describe('<OTPField />', () => {
 
     await render(
       <OTPFieldBase.Root length={OTP_LENGTH}>
-        <OTPFieldBase.Group>
-          <OTPFieldBase.Input />
-          <OTPFieldBase.Input />
-          <OTPFieldBase.Input />
-          <OTPFieldBase.Input />
-          <OTPFieldBase.Input />
-        </OTPFieldBase.Group>
+        <OTPFieldBase.Input />
+        <OTPFieldBase.Input />
+        <OTPFieldBase.Input />
+        <OTPFieldBase.Input />
+        <OTPFieldBase.Input />
       </OTPFieldBase.Root>,
     );
 

@@ -9,17 +9,17 @@ export default function OTPFieldPasswordDemo() {
   const descriptionId = `${id}-description`;
 
   return (
-    <OTPField.Root
-      id={id}
-      length={CODE_LENGTH}
-      mask
-      aria-describedby={descriptionId}
-      className={styles.Field}
-    >
+    <div className={styles.Field}>
       <label htmlFor={id} className={styles.Label}>
         Access code
       </label>
-      <OTPField.Group className={styles.Group}>
+      <OTPField.Root
+        id={id}
+        length={CODE_LENGTH}
+        mask
+        aria-describedby={descriptionId}
+        className={styles.Root}
+      >
         {Array.from({ length: CODE_LENGTH }, (_, index) => (
           <OTPField.Input
             key={index}
@@ -27,10 +27,10 @@ export default function OTPFieldPasswordDemo() {
             aria-label={`Character ${index + 1} of ${CODE_LENGTH}`}
           />
         ))}
-      </OTPField.Group>
+      </OTPField.Root>
       <p id={descriptionId} className={styles.Description}>
         Use <span className={styles.Code}>mask</span> to obscure the code on shared screens.
       </p>
-    </OTPField.Root>
+    </div>
   );
 }

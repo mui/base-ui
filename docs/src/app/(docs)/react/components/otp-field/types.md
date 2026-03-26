@@ -209,67 +209,6 @@ type OTPFieldInputState = {
 };
 ```
 
-### Group
-
-Groups the OTP inputs together.
-Renders a `<div>` element.
-
-**Group Props:**
-
-| Prop      | Type                                                                                         | Default | Description                                                                                                                                                                                   |
-| :-------- | :------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: OTPField.Group.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: OTPField.Group.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: OTPField.Group.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
-
-**Group Data Attributes:**
-
-| Attribute     | Type | Description                                                                  |
-| :------------ | :--- | :--------------------------------------------------------------------------- |
-| data-disabled | -    | Present when the OTP field is disabled.                                      |
-| data-readonly | -    | Present when the OTP field is readonly.                                      |
-| data-required | -    | Present when the OTP field is required.                                      |
-| data-valid    | -    | Present when the OTP field is in valid state (when wrapped in Field.Root).   |
-| data-invalid  | -    | Present when the OTP field is in invalid state (when wrapped in Field.Root). |
-| data-dirty    | -    | Present when the OTP field's value has changed (when wrapped in Field.Root). |
-| data-touched  | -    | Present when the OTP field has been touched (when wrapped in Field.Root).    |
-| data-complete | -    | Present when all slots are filled.                                           |
-| data-filled   | -    | Present when the OTP field contains at least one character.                  |
-| data-focused  | -    | Present when one of the OTP field inputs is focused.                         |
-
-### Group.Props
-
-Re-export of [Group](#group) props.
-
-### Group.State
-
-```typescript
-type OTPFieldGroupState = {
-  /** Whether all slots are filled. */
-  complete: boolean;
-  /** Whether the component should ignore user interaction. */
-  disabled: boolean;
-  /** The number of OTP input slots. */
-  length: number;
-  /** Whether the user should be unable to change the field value. */
-  readOnly: boolean;
-  /** Whether the user must enter a value before submitting a form. */
-  required: boolean;
-  /** The OTP value. */
-  value: string;
-  /** Whether the field has been touched. */
-  touched: boolean;
-  /** Whether the field value has changed from its initial value. */
-  dirty: boolean;
-  /** Whether the field is valid. */
-  valid: boolean | null;
-  /** Whether the field has a value. */
-  filled: boolean;
-  /** Whether the field is focused. */
-  focused: boolean;
-};
-```
-
 ## External Types
 
 ### ValidationType
@@ -281,9 +220,8 @@ type ValidationType = 'numeric' | 'alpha' | 'alphanumeric' | 'none';
 ## Export Groups
 
 - `OTPField.Root`: `OTPField.Root`, `OTPField.Root.State`, `OTPField.Root.Props`, `OTPField.Root.ValidationType`, `OTPField.Root.ChangeEventReason`, `OTPField.Root.ChangeEventDetails`, `OTPField.Root.InvalidEventReason`, `OTPField.Root.InvalidEventDetails`, `OTPField.Root.CompleteEventReason`, `OTPField.Root.CompleteEventDetails`
-- `OTPField.Group`: `OTPField.Group`, `OTPField.Group.State`, `OTPField.Group.Props`
 - `OTPField.Input`: `OTPField.Input`, `OTPField.Input.State`, `OTPField.Input.Props`
-- `Default`: `OTPFieldRootProps`, `OTPFieldRootState`, `OTPFieldRootChangeEventReason`, `OTPFieldRootChangeEventDetails`, `OTPFieldRootInvalidEventReason`, `OTPFieldRootInvalidEventDetails`, `OTPFieldRootCompleteEventReason`, `OTPFieldRootCompleteEventDetails`, `OTPFieldGroupState`, `OTPFieldGroupProps`, `OTPFieldInputState`, `OTPFieldInputProps`
+- `Default`: `OTPFieldRootProps`, `OTPFieldRootState`, `OTPFieldRootChangeEventReason`, `OTPFieldRootChangeEventDetails`, `OTPFieldRootInvalidEventReason`, `OTPFieldRootInvalidEventDetails`, `OTPFieldRootCompleteEventReason`, `OTPFieldRootCompleteEventDetails`, `OTPFieldInputState`, `OTPFieldInputProps`
 
 ## Canonical Types
 
@@ -297,7 +235,5 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `OTPField.Root.InvalidEventDetails`: `OTPFieldRootInvalidEventDetails`
 - `OTPField.Root.CompleteEventReason`: `OTPFieldRootCompleteEventReason`
 - `OTPField.Root.CompleteEventDetails`: `OTPFieldRootCompleteEventDetails`
-- `OTPField.Group.State`: `OTPFieldGroupState`
-- `OTPField.Group.Props`: `OTPFieldGroupProps`
 - `OTPField.Input.State`: `OTPFieldInputState`
 - `OTPField.Input.Props`: `OTPFieldInputProps`
