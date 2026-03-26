@@ -328,7 +328,7 @@ describe('<Drawer.Viewport />', () => {
     }
   });
 
-  it('preserves native taps on an already-focused keyboard input', async () => {
+  it.skipIf(isJSDOM)('preserves native taps on an already-focused keyboard input', async () => {
     await render(
       <Drawer.Root open modal={false} virtualKeyboardAware>
         <Drawer.Portal>
