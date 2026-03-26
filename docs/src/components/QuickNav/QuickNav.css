@@ -24,11 +24,6 @@
     --quick-nav-margin-x: 2rem;
     --quick-nav-scrollbar-thumb-width: 0.25rem;
     --quick-nav-scrollbar-width: 1.5rem;
-    --quick-nav-scrollbar-gap-right: 0.5rem;
-    margin-right: calc(
-      var(--quick-nav-scrollbar-gap-right) - var(--quick-nav-scrollbar-width) / 2 +
-        var(--quick-nav-scrollbar-thumb-width) / 2
-    );
 
     /* Use line height instead of fixed item height in case text breaks into multiple lines */
     --quick-nav-item-height: 2rem;
@@ -55,13 +50,13 @@
   .QuickNavInner {
     position: relative;
     left: var(--quick-nav-margin-x);
-    width: calc(var(--sidebar-width) - var(--quick-nav-margin-x) * 2);
+    width: calc(var(--sidebar-width) - var(--quick-nav-margin-x));
   }
 
   .QuickNavViewport {
     max-height: 100dvh;
     padding-top: 0.75rem;
-    padding-right: 0.5rem;
+    padding-right: var(--quick-nav-scrollbar-width);
     padding-bottom: 4.5rem;
     padding-left: 0;
 
