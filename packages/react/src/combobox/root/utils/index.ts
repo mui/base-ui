@@ -1,5 +1,5 @@
-import { stringifyAsLabel } from '../../../utils/resolveValueLabel';
-import type { Filter } from './useFilter';
+import { stringifyAsLabel } from '@base-ui/utils/stringifyAsLabel';
+import type { Filter } from '@base-ui/utils/filter';
 
 /**
  * Enhanced filter using Intl.Collator for more robust string matching.

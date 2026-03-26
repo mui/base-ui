@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { stringifyAsLabel } from '@base-ui/utils/stringifyAsLabel';
 import { AriaCombobox, type AriaComboboxState } from '../../combobox/root/AriaCombobox';
 import { useCoreFilter } from '../../combobox/root/utils/useFilter';
-import { stringifyAsLabel } from '../../utils/resolveValueLabel';
 import { REASONS } from '../../utils/reasons';
 
 /**

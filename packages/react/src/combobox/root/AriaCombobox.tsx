@@ -9,6 +9,7 @@ import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidd
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Store, useStore } from '@base-ui/utils/store';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { stringifyAsLabel } from '@base-ui/utils/stringifyAsLabel';
 import {
   ElementProps,
   useDismiss,
@@ -46,7 +47,6 @@ import { HTMLProps } from '../../utils/types';
 import { useValueChanged } from '../../utils/useValueChanged';
 import { NOOP } from '../../utils/noop';
 import {
-  stringifyAsLabel,
   stringifyAsValue,
   Group,
   isGroupedItems,
