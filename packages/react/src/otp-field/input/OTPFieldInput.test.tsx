@@ -187,6 +187,25 @@ describe('<OTPField.Input />', () => {
     expect(document.activeElement).toBe(inputs[3]);
   });
 
+  it('keeps arrow and home/end navigation working in readonly mode', async () => {
+    await render(<OTPFieldTest defaultValue="1234" readOnly />);
+
+    const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+    await act(async () => {
+      inputs[1].focus();
+    });
+
+    fireEvent.keyDown(inputs[1], { key: 'ArrowRight' });
+    expect(document.activeElement).toBe(inputs[2]);
+
+    fireEvent.keyDown(inputs[2], { key: 'Home' });
+    expect(document.activeElement).toBe(inputs[0]);
+
+    fireEvent.keyDown(inputs[0], { key: 'End' });
+    expect(document.activeElement).toBe(inputs[3]);
+  });
+
   it('allows tabbing out of the field from the active slot', async () => {
     const user = userEvent.setup();
 

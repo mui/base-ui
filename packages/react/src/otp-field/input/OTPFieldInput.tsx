@@ -173,7 +173,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
       }
     },
     onKeyDown(event) {
-      if (event.defaultPrevented || disabled || readOnly) {
+      if (event.defaultPrevented || disabled) {
         return;
       }
 
@@ -198,6 +198,10 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
       if (event.key === 'End') {
         stopEvent(event);
         focusInput(Math.max(value.length - 1, 0));
+        return;
+      }
+
+      if (readOnly) {
         return;
       }
 
