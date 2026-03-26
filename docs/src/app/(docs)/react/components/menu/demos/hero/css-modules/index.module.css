@@ -65,7 +65,7 @@
 
   @media (prefers-color-scheme: light) {
     border: 1px solid var(--color-gray-200);
-    margin: -1;
+    margin: -1px;
     box-shadow:
       0 10px 15px -3px var(--color-gray-200),
       0 4px 6px -4px var(--color-gray-200);
