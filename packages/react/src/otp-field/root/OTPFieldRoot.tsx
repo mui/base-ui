@@ -8,6 +8,7 @@ import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { warn } from '@base-ui/utils/warn';
 import { ownerDocument } from '@base-ui/utils/owner';
+import { contains } from '../../floating-ui-react/utils/shadowDom';
 import { CompositeList } from '../../composite/list/CompositeList';
 import { useField } from '../../field/useField';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
@@ -282,9 +283,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   );
 
   const handleInputBlur = useStableCallback((event: React.FocusEvent<HTMLInputElement>) => {
-    const nextTarget = event.relatedTarget;
-
-    if (nextTarget instanceof Node && rootRef.current?.contains(nextTarget)) {
+    if (contains(rootRef.current, event.relatedTarget)) {
       return;
     }
 

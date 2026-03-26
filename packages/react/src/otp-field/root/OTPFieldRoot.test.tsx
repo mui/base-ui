@@ -85,6 +85,15 @@ describe('<OTPField />', () => {
           expect(inputs.map((input) => input.value)).toEqual(['a', 'b', 'C', 'd', '', '']);
         });
 
+        it('supports typing alphabetic values when set to `alpha`', async () => {
+          await render(<OTPField validationType="alpha" />);
+
+          const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+          fireEvent.change(firstInput, { target: { value: '1a2b3C' } });
+
+          expect(getValues()).toBe('abC');
+        });
+
         it('supports alphanumeric values when set to `alphanumeric`', async () => {
           await render(<OTPField validationType="alphanumeric" />);
 
@@ -455,6 +464,19 @@ describe('<OTPField />', () => {
 
       expect(getValues()).toBe('');
       expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('tracks focus state when a readonly slot receives focus', async () => {
+      await render(<OTPField readOnly />);
+
+      const root = screen.getByRole('group');
+      const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+
+      await act(async () => {
+        firstInput.focus();
+      });
+
+      expect(root).toHaveAttribute('data-focused', '');
     });
   });
 

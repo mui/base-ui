@@ -90,7 +90,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     'aria-invalid': invalid || undefined,
     'aria-label': componentProps['aria-label'],
     onMouseDown(event) {
-      if (event.defaultPrevented || disabled || readOnly) {
+      if (event.defaultPrevented || disabled) {
         return;
       }
 
@@ -98,7 +98,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
       focusInput(index);
     },
     onFocus(event) {
-      if (event.defaultPrevented || disabled || readOnly) {
+      if (event.defaultPrevented || disabled) {
         return;
       }
 
@@ -245,13 +245,8 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
       }
 
       event.preventDefault();
-      const nextDigits = normalizeOTPValue(
-        event.clipboardData.getData('text/plain'),
-        length,
-        validationType,
-        sanitizeValue,
-      );
       const rawValue = event.clipboardData.getData('text/plain');
+      const nextDigits = normalizeOTPValue(rawValue, length, validationType, sanitizeValue);
       const didSanitize = stripOTPWhitespace(rawValue).length > nextDigits.length;
 
       if (didSanitize) {
