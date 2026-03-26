@@ -28,7 +28,7 @@ function PulseToastButton() {
 
   return (
     <button type="button" onClick={createToast} className={styles.Button}>
-      Save draft again
+      Save draft
     </button>
   );
 }
