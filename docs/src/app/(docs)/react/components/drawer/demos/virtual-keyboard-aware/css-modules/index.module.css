@@ -1,0 +1,241 @@
+.Button {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.5rem;
+  padding: 0 0.875rem;
+  margin: 0;
+  outline: 0;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  background-color: var(--color-gray-50);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5rem;
+  color: var(--color-gray-900);
+  user-select: none;
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: var(--color-gray-100);
+    }
+  }
+
+  &:active {
+    background-color: var(--color-gray-100);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
+  }
+}
+
+.Backdrop {
+  --backdrop-opacity: 0.2;
+  position: fixed;
+  min-height: 100dvh;
+  inset: 0;
+  background-color: black;
+  opacity: calc(var(--backdrop-opacity) * (1 - var(--drawer-swipe-progress)));
+  transition-duration: 450ms;
+  transition-property: opacity;
+  transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+
+  @media (prefers-color-scheme: dark) {
+    --backdrop-opacity: 0.7;
+  }
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+  }
+
+  &[data-swiping] {
+    transition-duration: 0ms;
+  }
+
+  &[data-ending-style] {
+    transition-duration: calc(var(--drawer-swipe-strength) * 400ms);
+  }
+}
+
+.Viewport {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  touch-action: none;
+}
+
+@supports (-webkit-touch-callout: none) {
+  .Viewport::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: var(--drawer-keyboard-inset, 0);
+    background-color: white;
+    pointer-events: none;
+  }
+}
+
+.Popup {
+  --bleed: 3rem;
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: calc(var(--available-height, 100dvh) - var(--top-margin) + var(--bleed));
+  margin-bottom: calc(-1 * var(--bleed));
+  border-radius: 1rem 1rem 0 0;
+  outline: 1px solid var(--color-gray-200);
+  background-color: white;
+  color: var(--color-gray-900);
+  overflow: visible;
+  touch-action: none;
+  box-shadow:
+    0 -16px 48px rgb(0 0 0 / 0.12),
+    0 6px 18px rgb(0 0 0 / 0.06);
+  translate: 0 calc(0px - var(--drawer-keyboard-inset, 0px));
+  transform: translateY(var(--drawer-swipe-movement-y));
+  transition:
+    transform 450ms cubic-bezier(0.32, 0.72, 0, 1),
+    box-shadow 450ms cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform;
+
+  &[data-swiping] {
+    user-select: none;
+  }
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    transform: translateY(calc(100% + 2px));
+    box-shadow:
+      0 -16px 48px rgb(0 0 0 / 0),
+      0 6px 18px rgb(0 0 0 / 0);
+  }
+
+  &[data-ending-style] {
+    transition-duration: calc(var(--drawer-swipe-strength) * 400ms);
+  }
+}
+
+@supports (-webkit-touch-callout: none) {
+  .Popup {
+    --keyboard-height-adjustment: 1.25rem;
+    max-height: calc(
+      var(--available-height, 100dvh) - var(--top-margin) + var(--bleed) +
+        min(var(--keyboard-height-adjustment), var(--bleed))
+    );
+  }
+}
+
+.Chrome {
+  flex-shrink: 0;
+  padding: 0.875rem 1.5rem 0.75rem;
+  border-bottom: 1px solid var(--color-gray-200);
+  touch-action: none;
+}
+
+.Handle {
+  width: 3rem;
+  height: 0.25rem;
+  margin: 0 auto 0.625rem;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  background-color: var(--color-gray-300);
+}
+
+.Title {
+  margin: 0;
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-align: center;
+}
+
+.Description {
+  margin: 0.25rem auto 0;
+  max-width: 28rem;
+  font-size: 0.9375rem;
+  line-height: 1.5rem;
+  color: var(--color-gray-600);
+  text-align: center;
+}
+
+.Scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: auto;
+  padding: 1rem 1.5rem;
+}
+
+.List {
+  display: grid;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 350px;
+  margin: 0 auto;
+}
+
+.Card {
+  height: 3rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.75rem;
+  background-color: var(--color-gray-100);
+}
+
+.Footer {
+  flex-shrink: 0;
+  border-top: 1px solid var(--color-gray-200);
+  background-color: white;
+}
+
+.FooterInner {
+  width: 100%;
+  max-width: 28rem;
+  margin: 0 auto;
+  padding: 1rem 1.5rem calc(1rem + env(safe-area-inset-bottom, 0px) + var(--bleed));
+}
+
+.Field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.FieldLabel {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+}
+
+.Input {
+  width: 100%;
+  min-height: 2.75rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.875rem;
+  background-color: white;
+  padding: 0.75rem 0.875rem;
+  font: inherit;
+  color: inherit;
+
+  &:focus {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
+  }
+}
+
+.Actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.875rem;
+}
