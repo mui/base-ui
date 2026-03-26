@@ -2,24 +2,70 @@ export * as Autocomplete from './index.parts';
 
 export type * from './root/AutocompleteRoot';
 export type * from './trigger/AutocompleteTrigger';
-export type * from './input/AutocompleteInput';
 export type * from './input-group/AutocompleteInputGroup';
-export type * from './icon/AutocompleteIcon';
-export type * from './clear/AutocompleteClear';
-export type * from './list/AutocompleteList';
-export type * from './status/AutocompleteStatus';
-export type * from './portal/AutocompletePortal';
-export type * from './backdrop/AutocompleteBackdrop';
-export type * from './positioner/AutocompletePositioner';
-export type * from './popup/AutocompletePopup';
-export type * from './arrow/AutocompleteArrow';
-export type * from './group/AutocompleteGroup';
-export type * from './group-label/AutocompleteGroupLabel';
 export type * from './item/AutocompleteItem';
-export type * from './row/AutocompleteRow';
-export type * from './collection/AutocompleteCollection';
-export type * from './empty/AutocompleteEmpty';
 export type * from './value/AutocompleteValue';
+
+export type {
+  ComboboxInputProps as AutocompleteInputProps,
+  ComboboxInputState as AutocompleteInputState,
+} from '../combobox/input/ComboboxInput';
+export type {
+  ComboboxIconProps as AutocompleteIconProps,
+  ComboboxIconState as AutocompleteIconState,
+} from '../combobox/icon/ComboboxIcon';
+export type {
+  ComboboxClearProps as AutocompleteClearProps,
+  ComboboxClearState as AutocompleteClearState,
+} from '../combobox/clear/ComboboxClear';
+export type {
+  ComboboxPopupProps as AutocompletePopupProps,
+  ComboboxPopupState as AutocompletePopupState,
+} from '../combobox/popup/ComboboxPopup';
+export type {
+  ComboboxPositionerProps as AutocompletePositionerProps,
+  ComboboxPositionerState as AutocompletePositionerState,
+} from '../combobox/positioner/ComboboxPositioner';
+export type {
+  ComboboxListProps as AutocompleteListProps,
+  ComboboxListState as AutocompleteListState,
+} from '../combobox/list/ComboboxList';
+export type {
+  ComboboxRowProps as AutocompleteRowProps,
+  ComboboxRowState as AutocompleteRowState,
+} from '../combobox/row/ComboboxRow';
+export type {
+  ComboboxArrowProps as AutocompleteArrowProps,
+  ComboboxArrowState as AutocompleteArrowState,
+} from '../combobox/arrow/ComboboxArrow';
+export type {
+  ComboboxBackdropProps as AutocompleteBackdropProps,
+  ComboboxBackdropState as AutocompleteBackdropState,
+} from '../combobox/backdrop/ComboboxBackdrop';
+export type {
+  ComboboxPortalProps as AutocompletePortalProps,
+  ComboboxPortalState as AutocompletePortalState,
+} from '../combobox/portal/ComboboxPortal';
+export type {
+  ComboboxGroupProps as AutocompleteGroupProps,
+  ComboboxGroupState as AutocompleteGroupState,
+} from '../combobox/group/ComboboxGroup';
+export type {
+  ComboboxGroupLabelProps as AutocompleteGroupLabelProps,
+  ComboboxGroupLabelState as AutocompleteGroupLabelState,
+} from '../combobox/group-label/ComboboxGroupLabel';
+export type {
+  ComboboxEmptyProps as AutocompleteEmptyProps,
+  ComboboxEmptyState as AutocompleteEmptyState,
+} from '../combobox/empty/ComboboxEmpty';
+export type {
+  ComboboxStatusProps as AutocompleteStatusProps,
+  ComboboxStatusState as AutocompleteStatusState,
+} from '../combobox/status/ComboboxStatus';
+export type {
+  ComboboxCollectionState as AutocompleteCollectionState,
+  ComboboxCollectionProps as AutocompleteCollectionProps,
+} from '../combobox/collection/ComboboxCollection';
 
 export type {
   Filter as AutocompleteFilter,

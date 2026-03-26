@@ -1,8 +1,8 @@
 'use client';
 import type * as React from 'react';
 import { ComboboxInputGroup } from '../../combobox/input-group/ComboboxInputGroup';
+import type { ComboboxInputGroupProps } from '../../combobox/input-group/ComboboxInputGroup';
 import type { FieldRoot } from '../../field/root/FieldRoot';
-import type { BaseUIComponentProps } from '../../utils/types';
 import type { Side } from '../../utils/useAnchorPositioning';
 
 /**
@@ -40,10 +40,7 @@ export interface AutocompleteInputGroupState extends FieldRoot.State {
   placeholder: boolean;
 }
 
-export interface AutocompleteInputGroupProps extends BaseUIComponentProps<
-  'div',
-  AutocompleteInputGroupState
-> {}
+export interface AutocompleteInputGroupProps extends ComboboxInputGroupProps {}
 
 export interface AutocompleteInputGroup {
   (
