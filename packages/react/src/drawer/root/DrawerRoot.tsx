@@ -45,6 +45,7 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
     triggerId: triggerIdProp,
     defaultTriggerId: defaultTriggerIdProp = null,
     swipeDirection = 'down',
+    virtualKeyboardAware = false,
     snapToSequentialPoints = false,
     snapPoints,
     snapPoint: snapPointProp,
@@ -173,6 +174,7 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
   const contextValue: DrawerRootContext = React.useMemo(
     () => ({
       swipeDirection,
+      virtualKeyboardAware,
       snapToSequentialPoints,
       snapPoints,
       activeSnapPoint: resolvedActiveSnapPoint,
@@ -212,6 +214,7 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
       snapPoints,
       snapToSequentialPoints,
       swipeDirection,
+      virtualKeyboardAware,
     ],
   );
 
@@ -321,6 +324,11 @@ export interface DrawerRootProps<Payload = unknown> {
    * @default 'down'
    */
   swipeDirection?: DrawerSwipeDirection | undefined;
+  /**
+   * Enables virtual-keyboard-aware iOS form handling and visible viewport sizing.
+   * @default false
+   */
+  virtualKeyboardAware?: boolean | undefined;
   /**
    * Snap points used to position the drawer.
    * Use numbers between 0 and 1 to represent fractions of the viewport height,

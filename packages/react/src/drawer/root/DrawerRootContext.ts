@@ -14,7 +14,11 @@ export interface DrawerNestedSwipeProgressStore {
 export interface DrawerRootContext {
   swipeDirection: DrawerSwipeDirection;
   /**
-   * Whether to disable velocity-based snap skipping.
+   * Enables virtual-keyboard-aware iOS form handling and viewport sizing.
+   */
+  virtualKeyboardAware: boolean;
+  /**
+   * Whether snap points can be skipped based on swipe velocity.
    */
   snapToSequentialPoints: boolean;
   /**

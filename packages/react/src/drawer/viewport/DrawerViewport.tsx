@@ -1,10 +1,11 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { isElement } from '@floating-ui/utils/dom';
+import { isElement, isHTMLElement } from '@floating-ui/utils/dom';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { DialogViewport } from '../../dialog/viewport/DialogViewport';
@@ -25,6 +26,7 @@ import { DRAWER_CONTENT_ATTRIBUTE } from '../content/DrawerContentDataAttributes
 import { REASONS } from '../../internals/reasons';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
+import { isTypeableElement } from '../../floating-ui-react/utils/element';
 import { DrawerViewportContext } from './DrawerViewportContext';
 import { TransitionStatusDataAttributes } from '../../internals/stateAttributesMapping';
 import { findScrollableTouchTarget, type ScrollAxis } from '../../utils/scrollable';
@@ -44,6 +46,8 @@ const MIN_SWIPE_RELEASE_DURATION_MS = 80;
 const MAX_SWIPE_RELEASE_DURATION_MS = 360;
 const MIN_SWIPE_RELEASE_SCALAR = 0.1;
 const MAX_SWIPE_RELEASE_SCALAR = 1;
+const INPUT_TAP_MOVE_THRESHOLD = 10;
+const INPUT_TAP_HIT_SLOP = 16;
 const DRAWER_CONTENT_SELECTOR = `[${DRAWER_CONTENT_ATTRIBUTE}]`;
 
 interface TouchScrollState {
@@ -70,8 +74,12 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   const { render, className, style, children, ...elementProps } = props;
 
   const { store } = useDialogRootContext();
+  const popupRef = store.context.popupRef;
+  const backdropRef = store.context.backdropRef;
+
   const {
     swipeDirection,
+    virtualKeyboardAware,
     notifyParentSwipingChange,
     notifyParentSwipeProgressChange,
     frontmostHeight,
@@ -102,6 +110,9 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   const crossScrollAxis: ScrollAxis = isVerticalScrollAxis ? 'horizontal' : 'vertical';
 
   const [swipeRelease, setSwipeRelease] = React.useState<number | null>(null);
+  const [availableHeight, setAvailableHeight] = React.useState<number | null>(null);
+  const [keyboardInset, setKeyboardInset] = React.useState(0);
+
   const pendingSwipeCloseSnapPointRef = React.useRef<typeof activeSnapPoint>(undefined);
   const resetSwipeRef = React.useRef<(() => void) | null>(null);
   const controlledDismissFrame = useAnimationFrame();
@@ -111,6 +122,12 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   const ignoreNextTouchStartFromPenRef = React.useRef(false);
   const ignoreTouchSwipeRef = React.useRef(false);
   const touchScrollStateRef = React.useRef<TouchScrollState | null>(null);
+  const pendingKeyboardFocusTargetRef = React.useRef<HTMLElement | null>(null);
+  const pendingKeyboardFocusMovedRef = React.useRef(false);
+  const focusedKeyboardTargetRef = React.useRef<HTMLElement | null>(null);
+  const focusedKeyboardScrollTargetRef = React.useRef<HTMLElement | null>(null);
+  const keepKeyboardScrollBottomAnchoredRef = React.useRef(false);
+  const keyboardFocusSettleFrameRef = React.useRef(0);
 
   const snapPointRange = React.useMemo(() => {
     if (!snapPoints || snapPoints.length < 2) {
@@ -170,16 +187,12 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   }, [snapPoints, swipeDirection]);
 
   const setSwipeDismissed = useStableCallback((dismissed: boolean) => {
-    setSwipeDismissedElements(
-      store.context.popupRef.current,
-      store.context.backdropRef.current,
-      dismissed,
-    );
+    setSwipeDismissedElements(popupRef.current, backdropRef.current, dismissed);
   });
 
   const clearSwipeRelease = useStableCallback(() => {
     setSwipeDismissed(false);
-    store.context.popupRef.current?.removeAttribute(TransitionStatusDataAttributes.endingStyle);
+    popupRef.current?.removeAttribute(TransitionStatusDataAttributes.endingStyle);
     setSwipeRelease(null);
   });
 
@@ -190,6 +203,32 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
 
     nestedSwipeActiveRef.current = false;
     notifyParentSwipingChange?.(false);
+  });
+
+  const syncVirtualKeyboardMetrics = useStableCallback(() => {
+    if (!virtualKeyboardAware) {
+      setAvailableHeight(null);
+      setKeyboardInset(0);
+      return;
+    }
+
+    const popupElement = popupRef.current;
+    if (!popupElement) {
+      setAvailableHeight(null);
+      setKeyboardInset(0);
+      return;
+    }
+
+    const win = ownerWindow(popupElement);
+    const nextAvailableHeight = getAvailableHeight(win, popupElement, nestedDrawerOpen);
+    const nextKeyboardInset = getKeyboardInset(win, popupElement);
+
+    setAvailableHeight((prevAvailableHeight) =>
+      prevAvailableHeight === nextAvailableHeight ? prevAvailableHeight : nextAvailableHeight,
+    );
+    setKeyboardInset((prevKeyboardInset) =>
+      prevKeyboardInset === nextKeyboardInset ? prevKeyboardInset : nextKeyboardInset,
+    );
   });
 
   const applySwipeProgress = useStableCallback(
@@ -219,7 +258,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         frontmostHeight: swipeProgress > 0 ? frontmostHeight : 0,
       });
 
-      const backdropElement = store.context.backdropRef.current;
+      const backdropElement = backdropRef.current;
       if (!backdropElement) {
         return;
       }
@@ -365,7 +404,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         return;
       }
 
-      const popupElement = store.context.popupRef.current;
+      const popupElement = popupRef.current;
       if (!popupElement) {
         return;
       }
@@ -800,6 +839,15 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         return;
       }
 
+      if (
+        !pendingKeyboardFocusMovedRef.current &&
+        virtualKeyboardAware &&
+        (Math.abs(touch.clientX - touchState.startX) > INPUT_TAP_MOVE_THRESHOLD ||
+          Math.abs(touch.clientY - touchState.startY) > INPUT_TAP_MOVE_THRESHOLD)
+      ) {
+        pendingKeyboardFocusMovedRef.current = true;
+      }
+
       const drawerAxisDelta = isVerticalScrollAxis
         ? touch.clientY - touchState.lastY
         : touch.clientX - touchState.lastX;
@@ -887,6 +935,222 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     isVerticalScrollAxis,
     scrollAxis,
     swipeDirection,
+    virtualKeyboardAware,
+    viewportElement,
+  ]);
+
+  useIsoLayoutEffect(() => {
+    if (!virtualKeyboardAware || !mounted || !open) {
+      setAvailableHeight(null);
+      setKeyboardInset(0);
+      return undefined;
+    }
+
+    const popupElement = store.context.popupRef.current;
+    if (!popupElement) {
+      setAvailableHeight(null);
+      setKeyboardInset(0);
+      return undefined;
+    }
+
+    const doc = ownerDocument(popupElement);
+    const win = ownerWindow(popupElement);
+    const visualViewport = win.visualViewport;
+
+    syncVirtualKeyboardMetrics();
+
+    if (!visualViewport) {
+      return () => {
+        setAvailableHeight(null);
+        setKeyboardInset(0);
+      };
+    }
+
+    const handleFocusChange = () => {
+      syncVirtualKeyboardMetrics();
+    };
+
+    visualViewport.addEventListener('resize', syncVirtualKeyboardMetrics);
+    visualViewport.addEventListener('scroll', syncVirtualKeyboardMetrics);
+    doc.addEventListener('focusin', handleFocusChange, true);
+    doc.addEventListener('focusout', handleFocusChange, true);
+
+    return () => {
+      visualViewport.removeEventListener('resize', syncVirtualKeyboardMetrics);
+      visualViewport.removeEventListener('scroll', syncVirtualKeyboardMetrics);
+      doc.removeEventListener('focusin', handleFocusChange, true);
+      doc.removeEventListener('focusout', handleFocusChange, true);
+      setAvailableHeight(null);
+      setKeyboardInset(0);
+    };
+  }, [
+    mounted,
+    nestedDrawerOpen,
+    open,
+    store.context.popupRef,
+    syncVirtualKeyboardMetrics,
+    virtualKeyboardAware,
+  ]);
+
+  const cancelKeyboardFocusAlignment = useStableCallback(() => {
+    const popupElement = store.context.popupRef.current;
+    if (!popupElement) {
+      return;
+    }
+
+    const win = ownerWindow(popupElement);
+    if (keyboardFocusSettleFrameRef.current) {
+      win.cancelAnimationFrame(keyboardFocusSettleFrameRef.current);
+      keyboardFocusSettleFrameRef.current = 0;
+    }
+  });
+
+  const alignFocusedKeyboardTarget = useStableCallback(() => {
+    const target = focusedKeyboardTargetRef.current;
+    const scrollTarget = focusedKeyboardScrollTargetRef.current;
+    if (!target || !scrollTarget) {
+      return;
+    }
+
+    const rootElement = viewportElement ?? popupElementState;
+    if (!rootElement || !contains(rootElement, target) || !contains(rootElement, scrollTarget)) {
+      return;
+    }
+
+    const maxScrollTop = Math.max(0, scrollTarget.scrollHeight - scrollTarget.clientHeight);
+    if (maxScrollTop <= 0) {
+      return;
+    }
+
+    if (keepKeyboardScrollBottomAnchoredRef.current) {
+      scrollTarget.scrollTop = maxScrollTop;
+      return;
+    }
+
+    const scrollTargetRect = scrollTarget.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+    const targetOffsetTop = targetRect.top - scrollTargetRect.top + scrollTarget.scrollTop;
+    const targetCenterOffset =
+      targetOffsetTop - (scrollTarget.clientHeight - targetRect.height) / 2;
+
+    scrollTarget.scrollTop = clamp(targetCenterOffset, 0, maxScrollTop);
+  });
+
+  const scheduleKeyboardFocusAlignment = useStableCallback(() => {
+    const popupElement = store.context.popupRef.current;
+    if (!popupElement) {
+      return;
+    }
+
+    const win = ownerWindow(popupElement);
+    cancelKeyboardFocusAlignment();
+
+    let remainingFrames = 2;
+    const tick = () => {
+      alignFocusedKeyboardTarget();
+      remainingFrames -= 1;
+
+      if (remainingFrames > 0) {
+        keyboardFocusSettleFrameRef.current = win.requestAnimationFrame(tick);
+      } else {
+        keyboardFocusSettleFrameRef.current = 0;
+      }
+    };
+
+    keyboardFocusSettleFrameRef.current = win.requestAnimationFrame(tick);
+  });
+
+  React.useEffect(() => {
+    if (!virtualKeyboardAware || !open || !mounted) {
+      focusedKeyboardTargetRef.current = null;
+      focusedKeyboardScrollTargetRef.current = null;
+      keepKeyboardScrollBottomAnchoredRef.current = false;
+      cancelKeyboardFocusAlignment();
+      return undefined;
+    }
+
+    const rootElement = viewportElement ?? popupElementState;
+    if (!rootElement) {
+      return undefined;
+    }
+
+    const popupElement = store.context.popupRef.current;
+    if (!popupElement) {
+      return undefined;
+    }
+
+    const doc = ownerDocument(popupElement);
+    const win = ownerWindow(popupElement);
+    const visualViewport = win.visualViewport;
+
+    if (!visualViewport) {
+      return undefined;
+    }
+
+    const clearFocusedKeyboardTarget = () => {
+      focusedKeyboardTargetRef.current = null;
+      focusedKeyboardScrollTargetRef.current = null;
+      keepKeyboardScrollBottomAnchoredRef.current = false;
+      cancelKeyboardFocusAlignment();
+    };
+
+    const captureFocusedKeyboardTarget = (target: EventTarget | null) => {
+      if (!isKeyboardInputTarget(target) || !contains(rootElement, target)) {
+        return false;
+      }
+
+      const scrollTarget = findScrollableTouchTarget(target, rootElement, 'vertical');
+      if (!scrollTarget) {
+        return false;
+      }
+
+      focusedKeyboardTargetRef.current = target;
+      focusedKeyboardScrollTargetRef.current = scrollTarget;
+      keepKeyboardScrollBottomAnchoredRef.current = isElementScrolledToBottom(scrollTarget);
+      return true;
+    };
+
+    const handleFocusIn = (event: FocusEvent) => {
+      if (captureFocusedKeyboardTarget(event.target)) {
+        scheduleKeyboardFocusAlignment();
+      }
+    };
+
+    const handleFocusOut = (event: FocusEvent) => {
+      if (captureFocusedKeyboardTarget(event.relatedTarget)) {
+        scheduleKeyboardFocusAlignment();
+        return;
+      }
+
+      clearFocusedKeyboardTarget();
+    };
+
+    const handleViewportUpdate = () => {
+      if (focusedKeyboardTargetRef.current) {
+        scheduleKeyboardFocusAlignment();
+      }
+    };
+
+    doc.addEventListener('focusin', handleFocusIn, true);
+    doc.addEventListener('focusout', handleFocusOut, true);
+    visualViewport.addEventListener('resize', handleViewportUpdate);
+    visualViewport.addEventListener('scroll', handleViewportUpdate);
+
+    return () => {
+      doc.removeEventListener('focusin', handleFocusIn, true);
+      doc.removeEventListener('focusout', handleFocusOut, true);
+      visualViewport.removeEventListener('resize', handleViewportUpdate);
+      visualViewport.removeEventListener('scroll', handleViewportUpdate);
+      clearFocusedKeyboardTarget();
+    };
+  }, [
+    cancelKeyboardFocusAlignment,
+    mounted,
+    open,
+    popupElementState,
+    scheduleKeyboardFocusAlignment,
+    store.context.popupRef,
+    virtualKeyboardAware,
     viewportElement,
   ]);
 
@@ -936,12 +1200,14 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   }, [clearSwipeRelease, open, resetSwipe]);
 
   React.useEffect(() => {
+    const backdropElement = backdropRef.current;
+
     return () => {
       visualStateStore?.set({ swipeProgress: 0, frontmostHeight: 0 });
-      setBackdropSwipingAttribute(store.context.backdropRef.current, false);
+      setBackdropSwipingAttribute(backdropElement, false);
       finishNestedSwipe();
     };
-  }, [finishNestedSwipe, store, visualStateStore]);
+  }, [backdropRef, finishNestedSwipe, visualStateStore]);
 
   const swipeProviderValue = React.useMemo(
     () => ({
@@ -956,6 +1222,8 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   function resetTouchTrackingState() {
     ignoreTouchSwipeRef.current = false;
     touchScrollStateRef.current = null;
+    pendingKeyboardFocusTargetRef.current = null;
+    pendingKeyboardFocusMovedRef.current = false;
     lastPointerTypeRef.current = '';
     ignoreNextTouchStartFromPenRef.current = false;
   }
@@ -1052,12 +1320,30 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
 
           const rootElement = viewportElement ?? popupElementState;
           const eventTarget = getTarget(event.nativeEvent);
-          const target = isElement(eventTarget) ? eventTarget : null;
+          const fallbackTarget = isElement(eventTarget) ? eventTarget : null;
+          const target = isElement(elementAtPoint) ? elementAtPoint : fallbackTarget;
           if (rootElement && target && !contains(rootElement, target)) {
             ignoreTouchSwipeRef.current = true;
             touchScrollStateRef.current = null;
             return;
           }
+
+          const pendingKeyboardFocusTarget =
+            virtualKeyboardAware && rootElement
+              ? (resolveKeyboardInputTargetFromPoint(
+                  rootElement,
+                  doc,
+                  touch.clientX,
+                  touch.clientY,
+                ) ?? resolveKeyboardInputTarget(target))
+              : null;
+          pendingKeyboardFocusTargetRef.current =
+            rootElement &&
+            pendingKeyboardFocusTarget &&
+            contains(rootElement, pendingKeyboardFocusTarget)
+              ? pendingKeyboardFocusTarget
+              : null;
+          pendingKeyboardFocusMovedRef.current = false;
 
           let scrollTarget: HTMLElement | null = null;
           let hasCrossAxisScrollableContent = false;
@@ -1110,6 +1396,57 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           swipeTouchProps.onTouchMove?.(event);
         },
         onTouchEnd(event) {
+          const rootElement = viewportElement ?? popupElementState;
+
+          if (virtualKeyboardAware && rootElement && !pendingKeyboardFocusMovedRef.current) {
+            const touch = event.changedTouches[0] ?? event.touches[0];
+            const doc = ownerDocument(event.currentTarget);
+            const elementAtPoint = touch
+              ? getElementAtPoint(doc, touch.clientX, touch.clientY)
+              : null;
+            const nativeEventTarget = getTarget(event.nativeEvent);
+            const fallbackTouchTarget = isHTMLElement(nativeEventTarget) ? nativeEventTarget : null;
+            const touchTarget = isHTMLElement(elementAtPoint)
+              ? elementAtPoint
+              : fallbackTouchTarget;
+            const resolvedTouchKeyboardTarget = touch
+              ? (resolveKeyboardInputTargetFromPoint(
+                  rootElement,
+                  doc,
+                  touch.clientX,
+                  touch.clientY,
+                ) ?? (touchTarget ? resolveKeyboardInputTarget(touchTarget) : null))
+              : null;
+            const pendingKeyboardFocusTarget = pendingKeyboardFocusTargetRef.current;
+            let keyboardFocusTarget: HTMLElement | null = null;
+            if (pendingKeyboardFocusTarget && contains(rootElement, pendingKeyboardFocusTarget)) {
+              keyboardFocusTarget = pendingKeyboardFocusTarget;
+            } else if (
+              resolvedTouchKeyboardTarget &&
+              contains(rootElement, resolvedTouchKeyboardTarget)
+            ) {
+              keyboardFocusTarget = resolvedTouchKeyboardTarget;
+            }
+
+            if (
+              keyboardFocusTarget &&
+              ((touchTarget &&
+                (touchTarget === keyboardFocusTarget ||
+                  contains(keyboardFocusTarget, touchTarget))) ||
+                resolvedTouchKeyboardTarget === keyboardFocusTarget)
+            ) {
+              if (activeElement(ownerDocument(keyboardFocusTarget)) === keyboardFocusTarget) {
+                resetTouchTrackingState();
+                return;
+              }
+
+              event.preventDefault();
+              focusKeyboardInputWithoutPageScroll(keyboardFocusTarget);
+              resetTouchTrackingState();
+              return;
+            }
+          }
+
           resetTouchTrackingState();
           swipeTouchProps.onTouchEnd?.(event);
         },
@@ -1120,6 +1457,14 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         // Drawer popups use drawer-specific nested state attributes.
         // Suppress DialogViewport's generic nested dialog attribute.
         ['data-nested-dialog-open' as string]: undefined,
+        style:
+          virtualKeyboardAware && (availableHeight !== null || keyboardInset > 0)
+            ? ({
+                [DrawerPopupCssVars.availableHeight]:
+                  availableHeight !== null ? `${availableHeight}px` : undefined,
+                '--drawer-keyboard-inset': keyboardInset > 0 ? `${keyboardInset}px` : undefined,
+              } as React.CSSProperties)
+            : undefined,
       })}
     >
       <DrawerViewportContext.Provider value={swipeProviderValue}>
@@ -1266,6 +1611,10 @@ function updateTouchScrollPosition(touchState: TouchScrollState, touch: Touch): 
   touchState.lastY = touch.clientY;
 }
 
+function isElementScrolledToBottom(element: HTMLElement): boolean {
+  return element.scrollTop + element.clientHeight >= element.scrollHeight - 2;
+}
+
 function preserveNativeCrossAxisScrollOnMove(
   touchState: TouchScrollState,
   touch: Touch,
@@ -1365,4 +1714,147 @@ function shouldDismissFromStartEdge(direction: SwipeDirection, axis: ScrollAxis)
   }
 
   return null;
+}
+
+const KEYBOARD_INSET_THRESHOLD = 60;
+const NON_TEXT_INPUT_TYPES = new Set([
+  'button',
+  'checkbox',
+  'color',
+  'file',
+  'hidden',
+  'image',
+  'radio',
+  'range',
+  'reset',
+  'submit',
+]);
+
+function isKeyboardInputElement(element: HTMLElement): boolean {
+  const win = ownerWindow(element);
+
+  if (element instanceof win.HTMLTextAreaElement || element.isContentEditable) {
+    return true;
+  }
+
+  return element instanceof win.HTMLInputElement && !NON_TEXT_INPUT_TYPES.has(element.type);
+}
+
+function isKeyboardInputTarget(target: EventTarget | null): target is HTMLElement {
+  return isHTMLElement(target) && isKeyboardInputElement(target);
+}
+
+function resolveKeyboardInputTarget(target: EventTarget | null): HTMLElement | null {
+  if (!isHTMLElement(target)) {
+    return null;
+  }
+
+  if (isKeyboardInputElement(target)) {
+    return target;
+  }
+
+  const label = target.closest('label') as HTMLLabelElement | null;
+  const control = label?.control ?? null;
+
+  return isHTMLElement(control) && isKeyboardInputElement(control) ? control : null;
+}
+
+function getDistanceFromPointToRect(rect: DOMRect, clientX: number, clientY: number): number {
+  const horizontalDistance = Math.max(rect.left - clientX, 0, clientX - rect.right);
+  const verticalDistance = Math.max(rect.top - clientY, 0, clientY - rect.bottom);
+
+  return horizontalDistance ** 2 + verticalDistance ** 2;
+}
+
+function resolveKeyboardInputTargetFromPoint(
+  rootElement: HTMLElement,
+  doc: Document,
+  clientX: number,
+  clientY: number,
+): HTMLElement | null {
+  const elementAtPoint = getElementAtPoint(doc, clientX, clientY);
+  const directKeyboardTarget = resolveKeyboardInputTarget(elementAtPoint);
+
+  if (directKeyboardTarget && contains(rootElement, directKeyboardTarget)) {
+    return directKeyboardTarget;
+  }
+
+  const keyboardInputs = rootElement.querySelectorAll<HTMLElement>(
+    'input, textarea, [contenteditable]',
+  );
+  let bestMatch: HTMLElement | null = null;
+  let bestDistance = Number.POSITIVE_INFINITY;
+
+  keyboardInputs.forEach((keyboardInput) => {
+    if (!isKeyboardInputElement(keyboardInput)) {
+      return;
+    }
+
+    const rect = keyboardInput.getBoundingClientRect();
+    if (
+      clientX < rect.left - INPUT_TAP_HIT_SLOP ||
+      clientX > rect.right + INPUT_TAP_HIT_SLOP ||
+      clientY < rect.top - INPUT_TAP_HIT_SLOP ||
+      clientY > rect.bottom + INPUT_TAP_HIT_SLOP
+    ) {
+      return;
+    }
+
+    const distance = getDistanceFromPointToRect(rect, clientX, clientY);
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      bestMatch = keyboardInput;
+    }
+  });
+
+  return bestMatch;
+}
+
+function focusKeyboardInputWithoutPageScroll(target: HTMLElement) {
+  const previousTransform = target.style.transform;
+  const previousTransition = target.style.transition;
+
+  target.style.transform = 'translateY(-2000px)';
+  target.style.transition = 'none';
+  target.focus({ preventScroll: true });
+  target.style.transform = previousTransform;
+  target.style.transition = previousTransition;
+}
+
+function getAvailableHeight(
+  win: Window,
+  popupElement: HTMLElement,
+  nestedDrawerOpen: boolean,
+): number | null {
+  const focusedElement = ownerDocument(popupElement).activeElement;
+  if (
+    nestedDrawerOpen ||
+    !isTypeableElement(focusedElement) ||
+    !contains(popupElement, focusedElement)
+  ) {
+    return null;
+  }
+
+  const visualViewport = win.visualViewport;
+  if (!visualViewport || win.innerHeight - visualViewport.height <= KEYBOARD_INSET_THRESHOLD) {
+    return null;
+  }
+
+  return Math.round(visualViewport.height);
+}
+
+function getKeyboardInset(win: Window, popupElement: HTMLElement): number {
+  const visualViewport = win.visualViewport;
+  if (!visualViewport) {
+    return 0;
+  }
+
+  const focusedElement = ownerDocument(popupElement).activeElement;
+  if (!contains(popupElement, focusedElement) || !isKeyboardInputTarget(focusedElement)) {
+    return 0;
+  }
+
+  const keyboardInset = Math.max(0, Math.round(win.innerHeight - visualViewport.height));
+
+  return keyboardInset > KEYBOARD_INSET_THRESHOLD ? keyboardInset : 0;
 }

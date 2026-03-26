@@ -15,6 +15,11 @@ export enum DrawerPopupCssVars {
    */
   frontmostHeight = '--drawer-frontmost-height',
   /**
+   * The available visible viewport height for the drawer popup.
+   * @type {CSS length}
+   */
+  availableHeight = '--available-height',
+  /**
    * The swipe movement on the X axis.
    * @type {CSS length}
    */

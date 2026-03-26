@@ -706,6 +706,7 @@ A panel that slides in from the edge of the screen.
     - Position
     - Nested drawers
     - Snap points
+    - Virtual keyboard aware
     - Indent effect
     - Non-modal
     - Mobile navigation
@@ -732,7 +733,7 @@ A panel that slides in from the edge of the screen.
     - Handle
 - Exports:
   - Drawer - Root
-    - Props: actionsRef, children, defaultOpen, defaultSnapPoint, defaultTriggerId, disablePointerDismissal, handle, modal, onOpenChange, onOpenChangeComplete, onSnapPointChange, open, snapPoint, snapPoints, snapToSequentialPoints, swipeDirection, triggerId
+    - Props: actionsRef, children, defaultOpen, defaultSnapPoint, defaultTriggerId, disablePointerDismissal, handle, modal, onOpenChange, onOpenChangeComplete, onSnapPointChange, open, snapPoint, snapPoints, snapToSequentialPoints, swipeDirection, triggerId, virtualKeyboardAware
   - Drawer - Provider
     - Props: children
   - Drawer - Trigger
@@ -746,7 +747,7 @@ A panel that slides in from the edge of the screen.
   - Drawer - Popup
     - Props: className, finalFocus, initialFocus, render, style
     - Data Attributes: data-closed, data-ending-style, data-expanded, data-nested-drawer-open, data-nested-drawer-swiping, data-open, data-starting-style, data-swipe-direction, data-swipe-dismiss, data-swiping
-    - CSS Variables: --drawer-frontmost-height, --drawer-height, --drawer-snap-point-offset, --drawer-swipe-movement-x, --drawer-swipe-movement-y, --drawer-swipe-strength, --nested-drawers
+    - CSS Variables: --available-height, --drawer-frontmost-height, --drawer-height, --drawer-snap-point-offset, --drawer-swipe-movement-x, --drawer-swipe-movement-y, --drawer-swipe-strength, --nested-drawers
   - Drawer - Content
     - Props: className, render, style
   - Drawer - Title
