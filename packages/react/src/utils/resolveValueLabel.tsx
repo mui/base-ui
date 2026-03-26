@@ -58,8 +58,6 @@ export function hasNullItemLabel(items: ItemsInput): boolean {
   return false;
 }
 
-export { stringifyAsLabel } from '@base-ui/utils/stringifyAsLabel';
-
 export function stringifyAsValue(item: any, itemToStringValue?: (item: any) => string) {
   if (itemToStringValue && item != null) {
     return itemToStringValue(item) ?? '';
