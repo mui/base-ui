@@ -115,6 +115,45 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       expect(screen.queryAllByTestId('root')).toHaveLength(1);
     });
 
+    it('increments updateKey when adding again with the same id', async () => {
+      function Buttons() {
+        const { add, toasts } = useToastManager();
+
+        return (
+          <React.Fragment>
+            <button
+              onClick={() => {
+                add({
+                  id: 'save',
+                  title: 'Draft saved',
+                  timeout: 0,
+                });
+              }}
+            >
+              add
+            </button>
+            {toasts.map((toast) => (
+              <div key={toast.id} data-testid="update-key">
+                {toast.updateKey}
+              </div>
+            ))}
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <Buttons />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      expect(screen.getByTestId('update-key')).toHaveTextContent('0');
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      expect(screen.getByTestId('update-key')).toHaveTextContent('1');
+    });
+
     describe('option: timeout', () => {
       it('dismisses the toast after the specified timeout', async () => {
         function AddButton() {
@@ -1190,6 +1229,57 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       fireEvent.click(updateButton);
 
       expect(screen.getByTestId('title')).toHaveTextContent('updated');
+    });
+
+    it('increments updateKey when updating a toast', async () => {
+      function Buttons() {
+        const { add, update, toasts } = useToastManager();
+        const idRef = React.useRef<string | null>(null);
+
+        return (
+          <React.Fragment>
+            <button
+              type="button"
+              onClick={() => {
+                idRef.current = add({
+                  id: 'save',
+                  title: 'Draft saved',
+                  timeout: 0,
+                });
+              }}
+            >
+              add
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (idRef.current) {
+                  update(idRef.current, { title: 'Draft synced' });
+                }
+              }}
+            >
+              update
+            </button>
+            {toasts.map((toast) => (
+              <div key={toast.id} data-testid="update-key">
+                {toast.updateKey}
+              </div>
+            ))}
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <Buttons />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      expect(screen.getByTestId('update-key')).toHaveTextContent('0');
+
+      fireEvent.click(screen.getByRole('button', { name: 'update' }));
+      expect(screen.getByTestId('update-key')).toHaveTextContent('1');
     });
 
     it('auto-dismisses when timeout changes from 0 to a positive value', async () => {

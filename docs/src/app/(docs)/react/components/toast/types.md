@@ -96,6 +96,8 @@ type ToastRootToastObject<Data extends {} = any> = {
   priority?: 'low' | 'high';
   /** The transition status of the toast. */
   transitionStatus?: 'starting' | 'ending';
+  /** A counter that increments whenever the toast is updated or upserted. */
+  updateKey?: number;
   /** Determines if the toast was closed due to the limit being reached. */
   limited?: boolean;
   /** The height of the toast. */
@@ -553,6 +555,8 @@ type ToastObject<Data extends {}> = {
   priority?: 'low' | 'high';
   /** The transition status of the toast. */
   transitionStatus?: 'starting' | 'ending';
+  /** A counter that increments whenever the toast is updated or upserted. */
+  updateKey?: number;
   /** Determines if the toast was closed due to the limit being reached. */
   limited?: boolean;
   /** The height of the toast. */
@@ -592,6 +596,10 @@ type ToastManager<Data extends {} = any> = {
 
 ```typescript
 type ToastManagerAddOptions<Data extends {}> = {
+  /**
+   * The unique identifier for the toast. Adding a toast with an existing ID
+   * updates it in place and refreshes its auto-dismiss timer.
+   */
   id?: string;
   /** The title of the toast. */
   title?: React.ReactNode;

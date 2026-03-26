@@ -15,6 +15,7 @@ import { isFocusVisible } from './utils/focusVisible';
 type ToastInternalUpdateOptions<Data extends object> = Partial<Omit<ToastObject<Data>, 'id'>>;
 type UpdateToastBehavior = {
   resetTimer?: boolean | undefined;
+  markUpdated?: boolean | undefined;
 };
 
 export type State = {
@@ -145,7 +146,10 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
           this.removeToast(toast.id);
         } else {
           const { id: semanticId, ...updates } = toast;
-          this.updateToastInternal(toast.id, updates, { resetTimer: true });
+          this.updateToastInternal(toast.id, updates, {
+            resetTimer: true,
+            markUpdated: true,
+          });
           return toast.id;
         }
       }
@@ -154,6 +158,7 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     const toastToAdd: ToastObject<Data> = {
       ...toast,
       id,
+      updateKey: 0,
       transitionStatus: 'starting',
     };
 
@@ -192,7 +197,7 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
   };
 
   updateToast = <Data extends object>(id: string, updates: ToastManagerUpdateOptions<Data>) => {
-    this.updateToastInternal(id, updates);
+    this.updateToastInternal(id, updates, { markUpdated: true });
   };
 
   updateToastInternal = <Data extends object>(
@@ -213,9 +218,17 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
       return;
     }
 
-    const nextToast = { ...prevToast, ...updates };
+    const nextToast: ToastObject<Data> = {
+      ...prevToast,
+      ...updates,
+      ...(behavior.markUpdated
+        ? {
+            updateKey: (prevToast.updateKey ?? 0) + 1,
+          }
+        : {}),
+    };
 
-    this.setToasts(toasts.map((toast) => (toast.id === id ? { ...toast, ...updates } : toast)));
+    this.setToasts(toasts.map((toast) => (toast.id === id ? nextToast : toast)));
 
     const nextTimeout = nextToast.timeout ?? timeout;
     const prevTimeout = prevToast?.timeout ?? timeout;
