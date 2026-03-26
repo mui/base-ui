@@ -209,12 +209,36 @@ export function useHoverReferenceInteraction(
       }
 
       const openDelay = getDelay(delayRef.current, 'open', instance.pointerType);
-      const triggerNode = (event.currentTarget as HTMLElement) ?? null;
+      const eventTarget = getTarget(event);
+      const currentTarget = (event.currentTarget as HTMLElement) ?? null;
       const currentDomReference = store.select('domReferenceElement');
+      let triggerNode = currentTarget;
+
+      // Wrapper/delegated mode: resolve the actual trigger from the event target.
+      if (isElement(eventTarget) && !store.context.triggerElements.hasElement(eventTarget)) {
+        for (const triggerElement of store.context.triggerElements.elements()) {
+          if (contains(triggerElement, eventTarget)) {
+            triggerNode = triggerElement as HTMLElement;
+            break;
+          }
+        }
+      }
+
+      // Wrapper/delegated mode fallback: if the wrapper contains the active trigger,
+      // treat this as re-entering that active trigger.
+      if (
+        isElement(currentTarget) &&
+        isElement(currentDomReference) &&
+        !store.context.triggerElements.hasElement(currentTarget) &&
+        contains(currentTarget, currentDomReference)
+      ) {
+        triggerNode = currentDomReference as HTMLElement;
+      }
+
       const isOverInactive =
         triggerNode == null
           ? false
-          : isOverInactiveTrigger(currentDomReference, triggerNode, getTarget(event));
+          : isOverInactiveTrigger(currentDomReference, triggerNode, eventTarget);
       const isOpen = store.select('open');
       const isInClosingTransition = store.select('transitionStatus') === 'ending';
       const isHoverCloseTransition =
