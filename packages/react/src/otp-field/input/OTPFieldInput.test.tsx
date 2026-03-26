@@ -79,6 +79,23 @@ describe('<OTPField.Input />', () => {
     expect(document.activeElement).toBe(inputs[1]);
   });
 
+  it('does not select the last slot after typing into it for the first time', async () => {
+    await render(<OTPFieldTest defaultValue="12345" />);
+
+    const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+    const lastInput = inputs[5];
+
+    await act(async () => {
+      lastInput.focus();
+    });
+
+    fireEvent.change(lastInput, { target: { value: '6' } });
+
+    expect(document.activeElement).toBe(lastInput);
+    expect(lastInput.selectionStart).toBe(1);
+    expect(lastInput.selectionEnd).toBe(1);
+  });
+
   it('keeps focus in place when typing is canceled', async () => {
     await render(
       <OTPFieldTest
@@ -229,6 +246,8 @@ describe('<OTPField.Input />', () => {
 
     expect(inputs.map((input) => input.value)).toEqual(['1', '3', '4', '', '', '']);
     expect(document.activeElement).toBe(inputs[1]);
+    expect(inputs[1].selectionStart).toBe(0);
+    expect(inputs[1].selectionEnd).toBe(1);
   });
 
   it('selects the previous slot value after backspacing into the first slot', async () => {

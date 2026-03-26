@@ -164,7 +164,9 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
 
       if (committedValue != null) {
         const nextInput = Math.min(index + nextDigits.length, length - 1);
-        queueFocusInput(nextInput, committedValue);
+        if (nextInput !== index) {
+          queueFocusInput(nextInput, committedValue);
+        }
       }
     },
     onKeyDown(event) {
@@ -198,10 +200,15 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
 
       if (event.key === 'Delete') {
         stopEvent(event);
-        setValue(
+        const committedValue = setValue(
           removeOTPCharacter(value, index),
           createChangeEventDetails(REASONS.keyboard, event.nativeEvent),
         );
+
+        if (committedValue != null) {
+          queueFocusInput(index, committedValue);
+        }
+
         return;
       }
 
@@ -262,7 +269,9 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
 
       if (committedValue != null) {
         const nextInput = Math.min(index + nextDigits.length, length - 1);
-        queueFocusInput(nextInput, committedValue);
+        if (nextInput !== index) {
+          queueFocusInput(nextInput, committedValue);
+        }
       }
     },
   };
