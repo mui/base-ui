@@ -134,6 +134,12 @@
         animation: accordion-overscroll-overlay 500ms;
       }
 
+      /* Only applied when the container is scrollable as this creates a layer. */
+      & .AccordionScrollableInner {
+        /* Prevent Chrome/Safari page navigation gestures when scrolling horizontally */
+        overscroll-behavior-x: contain;
+      }
+
       @media (hover: hover) {
         .AccordionTrigger:hover &::after {
           background-image: linear-gradient(to right, transparent, var(--color-trigger-hover));
@@ -159,7 +165,6 @@
 
     /* Make individual cells scrollable */
     overflow-x: auto;
-    overscroll-behavior-x: contain;
     scrollbar-width: none;
 
     &::-webkit-scrollbar {
