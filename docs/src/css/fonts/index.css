@@ -26,6 +26,7 @@
   font-family: 'Paper Mono';
   font-weight: normal;
   src: url('/fonts/paper-mono.woff2') format('woff2');
+  font-variation-settings: 'wght' 415;
   /* Reduce the size to balance with the sans-serif fonts */
   size-adjust: calc(100% * 13.5 / 14);
 }
