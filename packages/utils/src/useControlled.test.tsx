@@ -257,5 +257,26 @@ describe('useControlled', () => {
         setProps({ defaultValue: m1 });
       }).not.toErrorDev();
     });
+
+    it('should warn only when defaultValue has Set and changes', () => {
+      let setProps: (newProps: any) => void;
+
+      const s1 = new Set().add('a').add('b');
+      const s2 = new Set().add('a').add('b').add('c');
+
+      expect(() => {
+        ({ setProps } = render(<TestComponent defaultValue={s1}>{() => null}</TestComponent>));
+      }).not.toErrorDev();
+
+      expect(() => {
+        setProps({ defaultValue: s2 });
+      }).toErrorDev(
+        'Base UI: A component is changing the default value state of an uncontrolled TestComponent after being initialized.',
+      );
+
+      expect(() => {
+        setProps({ defaultValue: s1 });
+      }).not.toErrorDev();
+    });
   });
 });
