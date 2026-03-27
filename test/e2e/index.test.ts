@@ -250,6 +250,161 @@ describe('e2e', () => {
 
       expect(activeElementLabel).toBe('Tuesday, March 31st, 2026');
     }, 5000);
+
+    it('preserves focus after the Motion demo wraps left into the previous month', async () => {
+      await renderFixture('calendar/AnimatedMotionViewport');
+
+      await page.getByRole('button', { name: 'Next month' }).click();
+      await expect
+        .poll(async () => {
+          return page.getByRole('button', { name: 'Wednesday, April 1st, 2026' }).count();
+        })
+        .toBe(1);
+
+      const aprilFirst = page.getByRole('button', { name: 'Wednesday, April 1st, 2026' });
+      await aprilFirst.focus();
+      await expect(aprilFirst).toBeFocused();
+
+      await page.keyboard.press('ArrowLeft');
+
+      await expect
+        .poll(async () => {
+          return page.evaluate(() => {
+            return (
+              document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.tagName
+            );
+          });
+        })
+        .toBe('Tuesday, March 31st, 2026');
+
+      await page.waitForTimeout(500);
+
+      expect(
+        await page.evaluate(() => {
+          return (
+            document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.tagName
+          );
+        }),
+      ).toBe('Tuesday, March 31st, 2026');
+    }, 5000);
+
+    it('preserves focus after the Motion demo pages into the next month', async () => {
+      await renderFixture('calendar/AnimatedMotionViewport');
+
+      await page.getByRole('button', { name: 'Next month' }).click();
+
+      const aprilFifteenth = page.getByRole('button', { name: 'Wednesday, April 15th, 2026' });
+      await aprilFifteenth.focus();
+      await expect(aprilFifteenth).toBeFocused();
+
+      await page.keyboard.press('PageDown');
+
+      await expect
+        .poll(async () => {
+          return page.evaluate(() => {
+            return (
+              document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.tagName
+            );
+          });
+        })
+        .toBe('Friday, May 15th, 2026');
+
+      await page.waitForTimeout(500);
+
+      expect(
+        await page.evaluate(() => {
+          return (
+            document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.tagName
+          );
+        }),
+      ).toBe('Friday, May 15th, 2026');
+    }, 5000);
+
+    it('preserves focus after the Motion demo wraps right into the next month', async () => {
+      await renderFixture('calendar/AnimatedMotionViewport');
+
+      await page.getByRole('button', { name: 'Next month' }).click();
+
+      const aprilThirtieth = page
+        .getByRole('button', { name: 'Thursday, April 30th, 2026' })
+        .first();
+      await aprilThirtieth.focus();
+      await expect
+        .poll(async () => {
+          return page.evaluate(() => {
+            return (
+              document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.tagName
+            );
+          });
+        })
+        .toBe('Thursday, April 30th, 2026');
+
+      await page.keyboard.press('ArrowRight');
+
+      await expect
+        .poll(async () => {
+          return page.evaluate(() => {
+            return (
+              document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.tagName
+            );
+          });
+        })
+        .toBe('Friday, May 1st, 2026');
+
+      await page.waitForTimeout(500);
+
+      expect(
+        await page.evaluate(() => {
+          return (
+            document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.tagName
+          );
+        }),
+      ).toBe('Friday, May 1st, 2026');
+    }, 7000);
+
+    it('allows interrupted Motion demo navigation while the month animation is still running', async () => {
+      await renderFixture('calendar/AnimatedMotionViewport');
+
+      await page.getByRole('button', { name: 'Next month' }).click();
+
+      const aprilThirtieth = page
+        .getByRole('button', { name: 'Thursday, April 30th, 2026' })
+        .first();
+      await aprilThirtieth.focus();
+      await expect
+        .poll(async () => {
+          return page.evaluate(() => {
+            return (
+              document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.tagName
+            );
+          });
+        })
+        .toBe('Thursday, April 30th, 2026');
+
+      await page.keyboard.press('ArrowRight');
+      await page.waitForTimeout(20);
+      await page.keyboard.press('ArrowRight');
+
+      await expect
+        .poll(async () => {
+          return page.evaluate(() => {
+            return (
+              document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.tagName
+            );
+          });
+        })
+        .toBe('Saturday, May 2nd, 2026');
+
+      await page.waitForTimeout(500);
+
+      expect(
+        await page.evaluate(() => {
+          return (
+            document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.tagName
+          );
+        }),
+      ).toBe('Saturday, May 2nd, 2026');
+    }, 7000);
   });
 
   describe('<Menu />', () => {

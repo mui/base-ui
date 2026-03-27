@@ -1,8 +1,9 @@
 .Root {
   /* Clip overflow to prevent content spilling out when transitioning. */
   overflow: clip;
-  --duration: 0.2s;
-  --easing: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration: 0.65s;
+  --exit-fade-duration: 0.45s;
+  --easing: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .HeaderLabelWrapper {
@@ -36,15 +37,20 @@
       transform: translateY(0);
     }
     &[data-ending-style] {
+      @media (prefers-reduced-motion: no-preference) {
+        transition:
+          opacity var(--exit-fade-duration) var(--easing),
+          transform var(--duration) var(--easing);
+      }
       opacity: 0;
-      transform: translateY(-20px);
+      transform: translateY(-12px);
     }
   }
 
   &[data-navigation-direction='next'][data-current] {
     &[data-starting-style] {
       opacity: 0;
-      transform: translateY(20px);
+      transform: translateY(12px);
     }
     &[data-ending-style] {
       opacity: 1;
@@ -58,15 +64,20 @@
       transform: translateY(0);
     }
     &[data-ending-style] {
+      @media (prefers-reduced-motion: no-preference) {
+        transition:
+          opacity var(--exit-fade-duration) var(--easing),
+          transform var(--duration) var(--easing);
+      }
       opacity: 0;
-      transform: translateY(20px);
+      transform: translateY(12px);
     }
   }
 
   &[data-navigation-direction='previous'][data-current] {
     &[data-starting-style] {
       opacity: 0;
-      transform: translateY(-20px);
+      transform: translateY(-12px);
     }
     &[data-ending-style] {
       opacity: 1;
@@ -106,14 +117,19 @@
       opacity: 1;
     }
     &[data-ending-style] {
-      transform: translateX(-100%);
+      @media (prefers-reduced-motion: no-preference) {
+        transition:
+          opacity var(--exit-fade-duration) var(--easing),
+          transform var(--duration) var(--easing);
+      }
+      transform: translateX(-78%);
       opacity: 0;
     }
   }
 
   &[data-navigation-direction='next'][data-current] {
     &[data-starting-style] {
-      transform: translateX(100%);
+      transform: translateX(78%);
       opacity: 0;
     }
     &[data-ending-style] {
@@ -128,14 +144,19 @@
       opacity: 1;
     }
     &[data-ending-style] {
-      transform: translateX(100%);
+      @media (prefers-reduced-motion: no-preference) {
+        transition:
+          opacity var(--exit-fade-duration) var(--easing),
+          transform var(--duration) var(--easing);
+      }
+      transform: translateX(78%);
       opacity: 0;
     }
   }
 
   &[data-navigation-direction='previous'][data-current] {
     &[data-starting-style] {
-      transform: translateX(-100%);
+      transform: translateX(-78%);
       opacity: 0;
     }
     &[data-ending-style] {
