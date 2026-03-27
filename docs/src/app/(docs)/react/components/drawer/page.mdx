@@ -264,8 +264,7 @@ The `data-nested-drawer-open` attribute marks drawers behind the frontmost drawe
   opacity: 0;
 }
 
-/* @highlight-text "data-nested-drawer-swiping" */
-/* @highlight-text "data-nested-drawer-open" */
+/* @highlight-text "data-nested-drawer-open" "data-nested-drawer-swiping" */
 .DrawerPopup[data-nested-drawer-open][data-nested-drawer-swiping] .DrawerContent {
   opacity: 1;
 }
@@ -275,28 +274,28 @@ The `--drawer-swipe-movement-x`, `--drawer-swipe-movement-y`, and `--drawer-snap
 
 ```css title="Swipe and snap offset"
 .DrawerPopup[data-swipe-direction='right'] {
-  transform: translateX(
-    var(--drawer-swipe-movement-x)
-  ); /* @highlight-text "--drawer-swipe-movement-x" */
+  /* @highlight-text "--drawer-swipe-movement-x" */
+  transform: translateX(var(--drawer-swipe-movement-x));
 }
 
 .DrawerPopup[data-swipe-direction='down'] {
   transform: translateY(
+    /* @highlight-text "--drawer-swipe-movement-y" */
     calc(var(--drawer-snap-point-offset) + var(--drawer-swipe-movement-y))
-  ); /* @highlight-text "--drawer-swipe-movement-y" */
+  );
 }
 ```
 
 The `data-swipe-direction` attribute can be used with `data-ending-style` to animate directional dismissal:
 
 ```css title="Swipe dismissal direction"
+/* @highlight-text "data-swipe-direction" */
 .DrawerPopup[data-ending-style][data-swipe-direction='right'] {
-  /* @highlight-text "data-swipe-direction" */
   transform: translateX(100%);
 }
 
+/* @highlight-text "data-swipe-direction" */
 .DrawerPopup[data-ending-style][data-swipe-direction='down'] {
-  /* @highlight-text "data-swipe-direction" */
   transform: translateY(100%);
 }
 ```

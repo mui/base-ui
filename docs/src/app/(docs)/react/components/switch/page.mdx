@@ -48,8 +48,7 @@ By default, `<Switch.Root>` renders a `<span>` element to support enclosing labe
 ```tsx title="Sibling label pattern with a native button"
 <div>
   <label htmlFor="notifications-switch">Notifications</label>
-  {/* @highlight-text "render" */}
-  {/* @highlight-text "nativeButton" */}
+  {/* @highlight-text "nativeButton" "render={<button />}" */}
   <Switch.Root id="notifications-switch" nativeButton render={<button />}>
     <Switch.Thumb />
   </Switch.Root>

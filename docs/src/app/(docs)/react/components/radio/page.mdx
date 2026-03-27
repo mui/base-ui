@@ -60,8 +60,7 @@ By default, `<Radio.Root>` renders a `<span>` element to support enclosing label
 <RadioGroup defaultValue="ssd" aria-labelledby="storage-type">
   <div>
     <label htmlFor="storage-type-ssd">SSD</label>
-    {/* @highlight-text "render" */}
-    {/* @highlight-text "nativeButton" */}
+    {/* @highlight-text "nativeButton" "render={<button />}" */}
     <Radio.Root value="ssd" id="storage-type-ssd" nativeButton render={<button />}>
       <Radio.Indicator />
     </Radio.Root>

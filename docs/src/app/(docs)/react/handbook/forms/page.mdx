@@ -312,7 +312,7 @@ import { Field } from '@base-ui/react/field';
 
 async function submitToServer(/* payload */) {
   return {
-    errors: { {/* @highlight-text "errors" */}
+    errors: { {// @highlight-text "errors"
       promoCode: 'This promo code has expired',
     },
   };
@@ -321,7 +321,7 @@ async function submitToServer(/* payload */) {
 const [errors, setErrors] = React.useState(); // @highlight-text "errors"
 
 <Form
-  errors={errors} {/* @highlight-text "errors" */}
+  errors={errors} { // @highlight-text "errors"
   onSubmit={async (event) => {
     event.preventDefault();
     const response = await submitToServer(/* data */);
@@ -342,14 +342,10 @@ import { Form } from '@base-ui/react/form';
 import { Field } from '@base-ui/react/field';
 import { login } from './actions';
 
-// @highlight-text "formAction"
-// @highlight-text "errors"
-// @highlight-text "state"
+// @highlight-text "state" "formAction"
 const [state, formAction, loading] = React.useActionState(login, {});
 
-// @highlight-text "formAction"
-// @highlight-text "errors"
-// @highlight-text "state"
+// @highlight-text "state" "errors" "formAction"
 <Form action={formAction} errors={state.errors}>
   <Field.Root name="password">
     <Field.Control />
@@ -425,20 +421,12 @@ const { control, handleSubmit} = useForm({
   name="username"
   control={control}
   render={({
-    // @highlight-text "ref"
-    // @highlight-text "value"
-    // @highlight-text "onBlur"
-    // @highlight-text "onChange"
+    // @highlight-text "ref" "value" "onBlur" "onChange"
     field: { name, ref, value, onBlur, onChange },
-    // @highlight-text "invalid"
-    // @highlight-text "isTouched"
-    // @highlight-text "isDirty"
-    // @highlight-text "error"
+    // @highlight-text "invalid" "isTouched" "isDirty" "error"
     fieldState: { invalid, isTouched, isDirty, error },
   }) => (
-    {/* @highlight-text "invalid" */}
-    {/* @highlight-text "isTouched" */}
-    {/* @highlight-text "isDirty" */}
+    {/* @highlight-text "invalid" "isTouched" "isDirty" */}
     <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
     {/* @highlight-end */}
       <Field.Label>Username</Field.Label>

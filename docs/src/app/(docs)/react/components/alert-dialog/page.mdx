@@ -102,13 +102,9 @@ This involves placing the `<AlertDialog.Trigger>` outside of `<AlertDialog.Root>
 ```jsx title="Detached triggers"
 const demoAlertDialog = AlertDialog.createHandle();
 
-// @highlight-start
 <AlertDialog.Trigger handle={demoAlertDialog}>Open</AlertDialog.Trigger> {/* @highlight-text "handle={demoAlertDialog}" */}
-// @highlight-end
 
-// @highlight-start
 <AlertDialog.Root handle={demoAlertDialog}> {/* @highlight-text "handle={demoAlertDialog}" */}
-// @highlight-end
   ...
 </AlertDialog.Root>
 ```

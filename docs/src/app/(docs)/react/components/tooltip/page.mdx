@@ -78,13 +78,9 @@ This involves placing the `<Tooltip.Trigger>` outside of `<Tooltip.Root>` and li
 ```jsx title="Detached triggers"
 const demoTooltip = Tooltip.createHandle();
 
-{/* @highlight-start */}
 <Tooltip.Trigger handle={demoTooltip}>Button</Tooltip.Trigger> {/* @highlight-text "handle={demoTooltip}" */}
-{/* @highlight-end */}
 
-{/* @highlight-start */}
 <Tooltip.Root handle={demoTooltip}> {/* @highlight-text "handle={demoTooltip}" */}
-{/* @highlight-end */}
   ...
 </Tooltip.Root>
 ```

@@ -194,15 +194,11 @@ Submenus must have their triggers defined within the `SubmenuRoot` part.
 ```jsx title="Detached triggers"
 const demoMenu = Menu.createHandle();
 
-// @highlight-start
-<Menu.Trigger handle={demoMenu}> {/* @highlight-text "handle" */}
-// @highlight-end
+<Menu.Trigger handle={demoMenu}> {/* @highlight-text "handle={demoMenu}" */}
   Actions
 </Menu.Trigger>
 
-// @highlight-start
 <Menu.Root handle={demoMenu}> {/* @highlight-text "handle={demoMenu}" */}
-// @highlight-end
   <Menu.Portal>
     <Menu.Positioner>
       <Menu.Popup>

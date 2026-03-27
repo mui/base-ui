@@ -86,8 +86,7 @@ const Text = React.forwardRef(function Text(
   const element = useRender({
     defaultTagName: 'p',
     // @highlight-start
-    // @highlight-text "internalRef"
-    // @highlight-text "forwardedRef"
+    // @highlight-text "internalRef" "forwardedRef"
     ref: [forwardedRef, internalRef],
     // @highlight-end
     props,

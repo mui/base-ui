@@ -58,8 +58,7 @@ By default, `<Checkbox.Root>` renders a `<span>` element to support enclosing la
 <CheckboxGroup aria-labelledby="protocols-label">
   <div>
     <label htmlFor="protocol-http">HTTP</label>
-    {/* @highlight-text "render" */}
-    {/* @highlight-text "nativeButton" */}
+    {/* @highlight-text "nativeButton" "render={<button />}" */}
     <Checkbox.Root id="protocol-http" value="http" nativeButton render={<button />}>
       <Checkbox.Indicator />
     </Checkbox.Root>

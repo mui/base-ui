@@ -54,11 +54,8 @@ This involves placing the `<PreviewCard.Trigger>` outside of `<PreviewCard.Root>
 ```jsx title="Detached triggers"
 const demoPreviewCard = PreviewCard.createHandle();
 
-{/* @highlight-start */}
 <PreviewCard.Trigger handle={demoPreviewCard} href="#"> {/* @highlight-text "handle={demoPreviewCard}" */}
-{/* @highlight-end */}
   Link
-{/* @highlight */}
 </PreviewCard.Trigger>
 
 <PreviewCard.Root handle={demoPreviewCard}> {/* @highlight-text "handle={demoPreviewCard}" */}

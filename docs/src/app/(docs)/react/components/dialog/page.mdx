@@ -197,13 +197,9 @@ This involves placing the `<Dialog.Trigger>` outside of `<Dialog.Root>` and link
 ```jsx title="Detached triggers"
 const demoDialog = Dialog.createHandle();
 
-{/* @highlight-start */}
 <Dialog.Trigger handle={demoDialog}>Open</Dialog.Trigger> {/* @highlight-text "handle={demoDialog}" */}
-{/* @highlight-end */}
 
-{/* @highlight-start */}
 <Dialog.Root handle={demoDialog}> {/* @highlight-text "handle={demoDialog}" */}
-{/* @highlight-end */}
   ...
 </Dialog.Root>
 ```

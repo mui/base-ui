@@ -48,8 +48,7 @@ By default, `<Checkbox.Root>` renders a `<span>` element to support enclosing la
 ```tsx title="Sibling label pattern with a native button"
 <div>
   <label htmlFor="notifications-checkbox">Enable notifications</label>
-  {/* @highlight-text "render" */}
-  {/* @highlight-text "nativeButton" */}
+  {/* @highlight-text "nativeButton" "render={<button />}" */}
   <Checkbox.Root id="notifications-checkbox" nativeButton render={<button />}>
     <Checkbox.Indicator />
   </Checkbox.Root>
