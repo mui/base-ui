@@ -1619,6 +1619,64 @@ describe.skipIf(!isJSDOM)('useToast', () => {
 
       expect(toast1).not.toHaveAttribute('data-limited');
     });
+
+    it('preserves limited state when upserting a limited toast', async () => {
+      function LimitedToastExample() {
+        const { add, toasts } = useToastManager();
+
+        return (
+          <React.Fragment>
+            {toasts.map((toast) => (
+              <Toast.Root key={toast.id} toast={toast} data-testid={String(toast.title)}>
+                <Toast.Title />
+              </Toast.Root>
+            ))}
+            <button
+              onClick={() => {
+                add({ id: 'save', title: 'Saving...', timeout: 0 });
+              }}
+            >
+              add save
+            </button>
+            <button
+              onClick={() => {
+                add({ id: 'other', title: 'Other toast', timeout: 0 });
+              }}
+            >
+              add other
+            </button>
+            <button
+              onClick={() => {
+                add({ id: 'save', title: 'Saved', timeout: 0 });
+              }}
+            >
+              upsert save
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider limit={1}>
+          <Toast.Viewport>
+            <LimitedToastExample />
+          </Toast.Viewport>
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add save' }));
+      const savingToast = screen.getByTestId('Saving...');
+      expect(savingToast).not.toHaveAttribute('data-limited');
+
+      fireEvent.click(screen.getByRole('button', { name: 'add other' }));
+      expect(savingToast).toHaveAttribute('data-limited');
+      expect(screen.getByTestId('Other toast')).not.toHaveAttribute('data-limited');
+
+      fireEvent.click(screen.getByRole('button', { name: 'upsert save' }));
+      const savedToast = screen.getByTestId('Saved');
+      expect(savedToast).toHaveAttribute('data-limited');
+      expect(screen.getByTestId('Other toast')).not.toHaveAttribute('data-limited');
+    });
   });
 
   describe('in dialog', () => {

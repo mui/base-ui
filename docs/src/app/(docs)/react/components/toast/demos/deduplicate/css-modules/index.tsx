@@ -41,6 +41,7 @@ function ToastList() {
 function PulseToastItem({ toast }: { toast: Toast.Root.ToastObject }) {
   let pulseClassName: string | null = null;
 
+  // New toasts start with `updateKey: 0`, so the first add skips the replay pulse.
   if (toast.updateKey) {
     pulseClassName = toast.updateKey % 2 === 0 ? styles.PulseEven : styles.PulseOdd;
   }

@@ -138,6 +138,7 @@
   }
 }
 
+/* Alternate animation names so repeated updates restart the same pulse. */
 .PulseEven {
   animation: pulse-even 0.28s ease;
 }

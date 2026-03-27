@@ -145,7 +145,7 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
         if (existingToast.transitionStatus === 'ending') {
           this.removeToast(toast.id);
         } else {
-          const { id: semanticId, transitionStatus: nextTransitionStatus, ...updates } = toast;
+          const { id: ignoredId, transitionStatus: ignoredTransitionStatus, ...updates } = toast;
           this.updateToastInternal(toast.id, updates, {
             resetTimer: true,
             markUpdated: true,
