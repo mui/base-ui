@@ -117,6 +117,68 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       expect(screen.getByTestId('toast-count')).toHaveTextContent('1');
     });
 
+    it('does not call onRemove when replacing an ending toast', async () => {
+      const onRemoveSpy = vi.fn();
+
+      function Buttons() {
+        const { add, close, toasts } = useToastManager();
+        const toastIdRef = React.useRef<string | null>(null);
+
+        return (
+          <React.Fragment>
+            <button
+              onClick={() => {
+                toastIdRef.current = add({
+                  id: 'save',
+                  title: 'Saving...',
+                  timeout: 0,
+                  onRemove: onRemoveSpy,
+                });
+              }}
+            >
+              add
+            </button>
+            <button
+              onClick={() => {
+                if (toastIdRef.current) {
+                  close(toastIdRef.current);
+                }
+              }}
+            >
+              close
+            </button>
+            <button
+              onClick={() => {
+                toastIdRef.current = add({
+                  id: 'save',
+                  title: 'Saved',
+                  timeout: 0,
+                });
+              }}
+            >
+              re-add
+            </button>
+            <div data-testid="toast-count">{toasts.length}</div>
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <Buttons />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      expect(screen.getByTestId('toast-count')).toHaveTextContent('1');
+
+      fireEvent.click(screen.getByRole('button', { name: 'close' }));
+      fireEvent.click(screen.getByRole('button', { name: 're-add' }));
+
+      expect(screen.getByTestId('toast-count')).toHaveTextContent('1');
+      expect(onRemoveSpy).toHaveBeenCalledTimes(0);
+    });
+
     it('ignores transitionStatus when upserting an existing toast', async () => {
       function Buttons() {
         const { add, toasts } = useToastManager();

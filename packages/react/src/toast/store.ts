@@ -17,6 +17,9 @@ type UpdateToastBehavior = {
   resetTimer?: boolean | undefined;
   markUpdated?: boolean | undefined;
 };
+type RemoveToastBehavior = {
+  callOnRemove?: boolean | undefined;
+};
 
 export type State = {
   toasts: ToastObject<any>[];
@@ -120,14 +123,16 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     };
   };
 
-  removeToast(toastId: string) {
+  removeToast(toastId: string, behavior: RemoveToastBehavior = {}) {
     const index = selectors.toastIndex(this.state, toastId);
     if (index === -1) {
       return;
     }
 
     const toast = this.state.toasts[index];
-    toast?.onRemove?.();
+    if (behavior.callOnRemove ?? true) {
+      toast?.onRemove?.();
+    }
 
     const newToasts = [...this.state.toasts];
     newToasts.splice(index, 1);
@@ -143,7 +148,7 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
 
       if (existingToast) {
         if (existingToast.transitionStatus === 'ending') {
-          this.removeToast(toast.id);
+          this.removeToast(toast.id, { callOnRemove: false });
         } else {
           const { id: ignoredId, transitionStatus: ignoredTransitionStatus, ...updates } = toast;
           this.updateToastInternal(toast.id, updates, {
