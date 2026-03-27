@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import { Toast } from '@base-ui/react/toast';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
@@ -398,6 +398,74 @@ describe('<Toast.Viewport />', () => {
       await act(async () => button.focus());
 
       clock.tick(5001);
+
+      expect(screen.queryByTestId('root')).toBe(null);
+    });
+
+    it.skipIf(!isJSDOM)('resumes timers when the window regains focus', async () => {
+      const addEventListenerSpy = vi.spyOn(window, 'addEventListener');
+
+      await renderFakeTimers(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+          <Button />
+        </Toast.Provider>,
+      );
+
+      const button = screen.getByRole('button', { name: 'add' });
+
+      fireEvent.click(button);
+
+      expect(screen.queryByTestId('root')).not.toBe(null);
+      const addEventListenerCalls = [...addEventListenerSpy.mock.calls].reverse();
+
+      const blurListener = addEventListenerCalls.find((call) => call[0] === 'blur')?.[1] as
+        | EventListener
+        | undefined;
+      const focusListener = addEventListenerCalls.find((call) => call[0] === 'focus')?.[1] as
+        | EventListener
+        | undefined;
+
+      addEventListenerSpy.mockRestore();
+
+      expect(blurListener).toBeDefined();
+      expect(focusListener).toBeDefined();
+
+      if (!blurListener || !focusListener) {
+        throw new Error('Expected window focus and blur listeners to be registered.');
+      }
+
+      const blurEvent = new FocusEvent('blur');
+      Object.defineProperty(blurEvent, 'composedPath', {
+        value: () => [window],
+      });
+
+      const focusEvent = new FocusEvent('focus');
+      Object.defineProperty(focusEvent, 'composedPath', {
+        value: () => [window],
+      });
+
+      clock.tick(1000);
+
+      await act(async () => {
+        blurListener(blurEvent);
+      });
+
+      clock.tick(5000);
+
+      expect(screen.queryByTestId('root')).not.toBe(null);
+
+      await act(async () => {
+        focusListener(focusEvent);
+      });
+
+      clock.tick(3999);
+
+      expect(screen.queryByTestId('root')).not.toBe(null);
+
+      clock.tick(2);
 
       expect(screen.queryByTestId('root')).toBe(null);
     });
