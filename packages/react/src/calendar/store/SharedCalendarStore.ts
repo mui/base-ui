@@ -26,6 +26,16 @@ export interface SharedCalendarStoreContext<TValue extends TemporalSupportedValu
         eventDetails: CalendarVisibleDateChangeEventDetails,
       ) => void)
     | undefined;
+  pendingDayGridFocusRequest?: CalendarDayGridFocusRequest | undefined;
+}
+
+export interface CalendarDayGridFocusRequest {
+  amount: number;
+  decrement: boolean;
+  guessedIndex: number;
+  offset: number;
+  sourceItemMap: Map<Node, unknown>;
+  visibleMonth: TemporalSupportedObject;
 }
 
 /**
@@ -141,6 +151,15 @@ export class SharedCalendarStore<TValue extends TemporalSupportedValue, TError> 
     trigger?: HTMLElement,
     reason?: CalendarChangeEventReason,
   ) => {
+    this.setVisibleDateAndGetDetails(visibleDate, nativeEvent, trigger, reason);
+  };
+
+  public setVisibleDateAndGetDetails = (
+    visibleDate: TemporalSupportedObject,
+    nativeEvent?: Event,
+    trigger?: HTMLElement,
+    reason?: CalendarChangeEventReason,
+  ) => {
     const eventDetails = createChangeEventDetails(reason ?? REASONS.dayPress, nativeEvent, trigger);
 
     this.context.onVisibleDateChange?.(visibleDate, eventDetails);
@@ -153,6 +172,8 @@ export class SharedCalendarStore<TValue extends TemporalSupportedValue, TError> 
         ),
       });
     }
+
+    return eventDetails;
   };
 
   /**
