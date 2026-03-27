@@ -7,13 +7,9 @@
   content="A high-quality, unstyled React OTP field component for one-time password and verification code entry."
 />
 
-import { DemoOTPFieldHero } from './demos/hero';
-import { DemoOTPFieldAlphanumeric } from './demos/alphanumeric';
-import { DemoOTPFieldPassword } from './demos/password';
-import { DemoOTPFieldCustomSanitize } from './demos/custom-sanitize';
-import { TypesOTPField } from './types';
-
 > **Note:** OTP Field is currently in preview. Its API may change before it becomes stable.
+
+import { DemoOTPFieldHero } from './demos/hero';
 
 <DemoOTPFieldHero />
 
@@ -84,12 +80,16 @@ Pass `autoSubmit` to submit the owning form automatically when all slots are fil
 Use `validationType="alphanumeric"` for recovery, backup, or invite codes that mix letters and
 numbers.
 
+import { DemoOTPFieldAlphanumeric } from './demos/alphanumeric';
+
 <DemoOTPFieldAlphanumeric compact />
 
 ### Masked entry
 
 Use `mask` when the code should be obscured while it is being typed. If you need a custom input
 type, pass `type` directly to individual `<OTPField.Input>` parts.
+
+import { DemoOTPFieldPassword } from './demos/password';
 
 <DemoOTPFieldPassword compact />
 
@@ -100,9 +100,13 @@ they reach state or apply custom validation rules. Use `inputMode` when a custom
 specific virtual keyboard hint, and `onValueInvalid` when you want to react to rejected
 characters.
 
+import { DemoOTPFieldCustomSanitize } from './demos/custom-sanitize';
+
 <DemoOTPFieldCustomSanitize compact />
 
 ## API reference
+
+import { TypesOTPField } from './types';
 
 ### Root
 
@@ -118,6 +122,7 @@ export const metadata = {
     'One-Time Password Input',
     'Verification Code Input',
     'OTP Input Component',
+    'Pin Input',
     'Passcode Input',
     'Two-Factor Authentication Input',
     '2FA Input',

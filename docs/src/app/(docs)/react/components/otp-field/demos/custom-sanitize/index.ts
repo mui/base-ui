@@ -1,4 +1,6 @@
-import { createDemo } from 'docs/src/utils/createDemo';
+import { createDemoWithVariants } from 'docs/src/utils/createDemo';
 import CssModules from './css-modules';
 
-export const DemoOTPFieldCustomSanitize = createDemo(import.meta.url, CssModules);
+export const DemoOTPFieldCustomSanitize = createDemoWithVariants(import.meta.url, {
+  CssModules,
+});
