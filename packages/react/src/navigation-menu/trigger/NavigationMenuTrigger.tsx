@@ -26,7 +26,6 @@ import {
   getTabbableAfterElement,
   getNextTabbable,
   getPreviousTabbable,
-  isTabbable,
   isOutsideEvent,
   stopEvent,
 } from '../../floating-ui-react/utils';
@@ -804,10 +803,10 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
             ref={afterOutsideRef}
             onFocus={(event) => {
               if (referenceElement && isOutsideEvent(event, referenceElement)) {
-                const elementToFocus =
-                  afterInsideRef.current && isTabbable(afterInsideRef.current)
-                    ? afterInsideRef.current
-                    : triggerElement;
+                ReactDOM.flushSync(() => {
+                  setViewportInert(false);
+                });
+                const elementToFocus = afterInsideRef.current || triggerElement;
                 elementToFocus?.focus();
               } else {
                 let nextTabbable = getNextTabbable(triggerElement);
