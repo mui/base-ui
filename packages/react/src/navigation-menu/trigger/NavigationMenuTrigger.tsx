@@ -26,7 +26,6 @@ import {
   getTabbableAfterElement,
   getNextTabbable,
   getPreviousTabbable,
-  isTabbable,
   isOutsideEvent,
   stopEvent,
 } from '../../floating-ui-react/utils';
