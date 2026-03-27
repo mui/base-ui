@@ -156,7 +156,7 @@ describe('useControlled', () => {
       }).not.toErrorDev();
     });
 
-    it('does not warn on rerender', () => {
+    it('should warn only when defaultValue changes', () => {
       let setProps: (newProps: any) => void;
 
       expect(() => {
@@ -165,6 +165,12 @@ describe('useControlled', () => {
 
       expect(() => {
         setProps({ defaultValue: 1 });
+      }).toErrorDev(
+        'Base UI: A component is changing the default value state of an uncontrolled TestComponent after being initialized.',
+      );
+
+      expect(() => {
+        setProps({ defaultValue: 2 });
       }).toErrorDev(
         'Base UI: A component is changing the default value state of an uncontrolled TestComponent after being initialized.',
       );
