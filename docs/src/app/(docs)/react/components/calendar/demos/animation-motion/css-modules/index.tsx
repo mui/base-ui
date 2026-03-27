@@ -1,32 +1,33 @@
 'use client';
 import * as React from 'react';
+import clsx from 'clsx';
 import { format } from 'date-fns/format';
 import { Calendar } from '@base-ui/react/calendar';
 import { motion } from 'motion/react';
 import styles from '../../calendar.module.css';
-
-const transition = {
-  duration: 0.2,
-  ease: [0.22, 1, 0.36, 1] as const,
-};
+import indexStyles from '../../animation/css-modules/index.module.css';
 
 export default function AnimatedCalendarWithMotion() {
   return (
-    <Calendar.Root className={styles.Root}>
+    <Calendar.Root className={clsx(styles.Root, indexStyles.Root)}>
       {({ visibleDate }) => (
         <React.Fragment>
           <header className={styles.Header}>
             <Calendar.DecrementMonth className={styles.DecrementMonth}>
               <ChevronLeftIcon />
             </Calendar.DecrementMonth>
-            <motion.span layout transition={transition} className={styles.HeaderLabel}>
-              {format(visibleDate, 'MMMM yyyy')}
-            </motion.span>
+            <div className={indexStyles.HeaderLabelWrapper}>
+              <Calendar.Viewport>
+                <motion.span className={clsx(styles.HeaderLabel, indexStyles.HeaderLabel)}>
+                  {format(visibleDate, 'MMMM yyyy')}
+                </motion.span>
+              </Calendar.Viewport>
+            </div>
             <Calendar.IncrementMonth className={styles.IncrementMonth}>
               <ChevronRightIcon />
             </Calendar.IncrementMonth>
           </header>
-          <Calendar.DayGrid className={styles.DayGrid}>
+          <Calendar.DayGrid className={clsx(styles.DayGrid, indexStyles.DayGrid)}>
             <Calendar.DayGridHeader className={styles.DayGridHeader}>
               <Calendar.DayGridHeaderRow className={styles.DayGridHeaderRow}>
                 {(day) => (
@@ -38,30 +39,30 @@ export default function AnimatedCalendarWithMotion() {
                 )}
               </Calendar.DayGridHeaderRow>
             </Calendar.DayGridHeader>
-            <Calendar.DayGridBody
-              className={styles.DayGridBody}
-              render={<motion.tbody layout transition={transition} />}
-            >
-              {(week) => (
-                <Calendar.DayGridRow
-                  value={week}
-                  key={week.getTime()}
-                  className={styles.DayGridRow}
-                  render={<motion.tr layout transition={transition} />}
-                >
-                  {(day) => (
-                    <Calendar.DayGridCell
-                      value={day}
-                      key={day.getTime()}
-                      className={styles.DayGridCell}
-                      render={<motion.td layout transition={transition} />}
-                    >
-                      <Calendar.DayButton className={styles.DayButton} />
-                    </Calendar.DayGridCell>
-                  )}
-                </Calendar.DayGridRow>
-              )}
-            </Calendar.DayGridBody>
+            <Calendar.Viewport>
+              <Calendar.DayGridBody
+                className={clsx(styles.DayGridBody, indexStyles.DayGridBody)}
+                render={<motion.tbody />}
+              >
+                {(week) => (
+                  <Calendar.DayGridRow
+                    value={week}
+                    key={week.getTime()}
+                    className={styles.DayGridRow}
+                  >
+                    {(day) => (
+                      <Calendar.DayGridCell
+                        value={day}
+                        key={day.getTime()}
+                        className={styles.DayGridCell}
+                      >
+                        <Calendar.DayButton className={styles.DayButton} />
+                      </Calendar.DayGridCell>
+                    )}
+                  </Calendar.DayGridRow>
+                )}
+              </Calendar.DayGridBody>
+            </Calendar.Viewport>
           </Calendar.DayGrid>
         </React.Fragment>
       )}
