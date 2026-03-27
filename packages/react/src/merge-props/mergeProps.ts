@@ -61,6 +61,10 @@ export function mergeProps<T extends ElementType>(
 ): PropsOf<T>;
 export function mergeProps<T extends ElementType>(a: InputProps<T>, b: InputProps<T>): PropsOf<T>;
 export function mergeProps(a: any, b: any, c?: any, d?: any, e?: any) {
+  if (!c && !d && !e && !a) {
+    return createInitialMergedProps(b);
+  }
+
   // We need to mutably own `merged`.
   let merged = createInitialMergedProps(a);
 
@@ -118,7 +122,7 @@ function createInitialMergedProps<T extends ElementType>(inputProps: InputProps<
     return { ...resolvePropsGetter(inputProps, EMPTY_PROPS) };
   }
 
-  return mutablyMergeInto({}, inputProps);
+  return copyInitialProps(inputProps);
 }
 
 function mergeInto<T extends ElementType>(merged: Record<string, any>, inputProps: InputProps<T>) {
@@ -126,6 +130,21 @@ function mergeInto<T extends ElementType>(merged: Record<string, any>, inputProp
     return resolvePropsGetter(inputProps, merged as PropsOf<T>);
   }
   return mutablyMergeInto(merged, inputProps);
+}
+
+function copyInitialProps<T extends ElementType>(
+  inputProps: React.ComponentPropsWithRef<T> | undefined,
+) {
+  const copiedProps = { ...inputProps } as Record<string, any>;
+
+  for (const propName in copiedProps) {
+    const propValue = copiedProps[propName];
+    if (isEventHandler(propName, propValue)) {
+      copiedProps[propName] = wrapEventHandler(propValue);
+    }
+  }
+
+  return copiedProps;
 }
 
 /**
