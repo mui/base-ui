@@ -20,7 +20,7 @@ function CustomCombobox(props: { items: Priority[] }) {
         <Combobox.Positioner align="start" sideOffset={4} disableAnchorTracking={true}>
           <Combobox.Popup className={styles.Popup} aria-label="Select priority">
             <div className={styles.InputRow}>
-              <Combobox.Input placeholder="Set priority to..." className={styles.Input} />
+              <Combobox.Input placeholder="Set priority to…" className={styles.Input} />
               <div className={styles.ShortcutKey}>P</div>
             </div>
             <Combobox.Separator className={styles.Separator} />
