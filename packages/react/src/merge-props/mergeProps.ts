@@ -137,6 +137,8 @@ function copyInitialProps<T extends ElementType>(
 ) {
   const copiedProps = { ...inputProps } as Record<string, any>;
 
+  // `copiedProps` is our fresh own-object copy, so iterating with `for...in` is safe here.
+  // eslint-disable-next-line guard-for-in
   for (const propName in copiedProps) {
     const propValue = copiedProps[propName];
     if (isEventHandler(propName, propValue)) {
