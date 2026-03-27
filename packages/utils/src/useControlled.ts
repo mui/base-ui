@@ -90,6 +90,10 @@ if (process.env.NODE_ENV !== 'production') {
       return false;
     }
 
+    if (a instanceof Date || a instanceof RegExp) {
+      return a.toString() === b.toString();
+    }
+
     // Convert Maps/Sets to Arrays to "cheat" and use the same logic
     const arrA = a instanceof Set || a instanceof Map ? Array.from(a) : null;
     const arrB = b instanceof Set || b instanceof Map ? Array.from(b) : null;
@@ -110,6 +114,7 @@ if (process.env.NODE_ENV !== 'production') {
 
     // Standard Array/Object logic
     const keys = Object.keys(a);
+
     if (keys.length !== Object.keys(b).length) {
       return false;
     }

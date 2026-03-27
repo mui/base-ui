@@ -4,13 +4,13 @@ import { act, createRenderer } from '@mui/internal-test-utils';
 import { useControlled } from './useControlled';
 
 interface TestComponentChildrenArgument {
-  value: number | string | object;
+  value: number | string | object | null;
   setValue: React.Dispatch<React.SetStateAction<number | string>>;
 }
 
 interface TestComponentProps {
   value?: number | string;
-  defaultValue?: number | string | object;
+  defaultValue?: number | string | object | null;
   children: (parames: TestComponentChildrenArgument) => React.ReactNode;
 }
 
@@ -263,6 +263,48 @@ describe('useControlled', () => {
 
       const s1 = new Set().add('a').add('b');
       const s2 = new Set().add('a').add('b').add('c');
+
+      expect(() => {
+        ({ setProps } = render(<TestComponent defaultValue={s1}>{() => null}</TestComponent>));
+      }).not.toErrorDev();
+
+      expect(() => {
+        setProps({ defaultValue: s2 });
+      }).toErrorDev(
+        'Base UI: A component is changing the default value state of an uncontrolled TestComponent after being initialized.',
+      );
+
+      expect(() => {
+        setProps({ defaultValue: s1 });
+      }).not.toErrorDev();
+    });
+
+    it('should warn only when defaultValue has Date and changes', () => {
+      let setProps: (newProps: any) => void;
+
+      const d1 = new Date(Date.now());
+      const d2 = new Date(Date.now() - 1000); // date.toString() not returning milliseconds, so we need to make them more diverse
+
+      expect(() => {
+        ({ setProps } = render(<TestComponent defaultValue={d1}>{() => null}</TestComponent>));
+      }).not.toErrorDev();
+
+      expect(() => {
+        setProps({ defaultValue: d2 });
+      }).toErrorDev(
+        'Base UI: A component is changing the default value state of an uncontrolled TestComponent after being initialized.',
+      );
+
+      expect(() => {
+        setProps({ defaultValue: d1 });
+      }).not.toErrorDev();
+    });
+
+    it('should not fail on null values', () => {
+      let setProps: (newProps: any) => void;
+
+      const s1 = null;
+      const s2 = undefined;
 
       expect(() => {
         ({ setProps } = render(<TestComponent defaultValue={s1}>{() => null}</TestComponent>));
