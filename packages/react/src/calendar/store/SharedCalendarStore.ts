@@ -33,9 +33,10 @@ export interface CalendarDayGridFocusRequest {
   amount: number;
   decrement: boolean;
   guessedIndex: number;
+  id: symbol;
   offset: number;
+  renderedMonth: TemporalSupportedObject;
   sourceItemMap: Map<Node, unknown>;
-  visibleMonth: TemporalSupportedObject;
 }
 
 /**

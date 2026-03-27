@@ -151,19 +151,28 @@ export function useSharedCalendarDayGridBody(
   );
 
   const setPendingFocusRequest = (
-    visibleMonthToFocus: TemporalSupportedObject,
+    renderedMonthToFocus: TemporalSupportedObject,
     guessedIndex: number,
     decrement: boolean,
     amount: number,
   ) => {
+    const requestId = Symbol();
+
     store.context.pendingDayGridFocusRequest = {
       amount,
       decrement,
       guessedIndex,
+      id: requestId,
       offset,
+      renderedMonth: renderedMonthToFocus,
       sourceItemMap: itemMap,
-      visibleMonth: visibleMonthToFocus,
     };
+
+    queueMicrotask(() => {
+      if (store.context.pendingDayGridFocusRequest?.id === requestId) {
+        store.context.pendingDayGridFocusRequest = undefined;
+      }
+    });
   };
 
   useIsoLayoutEffect(() => {
@@ -171,7 +180,7 @@ export function useSharedCalendarDayGridBody(
     if (
       pendingFocusRequest &&
       pendingFocusRequest.offset === offset &&
-      adapter.isSameMonth(pendingFocusRequest.visibleMonth, month) &&
+      adapter.isSameMonth(pendingFocusRequest.renderedMonth, month) &&
       pendingFocusRequest.sourceItemMap !== itemMap &&
       itemMap.size > 0
     ) {
@@ -277,7 +286,7 @@ export function useSharedCalendarDayGridBody(
           searchDecrement = false;
         }
 
-        setPendingFocusRequest(targetMonth, sameDayInNewMonthIndex, searchDecrement, 1);
+        setPendingFocusRequest(newMonth, sameDayInNewMonthIndex, searchDecrement, 1);
 
         const eventDetails = store.setVisibleDateAndGetDetails(
           targetMonth,
@@ -339,7 +348,7 @@ export function useSharedCalendarDayGridBody(
     }
 
     setPendingFocusRequest(
-      targetMonth,
+      newMonth,
       guessedIndex,
       decrement,
       HORIZONTAL_KEYS.has(eventKey) ? 1 : 7,
