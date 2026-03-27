@@ -15,6 +15,14 @@ it('includes basic tabbable controls and excludes hidden inputs', () => {
   expect(tabbable(document.body)).toEqual([button, input]);
 });
 
+it('includes embedded focusable elements in the tab order', () => {
+  const iframe = document.createElement('iframe');
+
+  document.body.append(iframe);
+
+  expect(tabbable(document.body)).toContain(iframe);
+});
+
 it('excludes disabled controls from the tab order', () => {
   const enabledButton = document.createElement('button');
   const disabledButton = document.createElement('button');
