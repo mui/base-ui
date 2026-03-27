@@ -1,33 +1,29 @@
 'use client';
 import * as React from 'react';
-import clsx from 'clsx';
 import { format } from 'date-fns/format';
 import { Calendar } from '@base-ui/react/calendar';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import styles from '../../calendar.module.css';
-import indexStyles from '../../animation/css-modules/index.module.css';
 
 export default function AnimatedCalendarWithMotion() {
   return (
-    <Calendar.Root className={clsx(styles.Root, indexStyles.Root)}>
+    <Calendar.Root className={styles.Root}>
       {({ visibleDate }) => (
         <React.Fragment>
           <header className={styles.Header}>
             <Calendar.DecrementMonth className={styles.DecrementMonth}>
               <ChevronLeftIcon />
             </Calendar.DecrementMonth>
-            <div className={indexStyles.HeaderLabelWrapper}>
-              <Calendar.Viewport>
-                <motion.span className={clsx(styles.HeaderLabel, indexStyles.HeaderLabel)}>
-                  {format(visibleDate, 'MMMM yyyy')}
-                </motion.span>
-              </Calendar.Viewport>
-            </div>
+            <AnimatePresence initial={false} mode="popLayout">
+              <motion.span layout className={styles.HeaderLabel}>
+                {format(visibleDate, 'MMMM yyyy')}
+              </motion.span>
+            </AnimatePresence>
             <Calendar.IncrementMonth className={styles.IncrementMonth}>
               <ChevronRightIcon />
             </Calendar.IncrementMonth>
           </header>
-          <Calendar.DayGrid className={clsx(styles.DayGrid, indexStyles.DayGrid)}>
+          <Calendar.DayGrid className={styles.DayGrid}>
             <Calendar.DayGridHeader className={styles.DayGridHeader}>
               <Calendar.DayGridHeaderRow className={styles.DayGridHeaderRow}>
                 {(day) => (
@@ -39,10 +35,17 @@ export default function AnimatedCalendarWithMotion() {
                 )}
               </Calendar.DayGridHeaderRow>
             </Calendar.DayGridHeader>
-            <Calendar.Viewport>
+            <AnimatePresence initial={false} mode="popLayout">
               <Calendar.DayGridBody
-                className={clsx(styles.DayGridBody, indexStyles.DayGridBody)}
-                render={<motion.tbody />}
+                key={`${visibleDate.getUTCFullYear()}-${visibleDate.getMonth()}`}
+                className={styles.DayGridBody}
+                render={
+                  <motion.tbody
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0 }}
+                  />
+                }
               >
                 {(week) => (
                   <Calendar.DayGridRow
@@ -62,7 +65,7 @@ export default function AnimatedCalendarWithMotion() {
                   </Calendar.DayGridRow>
                 )}
               </Calendar.DayGridBody>
-            </Calendar.Viewport>
+            </AnimatePresence>
           </Calendar.DayGrid>
         </React.Fragment>
       )}
