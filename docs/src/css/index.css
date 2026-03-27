@@ -152,6 +152,12 @@
 /* Undo `tailwindcss/preflight` in non-Tailwind demos. */
 
 @layer base {
+  /* Undo Die Grotesk OpenType features in demos and regression tests */
+  [data-demo],
+  [data-testid='testcase'] {
+    font-feature-settings: normal;
+  }
+
   [data-demo]:not([data-demo='tailwind']) * {
     all: revert-layer;
   }
@@ -282,6 +288,10 @@
     -moz-osx-font-smoothing: grayscale;
     /* Stable scrollbar */
     overflow-y: scroll;
+    /* Die Grotesk OpenType features */
+    font-feature-settings:
+      'ss02' 1,
+      'zero' 1;
   }
 
   /* Debugging red text? You just forgot to set or inherit color in your demo. */

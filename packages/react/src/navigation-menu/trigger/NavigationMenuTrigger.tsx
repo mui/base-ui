@@ -2,7 +2,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { isTabbable } from 'tabbable';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -27,6 +26,7 @@ import {
   getTabbableAfterElement,
   getNextTabbable,
   getPreviousTabbable,
+  isTabbable,
   isOutsideEvent,
   stopEvent,
 } from '../../floating-ui-react/utils';

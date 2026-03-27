@@ -3,7 +3,9 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { contains, isElementVisible, stopEvent } from '../utils';
+import { contains } from '../utils/element';
+import { stopEvent } from '../utils/event';
+import { isElementVisible } from '../utils/composite';
 
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 

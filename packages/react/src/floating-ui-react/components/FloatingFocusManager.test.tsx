@@ -117,6 +117,29 @@ function App(
   );
 }
 
+function RadioApp() {
+  const [open, setOpen] = React.useState(false);
+  const { refs, context } = useFloating({
+    open,
+    onOpenChange: setOpen,
+  });
+
+  return (
+    <>
+      <button data-testid="reference" ref={refs.setReference} onClick={() => setOpen(!open)} />
+      {open && (
+        <FloatingFocusManager context={context}>
+          <div role="dialog" ref={refs.setFloating}>
+            <input type="radio" name="group" data-testid="radio-one" />
+            <input type="radio" name="group" defaultChecked data-testid="radio-two" />
+            <button data-testid="after-radio">after</button>
+          </div>
+        </FloatingFocusManager>
+      )}
+    </>
+  );
+}
+
 interface DialogProps {
   open?: boolean;
   render: (props: { close: () => void }) => React.ReactNode;
@@ -168,6 +191,15 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
       await flushMicrotasks();
 
       expect(screen.getByTestId('one')).toHaveFocus();
+    });
+
+    test('default behavior focuses the checked radio in a named group', async () => {
+      render(<RadioApp />);
+
+      fireEvent.click(screen.getByTestId('reference'));
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('radio-two')).toHaveFocus();
     });
 
     test('ref', async () => {
