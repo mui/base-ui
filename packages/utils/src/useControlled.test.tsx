@@ -4,13 +4,13 @@ import { act, createRenderer } from '@mui/internal-test-utils';
 import { useControlled } from './useControlled';
 
 interface TestComponentChildrenArgument {
-  value: number | string;
+  value: number | string | object;
   setValue: React.Dispatch<React.SetStateAction<number | string>>;
 }
 
 interface TestComponentProps {
   value?: number | string;
-  defaultValue?: number | string;
+  defaultValue?: number | string | object;
   children: (parames: TestComponentChildrenArgument) => React.ReactNode;
 }
 
@@ -177,6 +177,44 @@ describe('useControlled', () => {
 
       expect(() => {
         setProps({ defaultValue: 0 });
+      }).not.toErrorDev();
+    });
+
+    it('should warn only when defaultValue has functions/components and changes', () => {
+      let setProps: (newProps: any) => void;
+
+      const items = [
+        {
+          item: <span />,
+        },
+        {
+          item: () => 100,
+        },
+        {
+          item: <div />,
+        },
+      ];
+
+      expect(() => {
+        ({ setProps } = render(
+          <TestComponent defaultValue={items[0]}>{() => null}</TestComponent>,
+        ));
+      }).not.toErrorDev();
+
+      expect(() => {
+        setProps({ defaultValue: items[1] });
+      }).toErrorDev(
+        'Base UI: A component is changing the default value state of an uncontrolled TestComponent after being initialized.',
+      );
+
+      expect(() => {
+        setProps({ defaultValue: items[2] });
+      }).toErrorDev(
+        'Base UI: A component is changing the default value state of an uncontrolled TestComponent after being initialized.',
+      );
+
+      expect(() => {
+        setProps({ defaultValue: items[0] });
       }).not.toErrorDev();
     });
   });
