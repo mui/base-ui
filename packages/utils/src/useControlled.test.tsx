@@ -139,12 +139,31 @@ describe('useControlled', () => {
       }).not.toErrorDev();
     });
 
-    it('does not throw - Converting circular structure to JSON', () => {
+    it('does not throw when defaultValue has React elements', () => {
       function TestComponentArray() {
         useControlled({
           controlled: undefined,
           default: {
-            icon: <span />,
+            value: <span />,
+          },
+          name: 'TestComponent',
+        });
+        return null;
+      }
+
+      expect(() => {
+        render(<TestComponentArray />);
+      }).not.toErrorDev();
+    });
+
+    it('does not throw when defaultValue has function', () => {
+      const fn = () => 100;
+
+      function TestComponentArray() {
+        useControlled({
+          controlled: undefined,
+          default: {
+            value: fn,
           },
           name: 'TestComponent',
         });
@@ -215,6 +234,27 @@ describe('useControlled', () => {
 
       expect(() => {
         setProps({ defaultValue: items[0] });
+      }).not.toErrorDev();
+    });
+
+    it('should warn only when defaultValue has Map and changes', () => {
+      let setProps: (newProps: any) => void;
+
+      const m1 = new Map().set('a', 1).set('b', 2);
+      const m2 = new Map().set('a', 1).set('b', 2).set('c', 3);
+
+      expect(() => {
+        ({ setProps } = render(<TestComponent defaultValue={m1}>{() => null}</TestComponent>));
+      }).not.toErrorDev();
+
+      expect(() => {
+        setProps({ defaultValue: m2 });
+      }).toErrorDev(
+        'Base UI: A component is changing the default value state of an uncontrolled TestComponent after being initialized.',
+      );
+
+      expect(() => {
+        setProps({ defaultValue: m1 });
       }).not.toErrorDev();
     });
   });
