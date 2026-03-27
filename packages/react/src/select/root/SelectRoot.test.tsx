@@ -1154,6 +1154,70 @@ describe('<Select.Root />', () => {
     });
   });
 
+  describe('scroll arrows', () => {
+    it('normalizes overlapping fractional scroll ranges when toggling scroll arrow visibility', async () => {
+      let scrollTop = 0.4;
+
+      await render(
+        <Select.Root open>
+          <Select.Trigger>Open</Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner alignItemWithTrigger={false}>
+              <Select.Popup>
+                <Select.ScrollUpArrow keepMounted />
+                <Select.List
+                  ref={(node) => {
+                    if (!node) {
+                      return;
+                    }
+
+                    Object.defineProperty(node, 'scrollTop', {
+                      configurable: true,
+                      get: () => scrollTop,
+                      set: (value: number) => {
+                        scrollTop = value;
+                      },
+                    });
+                    Object.defineProperty(node, 'scrollHeight', {
+                      value: 60.6,
+                      configurable: true,
+                    });
+                    Object.defineProperty(node, 'clientHeight', {
+                      value: 60,
+                      configurable: true,
+                    });
+                  }}
+                >
+                  <Select.Item value="one">One</Select.Item>
+                  <Select.Item value="two">Two</Select.Item>
+                  <Select.Item value="three">Three</Select.Item>
+                </Select.List>
+                <Select.ScrollDownArrow keepMounted />
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const list = screen.getByRole('listbox');
+      const upArrow = screen.getByText('▲');
+      const downArrow = screen.getByText('▼');
+
+      await waitFor(() => {
+        expect(upArrow).toHaveAttribute('data-visible');
+        expect(downArrow).not.toHaveAttribute('data-visible');
+      });
+
+      scrollTop = 0.2;
+      fireEvent.scroll(list);
+
+      await waitFor(() => {
+        expect(upArrow).not.toHaveAttribute('data-visible');
+        expect(downArrow).toHaveAttribute('data-visible');
+      });
+    });
+  });
+
   describe.skipIf(isJSDOM)('select inside popover', () => {
     it('keeps the popover open when selecting via drag-to-select', async () => {
       ignoreActWarnings();

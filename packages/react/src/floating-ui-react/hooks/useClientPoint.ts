@@ -2,7 +2,8 @@
 import * as React from 'react';
 import { getWindow } from '@floating-ui/utils/dom';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { contains, getTarget, isMouseLikePointerType } from '../utils';
+import { contains, getTarget } from '../utils/element';
+import { isMouseLikePointerType } from '../utils/event';
 
 import type { ContextData, ElementProps, FloatingContext, FloatingRootContext } from '../types';
 
