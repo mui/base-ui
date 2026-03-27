@@ -179,6 +179,79 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       expect(onRemoveSpy).toHaveBeenCalledTimes(0);
     });
 
+    it('calls onRemove once after replacing an ending toast and later removing the replacement', async () => {
+      const onRemoveSpy = vi.fn();
+
+      function Buttons() {
+        const { add, close, toasts } = useToastManager();
+        const toastIdRef = React.useRef<string | null>(null);
+        const [showViewport, setShowViewport] = React.useState(false);
+
+        return (
+          <React.Fragment>
+            {showViewport ? (
+              <Toast.Viewport>
+                <List />
+              </Toast.Viewport>
+            ) : null}
+            <button
+              onClick={() => {
+                toastIdRef.current = add({
+                  id: 'save',
+                  title: 'Saving...',
+                  timeout: 0,
+                  onRemove: onRemoveSpy,
+                });
+              }}
+            >
+              add
+            </button>
+            <button
+              onClick={() => {
+                if (toastIdRef.current) {
+                  close(toastIdRef.current);
+                }
+              }}
+            >
+              close
+            </button>
+            <button
+              onClick={() => {
+                toastIdRef.current = add({
+                  id: 'save',
+                  title: 'Saved',
+                  timeout: 0,
+                  onRemove: onRemoveSpy,
+                });
+              }}
+            >
+              re-add
+            </button>
+            <button onClick={() => setShowViewport(true)}>show viewport</button>
+            <div data-testid="toast-count">{toasts.length}</div>
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <Buttons />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      fireEvent.click(screen.getByRole('button', { name: 'close' }));
+      fireEvent.click(screen.getByRole('button', { name: 're-add' }));
+
+      expect(screen.getByTestId('toast-count')).toHaveTextContent('1');
+      expect(onRemoveSpy).toHaveBeenCalledTimes(0);
+
+      fireEvent.click(screen.getByRole('button', { name: 'show viewport' }));
+      fireEvent.click(screen.getByRole('button', { name: 'close' }));
+
+      expect(onRemoveSpy).toHaveBeenCalledTimes(1);
+    });
+
     it('ignores transitionStatus when upserting an existing toast', async () => {
       function Buttons() {
         const { add, toasts } = useToastManager();

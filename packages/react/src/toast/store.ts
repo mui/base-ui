@@ -18,7 +18,7 @@ type UpdateToastBehavior = {
   markUpdated?: boolean | undefined;
 };
 type RemoveToastBehavior = {
-  callOnRemove?: boolean | undefined;
+  skipOnRemove?: boolean | undefined;
 };
 
 export type State = {
@@ -130,7 +130,7 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     }
 
     const toast = this.state.toasts[index];
-    if (behavior.callOnRemove ?? true) {
+    if (!behavior.skipOnRemove) {
       toast?.onRemove?.();
     }
 
@@ -148,7 +148,7 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
 
       if (existingToast) {
         if (existingToast.transitionStatus === 'ending') {
-          this.removeToast(toast.id, { callOnRemove: false });
+          this.removeToast(toast.id, { skipOnRemove: true });
         } else {
           const { id: ignoredId, transitionStatus: ignoredTransitionStatus, ...updates } = toast;
           this.updateToastInternal(toast.id, updates, {
@@ -226,11 +226,9 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     const nextToast: ToastObject<Data> = {
       ...prevToast,
       ...updates,
-      ...(behavior.markUpdated
-        ? {
-            updateKey: (prevToast.updateKey ?? 0) + 1,
-          }
-        : {}),
+      ...(behavior.markUpdated && {
+        updateKey: (prevToast.updateKey ?? 0) + 1,
+      }),
     };
 
     this.setToasts(toasts.map((toast) => (toast.id === id ? nextToast : toast)));
