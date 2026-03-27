@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { REASONS } from '../../utils/reasons';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
@@ -42,7 +43,6 @@ export function useSharedCalendarDayGridBody(
   const visibleMonth = useStore(store, selectors.visibleMonth);
   const timezone = useStore(store, selectors.timezoneToRender);
   const ref = React.useRef<HTMLTableSectionElement>(null);
-  const [highlightedIndex, setHighlightedIndex] = React.useState(0);
 
   const nowValue = adapter.now(timezone);
   const todayRef = React.useRef(nowValue);
@@ -54,6 +54,20 @@ export function useSharedCalendarDayGridBody(
   const month = React.useMemo(() => {
     return offset === 0 ? visibleMonth : adapter.addMonths(visibleMonth, offset);
   }, [adapter, visibleMonth, offset]);
+
+  const [highlightedIndex, setHighlightedIndex] = React.useState(() => {
+    const pendingFocusRequest = store.context.pendingDayGridFocusRequest;
+    if (
+      pendingFocusRequest &&
+      pendingFocusRequest.offset === offset &&
+      adapter.isSameMonth(pendingFocusRequest.renderedMonth, month)
+    ) {
+      return pendingFocusRequest.guessedIndex;
+    }
+
+    return 0;
+  });
+  const clearPendingFocusRequestTimeout = useTimeout();
 
   const getWeekList = useCalendarWeekList();
   const weeks = React.useMemo(
@@ -167,8 +181,7 @@ export function useSharedCalendarDayGridBody(
       renderedMonth: renderedMonthToFocus,
       sourceItemMap: itemMap,
     };
-
-    queueMicrotask(() => {
+    clearPendingFocusRequestTimeout.start(0, () => {
       if (store.context.pendingDayGridFocusRequest?.id === requestId) {
         store.context.pendingDayGridFocusRequest = undefined;
       }

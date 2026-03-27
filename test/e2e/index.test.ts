@@ -229,6 +229,29 @@ describe('e2e', () => {
     });
   });
 
+  describe('<Calendar />', () => {
+    it('preserves focus after an animated viewport transition settles', async () => {
+      await renderFixture('calendar/AnimatedViewport');
+
+      await page.getByTestId('next-month').click();
+
+      const aprilSeventh = page.getByRole('button', { name: 'Tuesday, April 7th, 2026' });
+      await aprilSeventh.focus();
+      await expect(aprilSeventh).toBeFocused();
+
+      await page.keyboard.press('ArrowUp');
+      await page.waitForTimeout(300);
+
+      const activeElementLabel = await page.evaluate(() => {
+        return (
+          document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.tagName
+        );
+      });
+
+      expect(activeElementLabel).toBe('Tuesday, March 31st, 2026');
+    }, 5000);
+  });
+
   describe('<Menu />', () => {
     describe('<Menu.LinkItem />', () => {
       it('navigates on click', async () => {
