@@ -1,7 +1,7 @@
 import { expect } from 'vitest';
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Select.Popup />', () => {
@@ -161,6 +161,91 @@ describe('<Select.Popup />', () => {
       docEl.style.zoom = previousZoom;
     }
   });
+
+  it.skipIf(isJSDOM)(
+    'keeps scrolling the aligned list at browser zoom after the popup fills the available height',
+    async () => {
+      const docEl = document.documentElement;
+      const previousZoom = docEl.style.zoom;
+      const createRect = (left: number, top: number, width: number, height: number) => ({
+        x: left,
+        y: top,
+        left,
+        top,
+        width,
+        height,
+        right: left + width,
+        bottom: top + height,
+        toJSON: () => ({}),
+      });
+
+      try {
+        docEl.style.zoom = '0.9';
+
+        await render(
+          <div style={{ paddingTop: 100, paddingLeft: 10 }}>
+            <Select.Root open defaultValue="item-1">
+              <Select.Trigger data-testid="trigger" style={{ width: 108, height: 30 }}>
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner data-testid="positioner">
+                  <Select.Popup data-testid="popup" style={{ maxHeight: '225.538px' }}>
+                    <Select.List data-testid="list">
+                      <Select.Item value="item-1">Item 1</Select.Item>
+                      <Select.Item value="item-2">Item 2</Select.Item>
+                    </Select.List>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>,
+        );
+
+        const positioner = screen.getByTestId('positioner');
+        const list = screen.getByTestId('list');
+
+        await waitFor(() => {
+          expect(positioner).toHaveAttribute('data-side', 'none');
+        });
+
+        let scrollTop = 0;
+
+        Object.defineProperty(positioner, 'getBoundingClientRect', {
+          value: () => createRect(10, 0, 108, 202.984375),
+          configurable: true,
+        });
+        Object.defineProperty(list, 'scrollTop', {
+          configurable: true,
+          get: () => scrollTop,
+          set: (value: number) => {
+            scrollTop = value;
+          },
+        });
+        Object.defineProperty(list, 'scrollHeight', {
+          value: 598,
+          configurable: true,
+        });
+        Object.defineProperty(list, 'clientHeight', {
+          value: 226,
+          configurable: true,
+        });
+
+        positioner.style.height = '225.538px';
+        positioner.style.bottom = '0px';
+
+        list.scrollTop = 14;
+        fireEvent.scroll(list);
+
+        await waitFor(() => {
+          expect(scrollTop).toBe(14);
+          expect(positioner.style.height).toBe('226px');
+        });
+      } finally {
+        docEl.style.zoom = previousZoom;
+      }
+    },
+  );
 
   it.skipIf(isJSDOM)(
     'treats short popups as top-positioned when maxScrollTop is off by 1px',
