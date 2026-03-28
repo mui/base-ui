@@ -285,6 +285,17 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     );
   }
 
+  const finishSwipeInteraction = useStableCallback(() => {
+    swipeStartEventRef.current = null;
+    openedBySwipeRef.current = false;
+    setSwipeActive(false);
+    closedOffsetRef.current = null;
+
+    enableDismissAfterRelease();
+    resetDragDelta();
+    clearSwipeStyles();
+  });
+
   const swipe = useSwipeDismiss({
     enabled,
     directions: [resolvedSwipeDirection],
@@ -353,16 +364,12 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
         closeDrawer(event);
       }
 
-      swipeStartEventRef.current = null;
-      openedBySwipeRef.current = false;
-      setSwipeActive(false);
-      closedOffsetRef.current = null;
-
-      enableDismissAfterRelease();
-      resetDragDelta();
-      clearSwipeStyles();
+      finishSwipeInteraction();
 
       return false;
+    },
+    onCancel() {
+      finishSwipeInteraction();
     },
   });
 
