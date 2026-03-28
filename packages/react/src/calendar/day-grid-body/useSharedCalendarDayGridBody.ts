@@ -4,7 +4,6 @@ import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
-import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { REASONS } from '../../utils/reasons';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
@@ -31,11 +30,25 @@ import {
   PAGE_DOWN,
 } from '../../composite/composite';
 import { validateDate } from '../../utils/temporal/validateDate';
-import { activeElement } from '../../floating-ui-react/utils/shadowDom';
+import { activeElement, contains } from '../../floating-ui-react/utils/shadowDom';
 
 const BACKWARD_KEYS = new Set([ARROW_UP, ARROW_LEFT]);
 const CUSTOM_NAVIGATION_KEYS = new Set([HOME, END, PAGE_UP, PAGE_DOWN]);
 const FOCUS_SETTLE_FRAME_COUNT = 2;
+
+function getDisabledIndices(
+  itemMap: Map<Node, CompositeMetadata<UseSharedCalendarDayGridBodyItemMetadata> | null>,
+) {
+  const output: number[] = [];
+
+  for (const meta of itemMap.values()) {
+    if (meta?.index != null && !meta.focusable) {
+      output.push(meta.index);
+    }
+  }
+
+  return output;
+}
 
 export function useSharedCalendarDayGridBody(
   parameters: UseSharedCalendarDayGridBodyParameters,
@@ -71,12 +84,8 @@ export function useSharedCalendarDayGridBody(
 
     return 0;
   });
-  const clearPendingFocusRequestTimeout = useTimeout();
   const fulfillPendingFocusRequestFrame = useAnimationFrame();
-  const pendingVerticalArrowScrollGuardRef = React.useRef<{
-    cleanup: () => void;
-    id: symbol;
-  } | null>(null);
+  const pendingFocusRequestCleanupRef = React.useRef<(() => void) | null>(null);
 
   const getWeekList = useCalendarWeekList();
   const weeks = React.useMemo(
@@ -92,21 +101,17 @@ export function useSharedCalendarDayGridBody(
     return children;
   }, [children, weeks]);
 
-  const [itemMap, setItemMap] = React.useState(
-    () => new Map<Node, CompositeMetadata<UseSharedCalendarDayGridBodyItemMetadata> | null>(),
-  );
+  const [{ id: itemMapId, map: itemMap }, setItemMapState] = React.useState(() => ({
+    id: Symbol(),
+    map: new Map<Node, CompositeMetadata<UseSharedCalendarDayGridBodyItemMetadata> | null>(),
+  }));
 
   const items = React.useMemo(() => Array.from(itemMap.keys()) as HTMLElement[], [itemMap]);
 
   const prevDisabledIndicesRef = React.useRef<number[]>([]);
 
   const disabledIndices = React.useMemo(() => {
-    const output: number[] = [];
-    for (const itemMetadata of itemMap.values()) {
-      if (itemMetadata?.index != null && !itemMetadata.focusable) {
-        output.push(itemMetadata.index);
-      }
-    }
+    const output = getDisabledIndices(itemMap);
     if (areArraysEqual(prevDisabledIndicesRef.current, output)) {
       return prevDisabledIndicesRef.current;
     }
@@ -115,7 +120,7 @@ export function useSharedCalendarDayGridBody(
   }, [itemMap]);
 
   const handleItemMapUpdate = (newMap: typeof itemMap) => {
-    setItemMap(newMap);
+    setItemMapState({ id: Symbol(), map: newMap });
   };
 
   const findNonDisabledItem = (
@@ -181,27 +186,18 @@ export function useSharedCalendarDayGridBody(
     focusNonDisabledItem(elements, disabledIndices, newHighlightedIndex, decrement, amount);
   };
 
-  const cleanupPendingFocusRequestEffect = useStableCallback((requestId?: symbol) => {
-    fulfillPendingFocusRequestFrame.cancel();
-
-    const currentGuard = pendingVerticalArrowScrollGuardRef.current;
-
-    if (currentGuard && (requestId == null || currentGuard.id === requestId)) {
-      currentGuard.cleanup();
-      pendingVerticalArrowScrollGuardRef.current = null;
-    }
-  });
-
   const clearPendingFocusRequest = useStableCallback((requestId?: symbol) => {
-    cleanupPendingFocusRequestEffect(requestId);
-
-    if (requestId == null || store.context.pendingDayGridFocusRequest?.id === requestId) {
-      store.context.pendingDayGridFocusRequest = undefined;
+    if (requestId != null && store.context.pendingDayGridFocusRequest?.id !== requestId) {
+      return;
     }
+
+    pendingFocusRequestCleanupRef.current?.();
+    pendingFocusRequestCleanupRef.current = null;
+
+    store.context.pendingDayGridFocusRequest = undefined;
   });
 
   const setPendingFocusRequest = (
-    visibleMonthToFocus: TemporalSupportedObject,
     renderedMonthToFocus: TemporalSupportedObject,
     guessedIndex: number,
     decrement: boolean,
@@ -218,17 +214,8 @@ export function useSharedCalendarDayGridBody(
       id: requestId,
       offset,
       renderedMonth: renderedMonthToFocus,
-      visibleMonthToFocus,
-      sourceItemMap: itemMap,
+      sourceItemMapId: itemMapId,
     };
-    clearPendingFocusRequestTimeout.start(0, () => {
-      if (
-        store.context.pendingDayGridFocusRequest?.id === requestId &&
-        !adapter.isSameMonth(store.state.visibleDate, visibleMonthToFocus)
-      ) {
-        clearPendingFocusRequest(requestId);
-      }
-    });
   };
 
   useIsoLayoutEffect(() => {
@@ -237,102 +224,96 @@ export function useSharedCalendarDayGridBody(
       pendingFocusRequest &&
       pendingFocusRequest.offset === offset &&
       adapter.isSameMonth(pendingFocusRequest.renderedMonth, month) &&
-      pendingFocusRequest.sourceItemMap !== itemMap &&
+      pendingFocusRequest.sourceItemMapId !== itemMapId &&
       itemMap.size > 0
     ) {
       const requestId = pendingFocusRequest.id;
+      const currentBody = ref.current;
+      if (!currentBody) {
+        return undefined;
+      }
+
       let settledFrameCount = 0;
-      const clearCurrentPendingFocusRequest = () => {
-        clearPendingFocusRequest(requestId);
-      };
-      const installPendingVerticalArrowScrollGuard = (body: HTMLTableSectionElement) => {
-        if (pendingVerticalArrowScrollGuardRef.current?.id === requestId) {
-          return;
+      const doc = ownerDocument(currentBody);
+      const win = ownerWindow(currentBody);
+      const currentDayGrid = currentBody.parentElement;
+      const newItems = Array.from(itemMap.keys()) as HTMLElement[];
+      const newDisabledIndices = getDisabledIndices(itemMap);
+      const targetItem = findNonDisabledItem(
+        newItems,
+        newDisabledIndices,
+        pendingFocusRequest.guessedIndex,
+        pendingFocusRequest.decrement,
+        pendingFocusRequest.amount,
+      );
+      let removePendingVerticalArrowScrollGuard: (() => void) | null = null;
+      const cleanupFocusEffect = () => {
+        fulfillPendingFocusRequestFrame.cancel();
+        removePendingVerticalArrowScrollGuard?.();
+        removePendingVerticalArrowScrollGuard = null;
+
+        if (pendingFocusRequestCleanupRef.current === cleanupFocusEffect) {
+          pendingFocusRequestCleanupRef.current = null;
         }
+      };
+      pendingFocusRequestCleanupRef.current = cleanupFocusEffect;
+      const preventVerticalArrowScroll = (event: KeyboardEvent) => {
+        if (
+          store.context.pendingDayGridFocusRequest?.id === requestId &&
+          (event.key === ARROW_UP || event.key === ARROW_DOWN)
+        ) {
+          event.preventDefault();
+        }
+      };
 
-        pendingVerticalArrowScrollGuardRef.current?.cleanup();
-        pendingVerticalArrowScrollGuardRef.current = null;
-
-        const doc = ownerDocument(body);
-        const preventVerticalArrowScroll = (event: KeyboardEvent) => {
-          if (store.context.pendingDayGridFocusRequest?.id !== requestId) {
-            return;
-          }
-
-          if (event.key === ARROW_UP || event.key === ARROW_DOWN) {
-            event.preventDefault();
-          }
-        };
-
-        doc.addEventListener('keydown', preventVerticalArrowScroll, true);
-        pendingVerticalArrowScrollGuardRef.current = {
-          cleanup: () => {
-            doc.removeEventListener('keydown', preventVerticalArrowScroll, true);
-          },
-          id: requestId,
-        };
+      doc.addEventListener('keydown', preventVerticalArrowScroll, true);
+      removePendingVerticalArrowScrollGuard = () => {
+        doc.removeEventListener('keydown', preventVerticalArrowScroll, true);
       };
 
       const attemptFocus = () => {
         if (store.context.pendingDayGridFocusRequest?.id !== requestId) {
-          clearCurrentPendingFocusRequest();
           return;
         }
 
-        const currentBody = ref.current;
-        if (!currentBody) {
-          fulfillPendingFocusRequestFrame.request(attemptFocus);
-          return;
-        }
-
-        installPendingVerticalArrowScrollGuard(currentBody);
-
-        const doc = ownerDocument(currentBody);
-        const win = ownerWindow(currentBody);
         const activeItem = activeElement(doc);
-        const newItems = Array.from(itemMap.keys()) as HTMLElement[];
-        const newDisabledIndices: number[] = [];
-
-        for (const meta of itemMap.values()) {
-          if (meta?.index != null && !meta.focusable) {
-            newDisabledIndices.push(meta.index);
-          }
-        }
-
-        const targetItem = findNonDisabledItem(
-          newItems,
-          newDisabledIndices,
-          pendingFocusRequest.guessedIndex,
-          pendingFocusRequest.decrement,
-          pendingFocusRequest.amount,
-        );
-
-        if (activeElement(doc) !== targetItem?.item) {
-          if (targetItem) {
-            setHighlightedIndex(targetItem.index);
-            targetItem.item?.focus();
-          }
-        }
-
-        const focusIsOnTargetItem = activeElement(doc) === targetItem?.item;
         const mountedDayGridBodyCount =
-          currentBody.parentElement == null
+          currentDayGrid == null
             ? 1
-            : Array.from(currentBody.parentElement.children).filter(
-                (child) => child.nodeName === 'TBODY',
-              ).length;
-        const shouldYieldToNewNavigation =
+            : Array.from(currentDayGrid.children).filter((child) => child.nodeName === 'TBODY')
+                .length;
+        const shouldAbandonStaleFocusRequest =
           activeItem instanceof win.HTMLElement &&
-          currentBody.contains(activeItem) &&
+          activeItem !== doc.body &&
+          activeItem !== doc.documentElement &&
+          currentDayGrid != null &&
+          !contains(currentDayGrid, activeItem);
+
+        if (shouldAbandonStaleFocusRequest) {
+          clearPendingFocusRequest(requestId);
+          return;
+        }
+
+        const shouldYieldToNewNavigation =
+          mountedDayGridBodyCount > 1 &&
+          activeItem instanceof win.HTMLElement &&
+          contains(currentBody, activeItem) &&
           activeItem !== targetItem?.item &&
           activeItem.tabIndex === 0;
 
-        if (mountedDayGridBodyCount > 1 && shouldYieldToNewNavigation) {
-          clearCurrentPendingFocusRequest();
+        if (shouldYieldToNewNavigation) {
+          clearPendingFocusRequest(requestId);
           return;
         }
 
-        if (!focusIsOnTargetItem) {
+        if (activeItem !== targetItem?.item && targetItem?.item) {
+          setHighlightedIndex(targetItem.index);
+          targetItem.item.focus();
+        }
+
+        const focusedItem = activeElement(doc);
+
+        if (focusedItem !== targetItem?.item) {
           settledFrameCount = 0;
           fulfillPendingFocusRequestFrame.request(attemptFocus);
           return;
@@ -350,17 +331,16 @@ export function useSharedCalendarDayGridBody(
           return;
         }
 
-        clearCurrentPendingFocusRequest();
+        clearPendingFocusRequest(requestId);
       };
-
-      if (ref.current) {
-        installPendingVerticalArrowScrollGuard(ref.current);
-      }
+      // Browsers can temporarily move focus to <body> while the viewport remounts.
+      // Keep retrying until the new day button holds focus and the old body is gone,
+      // so keyboard navigation still feels responsive during the transition.
 
       fulfillPendingFocusRequestFrame.request(attemptFocus);
 
       return () => {
-        cleanupPendingFocusRequestEffect(requestId);
+        cleanupFocusEffect();
       };
     }
 
@@ -368,30 +348,26 @@ export function useSharedCalendarDayGridBody(
   }, [
     adapter,
     clearPendingFocusRequest,
-    cleanupPendingFocusRequestEffect,
     fulfillPendingFocusRequestFrame,
     itemMap,
+    itemMapId,
     month,
     offset,
     store,
   ]);
 
-  const clearPendingFocusRequestForInterruptedNavigation = () => {
+  const handleKeyboardNavigation = (event: BaseUIEvent<React.KeyboardEvent>) => {
+    const eventKey = event.key;
     const pendingFocusRequest = store.context.pendingDayGridFocusRequest;
 
     if (
       pendingFocusRequest &&
       pendingFocusRequest.offset === offset &&
-      pendingFocusRequest.sourceItemMap !== itemMap &&
+      pendingFocusRequest.sourceItemMapId !== itemMapId &&
       adapter.isSameMonth(pendingFocusRequest.renderedMonth, month)
     ) {
       clearPendingFocusRequest(pendingFocusRequest.id);
     }
-  };
-
-  const handleKeyboardNavigation = (event: BaseUIEvent<React.KeyboardEvent>) => {
-    const eventKey = event.key;
-    clearPendingFocusRequestForInterruptedNavigation();
 
     if (eventKey === ARROW_UP || eventKey === ARROW_DOWN) {
       event.preventDefault();
@@ -487,9 +463,9 @@ export function useSharedCalendarDayGridBody(
           searchDecrement = false;
         }
 
-        setPendingFocusRequest(targetMonth, newMonth, sameDayInNewMonthIndex, searchDecrement, 1);
+        setPendingFocusRequest(newMonth, sameDayInNewMonthIndex, searchDecrement, 1);
 
-        const eventDetails = store.setVisibleDateAndGetDetails(
+        const eventDetails = store.setVisibleDate(
           targetMonth,
           event.nativeEvent,
           event.currentTarget as HTMLElement,
@@ -549,14 +525,13 @@ export function useSharedCalendarDayGridBody(
     }
 
     setPendingFocusRequest(
-      targetMonth,
       newMonth,
       guessedIndex,
       decrement,
       HORIZONTAL_KEYS.has(eventKey) ? 1 : 7,
     );
 
-    const eventDetails = store.setVisibleDateAndGetDetails(
+    const eventDetails = store.setVisibleDate(
       targetMonth,
       event.nativeEvent,
       event.currentTarget as HTMLElement,

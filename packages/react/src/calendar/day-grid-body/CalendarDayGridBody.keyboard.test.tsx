@@ -14,43 +14,6 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
         overflow: clip;
       }
 
-      .viewport-animation-test-controls {
-        display: flex;
-        justify-content: space-between;
-      }
-
-      .viewport-animation-test-grid {
-        display: grid;
-        grid-template-rows: min-content 1fr;
-        grid-template-columns: 1fr;
-      }
-
-      .viewport-animation-test-row {
-        display: flex;
-        justify-content: center;
-      }
-
-      .viewport-animation-test-cell {
-        padding: 0;
-        width: 36px;
-        text-align: center;
-      }
-
-      .viewport-animation-test-button {
-        height: 36px;
-        width: 36px;
-        padding: 0;
-      }
-
-      .viewport-animation-test-body {
-        display: flex;
-        flex-direction: column;
-        grid-row: 2;
-        grid-column: 1;
-        transform: translateX(0);
-        opacity: 1;
-      }
-
       .viewport-animation-test-body[data-current],
       .viewport-animation-test-body[data-previous] {
         transition:
@@ -201,29 +164,21 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
           onVisibleDateChange={options?.onVisibleDateChange}
         >
           <React.Fragment>
-            <div className="viewport-animation-test-controls">
+            <div>
               <Calendar.DecrementMonth data-testid="previous-month">
                 Previous
               </Calendar.DecrementMonth>
               <Calendar.IncrementMonth data-testid="next-month">Next</Calendar.IncrementMonth>
             </div>
-            <Calendar.DayGrid className="viewport-animation-test-grid">
+            <Calendar.DayGrid>
               <Calendar.DayGridHeader />
               <Calendar.Viewport>
                 <Calendar.DayGridBody className="viewport-animation-test-body">
                   {(week) => (
-                    <Calendar.DayGridRow
-                      className="viewport-animation-test-row"
-                      key={week.getTime()}
-                      value={week}
-                    >
+                    <Calendar.DayGridRow key={week.getTime()} value={week}>
                       {(day) => (
-                        <Calendar.DayGridCell
-                          className="viewport-animation-test-cell"
-                          key={day.getTime()}
-                          value={day}
-                        >
-                          <Calendar.DayButton className="viewport-animation-test-button" />
+                        <Calendar.DayGridCell key={day.getTime()} value={day}>
+                          <Calendar.DayButton />
                         </Calendar.DayGridCell>
                       )}
                     </Calendar.DayGridRow>
@@ -338,6 +293,56 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
       expect(onVisibleDateChange.mock.calls[0][1].reason).toBe('keyboard');
       const newDate = adapter.addMonths(feb15, 1);
       expect(onVisibleDateChange.mock.calls[0][0]).toEqual(adapter.startOfMonth(newDate));
+      await waitForDayButtonToHaveFocus(newDate);
+    });
+
+    it('should preserve focus for deferred controlled visibleDate updates when wrapped in a viewport', async () => {
+      const onVisibleDateChange = vi.fn();
+
+      function ControlledCalendar() {
+        const [visibleDate, setVisibleDate] = React.useState(feb15);
+
+        return (
+          <Calendar.Root
+            visibleDate={visibleDate}
+            onVisibleDateChange={(newVisibleDate, eventDetails) => {
+              onVisibleDateChange(newVisibleDate, eventDetails);
+              setTimeout(() => {
+                setVisibleDate(newVisibleDate);
+              }, 50);
+            }}
+          >
+            <Calendar.DayGrid>
+              <Calendar.Viewport>
+                <Calendar.DayGridBody>
+                  {(week) => (
+                    <Calendar.DayGridRow value={week} key={week.getTime()}>
+                      {(day) => (
+                        <Calendar.DayGridCell value={day} key={day.getTime()}>
+                          <Calendar.DayButton />
+                        </Calendar.DayGridCell>
+                      )}
+                    </Calendar.DayGridRow>
+                  )}
+                </Calendar.DayGridBody>
+              </Calendar.Viewport>
+            </Calendar.DayGrid>
+          </Calendar.Root>
+        );
+      }
+
+      const { user } = render(<ControlledCalendar />);
+
+      await act(async () => {
+        getDayButton(feb15).focus();
+      });
+      await user.keyboard('[PageDown]');
+
+      expect(onVisibleDateChange.mock.calls.length).toBe(1);
+      expect(onVisibleDateChange.mock.calls[0][1].reason).toBe('keyboard');
+      const newDate = adapter.addMonths(feb15, 1);
+      expect(onVisibleDateChange.mock.calls[0][0]).toEqual(adapter.startOfMonth(newDate));
+      expect(getDayButton(feb15)).toHaveFocus();
       await waitForDayButtonToHaveFocus(newDate);
     });
 

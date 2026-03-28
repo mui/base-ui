@@ -491,7 +491,18 @@ type CalendarContext = {
     nativeEvent?: Event,
     trigger?: HTMLElement,
     reason?: CalendarChangeEventReason,
-  ) => void;
+  ) => (
+    | { reason: 'month-change'; event: Event }
+    | { reason: 'value-prop-change'; event: Event }
+    | { reason: 'day-press'; event: Event }
+    | { reason: 'keyboard'; event: KeyboardEvent }
+  ) & {
+    cancel: () => void;
+    allowPropagation: () => void;
+    isCanceled: boolean;
+    isPropagationAllowed: boolean;
+    trigger: Element | undefined;
+  };
 };
 ```
 

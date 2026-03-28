@@ -36,8 +36,7 @@ export interface CalendarDayGridFocusRequest {
   id: symbol;
   offset: number;
   renderedMonth: TemporalSupportedObject;
-  visibleMonthToFocus: TemporalSupportedObject;
-  sourceItemMap: Map<Node, unknown>;
+  sourceItemMapId: symbol;
 }
 
 /**
@@ -148,15 +147,6 @@ export class SharedCalendarStore<TValue extends TemporalSupportedValue, TError> 
    * Sets the visible date.
    */
   public setVisibleDate = (
-    visibleDate: TemporalSupportedObject,
-    nativeEvent?: Event,
-    trigger?: HTMLElement,
-    reason?: CalendarChangeEventReason,
-  ) => {
-    this.setVisibleDateAndGetDetails(visibleDate, nativeEvent, trigger, reason);
-  };
-
-  public setVisibleDateAndGetDetails = (
     visibleDate: TemporalSupportedObject,
     nativeEvent?: Event,
     trigger?: HTMLElement,

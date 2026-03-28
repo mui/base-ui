@@ -47,40 +47,44 @@ describe('e2e', () => {
     await page.waitForSelector('[data-testid="testcase"]:not([aria-busy="true"])');
   }
 
-  async function waitForCalendarBodyCount(expectedCount: number) {
-    await page.waitForFunction((count) => {
-      return document.querySelectorAll('[data-testid="testcase"] tbody').length === count;
-    }, expectedCount);
-  }
+  async function waitForCalendarState(parameters: {
+    activeElementLabel?: string;
+    bodyCount?: number;
+    minimumBodyCount?: number;
+  }) {
+    await page.waitForFunction(
+      ({ activeElementLabel: expectedLabel, bodyCount, minimumBodyCount }) => {
+        const currentActiveElementLabel =
+          document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.tagName;
+        const mountedBodyCount = document.querySelectorAll('[data-testid="testcase"] tbody').length;
 
-  async function waitForActiveElement(expectedActiveElementLabel: string) {
-    await page.waitForFunction((expectedLabel) => {
-      const activeElementLabel =
-        document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.tagName;
-      return activeElementLabel === expectedLabel;
-    }, expectedActiveElementLabel);
+        if (expectedLabel != null && currentActiveElementLabel !== expectedLabel) {
+          return false;
+        }
+
+        if (bodyCount != null && mountedBodyCount !== bodyCount) {
+          return false;
+        }
+
+        if (minimumBodyCount != null && mountedBodyCount < minimumBodyCount) {
+          return false;
+        }
+
+        return true;
+      },
+      parameters,
+    );
   }
 
   async function waitForCalendarToSettle(expectedActiveElementLabel: string) {
-    await page.waitForFunction((expectedLabel) => {
-      const activeElementLabel =
-        document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.tagName;
-      return (
-        activeElementLabel === expectedLabel &&
-        document.querySelectorAll('[data-testid="testcase"] tbody').length === 1
-      );
-    }, expectedActiveElementLabel);
+    await waitForCalendarState({ activeElementLabel: expectedActiveElementLabel, bodyCount: 1 });
   }
 
   async function waitForCalendarTransitionToStart(expectedActiveElementLabel: string) {
-    await page.waitForFunction((expectedLabel) => {
-      const activeElementLabel =
-        document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.tagName;
-      return (
-        activeElementLabel === expectedLabel &&
-        document.querySelectorAll('[data-testid="testcase"] tbody').length > 1
-      );
-    }, expectedActiveElementLabel);
+    await waitForCalendarState({
+      activeElementLabel: expectedActiveElementLabel,
+      minimumBodyCount: 2,
+    });
   }
 
   beforeAll(async function beforeHook() {
@@ -275,7 +279,7 @@ describe('e2e', () => {
       await renderFixture('calendar/AnimatedViewport');
 
       await page.getByRole('button', { name: 'Next month' }).click();
-      await waitForCalendarBodyCount(1);
+      await waitForCalendarState({ bodyCount: 1 });
 
       const aprilSeventh = page.getByRole('button', { name: 'Tuesday, April 7th, 2026' });
       await aprilSeventh.focus();
@@ -289,7 +293,7 @@ describe('e2e', () => {
       await renderFixture('calendar/AnimatedMotionViewport');
 
       await page.getByRole('button', { name: 'Next month' }).click();
-      await waitForCalendarBodyCount(1);
+      await waitForCalendarState({ bodyCount: 1 });
       await expect(page.getByRole('button', { name: 'Wednesday, April 1st, 2026' })).toBeVisible();
 
       const aprilFirst = page.getByRole('button', { name: 'Wednesday, April 1st, 2026' });
@@ -304,7 +308,7 @@ describe('e2e', () => {
       await renderFixture('calendar/AnimatedMotionViewport');
 
       await page.getByRole('button', { name: 'Next month' }).click();
-      await waitForCalendarBodyCount(1);
+      await waitForCalendarState({ bodyCount: 1 });
 
       const aprilFifteenth = page.getByRole('button', { name: 'Wednesday, April 15th, 2026' });
       await aprilFifteenth.focus();
@@ -318,13 +322,13 @@ describe('e2e', () => {
       await renderFixture('calendar/AnimatedMotionViewport');
 
       await page.getByRole('button', { name: 'Next month' }).click();
-      await waitForCalendarBodyCount(1);
+      await waitForCalendarState({ bodyCount: 1 });
 
       const aprilThirtieth = page
         .getByRole('button', { name: 'Thursday, April 30th, 2026' })
         .first();
       await aprilThirtieth.focus();
-      await waitForActiveElement('Thursday, April 30th, 2026');
+      await waitForCalendarState({ activeElementLabel: 'Thursday, April 30th, 2026' });
 
       await page.keyboard.press('ArrowRight');
       await waitForCalendarToSettle('Friday, May 1st, 2026');
@@ -334,13 +338,13 @@ describe('e2e', () => {
       await renderFixture('calendar/AnimatedMotionViewport');
 
       await page.getByRole('button', { name: 'Next month' }).click();
-      await waitForCalendarBodyCount(1);
+      await waitForCalendarState({ bodyCount: 1 });
 
       const aprilThirtieth = page
         .getByRole('button', { name: 'Thursday, April 30th, 2026' })
         .first();
       await aprilThirtieth.focus();
-      await waitForActiveElement('Thursday, April 30th, 2026');
+      await waitForCalendarState({ activeElementLabel: 'Thursday, April 30th, 2026' });
 
       await page.keyboard.press('ArrowRight');
       await waitForCalendarTransitionToStart('Friday, May 1st, 2026');
