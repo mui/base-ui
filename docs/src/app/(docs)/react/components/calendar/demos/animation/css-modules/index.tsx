@@ -6,9 +6,16 @@ import { Calendar } from '@base-ui/react/calendar';
 import styles from '../../calendar.module.css';
 import indexStyles from './index.module.css';
 
-export default function AnimatedCalendar() {
+interface AnimatedCalendarProps {
+  defaultVisibleDate?: Date;
+}
+
+export default function AnimatedCalendar({ defaultVisibleDate }: AnimatedCalendarProps) {
   return (
-    <Calendar.Root className={clsx(styles.Root, indexStyles.Root)}>
+    <Calendar.Root
+      className={clsx(styles.Root, indexStyles.Root)}
+      defaultVisibleDate={defaultVisibleDate}
+    >
       {({ visibleDate }) => (
         <React.Fragment>
           <header className={styles.Header}>

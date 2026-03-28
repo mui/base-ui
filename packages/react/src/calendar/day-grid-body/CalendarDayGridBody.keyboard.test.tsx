@@ -8,103 +8,73 @@ import { createTemporalRenderer, isJSDOM } from '#test-utils';
 describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
   const { render, adapter } = createTemporalRenderer();
 
-  function getAnimatedViewportStyles() {
+  function getViewportAnimationTestStyles() {
     return `
-      .animated-calendar-root {
+      .viewport-animation-test-root {
         overflow: clip;
-        height: 312px;
-        display: flex;
-        flex-direction: column;
       }
 
-      .animated-calendar-header {
-        box-sizing: border-box;
-        padding: 8px 12px;
-        height: 40px;
+      .viewport-animation-test-controls {
         display: flex;
         justify-content: space-between;
-        align-items: center;
       }
 
-      .animated-calendar-header-label-wrapper {
-        width: 100%;
-        display: grid;
-        justify-content: center;
-      }
-
-      .animated-calendar-header-label {
-        grid-row: 1;
-        grid-column: 1;
-        min-width: 185px;
-        text-align: center;
-        overflow: clip;
-      }
-
-      .animated-day-grid {
-        padding: 12px;
-        height: 276px;
+      .viewport-animation-test-grid {
         display: grid;
         grid-template-rows: min-content 1fr;
         grid-template-columns: 1fr;
-        gap: 4px;
-        position: relative;
       }
 
-      .animated-day-grid-header-row,
-      .animated-day-grid-row {
+      .viewport-animation-test-row {
         display: flex;
         justify-content: center;
       }
 
-      .animated-day-grid-header-cell,
-      .animated-day-grid-cell {
+      .viewport-animation-test-cell {
         padding: 0;
         width: 36px;
         text-align: center;
       }
 
-      .animated-day-button {
+      .viewport-animation-test-button {
         height: 36px;
         width: 36px;
         padding: 0;
       }
 
-      .animated-day-grid-body {
+      .viewport-animation-test-body {
         display: flex;
         flex-direction: column;
-        row-gap: 2px;
         grid-row: 2;
         grid-column: 1;
         transform: translateX(0);
         opacity: 1;
       }
 
-      .animated-calendar-header-label[data-current],
-      .animated-calendar-header-label[data-previous],
-      .animated-day-grid-body[data-current],
-      .animated-day-grid-body[data-previous] {
+      .viewport-animation-test-body[data-current],
+      .viewport-animation-test-body[data-previous] {
         transition:
-          opacity 200ms linear,
-          transform 200ms linear;
+          opacity 160ms linear,
+          transform 220ms ease;
       }
 
-      .animated-day-grid-body[data-navigation-direction='next'][data-previous][data-ending-style] {
-        transform: translateX(-100%);
+      .viewport-animation-test-body[data-navigation-direction='next'][data-previous][data-ending-style] {
+        transform: translateX(-24px);
         opacity: 0;
       }
 
-      .animated-day-grid-body[data-navigation-direction='next'][data-current][data-starting-style] {
-        transform: translateX(100%);
+      .viewport-animation-test-body[data-navigation-direction='next'][data-current][data-starting-style] {
+        transform: translateX(24px);
         opacity: 0;
       }
 
-      .animated-day-grid-body[data-navigation-direction='previous'][data-previous][data-ending-style] {
-        transform: translateX(100%);
+      .viewport-animation-test-body[data-navigation-direction='previous'][data-previous][data-ending-style] {
+        transform: translateX(24px);
         opacity: 0;
       }
 
-      .animated-day-grid-body[data-navigation-direction='previous'][data-current][data-starting-style] {
-        transform: translateX(-100%);
+      .viewport-animation-test-body[data-navigation-direction='previous'][data-current][data-starting-style] {
+        transform: translateX(-24px);
         opacity: 0;
       }
     `;
@@ -179,7 +149,7 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
   const aug1 = adapter.date('2021-08-01', 'default');
   const aug7 = adapter.date('2021-08-07', 'default');
 
-  function renderAnimatedViewportCalendar(
+  function renderViewportRemountCalendar(
     defaultDate: ReturnType<ReturnType<typeof createTemporalRenderer>['adapter']['date']>,
     options?: {
       onVisibleDateChange?: CalendarRoot.Props['onVisibleDateChange'];
@@ -187,64 +157,47 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
   ) {
     return render(
       <React.Fragment>
+        {/* This uses a tiny synthetic transition so the test exercises overlapping
+            viewport bodies without copying the docs demo styling or timing. */}
         {/* eslint-disable-next-line react/no-danger */}
-        <style dangerouslySetInnerHTML={{ __html: getAnimatedViewportStyles() }} />
+        <style dangerouslySetInnerHTML={{ __html: getViewportAnimationTestStyles() }} />
         <Calendar.Root
-          className="animated-calendar-root"
+          className="viewport-animation-test-root"
           defaultVisibleDate={defaultDate}
           onVisibleDateChange={options?.onVisibleDateChange}
         >
-          {({ visibleDate }) => (
-            <React.Fragment>
-              <header className="animated-calendar-header">
-                <Calendar.DecrementMonth data-testid="previous-month">
-                  Previous
-                </Calendar.DecrementMonth>
-                <div className="animated-calendar-header-label-wrapper">
-                  <Calendar.Viewport>
-                    <span className="animated-calendar-header-label">
-                      {adapter.getMonth(visibleDate)}-{adapter.getYear(visibleDate)}
-                    </span>
-                  </Calendar.Viewport>
-                </div>
-                <Calendar.IncrementMonth data-testid="next-month">Next</Calendar.IncrementMonth>
-              </header>
-              <Calendar.DayGrid className="animated-day-grid">
-                <Calendar.DayGridHeader>
-                  <Calendar.DayGridHeaderRow className="animated-day-grid-header-row">
-                    {(day) => (
-                      <Calendar.DayGridHeaderCell
-                        className="animated-day-grid-header-cell"
-                        key={day.getTime()}
-                        value={day}
-                      />
-                    )}
-                  </Calendar.DayGridHeaderRow>
-                </Calendar.DayGridHeader>
-                <Calendar.Viewport>
-                  <Calendar.DayGridBody className="animated-day-grid-body">
-                    {(week) => (
-                      <Calendar.DayGridRow
-                        className="animated-day-grid-row"
-                        key={week.getTime()}
-                        value={week}
-                      >
-                        {(day) => (
-                          <Calendar.DayGridCell
-                            className="animated-day-grid-cell"
-                            key={day.getTime()}
-                            value={day}
-                          >
-                            <Calendar.DayButton className="animated-day-button" />
-                          </Calendar.DayGridCell>
-                        )}
-                      </Calendar.DayGridRow>
-                    )}
-                  </Calendar.DayGridBody>
-                </Calendar.Viewport>
-              </Calendar.DayGrid>
-            </React.Fragment>
-          )}
+          <React.Fragment>
+            <div className="viewport-animation-test-controls">
+              <Calendar.DecrementMonth data-testid="previous-month">
+                Previous
+              </Calendar.DecrementMonth>
+              <Calendar.IncrementMonth data-testid="next-month">Next</Calendar.IncrementMonth>
+            </div>
+            <Calendar.DayGrid className="viewport-animation-test-grid">
+              <Calendar.DayGridHeader />
+              <Calendar.Viewport>
+                <Calendar.DayGridBody className="viewport-animation-test-body">
+                  {(week) => (
+                    <Calendar.DayGridRow
+                      className="viewport-animation-test-row"
+                      key={week.getTime()}
+                      value={week}
+                    >
+                      {(day) => (
+                        <Calendar.DayGridCell
+                          className="viewport-animation-test-cell"
+                          key={day.getTime()}
+                          value={day}
+                        >
+                          <Calendar.DayButton className="viewport-animation-test-button" />
+                        </Calendar.DayGridCell>
+                      )}
+                    </Calendar.DayGridRow>
+                  )}
+                </Calendar.DayGridBody>
+              </Calendar.Viewport>
+            </Calendar.DayGrid>
+          </React.Fragment>
         </Calendar.Root>
       </React.Fragment>,
     );
@@ -445,7 +398,7 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
         const mar15Date2026 = adapter.date('2026-03-15', 'default');
         const apr15Date2026 = adapter.date('2026-04-15', 'default');
 
-        const { user } = renderAnimatedViewportCalendar(mar15Date2026, {
+        const { user } = renderViewportRemountCalendar(mar15Date2026, {
           onVisibleDateChange,
         });
 
@@ -478,7 +431,7 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
         const apr7Date2026 = adapter.date('2026-04-07', 'default');
         const mar31Date2026 = adapter.date('2026-03-31', 'default');
 
-        const { user } = renderAnimatedViewportCalendar(mar15Date2026, {
+        const { user } = renderViewportRemountCalendar(mar15Date2026, {
           onVisibleDateChange,
         });
 
@@ -510,7 +463,7 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
         const apr7Date2026 = adapter.date('2026-04-07', 'default');
         const mar31Date2026 = adapter.date('2026-03-31', 'default');
 
-        const { user } = renderAnimatedViewportCalendar(mar15Date2026, {
+        const { user } = renderViewportRemountCalendar(mar15Date2026, {
           onVisibleDateChange,
         });
 
@@ -556,7 +509,7 @@ describe('<Calendar.DayGridBody /> - keyboard navigation', () => {
         const apr1Date2026 = adapter.date('2026-04-01', 'default');
         const mar31Date2026 = adapter.date('2026-03-31', 'default');
 
-        const { user } = renderAnimatedViewportCalendar(mar15Date2026, {
+        const { user } = renderViewportRemountCalendar(mar15Date2026, {
           onVisibleDateChange,
         });
 

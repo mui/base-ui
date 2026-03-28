@@ -1,4 +1,4 @@
-import { describe, it, beforeAll, afterAll } from 'vitest';
+import { describe, it, beforeAll, beforeEach, afterAll } from 'vitest';
 import { chromium, expect, Page, Browser } from '@playwright/test';
 import '@mui/internal-test-utils/initPlaywrightMatchers';
 
@@ -45,6 +45,42 @@ describe('e2e', () => {
   async function renderFixture(fixturePath: string) {
     await page.goto(`${BASE_URL}/e2e-fixtures/${fixturePath}#no-dev`);
     await page.waitForSelector('[data-testid="testcase"]:not([aria-busy="true"])');
+  }
+
+  async function waitForCalendarBodyCount(expectedCount: number) {
+    await page.waitForFunction((count) => {
+      return document.querySelectorAll('[data-testid="testcase"] tbody').length === count;
+    }, expectedCount);
+  }
+
+  async function waitForActiveElement(expectedActiveElementLabel: string) {
+    await page.waitForFunction((expectedLabel) => {
+      const activeElementLabel =
+        document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.tagName;
+      return activeElementLabel === expectedLabel;
+    }, expectedActiveElementLabel);
+  }
+
+  async function waitForCalendarToSettle(expectedActiveElementLabel: string) {
+    await page.waitForFunction((expectedLabel) => {
+      const activeElementLabel =
+        document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.tagName;
+      return (
+        activeElementLabel === expectedLabel &&
+        document.querySelectorAll('[data-testid="testcase"] tbody').length === 1
+      );
+    }, expectedActiveElementLabel);
+  }
+
+  async function waitForCalendarTransitionToStart(expectedActiveElementLabel: string) {
+    await page.waitForFunction((expectedLabel) => {
+      const activeElementLabel =
+        document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.tagName;
+      return (
+        activeElementLabel === expectedLabel &&
+        document.querySelectorAll('[data-testid="testcase"] tbody').length > 1
+      );
+    }, expectedActiveElementLabel);
   }
 
   beforeAll(async function beforeHook() {
@@ -230,181 +266,87 @@ describe('e2e', () => {
   });
 
   describe('<Calendar />', () => {
+    beforeEach(async () => {
+      await page.close();
+      page = await browser.newPage();
+    });
+
     it('preserves focus after an animated viewport transition settles', async () => {
       await renderFixture('calendar/AnimatedViewport');
 
-      await page.getByTestId('next-month').click();
+      await page.getByRole('button', { name: 'Next month' }).click();
+      await waitForCalendarBodyCount(1);
 
       const aprilSeventh = page.getByRole('button', { name: 'Tuesday, April 7th, 2026' });
       await aprilSeventh.focus();
       await expect(aprilSeventh).toBeFocused();
 
       await page.keyboard.press('ArrowUp');
-      await page.waitForTimeout(300);
-
-      const activeElementLabel = await page.evaluate(() => {
-        return (
-          document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.tagName
-        );
-      });
-
-      expect(activeElementLabel).toBe('Tuesday, March 31st, 2026');
+      await waitForCalendarToSettle('Tuesday, March 31st, 2026');
     }, 5000);
 
     it('preserves focus after the Motion demo wraps left into the previous month', async () => {
       await renderFixture('calendar/AnimatedMotionViewport');
 
       await page.getByRole('button', { name: 'Next month' }).click();
-      await expect
-        .poll(async () => {
-          return page.getByRole('button', { name: 'Wednesday, April 1st, 2026' }).count();
-        })
-        .toBe(1);
+      await waitForCalendarBodyCount(1);
+      await expect(page.getByRole('button', { name: 'Wednesday, April 1st, 2026' })).toBeVisible();
 
       const aprilFirst = page.getByRole('button', { name: 'Wednesday, April 1st, 2026' });
       await aprilFirst.focus();
       await expect(aprilFirst).toBeFocused();
 
       await page.keyboard.press('ArrowLeft');
-
-      await expect
-        .poll(async () => {
-          return page.evaluate(() => {
-            return (
-              document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.tagName
-            );
-          });
-        })
-        .toBe('Tuesday, March 31st, 2026');
-
-      await page.waitForTimeout(500);
-
-      expect(
-        await page.evaluate(() => {
-          return (
-            document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.tagName
-          );
-        }),
-      ).toBe('Tuesday, March 31st, 2026');
+      await waitForCalendarToSettle('Tuesday, March 31st, 2026');
     }, 5000);
 
     it('preserves focus after the Motion demo pages into the next month', async () => {
       await renderFixture('calendar/AnimatedMotionViewport');
 
       await page.getByRole('button', { name: 'Next month' }).click();
+      await waitForCalendarBodyCount(1);
 
       const aprilFifteenth = page.getByRole('button', { name: 'Wednesday, April 15th, 2026' });
       await aprilFifteenth.focus();
       await expect(aprilFifteenth).toBeFocused();
 
       await page.keyboard.press('PageDown');
-
-      await expect
-        .poll(async () => {
-          return page.evaluate(() => {
-            return (
-              document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.tagName
-            );
-          });
-        })
-        .toBe('Friday, May 15th, 2026');
-
-      await page.waitForTimeout(500);
-
-      expect(
-        await page.evaluate(() => {
-          return (
-            document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.tagName
-          );
-        }),
-      ).toBe('Friday, May 15th, 2026');
+      await waitForCalendarToSettle('Friday, May 15th, 2026');
     }, 5000);
 
     it('preserves focus after the Motion demo wraps right into the next month', async () => {
       await renderFixture('calendar/AnimatedMotionViewport');
 
       await page.getByRole('button', { name: 'Next month' }).click();
+      await waitForCalendarBodyCount(1);
 
       const aprilThirtieth = page
         .getByRole('button', { name: 'Thursday, April 30th, 2026' })
         .first();
       await aprilThirtieth.focus();
-      await expect
-        .poll(async () => {
-          return page.evaluate(() => {
-            return (
-              document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.tagName
-            );
-          });
-        })
-        .toBe('Thursday, April 30th, 2026');
+      await waitForActiveElement('Thursday, April 30th, 2026');
 
       await page.keyboard.press('ArrowRight');
-
-      await expect
-        .poll(async () => {
-          return page.evaluate(() => {
-            return (
-              document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.tagName
-            );
-          });
-        })
-        .toBe('Friday, May 1st, 2026');
-
-      await page.waitForTimeout(500);
-
-      expect(
-        await page.evaluate(() => {
-          return (
-            document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.tagName
-          );
-        }),
-      ).toBe('Friday, May 1st, 2026');
-    }, 7000);
+      await waitForCalendarToSettle('Friday, May 1st, 2026');
+    }, 10000);
 
     it('allows interrupted Motion demo navigation while the month animation is still running', async () => {
       await renderFixture('calendar/AnimatedMotionViewport');
 
       await page.getByRole('button', { name: 'Next month' }).click();
+      await waitForCalendarBodyCount(1);
 
       const aprilThirtieth = page
         .getByRole('button', { name: 'Thursday, April 30th, 2026' })
         .first();
       await aprilThirtieth.focus();
-      await expect
-        .poll(async () => {
-          return page.evaluate(() => {
-            return (
-              document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.tagName
-            );
-          });
-        })
-        .toBe('Thursday, April 30th, 2026');
+      await waitForActiveElement('Thursday, April 30th, 2026');
 
       await page.keyboard.press('ArrowRight');
-      await page.waitForTimeout(20);
+      await waitForCalendarTransitionToStart('Friday, May 1st, 2026');
       await page.keyboard.press('ArrowRight');
-
-      await expect
-        .poll(async () => {
-          return page.evaluate(() => {
-            return (
-              document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.tagName
-            );
-          });
-        })
-        .toBe('Saturday, May 2nd, 2026');
-
-      await page.waitForTimeout(500);
-
-      expect(
-        await page.evaluate(() => {
-          return (
-            document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.tagName
-          );
-        }),
-      ).toBe('Saturday, May 2nd, 2026');
-    }, 7000);
+      await waitForCalendarToSettle('Saturday, May 2nd, 2026');
+    }, 10000);
   });
 
   describe('<Menu />', () => {

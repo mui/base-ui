@@ -181,68 +181,18 @@ export function useSharedCalendarDayGridBody(
     focusNonDisabledItem(elements, disabledIndices, newHighlightedIndex, decrement, amount);
   };
 
-  const getNavigationItemsFromMap = useStableCallback((newMap: typeof itemMap) => {
-    const newItems = Array.from(newMap.keys()) as HTMLElement[];
-    const newDisabledIndices: number[] = [];
-
-    for (const meta of newMap.values()) {
-      if (meta?.index != null && !meta.focusable) {
-        newDisabledIndices.push(meta.index);
-      }
-    }
-
-    return { newItems, newDisabledIndices };
-  });
-
-  const cleanupPendingVerticalArrowScrollGuard = useStableCallback((requestId?: symbol) => {
+  const clearPendingFocusRequest = useStableCallback((requestId?: symbol) => {
     const currentGuard = pendingVerticalArrowScrollGuardRef.current;
 
-    if (!currentGuard || (requestId != null && currentGuard.id !== requestId)) {
-      return;
+    if (currentGuard && (requestId == null || currentGuard.id === requestId)) {
+      currentGuard.cleanup();
+      pendingVerticalArrowScrollGuardRef.current = null;
     }
 
-    currentGuard.cleanup();
-    pendingVerticalArrowScrollGuardRef.current = null;
+    if (requestId == null || store.context.pendingDayGridFocusRequest?.id === requestId) {
+      store.context.pendingDayGridFocusRequest = undefined;
+    }
   });
-
-  const installPendingVerticalArrowScrollGuard = useStableCallback(
-    (body: HTMLTableSectionElement, requestId: symbol) => {
-      if (pendingVerticalArrowScrollGuardRef.current?.id === requestId) {
-        return;
-      }
-
-      cleanupPendingVerticalArrowScrollGuard();
-
-      const doc = ownerDocument(body);
-      const preventVerticalArrowScroll = (event: KeyboardEvent) => {
-        if (store.context.pendingDayGridFocusRequest?.id !== requestId) {
-          return;
-        }
-
-        if (event.key === ARROW_UP || event.key === ARROW_DOWN) {
-          event.preventDefault();
-        }
-      };
-
-      doc.addEventListener('keydown', preventVerticalArrowScroll, true);
-      pendingVerticalArrowScrollGuardRef.current = {
-        cleanup: () => {
-          doc.removeEventListener('keydown', preventVerticalArrowScroll, true);
-        },
-        id: requestId,
-      };
-    },
-  );
-
-  // Focuses the correct item after a cross-month navigation (PageUp/PageDown or arrow-key
-  // loop). Uses the new month's item map directly because the `disabledIndices` state
-  // variable still reflects the old month at this point.
-  const getItemFromMap = useStableCallback(
-    (newMap: typeof itemMap, guessedIndex: number, decrement: boolean, amount: number) => {
-      const { newItems, newDisabledIndices } = getNavigationItemsFromMap(newMap);
-      return focusNonDisabledItem(newItems, newDisabledIndices, guessedIndex, decrement, amount);
-    },
-  );
 
   const setPendingFocusRequest = (
     visibleMonthToFocus: TemporalSupportedObject,
@@ -253,7 +203,7 @@ export function useSharedCalendarDayGridBody(
   ) => {
     const requestId = Symbol();
 
-    cleanupPendingVerticalArrowScrollGuard();
+    clearPendingFocusRequest();
 
     store.context.pendingDayGridFocusRequest = {
       amount,
@@ -270,8 +220,7 @@ export function useSharedCalendarDayGridBody(
         store.context.pendingDayGridFocusRequest?.id === requestId &&
         !adapter.isSameMonth(store.state.visibleDate, visibleMonthToFocus)
       ) {
-        cleanupPendingVerticalArrowScrollGuard(requestId);
-        store.context.pendingDayGridFocusRequest = undefined;
+        clearPendingFocusRequest(requestId);
       }
     });
   };
@@ -287,17 +236,40 @@ export function useSharedCalendarDayGridBody(
     ) {
       const requestId = pendingFocusRequest.id;
       let settledFrameCount = 0;
-      const clearPendingFocusRequest = () => {
-        cleanupPendingVerticalArrowScrollGuard(requestId);
-
-        if (store.context.pendingDayGridFocusRequest?.id === requestId) {
-          store.context.pendingDayGridFocusRequest = undefined;
+      const clearCurrentPendingFocusRequest = () => {
+        clearPendingFocusRequest(requestId);
+      };
+      const installPendingVerticalArrowScrollGuard = (body: HTMLTableSectionElement) => {
+        if (pendingVerticalArrowScrollGuardRef.current?.id === requestId) {
+          return;
         }
+
+        pendingVerticalArrowScrollGuardRef.current?.cleanup();
+        pendingVerticalArrowScrollGuardRef.current = null;
+
+        const doc = ownerDocument(body);
+        const preventVerticalArrowScroll = (event: KeyboardEvent) => {
+          if (store.context.pendingDayGridFocusRequest?.id !== requestId) {
+            return;
+          }
+
+          if (event.key === ARROW_UP || event.key === ARROW_DOWN) {
+            event.preventDefault();
+          }
+        };
+
+        doc.addEventListener('keydown', preventVerticalArrowScroll, true);
+        pendingVerticalArrowScrollGuardRef.current = {
+          cleanup: () => {
+            doc.removeEventListener('keydown', preventVerticalArrowScroll, true);
+          },
+          id: requestId,
+        };
       };
 
       const attemptFocus = () => {
         if (store.context.pendingDayGridFocusRequest?.id !== requestId) {
-          cleanupPendingVerticalArrowScrollGuard(requestId);
+          clearCurrentPendingFocusRequest();
           return;
         }
 
@@ -307,12 +279,20 @@ export function useSharedCalendarDayGridBody(
           return;
         }
 
-        installPendingVerticalArrowScrollGuard(currentBody, requestId);
+        installPendingVerticalArrowScrollGuard(currentBody);
 
         const doc = ownerDocument(currentBody);
         const win = ownerWindow(currentBody);
         const activeItem = activeElement(doc);
-        const { newItems, newDisabledIndices } = getNavigationItemsFromMap(itemMap);
+        const newItems = Array.from(itemMap.keys()) as HTMLElement[];
+        const newDisabledIndices: number[] = [];
+
+        for (const meta of itemMap.values()) {
+          if (meta?.index != null && !meta.focusable) {
+            newDisabledIndices.push(meta.index);
+          }
+        }
+
         const targetItem = findNonDisabledItem(
           newItems,
           newDisabledIndices,
@@ -322,12 +302,10 @@ export function useSharedCalendarDayGridBody(
         );
 
         if (activeElement(doc) !== targetItem?.item) {
-          getItemFromMap(
-            itemMap,
-            pendingFocusRequest.guessedIndex,
-            pendingFocusRequest.decrement,
-            pendingFocusRequest.amount,
-          );
+          if (targetItem) {
+            setHighlightedIndex(targetItem.index);
+            targetItem.item?.focus();
+          }
         }
 
         const focusIsOnTargetItem = activeElement(doc) === targetItem?.item;
@@ -344,7 +322,7 @@ export function useSharedCalendarDayGridBody(
           activeItem.tabIndex === 0;
 
         if (mountedDayGridBodyCount > 1 && shouldYieldToNewNavigation) {
-          clearPendingFocusRequest();
+          clearCurrentPendingFocusRequest();
           return;
         }
 
@@ -366,28 +344,25 @@ export function useSharedCalendarDayGridBody(
           return;
         }
 
-        clearPendingFocusRequest();
+        clearCurrentPendingFocusRequest();
       };
 
       if (ref.current) {
-        installPendingVerticalArrowScrollGuard(ref.current, requestId);
+        installPendingVerticalArrowScrollGuard(ref.current);
       }
 
       fulfillPendingFocusRequestFrame.request(attemptFocus);
 
       return () => {
-        cleanupPendingVerticalArrowScrollGuard(requestId);
+        clearCurrentPendingFocusRequest();
       };
     }
 
     return undefined;
   }, [
     adapter,
-    cleanupPendingVerticalArrowScrollGuard,
+    clearPendingFocusRequest,
     fulfillPendingFocusRequestFrame,
-    getItemFromMap,
-    getNavigationItemsFromMap,
-    installPendingVerticalArrowScrollGuard,
     itemMap,
     month,
     offset,
@@ -403,8 +378,7 @@ export function useSharedCalendarDayGridBody(
       pendingFocusRequest.sourceItemMap !== itemMap &&
       adapter.isSameMonth(pendingFocusRequest.renderedMonth, month)
     ) {
-      cleanupPendingVerticalArrowScrollGuard(pendingFocusRequest.id);
-      store.context.pendingDayGridFocusRequest = undefined;
+      clearPendingFocusRequest(pendingFocusRequest.id);
     }
   };
 
@@ -515,8 +489,7 @@ export function useSharedCalendarDayGridBody(
           REASONS.keyboard,
         );
         if (eventDetails.isCanceled) {
-          cleanupPendingVerticalArrowScrollGuard();
-          store.context.pendingDayGridFocusRequest = undefined;
+          clearPendingFocusRequest();
         }
 
         break;
@@ -583,8 +556,7 @@ export function useSharedCalendarDayGridBody(
       REASONS.keyboard,
     );
     if (eventDetails.isCanceled) {
-      cleanupPendingVerticalArrowScrollGuard();
-      store.context.pendingDayGridFocusRequest = undefined;
+      clearPendingFocusRequest();
     }
 
     // Return the current index so the composite does not move focus before the new month renders.
