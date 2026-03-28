@@ -181,13 +181,19 @@ export function useSharedCalendarDayGridBody(
     focusNonDisabledItem(elements, disabledIndices, newHighlightedIndex, decrement, amount);
   };
 
-  const clearPendingFocusRequest = useStableCallback((requestId?: symbol) => {
+  const cleanupPendingFocusRequestEffect = useStableCallback((requestId?: symbol) => {
+    fulfillPendingFocusRequestFrame.cancel();
+
     const currentGuard = pendingVerticalArrowScrollGuardRef.current;
 
     if (currentGuard && (requestId == null || currentGuard.id === requestId)) {
       currentGuard.cleanup();
       pendingVerticalArrowScrollGuardRef.current = null;
     }
+  });
+
+  const clearPendingFocusRequest = useStableCallback((requestId?: symbol) => {
+    cleanupPendingFocusRequestEffect(requestId);
 
     if (requestId == null || store.context.pendingDayGridFocusRequest?.id === requestId) {
       store.context.pendingDayGridFocusRequest = undefined;
@@ -354,7 +360,7 @@ export function useSharedCalendarDayGridBody(
       fulfillPendingFocusRequestFrame.request(attemptFocus);
 
       return () => {
-        clearCurrentPendingFocusRequest();
+        cleanupPendingFocusRequestEffect(requestId);
       };
     }
 
@@ -362,6 +368,7 @@ export function useSharedCalendarDayGridBody(
   }, [
     adapter,
     clearPendingFocusRequest,
+    cleanupPendingFocusRequestEffect,
     fulfillPendingFocusRequestFrame,
     itemMap,
     month,
