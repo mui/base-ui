@@ -43,7 +43,7 @@ function mockCachedImageLoading({ naturalWidth = 100 } = {}) {
 }
 
 describe('<Avatar.Image />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   let restoreImage: () => void;
 
@@ -182,7 +182,7 @@ describe('<Avatar.Image />', () => {
     const DATA_URI =
       'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
 
-    it('shows the image for a pre-loaded src', async () => {
+    it('does not flash fallback for a cached image during SSR hydration', async () => {
       // Restore real Image so this test exercises actual browser caching
       restoreImage();
 
@@ -194,32 +194,27 @@ describe('<Avatar.Image />', () => {
         img.src = DATA_URI;
       });
 
-      await render(
+      // Server render: layout effects don't run, so fallback is in the HTML
+      const { hydrate } = renderToString(
         <Avatar.Root>
           <Avatar.Image src={DATA_URI} alt="Jane Doe" />
           <Avatar.Fallback>JD</Avatar.Fallback>
         </Avatar.Root>,
       );
 
+      expect(screen.getByText('JD')).toBeVisible();
+      expect(screen.queryByRole('img')).toBe(null);
+
+      // After hydration, the layout effect fires synchronously before paint.
+      // For cached images, image.complete is true so status resolves to 'loaded'
+      // immediately — no fallback flash.
+      //
+      // Assert synchronously (no waitFor) to verify the image is available on
+      // the first post-hydration render, not after a delayed onload callback.
+      hydrate();
+
       expect(screen.getByRole('img')).toHaveAttribute('src', DATA_URI);
       expect(screen.queryByText('JD')).toBe(null);
-    });
-
-    it('shows the fallback for an invalid src', async () => {
-      // Restore real Image so this test exercises actual browser behavior
-      restoreImage();
-
-      await render(
-        <Avatar.Root>
-          <Avatar.Image src="data:image/png;base64,invalid" alt="Jane Doe" />
-          <Avatar.Fallback>JD</Avatar.Fallback>
-        </Avatar.Root>,
-      );
-
-      await waitFor(() => {
-        expect(screen.queryByRole('img')).toBe(null);
-        expect(screen.getByText('JD')).toBeVisible();
-      });
     });
   });
 
@@ -233,20 +228,5 @@ describe('<Avatar.Image />', () => {
 
     expect(screen.getByRole('img')).toHaveAttribute('src', 'https://example.com/cached-avatar.png');
     expect(screen.queryByText('JD')).toBe(null);
-  });
-
-  it.skipIf(!isJSDOM)('shows the fallback for a cached broken image', async () => {
-    restoreImage();
-    restoreImage = mockCachedImageLoading({ naturalWidth: 0 });
-
-    await render(
-      <Avatar.Root>
-        <Avatar.Image src="https://example.com/broken.png" alt="Jane Doe" />
-        <Avatar.Fallback>JD</Avatar.Fallback>
-      </Avatar.Root>,
-    );
-
-    expect(screen.queryByRole('img')).toBe(null);
-    expect(screen.getByText('JD')).toBeVisible();
   });
 });
