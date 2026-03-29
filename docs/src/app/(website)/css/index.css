@@ -16,7 +16,7 @@
 @import './components/Figure.css';
 @import './components/Icon.css';
 @import './components/Key.css';
-@import './components/Link.css';
+@import 'docs/src/components/Link.css';
 @import './components/List.css';
 @import './components/Menu.css';
 @import './components/Popup.css';

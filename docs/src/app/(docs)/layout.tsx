@@ -110,15 +110,15 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
   },
   openGraph: {
-    type: 'website',
+    // 'article' is more semantically correct for documentation pages and
+    // unlocks article-specific OG properties.
+    type: 'article',
     locale: 'en_US',
-    title: {
-      template: '%s · Base UI',
-      default: 'Base UI',
-    },
+    url: './',
+    authors: ['https://base-ui.com'],
     ttl: 604800,
   },
-  metadataBase: new URL('https://base-ui.com'),
+  metadataBase: process.env.BASE_URL,
   alternates: {
     canonical: './',
   },

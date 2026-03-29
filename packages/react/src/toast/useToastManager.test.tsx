@@ -53,6 +53,360 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       expect(screen.queryByTestId('root')).toBe(null);
     });
 
+    it('keeps multiple providers isolated when one provider updates', async () => {
+      function ProviderContents(props: { label: string; title: string }) {
+        const { add, update, toasts } = useToastManager();
+        const idRef = React.useRef<string | null>(null);
+
+        return (
+          <React.Fragment>
+            <Toast.Viewport>
+              {toasts.map((toast) => (
+                <Toast.Root key={toast.id} toast={toast}>
+                  <Toast.Title>{toast.title}</Toast.Title>
+                </Toast.Root>
+              ))}
+            </Toast.Viewport>
+            <button
+              onClick={() => {
+                idRef.current = add({
+                  title: props.title,
+                });
+              }}
+            >
+              add {props.label}
+            </button>
+            <button
+              onClick={() => {
+                if (idRef.current) {
+                  update(idRef.current, {
+                    title: `${props.title} updated`,
+                  });
+                }
+              }}
+            >
+              update {props.label}
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <React.Fragment>
+          <Toast.Provider>
+            <ProviderContents label="first" title="First toast" />
+          </Toast.Provider>
+          <Toast.Provider>
+            <ProviderContents label="second" title="Second toast" />
+          </Toast.Provider>
+        </React.Fragment>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add first' }));
+      fireEvent.click(screen.getByRole('button', { name: 'add second' }));
+
+      expect(screen.getByText('First toast')).not.toBe(null);
+      expect(screen.getByText('Second toast')).not.toBe(null);
+
+      fireEvent.click(screen.getByRole('button', { name: 'update first' }));
+
+      expect(screen.getByText('First toast updated')).not.toBe(null);
+      expect(screen.queryByText('Second toast updated')).toBe(null);
+      expect(screen.getByText('Second toast')).not.toBe(null);
+    });
+
+    it('replaces a closing toast when adding again with the same id', async () => {
+      function Buttons() {
+        const { add, close, toasts } = useToastManager();
+        const toastIdRef = React.useRef<string | null>(null);
+
+        return (
+          <React.Fragment>
+            <button
+              onClick={() => {
+                toastIdRef.current = add({
+                  id: 'save',
+                  title: 'Saving...',
+                  timeout: 0,
+                });
+              }}
+            >
+              add
+            </button>
+            <button
+              onClick={() => {
+                if (toastIdRef.current) {
+                  close(toastIdRef.current);
+                }
+              }}
+            >
+              close
+            </button>
+            <button
+              onClick={() => {
+                toastIdRef.current = add({
+                  id: 'save',
+                  title: 'Saved',
+                  timeout: 0,
+                });
+              }}
+            >
+              re-add
+            </button>
+            <div data-testid="toast-count">{toasts.length}</div>
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+          <Buttons />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      expect(screen.getByTestId('title')).toHaveTextContent('Saving...');
+      expect(screen.queryAllByTestId('root')).toHaveLength(1);
+
+      fireEvent.click(screen.getByRole('button', { name: 'close' }));
+      fireEvent.click(screen.getByRole('button', { name: 're-add' }));
+
+      expect(screen.getByTestId('title')).toHaveTextContent('Saved');
+      expect(screen.queryAllByTestId('root')).toHaveLength(1);
+      expect(screen.getByTestId('toast-count')).toHaveTextContent('1');
+    });
+
+    it('does not call onRemove when replacing an ending toast', async () => {
+      const onRemoveSpy = vi.fn();
+
+      function Buttons() {
+        const { add, close, toasts } = useToastManager();
+        const toastIdRef = React.useRef<string | null>(null);
+
+        return (
+          <React.Fragment>
+            <button
+              onClick={() => {
+                toastIdRef.current = add({
+                  id: 'save',
+                  title: 'Saving...',
+                  timeout: 0,
+                  onRemove: onRemoveSpy,
+                });
+              }}
+            >
+              add
+            </button>
+            <button
+              onClick={() => {
+                if (toastIdRef.current) {
+                  close(toastIdRef.current);
+                }
+              }}
+            >
+              close
+            </button>
+            <button
+              onClick={() => {
+                toastIdRef.current = add({
+                  id: 'save',
+                  title: 'Saved',
+                  timeout: 0,
+                });
+              }}
+            >
+              re-add
+            </button>
+            <div data-testid="toast-count">{toasts.length}</div>
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <Buttons />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      expect(screen.getByTestId('toast-count')).toHaveTextContent('1');
+
+      fireEvent.click(screen.getByRole('button', { name: 'close' }));
+      fireEvent.click(screen.getByRole('button', { name: 're-add' }));
+
+      expect(screen.getByTestId('toast-count')).toHaveTextContent('1');
+      expect(onRemoveSpy).toHaveBeenCalledTimes(0);
+    });
+
+    it('calls onRemove once after replacing an ending toast and later removing the replacement', async () => {
+      const onRemoveSpy = vi.fn();
+
+      function Buttons() {
+        const { add, close, toasts } = useToastManager();
+        const toastIdRef = React.useRef<string | null>(null);
+        const [showViewport, setShowViewport] = React.useState(false);
+
+        return (
+          <React.Fragment>
+            {showViewport ? (
+              <Toast.Viewport>
+                <List />
+              </Toast.Viewport>
+            ) : null}
+            <button
+              onClick={() => {
+                toastIdRef.current = add({
+                  id: 'save',
+                  title: 'Saving...',
+                  timeout: 0,
+                  onRemove: onRemoveSpy,
+                });
+              }}
+            >
+              add
+            </button>
+            <button
+              onClick={() => {
+                if (toastIdRef.current) {
+                  close(toastIdRef.current);
+                }
+              }}
+            >
+              close
+            </button>
+            <button
+              onClick={() => {
+                toastIdRef.current = add({
+                  id: 'save',
+                  title: 'Saved',
+                  timeout: 0,
+                  onRemove: onRemoveSpy,
+                });
+              }}
+            >
+              re-add
+            </button>
+            <button onClick={() => setShowViewport(true)}>show viewport</button>
+            <div data-testid="toast-count">{toasts.length}</div>
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <Buttons />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      fireEvent.click(screen.getByRole('button', { name: 'close' }));
+      fireEvent.click(screen.getByRole('button', { name: 're-add' }));
+
+      expect(screen.getByTestId('toast-count')).toHaveTextContent('1');
+      expect(onRemoveSpy).toHaveBeenCalledTimes(0);
+
+      fireEvent.click(screen.getByRole('button', { name: 'show viewport' }));
+      fireEvent.click(screen.getByRole('button', { name: 'close' }));
+
+      expect(onRemoveSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('ignores transitionStatus when upserting an existing toast', async () => {
+      function Buttons() {
+        const { add, toasts } = useToastManager();
+
+        return (
+          <React.Fragment>
+            <button
+              onClick={() => {
+                add({
+                  id: 'save',
+                  title: 'Saving...',
+                  timeout: 0,
+                });
+              }}
+            >
+              add
+            </button>
+            <button
+              onClick={() => {
+                add({
+                  id: 'save',
+                  title: 'Saved',
+                  timeout: 0,
+                  transitionStatus: 'ending',
+                });
+              }}
+            >
+              upsert
+            </button>
+            {toasts.map((toast) => (
+              <React.Fragment key={toast.id}>
+                <div data-testid="title-value">{toast.title}</div>
+                <div data-testid="transition-status">{toast.transitionStatus}</div>
+              </React.Fragment>
+            ))}
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <Buttons />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      expect(screen.getByTestId('title-value')).toHaveTextContent('Saving...');
+      expect(screen.getByTestId('transition-status')).toHaveTextContent('starting');
+
+      fireEvent.click(screen.getByRole('button', { name: 'upsert' }));
+      expect(screen.getByTestId('title-value')).toHaveTextContent('Saved');
+      expect(screen.getByTestId('transition-status')).toHaveTextContent('starting');
+    });
+
+    it('increments updateKey when adding again with the same id', async () => {
+      function Buttons() {
+        const { add, toasts } = useToastManager();
+
+        return (
+          <React.Fragment>
+            <button
+              onClick={() => {
+                add({
+                  id: 'save',
+                  title: 'Draft saved',
+                  timeout: 0,
+                });
+              }}
+            >
+              add
+            </button>
+            {toasts.map((toast) => (
+              <div key={toast.id} data-testid="update-key">
+                {toast.updateKey}
+              </div>
+            ))}
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <Buttons />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      expect(screen.getByTestId('update-key')).toHaveTextContent('0');
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      expect(screen.getByTestId('update-key')).toHaveTextContent('1');
+    });
+
     describe('option: timeout', () => {
       it('dismisses the toast after the specified timeout', async () => {
         function AddButton() {
@@ -1130,6 +1484,57 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       expect(screen.getByTestId('title')).toHaveTextContent('updated');
     });
 
+    it('increments updateKey when updating a toast', async () => {
+      function Buttons() {
+        const { add, update, toasts } = useToastManager();
+        const idRef = React.useRef<string | null>(null);
+
+        return (
+          <React.Fragment>
+            <button
+              type="button"
+              onClick={() => {
+                idRef.current = add({
+                  id: 'save',
+                  title: 'Draft saved',
+                  timeout: 0,
+                });
+              }}
+            >
+              add
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (idRef.current) {
+                  update(idRef.current, { title: 'Draft synced' });
+                }
+              }}
+            >
+              update
+            </button>
+            {toasts.map((toast) => (
+              <div key={toast.id} data-testid="update-key">
+                {toast.updateKey}
+              </div>
+            ))}
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <Buttons />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      expect(screen.getByTestId('update-key')).toHaveTextContent('0');
+
+      fireEvent.click(screen.getByRole('button', { name: 'update' }));
+      expect(screen.getByTestId('update-key')).toHaveTextContent('1');
+    });
+
     it('auto-dismisses when timeout changes from 0 to a positive value', async () => {
       function AddButton() {
         const { add, update } = useToastManager();
@@ -1410,6 +1815,64 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       fireEvent.click(closeToast3);
 
       expect(toast1).not.toHaveAttribute('data-limited');
+    });
+
+    it('preserves limited state when upserting a limited toast', async () => {
+      function LimitedToastExample() {
+        const { add, toasts } = useToastManager();
+
+        return (
+          <React.Fragment>
+            {toasts.map((toast) => (
+              <Toast.Root key={toast.id} toast={toast} data-testid={String(toast.title)}>
+                <Toast.Title />
+              </Toast.Root>
+            ))}
+            <button
+              onClick={() => {
+                add({ id: 'save', title: 'Saving...', timeout: 0 });
+              }}
+            >
+              add save
+            </button>
+            <button
+              onClick={() => {
+                add({ id: 'other', title: 'Other toast', timeout: 0 });
+              }}
+            >
+              add other
+            </button>
+            <button
+              onClick={() => {
+                add({ id: 'save', title: 'Saved', timeout: 0 });
+              }}
+            >
+              upsert save
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider limit={1}>
+          <Toast.Viewport>
+            <LimitedToastExample />
+          </Toast.Viewport>
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add save' }));
+      const savingToast = screen.getByTestId('Saving...');
+      expect(savingToast).not.toHaveAttribute('data-limited');
+
+      fireEvent.click(screen.getByRole('button', { name: 'add other' }));
+      expect(savingToast).toHaveAttribute('data-limited');
+      expect(screen.getByTestId('Other toast')).not.toHaveAttribute('data-limited');
+
+      fireEvent.click(screen.getByRole('button', { name: 'upsert save' }));
+      const savedToast = screen.getByTestId('Saved');
+      expect(savedToast).toHaveAttribute('data-limited');
+      expect(screen.getByTestId('Other toast')).not.toHaveAttribute('data-limited');
     });
   });
 

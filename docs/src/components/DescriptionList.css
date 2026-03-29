@@ -62,6 +62,10 @@
 
     color: var(--color-foreground);
     grid-column: span 2;
+
+    & p {
+      margin: 0 !important;
+    }
   }
 
   .DescriptionListInner {
@@ -76,6 +80,10 @@
     [data-rehype-pretty-code-figure] {
       margin: 0;
       max-width: 100%;
+    }
+
+    & > p:last-of-type {
+      margin-bottom: 0;
     }
 
     .separator & {

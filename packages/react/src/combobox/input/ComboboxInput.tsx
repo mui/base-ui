@@ -67,6 +67,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const comboboxDisabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
   const name = useStore(store, selectors.name);
+  const form = useStore(store, selectors.form);
   const selectionMode = useStore(store, selectors.selectionMode);
   const autoHighlightMode = useStore(store, selectors.autoHighlight);
   const inputProps = useStore(store, selectors.inputProps);
@@ -195,6 +196,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         disabled,
         readOnly,
         required: selectionMode === 'none' ? required : undefined,
+        form,
         ...(selectionMode === 'none' && name && { name }),
         id,
         onFocus() {

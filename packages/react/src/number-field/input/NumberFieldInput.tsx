@@ -231,7 +231,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       }
 
       allowInputSyncRef.current = false;
-      const targetValue = event.target.value;
+      const targetValue = event.currentTarget.value;
 
       if (targetValue.trim() === '') {
         setInputValue(targetValue);

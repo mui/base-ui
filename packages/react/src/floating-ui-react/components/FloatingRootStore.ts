@@ -5,7 +5,7 @@ import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDeta
 import { createEventEmitter } from '../utils/createEventEmitter';
 import { type FloatingUIOpenChangeDetails } from '../../utils/types';
 import { type PopupTriggerMap } from '../../utils/popups';
-import { isClickLikeEvent } from '../utils';
+import { isClickLikeEvent } from '../utils/event';
 
 export interface FloatingRootState {
   open: boolean;

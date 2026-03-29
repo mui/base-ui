@@ -40,6 +40,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     className,
     defaultChecked,
     'aria-labelledby': ariaLabelledByProp,
+    form,
     id: idProp,
     inputRef: externalInputRef,
     name: nameProp,
@@ -186,6 +187,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
         {
           checked,
           disabled,
+          form,
           id: hiddenInputId,
           name,
           required,
@@ -200,7 +202,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
               return;
             }
 
-            const nextChecked = event.target.checked;
+            const nextChecked = event.currentTarget.checked;
             const eventDetails = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
             onCheckedChange?.(nextChecked, eventDetails);
@@ -223,6 +225,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     [
       checked,
       disabled,
+      form,
       handleInputRef,
       hiddenInputId,
       name,
@@ -256,7 +259,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     <SwitchRootContext.Provider value={state}>
       {element}
       {!checked && name && uncheckedValue !== undefined && (
-        <input type="hidden" name={name} value={uncheckedValue} />
+        <input type="hidden" form={form} name={name} value={uncheckedValue} />
       )}
       <input {...inputProps} />
     </SwitchRootContext.Provider>
@@ -314,6 +317,11 @@ export interface SwitchRootProps
    * Identifies the field when a form is submitted.
    */
   name?: string | undefined;
+  /**
+   * Identifies the form that owns the hidden input.
+   * Useful when the switch is rendered outside the form.
+   */
+  form?: string | undefined;
   /**
    * Event handler called when the switch is activated or deactivated.
    */

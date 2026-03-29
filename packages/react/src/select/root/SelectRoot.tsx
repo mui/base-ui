@@ -36,11 +36,12 @@ import { EMPTY_ARRAY, EMPTY_OBJECT } from '../../utils/constants';
 import { defaultItemEquality, findItemIndex } from '../../utils/itemEquality';
 import { useValueChanged } from '../../utils/useValueChanged';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
+import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
 import { mergeProps } from '../../merge-props';
 
 /**
  * Groups all parts of the select.
- * Doesn’t render its own HTML element.
+ * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
@@ -56,6 +57,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     defaultOpen = false,
     onOpenChange,
     name: nameProp,
+    form,
     autoComplete,
     disabled: disabledProp = false,
     readOnly = false,
@@ -313,10 +315,10 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       return;
     }
 
-    const viewportTop = scroller.scrollTop;
-    const viewportBottom = scroller.scrollTop + scroller.clientHeight;
-    const shouldShowUp = viewportTop > 1;
-    const shouldShowDown = viewportBottom < scroller.scrollHeight - 1;
+    const maxScrollTop = getMaxScrollOffset(scroller.scrollHeight, scroller.clientHeight);
+    const scrollTop = normalizeScrollOffset(scroller.scrollTop, maxScrollTop);
+    const shouldShowUp = scrollTop > 0;
+    const shouldShowDown = scrollTop < maxScrollTop;
 
     if (store.state.scrollUpArrowVisible !== shouldShowUp) {
       store.set('scrollUpArrowVisible', shouldShowUp);
@@ -505,12 +507,13 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         <input
           key={currentSerializedValue}
           type="hidden"
+          form={form}
           name={name}
           value={currentSerializedValue}
         />
       );
     });
-  }, [multiple, value, name, itemToStringValue]);
+  }, [multiple, value, form, name, itemToStringValue]);
 
   return (
     <SelectRootContext.Provider value={contextValue}>
@@ -533,7 +536,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
                 return;
               }
 
-              const nextValue = event.target.value;
+              const nextValue = event.currentTarget.value;
               const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
               function handleChange() {
@@ -566,6 +569,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
             },
           })}
           id={generatedId && hiddenInputName == null ? `${generatedId}-hidden-input` : undefined}
+          form={form}
           name={hiddenInputName}
           autoComplete={autoComplete}
           value={serializedValue}
@@ -597,6 +601,11 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    * Identifies the field when a form is submitted.
    */
   name?: string | undefined;
+  /**
+   * Identifies the form that owns the hidden input.
+   * Useful when the select is rendered outside the form.
+   */
+  form?: string | undefined;
   /**
    * Provides a hint to the browser for autofill.
    * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/autocomplete
@@ -700,7 +709,7 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    */
   isItemEqualToValue?: ((itemValue: Value, value: Value) => boolean) | undefined;
   /**
-   * The uncontrolled value of the select when it’s initially rendered.
+   * The uncontrolled value of the select when it's initially rendered.
    *
    * To render a controlled select, use the `value` prop instead.
    */

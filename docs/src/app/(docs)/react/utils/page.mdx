@@ -25,6 +25,10 @@ Configures CSP-related behavior for inline tags rendered by Base UI components.
   - Disable inline style elements
   - Inline style attributes
   - API reference
+- Exports:
+  - CSPProvider
+    - Props: children, disableStyleElements, nonce
+- Types: CSPProvider.Props, CSPProvider.State
 
 </details>
 
@@ -42,8 +46,13 @@ Enables RTL behavior for Base UI components.
 - Sections:
   - Anatomy
   - API reference
+    - DirectionProvider
+    - useDirection
+- Exports:
+  - DirectionProvider
+    - Props: children, direction
   - useDirection
-    - Return value
+- Types: DirectionProvider.Props, DirectionProvider.State, TextDirection
 
 </details>
 
@@ -64,6 +73,15 @@ A utility to merge multiple sets of React props.
   - API reference
     - mergeProps
     - mergePropsN
+- Exports:
+  - makeEventPreventable
+    - Parameters: event
+  - mergeClassNames
+    - Parameters: ourClassName, theirClassName
+  - mergeProps
+    - Parameters: a, b, c, d, e
+  - mergePropsN
+    - Parameters: props
 
 </details>
 
@@ -86,8 +104,11 @@ Hook for enabling a render prop in custom components.
   - Migrating from Radix UI
   - Render prop and polymorphism
   - API reference
-    - Input parameters
-    - Return value
+- Exports:
+  - ComponentRenderFn
+  - useRender
+    - Parameters: params
+- Types: HTMLProps, UseRenderComponentProps, UseRenderElementProps, UseRenderParameters, UseRenderRenderProp, UseRenderReturnValue, UseRenderState, useRender.ComponentProps, useRender.ElementProps, useRender.Parameters, useRender.RenderProp, useRender.ReturnValue, useRender.State
 
 </details>
 
@@ -108,6 +129,11 @@ Defines the locale to use in the temporal components.
     - Nesting locales
     - Start of week
   - API reference
+- Exports:
+  - LocalizationProvider
+    - Props: children, temporalLocale
+  - useTemporalLocale
+- Types: LocalizationProvider.Props
 
 </details>
 

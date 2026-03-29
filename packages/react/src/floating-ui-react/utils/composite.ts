@@ -497,5 +497,9 @@ export function isListIndexDisabled(
 }
 
 export function isElementVisible(element: Element) {
+  if (typeof element.checkVisibility === 'function') {
+    return element.checkVisibility();
+  }
+
   return getComputedStyle(element).display !== 'none';
 }

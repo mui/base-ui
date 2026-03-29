@@ -56,6 +56,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     disabled: disabledGroup,
     readOnly: readOnlyGroup,
     required: requiredGroup,
+    form: formGroup,
     checkedValue,
     touched = false,
     validation,
@@ -80,6 +81,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   const disabled = fieldDisabled || fieldItemContext.disabled || disabledGroup || disabledProp;
   const readOnly = readOnlyGroup || readOnlyProp;
   const required = requiredGroup || requiredProp;
+  const form = formGroup;
 
   const checked = groupContext ? checkedValue === value : value === '';
   const serializedValue = React.useMemo(() => serializeValue(value), [value]);
@@ -184,6 +186,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   const inputProps: React.ComponentPropsWithRef<'input'> = {
     type: 'radio',
     ref: mergedInputRef,
+    form,
     id: hiddenInputId,
     name,
     tabIndex: -1,

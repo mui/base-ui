@@ -28,16 +28,11 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const store = useComboboxRootContext();
   const floatingRootContext = useComboboxFloatingContext();
   const hasPositionerContext = Boolean(useComboboxPositionerContext(true));
-  const { filteredItems } = useComboboxDerivedItemsContext();
+  const { filteredItems, hasItems } = useComboboxDerivedItemsContext();
 
-  const items = useStore(store, selectors.items);
-  const labelsRef = useStore(store, selectors.labelsRef);
-  const listRef = useStore(store, selectors.listRef);
   const selectionMode = useStore(store, selectors.selectionMode);
   const grid = useStore(store, selectors.grid);
   const popupProps = useStore(store, selectors.popupProps);
-  const disabled = useStore(store, selectors.disabled);
-  const readOnly = useStore(store, selectors.readOnly);
   const virtualized = useStore(store, selectors.virtualized);
 
   const multiple = selectionMode === 'multiple';
@@ -80,7 +75,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
         role: grid ? 'grid' : 'listbox',
         'aria-multiselectable': multiple ? 'true' : undefined,
         onKeyDown(event) {
-          if (disabled || readOnly) {
+          if (store.state.disabled || store.state.readOnly) {
             return;
           }
 
@@ -120,7 +115,10 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   }
 
   return (
-    <CompositeList elementsRef={listRef} labelsRef={items ? undefined : labelsRef}>
+    <CompositeList
+      elementsRef={store.state.listRef}
+      labelsRef={hasItems ? undefined : store.state.labelsRef}
+    >
       {element}
     </CompositeList>
   );
