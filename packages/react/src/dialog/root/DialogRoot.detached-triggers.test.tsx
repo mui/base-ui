@@ -252,6 +252,17 @@ describe('<Dialog.Root />', () => {
   describe.skipIf(isJSDOM)('multiple detached triggers', () => {
     type NumberPayload = { payload: number | undefined };
 
+    async function openAndCloseDialog(user: any) {
+      await user.click(screen.getByRole('button', { name: 'Trigger' }));
+      await waitFor(() => {
+        expect(screen.getByText('Dialog Content')).toBeVisible();
+      });
+      await user.click(screen.getByText('Close'));
+      await waitFor(() => {
+        expect(screen.queryByText('Dialog Content')).toBe(null);
+      });
+    }
+
     it('opens the dialog with any trigger', async () => {
       const testDialog = Dialog.createHandle();
       const { user } = await render(
@@ -299,6 +310,35 @@ describe('<Dialog.Root />', () => {
       await waitFor(() => {
         expect(screen.queryByText('Dialog Content')).not.toBe(null);
       });
+    });
+
+    it('keeps detached triggers clickable during Fast Refresh-like handle recreation', async () => {
+      function DetachedTriggerTest({ handle }: { handle: ReturnType<typeof Dialog.createHandle> }) {
+        return (
+          <React.Fragment>
+            <Dialog.Trigger handle={handle}>Trigger</Dialog.Trigger>
+            <Dialog.Root handle={handle}>
+              <Dialog.Portal>
+                <Dialog.Popup>
+                  Dialog Content
+                  <Dialog.Close>Close</Dialog.Close>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </React.Fragment>
+        );
+      }
+
+      const handleA = Dialog.createHandle();
+      const { user, setProps } = await render(<DetachedTriggerTest handle={handleA} />);
+
+      await openAndCloseDialog(user);
+
+      await setProps({ handle: Dialog.createHandle() });
+      await openAndCloseDialog(user);
+
+      await setProps({ handle: Dialog.createHandle() });
+      await openAndCloseDialog(user);
     });
 
     it('sets the payload and renders content based on its value', async () => {
