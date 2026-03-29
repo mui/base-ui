@@ -12,7 +12,7 @@ export const ComboboxStatus = React.forwardRef(function ComboboxStatus(
   componentProps: ComboboxStatus.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   return useRenderElement('div', componentProps, {
     ref: forwardedRef,

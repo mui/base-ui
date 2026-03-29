@@ -42,6 +42,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     sticky = false,
     disableAnchorTracking = false,
     collisionAvoidance = POPUP_COLLISION_AVOIDANCE,
+    style,
     ...elementProps
   } = componentProps;
 

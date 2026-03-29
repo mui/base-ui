@@ -32,6 +32,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     dirty: dirtyProp,
     touched: touchedProp,
     actionsRef,
+    style,
     ...elementProps
   } = componentProps;
 

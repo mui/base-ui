@@ -73,6 +73,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     render,
     className,
     inputRef: inputRefProp,
+    style,
     ...elementProps
   } = componentProps;
 

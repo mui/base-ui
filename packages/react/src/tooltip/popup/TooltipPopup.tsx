@@ -28,7 +28,7 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
   componentProps: TooltipPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, style, ...elementProps } = componentProps;
 
   const store = useTooltipRootContext();
   const { side, align } = useTooltipPositionerContext();

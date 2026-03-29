@@ -12,7 +12,7 @@ const InnerCalendarDayGridCell = React.forwardRef(function InnerCalendarDayGridC
   componentProps: CalendarDayGridCell.Props,
   forwardedRef: React.ForwardedRef<HTMLTableCellElement>,
 ) {
-  const { className, render, value, ...elementProps } = componentProps;
+  const { className, render, value, style, ...elementProps } = componentProps;
   const { props, context } = useSharedCalendarDayGridCell({ value });
 
   const element = useRenderElement('td', componentProps, {

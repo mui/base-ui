@@ -15,7 +15,7 @@ export const DrawerContent = React.forwardRef(function DrawerContent(
   componentProps: DrawerContent.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   useDialogRootContext();
 

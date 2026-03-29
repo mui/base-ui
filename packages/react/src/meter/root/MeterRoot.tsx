@@ -26,6 +26,7 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
     render,
     className,
     children,
+    style,
     ...elementProps
   } = componentProps;
 

@@ -40,6 +40,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     className,
     disabled: disabledProp = false,
     id: idProp,
+    style,
     ...elementProps
   } = componentProps;
 

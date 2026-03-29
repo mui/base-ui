@@ -14,7 +14,7 @@ describe('useRenderElement', () => {
     componentProps: BaseUIComponentProps<'div', { active?: boolean }> & { active?: boolean },
     forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
-    const { className, render: renderProp, active, ...elementProps } = componentProps;
+    const { className, render: renderProp, active, style, ...elementProps } = componentProps;
 
     const state = { active };
 
@@ -31,7 +31,7 @@ describe('useRenderElement', () => {
     componentProps: BaseUIComponentProps<'div', { active?: boolean }> & { active?: boolean },
     forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
-    const { className, render: renderProp, active, ...elementProps } = componentProps;
+    const { className, render: renderProp, active, style, ...elementProps } = componentProps;
 
     return useRenderElement('div', componentProps, {
       state: { active },
@@ -44,7 +44,7 @@ describe('useRenderElement', () => {
     componentProps: BaseUIComponentProps<'div', { active?: boolean }> & { active?: boolean },
     forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
-    const { className, render: renderProp, active, ...elementProps } = componentProps;
+    const { className, render: renderProp, active, style, ...elementProps } = componentProps;
 
     return useRenderElement('div', componentProps, {
       state: { active },

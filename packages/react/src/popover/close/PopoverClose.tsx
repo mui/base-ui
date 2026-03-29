@@ -23,6 +23,7 @@ export const PopoverClose = React.forwardRef(function PopoverClose(
     className,
     disabled = false,
     nativeButton = true,
+    style,
     ...elementProps
   } = componentProps;
 

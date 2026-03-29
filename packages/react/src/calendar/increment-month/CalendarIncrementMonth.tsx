@@ -25,6 +25,7 @@ export const CalendarIncrementMonth = React.forwardRef(function CalendarIncremen
     render,
     nativeButton,
     disabled: disabledProp,
+    style,
     ...elementProps
   } = componentProps;
 

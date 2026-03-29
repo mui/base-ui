@@ -17,7 +17,7 @@ export const NavigationMenuArrow = React.forwardRef(function NavigationMenuArrow
   componentProps: NavigationMenuArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, style, ...elementProps } = componentProps;
 
   const { open } = useNavigationMenuRootContext();
   const { arrowRef, side, align, arrowUncentered, arrowStyles } =
