@@ -38,7 +38,6 @@ const Controls = React.memo(function Controls(props: {
     for (let i = 0; i < totalIterations; i += 1) {
       const isWarmup = i < warmupIterations;
       const startTime = performance.now();
-      performance.mark('start');
 
       ReactDOM.flushSync(() => {
         setIsMenuOpen(true);
@@ -46,7 +45,6 @@ const Controls = React.memo(function Controls(props: {
 
       // eslint-disable-next-line no-await-in-loop
       await waitSingleFrame();
-      performance.mark('spendtime');
 
       if (!isWarmup) {
         const spendTime = performance.now() - startTime;
@@ -58,7 +56,6 @@ const Controls = React.memo(function Controls(props: {
       });
       // eslint-disable-next-line no-await-in-loop
       await waitSingleFrame();
-      performance.mark('end');
     }
 
     logResults(shouldRemoveOutliers ? removeOutliers(results) : results);
