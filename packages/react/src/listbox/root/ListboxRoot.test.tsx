@@ -423,7 +423,7 @@ describe('<Listbox.Root />', () => {
       await flushMicrotasks();
 
       expect(handleValueChange).toHaveBeenCalledTimes(1);
-      expect(handleValueChange.mock.calls[0][0]).toEqual(['b', 'c']);
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['c', 'b']);
     });
 
     it('Shift+Space selects contiguous items from most recently selected to focused', async () => {
@@ -811,7 +811,7 @@ describe('<Listbox.Root />', () => {
 
         await flushMicrotasks();
 
-        // Item b is now focused; Shift+ArrowRight selects b (anchor) and c (target)
+        // Item b is now focused; Shift+ArrowRight toggles c
         fireEvent.keyDown(screen.getByRole('option', { name: 'b' }), {
           key: 'ArrowRight',
           shiftKey: true,
@@ -820,7 +820,7 @@ describe('<Listbox.Root />', () => {
         await flushMicrotasks();
 
         expect(handleValueChange).toHaveBeenCalledTimes(1);
-        expect(handleValueChange.mock.calls[0][0]).toEqual(['b', 'c']);
+        expect(handleValueChange.mock.calls[0][0]).toEqual(['c']);
       });
 
       it('Shift+ArrowLeft selects the previous option', async () => {
@@ -849,7 +849,7 @@ describe('<Listbox.Root />', () => {
 
         await flushMicrotasks();
 
-        // Item b is now focused; Shift+ArrowLeft selects b (anchor) and a (target)
+        // Item b is now focused; Shift+ArrowLeft toggles a
         fireEvent.keyDown(screen.getByRole('option', { name: 'b' }), {
           key: 'ArrowLeft',
           shiftKey: true,
@@ -858,7 +858,7 @@ describe('<Listbox.Root />', () => {
         await flushMicrotasks();
 
         expect(handleValueChange).toHaveBeenCalledTimes(1);
-        expect(handleValueChange.mock.calls[0][0]).toEqual(['a', 'b']);
+        expect(handleValueChange.mock.calls[0][0]).toEqual(['a']);
       });
 
       it('Shift+ArrowDown does not select in horizontal orientation', async () => {
@@ -929,7 +929,7 @@ describe('<Listbox.Root />', () => {
 
         await flushMicrotasks();
 
-        // Item b is now focused; Shift+ArrowLeft selects c (next in RTL)
+        // Item b is now focused; Shift+ArrowLeft toggles c (next in RTL)
         fireEvent.keyDown(screen.getByRole('option', { name: 'b' }), {
           key: 'ArrowLeft',
           shiftKey: true,
@@ -938,7 +938,7 @@ describe('<Listbox.Root />', () => {
         await flushMicrotasks();
 
         expect(handleValueChange).toHaveBeenCalledTimes(1);
-        expect(handleValueChange.mock.calls[0][0]).toEqual(['b', 'c']);
+        expect(handleValueChange.mock.calls[0][0]).toEqual(['c']);
       });
 
       it('Shift+ArrowRight selects the previous option in RTL', async () => {
@@ -970,7 +970,7 @@ describe('<Listbox.Root />', () => {
 
         await flushMicrotasks();
 
-        // Item b is now focused; Shift+ArrowRight selects a (previous in RTL)
+        // Item b is now focused; Shift+ArrowRight toggles a (previous in RTL)
         fireEvent.keyDown(screen.getByRole('option', { name: 'b' }), {
           key: 'ArrowRight',
           shiftKey: true,
@@ -979,7 +979,7 @@ describe('<Listbox.Root />', () => {
         await flushMicrotasks();
 
         expect(handleValueChange).toHaveBeenCalledTimes(1);
-        expect(handleValueChange.mock.calls[0][0]).toEqual(['a', 'b']);
+        expect(handleValueChange.mock.calls[0][0]).toEqual(['a']);
       });
 
       it('Ctrl+A selects all in RTL', async () => {

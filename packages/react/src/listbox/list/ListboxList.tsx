@@ -48,11 +48,6 @@ export const ListboxList = React.forwardRef(function ListboxList(
   const activeIndex = useStore(store, selectors.activeIndex);
   const direction = useDirection();
 
-  // Tracks the selection value before a Shift+Arrow sequence starts.
-  // This allows Shift+Arrow to extend/contract the range on top of any
-  // pre-existing selection without losing items selected by other means.
-  const shiftSelectionBaseRef = React.useRef<any[] | null>(null);
-
   const onHighlightedIndexChange = useStableCallback((index: number) => {
     store.set('activeIndex', index);
   });
@@ -160,7 +155,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
       elements[targetIndex]?.focus();
     }
 
-    // Shift+Arrow: Move focus and extend/contract selection towards target
+    // Shift+Arrow: Move focus and toggle selection of the adjacent item
     if (event.shiftKey && !event.ctrlKey && !event.metaKey) {
       const isRtl = direction === 'rtl';
       const isPrev =
@@ -176,37 +171,25 @@ export const ListboxList = React.forwardRef(function ListboxList(
         if (targetIndex >= 0 && targetIndex < elements.length && elements[targetIndex]) {
           event.preventDefault();
           focusItem(targetIndex);
-
-          // Use the existing anchor, or establish one at the current item.
-          const anchorIndex = lastSelectedIndexRef.current ?? currentIndex;
-
-          // Capture the base selection on the first Shift+Arrow so that
-          // subsequent moves extend/contract the range on top of it.
-          if (shiftSelectionBaseRef.current === null) {
-            shiftSelectionBaseRef.current = [...store.state.value];
-          }
-
-          // Build the range from anchor to target.
-          const start = Math.min(anchorIndex, targetIndex);
-          const end = Math.max(anchorIndex, targetIndex);
-          const rangeValues: any[] = [];
-          for (let i = start; i <= end; i += 1) {
-            const val = values[i];
-            if (val !== undefined && !disabledItemsRef.current[i]) {
-              rangeValues.push(val);
-            }
-          }
-
-          // Merge: base selection (items outside range) + range items.
-          const baseOutside = shiftSelectionBaseRef.current.filter((v) => {
-            const idx = values.findIndex((rv: any) =>
-              compareItemEquality(v, rv, isItemEqualToValue),
+          const targetValue = values[targetIndex];
+          if (targetValue !== undefined && !disabledItemsRef.current[targetIndex]) {
+            const currentValue = store.state.value;
+            const alreadySelected = currentValue.some((v) =>
+              compareItemEquality(v, targetValue, isItemEqualToValue),
             );
-            return idx < start || idx > end;
-          });
-          const nextValue = [...baseOutside, ...rangeValues];
 
-          setValue(nextValue, createChangeEventDetails(REASONS.listNavigation, event.nativeEvent));
+            const nextValue = alreadySelected
+              ? currentValue.filter(
+                  (v) => !compareItemEquality(v, targetValue, isItemEqualToValue),
+                )
+              : [...currentValue, targetValue];
+
+            setValue(
+              nextValue,
+              createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
+            );
+            lastSelectedIndexRef.current = targetIndex;
+          }
         }
       }
     }
@@ -286,11 +269,6 @@ export const ListboxList = React.forwardRef(function ListboxList(
 
       // Handle typeahead
       handleTypeahead(event);
-    },
-    onKeyUp(event: React.KeyboardEvent) {
-      if (event.key === 'Shift') {
-        shiftSelectionBaseRef.current = null;
-      }
     },
   };
 
