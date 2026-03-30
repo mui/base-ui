@@ -7,9 +7,10 @@ import { ScrollArea } from '@base-ui/react/scroll-area';
 import scrollIntoView from 'scroll-into-view-if-needed';
 import { HEADER_HEIGHT } from './Header';
 import {
+  clearSideNavPrehydratedPath,
   getSideNavScrollTop,
+  getSideNavPrehydratedPath,
   normalizeSideNavPathname,
-  SIDE_NAV_PREHYDRATED_PATH_ATTRIBUTE,
   SIDE_NAV_SCROLL_MARGIN,
   SIDE_NAV_VIEWPORT_SELECTOR,
 } from '../utils/sideNavScroll';
@@ -74,11 +75,9 @@ export function Item(props: ItemProps) {
         return;
       }
 
-      const prehydratedPath = document.documentElement.getAttribute(
-        SIDE_NAV_PREHYDRATED_PATH_ATTRIBUTE,
-      );
+      const prehydratedPath = getSideNavPrehydratedPath(window);
       if (prehydratedPath === normalizeSideNavPathname(pathname)) {
-        document.documentElement.removeAttribute(SIDE_NAV_PREHYDRATED_PATH_ATTRIBUTE);
+        clearSideNavPrehydratedPath(window);
         return;
       }
 

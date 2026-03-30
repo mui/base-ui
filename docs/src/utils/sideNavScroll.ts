@@ -1,7 +1,7 @@
 export const SIDE_NAV_SCROLL_MARGIN = 48;
 export const SIDE_NAV_VIEWPORT_SELECTOR = '[data-side-nav-viewport]';
 export const SIDE_NAV_LINK_SELECTOR = 'a.SideNavLink[href]';
-export const SIDE_NAV_PREHYDRATED_PATH_ATTRIBUTE = 'data-side-nav-prehydrated-path';
+export const SIDE_NAV_PREHYDRATED_PATH_WINDOW_KEY = 'baseUiSideNavPrehydratedPath';
 
 export function normalizeSideNavPathname(pathname: string): string {
   if (!pathname) {
@@ -28,6 +28,15 @@ export function getSideNavScrollTop({
   const direction = viewportScrollTop > targetTop ? -1 : 1;
   const offset = Math.max(0, headerHeight - Math.max(0, windowScrollY));
   return targetTop + offset + scrollMargin * direction;
+}
+
+export function getSideNavPrehydratedPath(win: Window): string | null {
+  const value = (win as Window & Record<string, unknown>)[SIDE_NAV_PREHYDRATED_PATH_WINDOW_KEY];
+  return typeof value === 'string' ? value : null;
+}
+
+export function clearSideNavPrehydratedPath(win: Window): void {
+  delete (win as Window & Record<string, unknown>)[SIDE_NAV_PREHYDRATED_PATH_WINDOW_KEY];
 }
 
 export function createSideNavPrehydrationScript({
@@ -87,7 +96,7 @@ export function createSideNavPrehydrationScript({
     const offset = Math.max(0, scaledHeaderHeight - Math.max(0, window.scrollY));
     viewport.scrollTop = targetTop + offset + scaledScrollMargin * direction;
 
-    document.documentElement.setAttribute('${SIDE_NAV_PREHYDRATED_PATH_ATTRIBUTE}', pathname);
+    window['${SIDE_NAV_PREHYDRATED_PATH_WINDOW_KEY}'] = pathname;
   } catch {
     // Fail silently; this optimization should never block rendering.
   }
