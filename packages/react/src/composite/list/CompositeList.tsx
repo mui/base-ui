@@ -47,12 +47,15 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     setMapTick(lastTickRef.current);
   });
 
-  const sortedMap = React.useMemo(() => {
+  const sortedNodes = React.useMemo(() => {
     // `mapTick` is the `useMemo` trigger as `map` is stable.
     disableEslintWarning(mapTick);
 
+    return getOrderedNodes(map);
+  }, [map, mapTick]);
+
+  const sortedMap = React.useMemo(() => {
     const newMap = new Map<Element, CompositeMetadata<Metadata>>();
-    const sortedNodes = getOrderedNodes(map);
 
     sortedNodes.forEach((node, index) => {
       const metadata = map.get(node) ?? ({} as CompositeMetadata<Metadata>);
@@ -60,7 +63,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     });
 
     return newMap;
-  }, [map, mapTick]);
+  }, [map, sortedNodes]);
 
   useIsoLayoutEffect(() => {
     if (typeof MutationObserver !== 'function' || sortedMap.size === 0) {
@@ -92,18 +95,15 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   }, [sortedMap]);
 
   useIsoLayoutEffect(() => {
-    const sortedNodes = getOrderedNodes(map);
+    const nextSortedNodes = getOrderedNodes(map);
 
-    if (
-      sortedNodes.length === elementsRef.current.length &&
-      sortedNodes.every((node, index) => elementsRef.current[index] === node)
-    ) {
+    if (areSameNodes(nextSortedNodes, sortedNodes)) {
       return;
     }
 
     lastTickRef.current += 1;
     setMapTick(lastTickRef.current);
-  });
+  }, [children, map, sortedNodes]);
 
   useIsoLayoutEffect(() => {
     const shouldUpdateLengths = lastTickRef.current === mapTick;
@@ -186,6 +186,10 @@ function getOrderedNodes(map: Map<Element, unknown>) {
   return Array.from(map.keys())
     .filter((node) => node.isConnected)
     .sort(sortByDocumentPosition);
+}
+
+function areSameNodes(a: Element[], b: Element[]) {
+  return a.length === b.length && a.every((node, index) => node === b[index]);
 }
 
 function disableEslintWarning(_: any) {}
