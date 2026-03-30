@@ -340,11 +340,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
             event.preventDefault();
           }
           onHighlightedIndexChange(nextIndex, true);
-
-          // Wait for FocusManager `returnFocus` to execute.
-          queueMicrotask(() => {
-            elementsRef.current[nextIndex]?.focus();
-          });
+          elementsRef.current[nextIndex]?.focus();
         }
       },
     }),

@@ -59,6 +59,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     form: formGroup,
     checkedValue,
     touched = false,
+    touchedRef,
     validation,
     name,
   } = groupContext ?? {};
@@ -168,7 +169,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
       );
     },
     onFocus(event) {
-      if (event.defaultPrevented || disabled || readOnly || !touched) {
+      if (event.defaultPrevented || disabled || readOnly || !(touchedRef?.current ?? touched)) {
         return;
       }
 
