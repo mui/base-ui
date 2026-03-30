@@ -277,12 +277,13 @@ export function useAnchorPositioning(
     ? null
     : shift(
         (data) => {
+          const win = ownerWindow(data.elements.floating);
           const html = ownerDocument(data.elements.floating).documentElement;
+          const useLayoutViewport = shiftCrossAxis || (win.visualViewport?.scale ?? 1) !== 1;
           return {
             ...commonCollisionProps,
-            // Use the Layout Viewport to avoid shifting around when pinch-zooming
-            // for context menus.
-            rootBoundary: shiftCrossAxis
+            // Use the Layout Viewport to avoid shifting around when pinch-zooming.
+            rootBoundary: useLayoutViewport
               ? { x: 0, y: 0, width: html.clientWidth, height: html.clientHeight }
               : undefined,
             mainAxis: collisionAvoidanceAlign !== 'none',
