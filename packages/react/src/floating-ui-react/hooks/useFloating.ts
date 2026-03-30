@@ -73,7 +73,10 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
     NarrowedElement<ReferenceType> | null | undefined
   >(undefined);
   const [localFloatingElement, setLocalFloatingElement] = React.useState<HTMLElement | null>(null);
-  rootContext.useSyncedValue('referenceElement', localDomReference);
+  rootContext.useSyncedValue(
+    'referenceElement',
+    localDomReference === undefined ? null : localDomReference,
+  );
   const localDomReferenceElement = isElement(localDomReference)
     ? (localDomReference as Element)
     : null;
