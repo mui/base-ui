@@ -147,10 +147,12 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     return undefined;
   });
 
+  const getFieldValue = useStableCallback(() => checkedValue ?? null);
+
   useRegisterFieldControl({
     id,
     value: checkedValue,
-    getValue: () => checkedValue ?? null,
+    getValue: getFieldValue,
     controlRef,
   });
 

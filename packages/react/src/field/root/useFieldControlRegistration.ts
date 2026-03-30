@@ -63,6 +63,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
         if (!flushSync) {
           commit(nextValue);
         } else {
+          // Synchronously update the validity state so the submit event can be prevented.
           ReactDOM.flushSync(() => commit(nextValue));
         }
       },
