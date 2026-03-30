@@ -27,6 +27,7 @@ export const SelectValue = React.forwardRef(function SelectValue(
     render,
     children: childrenProp,
     placeholder,
+    style,
     ...elementProps
   } = componentProps;
 

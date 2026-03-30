@@ -15,7 +15,7 @@ export const ToastContent = React.forwardRef(function ToastContent(
   componentProps: ToastContent.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const { visibleIndex, expanded, recalculateHeight } = useToastRootContext();
 

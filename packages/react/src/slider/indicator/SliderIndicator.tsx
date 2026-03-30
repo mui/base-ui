@@ -86,7 +86,7 @@ export const SliderIndicator = React.forwardRef(function SliderIndicator(
   componentProps: SliderIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style: styleProp, ...elementProps } = componentProps;
 
   const { indicatorPosition, inset, max, min, orientation, renderBeforeHydration, state, values } =
     useSliderRootContext();

@@ -39,6 +39,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     render,
     className,
     overflowEdgeThreshold: overflowEdgeThresholdProp,
+    style,
     ...elementProps
   } = componentProps;
 

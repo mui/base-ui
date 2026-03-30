@@ -16,7 +16,7 @@ export const NumberFieldGroup = React.forwardRef(function NumberFieldGroup(
   componentProps: NumberFieldGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const { state } = useNumberFieldRootContext();
 

@@ -16,7 +16,7 @@ export const CalendarDayGridHeaderRow = React.forwardRef(function CalendarDayGri
   componentProps: CalendarDayGridHeaderRow.Props,
   forwardedRef: React.ForwardedRef<HTMLTableRowElement>,
 ) {
-  const { className, render, children, ...elementProps } = componentProps;
+  const { className, render, children, style, ...elementProps } = componentProps;
 
   const adapter = useTemporalAdapter();
 

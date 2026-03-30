@@ -429,6 +429,21 @@ describe('mergeProps', () => {
       expect(observedProps).toEqual({});
     });
 
+    it('does not mutate a reused object returned by the first props getter', () => {
+      const shared = { className: 'base' };
+
+      const result = mergeProps(() => shared, {
+        className: 'next',
+      });
+
+      expect(result).toEqual({
+        className: 'next base',
+      });
+      expect(shared).toEqual({
+        className: 'base',
+      });
+    });
+
     it('accepts the result of the props getter', () => {
       const propsGetter = () => ({ className: 'test-class' });
       const result = mergeProps(

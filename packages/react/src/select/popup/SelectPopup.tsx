@@ -32,9 +32,8 @@ import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { COMPOSITE_KEYS } from '../../composite/composite';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { clamp } from '../../utils/clamp';
+import { getMaxScrollOffset, SCROLL_EDGE_TOLERANCE_PX } from '../../utils/scrollEdges';
 import { useCSPContext } from '../../csp-provider/CSPContext';
-
-const SCROLL_EPS_PX = 1;
 
 const stateAttributesMapping: StateAttributesMapping<SelectPopupState> = {
   ...popupStateMapping,
@@ -51,7 +50,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   componentProps: SelectPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, finalFocus, ...elementProps } = componentProps;
+  const { render, className, style, finalFocus, ...elementProps } = componentProps;
 
   const {
     store,
@@ -90,9 +89,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const positionerElement = useStore(store, selectors.positionerElement);
   const listElement = useStore(store, selectors.listElement);
 
-  const initialHeightRef = React.useRef(0);
   const reachedMaxHeightRef = React.useRef(false);
-  const maxHeightRef = React.useRef(0);
   const initialPlacedRef = React.useRef(false);
   const originalPositionerStylesRef = React.useRef<React.CSSProperties>({});
 
@@ -111,7 +108,17 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     const isTopPositioned = positionerElement.style.top === '0px';
     const isBottomPositioned = positionerElement.style.bottom === '0px';
 
-    const currentHeight = positionerElement.getBoundingClientRect().height;
+    if (!isTopPositioned && !isBottomPositioned) {
+      handleScrollArrowVisibility();
+      return;
+    }
+
+    const scale = getScale(positionerElement);
+    const currentHeight = normalizeSize(
+      positionerElement.getBoundingClientRect().height,
+      'y',
+      scale,
+    );
     const doc = ownerDocument(positionerElement);
     const positionerStyles = getComputedStyle(positionerElement);
     const marginTop = parseFloat(positionerStyles.marginTop);
@@ -141,50 +148,34 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         setHeight(currentHeight + heightDelta);
       }
       scroller.scrollTop = targetScrollTop;
-      if (maxAvailableHeight - (currentHeight + heightDelta) <= SCROLL_EPS_PX) {
+      if (maxAvailableHeight - (currentHeight + heightDelta) <= SCROLL_EDGE_TOLERANCE_PX) {
         reachedMaxHeightRef.current = true;
       }
       handleScrollArrowVisibility();
     };
 
-    if (isTopPositioned) {
-      const diff = maxScrollTop - scrollTop;
-      const idealHeight = currentHeight + diff;
-      const nextHeight = Math.min(idealHeight, maxAvailableHeight);
+    const diff = isTopPositioned ? maxScrollTop - scrollTop : scrollTop;
+    const nextHeight = Math.min(currentHeight + diff, maxAvailableHeight);
 
-      nextPositionerHeight = nextHeight;
+    nextPositionerHeight = nextHeight;
 
-      if (diff <= SCROLL_EPS_PX) {
-        handleSmallDiff(diff, maxScrollTop);
-        return;
-      }
+    if (diff <= SCROLL_EDGE_TOLERANCE_PX) {
+      handleSmallDiff(diff, isTopPositioned ? maxScrollTop : 0);
+      return;
+    }
 
-      if (maxAvailableHeight - nextHeight > SCROLL_EPS_PX) {
+    if (maxAvailableHeight - nextHeight > SCROLL_EDGE_TOLERANCE_PX) {
+      if (isTopPositioned) {
         scrollToMax = true;
       } else {
-        setReachedMax = true;
-      }
-    } else if (isBottomPositioned) {
-      const diff = scrollTop;
-      const idealHeight = currentHeight + diff;
-      const nextHeight = Math.min(idealHeight, maxAvailableHeight);
-      const overshoot = idealHeight - maxAvailableHeight;
-
-      nextPositionerHeight = nextHeight;
-
-      if (diff <= SCROLL_EPS_PX) {
-        handleSmallDiff(diff, 0);
-        return;
-      }
-
-      if (maxAvailableHeight - nextHeight > SCROLL_EPS_PX) {
         nextScrollTop = 0;
-      } else {
-        setReachedMax = true;
+      }
+    } else {
+      setReachedMax = true;
 
-        if (scrollTop < maxScrollTop) {
-          nextScrollTop = scrollTop - (diff - overshoot);
-        }
+      if (isBottomPositioned && scrollTop < maxScrollTop) {
+        const overshoot = currentHeight + diff - maxAvailableHeight;
+        nextScrollTop = scrollTop - (diff - overshoot);
       }
     }
 
@@ -201,12 +192,12 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       const target = scrollToMax ? nextMaxScrollTop : clamp(nextScrollTop!, 0, nextMaxScrollTop);
 
       // Avoid adjustments that re-trigger scroll events forever.
-      if (Math.abs(scroller.scrollTop - target) > SCROLL_EPS_PX) {
+      if (Math.abs(scroller.scrollTop - target) > SCROLL_EDGE_TOLERANCE_PX) {
         scroller.scrollTop = target;
       }
     }
 
-    if (setReachedMax || nextPositionerHeight >= maxAvailableHeight - SCROLL_EPS_PX) {
+    if (setReachedMax || nextPositionerHeight >= maxAvailableHeight - SCROLL_EDGE_TOLERANCE_PX) {
       reachedMaxHeightRef.current = true;
     }
 
@@ -261,9 +252,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
     initialPlacedRef.current = false;
     reachedMaxHeightRef.current = false;
-    initialHeightRef.current = 0;
-    maxHeightRef.current = 0;
-
     clearStyles(positionerElement, originalPositionerStylesRef.current);
   }, [open, alignItemWithTriggerActive, positionerElement, popupRef]);
 
@@ -360,7 +348,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         popupElement.style.height = '100%';
 
         const maxScrollTop = getMaxScrollTop(scroller);
-        const isTopPositioned = scrollTop >= maxScrollTop - SCROLL_EPS_PX;
+        const isTopPositioned = scrollTop >= maxScrollTop - SCROLL_EDGE_TOLERANCE_PX;
 
         if (isTopPositioned) {
           height = Math.min(viewportHeight, positionerRect.height) - (scrollTop - maxScrollTop);
@@ -371,7 +359,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         const fallbackToAlignPopupToTrigger =
           triggerRect.top < triggerCollisionThreshold ||
           triggerRect.bottom > viewportHeight - triggerCollisionThreshold ||
-          Math.ceil(height) + SCROLL_EPS_PX < Math.min(scrollHeight, minHeight);
+          Math.ceil(height) + SCROLL_EDGE_TOLERANCE_PX < Math.min(scrollHeight, minHeight);
 
         // Safari doesn't position the popup correctly when pinch-zoomed.
         const isPinchZoomed = (win.visualViewport?.scale ?? 1) !== 1 && isWebKit;
@@ -383,15 +371,15 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
           return;
         }
 
+        const initialHeight = Math.max(minHeight, height);
+
         if (isTopPositioned) {
           const topOffset = Math.max(0, viewportHeight - idealHeight);
           positionerElement.style.top = positionerRect.height >= maxHeight ? '0' : `${topOffset}px`;
           positionerElement.style.height = `${height}px`;
           scroller.scrollTop = getMaxScrollTop(scroller);
-          initialHeightRef.current = Math.max(minHeight, height);
         } else {
           positionerElement.style.bottom = '0';
-          initialHeightRef.current = Math.max(minHeight, height);
           scroller.scrollTop = scrollTop;
         }
 
@@ -408,7 +396,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
           popupElement.style.setProperty('--transform-origin', `50% ${clampedY}%`);
         }
 
-        if (initialHeightRef.current === viewportHeight || height >= maxPopupHeight) {
+        if (initialHeight === viewportHeight || height >= maxPopupHeight) {
           reachedMaxHeightRef.current = true;
         }
 
@@ -580,7 +568,7 @@ function getMaxPopupHeight(popupStyles: CSSStyleDeclaration) {
 }
 
 function getMaxScrollTop(scroller: HTMLElement) {
-  return Math.max(0, scroller.scrollHeight - scroller.clientHeight);
+  return getMaxScrollOffset(scroller.scrollHeight, scroller.clientHeight);
 }
 
 function getScale(element: HTMLElement) {
@@ -588,15 +576,19 @@ function getScale(element: HTMLElement) {
   return floatingPlatform.getScale(element) as { x: number; y: number };
 }
 
+function normalizeSize(size: number, axis: 'x' | 'y', scale: { x: number; y: number }) {
+  return size / scale[axis];
+}
+
 function normalizeRect(
   rect: DOMRect | DOMRectReadOnly,
   scale: { x: number; y: number },
 ): ClientRectObject {
   return rectToClientRect({
-    x: rect.x / scale.x,
-    y: rect.y / scale.y,
-    width: rect.width / scale.x,
-    height: rect.height / scale.y,
+    x: normalizeSize(rect.x, 'x', scale),
+    y: normalizeSize(rect.y, 'y', scale),
+    width: normalizeSize(rect.width, 'x', scale),
+    height: normalizeSize(rect.height, 'y', scale),
   });
 }
 

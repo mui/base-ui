@@ -10,10 +10,10 @@ import {
   contains,
   getTarget,
   isTypeableCombobox,
-  isVirtualClick,
-  isVirtualPointerEvent,
-  stopEvent,
   getFloatingFocusElement,
+} from '../utils/element';
+import { isVirtualClick, isVirtualPointerEvent, stopEvent } from '../utils/event';
+import {
   isIndexOutOfListBounds,
   getMinListIndex,
   getMaxListIndex,
@@ -23,7 +23,7 @@ import {
   getGridCellIndices,
   getGridCellIndexOfCorner,
   findNonDisabledListIndex,
-} from '../utils';
+} from '../utils/composite';
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';

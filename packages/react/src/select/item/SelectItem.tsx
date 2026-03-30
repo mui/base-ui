@@ -42,6 +42,7 @@ export const SelectItem = React.memo(
       label,
       disabled = false,
       nativeButton = false,
+      style,
       ...elementProps
     } = componentProps;
 

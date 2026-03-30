@@ -38,6 +38,7 @@ export const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
     id,
     render,
     nativeButton = true,
+    style,
     ...elementProps
   } = componentProps;
 

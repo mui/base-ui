@@ -41,6 +41,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     delay = 100,
     closeDelay = 0,
     disabled: disabledProp = false,
+    style,
     ...elementProps
   } = componentProps;
 

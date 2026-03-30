@@ -29,7 +29,7 @@ export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
   componentProps: PreviewCardPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, style, ...elementProps } = componentProps;
 
   const store = usePreviewCardRootContext();
   const { side, align } = usePreviewCardPositionerContext();

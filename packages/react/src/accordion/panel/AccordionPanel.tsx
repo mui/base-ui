@@ -31,6 +31,7 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
     keepMounted: keepMountedProp,
     id: idProp,
     render,
+    style,
     ...elementProps
   } = componentProps;
 

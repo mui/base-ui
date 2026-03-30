@@ -38,6 +38,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     onValueChange,
     render,
     value: externalValue,
+    style,
     ...elementProps
   } = componentProps;
 

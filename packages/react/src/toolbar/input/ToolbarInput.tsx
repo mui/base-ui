@@ -23,6 +23,7 @@ export const ToolbarInput = React.forwardRef(function ToolbarInput(
     focusableWhenDisabled = true,
     render,
     disabled: disabledProp = false,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -70,6 +71,7 @@ export const ToolbarInput = React.forwardRef(function ToolbarInput(
       tag="input"
       render={render}
       className={className}
+      style={style}
       metadata={itemMetadata}
       state={state}
       refs={[forwardedRef]}

@@ -18,7 +18,7 @@ export const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
   componentProps: ScrollAreaContent.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const contentWrapperRef = React.useRef<HTMLDivElement | null>(null);
 

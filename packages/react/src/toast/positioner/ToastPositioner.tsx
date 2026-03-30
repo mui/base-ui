@@ -52,6 +52,7 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
     sticky = positionerProps.sticky ?? false,
     disableAnchorTracking = positionerProps.disableAnchorTracking ?? false,
     collisionAvoidance = positionerProps.collisionAvoidance ?? POPUP_COLLISION_AVOIDANCE,
+    style,
     ...elementProps
   } = props;
 

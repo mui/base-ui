@@ -17,7 +17,7 @@ export const ProgressLabel = React.forwardRef(function ProgressLabel(
   componentProps: ProgressLabel.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, id: idProp, ...elementProps } = componentProps;
+  const { render, className, style, id: idProp, ...elementProps } = componentProps;
 
   const { setLabelId, state } = useProgressRootContext();
 

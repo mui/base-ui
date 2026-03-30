@@ -143,6 +143,9 @@ The `data-swipe-direction` attribute can be used to determine the swipe directio
 The `data-limited` attribute indicates that the toast was removed from the list due to exceeding the `limit` option.
 This is useful for animating the toast differently when it is removed from the list.
 
+The `updateKey` property increments when a toast is updated or upserted.
+This can be used to replay attention-grabbing styles by switching animation names or, when remounting is acceptable, by including it in a React `key`.
+
 ## Examples
 
 ### Anchored toasts
@@ -243,6 +246,14 @@ import { DemoToastCustom } from './demos/custom';
 
 <DemoToastCustom compact />
 
+### Deduplicated toast
+
+When you upsert the same toast by `id`, the `updateKey` property increments so a custom renderer can replay a visual animation. This demo alternates CSS animation names from `updateKey`, which keeps the same toast mounted while replaying the pulse.
+
+import { DemoToastDeduplicate } from './demos/deduplicate';
+
+<DemoToastDeduplicate compact />
+
 ### Varying heights
 
 Toasts with varying heights are stacked by ensuring that the `<Toast.Content>` element has `overflow: hidden` set, along with all toasts' heights matching the frontmost toast at index 0.
@@ -313,6 +324,8 @@ const toastManager = Toast.useToastManager();
 ### `add` method
 
 Creates a toast by adding it to the toast list.
+
+If you pass an `id` that already exists, the existing toast is updated in place instead of creating a duplicate.
 
 Returns a `toastId` that can be used to update or close the toast later.
 

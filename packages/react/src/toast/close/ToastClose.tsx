@@ -16,7 +16,14 @@ export const ToastClose = React.forwardRef(function ToastClose(
   componentProps: ToastClose.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, disabled, nativeButton = true, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    style,
+    disabled,
+    nativeButton = true,
+    ...elementProps
+  } = componentProps;
 
   const store = useToastProviderContext();
   const { toast } = useToastRootContext();
