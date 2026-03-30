@@ -2049,7 +2049,9 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         return new Intl.NumberFormat('en-US', USD_NUMBER_FORMAT).format(v);
       }
 
-      await render(<TestRangeSlider defaultValue={[50, 75]} format={USD_NUMBER_FORMAT} locale="en-US" />);
+      await render(
+        <TestRangeSlider defaultValue={[50, 75]} format={USD_NUMBER_FORMAT} locale="en-US" />,
+      );
 
       const value = screen.getByTestId('value');
       expect(value).toHaveTextContent(`${formatValue(50)} – ${formatValue(75)}`);
