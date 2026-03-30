@@ -10,7 +10,6 @@ import {
 } from '../../floating-ui-react/utils';
 import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
 import {
   useNavigationMenuRootContext,
   useNavigationMenuTreeContext,
@@ -23,10 +22,9 @@ import {
   type UseAnchorPositioningSharedParameters,
 } from '../../utils/useAnchorPositioning';
 import { NavigationMenuPositionerContext } from './NavigationMenuPositionerContext';
-import { popupStateMapping } from '../../utils/popupStateMapping';
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
-import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import { usePositioner } from '../../utils/usePositioner';
 
 const EMPTY_ROOT_CONTEXT = getEmptyRootContext();
 
@@ -130,23 +128,6 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     adaptiveOrigin,
   });
 
-  const defaultProps: React.ComponentProps<'div'> = React.useMemo(() => {
-    const hiddenStyles: React.CSSProperties = {};
-
-    if (!open) {
-      hiddenStyles.pointerEvents = 'none';
-    }
-
-    return {
-      role: 'presentation',
-      hidden: !mounted,
-      style: {
-        ...positioning.positionerStyles,
-        ...hiddenStyles,
-      },
-    };
-  }, [open, mounted, positioning.positionerStyles]);
-
   const state: NavigationMenuPositionerState = {
     open,
     side: positioning.side,
@@ -177,12 +158,16 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     };
   }, [open, resizeTimeout, positionerElement]);
 
-  const element = useRenderElement('div', componentProps, {
+  const element = usePositioner(
+    componentProps,
     state,
-    ref: [forwardedRef, setPositionerElement, positionerRef],
-    props: [defaultProps, getDisabledMountTransitionStyles(transitionStatus), elementProps],
-    stateAttributesMapping: popupStateMapping,
-  });
+    positioning.positionerStyles,
+    transitionStatus,
+    elementProps,
+    [forwardedRef, setPositionerElement, positionerRef],
+    !mounted,
+    !open,
+  );
 
   return (
     <NavigationMenuPositionerContext.Provider value={positioning}>

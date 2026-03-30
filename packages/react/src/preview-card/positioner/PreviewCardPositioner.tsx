@@ -9,13 +9,11 @@ import {
   useAnchorPositioning,
   type UseAnchorPositioningSharedParameters,
 } from '../../utils/useAnchorPositioning';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-import { popupStateMapping } from '../../utils/popupStateMapping';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { usePreviewCardPortalContext } from '../portal/PreviewCardPortalContext';
 import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
-import { useRenderElement } from '../../utils/useRenderElement';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
-import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import { usePositioner } from '../../utils/usePositioner';
 
 /**
  * Positions the popup against the trigger.
@@ -77,23 +75,6 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     adaptiveOrigin: hasViewport ? adaptiveOrigin : undefined,
   });
 
-  const defaultProps: HTMLProps = React.useMemo(() => {
-    const hiddenStyles: React.CSSProperties = {};
-
-    if (!open) {
-      hiddenStyles.pointerEvents = 'none';
-    }
-
-    return {
-      role: 'presentation',
-      hidden: !mounted,
-      style: {
-        ...positioning.positionerStyles,
-        ...hiddenStyles,
-      },
-    };
-  }, [open, mounted, positioning.positionerStyles]);
-
   const state: PreviewCardPositionerState = {
     open,
     side: positioning.side,
@@ -102,32 +83,19 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     instant: instantType,
   };
 
-  const contextValue: PreviewCardPositionerContext = React.useMemo(
-    () => ({
-      side: positioning.side,
-      align: positioning.align,
-      arrowRef: positioning.arrowRef,
-      arrowUncentered: positioning.arrowUncentered,
-      arrowStyles: positioning.arrowStyles,
-    }),
-    [
-      positioning.side,
-      positioning.align,
-      positioning.arrowRef,
-      positioning.arrowUncentered,
-      positioning.arrowStyles,
-    ],
+  const element = usePositioner(
+    componentProps,
+    state,
+    positioning.positionerStyles,
+    transitionStatus,
+    elementProps,
+    [forwardedRef, store.useStateSetter('positionerElement')],
+    !mounted,
+    !open,
   );
 
-  const element = useRenderElement('div', componentProps, {
-    state,
-    props: [defaultProps, getDisabledMountTransitionStyles(transitionStatus), elementProps],
-    ref: [forwardedRef, store.useStateSetter('positionerElement')],
-    stateAttributesMapping: popupStateMapping,
-  });
-
   return (
-    <PreviewCardPositionerContext.Provider value={contextValue}>
+    <PreviewCardPositionerContext.Provider value={positioning}>
       <FloatingNode id={nodeId}>{element}</FloatingNode>
     </PreviewCardPositionerContext.Provider>
   );
