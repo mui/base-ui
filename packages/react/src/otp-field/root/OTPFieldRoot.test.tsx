@@ -66,6 +66,32 @@ describe('<OTPField />', () => {
       expect(inputs.map((input) => input.value)).toEqual(['1', '2', '3']);
     });
 
+    it('supports grouped layouts without affecting slot counting', async () => {
+      await render(
+        <OTPFieldBase.Root defaultValue="123456" length={6}>
+          <OTPFieldBase.Group data-testid="first-group">
+            <OTPFieldBase.Input />
+            <OTPFieldBase.Input />
+            <OTPFieldBase.Input />
+          </OTPFieldBase.Group>
+          <OTPFieldBase.Separator>-</OTPFieldBase.Separator>
+          <OTPFieldBase.Group data-testid="second-group">
+            <OTPFieldBase.Input />
+            <OTPFieldBase.Input />
+            <OTPFieldBase.Input />
+          </OTPFieldBase.Group>
+        </OTPFieldBase.Root>,
+      );
+
+      const root = screen.getByRole('group');
+      const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+      expect(root).toContainElement(screen.getByTestId('first-group'));
+      expect(root).toContainElement(screen.getByTestId('second-group'));
+      expect(screen.getByText('-')).toBeVisible();
+      expect(inputs.map((input) => input.value)).toEqual(['1', '2', '3', '4', '5', '6']);
+    });
+
     it('updates the rendered value in controlled mode', async () => {
       const { rerender } = await render(<OTPField value="123456" />);
 

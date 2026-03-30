@@ -77,7 +77,7 @@ describe('<OTPField.Input />', () => {
     expect(document.activeElement).toBe(inputs[1]);
   });
 
-  it('does not select the last slot after typing into it for the first time', async () => {
+  it('selects the last slot after typing into it for the first time', async () => {
     await render(<OTPFieldTest defaultValue="12345" />);
 
     const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
@@ -90,7 +90,7 @@ describe('<OTPField.Input />', () => {
     fireEvent.change(lastInput, { target: { value: '6' } });
 
     expect(document.activeElement).toBe(lastInput);
-    expect(lastInput.selectionStart).toBe(1);
+    expect(lastInput.selectionStart).toBe(0);
     expect(lastInput.selectionEnd).toBe(1);
   });
 

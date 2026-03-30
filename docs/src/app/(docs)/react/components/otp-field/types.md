@@ -209,6 +209,79 @@ type OTPFieldInputState = {
 };
 ```
 
+### Group
+
+Groups OTP inputs together for layout.
+Renders a `<div>` element.
+
+**Group Props:**
+
+| Prop      | Type                                                                                         | Default | Description                                                                                                                                                                                   |
+| :-------- | :------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: OTPField.Group.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: OTPField.Group.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: OTPField.Group.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+### Group.Props
+
+Re-export of [Group](#group) props.
+
+### Group.State
+
+```typescript
+type OTPFieldGroupState = {
+  /** Whether all slots are filled. */
+  complete: boolean;
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+  /** The number of OTP input slots. */
+  length: number;
+  /** Whether the user should be unable to change the field value. */
+  readOnly: boolean;
+  /** Whether the user must enter a value before submitting a form. */
+  required: boolean;
+  /** The OTP value. */
+  value: string;
+  /** Whether the field has been touched. */
+  touched: boolean;
+  /** Whether the field value has changed from its initial value. */
+  dirty: boolean;
+  /** Whether the field is valid. */
+  valid: boolean | null;
+  /** Whether the field has a value. */
+  filled: boolean;
+  /** Whether the field is focused. */
+  focused: boolean;
+};
+```
+
+### Separator
+
+A separator element accessible to screen readers.
+Renders a `<div>` element.
+
+**Separator Props:**
+
+| Prop        | Type                                                                                   | Default        | Description                                                                                                                                                                                   |
+| :---------- | :------------------------------------------------------------------------------------- | :------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| orientation | `Orientation`                                                                          | `'horizontal'` | The orientation of the separator.                                                                                                                                                             |
+| className   | `string \| ((state: SeparatorState) => string \| undefined)`                           | -              | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style       | `React.CSSProperties \| ((state: SeparatorState) => React.CSSProperties \| undefined)` | -              | -                                                                                                                                                                                             |
+| render      | `ReactElement \| ((props: HTMLProps, state: SeparatorState) => ReactElement)`          | -              | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+### Separator.Props
+
+Re-export of [Separator](#separator) props.
+
+### Separator.State
+
+```typescript
+type OTPFieldSeparatorState = {
+  /** The orientation of the separator. */
+  orientation: Orientation;
+};
+```
+
 ## External Types
 
 ### ValidationType
@@ -217,11 +290,19 @@ type OTPFieldInputState = {
 type ValidationType = 'numeric' | 'alpha' | 'alphanumeric' | 'none';
 ```
 
+### Orientation
+
+```typescript
+type Orientation = 'horizontal' | 'vertical';
+```
+
 ## Export Groups
 
 - `OTPField.Root`: `OTPField.Root`, `OTPField.Root.State`, `OTPField.Root.Props`, `OTPField.Root.ValidationType`, `OTPField.Root.ChangeEventReason`, `OTPField.Root.ChangeEventDetails`, `OTPField.Root.InvalidEventReason`, `OTPField.Root.InvalidEventDetails`, `OTPField.Root.CompleteEventReason`, `OTPField.Root.CompleteEventDetails`
+- `OTPField.Group`: `OTPField.Group`, `OTPField.Group.State`, `OTPField.Group.Props`
 - `OTPField.Input`: `OTPField.Input`, `OTPField.Input.State`, `OTPField.Input.Props`
-- `Default`: `OTPFieldRootProps`, `OTPFieldRootState`, `OTPFieldRootChangeEventReason`, `OTPFieldRootChangeEventDetails`, `OTPFieldRootInvalidEventReason`, `OTPFieldRootInvalidEventDetails`, `OTPFieldRootCompleteEventReason`, `OTPFieldRootCompleteEventDetails`, `OTPFieldInputState`, `OTPFieldInputProps`
+- `OTPField.Separator`: `OTPField.Separator`, `OTPField.Separator.Props`, `OTPField.Separator.State`
+- `Default`: `OTPFieldRootProps`, `OTPFieldRootState`, `OTPFieldRootChangeEventReason`, `OTPFieldRootChangeEventDetails`, `OTPFieldRootInvalidEventReason`, `OTPFieldRootInvalidEventDetails`, `OTPFieldRootCompleteEventReason`, `OTPFieldRootCompleteEventDetails`, `OTPFieldGroupState`, `OTPFieldGroupProps`, `OTPFieldInputState`, `OTPFieldInputProps`
 
 ## Canonical Types
 
@@ -235,5 +316,7 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `OTPField.Root.InvalidEventDetails`: `OTPFieldRootInvalidEventDetails`
 - `OTPField.Root.CompleteEventReason`: `OTPFieldRootCompleteEventReason`
 - `OTPField.Root.CompleteEventDetails`: `OTPFieldRootCompleteEventDetails`
+- `OTPField.Group.State`: `OTPFieldGroupState`
+- `OTPField.Group.Props`: `OTPFieldGroupProps`
 - `OTPField.Input.State`: `OTPFieldInputState`
 - `OTPField.Input.Props`: `OTPFieldInputProps`

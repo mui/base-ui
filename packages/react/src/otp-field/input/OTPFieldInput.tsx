@@ -167,9 +167,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
 
       if (committedValue != null) {
         const nextInput = Math.min(index + nextDigits.length, length - 1);
-        if (nextInput !== index) {
-          queueFocusInput(nextInput, committedValue);
-        }
+        queueFocusInput(nextInput, committedValue);
       }
     },
     onKeyDown(event) {
@@ -271,9 +269,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
 
       if (committedValue != null) {
         const nextInput = Math.min(index + nextDigits.length, length - 1);
-        if (nextInput !== index) {
-          queueFocusInput(nextInput, committedValue);
-        }
+        queueFocusInput(nextInput, committedValue);
       }
     },
   };

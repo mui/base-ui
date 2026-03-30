@@ -84,6 +84,15 @@ import { DemoOTPFieldAlphanumeric } from './demos/alphanumeric';
 
 <DemoOTPFieldAlphanumeric compact />
 
+### Grouped layouts
+
+Use `<OTPField.Group>` and `<OTPField.Separator>` when you want the code presented in smaller
+visual chunks such as `123-456`.
+
+import { DemoOTPFieldGrouped } from './demos/grouped';
+
+<DemoOTPFieldGrouped compact />
+
 ### Masked entry
 
 Use `mask` when the code should be obscured while it is being typed. If you need a custom input
@@ -115,6 +124,14 @@ import { TypesOTPField } from './types';
 ### Input
 
 <TypesOTPField.Input />
+
+### Group
+
+<TypesOTPField.Group />
+
+### Separator
+
+<TypesOTPField.Separator />
 
 export const metadata = {
   keywords: [
