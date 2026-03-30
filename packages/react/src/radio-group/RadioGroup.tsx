@@ -174,12 +174,10 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     }
   });
 
-  const [touched, setTouchedState] = React.useState(false);
-  const touchedRef = React.useRef(touched);
+  const touchedRef = React.useRef(false);
 
   const setTouched = useStableCallback<React.Dispatch<React.SetStateAction<boolean>>>((value) => {
     touchedRef.current = typeof value === 'function' ? value(touchedRef.current) : value;
-    setTouchedState(touchedRef.current);
   });
 
   const ariaLabelledby = elementProps['aria-labelledby'] ?? labelId ?? fieldsetContext?.legendId;
@@ -206,7 +204,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
       required,
       setCheckedValue,
       setTouched,
-      touched,
       touchedRef,
     }),
     [
@@ -223,7 +220,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
       required,
       setCheckedValue,
       setTouched,
-      touched,
       touchedRef,
     ],
   );
