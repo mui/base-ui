@@ -52,11 +52,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     disableEslintWarning(mapTick);
 
     const newMap = new Map<Element, CompositeMetadata<Metadata>>();
-    // Filter out disconnected elements before sorting to avoid inconsistent
-    // compareDocumentPosition results when elements are detached from the DOM.
-    const sortedNodes = Array.from(map.keys())
-      .filter((node) => node.isConnected)
-      .sort(sortByDocumentPosition);
+    const sortedNodes = getOrderedNodes(map);
 
     sortedNodes.forEach((node, index) => {
       const metadata = map.get(node) ?? ({} as CompositeMetadata<Metadata>);
@@ -94,6 +90,20 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
       mutationObserver.disconnect();
     };
   }, [sortedMap]);
+
+  useIsoLayoutEffect(() => {
+    const sortedNodes = getOrderedNodes(map);
+
+    if (
+      sortedNodes.length === elementsRef.current.length &&
+      sortedNodes.every((node, index) => elementsRef.current[index] === node)
+    ) {
+      return;
+    }
+
+    lastTickRef.current += 1;
+    setMapTick(lastTickRef.current);
+  });
 
   useIsoLayoutEffect(() => {
     const shouldUpdateLengths = lastTickRef.current === mapTick;
@@ -168,6 +178,12 @@ function sortByDocumentPosition(a: Element, b: Element) {
   }
 
   return 0;
+}
+
+function getOrderedNodes(map: Map<Element, unknown>) {
+  // Filter out disconnected elements before sorting to avoid inconsistent
+  // compareDocumentPosition results when elements are detached from the DOM.
+  return Array.from(map.keys()).filter((node) => node.isConnected).sort(sortByDocumentPosition);
 }
 
 function disableEslintWarning(_: any) {}
