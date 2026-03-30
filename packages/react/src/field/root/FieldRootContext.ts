@@ -11,6 +11,7 @@ import type { Form } from '../../form';
 import type { UseFieldValidationReturnValue } from './useFieldValidation';
 import type { HTMLProps } from '../../utils/types';
 import { EMPTY_OBJECT } from '../../utils/constants';
+import type { FieldControlRegistration } from './useFieldControlRegistration';
 
 export interface FieldRootContext {
   invalid: boolean | undefined;
@@ -35,6 +36,10 @@ export interface FieldRootContext {
   shouldValidateOnChange: () => boolean;
   state: FieldRootState;
   markedDirtyRef: React.RefObject<boolean>;
+  registerFieldControl: (
+    source: symbol,
+    registration: FieldControlRegistration | undefined,
+  ) => void;
   validation: UseFieldValidationReturnValue;
 }
 
@@ -64,6 +69,7 @@ export const FieldRootContext = React.createContext<FieldRootContext>({
   shouldValidateOnChange: () => false,
   state: DEFAULT_FIELD_ROOT_STATE,
   markedDirtyRef: { current: false },
+  registerFieldControl: () => {},
   validation: {
     getValidationProps: (props: HTMLProps = EMPTY_OBJECT) => props,
     getInputValidationProps: (props: HTMLProps = EMPTY_OBJECT) => props,

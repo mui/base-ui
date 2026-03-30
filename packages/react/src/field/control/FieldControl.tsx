@@ -3,14 +3,15 @@ import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { type FieldRootState } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
+import { useRegisterFieldControl } from '../root/useRegisterFieldControl';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { fieldValidityMapping } from '../utils/constants';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useField } from '../useField';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -95,13 +96,12 @@ export const FieldControl = React.forwardRef(function FieldControl(
 
   const isControlled = valueProp !== undefined;
   const value = isControlled ? valueUnwrapped : undefined;
+  const getFieldValue = useStableCallback(() => validation.inputRef.current?.value);
 
-  useField({
+  useRegisterFieldControl({
     id,
-    name,
-    commit: validation.commit,
     value,
-    getValue: () => validation.inputRef.current?.value,
+    getValue: getFieldValue,
     controlRef: validation.inputRef,
   });
 

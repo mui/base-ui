@@ -10,6 +10,10 @@ import { LabelableProvider } from '../../labelable-provider';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useFieldValidation } from './useFieldValidation';
+import {
+  type FieldControlRegistration,
+  useFieldControlRegistration,
+} from './useFieldControlRegistration';
 
 /**
  * @internal
@@ -51,6 +55,9 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
   const touched = touchedProp ?? touchedState;
 
   const markedDirtyRef = React.useRef(false);
+  const fieldControlRegistrationsRef = React.useRef(new Map<symbol, FieldControlRegistration>());
+  const [registeredFieldControl, setRegisteredFieldControl] =
+    React.useState<FieldControlRegistration | null>(null);
 
   const setDirty: typeof setDirtyUnwrapped = useStableCallback((value) => {
     if (dirtyProp !== undefined) {
@@ -118,9 +125,33 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     validation.commit(validityData.value);
   }, [validation, validityData]);
 
+  const registerFieldControl = useStableCallback(
+    (source: symbol, registration: FieldControlRegistration | undefined) => {
+      const registrations = fieldControlRegistrationsRef.current;
+
+      if (registration == null || registration.enabled === false) {
+        registrations.delete(source);
+      } else {
+        registrations.set(source, registration);
+      }
+
+      setRegisteredFieldControl(registrations.values().next().value ?? null);
+    },
+  );
+
   React.useImperativeHandle(actionsRef, () => ({ validate: handleImperativeValidate }), [
     handleImperativeValidate,
   ]);
+
+  useFieldControlRegistration({
+    registration: registeredFieldControl,
+    commit: validation.commit,
+    invalid,
+    markedDirtyRef,
+    name,
+    setValidityData,
+    validityData,
+  });
 
   const contextValue: FieldRootContext = React.useMemo(
     () => ({
@@ -143,6 +174,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
       shouldValidateOnChange,
       state,
       markedDirtyRef,
+      registerFieldControl,
       validation,
     }),
     [
@@ -163,6 +195,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
       validationDebounceTime,
       shouldValidateOnChange,
       state,
+      registerFieldControl,
       validation,
     ],
   );

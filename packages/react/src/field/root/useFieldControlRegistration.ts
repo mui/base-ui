@@ -1,18 +1,33 @@
 'use client';
+import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { getCombinedFieldValidityData } from './utils/getCombinedFieldValidityData';
-import { useFormContext } from '../form/FormContext';
-import { useFieldRootContext } from './root/FieldRootContext';
+import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityData';
+import { useFormContext } from '../../form/FormContext';
+import type { FieldValidityData } from './FieldRoot';
 
-export function useField(params: UseFieldParameters) {
-  const { enabled = true, value, id, name, controlRef, commit } = params;
+export interface FieldControlRegistration {
+  controlRef: React.RefObject<any>;
+  enabled?: boolean | undefined;
+  getValue?: (() => unknown) | undefined;
+  id: string | undefined;
+  value: unknown;
+}
+
+export function useFieldControlRegistration(params: UseFieldControlRegistrationParameters) {
+  const { registration, commit, invalid, markedDirtyRef, name, setValidityData, validityData } =
+    params;
 
   const { formRef } = useFormContext();
-  const { invalid, markedDirtyRef, validityData, setValidityData } = useFieldRootContext();
 
-  const getValue = useStableCallback(params.getValue);
+  const fallbackControlRef = React.useRef<any>(null);
+
+  const enabled = registration == null ? false : (registration.enabled ?? true);
+  const id = registration?.id;
+  const value = registration?.value;
+  const controlRef = registration?.controlRef ?? fallbackControlRef;
+  const getValue = useStableCallback(registration?.getValue ?? (() => value));
 
   useIsoLayoutEffect(() => {
     if (!enabled) {
@@ -27,7 +42,7 @@ export function useField(params: UseFieldParameters) {
     if (validityData.initialValue === null && initialValue !== null) {
       setValidityData((prev) => ({ ...prev, initialValue }));
     }
-  }, [enabled, setValidityData, value, validityData.initialValue, getValue]);
+  }, [enabled, getValue, setValidityData, validityData.initialValue, value]);
 
   useIsoLayoutEffect(() => {
     if (!enabled || !id) {
@@ -50,7 +65,6 @@ export function useField(params: UseFieldParameters) {
         if (!flushSync) {
           commit(nextValue);
         } else {
-          // Synchronously update the validity state so the submit event can be prevented.
           ReactDOM.flushSync(() => commit(nextValue));
         }
       },
@@ -71,6 +85,7 @@ export function useField(params: UseFieldParameters) {
 
   useIsoLayoutEffect(() => {
     const fields = formRef.current.fields;
+
     return () => {
       if (id) {
         fields.delete(id);
@@ -79,16 +94,12 @@ export function useField(params: UseFieldParameters) {
   }, [formRef, id]);
 }
 
-export interface UseFieldParameters {
-  enabled?: boolean | undefined;
-  value: unknown;
-  getValue?: (() => unknown) | undefined;
-  id: string | undefined;
-  name?: string | undefined;
+export interface UseFieldControlRegistrationParameters {
   commit: (value: unknown) => void;
-  /**
-   * A ref to a focusable element that receives focus when the field fails
-   * validation during form submission.
-   */
-  controlRef: React.RefObject<any>;
+  invalid: boolean;
+  markedDirtyRef: React.RefObject<boolean>;
+  name: string | undefined;
+  registration: FieldControlRegistration | null;
+  setValidityData: React.Dispatch<React.SetStateAction<FieldValidityData>>;
+  validityData: FieldValidityData;
 }

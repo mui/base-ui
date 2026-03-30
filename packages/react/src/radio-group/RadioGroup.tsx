@@ -7,8 +7,8 @@ import { useBaseUiId } from '../utils/useBaseUiId';
 import { contains } from '../floating-ui-react/utils';
 import { SHIFT } from '../composite/composite';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
-import { useField } from '../field/useField';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
+import { useRegisterFieldControl } from '../field/root/useRegisterFieldControl';
 import { fieldValidityMapping } from '../field/utils/constants';
 import type { FieldRootState } from '../field/root/FieldRoot';
 import { useFieldsetRootContext } from '../fieldset/root/FieldsetRootContext';
@@ -147,13 +147,11 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     return undefined;
   });
 
-  useField({
+  useRegisterFieldControl({
     id,
-    commit: validation.commit,
     value: checkedValue,
-    controlRef,
-    name,
     getValue: () => checkedValue ?? null,
+    controlRef,
   });
 
   useValueChanged(checkedValue, () => {

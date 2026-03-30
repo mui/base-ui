@@ -7,10 +7,10 @@ import { useRenderElement } from '../utils/useRenderElement';
 import { CheckboxGroupContext } from './CheckboxGroupContext';
 import type { FieldRootState } from '../field/root/FieldRoot';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
+import { useRegisterFieldControl } from '../field/root/useRegisterFieldControl';
 import { useLabelableContext } from '../labelable-provider/LabelableContext';
 import type { BaseUIComponentProps } from '../utils/types';
 import { fieldValidityMapping } from '../field/utils/constants';
-import { useField } from '../field/useField';
 import { PARENT_CHECKBOX } from '../checkbox/root/CheckboxRoot';
 import { useCheckboxGroupParent } from './useCheckboxGroupParent';
 import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
@@ -92,14 +92,11 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     }
   }, []);
 
-  useField({
+  useRegisterFieldControl({
     enabled: !!fieldName,
     id,
-    commit: validation.commit,
     value,
     controlRef,
-    name: fieldName,
-    getValue: () => value,
   });
 
   const resolvedValue = value ?? EMPTY_ARRAY;
