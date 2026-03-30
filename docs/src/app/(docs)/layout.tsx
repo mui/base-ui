@@ -89,6 +89,9 @@ export default function Layout({ children }: React.PropsWithChildren) {
                           </SideNav.Section>
                         ))}
                     </SideNav.Root>
+                    {/* Pre-scroll the side nav to the active link before hydration to avoid
+                        a visible scroll jump. Only executes on full page loads; on client-side
+                        navigations (Next.js soft nav) the script tag is inert. */}
                     <script
                       // eslint-disable-next-line react/no-danger
                       dangerouslySetInnerHTML={{

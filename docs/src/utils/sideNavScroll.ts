@@ -1,6 +1,6 @@
 export const SIDE_NAV_SCROLL_MARGIN = 48;
 export const SIDE_NAV_VIEWPORT_SELECTOR = '[data-side-nav-viewport]';
-export const SIDE_NAV_LINK_SELECTOR = 'a.SideNavLink[href]';
+export const SIDE_NAV_LINK_SELECTOR = '[data-side-nav-link][href]';
 export const SIDE_NAV_PREHYDRATED_PATH_WINDOW_KEY = 'baseUiSideNavPrehydratedPath';
 
 export function normalizeSideNavPathname(pathname: string): string {
@@ -8,8 +8,7 @@ export function normalizeSideNavPathname(pathname: string): string {
     return '/';
   }
 
-  const normalized = pathname.endsWith('/') && pathname !== '/' ? pathname.slice(0, -1) : pathname;
-  return normalized || '/';
+  return pathname.endsWith('/') && pathname !== '/' ? pathname.slice(0, -1) : pathname;
 }
 
 export function getSideNavScrollTop({
@@ -46,6 +45,10 @@ export function createSideNavPrehydrationScript({
   headerHeight: number;
   scrollMargin: number;
 }): string {
+  // Keep in sync with `normalizeSideNavPathname` in this file.
+  // On initial load, `window.scrollY` is usually 0, so the full header offset is applied.
+  // If the browser restores scroll position (back/forward), it typically does so after scripts.
+  // The script is a best-effort optimization and should fail silently.
   return `(() => {
   try {
     const viewport = document.querySelector('${SIDE_NAV_VIEWPORT_SELECTOR}');
@@ -58,8 +61,7 @@ export function createSideNavPrehydrationScript({
         return '/';
       }
 
-      const normalized = pathname.endsWith('/') && pathname !== '/' ? pathname.slice(0, -1) : pathname;
-      return normalized || '/';
+      return pathname.endsWith('/') && pathname !== '/' ? pathname.slice(0, -1) : pathname;
     };
 
     const pathname = normalizePath(window.location.pathname);
@@ -112,8 +114,6 @@ export function createSideNavPrehydrationScript({
     viewport.scrollTop = targetTop + offset + scaledScrollMargin * direction;
 
     window['${SIDE_NAV_PREHYDRATED_PATH_WINDOW_KEY}'] = pathname;
-  } catch {
-    // Fail silently; this optimization should never block rendering.
-  }
+  } catch {}
 })();`;
 }

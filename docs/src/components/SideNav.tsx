@@ -106,6 +106,7 @@ export function Item(props: ItemProps) {
     <li ref={ref} {...other} className={clsx('SideNavItem', className)}>
       <LinkComponent
         className="SideNavLink"
+        data-side-nav-link=""
         href={href}
         scroll={external ? undefined : !active}
         {...(active
