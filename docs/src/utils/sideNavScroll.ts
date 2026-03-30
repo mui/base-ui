@@ -91,7 +91,22 @@ export function createSideNavPrehydrationScript({
 
     const viewportRect = viewport.getBoundingClientRect();
     const itemRect = item.getBoundingClientRect();
-    const targetTop = itemRect.top - viewportRect.top + viewport.scrollTop;
+    const itemTop = itemRect.top - viewportRect.top + viewport.scrollTop;
+    const itemBottom = itemTop + itemRect.height;
+    const viewportTop = viewport.scrollTop;
+    const viewportBottom = viewportTop + viewport.clientHeight;
+
+    let targetTop = null;
+    if (itemTop < viewportTop) {
+      targetTop = itemTop;
+    } else if (itemBottom > viewportBottom) {
+      targetTop = itemBottom - viewport.clientHeight;
+    }
+
+    if (targetTop === null) {
+      return;
+    }
+
     const direction = viewport.scrollTop > targetTop ? -1 : 1;
     const offset = Math.max(0, scaledHeaderHeight - Math.max(0, window.scrollY));
     viewport.scrollTop = targetTop + offset + scaledScrollMargin * direction;
