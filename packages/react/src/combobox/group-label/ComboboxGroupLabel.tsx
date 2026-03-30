@@ -14,7 +14,7 @@ export const ComboboxGroupLabel = React.forwardRef(function ComboboxGroupLabel(
   componentProps: ComboboxGroupLabel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, id: idProp, ...elementProps } = componentProps;
+  const { render, className, style, id: idProp, ...elementProps } = componentProps;
 
   const { setLabelId } = useComboboxGroupContext();
 

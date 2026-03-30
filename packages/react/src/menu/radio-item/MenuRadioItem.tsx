@@ -33,6 +33,7 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
     disabled: disabledProp = false,
     closeOnClick = false,
     value,
+    style,
     ...elementProps
   } = componentProps;
 

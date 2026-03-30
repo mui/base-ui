@@ -52,6 +52,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     render,
     uncheckedValue,
     value,
+    style,
     ...elementProps
   } = componentProps;
 

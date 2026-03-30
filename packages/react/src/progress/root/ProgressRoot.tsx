@@ -36,6 +36,7 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
     render,
     className,
     children,
+    style,
     ...elementProps
   } = componentProps;
 

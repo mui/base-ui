@@ -28,7 +28,7 @@ export const DrawerIndent = React.forwardRef(function DrawerIndent(
   componentProps: DrawerIndent.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const providerContext = useDrawerProviderContext(true);
 

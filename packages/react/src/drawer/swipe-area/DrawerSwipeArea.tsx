@@ -85,6 +85,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     render,
     disabled = false,
     swipeDirection: swipeDirectionProp,
+    style,
     ...elementProps
   } = componentProps;
 

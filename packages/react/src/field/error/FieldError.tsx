@@ -29,7 +29,7 @@ export const FieldError = React.forwardRef(function FieldError(
   componentProps: FieldError.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, id: idProp, className, match, ...elementProps } = componentProps;
+  const { render, id: idProp, className, match, style, ...elementProps } = componentProps;
 
   const id = useBaseUiId(idProp);
 

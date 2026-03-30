@@ -89,6 +89,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     render,
     className,
     swipeDirection = ['down', 'right'],
+    style,
     ...elementProps
   } = componentProps;
 

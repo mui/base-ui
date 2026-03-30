@@ -23,7 +23,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   componentProps: ComboboxList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, children, ...elementProps } = componentProps;
+  const { render, className, style, children, ...elementProps } = componentProps;
 
   const store = useComboboxRootContext();
   const floatingRootContext = useComboboxFloatingContext();

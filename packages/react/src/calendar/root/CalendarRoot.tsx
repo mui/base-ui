@@ -82,6 +82,7 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
     // Accessibility props
     'aria-label': ariaLabelProp,
     // Props forwarded to the DOM element
+    style,
     ...elementProps
   } = componentProps;
 

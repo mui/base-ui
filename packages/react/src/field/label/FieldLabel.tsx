@@ -20,7 +20,14 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
   componentProps: FieldLabel.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { render, className, id: idProp, nativeLabel = true, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    style,
+    id: idProp,
+    nativeLabel = true,
+    ...elementProps
+  } = componentProps;
 
   const fieldRootContext = useFieldRootContext(false);
   const { labelId } = useLabelableContext();

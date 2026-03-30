@@ -21,7 +21,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   componentProps: ToastViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, children, ...elementProps } = componentProps;
+  const { render, className, style, children, ...elementProps } = componentProps;
 
   const store = useToastProviderContext();
   const windowFocusTimeout = useTimeout();

@@ -70,6 +70,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     closeDelay = 0,
     handle,
     payload,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -320,6 +321,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
         tag="button"
         render={render}
         className={className}
+        style={style}
         state={state}
         refs={ref}
         props={props}

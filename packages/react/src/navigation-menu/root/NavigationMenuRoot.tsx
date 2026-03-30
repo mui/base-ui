@@ -290,6 +290,7 @@ function TreeContext<Value>(props: {
     closeDelay,
     orientation,
     onOpenChangeComplete,
+    style,
     ...elementProps
   } = props.componentProps;
 

@@ -128,8 +128,8 @@ describe('<Menu.SubmenuTrigger />', () => {
 
       const submenuTrigger = screen.getByRole('menuitem', { name: 'Open submenu' });
 
-      expect(submenuTrigger).to.have.attribute('data-disabled');
-      expect(submenuTrigger).to.have.attribute('aria-disabled', 'true');
+      expect(submenuTrigger).toHaveAttribute('data-disabled');
+      expect(submenuTrigger).toHaveAttribute('aria-disabled', 'true');
     });
 
     it('should warn when a disabled element is detected via render prop with JSX element', async () => {

@@ -29,6 +29,7 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
     id: idProp,
     payload,
     handle,
+    style,
     ...elementProps
   } = componentProps;
 

@@ -44,6 +44,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     name: nameProp,
     inputRef: inputRefProp,
     id: idProp,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -252,6 +253,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
       <CompositeRoot
         render={render}
         className={className}
+        style={style}
         state={state}
         props={[defaultProps, validation.getValidationProps, elementProps]}
         refs={[forwardedRef]}

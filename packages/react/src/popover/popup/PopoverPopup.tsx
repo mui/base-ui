@@ -34,7 +34,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   componentProps: PopoverPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, initialFocus, finalFocus, ...elementProps } = componentProps;
+  const { className, render, initialFocus, finalFocus, style, ...elementProps } = componentProps;
 
   const { store } = usePopoverRootContext();
 
