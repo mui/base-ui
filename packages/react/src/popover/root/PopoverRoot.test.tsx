@@ -1053,18 +1053,18 @@ describe('<Popover.Root />', () => {
         await user.click(trigger);
 
         await waitFor(() => {
-          expect(screen.queryByRole('dialog')).not.to.equal(null);
+          expect(screen.queryByRole('dialog')).not.toBe(null);
         });
 
         expect(
-          trigger.previousElementSibling?.hasAttribute('data-base-ui-focus-guard'),
-        ).not.to.equal(true);
-        expect(trigger.nextElementSibling?.hasAttribute('data-base-ui-focus-guard')).not.to.equal(
-          true,
-        );
+          trigger.previousElementSibling?.hasAttribute('data-base-ui-focus-guard') ?? false,
+        ).toBe(false);
+        expect(
+          trigger.nextElementSibling?.hasAttribute('data-base-ui-focus-guard') ?? false,
+        ).toBe(false);
         expect(
           document.querySelectorAll('[data-base-ui-focus-guard][data-type="inside"]'),
-        ).to.have.length(2);
+        ).toHaveLength(2);
       });
 
       it('should keep trigger focus guards when `true` without a close part', async () => {
@@ -1079,8 +1079,8 @@ describe('<Popover.Root />', () => {
         );
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });
-        expect(trigger.previousElementSibling).to.have.attribute('data-base-ui-focus-guard');
-        expect(trigger.nextElementSibling).to.have.attribute('data-base-ui-focus-guard');
+        expect(trigger.previousElementSibling).toHaveAttribute('data-base-ui-focus-guard');
+        expect(trigger.nextElementSibling).toHaveAttribute('data-base-ui-focus-guard');
 
         await act(async () => {
           screen.getByTestId('input-inside').focus();
@@ -1091,7 +1091,7 @@ describe('<Popover.Root />', () => {
         expect(screen.getByTestId('focus-target')).toHaveFocus();
 
         await waitFor(() => {
-          expect(screen.queryByTestId('popover-popup')).to.equal(null);
+          expect(screen.queryByTestId('popover-popup')).toBe(null);
         });
       });
 
