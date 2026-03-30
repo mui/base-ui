@@ -4,8 +4,12 @@ import { GoogleAnalytics } from 'docs/src/components/GoogleAnalytics';
 import { DocsProviders } from 'docs/src/components/DocsProviders';
 import * as SideNav from 'docs/src/components/SideNav';
 import * as QuickNav from 'docs/src/components/QuickNav/QuickNav';
-import { Header, titleMap } from 'docs/src/components/Header';
+import { Header, HEADER_HEIGHT, titleMap } from 'docs/src/components/Header';
 import { MAIN_CONTENT_ID } from 'docs/src/components/SkipNav';
+import {
+  createSideNavPrehydrationScript,
+  SIDE_NAV_SCROLL_MARGIN,
+} from 'docs/src/utils/sideNavScroll';
 import { sitemap } from 'docs/src/app/sitemap';
 import 'docs/src/css/index.css';
 import './layout.css';
@@ -85,6 +89,15 @@ export default function Layout({ children }: React.PropsWithChildren) {
                           </SideNav.Section>
                         ))}
                     </SideNav.Root>
+                    <script
+                      // eslint-disable-next-line react/no-danger
+                      dangerouslySetInnerHTML={{
+                        __html: createSideNavPrehydrationScript({
+                          headerHeight: HEADER_HEIGHT,
+                          scrollMargin: SIDE_NAV_SCROLL_MARGIN,
+                        }),
+                      }}
+                    />
 
                     <main className="ContentLayoutMain" id={MAIN_CONTENT_ID}>
                       <QuickNav.Container>{children}</QuickNav.Container>

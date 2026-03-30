@@ -6,6 +6,13 @@ import { usePathname } from 'next/navigation';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import scrollIntoView from 'scroll-into-view-if-needed';
 import { HEADER_HEIGHT } from './Header';
+import {
+  getSideNavScrollTop,
+  normalizeSideNavPathname,
+  SIDE_NAV_PREHYDRATED_PATH_ATTRIBUTE,
+  SIDE_NAV_SCROLL_MARGIN,
+  SIDE_NAV_VIEWPORT_SELECTOR,
+} from '../utils/sideNavScroll';
 import './SideNav.css';
 
 export function Root(props: React.ComponentProps<'div'>) {
@@ -46,8 +53,6 @@ interface ItemProps extends React.ComponentProps<'li'> {
   external?: boolean;
 }
 
-const SCROLL_MARGIN = 48;
-
 export function Item(props: ItemProps) {
   const { children, className, href, external, ...other } = props;
   const ref = React.useRef<HTMLLIElement>(null);
@@ -61,11 +66,19 @@ export function Item(props: ItemProps) {
 
   React.useEffect(() => {
     if (ref.current && active) {
-      const scrollMargin = (SCROLL_MARGIN * rem.current) / 16;
+      const scrollMargin = (SIDE_NAV_SCROLL_MARGIN * rem.current) / 16;
       const headerHeight = (HEADER_HEIGHT * rem.current) / 16;
-      const viewport = document.querySelector('[data-side-nav-viewport]');
+      const viewport = document.querySelector(SIDE_NAV_VIEWPORT_SELECTOR);
 
-      if (!viewport) {
+      if (!(viewport instanceof HTMLElement)) {
+        return;
+      }
+
+      const prehydratedPath = document.documentElement.getAttribute(
+        SIDE_NAV_PREHYDRATED_PATH_ATTRIBUTE,
+      );
+      if (prehydratedPath === normalizeSideNavPathname(pathname)) {
+        document.documentElement.removeAttribute(SIDE_NAV_PREHYDRATED_PATH_ATTRIBUTE);
         return;
       }
 
@@ -75,14 +88,18 @@ export function Item(props: ItemProps) {
         boundary: (parent) => viewport.contains(parent),
         behavior: (actions) => {
           actions.forEach(({ top }) => {
-            const dir = viewport.scrollTop > top ? -1 : 1;
-            const offset = Math.max(0, headerHeight - Math.max(0, window.scrollY));
-            viewport.scrollTop = top + offset + scrollMargin * dir;
+            viewport.scrollTop = getSideNavScrollTop({
+              viewportScrollTop: viewport.scrollTop,
+              targetTop: top,
+              headerHeight,
+              scrollMargin,
+              windowScrollY: window.scrollY,
+            });
           });
         },
       });
     }
-  }, [active]);
+  }, [active, pathname]);
 
   const LinkComponent = external ? 'a' : NextLink;
 
