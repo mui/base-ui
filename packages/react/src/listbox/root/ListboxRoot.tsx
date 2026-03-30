@@ -7,6 +7,8 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { Store } from '@base-ui/utils/store';
 import { ListboxRootContext } from './ListboxRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
@@ -51,6 +53,7 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
     inputRef,
     actionsRef,
     onItemsReorder,
+    onHighlightChange,
     loading = false,
     onLoadMore,
     children,
@@ -89,6 +92,8 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
   const lastSelectedIndexRef = React.useRef<number | null>(null);
   const lastPointerTypeRef = React.useRef<string | null>(null);
   const pointerMoveSuppressedRef = React.useRef(false);
+  const highlightTimeout = useTimeout();
+  const highlightFrame = useAnimationFrame();
 
   const store = useRefWithInit(
     () =>
@@ -192,37 +197,40 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
         // After a reorder, the composite item indices are stale until
         // two render cycles complete:
         // 1. React commits the new DOM → MutationObserver fires → setIndex scheduled
-        // 2. React re-renders items with updated indices
-        // setTimeout(0) waits past step 1; requestAnimationFrame waits past step 2.
-        setTimeout(() => {
-          requestAnimationFrame(() => {
-            const listEl = store.state.listElement;
-            if (!listEl) {
-              return;
-            }
-
-            let target = element;
-
-            if (!target || !target.isConnected) {
-              const idx = findItemIndex(valuesRef.current, itemValue, isItemEqualToValue);
-              if (idx !== -1) {
-                target = listEl.querySelectorAll<HTMLElement>('[role="option"]')[idx];
+        // 2. React re-renders items with updated indices + valuesRef
+        // The timeout waits past step 1; the double rAF ensures
+        // step 2 has been painted before we look up the new index.
+        highlightTimeout.start(0, () => {
+          highlightFrame.request(() => {
+            highlightFrame.request(() => {
+              const listEl = store.state.listElement;
+              if (!listEl) {
+                return;
               }
-            }
 
-            if (target) {
-              const idx = findItemIndex(valuesRef.current, itemValue, isItemEqualToValue);
-              if (idx !== -1) {
-                store.set('activeIndex', idx);
-                target.focus();
-                target.scrollIntoView({ block: 'nearest' });
+              let target = element;
+
+              if (!target || !target.isConnected) {
+                const idx = findItemIndex(valuesRef.current, itemValue, isItemEqualToValue);
+                if (idx !== -1) {
+                  target = listEl.querySelectorAll<HTMLElement>('[role="option"]')[idx];
+                }
               }
-            }
+
+              if (target) {
+                const idx = findItemIndex(valuesRef.current, itemValue, isItemEqualToValue);
+                if (idx !== -1) {
+                  store.set('activeIndex', idx);
+                  target.focus();
+                  target.scrollIntoView({ block: 'nearest' });
+                }
+              }
+            });
           });
-        }, 0);
+        });
       },
     }),
-    [store, valuesRef, isItemEqualToValue],
+    [store, valuesRef, isItemEqualToValue, highlightTimeout, highlightFrame],
   );
 
   useIsoLayoutEffect(() => {
@@ -249,6 +257,39 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
     orientation,
     disabled,
   ]);
+
+  const stableOnHighlightChange = useStableCallback(
+    (highlightedValue: Value | null, highlightedElement: HTMLElement | null) => {
+      onHighlightChange?.(highlightedValue, highlightedElement);
+    },
+  );
+
+  React.useEffect(() => {
+    if (!onHighlightChange) {
+      return undefined;
+    }
+
+    let prevActiveIndex: number | null = store.state.activeIndex;
+
+    return store.subscribe((state) => {
+      if (state.activeIndex === prevActiveIndex) {
+        return;
+      }
+      prevActiveIndex = state.activeIndex;
+
+      if (state.activeIndex == null) {
+        stableOnHighlightChange(null, null);
+        return;
+      }
+
+      const itemValue = valuesRef.current[state.activeIndex] as Value | undefined;
+      const listEl = state.listElement;
+      const element =
+        listEl?.querySelectorAll<HTMLElement>('[role="option"]')[state.activeIndex] ?? null;
+
+      stableOnHighlightChange(itemValue ?? null, element);
+    });
+  }, [store, onHighlightChange, stableOnHighlightChange, valuesRef]);
 
   const contextValue: ListboxRootContext = React.useMemo(
     () => ({
@@ -477,6 +518,12 @@ export interface ListboxRootProps<Value> {
         reason: 'drag' | 'keyboard';
       }) => void)
     | undefined;
+  /**
+   * Event handler called when the highlighted item changes.
+   * Receives the highlighted item's value and DOM element, or `null` for both
+   * when no item is highlighted.
+   */
+  onHighlightChange?: ((value: Value | null, element: HTMLElement | null) => void) | undefined;
   /**
    * Whether items are currently being loaded.
    * @default false

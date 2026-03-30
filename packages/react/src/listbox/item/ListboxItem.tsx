@@ -258,7 +258,11 @@ export const ListboxItem = React.memo(
         }
       },
       onMouseLeave(event) {
-        if (!highlightItemOnHover || pointerMoveSuppressedRef.current || isMouseWithinBounds(event)) {
+        if (
+          !highlightItemOnHover ||
+          pointerMoveSuppressedRef.current ||
+          isMouseWithinBounds(event)
+        ) {
           return;
         }
 

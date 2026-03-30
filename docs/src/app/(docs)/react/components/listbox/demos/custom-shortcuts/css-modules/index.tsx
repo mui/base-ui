@@ -27,6 +27,46 @@ function reorder(
 export default function ExampleListboxCustomShortcuts() {
   const [items, setItems] = React.useState(initialItems);
   const actionsRef = React.useRef<ListboxRootActions<string>>(null);
+  const highlightedRef = React.useRef<{ value: string; element: HTMLElement } | null>(null);
+
+  function handleKeyDown(event: React.KeyboardEvent) {
+    const highlighted = highlightedRef.current;
+    if (!highlighted) {
+      return;
+    }
+
+    if (event.key === '[') {
+      event.preventDefault();
+      setItems((prev) => {
+        const first = prev[0];
+        if (!first || first.value === highlighted.value) {
+          return prev;
+        }
+        return reorder(prev, {
+          items: [highlighted.value],
+          referenceItem: first.value,
+          edge: 'before',
+        });
+      });
+      actionsRef.current?.highlightValue(highlighted.value, highlighted.element);
+    }
+
+    if (event.key === ']') {
+      event.preventDefault();
+      setItems((prev) => {
+        const last = prev[prev.length - 1];
+        if (!last || last.value === highlighted.value) {
+          return prev;
+        }
+        return reorder(prev, {
+          items: [highlighted.value],
+          referenceItem: last.value,
+          edge: 'after',
+        });
+      });
+      actionsRef.current?.highlightValue(highlighted.value, highlighted.element);
+    }
+  }
 
   return (
     <div className={styles.Field}>
@@ -34,62 +74,14 @@ export default function ExampleListboxCustomShortcuts() {
         defaultValue={['first']}
         actionsRef={actionsRef}
         onItemsReorder={(event) => setItems((prev) => reorder(prev, event))}
+        onHighlightChange={(value, element) => {
+          highlightedRef.current = value != null && element != null ? { value, element } : null;
+        }}
       >
         <Listbox.Label className={styles.Label}>Press [ or ] to move items</Listbox.Label>
-        <Listbox.List
-          className={styles.List}
-          onKeyDown={(event) => {
-            const list = event.currentTarget;
-            const focused = list.querySelector<HTMLElement>('[role="option"][tabindex="0"]');
-            if (!focused) {
-              return;
-            }
-            const focusedValue = focused.dataset.value;
-            if (!focusedValue) {
-              return;
-            }
-
-            if (event.key === '[') {
-              event.preventDefault();
-              setItems((prev) => {
-                const first = prev[0];
-                if (!first || first.value === focusedValue) {
-                  return prev;
-                }
-                return reorder(prev, {
-                  items: [focusedValue],
-                  referenceItem: first.value,
-                  edge: 'before',
-                });
-              });
-              actionsRef.current?.highlightValue(focusedValue, focused);
-            }
-
-            if (event.key === ']') {
-              event.preventDefault();
-              setItems((prev) => {
-                const last = prev[prev.length - 1];
-                if (!last || last.value === focusedValue) {
-                  return prev;
-                }
-                return reorder(prev, {
-                  items: [focusedValue],
-                  referenceItem: last.value,
-                  edge: 'after',
-                });
-              });
-              actionsRef.current?.highlightValue(focusedValue, focused);
-            }
-          }}
-        >
+        <Listbox.List className={styles.List} onKeyDown={handleKeyDown}>
           {items.map(({ label, value }) => (
-            <Listbox.Item
-              key={value}
-              value={value}
-              draggable
-              className={styles.Item}
-              data-value={value}
-            >
+            <Listbox.Item key={value} value={value} draggable className={styles.Item}>
               <Listbox.ItemDragHandle className={styles.DragHandle}>
                 <GripIcon />
               </Listbox.ItemDragHandle>

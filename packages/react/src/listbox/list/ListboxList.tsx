@@ -206,10 +206,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
           });
           const nextValue = [...baseOutside, ...rangeValues];
 
-          setValue(
-            nextValue,
-            createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
-          );
+          setValue(nextValue, createChangeEventDetails(REASONS.listNavigation, event.nativeEvent));
         }
       }
     }

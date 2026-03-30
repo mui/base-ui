@@ -73,7 +73,9 @@ export function selectionReducer(
       if (anchorIndex === null) {
         // No anchor — treat as a single select
         const itemValue = valuesRef[action.index];
-        return itemValue !== undefined && !disabledItemsRef[action.index] ? [itemValue] : currentValue;
+        return itemValue !== undefined && !disabledItemsRef[action.index]
+          ? [itemValue]
+          : currentValue;
       }
       const start = Math.min(anchorIndex, action.index);
       const end = Math.max(anchorIndex, action.index);

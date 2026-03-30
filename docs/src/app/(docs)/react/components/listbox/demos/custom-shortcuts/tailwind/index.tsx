@@ -26,6 +26,46 @@ function reorder(
 export default function ExampleListboxCustomShortcuts() {
   const [items, setItems] = React.useState(initialItems);
   const actionsRef = React.useRef<ListboxRootActions<string>>(null);
+  const highlightedRef = React.useRef<{ value: string; element: HTMLElement } | null>(null);
+
+  function handleKeyDown(event: React.KeyboardEvent) {
+    const highlighted = highlightedRef.current;
+    if (!highlighted) {
+      return;
+    }
+
+    if (event.key === '[') {
+      event.preventDefault();
+      setItems((prev) => {
+        const first = prev[0];
+        if (!first || first.value === highlighted.value) {
+          return prev;
+        }
+        return reorder(prev, {
+          items: [highlighted.value],
+          referenceItem: first.value,
+          edge: 'before',
+        });
+      });
+      actionsRef.current?.highlightValue(highlighted.value, highlighted.element);
+    }
+
+    if (event.key === ']') {
+      event.preventDefault();
+      setItems((prev) => {
+        const last = prev[prev.length - 1];
+        if (!last || last.value === highlighted.value) {
+          return prev;
+        }
+        return reorder(prev, {
+          items: [highlighted.value],
+          referenceItem: last.value,
+          edge: 'after',
+        });
+      });
+      actionsRef.current?.highlightValue(highlighted.value, highlighted.element);
+    }
+  }
 
   return (
     <div className="flex flex-col gap-1">
@@ -33,62 +73,22 @@ export default function ExampleListboxCustomShortcuts() {
         defaultValue={['first']}
         actionsRef={actionsRef}
         onItemsReorder={(event) => setItems((prev) => reorder(prev, event))}
+        onHighlightChange={(value, element) => {
+          highlightedRef.current = value != null && element != null ? { value, element } : null;
+        }}
       >
         <Listbox.Label className="cursor-default text-sm leading-5 font-medium text-gray-900">
           Press [ or ] to move items
         </Listbox.Label>
         <Listbox.List
           className="box-border w-56 max-h-80 overflow-y-auto py-1 rounded-md outline outline-1 outline-gray-200 dark:outline-gray-300 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
-          onKeyDown={(event) => {
-            const list = event.currentTarget;
-            const focused = list.querySelector<HTMLElement>('[role="option"][tabindex="0"]');
-            if (!focused) {
-              return;
-            }
-            const focusedValue = focused.dataset.value;
-            if (!focusedValue) {
-              return;
-            }
-
-            if (event.key === '[') {
-              event.preventDefault();
-              setItems((prev) => {
-                const first = prev[0];
-                if (!first || first.value === focusedValue) {
-                  return prev;
-                }
-                return reorder(prev, {
-                  items: [focusedValue],
-                  referenceItem: first.value,
-                  edge: 'before',
-                });
-              });
-              actionsRef.current?.highlightValue(focusedValue, focused);
-            }
-
-            if (event.key === ']') {
-              event.preventDefault();
-              setItems((prev) => {
-                const last = prev[prev.length - 1];
-                if (!last || last.value === focusedValue) {
-                  return prev;
-                }
-                return reorder(prev, {
-                  items: [focusedValue],
-                  referenceItem: last.value,
-                  edge: 'after',
-                });
-              });
-              actionsRef.current?.highlightValue(focusedValue, focused);
-            }
-          }}
+          onKeyDown={handleKeyDown}
         >
           {items.map(({ label, value }) => (
             <Listbox.Item
               key={value}
               value={value}
               draggable
-              data-value={value}
               className="relative grid cursor-default grid-cols-[1.5rem_0.75rem_1fr] items-center gap-1.5 py-2 pr-4 pl-1 text-sm leading-4 text-gray-900 outline-hidden select-none data-[highlighted]:z-0 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-xs data-[highlighted]:before:bg-gray-100 data-[dragging]:opacity-50 data-[drop-target-edge=before]:after:absolute data-[drop-target-edge=before]:after:top-[-1px] data-[drop-target-edge=before]:after:left-1 data-[drop-target-edge=before]:after:right-1 data-[drop-target-edge=before]:after:h-0.5 data-[drop-target-edge=before]:after:bg-blue-800 data-[drop-target-edge=before]:after:content-[''] data-[drop-target-edge=after]:after:absolute data-[drop-target-edge=after]:after:bottom-[-1px] data-[drop-target-edge=after]:after:left-1 data-[drop-target-edge=after]:after:right-1 data-[drop-target-edge=after]:after:h-0.5 data-[drop-target-edge=after]:after:bg-blue-800 data-[drop-target-edge=after]:after:content-[''] pointer-coarse:py-2.5 pointer-coarse:text-[0.925rem]"
             >
               <Listbox.ItemDragHandle className="col-start-1 flex w-6 shrink-0 items-center justify-center cursor-grab text-gray-400 active:cursor-grabbing">

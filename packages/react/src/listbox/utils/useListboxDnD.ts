@@ -2,6 +2,8 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import {
   draggable,
   dropTargetForElements,
@@ -66,6 +68,8 @@ export function useListboxItemDnD(params: UseListboxItemDnDParameters) {
   } = params;
 
   const [closestEdge, setClosestEdge] = React.useState<Edge | null>(null);
+  const dropHighlightTimeout = useTimeout();
+  const dropHighlightFrame = useAnimationFrame();
 
   const handleDrop = useStableCallback(
     (sourceData: Record<string, unknown>, targetIndex: number, edge: Edge | null) => {
@@ -147,8 +151,8 @@ export function useListboxItemDnD(params: UseListboxItemDnDParameters) {
             : source.data.value;
           const eqFn = store.state.isItemEqualToValue;
 
-          setTimeout(() => {
-            requestAnimationFrame(() => {
+          dropHighlightTimeout.start(0, () => {
+            dropHighlightFrame.request(() => {
               const idx = valuesRef.current.findIndex(
                 (v) => v !== undefined && eqFn(v, draggedValue),
               );
@@ -160,7 +164,7 @@ export function useListboxItemDnD(params: UseListboxItemDnDParameters) {
               }
               pointerMoveSuppressedRef.current = false;
             });
-          }, 0);
+          });
         },
       });
     }
@@ -236,6 +240,9 @@ export function useListboxItemDnD(params: UseListboxItemDnDParameters) {
     handleDrop,
     valuesRef,
     groupIdsRef,
+    dropHighlightTimeout,
+    dropHighlightFrame,
+    pointerMoveSuppressedRef,
   ]);
 
   return { closestEdge };
