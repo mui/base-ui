@@ -18,7 +18,7 @@ export const NavigationMenuItem = React.forwardRef(function NavigationMenuItem(
   componentProps: NavigationMenuItem.Props,
   forwardedRef: React.ForwardedRef<HTMLLIElement>,
 ) {
-  const { className, render, value: valueProp, ...elementProps } = componentProps;
+  const { className, render, value: valueProp, style, ...elementProps } = componentProps;
 
   const fallbackValue = useBaseUiId();
   const value = valueProp ?? fallbackValue;

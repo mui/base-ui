@@ -1571,6 +1571,36 @@ describe('<NavigationMenu.Root />', () => {
       expect(screen.queryByTestId('popup-1')).toBe(null);
     });
 
+    it('returns to the last submenu item when shift+tabbing after tabbing out of it', async () => {
+      const { user } = await render(
+        <div>
+          <button data-testid="first" />
+          <TestNavigationMenu />
+          <button data-testid="last" />
+        </div>,
+      );
+      const trigger = screen.getByTestId('trigger-1');
+
+      await act(async () => trigger.focus());
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('popup-1')).not.toBe(null);
+      expect(trigger).toHaveFocus();
+
+      await user.tab();
+      expect(screen.getByText('Link 1')).toHaveFocus();
+
+      await user.tab();
+      expect(screen.getByText('Link 2')).toHaveFocus();
+
+      await user.tab();
+      expect(screen.getByTestId('trigger-2')).toHaveFocus();
+
+      await user.tab({ shift: true });
+      expect(screen.getByText('Link 2')).toHaveFocus();
+    });
+
     it('closes the menu when tabbing back out', async () => {
       const { user } = await render(
         <div>
@@ -2764,6 +2794,29 @@ describe('<NavigationMenu.Root />', () => {
 
         await user.tab();
         expect(screen.getByText('Engineering Leads')).toHaveFocus();
+      });
+
+      it('returns to the last inline submenu item when shift+tabbing after leaving it', async () => {
+        const { user } = await render(<TestInlineNestedNavigationMenuTabFlow />);
+        const triggerProduct = screen.getByTestId('trigger-product');
+
+        await user.click(triggerProduct);
+        await flushMicrotasks();
+
+        await user.tab();
+        expect(screen.getByTestId('nested-trigger-developers')).toHaveFocus();
+
+        await user.tab();
+        expect(screen.getByTestId('nested-link-get-started')).toHaveFocus();
+
+        await user.tab();
+        expect(screen.getByTestId('nested-link-composition')).toHaveFocus();
+
+        await user.tab();
+        expect(screen.getByTestId('nested-trigger-design-systems')).toHaveFocus();
+
+        await user.tab({ shift: true });
+        expect(screen.getByTestId('nested-link-composition')).toHaveFocus();
       });
     });
   });

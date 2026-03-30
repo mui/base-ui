@@ -6,12 +6,8 @@ import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument } from '@base-ui/utils/owner';
 import type { Delay, FloatingContext, FloatingRootContext } from '../types';
-import {
-  contains,
-  getTarget,
-  isMouseLikePointerType,
-  isTargetInsideEnabledTrigger,
-} from '../utils';
+import { contains, getTarget, isTargetInsideEnabledTrigger } from '../utils/element';
+import { isMouseLikePointerType } from '../utils/event';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { useFloatingTree } from '../components/FloatingTree';

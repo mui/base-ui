@@ -53,6 +53,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     sticky = false,
     disableAnchorTracking = false,
     collisionAvoidance: collisionAvoidanceProp = DROPDOWN_COLLISION_AVOIDANCE,
+    style,
     ...elementProps
   } = componentProps;
 

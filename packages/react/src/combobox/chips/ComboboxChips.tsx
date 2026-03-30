@@ -18,7 +18,7 @@ export const ComboboxChips = React.forwardRef(function ComboboxChips(
   componentProps: ComboboxChips.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const store = useComboboxRootContext();
 

@@ -16,7 +16,7 @@ export const MeterIndicator = React.forwardRef(function MeterIndicator(
   componentProps: MeterIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const context = useMeterRootContext();
 

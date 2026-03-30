@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { FocusableElement } from 'tabbable';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { fastComponentRef } from '@base-ui/utils/fastHooks';
@@ -21,6 +20,7 @@ import {
 import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
 import {
   contains,
+  type FocusableElement,
   getNextTabbable,
   getTabbableAfterElement,
   getTabbableBeforeElement,
@@ -70,6 +70,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     closeDelay = 0,
     handle,
     payload,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -320,6 +321,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
         tag="button"
         render={render}
         className={className}
+        style={style}
         state={state}
         refs={ref}
         props={props}

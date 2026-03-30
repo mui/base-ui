@@ -107,6 +107,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     onFocus: onFocusProp,
     onKeyDown: onKeyDownProp,
     tabIndex: tabIndexProp,
+    style,
     ...elementProps
   } = componentProps;
 

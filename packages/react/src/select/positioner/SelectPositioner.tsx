@@ -54,6 +54,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     disableAnchorTracking,
     alignItemWithTrigger = true,
     collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
+    style,
     ...elementProps
   } = componentProps;
 

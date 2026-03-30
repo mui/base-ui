@@ -19,7 +19,13 @@ export const FieldItem = React.forwardRef(function FieldItem(
   componentProps: FieldItem.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, disabled: disabledProp = false, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    style,
+    disabled: disabledProp = false,
+    ...elementProps
+  } = componentProps;
 
   const { state, disabled: rootDisabled } = useFieldRootContext(false);
 

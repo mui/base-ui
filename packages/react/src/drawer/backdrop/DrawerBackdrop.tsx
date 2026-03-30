@@ -25,7 +25,7 @@ export const DrawerBackdrop = React.forwardRef(function DrawerBackdrop(
   componentProps: DrawerBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, forceRender = false, ...elementProps } = componentProps;
+  const { render, className, style, forceRender = false, ...elementProps } = componentProps;
   const { store } = useDialogRootContext();
 
   const open = store.useState('open');

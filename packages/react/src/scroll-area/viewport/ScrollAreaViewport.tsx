@@ -16,7 +16,7 @@ import { styleDisableScrollbar } from '../../utils/styles';
 import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
 import type { HiddenState, ScrollAreaRootState } from '../root/ScrollAreaRoot';
 import { ScrollAreaViewportCssVars } from './ScrollAreaViewportCssVars';
-import { normalizeScrollOffset } from '../utils/scrollEdges';
+import { normalizeScrollOffset } from '../../utils/scrollEdges';
 
 // Module-level flag to ensure we only register the CSS properties once,
 // regardless of how many Scroll Area components are mounted.
@@ -72,7 +72,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   componentProps: ScrollAreaViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const {
     viewportRef,

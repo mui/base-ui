@@ -49,6 +49,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     sticky = false,
     disableAnchorTracking = false,
     collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
+    style: styleProp,
     ...elementProps
   } = componentProps;
 
