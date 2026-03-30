@@ -34,6 +34,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   // `mapTick` uses a counter rather than objects for low precision-loss risk and better memory efficiency
   const [mapTick, setMapTick] = React.useState(0);
   const lastTickRef = React.useRef(mapTick);
+  const sortedNodesRef = React.useRef<Element[]>([]);
 
   const register = useStableCallback((node: Element, metadata: Metadata) => {
     map.set(node, metadata ?? null);
@@ -47,15 +48,12 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     setMapTick(lastTickRef.current);
   });
 
-  const sortedNodes = React.useMemo(() => {
+  const sortedMap = React.useMemo(() => {
     // `mapTick` is the `useMemo` trigger as `map` is stable.
     disableEslintWarning(mapTick);
 
-    return getOrderedNodes(map);
-  }, [map, mapTick]);
-
-  const sortedMap = React.useMemo(() => {
     const newMap = new Map<Element, CompositeMetadata<Metadata>>();
+    const sortedNodes = getOrderedNodes(map);
 
     sortedNodes.forEach((node, index) => {
       const metadata = map.get(node) ?? ({} as CompositeMetadata<Metadata>);
@@ -63,9 +61,11 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     });
 
     return newMap;
-  }, [map, sortedNodes]);
+  }, [map, mapTick]);
 
   useIsoLayoutEffect(() => {
+    sortedNodesRef.current = Array.from(sortedMap.keys());
+
     if (typeof MutationObserver !== 'function' || sortedMap.size === 0) {
       return undefined;
     }
@@ -96,14 +96,18 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
 
   useIsoLayoutEffect(() => {
     const nextSortedNodes = getOrderedNodes(map);
+    const previousSortedNodes = sortedNodesRef.current;
 
-    if (areSameNodes(nextSortedNodes, sortedNodes)) {
+    if (
+      nextSortedNodes.length === previousSortedNodes.length &&
+      nextSortedNodes.every((node, index) => node === previousSortedNodes[index])
+    ) {
       return;
     }
 
     lastTickRef.current += 1;
     setMapTick(lastTickRef.current);
-  }, [children, map, sortedNodes]);
+  }, [children, map]);
 
   useIsoLayoutEffect(() => {
     const shouldUpdateLengths = lastTickRef.current === mapTick;
@@ -186,10 +190,6 @@ function getOrderedNodes(map: Map<Element, unknown>) {
   return Array.from(map.keys())
     .filter((node) => node.isConnected)
     .sort(sortByDocumentPosition);
-}
-
-function areSameNodes(a: Element[], b: Element[]) {
-  return a.length === b.length && a.every((node, index) => node === b[index]);
 }
 
 function disableEslintWarning(_: any) {}
