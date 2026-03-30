@@ -183,7 +183,9 @@ function sortByDocumentPosition(a: Element, b: Element) {
 function getOrderedNodes(map: Map<Element, unknown>) {
   // Filter out disconnected elements before sorting to avoid inconsistent
   // compareDocumentPosition results when elements are detached from the DOM.
-  return Array.from(map.keys()).filter((node) => node.isConnected).sort(sortByDocumentPosition);
+  return Array.from(map.keys())
+    .filter((node) => node.isConnected)
+    .sort(sortByDocumentPosition);
 }
 
 function disableEslintWarning(_: any) {}
