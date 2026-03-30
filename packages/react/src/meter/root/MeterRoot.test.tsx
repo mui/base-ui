@@ -54,11 +54,11 @@ describe('<Meter.Root />', () => {
         currency: 'USD',
       };
       function formatValue(v: number) {
-        return new Intl.NumberFormat(undefined, format).format(v);
+        return new Intl.NumberFormat('en-US', format).format(v);
       }
 
       await render(
-        <Meter.Root value={30} format={format}>
+        <Meter.Root value={30} format={format} locale="en-US">
           <Meter.Value data-testid="value" />
           <Meter.Track>
             <Meter.Indicator />
