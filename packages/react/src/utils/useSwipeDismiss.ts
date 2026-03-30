@@ -108,6 +108,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     swipeThreshold: swipeThresholdProp,
     onDismiss,
     onProgress,
+    onCancel,
     onSwipeStart,
     onRelease,
     onSwipingChange,
@@ -440,6 +441,8 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
       deltaY: 0,
       direction: undefined,
     });
+
+    onCancel?.(event.nativeEvent);
   }
 
   function applyDirectionalDamping(deltaX: number, deltaY: number) {
@@ -1095,6 +1098,7 @@ export interface UseSwipeDismissOptions {
   trackDrag?: boolean | undefined;
   onSwipeStart?: ((event: PointerEvent | TouchEvent) => void) | undefined;
   onProgress?: ((progress: number, details?: UseSwipeDismissProgressDetails) => void) | undefined;
+  onCancel?: ((event: PointerEvent | TouchEvent) => void) | undefined;
   /**
    * Called when the swipe interaction starts or ends.
    */
