@@ -1,7 +1,45 @@
-import { expect } from 'vitest';
-import { hasNullItemLabel } from './resolveValueLabel';
+import { expect, vi } from 'vitest';
+import { compareItemEquality } from './itemEquality';
+import { hasNullItemLabel, resolveSelectedLabelString } from './resolveValueLabel';
 
 describe('resolveValueLabel', () => {
+  describe('resolveSelectedLabelString', () => {
+    it('prefers a matching items label over itemToStringLabel for primitive values', () => {
+      const itemToStringLabel = vi.fn(() => 'WRONG');
+
+      expect(
+        resolveSelectedLabelString(
+          'b',
+          [
+            { value: 'a', label: 'Apple' },
+            { value: 'b', label: 'Banana' },
+          ],
+          itemToStringLabel,
+        ),
+      ).toBe('Banana');
+      expect(itemToStringLabel).not.toHaveBeenCalled();
+    });
+
+    it('uses custom equality when matching primitive values to item labels', () => {
+      expect(
+        resolveSelectedLabelString(
+          'B',
+          [
+            { value: 'a', label: 'Apple' },
+            { value: 'b', label: 'Banana' },
+          ],
+          undefined,
+          (itemValue, value) =>
+            compareItemEquality(
+              String(itemValue).toLowerCase(),
+              String(value).toLowerCase(),
+              Object.is,
+            ),
+        ),
+      ).toBe('Banana');
+    });
+  });
+
   describe('hasNullItemLabel', () => {
     it('returns true when grouped items contain a null-valued item with a label', () => {
       const items = [
