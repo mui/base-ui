@@ -9,7 +9,6 @@ import type { FieldValidityData } from './FieldRoot';
 
 export interface FieldControlRegistration {
   controlRef: React.RefObject<any>;
-  enabled?: boolean | undefined;
   getValue?: (() => unknown) | undefined;
   id: string | undefined;
   value: unknown;
@@ -23,14 +22,13 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
 
   const fallbackControlRef = React.useRef<any>(null);
 
-  const enabled = registration == null ? false : (registration.enabled ?? true);
   const id = registration?.id;
   const value = registration?.value;
   const controlRef = registration?.controlRef ?? fallbackControlRef;
   const getValue = useStableCallback(registration?.getValue ?? (() => value));
 
   useIsoLayoutEffect(() => {
-    if (!enabled) {
+    if (registration == null) {
       return;
     }
 
@@ -42,10 +40,10 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
     if (validityData.initialValue === null && initialValue !== null) {
       setValidityData((prev) => ({ ...prev, initialValue }));
     }
-  }, [enabled, getValue, setValidityData, validityData.initialValue, value]);
+  }, [getValue, registration, setValidityData, validityData.initialValue, value]);
 
   useIsoLayoutEffect(() => {
-    if (!enabled || !id) {
+    if (registration == null || !id) {
       return;
     }
 
@@ -72,13 +70,13 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
   }, [
     commit,
     controlRef,
-    enabled,
     formRef,
     getValue,
     id,
     invalid,
     markedDirtyRef,
     name,
+    registration,
     validityData,
     value,
   ]);

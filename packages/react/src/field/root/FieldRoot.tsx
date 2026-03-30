@@ -55,7 +55,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
   const touched = touchedProp ?? touchedState;
 
   const markedDirtyRef = React.useRef(false);
-  const fieldControlRegistrationsRef = React.useRef(new Map<symbol, FieldControlRegistration>());
+  const activeFieldControlSourceRef = React.useRef<symbol | null>(null);
   const [registeredFieldControl, setRegisteredFieldControl] =
     React.useState<FieldControlRegistration | null>(null);
 
@@ -127,15 +127,15 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
 
   const registerFieldControl = useStableCallback(
     (source: symbol, registration: FieldControlRegistration | undefined) => {
-      const registrations = fieldControlRegistrationsRef.current;
-
-      if (registration == null || registration.enabled === false) {
-        registrations.delete(source);
+      if (registration == null) {
+        if (activeFieldControlSourceRef.current === source) {
+          activeFieldControlSourceRef.current = null;
+          setRegisteredFieldControl(null);
+        }
       } else {
-        registrations.set(source, registration);
+        activeFieldControlSourceRef.current = source;
+        setRegisteredFieldControl(registration);
       }
-
-      setRegisteredFieldControl(registrations.values().next().value ?? null);
     },
   );
 

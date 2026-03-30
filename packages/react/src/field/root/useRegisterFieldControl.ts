@@ -4,7 +4,9 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useFieldRootContext } from './FieldRootContext';
 import type { FieldControlRegistration } from './useFieldControlRegistration';
 
-export interface UseRegisterFieldControlParameters extends FieldControlRegistration {}
+export interface UseRegisterFieldControlParameters extends FieldControlRegistration {
+  enabled?: boolean | undefined;
+}
 
 export function useRegisterFieldControl(params: UseRegisterFieldControlParameters) {
   const { controlRef, enabled = true, getValue, id, value } = params;
@@ -19,13 +21,12 @@ export function useRegisterFieldControl(params: UseRegisterFieldControlParameter
   useIsoLayoutEffect(() => {
     const source = sourceRef.current;
 
-    if (source == null) {
+    if (source == null || !enabled) {
       return undefined;
     }
 
     registerFieldControl(source, {
       controlRef,
-      enabled,
       getValue,
       id,
       value,
