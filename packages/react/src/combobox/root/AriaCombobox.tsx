@@ -1280,6 +1280,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         style={hiddenInputName ? visuallyHiddenInput : visuallyHidden}
         tabIndex={-1}
         aria-hidden
+        suppressHydrationWarning
       />
       {hiddenInputs}
     </React.Fragment>

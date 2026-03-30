@@ -499,6 +499,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         aria-hidden
         tabIndex={-1}
         style={name ? visuallyHiddenInput : visuallyHidden}
+        suppressHydrationWarning
       />
     </NumberFieldRootContext.Provider>
   );
