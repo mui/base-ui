@@ -1059,9 +1059,9 @@ describe('<Popover.Root />', () => {
         expect(
           trigger.previousElementSibling?.hasAttribute('data-base-ui-focus-guard') ?? false,
         ).toBe(false);
-        expect(
-          trigger.nextElementSibling?.hasAttribute('data-base-ui-focus-guard') ?? false,
-        ).toBe(false);
+        expect(trigger.nextElementSibling?.hasAttribute('data-base-ui-focus-guard') ?? false).toBe(
+          false,
+        );
         expect(
           document.querySelectorAll('[data-base-ui-focus-guard][data-type="inside"]'),
         ).toHaveLength(2);
