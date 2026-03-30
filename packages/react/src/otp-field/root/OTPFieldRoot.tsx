@@ -69,6 +69,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     onValueInvalid,
     render,
     className,
+    style,
     ...elementProps
   } = componentProps;
 

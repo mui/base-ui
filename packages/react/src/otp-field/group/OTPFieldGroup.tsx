@@ -16,13 +16,13 @@ export const OTPFieldGroup = React.forwardRef(function OTPFieldGroup(
   componentProps: OTPFieldGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
   const { state } = useOTPFieldRootContext();
 
   const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,
     state,
-    props: [elementProps],
+    props: elementProps,
     stateAttributesMapping: rootStateAttributesMapping,
   });
 

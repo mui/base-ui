@@ -32,7 +32,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
   componentProps: OTPFieldInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const {
     activeIndex,
