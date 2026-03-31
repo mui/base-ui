@@ -9,11 +9,10 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
-import { Store } from '@base-ui/utils/store';
 import { ListboxRootContext } from './ListboxRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
-import { type State as StoreState } from '../store';
+import { ListboxStore } from '../store';
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
@@ -98,30 +97,42 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
 
   const store = useRefWithInit(
     () =>
-      new Store<StoreState>({
-        id: generatedId,
-        labelId: undefined,
-        selectionMode,
-        itemToStringLabel,
-        itemToStringValue,
-        isItemEqualToValue,
-        value,
-        activeIndex: null,
-        listElement: null,
-        dragActiveIndices: null,
-        dropTargetIndex: null,
-        loading,
-        orientation,
-        disabled,
-      }),
+      new ListboxStore(
+        {
+          id: generatedId,
+          selectionMode,
+          itemToStringLabel,
+          itemToStringValue,
+          isItemEqualToValue,
+          value,
+          loading,
+          loadingProp: loading,
+          hasOnLoadMore: onLoadMore !== undefined,
+          orientation,
+          disabled,
+          name,
+          required,
+          loopFocus,
+          highlightItemOnHover,
+        },
+        {
+          valuesRef,
+          labelsRef,
+          disabledItemsRef,
+          groupIdsRef,
+          typingRef,
+          lastSelectedIndexRef,
+          lastPointerTypeRef,
+          pointerMoveSuppressedRef,
+          validation,
+        },
+      ),
   ).current;
 
   // Value is always an array — serialize each element for form submission.
   const serializedValue = React.useMemo(
     () =>
-      value.length === 0
-        ? ''
-        : value.map((v) => stringifyAsValue(v, itemToStringValue)).join(','),
+      value.length === 0 ? '' : value.map((v) => stringifyAsValue(v, itemToStringValue)).join(','),
     [value, itemToStringValue],
   );
 
@@ -168,6 +179,12 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
     },
   );
 
+  store.useContextCallback('setValue', setValue);
+
+  store.context.validation = validation;
+  store.context.onItemsReorder = onItemsReorder;
+  store.context.onLoadMore = onLoadMore;
+
   React.useImperativeHandle(
     actionsRef,
     () => ({
@@ -213,8 +230,14 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
       itemToStringValue,
       isItemEqualToValue,
       loading,
+      loadingProp: loading,
+      hasOnLoadMore: onLoadMore !== undefined,
       orientation,
       disabled,
+      name,
+      required,
+      loopFocus,
+      highlightItemOnHover,
     });
   }, [
     store,
@@ -225,59 +248,21 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
     itemToStringValue,
     isItemEqualToValue,
     loading,
+    onLoadMore,
     orientation,
     disabled,
+    name,
+    required,
+    loopFocus,
+    highlightItemOnHover,
   ]);
 
   const { requestHighlightReconcile } = useHighlightChangeNotifier<Value>({
     store,
-    valuesRef,
     onHighlightChange,
-    isItemEqualToValue,
   });
 
-  const contextValue: ListboxRootContext = React.useMemo(
-    () => ({
-      store,
-      name,
-      required,
-      disabled,
-      loadingProp: loading,
-      selectionMode,
-      highlightItemOnHover,
-      orientation,
-      loopFocus,
-      requestHighlightReconcile,
-      setValue,
-      valuesRef,
-      labelsRef,
-      disabledItemsRef,
-      groupIdsRef,
-      typingRef,
-      lastSelectedIndexRef,
-      lastPointerTypeRef,
-      pointerMoveSuppressedRef,
-      validation,
-      onItemsReorder,
-      onLoadMore,
-    }),
-    [
-      store,
-      name,
-      required,
-      disabled,
-      loading,
-      selectionMode,
-      highlightItemOnHover,
-      orientation,
-      loopFocus,
-      requestHighlightReconcile,
-      setValue,
-      validation,
-      onItemsReorder,
-      onLoadMore,
-    ],
-  );
+  store.useContextCallback('requestHighlightReconcile', requestHighlightReconcile);
 
   const ref = useMergedRefs(inputRef, validation.inputRef);
 
@@ -304,7 +289,7 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
   }, [value, name, itemToStringValue]);
 
   return (
-    <ListboxRootContext.Provider value={contextValue}>
+    <ListboxRootContext.Provider value={store}>
       {children}
       <input
         {...validation.getInputValidationProps({

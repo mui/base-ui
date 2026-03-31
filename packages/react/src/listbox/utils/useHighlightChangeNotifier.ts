@@ -23,11 +23,9 @@ interface ResolvedHighlight<Value> {
  */
 export function useHighlightChangeNotifier<Value>(params: {
   store: ListboxStore;
-  valuesRef: React.RefObject<Array<any>>;
   onHighlightChange: ((value: Value | null, element: HTMLElement | null) => void) | undefined;
-  isItemEqualToValue: (a: any, b: any) => boolean;
 }): { requestHighlightReconcile: () => void } {
-  const { store, valuesRef, onHighlightChange, isItemEqualToValue } = params;
+  const { store, onHighlightChange } = params;
 
   const highlightChangeTimeout = useTimeout();
   const highlightChangeFrame = useAnimationFrame();
@@ -58,7 +56,7 @@ export function useHighlightChangeNotifier<Value>(params: {
       return { activeIndex: null, value: null, element: null };
     }
 
-    const itemValue = valuesRef.current[activeIndex] as Value | undefined;
+    const itemValue = store.context.valuesRef.current[activeIndex] as Value | undefined;
     const listEl = store.state.listElement;
     const element = listEl?.querySelectorAll<HTMLElement>('[role="option"]')[activeIndex] ?? null;
 
@@ -80,7 +78,7 @@ export function useHighlightChangeNotifier<Value>(params: {
       if (prev.value == null || next.value == null) {
         return prev.value === next.value;
       }
-      return isItemEqualToValue(prev.value, next.value);
+      return store.state.isItemEqualToValue(prev.value, next.value);
     },
   );
 

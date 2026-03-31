@@ -111,33 +111,32 @@ export const ListboxItem = React.memo(
       indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
     });
 
-    const {
-      store,
-      setValue,
-      valuesRef,
-      labelsRef,
-      disabledItemsRef,
-      groupIdsRef,
-      selectionMode,
-      highlightItemOnHover,
-      lastSelectedIndexRef,
-      lastPointerTypeRef,
-      pointerMoveSuppressedRef,
-      disabled: rootDisabled,
-      requestHighlightReconcile,
-      onItemsReorder,
-    } = useListboxRootContext();
+    const store = useListboxRootContext();
 
     const groupContext = useListboxGroupContext(true);
     const direction = useDirection();
 
     const highlightTimeout = useTimeout();
 
+    const selectionMode = useStore(store, selectors.selectionMode);
+    const highlightItemOnHover = useStore(store, selectors.highlightItemOnHover);
+    const rootDisabled = useStore(store, selectors.disabled);
     const highlighted = useStore(store, selectors.isActive, listItem.index);
     const selected = useStore(store, selectors.isSelected, listItem.index, itemValue);
     const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
     const isDragging = useStore(store, selectors.isDragging, listItem.index);
     const isDropTarget = useStore(store, selectors.isDropTarget, listItem.index);
+    const {
+      disabledItemsRef,
+      groupIdsRef,
+      labelsRef,
+      lastPointerTypeRef,
+      lastSelectedIndexRef,
+      pointerMoveSuppressedRef,
+      requestHighlightReconcile,
+      setValue,
+      valuesRef,
+    } = store.context;
 
     const index = listItem.index;
     const hasRegistered = index !== -1;
@@ -159,11 +158,7 @@ export const ListboxItem = React.memo(
       dragHandleRef,
       dragEnabled: isDraggable && hasRegistered && !rootDisabled && !disabled,
       dropTargetEnabled: isDraggable && hasRegistered && !rootDisabled,
-      valuesRef,
-      pointerMoveSuppressedRef,
       groupId,
-      groupIdsRef,
-      onItemsReorder,
     });
 
     useListItemValueRegistration({
@@ -278,15 +273,12 @@ export const ListboxItem = React.memo(
      * Handles Alt+Arrow keyboard reordering for both single-item and
      * multi-item (selected set) moves.
      */
-    function handleKeyboardReorder(
-      event: BaseUIEvent<React.KeyboardEvent>,
-      resolvedIndex: number,
-    ) {
-      if (!event.altKey || !onItemsReorder || !isDraggable || rootDisabled || disabled) {
+    function handleKeyboardReorder(event: BaseUIEvent<React.KeyboardEvent>, resolvedIndex: number) {
+      const reorderItems = store.context.onItemsReorder;
+
+      if (!event.altKey || !reorderItems || !isDraggable || rootDisabled || disabled) {
         return;
       }
-
-      const reorderItems = onItemsReorder;
       const isVertical = store.state.orientation === 'vertical';
       const moveUp =
         (isVertical && event.key === 'ArrowUp') || (!isVertical && event.key === 'ArrowLeft');

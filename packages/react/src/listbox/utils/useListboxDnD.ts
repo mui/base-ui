@@ -25,23 +25,11 @@ export interface UseListboxItemDnDParameters {
   dragHandleRef: React.RefObject<HTMLElement | null>;
   dragEnabled: boolean;
   dropTargetEnabled: boolean;
-  valuesRef: React.RefObject<Array<any>>;
-  pointerMoveSuppressedRef: React.RefObject<boolean>;
   /**
    * Group ID for constraining drops. When defined, only items with the same
    * groupId can be drop targets. When `undefined`, drops are unrestricted.
    */
   groupId: string | undefined;
-  /** Ref mapping each item index to its group ID (used for multi-item within-group checks). */
-  groupIdsRef: React.RefObject<Array<string | undefined>>;
-  onItemsReorder:
-    | ((event: {
-        items: any[];
-        referenceItem: any;
-        edge: 'before' | 'after';
-        reason: 'drag' | 'keyboard';
-      }) => void)
-    | undefined;
 }
 
 /**
@@ -61,19 +49,18 @@ export function useListboxItemDnD(params: UseListboxItemDnDParameters) {
     dragHandleRef,
     dragEnabled,
     dropTargetEnabled,
-    valuesRef,
-    pointerMoveSuppressedRef,
     groupId,
-    groupIdsRef,
-    onItemsReorder,
   } = params;
 
   const [closestEdge, setClosestEdge] = React.useState<Edge | null>(null);
   const dropHighlightTimeout = useTimeout();
   const dropHighlightFrame = useAnimationFrame();
+  const { groupIdsRef, pointerMoveSuppressedRef, valuesRef } = store.context;
 
   const handleDrop = useStableCallback(
     (sourceData: Record<string, unknown>, targetIndex: number, edge: Edge | null) => {
+      const onItemsReorder = store.context.onItemsReorder;
+
       if (!onItemsReorder) {
         return;
       }
@@ -243,11 +230,11 @@ export function useListboxItemDnD(params: UseListboxItemDnDParameters) {
     dragHandleRef,
     store,
     handleDrop,
-    valuesRef,
-    groupIdsRef,
     dropHighlightTimeout,
     dropHighlightFrame,
+    groupIdsRef,
     pointerMoveSuppressedRef,
+    valuesRef,
   ]);
 
   return { closestEdge };

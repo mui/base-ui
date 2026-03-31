@@ -12,7 +12,7 @@ import { selectors } from '../store';
  * Documentation: [Base UI Listbox](https://base-ui.com/react/components/listbox)
  */
 export const ListboxLabel = createLabel(() => {
-  const { store } = useListboxRootContext();
+  const store = useListboxRootContext();
   const controlElement = useStore(store, selectors.listElement);
   const rootId = useStore(store, selectors.id);
   return { store, rootId, controlElement };

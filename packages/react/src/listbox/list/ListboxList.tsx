@@ -29,24 +29,18 @@ export const ListboxList = React.forwardRef(function ListboxList(
 ) {
   const { className, render, style, ...elementProps } = componentProps;
 
-  const {
-    store,
-    labelsRef,
-    valuesRef,
-    disabledItemsRef,
-    typingRef,
-    orientation,
-    loopFocus,
-    disabled,
-    selectionMode,
-    setValue,
-    lastSelectedIndexRef,
-  } = useListboxRootContext();
+  const store = useListboxRootContext();
 
   const id = useStore(store, selectors.id);
   const labelId = useStore(store, selectors.labelId);
   const activeIndex = useStore(store, selectors.activeIndex);
+  const orientation = useStore(store, selectors.orientation);
+  const loopFocus = useStore(store, selectors.loopFocus);
+  const disabled = useStore(store, selectors.disabled);
+  const selectionMode = useStore(store, selectors.selectionMode);
   const direction = useDirection();
+  const { disabledItemsRef, labelsRef, lastSelectedIndexRef, setValue, typingRef, valuesRef } =
+    store.context;
 
   const onHighlightedIndexChange = useStableCallback((index: number) => {
     store.set('activeIndex', index);

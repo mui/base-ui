@@ -1,9 +1,8 @@
 import { afterEach, beforeEach, expect, vi } from 'vitest';
 import * as React from 'react';
-import { Store } from '@base-ui/utils/store';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
-import type { State as ListboxStoreState } from '../store';
+import { ListboxStore } from '../store';
 import { useListboxItemDnD } from './useListboxDnD';
 
 const dndMocks = vi.hoisted(() => ({
@@ -57,31 +56,24 @@ describe('useListboxDnD', () => {
   const { render } = createRenderer();
 
   it('highlights the dragged item after a multi-drag drop', async () => {
-    const store = new Store<ListboxStoreState>({
+    const store = new ListboxStore({
       id: 'test-listbox',
-      labelId: undefined,
       selectionMode: 'multiple',
-      itemToStringLabel: undefined,
-      itemToStringValue: undefined,
       isItemEqualToValue: Object.is,
       value: ['a', 'b'],
-      activeIndex: null,
-      listElement: null,
-      dragActiveIndices: null,
-      dropTargetIndex: null,
-      loading: false,
       orientation: 'vertical',
-      disabled: false,
     });
 
     const valuesRef = { current: ['a', 'b', 'c', 'd'] } as React.RefObject<string[]>;
+
+    store.context.valuesRef = valuesRef;
+    store.context.groupIdsRef = { current: [] };
+    store.context.pointerMoveSuppressedRef = { current: false };
 
     function TestComponent() {
       const listRef = React.useRef<HTMLDivElement | null>(null);
       const itemRef = React.useRef<HTMLDivElement | null>(null);
       const dragHandleRef = React.useRef<HTMLElement | null>(null);
-      const pointerMoveSuppressedRef = React.useRef(false);
-      const groupIdsRef = React.useRef<Array<string | undefined>>([]);
 
       useListboxItemDnD({
         store,
@@ -91,11 +83,7 @@ describe('useListboxDnD', () => {
         dragHandleRef,
         dragEnabled: true,
         dropTargetEnabled: false,
-        valuesRef,
-        pointerMoveSuppressedRef,
         groupId: undefined,
-        groupIdsRef,
-        onItemsReorder: undefined,
       });
 
       React.useEffect(() => {

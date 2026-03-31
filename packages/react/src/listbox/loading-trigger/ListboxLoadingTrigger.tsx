@@ -25,10 +25,11 @@ export const ListboxLoadingTrigger = React.forwardRef(function ListboxLoadingTri
 ) {
   const keepMounted = componentProps.keepMounted ?? false;
 
-  const { store, onLoadMore } = useListboxRootContext();
+  const store = useListboxRootContext();
   const loading = useStore(store, selectors.loading);
+  const hasOnLoadMore = useStore(store, selectors.hasOnLoadMore);
 
-  const shouldRender = keepMounted || loading || !!onLoadMore;
+  const shouldRender = keepMounted || loading || hasOnLoadMore;
   if (!shouldRender) {
     return null;
   }
@@ -43,8 +44,9 @@ const Inner = React.forwardRef(function ListboxLoadingTriggerInner(
 ) {
   const { render, className, style, keepMounted, ...elementProps } = componentProps;
 
-  const { store, onLoadMore, loadingProp } = useListboxRootContext();
+  const store = useListboxRootContext();
   const loading = useStore(store, selectors.loading);
+  const loadingProp = useStore(store, selectors.loadingProp);
   const listElement = useStore(store, selectors.listElement);
 
   const sentinelRef = React.useRef<HTMLDivElement | null>(null);
@@ -52,12 +54,12 @@ const Inner = React.forwardRef(function ListboxLoadingTriggerInner(
   const eagerLoadingReset = useTimeout();
 
   const handleIntersect = useStableCallback(() => {
-    if (!store.state.loading && onLoadMore) {
+    if (!store.state.loading && store.context.onLoadMore) {
       // Set loading eagerly so the trigger's children can render
       // "Loading…" content immediately, avoiding a flash of the
       // idle content before the parent commits its own loading state.
       store.set('loading', true);
-      onLoadMore();
+      store.context.onLoadMore();
       eagerLoadingReset.start(0, () => {
         if (!controlledLoadingRef.current) {
           store.set('loading', false);
