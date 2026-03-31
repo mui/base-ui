@@ -14,10 +14,6 @@ export interface DrawerNestedSwipeProgressStore {
 export interface DrawerRootContext {
   swipeDirection: DrawerSwipeDirection;
   /**
-   * Enables virtual-keyboard-aware form handling and viewport sizing for software keyboards.
-   */
-  virtualKeyboardAware: boolean;
-  /**
    * Whether snap points can be skipped based on swipe velocity.
    */
   snapToSequentialPoints: boolean;
