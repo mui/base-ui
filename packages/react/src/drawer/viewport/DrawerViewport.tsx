@@ -117,7 +117,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   const ignoreTouchSwipeRef = React.useRef(false);
   const touchScrollStateRef = React.useRef<TouchScrollState | null>(null);
 
-  const virtualKeyboard = useDrawerVirtualKeyboardContext(true);
+  const virtualKeyboard = useDrawerVirtualKeyboardContext();
   const availableHeight = virtualKeyboard?.availableHeight ?? null;
   const keyboardInset = virtualKeyboard?.keyboardInset ?? 0;
 

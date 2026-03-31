@@ -13,18 +13,6 @@ export const DrawerVirtualKeyboardContext = React.createContext<
   DrawerVirtualKeyboardContext | undefined
 >(undefined);
 
-export function useDrawerVirtualKeyboardContext(
-  optional?: true,
-): DrawerVirtualKeyboardContext | undefined;
-export function useDrawerVirtualKeyboardContext(optional?: false): DrawerVirtualKeyboardContext;
-export function useDrawerVirtualKeyboardContext(optional = false) {
-  const drawerVirtualKeyboardContext = React.useContext(DrawerVirtualKeyboardContext);
-
-  if (!optional && drawerVirtualKeyboardContext === undefined) {
-    throw new Error(
-      'Base UI: DrawerVirtualKeyboardContext is missing. The virtual keyboard provider must wrap the drawer parts that use it.',
-    );
-  }
-
-  return drawerVirtualKeyboardContext;
+export function useDrawerVirtualKeyboardContext() {
+  return React.useContext(DrawerVirtualKeyboardContext);
 }
