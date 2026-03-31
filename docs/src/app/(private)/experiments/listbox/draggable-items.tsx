@@ -21,35 +21,38 @@ export default function DraggableItemsListbox() {
       <div className={styles.Section}>
         <span className={styles.SectionTitle}>Whole item is draggable (no drag handle)</span>
         <div className={styles.Field}>
-          <Listbox.Root
-            defaultValue={['cherry']}
-            onItemsReorder={(event) => {
-              setItems((prev) => {
-                const movedValues = new Set(event.items);
-                const movedItems = prev.filter((item) => movedValues.has(item.value));
-                const rest = prev.filter((item) => !movedValues.has(item.value));
-                const refIndex = rest.findIndex((item) => item.value === event.referenceItem);
-                rest.splice(event.edge === 'after' ? refIndex + 1 : refIndex, 0, ...movedItems);
-                return rest;
-              });
-            }}
-          >
+          <Listbox.Root defaultValue={['cherry']}>
             <Listbox.Label className={styles.Label}>Fruits</Listbox.Label>
-            <Listbox.List className={styles.List}>
-              {items.map(({ label, value }) => (
-                <Listbox.Item
-                  key={value}
-                  value={value}
-                  draggable
-                  className={`${styles.Item} ${styles.DraggableItem}`}
-                >
-                  <Listbox.ItemIndicator className={styles.DraggableItemIndicator}>
-                    <CheckIcon className={styles.ItemIndicatorIcon} />
-                  </Listbox.ItemIndicator>
-                  <Listbox.ItemText className={styles.DraggableItemText}>{label}</Listbox.ItemText>
-                </Listbox.Item>
-              ))}
-            </Listbox.List>
+            <Listbox.DragAndDropProvider
+              onItemsReorder={(event) => {
+                setItems((prev) => {
+                  const movedValues = new Set(event.items);
+                  const movedItems = prev.filter((item) => movedValues.has(item.value));
+                  const rest = prev.filter((item) => !movedValues.has(item.value));
+                  const refIndex = rest.findIndex((item) => item.value === event.referenceItem);
+                  rest.splice(event.edge === 'after' ? refIndex + 1 : refIndex, 0, ...movedItems);
+                  return rest;
+                });
+              }}
+            >
+              <Listbox.List className={styles.List}>
+                {items.map(({ label, value }) => (
+                  <Listbox.Item
+                    key={value}
+                    value={value}
+                    draggable
+                    className={`${styles.Item} ${styles.DraggableItem}`}
+                  >
+                    <Listbox.ItemIndicator className={styles.DraggableItemIndicator}>
+                      <CheckIcon className={styles.ItemIndicatorIcon} />
+                    </Listbox.ItemIndicator>
+                    <Listbox.ItemText className={styles.DraggableItemText}>
+                      {label}
+                    </Listbox.ItemText>
+                  </Listbox.Item>
+                ))}
+              </Listbox.List>
+            </Listbox.DragAndDropProvider>
           </Listbox.Root>
         </div>
         <span className={styles.SectionTitle}>Try Alt+Arrow to reorder with keyboard</span>

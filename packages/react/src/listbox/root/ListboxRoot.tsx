@@ -53,7 +53,6 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
     itemToStringValue,
     inputRef,
     actionsRef,
-    onItemsReorder,
     onHighlightChange,
     loading = false,
     onLoadMore,
@@ -180,7 +179,6 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
   store.useContextCallback('setValue', setValue);
 
   store.context.validation = validation;
-  store.context.onItemsReorder = onItemsReorder;
   store.context.onLoadMore = onLoadMore;
 
   React.useImperativeHandle(
@@ -434,19 +432,6 @@ export interface ListboxRootProps<Value> {
    */
   onValueChange?:
     | ((value: Value[], eventDetails: ListboxRootChangeEventDetails) => void)
-    | undefined;
-  /**
-   * Event handler called when items are reordered via drag-and-drop or keyboard.
-   * `items` contains the moved item(s). `referenceItem` is the item that was
-   * dropped on or moved next to, and `edge` indicates placement relative to it.
-   */
-  onItemsReorder?:
-    | ((event: {
-        items: Value[];
-        referenceItem: Value;
-        edge: 'before' | 'after';
-        reason: 'drag' | 'keyboard';
-      }) => void)
     | undefined;
   /**
    * Event handler called when the highlighted item changes.

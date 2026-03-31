@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, expect, vi } from 'vitest';
 import * as React from 'react';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { act, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
-import { ListboxStore } from '../store';
-import { useListboxItemDnD } from './useListboxDnD';
+import { Listbox } from '@base-ui/react/listbox';
 
 const dndMocks = vi.hoisted(() => ({
   draggableConfigs: new Map<HTMLElement, any>(),
+  dropTargetConfigs: new Map<HTMLElement, any>(),
 }));
 
 let originalRequestAnimationFrame: typeof globalThis.requestAnimationFrame;
@@ -19,8 +19,11 @@ vi.mock('@atlaskit/pragmatic-drag-and-drop/element/adapter', () => ({
       dndMocks.draggableConfigs.delete(config.element);
     };
   },
-  dropTargetForElements() {
-    return () => {};
+  dropTargetForElements(config: any) {
+    dndMocks.dropTargetConfigs.set(config.element, config);
+    return () => {
+      dndMocks.dropTargetConfigs.delete(config.element);
+    };
   },
 }));
 
@@ -33,10 +36,23 @@ vi.mock('@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge', () => ({
   },
 }));
 
-describe('useListboxDnD', () => {
+function reorder(
+  prev: string[],
+  event: { items: string[]; referenceItem: string; edge: 'before' | 'after' },
+) {
+  const movedValues = new Set(event.items);
+  const movedItems = prev.filter((item) => movedValues.has(item));
+  const rest = prev.filter((item) => !movedValues.has(item));
+  const refIndex = rest.indexOf(event.referenceItem);
+  rest.splice(event.edge === 'after' ? refIndex + 1 : refIndex, 0, ...movedItems);
+  return rest;
+}
+
+describe('<Listbox.DragAndDropProvider />', () => {
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
     dndMocks.draggableConfigs.clear();
+    dndMocks.dropTargetConfigs.clear();
     originalRequestAnimationFrame = globalThis.requestAnimationFrame;
     originalCancelAnimationFrame = globalThis.cancelAnimationFrame;
     globalThis.requestAnimationFrame = ((callback: FrameRequestCallback) =>
@@ -49,6 +65,7 @@ describe('useListboxDnD', () => {
 
   afterEach(() => {
     dndMocks.draggableConfigs.clear();
+    dndMocks.dropTargetConfigs.clear();
     globalThis.requestAnimationFrame = originalRequestAnimationFrame;
     globalThis.cancelAnimationFrame = originalCancelAnimationFrame;
   });
@@ -56,73 +73,57 @@ describe('useListboxDnD', () => {
   const { render } = createRenderer();
 
   it('highlights the dragged item after a multi-drag drop', async () => {
-    const store = new ListboxStore({
-      id: 'test-listbox',
-      selectionMode: 'multiple',
-      isItemEqualToValue: Object.is,
-      value: ['a', 'b'],
-      orientation: 'vertical',
-    });
-
-    const valuesRef = { current: ['a', 'b', 'c', 'd'] } as React.RefObject<string[]>;
-
-    store.context.valuesRef = valuesRef;
-    store.context.groupIdsRef = { current: [] };
-    store.context.pointerMoveSuppressedRef = { current: false };
-
     function TestComponent() {
-      const listRef = React.useRef<HTMLDivElement | null>(null);
-      const itemRef = React.useRef<HTMLDivElement | null>(null);
-      const dragHandleRef = React.useRef<HTMLElement | null>(null);
-
-      useListboxItemDnD({
-        store,
-        index: 1,
-        itemValue: 'b',
-        itemRef,
-        dragHandleRef,
-        dragEnabled: true,
-        dropTargetEnabled: false,
-        groupId: undefined,
-      });
-
-      React.useEffect(() => {
-        store.set('listElement', listRef.current);
-      }, []);
+      const [items, setItems] = React.useState(['a', 'b', 'c', 'd']);
 
       return (
-        <div ref={listRef}>
-          <div role="option" aria-selected="false" tabIndex={-1}>
-            c
-          </div>
-          <div role="option" aria-selected="false" tabIndex={-1}>
-            d
-          </div>
-          <div role="option" aria-selected="false" tabIndex={-1}>
-            a
-          </div>
-          <div ref={itemRef} role="option" aria-selected="true" tabIndex={-1}>
-            b
-          </div>
-        </div>
+        <Listbox.Root selectionMode="multiple" defaultValue={['a', 'b']}>
+          <Listbox.DragAndDropProvider
+            onItemsReorder={(event) => {
+              setItems((prev) => reorder(prev, event));
+            }}
+          >
+            <Listbox.List>
+              {items.map((item) => (
+                <Listbox.Item key={item} value={item} draggable>
+                  {item}
+                </Listbox.Item>
+              ))}
+            </Listbox.List>
+          </Listbox.DragAndDropProvider>
+        </Listbox.Root>
       );
     }
 
     await render(<TestComponent />);
+    await flushMicrotasks();
 
     const itemB = screen.getByRole('option', { name: 'b' });
+    const itemD = screen.getByRole('option', { name: 'd' });
     const draggableConfig = dndMocks.draggableConfigs.get(itemB);
+    const dropTargetConfig = dndMocks.dropTargetConfigs.get(itemD);
     const sourceData = draggableConfig.getInitialData();
 
-    valuesRef.current = ['c', 'd', 'a', 'b'];
+    await act(async () => {
+      dropTargetConfig.onDrop({
+        source: { data: sourceData },
+        self: { data: { edge: 'bottom' } },
+      });
+    });
+    await flushMicrotasks();
 
     await act(async () => {
       draggableConfig.onDrop({ source: { data: sourceData } });
     });
 
     await waitFor(() => {
-      expect(store.state.activeIndex).toBe(3);
-      expect(document.activeElement).toBe(itemB);
+      expect(screen.getAllByRole('option').map((el) => el.textContent)).toEqual([
+        'c',
+        'd',
+        'a',
+        'b',
+      ]);
+      expect(screen.getByRole('option', { name: 'b' })).toBe(document.activeElement);
     });
   });
 });

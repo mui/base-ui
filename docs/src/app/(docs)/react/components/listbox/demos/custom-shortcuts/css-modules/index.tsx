@@ -73,25 +73,28 @@ export default function ExampleListboxCustomShortcuts() {
       <Listbox.Root
         defaultValue={['first']}
         actionsRef={actionsRef}
-        onItemsReorder={(event) => setItems((prev) => reorder(prev, event))}
         onHighlightChange={(value, element) => {
           highlightedRef.current = value != null && element != null ? { value, element } : null;
         }}
       >
         <Listbox.Label className={styles.Label}>Press [ or ] to move items</Listbox.Label>
-        <Listbox.List className={styles.List} onKeyDown={handleKeyDown}>
-          {items.map(({ label, value }) => (
-            <Listbox.Item key={value} value={value} draggable className={styles.Item}>
-              <Listbox.ItemDragHandle className={styles.DragHandle}>
-                <GripIcon />
-              </Listbox.ItemDragHandle>
-              <Listbox.ItemIndicator className={styles.ItemIndicator}>
-                <CheckIcon className={styles.ItemIndicatorIcon} />
-              </Listbox.ItemIndicator>
-              <Listbox.ItemText className={styles.ItemText}>{label}</Listbox.ItemText>
-            </Listbox.Item>
-          ))}
-        </Listbox.List>
+        <Listbox.DragAndDropProvider
+          onItemsReorder={(event) => setItems((prev) => reorder(prev, event))}
+        >
+          <Listbox.List className={styles.List} onKeyDown={handleKeyDown}>
+            {items.map(({ label, value }) => (
+              <Listbox.Item key={value} value={value} draggable className={styles.Item}>
+                <Listbox.ItemDragHandle className={styles.DragHandle}>
+                  <GripIcon />
+                </Listbox.ItemDragHandle>
+                <Listbox.ItemIndicator className={styles.ItemIndicator}>
+                  <CheckIcon className={styles.ItemIndicatorIcon} />
+                </Listbox.ItemIndicator>
+                <Listbox.ItemText className={styles.ItemText}>{label}</Listbox.ItemText>
+              </Listbox.Item>
+            ))}
+          </Listbox.List>
+        </Listbox.DragAndDropProvider>
       </Listbox.Root>
     </div>
   );

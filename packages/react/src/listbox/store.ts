@@ -2,7 +2,6 @@ import * as React from 'react';
 import { ReactStore, createSelector } from '@base-ui/utils/store';
 import { compareItemEquality } from '../utils/itemEquality';
 import type { UseFieldValidationReturnValue } from '../field/root/useFieldValidation';
-import type { ListboxRoot } from './root/ListboxRoot';
 import type { SelectionMode } from './utils/selectionReducer';
 
 export type State = {
@@ -49,16 +48,11 @@ export type Context = {
   lastSelectedIndexRef: React.RefObject<number | null>;
   pointerMoveSuppressedRef: React.RefObject<boolean>;
   validation: UseFieldValidationReturnValue;
-  setValue: (nextValue: any, eventDetails: ListboxRoot.ChangeEventDetails) => void;
+  setValue: (
+    nextValue: any,
+    eventDetails: import('./root/ListboxRoot').ListboxRoot.ChangeEventDetails,
+  ) => void;
   requestHighlightReconcile: () => void;
-  onItemsReorder:
-    | ((event: {
-        items: any[];
-        referenceItem: any;
-        edge: 'before' | 'after';
-        reason: 'drag' | 'keyboard';
-      }) => void)
-    | undefined;
   onLoadMore: (() => void) | undefined;
 };
 
@@ -162,7 +156,6 @@ function createInitialContext(): Context {
     },
     setValue: () => {},
     requestHighlightReconcile: () => {},
-    onItemsReorder: undefined,
     onLoadMore: undefined,
   };
 }

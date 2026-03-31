@@ -5,6 +5,7 @@ export { ListboxItem as Item } from './item/ListboxItem';
 export { ListboxItemIndicator as ItemIndicator } from './item-indicator/ListboxItemIndicator';
 export { ListboxItemText as ItemText } from './item-text/ListboxItemText';
 export { ListboxItemDragHandle as ItemDragHandle } from './item-drag-handle/ListboxItemDragHandle';
+export { ListboxDragAndDropProvider as DragAndDropProvider } from './drag-and-drop-provider/ListboxDragAndDropProvider';
 export { ListboxGroup as Group } from './group/ListboxGroup';
 export { ListboxGroupLabel as GroupLabel } from './group-label/ListboxGroupLabel';
 export { ListboxLoadingTrigger as LoadingTrigger } from './loading-trigger/ListboxLoadingTrigger';

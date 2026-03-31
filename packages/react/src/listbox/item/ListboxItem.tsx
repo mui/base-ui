@@ -25,7 +25,8 @@ import { useButton } from '../../use-button';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { useListItemValueRegistration } from '../../utils/useListItemValueRegistration';
-import { useListboxItemDnD } from '../utils/useListboxDnD';
+import { useDragAndDrop } from '../utils/useDragAndDrop';
+import { useListboxDragAndDropProviderContext } from '../drag-and-drop-provider/ListboxDragAndDropProviderContext';
 import { useListboxGroupContext } from '../group/ListboxGroupContext';
 import { selectionReducer, isMultipleSelectionMode } from '../utils/selectionReducer';
 import type { SelectionAction } from '../utils/selectionReducer';
@@ -112,6 +113,7 @@ export const ListboxItem = React.memo(
     const store = useListboxRootContext();
 
     const groupContext = useListboxGroupContext(true);
+    const dragAndDropContext = useListboxDragAndDropProviderContext(true);
     const direction = useDirection();
 
     const highlightTimeout = useTimeout();
@@ -147,14 +149,15 @@ export const ListboxItem = React.memo(
     const dragHandleRef = React.useRef<HTMLElement | null>(null);
     const indexRef = useValueAsRef(index);
 
-    const { closestEdge } = useListboxItemDnD({
-      store,
+    const { closestEdge } = useDragAndDrop({
       index,
       itemValue,
       itemRef,
       dragHandleRef,
-      dragEnabled: isDraggable && hasRegistered && !rootDisabled && !disabled,
-      dropTargetEnabled: isDraggable && hasRegistered && !rootDisabled,
+      dragEnabled:
+        dragAndDropContext != null && isDraggable && hasRegistered && !rootDisabled && !disabled,
+      dropTargetEnabled:
+        dragAndDropContext != null && isDraggable && hasRegistered && !rootDisabled,
       groupId,
     });
 
@@ -265,7 +268,7 @@ export const ListboxItem = React.memo(
      * multi-item (selected set) moves.
      */
     function handleKeyboardReorder(event: BaseUIEvent<React.KeyboardEvent>, resolvedIndex: number) {
-      const reorderItems = store.context.onItemsReorder;
+      const reorderItems = dragAndDropContext?.onItemsReorder;
 
       if (!event.altKey || !reorderItems || !isDraggable || rootDisabled || disabled) {
         return;

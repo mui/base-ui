@@ -25,17 +25,19 @@ import { Listbox } from '@base-ui/react/listbox';
 
 <Listbox.Root>
   <Listbox.Label />
-  <Listbox.List>
-    <Listbox.Item>
-      <Listbox.ItemIndicator />
-      <Listbox.ItemText />
-      <Listbox.ItemDragHandle />
-    </Listbox.Item>
-    <Listbox.Group>
-      <Listbox.GroupLabel />
-    </Listbox.Group>
-    <Listbox.LoadingTrigger />
-  </Listbox.List>
+  <Listbox.DragAndDropProvider>
+    <Listbox.List>
+      <Listbox.Item>
+        <Listbox.ItemIndicator />
+        <Listbox.ItemText />
+        <Listbox.ItemDragHandle />
+      </Listbox.Item>
+      <Listbox.Group>
+        <Listbox.GroupLabel />
+      </Listbox.Group>
+      <Listbox.LoadingTrigger />
+    </Listbox.List>
+  </Listbox.DragAndDropProvider>
 </Listbox.Root>;
 ```
 
@@ -64,7 +66,7 @@ import { DemoListboxLazyLoading } from './demos/lazy-loading';
 
 ### Drag and drop
 
-Set `draggable` on items and provide an `onItemsReorder` callback on the root. Use `Listbox.ItemDragHandle` to restrict drag initiation to a handle. Items can also be reordered with the keyboard using Alt+Arrow keys.
+Wrap reorderable content in `Listbox.DragAndDropProvider`, set `draggable` on items, and provide `onItemsReorder` on the provider. Use `Listbox.ItemDragHandle` to restrict drag initiation to a handle. Items can also be reordered with the keyboard using Alt+Arrow keys.
 
 Set `draggable="within-group"` to constrain reordering within the item's parent `Listbox.Group`. Items cannot be dragged across group boundaries.
 
@@ -97,6 +99,10 @@ import { TypesListbox } from './types';
 ### List
 
 <TypesListbox.List />
+
+### DragAndDropProvider
+
+<TypesListbox.DragAndDropProvider />
 
 ### Item
 

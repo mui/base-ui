@@ -16,33 +16,34 @@ export default function ExampleListboxDragAndDrop() {
 
   return (
     <div className={styles.Field}>
-      <Listbox.Root
-        defaultValue={['first']}
-        onItemsReorder={(event) => {
-          setItems((prev) => {
-            const movedValues = new Set(event.items);
-            const movedItems = prev.filter((item) => movedValues.has(item.value));
-            const rest = prev.filter((item) => !movedValues.has(item.value));
-            const refIndex = rest.findIndex((item) => item.value === event.referenceItem);
-            rest.splice(event.edge === 'after' ? refIndex + 1 : refIndex, 0, ...movedItems);
-            return rest;
-          });
-        }}
-      >
+      <Listbox.Root defaultValue={['first']}>
         <Listbox.Label className={styles.Label}>Reorderable list</Listbox.Label>
-        <Listbox.List className={styles.List}>
-          {items.map(({ label, value }) => (
-            <Listbox.Item key={value} value={value} draggable className={styles.Item}>
-              <Listbox.ItemDragHandle className={styles.DragHandle}>
-                <GripIcon />
-              </Listbox.ItemDragHandle>
-              <Listbox.ItemIndicator className={styles.ItemIndicator}>
-                <CheckIcon className={styles.ItemIndicatorIcon} />
-              </Listbox.ItemIndicator>
-              <Listbox.ItemText className={styles.ItemText}>{label}</Listbox.ItemText>
-            </Listbox.Item>
-          ))}
-        </Listbox.List>
+        <Listbox.DragAndDropProvider
+          onItemsReorder={(event) => {
+            setItems((prev) => {
+              const movedValues = new Set(event.items);
+              const movedItems = prev.filter((item) => movedValues.has(item.value));
+              const rest = prev.filter((item) => !movedValues.has(item.value));
+              const refIndex = rest.findIndex((item) => item.value === event.referenceItem);
+              rest.splice(event.edge === 'after' ? refIndex + 1 : refIndex, 0, ...movedItems);
+              return rest;
+            });
+          }}
+        >
+          <Listbox.List className={styles.List}>
+            {items.map(({ label, value }) => (
+              <Listbox.Item key={value} value={value} draggable className={styles.Item}>
+                <Listbox.ItemDragHandle className={styles.DragHandle}>
+                  <GripIcon />
+                </Listbox.ItemDragHandle>
+                <Listbox.ItemIndicator className={styles.ItemIndicator}>
+                  <CheckIcon className={styles.ItemIndicatorIcon} />
+                </Listbox.ItemIndicator>
+                <Listbox.ItemText className={styles.ItemText}>{label}</Listbox.ItemText>
+              </Listbox.Item>
+            ))}
+          </Listbox.List>
+        </Listbox.DragAndDropProvider>
       </Listbox.Root>
     </div>
   );

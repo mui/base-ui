@@ -141,6 +141,31 @@ function handleReorder<T extends { value: string; group: string }>(
   });
 }
 
+function MaybeDragAndDropProvider(props: {
+  enabled: boolean;
+  onItemsReorder:
+    | ((event: {
+        items: string[];
+        referenceItem: string;
+        edge: 'before' | 'after';
+        reason: 'drag' | 'keyboard';
+      }) => void)
+    | undefined;
+  children: React.ReactNode;
+}) {
+  const { enabled, onItemsReorder, children } = props;
+
+  if (!enabled) {
+    return children;
+  }
+
+  return (
+    <Listbox.DragAndDropProvider onItemsReorder={onItemsReorder}>
+      {children}
+    </Listbox.DragAndDropProvider>
+  );
+}
+
 // --- Component ---
 
 export default function ListboxFullyFeatured() {
@@ -169,46 +194,50 @@ export default function ListboxFullyFeatured() {
             disabled={settings.disabled}
             loopFocus={settings.loopFocus}
             defaultValue={['die-grotesk']}
-            onItemsReorder={isDraggable ? (event) => handleReorder(event, setFonts) : undefined}
           >
             <Listbox.Label className={styles.Label}>Font family</Listbox.Label>
-            <Listbox.List className={styles.List}>
-              {settings.groups
-                ? fontGroups.map((group) => (
-                    <Listbox.Group key={group.label} className={styles.Group}>
-                      <Listbox.GroupLabel className={styles.GroupLabel}>
-                        {group.label}
-                      </Listbox.GroupLabel>
-                      {group.items.map(({ label, value, disabled }) => (
-                        <VerticalItem
-                          key={value}
-                          label={label}
-                          value={value}
-                          disabled={disabled}
-                          draggable={draggableProp}
-                          className={itemClassName}
-                        />
-                      ))}
-                      {isDraggable && group.items.length === 0 && (
-                        <Listbox.Item
-                          value={`${PLACEHOLDER_PREFIX}${group.label}`}
-                          draggable
-                          className={styles.PlaceholderItem}
-                        />
-                      )}
-                    </Listbox.Group>
-                  ))
-                : fonts.map(({ label, value, disabled }) => (
-                    <VerticalItem
-                      key={value}
-                      label={label}
-                      value={value}
-                      disabled={disabled}
-                      draggable={draggableProp}
-                      className={itemClassName}
-                    />
-                  ))}
-            </Listbox.List>
+            <MaybeDragAndDropProvider
+              enabled={isDraggable}
+              onItemsReorder={isDraggable ? (event) => handleReorder(event, setFonts) : undefined}
+            >
+              <Listbox.List className={styles.List}>
+                {settings.groups
+                  ? fontGroups.map((group) => (
+                      <Listbox.Group key={group.label} className={styles.Group}>
+                        <Listbox.GroupLabel className={styles.GroupLabel}>
+                          {group.label}
+                        </Listbox.GroupLabel>
+                        {group.items.map(({ label, value, disabled }) => (
+                          <VerticalItem
+                            key={value}
+                            label={label}
+                            value={value}
+                            disabled={disabled}
+                            draggable={draggableProp}
+                            className={itemClassName}
+                          />
+                        ))}
+                        {isDraggable && group.items.length === 0 && (
+                          <Listbox.Item
+                            value={`${PLACEHOLDER_PREFIX}${group.label}`}
+                            draggable
+                            className={styles.PlaceholderItem}
+                          />
+                        )}
+                      </Listbox.Group>
+                    ))
+                  : fonts.map(({ label, value, disabled }) => (
+                      <VerticalItem
+                        key={value}
+                        label={label}
+                        value={value}
+                        disabled={disabled}
+                        draggable={draggableProp}
+                        className={itemClassName}
+                      />
+                    ))}
+              </Listbox.List>
+            </MaybeDragAndDropProvider>
           </Listbox.Root>
         </div>
       </div>
@@ -222,57 +251,61 @@ export default function ListboxFullyFeatured() {
             disabled={settings.disabled}
             loopFocus={settings.loopFocus}
             defaultValue={['m']}
-            onItemsReorder={isDraggable ? (event) => handleReorder(event, setSizes) : undefined}
           >
             <Listbox.Label className={styles.Label}>Available sizes</Listbox.Label>
-            <Listbox.List className={`${styles.List} ${styles.HorizontalList}`}>
-              {settings.groups
-                ? sizeGroups.map((group) => (
-                    <Listbox.Group key={group.label} className={styles.HorizontalGroup}>
-                      {group.items.map(({ label, value }) => (
+            <MaybeDragAndDropProvider
+              enabled={isDraggable}
+              onItemsReorder={isDraggable ? (event) => handleReorder(event, setSizes) : undefined}
+            >
+              <Listbox.List className={`${styles.List} ${styles.HorizontalList}`}>
+                {settings.groups
+                  ? sizeGroups.map((group) => (
+                      <Listbox.Group key={group.label} className={styles.HorizontalGroup}>
+                        {group.items.map(({ label, value }) => (
+                          <Listbox.Item
+                            key={value}
+                            value={value}
+                            draggable={draggableProp}
+                            className={styles.HorizontalChip}
+                          >
+                            <Listbox.ItemText>{label}</Listbox.ItemText>
+                          </Listbox.Item>
+                        ))}
+                        {isDraggable && group.items.length === 0 && (
+                          <Listbox.Item
+                            value={`${PLACEHOLDER_PREFIX}${group.label}`}
+                            draggable={draggableProp}
+                            className={styles.HorizontalPlaceholderItem}
+                          />
+                        )}
+                      </Listbox.Group>
+                    ))
+                  : sizes.map(({ label, value }) => (
+                      <Listbox.Item
+                        key={value}
+                        value={value}
+                        draggable={draggableProp}
+                        className={styles.HorizontalChip}
+                      >
+                        <Listbox.ItemText>{label}</Listbox.ItemText>
+                      </Listbox.Item>
+                    ))}
+                {/* Ensure empty groups still render so items can be dragged back */}
+                {settings.groups &&
+                  isDraggable &&
+                  allSizeGroupLabels
+                    .filter((label) => !sizeGroups.some((g) => g.label === label))
+                    .map((label) => (
+                      <Listbox.Group key={label} className={styles.HorizontalGroup}>
                         <Listbox.Item
-                          key={value}
-                          value={value}
-                          draggable={draggableProp}
-                          className={styles.HorizontalChip}
-                        >
-                          <Listbox.ItemText>{label}</Listbox.ItemText>
-                        </Listbox.Item>
-                      ))}
-                      {isDraggable && group.items.length === 0 && (
-                        <Listbox.Item
-                          value={`${PLACEHOLDER_PREFIX}${group.label}`}
+                          value={`${PLACEHOLDER_PREFIX}${label}`}
                           draggable={draggableProp}
                           className={styles.HorizontalPlaceholderItem}
                         />
-                      )}
-                    </Listbox.Group>
-                  ))
-                : sizes.map(({ label, value }) => (
-                    <Listbox.Item
-                      key={value}
-                      value={value}
-                      draggable={draggableProp}
-                      className={styles.HorizontalChip}
-                    >
-                      <Listbox.ItemText>{label}</Listbox.ItemText>
-                    </Listbox.Item>
-                  ))}
-              {/* Ensure empty groups still render so items can be dragged back */}
-              {settings.groups &&
-                isDraggable &&
-                allSizeGroupLabels
-                  .filter((label) => !sizeGroups.some((g) => g.label === label))
-                  .map((label) => (
-                    <Listbox.Group key={label} className={styles.HorizontalGroup}>
-                      <Listbox.Item
-                        value={`${PLACEHOLDER_PREFIX}${label}`}
-                        draggable={draggableProp}
-                        className={styles.HorizontalPlaceholderItem}
-                      />
-                    </Listbox.Group>
-                  ))}
-            </Listbox.List>
+                      </Listbox.Group>
+                    ))}
+              </Listbox.List>
+            </MaybeDragAndDropProvider>
           </Listbox.Root>
         </div>
       </div>

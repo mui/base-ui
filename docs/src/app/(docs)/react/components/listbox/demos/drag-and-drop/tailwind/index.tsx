@@ -15,40 +15,41 @@ export default function ExampleListboxDragAndDrop() {
 
   return (
     <div className="flex flex-col gap-1">
-      <Listbox.Root
-        defaultValue={['first']}
-        onItemsReorder={(event) => {
-          setItems((prev) => {
-            const movedValues = new Set(event.items);
-            const movedItems = prev.filter((item) => movedValues.has(item.value));
-            const rest = prev.filter((item) => !movedValues.has(item.value));
-            const refIndex = rest.findIndex((item) => item.value === event.referenceItem);
-            rest.splice(event.edge === 'after' ? refIndex + 1 : refIndex, 0, ...movedItems);
-            return rest;
-          });
-        }}
-      >
+      <Listbox.Root defaultValue={['first']}>
         <Listbox.Label className="cursor-default text-sm leading-5 font-medium text-gray-900">
           Reorderable list
         </Listbox.Label>
-        <Listbox.List className="box-border w-56 max-h-80 overflow-y-auto py-1 rounded-md outline outline-1 outline-gray-200 dark:outline-gray-300 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
-          {items.map(({ label, value }) => (
-            <Listbox.Item
-              key={value}
-              value={value}
-              draggable
-              className="relative grid cursor-default grid-cols-[1.5rem_0.75rem_1fr] items-center gap-1.5 py-2 pr-4 pl-1 text-sm leading-4 text-gray-900 outline-hidden select-none data-[highlighted]:z-0 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-xs data-[highlighted]:before:bg-gray-100 data-[dragging]:opacity-50 data-[drop-target-edge=before]:after:absolute data-[drop-target-edge=before]:after:top-[-1px] data-[drop-target-edge=before]:after:left-1 data-[drop-target-edge=before]:after:right-1 data-[drop-target-edge=before]:after:h-0.5 data-[drop-target-edge=before]:after:bg-blue-800 data-[drop-target-edge=before]:after:content-[''] data-[drop-target-edge=after]:after:absolute data-[drop-target-edge=after]:after:bottom-[-1px] data-[drop-target-edge=after]:after:left-1 data-[drop-target-edge=after]:after:right-1 data-[drop-target-edge=after]:after:h-0.5 data-[drop-target-edge=after]:after:bg-blue-800 data-[drop-target-edge=after]:after:content-[''] pointer-coarse:py-2.5 pointer-coarse:text-[0.925rem]"
-            >
-              <Listbox.ItemDragHandle className="col-start-1 flex w-6 shrink-0 items-center justify-center cursor-grab text-gray-400 active:cursor-grabbing">
-                <GripIcon />
-              </Listbox.ItemDragHandle>
-              <Listbox.ItemIndicator className="col-start-2">
-                <CheckIcon className="size-3" />
-              </Listbox.ItemIndicator>
-              <Listbox.ItemText className="col-start-3">{label}</Listbox.ItemText>
-            </Listbox.Item>
-          ))}
-        </Listbox.List>
+        <Listbox.DragAndDropProvider
+          onItemsReorder={(event) => {
+            setItems((prev) => {
+              const movedValues = new Set(event.items);
+              const movedItems = prev.filter((item) => movedValues.has(item.value));
+              const rest = prev.filter((item) => !movedValues.has(item.value));
+              const refIndex = rest.findIndex((item) => item.value === event.referenceItem);
+              rest.splice(event.edge === 'after' ? refIndex + 1 : refIndex, 0, ...movedItems);
+              return rest;
+            });
+          }}
+        >
+          <Listbox.List className="box-border w-56 max-h-80 overflow-y-auto py-1 rounded-md outline outline-1 outline-gray-200 dark:outline-gray-300 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
+            {items.map(({ label, value }) => (
+              <Listbox.Item
+                key={value}
+                value={value}
+                draggable
+                className="relative grid cursor-default grid-cols-[1.5rem_0.75rem_1fr] items-center gap-1.5 py-2 pr-4 pl-1 text-sm leading-4 text-gray-900 outline-hidden select-none data-[highlighted]:z-0 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-xs data-[highlighted]:before:bg-gray-100 data-[dragging]:opacity-50 data-[drop-target-edge=before]:after:absolute data-[drop-target-edge=before]:after:top-[-1px] data-[drop-target-edge=before]:after:left-1 data-[drop-target-edge=before]:after:right-1 data-[drop-target-edge=before]:after:h-0.5 data-[drop-target-edge=before]:after:bg-blue-800 data-[drop-target-edge=before]:after:content-[''] data-[drop-target-edge=after]:after:absolute data-[drop-target-edge=after]:after:bottom-[-1px] data-[drop-target-edge=after]:after:left-1 data-[drop-target-edge=after]:after:right-1 data-[drop-target-edge=after]:after:h-0.5 data-[drop-target-edge=after]:after:bg-blue-800 data-[drop-target-edge=after]:after:content-[''] pointer-coarse:py-2.5 pointer-coarse:text-[0.925rem]"
+              >
+                <Listbox.ItemDragHandle className="col-start-1 flex w-6 shrink-0 items-center justify-center cursor-grab text-gray-400 active:cursor-grabbing">
+                  <GripIcon />
+                </Listbox.ItemDragHandle>
+                <Listbox.ItemIndicator className="col-start-2">
+                  <CheckIcon className="size-3" />
+                </Listbox.ItemIndicator>
+                <Listbox.ItemText className="col-start-3">{label}</Listbox.ItemText>
+              </Listbox.Item>
+            ))}
+          </Listbox.List>
+        </Listbox.DragAndDropProvider>
       </Listbox.Root>
     </div>
   );

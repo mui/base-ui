@@ -1159,22 +1159,52 @@ describe('<Listbox.Root />', () => {
       expect(handleValueChange.mock.calls[1][0]).toEqual(['a', 'c']);
     });
 
-    it('should reorder relative to a disabled item with Alt+Arrow', async () => {
-      const handleItemsReorder = vi.fn();
-
+    it('should not reorder with Alt+Arrow when DragAndDropProvider is not rendered', async () => {
       await render(
-        <Listbox.Root onItemsReorder={handleItemsReorder}>
+        <Listbox.Root>
           <Listbox.List>
             <Listbox.Item value="a" draggable>
               a
             </Listbox.Item>
-            <Listbox.Item value="b" disabled draggable>
+            <Listbox.Item value="b" draggable>
               b
             </Listbox.Item>
             <Listbox.Item value="c" draggable>
               c
             </Listbox.Item>
           </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      await flushMicrotasks();
+
+      const itemC = screen.getByRole('option', { name: 'c' });
+      await act(() => itemC.focus());
+      fireEvent.keyDown(itemC, { key: 'ArrowUp', altKey: true });
+      await flushMicrotasks();
+
+      expect(screen.getAllByRole('option').map((el) => el.textContent)).toEqual(['a', 'b', 'c']);
+      expect(document.activeElement).toBe(itemC);
+    });
+
+    it('should reorder relative to a disabled item with Alt+Arrow', async () => {
+      const handleItemsReorder = vi.fn();
+
+      await render(
+        <Listbox.Root>
+          <Listbox.DragAndDropProvider onItemsReorder={handleItemsReorder}>
+            <Listbox.List>
+              <Listbox.Item value="a" draggable>
+                a
+              </Listbox.Item>
+              <Listbox.Item value="b" disabled draggable>
+                b
+              </Listbox.Item>
+              <Listbox.Item value="c" draggable>
+                c
+              </Listbox.Item>
+            </Listbox.List>
+          </Listbox.DragAndDropProvider>
         </Listbox.Root>,
       );
 
@@ -1202,18 +1232,20 @@ describe('<Listbox.Root />', () => {
       const handleItemsReorder = vi.fn();
 
       await render(
-        <Listbox.Root onItemsReorder={handleItemsReorder}>
-          <Listbox.List>
-            <Listbox.Item value="a" draggable>
-              a
-            </Listbox.Item>
-            <Listbox.Item value="b" disabled draggable>
-              b
-            </Listbox.Item>
-            <Listbox.Item value="c" draggable>
-              c
-            </Listbox.Item>
-          </Listbox.List>
+        <Listbox.Root>
+          <Listbox.DragAndDropProvider onItemsReorder={handleItemsReorder}>
+            <Listbox.List>
+              <Listbox.Item value="a" draggable>
+                a
+              </Listbox.Item>
+              <Listbox.Item value="b" disabled draggable>
+                b
+              </Listbox.Item>
+              <Listbox.Item value="c" draggable>
+                c
+              </Listbox.Item>
+            </Listbox.List>
+          </Listbox.DragAndDropProvider>
         </Listbox.Root>,
       );
 
@@ -1234,18 +1266,20 @@ describe('<Listbox.Root />', () => {
 
     it('should keep hover highlighting working after a blocked Alt+Arrow reorder', async () => {
       await render(
-        <Listbox.Root onItemsReorder={vi.fn()}>
-          <Listbox.List>
-            <Listbox.Item value="a" draggable>
-              a
-            </Listbox.Item>
-            <Listbox.Item value="b" disabled draggable>
-              b
-            </Listbox.Item>
-            <Listbox.Item value="c" draggable>
-              c
-            </Listbox.Item>
-          </Listbox.List>
+        <Listbox.Root>
+          <Listbox.DragAndDropProvider onItemsReorder={vi.fn()}>
+            <Listbox.List>
+              <Listbox.Item value="a" draggable>
+                a
+              </Listbox.Item>
+              <Listbox.Item value="b" disabled draggable>
+                b
+              </Listbox.Item>
+              <Listbox.Item value="c" draggable>
+                c
+              </Listbox.Item>
+            </Listbox.List>
+          </Listbox.DragAndDropProvider>
         </Listbox.Root>,
       );
 
@@ -1287,14 +1321,16 @@ describe('<Listbox.Root />', () => {
         }
 
         return (
-          <Listbox.Root onItemsReorder={handleReorder}>
-            <Listbox.List>
-              {items.map((item) => (
-                <Listbox.Item key={item} value={item} draggable>
-                  {item}
-                </Listbox.Item>
-              ))}
-            </Listbox.List>
+          <Listbox.Root>
+            <Listbox.DragAndDropProvider onItemsReorder={handleReorder}>
+              <Listbox.List>
+                {items.map((item) => (
+                  <Listbox.Item key={item} value={item} draggable>
+                    {item}
+                  </Listbox.Item>
+                ))}
+              </Listbox.List>
+            </Listbox.DragAndDropProvider>
           </Listbox.Root>
         );
       }
@@ -1349,14 +1385,16 @@ describe('<Listbox.Root />', () => {
         }
 
         return (
-          <Listbox.Root onItemsReorder={handleReorder} onHighlightChange={handleHighlightChange}>
-            <Listbox.List>
-              {items.map((item) => (
-                <Listbox.Item key={item} value={item} draggable>
-                  {item}
-                </Listbox.Item>
-              ))}
-            </Listbox.List>
+          <Listbox.Root onHighlightChange={handleHighlightChange}>
+            <Listbox.DragAndDropProvider onItemsReorder={handleReorder}>
+              <Listbox.List>
+                {items.map((item) => (
+                  <Listbox.Item key={item} value={item} draggable>
+                    {item}
+                  </Listbox.Item>
+                ))}
+              </Listbox.List>
+            </Listbox.DragAndDropProvider>
           </Listbox.Root>
         );
       }
@@ -1424,19 +1462,21 @@ describe('<Listbox.Root />', () => {
         );
 
         return (
-          <Listbox.Root onItemsReorder={handleReorder}>
-            <Listbox.List>
-              {Object.entries(groups).map(([groupName, groupItems]) => (
-                <Listbox.Group key={groupName}>
-                  <Listbox.GroupLabel>{groupName}</Listbox.GroupLabel>
-                  {groupItems.map((item) => (
-                    <Listbox.Item key={item.value} value={item.value} draggable>
-                      {item.value}
-                    </Listbox.Item>
-                  ))}
-                </Listbox.Group>
-              ))}
-            </Listbox.List>
+          <Listbox.Root>
+            <Listbox.DragAndDropProvider onItemsReorder={handleReorder}>
+              <Listbox.List>
+                {Object.entries(groups).map(([groupName, groupItems]) => (
+                  <Listbox.Group key={groupName}>
+                    <Listbox.GroupLabel>{groupName}</Listbox.GroupLabel>
+                    {groupItems.map((item) => (
+                      <Listbox.Item key={item.value} value={item.value} draggable>
+                        {item.value}
+                      </Listbox.Item>
+                    ))}
+                  </Listbox.Group>
+                ))}
+              </Listbox.List>
+            </Listbox.DragAndDropProvider>
           </Listbox.Root>
         );
       }
