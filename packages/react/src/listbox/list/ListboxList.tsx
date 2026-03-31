@@ -171,22 +171,12 @@ export const ListboxList = React.forwardRef(function ListboxList(
         if (targetIndex >= 0 && targetIndex < elements.length && elements[targetIndex]) {
           event.preventDefault();
           focusItem(targetIndex);
-          const targetValue = values[targetIndex];
-          if (targetValue !== undefined && !disabledItemsRef.current[targetIndex]) {
-            const currentValue = store.state.value;
-            const alreadySelected = currentValue.some((v) =>
-              compareItemEquality(v, targetValue, isItemEqualToValue),
+          if (values[targetIndex] !== undefined && !disabledItemsRef.current[targetIndex]) {
+            dispatchSelection(
+              { type: 'toggle', index: targetIndex },
+              event.nativeEvent,
+              targetIndex,
             );
-
-            const nextValue = alreadySelected
-              ? currentValue.filter((v) => !compareItemEquality(v, targetValue, isItemEqualToValue))
-              : [...currentValue, targetValue];
-
-            setValue(
-              nextValue,
-              createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
-            );
-            lastSelectedIndexRef.current = targetIndex;
           }
         }
       }

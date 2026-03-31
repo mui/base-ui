@@ -167,11 +167,8 @@ export const ListboxItem = React.memo(
     });
 
     useListItemValueRegistration({
-      store,
       index,
       itemValue,
-      isItemEqualToValue,
-      multiple: isMultipleSelectionMode(selectionMode),
       hasRegistered,
       valuesRef,
     });
@@ -277,6 +274,157 @@ export const ListboxItem = React.memo(
       }
     }
 
+    /**
+     * Handles Alt+Arrow keyboard reordering for both single-item and
+     * multi-item (selected set) moves.
+     */
+    function handleKeyboardReorder(
+      event: BaseUIEvent<React.KeyboardEvent>,
+      resolvedIndex: number,
+    ) {
+      if (!event.altKey || !onItemsReorder || !isDraggable || rootDisabled || disabled) {
+        return;
+      }
+
+      const reorderItems = onItemsReorder;
+      const isVertical = store.state.orientation === 'vertical';
+      const moveUp =
+        (isVertical && event.key === 'ArrowUp') || (!isVertical && event.key === 'ArrowLeft');
+      const moveDown =
+        (isVertical && event.key === 'ArrowDown') || (!isVertical && event.key === 'ArrowRight');
+
+      if (!moveUp && !moveDown) {
+        return;
+      }
+
+      event.preventDefault();
+      const reorderEdge = moveUp ? 'before' : 'after';
+
+      // After a keyboard reorder, we need to:
+      // 1. Restore focus if it was lost (cross-group moves cause React to
+      //    unmount/remount the item, moving focus to the document body).
+      // 2. Scroll the moved item into view.
+      // NOTE: This intentionally uses raw setTimeout instead of afterDomSettle
+      // because the item may be unmounted during cross-group moves and a
+      // hook-based cleanup (useTimeout) would cancel the callback.
+      function restoreFocusAndScroll() {
+        setTimeout(() => {
+          const listEl = store.state.listElement;
+          if (!listEl) {
+            pointerMoveSuppressedRef.current = false;
+            return;
+          }
+
+          const doc = ownerDocument(listEl);
+          let target = activeElement(doc) as HTMLElement | null;
+
+          if (!contains(listEl, target)) {
+            target = listEl.querySelector<HTMLElement>('[role="option"][tabindex="0"]');
+            target?.focus();
+          }
+
+          if (target) {
+            scrollIntoViewIfNeeded(listEl, target, direction, store.state.orientation);
+          }
+
+          // Re-enable pointer-move highlighting after the DOM has settled.
+          pointerMoveSuppressedRef.current = false;
+        }, 0);
+      }
+
+      function commitReorder(movedIndices: number[], movedItems: any[], targetIdx: number) {
+        const targetValue = valuesRef.current[targetIdx];
+        if (targetValue === undefined) {
+          return false;
+        }
+
+        // Suppress pointer-move highlighting while the DOM is being
+        // reordered to prevent the item under the pointer from
+        // stealing the highlight.
+        pointerMoveSuppressedRef.current = true;
+        requestHighlightReconcile();
+        reorderRegistry(valuesRef, movedIndices, targetIdx, reorderEdge);
+        reorderRegistry(labelsRef, movedIndices, targetIdx, reorderEdge);
+        reorderRegistry(disabledItemsRef, movedIndices, targetIdx, reorderEdge);
+        reorderRegistry(groupIdsRef, movedIndices, targetIdx, reorderEdge);
+
+        reorderItems({
+          items: movedItems,
+          referenceItem: targetValue,
+          edge: reorderEdge,
+          reason: 'keyboard',
+        });
+
+        return true;
+      }
+
+      // In multi-select modes, if the current item is selected, move
+      // all selected items together (preserving relative order).
+      if (isMultipleSelectionMode(selectionMode) && selected) {
+        const currentValue = store.state.value;
+        const eqFn = store.state.isItemEqualToValue;
+        const selectedIndices: number[] = [];
+        for (let i = 0; i < valuesRef.current.length; i += 1) {
+          const v = valuesRef.current[i];
+          if (!disabledItemsRef.current[i] && currentValue.some((sv) => eqFn(v, sv))) {
+            selectedIndices.push(i);
+          }
+        }
+
+        if (selectedIndices.length === 0) {
+          return;
+        }
+
+        const firstIdx = selectedIndices[0];
+        const lastIdx = selectedIndices[selectedIndices.length - 1];
+        const targetIdx = moveUp ? firstIdx - 1 : lastIdx + 1;
+
+        if (targetIdx < 0 || targetIdx >= valuesRef.current.length) {
+          return;
+        }
+
+        // Within-group: all selected items must share the target's group
+        if (draggableProp === 'within-group') {
+          const targetGroupId = groupIdsRef.current[targetIdx];
+          if (selectedIndices.some((si) => groupIdsRef.current[si] !== targetGroupId)) {
+            return;
+          }
+        }
+
+        const selectedValues = selectedIndices.map((i) => valuesRef.current[i]);
+        if (!commitReorder(selectedIndices, selectedValues, targetIdx)) {
+          return;
+        }
+
+        // Move highlight to follow the initiating item
+        const offsetInSelection = selectedIndices.indexOf(resolvedIndex);
+        const newFirstIdx = moveUp ? firstIdx - 1 : firstIdx + 1;
+        store.set('activeIndex', newFirstIdx + offsetInSelection);
+        restoreFocusAndScroll();
+      } else {
+        // Single-item reorder
+        const targetIdx = moveUp ? resolvedIndex - 1 : resolvedIndex + 1;
+        if (targetIdx < 0 || targetIdx >= valuesRef.current.length) {
+          return;
+        }
+
+        // When constrained to a group, block moves across group boundaries
+        if (
+          draggableProp === 'within-group' &&
+          groupIdsRef.current[targetIdx] !== groupIdsRef.current[resolvedIndex]
+        ) {
+          return;
+        }
+        if (!commitReorder([resolvedIndex], [itemValue], targetIdx)) {
+          return;
+        }
+
+        // Move the highlight to follow the reordered item
+        store.set('activeIndex', targetIdx);
+        restoreFocusAndScroll();
+      }
+    }
+
     const defaultProps: HTMLProps = {
       role: 'option',
       'aria-selected': selected,
@@ -314,155 +462,7 @@ export const ListboxItem = React.memo(
         const resolvedIndex = currentIndex === -1 ? index : currentIndex;
 
         store.set('activeIndex', resolvedIndex);
-
-        // Keyboard-based reordering: Alt+Arrow
-        if (event.altKey && onItemsReorder && isDraggable && !rootDisabled && !disabled) {
-          const isVertical = store.state.orientation === 'vertical';
-          const moveUp =
-            (isVertical && event.key === 'ArrowUp') || (!isVertical && event.key === 'ArrowLeft');
-          const moveDown =
-            (isVertical && event.key === 'ArrowDown') ||
-            (!isVertical && event.key === 'ArrowRight');
-
-          if (moveUp || moveDown) {
-            event.preventDefault();
-            const reorderEdge = moveUp ? 'before' : 'after';
-            const singleMovedIndices = [resolvedIndex];
-            const reorderItems = onItemsReorder;
-
-            // After a keyboard reorder, we need to:
-            // 1. Restore focus if it was lost (cross-group moves cause React to
-            //    unmount/remount the item, moving focus to the document body).
-            // 2. Scroll the moved item into view.
-            // We use setTimeout (not useTimeout) because the item may be unmounted
-            // during cross-group moves and a hook cleanup would cancel the callback.
-            // setTimeout(fn, 0) runs after microtasks (including MutationObserver
-            // and the React renders it triggers), ensuring indices and tabindex
-            // attributes are up to date.
-            function restoreFocusAndScroll() {
-              setTimeout(() => {
-                const listEl = store.state.listElement;
-                if (!listEl) {
-                  pointerMoveSuppressedRef.current = false;
-                  return;
-                }
-
-                const doc = ownerDocument(listEl);
-                let target = activeElement(doc) as HTMLElement | null;
-
-                if (!contains(listEl, target)) {
-                  target = listEl.querySelector<HTMLElement>('[role="option"][tabindex="0"]');
-                  target?.focus();
-                }
-
-                if (target) {
-                  scrollIntoViewIfNeeded(listEl, target, direction, store.state.orientation);
-                }
-
-                // Re-enable pointer-move highlighting after the DOM has settled.
-                pointerMoveSuppressedRef.current = false;
-              }, 0);
-            }
-
-            function commitReorder(movedIndices: number[], movedItems: any[], targetIdx: number) {
-              if (!reorderItems) {
-                return false;
-              }
-
-              const targetValue = valuesRef.current[targetIdx];
-              if (targetValue === undefined) {
-                return false;
-              }
-
-              // Suppress pointer-move highlighting while the DOM is being
-              // reordered to prevent the item under the pointer from
-              // stealing the highlight.
-              pointerMoveSuppressedRef.current = true;
-              requestHighlightReconcile();
-              reorderRegistry(valuesRef, movedIndices, targetIdx, reorderEdge);
-              reorderRegistry(labelsRef, movedIndices, targetIdx, reorderEdge);
-              reorderRegistry(disabledItemsRef, movedIndices, targetIdx, reorderEdge);
-              reorderRegistry(groupIdsRef, movedIndices, targetIdx, reorderEdge);
-
-              reorderItems({
-                items: movedItems,
-                referenceItem: targetValue,
-                edge: reorderEdge,
-                reason: 'keyboard',
-              });
-
-              return true;
-            }
-
-            // In multi-select modes, if the current item is selected, move
-            // all selected items together (preserving relative order).
-            const isMultiMove = isMultipleSelectionMode(selectionMode) && selected;
-
-            if (isMultiMove) {
-              const currentValue = store.state.value;
-              const eqFn = store.state.isItemEqualToValue;
-              const selectedIndices: number[] = [];
-              for (let i = 0; i < valuesRef.current.length; i += 1) {
-                const v = valuesRef.current[i];
-                if (!disabledItemsRef.current[i] && currentValue.some((sv) => eqFn(v, sv))) {
-                  selectedIndices.push(i);
-                }
-              }
-
-              if (selectedIndices.length === 0) {
-                return;
-              }
-
-              const firstIdx = selectedIndices[0];
-              const lastIdx = selectedIndices[selectedIndices.length - 1];
-              const targetIdx = moveUp ? firstIdx - 1 : lastIdx + 1;
-
-              if (targetIdx < 0 || targetIdx >= valuesRef.current.length) {
-                return;
-              }
-
-              // Within-group: all selected items must share the target's group
-              if (draggableProp === 'within-group') {
-                const targetGroupId = groupIdsRef.current[targetIdx];
-                if (selectedIndices.some((si) => groupIdsRef.current[si] !== targetGroupId)) {
-                  return;
-                }
-              }
-
-              const selectedValues = selectedIndices.map((i) => valuesRef.current[i]);
-              if (!commitReorder(selectedIndices, selectedValues, targetIdx)) {
-                return;
-              }
-
-              // Move highlight to follow the initiating item
-              const offsetInSelection = selectedIndices.indexOf(resolvedIndex);
-              const newFirstIdx = moveUp ? firstIdx - 1 : firstIdx + 1;
-              store.set('activeIndex', newFirstIdx + offsetInSelection);
-              restoreFocusAndScroll();
-            } else {
-              // Single-item reorder
-              const targetIdx = moveUp ? resolvedIndex - 1 : resolvedIndex + 1;
-              if (targetIdx < 0 || targetIdx >= valuesRef.current.length) {
-                return;
-              }
-
-              // When constrained to a group, block moves across group boundaries
-              if (
-                draggableProp === 'within-group' &&
-                groupIdsRef.current[targetIdx] !== groupIdsRef.current[resolvedIndex]
-              ) {
-                return;
-              }
-              if (!commitReorder(singleMovedIndices, [itemValue], targetIdx)) {
-                return;
-              }
-
-              // Move the highlight to follow the reordered item
-              store.set('activeIndex', targetIdx);
-              restoreFocusAndScroll();
-            }
-          }
-        }
+        handleKeyboardReorder(event, resolvedIndex);
       },
       onClick(event) {
         // useButton in composite mode synthesizes a click from keydown (Space/Enter).

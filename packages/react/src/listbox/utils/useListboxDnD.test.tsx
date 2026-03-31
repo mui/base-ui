@@ -66,7 +66,6 @@ describe('useListboxDnD', () => {
       isItemEqualToValue: Object.is,
       value: ['a', 'b'],
       activeIndex: null,
-      selectedIndex: null,
       listElement: null,
       dragActiveIndices: null,
       dropTargetIndex: null,

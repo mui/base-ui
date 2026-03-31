@@ -17,7 +17,6 @@ export interface ListboxRootContext {
   loopFocus: boolean;
   requestHighlightReconcile: () => void;
   setValue: (nextValue: any, eventDetails: ListboxRoot.ChangeEventDetails) => void;
-  listRef: React.RefObject<Array<HTMLElement | null>>;
   valuesRef: React.RefObject<Array<any>>;
   labelsRef: React.RefObject<Array<string | null>>;
   disabledItemsRef: React.RefObject<Array<boolean | undefined>>;

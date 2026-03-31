@@ -15,7 +15,6 @@ export type State = {
   value: any[];
 
   activeIndex: number | null;
-  selectedIndex: number | null;
 
   listElement: HTMLElement | null;
 
@@ -46,7 +45,6 @@ export const selectors = {
   value: createSelector((state: State) => state.value),
 
   activeIndex: createSelector((state: State) => state.activeIndex),
-  selectedIndex: createSelector((state: State) => state.selectedIndex),
   isActive: createSelector((state: State, index: number) => state.activeIndex === index),
 
   // Value is always an array now, so isSelected always does array membership check.

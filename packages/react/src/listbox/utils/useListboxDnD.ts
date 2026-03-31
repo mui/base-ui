@@ -15,6 +15,7 @@ import {
 } from '@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge';
 import type { ListboxStore } from '../store';
 import { isMultipleSelectionMode } from './selectionReducer';
+import { afterDomSettle } from './afterDomSettle';
 
 export interface UseListboxItemDnDParameters {
   store: ListboxStore;
@@ -157,25 +158,21 @@ export function useListboxItemDnD(params: UseListboxItemDnDParameters) {
           const draggedValue = source.data.value;
           const eqFn = store.state.isItemEqualToValue;
 
-          dropHighlightTimeout.start(0, () => {
-            dropHighlightFrame.request(() => {
-              dropHighlightFrame.request(() => {
-                const idx = valuesRef.current.findIndex(
-                  (v) => v !== undefined && eqFn(v, draggedValue),
-                );
-                if (idx !== -1) {
-                  const listEl = store.state.listElement;
-                  const target = listEl?.querySelectorAll<HTMLElement>('[role="option"]')[idx];
-                  target?.focus();
-                  // Focusing can synchronously fire onFocus with a stale
-                  // composite index from before the reorder. Re-apply the
-                  // resolved index afterward so the dragged item remains
-                  // highlighted at its new position.
-                  store.set('activeIndex', idx);
-                }
-                pointerMoveSuppressedRef.current = false;
-              });
-            });
+          afterDomSettle(dropHighlightTimeout, dropHighlightFrame, () => {
+            const idx = valuesRef.current.findIndex(
+              (v) => v !== undefined && eqFn(v, draggedValue),
+            );
+            if (idx !== -1) {
+              const listEl = store.state.listElement;
+              const target = listEl?.querySelectorAll<HTMLElement>('[role="option"]')[idx];
+              target?.focus();
+              // Focusing can synchronously fire onFocus with a stale
+              // composite index from before the reorder. Re-apply the
+              // resolved index afterward so the dragged item remains
+              // highlighted at its new position.
+              store.set('activeIndex', idx);
+            }
+            pointerMoveSuppressedRef.current = false;
           });
         },
       });
@@ -192,15 +189,11 @@ export function useListboxItemDnD(params: UseListboxItemDnDParameters) {
             return sourceGroupIds.every((gid) => gid === groupId);
           }
 
-          // Single-item group constraint (existing logic).
+          // Single-item group constraint: items with mismatched group IDs
+          // cannot be dropped on each other. When both are undefined (no
+          // group constraint), `undefined === undefined` evaluates to true.
           const sourceGroupId = source.data.groupId as string | undefined;
-          if (sourceGroupId !== undefined && groupId !== undefined) {
-            return sourceGroupId === groupId;
-          }
-          if (sourceGroupId !== undefined || groupId !== undefined) {
-            return sourceGroupId === groupId;
-          }
-          return true;
+          return sourceGroupId === groupId;
         },
         getData: ({ input, element: el }) => {
           return attachClosestEdge(

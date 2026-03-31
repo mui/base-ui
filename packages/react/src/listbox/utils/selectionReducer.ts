@@ -99,7 +99,7 @@ export function selectionReducer(
     case 'selectRange': {
       const start = Math.min(action.from, action.to);
       const end = Math.max(action.from, action.to);
-      let nextValue = [...currentValue];
+      const nextValue = [...currentValue];
       for (let i = start; i <= end; i += 1) {
         const val = valuesRef[i];
         if (
@@ -107,7 +107,7 @@ export function selectionReducer(
           !disabledItemsRef[i] &&
           !nextValue.some((v) => compareItemEquality(v, val, isItemEqualToValue))
         ) {
-          nextValue = [...nextValue, val];
+          nextValue.push(val);
         }
       }
       return nextValue;

@@ -27,6 +27,8 @@ import { defaultItemEquality, findItemIndex } from '../../utils/itemEquality';
 import { useValueChanged } from '../../utils/useValueChanged';
 import type { SelectionMode } from '../utils/selectionReducer';
 import { isMultipleSelectionMode } from '../utils/selectionReducer';
+import { useHighlightChangeNotifier } from '../utils/useHighlightChangeNotifier';
+import { afterDomSettle } from '../utils/afterDomSettle';
 
 /**
  * Groups all parts of the listbox.
@@ -83,7 +85,6 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
     state: 'value',
   });
 
-  const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
   const valuesRef = React.useRef<Array<any>>([]);
   const disabledItemsRef = React.useRef<Array<boolean | undefined>>([]);
@@ -94,8 +95,6 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
   const pointerMoveSuppressedRef = React.useRef(false);
   const highlightTimeout = useTimeout();
   const highlightFrame = useAnimationFrame();
-  const highlightChangeTimeout = useTimeout();
-  const highlightChangeFrame = useAnimationFrame();
 
   const store = useRefWithInit(
     () =>
@@ -108,7 +107,6 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
         isItemEqualToValue,
         value,
         activeIndex: null,
-        selectedIndex: null,
         listElement: null,
         dragActiveIndices: null,
         dropTargetIndex: null,
@@ -119,22 +117,18 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
   ).current;
 
   // Value is always an array — serialize each element for form submission.
-  const serializedValue = React.useMemo(() => {
-    if (Array.isArray(value) && value.length === 0) {
-      return '';
-    }
-    if (Array.isArray(value)) {
-      return value.map((v) => stringifyAsValue(v, itemToStringValue)).join(',');
-    }
-    return '';
-  }, [value, itemToStringValue]);
+  const serializedValue = React.useMemo(
+    () =>
+      value.length === 0
+        ? ''
+        : value.map((v) => stringifyAsValue(v, itemToStringValue)).join(','),
+    [value, itemToStringValue],
+  );
 
-  const fieldStringValue = React.useMemo(() => {
-    if (Array.isArray(value)) {
-      return value.map((v) => stringifyAsValue(v, itemToStringValue));
-    }
-    return '';
-  }, [value, itemToStringValue]);
+  const fieldStringValue = React.useMemo(
+    () => value.map((v) => stringifyAsValue(v, itemToStringValue)),
+    [value, itemToStringValue],
+  );
 
   const controlRef = useValueAsRef(store.state.listElement);
 
@@ -150,24 +144,6 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
   useIsoLayoutEffect(() => {
     setFilled(Array.isArray(value) && value.length > 0);
   }, [value, setFilled]);
-
-  // selectedIndex tracks the "primary" selected item for the isSelected fast-path.
-  // Always uses the last item in the array.
-  useIsoLayoutEffect(
-    function syncSelectedIndex() {
-      const registry = valuesRef.current;
-      const currentValue = Array.isArray(value) ? value : [];
-      if (currentValue.length === 0) {
-        store.set('selectedIndex', null);
-        return;
-      }
-
-      const lastValue = currentValue[currentValue.length - 1];
-      const lastIndex = findItemIndex(registry, lastValue, isItemEqualToValue);
-      store.set('selectedIndex', lastIndex === -1 ? null : lastIndex);
-    },
-    [value, valuesRef, isItemEqualToValue, store],
-  );
 
   useValueChanged(value, () => {
     clearErrors(name);
@@ -197,38 +173,31 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
     () => ({
       highlightValue(itemValue: Value, element?: HTMLElement | null) {
         // After a reorder, the composite item indices are stale until
-        // two render cycles complete:
-        // 1. React commits the new DOM → MutationObserver fires → setIndex scheduled
-        // 2. React re-renders items with updated indices + valuesRef
-        // The timeout waits past step 1; the double rAF ensures
-        // step 2 has been painted before we look up the new index.
-        highlightTimeout.start(0, () => {
-          highlightFrame.request(() => {
-            highlightFrame.request(() => {
-              const listEl = store.state.listElement;
-              if (!listEl) {
-                return;
-              }
+        // two render cycles complete. Wait for the DOM to settle before
+        // looking up the new index.
+        afterDomSettle(highlightTimeout, highlightFrame, () => {
+          const listEl = store.state.listElement;
+          if (!listEl) {
+            return;
+          }
 
-              let target = element;
+          let target = element;
 
-              if (!target || !target.isConnected) {
-                const idx = findItemIndex(valuesRef.current, itemValue, isItemEqualToValue);
-                if (idx !== -1) {
-                  target = listEl.querySelectorAll<HTMLElement>('[role="option"]')[idx];
-                }
-              }
+          if (!target || !target.isConnected) {
+            const idx = findItemIndex(valuesRef.current, itemValue, isItemEqualToValue);
+            if (idx !== -1) {
+              target = listEl.querySelectorAll<HTMLElement>('[role="option"]')[idx];
+            }
+          }
 
-              if (target) {
-                const idx = findItemIndex(valuesRef.current, itemValue, isItemEqualToValue);
-                if (idx !== -1) {
-                  store.set('activeIndex', idx);
-                  target.focus();
-                  target.scrollIntoView({ block: 'nearest' });
-                }
-              }
-            });
-          });
+          if (target) {
+            const idx = findItemIndex(valuesRef.current, itemValue, isItemEqualToValue);
+            if (idx !== -1) {
+              store.set('activeIndex', idx);
+              target.focus();
+              target.scrollIntoView({ block: 'nearest' });
+            }
+          }
         });
       },
     }),
@@ -260,133 +229,12 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
     disabled,
   ]);
 
-  const stableOnHighlightChange = useStableCallback(
-    (highlightedValue: Value | null, highlightedElement: HTMLElement | null) => {
-      onHighlightChange?.(highlightedValue, highlightedElement);
-    },
-  );
-  // Keyboard and DnD reorders update activeIndex before the composite registry
-  // and DOM finish re-indexing items. Mark those transitions so the subscription
-  // can skip the provisional callback and only report the settled highlight.
-  const highlightReconcileRequestedRef = React.useRef(false);
-  const [highlightReconcileVersion, setHighlightReconcileVersion] = React.useState(0);
-
-  const requestHighlightReconcile = useStableCallback(() => {
-    highlightReconcileRequestedRef.current = true;
-    setHighlightReconcileVersion((prev) => prev + 1);
-  });
-
-  type ResolvedHighlight = {
-    activeIndex: number | null;
-    value: Value | null;
-    element: HTMLElement | null;
-  };
-
-  const lastReportedHighlightRef = React.useRef<ResolvedHighlight | null>(null);
-
-  const resolveHighlightedItem = useStableCallback((): ResolvedHighlight => {
-    const activeIndex = store.state.activeIndex;
-
-    if (activeIndex == null) {
-      return { activeIndex: null, value: null, element: null };
-    }
-
-    const itemValue = valuesRef.current[activeIndex] as Value | undefined;
-    const listEl = store.state.listElement;
-    const element = listEl?.querySelectorAll<HTMLElement>('[role="option"]')[activeIndex] ?? null;
-
-    return {
-      activeIndex,
-      value: itemValue ?? null,
-      element,
-    };
-  });
-
-  const areHighlightsEqual = useStableCallback(
-    (prev: ResolvedHighlight | null, next: ResolvedHighlight) => {
-      if (prev == null) {
-        return false;
-      }
-      if (prev.activeIndex !== next.activeIndex || prev.element !== next.element) {
-        return false;
-      }
-      if (prev.value == null || next.value == null) {
-        return prev.value === next.value;
-      }
-      return isItemEqualToValue(prev.value, next.value);
-    },
-  );
-
-  const reconcileHighlightedItem = useStableCallback(() => {
-    if (!onHighlightChange) {
-      highlightReconcileRequestedRef.current = false;
-      return;
-    }
-
-    // After a reorder, the highlighted index may point at stale registry data
-    // until the composite finishes re-indexing items. Wait for that work to
-    // settle, then re-resolve the highlighted value/element.
-    highlightChangeTimeout.start(0, () => {
-      highlightChangeFrame.request(() => {
-        highlightChangeFrame.request(() => {
-          const nextHighlight = resolveHighlightedItem();
-          highlightReconcileRequestedRef.current = false;
-
-          if (areHighlightsEqual(lastReportedHighlightRef.current, nextHighlight)) {
-            return;
-          }
-
-          lastReportedHighlightRef.current = nextHighlight;
-          stableOnHighlightChange(nextHighlight.value, nextHighlight.element);
-        });
-      });
-    });
-  });
-
-  React.useEffect(() => {
-    if (!onHighlightChange) {
-      lastReportedHighlightRef.current = null;
-      highlightReconcileRequestedRef.current = false;
-      return undefined;
-    }
-
-    lastReportedHighlightRef.current = resolveHighlightedItem();
-
-    return store.subscribe(() => {
-      const nextHighlight = resolveHighlightedItem();
-
-      if (areHighlightsEqual(lastReportedHighlightRef.current, nextHighlight)) {
-        return;
-      }
-
-      if (highlightReconcileRequestedRef.current) {
-        requestHighlightReconcile();
-        return;
-      }
-
-      lastReportedHighlightRef.current = nextHighlight;
-      stableOnHighlightChange(nextHighlight.value, nextHighlight.element);
-    });
-  }, [
+  const { requestHighlightReconcile } = useHighlightChangeNotifier<Value>({
     store,
+    valuesRef,
     onHighlightChange,
-    requestHighlightReconcile,
-    stableOnHighlightChange,
-    resolveHighlightedItem,
-    areHighlightsEqual,
-  ]);
-
-  useIsoLayoutEffect(() => {
-    if (
-      !onHighlightChange ||
-      !highlightReconcileRequestedRef.current ||
-      lastReportedHighlightRef.current == null
-    ) {
-      return;
-    }
-
-    reconcileHighlightedItem();
-  }, [highlightReconcileVersion, onHighlightChange, reconcileHighlightedItem]);
+    isItemEqualToValue,
+  });
 
   const contextValue: ListboxRootContext = React.useMemo(
     () => ({
@@ -401,7 +249,6 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
       loopFocus,
       requestHighlightReconcile,
       setValue,
-      listRef,
       valuesRef,
       labelsRef,
       disabledItemsRef,

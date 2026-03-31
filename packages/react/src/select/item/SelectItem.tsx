@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { isMouseWithinBounds } from '@base-ui/utils/isMouseWithinBounds';
 import { useTimeout } from '@base-ui/utils/useTimeout';
@@ -21,7 +22,7 @@ import { selectors } from '../store';
 import { useButton } from '../../use-button';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import { removeItem } from '../../utils/itemEquality';
+import { compareItemEquality, removeItem } from '../../utils/itemEquality';
 import { useListItemValueRegistration } from '../../utils/useListItemValueRegistration';
 
 /**
@@ -80,14 +81,31 @@ export const SelectItem = React.memo(
     const indexRef = useValueAsRef(index);
 
     useListItemValueRegistration({
-      store,
       index,
       itemValue,
-      isItemEqualToValue,
-      multiple,
       hasRegistered,
       valuesRef,
     });
+
+    useIsoLayoutEffect(() => {
+      if (!hasRegistered) {
+        return;
+      }
+
+      const selectedValue = store.state.value;
+      let selectedCandidate = selectedValue;
+
+      if (multiple && Array.isArray(selectedValue) && selectedValue.length > 0) {
+        selectedCandidate = selectedValue[selectedValue.length - 1];
+      }
+
+      if (
+        selectedCandidate !== undefined &&
+        compareItemEquality(itemValue, selectedCandidate, isItemEqualToValue)
+      ) {
+        store.set('selectedIndex', index);
+      }
+    }, [hasRegistered, index, isItemEqualToValue, itemValue, multiple, store]);
 
     const state: SelectItemState = {
       disabled,
