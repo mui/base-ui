@@ -2,7 +2,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isElement } from '@floating-ui/utils/dom';
-import { ownerDocument } from '@base-ui/utils/owner';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
@@ -20,21 +20,15 @@ import {
 import { DrawerPopupCssVars } from '../popup/DrawerPopupCssVars';
 import { DrawerPopupDataAttributes } from '../popup/DrawerPopupDataAttributes';
 import { DrawerBackdropCssVars } from '../backdrop/DrawerBackdropCssVars';
+import { DRAWER_CONTENT_ATTRIBUTE } from '../content/DrawerContentDataAttributes';
 import { REASONS } from '../../utils/reasons';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { contains, getTarget } from '../../floating-ui-react/utils';
+import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import { DrawerViewportContext } from './DrawerViewportContext';
 import { TransitionStatusDataAttributes } from '../../utils/stateAttributesMapping';
-import { getElementAtPoint } from '../../utils/getElementAtPoint';
-import {
-  type DrawerTouchScrollState,
-  isAtSwipeStartEdge,
-  isDrawerContentTarget,
-  isReactTouchEventOnRangeInput,
-  isSwipeIgnoredTarget,
-  shouldIgnoreSwipeForTextSelection,
-} from '../utils/swipeGesture';
 import { findScrollableTouchTarget, type ScrollAxis } from '../../utils/scrollable';
+import { BASE_UI_SWIPE_IGNORE_SELECTOR } from '../../utils/constants';
+import { getElementAtPoint } from '../../utils/getElementAtPoint';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 
@@ -49,6 +43,18 @@ const MIN_SWIPE_RELEASE_DURATION_MS = 80;
 const MAX_SWIPE_RELEASE_DURATION_MS = 360;
 const MIN_SWIPE_RELEASE_SCALAR = 0.1;
 const MAX_SWIPE_RELEASE_SCALAR = 1;
+const DRAWER_CONTENT_SELECTOR = `[${DRAWER_CONTENT_ATTRIBUTE}]`;
+
+interface TouchScrollState {
+  startX: number;
+  startY: number;
+  lastX: number;
+  lastY: number;
+  scrollTarget: HTMLElement | null;
+  hasCrossAxisScrollableContent: boolean;
+  allowSwipe: boolean | null;
+  preserveNativeCrossAxisScroll: boolean;
+}
 
 /**
  * A positioning container for the drawer popup that can be made scrollable.
@@ -83,7 +89,8 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   const nestedDrawerOpen = nestedOpenDialogCount > 0;
   const scrollAxis =
     swipeDirection === 'left' || swipeDirection === 'right' ? 'horizontal' : 'vertical';
-  const crossScrollAxis: ScrollAxis = scrollAxis === 'vertical' ? 'horizontal' : 'vertical';
+  const isVerticalScrollAxis = scrollAxis === 'vertical';
+  const crossScrollAxis: ScrollAxis = isVerticalScrollAxis ? 'horizontal' : 'vertical';
 
   const {
     snapPoints,
@@ -103,7 +110,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   const lastPointerTypeRef = React.useRef<React.PointerEvent['pointerType'] | ''>('');
   const ignoreNextTouchStartFromPenRef = React.useRef(false);
   const ignoreTouchSwipeRef = React.useRef(false);
-  const touchScrollStateRef = React.useRef<DrawerTouchScrollState | null>(null);
+  const touchScrollStateRef = React.useRef<TouchScrollState | null>(null);
 
   const snapPointRange = React.useMemo(() => {
     if (!snapPoints || snapPoints.length < 2) {
@@ -767,10 +774,122 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     },
   });
 
-  const resetSwipe = swipe.reset;
   const swipePointerProps = swipe.getPointerProps();
   const swipeTouchProps = swipe.getTouchProps();
+  const resetSwipe = swipe.reset;
   resetSwipeRef.current = resetSwipe;
+
+  React.useEffect(() => {
+    const rootElement = viewportElement ?? popupElementState;
+    if (!rootElement) {
+      return undefined;
+    }
+    const resolvedRootElement: HTMLElement = rootElement;
+
+    const doc = ownerDocument(resolvedRootElement);
+    const win = ownerWindow(doc);
+
+    function handleNativeTouchMove(event: TouchEvent) {
+      if (ignoreTouchSwipeRef.current) {
+        return;
+      }
+
+      const touchState = touchScrollStateRef.current;
+      const touch = event.touches[0];
+      if (!touch || !touchState) {
+        return;
+      }
+
+      const drawerAxisDelta = isVerticalScrollAxis
+        ? touch.clientY - touchState.lastY
+        : touch.clientX - touchState.lastX;
+
+      // Preserve native range interaction by never locking touchmove for range inputs.
+      if (isEventOnRangeInput(event, win)) {
+        touchState.allowSwipe = false;
+        updateTouchScrollPosition(touchState, touch);
+        return;
+      }
+
+      // Avoid blocking pinch zoom or text selection adjustments on iOS Safari.
+      if (event.touches.length === 2) {
+        updateTouchScrollPosition(touchState, touch);
+        return;
+      }
+
+      const allowTouchMove = shouldIgnoreSwipeForTextSelection(doc, resolvedRootElement);
+
+      if (allowTouchMove || !open || !mounted || nestedDrawerOpen) {
+        updateTouchScrollPosition(touchState, touch);
+        return;
+      }
+
+      if (preserveNativeCrossAxisScrollOnMove(touchState, touch, isVerticalScrollAxis)) {
+        updateTouchScrollPosition(touchState, touch);
+        return;
+      }
+
+      const scrollTarget = touchState.scrollTarget;
+      if (!scrollTarget || scrollTarget === doc.documentElement || scrollTarget === doc.body) {
+        if (event.cancelable) {
+          event.preventDefault();
+        }
+        updateTouchScrollPosition(touchState, touch);
+        return;
+      }
+
+      const hasScrollableContent = hasScrollableContentOnAxis(scrollTarget, scrollAxis);
+      if (!hasScrollableContent) {
+        // If the scroll container doesn't overflow on the drawer axis, prevent the window from
+        // scrolling instead.
+        if (event.cancelable) {
+          event.preventDefault();
+        }
+        updateTouchScrollPosition(touchState, touch);
+        return;
+      }
+
+      const delta = drawerAxisDelta;
+      if (delta !== 0) {
+        const canSwipeFromScrollEdge = canSwipeFromScrollEdgeOnMove(
+          scrollTarget,
+          scrollAxis,
+          swipeDirection,
+          delta,
+        );
+
+        if (!touchState.allowSwipe) {
+          if (!event.cancelable) {
+            touchState.allowSwipe = false;
+          } else if (canSwipeFromScrollEdge) {
+            touchState.allowSwipe = true;
+            event.preventDefault();
+          } else {
+            touchState.allowSwipe = false;
+          }
+        } else if (event.cancelable) {
+          event.preventDefault();
+        }
+      }
+
+      updateTouchScrollPosition(touchState, touch);
+    }
+
+    doc.addEventListener('touchmove', handleNativeTouchMove, { passive: false, capture: true });
+
+    return () => {
+      doc.removeEventListener('touchmove', handleNativeTouchMove, { capture: true });
+    };
+  }, [
+    mounted,
+    nestedDrawerOpen,
+    open,
+    popupElementState,
+    isVerticalScrollAxis,
+    scrollAxis,
+    swipeDirection,
+    viewportElement,
+  ]);
 
   React.useEffect(() => {
     if (!snapPointRange || swipe.swiping) {
@@ -829,10 +948,6 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     () => ({
       swiping: swipe.swiping,
       getDragStyles: swipe.getDragStyles,
-      getPointerProps: swipe.getPointerProps,
-      getTouchProps: swipe.getTouchProps,
-      ignoreTouchSwipeRef,
-      touchScrollStateRef,
       swipeStrength: swipeRelease ?? null,
       setSwipeDismissed(dismissed: boolean) {
         setSwipeDismissedElements(
@@ -842,15 +957,15 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         );
       },
     }),
-    [
-      store,
-      swipe.getDragStyles,
-      swipe.getPointerProps,
-      swipe.getTouchProps,
-      swipe.swiping,
-      swipeRelease,
-    ],
+    [store, swipe.getDragStyles, swipe.swiping, swipeRelease],
   );
+
+  function resetTouchTrackingState() {
+    ignoreTouchSwipeRef.current = false;
+    touchScrollStateRef.current = null;
+    lastPointerTypeRef.current = '';
+    ignoreNextTouchStartFromPenRef.current = false;
+  }
 
   return (
     <DialogViewport
@@ -934,8 +1049,6 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
             return;
           }
 
-          const eventTarget = getTarget(event.nativeEvent);
-          const target = isElement(eventTarget) ? eventTarget : null;
           const doc = ownerDocument(event.currentTarget);
           const elementAtPoint = getElementAtPoint(doc, touch.clientX, touch.clientY);
           ignoreTouchSwipeRef.current = isSwipeIgnoredTarget(elementAtPoint);
@@ -945,6 +1058,8 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           }
 
           const rootElement = viewportElement ?? popupElementState;
+          const eventTarget = getTarget(event.nativeEvent);
+          const target = isElement(eventTarget) ? eventTarget : null;
           if (rootElement && target && !contains(rootElement, target)) {
             ignoreTouchSwipeRef.current = true;
             touchScrollStateRef.current = null;
@@ -979,7 +1094,11 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           swipeTouchProps.onTouchStart?.(event);
         },
         onTouchMove(event) {
-          if (ignoreTouchSwipeRef.current || isReactTouchEventOnRangeInput(event)) {
+          if (ignoreTouchSwipeRef.current) {
+            return;
+          }
+
+          if (isReactTouchEventOnRangeInput(event)) {
             return;
           }
 
@@ -987,6 +1106,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           if (touchState?.preserveNativeCrossAxisScroll) {
             return;
           }
+
           if (
             touchState?.allowSwipe === false ||
             (touchState?.scrollTarget != null && !touchState.allowSwipe)
@@ -997,21 +1117,11 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           swipeTouchProps.onTouchMove?.(event);
         },
         onTouchEnd(event) {
-          resetTouchTrackingState(
-            ignoreNextTouchStartFromPenRef,
-            ignoreTouchSwipeRef,
-            lastPointerTypeRef,
-            touchScrollStateRef,
-          );
+          resetTouchTrackingState();
           swipeTouchProps.onTouchEnd?.(event);
         },
         onTouchCancel(event) {
-          resetTouchTrackingState(
-            ignoreNextTouchStartFromPenRef,
-            ignoreTouchSwipeRef,
-            lastPointerTypeRef,
-            touchScrollStateRef,
-          );
+          resetTouchTrackingState();
           swipeTouchProps.onTouchCancel?.(event);
         },
         // Drawer popups use drawer-specific nested state attributes.
@@ -1080,20 +1190,186 @@ function setBackdropSwipingAttribute(backdropElement: HTMLElement | null, swipin
   backdropElement.removeAttribute(DrawerPopupDataAttributes.swiping);
 }
 
+function isSwipeIgnoredTarget(target: Element | null): boolean {
+  return Boolean(target?.closest(BASE_UI_SWIPE_IGNORE_SELECTOR));
+}
+
+function isDrawerContentTarget(target: Element | null): boolean {
+  return Boolean(target?.closest(DRAWER_CONTENT_SELECTOR));
+}
+
 function getBaseSwipeThreshold(element: HTMLElement, direction: SwipeDirection): number {
   const size =
     direction === 'left' || direction === 'right' ? element.offsetWidth : element.offsetHeight;
   return Math.max(size * 0.5, MIN_SWIPE_THRESHOLD);
 }
 
-function resetTouchTrackingState(
-  ignoreNextTouchStartFromPenRef: { current: boolean },
-  ignoreTouchSwipeRef: { current: boolean },
-  lastPointerTypeRef: { current: React.PointerEvent['pointerType'] | '' },
-  touchScrollStateRef: { current: DrawerTouchScrollState | null },
-) {
-  ignoreTouchSwipeRef.current = false;
-  touchScrollStateRef.current = null;
-  lastPointerTypeRef.current = '';
-  ignoreNextTouchStartFromPenRef.current = false;
+function isRangeInput(
+  target: EventTarget | null,
+  win: ReturnType<typeof ownerWindow>,
+): target is HTMLInputElement {
+  return target instanceof win.HTMLInputElement && target.type === 'range';
+}
+
+function isTextSelectionControl(
+  target: EventTarget | null,
+): target is HTMLInputElement | HTMLTextAreaElement {
+  if (!isElement(target)) {
+    return false;
+  }
+
+  return target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
+}
+
+function hasExpandedSelectionWithinTarget(selection: Selection, target: Element): boolean {
+  const anchorElement = isElement(selection.anchorNode)
+    ? selection.anchorNode
+    : selection.anchorNode?.parentElement;
+  const focusElement = isElement(selection.focusNode)
+    ? selection.focusNode
+    : selection.focusNode?.parentElement;
+
+  return (
+    selection.containsNode(target, true) ||
+    contains(target, anchorElement) ||
+    contains(target, focusElement)
+  );
+}
+
+function shouldIgnoreSwipeForTextSelection(doc: Document, rootElement: HTMLElement): boolean {
+  const activeEl = activeElement(doc);
+  const activeElementWithinRoot = Boolean(activeEl && contains(rootElement, activeEl));
+
+  if (activeElementWithinRoot && isTextSelectionControl(activeEl)) {
+    const { selectionStart, selectionEnd } = activeEl;
+    if (selectionStart != null && selectionEnd != null && selectionStart < selectionEnd) {
+      return true;
+    }
+  }
+
+  const selection = doc.getSelection?.();
+  if (!selection || selection.isCollapsed) {
+    return false;
+  }
+
+  return hasExpandedSelectionWithinTarget(selection, rootElement);
+}
+
+function isEventOnRangeInput(event: TouchEvent, win: ReturnType<typeof ownerWindow>): boolean {
+  const composedPath = event.composedPath();
+  if (composedPath) {
+    return composedPath.some((pathTarget) => isRangeInput(pathTarget, win));
+  }
+
+  return isRangeInput(getTarget(event), win);
+}
+
+function isReactTouchEventOnRangeInput(event: React.TouchEvent<Element>): boolean {
+  return isEventOnRangeInput(event.nativeEvent, ownerWindow(event.currentTarget));
+}
+
+function updateTouchScrollPosition(touchState: TouchScrollState, touch: Touch): void {
+  touchState.lastX = touch.clientX;
+  touchState.lastY = touch.clientY;
+}
+
+function preserveNativeCrossAxisScrollOnMove(
+  touchState: TouchScrollState,
+  touch: Touch,
+  isVerticalScrollAxis: boolean,
+): boolean {
+  if (touchState.preserveNativeCrossAxisScroll) {
+    return true;
+  }
+
+  if (touchState.allowSwipe === true || !touchState.hasCrossAxisScrollableContent) {
+    return false;
+  }
+
+  const drawerAxisGestureDelta = isVerticalScrollAxis
+    ? touch.clientY - touchState.startY
+    : touch.clientX - touchState.startX;
+  const crossAxisGestureDelta = isVerticalScrollAxis
+    ? touch.clientX - touchState.startX
+    : touch.clientY - touchState.startY;
+  const absDrawerAxisGestureDelta = Math.abs(drawerAxisGestureDelta);
+  const absCrossAxisGestureDelta = Math.abs(crossAxisGestureDelta);
+
+  if (absCrossAxisGestureDelta < 6 || absCrossAxisGestureDelta <= absDrawerAxisGestureDelta + 2) {
+    return false;
+  }
+
+  touchState.preserveNativeCrossAxisScroll = true;
+  return true;
+}
+
+function hasScrollableContentOnAxis(scrollTarget: HTMLElement, axis: ScrollAxis): boolean {
+  return axis === 'vertical'
+    ? scrollTarget.scrollHeight > scrollTarget.clientHeight
+    : scrollTarget.scrollWidth > scrollTarget.clientWidth;
+}
+
+function getScrollMetrics(scrollTarget: HTMLElement, axis: ScrollAxis) {
+  if (axis === 'vertical') {
+    const max = Math.max(0, scrollTarget.scrollHeight - scrollTarget.clientHeight);
+    return { offset: scrollTarget.scrollTop, max };
+  }
+
+  const max = Math.max(0, scrollTarget.scrollWidth - scrollTarget.clientWidth);
+  return { offset: scrollTarget.scrollLeft, max };
+}
+
+function isAtSwipeStartEdge(
+  scrollTarget: HTMLElement,
+  axis: ScrollAxis,
+  direction: SwipeDirection,
+): boolean {
+  const { offset, max } = getScrollMetrics(scrollTarget, axis);
+  const dismissFromStartEdge = shouldDismissFromStartEdge(direction, axis);
+  if (dismissFromStartEdge === null) {
+    return false;
+  }
+
+  return dismissFromStartEdge ? offset <= 0 : offset >= max;
+}
+
+function canSwipeFromScrollEdgeOnMove(
+  scrollTarget: HTMLElement,
+  axis: ScrollAxis,
+  direction: SwipeDirection,
+  delta: number,
+): boolean {
+  const { offset, max } = getScrollMetrics(scrollTarget, axis);
+  const dismissFromStartEdge = shouldDismissFromStartEdge(direction, axis);
+  if (dismissFromStartEdge === null) {
+    return false;
+  }
+
+  const movingTowardDismiss = dismissFromStartEdge ? delta > 0 : delta < 0;
+  if (!movingTowardDismiss) {
+    return false;
+  }
+
+  return dismissFromStartEdge ? offset <= 0 : offset >= max;
+}
+
+function shouldDismissFromStartEdge(direction: SwipeDirection, axis: ScrollAxis): boolean | null {
+  if (axis === 'vertical') {
+    if (direction === 'down') {
+      return true;
+    }
+    if (direction === 'up') {
+      return false;
+    }
+    return null;
+  }
+
+  if (direction === 'right') {
+    return true;
+  }
+  if (direction === 'left') {
+    return false;
+  }
+
+  return null;
 }
