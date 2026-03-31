@@ -1,9 +1,14 @@
 'use client';
 import * as React from 'react';
+import type { DrawerTouchScrollState } from '../utils/swipeGesture';
 
 interface DrawerViewportContextValue {
   swiping: boolean;
   getDragStyles: () => React.CSSProperties;
+  getPointerProps: () => React.HTMLAttributes<Element>;
+  getTouchProps: () => React.HTMLAttributes<Element>;
+  ignoreTouchSwipeRef: { current: boolean };
+  touchScrollStateRef: { current: DrawerTouchScrollState | null };
   swipeStrength: number | null;
   setSwipeDismissed: (dismissed: boolean) => void;
 }

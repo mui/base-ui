@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -21,6 +22,14 @@ import { useDrawerRootContext, type DrawerSwipeDirection } from '../root/DrawerR
 import { useDrawerSnapPoints } from '../root/useDrawerSnapPoints';
 import { useDrawerViewportContext } from '../viewport/DrawerViewportContext';
 import { EMPTY_OBJECT } from '../../utils/constants';
+import {
+  canSwipeFromScrollEdgeOnMove,
+  hasScrollableContentOnAxis,
+  isEventOnRangeInput,
+  preserveNativeCrossAxisScrollOnMove,
+  shouldIgnoreSwipeForTextSelection,
+  updateTouchScrollPosition,
+} from '../utils/swipeGesture';
 // Module-level flag to ensure we only register the CSS properties once,
 // regardless of how many Drawer components are mounted.
 let drawerSwipeVarsRegistered = false;
@@ -143,8 +152,12 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
   const openMethod = store.useState('openMethod');
   const titleElementId = store.useState('titleElementId');
   const role = store.useState('role');
+  const viewportElement = store.useState('viewportElement');
 
   const nestedDrawerOpen = nestedOpenDialogCount > 0;
+  const scrollAxis =
+    swipeDirection === 'left' || swipeDirection === 'right' ? 'horizontal' : 'vertical';
+  const isVerticalScrollAxis = scrollAxis === 'vertical';
 
   const swipe = useDrawerViewportContext(true);
   const swiping = swipe?.swiping ?? false;
@@ -273,6 +286,123 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
       notifyParentHasNestedDrawer(false);
     };
   }, [notifyParentHasNestedDrawer, open, transitionStatus]);
+
+  React.useEffect(() => {
+    if (!swipe) {
+      return undefined;
+    }
+
+    const rootElement = viewportElement ?? store.context.popupRef.current;
+    if (!rootElement) {
+      return undefined;
+    }
+    const resolvedRootElement = rootElement;
+    const { ignoreTouchSwipeRef, touchScrollStateRef } = swipe;
+
+    const doc = ownerDocument(resolvedRootElement);
+    const win = ownerWindow(doc);
+
+    function handleNativeTouchMove(event: TouchEvent) {
+      if (ignoreTouchSwipeRef.current) {
+        return;
+      }
+
+      const touchState = touchScrollStateRef.current;
+      const touch = event.touches[0];
+      if (!touch || !touchState) {
+        return;
+      }
+
+      const drawerAxisDelta = isVerticalScrollAxis
+        ? touch.clientY - touchState.lastY
+        : touch.clientX - touchState.lastX;
+
+      // Preserve native range interaction by never locking touchmove for range inputs.
+      if (isEventOnRangeInput(event, win)) {
+        touchState.allowSwipe = false;
+        updateTouchScrollPosition(touchState, touch);
+        return;
+      }
+
+      // Avoid blocking pinch zoom or text selection adjustments on iOS Safari.
+      if (event.touches.length === 2) {
+        updateTouchScrollPosition(touchState, touch);
+        return;
+      }
+
+      const allowTouchMove = shouldIgnoreSwipeForTextSelection(doc, resolvedRootElement);
+
+      if (allowTouchMove || !open || !mounted || nestedDrawerOpen) {
+        updateTouchScrollPosition(touchState, touch);
+        return;
+      }
+
+      if (preserveNativeCrossAxisScrollOnMove(touchState, touch, isVerticalScrollAxis)) {
+        updateTouchScrollPosition(touchState, touch);
+        return;
+      }
+
+      const scrollTarget = touchState.scrollTarget;
+      if (!scrollTarget || scrollTarget === doc.documentElement || scrollTarget === doc.body) {
+        if (event.cancelable) {
+          event.preventDefault();
+        }
+        updateTouchScrollPosition(touchState, touch);
+        return;
+      }
+
+      const hasScrollableContent = hasScrollableContentOnAxis(scrollTarget, scrollAxis);
+      if (!hasScrollableContent) {
+        // If the scroll container doesn't overflow on the drawer axis, prevent the window from
+        // scrolling instead.
+        if (event.cancelable) {
+          event.preventDefault();
+        }
+        updateTouchScrollPosition(touchState, touch);
+        return;
+      }
+
+      if (drawerAxisDelta !== 0) {
+        const canSwipeFromScrollEdge = canSwipeFromScrollEdgeOnMove(
+          scrollTarget,
+          scrollAxis,
+          swipeDirection,
+          drawerAxisDelta,
+        );
+
+        if (!touchState.allowSwipe) {
+          if (!event.cancelable) {
+            touchState.allowSwipe = false;
+          } else if (canSwipeFromScrollEdge) {
+            touchState.allowSwipe = true;
+            event.preventDefault();
+          } else {
+            touchState.allowSwipe = false;
+          }
+        } else if (event.cancelable) {
+          event.preventDefault();
+        }
+      }
+
+      updateTouchScrollPosition(touchState, touch);
+    }
+
+    doc.addEventListener('touchmove', handleNativeTouchMove, { passive: false, capture: true });
+
+    return () => {
+      doc.removeEventListener('touchmove', handleNativeTouchMove, { capture: true });
+    };
+  }, [
+    isVerticalScrollAxis,
+    mounted,
+    nestedDrawerOpen,
+    open,
+    scrollAxis,
+    swipe,
+    swipeDirection,
+    store.context.popupRef,
+    viewportElement,
+  ]);
 
   useOpenChangeComplete({
     open,
