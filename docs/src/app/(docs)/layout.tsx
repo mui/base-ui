@@ -92,15 +92,12 @@ export default function Layout({ children }: React.PropsWithChildren) {
                     {/* Pre-scroll the side nav to the active link before hydration to avoid
                         a visible scroll jump. Only executes on full page loads; on client-side
                         navigations (Next.js soft nav) the script tag is inert. */}
-                    <script
-                      // eslint-disable-next-line react/no-danger
-                      dangerouslySetInnerHTML={{
-                        __html: createSideNavPrehydrationScript({
-                          headerHeight: HEADER_HEIGHT,
-                          scrollMargin: SIDE_NAV_SCROLL_MARGIN,
-                        }),
-                      }}
-                    />
+                    <script>
+                      {createSideNavPrehydrationScript({
+                        headerHeight: HEADER_HEIGHT,
+                        scrollMargin: SIDE_NAV_SCROLL_MARGIN,
+                      })}
+                    </script>
 
                     <main className="ContentLayoutMain" id={MAIN_CONTENT_ID}>
                       <QuickNav.Container>{children}</QuickNav.Container>
