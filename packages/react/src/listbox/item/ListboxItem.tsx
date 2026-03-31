@@ -325,6 +325,10 @@ export const ListboxItem = React.memo(
       }
 
       function commitReorder(movedIndices: number[], movedItems: any[], targetIdx: number) {
+        if (!reorderItems) {
+          return false;
+        }
+
         const targetValue = valuesRef.current[targetIdx];
         if (targetValue === undefined) {
           return false;
