@@ -5,7 +5,6 @@ import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { isMouseWithinBounds } from '@base-ui/utils/isMouseWithinBounds';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { useStore } from '@base-ui/utils/store';
 import { contains, activeElement } from '../../floating-ui-react/utils';
 import { scrollIntoViewIfNeeded } from '../../composite/composite';
 import { useDirection } from '../../direction-provider/DirectionContext';
@@ -22,7 +21,6 @@ import type {
 } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { ListboxItemContext } from './ListboxItemContext';
-import { selectors } from '../store';
 import { useButton } from '../../use-button';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
@@ -118,14 +116,14 @@ export const ListboxItem = React.memo(
 
     const highlightTimeout = useTimeout();
 
-    const selectionMode = useStore(store, selectors.selectionMode);
-    const highlightItemOnHover = useStore(store, selectors.highlightItemOnHover);
-    const rootDisabled = useStore(store, selectors.disabled);
-    const highlighted = useStore(store, selectors.isActive, listItem.index);
-    const selected = useStore(store, selectors.isSelected, listItem.index, itemValue);
-    const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
-    const isDragging = useStore(store, selectors.isDragging, listItem.index);
-    const isDropTarget = useStore(store, selectors.isDropTarget, listItem.index);
+    const selectionMode = store.useState('selectionMode');
+    const highlightItemOnHover = store.useState('highlightItemOnHover');
+    const rootDisabled = store.useState('disabled');
+    const highlighted = store.useState('isActive', listItem.index);
+    const selected = store.useState('isSelected', listItem.index, itemValue);
+    const isItemEqualToValue = store.useState('isItemEqualToValue');
+    const isDragging = store.useState('isDragging', listItem.index);
+    const isDropTarget = store.useState('isDropTarget', listItem.index);
     const {
       disabledItemsRef,
       groupIdsRef,

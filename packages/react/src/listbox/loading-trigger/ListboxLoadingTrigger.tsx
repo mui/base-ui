@@ -3,12 +3,10 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useStore } from '@base-ui/utils/store';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useListboxRootContext } from '../root/ListboxRootContext';
-import { selectors } from '../store';
 
 /**
  * A sentinel element that triggers loading more items when scrolled into view.
@@ -26,8 +24,8 @@ export const ListboxLoadingTrigger = React.forwardRef(function ListboxLoadingTri
   const keepMounted = componentProps.keepMounted ?? false;
 
   const store = useListboxRootContext();
-  const loading = useStore(store, selectors.loading);
-  const hasOnLoadMore = useStore(store, selectors.hasOnLoadMore);
+  const loading = store.useState('loading');
+  const hasOnLoadMore = store.useState('hasOnLoadMore');
 
   const shouldRender = keepMounted || loading || hasOnLoadMore;
   if (!shouldRender) {
@@ -45,9 +43,9 @@ const Inner = React.forwardRef(function ListboxLoadingTriggerInner(
   const { render, className, style, keepMounted, ...elementProps } = componentProps;
 
   const store = useListboxRootContext();
-  const loading = useStore(store, selectors.loading);
-  const loadingProp = useStore(store, selectors.loadingProp);
-  const listElement = useStore(store, selectors.listElement);
+  const loading = store.useState('loading');
+  const loadingProp = store.useState('loadingProp');
+  const listElement = store.useState('listElement');
 
   const sentinelRef = React.useRef<HTMLDivElement | null>(null);
   const controlledLoadingRef = useValueAsRef(loadingProp);

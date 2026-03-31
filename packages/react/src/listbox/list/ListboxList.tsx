@@ -2,14 +2,12 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { useStore } from '@base-ui/utils/store';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useListboxRootContext } from '../root/ListboxRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useCompositeRoot } from '../../composite/root/useCompositeRoot';
 import { CompositeList } from '../../composite/list/CompositeList';
 import { useDirection } from '../../direction-provider/DirectionContext';
-import { selectors } from '../store';
 import { TYPEAHEAD_RESET_MS } from '../../utils/constants';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
@@ -31,13 +29,13 @@ export const ListboxList = React.forwardRef(function ListboxList(
 
   const store = useListboxRootContext();
 
-  const id = useStore(store, selectors.id);
-  const labelId = useStore(store, selectors.labelId);
-  const activeIndex = useStore(store, selectors.activeIndex);
-  const orientation = useStore(store, selectors.orientation);
-  const loopFocus = useStore(store, selectors.loopFocus);
-  const disabled = useStore(store, selectors.disabled);
-  const selectionMode = useStore(store, selectors.selectionMode);
+  const id = store.useState('id');
+  const labelId = store.useState('labelId');
+  const activeIndex = store.useState('activeIndex');
+  const orientation = store.useState('orientation');
+  const loopFocus = store.useState('loopFocus');
+  const disabled = store.useState('disabled');
+  const selectionMode = store.useState('selectionMode');
   const direction = useDirection();
   const { disabledItemsRef, labelsRef, lastSelectedIndexRef, setValue, typingRef, valuesRef } =
     store.context;

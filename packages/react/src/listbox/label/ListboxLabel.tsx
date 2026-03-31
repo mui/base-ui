@@ -1,9 +1,7 @@
 'use client';
-import { useStore } from '@base-ui/utils/store';
 import { createLabel } from '../../utils/createLabel';
 import type { LabelState, LabelProps } from '../../utils/createLabel';
 import { useListboxRootContext } from '../root/ListboxRootContext';
-import { selectors } from '../store';
 
 /**
  * An accessible label that is automatically associated with the listbox.
@@ -13,8 +11,8 @@ import { selectors } from '../store';
  */
 export const ListboxLabel = createLabel(() => {
   const store = useListboxRootContext();
-  const controlElement = useStore(store, selectors.listElement);
-  const rootId = useStore(store, selectors.id);
+  const controlElement = store.useState('listElement');
+  const rootId = store.useState('id');
   return { store, rootId, controlElement };
 });
 
