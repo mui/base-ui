@@ -265,6 +265,16 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
       onHighlightChange?.(highlightedValue, highlightedElement);
     },
   );
+  // Keyboard and DnD reorders update activeIndex before the composite registry
+  // and DOM finish re-indexing items. Mark those transitions so the subscription
+  // can skip the provisional callback and only report the settled highlight.
+  const highlightReconcileRequestedRef = React.useRef(false);
+  const [highlightReconcileVersion, setHighlightReconcileVersion] = React.useState(0);
+
+  const requestHighlightReconcile = useStableCallback(() => {
+    highlightReconcileRequestedRef.current = true;
+    setHighlightReconcileVersion((prev) => prev + 1);
+  });
 
   type ResolvedHighlight = {
     activeIndex: number | null;
@@ -309,6 +319,7 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
 
   const reconcileHighlightedItem = useStableCallback(() => {
     if (!onHighlightChange) {
+      highlightReconcileRequestedRef.current = false;
       return;
     }
 
@@ -319,6 +330,7 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
       highlightChangeFrame.request(() => {
         highlightChangeFrame.request(() => {
           const nextHighlight = resolveHighlightedItem();
+          highlightReconcileRequestedRef.current = false;
 
           if (areHighlightsEqual(lastReportedHighlightRef.current, nextHighlight)) {
             return;
@@ -334,38 +346,47 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
   React.useEffect(() => {
     if (!onHighlightChange) {
       lastReportedHighlightRef.current = null;
+      highlightReconcileRequestedRef.current = false;
       return undefined;
     }
 
     lastReportedHighlightRef.current = resolveHighlightedItem();
 
-    return store.subscribe((state) => {
+    return store.subscribe(() => {
       const nextHighlight = resolveHighlightedItem();
 
       if (areHighlightsEqual(lastReportedHighlightRef.current, nextHighlight)) {
         return;
       }
 
+      if (highlightReconcileRequestedRef.current) {
+        requestHighlightReconcile();
+        return;
+      }
+
       lastReportedHighlightRef.current = nextHighlight;
       stableOnHighlightChange(nextHighlight.value, nextHighlight.element);
-      reconcileHighlightedItem();
     });
   }, [
     store,
     onHighlightChange,
+    requestHighlightReconcile,
     stableOnHighlightChange,
     resolveHighlightedItem,
     areHighlightsEqual,
-    reconcileHighlightedItem,
   ]);
 
   useIsoLayoutEffect(() => {
-    if (!onHighlightChange || lastReportedHighlightRef.current == null) {
+    if (
+      !onHighlightChange ||
+      !highlightReconcileRequestedRef.current ||
+      lastReportedHighlightRef.current == null
+    ) {
       return;
     }
 
     reconcileHighlightedItem();
-  });
+  }, [highlightReconcileVersion, onHighlightChange, reconcileHighlightedItem]);
 
   const contextValue: ListboxRootContext = React.useMemo(
     () => ({
@@ -373,10 +394,12 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
       name,
       required,
       disabled,
+      loadingProp: loading,
       selectionMode,
       highlightItemOnHover,
       orientation,
       loopFocus,
+      requestHighlightReconcile,
       setValue,
       listRef,
       valuesRef,
@@ -396,10 +419,12 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
       name,
       required,
       disabled,
+      loading,
       selectionMode,
       highlightItemOnHover,
       orientation,
       loopFocus,
+      requestHighlightReconcile,
       setValue,
       validation,
       onItemsReorder,

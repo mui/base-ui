@@ -10,10 +10,12 @@ export interface ListboxRootContext {
   name: string | undefined;
   disabled: boolean;
   required: boolean;
+  loadingProp: boolean;
   selectionMode: SelectionMode;
   highlightItemOnHover: boolean;
   orientation: 'vertical' | 'horizontal';
   loopFocus: boolean;
+  requestHighlightReconcile: () => void;
   setValue: (nextValue: any, eventDetails: ListboxRoot.ChangeEventDetails) => void;
   listRef: React.RefObject<Array<HTMLElement | null>>;
   valuesRef: React.RefObject<Array<any>>;

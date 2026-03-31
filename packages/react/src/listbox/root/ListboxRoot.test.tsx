@@ -1284,14 +1284,17 @@ describe('<Listbox.Root />', () => {
       const itemB = screen.getByRole('option', { name: 'b' });
       await act(() => itemB.focus());
       expect(handleHighlightChange).toHaveBeenLastCalledWith('b', itemB);
+      handleHighlightChange.mockClear();
 
       fireEvent.keyDown(itemB, { key: 'ArrowDown', altKey: true });
       await flushMicrotasks();
 
       await waitFor(() => {
-        const movedItemB = screen.getByRole('option', { name: 'b' });
-        expect(handleHighlightChange).toHaveBeenLastCalledWith('b', movedItemB);
+        expect(handleHighlightChange).toHaveBeenCalledTimes(1);
       });
+
+      const movedItemB = screen.getByRole('option', { name: 'b' });
+      expect(handleHighlightChange).toHaveBeenCalledWith('b', movedItemB);
     });
 
     it('should preserve focus when keyboard reorder crosses a group boundary', async () => {

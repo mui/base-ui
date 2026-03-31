@@ -103,16 +103,16 @@ describe('useListboxDnD', () => {
 
       return (
         <div ref={listRef}>
-          <div role="option" tabIndex={-1}>
+          <div role="option" aria-selected="false" tabIndex={-1}>
             c
           </div>
-          <div role="option" tabIndex={-1}>
+          <div role="option" aria-selected="false" tabIndex={-1}>
             d
           </div>
-          <div role="option" tabIndex={-1}>
+          <div role="option" aria-selected="false" tabIndex={-1}>
             a
           </div>
-          <div ref={itemRef} role="option" tabIndex={-1}>
+          <div ref={itemRef} role="option" aria-selected="true" tabIndex={-1}>
             b
           </div>
         </div>

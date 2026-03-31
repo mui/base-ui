@@ -36,33 +36,33 @@ export default function ExampleListboxCustomShortcuts() {
 
     if (event.key === '[') {
       event.preventDefault();
-      setItems((prev) => {
-        const first = prev[0];
-        if (!first || first.value === highlighted.value) {
-          return prev;
-        }
-        return reorder(prev, {
+      const first = items[0];
+      if (!first || first.value === highlighted.value) {
+        return;
+      }
+      setItems((prev) =>
+        reorder(prev, {
           items: [highlighted.value],
           referenceItem: first.value,
           edge: 'before',
-        });
-      });
+        }),
+      );
       actionsRef.current?.highlightValue(highlighted.value, highlighted.element);
     }
 
     if (event.key === ']') {
       event.preventDefault();
-      setItems((prev) => {
-        const last = prev[prev.length - 1];
-        if (!last || last.value === highlighted.value) {
-          return prev;
-        }
-        return reorder(prev, {
+      const last = items[items.length - 1];
+      if (!last || last.value === highlighted.value) {
+        return;
+      }
+      setItems((prev) =>
+        reorder(prev, {
           items: [highlighted.value],
           referenceItem: last.value,
           edge: 'after',
-        });
-      });
+        }),
+      );
       actionsRef.current?.highlightValue(highlighted.value, highlighted.element);
     }
   }

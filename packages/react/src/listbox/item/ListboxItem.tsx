@@ -89,6 +89,7 @@ export const ListboxItem = React.memo(
       lastPointerTypeRef,
       pointerMoveSuppressedRef,
       disabled: rootDisabled,
+      requestHighlightReconcile,
       onItemsReorder,
     } = useListboxRootContext();
 
@@ -368,6 +369,7 @@ export const ListboxItem = React.memo(
               // reordered to prevent the item under the pointer from
               // stealing the highlight.
               pointerMoveSuppressedRef.current = true;
+              requestHighlightReconcile();
 
               onItemsReorder({
                 items: selectedValues,
@@ -405,6 +407,7 @@ export const ListboxItem = React.memo(
               // reordered to prevent the item under the pointer from
               // stealing the highlight.
               pointerMoveSuppressedRef.current = true;
+              requestHighlightReconcile();
 
               onItemsReorder({
                 items: [itemValue],

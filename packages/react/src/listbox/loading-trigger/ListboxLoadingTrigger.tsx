@@ -1,8 +1,10 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useStore } from '@base-ui/utils/store';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useListboxRootContext } from '../root/ListboxRootContext';
@@ -41,11 +43,13 @@ const Inner = React.forwardRef(function ListboxLoadingTriggerInner(
 ) {
   const { render, className, keepMounted, ...elementProps } = componentProps;
 
-  const { store, onLoadMore } = useListboxRootContext();
+  const { store, onLoadMore, loadingProp } = useListboxRootContext();
   const loading = useStore(store, selectors.loading);
   const listElement = useStore(store, selectors.listElement);
 
   const sentinelRef = React.useRef<HTMLDivElement | null>(null);
+  const controlledLoadingRef = useValueAsRef(loadingProp);
+  const eagerLoadingReset = useTimeout();
 
   const handleIntersect = useStableCallback(() => {
     if (!store.state.loading && onLoadMore) {
@@ -54,6 +58,11 @@ const Inner = React.forwardRef(function ListboxLoadingTriggerInner(
       // idle content before the parent commits its own loading state.
       store.set('loading', true);
       onLoadMore();
+      eagerLoadingReset.start(0, () => {
+        if (!controlledLoadingRef.current) {
+          store.set('loading', false);
+        }
+      });
     }
   });
 
