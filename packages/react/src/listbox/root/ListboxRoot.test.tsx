@@ -136,6 +136,89 @@ describe('<Listbox.Root />', () => {
     });
   });
 
+  describe('explicit multiple selection', () => {
+    it('should replace the selection on plain click', async () => {
+      const handleValueChange = vi.fn();
+
+      await render(
+        <Listbox.Root
+          selectionMode="explicit-multiple"
+          defaultValue={['a', 'b']}
+          onValueChange={handleValueChange}
+        >
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+            <Listbox.Item value="c">c</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      await flushMicrotasks();
+
+      fireEvent.click(screen.getByRole('option', { name: 'c' }));
+
+      expect(handleValueChange).toHaveBeenCalledTimes(1);
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['c']);
+    });
+
+    it('should toggle items on Ctrl/Cmd+Click', async () => {
+      const handleValueChange = vi.fn();
+
+      await render(
+        <Listbox.Root
+          selectionMode="explicit-multiple"
+          defaultValue={['a', 'b']}
+          onValueChange={handleValueChange}
+        >
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+            <Listbox.Item value="c">c</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      await flushMicrotasks();
+
+      const itemC = screen.getByRole('option', { name: 'c' });
+
+      fireEvent.click(itemC, { ctrlKey: true });
+      fireEvent.click(itemC, { metaKey: true });
+
+      expect(handleValueChange).toHaveBeenCalledTimes(2);
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['a', 'b', 'c']);
+      expect(handleValueChange.mock.calls[1][0]).toEqual(['a', 'b']);
+    });
+
+    it('should replace the selection on touch tap', async () => {
+      const handleValueChange = vi.fn();
+
+      await render(
+        <Listbox.Root
+          selectionMode="explicit-multiple"
+          defaultValue={['a', 'b']}
+          onValueChange={handleValueChange}
+        >
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+            <Listbox.Item value="c">c</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      await flushMicrotasks();
+
+      const itemC = screen.getByRole('option', { name: 'c' });
+      fireEvent.pointerDown(itemC, { pointerType: 'touch' });
+      fireEvent.click(itemC);
+
+      expect(handleValueChange).toHaveBeenCalledTimes(1);
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['c']);
+    });
+  });
+
   describe('ARIA attributes', () => {
     it('should render role="listbox" on the list', async () => {
       await render(

@@ -47,7 +47,6 @@ export type Context = {
   groupIdsRef: React.RefObject<Array<string | undefined>>;
   typingRef: React.RefObject<boolean>;
   lastSelectedIndexRef: React.RefObject<number | null>;
-  lastPointerTypeRef: React.RefObject<string | null>;
   pointerMoveSuppressedRef: React.RefObject<boolean>;
   validation: UseFieldValidationReturnValue;
   setValue: (nextValue: any, eventDetails: ListboxRoot.ChangeEventDetails) => void;
@@ -154,7 +153,6 @@ function createInitialContext(): Context {
     groupIdsRef: { current: [] },
     typingRef: { current: false },
     lastSelectedIndexRef: { current: null },
-    lastPointerTypeRef: { current: null },
     pointerMoveSuppressedRef: { current: false },
     validation: {
       getValidationProps: (props = {}) => props,
