@@ -32,6 +32,7 @@ import { useListboxGroupContext } from '../group/ListboxGroupContext';
 import { selectionReducer, isMultipleSelectionMode } from '../utils/selectionReducer';
 import type { SelectionAction } from '../utils/selectionReducer';
 import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import { findItemIndex } from '../../utils/itemEquality';
 
 // Map the raw edge from Pragmatic DnD (top/bottom/left/right) to logical
 // before/after values for the data attribute, so consumers can style with a
@@ -47,6 +48,38 @@ const dropTargetEdgeMapping: StateAttributesMapping<ListboxItemState> = {
     return null;
   },
 };
+
+function reorderRegistry<T>(
+  registry: React.RefObject<Array<T>>,
+  movedIndices: number[],
+  targetIndex: number,
+  edge: 'before' | 'after',
+) {
+  // Optimistically mirror the external reorder inside the mutable registries so
+  // consecutive keyboard reorders compute against the intended order even
+  // before React commits the parent's updated item array.
+  const current = registry.current;
+  const movedItems = movedIndices.map((movedIndex) => current[movedIndex]);
+
+  let removedBeforeTarget = 0;
+
+  for (let i = movedIndices.length - 1; i >= 0; i -= 1) {
+    const movedIndex = movedIndices[i];
+    current.splice(movedIndex, 1);
+
+    if (movedIndex < targetIndex) {
+      removedBeforeTarget += 1;
+    }
+  }
+
+  const targetIndexInRemaining = targetIndex - removedBeforeTarget;
+  let insertionIndex = edge === 'after' ? targetIndexInRemaining + 1 : targetIndexInRemaining;
+
+  for (let i = 0; i < movedItems.length; i += 1) {
+    current.splice(insertionIndex, 0, movedItems[i]);
+    insertionIndex += 1;
+  }
+}
 
 /**
  * An individual option in the listbox.
@@ -82,6 +115,7 @@ export const ListboxItem = React.memo(
       store,
       setValue,
       valuesRef,
+      labelsRef,
       disabledItemsRef,
       groupIdsRef,
       selectionMode,
@@ -276,7 +310,10 @@ export const ListboxItem = React.memo(
       },
       onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
         lastKeyRef.current = event.key;
-        store.set('activeIndex', index);
+        const currentIndex = findItemIndex(valuesRef.current, itemValue, isItemEqualToValue);
+        const resolvedIndex = currentIndex === -1 ? index : currentIndex;
+
+        store.set('activeIndex', resolvedIndex);
 
         // Keyboard-based reordering: Alt+Arrow
         if (event.altKey && onItemsReorder && isDraggable && !rootDisabled && !disabled) {
@@ -289,6 +326,9 @@ export const ListboxItem = React.memo(
 
           if (moveUp || moveDown) {
             event.preventDefault();
+            const reorderEdge = moveUp ? 'before' : 'after';
+            const singleMovedIndices = [resolvedIndex];
+            const reorderItems = onItemsReorder;
 
             // After a keyboard reorder, we need to:
             // 1. Restore focus if it was lost (cross-group moves cause React to
@@ -322,6 +362,36 @@ export const ListboxItem = React.memo(
                 // Re-enable pointer-move highlighting after the DOM has settled.
                 pointerMoveSuppressedRef.current = false;
               }, 0);
+            }
+
+            function commitReorder(movedIndices: number[], movedItems: any[], targetIdx: number) {
+              if (!reorderItems) {
+                return false;
+              }
+
+              const targetValue = valuesRef.current[targetIdx];
+              if (targetValue === undefined) {
+                return false;
+              }
+
+              // Suppress pointer-move highlighting while the DOM is being
+              // reordered to prevent the item under the pointer from
+              // stealing the highlight.
+              pointerMoveSuppressedRef.current = true;
+              requestHighlightReconcile();
+              reorderRegistry(valuesRef, movedIndices, targetIdx, reorderEdge);
+              reorderRegistry(labelsRef, movedIndices, targetIdx, reorderEdge);
+              reorderRegistry(disabledItemsRef, movedIndices, targetIdx, reorderEdge);
+              reorderRegistry(groupIdsRef, movedIndices, targetIdx, reorderEdge);
+
+              reorderItems({
+                items: movedItems,
+                referenceItem: targetValue,
+                edge: reorderEdge,
+                reason: 'keyboard',
+              });
+
+              return true;
             }
 
             // In multi-select modes, if the current item is selected, move
@@ -359,34 +429,19 @@ export const ListboxItem = React.memo(
                 }
               }
 
-              const targetValue = valuesRef.current[targetIdx];
-              if (targetValue === undefined) {
+              const selectedValues = selectedIndices.map((i) => valuesRef.current[i]);
+              if (!commitReorder(selectedIndices, selectedValues, targetIdx)) {
                 return;
               }
 
-              const selectedValues = selectedIndices.map((i) => valuesRef.current[i]);
-
-              // Suppress pointer-move highlighting while the DOM is being
-              // reordered to prevent the item under the pointer from
-              // stealing the highlight.
-              pointerMoveSuppressedRef.current = true;
-              requestHighlightReconcile();
-
-              onItemsReorder({
-                items: selectedValues,
-                referenceItem: targetValue,
-                edge: moveUp ? 'before' : 'after',
-                reason: 'keyboard',
-              });
-
               // Move highlight to follow the initiating item
-              const offsetInSelection = selectedIndices.indexOf(index);
+              const offsetInSelection = selectedIndices.indexOf(resolvedIndex);
               const newFirstIdx = moveUp ? firstIdx - 1 : firstIdx + 1;
               store.set('activeIndex', newFirstIdx + offsetInSelection);
               restoreFocusAndScroll();
             } else {
               // Single-item reorder
-              const targetIdx = moveUp ? index - 1 : index + 1;
+              const targetIdx = moveUp ? resolvedIndex - 1 : resolvedIndex + 1;
               if (targetIdx < 0 || targetIdx >= valuesRef.current.length) {
                 return;
               }
@@ -394,28 +449,13 @@ export const ListboxItem = React.memo(
               // When constrained to a group, block moves across group boundaries
               if (
                 draggableProp === 'within-group' &&
-                groupIdsRef.current[targetIdx] !== groupIdsRef.current[index]
+                groupIdsRef.current[targetIdx] !== groupIdsRef.current[resolvedIndex]
               ) {
                 return;
               }
-
-              const targetValue = valuesRef.current[targetIdx];
-              if (targetValue === undefined) {
+              if (!commitReorder(singleMovedIndices, [itemValue], targetIdx)) {
                 return;
               }
-
-              // Suppress pointer-move highlighting while the DOM is being
-              // reordered to prevent the item under the pointer from
-              // stealing the highlight.
-              pointerMoveSuppressedRef.current = true;
-              requestHighlightReconcile();
-
-              onItemsReorder({
-                items: [itemValue],
-                referenceItem: targetValue,
-                edge: moveUp ? 'before' : 'after',
-                reason: 'keyboard',
-              });
 
               // Move the highlight to follow the reordered item
               store.set('activeIndex', targetIdx);
