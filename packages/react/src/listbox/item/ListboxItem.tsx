@@ -288,11 +288,6 @@ export const ListboxItem = React.memo(
           if (moveUp || moveDown) {
             event.preventDefault();
 
-            // Suppress pointer-move highlighting while the DOM is being
-            // reordered to prevent the item under the pointer from
-            // stealing the highlight.
-            pointerMoveSuppressedRef.current = true;
-
             // After a keyboard reorder, we need to:
             // 1. Restore focus if it was lost (cross-group moves cause React to
             //    unmount/remount the item, moving focus to the document body).
@@ -369,6 +364,11 @@ export const ListboxItem = React.memo(
 
               const selectedValues = selectedIndices.map((i) => valuesRef.current[i]);
 
+              // Suppress pointer-move highlighting while the DOM is being
+              // reordered to prevent the item under the pointer from
+              // stealing the highlight.
+              pointerMoveSuppressedRef.current = true;
+
               onItemsReorder({
                 items: selectedValues,
                 referenceItem: targetValue,
@@ -400,6 +400,11 @@ export const ListboxItem = React.memo(
               if (targetValue === undefined) {
                 return;
               }
+
+              // Suppress pointer-move highlighting while the DOM is being
+              // reordered to prevent the item under the pointer from
+              // stealing the highlight.
+              pointerMoveSuppressedRef.current = true;
 
               onItemsReorder({
                 items: [itemValue],

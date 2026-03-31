@@ -2,7 +2,7 @@ import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Listbox } from '@base-ui/react/listbox';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
-import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 
 describe('<Listbox.Root />', () => {
@@ -1149,6 +1149,41 @@ describe('<Listbox.Root />', () => {
       expect(handleItemsReorder).not.toHaveBeenCalled();
     });
 
+    it('should keep hover highlighting working after a blocked Alt+Arrow reorder', async () => {
+      await render(
+        <Listbox.Root onItemsReorder={vi.fn()}>
+          <Listbox.List>
+            <Listbox.Item value="a" draggable>
+              a
+            </Listbox.Item>
+            <Listbox.Item value="b" disabled draggable>
+              b
+            </Listbox.Item>
+            <Listbox.Item value="c" draggable>
+              c
+            </Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      await flushMicrotasks();
+
+      const list = screen.getByRole('listbox');
+      list.focus();
+      fireEvent.keyDown(list, { key: 'ArrowDown' });
+
+      await flushMicrotasks();
+
+      const itemB = screen.getByRole('option', { name: 'b' });
+      await act(() => itemB.focus());
+      fireEvent.keyDown(itemB, { key: 'ArrowDown', altKey: true });
+
+      const itemA = screen.getByRole('option', { name: 'a' });
+      fireEvent.mouseMove(itemA);
+
+      expect(itemA).toHaveAttribute('data-highlighted', '');
+    });
+
     it('should support multiple consecutive keyboard reorders and preserve navigation', async () => {
       function ReorderableListbox() {
         const [items, setItems] = React.useState(['a', 'b', 'c', 'd', 'e']);
@@ -1207,6 +1242,56 @@ describe('<Listbox.Root />', () => {
       await flushMicrotasks();
 
       expect(document.activeElement).toBe(screen.getByRole('option', { name: 'e' }));
+    });
+
+    it('should report the reordered item from onHighlightChange after keyboard reorder', async () => {
+      const handleHighlightChange = vi.fn();
+
+      function ReorderableListbox() {
+        const [items, setItems] = React.useState(['a', 'b', 'c', 'd']);
+
+        function handleReorder(event: {
+          items: string[];
+          referenceItem: string;
+          edge: 'before' | 'after';
+        }) {
+          setItems((prev) => {
+            const movedValues = new Set(event.items);
+            const movedItems = prev.filter((v) => movedValues.has(v));
+            const rest = prev.filter((v) => !movedValues.has(v));
+            const refIndex = rest.indexOf(event.referenceItem);
+            rest.splice(event.edge === 'after' ? refIndex + 1 : refIndex, 0, ...movedItems);
+            return rest;
+          });
+        }
+
+        return (
+          <Listbox.Root onItemsReorder={handleReorder} onHighlightChange={handleHighlightChange}>
+            <Listbox.List>
+              {items.map((item) => (
+                <Listbox.Item key={item} value={item} draggable>
+                  {item}
+                </Listbox.Item>
+              ))}
+            </Listbox.List>
+          </Listbox.Root>
+        );
+      }
+
+      await render(<ReorderableListbox />);
+      await flushMicrotasks();
+
+      const itemB = screen.getByRole('option', { name: 'b' });
+      await act(() => itemB.focus());
+      expect(handleHighlightChange).toHaveBeenLastCalledWith('b', itemB);
+
+      fireEvent.keyDown(itemB, { key: 'ArrowDown', altKey: true });
+      await flushMicrotasks();
+
+      await waitFor(() => {
+        const movedItemB = screen.getByRole('option', { name: 'b' });
+        expect(handleHighlightChange).toHaveBeenLastCalledWith('b', movedItemB);
+      });
     });
 
     it('should preserve focus when keyboard reorder crosses a group boundary', async () => {

@@ -129,7 +129,7 @@ export function useListboxItemDnD(params: UseListboxItemDnDParameters) {
                 groupIds.push(groupIdsRef.current[i]);
               }
             }
-            return { index, indices, values, groupIds, groupId, isMultiDrag: true };
+            return { index, indices, values, groupIds, groupId, value: itemValue, isMultiDrag: true };
           }
 
           return { index, value: itemValue, groupId, isMultiDrag: false };
@@ -146,23 +146,27 @@ export function useListboxItemDnD(params: UseListboxItemDnDParameters) {
           store.update({ dragActiveIndices: null, dropTargetIndex: null });
 
           // After the drop, highlight the dragged item at its new position.
-          const draggedValue = source.data.isMultiDrag
-            ? (source.data.values as any[])[0]
-            : source.data.value;
+          const draggedValue = source.data.value;
           const eqFn = store.state.isItemEqualToValue;
 
           dropHighlightTimeout.start(0, () => {
             dropHighlightFrame.request(() => {
-              const idx = valuesRef.current.findIndex(
-                (v) => v !== undefined && eqFn(v, draggedValue),
-              );
-              if (idx !== -1) {
-                store.set('activeIndex', idx);
-                const listEl = store.state.listElement;
-                const target = listEl?.querySelectorAll<HTMLElement>('[role="option"]')[idx];
-                target?.focus();
-              }
-              pointerMoveSuppressedRef.current = false;
+              dropHighlightFrame.request(() => {
+                const idx = valuesRef.current.findIndex(
+                  (v) => v !== undefined && eqFn(v, draggedValue),
+                );
+                if (idx !== -1) {
+                  const listEl = store.state.listElement;
+                  const target = listEl?.querySelectorAll<HTMLElement>('[role="option"]')[idx];
+                  target?.focus();
+                  // Focusing can synchronously fire onFocus with a stale
+                  // composite index from before the reorder. Re-apply the
+                  // resolved index afterward so the dragged item remains
+                  // highlighted at its new position.
+                  store.set('activeIndex', idx);
+                }
+                pointerMoveSuppressedRef.current = false;
+              });
             });
           });
         },

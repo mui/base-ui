@@ -94,6 +94,8 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
   const pointerMoveSuppressedRef = React.useRef(false);
   const highlightTimeout = useTimeout();
   const highlightFrame = useAnimationFrame();
+  const highlightChangeTimeout = useTimeout();
+  const highlightChangeFrame = useAnimationFrame();
 
   const store = useRefWithInit(
     () =>
@@ -264,32 +266,106 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
     },
   );
 
+  type ResolvedHighlight = {
+    activeIndex: number | null;
+    value: Value | null;
+    element: HTMLElement | null;
+  };
+
+  const lastReportedHighlightRef = React.useRef<ResolvedHighlight | null>(null);
+
+  const resolveHighlightedItem = useStableCallback((): ResolvedHighlight => {
+    const activeIndex = store.state.activeIndex;
+
+    if (activeIndex == null) {
+      return { activeIndex: null, value: null, element: null };
+    }
+
+    const itemValue = valuesRef.current[activeIndex] as Value | undefined;
+    const listEl = store.state.listElement;
+    const element = listEl?.querySelectorAll<HTMLElement>('[role="option"]')[activeIndex] ?? null;
+
+    return {
+      activeIndex,
+      value: itemValue ?? null,
+      element,
+    };
+  });
+
+  const areHighlightsEqual = useStableCallback(
+    (prev: ResolvedHighlight | null, next: ResolvedHighlight) => {
+      if (prev == null) {
+        return false;
+      }
+      if (prev.activeIndex !== next.activeIndex || prev.element !== next.element) {
+        return false;
+      }
+      if (prev.value == null || next.value == null) {
+        return prev.value === next.value;
+      }
+      return isItemEqualToValue(prev.value, next.value);
+    },
+  );
+
+  const reconcileHighlightedItem = useStableCallback(() => {
+    if (!onHighlightChange) {
+      return;
+    }
+
+    // After a reorder, the highlighted index may point at stale registry data
+    // until the composite finishes re-indexing items. Wait for that work to
+    // settle, then re-resolve the highlighted value/element.
+    highlightChangeTimeout.start(0, () => {
+      highlightChangeFrame.request(() => {
+        highlightChangeFrame.request(() => {
+          const nextHighlight = resolveHighlightedItem();
+
+          if (areHighlightsEqual(lastReportedHighlightRef.current, nextHighlight)) {
+            return;
+          }
+
+          lastReportedHighlightRef.current = nextHighlight;
+          stableOnHighlightChange(nextHighlight.value, nextHighlight.element);
+        });
+      });
+    });
+  });
+
   React.useEffect(() => {
     if (!onHighlightChange) {
+      lastReportedHighlightRef.current = null;
       return undefined;
     }
 
-    let prevActiveIndex: number | null = store.state.activeIndex;
+    lastReportedHighlightRef.current = resolveHighlightedItem();
 
     return store.subscribe((state) => {
-      if (state.activeIndex === prevActiveIndex) {
-        return;
-      }
-      prevActiveIndex = state.activeIndex;
+      const nextHighlight = resolveHighlightedItem();
 
-      if (state.activeIndex == null) {
-        stableOnHighlightChange(null, null);
+      if (areHighlightsEqual(lastReportedHighlightRef.current, nextHighlight)) {
         return;
       }
 
-      const itemValue = valuesRef.current[state.activeIndex] as Value | undefined;
-      const listEl = state.listElement;
-      const element =
-        listEl?.querySelectorAll<HTMLElement>('[role="option"]')[state.activeIndex] ?? null;
-
-      stableOnHighlightChange(itemValue ?? null, element);
+      lastReportedHighlightRef.current = nextHighlight;
+      stableOnHighlightChange(nextHighlight.value, nextHighlight.element);
+      reconcileHighlightedItem();
     });
-  }, [store, onHighlightChange, stableOnHighlightChange, valuesRef]);
+  }, [
+    store,
+    onHighlightChange,
+    stableOnHighlightChange,
+    resolveHighlightedItem,
+    areHighlightsEqual,
+    reconcileHighlightedItem,
+  ]);
+
+  useIsoLayoutEffect(() => {
+    if (!onHighlightChange || lastReportedHighlightRef.current == null) {
+      return;
+    }
+
+    reconcileHighlightedItem();
+  });
 
   const contextValue: ListboxRootContext = React.useMemo(
     () => ({
