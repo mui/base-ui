@@ -260,24 +260,29 @@ describe('<Drawer.Viewport />', () => {
   it.skipIf(isJSDOM)(
     'exposes virtual keyboard CSS variables while the visual viewport is reduced',
     async () => {
-      const inputRef = { current: null as HTMLInputElement | null };
       const restoreInnerHeight = mockWindowInnerHeight(800);
       const visualViewport = mockVisualViewport(800);
+      let activeElementSpy: ReturnType<typeof vi.spyOn> | null = null;
 
       try {
         await render(
-          <Drawer.Root open modal={false} virtualKeyboardAware>
-            <Drawer.Portal>
-              <Drawer.Viewport data-testid="viewport">
-                <Drawer.Popup initialFocus={inputRef}>
-                  <input data-testid="input" type="text" ref={inputRef} />
-                </Drawer.Popup>
-              </Drawer.Viewport>
-            </Drawer.Portal>
+          <Drawer.Root open modal={false}>
+            <Drawer.VirtualKeyboardProvider>
+              <Drawer.Portal>
+                <Drawer.Viewport data-testid="viewport">
+                  <Drawer.Popup>
+                    <input data-testid="input" type="text" />
+                  </Drawer.Popup>
+                </Drawer.Viewport>
+              </Drawer.Portal>
+            </Drawer.VirtualKeyboardProvider>
           </Drawer.Root>,
         );
 
         const viewport = screen.getByTestId('viewport');
+        const input = screen.getByTestId('input');
+        activeElementSpy = vi.spyOn(document, 'activeElement', 'get');
+        activeElementSpy.mockReturnValue(input);
 
         await act(async () => {
           visualViewport.resize(500);
@@ -288,6 +293,7 @@ describe('<Drawer.Viewport />', () => {
           expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('300px');
         });
       } finally {
+        activeElementSpy?.mockRestore();
         visualViewport.restore();
         restoreInnerHeight();
       }
@@ -295,17 +301,17 @@ describe('<Drawer.Viewport />', () => {
   );
 
   it.skipIf(isJSDOM)('does not expose virtual keyboard CSS variables by default', async () => {
-    const inputRef = { current: null as HTMLInputElement | null };
     const restoreInnerHeight = mockWindowInnerHeight(800);
     const visualViewport = mockVisualViewport(800);
+    let activeElementSpy: ReturnType<typeof vi.spyOn> | null = null;
 
     try {
       await render(
         <Drawer.Root open modal={false}>
           <Drawer.Portal>
             <Drawer.Viewport data-testid="viewport">
-              <Drawer.Popup initialFocus={inputRef}>
-                <input data-testid="input" type="text" ref={inputRef} />
+              <Drawer.Popup>
+                <input data-testid="input" type="text" />
               </Drawer.Popup>
             </Drawer.Viewport>
           </Drawer.Portal>
@@ -313,6 +319,9 @@ describe('<Drawer.Viewport />', () => {
       );
 
       const viewport = screen.getByTestId('viewport');
+      const input = screen.getByTestId('input');
+      activeElementSpy = vi.spyOn(document, 'activeElement', 'get');
+      activeElementSpy.mockReturnValue(input);
 
       await act(async () => {
         visualViewport.resize(500);
@@ -323,6 +332,7 @@ describe('<Drawer.Viewport />', () => {
         expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('');
       });
     } finally {
+      activeElementSpy?.mockRestore();
       visualViewport.restore();
       restoreInnerHeight();
     }
@@ -330,14 +340,16 @@ describe('<Drawer.Viewport />', () => {
 
   it.skipIf(isJSDOM)('preserves native taps on an already-focused keyboard input', async () => {
     await render(
-      <Drawer.Root open modal={false} virtualKeyboardAware>
-        <Drawer.Portal>
-          <Drawer.Viewport>
-            <Drawer.Popup>
-              <input data-testid="input" type="text" />
-            </Drawer.Popup>
-          </Drawer.Viewport>
-        </Drawer.Portal>
+      <Drawer.Root open modal={false}>
+        <Drawer.VirtualKeyboardProvider>
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup>
+                <input data-testid="input" type="text" />
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.VirtualKeyboardProvider>
       </Drawer.Root>,
     );
 
