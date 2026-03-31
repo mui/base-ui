@@ -82,12 +82,26 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     );
   });
 
-  const cancelKeyboardFocusAlignment = useStableCallback(() => {
-    if (!keyboardFocusSettleFrameRef.current || typeof window === 'undefined') {
+  const cancelKeyboardFocusAlignment = useStableCallback((cancelWindow?: Window) => {
+    if (!keyboardFocusSettleFrameRef.current) {
       return;
     }
 
-    window.cancelAnimationFrame(keyboardFocusSettleFrameRef.current);
+    const popupElement = store.context.popupRef.current;
+    const rootElement = viewportElement ?? popupElementState;
+    let elementWindow: Window | null = null;
+    if (popupElement) {
+      elementWindow = ownerWindow(popupElement);
+    } else if (rootElement) {
+      elementWindow = ownerWindow(rootElement);
+    }
+    const resolvedWindow = cancelWindow ?? elementWindow;
+
+    if (!resolvedWindow) {
+      return;
+    }
+
+    resolvedWindow.cancelAnimationFrame(keyboardFocusSettleFrameRef.current);
     keyboardFocusSettleFrameRef.current = 0;
   });
 
@@ -124,10 +138,10 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       };
     }
 
-    const clearFocusedKeyboardTarget = () => {
+    const clearFocusedKeyboardTarget = (cancelWindow?: Window) => {
       focusedKeyboardTargetRef.current = null;
       keepKeyboardScrollBottomAnchoredRef.current = false;
-      cancelKeyboardFocusAlignment();
+      cancelKeyboardFocusAlignment(cancelWindow);
     };
 
     const alignFocusedKeyboardTarget = () => {
@@ -163,7 +177,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     };
 
     const scheduleKeyboardFocusAlignment = () => {
-      cancelKeyboardFocusAlignment();
+      cancelKeyboardFocusAlignment(win);
 
       let remainingFrames = 2;
       const tick = () => {
@@ -233,7 +247,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       doc.removeEventListener('focusin', handleFocusIn, true);
       doc.removeEventListener('focusout', handleFocusOut, true);
       setMetrics({ availableHeight: null, keyboardInset: 0 });
-      clearFocusedKeyboardTarget();
+      clearFocusedKeyboardTarget(win);
     };
   }, [
     cancelKeyboardFocusAlignment,
