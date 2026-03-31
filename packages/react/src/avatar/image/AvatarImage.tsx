@@ -34,6 +34,7 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     onLoadingStatusChange: onLoadingStatusChangeProp,
     referrerPolicy,
     crossOrigin,
+    style,
     ...elementProps
   } = componentProps;
 

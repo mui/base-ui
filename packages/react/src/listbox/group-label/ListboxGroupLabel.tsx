@@ -16,7 +16,7 @@ export const ListboxGroupLabel = React.forwardRef(function ListboxGroupLabel(
   componentProps: ListboxGroupLabel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, id: idProp, ...elementProps } = componentProps;
+  const { className, render, style, id: idProp, ...elementProps } = componentProps;
 
   const { setLabelId } = useListboxGroupContext();
 

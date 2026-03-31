@@ -23,7 +23,7 @@ export const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldS
   componentProps: NumberFieldScrubAreaCursor.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const { state } = useNumberFieldRootContext();
   const { isScrubbing, isTouchInput, isPointerLockDenied, scrubAreaCursorRef } =

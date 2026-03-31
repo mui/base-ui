@@ -45,6 +45,7 @@ const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
     format = adapter.formats.dayOfMonth,
     disabled,
     focusableWhenDisabled = false,
+    style,
     ...elementProps
   } = componentProps;
 

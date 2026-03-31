@@ -25,7 +25,7 @@ export const SelectBackdrop = React.forwardRef(function SelectBackdrop(
   componentProps: SelectBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, style, ...elementProps } = componentProps;
 
   const { store } = useSelectRootContext();
 

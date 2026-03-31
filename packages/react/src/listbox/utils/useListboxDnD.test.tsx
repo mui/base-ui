@@ -43,7 +43,9 @@ describe('useListboxDnD', () => {
     globalThis.requestAnimationFrame = ((callback: FrameRequestCallback) =>
       setTimeout(() => callback(performance.now()), 0)) as typeof globalThis.requestAnimationFrame;
     globalThis.cancelAnimationFrame = ((id: number) =>
-      clearTimeout(id as unknown as ReturnType<typeof setTimeout>)) as typeof globalThis.cancelAnimationFrame;
+      clearTimeout(
+        id as unknown as ReturnType<typeof setTimeout>,
+      )) as typeof globalThis.cancelAnimationFrame;
   });
 
   afterEach(() => {

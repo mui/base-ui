@@ -37,6 +37,7 @@ import { defaultItemEquality, findItemIndex } from '../../utils/itemEquality';
 import { useValueChanged } from '../../utils/useValueChanged';
 import { useSerializedListValue } from '../../utils/useSerializedListValue';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
+import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
 import { mergeProps } from '../../merge-props';
 
 /**
@@ -307,10 +308,10 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       return;
     }
 
-    const viewportTop = scroller.scrollTop;
-    const viewportBottom = scroller.scrollTop + scroller.clientHeight;
-    const shouldShowUp = viewportTop > 1;
-    const shouldShowDown = viewportBottom < scroller.scrollHeight - 1;
+    const maxScrollTop = getMaxScrollOffset(scroller.scrollHeight, scroller.clientHeight);
+    const scrollTop = normalizeScrollOffset(scroller.scrollTop, maxScrollTop);
+    const shouldShowUp = scrollTop > 0;
+    const shouldShowDown = scrollTop < maxScrollTop;
 
     if (store.state.scrollUpArrowVisible !== shouldShowUp) {
       store.set('scrollUpArrowVisible', shouldShowUp);

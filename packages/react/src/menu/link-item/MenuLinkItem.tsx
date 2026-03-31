@@ -26,6 +26,7 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
     id: idProp,
     label,
     closeOnClick = false,
+    style,
     ...elementProps
   } = componentProps;
 

@@ -67,6 +67,10 @@ export interface ToastObject<Data extends object> {
    */
   transitionStatus?: 'starting' | 'ending' | undefined;
   /**
+   * A counter that increments whenever the toast is updated or upserted.
+   */
+  updateKey?: number | undefined;
+  /**
    * Determines if the toast was closed due to the limit being reached.
    */
   limited?: boolean | undefined;
@@ -119,13 +123,17 @@ export interface UseToastManagerReturnValue<Data extends object = any> {
 
 export interface ToastManagerAddOptions<Data extends object> extends Omit<
   ToastObject<Data>,
-  'id' | 'animation' | 'height' | 'ref' | 'limited'
+  'id' | 'animation' | 'height' | 'ref' | 'limited' | 'updateKey'
 > {
+  /**
+   * The unique identifier for the toast. Adding a toast with an existing ID
+   * updates it in place and refreshes its auto-dismiss timer.
+   */
   id?: string | undefined;
 }
 
 export interface ToastManagerUpdateOptions<Data extends object> extends Partial<
-  Omit<ToastObject<Data>, 'id' | 'ref' | 'height' | 'transitionStatus' | 'limited'>
+  Omit<ToastObject<Data>, 'id' | 'ref' | 'height' | 'transitionStatus' | 'limited' | 'updateKey'>
 > {}
 
 export interface ToastManagerPromiseOptions<Value, Data extends object> {

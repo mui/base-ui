@@ -41,7 +41,7 @@ const Inner = React.forwardRef(function ListboxLoadingTriggerInner(
   componentProps: ListboxLoadingTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, keepMounted, ...elementProps } = componentProps;
+  const { render, className, style, keepMounted, ...elementProps } = componentProps;
 
   const { store, onLoadMore, loadingProp } = useListboxRootContext();
   const loading = useStore(store, selectors.loading);

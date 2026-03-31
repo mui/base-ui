@@ -17,7 +17,7 @@ export const ListboxItemText = React.memo(
   ) {
     const { textRef } = useListboxItemContext();
 
-    const { className, render, ...elementProps } = componentProps;
+    const { className, render, style, ...elementProps } = componentProps;
 
     const element = useRenderElement('div', componentProps, {
       ref: [forwardedRef, textRef],

@@ -26,6 +26,7 @@ export const TabsList = React.forwardRef(function TabsList(
     className,
     loopFocus = true,
     render,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -148,6 +149,7 @@ export const TabsList = React.forwardRef(function TabsList(
       <CompositeRoot
         render={render}
         className={className}
+        style={style}
         state={state}
         refs={[forwardedRef, setTabsListElement]}
         props={[defaultProps, elementProps]}

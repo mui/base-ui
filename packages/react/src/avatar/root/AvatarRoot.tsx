@@ -15,7 +15,7 @@ export const AvatarRoot = React.forwardRef(function AvatarRoot(
   componentProps: AvatarRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, style, ...elementProps } = componentProps;
 
   const [imageLoadingStatus, setImageLoadingStatus] = React.useState<ImageLoadingStatus>('idle');
 

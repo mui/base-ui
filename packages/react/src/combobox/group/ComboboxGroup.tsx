@@ -13,7 +13,7 @@ export const ComboboxGroup = React.forwardRef(function ComboboxGroup(
   componentProps: ComboboxGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, items, ...elementProps } = componentProps;
+  const { render, className, style, items, ...elementProps } = componentProps;
 
   const [labelId, setLabelId] = React.useState<string | undefined>();
 

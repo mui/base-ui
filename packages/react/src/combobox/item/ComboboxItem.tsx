@@ -35,6 +35,7 @@ export const ComboboxItem = React.memo(
       index: indexProp,
       disabled = false,
       nativeButton = false,
+      style,
       ...elementProps
     } = componentProps;
 

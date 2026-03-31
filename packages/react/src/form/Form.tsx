@@ -29,6 +29,7 @@ export const Form = React.forwardRef(function Form<
     onSubmit,
     onFormSubmit,
     actionsRef,
+    style,
     ...elementProps
   } = componentProps;
 

@@ -17,7 +17,7 @@ export function createItemIndicator(useItemSelected: () => boolean) {
   const Inner = React.memo(
     React.forwardRef(
       (componentProps: ItemIndicatorProps, forwardedRef: React.ForwardedRef<HTMLSpanElement>) => {
-        const { render, className, keepMounted, ...elementProps } = componentProps;
+        const { render, className, style, keepMounted, ...elementProps } = componentProps;
 
         const selected = useItemSelected();
 

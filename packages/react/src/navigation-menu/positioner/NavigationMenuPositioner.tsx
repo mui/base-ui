@@ -65,6 +65,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     arrowPadding = 5,
     sticky = false,
     disableAnchorTracking = false,
+    style,
     ...elementProps
   } = componentProps;
 

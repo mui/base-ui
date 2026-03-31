@@ -17,7 +17,7 @@ export const ListboxItemDragHandle = React.forwardRef(function ListboxItemDragHa
   componentProps: ListboxItemDragHandle.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, style, ...elementProps } = componentProps;
   const { dragHandleRef } = useListboxItemContext();
 
   return useRenderElement('div', componentProps, {

@@ -62,6 +62,7 @@ export const ListboxItem = React.memo(
     const {
       render,
       className,
+      style,
       value: itemValue = null,
       label,
       disabled = false,

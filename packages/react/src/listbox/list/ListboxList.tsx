@@ -27,7 +27,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
   componentProps: ListboxList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, style, ...elementProps } = componentProps;
 
   const {
     store,
@@ -179,9 +179,7 @@ export const ListboxList = React.forwardRef(function ListboxList(
             );
 
             const nextValue = alreadySelected
-              ? currentValue.filter(
-                  (v) => !compareItemEquality(v, targetValue, isItemEqualToValue),
-                )
+              ? currentValue.filter((v) => !compareItemEquality(v, targetValue, isItemEqualToValue))
               : [...currentValue, targetValue];
 
             setValue(

@@ -51,6 +51,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     id: idProp,
     disabled: disabledProp = false,
     nativeButton = true,
+    style,
     ...elementProps
   } = componentProps;
 

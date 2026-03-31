@@ -129,7 +129,15 @@ export function useListboxItemDnD(params: UseListboxItemDnDParameters) {
                 groupIds.push(groupIdsRef.current[i]);
               }
             }
-            return { index, indices, values, groupIds, groupId, value: itemValue, isMultiDrag: true };
+            return {
+              index,
+              indices,
+              values,
+              groupIds,
+              groupId,
+              value: itemValue,
+              isMultiDrag: true,
+            };
           }
 
           return { index, value: itemValue, groupId, isMultiDrag: false };
