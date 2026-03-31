@@ -83,16 +83,12 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
   });
 
   const cancelKeyboardFocusAlignment = useStableCallback(() => {
-    const popupElement = store.context.popupRef.current;
-    if (!popupElement) {
+    if (!keyboardFocusSettleFrameRef.current || typeof window === 'undefined') {
       return;
     }
 
-    const win = ownerWindow(popupElement);
-    if (keyboardFocusSettleFrameRef.current) {
-      win.cancelAnimationFrame(keyboardFocusSettleFrameRef.current);
-      keyboardFocusSettleFrameRef.current = 0;
-    }
+    window.cancelAnimationFrame(keyboardFocusSettleFrameRef.current);
+    keyboardFocusSettleFrameRef.current = 0;
   });
 
   const resetTouchTrackingState = useStableCallback(() => {
@@ -430,9 +426,12 @@ function focusKeyboardInputWithoutPageScroll(target: HTMLElement) {
 
   target.style.transform = 'translateY(-2000px)';
   target.style.transition = 'none';
-  target.focus({ preventScroll: true });
-  target.style.transform = previousTransform;
-  target.style.transition = previousTransition;
+  try {
+    target.focus({ preventScroll: true });
+  } finally {
+    target.style.transform = previousTransform;
+    target.style.transition = previousTransition;
+  }
 }
 
 function getKeyboardMetrics(
