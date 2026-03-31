@@ -44,7 +44,7 @@ export const FieldError = React.forwardRef(function FieldError(
   let rendered = false;
   if (match === true) {
     rendered = true;
-  } else if (typeof match === 'string') {
+  } else if (hasSpecificMatch) {
     rendered = Boolean(validityData.state[match]);
   } else {
     rendered = Boolean(formError) || validityData.state.valid === false;
