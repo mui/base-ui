@@ -2,17 +2,12 @@
 import * as React from 'react';
 import { isElement, isHTMLElement } from '@floating-ui/utils/dom';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { clamp } from '../../utils/clamp';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import { isTypeableElement } from '../../floating-ui-react/utils/element';
 import { findScrollableTouchTarget } from '../../utils/scrollable';
 import { getElementAtPoint } from '../../utils/getElementAtPoint';
-import {
-  DrawerVirtualKeyboardContext,
-  type DrawerVirtualKeyboardContext as DrawerVirtualKeyboardContextValue,
-} from './DrawerVirtualKeyboardContext';
 
 const KEYBOARD_INSET_THRESHOLD = 60;
 const INPUT_TAP_MOVE_THRESHOLD = 10;
@@ -29,6 +24,18 @@ const NON_TEXT_INPUT_TYPES = new Set([
   'reset',
   'submit',
 ]);
+
+interface DrawerVirtualKeyboardContextValue {
+  availableHeight: number | null;
+  keyboardInset: number;
+  onTouchStart: (event: React.TouchEvent<Element>) => void;
+  onTouchEnd: (event: React.TouchEvent<Element>) => boolean;
+  onTouchCancel: () => void;
+}
+
+const DrawerVirtualKeyboardContext = React.createContext<
+  DrawerVirtualKeyboardContextValue | undefined
+>(undefined);
 
 /**
  * Enables visible viewport sizing and keyboard-aware focus behavior for software keyboards.
@@ -49,8 +56,10 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
 
   const nestedDrawerOpen = nestedOpenDialogCount > 0;
 
-  const [availableHeight, setAvailableHeight] = React.useState<number | null>(null);
-  const [keyboardInset, setKeyboardInset] = React.useState(0);
+  const [{ availableHeight, keyboardInset }, setMetrics] = React.useState({
+    availableHeight: null as number | null,
+    keyboardInset: 0,
+  });
 
   const pendingKeyboardFocusTargetRef = React.useRef<HTMLElement | null>(null);
   const pendingKeyboardFocusMovedRef = React.useRef(false);
@@ -60,27 +69,29 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
   const keepKeyboardScrollBottomAnchoredRef = React.useRef(false);
   const keyboardFocusSettleFrameRef = React.useRef(0);
 
-  const syncVirtualKeyboardMetrics = useStableCallback(() => {
+  const syncVirtualKeyboardMetrics = React.useCallback(() => {
     const popupElement = store.context.popupRef.current;
     if (!popupElement) {
-      setAvailableHeight(null);
-      setKeyboardInset(0);
+      setMetrics((prevMetrics) =>
+        prevMetrics.availableHeight === null && prevMetrics.keyboardInset === 0
+          ? prevMetrics
+          : { availableHeight: null, keyboardInset: 0 },
+      );
       return;
     }
 
-    const win = ownerWindow(popupElement);
-    const nextAvailableHeight = getAvailableHeight(win, popupElement, nestedDrawerOpen);
-    const nextKeyboardInset = getKeyboardInset(win, popupElement);
+    const { availableHeight: nextAvailableHeight, keyboardInset: nextKeyboardInset } =
+      getKeyboardMetrics(ownerWindow(popupElement), popupElement, nestedDrawerOpen);
 
-    setAvailableHeight((prevAvailableHeight) =>
-      prevAvailableHeight === nextAvailableHeight ? prevAvailableHeight : nextAvailableHeight,
+    setMetrics((prevMetrics) =>
+      prevMetrics.availableHeight === nextAvailableHeight &&
+      prevMetrics.keyboardInset === nextKeyboardInset
+        ? prevMetrics
+        : { availableHeight: nextAvailableHeight, keyboardInset: nextKeyboardInset },
     );
-    setKeyboardInset((prevKeyboardInset) =>
-      prevKeyboardInset === nextKeyboardInset ? prevKeyboardInset : nextKeyboardInset,
-    );
-  });
+  }, [nestedDrawerOpen, store.context.popupRef]);
 
-  const cancelKeyboardFocusAlignment = useStableCallback(() => {
+  const cancelKeyboardFocusAlignment = React.useCallback(() => {
     const popupElement = store.context.popupRef.current;
     if (!popupElement) {
       return;
@@ -91,80 +102,28 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       win.cancelAnimationFrame(keyboardFocusSettleFrameRef.current);
       keyboardFocusSettleFrameRef.current = 0;
     }
-  });
+  }, [store.context.popupRef]);
 
-  const alignFocusedKeyboardTarget = useStableCallback(() => {
-    const target = focusedKeyboardTargetRef.current;
-    const scrollTarget = focusedKeyboardScrollTargetRef.current;
-    if (!target || !scrollTarget) {
-      return;
-    }
-
-    const rootElement = viewportElement ?? popupElementState;
-    if (!rootElement || !contains(rootElement, target) || !contains(rootElement, scrollTarget)) {
-      return;
-    }
-
-    const maxScrollTop = Math.max(0, scrollTarget.scrollHeight - scrollTarget.clientHeight);
-    if (maxScrollTop <= 0) {
-      return;
-    }
-
-    if (keepKeyboardScrollBottomAnchoredRef.current) {
-      scrollTarget.scrollTop = maxScrollTop;
-      return;
-    }
-
-    const scrollTargetRect = scrollTarget.getBoundingClientRect();
-    const targetRect = target.getBoundingClientRect();
-    const targetOffsetTop = targetRect.top - scrollTargetRect.top + scrollTarget.scrollTop;
-    const targetCenterOffset =
-      targetOffsetTop - (scrollTarget.clientHeight - targetRect.height) / 2;
-
-    scrollTarget.scrollTop = clamp(targetCenterOffset, 0, maxScrollTop);
-  });
-
-  const scheduleKeyboardFocusAlignment = useStableCallback(() => {
-    const popupElement = store.context.popupRef.current;
-    if (!popupElement) {
-      return;
-    }
-
-    const win = ownerWindow(popupElement);
-    cancelKeyboardFocusAlignment();
-
-    let remainingFrames = 2;
-    const tick = () => {
-      alignFocusedKeyboardTarget();
-      remainingFrames -= 1;
-
-      if (remainingFrames > 0) {
-        keyboardFocusSettleFrameRef.current = win.requestAnimationFrame(tick);
-      } else {
-        keyboardFocusSettleFrameRef.current = 0;
-      }
-    };
-
-    keyboardFocusSettleFrameRef.current = win.requestAnimationFrame(tick);
-  });
-
-  const resetTouchTrackingState = useStableCallback(() => {
+  const resetTouchTrackingState = React.useCallback(() => {
     pendingKeyboardFocusTargetRef.current = null;
     pendingKeyboardFocusMovedRef.current = false;
     keyboardTouchStartRef.current = null;
-  });
+  }, []);
 
   React.useEffect(() => {
     if (!mounted || !open) {
-      setAvailableHeight(null);
-      setKeyboardInset(0);
+      setMetrics({ availableHeight: null, keyboardInset: 0 });
+      focusedKeyboardTargetRef.current = null;
+      focusedKeyboardScrollTargetRef.current = null;
+      keepKeyboardScrollBottomAnchoredRef.current = false;
+      cancelKeyboardFocusAlignment();
       return undefined;
     }
 
+    const rootElement = viewportElement ?? popupElementState;
     const popupElement = store.context.popupRef.current;
     if (!popupElement) {
-      setAvailableHeight(null);
-      setKeyboardInset(0);
+      setMetrics({ availableHeight: null, keyboardInset: 0 });
       return undefined;
     }
 
@@ -176,62 +135,8 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
 
     if (!visualViewport) {
       return () => {
-        setAvailableHeight(null);
-        setKeyboardInset(0);
+        setMetrics({ availableHeight: null, keyboardInset: 0 });
       };
-    }
-
-    const handleFocusChange = () => {
-      syncVirtualKeyboardMetrics();
-    };
-
-    visualViewport.addEventListener('resize', syncVirtualKeyboardMetrics);
-    visualViewport.addEventListener('scroll', syncVirtualKeyboardMetrics);
-    doc.addEventListener('focusin', handleFocusChange, true);
-    doc.addEventListener('focusout', handleFocusChange, true);
-
-    return () => {
-      visualViewport.removeEventListener('resize', syncVirtualKeyboardMetrics);
-      visualViewport.removeEventListener('scroll', syncVirtualKeyboardMetrics);
-      doc.removeEventListener('focusin', handleFocusChange, true);
-      doc.removeEventListener('focusout', handleFocusChange, true);
-      setAvailableHeight(null);
-      setKeyboardInset(0);
-    };
-  }, [
-    mounted,
-    nestedDrawerOpen,
-    open,
-    popupElementState,
-    store.context.popupRef,
-    syncVirtualKeyboardMetrics,
-  ]);
-
-  React.useEffect(() => {
-    if (!open || !mounted) {
-      focusedKeyboardTargetRef.current = null;
-      focusedKeyboardScrollTargetRef.current = null;
-      keepKeyboardScrollBottomAnchoredRef.current = false;
-      cancelKeyboardFocusAlignment();
-      return undefined;
-    }
-
-    const rootElement = viewportElement ?? popupElementState;
-    if (!rootElement) {
-      return undefined;
-    }
-
-    const popupElement = store.context.popupRef.current;
-    if (!popupElement) {
-      return undefined;
-    }
-
-    const doc = ownerDocument(popupElement);
-    const win = ownerWindow(popupElement);
-    const visualViewport = win.visualViewport;
-
-    if (!visualViewport) {
-      return undefined;
     }
 
     const clearFocusedKeyboardTarget = () => {
@@ -241,8 +146,58 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       cancelKeyboardFocusAlignment();
     };
 
+    const alignFocusedKeyboardTarget = () => {
+      const target = focusedKeyboardTargetRef.current;
+      const scrollTarget = focusedKeyboardScrollTargetRef.current;
+      if (!rootElement || !target || !scrollTarget) {
+        return;
+      }
+
+      if (!contains(rootElement, target) || !contains(rootElement, scrollTarget)) {
+        return;
+      }
+
+      const maxScrollTop = Math.max(0, scrollTarget.scrollHeight - scrollTarget.clientHeight);
+      if (maxScrollTop <= 0) {
+        return;
+      }
+
+      if (keepKeyboardScrollBottomAnchoredRef.current) {
+        scrollTarget.scrollTop = maxScrollTop;
+        return;
+      }
+
+      const scrollTargetRect = scrollTarget.getBoundingClientRect();
+      const targetRect = target.getBoundingClientRect();
+      const targetOffsetTop = targetRect.top - scrollTargetRect.top + scrollTarget.scrollTop;
+
+      scrollTarget.scrollTop = clamp(
+        targetOffsetTop - (scrollTarget.clientHeight - targetRect.height) / 2,
+        0,
+        maxScrollTop,
+      );
+    };
+
+    const scheduleKeyboardFocusAlignment = () => {
+      cancelKeyboardFocusAlignment();
+
+      let remainingFrames = 2;
+      const tick = () => {
+        alignFocusedKeyboardTarget();
+        remainingFrames -= 1;
+
+        if (remainingFrames > 0) {
+          keyboardFocusSettleFrameRef.current = win.requestAnimationFrame(tick);
+        } else {
+          keyboardFocusSettleFrameRef.current = 0;
+        }
+      };
+
+      keyboardFocusSettleFrameRef.current = win.requestAnimationFrame(tick);
+    };
+
     const captureFocusedKeyboardTarget = (target: EventTarget | null) => {
-      if (!isKeyboardInputTarget(target) || !contains(rootElement, target)) {
+      if (!rootElement || !isKeyboardInputTarget(target) || !contains(rootElement, target)) {
         return false;
       }
 
@@ -257,13 +212,21 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       return true;
     };
 
+    const handleFocusChange = () => {
+      syncVirtualKeyboardMetrics();
+    };
+
     const handleFocusIn = (event: FocusEvent) => {
+      handleFocusChange();
+
       if (captureFocusedKeyboardTarget(event.target)) {
         scheduleKeyboardFocusAlignment();
       }
     };
 
     const handleFocusOut = (event: FocusEvent) => {
+      handleFocusChange();
+
       if (captureFocusedKeyboardTarget(event.relatedTarget)) {
         scheduleKeyboardFocusAlignment();
         return;
@@ -273,30 +236,34 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     };
 
     const handleViewportUpdate = () => {
+      syncVirtualKeyboardMetrics();
+
       if (focusedKeyboardTargetRef.current) {
         scheduleKeyboardFocusAlignment();
       }
     };
 
-    doc.addEventListener('focusin', handleFocusIn, true);
-    doc.addEventListener('focusout', handleFocusOut, true);
     visualViewport.addEventListener('resize', handleViewportUpdate);
     visualViewport.addEventListener('scroll', handleViewportUpdate);
+    doc.addEventListener('focusin', handleFocusIn, true);
+    doc.addEventListener('focusout', handleFocusOut, true);
 
     return () => {
-      doc.removeEventListener('focusin', handleFocusIn, true);
-      doc.removeEventListener('focusout', handleFocusOut, true);
       visualViewport.removeEventListener('resize', handleViewportUpdate);
       visualViewport.removeEventListener('scroll', handleViewportUpdate);
+      doc.removeEventListener('focusin', handleFocusIn, true);
+      doc.removeEventListener('focusout', handleFocusOut, true);
+      setMetrics({ availableHeight: null, keyboardInset: 0 });
       clearFocusedKeyboardTarget();
     };
   }, [
     cancelKeyboardFocusAlignment,
     mounted,
+    nestedDrawerOpen,
     open,
     popupElementState,
-    scheduleKeyboardFocusAlignment,
     store.context.popupRef,
+    syncVirtualKeyboardMetrics,
     viewportElement,
   ]);
 
@@ -331,7 +298,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     };
   }, [mounted, open, popupElementState, viewportElement]);
 
-  const onTouchStart = useStableCallback((event: React.TouchEvent<Element>) => {
+  const onTouchStart = React.useCallback((event: React.TouchEvent<Element>) => {
     if (!open || !mounted) {
       resetTouchTrackingState();
       return;
@@ -368,9 +335,9 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
         : null;
     pendingKeyboardFocusMovedRef.current = false;
     keyboardTouchStartRef.current = { x: touch.clientX, y: touch.clientY };
-  });
+  }, [mounted, open, popupElementState, resetTouchTrackingState, viewportElement]);
 
-  const onTouchEnd = useStableCallback((event: React.TouchEvent<Element>) => {
+  const onTouchEnd = React.useCallback((event: React.TouchEvent<Element>) => {
     const rootElement = viewportElement ?? popupElementState;
     if (!rootElement || pendingKeyboardFocusMovedRef.current) {
       resetTouchTrackingState();
@@ -416,11 +383,11 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
 
     resetTouchTrackingState();
     return false;
-  });
+  }, [popupElementState, resetTouchTrackingState, viewportElement]);
 
-  const onTouchCancel = useStableCallback(() => {
+  const onTouchCancel = React.useCallback(() => {
     resetTouchTrackingState();
-  });
+  }, [resetTouchTrackingState]);
 
   const contextValue = React.useMemo<DrawerVirtualKeyboardContextValue>(
     () => ({
@@ -449,6 +416,18 @@ export interface DrawerVirtualKeyboardProviderProps {
 export namespace DrawerVirtualKeyboardProvider {
   export type State = DrawerVirtualKeyboardProviderState;
   export type Props = DrawerVirtualKeyboardProviderProps;
+}
+
+export function useDrawerVirtualKeyboardContext(optional = false) {
+  const drawerVirtualKeyboardContext = React.useContext(DrawerVirtualKeyboardContext);
+
+  if (!optional && drawerVirtualKeyboardContext === undefined) {
+    throw new Error(
+      'Base UI: DrawerVirtualKeyboardContext is missing. The virtual keyboard provider must wrap the drawer parts that use it.',
+    );
+  }
+
+  return drawerVirtualKeyboardContext;
 }
 
 function isElementScrolledToBottom(element: HTMLElement): boolean {
@@ -482,13 +461,6 @@ function resolveKeyboardInputTarget(target: EventTarget | null): HTMLElement | n
   const control = label?.control ?? null;
 
   return isHTMLElement(control) && isKeyboardInputElement(control) ? control : null;
-}
-
-function getDistanceFromPointToRect(rect: DOMRect, clientX: number, clientY: number): number {
-  const horizontalDistance = Math.max(rect.left - clientX, 0, clientX - rect.right);
-  const verticalDistance = Math.max(rect.top - clientY, 0, clientY - rect.bottom);
-
-  return horizontalDistance ** 2 + verticalDistance ** 2;
 }
 
 function resolveKeyboardInputTargetFromPoint(
@@ -525,7 +497,10 @@ function resolveKeyboardInputTargetFromPoint(
       return;
     }
 
-    const distance = getDistanceFromPointToRect(rect, clientX, clientY);
+    const distance =
+      Math.max(rect.left - clientX, 0, clientX - rect.right) ** 2 +
+      Math.max(rect.top - clientY, 0, clientY - rect.bottom) ** 2;
+
     if (distance < bestDistance) {
       bestDistance = distance;
       bestMatch = keyboardInput;
@@ -546,40 +521,30 @@ function focusKeyboardInputWithoutPageScroll(target: HTMLElement) {
   target.style.transition = previousTransition;
 }
 
-function getAvailableHeight(
+function getKeyboardMetrics(
   win: Window,
   popupElement: HTMLElement,
   nestedDrawerOpen: boolean,
-): number | null {
+): { availableHeight: number | null; keyboardInset: number } {
+  const visualViewport = win.visualViewport;
   const focusedElement = ownerDocument(popupElement).activeElement;
+
   if (
     nestedDrawerOpen ||
     !isTypeableElement(focusedElement) ||
-    !contains(popupElement, focusedElement)
+    !contains(popupElement, focusedElement) ||
+    !visualViewport
   ) {
-    return null;
+    return { availableHeight: null, keyboardInset: 0 };
   }
 
-  const visualViewport = win.visualViewport;
-  if (!visualViewport || win.innerHeight - visualViewport.height <= KEYBOARD_INSET_THRESHOLD) {
-    return null;
+  const reducedHeight = win.innerHeight - visualViewport.height;
+  if (reducedHeight <= KEYBOARD_INSET_THRESHOLD) {
+    return { availableHeight: null, keyboardInset: 0 };
   }
 
-  return Math.round(visualViewport.height);
-}
-
-function getKeyboardInset(win: Window, popupElement: HTMLElement): number {
-  const visualViewport = win.visualViewport;
-  if (!visualViewport) {
-    return 0;
-  }
-
-  const focusedElement = ownerDocument(popupElement).activeElement;
-  if (!contains(popupElement, focusedElement) || !isKeyboardInputTarget(focusedElement)) {
-    return 0;
-  }
-
-  const nextKeyboardInset = Math.max(0, Math.round(win.innerHeight - visualViewport.height));
-
-  return nextKeyboardInset > KEYBOARD_INSET_THRESHOLD ? nextKeyboardInset : 0;
+  return {
+    availableHeight: Math.round(visualViewport.height),
+    keyboardInset: isKeyboardInputTarget(focusedElement) ? Math.round(reducedHeight) : 0,
+  };
 }

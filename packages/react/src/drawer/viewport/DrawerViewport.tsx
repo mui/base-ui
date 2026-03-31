@@ -32,7 +32,7 @@ import { BASE_UI_SWIPE_IGNORE_SELECTOR } from '../../internals/constants';
 import { getElementAtPoint } from '../../utils/getElementAtPoint';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
-import { useDrawerVirtualKeyboardContext } from '../virtual-keyboard/DrawerVirtualKeyboardContext';
+import { useDrawerVirtualKeyboardContext } from '../virtual-keyboard/DrawerVirtualKeyboardProvider';
 
 const MIN_SWIPE_THRESHOLD = 10;
 const FAST_SWIPE_VELOCITY = 0.5;
