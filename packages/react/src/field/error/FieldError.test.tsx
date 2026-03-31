@@ -103,6 +103,45 @@ describe('<Field.Error />', () => {
       expect(screen.queryByText('Message')).not.toBe(null);
     });
 
+    it('uses `match={false}` as the default slot for Form errors', async () => {
+      await render(
+        <Form errors={{ username: 'Username is reserved' }}>
+          <Field.Root name="username">
+            <Field.Control defaultValue="admin" required minLength={8} pattern="[a-z]+" />
+            <Field.Error match="valueMissing">Username is required.</Field.Error>
+            <Field.Error match="tooShort">Username must be at least 8 characters.</Field.Error>
+            <Field.Error match="patternMismatch">
+              Username can only include lowercase letters.
+            </Field.Error>
+            <Field.Error data-testid="default-error" match={false} />
+          </Field.Root>
+        </Form>,
+      );
+
+      expect(screen.queryByText('Username is required.')).toBe(null);
+      expect(screen.queryByText('Username must be at least 8 characters.')).toBe(null);
+      expect(screen.queryByText('Username can only include lowercase letters.')).toBe(null);
+      expect(screen.getByTestId('default-error')).toHaveTextContent('Username is reserved');
+    });
+
+    it('uses `match={false}` as the default slot for client validation errors', async () => {
+      await render(
+        <Form>
+          <Field.Root>
+            <Field.Control required />
+            <Field.Error data-testid="default-error" match={false} />
+          </Field.Root>
+          <button type="submit">submit</button>
+        </Form>,
+      );
+
+      expect(screen.queryByTestId('default-error')).toBe(null);
+
+      fireEvent.click(screen.getByText('submit'));
+
+      expect(screen.getByTestId('default-error')).not.toBe(null);
+    });
+
     it('always renders the error message when `match` is true', async () => {
       await render(
         <Field.Root>

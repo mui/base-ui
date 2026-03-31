@@ -39,14 +39,15 @@ export const FieldError = React.forwardRef(function FieldError(
   const { errors } = useFormContext();
 
   const formError = name ? errors[name] : null;
+  const hasSpecificMatch = typeof match === 'string';
 
   let rendered = false;
-  if (formError || match === true) {
+  if (match === true) {
     rendered = true;
-  } else if (match) {
+  } else if (typeof match === 'string') {
     rendered = Boolean(validityData.state[match]);
   } else {
-    rendered = validityData.state.valid === false;
+    rendered = Boolean(formError) || validityData.state.valid === false;
   }
 
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(rendered);
@@ -67,9 +68,8 @@ export const FieldError = React.forwardRef(function FieldError(
   const [lastRenderedMessage, setLastRenderedMessage] = React.useState<React.ReactNode>(null);
   const [lastRenderedMessageKey, setLastRenderedMessageKey] = React.useState<string | null>(null);
 
-  const errorMessage =
-    formError ||
-    (validityData.errors.length > 1 ? (
+  const clientErrorMessage =
+    validityData.errors.length > 1 ? (
       <ul>
         {validityData.errors.map((message) => (
           <li key={message}>{message}</li>
@@ -77,7 +77,9 @@ export const FieldError = React.forwardRef(function FieldError(
       </ul>
     ) : (
       validityData.error
-    ));
+    );
+
+  const errorMessage = hasSpecificMatch ? clientErrorMessage : formError || clientErrorMessage;
 
   let errorKey = validityData.error;
   if (formError != null) {
