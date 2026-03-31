@@ -20,6 +20,11 @@ export enum DrawerPopupCssVars {
    */
   availableHeight = '--available-height',
   /**
+   * The distance needed to lift the drawer above the software keyboard.
+   * @type {CSS length}
+   */
+  keyboardInset = '--drawer-keyboard-inset',
+  /**
    * The swipe movement on the X axis.
    * @type {CSS length}
    */

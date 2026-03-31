@@ -1141,7 +1141,8 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
             ? ({
                 [DrawerPopupCssVars.availableHeight]:
                   availableHeight !== null ? `${availableHeight}px` : undefined,
-                '--drawer-keyboard-inset': keyboardInset > 0 ? `${keyboardInset}px` : undefined,
+                [DrawerPopupCssVars.keyboardInset]:
+                  keyboardInset > 0 ? `${keyboardInset}px` : undefined,
               } as React.CSSProperties)
             : undefined,
       })}
