@@ -58,9 +58,11 @@ describe('<Drawer.Viewport />', () => {
       'addEventListener' | 'removeEventListener' | 'offsetTop'
     > & {
       height: number;
+      scale: number;
     } = {
       height,
       offsetTop: 0,
+      scale: 1,
       addEventListener(type: string, listener: EventListener) {
         if (!listeners.has(type)) {
           listeners.set(type, new Set());
@@ -91,6 +93,10 @@ describe('<Drawer.Viewport />', () => {
       },
       resize(nextHeight: number) {
         visualViewport.height = nextHeight;
+        listeners.get('resize')?.forEach((listener) => listener(new Event('resize')));
+      },
+      setScale(nextScale: number) {
+        visualViewport.scale = nextScale;
         listeners.get('resize')?.forEach((listener) => listener(new Event('resize')));
       },
     };
@@ -337,6 +343,50 @@ describe('<Drawer.Viewport />', () => {
       restoreInnerHeight();
     }
   });
+
+  it.skipIf(isJSDOM)(
+    'does not expose virtual keyboard CSS variables while pinch-zoomed',
+    async () => {
+      const restoreInnerHeight = mockWindowInnerHeight(800);
+      const visualViewport = mockVisualViewport(800);
+      let activeElementSpy: ReturnType<typeof vi.spyOn> | null = null;
+
+      try {
+        await render(
+          <Drawer.Root open modal={false}>
+            <Drawer.VirtualKeyboardProvider>
+              <Drawer.Portal>
+                <Drawer.Viewport data-testid="viewport">
+                  <Drawer.Popup>
+                    <input data-testid="input" type="text" />
+                  </Drawer.Popup>
+                </Drawer.Viewport>
+              </Drawer.Portal>
+            </Drawer.VirtualKeyboardProvider>
+          </Drawer.Root>,
+        );
+
+        const viewport = screen.getByTestId('viewport');
+        const input = screen.getByTestId('input');
+        activeElementSpy = vi.spyOn(document, 'activeElement', 'get');
+        activeElementSpy.mockReturnValue(input);
+
+        await act(async () => {
+          visualViewport.setScale(1.5);
+          visualViewport.resize(500);
+        });
+
+        await waitFor(() => {
+          expect(viewport.style.getPropertyValue('--available-height')).toBe('');
+          expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('');
+        });
+      } finally {
+        activeElementSpy?.mockRestore();
+        visualViewport.restore();
+        restoreInnerHeight();
+      }
+    },
+  );
 
   it.skipIf(isJSDOM)('preserves native taps on an already-focused keyboard input', async () => {
     await render(

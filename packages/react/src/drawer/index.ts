@@ -14,4 +14,4 @@ export type * from './viewport/DrawerViewport';
 export type * from './title/DrawerTitle';
 export type * from './description/DrawerDescription';
 export type * from './close/DrawerClose';
-export type * from './virtual-keyboard/DrawerVirtualKeyboardProvider';
+export type * from './virtual-keyboard-provider/DrawerVirtualKeyboardProvider';
