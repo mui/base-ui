@@ -82,26 +82,17 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     );
   });
 
-  const cancelKeyboardFocusAlignment = useStableCallback((cancelWindow?: Window) => {
+  const cancelKeyboardFocusAlignment = useStableCallback(() => {
     if (!keyboardFocusSettleFrameRef.current) {
       return;
     }
 
     const popupElement = store.context.popupRef.current;
-    const rootElement = viewportElement ?? popupElementState;
-    let elementWindow: Window | null = null;
-    if (popupElement) {
-      elementWindow = ownerWindow(popupElement);
-    } else if (rootElement) {
-      elementWindow = ownerWindow(rootElement);
-    }
-    const resolvedWindow = cancelWindow ?? elementWindow;
-
-    if (!resolvedWindow) {
+    if (!popupElement) {
       return;
     }
 
-    resolvedWindow.cancelAnimationFrame(keyboardFocusSettleFrameRef.current);
+    ownerWindow(popupElement).cancelAnimationFrame(keyboardFocusSettleFrameRef.current);
     keyboardFocusSettleFrameRef.current = 0;
   });
 
@@ -138,10 +129,10 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       };
     }
 
-    const clearFocusedKeyboardTarget = (cancelWindow?: Window) => {
+    const clearFocusedKeyboardTarget = () => {
       focusedKeyboardTargetRef.current = null;
       keepKeyboardScrollBottomAnchoredRef.current = false;
-      cancelKeyboardFocusAlignment(cancelWindow);
+      cancelKeyboardFocusAlignment();
     };
 
     const alignFocusedKeyboardTarget = () => {
@@ -177,7 +168,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     };
 
     const scheduleKeyboardFocusAlignment = () => {
-      cancelKeyboardFocusAlignment(win);
+      cancelKeyboardFocusAlignment();
 
       let remainingFrames = 2;
       const tick = () => {
@@ -247,7 +238,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       doc.removeEventListener('focusin', handleFocusIn, true);
       doc.removeEventListener('focusout', handleFocusOut, true);
       setMetrics({ availableHeight: null, keyboardInset: 0 });
-      clearFocusedKeyboardTarget(win);
+      clearFocusedKeyboardTarget();
     };
   }, [
     cancelKeyboardFocusAlignment,
