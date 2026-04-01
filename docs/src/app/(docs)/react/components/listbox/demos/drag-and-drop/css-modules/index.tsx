@@ -32,7 +32,7 @@ export default function ExampleListboxDragAndDrop() {
         >
           <Listbox.List className={styles.List}>
             {items.map(({ label, value }) => (
-              <Listbox.Item key={value} value={value} draggable className={styles.Item}>
+              <Listbox.Item key={value} value={value} className={styles.Item}>
                 <Listbox.ItemDragHandle className={styles.DragHandle}>
                   <GripIcon />
                 </Listbox.ItemDragHandle>

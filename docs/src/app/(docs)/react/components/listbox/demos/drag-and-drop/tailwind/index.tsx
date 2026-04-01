@@ -36,7 +36,6 @@ export default function ExampleListboxDragAndDrop() {
               <Listbox.Item
                 key={value}
                 value={value}
-                draggable
                 className="relative grid cursor-default grid-cols-[1.5rem_0.75rem_1fr] items-center gap-1.5 py-2 pr-4 pl-1 text-sm leading-4 text-gray-900 outline-hidden select-none data-[highlighted]:z-0 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-xs data-[highlighted]:before:bg-gray-100 data-[dragging]:opacity-50 data-[drop-target-edge=before]:after:absolute data-[drop-target-edge=before]:after:top-[-1px] data-[drop-target-edge=before]:after:left-1 data-[drop-target-edge=before]:after:right-1 data-[drop-target-edge=before]:after:h-0.5 data-[drop-target-edge=before]:after:bg-blue-800 data-[drop-target-edge=before]:after:content-[''] data-[drop-target-edge=after]:after:absolute data-[drop-target-edge=after]:after:bottom-[-1px] data-[drop-target-edge=after]:after:left-1 data-[drop-target-edge=after]:after:right-1 data-[drop-target-edge=after]:after:h-0.5 data-[drop-target-edge=after]:after:bg-blue-800 data-[drop-target-edge=after]:after:content-[''] pointer-coarse:py-2.5 pointer-coarse:text-[0.925rem]"
               >
                 <Listbox.ItemDragHandle className="col-start-1 flex w-6 shrink-0 items-center justify-center cursor-grab text-gray-400 active:cursor-grabbing">

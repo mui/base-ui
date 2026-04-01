@@ -40,7 +40,6 @@ export default function DraggableItemsListbox() {
                   <Listbox.Item
                     key={value}
                     value={value}
-                    draggable
                     className={`${styles.Item} ${styles.DraggableItem}`}
                   >
                     <Listbox.ItemIndicator className={styles.DraggableItemIndicator}>

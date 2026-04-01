@@ -2,6 +2,14 @@
 import * as React from 'react';
 
 export type ListboxDragAndDropEdge = 'top' | 'bottom' | 'left' | 'right';
+export type ListboxDragAndDropTargetEdge = 'before' | 'after';
+
+export interface ListboxDragAndDropItem<Value = any> {
+  value: Value;
+  index: number;
+  groupId: string | undefined;
+  disabled: boolean;
+}
 
 export interface SetupItemParameters {
   index: number;
@@ -11,18 +19,26 @@ export interface SetupItemParameters {
   dragEnabled: boolean;
   dropTargetEnabled: boolean;
   groupId: string | undefined;
+  disabled: boolean;
   setClosestEdge: React.Dispatch<React.SetStateAction<ListboxDragAndDropEdge | null>>;
 }
 
 export interface ListboxDragAndDropProviderOnItemsReorderEvent<Value = any> {
   items: Value[];
   referenceItem: Value;
-  edge: 'before' | 'after';
+  edge: ListboxDragAndDropTargetEdge;
   reason: 'drag' | 'keyboard';
 }
 
 export interface ListboxDragAndDropProviderContext {
   onItemsReorder: ((event: ListboxDragAndDropProviderOnItemsReorderEvent) => void) | undefined;
+  canDragItem: (item: ListboxDragAndDropItem) => boolean;
+  canDropItems: (
+    sourceItems: ListboxDragAndDropItem[],
+    targetItem: ListboxDragAndDropItem,
+    edge: ListboxDragAndDropTargetEdge,
+  ) => boolean;
+  policySignature: readonly [unknown, unknown];
   setupItem: (params: SetupItemParameters) => (() => void) | undefined;
 }
 

@@ -8,9 +8,9 @@ import { useListboxItemContext } from '../item/ListboxItemContext';
  * A drag handle within a listbox item for initiating drag-and-drop reordering.
  * Renders a `<div>` element.
  *
- * When placed inside a `Listbox.Item` with `draggable` set inside
- * `Listbox.DragAndDropProvider`, the drag operation will be restricted to
- * start only from this handle.
+ * When placed inside a `Listbox.Item` within `Listbox.DragAndDropProvider`,
+ * the drag operation will be restricted to start only from this handle
+ * whenever the provider allows dragging for that item.
  *
  * Documentation: [Base UI Listbox](https://base-ui.com/react/components/listbox)
  */

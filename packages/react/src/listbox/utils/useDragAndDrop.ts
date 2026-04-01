@@ -22,9 +22,10 @@ export interface UseDragAndDropParameters {
   dragEnabled: boolean;
   /** Whether the item should act as a drop target. */
   dropTargetEnabled: boolean;
+  /** Whether the item is disabled. */
+  disabled: boolean;
   /**
-   * Group ID for constraining drops. When defined, only items with the same
-   * groupId can be drop targets. When `undefined`, drops are unrestricted.
+   * Group ID metadata exposed to provider drag-and-drop predicates.
    */
   groupId: string | undefined;
 }
@@ -42,8 +43,16 @@ export interface UseDragAndDropReturnValue {
  * @returns The closest edge for the current drop target, or `null`.
  */
 export function useDragAndDrop(params: UseDragAndDropParameters): UseDragAndDropReturnValue {
-  const { index, itemValue, itemRef, dragHandleRef, dragEnabled, dropTargetEnabled, groupId } =
-    params;
+  const {
+    index,
+    itemValue,
+    itemRef,
+    dragHandleRef,
+    dragEnabled,
+    dropTargetEnabled,
+    disabled,
+    groupId,
+  } = params;
 
   const [closestEdge, setClosestEdge] = React.useState<ListboxDragAndDropEdge | null>(null);
   const dragAndDropContext = useListboxDragAndDropProviderContext(true);
@@ -61,6 +70,7 @@ export function useDragAndDrop(params: UseDragAndDropParameters): UseDragAndDrop
       itemValue,
       dragEnabled,
       dropTargetEnabled,
+      disabled,
       groupId,
       setClosestEdge,
     });
@@ -68,6 +78,7 @@ export function useDragAndDrop(params: UseDragAndDropParameters): UseDragAndDrop
     dragAndDropContext,
     dragEnabled,
     dropTargetEnabled,
+    disabled,
     index,
     itemValue,
     groupId,

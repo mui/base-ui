@@ -73,19 +73,22 @@ describe('<Listbox.DragAndDropProvider />', () => {
   const { render } = createRenderer();
 
   it('highlights the dragged item after a multi-drag drop', async () => {
+    const handleCanDrop = vi.fn(() => true);
+
     function TestComponent() {
       const [items, setItems] = React.useState(['a', 'b', 'c', 'd']);
 
       return (
         <Listbox.Root selectionMode="multiple" defaultValue={['a', 'b']}>
           <Listbox.DragAndDropProvider
+            canDrop={handleCanDrop}
             onItemsReorder={(event) => {
               setItems((prev) => reorder(prev, event));
             }}
           >
             <Listbox.List>
               {items.map((item) => (
-                <Listbox.Item key={item} value={item} draggable>
+                <Listbox.Item key={item} value={item}>
                   {item}
                 </Listbox.Item>
               ))}
@@ -116,6 +119,15 @@ describe('<Listbox.DragAndDropProvider />', () => {
       draggableConfig.onDrop({ source: { data: sourceData } });
     });
 
+    expect(handleCanDrop).toHaveBeenCalledWith(
+      [
+        { value: 'a', index: 0, groupId: undefined, disabled: false },
+        { value: 'b', index: 1, groupId: undefined, disabled: false },
+      ],
+      { value: 'd', index: 3, groupId: undefined, disabled: false },
+      'after',
+    );
+
     await waitFor(() => {
       expect(screen.getAllByRole('option').map((el) => el.textContent)).toEqual([
         'c',
@@ -125,5 +137,109 @@ describe('<Listbox.DragAndDropProvider />', () => {
       ]);
       expect(screen.getByRole('option', { name: 'b' })).toBe(document.activeElement);
     });
+  });
+
+  it('uses the default canDrag behavior to block disabled items from dragging', async () => {
+    await render(
+      <Listbox.Root>
+        <Listbox.DragAndDropProvider onItemsReorder={vi.fn()}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b" disabled>
+              b
+            </Listbox.Item>
+          </Listbox.List>
+        </Listbox.DragAndDropProvider>
+      </Listbox.Root>,
+    );
+
+    await flushMicrotasks();
+
+    expect(dndMocks.draggableConfigs.has(screen.getByRole('option', { name: 'a' }))).toBe(true);
+    expect(dndMocks.draggableConfigs.has(screen.getByRole('option', { name: 'b' }))).toBe(false);
+  });
+
+  it('allows overriding canDrag for a disabled item', async () => {
+    await render(
+      <Listbox.Root>
+        <Listbox.DragAndDropProvider
+          canDrag={(item) => item.value === 'b'}
+          onItemsReorder={vi.fn()}
+        >
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b" disabled>
+              b
+            </Listbox.Item>
+          </Listbox.List>
+        </Listbox.DragAndDropProvider>
+      </Listbox.Root>,
+    );
+
+    await flushMicrotasks();
+
+    expect(dndMocks.draggableConfigs.has(screen.getByRole('option', { name: 'a' }))).toBe(false);
+    expect(dndMocks.draggableConfigs.has(screen.getByRole('option', { name: 'b' }))).toBe(true);
+  });
+
+  it('blocks all pointer drag-and-drop when the listbox is disabled', async () => {
+    await render(
+      <Listbox.Root disabled>
+        <Listbox.DragAndDropProvider
+          canDrag={() => true}
+          canDrop={() => true}
+          onItemsReorder={vi.fn()}
+        >
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+          </Listbox.List>
+        </Listbox.DragAndDropProvider>
+      </Listbox.Root>,
+    );
+
+    await flushMicrotasks();
+
+    expect(dndMocks.draggableConfigs.size).toBe(0);
+    expect(dndMocks.dropTargetConfigs.size).toBe(0);
+  });
+
+  it('blocks pointer reordering when canDrop returns false', async () => {
+    const handleItemsReorder = vi.fn();
+    const handleCanDrop = vi.fn(() => false);
+
+    await render(
+      <Listbox.Root>
+        <Listbox.DragAndDropProvider canDrop={handleCanDrop} onItemsReorder={handleItemsReorder}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+            <Listbox.Item value="c">c</Listbox.Item>
+          </Listbox.List>
+        </Listbox.DragAndDropProvider>
+      </Listbox.Root>,
+    );
+
+    await flushMicrotasks();
+
+    const itemB = screen.getByRole('option', { name: 'b' });
+    const itemC = screen.getByRole('option', { name: 'c' });
+    const draggableConfig = dndMocks.draggableConfigs.get(itemB);
+    const dropTargetConfig = dndMocks.dropTargetConfigs.get(itemC);
+    const sourceData = draggableConfig.getInitialData();
+
+    await act(async () => {
+      dropTargetConfig.onDrop({
+        source: { data: sourceData },
+        self: { data: { edge: 'bottom' } },
+      });
+    });
+
+    expect(handleCanDrop).toHaveBeenCalledWith(
+      [{ value: 'b', index: 1, groupId: undefined, disabled: false }],
+      { value: 'c', index: 2, groupId: undefined, disabled: false },
+      'after',
+    );
+    expect(handleItemsReorder).not.toHaveBeenCalled();
   });
 });

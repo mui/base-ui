@@ -22,7 +22,7 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
   },
   draggable: {
     type: 'string',
-    label: 'Draggable',
+    label: 'Drag and drop',
     options: ['off', 'free', 'within-group'],
     default: 'off',
   },
@@ -151,16 +151,45 @@ function MaybeDragAndDropProvider(props: {
         reason: 'drag' | 'keyboard';
       }) => void)
     | undefined;
+  canDrag?:
+    | ((item: {
+        value: string;
+        index: number;
+        groupId: string | undefined;
+        disabled: boolean;
+      }) => boolean)
+    | undefined;
+  canDrop?:
+    | ((
+        sourceItems: Array<{
+          value: string;
+          index: number;
+          groupId: string | undefined;
+          disabled: boolean;
+        }>,
+        targetItem: {
+          value: string;
+          index: number;
+          groupId: string | undefined;
+          disabled: boolean;
+        },
+        edge: 'before' | 'after',
+      ) => boolean)
+    | undefined;
   children: React.ReactNode;
 }) {
-  const { enabled, onItemsReorder, children } = props;
+  const { enabled, onItemsReorder, canDrag, canDrop, children } = props;
 
   if (!enabled) {
     return children;
   }
 
   return (
-    <Listbox.DragAndDropProvider onItemsReorder={onItemsReorder}>
+    <Listbox.DragAndDropProvider
+      canDrag={canDrag}
+      canDrop={canDrop}
+      onItemsReorder={onItemsReorder}
+    >
       {children}
     </Listbox.DragAndDropProvider>
   );
@@ -174,11 +203,21 @@ export default function ListboxFullyFeatured() {
   const [sizes, setSizes] = React.useState(initialSizes);
 
   const isDraggable = settings.draggable !== 'off';
-  const draggableProp =
-    settings.draggable === 'within-group' ? ('within-group' as const) : isDraggable;
   const itemClassName = isDraggable
     ? `${styles.Item} ${styles.DraggableItemWithHandle}`
     : styles.Item;
+  const canDrag = React.useCallback(
+    (item: { value: string; disabled: boolean }) =>
+      !item.value.startsWith(PLACEHOLDER_PREFIX) && !item.disabled,
+    [],
+  );
+  const canDrop = React.useCallback(
+    (
+      sourceItems: Array<{ groupId: string | undefined }>,
+      targetItem: { groupId: string | undefined },
+    ) => sourceItems.every((item) => item.groupId === targetItem.groupId),
+    [],
+  );
 
   const fontGroups = groupItems(fonts);
   const sizeGroups = groupItems(sizes);
@@ -198,6 +237,8 @@ export default function ListboxFullyFeatured() {
             <Listbox.Label className={styles.Label}>Font family</Listbox.Label>
             <MaybeDragAndDropProvider
               enabled={isDraggable}
+              canDrag={canDrag}
+              canDrop={settings.draggable === 'within-group' ? canDrop : undefined}
               onItemsReorder={isDraggable ? (event) => handleReorder(event, setFonts) : undefined}
             >
               <Listbox.List className={styles.List}>
@@ -213,14 +254,13 @@ export default function ListboxFullyFeatured() {
                             label={label}
                             value={value}
                             disabled={disabled}
-                            draggable={draggableProp}
+                            dragAndDropEnabled={isDraggable}
                             className={itemClassName}
                           />
                         ))}
                         {isDraggable && group.items.length === 0 && (
                           <Listbox.Item
                             value={`${PLACEHOLDER_PREFIX}${group.label}`}
-                            draggable
                             className={styles.PlaceholderItem}
                           />
                         )}
@@ -232,7 +272,7 @@ export default function ListboxFullyFeatured() {
                         label={label}
                         value={value}
                         disabled={disabled}
-                        draggable={draggableProp}
+                        dragAndDropEnabled={isDraggable}
                         className={itemClassName}
                       />
                     ))}
@@ -255,6 +295,8 @@ export default function ListboxFullyFeatured() {
             <Listbox.Label className={styles.Label}>Available sizes</Listbox.Label>
             <MaybeDragAndDropProvider
               enabled={isDraggable}
+              canDrag={canDrag}
+              canDrop={settings.draggable === 'within-group' ? canDrop : undefined}
               onItemsReorder={isDraggable ? (event) => handleReorder(event, setSizes) : undefined}
             >
               <Listbox.List className={`${styles.List} ${styles.HorizontalList}`}>
@@ -262,31 +304,20 @@ export default function ListboxFullyFeatured() {
                   ? sizeGroups.map((group) => (
                       <Listbox.Group key={group.label} className={styles.HorizontalGroup}>
                         {group.items.map(({ label, value }) => (
-                          <Listbox.Item
-                            key={value}
-                            value={value}
-                            draggable={draggableProp}
-                            className={styles.HorizontalChip}
-                          >
+                          <Listbox.Item key={value} value={value} className={styles.HorizontalChip}>
                             <Listbox.ItemText>{label}</Listbox.ItemText>
                           </Listbox.Item>
                         ))}
                         {isDraggable && group.items.length === 0 && (
                           <Listbox.Item
                             value={`${PLACEHOLDER_PREFIX}${group.label}`}
-                            draggable={draggableProp}
                             className={styles.HorizontalPlaceholderItem}
                           />
                         )}
                       </Listbox.Group>
                     ))
                   : sizes.map(({ label, value }) => (
-                      <Listbox.Item
-                        key={value}
-                        value={value}
-                        draggable={draggableProp}
-                        className={styles.HorizontalChip}
-                      >
+                      <Listbox.Item key={value} value={value} className={styles.HorizontalChip}>
                         <Listbox.ItemText>{label}</Listbox.ItemText>
                       </Listbox.Item>
                     ))}
@@ -299,7 +330,6 @@ export default function ListboxFullyFeatured() {
                       <Listbox.Group key={label} className={styles.HorizontalGroup}>
                         <Listbox.Item
                           value={`${PLACEHOLDER_PREFIX}${label}`}
-                          draggable={draggableProp}
                           className={styles.HorizontalPlaceholderItem}
                         />
                       </Listbox.Group>
@@ -317,15 +347,15 @@ function VerticalItem(props: {
   label: string;
   value: string;
   disabled?: boolean;
-  draggable: boolean | 'within-group';
+  dragAndDropEnabled: boolean;
   className: string;
 }) {
-  const { label, value, disabled = false, draggable: draggableProp, className } = props;
-  const isDraggable = draggableProp !== false;
+  const { label, value, disabled = false, dragAndDropEnabled, className } = props;
+  const isDraggable = dragAndDropEnabled;
   const showDragHandle = isDraggable && !disabled;
 
   return (
-    <Listbox.Item value={value} disabled={disabled} draggable={draggableProp} className={className}>
+    <Listbox.Item value={value} disabled={disabled} className={className}>
       {showDragHandle && (
         <Listbox.ItemDragHandle className={styles.DragHandle}>
           <GripIcon />

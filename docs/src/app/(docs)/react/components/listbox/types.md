@@ -133,7 +133,6 @@ Renders a `<div>` element.
 | :----------- | :----------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | label        | `string`                                                                                   | -       | Specifies the text label to use when the item is matched during keyboard text navigation.                                                                                                     |
 | value        | `any`                                                                                      | `null`  | A unique value that identifies this listbox item.                                                                                                                                             |
-| draggable    | `boolean \| 'within-group'`                                                                | `false` | Whether the item can be reordered via drag-and-drop.&#xA;Set to `true` for unrestricted reordering, or `'within-group'` to&#xA;constrain reordering to the item's parent group.               |
 | nativeButton | `boolean`                                                                                  | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                          |
 | disabled     | `boolean`                                                                                  | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
 | children     | `React.ReactNode`                                                                          | -       | -                                                                                                                                                                                             |
@@ -317,10 +316,12 @@ Renders no DOM element of its own.
 
 **DragAndDropProvider Props:**
 
-| Prop           | Type                                                                      | Default | Description                                                                                                                                                                                                                               |
-| :------------- | :------------------------------------------------------------------------ | :------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| onItemsReorder | `((event: ListboxDragAndDropProviderOnItemsReorderEvent<Value>) => void)` | -       | Event handler called when items are reordered via drag-and-drop or keyboard.&#xA;`items` contains the moved item(s). `referenceItem` is the item that was&#xA;dropped on or moved next to, and `edge` indicates placement relative to it. |
-| children       | `React.ReactNode`                                                         | -       | -                                                                                                                                                                                                                                         |
+| Prop           | Type                                                                                                                                         | Default | Description                                                                                                                                                                                                                               |
+| :------------- | :------------------------------------------------------------------------------------------------------------------------------------------- | :------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| canDrag        | `((item: ListboxDragAndDropItem<Value>) => boolean)`                                                                                         | -       | Determines whether a given item can initiate drag-and-drop.&#xA;Defaults to allowing all non-disabled items.                                                                                                                              |
+| canDrop        | `((sourceItems: ListboxDragAndDropItem<Value>[], targetItem: ListboxDragAndDropItem<Value>, edge: ListboxDragAndDropTargetEdge) => boolean)` | -       | Determines whether the dragged items can be dropped relative to a target item.&#xA;Defaults to allowing all drops.                                                                                                                        |
+| onItemsReorder | `((event: ListboxDragAndDropProviderOnItemsReorderEvent<Value>) => void)`                                                                    | -       | Event handler called when items are reordered via drag-and-drop or keyboard.&#xA;`items` contains the moved item(s). `referenceItem` is the item that was&#xA;dropped on or moved next to, and `edge` indicates placement relative to it. |
+| children       | `React.ReactNode`                                                                                                                            | -       | -                                                                                                                                                                                                                                         |
 
 ### DragAndDropProvider.Props
 
@@ -337,9 +338,9 @@ type ListboxDragAndDropProviderState = {};
 A drag handle within a listbox item for initiating drag-and-drop reordering.
 Renders a `<div>` element.
 
-When placed inside a `Listbox.Item` with `draggable` set inside
-`Listbox.DragAndDropProvider`, the drag operation will be restricted to
-start only from this handle.
+When placed inside a `Listbox.Item` within `Listbox.DragAndDropProvider`,
+the drag operation will be restricted to start only from this handle
+whenever the provider allows dragging for that item.
 
 **ItemDragHandle Props:**
 
@@ -404,6 +405,14 @@ affect the selected items in the listbox.
 
 ```typescript
 type SelectionMode = 'none' | 'single' | 'multiple' | 'explicit-multiple';
+```
+
+## External Types
+
+### ListboxDragAndDropTargetEdge
+
+```typescript
+type ListboxDragAndDropTargetEdge = 'before' | 'after';
 ```
 
 ## Export Groups

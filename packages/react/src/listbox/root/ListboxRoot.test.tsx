@@ -1163,15 +1163,9 @@ describe('<Listbox.Root />', () => {
       await render(
         <Listbox.Root>
           <Listbox.List>
-            <Listbox.Item value="a" draggable>
-              a
-            </Listbox.Item>
-            <Listbox.Item value="b" draggable>
-              b
-            </Listbox.Item>
-            <Listbox.Item value="c" draggable>
-              c
-            </Listbox.Item>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+            <Listbox.Item value="c">c</Listbox.Item>
           </Listbox.List>
         </Listbox.Root>,
       );
@@ -1194,15 +1188,11 @@ describe('<Listbox.Root />', () => {
         <Listbox.Root>
           <Listbox.DragAndDropProvider onItemsReorder={handleItemsReorder}>
             <Listbox.List>
-              <Listbox.Item value="a" draggable>
-                a
-              </Listbox.Item>
-              <Listbox.Item value="b" disabled draggable>
+              <Listbox.Item value="a">a</Listbox.Item>
+              <Listbox.Item value="b" disabled>
                 b
               </Listbox.Item>
-              <Listbox.Item value="c" draggable>
-                c
-              </Listbox.Item>
+              <Listbox.Item value="c">c</Listbox.Item>
             </Listbox.List>
           </Listbox.DragAndDropProvider>
         </Listbox.Root>,
@@ -1235,15 +1225,11 @@ describe('<Listbox.Root />', () => {
         <Listbox.Root>
           <Listbox.DragAndDropProvider onItemsReorder={handleItemsReorder}>
             <Listbox.List>
-              <Listbox.Item value="a" draggable>
-                a
-              </Listbox.Item>
-              <Listbox.Item value="b" disabled draggable>
+              <Listbox.Item value="a">a</Listbox.Item>
+              <Listbox.Item value="b" disabled>
                 b
               </Listbox.Item>
-              <Listbox.Item value="c" draggable>
-                c
-              </Listbox.Item>
+              <Listbox.Item value="c">c</Listbox.Item>
             </Listbox.List>
           </Listbox.DragAndDropProvider>
         </Listbox.Root>,
@@ -1264,20 +1250,124 @@ describe('<Listbox.Root />', () => {
       expect(handleItemsReorder).not.toHaveBeenCalled();
     });
 
+    it('should allow overriding canDrag for a disabled item with Alt+Arrow', async () => {
+      const handleItemsReorder = vi.fn();
+      const handleCanDrag = vi.fn((item: { value: string }) => item.value === 'b');
+
+      await render(
+        <Listbox.Root>
+          <Listbox.DragAndDropProvider canDrag={handleCanDrag} onItemsReorder={handleItemsReorder}>
+            <Listbox.List>
+              <Listbox.Item value="a">a</Listbox.Item>
+              <Listbox.Item value="b" disabled>
+                b
+              </Listbox.Item>
+              <Listbox.Item value="c">c</Listbox.Item>
+            </Listbox.List>
+          </Listbox.DragAndDropProvider>
+        </Listbox.Root>,
+      );
+
+      await flushMicrotasks();
+
+      const list = screen.getByRole('listbox');
+      list.focus();
+      fireEvent.keyDown(list, { key: 'ArrowDown' });
+
+      await flushMicrotasks();
+
+      const itemB = screen.getByRole('option', { name: 'b' });
+      await act(() => itemB.focus());
+      fireEvent.keyDown(itemB, { key: 'ArrowDown', altKey: true });
+
+      expect(handleCanDrag).toHaveBeenCalledWith({
+        value: 'b',
+        index: 1,
+        groupId: undefined,
+        disabled: true,
+      });
+      expect(handleItemsReorder).toHaveBeenCalledTimes(1);
+      expect(handleItemsReorder.mock.calls[0][0]).toEqual({
+        items: ['b'],
+        referenceItem: 'c',
+        edge: 'after',
+        reason: 'keyboard',
+      });
+    });
+
+    it('should block keyboard reordering when canDrop returns false', async () => {
+      const handleItemsReorder = vi.fn();
+      const handleCanDrop = vi.fn(() => false);
+
+      await render(
+        <Listbox.Root>
+          <Listbox.DragAndDropProvider canDrop={handleCanDrop} onItemsReorder={handleItemsReorder}>
+            <Listbox.List>
+              <Listbox.Item value="a">a</Listbox.Item>
+              <Listbox.Item value="b">b</Listbox.Item>
+              <Listbox.Item value="c">c</Listbox.Item>
+            </Listbox.List>
+          </Listbox.DragAndDropProvider>
+        </Listbox.Root>,
+      );
+
+      await flushMicrotasks();
+
+      const list = screen.getByRole('listbox');
+      list.focus();
+      fireEvent.keyDown(list, { key: 'ArrowDown' });
+
+      await flushMicrotasks();
+
+      const itemB = screen.getByRole('option', { name: 'b' });
+      fireEvent.keyDown(itemB, { key: 'ArrowDown', altKey: true });
+
+      expect(handleCanDrop).toHaveBeenCalledWith(
+        [{ value: 'b', index: 1, groupId: undefined, disabled: false }],
+        { value: 'c', index: 2, groupId: undefined, disabled: false },
+        'after',
+      );
+      expect(handleItemsReorder).not.toHaveBeenCalled();
+    });
+
+    it('should block all keyboard reordering when the listbox is disabled', async () => {
+      const handleItemsReorder = vi.fn();
+
+      await render(
+        <Listbox.Root disabled>
+          <Listbox.DragAndDropProvider
+            canDrag={() => true}
+            canDrop={() => true}
+            onItemsReorder={handleItemsReorder}
+          >
+            <Listbox.List>
+              <Listbox.Item value="a">a</Listbox.Item>
+              <Listbox.Item value="b">b</Listbox.Item>
+              <Listbox.Item value="c">c</Listbox.Item>
+            </Listbox.List>
+          </Listbox.DragAndDropProvider>
+        </Listbox.Root>,
+      );
+
+      await flushMicrotasks();
+
+      const itemB = screen.getByRole('option', { name: 'b' });
+      await act(() => itemB.focus());
+      fireEvent.keyDown(itemB, { key: 'ArrowDown', altKey: true });
+
+      expect(handleItemsReorder).not.toHaveBeenCalled();
+    });
+
     it('should keep hover highlighting working after a blocked Alt+Arrow reorder', async () => {
       await render(
         <Listbox.Root>
           <Listbox.DragAndDropProvider onItemsReorder={vi.fn()}>
             <Listbox.List>
-              <Listbox.Item value="a" draggable>
-                a
-              </Listbox.Item>
-              <Listbox.Item value="b" disabled draggable>
+              <Listbox.Item value="a">a</Listbox.Item>
+              <Listbox.Item value="b" disabled>
                 b
               </Listbox.Item>
-              <Listbox.Item value="c" draggable>
-                c
-              </Listbox.Item>
+              <Listbox.Item value="c">c</Listbox.Item>
             </Listbox.List>
           </Listbox.DragAndDropProvider>
         </Listbox.Root>,
@@ -1325,7 +1415,7 @@ describe('<Listbox.Root />', () => {
             <Listbox.DragAndDropProvider onItemsReorder={handleReorder}>
               <Listbox.List>
                 {items.map((item) => (
-                  <Listbox.Item key={item} value={item} draggable>
+                  <Listbox.Item key={item} value={item}>
                     {item}
                   </Listbox.Item>
                 ))}
@@ -1389,7 +1479,7 @@ describe('<Listbox.Root />', () => {
             <Listbox.DragAndDropProvider onItemsReorder={handleReorder}>
               <Listbox.List>
                 {items.map((item) => (
-                  <Listbox.Item key={item} value={item} draggable>
+                  <Listbox.Item key={item} value={item}>
                     {item}
                   </Listbox.Item>
                 ))}
@@ -1469,7 +1559,7 @@ describe('<Listbox.Root />', () => {
                   <Listbox.Group key={groupName}>
                     <Listbox.GroupLabel>{groupName}</Listbox.GroupLabel>
                     {groupItems.map((item) => (
-                      <Listbox.Item key={item.value} value={item.value} draggable>
+                      <Listbox.Item key={item.value} value={item.value}>
                         {item.value}
                       </Listbox.Item>
                     ))}
@@ -1506,6 +1596,49 @@ describe('<Listbox.Root />', () => {
       await flushMicrotasks();
 
       expect(document.activeElement).toBe(screen.getByRole('option', { name: 'd' }));
+    });
+
+    it('should allow using canDrop to keep keyboard reordering within a group', async () => {
+      const handleItemsReorder = vi.fn();
+
+      await render(
+        <Listbox.Root>
+          <Listbox.DragAndDropProvider
+            canDrop={(sourceItems, targetItem) =>
+              sourceItems.every((item) => item.groupId === targetItem.groupId)
+            }
+            onItemsReorder={handleItemsReorder}
+          >
+            <Listbox.List>
+              <Listbox.Group>
+                <Listbox.GroupLabel>g1</Listbox.GroupLabel>
+                <Listbox.Item value="a">a</Listbox.Item>
+                <Listbox.Item value="b">b</Listbox.Item>
+              </Listbox.Group>
+              <Listbox.Group>
+                <Listbox.GroupLabel>g2</Listbox.GroupLabel>
+                <Listbox.Item value="c">c</Listbox.Item>
+                <Listbox.Item value="d">d</Listbox.Item>
+              </Listbox.Group>
+            </Listbox.List>
+          </Listbox.DragAndDropProvider>
+        </Listbox.Root>,
+      );
+
+      await flushMicrotasks();
+
+      const itemB = screen.getByRole('option', { name: 'b' });
+      await act(() => itemB.focus());
+      fireEvent.keyDown(itemB, { key: 'ArrowDown', altKey: true });
+
+      expect(handleItemsReorder).not.toHaveBeenCalled();
+      expect(screen.getAllByRole('option').map((el) => el.textContent)).toEqual([
+        'a',
+        'b',
+        'c',
+        'd',
+      ]);
+      expect(document.activeElement).toBe(itemB);
     });
   });
 

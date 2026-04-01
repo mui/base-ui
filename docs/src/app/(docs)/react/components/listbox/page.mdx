@@ -48,8 +48,8 @@ import { Listbox } from '@base-ui/react/listbox';
 The `selectionMode` prop controls how items are selected:
 
 - `"single"` (default) — clicking an item selects it and deselects any other.
-- `"multiple"` — every click toggles an item. Hold Shift and click to select a contiguous range.
-- `"explicit-multiple"` — clicking an item replaces the selection. Hold Ctrl/Cmd and click to toggle, or Shift and click to select a range. Touch and pen interactions toggle without a modifier, matching `"multiple"` behavior.
+- `"multiple"` — every click toggles an item. Hold <kbd>Shift</kbd> and click to select a contiguous range.
+- `"explicit-multiple"` — clicking an item replaces the selection. Hold <kbd>Ctrl</kbd>/<kbd>Cmd</kbd> and click to toggle, or <kbd>Shift</kbd> and click to select a range.
 - `"none"` — selection is disabled entirely.
 
 import { DemoListboxMultiSelection } from './demos/multi-selection';
@@ -66,15 +66,24 @@ import { DemoListboxLazyLoading } from './demos/lazy-loading';
 
 ### Drag and drop
 
-Wrap reorderable content in `Listbox.DragAndDropProvider`, set `draggable` on items, and provide `onItemsReorder` on the provider. Use `Listbox.ItemDragHandle` to restrict drag initiation to a handle. Items can also be reordered with the keyboard using Alt+Arrow keys.
+Wrap reorderable content in `Listbox.DragAndDropProvider` and provide `onItemsReorder` on the provider. Use the provider's `canDrag` and `canDrop` predicates to control which items can be dragged or dropped, and use `Listbox.ItemDragHandle` to restrict drag initiation to a handle. Items can also be reordered with the keyboard using Alt+Arrow keys.
 
-Set `draggable="within-group"` to constrain reordering within the item's parent `Listbox.Group`. Items cannot be dragged across group boundaries.
+Use `canDrop` to constrain reordering within a `Listbox.Group` or apply other custom drop rules.
 
 In `multiple` or `explicit-multiple` mode, dragging a selected item moves all selected items together, preserving their relative order.
 
 import { DemoListboxDragAndDrop } from './demos/drag-and-drop';
+import { DemoListboxDragWithinGroups } from './demos/drag-within-groups';
 
 <DemoListboxDragAndDrop />
+
+### Drag within groups
+
+Pass `canDrop` to `Listbox.DragAndDropProvider` to keep reordering inside the current `Listbox.Group`. This example only accepts drops when every dragged item belongs to the same group as the target item.
+
+The same `canDrop` callback can also enforce other drop target rules, such as preventing drops around locked items or only allowing certain item types to be reordered next to each other. Because it receives the dragged items, the target item, and the drop edge, you can use it to express custom placement logic in one place.
+
+<DemoListboxDragWithinGroups />
 
 ### Custom keyboard shortcuts
 

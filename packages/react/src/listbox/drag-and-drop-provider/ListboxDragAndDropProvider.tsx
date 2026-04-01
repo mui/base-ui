@@ -18,7 +18,9 @@ import {
   type ListboxDragAndDropProviderContext as ListboxDragAndDropContextValue,
   ListboxDragAndDropProviderContext,
   type ListboxDragAndDropEdge,
+  type ListboxDragAndDropItem,
   type ListboxDragAndDropProviderOnItemsReorderEvent,
+  type ListboxDragAndDropTargetEdge,
 } from './ListboxDragAndDropProviderContext';
 
 /**
@@ -26,7 +28,7 @@ import {
  * logical placement (before/after) so consumers get a consistent API
  * regardless of the listbox orientation.
  */
-function toLogicalEdge(edge: ListboxDragAndDropEdge | null): 'before' | 'after' {
+function toLogicalEdge(edge: ListboxDragAndDropEdge | null): ListboxDragAndDropTargetEdge {
   return edge === 'bottom' || edge === 'right' ? 'after' : 'before';
 }
 
@@ -39,17 +41,47 @@ function toLogicalEdge(edge: ListboxDragAndDropEdge | null): 'before' | 'after' 
 export function ListboxDragAndDropProvider<Value = any>(
   props: ListboxDragAndDropProvider.Props<Value>,
 ) {
-  const { children, onItemsReorder } = props;
+  const { children, onItemsReorder, canDrag, canDrop } = props;
   const store = useListboxRootContext();
   const dropHighlightTimeout = useTimeout();
   const dropHighlightFrame = useAnimationFrame();
-  const { groupIdsRef, pointerMoveSuppressedRef, valuesRef } = store.context;
+  const { disabledItemsRef, groupIdsRef, pointerMoveSuppressedRef, valuesRef } = store.context;
 
   // Stable reference to the reorder callback so that Pragmatic DnD event
   // handlers always call the latest version without needing to re-register.
   const handleItemsReorder = useStableCallback(
     (event: ListboxDragAndDropProviderOnItemsReorderEvent<Value>) => {
       onItemsReorder?.(event);
+    },
+  );
+
+  const handleCanDrag = useStableCallback((item: ListboxDragAndDropItem<Value>) => {
+    if (store.state.disabled) {
+      return false;
+    }
+
+    if (canDrag) {
+      return canDrag(item);
+    }
+
+    return !item.disabled;
+  });
+
+  const handleCanDrop = useStableCallback(
+    (
+      sourceItems: ListboxDragAndDropItem<Value>[],
+      targetItem: ListboxDragAndDropItem<Value>,
+      edge: ListboxDragAndDropTargetEdge,
+    ) => {
+      if (store.state.disabled) {
+        return false;
+      }
+
+      if (canDrop) {
+        return canDrop(sourceItems, targetItem, edge);
+      }
+
+      return true;
     },
   );
 
@@ -67,6 +99,7 @@ export function ListboxDragAndDropProvider<Value = any>(
       index,
       itemValue,
       groupId,
+      disabled,
       setClosestEdge,
     } = params;
 
@@ -77,11 +110,43 @@ export function ListboxDragAndDropProvider<Value = any>(
 
     let cleanupDraggable: (() => void) | undefined;
     let cleanupDropTarget: (() => void) | undefined;
+    const targetItem: ListboxDragAndDropItem<Value> = {
+      value: itemValue,
+      index,
+      groupId,
+      disabled,
+    };
+
+    function getSourceItems(sourceData: Record<string, unknown>): ListboxDragAndDropItem<Value>[] {
+      if (sourceData.isMultiDrag) {
+        const values = sourceData.values as Value[];
+        const indices = sourceData.indices as number[];
+        const groupIds = sourceData.groupIds as (string | undefined)[];
+
+        return values.map((value, itemIndex) => ({
+          value,
+          index: indices[itemIndex],
+          groupId: groupIds[itemIndex],
+          disabled: disabledItemsRef.current[indices[itemIndex]] ?? false,
+        }));
+      }
+
+      const sourceIndex = sourceData.index as number;
+
+      return [
+        {
+          value: sourceData.value as Value,
+          index: sourceIndex,
+          groupId: sourceData.groupId as string | undefined,
+          disabled: disabledItemsRef.current[sourceIndex] ?? false,
+        },
+      ];
+    }
 
     // -------------------------------------------------------------------------
     // Draggable registration
     // -------------------------------------------------------------------------
-    if (dragEnabled) {
+    if (dragEnabled && handleCanDrag(targetItem)) {
       cleanupDraggable = draggable({
         element: dragHandle,
 
@@ -164,25 +229,28 @@ export function ListboxDragAndDropProvider<Value = any>(
     if (dropTargetEnabled) {
       // Shared handler for onDragEnter and onDrag — both need to mark this
       // item as the active drop target and update its closest-edge indicator.
-      function updateDropState(args: { self: { data: Record<string, unknown> } }) {
+      function updateDropState(args: {
+        source: { data: Record<string, unknown> };
+        self: { data: Record<string, unknown> };
+      }) {
+        const physicalEdge = extractClosestEdge(args.self.data) as ListboxDragAndDropEdge | null;
+        const logicalEdge = toLogicalEdge(physicalEdge);
+        const sourceItems = getSourceItems(args.source.data);
+
+        if (!handleCanDrop(sourceItems, targetItem, logicalEdge)) {
+          if (store.state.dropTargetIndex === index) {
+            store.set('dropTargetIndex', null);
+          }
+          setClosestEdge(null);
+          return;
+        }
+
         store.set('dropTargetIndex', index);
-        setClosestEdge(extractClosestEdge(args.self.data) as ListboxDragAndDropEdge | null);
+        setClosestEdge(physicalEdge);
       }
 
       cleanupDropTarget = dropTargetForElements({
         element,
-
-        // Group constraint: for multi-drags every source item's groupId must
-        // match the target's; for single drags just the source's groupId.
-        canDrop({ source }) {
-          if (source.data.isMultiDrag && groupId !== undefined) {
-            const sourceGroupIds = source.data.groupIds as (string | undefined)[];
-            return sourceGroupIds.every((gid) => gid === groupId);
-          }
-
-          const sourceGroupId = source.data.groupId as string | undefined;
-          return sourceGroupId === groupId;
-        },
 
         // Attach the closest physical edge (top/bottom or left/right) based
         // on orientation so Pragmatic DnD can report which side the pointer
@@ -215,17 +283,17 @@ export function ListboxDragAndDropProvider<Value = any>(
         // DnD visual state is cleared by the draggable's onDrop above.
         onDrop(args) {
           const edge = extractClosestEdge(args.self.data) as ListboxDragAndDropEdge | null;
+          const logicalEdge = toLogicalEdge(edge);
           const targetValue = valuesRef.current[index];
+          const sourceItems = getSourceItems(args.source.data);
 
-          if (targetValue !== undefined) {
-            const items: any[] = args.source.data.isMultiDrag
-              ? (args.source.data.values as any[])
-              : [args.source.data.value];
+          if (targetValue !== undefined && handleCanDrop(sourceItems, targetItem, logicalEdge)) {
+            const items = sourceItems.map((item) => item.value);
 
             handleItemsReorder({
               items,
               referenceItem: targetValue,
-              edge: toLogicalEdge(edge),
+              edge: logicalEdge,
               reason: 'drag',
             });
           }
@@ -247,10 +315,13 @@ export function ListboxDragAndDropProvider<Value = any>(
   // handleItemsReorder and setupItem come from useStableCallback.
   const contextValue = React.useMemo(
     () => ({
-      onItemsReorder: handleItemsReorder,
+      onItemsReorder: onItemsReorder ? handleItemsReorder : undefined,
+      canDragItem: handleCanDrag,
+      canDropItems: handleCanDrop,
+      policySignature: [canDrag, canDrop] as const,
       setupItem,
     }),
-    [handleItemsReorder, setupItem],
+    [canDrag, canDrop, handleCanDrag, handleCanDrop, handleItemsReorder, onItemsReorder, setupItem],
   );
 
   return (
@@ -272,9 +343,31 @@ export interface ListboxDragAndDropProviderProps<Value = any> {
   onItemsReorder?:
     | ((event: ListboxDragAndDropProviderOnItemsReorderEvent<Value>) => void)
     | undefined;
+  /**
+   * Determines whether a given item can initiate drag-and-drop.
+   * Defaults to allowing all non-disabled items.
+   */
+  canDrag?: ((item: ListboxDragAndDropItem<Value>) => boolean) | undefined;
+  /**
+   * Determines whether the dragged items can be dropped relative to a target item.
+   * Defaults to allowing all drops.
+   */
+  canDrop?:
+    | ((
+        sourceItems: ListboxDragAndDropItem<Value>[],
+        targetItem: ListboxDragAndDropItem<Value>,
+        edge: ListboxDragAndDropTargetEdge,
+      ) => boolean)
+    | undefined;
 }
 
 export namespace ListboxDragAndDropProvider {
   export type Props<Value = any> = ListboxDragAndDropProviderProps<Value>;
   export type State = ListboxDragAndDropProviderState;
 }
+
+export type {
+  ListboxDragAndDropItem,
+  ListboxDragAndDropProviderOnItemsReorderEvent,
+  ListboxDragAndDropTargetEdge,
+} from './ListboxDragAndDropProviderContext';
