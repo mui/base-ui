@@ -129,7 +129,7 @@ If you want to run only tests from a particular file, append its name to the com
 `pnpm test:chromium`
 `pnpm test:firefox`
 
-Testing the components with JSDOM sometimes isn't enough, as it doesn't support all the APIs.
+Testing the components with jsdom sometimes isn't enough, as it doesn't support all the APIs.
 We need to make sure they will behave as expected with a **real DOM**.
 To solve that problem we use Vitest in [browser mode](https://vitest.dev/guide/browser/).
 

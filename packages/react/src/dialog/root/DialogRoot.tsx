@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { useDialogRoot } from './useDialogRoot';
 import { DialogRootContext, useDialogRootContext } from './DialogRootContext';
@@ -34,20 +33,15 @@ export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
   const parentDialogRootContext = useDialogRootContext(true);
   const nested = Boolean(parentDialogRootContext);
 
-  const store = useRefWithInit(() => {
-    return (
-      handle?.store ??
-      new DialogStore<Payload>({
-        open: defaultOpen,
-        openProp,
-        activeTriggerId: defaultTriggerIdProp,
-        triggerIdProp,
-        modal,
-        disablePointerDismissal,
-        nested,
-      })
-    );
-  }).current;
+  const store = DialogStore.useStore(handle?.store, {
+    open: defaultOpen,
+    openProp,
+    activeTriggerId: defaultTriggerIdProp,
+    triggerIdProp,
+    modal,
+    disablePointerDismissal,
+    nested,
+  });
 
   // Support initially open state when uncontrolled
   useOnFirstRender(() => {
