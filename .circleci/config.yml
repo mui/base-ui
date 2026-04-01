@@ -28,6 +28,7 @@ default-job: &default-job
     # expose it globally otherwise we have to thread it from each job to the install command
     BROWSERSTACK_FORCE: << pipeline.parameters.browserstack-force >>
     COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
+    CI_REPORT_API_URL: https://code-infra-dashboard-pr-1270.onrender.com
   working_directory: /tmp/base-ui
   executor: code-infra/mui-node
 
