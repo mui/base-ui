@@ -124,7 +124,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     keepMounted,
     floatingRootContext,
     collisionAvoidance,
-    shift: { layout: true },
+    shift: 2,
     nodeId,
     // Allows the menu to remain anchored without wobbling while its size
     // and position transition simultaneously when side=top or side=left.

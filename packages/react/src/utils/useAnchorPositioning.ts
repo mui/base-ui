@@ -10,7 +10,7 @@ import {
   flip,
   limitShift,
   offset,
-  shift,
+  shift as floatingShift,
   useFloating,
   size,
   type UseFloatingOptions,
@@ -29,7 +29,6 @@ import { useDirection } from '../direction-provider/DirectionContext';
 import { arrow } from '../floating-ui-react/middleware/arrow';
 import { hide } from './hideMiddleware';
 import { DEFAULT_SIDES } from './adaptiveOriginMiddleware';
-import { EMPTY_OBJECT } from './constants';
 
 function getLogicalSide(sideParam: Side, renderedSide: PhysicalSide, isRtl: boolean): Side {
   const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';
@@ -140,7 +139,7 @@ export function useAnchorPositioning(
     floatingRootContext,
     mounted,
     collisionAvoidance,
-    shift: shiftOptions,
+    shift: shiftFlags = 0,
     nodeId,
     adaptiveOrigin,
     lazyFlip = false,
@@ -156,8 +155,8 @@ export function useAnchorPositioning(
   const collisionAvoidanceSide = collisionAvoidance.side || 'flip';
   const collisionAvoidanceAlign = collisionAvoidance.align || 'flip';
   const collisionAvoidanceFallbackAxisSide = collisionAvoidance.fallbackAxisSide || 'end';
-  const { crossAxis: shiftCrossAxis = false, layout: shiftLayout = false } =
-    (shiftOptions ?? EMPTY_OBJECT) as ShiftOptions;
+  const shiftCrossAxis = shiftFlags === 1 || shiftFlags === 3;
+  const shiftLayout = shiftFlags >= 2;
 
   const anchorFn = typeof anchor === 'function' ? anchor : undefined;
   const anchorFnCallback = useStableCallback(anchorFn);
@@ -278,7 +277,7 @@ export function useAnchorPositioning(
         });
   const shiftMiddleware = shiftDisabled
     ? null
-    : shift(
+    : floatingShift(
         (data) => {
           const win = ownerWindow(data.elements.floating);
           const html = ownerDocument(data.elements.floating).documentElement;
@@ -738,12 +737,10 @@ export interface UseAnchorPositioningParameters extends UseAnchorPositioningShar
   nodeId?: string | undefined;
   adaptiveOrigin?: Middleware | undefined;
   collisionAvoidance: CollisionAvoidance;
-  shift?: { crossAxis?: boolean | undefined; layout?: boolean | undefined } | undefined;
+  shift?: 0 | 1 | 2 | 3 | undefined;
   lazyFlip?: boolean | undefined;
   externalTree?: FloatingTreeStore | undefined;
 }
-
-type ShiftOptions = NonNullable<UseAnchorPositioningParameters['shift']>;
 
 export interface UseAnchorPositioningReturnValue {
   positionerStyles: React.CSSProperties;
