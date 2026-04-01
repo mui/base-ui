@@ -104,10 +104,10 @@ export function Content({
 
   return (
     <ScrollArea.Root
-      id={codeId}
       tabIndex={-1}
       className={clsx('CodeBlockPreContainer', className)}
       {...other}
+      id={codeId}
       onKeyDown={(event) => {
         onKeyDown?.(event);
 
