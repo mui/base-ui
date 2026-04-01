@@ -5,6 +5,9 @@ import { PreviewCard } from '@base-ui/react/preview-card';
 import { screen, waitFor, randomStringValue, act, flushMicrotasks } from '@mui/internal-test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 
+const CLOSE_TRANSITION_MS = 50;
+const CLOSE_TRANSITION_TIMEOUT = 300;
+
 describe('<PreviewCard.Root />', () => {
   beforeEach(async () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
@@ -845,7 +848,7 @@ describe('<PreviewCard.Root />', () => {
           to { opacity: 0.01; }
         }
         [data-testid="popup"][data-ending-style] {
-          animation: preview-card-a-to-b-close-transition 800ms linear forwards;
+          animation: preview-card-a-to-b-close-transition ${CLOSE_TRANSITION_MS}ms linear forwards;
         }
       `;
       const { user } = await render(
@@ -906,7 +909,7 @@ describe('<PreviewCard.Root />', () => {
           to { opacity: 0.01; }
         }
         [data-testid="popup"][data-ending-style] {
-          animation: preview-card-a-to-b-post-close-delay 800ms linear forwards;
+          animation: preview-card-a-to-b-post-close-delay ${CLOSE_TRANSITION_MS}ms linear forwards;
         }
       `;
       const { user } = await render(
@@ -953,7 +956,7 @@ describe('<PreviewCard.Root />', () => {
         () => {
           expect(screen.getByTestId('popup')).not.toHaveAttribute('data-ending-style');
         },
-        { timeout: 1500 },
+        { timeout: CLOSE_TRANSITION_TIMEOUT },
       );
       await waitFor(() => {
         expect(screen.getByTestId('popup')).toHaveAttribute('data-closed');
@@ -984,7 +987,7 @@ describe('<PreviewCard.Root />', () => {
           to { opacity: 0.01; }
         }
         [data-testid="popup"][data-ending-style] {
-          animation: preview-card-reopen-during-close 800ms linear forwards;
+          animation: preview-card-reopen-during-close ${CLOSE_TRANSITION_MS}ms linear forwards;
         }
       `;
 
@@ -1044,7 +1047,7 @@ describe('<PreviewCard.Root />', () => {
           to { opacity: 0.01; }
         }
         [data-testid="popup"][data-ending-style] {
-          animation: preview-card-reopen-during-close-delay 800ms linear forwards;
+          animation: preview-card-reopen-during-close-delay ${CLOSE_TRANSITION_MS}ms linear forwards;
         }
       `;
 
@@ -1099,7 +1102,7 @@ describe('<PreviewCard.Root />', () => {
         () => {
           expect(screen.getByTestId('popup')).not.toHaveAttribute('data-ending-style');
         },
-        { timeout: 1500 },
+        { timeout: CLOSE_TRANSITION_TIMEOUT },
       );
 
       await user.hover(trigger1);
