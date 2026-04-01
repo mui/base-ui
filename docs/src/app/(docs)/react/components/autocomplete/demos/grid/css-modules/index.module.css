@@ -255,7 +255,23 @@
   margin-bottom: 0.25rem;
 }
 
-.Empty:not(:empty) {
+.Name {
+  font-size: 0.625rem;
+  text-align: center;
+  opacity: 0.8;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.Item[data-highlighted] .Name {
+  opacity: 1;
+}
+
+.Empty {
   box-sizing: border-box;
   padding: 0.5rem 1rem 1rem;
   font-size: 0.925rem;

@@ -30,8 +30,8 @@ export default function ExampleAutocompleteLimit() {
       <Autocomplete.Portal>
         <Autocomplete.Positioner className={styles.Positioner} sideOffset={4}>
           <Autocomplete.Popup className={styles.Popup}>
-            <Autocomplete.Empty className={styles.Empty}>
-              No results found for "{value}"
+            <Autocomplete.Empty>
+              <div className={styles.Empty}>No results found for "{value}"</div>
             </Autocomplete.Empty>
 
             <Autocomplete.List>
@@ -42,10 +42,12 @@ export default function ExampleAutocompleteLimit() {
               )}
             </Autocomplete.List>
 
-            <Autocomplete.Status className={styles.Status}>
-              {moreCount > 0
-                ? `Hiding ${moreCount} results (type a more specific query to narrow results)`
-                : null}
+            <Autocomplete.Status>
+              {moreCount > 0 ? (
+                <div className={styles.Status}>
+                  {`Hiding ${moreCount} results (type a more specific query to narrow results)`}
+                </div>
+              ) : null}
             </Autocomplete.Status>
           </Autocomplete.Popup>
         </Autocomplete.Positioner>
