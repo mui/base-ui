@@ -716,6 +716,10 @@ describe('<Listbox.Root />', () => {
 
       await flushMicrotasks();
 
+      fireEvent.keyDown(screen.getByRole('option', { name: 'b' }), { key: 'ArrowDown' });
+
+      await flushMicrotasks();
+
       const itemC = screen.getByRole('option', { name: 'c' });
       fireEvent.keyDown(itemC, { key: 'Home', ctrlKey: true, shiftKey: true });
 
@@ -723,6 +727,30 @@ describe('<Listbox.Root />', () => {
 
       expect(handleValueChange).toHaveBeenCalledTimes(1);
       expect(handleValueChange.mock.calls[0][0]).toEqual(['a', 'c']);
+    });
+
+    it('ArrowDown moves focus to a disabled option', async () => {
+      await render(
+        <Listbox.Root>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b" disabled>
+              b
+            </Listbox.Item>
+            <Listbox.Item value="c">c</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      await flushMicrotasks();
+
+      const list = screen.getByRole('listbox');
+      list.focus();
+      fireEvent.keyDown(list, { key: 'ArrowDown' });
+
+      await flushMicrotasks();
+
+      expect(screen.getByRole('option', { name: 'b' })).toHaveFocus();
     });
 
     it('Shift+ArrowDown adds already selected item without duplicating', async () => {
@@ -764,7 +792,7 @@ describe('<Listbox.Root />', () => {
       expect(handleValueChange.mock.calls[0][0]).toEqual(['a', 'b', 'c']);
     });
 
-    it('Shift+ArrowDown skips disabled options', async () => {
+    it('Shift+ArrowDown focuses disabled options without selecting them', async () => {
       const handleValueChange = vi.fn();
 
       await render(
@@ -785,17 +813,14 @@ describe('<Listbox.Root />', () => {
 
       await flushMicrotasks();
 
-      const list = screen.getByRole('listbox');
-      list.focus();
-      fireEvent.keyDown(list, { key: 'Home' });
-
-      await flushMicrotasks();
-
-      fireEvent.keyDown(list, { key: 'ArrowDown', shiftKey: true });
+      const itemA = screen.getByRole('option', { name: 'a' });
+      await act(() => itemA.focus());
+      fireEvent.keyDown(itemA, { key: 'ArrowDown', shiftKey: true });
 
       await flushMicrotasks();
 
       expect(handleValueChange).not.toHaveBeenCalled();
+      expect(screen.getByRole('option', { name: 'b' })).toHaveFocus();
     });
 
     it('Meta+A (Cmd+A) selects all options', async () => {
@@ -1203,6 +1228,10 @@ describe('<Listbox.Root />', () => {
       const list = screen.getByRole('listbox');
       list.focus();
       fireEvent.keyDown(list, { key: 'ArrowDown' });
+
+      await flushMicrotasks();
+
+      fireEvent.keyDown(screen.getByRole('option', { name: 'b' }), { key: 'ArrowDown' });
 
       await flushMicrotasks();
 

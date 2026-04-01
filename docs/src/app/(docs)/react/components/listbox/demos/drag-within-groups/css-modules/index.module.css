@@ -89,6 +89,14 @@
     background-color: var(--color-gray-100);
   }
 
+  &[data-disabled] {
+    color: var(--color-gray-400);
+  }
+
+  &[data-disabled][data-highlighted]::before {
+    background-color: var(--color-gray-200);
+  }
+
   &[data-dragging] {
     opacity: 0.5;
   }

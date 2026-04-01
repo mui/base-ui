@@ -8,7 +8,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useCompositeRoot } from '../../composite/root/useCompositeRoot';
 import { CompositeList } from '../../composite/list/CompositeList';
 import { useDirection } from '../../direction-provider/DirectionContext';
-import { TYPEAHEAD_RESET_MS } from '../../utils/constants';
+import { EMPTY_ARRAY, TYPEAHEAD_RESET_MS } from '../../utils/constants';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { compareItemEquality } from '../../utils/itemEquality';
@@ -52,6 +52,9 @@ export const ListboxList = React.forwardRef(function ListboxList(
     direction,
     enableHomeAndEndKeys: true,
     stopEventPropagation: false,
+    // Listbox items remain keyboard-focusable even when disabled; selection
+    // logic still guards against activating them.
+    disabledIndices: EMPTY_ARRAY,
   });
 
   // Typeahead: accumulates characters into a search string, then matches against
