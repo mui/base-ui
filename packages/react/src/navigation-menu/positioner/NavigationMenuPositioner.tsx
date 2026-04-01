@@ -158,16 +158,14 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     };
   }, [open, resizeTimeout, positionerElement]);
 
-  const element = usePositioner(
-    componentProps,
-    state,
-    positioning.positionerStyles,
+  const element = usePositioner(componentProps, state, {
+    styles: positioning.positionerStyles,
     transitionStatus,
-    elementProps,
-    [forwardedRef, setPositionerElement, positionerRef],
-    !mounted,
-    !open,
-  );
+    props: elementProps,
+    refs: [forwardedRef, setPositionerElement, positionerRef],
+    hidden: !mounted,
+    inert: !open,
+  });
 
   return (
     <NavigationMenuPositionerContext.Provider value={positioning}>

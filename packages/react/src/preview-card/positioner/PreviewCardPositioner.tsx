@@ -83,16 +83,14 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     instant: instantType,
   };
 
-  const element = usePositioner(
-    componentProps,
-    state,
-    positioning.positionerStyles,
+  const element = usePositioner(componentProps, state, {
+    styles: positioning.positionerStyles,
     transitionStatus,
-    elementProps,
-    [forwardedRef, store.useStateSetter('positionerElement')],
-    !mounted,
-    !open,
-  );
+    props: elementProps,
+    refs: [forwardedRef, store.useStateSetter('positionerElement')],
+    hidden: !mounted,
+    inert: !open,
+  });
 
   return (
     <PreviewCardPositionerContext.Provider value={positioning}>

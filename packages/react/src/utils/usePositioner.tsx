@@ -4,23 +4,35 @@ import { useRenderElement, type UseRenderElementComponentProps } from './useRend
 import { getDisabledMountTransitionStyles } from './getDisabledMountTransitionStyles';
 import type { TransitionStatus } from './useTransitionStatus';
 
+interface UsePositionerOptions {
+  styles: React.CSSProperties;
+  transitionStatus: TransitionStatus;
+  props?: React.ComponentProps<'div'> | undefined;
+  refs?: React.Ref<HTMLDivElement> | (React.Ref<HTMLDivElement> | undefined)[] | undefined;
+  hidden?: boolean | undefined;
+  inert?: boolean | undefined;
+  extraStyles?: React.CSSProperties | undefined;
+}
+
 export function usePositioner<State extends Record<string, any>>(
   componentProps: UseRenderElementComponentProps<State>,
   state: State,
-  positionerStyles: React.CSSProperties,
-  transitionStatus: TransitionStatus,
-  elementProps?: React.ComponentProps<'div'> | undefined,
-  refs?: React.Ref<HTMLDivElement> | (React.Ref<HTMLDivElement> | undefined)[] | undefined,
-  hidden?: boolean | undefined,
-  disablePointerEvents = false,
-  extraStyles?: React.CSSProperties | undefined,
+  {
+    styles,
+    transitionStatus,
+    props,
+    refs,
+    hidden,
+    inert = false,
+    extraStyles,
+  }: UsePositionerOptions,
 ) {
   const style: React.CSSProperties = {
-    ...positionerStyles,
+    ...styles,
     ...extraStyles,
   };
 
-  if (disablePointerEvents) {
+  if (inert) {
     style.pointerEvents = 'none';
   }
 
@@ -30,7 +42,7 @@ export function usePositioner<State extends Record<string, any>>(
     props: [
       { role: 'presentation', hidden, style },
       getDisabledMountTransitionStyles(transitionStatus),
-      elementProps,
+      props,
     ],
     stateAttributesMapping: popupStateMapping,
   });

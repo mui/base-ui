@@ -97,20 +97,16 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
     [positioning.side, positioning.align, positioning.anchorHidden],
   );
 
-  const element = usePositioner(
-    componentProps,
-    state,
-    positioning.positionerStyles,
-    toast.transitionStatus,
-    elementProps,
-    [forwardedRef, setPositionerElement],
-    undefined,
-    false,
-    {
+  const element = usePositioner(componentProps, state, {
+    styles: positioning.positionerStyles,
+    transitionStatus: toast.transitionStatus,
+    props: elementProps,
+    refs: [forwardedRef, setPositionerElement],
+    extraStyles: {
       [ToastRootCssVars.index as string]:
         toast.transitionStatus === 'ending' ? domIndex : visibleIndex,
     },
-  );
+  });
 
   return (
     <ToastPositionerContext.Provider value={positioning}>{element}</ToastPositionerContext.Provider>

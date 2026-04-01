@@ -92,16 +92,14 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     ],
   );
 
-  const element = usePositioner(
-    componentProps,
-    state,
-    positioning.positionerStyles,
+  const element = usePositioner(componentProps, state, {
+    styles: positioning.positionerStyles,
     transitionStatus,
-    elementProps,
-    [forwardedRef, store.useStateSetter('positionerElement')],
-    !mounted,
-    !open || trackCursorAxis === 'both' || disableHoverablePopup,
-  );
+    props: elementProps,
+    refs: [forwardedRef, store.useStateSetter('positionerElement')],
+    hidden: !mounted,
+    inert: !open || trackCursorAxis === 'both' || disableHoverablePopup,
+  });
 
   return (
     <TooltipPositionerContext.Provider value={positioning}>

@@ -107,16 +107,14 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     store.set('positionerElement', element);
   });
 
-  const element = usePositioner(
-    componentProps,
-    state,
-    positioning.positionerStyles,
+  const element = usePositioner(componentProps, state, {
+    styles: positioning.positionerStyles,
     transitionStatus,
-    elementProps,
-    [forwardedRef, setPositionerElement],
-    !mounted,
-    !open,
-  );
+    props: elementProps,
+    refs: [forwardedRef, setPositionerElement],
+    hidden: !mounted,
+    inert: !open,
+  });
 
   return (
     <ComboboxPositionerContext.Provider value={positioning}>
