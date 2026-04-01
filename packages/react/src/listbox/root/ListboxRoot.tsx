@@ -11,6 +11,7 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { ListboxRootContext } from './ListboxRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useRegisterFieldControl } from '../../field/root/useRegisterFieldControl';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { ListboxStore } from '../store';
 import {
@@ -19,7 +20,6 @@ import {
 } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { useFormContext } from '../../form/FormContext';
-import { useField } from '../../field/useField';
 import { stringifyAsValue } from '../../utils/resolveValueLabel';
 import { EMPTY_ARRAY } from '../../utils/constants';
 import { defaultItemEquality, findItemIndex } from '../../utils/itemEquality';
@@ -139,14 +139,12 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
   );
 
   const controlRef = useValueAsRef(store.state.listElement);
+  const getFieldValue = useStableCallback(() => fieldStringValue);
 
-  useField({
+  useRegisterFieldControl(controlRef, {
     id: generatedId,
-    commit: validation.commit,
     value,
-    controlRef,
-    name,
-    getValue: () => fieldStringValue,
+    getValue: getFieldValue,
   });
 
   useIsoLayoutEffect(() => {
