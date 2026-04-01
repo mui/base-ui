@@ -262,8 +262,7 @@
   }
 
   /* Inline code and highlighted characters - collapse most colors to blue */
-  [data-inline],
-  [data-highlighted-chars] {
+  [data-inline] {
     --color-prettylights-syntax-comment: var(--color-blue);
     --color-prettylights-syntax-constant: var(--color-blue);
     --color-prettylights-syntax-entity: var(--color-blue);
