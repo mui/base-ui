@@ -207,6 +207,15 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
         onPointerEnter(event: React.PointerEvent) {
           lastMousePositionRef.current = { x: event.clientX, y: event.clientY };
         },
+        onPointerMove(event: React.PointerEvent) {
+          // Keep cursor position fresh so shouldOpen can check accurately when
+          // the hover delay fires. Mutate in place to avoid per-move allocation.
+          const pos = lastMousePositionRef.current;
+          if (pos) {
+            pos.x = event.clientX;
+            pos.y = event.clientY;
+          }
+        },
         onMouseEnter(event: React.MouseEvent) {
           // Notify ancestor tooltip triggers that a nested trigger was entered,
           // so they can close their already-open tooltips.
