@@ -61,7 +61,7 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
     id,
     store,
     nativeButton,
-    nodeId: menuPositionerContext?.nodeId,
+    nodeId: menuPositionerContext?.context.nodeId,
     itemMetadata: REGULAR_ITEM,
   });
 

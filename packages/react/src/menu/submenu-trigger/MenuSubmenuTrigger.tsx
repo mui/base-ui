@@ -129,7 +129,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     typingRef: parentMenuStore.context.typingRef,
     nativeButton,
     itemMetadata,
-    nodeId: menuPositionerContext?.nodeId,
+    nodeId: menuPositionerContext?.context.nodeId,
   });
 
   const hoverEnabled = store.useState('hoverEnabled');
