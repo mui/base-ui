@@ -11,7 +11,6 @@ interface UsePositionerOptions {
   refs?: React.Ref<HTMLDivElement> | (React.Ref<HTMLDivElement> | undefined)[] | undefined;
   hidden?: boolean | undefined;
   inert?: boolean | undefined;
-  extraStyles?: React.CSSProperties | undefined;
 }
 
 /**
@@ -21,20 +20,9 @@ interface UsePositionerOptions {
 export function usePositioner<State extends Record<string, any>>(
   componentProps: UseRenderElementComponentProps<State>,
   state: State,
-  {
-    styles,
-    transitionStatus,
-    props,
-    refs,
-    hidden,
-    inert = false,
-    extraStyles,
-  }: UsePositionerOptions,
+  { styles, transitionStatus, props, refs, hidden, inert = false }: UsePositionerOptions,
 ) {
-  const style: React.CSSProperties = {
-    ...styles,
-    ...extraStyles,
-  };
+  const style: React.CSSProperties = { ...styles };
 
   if (inert) {
     style.pointerEvents = 'none';
