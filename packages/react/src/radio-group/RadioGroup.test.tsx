@@ -951,6 +951,31 @@ describe('<RadioGroup />', () => {
 
     clock.withFakeTimers();
 
+    it.skipIf(isJSDOM)('submits to an external form when `form` is provided', async () => {
+      const submitSpy = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        return formData.get('group');
+      });
+
+      await render(
+        <React.Fragment>
+          <form id="external-form" onSubmit={submitSpy}>
+            <button type="submit">Submit</button>
+          </form>
+          <RadioGroup name="group" form="external-form" defaultValue="b">
+            <Radio.Root value="a" />
+            <Radio.Root value="b" />
+          </RadioGroup>
+        </React.Fragment>,
+      );
+
+      fireEvent.click(screen.getByRole('button'));
+
+      expect(submitSpy.mock.calls.length).toBe(1);
+      expect(submitSpy.mock.results.at(-1)?.value).toBe('b');
+    });
+
     it('triggers native HTML validation on submit', async () => {
       const { user } = await renderFakeTimers(
         <Form>
@@ -976,6 +1001,27 @@ describe('<RadioGroup />', () => {
 
       const error = screen.getByTestId('error');
       expect(error).toHaveTextContent('required');
+    });
+
+    it('submits null to onFormSubmit when no radio is selected', async () => {
+      const handleSubmit = vi.fn();
+
+      await renderFakeTimers(
+        <Form onFormSubmit={handleSubmit}>
+          <Field.Root name="test">
+            <RadioGroup name="group">
+              <Radio.Root value="a" data-testid="item-a" />
+              <Radio.Root value="b" data-testid="item-b" />
+            </RadioGroup>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.mock.calls.length).toBe(1);
+      expect(handleSubmit.mock.calls[0][0]).toEqual({ test: null });
     });
 
     it('clears required validation when a value is selected', async () => {

@@ -17,7 +17,14 @@ export const ToastDescription = React.forwardRef(function ToastDescription(
   componentProps: ToastDescription.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
-  const { render, className, id: idProp, children: childrenProp, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    style,
+    id: idProp,
+    children: childrenProp,
+    ...elementProps
+  } = componentProps;
 
   const { toast, setDescriptionId } = useToastRootContext();
 

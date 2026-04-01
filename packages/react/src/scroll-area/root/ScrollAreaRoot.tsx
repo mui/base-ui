@@ -12,7 +12,7 @@ import { ScrollAreaScrollbarDataAttributes } from '../scrollbar/ScrollAreaScroll
 import { styleDisableScrollbar } from '../../utils/styles';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { scrollAreaStateAttributesMapping } from './stateAttributes';
-import { contains } from '../../floating-ui-react/utils';
+import { contains, getTarget } from '../../floating-ui-react/utils';
 import { useCSPContext } from '../../csp-provider/CSPContext';
 
 const DEFAULT_COORDS = { x: 0, y: 0 };
@@ -39,6 +39,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     render,
     className,
     overflowEdgeThreshold: overflowEdgeThresholdProp,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -201,7 +202,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     handleTouchModalityChange(event);
 
     if (event.pointerType !== 'touch') {
-      const isTargetRootChild = contains(rootRef.current, event.target as Element);
+      const isTargetRootChild = contains(rootRef.current, getTarget(event.nativeEvent) as Element);
       setHovering(isTargetRootChild);
     }
   }

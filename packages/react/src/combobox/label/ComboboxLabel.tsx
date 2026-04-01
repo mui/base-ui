@@ -23,7 +23,7 @@ export const ComboboxLabel = React.forwardRef(function ComboboxLabel(
   componentProps: ComboboxLabel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
   // Keep label id derived from the root and ignore runtime `id` overrides from untyped consumers.
   const elementPropsWithoutId = elementProps as typeof elementProps & { id?: string | undefined };
   delete elementPropsWithoutId.id;

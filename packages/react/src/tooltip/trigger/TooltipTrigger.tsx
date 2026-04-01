@@ -39,6 +39,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     closeOnClick = true,
     closeDelay,
     id: idProp,
+    style,
     ...elementProps
   } = componentProps;
 

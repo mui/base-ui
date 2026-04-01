@@ -5,10 +5,10 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Store, useStore } from '@base-ui/utils/store';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import {
   ElementProps,
   useDismiss,
@@ -34,7 +34,7 @@ import {
 import { selectors, type State as StoreState } from '../store';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useField } from '../../field/useField';
+import { useRegisterFieldControl } from '../../field/root/useRegisterFieldControl';
 import { useFormContext } from '../../form/FormContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { createCollatorItemFilter, createSingleSelectionCollatorFilter } from './utils';
@@ -87,6 +87,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     selectionMode = 'none',
     onItemHighlighted: onItemHighlightedProp,
     name: nameProp,
+    form,
     disabled: disabledProp = false,
     readOnly = false,
     required = false,
@@ -361,6 +362,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         allValuesRef,
         selectionEventRef,
         name,
+        form,
         disabled,
         readOnly,
         required,
@@ -433,14 +435,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const { openMethod, triggerProps } = useOpenInteractionType(open);
+  const getFieldValue = useStableCallback(() => fieldStringValue);
 
-  useField({
+  useRegisterFieldControl(inputInsidePopup ? triggerRef : inputRef, {
     id,
-    name,
-    commit: validation.commit,
     value: fieldRawValue,
-    controlRef: inputInsidePopup ? triggerRef : inputRef,
-    getValue: () => fieldStringValue,
+    getValue: getFieldValue,
   });
 
   const forceMount = useStableCallback(() => {
@@ -688,9 +688,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       return;
     }
 
-    const form = store.state.inputElement?.form;
-    if (form && typeof form.requestSubmit === 'function') {
-      form.requestSubmit();
+    const formElement = validation.inputRef.current?.form ?? store.state.inputElement?.form;
+    if (formElement && typeof formElement.requestSubmit === 'function') {
+      formElement.requestSubmit();
     }
   });
 
@@ -1107,6 +1107,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       getItemProps,
       selectionMode,
       name,
+      form,
       disabled,
       readOnly,
       required,
@@ -1155,6 +1156,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     inlineProp,
     requestSubmit,
     autoHighlightMode,
+    form,
   ]);
 
   const hiddenInputRef = useMergedRefs(inputRefProp, validation.inputRef);
@@ -1190,12 +1192,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         <input
           key={currentSerializedValue}
           type="hidden"
+          form={form}
           name={name}
           value={currentSerializedValue}
         />
       );
     });
-  }, [multiple, selectedValue, name, itemToStringValue]);
+  }, [multiple, selectedValue, form, name, itemToStringValue]);
 
   const children = (
     <React.Fragment>
@@ -1218,7 +1221,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
               return;
             }
 
-            const nextValue = event.target.value;
+            const nextValue = event.currentTarget.value;
             const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
             function handleChange() {
@@ -1264,6 +1267,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           },
         })}
         id={id && hiddenInputName == null ? `${id}-hidden-input` : undefined}
+        form={form}
         name={hiddenInputName}
         autoComplete={formAutoComplete}
         disabled={disabled}
@@ -1304,6 +1308,11 @@ interface ComboboxRootProps<ItemValue> {
    * Identifies the field when a form is submitted.
    */
   name?: string | undefined;
+  /**
+   * Identifies the form that owns the internal input.
+   * Useful when the combobox is rendered outside the form.
+   */
+  form?: string | undefined;
   /**
    * The id of the component.
    */

@@ -1,11 +1,15 @@
 import { describe, expect, it } from 'vitest';
+import { createParseSource } from '@mui/internal-docs-infra/pipeline/parseSource';
 import { exportOpts } from './demoExportOptions';
 
 type HeadTemplate = NonNullable<typeof exportOpts.headTemplate>;
 type HeadTemplateProps = Parameters<HeadTemplate>[0];
 type ExtraFiles = NonNullable<HeadTemplateProps['variant']>['extraFiles'];
 
-function getTailwindHeadTemplate(source: string, extraFiles?: ExtraFiles) {
+function getTailwindHeadTemplate(
+  source: NonNullable<HeadTemplateProps['variant']>['source'],
+  extraFiles?: ExtraFiles,
+) {
   const headTemplate = exportOpts.headTemplate;
   if (!headTemplate) {
     throw new Error('Expected exportOpts.headTemplate to be defined');
@@ -107,6 +111,47 @@ describe('exportOpts Tailwind class injection', () => {
 
     expect(classes).toContain('transition-transform');
     expect(classes).toContain('duration-300');
+    expect(classes).toContain('text-red-600');
+  });
+
+  it('injects classes from highlighted HAST sources without stringifying them first', async () => {
+    const parseSource = await createParseSource();
+    const source = parseSource(
+      `
+        const sharedClassName = "transition-transform duration-300";
+        const itemClassName = \`\${sharedClassName} text-red-600\`;
+
+        export default function Demo() {
+          return <div className={itemClassName}>Demo</div>;
+        }
+      `,
+      'demo.tsx',
+    );
+
+    const headTemplate = getTailwindHeadTemplate(source);
+    const classes = getInjectedClasses(headTemplate);
+
+    expect(classes).toContain('transition-transform');
+    expect(classes).toContain('duration-300');
+    expect(classes).toContain('text-red-600');
+  });
+
+  it('injects classes from highlighted HAST string literals', async () => {
+    const parseSource = await createParseSource();
+    const source = parseSource(
+      `
+        export default function Demo() {
+          return <div className="flex p-4 text-red-600">Demo</div>;
+        }
+      `,
+      'demo.tsx',
+    );
+
+    const headTemplate = getTailwindHeadTemplate(source);
+    const classes = getInjectedClasses(headTemplate);
+
+    expect(classes).toContain('flex');
+    expect(classes).toContain('p-4');
     expect(classes).toContain('text-red-600');
   });
 

@@ -29,7 +29,7 @@ export const PreviewCardViewport = React.forwardRef(function PreviewCardViewport
   componentProps: PreviewCardViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, children, ...elementProps } = componentProps;
+  const { render, className, style, children, ...elementProps } = componentProps;
   const store = usePreviewCardRootContext();
   const positioner = usePreviewCardPositionerContext();
 

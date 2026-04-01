@@ -14,7 +14,7 @@ describe('useRenderElement', () => {
     componentProps: BaseUIComponentProps<'div', { active?: boolean }> & { active?: boolean },
     forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
-    const { className, render: renderProp, active, ...elementProps } = componentProps;
+    const { className, render: renderProp, active, style, ...elementProps } = componentProps;
 
     const state = { active };
 
@@ -31,7 +31,7 @@ describe('useRenderElement', () => {
     componentProps: BaseUIComponentProps<'div', { active?: boolean }> & { active?: boolean },
     forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
-    const { className, render: renderProp, active, ...elementProps } = componentProps;
+    const { className, render: renderProp, active, style, ...elementProps } = componentProps;
 
     return useRenderElement('div', componentProps, {
       state: { active },
@@ -44,7 +44,7 @@ describe('useRenderElement', () => {
     componentProps: BaseUIComponentProps<'div', { active?: boolean }> & { active?: boolean },
     forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
-    const { className, render: renderProp, active, ...elementProps } = componentProps;
+    const { className, render: renderProp, active, style, ...elementProps } = componentProps;
 
     return useRenderElement('div', componentProps, {
       state: { active },
@@ -62,6 +62,27 @@ describe('useRenderElement', () => {
       {
         enabled: false,
         props: [props.propsGetter],
+      },
+    );
+  }
+
+  function RerenderTestComponent(props: {
+    enabled?: boolean;
+    refs?: React.Ref<HTMLDivElement> | Array<React.Ref<HTMLDivElement> | undefined> | undefined;
+    onClick?: React.MouseEventHandler<HTMLDivElement>;
+  }) {
+    return useRenderElement(
+      'div',
+      {},
+      {
+        enabled: props.enabled,
+        ref: props.refs,
+        props: [
+          {
+            id: 'rerender-target',
+            onClick: props.onClick,
+          },
+        ],
       },
     );
   }
@@ -185,6 +206,65 @@ describe('useRenderElement', () => {
 
     expect(container.firstElementChild).toBeNull();
     expect(propsGetter).not.toHaveBeenCalled();
+  });
+
+  it('handles enabled toggles across rerenders', async () => {
+    const ref = React.createRef<HTMLDivElement>();
+    const handleClick = vi.fn();
+    const { rerender } = await render(
+      <RerenderTestComponent enabled={false} refs={ref} onClick={handleClick} />,
+    );
+
+    expect(document.getElementById('rerender-target')).toBeNull();
+    expect(ref.current).toBeNull();
+
+    await rerender(<RerenderTestComponent enabled refs={ref} onClick={handleClick} />);
+
+    const element = document.getElementById('rerender-target') as HTMLDivElement;
+
+    expect(element).not.toBeNull();
+    expect(ref.current).toBe(element);
+
+    element.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(handleClick).toHaveBeenCalledTimes(1);
+
+    await rerender(<RerenderTestComponent enabled={false} refs={ref} onClick={handleClick} />);
+
+    expect(document.getElementById('rerender-target')).toBeNull();
+    expect(ref.current).toBeNull();
+  });
+
+  it('updates merged refs and event handlers when ref shape changes across rerenders', async () => {
+    const primaryRef = React.createRef<HTMLDivElement>();
+    const secondaryRef = React.createRef<HTMLDivElement>();
+    const firstHandleClick = vi.fn();
+    const secondHandleClick = vi.fn();
+    const { rerender } = await render(
+      <RerenderTestComponent refs={primaryRef} onClick={firstHandleClick} />,
+    );
+
+    const initialElement = document.getElementById('rerender-target');
+
+    expect(primaryRef.current).toBe(initialElement);
+    expect(secondaryRef.current).toBeNull();
+
+    await rerender(
+      <RerenderTestComponent refs={[primaryRef, secondaryRef]} onClick={secondHandleClick} />,
+    );
+
+    const updatedElement = document.getElementById('rerender-target') as HTMLDivElement;
+
+    expect(primaryRef.current).toBe(updatedElement);
+    expect(secondaryRef.current).toBe(updatedElement);
+
+    updatedElement.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(firstHandleClick).toHaveBeenCalledTimes(0);
+    expect(secondHandleClick).toHaveBeenCalledTimes(1);
+
+    await rerender(<RerenderTestComponent refs={secondaryRef} onClick={secondHandleClick} />);
+
+    expect(primaryRef.current).toBeNull();
+    expect(secondaryRef.current).toBe(document.getElementById('rerender-target'));
   });
 
   describe('prop: render', () => {

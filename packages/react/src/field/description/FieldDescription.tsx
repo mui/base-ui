@@ -19,7 +19,7 @@ export const FieldDescription = React.forwardRef(function FieldDescription(
   componentProps: FieldDescription.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
-  const { render, id: idProp, className, ...elementProps } = componentProps;
+  const { render, id: idProp, className, style, ...elementProps } = componentProps;
 
   const id = useBaseUiId(idProp);
 

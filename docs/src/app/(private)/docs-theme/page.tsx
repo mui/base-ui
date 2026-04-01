@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import * as React from 'react';
 
-import './fonts.css';
 import 'docs/src/css/theme-redesign.css';
 import styles from './page.module.css';
 

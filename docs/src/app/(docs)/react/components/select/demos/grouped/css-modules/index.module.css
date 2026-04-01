@@ -8,7 +8,7 @@
 .Label {
   font-size: 0.875rem;
   line-height: 1.25rem;
-  font-weight: 500;
+  font-weight: 700;
   color: var(--color-gray-900);
   cursor: default;
 }
@@ -34,6 +34,7 @@
   font-family: inherit;
   font-size: 1rem;
   line-height: 1.5rem;
+  font-weight: 400;
   color: var(--color-gray-900);
   -webkit-user-select: none;
   user-select: none;
@@ -122,7 +123,7 @@
   box-sizing: border-box;
   padding: 0.5rem 1rem 0.25rem calc(0.625rem + 0.75rem + 0.5rem);
   font-size: 0.6875rem;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--color-gray-700);

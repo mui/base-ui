@@ -16,7 +16,13 @@ export const ToolbarGroup = React.forwardRef(function ToolbarGroup(
   componentProps: ToolbarGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, disabled: disabledProp = false, render, ...elementProps } = componentProps;
+  const {
+    className,
+    disabled: disabledProp = false,
+    render,
+    style,
+    ...elementProps
+  } = componentProps;
 
   const { orientation, disabled: toolbarDisabled } = useToolbarRootContext();
 

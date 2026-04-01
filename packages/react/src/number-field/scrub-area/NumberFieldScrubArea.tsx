@@ -16,6 +16,7 @@ import { subscribeToVisualViewportResize } from '../utils/subscribeToVisualViewp
 import { DEFAULT_STEP } from '../utils/constants';
 import { createGenericEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
+import { getTarget } from '../../floating-ui-react/utils';
 
 /**
  * An interactive area where the user can click and drag to change the field value.
@@ -33,6 +34,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     direction = 'horizontal',
     pixelSensitivity = 2,
     teleportDistance,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -287,7 +289,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
 
       isScrubbingRef.current = true;
       didMoveRef.current = false;
-      pointerDownTargetRef.current = event.target;
+      pointerDownTargetRef.current = getTarget(event.nativeEvent);
       onScrubbingChange(true, event.nativeEvent);
 
       // WebKit causes significant layout shift with the native message, so we can't use it.

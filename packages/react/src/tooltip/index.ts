@@ -6,4 +6,5 @@ export type * from './trigger/TooltipTrigger';
 export type * from './portal/TooltipPortal';
 export type * from './positioner/TooltipPositioner';
 export type * from './popup/TooltipPopup';
+export type * from './viewport/TooltipViewport';
 export type * from './arrow/TooltipArrow';

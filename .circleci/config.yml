@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  code-infra: https://raw.githubusercontent.com/mui/mui-public/f544b55fdbbb922b7293365705cf62895b4f5186/.circleci/orbs/code-infra.yml
+  code-infra: https://raw.githubusercontent.com/mui/mui-public/b989d008bd34fbf9fb9d3395da2f6a32536f574d/.circleci/orbs/code-infra.yml
 
 parameters:
   browserstack-force:
@@ -90,12 +90,6 @@ jobs:
       - checkout
       - code-infra/install-deps
       - code-infra/check-static-changes
-      - run:
-          name: Generate the documentation
-          command: pnpm docs:api
-      - run:
-          name: '`pnpm docs:api` changes committed?'
-          command: git add -A && git diff --exit-code --staged
       - run:
           name: '`pnpm extract-error-codes` changes committed?'
           command: |

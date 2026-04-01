@@ -1,11 +1,11 @@
 import { createSelector, createSelectorMemoized } from '@base-ui/utils/store';
 import {
+  TemporalAdapter,
   TemporalSupportedObject,
   TemporalSupportedValue,
-  TemporalAdapter,
 } from '../../types/temporal';
-import { validateDate } from '../../utils/temporal/validateDate';
 import { getInitialReferenceDate } from '../../utils/temporal/getInitialReferenceDate';
+import { validateDate } from '../../utils/temporal/validateDate';
 import { CalendarNavigationDirection, SharedCalendarState as State } from './SharedCalendarState';
 
 const timezoneToRenderSelector = createSelectorMemoized(
@@ -108,7 +108,7 @@ const isSetMonthButtonDisabledSelector = createSelector(
     validationProps,
     isCalendarDisabled,
     targetDate: TemporalSupportedObject,
-    disabledProp?: boolean | undefined,
+    disabledProp: boolean | undefined,
   ) => {
     // short-circuit if the disabled prop is explicitly provided.
     if (disabledProp !== undefined) {

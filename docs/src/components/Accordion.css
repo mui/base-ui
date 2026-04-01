@@ -28,8 +28,7 @@
   .AccordionHeaderCell {
     padding: 0.5rem 0.75rem;
     font-size: var(--text-sm);
-    font-weight: var(--font-weight-medium);
-    letter-spacing: -0.00625em;
+    font-weight: 400;
     color: var(--color-foreground);
   }
 

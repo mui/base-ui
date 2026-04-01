@@ -11,16 +11,14 @@ import {
   type Align,
   type UseAnchorPositioningSharedParameters,
 } from '../../utils/useAnchorPositioning';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-import { popupStateMapping } from '../../utils/popupStateMapping';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { usePopoverPortalContext } from '../portal/PopoverPortalContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { REASONS } from '../../utils/reasons';
-import { useRenderElement } from '../../utils/useRenderElement';
 import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
-import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import { usePositioner } from '../../utils/usePositioner';
 
 /**
  * Positions the popover against the trigger.
@@ -47,6 +45,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     sticky = false,
     disableAnchorTracking = false,
     collisionAvoidance = POPUP_COLLISION_AVOIDANCE,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -89,31 +88,6 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     adaptiveOrigin: hasViewport ? adaptiveOrigin : undefined,
   });
 
-  const defaultProps: HTMLProps = React.useMemo(() => {
-    const hiddenStyles: React.CSSProperties = {};
-
-    if (!open) {
-      hiddenStyles.pointerEvents = 'none';
-    }
-
-    return {
-      role: 'presentation',
-      hidden: !mounted,
-      style: {
-        ...positioning.positionerStyles,
-        ...hiddenStyles,
-      },
-    };
-  }, [open, mounted, positioning.positionerStyles]);
-
-  const positioner = React.useMemo(
-    () => ({
-      props: defaultProps,
-      ...positioning,
-    }),
-    [defaultProps, positioning],
-  );
-
   const domReference = floatingRootContext.useState('domReferenceElement');
 
   // When the current trigger element changes, enable transitions on the
@@ -147,9 +121,9 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   const state: PopoverPositionerState = {
     open,
-    side: positioner.side,
-    align: positioner.align,
-    anchorHidden: positioner.anchorHidden,
+    side: positioning.side,
+    align: positioning.align,
+    anchorHidden: positioning.anchorHidden,
     instant: instantType,
   };
 
@@ -160,15 +134,17 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     [store],
   );
 
-  const element = useRenderElement('div', componentProps, {
-    state,
-    props: [positioner.props, getDisabledMountTransitionStyles(transitionStatus), elementProps],
-    ref: [forwardedRef, setPositionerElement],
-    stateAttributesMapping: popupStateMapping,
+  const element = usePositioner(componentProps, state, {
+    styles: positioning.positionerStyles,
+    transitionStatus,
+    props: elementProps,
+    refs: [forwardedRef, setPositionerElement],
+    hidden: !mounted,
+    inert: !open,
   });
 
   return (
-    <PopoverPositionerContext.Provider value={positioner}>
+    <PopoverPositionerContext.Provider value={positioning}>
       {mounted && modal === true && openReason !== REASONS.triggerHover && (
         <InternalBackdrop
           ref={store.context.internalBackdropRef}

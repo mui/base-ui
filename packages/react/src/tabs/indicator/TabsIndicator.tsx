@@ -30,7 +30,13 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
   componentProps: TabsIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, renderBeforeHydration = false, ...elementProps } = componentProps;
+  const {
+    className,
+    render,
+    renderBeforeHydration = false,
+    style: styleProp,
+    ...elementProps
+  } = componentProps;
 
   const { nonce } = useCSPContext();
 
@@ -192,7 +198,7 @@ export interface TabsIndicatorState extends TabsRootState {
 export interface TabsIndicatorProps extends BaseUIComponentProps<'span', TabsIndicatorState> {
   /**
    * Whether to render itself before React hydrates.
-   * This minimizes the time that the indicator isn’t visible after server-side rendering.
+   * This minimizes the time that the indicator isn't visible after server-side rendering.
    * @default false
    */
   renderBeforeHydration?: boolean | undefined;

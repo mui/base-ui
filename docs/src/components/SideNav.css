@@ -20,7 +20,6 @@
 
     font-size: var(--text-md);
     line-height: var(--text-md--line-height);
-    letter-spacing: var(--text-md--letter-spacing);
     position: sticky;
     top: 0;
 
@@ -32,13 +31,13 @@
   }
 
   .SideNavViewport {
-    max-height: 100vh;
+    max-height: 100dvh;
     padding: 0.75rem
       calc(
         var(--side-nav-scrollbar-gap-left) + var(--side-nav-scrollbar-width) / 2 +
           var(--side-nav-scrollbar-thumb-width) / 2
       )
-      6rem 1.5rem;
+      5rem 1.5rem;
 
     /* Scroll containers are focusable */
     outline: 0;
@@ -58,7 +57,7 @@
   .SideNavScrollbar {
     display: flex;
     padding-top: 1.5rem;
-    padding-bottom: 3rem;
+    padding-bottom: 4.5rem;
 
     /* Click target width */
     width: var(--side-nav-scrollbar-width);
@@ -91,15 +90,15 @@
     }
   }
 
-  .SideNavSection {
+  .SideNavSection:not(:last-child) {
     margin-bottom: 1rem;
   }
 
   .SideNavHeading {
     display: inline-flex;
     padding-block: var(--side-nav-item-padding-y);
-    font-weight: 500;
-    letter-spacing: 0.00625em;
+    font-weight: 400;
+    color: var(--color-gray-600);
   }
 
   .SideNavItem {
@@ -115,7 +114,6 @@
     border-block: 1px solid transparent; /* Maintain a 1px gap between active an inactive item */
     background-clip: padding-box;
     border-radius: var(--radius-md);
-    letter-spacing: var(--text-md--letter-spacing);
     user-select: none;
 
     @media (hover: hover) {
@@ -130,8 +128,7 @@
       background-color: var(--color-gray-50);
       outline: 1px solid var(--color-gray-200);
       outline-offset: -1px;
-      font-weight: 500;
-      letter-spacing: 0.00625em;
+      font-weight: 400;
       word-spacing: -0.005em;
       cursor: default;
     }
@@ -149,7 +146,7 @@
     user-select: none;
     text-transform: uppercase;
     font-size: 0.6875rem;
-    font-weight: 500;
+    font-weight: 700;
     letter-spacing: 0.035em;
     padding-inline: 2px;
     translate: 0 -2px;

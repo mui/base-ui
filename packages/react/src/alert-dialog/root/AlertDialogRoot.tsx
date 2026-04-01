@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useDialogRoot } from '../../dialog/root/useDialogRoot';
 import { DialogRootContext, useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -10,7 +9,7 @@ import type { DialogRoot } from '../../dialog/root/DialogRoot';
 
 /**
  * Groups all parts of the alert dialog.
- * Doesn’t render its own HTML element.
+ * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
@@ -30,21 +29,16 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
   const parentDialogRootContext = useDialogRootContext();
   const nested = Boolean(parentDialogRootContext);
 
-  const store = useRefWithInit(() => {
-    return (
-      handle?.store ??
-      new DialogStore<Payload>({
-        open: defaultOpen,
-        openProp,
-        activeTriggerId: defaultTriggerIdProp,
-        triggerIdProp,
-        modal: true,
-        disablePointerDismissal: true,
-        nested,
-        role: 'alertdialog',
-      })
-    );
-  }).current;
+  const store = DialogStore.useStore(handle?.store, {
+    open: defaultOpen,
+    openProp,
+    activeTriggerId: defaultTriggerIdProp,
+    triggerIdProp,
+    modal: true,
+    disablePointerDismissal: true,
+    nested,
+    role: 'alertdialog',
+  });
 
   store.useControlledProp('openProp', openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);

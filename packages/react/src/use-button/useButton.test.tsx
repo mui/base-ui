@@ -40,6 +40,66 @@ describe('useButton', () => {
           expect(clickSpy).toHaveBeenCalledTimes(1);
         });
       });
+
+      it.skipIf(isJSDOM)(
+        'can be activated with Enter when the keyboard event originates inside a shadow root',
+        async () => {
+          const clickSpy = vi.fn();
+
+          function Button(props: React.HTMLAttributes<HTMLSpanElement>) {
+            const { getButtonProps, buttonRef } = useButton({
+              native: false,
+            });
+            const hostRef = React.useRef<HTMLSpanElement | null>(null);
+            const mergedRef = useMergedRefs(hostRef, buttonRef);
+
+            const handleRef = React.useCallback(
+              (node: HTMLSpanElement | null) => {
+                mergedRef?.(node);
+
+                if (!node || node.shadowRoot) {
+                  return;
+                }
+
+                const shadowRoot = node.attachShadow({ mode: 'open' });
+                const inner = document.createElement('span');
+                inner.tabIndex = 0;
+                shadowRoot.appendChild(inner);
+              },
+              [mergedRef],
+            );
+
+            return <span {...getButtonProps({ ...props, ref: handleRef })} />;
+          }
+
+          await render(<Button onClick={clickSpy} />);
+
+          const host = screen.getByRole('button');
+          const inner = host.shadowRoot?.querySelector('span');
+
+          expect(inner).toBeTruthy();
+
+          if (!inner) {
+            return;
+          }
+
+          await act(async () => {
+            (inner as HTMLElement).focus();
+          });
+
+          await act(async () => {
+            inner.dispatchEvent(
+              new KeyboardEvent('keydown', {
+                key: 'Enter',
+                bubbles: true,
+                composed: true,
+              }),
+            );
+          });
+
+          expect(clickSpy).toHaveBeenCalledTimes(1);
+        },
+      );
     });
   });
 

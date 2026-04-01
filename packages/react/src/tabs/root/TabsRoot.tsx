@@ -31,6 +31,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     orientation = 'horizontal',
     render,
     value: valueProp,
+    style,
     ...elementProps
   } = componentProps;
 

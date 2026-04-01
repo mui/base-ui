@@ -4,19 +4,19 @@ import { Autocomplete } from '@base-ui/react/autocomplete';
 export default function ExampleAutocompleteAutoHighlight() {
   return (
     <Autocomplete.Root items={tags} autoHighlight>
-      <label className="flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">
+      <label className="flex flex-col gap-1 text-sm leading-5 font-bold text-gray-900">
         Auto highlight on type
         <Autocomplete.Input
           placeholder="e.g. feature"
-          className="bg-[canvas] h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+          className="bg-[canvas] h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-gray-200 pl-3.5 text-base font-normal text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
         />
       </label>
 
       <Autocomplete.Portal>
         <Autocomplete.Positioner className="outline-hidden" sideOffset={4}>
           <Autocomplete.Popup className="w-[var(--anchor-width)] max-h-[23rem] max-w-[var(--available-width)] rounded-md bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
-            <Autocomplete.Empty className="p-4 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0">
-              No tags found.
+            <Autocomplete.Empty>
+              <div className="p-4 text-[0.925rem] leading-4 text-gray-600">No tags found.</div>
             </Autocomplete.Empty>
             <Autocomplete.List className="outline-0 overflow-y-auto scroll-py-[0.5rem] py-2 overscroll-contain max-h-[min(23rem,var(--available-height))] data-[empty]:p-0">
               {(tag: Tag) => (

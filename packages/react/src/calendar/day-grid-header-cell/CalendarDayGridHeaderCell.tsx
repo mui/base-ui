@@ -16,7 +16,14 @@ const InnerCalendarDayGridHeaderCell = React.forwardRef(function InnerCalendarDa
     [adapter],
   );
 
-  const { className, render, value, formatter = defaultFormatter, ...otherProps } = componentProps;
+  const {
+    className,
+    render,
+    style,
+    value,
+    formatter = defaultFormatter,
+    ...otherProps
+  } = componentProps;
 
   const formattedValue = React.useMemo(() => formatter(value), [formatter, value]);
 

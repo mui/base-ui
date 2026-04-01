@@ -35,7 +35,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   componentProps: ComboboxPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, initialFocus, finalFocus, ...elementProps } = componentProps;
+  const { render, className, style, initialFocus, finalFocus, ...elementProps } = componentProps;
 
   const store = useComboboxRootContext();
   const positioning = useComboboxPositionerContext();

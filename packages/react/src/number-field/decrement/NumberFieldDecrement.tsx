@@ -23,6 +23,7 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
     className,
     disabled: disabledProp = false,
     nativeButton = true,
+    style,
     ...elementProps
   } = componentProps;
 
