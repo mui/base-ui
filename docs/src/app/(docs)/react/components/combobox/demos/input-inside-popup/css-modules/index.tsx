@@ -22,7 +22,9 @@ export default function ExamplePopoverCombobox() {
               <div className={styles.InputContainer}>
                 <Combobox.Input placeholder="e.g. United Kingdom" className={styles.Input} />
               </div>
-              <Combobox.Empty className={styles.Empty}>No countries found.</Combobox.Empty>
+              <Combobox.Empty>
+                <div className={styles.Empty}>No countries found.</div>
+              </Combobox.Empty>
               <Combobox.List className={styles.List}>
                 {(country: Country) => (
                   <Combobox.Item key={country.code} value={country} className={styles.Item}>
