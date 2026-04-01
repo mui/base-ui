@@ -1,5 +1,7 @@
 'use client';
 import * as React from 'react';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floating-ui-react';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -37,7 +39,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const { render, className, style, finalFocus, ...elementProps } = componentProps;
 
   const { store } = useMenuRootContext();
-  const { side, align } = useMenuPositionerContext();
+  const { side, align, deferEnterTransition } = useMenuPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
 
   const open = store.useState('open');
@@ -53,14 +55,65 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const closeDelay = store.useState('closeDelay');
   const activeTriggerElement = store.useState('activeTriggerElement');
+  const replayEnterTransitionFrame = useAnimationFrame();
+  const [replayDeferredEnterTransition, setReplayDeferredEnterTransition] = React.useState(false);
+  const deferredEnterTransitionRef = React.useRef(deferEnterTransition);
 
   const isContextMenu = parent.type === 'context-menu';
 
+  useIsoLayoutEffect(() => {
+    // If the submenu stayed hidden while its parent finished opening, re-apply the enter-only
+    // transition hook on the reveal frame so the popup still animates into its corrected position.
+    if (!open || transitionStatus === 'ending') {
+      replayEnterTransitionFrame.cancel();
+      deferredEnterTransitionRef.current = deferEnterTransition;
+      setReplayDeferredEnterTransition(false);
+      return undefined;
+    }
+
+    if (deferEnterTransition) {
+      replayEnterTransitionFrame.cancel();
+      deferredEnterTransitionRef.current = true;
+      setReplayDeferredEnterTransition(false);
+      return undefined;
+    }
+
+    if (!deferredEnterTransitionRef.current) {
+      return undefined;
+    }
+
+    deferredEnterTransitionRef.current = false;
+    setReplayDeferredEnterTransition(true);
+
+    replayEnterTransitionFrame.request(() => {
+      setReplayDeferredEnterTransition(false);
+    });
+
+    return () => {
+      replayEnterTransitionFrame.cancel();
+    };
+  }, [deferEnterTransition, open, replayEnterTransitionFrame, transitionStatus]);
+
+  let effectiveTransitionStatus = transitionStatus;
+  // Hide the original "starting" phase while the submenu itself is hidden, then replay a fresh
+  // enter phase on reveal so the popup still animates once the corrected position is ready.
+  if (deferEnterTransition && transitionStatus === 'starting') {
+    effectiveTransitionStatus = undefined;
+  }
+  if (replayDeferredEnterTransition) {
+    effectiveTransitionStatus = 'starting';
+  }
+
   useOpenChangeComplete({
+    // While a hidden submenu is deferring its reveal, its real open transition has not completed
+    // from the user's perspective. Wait until the replayed enter transition runs before reporting
+    // completion so deeper nested menus can use the same parent-ready signal.
+    enabled: !deferEnterTransition,
     open,
     ref: store.context.popupRef,
     onComplete() {
       if (open) {
+        store.set('openTransitionComplete', true);
         store.context.onOpenChangeComplete?.(true);
       }
     },
@@ -90,7 +143,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   });
 
   const state: MenuPopupState = {
-    transitionStatus,
+    transitionStatus: effectiveTransitionStatus,
     side,
     align,
     open,
@@ -118,7 +171,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
           }
         },
       },
-      getDisabledMountTransitionStyles(transitionStatus),
+      getDisabledMountTransitionStyles(effectiveTransitionStatus),
       elementProps,
       { 'data-rootownerid': rootId } as Record<string, string>,
     ],

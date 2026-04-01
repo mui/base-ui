@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { FloatingNode } from '../../floating-ui-react';
@@ -77,9 +78,75 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const floatingNodeId = store.useState('floatingNodeId');
   const floatingParentNodeId = store.useState('floatingParentNodeId');
   const domReference = floatingRootContext.useState('domReferenceElement');
+  const parentMenuStore = parent.type === 'menu' ? parent.store : null;
+  const parentReadyFrame = useAnimationFrame();
+  const positionerUpdateFrame = useAnimationFrame();
+  const revealFrame = useAnimationFrame();
+  // Only defer nested reveal for submenus that are already open while their parent is animating.
+  // Keyboard- and pointer-opened submenus should still reveal eagerly so focus behavior stays intact.
+  const shouldDeferNestedReveal = parent.type === 'menu' && lastOpenChangeReason == null;
+  const [parentReadyToPosition, setParentReadyToPosition] = React.useState(
+    () => !shouldDeferNestedReveal,
+  );
+  const [submenuReadyToReveal, setSubmenuReadyToReveal] = React.useState(
+    () => !shouldDeferNestedReveal,
+  );
 
   const previousTriggerRef = React.useRef<Element | null>(null);
+  const blockedByParentAnimationRef = React.useRef(false);
   const runOnceAnimationsFinish = useAnimationsFinished(positionerElement, false, false);
+  const runOnceParentAnimationsFinish = useAnimationsFinished(
+    parentMenuStore?.context.popupRef ?? null,
+    true,
+    false,
+  );
+
+  useIsoLayoutEffect(() => {
+    if (parentMenuStore == null || !mounted || !shouldDeferNestedReveal) {
+      parentReadyFrame.cancel();
+      setParentReadyToPosition(true);
+      return undefined;
+    }
+
+    const menuStore = parentMenuStore;
+    const abortController = new AbortController();
+    setParentReadyToPosition(false);
+
+    function waitForParentPopup() {
+      if (abortController.signal.aborted) {
+        return;
+      }
+
+      if (menuStore.context.popupRef.current == null) {
+        parentReadyFrame.request(waitForParentPopup);
+        return;
+      }
+
+      runOnceParentAnimationsFinish(() => {
+        // The submenu trigger lives inside the parent popup and can still move for one paint after
+        // the parent animation itself finishes. Wait one extra frame before allowing the child
+        // positioner to measure against that trigger.
+        parentReadyFrame.request(() => {
+          setParentReadyToPosition(true);
+        });
+      }, abortController.signal);
+    }
+
+    waitForParentPopup();
+
+    return () => {
+      abortController.abort();
+      parentReadyFrame.cancel();
+    };
+  }, [
+    mounted,
+    parentMenuStore,
+    parentReadyFrame,
+    runOnceParentAnimationsFinish,
+    shouldDeferNestedReveal,
+  ]);
+
+  const positionerMounted = mounted && (parent.type !== 'menu' || parentReadyToPosition);
 
   let anchor = anchorProp;
   let sideOffset = sideOffsetProp;
@@ -112,7 +179,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     anchor,
     floatingRootContext,
     positionMethod: contextMenuContext ? 'fixed' : positionMethodProp,
-    mounted,
+    mounted: positionerMounted,
     side: computedSide,
     sideOffset,
     align: computedAlign,
@@ -130,11 +197,72 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     externalTree: floatingTreeRoot,
     adaptiveOrigin: hasViewport ? adaptiveOrigin : undefined,
   });
+  const updatePositioner = positioner.update;
+
+  useIsoLayoutEffect(() => {
+    if (parent.type !== 'menu' || !mounted || !shouldDeferNestedReveal) {
+      positionerUpdateFrame.cancel();
+      revealFrame.cancel();
+      blockedByParentAnimationRef.current = false;
+      setSubmenuReadyToReveal(true);
+      return undefined;
+    }
+
+    if (!parentReadyToPosition || domReference == null) {
+      positionerUpdateFrame.cancel();
+      revealFrame.cancel();
+      blockedByParentAnimationRef.current = true;
+      setSubmenuReadyToReveal(false);
+      return undefined;
+    }
+
+    if (!blockedByParentAnimationRef.current) {
+      setSubmenuReadyToReveal(true);
+      return undefined;
+    }
+
+    // The submenu was held hidden for a parent animation, so force one hidden remeasure first and
+    // only reveal on the following frame. This avoids painting the stale pre-animation position.
+    blockedByParentAnimationRef.current = false;
+    setSubmenuReadyToReveal(false);
+
+    positionerUpdateFrame.request(() => {
+      updatePositioner();
+
+      revealFrame.request(() => {
+        updatePositioner();
+        setSubmenuReadyToReveal(true);
+      });
+    });
+
+    return () => {
+      positionerUpdateFrame.cancel();
+      revealFrame.cancel();
+    };
+  }, [
+    mounted,
+    parent.type,
+    parentReadyToPosition,
+    domReference,
+    shouldDeferNestedReveal,
+    updatePositioner,
+    positionerUpdateFrame,
+    revealFrame,
+  ]);
 
   const positionerProps = React.useMemo(() => {
     const hiddenStyles: React.CSSProperties = {};
 
     if (!open) {
+      hiddenStyles.pointerEvents = 'none';
+    }
+
+    if (
+      parent.type === 'menu' &&
+      shouldDeferNestedReveal &&
+      (!parentReadyToPosition || !submenuReadyToReveal || !positioner.isPositioned)
+    ) {
+      hiddenStyles.visibility = 'hidden';
       hiddenStyles.pointerEvents = 'none';
     }
 
@@ -146,7 +274,16 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
         ...hiddenStyles,
       },
     };
-  }, [open, mounted, positioner.positionerStyles]);
+  }, [
+    open,
+    mounted,
+    parent.type,
+    parentReadyToPosition,
+    shouldDeferNestedReveal,
+    submenuReadyToReveal,
+    positioner.isPositioned,
+    positioner.positionerStyles,
+  ]);
 
   React.useEffect(() => {
     function onMenuOpenChange(details: MenuOpenEventDetails) {
@@ -285,6 +422,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       arrowUncentered: positioner.arrowUncentered,
       arrowStyles: positioner.arrowStyles,
       nodeId: positioner.context.nodeId,
+      deferEnterTransition: shouldDeferNestedReveal && !submenuReadyToReveal,
     }),
     [
       positioner.side,
@@ -293,6 +431,8 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       positioner.arrowUncentered,
       positioner.arrowStyles,
       positioner.context.nodeId,
+      shouldDeferNestedReveal,
+      submenuReadyToReveal,
     ],
   );
 

@@ -1336,6 +1336,39 @@ describe('<Menu.Root />', () => {
 
         expect(onOpenChangeComplete.mock.calls.length).toBe(0);
       });
+
+      it('keeps a default-open submenu hidden until the parent open animation finishes', async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        let parentAnimations: ReturnType<typeof mockAnimations> | null = null;
+
+        await render(
+          <TestMenu
+            rootProps={{ defaultOpen: true }}
+            submenuProps={{ defaultOpen: true }}
+            popupRef={(element) => {
+              if (element && parentAnimations == null) {
+                parentAnimations = mockAnimations(element);
+                parentAnimations.start();
+              }
+            }}
+          />,
+        );
+
+        const submenuPositioner = await screen.findByTestId('submenu-positioner');
+
+        expect(submenuPositioner).toHaveStyle({ visibility: 'hidden' });
+
+        await act(async () => {
+          await parentAnimations?.finish();
+        });
+
+        await waitFor(() => {
+          expect(screen.getByTestId('submenu-positioner')).not.toHaveStyle({
+            visibility: 'hidden',
+          });
+        });
+      });
     });
 
     describe('prop: openOnHover', () => {
@@ -1928,6 +1961,50 @@ describe('<Menu.Root />', () => {
   });
 });
 
+function mockAnimations(element: HTMLElement) {
+  type MockAnimation = {
+    finished: Promise<void>;
+    resolveFinished: (() => void) | null;
+  };
+
+  function createAnimation(): MockAnimation {
+    let resolveFinished: (() => void) | null = null;
+
+    return {
+      finished: new Promise<void>((resolve) => {
+        resolveFinished = resolve;
+      }),
+      resolveFinished,
+    };
+  }
+
+  let currentAnimation = createAnimation();
+  let activeAnimations: MockAnimation[] = [];
+
+  Object.defineProperty(element, 'getAnimations', {
+    configurable: true,
+    value: () =>
+      activeAnimations.map((animation) => ({
+        finished: animation.finished,
+      })),
+  });
+
+  return {
+    start() {
+      currentAnimation = createAnimation();
+      activeAnimations.push(currentAnimation);
+      return currentAnimation;
+    },
+    finish(animation: MockAnimation = currentAnimation) {
+      const finished = animation.finished;
+      animation.resolveFinished?.();
+      animation.resolveFinished = null;
+      activeAnimations = activeAnimations.filter((item) => item !== animation);
+      return finished;
+    },
+  };
+}
+
 function ContainedTriggerMenu(props: TestMenuProps) {
   const { triggerProps, ...rest } = props;
   return (
@@ -1958,6 +2035,7 @@ type TestMenuProps = {
   rootProps?: Menu.Root.Props;
   portalProps?: Menu.Portal.Props;
   popupProps?: Menu.Popup.Props;
+  popupRef?: React.Ref<HTMLDivElement>;
   triggerProps?: Menu.Trigger.Props;
   submenuProps?: Menu.SubmenuRoot.Props;
   submenuTriggerProps?: Menu.SubmenuTrigger.Props;
@@ -1965,13 +2043,21 @@ type TestMenuProps = {
 };
 
 function TestMenuContents(props: TestMenuProps) {
-  const { children, rootProps, portalProps, submenuProps, submenuTriggerProps, popupProps } = props;
+  const {
+    children,
+    rootProps,
+    portalProps,
+    submenuProps,
+    submenuTriggerProps,
+    popupProps,
+    popupRef,
+  } = props;
   return (
     <Menu.Root {...rootProps}>
       {children}
       <Menu.Portal {...portalProps}>
         <Menu.Positioner data-testid="menu-positioner">
-          <Menu.Popup data-testid="menu" {...popupProps}>
+          <Menu.Popup ref={popupRef} data-testid="menu" {...popupProps}>
             {popupProps?.children ?? (
               <React.Fragment>
                 <Menu.Item data-testid="item-1">Item 1</Menu.Item>
@@ -1984,7 +2070,7 @@ function TestMenuContents(props: TestMenuProps) {
                     Item 4
                   </Menu.SubmenuTrigger>
                   <Menu.Portal>
-                    <Menu.Positioner>
+                    <Menu.Positioner data-testid="submenu-positioner">
                       <Menu.Popup data-testid="submenu">
                         <Menu.Item data-testid="item-4_1">Item 4.1</Menu.Item>
                         <Menu.Item data-testid="item-4_2">Item 4.2</Menu.Item>
@@ -1996,7 +2082,7 @@ function TestMenuContents(props: TestMenuProps) {
                             Item 4.3
                           </Menu.SubmenuTrigger>
                           <Menu.Portal>
-                            <Menu.Positioner>
+                            <Menu.Positioner data-testid="nested-submenu-positioner">
                               <Menu.Popup data-testid="nested-submenu">
                                 <Menu.Item data-testid="item-4_3_1">Item 4.3.1</Menu.Item>
                                 <Menu.Item data-testid="item-4_3_2">Item 4.3.2</Menu.Item>

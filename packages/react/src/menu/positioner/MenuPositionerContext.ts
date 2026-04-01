@@ -15,6 +15,7 @@ export interface MenuPositionerContext {
   arrowUncentered: boolean;
   arrowStyles: React.CSSProperties;
   nodeId: string | undefined;
+  deferEnterTransition: boolean;
 }
 
 export const MenuPositionerContext = React.createContext<MenuPositionerContext | undefined>(
