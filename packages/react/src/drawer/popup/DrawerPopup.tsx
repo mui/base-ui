@@ -1,5 +1,7 @@
 'use client';
 import * as React from 'react';
+import { error } from '@base-ui/utils/error';
+import { SafeReact } from '@base-ui/utils/safeReact';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -156,6 +158,22 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
   const [popupHeight, setPopupHeight] = React.useState(0);
 
   const popupHeightRef = React.useRef(0);
+
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    React.useEffect(() => {
+      if (swipe) {
+        return;
+      }
+
+      const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
+      const message =
+        '<Drawer.Popup> expected to be rendered within <Drawer.Viewport>. Omitting the ' +
+        'viewport disables drawer swipe handling and touch scroll locking. Wrap ' +
+        '<Drawer.Popup> in <Drawer.Viewport>.';
+      error(`${message}${ownerStackMessage}`);
+    }, [swipe]);
+  }
 
   const measureHeight = useStableCallback(() => {
     const popupElement = store.context.popupRef.current;

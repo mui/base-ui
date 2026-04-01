@@ -5,10 +5,12 @@ import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDeta
 import { createEventEmitter } from '../utils/createEventEmitter';
 import { type FloatingUIOpenChangeDetails } from '../../utils/types';
 import { type PopupTriggerMap } from '../../utils/popups';
-import { isClickLikeEvent } from '../utils/event';
+import { isClickLikeEvent } from '../utils';
+import type { TransitionStatus } from '../../utils/useTransitionStatus';
 
 export interface FloatingRootState {
   open: boolean;
+  transitionStatus: TransitionStatus | undefined;
   domReferenceElement: Element | null;
   referenceElement: ReferenceType | null;
   floatingElement: HTMLElement | null;
@@ -32,6 +34,7 @@ export interface FloatingRootStoreContext {
 
 const selectors = {
   open: createSelector((state: FloatingRootState) => state.open),
+  transitionStatus: createSelector((state: FloatingRootState) => state.transitionStatus),
   domReferenceElement: createSelector((state: FloatingRootState) => state.domReferenceElement),
   referenceElement: createSelector(
     (state: FloatingRootState) => state.positionReference ?? state.referenceElement,
@@ -42,6 +45,7 @@ const selectors = {
 
 interface FloatingRootStoreOptions {
   open: boolean;
+  transitionStatus: TransitionStatus | undefined;
   referenceElement: ReferenceType | null;
   floatingElement: HTMLElement | null;
   triggerElements: PopupTriggerMap;

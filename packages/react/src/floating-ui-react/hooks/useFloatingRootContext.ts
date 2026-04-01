@@ -41,6 +41,7 @@ export function useFloatingRootContext(options: UseFloatingRootContextOptions): 
     () =>
       new FloatingRootStore({
         open,
+        transitionStatus: undefined,
         onOpenChange,
         referenceElement: elements.reference ?? null,
         floatingElement: elements.floating ?? null,
