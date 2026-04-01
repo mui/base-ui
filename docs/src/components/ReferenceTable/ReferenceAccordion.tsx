@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import type { EnhancedProperty } from '@mui/internal-docs-infra/useTypes';
+import { stringOrHastToString } from '@mui/internal-docs-infra/pipeline/hastUtils';
 import { Link } from 'docs/src/components/Link';
 import * as Accordion from '../Accordion';
 import * as CodeBlock from '../CodeBlock';
@@ -63,7 +64,9 @@ export function ReferenceAccordion({
         // anchor hash for each prop
         const id = `${partName.replace('.', '')}-${name}`;
 
-        const shortTypeText = prop.shortTypeText ?? 'type';
+        const shortTypeText = prop.shortType
+          ? stringOrHastToString(prop.shortType as string)
+          : 'type';
         const defaultText = prop.defaultText;
 
         return (
