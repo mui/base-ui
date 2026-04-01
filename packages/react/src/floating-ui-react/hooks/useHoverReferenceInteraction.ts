@@ -42,6 +42,12 @@ export interface UseHoverReferenceInteractionProps {
   isActiveTrigger?: boolean | undefined;
   triggerElementRef?: Readonly<React.RefObject<Element | null>> | undefined;
   getHandleCloseContext?: (() => HandleCloseContextBase | null) | undefined;
+  /**
+   * Called before the floating element is opened by hover. Return `false` to
+   * prevent the open. Useful for preventing nested tooltip triggers from
+   * opening parent tooltips.
+   */
+  shouldOpen?: (() => boolean) | undefined;
 }
 
 const EMPTY_REF: Readonly<React.RefObject<Element | null>> = { current: null };
@@ -68,6 +74,7 @@ export function useHoverReferenceInteraction(
     externalTree,
     isActiveTrigger = true,
     getHandleCloseContext,
+    shouldOpen: shouldOpenProp,
   } = props;
 
   const tree = useFloatingTree(externalTree);
@@ -78,6 +85,7 @@ export function useHoverReferenceInteraction(
   const delayRef = useValueAsRef(delay);
   const restMsRef = useValueAsRef(restMs);
   const enabledRef = useValueAsRef(enabled);
+  const shouldOpenRef = useValueAsRef(shouldOpenProp);
 
   if (isActiveTrigger) {
     // eslint-disable-next-line no-underscore-dangle
@@ -213,15 +221,19 @@ export function useHoverReferenceInteraction(
 
       // When moving between triggers while already open, open immediately without delay
       if (isOverInactive && isOpen) {
-        store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
+        if (shouldOpenRef.current?.() !== false) {
+          store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
+        }
       } else if (openDelay) {
         instance.openChangeTimeout.start(openDelay, () => {
-          if (shouldOpen) {
+          if (shouldOpen && shouldOpenRef.current?.() !== false) {
             store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
           }
         });
       } else if (shouldOpen) {
-        store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
+        if (shouldOpenRef.current?.() !== false) {
+          store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
+        }
       }
     }
 
@@ -325,6 +337,7 @@ export function useHoverReferenceInteraction(
     tree,
     enabledRef,
     getHandleCloseContext,
+    shouldOpenRef,
   ]);
 
   return React.useMemo<HTMLProps | undefined>(() => {
@@ -396,7 +409,11 @@ export function useHoverReferenceInteraction(
 
           const latestOpen = store.select('open');
 
-          if (!instance.blockMouseMove && (!latestOpen || isOverInactive)) {
+          if (
+            !instance.blockMouseMove &&
+            (!latestOpen || isOverInactive) &&
+            shouldOpenRef.current?.() !== false
+          ) {
             store.setOpen(
               true,
               createChangeEventDetails(REASONS.triggerHover, nativeEvent, trigger),
@@ -416,5 +433,5 @@ export function useHoverReferenceInteraction(
         }
       },
     };
-  }, [enabled, instance, isClickLikeOpenEvent, isOverInactiveTrigger, mouseOnly, store, restMsRef]);
+  }, [enabled, instance, isClickLikeOpenEvent, isOverInactiveTrigger, mouseOnly, store, restMsRef, shouldOpenRef]);
 }
