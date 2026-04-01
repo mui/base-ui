@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { Drawer } from '@base-ui/react/drawer';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
@@ -12,11 +12,35 @@ describe('<Drawer.Popup />', () => {
     render(node) {
       return render(
         <Drawer.Root open>
-          <Drawer.Portal>{node}</Drawer.Portal>
+          <Drawer.Portal>
+            <Drawer.Viewport>{node}</Drawer.Viewport>
+          </Drawer.Portal>
         </Drawer.Root>,
       );
     },
   }));
+
+  it('warns in development when not rendered within a viewport', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    await render(
+      <Drawer.Root open>
+        <Drawer.Portal>
+          <Drawer.Popup>Drawer</Drawer.Popup>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    await waitFor(() => {
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        expect.stringContaining(
+          'Base UI: <Drawer.Popup> expected to be rendered within <Drawer.Viewport>.',
+        ),
+      );
+    });
+
+    consoleErrorSpy.mockRestore();
+  });
 
   it('defaults initial focus to the popup element', async () => {
     await render(
