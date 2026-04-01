@@ -17,14 +17,12 @@ import {
   useAnchorPositioning,
   type UseAnchorPositioningSharedParameters,
 } from '../../utils/useAnchorPositioning';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-import { popupStateMapping } from '../../utils/popupStateMapping';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { useComboboxPortalContext } from '../portal/ComboboxPortalContext';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
-import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
-import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
+import { usePositioner } from '../../utils/usePositioner';
 
 /**
  * Positions the popup against the trigger.
@@ -93,22 +91,6 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
 
   useScrollLock(open && modal && openMethod !== 'touch', triggerElement);
 
-  const defaultProps: HTMLProps = React.useMemo(() => {
-    const style: React.CSSProperties = {
-      ...positioning.positionerStyles,
-    };
-
-    if (!open) {
-      style.pointerEvents = 'none';
-    }
-
-    return {
-      role: 'presentation',
-      hidden: !mounted,
-      style,
-    };
-  }, [open, mounted, positioning.positionerStyles]);
-
   const state: ComboboxPositionerState = {
     open,
     side: positioning.side,
@@ -121,40 +103,21 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     store.set('popupSide', positioning.side);
   }, [store, positioning.side]);
 
-  const contextValue: ComboboxPositionerContext = React.useMemo(
-    () => ({
-      side: positioning.side,
-      align: positioning.align,
-      arrowRef: positioning.arrowRef,
-      arrowUncentered: positioning.arrowUncentered,
-      arrowStyles: positioning.arrowStyles,
-      anchorHidden: positioning.anchorHidden,
-      isPositioned: positioning.isPositioned,
-    }),
-    [
-      positioning.side,
-      positioning.align,
-      positioning.arrowRef,
-      positioning.arrowUncentered,
-      positioning.arrowStyles,
-      positioning.anchorHidden,
-      positioning.isPositioned,
-    ],
-  );
-
   const setPositionerElement = useStableCallback((element) => {
     store.set('positionerElement', element);
   });
 
-  const element = useRenderElement('div', componentProps, {
-    state,
-    ref: [forwardedRef, setPositionerElement],
-    props: [defaultProps, getDisabledMountTransitionStyles(transitionStatus), elementProps],
-    stateAttributesMapping: popupStateMapping,
+  const element = usePositioner(componentProps, state, {
+    styles: positioning.positionerStyles,
+    transitionStatus,
+    props: elementProps,
+    refs: [forwardedRef, setPositionerElement],
+    hidden: !mounted,
+    inert: !open,
   });
 
   return (
-    <ComboboxPositionerContext.Provider value={contextValue}>
+    <ComboboxPositionerContext.Provider value={positioning}>
       {mounted && modal && (
         <InternalBackdrop
           inert={inertValue(!open)}
