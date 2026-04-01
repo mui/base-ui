@@ -262,7 +262,7 @@
   }
 
   /* Inline code and highlighted characters - collapse most colors to blue */
-  [data-inline] {
+  .MdCode:not(pre .MdCode) {
     --color-prettylights-syntax-comment: var(--color-blue);
     --color-prettylights-syntax-constant: var(--color-blue);
     --color-prettylights-syntax-entity: var(--color-blue);
@@ -271,14 +271,6 @@
     --color-prettylights-syntax-variable: var(--color-blue);
     --color-prettylights-syntax-storage-modifier-import: var(--color-blue);
     --color-docs-infra-syntax-nullish: var(--color-blue);
-  }
-
-  /* Table code - recover some syntax highlighting */
-  [data-table-code] {
-    --color-prettylights-syntax-entity: var(--color-violet);
-    --color-prettylights-syntax-keyword: var(--color-red);
-    --color-prettylights-syntax-string: var(--color-navy);
-    --color-docs-infra-syntax-nullish: var(--color-gray-500);
   }
 
   /* Line highlighting */
@@ -304,11 +296,5 @@
   /* Stronger emphasis for highlighted words inside already highlighted lines */
   pre .line[data-hl] [data-hl]:not(.line) {
     background-color: var(--color-line-highlight-strong);
-  }
-
-  /* Hide JSDoc comment frames in inline and table code contexts */
-  [data-inline] [data-frame-type='comment'],
-  [data-table-code] [data-frame-type='comment'] {
-    display: none;
   }
 }

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import clsx from 'clsx';
 import * as CodeBlock from './components/CodeBlock';
 import * as Table from './components/Table';
 import * as QuickNav from './components/QuickNav/QuickNav';
@@ -20,7 +21,7 @@ interface MDXComponents {
 export const mdxComponents: MDXComponents = {
   a: Link,
   em: (props) => <em className="MdEm" {...props} />,
-  code: (props) => <Code className="MdInlineCode" {...props} />,
+  code: (props) => <Code {...props} className={clsx('MdCode', props.className)} />,
   h1: (props) => (
     // Do not wrap heading tags in divs, that confuses Safari Reader
     <h1 className="MdH1" {...props} />
