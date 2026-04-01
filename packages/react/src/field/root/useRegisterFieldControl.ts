@@ -14,14 +14,14 @@ export function useRegisterFieldControl(params: UseRegisterFieldControlParameter
   const { registerFieldControl } = useFieldRootContext();
   const sourceRef = React.useRef<symbol | null>(null);
 
-  if (sourceRef.current == null) {
+  if (!sourceRef.current) {
     sourceRef.current = Symbol();
   }
 
   useIsoLayoutEffect(() => {
     const source = sourceRef.current;
 
-    if (source == null || !enabled) {
+    if (!source || !enabled) {
       return undefined;
     }
 

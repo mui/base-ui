@@ -15,24 +15,76 @@ export interface FieldControlRegistration {
 }
 
 export function useFieldControlRegistration(params: UseFieldControlRegistrationParameters) {
-  const { registration, commit, invalid, markedDirtyRef, name, setValidityData, validityData } =
-    params;
+  const { commit, invalid, markedDirtyRef, name, setValidityData, validityData } = params;
 
   const { formRef } = useFormContext();
 
+  const activeFieldControlSourceRef = React.useRef<symbol | null>(null);
+  const registrationRef = React.useRef<FieldControlRegistration | null>(null);
   const fallbackControlRef = React.useRef<any>(null);
 
-  const id = registration?.id;
-  const value = registration?.value;
-  const controlRef = registration?.controlRef ?? fallbackControlRef;
-  const getValue = useStableCallback(registration?.getValue ?? (() => value));
+  const getValue = useStableCallback(() => {
+    const registration = registrationRef.current;
+    if (!registration) {
+      return undefined;
+    }
 
-  useIsoLayoutEffect(() => {
-    if (registration == null) {
+    if (registration.getValue) {
+      return registration.getValue();
+    }
+
+    return registration.value;
+  });
+
+  const validate = useStableCallback((flushSync = true) => {
+    const registration = registrationRef.current;
+    if (!registration) {
       return;
     }
 
-    let initialValue = value;
+    let nextValue = registration.value;
+    if (nextValue === undefined) {
+      nextValue = getValue();
+    }
+
+    markedDirtyRef.current = true;
+
+    if (!flushSync) {
+      commit(nextValue);
+    } else {
+      // Synchronously update the validity state so the submit event can be prevented.
+      ReactDOM.flushSync(() => commit(nextValue));
+    }
+  });
+
+  function refreshRegistration() {
+    const registration = registrationRef.current;
+    if (!registration || !registration.id) {
+      return;
+    }
+
+    formRef.current.fields.set(registration.id, {
+      getValue,
+      name,
+      controlRef: registration.controlRef ?? fallbackControlRef,
+      validityData: getCombinedFieldValidityData(validityData, invalid),
+      validate,
+    });
+  }
+
+  function deleteRegistration(id = registrationRef.current?.id) {
+    if (id) {
+      formRef.current.fields.delete(id);
+    }
+  }
+
+  function syncInitialValue() {
+    const registration = registrationRef.current;
+    if (!registration) {
+      return;
+    }
+
+    let initialValue = registration.value;
     if (initialValue === undefined) {
       initialValue = getValue();
     }
@@ -40,57 +92,56 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
     if (validityData.initialValue === null && initialValue !== null) {
       setValidityData((prev) => ({ ...prev, initialValue }));
     }
-  }, [getValue, registration, setValidityData, validityData.initialValue, value]);
+  }
 
   useIsoLayoutEffect(() => {
-    if (registration == null || !id) {
+    const registration = registrationRef.current;
+    if (!registration || !registration.id) {
       return;
     }
 
-    formRef.current.fields.set(id, {
+    formRef.current.fields.set(registration.id, {
       getValue,
       name,
-      controlRef,
+      controlRef: registration.controlRef ?? fallbackControlRef,
       validityData: getCombinedFieldValidityData(validityData, invalid),
-      validate(flushSync = true) {
-        let nextValue = value;
-        if (nextValue === undefined) {
-          nextValue = getValue();
-        }
-
-        markedDirtyRef.current = true;
-
-        if (!flushSync) {
-          commit(nextValue);
-        } else {
-          // Synchronously update the validity state so the submit event can be prevented.
-          ReactDOM.flushSync(() => commit(nextValue));
-        }
-      },
+      validate,
     });
-  }, [
-    commit,
-    controlRef,
-    formRef,
-    getValue,
-    id,
-    invalid,
-    markedDirtyRef,
-    name,
-    registration,
-    validityData,
-    value,
-  ]);
+  }, [formRef, getValue, invalid, name, validate, validityData]);
 
   useIsoLayoutEffect(() => {
     const fields = formRef.current.fields;
 
     return () => {
+      const id = registrationRef.current?.id;
       if (id) {
         fields.delete(id);
       }
     };
-  }, [formRef, id]);
+  }, [formRef]);
+
+  return useStableCallback((source: symbol, registration: FieldControlRegistration | undefined) => {
+    if (!registration) {
+      if (activeFieldControlSourceRef.current === source) {
+        activeFieldControlSourceRef.current = null;
+        deleteRegistration();
+        registrationRef.current = null;
+      }
+      return;
+    }
+
+    const previousId = registrationRef.current?.id;
+
+    activeFieldControlSourceRef.current = source;
+    registrationRef.current = registration;
+
+    if (previousId && previousId !== registration.id) {
+      deleteRegistration(previousId);
+    }
+
+    syncInitialValue();
+    refreshRegistration();
+  });
 }
 
 export interface UseFieldControlRegistrationParameters {
@@ -98,7 +149,6 @@ export interface UseFieldControlRegistrationParameters {
   invalid: boolean;
   markedDirtyRef: React.RefObject<boolean>;
   name: string | undefined;
-  registration: FieldControlRegistration | null;
   setValidityData: React.Dispatch<React.SetStateAction<FieldValidityData>>;
   validityData: FieldValidityData;
 }

@@ -69,7 +69,7 @@ export const FieldRootContext = React.createContext<FieldRootContext>({
   shouldValidateOnChange: () => false,
   state: DEFAULT_FIELD_ROOT_STATE,
   markedDirtyRef: { current: false },
-  registerFieldControl: () => {},
+  registerFieldControl: NOOP,
   validation: {
     getValidationProps: (props: HTMLProps = EMPTY_OBJECT) => props,
     getInputValidationProps: (props: HTMLProps = EMPTY_OBJECT) => props,
