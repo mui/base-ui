@@ -30,6 +30,7 @@ import { useDirection } from '../internals/direction-context/DirectionContext';
 import { arrow } from '../floating-ui-react/middleware/arrow';
 import { hide } from './hideMiddleware';
 import { DEFAULT_SIDES } from './adaptiveOriginConstants';
+import { EMPTY_OBJECT } from './constants';
 
 const AVAILABLE_WIDTH_VAR = '--available-width';
 const AVAILABLE_HEIGHT_VAR = '--available-height';
@@ -153,7 +154,7 @@ export function useAnchorPositioningWithHook(
     floatingRootContext,
     mounted,
     collisionAvoidance,
-    shiftCrossAxis = false,
+    shift: shiftOptions,
     nodeId,
     adaptiveOrigin,
     lazyFlip = false,
@@ -169,6 +170,8 @@ export function useAnchorPositioningWithHook(
   const collisionAvoidanceSide = collisionAvoidance.side || 'flip';
   const collisionAvoidanceAlign = collisionAvoidance.align || 'flip';
   const collisionAvoidanceFallbackAxisSide = collisionAvoidance.fallbackAxisSide || 'end';
+  const { crossAxis: shiftCrossAxis = false, layout: shiftLayout = false } =
+    (shiftOptions ?? EMPTY_OBJECT) as ShiftOptions;
 
   const anchorFn = typeof anchor === 'function' ? anchor : undefined;
   const anchorFnCallback = useStableCallback(anchorFn);
@@ -301,10 +304,13 @@ export function useAnchorPositioningWithHook(
         (data) => {
           const win = ownerWindow(data.elements.floating);
           const html = ownerDocument(data.elements.floating).documentElement;
-          const useLayoutViewport = shiftCrossAxis || (win.visualViewport?.scale ?? 1) !== 1;
+          const useLayoutViewport =
+            shiftCrossAxis || (shiftLayout && (win.visualViewport?.scale ?? 1) !== 1);
           return {
             ...commonCollisionProps,
             // Use the Layout Viewport to avoid shifting around when pinch-zooming.
+            // TODO: Floating UI should ideally have a `layoutViewport` string option
+            // (not just `viewport`) that accounts for `scrollbar-gutter`.
             rootBoundary: useLayoutViewport
               ? { x: 0, y: 0, width: html.clientWidth, height: html.clientHeight }
               : undefined,
@@ -330,7 +336,14 @@ export function useAnchorPositioningWithHook(
                   }),
           };
         },
-        [commonCollisionProps, sticky, shiftCrossAxis, collisionPadding, collisionAvoidanceAlign],
+        [
+          commonCollisionProps,
+          sticky,
+          shiftCrossAxis,
+          shiftLayout,
+          collisionPadding,
+          collisionAvoidanceAlign,
+        ],
       );
 
   // https://floating-ui.com/docs/flip#combining-with-shift
@@ -758,7 +771,7 @@ export interface UseAnchorPositioningParameters extends UseAnchorPositioningShar
   nodeId?: string | undefined;
   adaptiveOrigin?: Middleware | undefined;
   collisionAvoidance: CollisionAvoidance;
-  shiftCrossAxis?: boolean | undefined;
+  shift?: { crossAxis?: boolean | undefined; layout?: boolean | undefined } | undefined;
   lazyFlip?: boolean | undefined;
   externalTree?: FloatingTreeStore | undefined;
   /**
@@ -767,6 +780,8 @@ export interface UseAnchorPositioningParameters extends UseAnchorPositioningShar
    */
   inline?: Middleware | undefined;
 }
+
+type ShiftOptions = NonNullable<UseAnchorPositioningParameters['shift']>;
 
 export interface UseAnchorPositioningReturnValue {
   positionerStyles: React.CSSProperties;
