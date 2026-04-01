@@ -97,5 +97,6 @@
   "97": "Base UI: SharedCalendarRootContext is missing. Calendar parts must be placed within <Calendar.Root /> and Range Calendar parts must be placed within <RangeCalendar.Root />.",
   "98": "Base UI: ListboxGroupContext is missing. ListboxGroup parts must be placed within <Listbox.Group>.",
   "99": "Base UI: ListboxItemContext is missing. ListboxItem parts must be placed within <Listbox.Item>.",
-  "100": "Base UI: ListboxRootContext is missing. Listbox parts must be placed within <Listbox.Root>."
+  "100": "Base UI: ListboxRootContext is missing. Listbox parts must be placed within <Listbox.Root>.",
+  "101": "Base UI: ListboxDragAndDropProviderContext is missing. Use <Listbox.DragAndDropProvider>."
 }
