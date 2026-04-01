@@ -2,7 +2,10 @@
 import * as React from 'react';
 import type { UseAnchorPositioningReturnValue } from '../../utils/useAnchorPositioning';
 
-export type MenuPositionerContext = UseAnchorPositioningReturnValue;
+export type MenuPositionerContext = Pick<
+  UseAnchorPositioningReturnValue,
+  'side' | 'align' | 'arrowRef' | 'arrowUncentered' | 'arrowStyles' | 'context'
+>;
 
 export const MenuPositionerContext = React.createContext<MenuPositionerContext | undefined>(
   undefined,

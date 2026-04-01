@@ -14,6 +14,10 @@ interface UsePositionerOptions {
   extraStyles?: React.CSSProperties | undefined;
 }
 
+/**
+ * Renders the shared outer Positioner element used by popup components.
+ * Applies the common role, hidden state, transition styles, state attributes, and optional inert styling.
+ */
 export function usePositioner<State extends Record<string, any>>(
   componentProps: UseRenderElementComponentProps<State>,
   state: State,
