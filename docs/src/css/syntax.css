@@ -284,7 +284,6 @@
 
   /* Line highlighting */
   pre [data-hl] {
-    display: inline-flex;
     background-color: var(--color-line-highlight);
   }
 
@@ -292,10 +291,20 @@
     background-color: var(--color-line-highlight-strong);
   }
 
-  /* Character/word highlighting */
-  pre [data-hlc] {
+  /* Word highlighting */
+  pre [data-hl]:not(.line) {
+    display: inline-flex;
+  }
+
+  /* Make highlighted words blue */
+  pre [data-hl]:not(.line),
+  pre [data-hl]:not(.line) > * {
     color: var(--color-blue);
-    background-color: var(--color-line-highlight);
+  }
+
+  /* Stronger emphasis for highlighted words inside already highlighted lines */
+  pre .line[data-hl] [data-hl]:not(.line) {
+    background-color: var(--color-line-highlight-strong);
   }
 
   /* Hide JSDoc comment frames in inline and table code contexts */
