@@ -102,9 +102,13 @@ This involves placing the `<AlertDialog.Trigger>` outside of `<AlertDialog.Root>
 ```jsx title="Detached triggers"
 const demoAlertDialog = AlertDialog.createHandle();
 
-<AlertDialog.Trigger handle={demoAlertDialog}>Open</AlertDialog.Trigger> {/* @highlight-text "handle={demoAlertDialog}" */}
+// @highlight
+// @highlight-text "handle={demoAlertDialog}"
+<AlertDialog.Trigger handle={demoAlertDialog}>Open</AlertDialog.Trigger>
 
-<AlertDialog.Root handle={demoAlertDialog}> {/* @highlight-text "handle={demoAlertDialog}" */}
+// @highlight
+// @highlight-text "handle={demoAlertDialog}"
+<AlertDialog.Root handle={demoAlertDialog}>
   ...
 </AlertDialog.Root>
 ```
@@ -142,28 +146,29 @@ This is achieved by passing a `payload` to the `<AlertDialog.Trigger>` and using
 The payload can be strongly typed by providing a type argument to the `createHandle()` function:
 
 ```jsx title="Detached triggers with payload"
-{/* @highlight */}
+// @highlight
 const demoAlertDialog = AlertDialog.createHandle<{ message: string }>();
 
-{/* @highlight */}
+// @highlight
+// @highlight-text "payload"
 <AlertDialog.Trigger handle={demoAlertDialog} payload={{ message: 'Trigger 1' }}>
   Trigger 1
 </AlertDialog.Trigger>
 
-{/* @highlight */}
+// @highlight
+// @highlight-text "payload"
 <AlertDialog.Trigger handle={demoAlertDialog} payload={{ message: 'Trigger 2' }}>
   Trigger 2
 </AlertDialog.Trigger>
 
 <AlertDialog.Root handle={demoAlertDialog}>
-  // @highlight
-  {({ payload }) => (
+  {({ payload }) => ( // @highlight-text "payload"
     <AlertDialog.Portal>
       <AlertDialog.Popup>
         <AlertDialog.Title>Alert dialog</AlertDialog.Title>
-        {payload !== undefined && (
+        {payload !== undefined && ( // @highlight-text "payload"
           <AlertDialog.Description>
-            Confirming {payload.message}
+            Confirming {payload.message} {/* @highlight-text "payload" */}
           </AlertDialog.Description>
         )}
       </AlertDialog.Popup>

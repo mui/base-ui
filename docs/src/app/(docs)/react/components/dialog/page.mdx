@@ -197,9 +197,13 @@ This involves placing the `<Dialog.Trigger>` outside of `<Dialog.Root>` and link
 ```jsx title="Detached triggers"
 const demoDialog = Dialog.createHandle();
 
+// @highlight
+// @highlight-text "handle={demoDialog}"
 <Dialog.Trigger handle={demoDialog}>Open</Dialog.Trigger> {/* @highlight-text "handle={demoDialog}" */}
 
-<Dialog.Root handle={demoDialog}> {/* @highlight-text "handle={demoDialog}" */}
+// @highlight
+// @highlight-text "handle={demoDialog}"
+<Dialog.Root handle={demoDialog}>
   ...
 </Dialog.Root>
 ```
@@ -237,28 +241,29 @@ This is achieved by passing a `payload` to the `<Dialog.Trigger>` and using the 
 The payload can be strongly typed by providing a type argument to the `createHandle()` function:
 
 ```jsx title="Detached triggers with payload"
-{/* @highlight */}
+// @highlight
 const demoDialog = Dialog.createHandle<{ text: string }>();
 
-{/* @highlight */}
+// @highlight
+// @highlight-text "payload"
 <Dialog.Trigger handle={demoDialog} payload={{ text: 'Trigger 1' }}>
   Trigger 1
 </Dialog.Trigger>
 
-{/* @highlight */}
+// @highlight
+// @highlight-text "payload"
 <Dialog.Trigger handle={demoDialog} payload={{ text: 'Trigger 2' }}>
   Trigger 2
 </Dialog.Trigger>
 
 <Dialog.Root handle={demoDialog}>
-  // @highlight
-  {({ payload }) => (
+  {({ payload }) => ( // @highlight-text "payload"
     <Dialog.Portal>
       <Dialog.Popup>
         <Dialog.Title>Dialog</Dialog.Title>
-        {payload !== undefined && (
+        {payload !== undefined && ( // @highlight-text "payload"
           <Dialog.Description>
-            This has been opened by {payload.text}
+            This has been opened by {payload.text} {/* @highlight-text "payload" */}
           </Dialog.Description>
         )}
       </Dialog.Popup>

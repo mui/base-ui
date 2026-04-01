@@ -54,13 +54,17 @@ This involves placing the `<PreviewCard.Trigger>` outside of `<PreviewCard.Root>
 ```jsx title="Detached triggers"
 const demoPreviewCard = PreviewCard.createHandle();
 
-<PreviewCard.Trigger handle={demoPreviewCard} href="#"> {/* @highlight-text "handle={demoPreviewCard}" */}
+// @highlight
+// @highlight-text "handle={demoPreviewCard}"
+<PreviewCard.Trigger handle={demoPreviewCard} href="#">
   Link
 </PreviewCard.Trigger>
 
-<PreviewCard.Root handle={demoPreviewCard}> {/* @highlight-text "handle={demoPreviewCard}" */}
+// @highlight
+// @highlight-text "handle={demoPreviewCard}"
+<PreviewCard.Root handle={demoPreviewCard}>
   ...
-</PreviewCard.Root>
+</PreviewCard.Root>;
 ```
 
 import { DemoPreviewCardDetachedTriggersSimple } from './demos/detached-triggers-simple';
@@ -105,15 +109,15 @@ The payload can be strongly typed by providing a type argument to the `createHan
 // @highlight
 const demoPreviewCard = PreviewCard.createHandle<{ title: string }>();
 
-{/* @highlight-start */}
-<PreviewCard.Trigger handle={demoPreviewCard} payload={{ title: 'Trigger 1' }} href="#"> {/* @highlight-text "payload" */}
-{/* @highlight-end */}
+// @highlight
+// @highlight-text "payload"
+<PreviewCard.Trigger handle={demoPreviewCard} payload={{ title: 'Trigger 1' }} href="#">
   Trigger 1
 </PreviewCard.Trigger>
 
-{/* @highlight-start */}
-<PreviewCard.Trigger handle={demoPreviewCard} payload={{ title: 'Trigger 2' }} href="#"> {/* @highlight-text "payload" */}
-{/* @highlight-end */}
+// @highlight
+// @highlight-text "payload"
+<PreviewCard.Trigger handle={demoPreviewCard} payload={{ title: 'Trigger 2' }} href="#">
   Trigger 2
 </PreviewCard.Trigger>
 
@@ -122,7 +126,7 @@ const demoPreviewCard = PreviewCard.createHandle<{ title: string }>();
     <PreviewCard.Portal>
       <PreviewCard.Positioner sideOffset={8}>
         <PreviewCard.Popup>
-          {payload !== undefined && ( {/* @highlight-text "payload" */}
+          {payload !== undefined && ( // @highlight-text "payload"
             <span>
               Preview card opened by {payload.title} {/* @highlight-text "payload" */}
             </span>

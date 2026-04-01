@@ -187,8 +187,12 @@ However, if defining the drawer's content next to its trigger is not practical, 
 ```jsx title="Detached triggers"
 const demoDrawer = Drawer.createHandle();
 
+// @highlight
+// @highlight-text "handle={demoDrawer}"
 <Drawer.Trigger handle={demoDrawer}>Open</Drawer.Trigger>
 
+// @highlight
+// @highlight-text "handle={demoDrawer}"
 <Drawer.Root handle={demoDrawer}>
   ...
 </Drawer.Root>
@@ -197,22 +201,27 @@ const demoDrawer = Drawer.createHandle();
 The drawer can render different content depending on which trigger opened it. This is achieved by passing a `payload` to the `<Drawer.Trigger>` and using the function-as-a-child pattern in `<Drawer.Root>`.
 
 ```jsx title="Detached triggers with payload"
+// @highlight
 const demoDrawer = Drawer.createHandle<{ title: string }>();
 
+// @highlight
+// @highlight-text "payload"
 <Drawer.Trigger handle={demoDrawer} payload={{ title: 'Profile' }}>
   Profile
 </Drawer.Trigger>
 
+// @highlight
+// @highlight-text "payload"
 <Drawer.Trigger handle={demoDrawer} payload={{ title: 'Settings' }}>
   Settings
 </Drawer.Trigger>
 
 <Drawer.Root handle={demoDrawer}>
-  {({ payload }) => (
+  {({ payload }) => ( // @highlight-text "payload"
     <Drawer.Portal>
       <Drawer.Popup>
         <Drawer.Content>
-          <Drawer.Title>{payload?.title}</Drawer.Title>
+          <Drawer.Title>{payload?.title}</Drawer.Title> {/* @highlight-text "payload" */}
         </Drawer.Content>
       </Drawer.Popup>
     </Drawer.Portal>

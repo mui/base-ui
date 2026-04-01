@@ -78,9 +78,13 @@ This involves placing the `<Tooltip.Trigger>` outside of `<Tooltip.Root>` and li
 ```jsx title="Detached triggers"
 const demoTooltip = Tooltip.createHandle();
 
-<Tooltip.Trigger handle={demoTooltip}>Button</Tooltip.Trigger> {/* @highlight-text "handle={demoTooltip}" */}
+// @highlight
+// @highlight-text "handle={demoTooltip}"
+<Tooltip.Trigger handle={demoTooltip}>Button</Tooltip.Trigger>
 
-<Tooltip.Root handle={demoTooltip}> {/* @highlight-text "handle={demoTooltip}" */}
+// @highlight
+// @highlight-text "handle={demoTooltip}"
+<Tooltip.Root handle={demoTooltip}>
   ...
 </Tooltip.Root>
 ```
@@ -124,18 +128,18 @@ This is achieved by passing a `payload` to the `<Tooltip.Trigger>` and using the
 The payload can be strongly typed by providing a type argument to the `createHandle()` function:
 
 ```jsx title="Detached triggers with payload"
-{/* @highlight */}
+// @highlight
 const demoTooltip = Tooltip.createHandle<{ text: string }>();
 
-{/* @highlight-start */}
-<Tooltip.Trigger handle={demoTooltip} payload={{ text: 'Trigger 1' }}> {/* @highlight-text "payload" */}
-{/* @highlight-end */}
+// @highlight
+// @highlight-text "payload"
+<Tooltip.Trigger handle={demoTooltip} payload={{ text: 'Trigger 1' }}>
   Trigger 1
 </Tooltip.Trigger>
 
-{/* @highlight-start */}
-<Tooltip.Trigger handle={demoTooltip} payload={{ text: 'Trigger 2' }}> {/* @highlight-text "payload" */}
-{/* @highlight-end */}
+// @highlight
+// @highlight-text "payload"
+<Tooltip.Trigger handle={demoTooltip} payload={{ text: 'Trigger 2' }}>
   Trigger 2
 </Tooltip.Trigger>
 

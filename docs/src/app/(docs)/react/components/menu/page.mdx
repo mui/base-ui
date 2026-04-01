@@ -194,11 +194,15 @@ Submenus must have their triggers defined within the `SubmenuRoot` part.
 ```jsx title="Detached triggers"
 const demoMenu = Menu.createHandle();
 
-<Menu.Trigger handle={demoMenu}> {/* @highlight-text "handle={demoMenu}" */}
+// @highlight
+// @highlight-text "handle={demoMenu}"
+<Menu.Trigger handle={demoMenu}>
   Actions
 </Menu.Trigger>
 
-<Menu.Root handle={demoMenu}> {/* @highlight-text "handle={demoMenu}" */}
+// @highlight
+// @highlight-text "handle={demoMenu}"
+<Menu.Root handle={demoMenu}>
   <Menu.Portal>
     <Menu.Positioner>
       <Menu.Popup>
@@ -252,23 +256,24 @@ const menus = {
 const demoMenu = Menu.createHandle<{ items: string[] }>();
 
 // @highlight
+// @highlight-text "payload"
 <Menu.Trigger handle={demoMenu} payload={{ items: menus.file }}>
   File
 </Menu.Trigger>
 
 // @highlight
+// @highlight-text "payload"
 <Menu.Trigger handle={demoMenu} payload={{ items: menus.edit }}>
   Edit
 </Menu.Trigger>
 
 <Menu.Root handle={demoMenu}>
-  // @highlight
-  {({ payload }) => (
+  {({ payload }) => ( // @highlight-text "payload"
     <Menu.Portal>
       <Menu.Positioner>
         <Menu.Popup>
           <Menu.Viewport>
-            {(payload?.items ?? []).map((item) => (
+            {(payload?.items ?? []).map((item) => ( // @highlight-text "payload"
               <Menu.Item key={item}>{item}</Menu.Item>
             ))}
           </Menu.Viewport>
