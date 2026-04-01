@@ -433,5 +433,14 @@ export function useHoverReferenceInteraction(
         }
       },
     };
-  }, [enabled, instance, isClickLikeOpenEvent, isOverInactiveTrigger, mouseOnly, store, restMsRef, shouldOpenRef]);
+  }, [
+    enabled,
+    instance,
+    isClickLikeOpenEvent,
+    isOverInactiveTrigger,
+    mouseOnly,
+    store,
+    restMsRef,
+    shouldOpenRef,
+  ]);
 }

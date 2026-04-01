@@ -175,10 +175,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     if (event.target === triggerElementRef.current) {
       return;
     }
-    if (
-      store.select('open') &&
-      store.select('lastOpenChangeReason') === REASONS.triggerHover
-    ) {
+    if (store.select('open') && store.select('lastOpenChangeReason') === REASONS.triggerHover) {
       store.setOpen(false, createChangeEventDetails(REASONS.triggerHover));
     }
   });
