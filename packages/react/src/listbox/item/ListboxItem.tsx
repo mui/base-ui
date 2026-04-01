@@ -222,10 +222,6 @@ export const ListboxItem = React.memo(
         ctrlKey?: boolean | undefined;
       } = {},
     ) {
-      if (selectionMode === 'none') {
-        return;
-      }
-
       let action: SelectionAction;
 
       if (shiftKey && isMultipleSelectionMode(selectionMode)) {

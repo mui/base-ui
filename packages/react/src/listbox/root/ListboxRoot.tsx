@@ -381,7 +381,6 @@ export interface ListboxRootProps<Value> {
   disabled?: boolean | undefined;
   /**
    * Determines how user interactions affect the selection.
-   * - `'none'` — Items cannot be selected.
    * - `'single'` — Only one item can be selected at a time.
    * - `'multiple'` — Clicking toggles items. Shift+Click selects a range.
    * - `'explicit-multiple'` — Like a file browser: plain click replaces the selection,

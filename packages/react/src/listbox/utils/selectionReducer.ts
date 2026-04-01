@@ -5,13 +5,12 @@ import { EMPTY_ARRAY } from '../../utils/constants';
  * The selection mode determines how user interactions (clicks, keyboard)
  * affect the selected items in the listbox.
  *
- * - `'none'`  — Items cannot be selected.
  * - `'single'`  — Only one item can be selected at a time. Clicking replaces the selection.
  * - `'multiple'`  — Clicking toggles items. Shift+Click selects a range.
  * - `'explicit-multiple'`  — Like a file browser: clicking replaces the selection,
  *    Ctrl/Cmd+Click toggles individual items, Shift+Click selects a range.
  */
-export type SelectionMode = 'none' | 'single' | 'multiple' | 'explicit-multiple';
+export type SelectionMode = 'single' | 'multiple' | 'explicit-multiple';
 
 /**
  * Typed actions that describe selection intent. Both click handlers and
