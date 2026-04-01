@@ -131,6 +131,7 @@ Renders a `<button>` element.
 | Attribute             | Type | Description                                                                                                    |
 | :-------------------- | :--- | :------------------------------------------------------------------------------------------------------------- |
 | data-popup-open       | -    | Present when the corresponding tooltip is open.                                                                |
+| data-tooltip-trigger  | -    | Present on all tooltip triggers. Used to detect nested tooltip triggers.                                       |
 | data-trigger-disabled | -    | Present when the trigger is disabled, either by the `disabled` prop or by a parent `<Tooltip.Root>` component. |
 
 ### Trigger.Props
