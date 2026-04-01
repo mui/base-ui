@@ -8,8 +8,11 @@ export interface UseRegisterFieldControlParameters extends FieldControlRegistrat
   enabled?: boolean | undefined;
 }
 
-export function useRegisterFieldControl(params: UseRegisterFieldControlParameters) {
-  const { controlRef, enabled = true, getValue, id, value } = params;
+export function useRegisterFieldControl(
+  controlRef: FieldControlRegistration['controlRef'],
+  params: Omit<UseRegisterFieldControlParameters, 'controlRef'>,
+) {
+  const { enabled = true, getValue, id, value } = params;
 
   const { registerFieldControl } = useFieldRootContext();
   const sourceRef = React.useRef<symbol | null>(null);

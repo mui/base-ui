@@ -167,11 +167,10 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     };
   }, [registerControlId, controlSourceRef]);
 
-  useRegisterFieldControl({
+  useRegisterFieldControl(controlRef, {
     enabled: !groupContext,
     id,
     value: checked,
-    controlRef,
   });
 
   const inputRef = React.useRef<HTMLInputElement>(null);

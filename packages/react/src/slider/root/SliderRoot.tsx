@@ -169,10 +169,9 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     }
   });
 
-  useRegisterFieldControl({
+  useRegisterFieldControl(controlRef, {
     id,
     value: valueUnwrapped,
-    controlRef,
   });
 
   useValueChanged(valueUnwrapped, () => {

@@ -94,10 +94,9 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   const hasTouchedInputRef = React.useRef(false);
   const blockRevalidationRef = React.useRef(false);
 
-  useRegisterFieldControl({
+  useRegisterFieldControl(inputRef, {
     id,
     value,
-    controlRef: inputRef,
   });
 
   useValueChanged(value, (previousValue) => {

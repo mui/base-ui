@@ -437,11 +437,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const { openMethod, triggerProps } = useOpenInteractionType(open);
   const getFieldValue = useStableCallback(() => fieldStringValue);
 
-  useRegisterFieldControl({
+  useRegisterFieldControl(inputInsidePopup ? triggerRef : inputRef, {
     id,
     value: fieldRawValue,
     getValue: getFieldValue,
-    controlRef: inputInsidePopup ? triggerRef : inputRef,
   });
 
   const forceMount = useStableCallback(() => {

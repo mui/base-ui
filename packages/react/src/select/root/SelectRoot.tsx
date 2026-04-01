@@ -182,11 +182,10 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const controlRef = useValueAsRef(store.state.triggerElement);
   const getFieldValue = useStableCallback(() => fieldStringValue);
 
-  useRegisterFieldControl({
+  useRegisterFieldControl(controlRef, {
     id: generatedId,
     value,
     getValue: getFieldValue,
-    controlRef,
   });
 
   const initialValueRef = React.useRef(value);
