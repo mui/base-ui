@@ -257,7 +257,7 @@
   /* Target CSS property names in CSS code blocks
    Property names are .pl-c1 elements that are followed by a text node containing ':'
    This distinguishes them from function names like 'var' which are followed by '(' */
-  [data-language='css'] [data-ln] > .pl-c1:first-of-type {
+  [data-language='css'] .line > .pl-c1:first-of-type {
     color: var(--color-foreground);
   }
 

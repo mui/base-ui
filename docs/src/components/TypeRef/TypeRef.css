@@ -76,6 +76,6 @@
   }
 
   .TypeRefPopup .ScrollAreaViewport {
-    padding: 0.5rem 0.75rem;
+    padding-block: 0.5rem;
   }
 }

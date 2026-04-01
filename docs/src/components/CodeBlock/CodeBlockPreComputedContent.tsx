@@ -10,13 +10,19 @@ type CodeBlockPreComputedUserProps = {
 };
 
 export function CodeBlockPreComputedContent(props: ContentProps<CodeBlockPreComputedUserProps>) {
-  const code = useCode(props);
+  const code = useCode(props, {
+    preClassName: 'CodeBlockPreInline CodeBlockPre',
+  });
   const title = code.userProps.title;
 
   return (
     <React.Fragment>
       {title ? <CodeBlock.Panel>{title}</CodeBlock.Panel> : null}
-      <CodeBlock.Pre>{code.selectedFile}</CodeBlock.Pre>
+      <CodeBlock.Content
+        viewportRender={React.isValidElement(code.selectedFile) ? code.selectedFile : undefined}
+      >
+        {React.isValidElement(code.selectedFile) ? null : code.selectedFile}
+      </CodeBlock.Content>
     </React.Fragment>
   );
 }

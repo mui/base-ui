@@ -4,15 +4,6 @@
     background-color: var(--color-content);
     border: 1px solid var(--gray-c2);
     border-radius: var(--radius-6);
-
-    & pre {
-      width: 100%;
-      white-space: normal;
-    }
-
-    & [data-ln] {
-      padding-inline: 0.75rem;
-    }
   }
 
   .CodeBlockPanel {
@@ -72,7 +63,6 @@
     cursor: text;
     color: var(--color-foreground);
     outline: 0;
-    white-space: normal;
 
     /* Scroll */
     display: flex;
@@ -87,18 +77,33 @@
       flex-grow: 1;
     }
 
-    & [data-ln] {
+    & code .frame {
       display: block;
-      white-space: pre;
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
     }
 
-    & [data-ln]:empty {
+    & code .frame[data-lined] {
+      display: block;
+      white-space: normal;
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    & code .frame[data-lined] .line {
+      display: block;
+      white-space: pre;
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+    }
+
+    & .line:empty {
       height: 1lh;
     }
 
     /* Hide JSDoc comment frames */
     &:not(.CodeBlockPre) [data-frame-type='comment'] {
-      display: none;
+      display: none !important;
     }
   }
 

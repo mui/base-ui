@@ -54,10 +54,12 @@ export function InstallationBlock(props: InstallationBlockProps) {
           <Tabs.Panel key={pm.value} value={pm.value}>
             <CodeBlock.Pre data-language="bash">
               <Code data-language="bash">
-                <span data-ln>
-                  <span className="pl-en">{pm.value}</span>{' '}
-                  <span className="pl-smi">{pm.command}</span>{' '}
-                  <span className="pl-s">{props.package}</span>
+                <span className="frame">
+                  <span className="line">
+                    <span className="pl-en">{pm.value}</span>{' '}
+                    <span className="pl-smi">{pm.command}</span>{' '}
+                    <span className="pl-s">{props.package}</span>
+                  </span>
                 </span>
               </Code>
             </CodeBlock.Pre>
