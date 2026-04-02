@@ -5,16 +5,16 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { FloatingNode } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import {
   useNavigationMenuRootContext,
   useNavigationMenuTreeContext,
 } from '../root/NavigationMenuRootContext';
 import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext';
-import { TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
-import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import { TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
+import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { EMPTY_OBJECT } from '../../utils/constants';

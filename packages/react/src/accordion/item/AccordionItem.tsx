@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
-import { BaseUIComponentProps } from '../../utils/types';
+import { BaseUIComponentProps } from '../../internals/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import {
   useCollapsibleRoot,
@@ -15,9 +15,9 @@ import type { AccordionRootState } from '../root/AccordionRoot';
 import { useAccordionRootContext } from '../root/AccordionRootContext';
 import { AccordionItemContext } from './AccordionItemContext';
 import { accordionStateAttributesMapping } from './stateAttributesMapping';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { type BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 
 /**
  * Groups an accordion header with the corresponding panel.

@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
-import { TemporalSupportedObject } from '../../types/temporal';
+import { TemporalSupportedObject } from '../../internals/temporal';
 import { SharedCalendarDayGridCellContext } from './SharedCalendarDayGridCellContext';
-import { HTMLProps } from '../../utils/types';
-import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
+import { HTMLProps } from '../../internals/types';
+import { useTemporalAdapter } from '../../internals/temporal-adapter-provider/TemporalAdapterContext';
 import { useSharedCalendarDayGridBodyContext } from '../day-grid-body/SharedCalendarDayGridBodyContext';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import { selectors } from '../store';

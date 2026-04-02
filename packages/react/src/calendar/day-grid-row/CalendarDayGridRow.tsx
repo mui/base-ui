@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { TemporalSupportedObject } from '../../types/temporal';
+import { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { TemporalSupportedObject } from '../../internals/temporal';
 import { useCalendarDayList } from '../use-day-list/useCalendarDayList';
 
 /**

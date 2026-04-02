@@ -28,16 +28,16 @@ import {
 } from '../../floating-ui-react/utils';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
-import { useButton } from '../../use-button/useButton';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import { useButton } from '../../internals/use-button/useButton';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import { useCompositeRootContext } from '../../composite/root/CompositeRootContext';
 import { findRootOwnerId } from '../utils/findRootOwnerId';
 import { useTriggerDataForwarding } from '../../utils/popups';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHandler';
 import { MenuHandle } from '../store/MenuHandle';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
@@ -45,7 +45,7 @@ import { useMenubarContext } from '../../menubar/MenubarContext';
 import { MenuParent } from '../root/MenuRoot';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 
 const BOUNDARY_OFFSET = 2;
 

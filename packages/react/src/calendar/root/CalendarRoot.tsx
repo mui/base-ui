@@ -2,15 +2,15 @@
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { TemporalValue } from '../../types/temporal';
+import { TemporalValue } from '../../internals/temporal';
 import { SharedCalendarRootContext } from './SharedCalendarRootContext';
-import { getDateManager } from '../../utils/temporal/getDateManager';
+import { getDateManager } from '../../internals/temporal/getDateManager';
 import { CalendarContext } from '../use-context/CalendarContext';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { BaseUIComponentProps } from '../../utils/types';
-import { formatMonthFullLetterAndYear } from '../../utils/temporal/date-helpers';
-import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
-import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { BaseUIComponentProps } from '../../internals/types';
+import { formatMonthFullLetterAndYear } from '../../internals/temporal/date-helpers';
+import { useTemporalAdapter } from '../../internals/temporal-adapter-provider/TemporalAdapterContext';
+import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import {
   CalendarNavigationDirection,
   CalendarValueChangeHandlerContext,
@@ -24,7 +24,7 @@ import {
   CalendarVisibleDateChangeEventDetails,
 } from '../store';
 import { CalendarRootDataAttributes } from './CalendarRootDataAttributes';
-import { ValidateDateReturnValue } from '../../utils/temporal/validateDate';
+import { ValidateDateReturnValue } from '../../internals/temporal/validateDate';
 
 const stateAttributesMapping: StateAttributesMapping<CalendarRoot.State> = {
   navigationDirection: (direction) => {

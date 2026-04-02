@@ -5,11 +5,11 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnMount } from '@base-ui/utils/useOnMount';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
-import { BaseUIComponentProps } from '../../utils/types';
+import { BaseUIComponentProps } from '../../internals/types';
 import { formatNumber } from '../../utils/formatNumber';
 import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { valueToPercent } from '../../utils/valueToPercent';
 import {
   ARROW_DOWN,
@@ -23,12 +23,12 @@ import {
   PAGE_DOWN,
 } from '../../composite/composite';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
-import { useDirection } from '../../direction-provider/DirectionContext';
+import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { useCSPContext } from '../../csp-provider/CSPContext';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { matchesFocusVisible } from '../../floating-ui-react/utils/element';
-import { type LabelableContext } from '../../labelable-provider/LabelableContext';
-import { useLabelableId } from '../../labelable-provider/useLabelableId';
+import { type LabelableContext } from '../../internals/labelable-provider/LabelableContext';
+import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { getMidpoint } from '../utils/getMidpoint';
 import { getSliderValue } from '../utils/getSliderValue';
 import { roundValueToStep } from '../utils/roundValueToStep';

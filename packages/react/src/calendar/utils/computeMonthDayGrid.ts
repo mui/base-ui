@@ -1,4 +1,4 @@
-import { TemporalSupportedObject, TemporalAdapter } from '../../types/temporal';
+import { TemporalSupportedObject, TemporalAdapter } from '../../internals/temporal';
 import { getDayList } from '../use-day-list/getDayList';
 import { getWeekList } from '../use-week-list/getWeekList';
 

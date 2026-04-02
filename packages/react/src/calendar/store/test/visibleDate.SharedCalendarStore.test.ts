@@ -1,8 +1,8 @@
 import { expect, vi } from 'vitest';
 import { TemporalAdapterDateFns } from '../../../temporal-adapter-date-fns/TemporalAdapterDateFns';
-import { TemporalValue } from '../../../types/temporal';
-import { ValidateDateReturnValue } from '../../../utils/temporal/validateDate';
-import { getDateManager } from '../../../utils/temporal/getDateManager';
+import { TemporalValue } from '../../../internals/temporal';
+import { ValidateDateReturnValue } from '../../../internals/temporal/validateDate';
+import { getDateManager } from '../../../internals/temporal/getDateManager';
 import {
   SharedCalendarStore,
   SharedCalendarStoreParameters,

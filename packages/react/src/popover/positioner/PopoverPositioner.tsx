@@ -11,12 +11,12 @@ import {
   type Align,
   type UseAnchorPositioningSharedParameters,
 } from '../../utils/useAnchorPositioning';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { usePopoverPortalContext } from '../portal/PopoverPortalContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
-import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
+import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
 import { usePositioner } from '../../utils/usePositioner';
 

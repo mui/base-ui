@@ -7,11 +7,11 @@ import {
   type Align,
   type UseAnchorPositioningSharedParameters,
 } from '../../utils/useAnchorPositioning';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { EMPTY_OBJECT, POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { ToastPositionerContext } from './ToastPositionerContext';
 import { useFloatingRootContext } from '../../floating-ui-react';
-import { NOOP } from '../../utils/noop';
+import { NOOP } from '../../internals/noop';
 import type { ToastObject } from '../useToastManager';
 import { ToastRootCssVars } from '../root/ToastRootCssVars';
 import { useToastProviderContext } from '../provider/ToastProviderContext';

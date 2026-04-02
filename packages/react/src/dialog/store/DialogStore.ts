@@ -3,7 +3,7 @@ import { createSelector, ReactStore } from '@base-ui/utils/store';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { type DialogRoot } from '../root/DialogRoot';
-import type { FloatingUIOpenChangeDetails } from '../../utils/types';
+import type { FloatingUIOpenChangeDetails } from '../../internals/types';
 import {
   createInitialPopupStoreState,
   PopupStoreContext,

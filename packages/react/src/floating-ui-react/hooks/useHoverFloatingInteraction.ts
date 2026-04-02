@@ -10,8 +10,8 @@ import type { FloatingContext, FloatingRootContext } from '../types';
 import { contains, getTarget, isTargetInsideEnabledTrigger } from '../utils/element';
 import { getNodeChildren } from '../utils/nodes';
 
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import {
   applySafePolygonPointerEventsMutation,

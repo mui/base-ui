@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { BaseUIEvent } from './types';
+import { BaseUIEvent } from '../internals/types';
 import { EMPTY_OBJECT } from './constants';
 
 /**

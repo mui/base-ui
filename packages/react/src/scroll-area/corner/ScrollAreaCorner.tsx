@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
  * A small rectangular area that appears at the intersection of horizontal and vertical scrollbars.

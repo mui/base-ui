@@ -6,8 +6,8 @@ import { EMPTY_OBJECT } from '../../utils/constants';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { getTarget, isTypeableElement } from '../utils/element';
 import { isClickLikeEvent, isMouseLikePointerType } from '../utils/event';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 
 export interface UseClickProps {
   /**

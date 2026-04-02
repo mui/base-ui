@@ -6,7 +6,7 @@ import {
   useCompositeListItem,
   type UseCompositeListItemParameters,
 } from '../list/useCompositeListItem';
-import { HTMLProps } from '../../utils/types';
+import { HTMLProps } from '../../internals/types';
 
 export interface UseCompositeItemParameters<Metadata> extends Pick<
   UseCompositeListItemParameters<Metadata>,

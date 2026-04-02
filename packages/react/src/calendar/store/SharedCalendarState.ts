@@ -1,10 +1,10 @@
-import { TemporalManager } from '../../utils/temporal/types';
+import { TemporalManager } from '../../internals/temporal/types';
 import {
   TemporalAdapter,
   TemporalSupportedObject,
   TemporalSupportedValue,
   TemporalTimezone,
-} from '../../types/temporal';
+} from '../../internals/temporal';
 
 export type CalendarNavigationDirection = 'previous' | 'next' | 'none';
 

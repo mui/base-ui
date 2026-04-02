@@ -6,25 +6,25 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
-import type { BaseUIComponentProps, Orientation } from '../../utils/types';
+import type { BaseUIComponentProps, Orientation } from '../../internals/types';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
   type BaseUIChangeEventDetails,
   type BaseUIGenericEventDetails,
-} from '../../utils/createBaseUIEventDetails';
+} from '../../internals/createBaseUIEventDetails';
 import { useValueChanged } from '../../utils/useValueChanged';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { clamp } from '../../utils/clamp';
-import { areArraysEqual } from '../../utils/areArraysEqual';
+import { areArraysEqual } from '../../internals/areArraysEqual';
 import { activeElement, contains } from '../../floating-ui-react/utils';
 import { CompositeList, type CompositeMetadata } from '../../composite/list/CompositeList';
 import type { FieldRootState } from '../../field/root/FieldRoot';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useRegisterFieldControl } from '../../field/root/useRegisterFieldControl';
-import { useFormContext } from '../../form/FormContext';
-import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
+import { useFormContext } from '../../internals/form-context/FormContext';
+import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { resolveAriaLabelledBy, getDefaultLabelId } from '../../utils/resolveAriaLabelledBy';
 import { asc } from '../utils/asc';
 import { getSliderValue } from '../utils/getSliderValue';
@@ -32,7 +32,7 @@ import { validateMinimumDistance } from '../utils/validateMinimumDistance';
 import type { ThumbMetadata } from '../thumb/SliderThumb';
 import { sliderStateAttributesMapping } from './stateAttributesMapping';
 import { SliderRootContext } from './SliderRootContext';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 
 function getSliderChangeEventReason(
   event: React.KeyboardEvent | React.ChangeEvent,

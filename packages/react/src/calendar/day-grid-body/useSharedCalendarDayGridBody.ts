@@ -2,16 +2,16 @@
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import { SharedCalendarDayGridBodyContext } from './SharedCalendarDayGridBodyContext';
-import { BaseUIEvent, HTMLProps } from '../../utils/types';
-import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
-import { TemporalSupportedObject } from '../../types/temporal';
+import { BaseUIEvent, HTMLProps } from '../../internals/types';
+import { useTemporalAdapter } from '../../internals/temporal-adapter-provider/TemporalAdapterContext';
+import { TemporalSupportedObject } from '../../internals/temporal';
 import { useCalendarWeekList } from '../use-week-list/useCalendarWeekList';
 import { selectors } from '../store';
 import { computeMonthDayGrid } from '../utils/computeMonthDayGrid';
-import { areArraysEqual } from '../../utils/areArraysEqual';
+import { areArraysEqual } from '../../internals/areArraysEqual';
 import { CompositeMetadata } from '../../composite/list/CompositeList';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { findNonDisabledListIndex, isListIndexDisabled } from '../../floating-ui-react/utils';
@@ -26,7 +26,7 @@ import {
   PAGE_UP,
   PAGE_DOWN,
 } from '../../composite/composite';
-import { validateDate } from '../../utils/temporal/validateDate';
+import { validateDate } from '../../internals/temporal/validateDate';
 
 const BACKWARD_KEYS = new Set([ARROW_UP, ARROW_LEFT]);
 const CUSTOM_NAVIGATION_KEYS = new Set([HOME, END, PAGE_UP, PAGE_DOWN]);

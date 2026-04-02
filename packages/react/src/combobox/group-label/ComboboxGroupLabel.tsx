@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { BaseUIComponentProps } from '../../utils/types';
+import { BaseUIComponentProps } from '../../internals/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useComboboxGroupContext } from '../group/ComboboxGroupContext';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
  * An accessible label that is automatically associated with its parent group.

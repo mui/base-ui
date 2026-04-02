@@ -3,18 +3,18 @@ import {
   TemporalSupportedObject,
   TemporalSupportedValue,
   TemporalAdapter,
-} from '../../types/temporal';
-import { ValidateDateValidationProps } from '../../utils/temporal/validateDate';
-import { getInitialReferenceDate } from '../../utils/temporal/getInitialReferenceDate';
-import { TemporalManager, TemporalTimezoneProps } from '../../utils/temporal/types';
+} from '../../internals/temporal';
+import { ValidateDateValidationProps } from '../../internals/temporal/validateDate';
+import { getInitialReferenceDate } from '../../internals/temporal/getInitialReferenceDate';
+import { TemporalManager, TemporalTimezoneProps } from '../../internals/temporal/types';
 import {
   BaseUIChangeEventDetails,
   createChangeEventDetails,
-} from '../../utils/createBaseUIEventDetails';
-import { mergeDateAndTime } from '../../utils/temporal/date-helpers';
+} from '../../internals/createBaseUIEventDetails';
+import { mergeDateAndTime } from '../../internals/temporal/date-helpers';
 import { CalendarNavigationDirection, SharedCalendarState as State } from './SharedCalendarState';
 import { selectors } from './selectors';
-import { BaseUIEventReasons, REASONS } from '../../utils/reasons';
+import { BaseUIEventReasons, REASONS } from '../../internals/reasons';
 
 export interface SharedCalendarStoreContext<TValue extends TemporalSupportedValue, TError> {
   onValueChange?:

@@ -8,7 +8,7 @@ import { Select } from '@base-ui/react/select';
 import { NumberField } from '@base-ui/react/number-field';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 
 describe('<Dialog.Root />', () => {
   const { render } = createRenderer();

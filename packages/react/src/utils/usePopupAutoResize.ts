@@ -4,7 +4,7 @@ import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { NOOP } from '@base-ui/utils/empty';
-import { useAnimationsFinished } from './useAnimationsFinished';
+import { useAnimationsFinished } from '../internals/useAnimationsFinished';
 import { getCssDimensions } from './getCssDimensions';
 import { Dimensions } from '../floating-ui-react/types';
 import { Side } from './useAnchorPositioning';

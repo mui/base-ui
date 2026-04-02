@@ -5,16 +5,16 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { error } from '@base-ui/utils/error';
 import { useBaseUiId } from '../utils/useBaseUiId';
-import { useRenderElement } from '../utils/useRenderElement';
-import type { BaseUIComponentProps, NativeButtonProps } from '../utils/types';
+import { useRenderElement } from '../internals/useRenderElement';
+import type { BaseUIComponentProps, NativeButtonProps } from '../internals/types';
 import { useToggleGroupContext } from '../toggle-group/ToggleGroupContext';
-import { useButton } from '../use-button/useButton';
+import { useButton } from '../internals/use-button/useButton';
 import { CompositeItem } from '../composite/item/CompositeItem';
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
-} from '../utils/createBaseUIEventDetails';
-import { REASONS } from '../utils/reasons';
+} from '../internals/createBaseUIEventDetails';
+import { REASONS } from '../internals/reasons';
 
 /**
  * A two-state button that can be on or off.

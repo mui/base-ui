@@ -2,17 +2,17 @@
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { selectors } from '../store';
-import { useButton } from '../../use-button';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
-import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { useButton } from '../../internals/use-button';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
+import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
 const stateAttributesMapping: StateAttributesMapping<ComboboxClearState> = {

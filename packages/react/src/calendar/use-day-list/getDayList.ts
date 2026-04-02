@@ -1,4 +1,4 @@
-import { TemporalAdapter, TemporalSupportedObject } from '../../types/temporal';
+import { TemporalAdapter, TemporalSupportedObject } from '../../internals/temporal';
 
 /**
  * Computes a list of consecutive days starting from the given date.

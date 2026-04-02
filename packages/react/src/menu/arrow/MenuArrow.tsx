@@ -2,9 +2,9 @@
 import * as React from 'react';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**

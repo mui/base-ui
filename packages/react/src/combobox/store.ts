@@ -1,7 +1,7 @@
 import { Store, createSelector } from '@base-ui/utils/store';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import type { TransitionStatus } from '../utils/useTransitionStatus';
-import type { HTMLProps } from '../utils/types';
+import type { TransitionStatus } from '../internals/useTransitionStatus';
+import type { HTMLProps } from '../internals/types';
 import type { Side } from '../utils/useAnchorPositioning';
 import { compareItemEquality } from '../utils/itemEquality';
 import { hasNullItemLabel } from '../utils/resolveValueLabel';

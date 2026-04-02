@@ -8,7 +8,7 @@ import { useClientPoint, useDismiss, useInteractions } from '../../floating-ui-r
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
-} from '../../utils/createBaseUIEventDetails';
+} from '../../internals/createBaseUIEventDetails';
 import {
   useImplicitActiveTrigger,
   useOpenStateTransitions,
@@ -16,7 +16,7 @@ import {
 } from '../../utils/popups';
 import { TooltipStore } from '../store/TooltipStore';
 import { type TooltipHandle } from '../store/TooltipHandle';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 
 /**
  * Groups all parts of the tooltip.

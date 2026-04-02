@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { TemporalSupportedObject } from '../../types/temporal';
-import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
+import { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { TemporalSupportedObject } from '../../internals/temporal';
+import { useTemporalAdapter } from '../../internals/temporal-adapter-provider/TemporalAdapterContext';
 
 const InnerCalendarDayGridHeaderCell = React.forwardRef(function InnerCalendarDayGridHeaderCell(
   componentProps: CalendarDayGridHeaderCell.Props,

@@ -17,7 +17,7 @@ import { Form } from '@base-ui/react/form';
 import { useStore } from '@base-ui/utils/store';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { CompositeItem } from '../../composite/item/CompositeItem';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 import { useComboboxRootContext } from './ComboboxRootContext';
 import { selectors } from '../store';
 

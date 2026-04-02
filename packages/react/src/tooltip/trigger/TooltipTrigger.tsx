@@ -2,9 +2,9 @@
 import * as React from 'react';
 import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useTriggerDataForwarding } from '../../utils/popups';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { TooltipHandle } from '../store/TooltipHandle';

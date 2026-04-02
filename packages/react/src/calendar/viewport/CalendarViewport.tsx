@@ -5,12 +5,12 @@ import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useStore } from '@base-ui/utils/store';
-import { TemporalSupportedObject } from '../../types/temporal';
-import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
+import { TemporalSupportedObject } from '../../internals/temporal';
+import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
 import { CalendarViewportDataAttributes } from './CalendarViewportDataAttributes';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import { CalendarNavigationDirection, selectors } from '../store';
-import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
+import { useTemporalAdapter } from '../../internals/temporal-adapter-provider/TemporalAdapterContext';
 
 const getNavigationDirectionAttribute = (navigationDirection: CalendarNavigationDirection) => {
   switch (navigationDirection) {

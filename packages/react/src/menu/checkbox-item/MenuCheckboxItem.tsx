@@ -6,13 +6,13 @@ import { MenuCheckboxItemContext } from './MenuCheckboxItemContext';
 import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
+import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { itemMapping } from '../utils/stateAttributesMapping';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import type { MenuRoot } from '../root/MenuRoot';
 
 /**

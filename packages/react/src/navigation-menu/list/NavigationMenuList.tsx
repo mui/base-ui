@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useDismiss, useHoverFloatingInteraction } from '../../floating-ui-react';
 import { getTarget } from '../../floating-ui-react/utils';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import {
   useNavigationMenuRootContext,
@@ -12,7 +12,7 @@ import { EMPTY_OBJECT } from '../../utils/constants';
 import { NAVIGATION_MENU_TRIGGER_IDENTIFIER } from '../utils/constants';
 import { NavigationMenuDismissContext } from './NavigationMenuDismissContext';
 import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
  * Contains a list of navigation menu items.

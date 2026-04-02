@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { NOOP } from '../../utils/noop';
+import { NOOP } from '../../internals/noop';
 
 export type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';
 

@@ -4,8 +4,8 @@ import * as React from 'react';
 import { isJSDOM } from '@base-ui/utils/detectBrowser';
 import { useFloating } from './useFloating';
 import { useHoverReferenceInteraction } from './useHoverReferenceInteraction';
-import { REASONS } from '../../utils/reasons';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 
 describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
   it('does not treat child target as inactive when handlers are on a wrapper', async () => {

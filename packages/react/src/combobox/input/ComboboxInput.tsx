@@ -3,9 +3,9 @@ import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { isAndroid, isFirefox } from '@base-ui/utils/detectBrowser';
-import { BaseUIComponentProps } from '../../utils/types';
+import { BaseUIComponentProps } from '../../internals/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import {
   useComboboxDerivedItemsContext,
   useComboboxInputValueContext,
@@ -14,16 +14,16 @@ import {
 import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { selectors } from '../store';
 import type { FieldRootState } from '../../field/root/FieldRoot';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { DEFAULT_FIELD_STATE_ATTRIBUTES } from '../../field/utils/constants';
-import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { DEFAULT_FIELD_STATE_ATTRIBUTES } from '../../internals/field-constants/constants';
+import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import type { Side } from '../../utils/useAnchorPositioning';
-import { useDirection } from '../../direction-provider/DirectionContext';
+import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 import { ComboboxInternalDismissButton } from '../utils/ComboboxInternalDismissButton';
 

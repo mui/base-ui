@@ -3,8 +3,8 @@ import * as React from 'react';
 import { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useStore } from '@base-ui/utils/store';
 import { FloatingFocusManager } from '../../floating-ui-react';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import {
   useComboboxFloatingContext,
   useComboboxRootContext,
@@ -14,10 +14,10 @@ import { selectors } from '../store';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
-import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
+import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { ComboboxInternalDismissButton } from '../utils/ComboboxInternalDismissButton';

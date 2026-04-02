@@ -15,13 +15,13 @@ import type {
   BaseUIEvent,
   HTMLProps,
   NonNativeButtonProps,
-} from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+} from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { SelectItemContext } from './SelectItemContext';
 import { selectors } from '../store';
-import { useButton } from '../../use-button';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { useButton } from '../../internals/use-button';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { compareItemEquality, removeItem } from '../../utils/itemEquality';
 
 /**

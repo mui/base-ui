@@ -3,9 +3,9 @@ import {
   TemporalAdapter,
   TemporalSupportedObject,
   TemporalSupportedValue,
-} from '../../types/temporal';
-import { getInitialReferenceDate } from '../../utils/temporal/getInitialReferenceDate';
-import { validateDate } from '../../utils/temporal/validateDate';
+} from '../../internals/temporal';
+import { getInitialReferenceDate } from '../../internals/temporal/getInitialReferenceDate';
+import { validateDate } from '../../internals/temporal/validateDate';
 import { CalendarNavigationDirection, SharedCalendarState as State } from './SharedCalendarState';
 
 const timezoneToRenderSelector = createSelectorMemoized(

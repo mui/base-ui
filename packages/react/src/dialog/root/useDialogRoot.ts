@@ -10,8 +10,8 @@ import {
 } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { type DialogRoot } from './DialogRoot';
 import { DialogStore } from '../store/DialogStore';
 import { useImplicitActiveTrigger, useOpenStateTransitions } from '../../utils/popups';

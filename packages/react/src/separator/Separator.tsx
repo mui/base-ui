@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps, Orientation } from '../utils/types';
-import { useRenderElement } from '../utils/useRenderElement';
+import type { BaseUIComponentProps, Orientation } from '../internals/types';
+import { useRenderElement } from '../internals/useRenderElement';
 
 /**
  * A separator element accessible to screen readers.

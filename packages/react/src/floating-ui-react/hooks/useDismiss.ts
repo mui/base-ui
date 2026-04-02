@@ -21,8 +21,8 @@ import { getNodeChildren } from '../utils/nodes';
 import { useFloatingTree } from '../components/FloatingTree';
 import { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { createAttribute } from '../utils/createAttribute';
 
 type PressType = 'intentional' | 'sloppy';

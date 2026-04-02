@@ -14,10 +14,10 @@ import {
 } from '../utils/element';
 
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { createAttribute } from '../utils/createAttribute';
-import { FloatingUIOpenChangeDetails } from '../../utils/types';
+import { FloatingUIOpenChangeDetails } from '../../internals/types';
 
 const isMacSafari = isMac && isSafari;
 

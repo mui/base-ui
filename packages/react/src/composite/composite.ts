@@ -1,5 +1,5 @@
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import type { TextDirection } from '../direction-provider/DirectionContext';
+import type { TextDirection } from '../internals/direction-context/DirectionContext';
 
 export {
   stopEvent,

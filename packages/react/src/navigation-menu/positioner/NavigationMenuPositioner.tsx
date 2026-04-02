@@ -9,7 +9,7 @@ import {
   isOutsideEvent,
 } from '../../floating-ui-react/utils';
 import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import {
   useNavigationMenuRootContext,
   useNavigationMenuTreeContext,

@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
-import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { ComboboxChipsContext } from './ComboboxChipsContext';
 import { CompositeList } from '../../composite/list/CompositeList';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';

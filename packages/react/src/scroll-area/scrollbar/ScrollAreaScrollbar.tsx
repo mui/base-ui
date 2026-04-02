@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
 import { getTarget } from '../../floating-ui-react/utils';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { ScrollAreaScrollbarContext } from './ScrollAreaScrollbarContext';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { getOffset } from '../utils/getOffset';
 import { ScrollAreaRootCssVars } from '../root/ScrollAreaRootCssVars';
 import { ScrollAreaScrollbarCssVars } from './ScrollAreaScrollbarCssVars';
-import { useDirection } from '../../direction-provider/DirectionContext';
+import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
 import type { ScrollAreaRootState } from '../root/ScrollAreaRoot';
 

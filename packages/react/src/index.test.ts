@@ -31,8 +31,11 @@ describe('@base-ui/react', () => {
               './utils',
               './temporal-adapter-luxon',
               './temporal-adapter-date-fns',
+              './localization-provider',
               './types',
-            ].includes(key) && !key.startsWith('./unstable-'),
+            ].includes(key) &&
+            !key.startsWith('./unstable-') &&
+            !key.startsWith('./internals/'),
         )
         .map(async (subpath) => {
           const importSpecifier = `@base-ui/react/${subpath.replace('./', '')}`;

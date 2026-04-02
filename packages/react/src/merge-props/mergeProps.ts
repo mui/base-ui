@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { mergeObjects } from '@base-ui/utils/mergeObjects';
-import type { BaseUIEvent, WithBaseUIEvent } from '../utils/types';
+import type { BaseUIEvent, WithBaseUIEvent } from '../internals/types';
 
 type ElementType = React.ElementType;
 type PropsOf<T extends React.ElementType> = WithBaseUIEvent<React.ComponentPropsWithRef<T>>;

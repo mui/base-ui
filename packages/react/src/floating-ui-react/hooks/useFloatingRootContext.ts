@@ -4,7 +4,7 @@ import { useId } from '@base-ui/utils/useId';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { ReferenceType } from '../types';
-import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
 import { FloatingRootStore, type FloatingRootState } from '../components/FloatingRootStore';
 import { PopupTriggerMap } from '../../utils/popups';

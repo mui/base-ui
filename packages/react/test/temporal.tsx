@@ -8,7 +8,7 @@ import {
   RenderOptions,
 } from '@mui/internal-test-utils/createRenderer';
 // TODO Temporal: Replace with `@base-ui/react/types` import when Temporal components will become public.
-import { TemporalAdapter } from '../src/types/temporal';
+import { TemporalAdapter } from '../src/internals/temporal';
 import { TemporalAdapterDateFns } from '../../react/src/temporal-adapter-date-fns/TemporalAdapterDateFns';
 
 /**

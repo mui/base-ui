@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import { useOnMount } from '@base-ui/utils/useOnMount';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { valueToPercent } from '../../utils/valueToPercent';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import type { SliderRootState } from '../root/SliderRoot';

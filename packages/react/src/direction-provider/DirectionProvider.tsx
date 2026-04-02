@@ -1,6 +1,9 @@
 'use client';
 import * as React from 'react';
-import { DirectionContext, type TextDirection } from './DirectionContext';
+import {
+  DirectionContext,
+  type TextDirection,
+} from '../internals/direction-context/DirectionContext';
 
 /**
  * Enables RTL behavior for Base UI components.

@@ -6,9 +6,9 @@ import { Timeout } from '@base-ui/utils/useTimeout';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useOnMount } from '@base-ui/utils/useOnMount';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import { FloatingUIOpenChangeDetails } from '../../utils/types';
+import { FloatingUIOpenChangeDetails } from '../../internals/types';
 import { PopoverRoot } from './../root/PopoverRoot';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 import {
   createInitialPopupStoreState,
   PopupStoreContext,

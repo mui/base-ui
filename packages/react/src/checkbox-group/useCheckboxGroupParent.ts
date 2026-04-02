@@ -2,8 +2,8 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useBaseUiId } from '../utils/useBaseUiId';
-import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
-import type { BaseUIEventReasons } from '../utils/reasons';
+import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
+import type { BaseUIEventReasons } from '../internals/reasons';
 
 const EMPTY: string[] = [];
 

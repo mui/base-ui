@@ -3,14 +3,14 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
-import { useButton } from '../../use-button/useButton';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import { useButton } from '../../internals/use-button/useButton';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import {
   triggerOpenStateMapping,
   pressableTriggerOpenStateMapping,
 } from '../../utils/popupStateMapping';
-import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
 import {
   safePolygon,
@@ -30,8 +30,8 @@ import {
   getTabbableBeforeElement,
   isOutsideEvent,
 } from '../../floating-ui-react/utils';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { useTriggerDataForwarding } from '../../utils/popups';
 
 /**

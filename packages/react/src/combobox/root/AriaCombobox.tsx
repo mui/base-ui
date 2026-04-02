@@ -23,8 +23,8 @@ import {
   createGenericEventDetails,
   type BaseUIChangeEventDetails,
   type BaseUIGenericEventDetails,
-} from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+} from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import {
   ComboboxFloatingContext,
   ComboboxDerivedItemsContext,
@@ -32,19 +32,19 @@ import {
   ComboboxInputValueContext,
 } from './ComboboxRootContext';
 import { selectors, type State as StoreState } from '../store';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useRegisterFieldControl } from '../../field/root/useRegisterFieldControl';
-import { useFormContext } from '../../form/FormContext';
-import { useLabelableId } from '../../labelable-provider/useLabelableId';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
+import { useFormContext } from '../../internals/form-context/FormContext';
+import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { createCollatorItemFilter, createSingleSelectionCollatorFilter } from './utils';
 import { useCoreFilter } from './utils/useFilter';
-import { useTransitionStatus } from '../../utils/useTransitionStatus';
+import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '../../utils/constants';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import { HTMLProps } from '../../utils/types';
+import { HTMLProps } from '../../internals/types';
 import { useValueChanged } from '../../utils/useValueChanged';
-import { NOOP } from '../../utils/noop';
+import { NOOP } from '../../internals/noop';
 import {
   stringifyAsLabel,
   stringifyAsValue,

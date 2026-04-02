@@ -2,9 +2,9 @@ import { createSelector } from '@base-ui/utils/store';
 import { FloatingRootContext } from '../../floating-ui-react';
 import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
 import { EMPTY_OBJECT } from '../constants';
-import { TransitionStatus } from '../useTransitionStatus';
+import { TransitionStatus } from '../../internals/useTransitionStatus';
 import { PopupTriggerMap } from './popupTriggerMap';
-import { HTMLProps } from '../types';
+import { HTMLProps } from '../../internals/types';
 
 /**
  * State common to all popup stores.

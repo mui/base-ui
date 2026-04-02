@@ -4,10 +4,10 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
-import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
-import { useTransitionStatus, TransitionStatus } from '../../utils/useTransitionStatus';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
+import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
+import { useTransitionStatus, TransitionStatus } from '../../internals/useTransitionStatus';
 import type { CollapsibleRoot } from './CollapsibleRoot';
 
 export type AnimationType = 'css-transition' | 'css-animation' | 'none' | null;

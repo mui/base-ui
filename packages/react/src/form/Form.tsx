@@ -4,11 +4,11 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import {
   createGenericEventDetails,
   type BaseUIGenericEventDetails,
-} from '../utils/createBaseUIEventDetails';
-import { REASONS } from '../utils/reasons';
-import type { BaseUIComponentProps } from '../utils/types';
-import { FormContext } from './FormContext';
-import { useRenderElement } from '../utils/useRenderElement';
+} from '../internals/createBaseUIEventDetails';
+import { REASONS } from '../internals/reasons';
+import type { BaseUIComponentProps } from '../internals/types';
+import { FormContext } from '../internals/form-context/FormContext';
+import { useRenderElement } from '../internals/useRenderElement';
 import { EMPTY_OBJECT } from '../utils/constants';
 import { useValueChanged } from '../utils/useValueChanged';
 

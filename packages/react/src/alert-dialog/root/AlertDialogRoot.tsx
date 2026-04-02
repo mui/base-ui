@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useDialogRoot } from '../../dialog/root/useDialogRoot';
 import { DialogRootContext, useDialogRootContext } from '../../dialog/root/DialogRootContext';
-import { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { DialogStore } from '../../dialog/store/DialogStore';
 import { DialogHandle } from '../../dialog/store/DialogHandle';
 import type { DialogRoot } from '../../dialog/root/DialogRoot';

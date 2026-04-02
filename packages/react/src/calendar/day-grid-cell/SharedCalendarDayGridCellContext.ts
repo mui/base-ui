@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { TemporalSupportedObject } from '../../types/temporal';
+import { TemporalSupportedObject } from '../../internals/temporal';
 
 export interface SharedCalendarDayGridCellContext {
   /**

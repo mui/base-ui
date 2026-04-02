@@ -27,8 +27,8 @@ import {
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { enqueueFocus } from '../utils/enqueueFocus';
 import { ARROW_UP, ARROW_DOWN, ARROW_RIGHT, ARROW_LEFT } from '../utils/constants';
 

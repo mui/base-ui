@@ -13,15 +13,15 @@ import {
   getNextTabbable,
   isOutsideEvent,
 } from '../utils/tabbable';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { createAttribute } from '../utils/createAttribute';
 import {
   useRenderElement,
   type UseRenderElementComponentProps,
-} from '../../utils/useRenderElement';
+} from '../../internals/useRenderElement';
 import { EMPTY_OBJECT, ownerVisuallyHidden } from '../../utils/constants';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 
 type FocusManagerState = null | {
   modal: boolean;

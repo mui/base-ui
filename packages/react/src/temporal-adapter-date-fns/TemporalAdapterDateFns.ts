@@ -63,7 +63,7 @@ import {
   DateBuilderReturnType,
   TemporalTimezone,
   TemporalAdapter,
-} from '../types/temporal';
+} from '../internals/temporal';
 
 const FORMATS: TemporalAdapterFormats = {
   // Digit formats with leading zeroes
@@ -94,7 +94,7 @@ const FORMATS: TemporalAdapterFormats = {
 };
 
 // TODO Temporal: Replace with `@base-ui/react/types` path when Temporal components will become public.
-declare module '@base-ui/react/types/temporal' {
+declare module '@base-ui/react/internals/temporal' {
   interface TemporalSupportedObjectLookup {
     'date-fns': Date;
   }

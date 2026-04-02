@@ -2,13 +2,13 @@
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
-import { useButton } from '../../use-button';
-import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import { useButton } from '../../internals/use-button';
+import { useTemporalAdapter } from '../../internals/temporal-adapter-provider/TemporalAdapterContext';
 import { selectors } from '../store';
 import { useCalendarMonthButton } from '../utils/useCalendarMonthButton';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 
 /**
  * Displays an element to navigate to the previous month in the calendar.

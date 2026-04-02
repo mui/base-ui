@@ -16,8 +16,8 @@ import { Dialog } from '../../dialog';
 import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
-} from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+} from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
 import type { DialogHandle } from '../../dialog/store/DialogHandle';

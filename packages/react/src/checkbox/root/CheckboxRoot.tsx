@@ -7,27 +7,27 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
-import { NOOP } from '../../utils/noop';
+import { NOOP } from '../../internals/noop';
 import { useStateAttributesMapping } from '../utils/useStateAttributesMapping';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
+import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { mergeProps } from '../../merge-props';
-import { useButton } from '../../use-button/useButton';
+import { useButton } from '../../internals/use-button/useButton';
 import type { FieldRootState } from '../../field/root/FieldRoot';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useRegisterFieldControl } from '../../field/root/useRegisterFieldControl';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useFieldItemContext } from '../../field/item/FieldItemContext';
-import { useFormContext } from '../../form/FormContext';
-import { useLabelableContext } from '../../labelable-provider/LabelableContext';
-import { useAriaLabelledBy } from '../../labelable-provider/useAriaLabelledBy';
+import { useFormContext } from '../../internals/form-context/FormContext';
+import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
+import { useAriaLabelledBy } from '../../internals/labelable-provider/useAriaLabelledBy';
 import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
 import { CheckboxRootContext } from './CheckboxRootContext';
 import {
   BaseUIChangeEventDetails,
   createChangeEventDetails,
-} from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+} from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { useValueChanged } from '../../utils/useValueChanged';
 
 export const PARENT_CHECKBOX = 'data-parent';

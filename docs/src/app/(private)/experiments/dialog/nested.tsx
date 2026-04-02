@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import { Dialog } from '@base-ui/react/dialog';
 import { animated as springAnimated, useSpring, useSpringRef } from '@react-spring/web';
 import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
-import { useTransitionStatus } from '../../../../../../packages/react/src/utils/useTransitionStatus';
+import { useTransitionStatus } from '../../../../../../packages/react/src/internals/useTransitionStatus';
 import classes from './nested.module.css';
 
 const NESTED_DIALOGS = 8;
