@@ -269,7 +269,16 @@ export const ListboxItem = React.memo(
       const canDragItem = dragAndDropContext?.canDragItem;
       const canDropItems = dragAndDropContext?.canDropItems;
 
-      if (!event.altKey || !reorderItems || !canDragItem || !canDropItems || rootDisabled) {
+      if (
+        !event.altKey ||
+        event.shiftKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        !reorderItems ||
+        !canDragItem ||
+        !canDropItems ||
+        rootDisabled
+      ) {
         return;
       }
       const handleReorderItems = reorderItems;
