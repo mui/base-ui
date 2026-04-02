@@ -242,4 +242,36 @@ describe('<Listbox.DragAndDropProvider />', () => {
     );
     expect(handleItemsReorder).not.toHaveBeenCalled();
   });
+
+  it('does not reorder when dropping an item onto itself', async () => {
+    const handleItemsReorder = vi.fn();
+
+    await render(
+      <Listbox.Root>
+        <Listbox.DragAndDropProvider onItemsReorder={handleItemsReorder}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+            <Listbox.Item value="c">c</Listbox.Item>
+          </Listbox.List>
+        </Listbox.DragAndDropProvider>
+      </Listbox.Root>,
+    );
+
+    await flushMicrotasks();
+
+    const itemB = screen.getByRole('option', { name: 'b' });
+    const draggableConfig = dndMocks.draggableConfigs.get(itemB);
+    const dropTargetConfig = dndMocks.dropTargetConfigs.get(itemB);
+    const sourceData = draggableConfig.getInitialData();
+
+    await act(async () => {
+      dropTargetConfig.onDrop({
+        source: { data: sourceData },
+        self: { data: { edge: 'top' } },
+      });
+    });
+
+    expect(handleItemsReorder).not.toHaveBeenCalled();
+  });
 });

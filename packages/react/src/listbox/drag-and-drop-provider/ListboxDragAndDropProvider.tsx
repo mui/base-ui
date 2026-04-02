@@ -286,8 +286,13 @@ export function ListboxDragAndDropProvider<Value = any>(
           const logicalEdge = toLogicalEdge(edge);
           const targetValue = valuesRef.current[index];
           const sourceItems = getSourceItems(args.source.data);
+          const isDroppingOnDraggedItem = sourceItems.some((item) => item.index === index);
 
-          if (targetValue !== undefined && handleCanDrop(sourceItems, targetItem, logicalEdge)) {
+          if (
+            !isDroppingOnDraggedItem &&
+            targetValue !== undefined &&
+            handleCanDrop(sourceItems, targetItem, logicalEdge)
+          ) {
             const items = sourceItems.map((item) => item.value);
 
             handleItemsReorder({

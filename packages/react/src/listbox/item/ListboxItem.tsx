@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { isAndroid } from '@base-ui/utils/detectBrowser';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { isMouseWithinBounds } from '@base-ui/utils/isMouseWithinBounds';
@@ -143,14 +144,20 @@ export const ListboxItem = React.memo(
     const itemRef = React.useRef<HTMLDivElement | null>(null);
     const dragHandleRef = React.useRef<HTMLElement | null>(null);
     const indexRef = useValueAsRef(index);
+    const dragEnabled = dragAndDropContext != null && hasRegistered && !rootDisabled;
+    const dropTargetEnabled = dragEnabled;
+    const preventContextMenuOnAndroid = isAndroid && dragEnabled && !disabled;
+    const handleContextMenu = React.useCallback((event: BaseUIEvent<React.MouseEvent>) => {
+      event.preventDefault();
+    }, []);
 
     const { closestEdge } = useDragAndDrop({
       index,
       itemValue,
       itemRef,
       dragHandleRef,
-      dragEnabled: dragAndDropContext != null && hasRegistered && !rootDisabled,
-      dropTargetEnabled: dragAndDropContext != null && hasRegistered && !rootDisabled,
+      dragEnabled,
+      dropTargetEnabled,
       disabled,
       groupId,
     });
@@ -482,6 +489,7 @@ export const ListboxItem = React.memo(
           ctrlKey: event.ctrlKey || event.metaKey,
         });
       },
+      onContextMenu: preventContextMenuOnAndroid ? handleContextMenu : undefined,
     };
 
     const element = useRenderElement('div', componentProps, {
