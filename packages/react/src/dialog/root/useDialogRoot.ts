@@ -17,7 +17,7 @@ import { DialogStore } from '../store/DialogStore';
 import { useImplicitActiveTrigger, useOpenStateTransitions } from '../../utils/popups';
 
 export function useDialogRoot(params: UseDialogRootParameters): UseDialogRootReturnValue {
-  const { store, parentContext, actionsRef, popupType } = params;
+  const { store, parentContext, actionsRef, isDrawer } = params;
 
   const open = store.useState('open');
   const disablePointerDismissal = store.useState('disablePointerDismissal');
@@ -114,9 +114,9 @@ export function useDialogRoot(params: UseDialogRootParameters): UseDialogRootRet
   const { getReferenceProps, getFloatingProps, getTriggerProps } = useInteractions([role, dismiss]);
 
   // Listen for nested open/close events on this store to maintain the counts.
-  store.useContextCallback('onNestedDialogOpen', (nestedCounts) => {
-    setOwnNestedOpenDialogs(nestedCounts.dialogs);
-    setOwnNestedOpenDrawers(nestedCounts.drawers);
+  store.useContextCallback('onNestedDialogOpen', (dialogCount, drawerCount) => {
+    setOwnNestedOpenDialogs(dialogCount);
+    setOwnNestedOpenDrawers(drawerCount);
   });
 
   store.useContextCallback('onNestedDialogClose', () => {
@@ -127,10 +127,10 @@ export function useDialogRoot(params: UseDialogRootParameters): UseDialogRootRet
   // Notify parent of our open/close state using parent callbacks, if any
   React.useEffect(() => {
     if (parentContext?.onNestedDialogOpen && open) {
-      parentContext.onNestedDialogOpen({
-        dialogs: ownNestedOpenDialogs + 1,
-        drawers: ownNestedOpenDrawers + (popupType === 'drawer' ? 1 : 0),
-      });
+      parentContext.onNestedDialogOpen(
+        ownNestedOpenDialogs + 1,
+        ownNestedOpenDrawers + (isDrawer ? 1 : 0),
+      );
     }
     if (parentContext?.onNestedDialogClose && !open) {
       parentContext.onNestedDialogClose();
@@ -140,7 +140,7 @@ export function useDialogRoot(params: UseDialogRootParameters): UseDialogRootRet
         parentContext.onNestedDialogClose();
       }
     };
-  }, [open, ownNestedOpenDialogs, ownNestedOpenDrawers, parentContext, popupType]);
+  }, [isDrawer, open, ownNestedOpenDialogs, ownNestedOpenDrawers, parentContext]);
 
   const activeTriggerProps = React.useMemo(
     () => getReferenceProps(triggerProps),
@@ -172,7 +172,7 @@ export interface UseDialogRootParameters {
   actionsRef?: DialogRoot.Props['actionsRef'] | undefined;
   parentContext?: DialogStore<unknown>['context'] | undefined;
   onOpenChange: DialogRoot.Props['onOpenChange'];
-  popupType: 'dialog' | 'drawer';
+  isDrawer: boolean;
   triggerIdProp?: string | null | undefined;
 }
 

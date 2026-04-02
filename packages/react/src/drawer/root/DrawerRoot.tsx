@@ -233,7 +233,7 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
 
   return (
     <DrawerRootContext.Provider value={contextValue}>
-      <DialogRootTypeContext.Provider value="drawer">
+      <DialogRootTypeContext.Provider value>
         <Dialog.Root
           open={openProp}
           defaultOpen={defaultOpen}

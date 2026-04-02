@@ -9,7 +9,7 @@ import { DialogStore } from '../store/DialogStore';
 import { DialogHandle } from '../store/DialogHandle';
 import { type PayloadChildRenderFunction } from '../../utils/popups';
 
-export const DialogRootTypeContext = React.createContext<'dialog' | 'drawer'>('dialog');
+export const DialogRootTypeContext = React.createContext(false);
 
 /**
  * Groups all parts of the dialog.
@@ -33,7 +33,7 @@ export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
   } = props;
 
   const parentDialogRootContext = useDialogRootContext(true);
-  const popupType = React.useContext(DialogRootTypeContext);
+  const isDrawer = React.useContext(DialogRootTypeContext);
   const nested = Boolean(parentDialogRootContext);
 
   const store = DialogStore.useStore(handle?.store, {
@@ -69,15 +69,15 @@ export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
     store,
     actionsRef,
     parentContext: parentDialogRootContext?.store.context,
+    isDrawer,
     onOpenChange,
-    popupType,
     triggerIdProp,
   });
 
   const contextValue: DialogRootContext<Payload> = React.useMemo(() => ({ store }), [store]);
 
   return (
-    <DialogRootTypeContext.Provider value="dialog">
+    <DialogRootTypeContext.Provider value={false}>
       <DialogRootContext.Provider value={contextValue as DialogRootContext}>
         {typeof children === 'function' ? children({ payload }) : children}
       </DialogRootContext.Provider>

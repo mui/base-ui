@@ -53,15 +53,15 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
     store,
     actionsRef,
     parentContext: parentDialogRootContext?.store.context,
+    isDrawer: false,
     onOpenChange,
-    popupType: 'dialog',
     triggerIdProp,
   });
 
   const contextValue: DialogRootContext<Payload> = React.useMemo(() => ({ store }), [store]);
 
   return (
-    <DialogRootTypeContext.Provider value="dialog">
+    <DialogRootTypeContext.Provider value={false}>
       <DialogRootContext.Provider value={contextValue as DialogRootContext}>
         {typeof children === 'function' ? children({ payload }) : children}
       </DialogRootContext.Provider>

@@ -25,17 +25,12 @@ export type State<Payload> = PopupStoreState<Payload> & {
   role: 'dialog' | 'alertdialog';
 };
 
-export interface DialogNestedOpenCounts {
-  dialogs: number;
-  drawers: number;
-}
-
 type Context = PopupStoreContext<DialogRoot.ChangeEventDetails> & {
   readonly popupRef: React.RefObject<HTMLElement | null>;
   readonly backdropRef: React.RefObject<HTMLDivElement | null>;
   readonly internalBackdropRef: React.RefObject<HTMLDivElement | null>;
   readonly outsidePressEnabledRef: React.MutableRefObject<boolean>;
-  readonly onNestedDialogOpen?: ((nestedCounts: DialogNestedOpenCounts) => void) | undefined;
+  readonly onNestedDialogOpen?: ((dialogCount: number, drawerCount: number) => void) | undefined;
   readonly onNestedDialogClose?: (() => void) | undefined;
 };
 
