@@ -254,7 +254,7 @@ export function useHoverReferenceInteraction(
         contains(currentDomReference, triggerNode) &&
         isHoverCloseTransition;
 
-      const shouldOpen = (!isOpen || isOverInactive) && shouldOpenRef.current?.() !== false;
+      const shouldOpen = !isOpen || isOverInactive;
 
       // Open immediately when moving between triggers while open, or during
       // a hover-driven close transition (including same-trigger re-entry).
@@ -267,12 +267,14 @@ export function useHoverReferenceInteraction(
         }
       } else if (openDelay) {
         instance.openChangeTimeout.start(openDelay, () => {
-          if (shouldOpen) {
+          if (shouldOpen && shouldOpenRef.current?.() !== false) {
             store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
           }
         });
       } else if (shouldOpen) {
-        store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
+        if (shouldOpenRef.current?.() !== false) {
+          store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
+        }
       }
     }
 

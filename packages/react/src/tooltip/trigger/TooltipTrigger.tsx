@@ -3,6 +3,7 @@ import * as React from 'react';
 import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { ownerWindow } from '@base-ui/utils/owner';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -220,8 +221,9 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
           // Notify ancestor tooltip triggers that a nested trigger was entered,
           // so they can close their already-open tooltips.
           if (!disabled) {
+            const EventCtor = ownerWindow(event.currentTarget as Element).Event;
             (event.currentTarget as HTMLElement).dispatchEvent(
-              new Event(NESTED_TRIGGER_ENTER_EVENT, { bubbles: true }),
+              new EventCtor(NESTED_TRIGGER_ENTER_EVENT, { bubbles: true, composed: true }),
             );
           }
         },
