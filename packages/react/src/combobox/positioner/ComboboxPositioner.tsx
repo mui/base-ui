@@ -89,7 +89,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     lazyFlip: true,
   });
 
-  useScrollLock(open && modal && openMethod !== 'touch', triggerElement);
+  useScrollLock(!!(open && modal && openMethod !== 'touch'), triggerElement);
 
   const state: ComboboxPositionerState = {
     open,
