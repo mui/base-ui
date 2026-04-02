@@ -1,5 +1,6 @@
 'use client';
 import { isOverflowElement } from '@floating-ui/utils/dom';
+import { addEventListener } from './addEventListener';
 import { isIOS, isWebKit } from './detectBrowser';
 import { ownerDocument, ownerWindow } from './owner';
 import { useIsoLayoutEffect } from './useIsoLayoutEffect';
@@ -199,7 +200,7 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
   }
 
   lockScroll();
-  win.addEventListener('resize', handleResize);
+  const unsubscribeResize = addEventListener(win, 'resize', handleResize);
 
   return () => {
     resizeFrame.cancel();
@@ -209,7 +210,7 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
     // in which case `removeEventListener` wouldn't be available,
     // so we check for it to avoid test failures.
     if (typeof win.removeEventListener === 'function') {
-      win.removeEventListener('resize', handleResize);
+      unsubscribeResize();
     }
   };
 }

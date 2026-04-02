@@ -2,9 +2,10 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { rectToClientRect } from '@floating-ui/utils';
+import { addEventListener } from '@base-ui/utils/addEventListener';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { isWebKit } from '@base-ui/utils/detectBrowser';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStore } from '@base-ui/utils/store';
@@ -449,11 +450,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       setOpen(false, createChangeEventDetails(REASONS.windowResize, event));
     }
 
-    win.addEventListener('resize', handleResize);
-
-    return () => {
-      win.removeEventListener('resize', handleResize);
-    };
+    return addEventListener(win, 'resize', handleResize);
   }, [setOpen, alignItemWithTriggerActive, positionerElement, open]);
 
   const defaultProps: HTMLProps = {

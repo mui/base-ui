@@ -9,6 +9,8 @@ import {
   isShadowRoot,
   isWebKit,
 } from '@floating-ui/utils/dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
+import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { Timeout, useTimeout } from '@base-ui/utils/useTimeout';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument } from '@base-ui/utils/owner';
@@ -491,11 +493,12 @@ export function useDismiss(
     function handleTouchStartCapture(event: TouchEvent) {
       currentPointerTypeRef.current = 'touch';
       const target = getTarget(event);
+      let unsubscribe: (() => void) | undefined;
       function callback() {
         handleTouchStart(event);
-        target?.removeEventListener(event.type, callback);
+        unsubscribe?.();
       }
-      target?.addEventListener(event.type, callback);
+      unsubscribe = target ? addEventListener(target, event.type, callback) : undefined;
     }
 
     function closeOnPressOutsideCapture(event: PointerEvent | MouseEvent) {
@@ -515,15 +518,16 @@ export function useDismiss(
 
       const target = getTarget(event);
 
+      let unsubscribe: (() => void) | undefined;
       function callback() {
         if (event.type === 'pointerdown') {
           handlePointerDown(event as PointerEvent);
         } else {
           closeOnPressOutside(event as MouseEvent);
         }
-        target?.removeEventListener(event.type, callback);
+        unsubscribe?.();
       }
-      target?.addEventListener(event.type, callback);
+      unsubscribe = target ? addEventListener(target, event.type, callback) : undefined;
     }
 
     function handlePressEndCapture(event: PointerEvent | MouseEvent) {
@@ -600,11 +604,12 @@ export function useDismiss(
 
     function handleTouchMoveCapture(event: TouchEvent) {
       const target = getTarget(event);
+      let unsubscribe: (() => void) | undefined;
       function callback() {
         handleTouchMove(event);
-        target?.removeEventListener(event.type, callback);
+        unsubscribe?.();
       }
-      target?.addEventListener(event.type, callback);
+      unsubscribe = target ? addEventListener(target, event.type, callback) : undefined;
     }
 
     function handleTouchEnd(event: TouchEvent) {
@@ -627,52 +632,38 @@ export function useDismiss(
 
     function handleTouchEndCapture(event: TouchEvent) {
       const target = getTarget(event);
+      let unsubscribe: (() => void) | undefined;
       function callback() {
         handleTouchEnd(event);
-        target?.removeEventListener(event.type, callback);
+        unsubscribe?.();
       }
-      target?.addEventListener(event.type, callback);
+      unsubscribe = target ? addEventListener(target, event.type, callback) : undefined;
     }
 
     const doc = ownerDocument(floatingElement);
-
-    if (escapeKey) {
-      doc.addEventListener('keydown', closeOnEscapeKeyDown);
-      doc.addEventListener('compositionstart', handleCompositionStart);
-      doc.addEventListener('compositionend', handleCompositionEnd);
-    }
-
-    if (outsidePressEnabled) {
-      doc.addEventListener('click', closeOnPressOutsideCapture, true);
-      doc.addEventListener('pointerdown', closeOnPressOutsideCapture, true);
-      doc.addEventListener('pointerup', handlePressEndCapture, true);
-      doc.addEventListener('pointercancel', handlePressEndCapture, true);
-      doc.addEventListener('mousedown', closeOnPressOutsideCapture, true);
-      doc.addEventListener('mouseup', handlePressEndCapture, true);
-      doc.addEventListener('touchstart', handleTouchStartCapture, true);
-      doc.addEventListener('touchmove', handleTouchMoveCapture, true);
-      doc.addEventListener('touchend', handleTouchEndCapture, true);
-    }
+    const unsubscribe = mergeCleanups(
+      escapeKey &&
+        mergeCleanups(
+          addEventListener(doc, 'keydown', closeOnEscapeKeyDown),
+          addEventListener(doc, 'compositionstart', handleCompositionStart),
+          addEventListener(doc, 'compositionend', handleCompositionEnd),
+        ),
+      outsidePressEnabled &&
+        mergeCleanups(
+          addEventListener(doc, 'click', closeOnPressOutsideCapture, true),
+          addEventListener(doc, 'pointerdown', closeOnPressOutsideCapture, true),
+          addEventListener(doc, 'pointerup', handlePressEndCapture, true),
+          addEventListener(doc, 'pointercancel', handlePressEndCapture, true),
+          addEventListener(doc, 'mousedown', closeOnPressOutsideCapture, true),
+          addEventListener(doc, 'mouseup', handlePressEndCapture, true),
+          addEventListener(doc, 'touchstart', handleTouchStartCapture, true),
+          addEventListener(doc, 'touchmove', handleTouchMoveCapture, true),
+          addEventListener(doc, 'touchend', handleTouchEndCapture, true),
+        ),
+    );
 
     return () => {
-      if (escapeKey) {
-        doc.removeEventListener('keydown', closeOnEscapeKeyDown);
-        doc.removeEventListener('compositionstart', handleCompositionStart);
-        doc.removeEventListener('compositionend', handleCompositionEnd);
-      }
-
-      if (outsidePressEnabled) {
-        doc.removeEventListener('click', closeOnPressOutsideCapture, true);
-        doc.removeEventListener('pointerdown', closeOnPressOutsideCapture, true);
-        doc.removeEventListener('pointerup', handlePressEndCapture, true);
-        doc.removeEventListener('pointercancel', handlePressEndCapture, true);
-        doc.removeEventListener('mousedown', closeOnPressOutsideCapture, true);
-        doc.removeEventListener('mouseup', handlePressEndCapture, true);
-        doc.removeEventListener('touchstart', handleTouchStartCapture, true);
-        doc.removeEventListener('touchmove', handleTouchMoveCapture, true);
-        doc.removeEventListener('touchend', handleTouchEndCapture, true);
-      }
-
+      unsubscribe();
       compositionTimeout.clear();
       preventedPressSuppressionTimeout.clear();
       resetPressStartState();

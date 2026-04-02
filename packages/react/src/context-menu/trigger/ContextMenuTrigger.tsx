@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { contains, getTarget, stopEvent } from '../../floating-ui-react/utils';
@@ -168,10 +169,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     }
 
     const doc = ownerDocument(triggerRef.current);
-    doc.addEventListener('contextmenu', handleDocumentContextMenu);
-    return () => {
-      doc.removeEventListener('contextmenu', handleDocumentContextMenu);
-    };
+    return addEventListener(doc, 'contextmenu', handleDocumentContextMenu);
   }, [backdropRef, disabled, internalBackdropRef]);
 
   const state: ContextMenuTriggerState = {

@@ -2,6 +2,8 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isElement } from '@floating-ui/utils/dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
+import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument } from '@base-ui/utils/owner';
@@ -333,22 +335,19 @@ export function useHoverReferenceInteraction(
     }
 
     if (move) {
-      trigger.addEventListener('mousemove', onMouseEnter, {
-        once: true,
-      });
+      return mergeCleanups(
+        addEventListener(trigger, 'mousemove', onMouseEnter, {
+          once: true,
+        }),
+        addEventListener(trigger, 'mouseenter', onMouseEnter),
+        addEventListener(trigger, 'mouseleave', onMouseLeave),
+      );
     }
 
-    trigger.addEventListener('mouseenter', onMouseEnter);
-    trigger.addEventListener('mouseleave', onMouseLeave);
-
-    return () => {
-      if (move) {
-        trigger.removeEventListener('mousemove', onMouseEnter);
-      }
-
-      trigger.removeEventListener('mouseenter', onMouseEnter);
-      trigger.removeEventListener('mouseleave', onMouseLeave);
-    };
+    return mergeCleanups(
+      addEventListener(trigger, 'mouseenter', onMouseEnter),
+      addEventListener(trigger, 'mouseleave', onMouseLeave),
+    );
   }, [
     cleanupMouseMoveHandler,
     clearPointerEvents,
