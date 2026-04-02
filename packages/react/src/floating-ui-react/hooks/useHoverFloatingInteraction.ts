@@ -7,7 +7,7 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerDocument } from '@base-ui/utils/owner';
 
 import type { FloatingContext, FloatingRootContext } from '../types';
-import { getTarget, isTargetInsideEnabledTrigger } from '../utils/element';
+import { contains, getTarget, isTargetInsideEnabledTrigger } from '../utils/element';
 import { getNodeChildren } from '../utils/nodes';
 
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -34,6 +34,11 @@ export type UseHoverFloatingInteractionProps = {
    * @default 0
    */
   closeDelay?: number | (() => number) | undefined;
+  /**
+   * Tree node id override for floating elements that participate in the tree
+   * without a `FloatingContext`, such as inline nested navigation menus.
+   */
+  nodeId?: string | undefined;
 };
 
 /**
@@ -49,7 +54,7 @@ export function useHoverFloatingInteraction(
   const domReferenceElement = store.useState('domReferenceElement');
   const { dataRef } = store.context;
 
-  const { enabled = true, closeDelay: closeDelayProp = 0 } = parameters;
+  const { enabled = true, closeDelay: closeDelayProp = 0, nodeId: nodeIdProp } = parameters;
 
   const instance = useHoverInteractionSharedState(store);
 
@@ -193,6 +198,20 @@ export function useHoverFloatingInteraction(
         return;
       }
 
+      const currentNodeId = dataRef.current.floatingContext?.nodeId ?? nodeIdProp;
+      const relatedTarget = event.relatedTarget;
+      const isMovingIntoDescendantFloating =
+        tree &&
+        currentNodeId &&
+        isElement(relatedTarget) &&
+        getNodeChildren(tree.nodesRef.current, currentNodeId, false).some((node) =>
+          contains(node.context?.elements.floating, relatedTarget),
+        );
+
+      if (isMovingIntoDescendantFloating) {
+        return;
+      }
+
       // If the safePolygon handler is active, let it handle the close logic.
       if (instance.handler) {
         instance.handler(event);
@@ -237,6 +256,7 @@ export function useHoverFloatingInteraction(
     floatingElement,
     store,
     dataRef,
+    nodeIdProp,
     isClickLikeOpenEvent,
     isRelatedTargetInsideEnabledTrigger,
     closeWithDelay,
