@@ -200,14 +200,15 @@ export function useHoverFloatingInteraction(
 
       const currentNodeId = dataRef.current.floatingContext?.nodeId ?? nodeIdProp;
       const relatedTarget = event.relatedTarget;
-      if (
+      const isMovingIntoDescendantFloating =
         tree &&
-        currentNodeId != null &&
+        currentNodeId &&
         isElement(relatedTarget) &&
         getNodeChildren(tree.nodesRef.current, currentNodeId, false).some((node) =>
           contains(node.context?.elements.floating, relatedTarget),
-        )
-      ) {
+        );
+
+      if (isMovingIntoDescendantFloating) {
         return;
       }
 
