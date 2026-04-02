@@ -721,8 +721,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/utils/build
       '@mui/internal-bundle-size-checker':
-        specifier: https://pkg.pr.new/@mui/internal-bundle-size-checker@bfdc011
-        version: https://pkg.pr.new/@mui/internal-bundle-size-checker@bfdc011(@types/node@22.18.13)(esbuild@0.27.2)(jiti@2.6.1)(rolldown@1.0.0-rc.12)(rollup@4.55.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.2)
+        specifier: https://pkg.pr.new/@mui/internal-bundle-size-checker@73068d2
+        version: https://pkg.pr.new/@mui/internal-bundle-size-checker@73068d2(@types/node@22.18.13)(esbuild@0.27.2)(jiti@2.6.1)(rolldown@1.0.0-rc.12)(rollup@4.55.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.2)
       radix-ui:
         specifier: ^1.4.3
         version: 1.4.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -2370,8 +2370,8 @@ packages:
     peerDependencies:
       '@babel/core': ^7.29.0
 
-  '@mui/internal-bundle-size-checker@https://pkg.pr.new/@mui/internal-bundle-size-checker@bfdc011':
-    resolution: {integrity: sha512-RDDYvg4t4Ky3esCBACdoQsDYLS3HBu+X/jCxpdGPOGrN/Sm1kHpBXIntvvv9RoTbNJK38stmhbhf2dAwjRXh9Q==, tarball: https://pkg.pr.new/@mui/internal-bundle-size-checker@bfdc011}
+  '@mui/internal-bundle-size-checker@https://pkg.pr.new/@mui/internal-bundle-size-checker@73068d2':
+    resolution: {integrity: sha512-cmpYQOXCi1tEZZClt2p7pm+oR4OmllKXOwCYSdsu+1b1UEdlPrQzS4zOn4l0Z0w6FQ5X/I/TBvLXA0+1KoqZJQ==, tarball: https://pkg.pr.new/@mui/internal-bundle-size-checker@73068d2}
     version: 1.0.7
     hasBin: true
 
@@ -12620,7 +12620,7 @@ snapshots:
       '@babel/core': 7.29.0
       resolve: 1.22.11
 
-  '@mui/internal-bundle-size-checker@https://pkg.pr.new/@mui/internal-bundle-size-checker@bfdc011(@types/node@22.18.13)(esbuild@0.27.2)(jiti@2.6.1)(rolldown@1.0.0-rc.12)(rollup@4.55.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.2)':
+  '@mui/internal-bundle-size-checker@https://pkg.pr.new/@mui/internal-bundle-size-checker@73068d2(@types/node@22.18.13)(esbuild@0.27.2)(jiti@2.6.1)(rolldown@1.0.0-rc.12)(rollup@4.55.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.2)':
     dependencies:
       '@aws-sdk/client-s3': 3.1010.0
       '@aws-sdk/credential-providers': 3.1010.0
