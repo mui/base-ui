@@ -17,7 +17,7 @@ import { DialogStore } from '../store/DialogStore';
 import { useImplicitActiveTrigger, useOpenStateTransitions } from '../../utils/popups';
 
 export function useDialogRoot(params: UseDialogRootParameters): UseDialogRootReturnValue {
-  const { store, parentContext, actionsRef } = params;
+  const { store, parentContext, actionsRef, popupType } = params;
 
   const open = store.useState('open');
   const disablePointerDismissal = store.useState('disablePointerDismissal');
@@ -59,6 +59,7 @@ export function useDialogRoot(params: UseDialogRootParameters): UseDialogRootRet
   });
 
   const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = React.useState(0);
+  const [ownNestedOpenDrawers, setOwnNestedOpenDrawers] = React.useState(0);
   const isTopmost = ownNestedOpenDialogs === 0;
 
   const role = useRole(floatingRootContext);
@@ -112,19 +113,24 @@ export function useDialogRoot(params: UseDialogRootParameters): UseDialogRootRet
 
   const { getReferenceProps, getFloatingProps, getTriggerProps } = useInteractions([role, dismiss]);
 
-  // Listen for nested open/close events on this store to maintain the count
-  store.useContextCallback('onNestedDialogOpen', (ownChildrenCount) => {
-    setOwnNestedOpenDialogs(ownChildrenCount + 1);
+  // Listen for nested open/close events on this store to maintain the counts.
+  store.useContextCallback('onNestedDialogOpen', (nestedCounts) => {
+    setOwnNestedOpenDialogs(nestedCounts.dialogs);
+    setOwnNestedOpenDrawers(nestedCounts.drawers);
   });
 
   store.useContextCallback('onNestedDialogClose', () => {
     setOwnNestedOpenDialogs(0);
+    setOwnNestedOpenDrawers(0);
   });
 
   // Notify parent of our open/close state using parent callbacks, if any
   React.useEffect(() => {
     if (parentContext?.onNestedDialogOpen && open) {
-      parentContext.onNestedDialogOpen(ownNestedOpenDialogs);
+      parentContext.onNestedDialogOpen({
+        dialogs: ownNestedOpenDialogs + 1,
+        drawers: ownNestedOpenDrawers + (popupType === 'drawer' ? 1 : 0),
+      });
     }
     if (parentContext?.onNestedDialogClose && !open) {
       parentContext.onNestedDialogClose();
@@ -134,7 +140,7 @@ export function useDialogRoot(params: UseDialogRootParameters): UseDialogRootRet
         parentContext.onNestedDialogClose();
       }
     };
-  }, [open, parentContext, ownNestedOpenDialogs]);
+  }, [open, ownNestedOpenDialogs, ownNestedOpenDrawers, parentContext, popupType]);
 
   const activeTriggerProps = React.useMemo(
     () => getReferenceProps(triggerProps),
@@ -155,6 +161,7 @@ export function useDialogRoot(params: UseDialogRootParameters): UseDialogRootRet
     popupProps,
     floatingRootContext,
     nestedOpenDialogCount: ownNestedOpenDialogs,
+    nestedOpenDrawerCount: ownNestedOpenDrawers,
   });
 }
 
@@ -165,6 +172,7 @@ export interface UseDialogRootParameters {
   actionsRef?: DialogRoot.Props['actionsRef'] | undefined;
   parentContext?: DialogStore<unknown>['context'] | undefined;
   onOpenChange: DialogRoot.Props['onOpenChange'];
+  popupType: 'dialog' | 'drawer';
   triggerIdProp?: string | null | undefined;
 }
 

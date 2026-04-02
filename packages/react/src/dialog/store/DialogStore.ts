@@ -18,18 +18,24 @@ export type State<Payload> = PopupStoreState<Payload> & {
   openMethod: InteractionType | null;
   nested: boolean;
   nestedOpenDialogCount: number;
+  nestedOpenDrawerCount: number;
   titleElementId: string | undefined;
   descriptionElementId: string | undefined;
   viewportElement: HTMLElement | null;
   role: 'dialog' | 'alertdialog';
 };
 
+export interface DialogNestedOpenCounts {
+  dialogs: number;
+  drawers: number;
+}
+
 type Context = PopupStoreContext<DialogRoot.ChangeEventDetails> & {
   readonly popupRef: React.RefObject<HTMLElement | null>;
   readonly backdropRef: React.RefObject<HTMLDivElement | null>;
   readonly internalBackdropRef: React.RefObject<HTMLDivElement | null>;
   readonly outsidePressEnabledRef: React.MutableRefObject<boolean>;
-  readonly onNestedDialogOpen?: ((ownChildrenCount: number) => void) | undefined;
+  readonly onNestedDialogOpen?: ((nestedCounts: DialogNestedOpenCounts) => void) | undefined;
   readonly onNestedDialogClose?: (() => void) | undefined;
 };
 
@@ -38,6 +44,7 @@ const selectors = {
   modal: createSelector((state: State<unknown>) => state.modal),
   nested: createSelector((state: State<unknown>) => state.nested),
   nestedOpenDialogCount: createSelector((state: State<unknown>) => state.nestedOpenDialogCount),
+  nestedOpenDrawerCount: createSelector((state: State<unknown>) => state.nestedOpenDrawerCount),
   disablePointerDismissal: createSelector((state: State<unknown>) => state.disablePointerDismissal),
   openMethod: createSelector((state: State<unknown>) => state.openMethod),
   descriptionElementId: createSelector((state: State<unknown>) => state.descriptionElementId),
@@ -136,6 +143,7 @@ function createInitialState<Payload>(initialState: Partial<State<Payload>> = {})
     openMethod: null,
     nested: false,
     nestedOpenDialogCount: 0,
+    nestedOpenDrawerCount: 0,
     role: 'dialog',
     ...initialState,
   };
