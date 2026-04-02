@@ -3,18 +3,19 @@ import * as React from 'react';
 import { Listbox } from '@base-ui/react/listbox';
 
 interface Item {
-  label: string;
+  title: string;
+  artist: string;
   value: string;
   group: string;
 }
 
 const initialItems: Item[] = [
-  { label: 'Die Grotesk', value: 'die-grotesk', group: 'Sans-serif' },
-  { label: 'Roboto', value: 'roboto', group: 'Sans-serif' },
-  { label: 'Open Sans', value: 'open-sans', group: 'Sans-serif' },
-  { label: 'JetBrains Mono', value: 'jetbrains-mono', group: 'Monospace' },
-  { label: 'Fira Code', value: 'fira-code', group: 'Monospace' },
-  { label: 'IBM Plex Mono', value: 'ibm-plex-mono', group: 'Monospace' },
+  { title: 'Billie Jean', artist: 'Michael Jackson', value: 'billie-jean', group: 'Pop' },
+  { title: 'Dancing Queen', artist: 'ABBA', value: 'dancing-queen', group: 'Pop' },
+  { title: 'Like a Prayer', artist: 'Madonna', value: 'like-a-prayer', group: 'Pop' },
+  { title: 'Hotel California', artist: 'Eagles', value: 'hotel-california', group: 'Rock' },
+  { title: 'Smells Like Teen Spirit', artist: 'Nirvana', value: 'smells-like-teen-spirit', group: 'Rock' },
+  { title: 'Back in Black', artist: 'AC/DC', value: 'back-in-black', group: 'Rock' },
 ];
 
 export default function ExampleListboxDragWithinGroups() {
@@ -23,9 +24,9 @@ export default function ExampleListboxDragWithinGroups() {
 
   return (
     <div className="flex flex-col gap-1">
-      <Listbox.Root defaultValue={['die-grotesk']}>
+      <Listbox.Root defaultValue={['billie-jean']}>
         <Listbox.Label className="cursor-default text-sm leading-5 font-medium text-gray-900">
-          Reorder within groups
+          Playlist
         </Listbox.Label>
         <Listbox.DragAndDropProvider
           canDrop={(sourceItems, targetItem) =>
@@ -35,13 +36,13 @@ export default function ExampleListboxDragWithinGroups() {
             setItems((prev) => reorderItems(prev, event));
           }}
         >
-          <Listbox.List className="box-border w-56 max-h-96 overflow-y-auto rounded-md py-1 outline outline-1 outline-gray-200 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 dark:outline-gray-300">
+          <Listbox.List className="box-border w-64 max-h-96 overflow-y-auto rounded-md py-1 outline outline-1 outline-gray-200 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 dark:outline-gray-300">
             {groups.map((group) => (
               <Listbox.Group key={group.label} className="block pb-0.5">
                 <Listbox.GroupLabel className="cursor-default px-4 pt-2 pb-1 pl-10 text-[0.6875rem] font-semibold uppercase tracking-wider text-gray-600">
                   {group.label}
                 </Listbox.GroupLabel>
-                {group.items.map(({ label, value }) => (
+                {group.items.map(({ title, artist, value }) => (
                   <Listbox.Item
                     key={value}
                     value={value}
@@ -53,7 +54,10 @@ export default function ExampleListboxDragWithinGroups() {
                     <Listbox.ItemIndicator className="col-start-2">
                       <CheckIcon className="size-3" />
                     </Listbox.ItemIndicator>
-                    <Listbox.ItemText className="col-start-3">{label}</Listbox.ItemText>
+                    <Listbox.ItemText className="col-start-3 flex flex-col gap-0.5">
+                      <span className="font-semibold">{title}</span>
+                      <span className="text-xs text-gray-500">{artist}</span>
+                    </Listbox.ItemText>
                   </Listbox.Item>
                 ))}
               </Listbox.Group>

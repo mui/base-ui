@@ -5,11 +5,11 @@ import type { ListboxRootActions } from '@base-ui/react/listbox';
 import styles from './index.module.css';
 
 const initialItems = [
-  { label: 'First', value: 'first' },
-  { label: 'Second', value: 'second' },
-  { label: 'Third', value: 'third' },
-  { label: 'Fourth', value: 'fourth' },
-  { label: 'Fifth', value: 'fifth' },
+  { title: 'Bohemian Rhapsody', artist: 'Queen', value: 'bohemian-rhapsody' },
+  { title: 'Billie Jean', artist: 'Michael Jackson', value: 'billie-jean' },
+  { title: 'Hotel California', artist: 'Eagles', value: 'hotel-california' },
+  { title: 'Superstition', artist: 'Stevie Wonder', value: 'superstition' },
+  { title: 'Dancing Queen', artist: 'ABBA', value: 'dancing-queen' },
 ];
 
 function reorder(
@@ -71,18 +71,18 @@ export default function ExampleListboxCustomShortcuts() {
   return (
     <div className={styles.Field}>
       <Listbox.Root
-        defaultValue={['first']}
+        defaultValue={['bohemian-rhapsody']}
         actionsRef={actionsRef}
         onHighlightChange={(value, element) => {
           highlightedRef.current = value != null && element != null ? { value, element } : null;
         }}
       >
-        <Listbox.Label className={styles.Label}>Press [ or ] to move items</Listbox.Label>
+        <Listbox.Label className={styles.Label}>Press [ or ] to move songs</Listbox.Label>
         <Listbox.DragAndDropProvider
           onItemsReorder={(event) => setItems((prev) => reorder(prev, event))}
         >
           <Listbox.List className={styles.List} onKeyDown={handleKeyDown}>
-            {items.map(({ label, value }) => (
+            {items.map(({ title, artist, value }) => (
               <Listbox.Item key={value} value={value} className={styles.Item}>
                 <Listbox.ItemDragHandle className={styles.DragHandle}>
                   <GripIcon />
@@ -90,7 +90,10 @@ export default function ExampleListboxCustomShortcuts() {
                 <Listbox.ItemIndicator className={styles.ItemIndicator}>
                   <CheckIcon className={styles.ItemIndicatorIcon} />
                 </Listbox.ItemIndicator>
-                <Listbox.ItemText className={styles.ItemText}>{label}</Listbox.ItemText>
+                <Listbox.ItemText className={styles.ItemText}>
+                  <span className={styles.ItemTitle}>{title}</span>
+                  <span className={styles.ItemArtist}>{artist}</span>
+                </Listbox.ItemText>
               </Listbox.Item>
             ))}
           </Listbox.List>

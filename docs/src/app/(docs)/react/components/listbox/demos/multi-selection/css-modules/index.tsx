@@ -2,26 +2,44 @@ import * as React from 'react';
 import { Listbox } from '@base-ui/react/listbox';
 import styles from './index.module.css';
 
-const channels = [
-  { label: 'Email', value: 'email' },
-  { label: 'SMS', value: 'sms' },
-  { label: 'Push notifications', value: 'push' },
-  { label: 'In-app', value: 'in-app' },
-  { label: 'Slack', value: 'slack' },
+const songs = [
+  { title: 'Bohemian Rhapsody', artist: 'Queen', value: 'bohemian-rhapsody' },
+  { title: 'Billie Jean', artist: 'Michael Jackson', value: 'billie-jean' },
+  { title: 'Hotel California', artist: 'Eagles', value: 'hotel-california' },
+  { title: 'Superstition', artist: 'Stevie Wonder', value: 'superstition' },
+  { title: 'Dancing Queen', artist: 'ABBA', value: 'dancing-queen' },
 ];
 
 export default function ExampleListboxMultiSelection() {
   return (
+    <div className={styles.Row}>
+      <SongList label="multiple" selectionMode="multiple" />
+      <SongList label="explicit-multiple" selectionMode="explicit-multiple" />
+    </div>
+  );
+}
+
+function SongList({
+  label,
+  selectionMode,
+}: {
+  label: string;
+  selectionMode: 'multiple' | 'explicit-multiple';
+}) {
+  return (
     <div className={styles.Field}>
-      <Listbox.Root selectionMode="multiple" defaultValue={['email']}>
-        <Listbox.Label className={styles.Label}>Notifications</Listbox.Label>
+      <Listbox.Root selectionMode={selectionMode} defaultValue={['bohemian-rhapsody']}>
+        <Listbox.Label className={styles.Label}>{label}</Listbox.Label>
         <Listbox.List className={styles.List}>
-          {channels.map(({ label, value }) => (
+          {songs.map(({ title, artist, value }) => (
             <Listbox.Item key={value} value={value} className={styles.Item}>
               <Listbox.ItemIndicator className={styles.ItemIndicator}>
                 <CheckIcon className={styles.ItemIndicatorIcon} />
               </Listbox.ItemIndicator>
-              <Listbox.ItemText className={styles.ItemText}>{label}</Listbox.ItemText>
+              <Listbox.ItemText className={styles.ItemText}>
+                <span className={styles.ItemTitle}>{title}</span>
+                <span className={styles.ItemArtist}>{artist}</span>
+              </Listbox.ItemText>
             </Listbox.Item>
           ))}
         </Listbox.List>

@@ -4,18 +4,19 @@ import { Listbox } from '@base-ui/react/listbox';
 import styles from './index.module.css';
 
 interface Item {
-  label: string;
+  title: string;
+  artist: string;
   value: string;
   group: string;
 }
 
 const initialItems: Item[] = [
-  { label: 'Die Grotesk', value: 'die-grotesk', group: 'Sans-serif' },
-  { label: 'Roboto', value: 'roboto', group: 'Sans-serif' },
-  { label: 'Open Sans', value: 'open-sans', group: 'Sans-serif' },
-  { label: 'JetBrains Mono', value: 'jetbrains-mono', group: 'Monospace' },
-  { label: 'Fira Code', value: 'fira-code', group: 'Monospace' },
-  { label: 'IBM Plex Mono', value: 'ibm-plex-mono', group: 'Monospace' },
+  { title: 'Billie Jean', artist: 'Michael Jackson', value: 'billie-jean', group: 'Pop' },
+  { title: 'Dancing Queen', artist: 'ABBA', value: 'dancing-queen', group: 'Pop' },
+  { title: 'Like a Prayer', artist: 'Madonna', value: 'like-a-prayer', group: 'Pop' },
+  { title: 'Hotel California', artist: 'Eagles', value: 'hotel-california', group: 'Rock' },
+  { title: 'Smells Like Teen Spirit', artist: 'Nirvana', value: 'smells-like-teen-spirit', group: 'Rock' },
+  { title: 'Back in Black', artist: 'AC/DC', value: 'back-in-black', group: 'Rock' },
 ];
 
 export default function ExampleListboxDragWithinGroups() {
@@ -24,8 +25,8 @@ export default function ExampleListboxDragWithinGroups() {
 
   return (
     <div className={styles.Field}>
-      <Listbox.Root defaultValue={['die-grotesk']}>
-        <Listbox.Label className={styles.Label}>Reorder within groups</Listbox.Label>
+      <Listbox.Root defaultValue={['billie-jean']}>
+        <Listbox.Label className={styles.Label}>Playlist</Listbox.Label>
         <Listbox.DragAndDropProvider
           canDrop={(sourceItems, targetItem) =>
             sourceItems.every((item) => item.groupId === targetItem.groupId)
@@ -38,7 +39,7 @@ export default function ExampleListboxDragWithinGroups() {
             {groups.map((group) => (
               <Listbox.Group key={group.label} className={styles.Group}>
                 <Listbox.GroupLabel className={styles.GroupLabel}>{group.label}</Listbox.GroupLabel>
-                {group.items.map(({ label, value }) => (
+                {group.items.map(({ title, artist, value }) => (
                   <Listbox.Item key={value} value={value} className={styles.Item}>
                     <Listbox.ItemDragHandle className={styles.DragHandle}>
                       <GripIcon />
@@ -46,7 +47,10 @@ export default function ExampleListboxDragWithinGroups() {
                     <Listbox.ItemIndicator className={styles.ItemIndicator}>
                       <CheckIcon className={styles.ItemIndicatorIcon} />
                     </Listbox.ItemIndicator>
-                    <Listbox.ItemText className={styles.ItemText}>{label}</Listbox.ItemText>
+                    <Listbox.ItemText className={styles.ItemText}>
+                      <span className={styles.ItemTitle}>{title}</span>
+                      <span className={styles.ItemArtist}>{artist}</span>
+                    </Listbox.ItemText>
                   </Listbox.Item>
                 ))}
               </Listbox.Group>

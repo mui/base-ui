@@ -3,19 +3,69 @@ import * as React from 'react';
 import { Listbox } from '@base-ui/react/listbox';
 import styles from './index.module.css';
 
+const allSongs = [
+  'Bohemian Rhapsody',
+  'Billie Jean',
+  'Hotel California',
+  'Stairway to Heaven',
+  'Imagine',
+  'Smells Like Teen Spirit',
+  'Like a Rolling Stone',
+  'Hey Jude',
+  'Superstition',
+  'What\'s Going On',
+  'Dancing Queen',
+  'Good Vibrations',
+  'Johnny B. Goode',
+  'I Will Always Love You',
+  'Purple Rain',
+  'Respect',
+  'Yesterday',
+  'Back in Black',
+  'Like a Prayer',
+  'A Change Is Gonna Come',
+  'London Calling',
+  'Born to Run',
+  'Waterloo Sunset',
+  'God Only Knows',
+  'No Woman, No Cry',
+  'Every Breath You Take',
+  'Under Pressure',
+  'Bridge Over Troubled Water',
+  'Let It Be',
+  'Redemption Song',
+  'Heroes',
+  'A Day in the Life',
+  'Life on Mars?',
+  'Wish You Were Here',
+  'Go Your Own Way',
+  'Take Me to the River',
+  'Heart of Gold',
+  'Jolene',
+  'Waterloo',
+  'Roxanne',
+  'Ring of Fire',
+  'I Heard It Through the Grapevine',
+  'The Message',
+  'Sabotage',
+  'Losing My Religion',
+  'Fast Car',
+  'Hallelujah',
+  'Stand by Me',
+  'Summertime',
+  'What a Wonderful World',
+].map((song, i) => ({
+  title: song,
+  value: `song-${i + 1}`,
+}));
+
 const PAGE_SIZE = 10;
 
-function generateItems(start: number, count: number) {
-  return Array.from({ length: count }, (_, i) => ({
-    label: `Item ${start + i + 1}`,
-    value: `item-${start + i + 1}`,
-  }));
-}
-
 export default function ExampleListboxLazyLoading() {
-  const [items, setItems] = React.useState(() => generateItems(0, PAGE_SIZE));
+  const [count, setCount] = React.useState(PAGE_SIZE);
   const [loading, setLoading] = React.useState(false);
-  const [hasMore, setHasMore] = React.useState(true);
+  const hasMore = count < allSongs.length;
+  const items = allSongs.slice(0, count);
 
   const handleLoadMore = React.useCallback(() => {
     if (loading || !hasMore) {
@@ -26,14 +76,7 @@ export default function ExampleListboxLazyLoading() {
 
     // Simulate an async fetch
     setTimeout(() => {
-      setItems((prev) => {
-        const newItems = generateItems(prev.length, PAGE_SIZE);
-        const next = [...prev, ...newItems];
-        if (next.length >= 50) {
-          setHasMore(false);
-        }
-        return next;
-      });
+      setCount((prev) => Math.min(prev + PAGE_SIZE, allSongs.length));
       setLoading(false);
     }, 800);
   }, [loading, hasMore]);
@@ -41,14 +84,14 @@ export default function ExampleListboxLazyLoading() {
   return (
     <div className={styles.Field}>
       <Listbox.Root loading={loading} onLoadMore={hasMore ? handleLoadMore : undefined}>
-        <Listbox.Label className={styles.Label}>Items</Listbox.Label>
+        <Listbox.Label className={styles.Label}>Library</Listbox.Label>
         <Listbox.List className={styles.List}>
-          {items.map(({ label, value }) => (
+          {items.map(({ title, value }) => (
             <Listbox.Item key={value} value={value} className={styles.Item}>
               <Listbox.ItemIndicator className={styles.ItemIndicator}>
                 <CheckIcon className={styles.ItemIndicatorIcon} />
               </Listbox.ItemIndicator>
-              <Listbox.ItemText className={styles.ItemText}>{label}</Listbox.ItemText>
+              <Listbox.ItemText className={styles.ItemText}>{title}</Listbox.ItemText>
             </Listbox.Item>
           ))}
           {hasMore && (

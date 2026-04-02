@@ -2,23 +2,23 @@ import * as React from 'react';
 import { Listbox } from '@base-ui/react/listbox';
 import styles from './index.module.css';
 
-const fontGroups = [
+const songGroups = [
   {
-    label: 'Sans-serif',
-    fonts: [
-      { label: 'Die Grotesk', value: 'die-grotesk' },
-      { label: 'Roboto', value: 'roboto' },
-      { label: 'Open Sans', value: 'open-sans' },
-      { label: 'Montserrat', value: 'montserrat' },
+    label: 'Pop',
+    songs: [
+      { title: 'Billie Jean', artist: 'Michael Jackson', value: 'billie-jean' },
+      { title: 'Dancing Queen', artist: 'ABBA', value: 'dancing-queen' },
+      { title: 'Like a Prayer', artist: 'Madonna', value: 'like-a-prayer' },
+      { title: 'Bohemian Rhapsody', artist: 'Queen', value: 'bohemian-rhapsody' },
     ],
   },
   {
-    label: 'Monospace',
-    fonts: [
-      { label: 'JetBrains Mono', value: 'jetbrains-mono' },
-      { label: 'Fira Code', value: 'fira-code' },
-      { label: 'Source Code Pro', value: 'source-code-pro' },
-      { label: 'IBM Plex Mono', value: 'ibm-plex-mono' },
+    label: 'Rock',
+    songs: [
+      { title: 'Hotel California', artist: 'Eagles', value: 'hotel-california' },
+      { title: 'Stairway to Heaven', artist: 'Led Zeppelin', value: 'stairway-to-heaven' },
+      { title: 'Smells Like Teen Spirit', artist: 'Nirvana', value: 'smells-like-teen-spirit' },
+      { title: 'Back in Black', artist: 'AC/DC', value: 'back-in-black' },
     ],
   },
 ];
@@ -26,18 +26,21 @@ const fontGroups = [
 export default function ExampleListbox() {
   return (
     <div className={styles.Field}>
-      <Listbox.Root defaultValue={['die-grotesk']}>
-        <Listbox.Label className={styles.Label}>Font family</Listbox.Label>
+      <Listbox.Root defaultValue={['billie-jean']}>
+        <Listbox.Label className={styles.Label}>Playlist</Listbox.Label>
         <Listbox.List className={styles.List}>
-          {fontGroups.map((group) => (
+          {songGroups.map((group) => (
             <Listbox.Group key={group.label} className={styles.Group}>
               <Listbox.GroupLabel className={styles.GroupLabel}>{group.label}</Listbox.GroupLabel>
-              {group.fonts.map(({ label, value }) => (
+              {group.songs.map(({ title, artist, value }) => (
                 <Listbox.Item key={value} value={value} className={styles.Item}>
                   <Listbox.ItemIndicator className={styles.ItemIndicator}>
                     <CheckIcon className={styles.ItemIndicatorIcon} />
                   </Listbox.ItemIndicator>
-                  <Listbox.ItemText className={styles.ItemText}>{label}</Listbox.ItemText>
+                  <Listbox.ItemText className={styles.ItemText}>
+                    <span className={styles.ItemTitle}>{title}</span>
+                    <span className={styles.ItemArtist}>{artist}</span>
+                  </Listbox.ItemText>
                 </Listbox.Item>
               ))}
             </Listbox.Group>

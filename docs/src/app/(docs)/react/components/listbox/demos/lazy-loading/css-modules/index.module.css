@@ -15,7 +15,7 @@
 
 .List {
   box-sizing: border-box;
-  width: 14rem;
+  width: 16rem;
   max-height: 20rem;
   overflow-y: auto;
   padding-block: 0.25rem;

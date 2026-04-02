@@ -1,23 +1,23 @@
 import * as React from 'react';
 import { Listbox } from '@base-ui/react/listbox';
 
-const fontGroups = [
+const songGroups = [
   {
-    label: 'Sans-serif',
-    fonts: [
-      { label: 'Die Grotesk', value: 'die-grotesk' },
-      { label: 'Roboto', value: 'roboto' },
-      { label: 'Open Sans', value: 'open-sans' },
-      { label: 'Montserrat', value: 'montserrat' },
+    label: 'Pop',
+    songs: [
+      { title: 'Billie Jean', artist: 'Michael Jackson', value: 'billie-jean' },
+      { title: 'Dancing Queen', artist: 'ABBA', value: 'dancing-queen' },
+      { title: 'Like a Prayer', artist: 'Madonna', value: 'like-a-prayer' },
+      { title: 'Bohemian Rhapsody', artist: 'Queen', value: 'bohemian-rhapsody' },
     ],
   },
   {
-    label: 'Monospace',
-    fonts: [
-      { label: 'JetBrains Mono', value: 'jetbrains-mono' },
-      { label: 'Fira Code', value: 'fira-code' },
-      { label: 'Source Code Pro', value: 'source-code-pro' },
-      { label: 'IBM Plex Mono', value: 'ibm-plex-mono' },
+    label: 'Rock',
+    songs: [
+      { title: 'Hotel California', artist: 'Eagles', value: 'hotel-california' },
+      { title: 'Stairway to Heaven', artist: 'Led Zeppelin', value: 'stairway-to-heaven' },
+      { title: 'Smells Like Teen Spirit', artist: 'Nirvana', value: 'smells-like-teen-spirit' },
+      { title: 'Back in Black', artist: 'AC/DC', value: 'back-in-black' },
     ],
   },
 ];
@@ -25,17 +25,17 @@ const fontGroups = [
 export default function ExampleListbox() {
   return (
     <div className="flex flex-col gap-1">
-      <Listbox.Root defaultValue={['die-grotesk']}>
+      <Listbox.Root defaultValue={['billie-jean']}>
         <Listbox.Label className="cursor-default text-sm leading-5 font-medium text-gray-900">
-          Font family
+          Playlist
         </Listbox.Label>
-        <Listbox.List className="box-border w-56 max-h-96 overflow-y-auto py-1 rounded-md outline outline-1 outline-gray-200 dark:outline-gray-300 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
-          {fontGroups.map((group) => (
+        <Listbox.List className="box-border w-64 max-h-96 overflow-y-auto py-1 rounded-md outline outline-1 outline-gray-200 dark:outline-gray-300 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
+          {songGroups.map((group) => (
             <Listbox.Group key={group.label} className="block pb-0.5">
               <Listbox.GroupLabel className="cursor-default pr-4 pb-1 pl-[1.875rem] pt-2 text-[0.6875rem] font-semibold text-gray-600 uppercase tracking-wider">
                 {group.label}
               </Listbox.GroupLabel>
-              {group.fonts.map(({ label, value }) => (
+              {group.songs.map(({ title, artist, value }) => (
                 <Listbox.Item
                   key={value}
                   value={value}
@@ -44,7 +44,10 @@ export default function ExampleListbox() {
                   <Listbox.ItemIndicator className="col-start-1">
                     <CheckIcon className="size-3" />
                   </Listbox.ItemIndicator>
-                  <Listbox.ItemText className="col-start-2">{label}</Listbox.ItemText>
+                  <Listbox.ItemText className="col-start-2 flex flex-col gap-0.5">
+                    <span className="font-semibold">{title}</span>
+                    <span className="text-xs text-gray-500">{artist}</span>
+                  </Listbox.ItemText>
                 </Listbox.Item>
               ))}
             </Listbox.Group>

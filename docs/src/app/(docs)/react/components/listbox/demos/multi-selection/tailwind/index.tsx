@@ -1,23 +1,38 @@
 import * as React from 'react';
 import { Listbox } from '@base-ui/react/listbox';
 
-const channels = [
-  { label: 'Email', value: 'email' },
-  { label: 'SMS', value: 'sms' },
-  { label: 'Push notifications', value: 'push' },
-  { label: 'In-app', value: 'in-app' },
-  { label: 'Slack', value: 'slack' },
+const songs = [
+  { title: 'Bohemian Rhapsody', artist: 'Queen', value: 'bohemian-rhapsody' },
+  { title: 'Billie Jean', artist: 'Michael Jackson', value: 'billie-jean' },
+  { title: 'Hotel California', artist: 'Eagles', value: 'hotel-california' },
+  { title: 'Superstition', artist: 'Stevie Wonder', value: 'superstition' },
+  { title: 'Dancing Queen', artist: 'ABBA', value: 'dancing-queen' },
 ];
 
 export default function ExampleListboxMultiSelection() {
   return (
+    <div className="flex flex-wrap gap-6">
+      <SongList label="multiple" selectionMode="multiple" />
+      <SongList label="explicit-multiple" selectionMode="explicit-multiple" />
+    </div>
+  );
+}
+
+function SongList({
+  label,
+  selectionMode,
+}: {
+  label: string;
+  selectionMode: 'multiple' | 'explicit-multiple';
+}) {
+  return (
     <div className="flex flex-col gap-1">
-      <Listbox.Root selectionMode="multiple" defaultValue={['email']}>
+      <Listbox.Root selectionMode={selectionMode} defaultValue={['bohemian-rhapsody']}>
         <Listbox.Label className="cursor-default text-sm leading-5 font-medium text-gray-900">
-          Notifications
+          {label}
         </Listbox.Label>
-        <Listbox.List className="box-border w-56 max-h-80 overflow-y-auto py-1 rounded-md outline outline-1 outline-gray-200 dark:outline-gray-300 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
-          {channels.map(({ label, value }) => (
+        <Listbox.List className="box-border w-64 max-h-80 overflow-y-auto py-1 rounded-md outline outline-1 outline-gray-200 dark:outline-gray-300 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
+          {songs.map(({ title, artist, value }) => (
             <Listbox.Item
               key={value}
               value={value}
@@ -26,7 +41,10 @@ export default function ExampleListboxMultiSelection() {
               <Listbox.ItemIndicator className="col-start-1">
                 <CheckIcon className="size-3" />
               </Listbox.ItemIndicator>
-              <Listbox.ItemText className="col-start-2">{label}</Listbox.ItemText>
+              <Listbox.ItemText className="col-start-2 flex flex-col gap-0.5">
+                <span className="font-semibold">{title}</span>
+                <span className="text-xs text-gray-500">{artist}</span>
+              </Listbox.ItemText>
             </Listbox.Item>
           ))}
         </Listbox.List>

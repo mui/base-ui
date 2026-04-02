@@ -3,11 +3,11 @@ import * as React from 'react';
 import { Listbox } from '@base-ui/react/listbox';
 
 const initialItems = [
-  { label: 'First', value: 'first' },
-  { label: 'Second', value: 'second' },
-  { label: 'Third', value: 'third' },
-  { label: 'Fourth', value: 'fourth' },
-  { label: 'Fifth', value: 'fifth' },
+  { title: 'Bohemian Rhapsody', artist: 'Queen', value: 'bohemian-rhapsody' },
+  { title: 'Billie Jean', artist: 'Michael Jackson', value: 'billie-jean' },
+  { title: 'Hotel California', artist: 'Eagles', value: 'hotel-california' },
+  { title: 'Superstition', artist: 'Stevie Wonder', value: 'superstition' },
+  { title: 'Dancing Queen', artist: 'ABBA', value: 'dancing-queen' },
 ];
 
 export default function ExampleListboxDragAndDrop() {
@@ -15,9 +15,9 @@ export default function ExampleListboxDragAndDrop() {
 
   return (
     <div className="flex flex-col gap-1">
-      <Listbox.Root defaultValue={['first']}>
+      <Listbox.Root defaultValue={['bohemian-rhapsody']}>
         <Listbox.Label className="cursor-default text-sm leading-5 font-medium text-gray-900">
-          Reorderable list
+          Queue
         </Listbox.Label>
         <Listbox.DragAndDropProvider
           onItemsReorder={(event) => {
@@ -31,8 +31,8 @@ export default function ExampleListboxDragAndDrop() {
             });
           }}
         >
-          <Listbox.List className="box-border w-56 max-h-80 overflow-y-auto py-1 rounded-md outline outline-1 outline-gray-200 dark:outline-gray-300 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
-            {items.map(({ label, value }) => (
+          <Listbox.List className="box-border w-64 max-h-80 overflow-y-auto py-1 rounded-md outline outline-1 outline-gray-200 dark:outline-gray-300 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
+            {items.map(({ title, artist, value }) => (
               <Listbox.Item
                 key={value}
                 value={value}
@@ -44,7 +44,10 @@ export default function ExampleListboxDragAndDrop() {
                 <Listbox.ItemIndicator className="col-start-2">
                   <CheckIcon className="size-3" />
                 </Listbox.ItemIndicator>
-                <Listbox.ItemText className="col-start-3">{label}</Listbox.ItemText>
+                <Listbox.ItemText className="col-start-3 flex flex-col gap-0.5">
+                  <span className="font-semibold">{title}</span>
+                  <span className="text-xs text-gray-500">{artist}</span>
+                </Listbox.ItemText>
               </Listbox.Item>
             ))}
           </Listbox.List>

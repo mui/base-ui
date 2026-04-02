@@ -24,7 +24,7 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
     type: 'string',
     label: 'Drag and drop',
     options: ['off', 'free', 'within-group'],
-    default: 'off',
+    default: 'free',
   },
   groups: {
     type: 'boolean',
@@ -41,8 +41,6 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
     default: true,
   },
 };
-
-// --- Data ---
 
 interface FontItem {
   label: string;
@@ -119,7 +117,6 @@ function handleReorder<T extends { value: string; group: string }>(
     const movedValues = new Set(event.items);
     const refValue = event.referenceItem;
 
-    // If dropped on a placeholder, move all items to that group
     if (refValue.startsWith(PLACEHOLDER_PREFIX)) {
       const targetGroup = refValue.slice(PLACEHOLDER_PREFIX.length);
       return prev.map((item) =>
@@ -128,13 +125,10 @@ function handleReorder<T extends { value: string; group: string }>(
     }
 
     const refItem = prev.find((item) => item.value === refValue)!;
-    // Extract moved items in their original order, updating their group
     const movedItems = prev
       .filter((item) => movedValues.has(item.value))
       .map((item) => ({ ...item, group: refItem.group }));
-    // Remove moved items from the list
     const rest = prev.filter((item) => !movedValues.has(item.value));
-    // Insert at reference position
     const refIndex = rest.findIndex((item) => item.value === refValue);
     rest.splice(event.edge === 'after' ? refIndex + 1 : refIndex, 0, ...movedItems);
     return rest;
@@ -195,8 +189,6 @@ function MaybeDragAndDropProvider(props: {
   );
 }
 
-// --- Component ---
-
 export default function ListboxFullyFeatured() {
   const { settings } = useExperimentSettings<Settings>();
   const [fonts, setFonts] = React.useState(initialFonts);
@@ -225,7 +217,6 @@ export default function ListboxFullyFeatured() {
 
   return (
     <div className={styles.Wrapper}>
-      {/* Vertical listbox */}
       <div className={styles.Section}>
         <div className={styles.Field}>
           <Listbox.Root
@@ -282,7 +273,6 @@ export default function ListboxFullyFeatured() {
         </div>
       </div>
 
-      {/* Horizontal listbox */}
       <div className={styles.Section}>
         <div className={styles.Field}>
           <Listbox.Root
@@ -321,7 +311,6 @@ export default function ListboxFullyFeatured() {
                         <Listbox.ItemText>{label}</Listbox.ItemText>
                       </Listbox.Item>
                     ))}
-                {/* Ensure empty groups still render so items can be dragged back */}
                 {settings.groups &&
                   isDraggable &&
                   allSizeGroupLabels

@@ -15,7 +15,7 @@
 
 .List {
   box-sizing: border-box;
-  width: 14rem;
+  width: 16rem;
   max-height: 20rem;
   overflow-y: auto;
   padding-block: 0.25rem;
@@ -134,4 +134,16 @@
 
 .ItemText {
   grid-column-start: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.ItemTitle {
+  font-weight: 600;
+}
+
+.ItemArtist {
+  font-size: 0.75rem;
+  color: var(--color-gray-500);
 }

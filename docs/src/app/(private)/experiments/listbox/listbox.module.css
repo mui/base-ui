@@ -242,6 +242,10 @@
   [data-disabled] &:active {
     cursor: default;
   }
+
+  & > * {
+    pointer-events: none;
+  }
 }
 
 .DisabledDragHandle {
