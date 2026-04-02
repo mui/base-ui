@@ -539,6 +539,40 @@ describe('<Listbox.Root />', () => {
       expect(handleValueChange.mock.calls[1][0]).toEqual(['a', 'b', 'c', 'd']);
     });
 
+    it('Shift+Click replaces existing selections outside the range', async () => {
+      const handleValueChange = vi.fn();
+
+      await render(
+        <Listbox.Root selectionMode="multiple" defaultValue={[]} onValueChange={handleValueChange}>
+          <Listbox.List>
+            <Listbox.Item value="a">a</Listbox.Item>
+            <Listbox.Item value="b">b</Listbox.Item>
+            <Listbox.Item value="c">c</Listbox.Item>
+            <Listbox.Item value="d">d</Listbox.Item>
+            <Listbox.Item value="e">e</Listbox.Item>
+          </Listbox.List>
+        </Listbox.Root>,
+      );
+
+      await flushMicrotasks();
+
+      // Click "a" to select it
+      fireEvent.click(screen.getByRole('option', { name: 'a' }));
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['a']);
+
+      // Click "e" to also toggle it on
+      fireEvent.click(screen.getByRole('option', { name: 'e' }));
+      expect(handleValueChange.mock.calls[1][0]).toEqual(['a', 'e']);
+
+      // Click "c" to set the anchor
+      fireEvent.click(screen.getByRole('option', { name: 'c' }));
+      expect(handleValueChange.mock.calls[2][0]).toEqual(['a', 'e', 'c']);
+
+      // Shift+Click "d" — should select range c→d only, dropping "a" and "e"
+      fireEvent.click(screen.getByRole('option', { name: 'd' }), { shiftKey: true });
+      expect(handleValueChange.mock.calls[3][0]).toEqual(['c', 'd']);
+    });
+
     it('Ctrl+Shift+Home selects focused option and all options up to the first', async () => {
       const handleValueChange = vi.fn();
 

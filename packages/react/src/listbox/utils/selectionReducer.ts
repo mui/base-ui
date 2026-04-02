@@ -84,14 +84,7 @@ export function selectionReducer(
           rangeValues.push(val);
         }
       }
-      // Keep existing selections outside the range, then add the range
-      const outsideRange = currentValue.filter((v) => {
-        const idx = valuesRef.findIndex((rv: any) =>
-          compareItemEquality(v, rv, isItemEqualToValue),
-        );
-        return idx < start || idx > end;
-      });
-      return [...outsideRange, ...rangeValues];
+      return rangeValues;
     }
 
     case 'selectRange': {
