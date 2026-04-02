@@ -14,7 +14,12 @@ const initialItems: Item[] = [
   { title: 'Dancing Queen', artist: 'ABBA', value: 'dancing-queen', group: 'Pop' },
   { title: 'Like a Prayer', artist: 'Madonna', value: 'like-a-prayer', group: 'Pop' },
   { title: 'Hotel California', artist: 'Eagles', value: 'hotel-california', group: 'Rock' },
-  { title: 'Smells Like Teen Spirit', artist: 'Nirvana', value: 'smells-like-teen-spirit', group: 'Rock' },
+  {
+    title: 'Smells Like Teen Spirit',
+    artist: 'Nirvana',
+    value: 'smells-like-teen-spirit',
+    group: 'Rock',
+  },
   { title: 'Back in Black', artist: 'AC/DC', value: 'back-in-black', group: 'Rock' },
 ];
 

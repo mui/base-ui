@@ -13,7 +13,7 @@ const allSongs = [
   'Like a Rolling Stone',
   'Hey Jude',
   'Superstition',
-  'What\'s Going On',
+  "What's Going On",
   'Dancing Queen',
   'Good Vibrations',
   'Johnny B. Goode',
