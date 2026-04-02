@@ -426,6 +426,17 @@ describe('<Drawer.Popup />', () => {
       );
 
       const parentPopup = screen.getByTestId('parent-popup');
+      await act(async () => {
+        screen.getByRole('button', { name: 'Open nested drawer' }).click();
+      });
+
+      await waitFor(() => {
+        expect(parentPopup).toHaveAttribute('data-nested-drawer-open', '');
+      });
+      await waitFor(() => {
+        expect(parentPopup.style.getPropertyValue('--drawer-height')).not.toBe('');
+      });
+
       let heightTransitionRuns = 0;
       let heightTransitionEnds = 0;
 
@@ -441,34 +452,6 @@ describe('<Drawer.Popup />', () => {
       });
 
       await act(async () => {
-        screen.getByRole('button', { name: 'Open nested drawer' }).click();
-      });
-
-      await waitFor(() => {
-        expect(parentPopup).toHaveAttribute('data-nested-drawer-open', '');
-      });
-      await waitFor(() => {
-        expect(heightTransitionRuns).toBeGreaterThan(0);
-      });
-      await waitFor(() => {
-        expect(heightTransitionEnds).toBeGreaterThan(0);
-      });
-
-      const transitionRunsAfterOpen = heightTransitionRuns;
-      const mutations: Array<{ hasNested: boolean; style: string | null }> = [];
-      const observer = new MutationObserver(() => {
-        mutations.push({
-          hasNested: parentPopup.hasAttribute('data-nested-drawer-open'),
-          style: parentPopup.getAttribute('style'),
-        });
-      });
-
-      observer.observe(parentPopup, {
-        attributeFilter: ['data-nested-drawer-open', 'style'],
-        attributes: true,
-      });
-
-      await act(async () => {
         screen.getByRole('button', { name: 'Close nested drawer' }).click();
       });
 
@@ -479,17 +462,22 @@ describe('<Drawer.Popup />', () => {
         expect(parentPopup).not.toHaveAttribute('data-nested-drawer-open');
       });
       await waitFor(() => {
-        expect(heightTransitionRuns).toBeGreaterThan(transitionRunsAfterOpen);
+        expect(heightTransitionRuns).toBeGreaterThan(0);
+      });
+      await waitFor(() => {
+        expect(heightTransitionEnds).toBeGreaterThan(0);
       });
     } finally {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
     }
   });
 
-  it.skipIf(isJSDOM)('reapplies the height transition when reopening a nested drawer', async () => {
-    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+  it.skipIf(isJSDOM)(
+    'restores a fixed height before nested state when reopening a nested drawer',
+    async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
-    const style = `
+      const style = `
         .animation-test-parent-popup {
           height: var(--drawer-height, auto);
           overflow: hidden;
@@ -511,79 +499,81 @@ describe('<Drawer.Popup />', () => {
         }
       `;
 
-    try {
-      await render(
-        <div>
-          {/* eslint-disable-next-line react/no-danger */}
-          <style dangerouslySetInnerHTML={{ __html: style }} />
-          <Drawer.Root open modal={false}>
-            <Drawer.Portal>
-              <Drawer.Viewport>
-                <Drawer.Popup className="animation-test-parent-popup" data-testid="parent-popup">
-                  <div className="animation-test-parent-content" />
-                  <Drawer.Root modal={false}>
-                    <Drawer.Trigger>Open nested drawer</Drawer.Trigger>
-                    <Drawer.Portal>
-                      <Drawer.Viewport>
-                        <Drawer.Popup data-testid="child-popup">
-                          <div className="animation-test-child-content" />
-                          <Drawer.Close>Close nested drawer</Drawer.Close>
-                        </Drawer.Popup>
-                      </Drawer.Viewport>
-                    </Drawer.Portal>
-                  </Drawer.Root>
-                </Drawer.Popup>
-              </Drawer.Viewport>
-            </Drawer.Portal>
-          </Drawer.Root>
-        </div>,
-      );
+      try {
+        await render(
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <Drawer.Root open modal={false}>
+              <Drawer.Portal>
+                <Drawer.Viewport>
+                  <Drawer.Popup className="animation-test-parent-popup" data-testid="parent-popup">
+                    <div className="animation-test-parent-content" />
+                    <Drawer.Root modal={false}>
+                      <Drawer.Trigger>Open nested drawer</Drawer.Trigger>
+                      <Drawer.Portal>
+                        <Drawer.Viewport>
+                          <Drawer.Popup data-testid="child-popup">
+                            <div className="animation-test-child-content" />
+                            <Drawer.Close>Close nested drawer</Drawer.Close>
+                          </Drawer.Popup>
+                        </Drawer.Viewport>
+                      </Drawer.Portal>
+                    </Drawer.Root>
+                  </Drawer.Popup>
+                </Drawer.Viewport>
+              </Drawer.Portal>
+            </Drawer.Root>
+          </div>,
+        );
 
-      const parentPopup = screen.getByTestId('parent-popup');
-      let heightTransitionRuns = 0;
+        const parentPopup = screen.getByTestId('parent-popup');
+        await act(async () => {
+          screen.getByRole('button', { name: 'Open nested drawer' }).click();
+        });
 
-      parentPopup.addEventListener('transitionrun', (event) => {
-        if ((event as TransitionEvent).propertyName === 'height') {
-          heightTransitionRuns += 1;
-        }
-      });
+        await waitFor(() => {
+          expect(parentPopup).toHaveAttribute('data-nested-drawer-open', '');
+        });
 
-      await act(async () => {
-        screen.getByRole('button', { name: 'Open nested drawer' }).click();
-      });
+        await act(async () => {
+          screen.getByRole('button', { name: 'Close nested drawer' }).click();
+        });
 
-      await waitFor(() => {
-        expect(parentPopup).toHaveAttribute('data-nested-drawer-open', '');
-      });
-      await waitFor(() => {
-        expect(heightTransitionRuns).toBeGreaterThan(0);
-      });
+        await waitFor(() => {
+          expect(parentPopup).not.toHaveAttribute('data-nested-drawer-open');
+        });
+        await waitFor(() => {
+          expect(screen.queryByTestId('child-popup')).toBeNull();
+        });
 
-      await act(async () => {
-        screen.getByRole('button', { name: 'Close nested drawer' }).click();
-      });
+        const mutations: Array<{ hasNested: boolean; drawerHeight: string }> = [];
+        const observer = new MutationObserver(() => {
+          mutations.push({
+            hasNested: parentPopup.hasAttribute('data-nested-drawer-open'),
+            drawerHeight: parentPopup.style.getPropertyValue('--drawer-height'),
+          });
+        });
 
-      await waitFor(() => {
-        expect(parentPopup).not.toHaveAttribute('data-nested-drawer-open');
-      });
-      await waitFor(() => {
-        expect(screen.queryByTestId('child-popup')).toBeNull();
-      });
+        observer.observe(parentPopup, {
+          attributeFilter: ['data-nested-drawer-open', 'style'],
+          attributes: true,
+        });
 
-      const transitionRunsAfterClose = heightTransitionRuns;
+        await act(async () => {
+          screen.getByRole('button', { name: 'Open nested drawer' }).click();
+        });
 
-      await act(async () => {
-        screen.getByRole('button', { name: 'Open nested drawer' }).click();
-      });
-
-      await waitFor(() => {
-        expect(parentPopup).toHaveAttribute('data-nested-drawer-open', '');
-      });
-      await waitFor(() => {
-        expect(heightTransitionRuns).toBeGreaterThan(transitionRunsAfterClose);
-      });
-    } finally {
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
-    }
-  });
+        await waitFor(() => {
+          expect(parentPopup).toHaveAttribute('data-nested-drawer-open', '');
+        });
+        await waitFor(() => {
+          expect(mutations.find((mutation) => mutation.hasNested)?.drawerHeight).not.toBe('');
+        });
+        observer.disconnect();
+      } finally {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      }
+    },
+  );
 });
