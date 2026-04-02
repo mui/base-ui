@@ -65,7 +65,9 @@ import { DemoListboxLazyLoading } from './demos/lazy-loading';
 
 ### Drag and drop
 
-Wrap reorderable content in `Listbox.DragAndDropProvider` and provide `onItemsReorder` on the provider. Use the provider's `canDrag` and `canDrop` predicates to control which items can be dragged or dropped, and use `Listbox.ItemDragHandle` to restrict drag initiation to a handle. Items can also be reordered with the keyboard using Alt+Arrow keys.
+Wrap reorderable content in `Listbox.DragAndDropProvider` and provide `onItemsReorder` on the provider.
+Use the provider's `canDrag` and `canDrop` predicates to control which items can be dragged or dropped, and use `Listbox.ItemDragHandle` to restrict drag initiation to a handle.
+Items can also be reordered with the keyboard using <kbd>Alt</kbd> + Arrow keys.
 
 Use `canDrop` to constrain reordering within a `Listbox.Group` or apply other custom drop rules.
 
