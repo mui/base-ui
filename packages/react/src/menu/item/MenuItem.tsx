@@ -26,6 +26,7 @@ export const MenuItem = React.forwardRef(function MenuItem(
     nativeButton = false,
     disabled = false,
     closeOnClick = true,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -44,7 +45,7 @@ export const MenuItem = React.forwardRef(function MenuItem(
     id,
     store,
     nativeButton,
-    nodeId: menuPositionerContext?.nodeId,
+    nodeId: menuPositionerContext?.context.nodeId,
     itemMetadata: REGULAR_ITEM,
   });
 

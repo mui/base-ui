@@ -16,7 +16,7 @@ export const MeterLabel = React.forwardRef(function MeterLabel(
   componentProps: MeterLabel.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, id: idProp, ...elementProps } = componentProps;
+  const { render, className, style, id: idProp, ...elementProps } = componentProps;
 
   const { setLabelId } = useMeterRootContext();
 

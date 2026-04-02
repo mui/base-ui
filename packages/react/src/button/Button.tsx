@@ -20,6 +20,7 @@ export const Button = React.forwardRef(function Button(
     disabled = false,
     focusableWhenDisabled = false,
     nativeButton = true,
+    style,
     ...elementProps
   } = componentProps;
 

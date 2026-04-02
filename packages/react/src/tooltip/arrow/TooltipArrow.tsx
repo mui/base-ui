@@ -17,13 +17,13 @@ export const TooltipArrow = React.forwardRef(function TooltipArrow(
   componentProps: TooltipArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, style, ...elementProps } = componentProps;
   const store = useTooltipRootContext();
 
+  const open = store.useState('open');
   const instantType = store.useState('instantType');
 
-  const { open, arrowRef, side, align, arrowUncentered, arrowStyles } =
-    useTooltipPositionerContext();
+  const { arrowRef, side, align, arrowUncentered, arrowStyles } = useTooltipPositionerContext();
 
   const state: TooltipArrowState = {
     open,

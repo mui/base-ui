@@ -13,7 +13,7 @@ export const CalendarDayGridHeader = React.forwardRef(function CalendarDayGridHe
   componentProps: CalendarDayGridHeader.Props,
   forwardedRef: React.ForwardedRef<HTMLTableSectionElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, style, ...elementProps } = componentProps;
 
   const element = useRenderElement('thead', componentProps, {
     ref: forwardedRef,

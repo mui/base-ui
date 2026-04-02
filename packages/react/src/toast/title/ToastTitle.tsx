@@ -16,7 +16,14 @@ export const ToastTitle = React.forwardRef(function ToastTitle(
   componentProps: ToastTitle.Props,
   forwardedRef: React.ForwardedRef<HTMLHeadingElement>,
 ) {
-  const { render, className, id: idProp, children: childrenProp, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    style,
+    id: idProp,
+    children: childrenProp,
+    ...elementProps
+  } = componentProps;
 
   const { toast, setTitleId } = useToastRootContext();
 

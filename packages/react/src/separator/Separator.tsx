@@ -13,7 +13,7 @@ export const Separator = React.forwardRef(function SeparatorComponent(
   componentProps: Separator.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, orientation = 'horizontal', ...elementProps } = componentProps;
+  const { className, render, orientation = 'horizontal', style, ...elementProps } = componentProps;
 
   const state: SeparatorState = { orientation };
 

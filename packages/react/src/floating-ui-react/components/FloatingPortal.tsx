@@ -162,7 +162,8 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
   componentProps: FloatingPortal.Props<any> & { renderGuards?: boolean | undefined },
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { children, container, className, render, renderGuards, ...elementProps } = componentProps;
+  const { children, container, className, render, renderGuards, style, ...elementProps } =
+    componentProps;
 
   const { portalNode, portalSubtree } = useFloatingPortalNode({
     container,

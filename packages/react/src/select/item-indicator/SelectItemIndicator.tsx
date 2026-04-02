@@ -38,7 +38,7 @@ const Inner = React.memo(
       componentProps: SelectItemIndicator.Props,
       forwardedRef: React.ForwardedRef<HTMLSpanElement>,
     ) => {
-      const { render, className, keepMounted, ...elementProps } = componentProps;
+      const { render, className, style, keepMounted, ...elementProps } = componentProps;
 
       const { selected } = useSelectItemContext();
 
