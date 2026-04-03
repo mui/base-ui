@@ -422,6 +422,14 @@
     color: var(--color-gray-600);
   }
 
+  .SearchClose {
+    display: none;
+  }
+
+  .SearchClose:focus {
+    display: flex;
+  }
+
   .SearchRootScrollable {
     height: 100%;
     overscroll-behavior: contain;

@@ -439,7 +439,7 @@ export function SearchBar({
                     </div>
                   </div>
                 </Autocomplete.Root>
-                <Dialog.Close className="hidden focus:flex">Close</Dialog.Close>
+                <Dialog.Close className="SearchClose">Close</Dialog.Close>
               </Dialog.Popup>
             </Dialog.Viewport>
           ) : (
@@ -478,7 +478,7 @@ export function SearchBar({
                           )}
                         </div>
                       </Autocomplete.Root>
-                      <Dialog.Close className="hidden">Close</Dialog.Close>
+                      <Dialog.Close className="SearchClose">Close</Dialog.Close>
                     </Dialog.Popup>
                   </ScrollArea.Content>
                 </ScrollArea.Viewport>
