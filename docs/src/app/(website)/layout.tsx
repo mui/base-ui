@@ -65,7 +65,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
                 </Link>
               </nav>
               <div className="bui-d-n bp3:bui-d-b bui-gcs-7 bui-gce-9">
-                <Link className="Text Text-size-1 Link" href="/react/components/accordion">
+                <Link className="Text Text-size-1" href="/react/components/accordion">
                   Components
                 </Link>
               </div>
