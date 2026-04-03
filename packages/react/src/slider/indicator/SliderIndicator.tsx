@@ -6,7 +6,7 @@ import { valueToPercent } from '../../utils/valueToPercent';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
-import type { SliderRoot } from '../root/SliderRoot';
+import type { SliderRootState } from '../root/SliderRoot';
 
 function getInsetStyles(
   vertical: boolean,
@@ -86,7 +86,7 @@ export const SliderIndicator = React.forwardRef(function SliderIndicator(
   componentProps: SliderIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style: styleProp, ...elementProps } = componentProps;
 
   const { indicatorPosition, inset, max, min, orientation, renderBeforeHydration, state, values } =
     useSliderRootContext();
@@ -130,8 +130,11 @@ export const SliderIndicator = React.forwardRef(function SliderIndicator(
   return element;
 });
 
-export interface SliderIndicatorProps extends BaseUIComponentProps<'div', SliderRoot.State> {}
+export interface SliderIndicatorState extends SliderRootState {}
+
+export interface SliderIndicatorProps extends BaseUIComponentProps<'div', SliderIndicatorState> {}
 
 export namespace SliderIndicator {
+  export type State = SliderIndicatorState;
   export type Props = SliderIndicatorProps;
 }

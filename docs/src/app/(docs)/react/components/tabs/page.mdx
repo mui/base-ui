@@ -27,9 +27,49 @@ import { Tabs } from '@base-ui/react/tabs';
 </Tabs.Root>;
 ```
 
+## Examples
+
+### Links
+
+Use the `render` prop and set `nativeButton={false}` on `<Tabs.Tab>` to render tabs as anchor elements.
+
+```jsx title="Tabs as links" {6-8}
+import { Tabs } from '@base-ui/react/tabs';
+import Link from 'next/link';
+
+<Tabs.Root>
+  <Tabs.List>
+    <Tabs.Tab nativeButton={false} render={<Link href="/overview" />} value="overview">
+      Overview
+    </Tabs.Tab>
+  </Tabs.List>
+  {/* ... */}
+</Tabs.Root>;
+```
+
 ## API reference
 
-<Reference component="Tabs" parts="Root, List, Tab, Indicator, Panel" />
+import { TypesTabs } from './types';
+
+### Root
+
+<TypesTabs.Root />
+
+### List
+
+<TypesTabs.List />
+
+### Tab
+
+<TypesTabs.Tab />
+
+### Indicator
+
+<TypesTabs.Indicator />
+
+### Panel
+
+<TypesTabs.Panel />
 
 export const metadata = {
   keywords: [

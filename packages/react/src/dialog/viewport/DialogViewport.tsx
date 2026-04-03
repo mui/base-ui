@@ -10,7 +10,7 @@ import { useDialogRootContext } from '../root/DialogRootContext';
 import { useDialogPortalContext } from '../portal/DialogPortalContext';
 import { DialogViewportDataAttributes } from './DialogViewportDataAttributes';
 
-const stateAttributesMapping: StateAttributesMapping<DialogViewport.State> = {
+const stateAttributesMapping: StateAttributesMapping<DialogViewportState> = {
   ...baseMapping,
   ...transitionStatusMapping,
   nested(value) {
@@ -31,7 +31,7 @@ export const DialogViewport = React.forwardRef(function DialogViewport(
   componentProps: DialogViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, children, ...elementProps } = componentProps;
+  const { className, render, children, style, ...elementProps } = componentProps;
 
   const keepMounted = useDialogPortalContext();
   const { store } = useDialogRootContext();
@@ -44,15 +44,12 @@ export const DialogViewport = React.forwardRef(function DialogViewport(
 
   const nestedDialogOpen = nestedOpenDialogCount > 0;
 
-  const state: DialogViewport.State = React.useMemo(
-    () => ({
-      open,
-      nested,
-      transitionStatus,
-      nestedDialogOpen,
-    }),
-    [open, nested, transitionStatus, nestedDialogOpen],
-  );
+  const state: DialogViewportState = {
+    open,
+    nested,
+    transitionStatus,
+    nestedDialogOpen,
+  };
 
   const shouldRender = keepMounted || mounted;
 
@@ -65,6 +62,9 @@ export const DialogViewport = React.forwardRef(function DialogViewport(
       {
         role: 'presentation',
         hidden: !mounted,
+        style: {
+          pointerEvents: !open ? 'none' : undefined,
+        },
         children,
       },
       elementProps,
@@ -77,6 +77,9 @@ export interface DialogViewportState {
    * Whether the dialog is currently open.
    */
   open: boolean;
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
   /**
    * Whether the dialog is nested within another dialog.

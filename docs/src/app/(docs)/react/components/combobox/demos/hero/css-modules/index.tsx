@@ -9,7 +9,7 @@ export default function ExampleCombobox() {
     <Combobox.Root items={fruits}>
       <div className={styles.Label}>
         <label htmlFor={id}>Choose a fruit</label>
-        <div className={styles.InputWrapper}>
+        <Combobox.InputGroup className={styles.InputGroup}>
           <Combobox.Input placeholder="e.g. Apple" id={id} className={styles.Input} />
           <div className={styles.ActionButtons}>
             <Combobox.Clear className={styles.Clear} aria-label="Clear selection">
@@ -19,20 +19,22 @@ export default function ExampleCombobox() {
               <ChevronDownIcon className={styles.TriggerIcon} />
             </Combobox.Trigger>
           </div>
-        </div>
+        </Combobox.InputGroup>
       </div>
 
       <Combobox.Portal>
         <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
           <Combobox.Popup className={styles.Popup}>
-            <Combobox.Empty className={styles.Empty}>No fruits found.</Combobox.Empty>
+            <Combobox.Empty>
+              <div className={styles.Empty}>No fruits found.</div>
+            </Combobox.Empty>
             <Combobox.List className={styles.List}>
-              {(item: string) => (
-                <Combobox.Item key={item} value={item} className={styles.Item}>
+              {(item: Fruit) => (
+                <Combobox.Item key={item.value} value={item} className={styles.Item}>
                   <Combobox.ItemIndicator className={styles.ItemIndicator}>
                     <CheckIcon className={styles.ItemIndicatorIcon} />
                   </Combobox.ItemIndicator>
-                  <div className={styles.ItemText}>{item}</div>
+                  <div className={styles.ItemText}>{item.label}</div>
                 </Combobox.Item>
               )}
             </Combobox.List>
@@ -86,30 +88,35 @@ function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
   );
 }
 
-const fruits = [
-  'Apple',
-  'Banana',
-  'Orange',
-  'Pineapple',
-  'Grape',
-  'Mango',
-  'Strawberry',
-  'Blueberry',
-  'Raspberry',
-  'Blackberry',
-  'Cherry',
-  'Peach',
-  'Pear',
-  'Plum',
-  'Kiwi',
-  'Watermelon',
-  'Cantaloupe',
-  'Honeydew',
-  'Papaya',
-  'Guava',
-  'Lychee',
-  'Pomegranate',
-  'Apricot',
-  'Grapefruit',
-  'Passionfruit',
+interface Fruit {
+  label: string;
+  value: string;
+}
+
+const fruits: Fruit[] = [
+  { label: 'Apple', value: 'apple' },
+  { label: 'Banana', value: 'banana' },
+  { label: 'Orange', value: 'orange' },
+  { label: 'Pineapple', value: 'pineapple' },
+  { label: 'Grape', value: 'grape' },
+  { label: 'Mango', value: 'mango' },
+  { label: 'Strawberry', value: 'strawberry' },
+  { label: 'Blueberry', value: 'blueberry' },
+  { label: 'Raspberry', value: 'raspberry' },
+  { label: 'Blackberry', value: 'blackberry' },
+  { label: 'Cherry', value: 'cherry' },
+  { label: 'Peach', value: 'peach' },
+  { label: 'Pear', value: 'pear' },
+  { label: 'Plum', value: 'plum' },
+  { label: 'Kiwi', value: 'kiwi' },
+  { label: 'Watermelon', value: 'watermelon' },
+  { label: 'Cantaloupe', value: 'cantaloupe' },
+  { label: 'Honeydew', value: 'honeydew' },
+  { label: 'Papaya', value: 'papaya' },
+  { label: 'Guava', value: 'guava' },
+  { label: 'Lychee', value: 'lychee' },
+  { label: 'Pomegranate', value: 'pomegranate' },
+  { label: 'Apricot', value: 'apricot' },
+  { label: 'Grapefruit', value: 'grapefruit' },
+  { label: 'Passionfruit', value: 'passionfruit' },
 ];

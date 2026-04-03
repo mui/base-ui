@@ -22,7 +22,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   activeIndex: number | null;
   hoverEnabled: boolean;
   stickIfOpen: boolean;
-  instantType: 'dismiss' | 'click' | 'group' | undefined;
+  instantType: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
   openChangeReason: MenuRoot.ChangeEventReason | null;
   floatingTreeRoot: FloatingTreeStore;
   floatingNodeId: string | undefined;
@@ -30,6 +30,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   itemProps: HTMLProps;
   closeDelay: number;
   keyboardEventRelay: ((event: React.KeyboardEvent<any>) => void) | undefined;
+  hasViewport: boolean;
 };
 
 type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
@@ -50,18 +51,13 @@ const selectors = {
       ? state.parent.context.disabled || state.disabled
       : state.disabled,
   ),
-
   modal: createSelector(
     (state: State<unknown>) =>
       (state.parent.type === undefined || state.parent.type === 'context-menu') &&
       (state.modal ?? true),
   ),
 
-  allowMouseEnter: createSelector((state: State<unknown>): boolean =>
-    state.parent.type === 'menu'
-      ? state.parent.store.select('allowMouseEnter')
-      : state.allowMouseEnter,
-  ),
+  allowMouseEnter: createSelector((state: State<unknown>) => state.allowMouseEnter),
   stickIfOpen: createSelector((state: State<unknown>) => state.stickIfOpen),
   parent: createSelector((state: State<unknown>) => state.parent),
   rootId: createSelector((state: State<unknown>): string | undefined => {
@@ -89,6 +85,7 @@ const selectors = {
   floatingParentNodeId: createSelector((state: State<unknown>) => state.floatingParentNodeId),
   itemProps: createSelector((state: State<unknown>) => state.itemProps),
   closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
+  hasViewport: createSelector((state: State<unknown>) => state.hasViewport),
   keyboardEventRelay: createSelector(
     (state: State<unknown>): React.KeyboardEventHandler<any> | undefined => {
       if (state.keyboardEventRelay) {
@@ -127,24 +124,31 @@ export class MenuStore<Payload> extends ReactStore<
       selectors,
     );
 
-    // Sync `allowMouseEnter` with parent menu if applicable.
-    this.observe(
-      createSelector((state) => state.allowMouseEnter),
-      (allowMouseEnter, oldValue) => {
-        // The allowMouseEnter !== oldValue check prevent calling parent store's set
-        // on intialization. Without it, React might complain about updating one component during rendering another.
-        if (this.state.parent.type === 'menu' && allowMouseEnter !== oldValue) {
-          this.state.parent.store.set('allowMouseEnter', allowMouseEnter);
-        }
-      },
-    );
-
     // Set up propagation of state from parent menu if applicable.
     this.unsubscribeParentListener = this.observe('parent', (parent) => {
       this.unsubscribeParentListener?.();
 
       if (parent.type === 'menu') {
+        let rootId = parent.store.select('rootId');
+        let floatingTreeRoot = parent.store.select('floatingTreeRoot');
+        let keyboardEventRelay = parent.store.select('keyboardEventRelay');
+
         this.unsubscribeParentListener = parent.store.subscribe(() => {
+          const nextRootId = parent.store.select('rootId');
+          const nextFloatingTreeRoot = parent.store.select('floatingTreeRoot');
+          const nextKeyboardEventRelay = parent.store.select('keyboardEventRelay');
+
+          if (
+            rootId === nextRootId &&
+            floatingTreeRoot === nextFloatingTreeRoot &&
+            keyboardEventRelay === nextKeyboardEventRelay
+          ) {
+            return;
+          }
+
+          rootId = nextRootId;
+          floatingTreeRoot = nextFloatingTreeRoot;
+          keyboardEventRelay = nextKeyboardEventRelay;
           this.notifyAll();
         });
 
@@ -169,11 +173,11 @@ export class MenuStore<Payload> extends ReactStore<
     initialState: Partial<State<Payload>>,
   ) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const store = useRefWithInit(() => {
-      return externalStore ?? new MenuStore<Payload>(initialState);
+    const internalStore = useRefWithInit(() => {
+      return new MenuStore<Payload>(initialState);
     }).current;
 
-    return store;
+    return externalStore ?? internalStore;
   }
 
   private unsubscribeParentListener: (() => void) | null = null;
@@ -184,7 +188,7 @@ function createInitialState<Payload>(): State<Payload> {
     ...createInitialPopupStoreState(),
     disabled: false,
     modal: true,
-    allowMouseEnter: true,
+    allowMouseEnter: false,
     stickIfOpen: true,
     parent: {
       type: undefined,
@@ -200,5 +204,6 @@ function createInitialState<Payload>(): State<Payload> {
     itemProps: EMPTY_OBJECT as HTMLProps,
     keyboardEventRelay: undefined,
     closeDelay: 0,
+    hasViewport: false,
   };
 }

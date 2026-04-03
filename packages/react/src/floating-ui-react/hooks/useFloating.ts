@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { useFloating as usePosition, type VirtualElement } from '@floating-ui/react-dom';
 import { isElement } from '@floating-ui/utils/dom';
@@ -68,20 +69,24 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
     [position.refs],
   );
 
-  const [localDomReference, setLocalDomReference] =
-    React.useState<NarrowedElement<ReferenceType> | null>(null);
+  const [localDomReference, setLocalDomReference] = React.useState<
+    NarrowedElement<ReferenceType> | null | undefined
+  >(undefined);
   const [localFloatingElement, setLocalFloatingElement] = React.useState<HTMLElement | null>(null);
-  rootContext.useSyncedValue('referenceElement', localDomReference);
+  rootContext.useSyncedValue('referenceElement', localDomReference ?? null);
+  const localDomReferenceElement = isElement(localDomReference)
+    ? (localDomReference as Element)
+    : null;
   rootContext.useSyncedValue(
     'domReferenceElement',
-    isElement(localDomReference) ? (localDomReference as Element) : null,
+    localDomReference === undefined ? rootContextElements.domReference : localDomReferenceElement,
   );
   rootContext.useSyncedValue('floatingElement', localFloatingElement);
 
   const setReference = React.useCallback(
     (node: ReferenceType | null) => {
       if (isElement(node) || node === null) {
-        (domReferenceRef as React.MutableRefObject<Element | null>).current = node;
+        (domReferenceRef as React.RefObject<Element | null>).current = node;
         setLocalDomReference(node as NarrowedElement<ReferenceType> | null);
       }
 

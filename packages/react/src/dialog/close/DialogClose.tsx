@@ -22,6 +22,7 @@ export const DialogClose = React.forwardRef(function DialogClose(
     className,
     disabled = false,
     nativeButton = true,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -39,7 +40,7 @@ export const DialogClose = React.forwardRef(function DialogClose(
     native: nativeButton,
   });
 
-  const state: DialogClose.State = React.useMemo(() => ({ disabled }), [disabled]);
+  const state: DialogCloseState = { disabled };
 
   return useRenderElement('button', componentProps, {
     state,
@@ -49,7 +50,7 @@ export const DialogClose = React.forwardRef(function DialogClose(
 });
 
 export interface DialogCloseProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', DialogClose.State> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', DialogCloseState> {}
 
 export interface DialogCloseState {
   /**

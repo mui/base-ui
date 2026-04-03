@@ -15,7 +15,7 @@ import { useDialogPortalContext } from '../portal/DialogPortalContext';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { COMPOSITE_KEYS } from '../../composite/composite';
 
-const stateAttributesMapping: StateAttributesMapping<DialogPopup.State> = {
+const stateAttributesMapping: StateAttributesMapping<DialogPopupState> = {
   ...baseMapping,
   ...transitionStatusMapping,
   nestedDialogOpen(value) {
@@ -33,7 +33,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   componentProps: DialogPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, finalFocus, initialFocus, render, ...elementProps } = componentProps;
+  const { className, finalFocus, initialFocus, render, style, ...elementProps } = componentProps;
 
   const { store } = useDialogRootContext();
 
@@ -77,15 +77,12 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
 
   const nestedDialogOpen = nestedOpenDialogCount > 0;
 
-  const state: DialogPopup.State = React.useMemo(
-    () => ({
-      open,
-      nested,
-      transitionStatus,
-      nestedDialogOpen,
-    }),
-    [open, nested, transitionStatus, nestedDialogOpen],
-  );
+  const state: DialogPopupState = {
+    open,
+    nested,
+    transitionStatus,
+    nestedDialogOpen,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -128,7 +125,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   );
 });
 
-export interface DialogPopupProps extends BaseUIComponentProps<'div', DialogPopup.State> {
+export interface DialogPopupProps extends BaseUIComponentProps<'div', DialogPopupState> {
   /**
    * Determines the element to focus when the dialog is opened.
    *
@@ -141,7 +138,8 @@ export interface DialogPopupProps extends BaseUIComponentProps<'div', DialogPopu
   initialFocus?:
     | boolean
     | React.RefObject<HTMLElement | null>
-    | ((openType: InteractionType) => boolean | HTMLElement | null | void);
+    | ((openType: InteractionType) => boolean | HTMLElement | null | void)
+    | undefined;
   /**
    * Determines the element to focus when the dialog is closed.
    *
@@ -154,7 +152,8 @@ export interface DialogPopupProps extends BaseUIComponentProps<'div', DialogPopu
   finalFocus?:
     | boolean
     | React.RefObject<HTMLElement | null>
-    | ((closeType: InteractionType) => boolean | HTMLElement | null | void);
+    | ((closeType: InteractionType) => boolean | HTMLElement | null | void)
+    | undefined;
 }
 
 export interface DialogPopupState {
@@ -162,6 +161,9 @@ export interface DialogPopupState {
    * Whether the dialog is currently open.
    */
   open: boolean;
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
   /**
    * Whether the dialog is nested within a parent dialog.

@@ -7,7 +7,7 @@ import { useCollapsibleRootContext } from '../../collapsible/root/CollapsibleRoo
 import { useCollapsiblePanel } from '../../collapsible/panel/useCollapsiblePanel';
 import { useAccordionRootContext } from '../root/AccordionRootContext';
 import type { AccordionRoot } from '../root/AccordionRoot';
-import type { AccordionItem } from '../item/AccordionItem';
+import type { AccordionItemState } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
 import { accordionStateAttributesMapping } from '../item/stateAttributesMapping';
 import { AccordionPanelCssVars } from './AccordionPanelCssVars';
@@ -31,6 +31,7 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
     keepMounted: keepMountedProp,
     id: idProp,
     render,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -128,7 +129,7 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
 
   const { state, triggerId } = useAccordionItemContext();
 
-  const panelState: AccordionPanel.State = React.useMemo(
+  const panelState: AccordionPanelState = React.useMemo(
     () => ({
       ...state,
       transitionStatus,
@@ -156,7 +157,7 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
     stateAttributesMapping: accordionStateAttributesMapping,
   });
 
-  const shouldRender = keepMounted || hiddenUntilFound || (!keepMounted && mounted);
+  const shouldRender = keepMounted || hiddenUntilFound || mounted;
   if (!shouldRender) {
     return null;
   }
@@ -164,13 +165,16 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
   return element;
 });
 
-export interface AccordionPanelState extends AccordionItem.State {
+export interface AccordionPanelState extends AccordionItemState {
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
 }
 
 export interface AccordionPanelProps
   extends
-    BaseUIComponentProps<'div', AccordionPanel.State>,
+    BaseUIComponentProps<'div', AccordionPanelState>,
     Pick<AccordionRoot.Props, 'hiddenUntilFound' | 'keepMounted'> {}
 
 export namespace AccordionPanel {

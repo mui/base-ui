@@ -13,7 +13,7 @@ export const ComboboxRow = React.forwardRef(function ComboboxRow(
   componentProps: ComboboxRow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,
@@ -25,7 +25,7 @@ export const ComboboxRow = React.forwardRef(function ComboboxRow(
 
 export interface ComboboxRowState {}
 
-export interface ComboboxRowProps extends BaseUIComponentProps<'div', ComboboxRow.State> {}
+export interface ComboboxRowProps extends BaseUIComponentProps<'div', ComboboxRowState> {}
 
 export namespace ComboboxRow {
   export type State = ComboboxRowState;

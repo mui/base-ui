@@ -31,24 +31,27 @@ export const TooltipProvider: React.FC<TooltipProvider.Props> = function Tooltip
   );
 };
 
+export interface TooltipProviderState {}
+
 export interface TooltipProviderProps {
   children?: React.ReactNode;
   /**
    * How long to wait before opening a tooltip. Specified in milliseconds.
    */
-  delay?: number;
+  delay?: number | undefined;
   /**
    * How long to wait before closing a tooltip. Specified in milliseconds.
    */
-  closeDelay?: number;
+  closeDelay?: number | undefined;
   /**
    * Another tooltip will open instantly if the previous tooltip
    * is closed within this timeout. Specified in milliseconds.
    * @default 400
    */
-  timeout?: number;
+  timeout?: number | undefined;
 }
 
 export namespace TooltipProvider {
+  export type State = TooltipProviderState;
   export type Props = TooltipProviderProps;
 }

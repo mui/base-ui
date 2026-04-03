@@ -15,16 +15,13 @@ export const AvatarRoot = React.forwardRef(function AvatarRoot(
   componentProps: AvatarRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, style, ...elementProps } = componentProps;
 
   const [imageLoadingStatus, setImageLoadingStatus] = React.useState<ImageLoadingStatus>('idle');
 
-  const state: AvatarRoot.State = React.useMemo(
-    () => ({
-      imageLoadingStatus,
-    }),
-    [imageLoadingStatus],
-  );
+  const state: AvatarRootState = {
+    imageLoadingStatus,
+  };
 
   const contextValue = React.useMemo(
     () => ({
@@ -47,10 +44,13 @@ export const AvatarRoot = React.forwardRef(function AvatarRoot(
 export type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';
 
 export interface AvatarRootState {
+  /**
+   * The image loading status.
+   */
   imageLoadingStatus: ImageLoadingStatus;
 }
 
-export interface AvatarRootProps extends BaseUIComponentProps<'span', AvatarRoot.State> {}
+export interface AvatarRootProps extends BaseUIComponentProps<'span', AvatarRootState> {}
 
 export namespace AvatarRoot {
   export type State = AvatarRootState;

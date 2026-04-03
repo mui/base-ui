@@ -14,7 +14,7 @@ export const ScrollAreaCorner = React.forwardRef(function ScrollAreaCorner(
   componentProps: ScrollAreaCorner.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const { cornerRef, cornerSize, hiddenState } = useScrollAreaRootContext();
 
@@ -43,10 +43,7 @@ export const ScrollAreaCorner = React.forwardRef(function ScrollAreaCorner(
 
 export interface ScrollAreaCornerState {}
 
-export interface ScrollAreaCornerProps extends BaseUIComponentProps<
-  'div',
-  ScrollAreaCorner.State
-> {}
+export interface ScrollAreaCornerProps extends BaseUIComponentProps<'div', ScrollAreaCornerState> {}
 
 export namespace ScrollAreaCorner {
   export type State = ScrollAreaCornerState;

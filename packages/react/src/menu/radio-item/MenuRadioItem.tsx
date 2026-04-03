@@ -33,6 +33,7 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
     disabled: disabledProp = false,
     closeOnClick = false,
     value,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -60,11 +61,11 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
     id,
     store,
     nativeButton,
-    nodeId: menuPositionerContext?.nodeId,
+    nodeId: menuPositionerContext?.context.nodeId,
     itemMetadata: REGULAR_ITEM,
   });
 
-  const state: MenuRadioItem.State = React.useMemo(
+  const state: MenuRadioItemState = React.useMemo(
     () => ({
       disabled,
       highlighted,
@@ -100,7 +101,7 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   return <MenuRadioItemContext.Provider value={state}>{element}</MenuRadioItemContext.Provider>;
 });
 
-export type MenuRadioItemState = {
+export interface MenuRadioItemState {
   /**
    * Whether the radio item should ignore user interaction.
    */
@@ -113,10 +114,10 @@ export type MenuRadioItemState = {
    * Whether the radio item is currently selected.
    */
   checked: boolean;
-};
+}
 
 export interface MenuRadioItemProps
-  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuRadioItem.State> {
+  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuRadioItemState> {
   /**
    * Value of the radio item.
    * This is the value that will be set in the MenuRadioGroup when the item is selected.
@@ -125,25 +126,25 @@ export interface MenuRadioItemProps
   /**
    * The click handler for the menu item.
    */
-  onClick?: React.MouseEventHandler<HTMLElement>;
+  onClick?: BaseUIComponentProps<'div', MenuRadioItemState>['onClick'] | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
-  label?: string;
+  label?: string | undefined;
   /**
    * @ignore
    */
-  id?: string;
+  id?: string | undefined;
   /**
    * Whether to close the menu when the item is clicked.
    * @default false
    */
-  closeOnClick?: boolean;
+  closeOnClick?: boolean | undefined;
 }
 
 export namespace MenuRadioItem {

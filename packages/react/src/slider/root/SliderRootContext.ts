@@ -4,7 +4,7 @@ import type { Orientation } from '../../utils/types';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import type { UseFieldValidationReturnValue } from '../../field/root/useFieldValidation';
 import type { ThumbMetadata } from '../thumb/SliderThumb';
-import type { SliderRoot } from './SliderRoot';
+import type { SliderRoot, SliderRootState } from './SliderRoot';
 
 export interface SliderRootContext {
   /**
@@ -27,7 +27,8 @@ export interface SliderRootContext {
   ) => void;
   indicatorPosition: (number | undefined)[];
   inset: boolean;
-  labelId?: string;
+  labelId?: string | undefined;
+  rootLabelId?: string | undefined;
   /**
    * The large step value of the slider when incrementing or decrementing while the shift key is held,
    * or when using Page-Up or Page-Down keys. Snaps to multiples of this value.
@@ -40,7 +41,7 @@ export interface SliderRootContext {
    * The locale used by `Intl.NumberFormat` when formatting the value.
    * Defaults to the user's runtime locale.
    */
-  locale?: Intl.LocalesArgument;
+  locale?: Intl.LocalesArgument | undefined;
   /**
    * The maximum allowed value of the slider.
    */
@@ -53,6 +54,7 @@ export interface SliderRootContext {
    * The minimum steps between values in a range slider.
    */
   minStepsBetweenValues: number;
+  form: string | undefined;
   name: string | undefined;
   /**
    * Function to be called when drag ends and the pointer is released.
@@ -75,11 +77,12 @@ export interface SliderRootContext {
   setActive: (index: number) => void;
   setDragging: React.Dispatch<React.SetStateAction<boolean>>;
   setIndicatorPosition: React.Dispatch<React.SetStateAction<(number | undefined)[]>>;
+  setLabelId: React.Dispatch<React.SetStateAction<string | undefined>>;
   /**
    * Callback fired when dragging and invokes onValueChange.
    */
   setValue: (newValue: number | number[], details?: SliderRoot.ChangeEventDetails) => void;
-  state: SliderRoot.State;
+  state: SliderRootState;
   /**
    * The step increment of the slider when incrementing or decrementing. It will snap
    * to multiples of this value. Decimal values are supported.

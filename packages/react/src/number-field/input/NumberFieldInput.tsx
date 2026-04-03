@@ -4,8 +4,8 @@ import { stopEvent } from '../../floating-ui-react/utils';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useRegisterFieldControl } from '../../field/root/useRegisterFieldControl';
 import { fieldValidityMapping } from '../../field/utils/constants';
-import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { DEFAULT_STEP } from '../utils/constants';
@@ -21,7 +21,7 @@ import {
   ANY_MINUS_DETECT_RE,
   ANY_PLUS_DETECT_RE,
 } from '../utils/parse';
-import type { NumberFieldRoot } from '../root/NumberFieldRoot';
+import type { NumberFieldRootState } from '../root/NumberFieldRoot';
 import { stateAttributesMapping as numberFieldStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import {
@@ -57,7 +57,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   componentProps: NumberFieldInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const {
     allowInputSyncRef,
@@ -94,13 +94,9 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   const hasTouchedInputRef = React.useRef(false);
   const blockRevalidationRef = React.useRef(false);
 
-  useField({
+  useRegisterFieldControl(inputRef, {
     id,
-    commit: validation.commit,
     value,
-    controlRef: inputRef,
-    name,
-    getValue: () => value ?? null,
   });
 
   useValueChanged(value, (previousValue) => {
@@ -231,7 +227,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       }
 
       allowInputSyncRef.current = false;
-      const targetValue = event.target.value;
+      const targetValue = event.currentTarget.value;
 
       if (targetValue.trim() === '') {
         setInputValue(targetValue);
@@ -239,8 +235,8 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
-      // For trusted user typing, update the input text immediately and only fire onValueChange
-      // if the typed value is currently parseable into a number. This preserves good UX for IME
+      // Update the input text immediately and only fire onValueChange if the typed value is
+      // currently parseable into a number. This preserves good UX for IME
       // composition/partial input while still providing live numeric updates when possible.
       const allowedNonNumericKeys = getAllowedNonNumericKeys();
       const isValidCharacterString = Array.from(targetValue).every((ch) => {
@@ -265,19 +261,11 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
-      if (event.isTrusted) {
-        setInputValue(targetValue);
-        const parsedValue = parseNumber(targetValue, locale, formatOptionsRef.current);
-        if (parsedValue !== null) {
-          setValue(parsedValue, createChangeEventDetails(REASONS.inputChange, event.nativeEvent));
-        }
-        return;
-      }
-
       const parsedValue = parseNumber(targetValue, locale, formatOptionsRef.current);
 
+      setInputValue(targetValue);
+
       if (parsedValue !== null) {
-        setInputValue(targetValue);
         setValue(parsedValue, createChangeEventDetails(REASONS.inputChange, event.nativeEvent));
       }
     },
@@ -434,11 +422,11 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   return element;
 });
 
-export interface NumberFieldInputState extends NumberFieldRoot.State {}
+export interface NumberFieldInputState extends NumberFieldRootState {}
 
 export interface NumberFieldInputProps extends BaseUIComponentProps<
   'input',
-  NumberFieldInput.State
+  NumberFieldInputState
 > {
   /**
    * A string value that provides a user-friendly name for the role of the input.

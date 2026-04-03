@@ -1,6 +1,6 @@
+import { expect } from 'vitest';
 import { Toast } from '@base-ui/react/toast';
 import { screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 import { createRenderer, describeConformance } from '#test-utils';
 import { List, Button } from '../utils/test-utils';
 
@@ -41,7 +41,7 @@ describe('<Toast.Action />', () => {
 
     await user.click(button);
 
-    expect(screen.getByTestId('action').id).to.equal('action');
+    expect(screen.getByTestId('action').id).toBe('action');
   });
 
   it('does not render if it has no children', async () => {
@@ -76,6 +76,6 @@ describe('<Toast.Action />', () => {
     await user.click(button);
 
     const actionElement = screen.queryByTestId('action');
-    expect(actionElement).to.equal(null);
+    expect(actionElement).toBe(null);
   });
 });

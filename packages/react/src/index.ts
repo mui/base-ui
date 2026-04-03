@@ -3,13 +3,17 @@ export * from './alert-dialog';
 export * from './autocomplete';
 export * from './avatar';
 export * from './button';
+// TODO Temporal: enable before public release
+// export * from './calendar';
 export * from './checkbox';
 export * from './checkbox-group';
 export * from './collapsible';
 export * from './combobox';
 export * from './context-menu';
+export * from './csp-provider';
 export * from './dialog';
 export * from './direction-provider';
+export * from './drawer';
 export * from './field';
 export * from './fieldset';
 export * from './form';
@@ -31,6 +35,8 @@ export * from './separator';
 export * from './slider';
 export * from './switch';
 export * from './tabs';
+// TODO Temporal: enable before public release
+// export * from './localization-provider';
 export * from './toast';
 export * from './toggle';
 export * from './toggle-group';

@@ -27,23 +27,22 @@ export const PopoverPortal = React.forwardRef(function PopoverPortal(
 
   return (
     <PopoverPortalContext.Provider value={keepMounted}>
-      <FloatingPortal ref={forwardedRef} {...portalProps} renderGuards={false} />
+      <FloatingPortal ref={forwardedRef} {...portalProps} />
     </PopoverPortalContext.Provider>
   );
 });
 
-export namespace PopoverPortal {
-  export interface State {}
-}
+export interface PopoverPortalState {}
 
-export interface PopoverPortalProps extends FloatingPortal.Props<PopoverPortal.State> {
+export interface PopoverPortalProps extends FloatingPortal.Props<PopoverPortalState> {
   /**
    * Whether to keep the portal mounted in the DOM while the popup is hidden.
    * @default false
    */
-  keepMounted?: boolean;
+  keepMounted?: boolean | undefined;
 }
 
 export namespace PopoverPortal {
+  export type State = PopoverPortalState;
   export type Props = PopoverPortalProps;
 }

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Metadata, Viewport } from 'next';
-import 'docs/src/styles.css';
+import 'docs/src/css/index.css';
 import './layout.css';
 
 export default function Layout({ children }: React.PropsWithChildren) {
@@ -10,21 +10,21 @@ export default function Layout({ children }: React.PropsWithChildren) {
       <head>
         <link
           rel="preload"
-          href={new URL('../../fonts/regular.woff2', import.meta.url).toString()}
+          href="/fonts/die-grotesk-a-regular.woff2"
           as="font"
           type="font/woff2"
           crossOrigin="anonymous"
         />
         <link
           rel="preload"
-          href={new URL('../../fonts/medium.woff2', import.meta.url).toString()}
+          href="/fonts/die-grotesk-a-bold.woff2"
           as="font"
           type="font/woff2"
           crossOrigin="anonymous"
         />
         <link
           rel="preload"
-          href={new URL('../../fonts/bold.woff2', import.meta.url).toString()}
+          href="/fonts/die-grotesk-b-bold.woff2"
           as="font"
           type="font/woff2"
           crossOrigin="anonymous"

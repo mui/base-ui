@@ -11,41 +11,36 @@ type InputProps<T extends React.ElementType> =
 
 const EMPTY_PROPS = {};
 
+/* eslint-disable id-denylist */
 /**
  * Merges multiple sets of React props. It follows the Object.assign pattern where the rightmost object's fields overwrite
  * the conflicting ones from others. This doesn't apply to event handlers, `className` and `style` props.
- * Event handlers are merged such that they are called in sequence (the rightmost one being called first),
- * and allows the user to prevent the subsequent event handlers from being
- * executed by attaching a `preventBaseUIHandler` method.
- * It also merges the `className` and `style` props, whereby the classes are concatenated
- * and the rightmost styles overwrite the subsequent ones.
+ *
+ * Event handlers are merged and called in right-to-left order (rightmost handler executes first, leftmost last).
+ * For React synthetic events, the rightmost handler can prevent prior (left-positioned) handlers from executing
+ * by calling `event.preventBaseUIHandler()`. For non-synthetic events (custom events with primitive/object values),
+ * all handlers always execute without prevention capability.
+ *
+ * The `className` prop is merged by concatenating classes in right-to-left order (rightmost class appears first in the string).
+ * The `style` prop is merged with rightmost styles overwriting the prior ones.
  *
  * Props can either be provided as objects or as functions that take the previous props as an argument.
  * The function will receive the merged props up to that point (going from left to right):
  * so in the case of `(obj1, obj2, fn, obj3)`, `fn` will receive the merged props of `obj1` and `obj2`.
- * The function is responsible for chaining event handlers if needed (i.e. we don't run the merge logic).
+ * The function is responsible for chaining event handlers if needed (that is, we don't run the merge logic).
  *
  * Event handlers returned by the functions are not automatically prevented when `preventBaseUIHandler` is called.
  * They must check `event.baseUIHandlerPrevented` themselves and bail out if it's true.
  *
  * @important **`ref` is not merged.**
- * @param props props to merge.
- * @returns the merged props.
+ * @param a Props object to merge.
+ * @param b Props object to merge. The function will overwrite conflicting props from `a`.
+ * @param c Props object to merge. The function will overwrite conflicting props from previous parameters.
+ * @param d Props object to merge. The function will overwrite conflicting props from previous parameters.
+ * @param e Props object to merge. The function will overwrite conflicting props from previous parameters.
+ * @returns The merged props.
+ * @public
  */
-/* eslint-disable id-denylist */
-export function mergeProps<T extends ElementType>(a: InputProps<T>, b: InputProps<T>): PropsOf<T>;
-export function mergeProps<T extends ElementType>(a: InputProps<T>, b: InputProps<T>): PropsOf<T>;
-export function mergeProps<T extends ElementType>(
-  a: InputProps<T>,
-  b: InputProps<T>,
-  c: InputProps<T>,
-): PropsOf<T>;
-export function mergeProps<T extends ElementType>(
-  a: InputProps<T>,
-  b: InputProps<T>,
-  c: InputProps<T>,
-  d: InputProps<T>,
-): PropsOf<T>;
 export function mergeProps<T extends ElementType>(
   a: InputProps<T>,
   b: InputProps<T>,
@@ -53,50 +48,105 @@ export function mergeProps<T extends ElementType>(
   d: InputProps<T>,
   e: InputProps<T>,
 ): PropsOf<T>;
+export function mergeProps<T extends ElementType>(
+  a: InputProps<T>,
+  b: InputProps<T>,
+  c: InputProps<T>,
+  d: InputProps<T>,
+): PropsOf<T>;
+export function mergeProps<T extends ElementType>(
+  a: InputProps<T>,
+  b: InputProps<T>,
+  c: InputProps<T>,
+): PropsOf<T>;
+export function mergeProps<T extends ElementType>(a: InputProps<T>, b: InputProps<T>): PropsOf<T>;
 export function mergeProps(a: any, b: any, c?: any, d?: any, e?: any) {
-  // We need to mutably own `merged`
-  let merged = { ...resolvePropsGetter(a, EMPTY_PROPS) };
+  if (!c && !d && !e && !a) {
+    return createInitialMergedProps(b);
+  }
+
+  // We need to mutably own `merged`.
+  let merged = createInitialMergedProps(a);
 
   if (b) {
-    merged = mergeOne(merged, b);
+    merged = mergeInto(merged, b);
   }
   if (c) {
-    merged = mergeOne(merged, c);
+    merged = mergeInto(merged, c);
   }
   if (d) {
-    merged = mergeOne(merged, d);
+    merged = mergeInto(merged, d);
   }
   if (e) {
-    merged = mergeOne(merged, e);
+    merged = mergeInto(merged, e);
   }
 
   return merged;
 }
 /* eslint-enable id-denylist */
 
+/**
+ * Merges an arbitrary number of React props using the same logic as {@link mergeProps}.
+ * This function accepts an array of props instead of individual arguments.
+ *
+ * This has slightly lower performance than {@link mergeProps} due to accepting an array
+ * instead of a fixed number of arguments. Prefer {@link mergeProps} when merging 5 or
+ * fewer prop sets for better performance.
+ *
+ * @param props Array of props to merge.
+ * @returns The merged props.
+ * @see mergeProps
+ * @public
+ */
 export function mergePropsN<T extends ElementType>(props: InputProps<T>[]): PropsOf<T> {
   if (props.length === 0) {
     return EMPTY_PROPS as PropsOf<T>;
   }
   if (props.length === 1) {
-    return resolvePropsGetter(props[0], EMPTY_PROPS) as PropsOf<T>;
+    return createInitialMergedProps(props[0]) as PropsOf<T>;
   }
 
-  // We need to mutably own `merged`
-  let merged = { ...resolvePropsGetter(props[0], EMPTY_PROPS) };
+  // We need to mutably own `merged`.
+  let merged = createInitialMergedProps(props[0]);
 
   for (let i = 1; i < props.length; i += 1) {
-    merged = mergeOne(merged, props[i]);
+    merged = mergeInto(merged, props[i]);
   }
 
   return merged as PropsOf<T>;
 }
 
-function mergeOne<T extends ElementType>(merged: Record<string, any>, inputProps: InputProps<T>) {
+function createInitialMergedProps<T extends ElementType>(inputProps: InputProps<T>) {
   if (isPropsGetter(inputProps)) {
-    return inputProps(merged);
+    // Getter-returned handlers intentionally keep their existing semantics.
+    return { ...resolvePropsGetter(inputProps, EMPTY_PROPS) };
+  }
+
+  return copyInitialProps(inputProps);
+}
+
+function mergeInto<T extends ElementType>(merged: Record<string, any>, inputProps: InputProps<T>) {
+  if (isPropsGetter(inputProps)) {
+    return resolvePropsGetter(inputProps, merged as PropsOf<T>);
   }
   return mutablyMergeInto(merged, inputProps);
+}
+
+function copyInitialProps<T extends ElementType>(
+  inputProps: React.ComponentPropsWithRef<T> | undefined,
+) {
+  const copiedProps = { ...inputProps } as Record<string, any>;
+
+  // `copiedProps` is our fresh own-object copy, so iterating with `for...in` is safe here.
+  // eslint-disable-next-line guard-for-in
+  for (const propName in copiedProps) {
+    const propValue = copiedProps[propName];
+    if (isEventHandler(propName, propValue)) {
+      copiedProps[propName] = wrapEventHandler(propValue);
+    }
+  }
+
+  return copiedProps;
 }
 
 /**
@@ -175,7 +225,7 @@ function mergeEventHandlers(ourHandler: Function | undefined, theirHandler: Func
     return ourHandler;
   }
   if (!ourHandler) {
-    return theirHandler;
+    return wrapEventHandler(theirHandler);
   }
 
   return (event: unknown) => {
@@ -196,6 +246,20 @@ function mergeEventHandlers(ourHandler: Function | undefined, theirHandler: Func
     const result = theirHandler(event);
     ourHandler?.(event);
     return result;
+  };
+}
+
+function wrapEventHandler(handler: Function | undefined) {
+  if (!handler) {
+    return handler;
+  }
+
+  return (event: unknown) => {
+    if (isSyntheticEvent(event)) {
+      makeEventPreventable(event as BaseUIEvent<typeof event>);
+    }
+
+    return handler(event);
   };
 }
 

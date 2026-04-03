@@ -18,8 +18,8 @@ export interface Dimensions {
 }
 
 export function useCollapsibleRoot(
-  parameters: useCollapsibleRoot.Parameters,
-): useCollapsibleRoot.ReturnValue {
+  parameters: UseCollapsibleRootParameters,
+): UseCollapsibleRootReturnValue {
   const { open: openParam, defaultOpen, onOpenChange, disabled } = parameters;
 
   const isControlled = openParam !== undefined;
@@ -157,14 +157,14 @@ export interface UseCollapsibleRootParameters {
    *
    * To render an uncontrolled collapsible, use the `defaultOpen` prop instead.
    */
-  open?: boolean;
+  open?: boolean | undefined;
   /**
    * Whether the collapsible panel is initially open.
    *
    * To render a controlled collapsible, use the `open` prop instead.
    * @default false
    */
-  defaultOpen?: boolean;
+  defaultOpen?: boolean | undefined;
   /**
    * Event handler called when the panel is opened or closed.
    */
@@ -219,7 +219,4 @@ export interface UseCollapsibleRootReturnValue {
   width: number | undefined;
 }
 
-export namespace useCollapsibleRoot {
-  export type Parameters = UseCollapsibleRootParameters;
-  export type ReturnValue = UseCollapsibleRootReturnValue;
-}
+export interface UseCollapsibleRootState {}

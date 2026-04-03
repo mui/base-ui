@@ -1,5 +1,5 @@
+import { expect } from 'vitest';
 import * as React from 'react';
-import { expect } from 'chai';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { Dialog } from '@base-ui/react/dialog';
 import { createRenderer, isJSDOM } from '#test-utils';
@@ -34,31 +34,31 @@ describe('<Dialog.Root />', () => {
       const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
       const trigger3 = screen.getByRole('button', { name: 'Trigger 3' });
 
-      expect(screen.queryByText('Dialog Content')).to.equal(null);
+      expect(screen.queryByText('Dialog Content')).toBe(null);
 
       await user.click(trigger1);
       await waitFor(() => {
-        expect(screen.queryByText('Dialog Content')).not.to.equal(null);
+        expect(screen.queryByText('Dialog Content')).not.toBe(null);
       });
 
       await user.click(screen.getByText('Close'));
       await waitFor(() => {
-        expect(screen.queryByText('Dialog Content')).to.equal(null);
+        expect(screen.queryByText('Dialog Content')).toBe(null);
       });
 
       await user.click(trigger2);
       await waitFor(() => {
-        expect(screen.queryByText('Dialog Content')).not.to.equal(null);
+        expect(screen.queryByText('Dialog Content')).not.toBe(null);
       });
 
       await user.click(screen.getByText('Close'));
       await waitFor(() => {
-        expect(screen.queryByText('Dialog Content')).to.equal(null);
+        expect(screen.queryByText('Dialog Content')).toBe(null);
       });
 
       await user.click(trigger3);
       await waitFor(() => {
-        expect(screen.queryByText('Dialog Content')).not.to.equal(null);
+        expect(screen.queryByText('Dialog Content')).not.toBe(null);
       });
     });
 
@@ -86,12 +86,12 @@ describe('<Dialog.Root />', () => {
 
       await user.click(trigger1);
       await waitFor(() => {
-        expect(screen.getByTestId('content').textContent).to.equal('1');
+        expect(screen.getByTestId('content').textContent).toBe('1');
       });
 
       await user.click(trigger2);
       await waitFor(() => {
-        expect(screen.getByTestId('content').textContent).to.equal('2');
+        expect(screen.getByTestId('content').textContent).toBe('2');
       });
     });
 
@@ -120,7 +120,7 @@ describe('<Dialog.Root />', () => {
       const popupElement = screen.getByTestId('dialog-popup');
 
       await user.click(trigger2);
-      expect(screen.getByTestId('dialog-popup')).to.equal(popupElement);
+      expect(screen.getByTestId('dialog-popup')).toBe(popupElement);
     });
 
     it('synchronizes ARIA attributes on the active trigger', async () => {
@@ -138,19 +138,19 @@ describe('<Dialog.Root />', () => {
       const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
       const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
 
-      expect(trigger1).to.have.attribute('aria-expanded', 'false');
-      expect(trigger2).to.have.attribute('aria-expanded', 'false');
+      expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+      expect(trigger2).toHaveAttribute('aria-expanded', 'false');
 
       await user.click(trigger1);
 
       const dialog = await screen.findByRole('dialog');
       const trigger1Controls = trigger1.getAttribute('aria-controls');
-      expect(trigger1Controls).not.to.equal(null);
-      expect(dialog.getAttribute('id')).to.equal(trigger1Controls);
+      expect(trigger1Controls).not.toBe(null);
+      expect(dialog.getAttribute('id')).toBe(trigger1Controls);
       await waitFor(() => {
-        expect(trigger1).to.have.attribute('aria-expanded', 'true');
+        expect(trigger1).toHaveAttribute('aria-expanded', 'true');
       });
-      expect(trigger2).to.have.attribute('aria-expanded', 'false');
+      expect(trigger2).toHaveAttribute('aria-expanded', 'false');
     });
 
     it('sets the payload when opening programmatically with a controlled triggerId', async () => {
@@ -198,7 +198,7 @@ describe('<Dialog.Root />', () => {
       await user.click(openButton);
 
       await waitFor(() => {
-        expect(screen.getByTestId('content').textContent).to.equal('2');
+        expect(screen.getByTestId('content').textContent).toBe('2');
       });
     });
 
@@ -238,19 +238,86 @@ describe('<Dialog.Root />', () => {
       const trigger1 = screen.getByRole('button', { name: 'Dialog 1' });
       await user.click(trigger1);
       await waitFor(() => {
-        expect(screen.getByTestId('content').textContent).to.equal('1');
+        expect(screen.getByTestId('content').textContent).toBe('1');
       });
 
       const updateButton = screen.getByRole('button', { name: 'Update payloads' });
       await user.click(updateButton);
       await waitFor(() => {
-        expect(screen.getByTestId('content').textContent).to.equal('8');
+        expect(screen.getByTestId('content').textContent).toBe('8');
       });
     });
   });
 
   describe.skipIf(isJSDOM)('multiple detached triggers', () => {
     type NumberPayload = { payload: number | undefined };
+
+    function TriggerWithNesting({
+      handle,
+      nesting,
+    }: {
+      handle: ReturnType<typeof Dialog.createHandle>;
+      nesting: 0 | 1 | 2 | 3;
+    }) {
+      const trigger = <Dialog.Trigger handle={handle}>Trigger</Dialog.Trigger>;
+
+      if (nesting === 0) {
+        return trigger;
+      }
+
+      if (nesting === 1) {
+        return <div>{trigger}</div>;
+      }
+
+      if (nesting === 2) {
+        return (
+          <div>
+            <div>{trigger}</div>
+          </div>
+        );
+      }
+
+      return (
+        <div>
+          <div>
+            <div>{trigger}</div>
+          </div>
+        </div>
+      );
+    }
+
+    function DetachedTriggerReparentingTest({
+      handle,
+      nesting,
+    }: {
+      handle: ReturnType<typeof Dialog.createHandle>;
+      nesting: 0 | 1 | 2 | 3;
+    }) {
+      return (
+        <React.Fragment>
+          <TriggerWithNesting handle={handle} nesting={nesting} />
+          <Dialog.Root handle={handle}>
+            <Dialog.Portal>
+              <Dialog.Popup>
+                Dialog Content
+                <Dialog.Close>Close</Dialog.Close>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </React.Fragment>
+      );
+    }
+
+    async function openAndCloseDialog(user: any) {
+      await user.click(screen.getByRole('button', { name: 'Trigger' }));
+      await waitFor(() => {
+        expect(screen.getByText('Dialog Content')).toBeVisible();
+      });
+      await user.click(screen.getByText('Close'));
+      await waitFor(() => {
+        expect(screen.queryByText('Dialog Content')).toBe(null);
+      });
+    }
 
     it('opens the dialog with any trigger', async () => {
       const testDialog = Dialog.createHandle();
@@ -275,30 +342,113 @@ describe('<Dialog.Root />', () => {
       const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
       const trigger3 = screen.getByRole('button', { name: 'Trigger 3' });
 
-      expect(screen.queryByText('Dialog Content')).to.equal(null);
+      expect(screen.queryByText('Dialog Content')).toBe(null);
 
       await user.click(trigger1);
       await waitFor(() => {
-        expect(screen.queryByText('Dialog Content')).not.to.equal(null);
+        expect(screen.queryByText('Dialog Content')).not.toBe(null);
       });
       await user.click(screen.getByText('Close'));
       await waitFor(() => {
-        expect(screen.queryByText('Dialog Content')).to.equal(null);
+        expect(screen.queryByText('Dialog Content')).toBe(null);
       });
 
       await user.click(trigger2);
       await waitFor(() => {
-        expect(screen.queryByText('Dialog Content')).not.to.equal(null);
+        expect(screen.queryByText('Dialog Content')).not.toBe(null);
       });
       await user.click(screen.getByText('Close'));
       await waitFor(() => {
-        expect(screen.queryByText('Dialog Content')).to.equal(null);
+        expect(screen.queryByText('Dialog Content')).toBe(null);
       });
 
       await user.click(trigger3);
       await waitFor(() => {
-        expect(screen.queryByText('Dialog Content')).not.to.equal(null);
+        expect(screen.queryByText('Dialog Content')).not.toBe(null);
       });
+    });
+
+    it('keeps detached triggers clickable when reparented (remove wrappers)', async () => {
+      const testDialog = Dialog.createHandle();
+      const { user, setProps } = await render(
+        <DetachedTriggerReparentingTest handle={testDialog} nesting={3} />,
+      );
+
+      await openAndCloseDialog(user);
+
+      await setProps({ nesting: 2 });
+      await openAndCloseDialog(user);
+
+      await setProps({ nesting: 1 });
+      await openAndCloseDialog(user);
+
+      await setProps({ nesting: 0 });
+      await openAndCloseDialog(user);
+    });
+
+    it('keeps detached triggers clickable when reparented (add wrappers)', async () => {
+      const testDialog = Dialog.createHandle();
+      const { user, setProps } = await render(
+        <DetachedTriggerReparentingTest handle={testDialog} nesting={0} />,
+      );
+
+      await openAndCloseDialog(user);
+
+      await setProps({ nesting: 1 });
+      await openAndCloseDialog(user);
+
+      await setProps({ nesting: 2 });
+      await openAndCloseDialog(user);
+
+      await setProps({ nesting: 3 });
+      await openAndCloseDialog(user);
+    });
+
+    it('keeps detached triggers clickable during Fast Refresh-like handle recreation', async () => {
+      function DetachedTriggerTest({ handle }: { handle: ReturnType<typeof Dialog.createHandle> }) {
+        return (
+          <React.Fragment>
+            <Dialog.Trigger handle={handle}>Trigger</Dialog.Trigger>
+            <Dialog.Root handle={handle}>
+              <Dialog.Portal>
+                <Dialog.Popup>
+                  Dialog Content
+                  <Dialog.Close>Close</Dialog.Close>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </React.Fragment>
+        );
+      }
+
+      const handleA = Dialog.createHandle();
+      const { user, setProps } = await render(<DetachedTriggerTest handle={handleA} />);
+
+      await openAndCloseDialog(user);
+
+      await setProps({ handle: Dialog.createHandle() });
+      await openAndCloseDialog(user);
+
+      await setProps({ handle: Dialog.createHandle() });
+      await openAndCloseDialog(user);
+    });
+
+    it('keeps detached triggers clickable when reparented during Fast Refresh-like handle recreation', async () => {
+      const handleA = Dialog.createHandle();
+      const { user, setProps } = await render(
+        <DetachedTriggerReparentingTest handle={handleA} nesting={3} />,
+      );
+
+      await openAndCloseDialog(user);
+
+      await setProps({ handle: Dialog.createHandle(), nesting: 2 });
+      await openAndCloseDialog(user);
+
+      await setProps({ handle: Dialog.createHandle(), nesting: 1 });
+      await openAndCloseDialog(user);
+
+      await setProps({ handle: Dialog.createHandle(), nesting: 0 });
+      await openAndCloseDialog(user);
     });
 
     it('sets the payload and renders content based on its value', async () => {
@@ -330,12 +480,12 @@ describe('<Dialog.Root />', () => {
 
       await user.click(trigger1);
       await waitFor(() => {
-        expect(screen.getByTestId('content').textContent).to.equal('1');
+        expect(screen.getByTestId('content').textContent).toBe('1');
       });
 
       await user.click(trigger2);
       await waitFor(() => {
-        expect(screen.getByTestId('content').textContent).to.equal('2');
+        expect(screen.getByTestId('content').textContent).toBe('2');
       });
     });
 
@@ -369,7 +519,7 @@ describe('<Dialog.Root />', () => {
       const popupElement = screen.getByTestId('dialog-popup');
 
       await user.click(trigger2);
-      expect(screen.getByTestId('dialog-popup')).to.equal(popupElement);
+      expect(screen.getByTestId('dialog-popup')).toBe(popupElement);
     });
 
     it('keeps the payload reactive', async () => {
@@ -418,13 +568,13 @@ describe('<Dialog.Root />', () => {
       const trigger1 = screen.getByRole('button', { name: 'Dialog 1' });
       await user.click(trigger1);
       await waitFor(() => {
-        expect(screen.getByTestId('content').textContent).to.equal('1');
+        expect(screen.getByTestId('content').textContent).toBe('1');
       });
 
       const updateButton = screen.getByRole('button', { name: 'Update payloads' });
       await user.click(updateButton);
       await waitFor(() => {
-        expect(screen.getByTestId('content').textContent).to.equal('8');
+        expect(screen.getByTestId('content').textContent).toBe('8');
       });
     });
   });
@@ -446,22 +596,22 @@ describe('<Dialog.Root />', () => {
       );
 
       const trigger = screen.getByRole('button', { name: 'Trigger' });
-      expect(screen.queryByRole('dialog')).to.equal(null);
+      expect(screen.queryByRole('dialog')).toBe(null);
 
       await act(() => dialog.open('trigger'));
       await waitFor(() => {
-        expect(screen.queryByRole('dialog')).not.to.equal(null);
+        expect(screen.queryByRole('dialog')).not.toBe(null);
       });
 
-      expect(screen.getByTestId('content').textContent).to.equal('Content');
-      expect(trigger).to.have.attribute('aria-expanded', 'true');
+      expect(screen.getByTestId('content').textContent).toBe('Content');
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
 
       await act(() => dialog.close());
       await waitFor(() => {
-        expect(screen.queryByRole('dialog')).to.equal(null);
+        expect(screen.queryByRole('dialog')).toBe(null);
       });
 
-      expect(trigger).to.have.attribute('aria-expanded', 'false');
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
     });
 
     it('sets the payload assosiated with the trigger', async () => {
@@ -486,23 +636,23 @@ describe('<Dialog.Root />', () => {
 
       const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
       const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
-      expect(screen.queryByRole('dialog')).to.equal(null);
+      expect(screen.queryByRole('dialog')).toBe(null);
 
       await act(() => dialog.open('trigger2'));
       await waitFor(() => {
-        expect(screen.queryByRole('dialog')).not.to.equal(null);
+        expect(screen.queryByRole('dialog')).not.toBe(null);
       });
 
-      expect(screen.getByTestId('content').textContent).to.equal('2');
-      expect(trigger2).to.have.attribute('aria-expanded', 'true');
-      expect(trigger1).not.to.have.attribute('aria-expanded', 'true');
+      expect(screen.getByTestId('content').textContent).toBe('2');
+      expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+      expect(trigger1).not.toHaveAttribute('aria-expanded', 'true');
 
       await act(() => dialog.close());
       await waitFor(() => {
-        expect(screen.queryByRole('dialog')).to.equal(null);
+        expect(screen.queryByRole('dialog')).toBe(null);
       });
 
-      expect(trigger2).to.have.attribute('aria-expanded', 'false');
+      expect(trigger2).toHaveAttribute('aria-expanded', 'false');
     });
 
     it('sets the payload programmatically', async () => {
@@ -527,20 +677,20 @@ describe('<Dialog.Root />', () => {
 
       const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
       const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
-      expect(screen.queryByRole('dialog')).to.equal(null);
+      expect(screen.queryByRole('dialog')).toBe(null);
 
       await act(() => dialog.openWithPayload(8));
       await waitFor(() => {
-        expect(screen.queryByRole('dialog')).not.to.equal(null);
+        expect(screen.queryByRole('dialog')).not.toBe(null);
       });
 
-      expect(screen.getByTestId('content').textContent).to.equal('8');
-      expect(trigger1).not.to.have.attribute('aria-expanded', 'true');
-      expect(trigger2).not.to.have.attribute('aria-expanded', 'true');
+      expect(screen.getByTestId('content').textContent).toBe('8');
+      expect(trigger1).not.toHaveAttribute('aria-expanded', 'true');
+      expect(trigger2).not.toHaveAttribute('aria-expanded', 'true');
 
       await act(() => dialog.close());
       await waitFor(() => {
-        expect(screen.queryByRole('dialog')).to.equal(null);
+        expect(screen.queryByRole('dialog')).toBe(null);
       });
     });
   });

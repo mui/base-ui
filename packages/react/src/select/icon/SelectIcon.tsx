@@ -17,17 +17,14 @@ export const SelectIcon = React.forwardRef(function SelectIcon(
   componentProps: SelectIcon.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, style, ...elementProps } = componentProps;
 
   const { store } = useSelectRootContext();
   const open = useStore(store, selectors.open);
 
-  const state: SelectIcon.State = React.useMemo(
-    () => ({
-      open,
-    }),
-    [open],
-  );
+  const state: SelectIconState = {
+    open,
+  };
 
   const element = useRenderElement('span', componentProps, {
     state,
@@ -46,7 +43,7 @@ export interface SelectIconState {
   open: boolean;
 }
 
-export interface SelectIconProps extends BaseUIComponentProps<'span', SelectIcon.State> {}
+export interface SelectIconProps extends BaseUIComponentProps<'span', SelectIconState> {}
 
 export namespace SelectIcon {
   export type State = SelectIconState;

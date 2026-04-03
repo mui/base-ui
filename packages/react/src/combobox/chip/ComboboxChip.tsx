@@ -21,7 +21,7 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
   componentProps: ComboboxChip.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const store = useComboboxRootContext();
   const { setHighlightedChipIndex, chipsRef } = useComboboxChipsContext()!;
@@ -84,12 +84,9 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
     return nextIndex;
   }
 
-  const state: ComboboxChip.State = React.useMemo(
-    () => ({
-      disabled,
-    }),
-    [disabled],
-  );
+  const state: ComboboxChipState = {
+    disabled,
+  };
 
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, ref],
@@ -116,13 +113,6 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
             chipsRef.current[nextIndex]?.focus();
           }
         },
-        onMouseDown(event) {
-          if (disabled || readOnly) {
-            return;
-          }
-          event.preventDefault();
-          store.state.inputRef.current?.focus();
-        },
       },
       elementProps,
     ],
@@ -147,7 +137,7 @@ export interface ComboboxChipState {
   disabled: boolean;
 }
 
-export interface ComboboxChipProps extends BaseUIComponentProps<'div', ComboboxChip.State> {}
+export interface ComboboxChipProps extends BaseUIComponentProps<'div', ComboboxChipState> {}
 
 export namespace ComboboxChip {
   export type State = ComboboxChipState;

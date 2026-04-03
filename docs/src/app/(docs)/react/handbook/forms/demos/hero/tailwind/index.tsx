@@ -45,7 +45,7 @@ function ExampleForm() {
 
       <Field.Root name="region">
         <Combobox.Root items={REGIONS} required>
-          <div className="relative flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">
+          <div className="relative flex flex-col gap-1 text-sm leading-5 text-gray-900">
             <Field.Label>Region</Field.Label>
             <Combobox.Input placeholder="e.g. eu-central-1" />
             <div className="absolute right-2 bottom-0 flex h-10 items-center justify-center text-gray-600">
@@ -111,14 +111,16 @@ function ExampleForm() {
       </Field.Root>
 
       <Field.Root name="serverType">
-        <Field.Label>Server type</Field.Label>
         <Select.Root items={SERVER_TYPES} required>
-          <Select.Trigger className="w-48">
-            <Select.Value />
-            <Select.Icon>
-              <ChevronsUpDown className="size-4" />
-            </Select.Icon>
-          </Select.Trigger>
+          <div className="flex flex-col items-start gap-1">
+            <Select.Label>Server type</Select.Label>
+            <Select.Trigger className="w-48">
+              <Select.Value />
+              <Select.Icon>
+                <ChevronsUpDown className="size-4" />
+              </Select.Icon>
+            </Select.Trigger>
+          </div>
           <Select.Portal>
             <Select.Positioner>
               <Select.Popup>
@@ -182,15 +184,15 @@ function ExampleForm() {
           <Slider.Control>
             <Slider.Track>
               <Slider.Indicator />
-              <Slider.Thumb index={0} />
-              <Slider.Thumb index={1} />
+              <Slider.Thumb index={0} aria-label="Minimum threshold" />
+              <Slider.Thumb index={1} aria-label="Maximum threshold" />
             </Slider.Track>
           </Slider.Control>
         </Fieldset.Root>
       </Field.Root>
 
       <Field.Root name="storageType">
-        <Fieldset.Root render={<RadioGroup className="gap-4" defaultValue="ssd" />}>
+        <Fieldset.Root render={<RadioGroup<'ssd' | 'hdd'> className="gap-4" defaultValue="ssd" />}>
           <Fieldset.Legend className="-mt-px">Storage type</Fieldset.Legend>
           <Field.Item>
             <Field.Label>

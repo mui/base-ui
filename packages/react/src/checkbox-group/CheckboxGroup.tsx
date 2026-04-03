@@ -5,12 +5,12 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { useRenderElement } from '../utils/useRenderElement';
 import { CheckboxGroupContext } from './CheckboxGroupContext';
-import type { FieldRoot } from '../field/root/FieldRoot';
+import type { FieldRootState } from '../field/root/FieldRoot';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
+import { useRegisterFieldControl } from '../field/root/useRegisterFieldControl';
 import { useLabelableContext } from '../labelable-provider/LabelableContext';
 import type { BaseUIComponentProps } from '../utils/types';
 import { fieldValidityMapping } from '../field/utils/constants';
-import { useField } from '../field/useField';
 import { PARENT_CHECKBOX } from '../checkbox/root/CheckboxRoot';
 import { useCheckboxGroupParent } from './useCheckboxGroupParent';
 import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
@@ -38,6 +38,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     onValueChange,
     render,
     value: externalValue,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -91,14 +92,10 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     }
   }, []);
 
-  useField({
+  useRegisterFieldControl(controlRef, {
     enabled: !!fieldName,
     id,
-    commit: validation.commit,
     value,
-    controlRef,
-    name: fieldName,
-    getValue: () => value,
   });
 
   const resolvedValue = value ?? EMPTY_ARRAY;
@@ -122,13 +119,10 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     }
   });
 
-  const state: CheckboxGroup.State = React.useMemo(
-    () => ({
-      ...fieldState,
-      disabled,
-    }),
-    [fieldState, disabled],
-  );
+  const state: CheckboxGroupState = {
+    ...fieldState,
+    disabled,
+  };
 
   const contextValue: CheckboxGroupContext = React.useMemo(
     () => ({
@@ -163,40 +157,42 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
   );
 });
 
-export interface CheckboxGroupState extends FieldRoot.State {
+export interface CheckboxGroupState extends FieldRootState {
   /**
    * Whether the component should ignore user interaction.
    */
   disabled: boolean;
 }
 
-export interface CheckboxGroupProps extends BaseUIComponentProps<'div', CheckboxGroup.State> {
+export interface CheckboxGroupProps extends BaseUIComponentProps<'div', CheckboxGroupState> {
   /**
    * Names of the checkboxes in the group that should be ticked.
    *
    * To render an uncontrolled checkbox group, use the `defaultValue` prop instead.
    */
-  value?: string[];
+  value?: string[] | undefined;
   /**
    * Names of the checkboxes in the group that should be initially ticked.
    *
    * To render a controlled checkbox group, use the `value` prop instead.
    */
-  defaultValue?: string[];
+  defaultValue?: string[] | undefined;
   /**
    * Event handler called when a checkbox in the group is ticked or unticked.
    * Provides the new value as an argument.
    */
-  onValueChange?: (value: string[], eventDetails: CheckboxGroupChangeEventDetails) => void;
+  onValueChange?:
+    | ((value: string[], eventDetails: CheckboxGroupChangeEventDetails) => void)
+    | undefined;
   /**
    * Names of all checkboxes in the group. Use this when creating a parent checkbox.
    */
-  allValues?: string[];
+  allValues?: string[] | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
 }
 
 export type CheckboxGroupChangeEventReason = typeof REASONS.none;

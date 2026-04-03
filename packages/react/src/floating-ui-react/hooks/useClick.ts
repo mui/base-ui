@@ -4,7 +4,8 @@ import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { EMPTY_OBJECT } from '../../utils/constants';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
-import { isClickLikeEvent, isMouseLikePointerType, isTypeableElement } from '../utils';
+import { getTarget, isTypeableElement } from '../utils/element';
+import { isClickLikeEvent, isMouseLikePointerType } from '../utils/event';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 
@@ -14,36 +15,41 @@ export interface UseClickProps {
    * handlers.
    * @default true
    */
-  enabled?: boolean;
+  enabled?: boolean | undefined;
   /**
    * The type of event to use to determine a “click” with mouse input.
    * Keyboard clicks work as normal.
    * @default 'click'
    */
-  event?: 'click' | 'mousedown' | 'mousedown-only';
+  event?: 'click' | 'mousedown' | 'mousedown-only' | undefined;
   /**
    * Whether to toggle the open state with repeated clicks.
    * @default true
    */
-  toggle?: boolean;
+  toggle?: boolean | undefined;
   /**
    * Whether to ignore the logic for mouse input (for example, if `useHover()`
    * is also being used).
    * @default false
    */
-  ignoreMouse?: boolean;
+  ignoreMouse?: boolean | undefined;
   /**
    * If already open from another event such as the `useHover()` Hook,
    * determines whether to keep the floating element open when clicking the
    * reference element for the first time.
    * @default true
    */
-  stickIfOpen?: boolean;
+  stickIfOpen?: boolean | undefined;
   /**
    * Touch-only delay (ms) before opening. Useful to allow mobile viewport/keyboard to settle.
    * @default 0
    */
-  touchOpenDelay?: number;
+  touchOpenDelay?: number | undefined;
+  /**
+   * The reason for the click.
+   * @default REASONS.triggerPress
+   */
+  reason?: typeof REASONS.triggerPress | typeof REASONS.inputPress | undefined;
 }
 
 /**
@@ -64,6 +70,7 @@ export function useClick(
     ignoreMouse = false,
     stickIfOpen = true,
     touchOpenDelay = 0,
+    reason = REASONS.triggerPress,
   } = props;
 
   const pointerTypeRef = React.useRef<'mouse' | 'pen' | 'touch'>(undefined);
@@ -106,12 +113,10 @@ export function useClick(
 
         // Animations sometimes won't run on a typeable element if using a rAF.
         // Focus is always set on these elements. For touch, we may delay opening.
-        if (isTypeableElement(nativeEvent.target)) {
-          const details = createChangeEventDetails(
-            REASONS.triggerPress,
-            nativeEvent,
-            nativeEvent.target as HTMLElement,
-          );
+        const target = getTarget(nativeEvent);
+
+        if (isTypeableElement(target)) {
+          const details = createChangeEventDetails(reason, nativeEvent, target as HTMLElement);
           if (nextOpen && pointerType === 'touch' && touchOpenDelay > 0) {
             touchOpenTimeout.start(touchOpenDelay, () => {
               store.setOpen(true, details);
@@ -129,11 +134,7 @@ export function useClick(
         // Wait until focus is set on the element. This is an alternative to
         // `event.preventDefault()` to avoid :focus-visible from appearing when using a pointer.
         frame.request(() => {
-          const details = createChangeEventDetails(
-            REASONS.triggerPress,
-            nativeEvent,
-            eventCurrentTarget,
-          );
+          const details = createChangeEventDetails(reason, nativeEvent, eventCurrentTarget);
           if (nextOpen && pointerType === 'touch' && touchOpenDelay > 0) {
             touchOpenTimeout.start(touchOpenDelay, () => {
               store.setOpen(true, details);
@@ -167,7 +168,7 @@ export function useClick(
           (open && hasClickedOnInactiveTrigger) ||
           !(open && toggle && (openEvent && stickIfOpen ? isClickLikeEvent(openEvent) : true));
         const details = createChangeEventDetails(
-          REASONS.triggerPress,
+          reason,
           event.nativeEvent,
           event.currentTarget as HTMLElement,
         );
@@ -194,6 +195,7 @@ export function useClick(
       frame,
       touchOpenTimeout,
       touchOpenDelay,
+      reason,
     ],
   );
 

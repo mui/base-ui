@@ -1,4 +1,4 @@
-@import 'docs/src/breakpoints.css';
+@import 'docs/src/css/custom-media.css';
 
 @layer base {
   html {
@@ -49,6 +49,7 @@
       &::after {
         bottom: var(--header-height);
         margin-bottom: -1px;
+        z-index: 1;
       }
     }
   }
@@ -100,6 +101,7 @@
       width: 100%;
       height: var(--header-height);
       position: absolute;
+      z-index: 1;
       left: 0;
       right: 0;
       bottom: 0;
@@ -135,17 +137,10 @@
     max-width: 48rem;
     width: 100%;
 
-    padding-top: 1.5rem;
-    padding-bottom: 5rem;
     margin: 0 auto;
-
-    @media (--sm) {
-      padding-top: 2rem;
-    }
 
     @media (--show-side-nav) {
       margin: 0;
-      padding-bottom: 8rem;
     }
 
     @media (--show-quick-nav) {

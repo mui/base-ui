@@ -2,8 +2,8 @@
 import * as React from 'react';
 
 export function useFocusableWhenDisabled(
-  parameters: useFocusableWhenDisabled.Parameters,
-): useFocusableWhenDisabled.ReturnValue {
+  parameters: UseFocusableWhenDisabledParameters,
+): UseFocusableWhenDisabledReturnValue {
   const {
     focusableWhenDisabled,
     disabled,
@@ -61,8 +61,8 @@ export function useFocusableWhenDisabled(
 }
 
 interface FocusableWhenDisabledProps {
-  'aria-disabled'?: boolean;
-  disabled?: boolean;
+  'aria-disabled'?: boolean | undefined;
+  disabled?: boolean | undefined;
   onKeyDown: (event: React.KeyboardEvent) => void;
   tabIndex: number;
 }
@@ -81,11 +81,11 @@ export interface UseFocusableWhenDisabledParameters {
    * Whether this is a composite item or not.
    * @default false
    */
-  composite?: boolean;
+  composite?: boolean | undefined;
   /**
    * @default 0
    */
-  tabIndex?: number;
+  tabIndex?: number | undefined;
   /**
    * @default true
    */
@@ -96,7 +96,4 @@ export interface UseFocusableWhenDisabledReturnValue {
   props: FocusableWhenDisabledProps;
 }
 
-export namespace useFocusableWhenDisabled {
-  export type Parameters = UseFocusableWhenDisabledParameters;
-  export type ReturnValue = UseFocusableWhenDisabledReturnValue;
-}
+export interface UseFocusableWhenDisabledState {}

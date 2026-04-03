@@ -14,7 +14,7 @@
   color: var(--color-gray-900);
   user-select: none;
   font-size: 1rem;
-  font-weight: bold;
+  font-weight: 400;
 
   @media (hover: hover) {
     &:hover {
@@ -102,6 +102,7 @@
 
 .Viewport {
   --viewport-inline-padding: 1.5rem;
+  box-sizing: border-box;
   /* Required to clip the overflowing content during the slide in/out animations */
   position: relative;
   overflow: clip;
@@ -113,7 +114,7 @@
   [data-current] {
     /* This freezes the width of the content while transitioning.
        Width is set to the content area of the parent popup (--popup-width measures the border-box).
-       The 'previous` container received the width of the previous content, while the `next` container
+       The 'previous` container receives the width of the previous content, while the `next` container
         receives the width of the new content.
     */
     width: calc(var(--popup-width) - 2 * var(--viewport-inline-padding));
@@ -190,7 +191,7 @@
   margin: 0;
   font-size: 1rem;
   line-height: 1.5rem;
-  font-weight: 500;
+  font-weight: 700;
 }
 
 .Description {
@@ -234,7 +235,7 @@
     vertical-align: middle;
     border-radius: 100%;
     user-select: none;
-    font-weight: 500;
+    font-weight: 700;
     color: var(--color-gray-900);
     background-color: var(--color-gray-100);
     font-size: 1rem;

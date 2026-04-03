@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { FocusableElement } from 'tabbable';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerDocument } from '@base-ui/utils/owner';
+import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
@@ -20,6 +20,7 @@ import {
 import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
 import {
   contains,
+  type FocusableElement,
   getNextTabbable,
   getTabbableAfterElement,
   getTabbableBeforeElement,
@@ -54,7 +55,7 @@ const BOUNDARY_OFFSET = 2;
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-export const MenuTrigger = React.forwardRef(function MenuTrigger(
+export const MenuTrigger = fastComponentRef(function MenuTrigger(
   componentProps: MenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -69,6 +70,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     closeDelay = 0,
     handle,
     payload,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -218,13 +220,10 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
 
   const localInteractionProps = useInteractions([click, focus]);
 
-  const state: MenuTrigger.State = React.useMemo(
-    () => ({
-      disabled,
-      open: isOpenedByThisTrigger,
-    }),
-    [disabled, isOpenedByThisTrigger],
-  );
+  const state: MenuTriggerState = {
+    disabled,
+    open: isOpenedByThisTrigger,
+  };
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
@@ -322,6 +321,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
         tag="button"
         render={render}
         className={className}
+        style={style}
         state={state}
         refs={ref}
         props={props}
@@ -361,28 +361,28 @@ export interface MenuTrigger {
 }
 
 export interface MenuTriggerProps<Payload = unknown>
-  extends NativeButtonProps, BaseUIComponentProps<'button', MenuTrigger.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', MenuTriggerState> {
   children?: React.ReactNode;
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * A handle to associate the trigger with a menu.
    */
-  handle?: MenuHandle<Payload>;
+  handle?: MenuHandle<Payload> | undefined;
   /**
    * A payload to pass to the menu when it is opened.
    */
-  payload?: Payload;
+  payload?: Payload | undefined;
   /**
    * How long to wait before the menu may be opened on hover. Specified in milliseconds.
    *
    * Requires the `openOnHover` prop.
    * @default 100
    */
-  delay?: number;
+  delay?: number | undefined;
   /**
    * How long to wait before closing the menu that was opened on hover.
    * Specified in milliseconds.
@@ -390,19 +390,23 @@ export interface MenuTriggerProps<Payload = unknown>
    * Requires the `openOnHover` prop.
    * @default 0
    */
-  closeDelay?: number;
+  closeDelay?: number | undefined;
   /**
    * Whether the menu should also open when the trigger is hovered.
    */
-  openOnHover?: boolean;
+  openOnHover?: boolean | undefined;
 }
 
-export type MenuTriggerState = {
+export interface MenuTriggerState {
   /**
    * Whether the menu is currently open.
    */
   open: boolean;
-};
+  /**
+   * Whether the trigger is disabled.
+   */
+  disabled: boolean;
+}
 
 export namespace MenuTrigger {
   export type Props<Payload = unknown> = MenuTriggerProps<Payload>;

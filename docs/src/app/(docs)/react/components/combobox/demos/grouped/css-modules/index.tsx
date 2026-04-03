@@ -9,7 +9,7 @@ export default function ExampleGroupedCombobox() {
     <Combobox.Root items={groupedProduce}>
       <div className={styles.Label}>
         <label htmlFor={id}>Select produce</label>
-        <div className={styles.InputWrapper}>
+        <Combobox.InputGroup className={styles.InputGroup}>
           <Combobox.Input placeholder="e.g. Mango" className={styles.Input} id={id} />
           <div className={styles.ActionButtons}>
             <Combobox.Clear className={styles.Clear} aria-label="Clear selection">
@@ -19,13 +19,15 @@ export default function ExampleGroupedCombobox() {
               <ChevronDownIcon className={styles.TriggerIcon} />
             </Combobox.Trigger>
           </div>
-        </div>
+        </Combobox.InputGroup>
       </div>
 
       <Combobox.Portal>
         <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
           <Combobox.Popup className={styles.Popup}>
-            <Combobox.Empty className={styles.Empty}>No produce found.</Combobox.Empty>
+            <Combobox.Empty>
+              <div className={styles.Empty}>No produce found.</div>
+            </Combobox.Empty>
             <Combobox.List className={styles.List}>
               {(group: ProduceGroup) => (
                 <Combobox.Group key={group.value} items={group.items} className={styles.Group}>

@@ -8,7 +8,7 @@ export interface UseFilterOptions extends Intl.CollatorOptions {
    * The locale to use for string comparison.
    * Defaults to the user's runtime locale.
    */
-  locale?: Intl.LocalesArgument;
+  locale?: Intl.LocalesArgument | undefined;
 }
 
 export interface Filter {
@@ -100,7 +100,7 @@ export interface UseComboboxFilterOptions extends UseFilterOptions {
    * Whether the combobox is in multiple selection mode.
    * @default false
    */
-  multiple?: boolean;
+  multiple?: boolean | undefined;
   /**
    * The current value of the combobox.
    */

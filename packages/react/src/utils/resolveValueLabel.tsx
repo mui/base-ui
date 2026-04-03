@@ -3,11 +3,7 @@ import * as React from 'react';
 import { serializeValue } from './serializeValue';
 
 type ItemRecord = Record<string, React.ReactNode>;
-type ItemsInput =
-  | ItemRecord
-  | ReadonlyArray<LabeledItem>
-  | ReadonlyArray<Group<LabeledItem>>
-  | undefined;
+type ItemsInput = ItemRecord | ReadonlyArray<LabeledItem> | ReadonlyArray<Group<any>> | undefined;
 
 interface LabeledItem {
   value: any;
@@ -15,20 +11,50 @@ interface LabeledItem {
 }
 
 export interface Group<Item = any> {
-  value: unknown;
-  items: Item[];
+  [key: string]: unknown;
+  items: ReadonlyArray<Item>;
 }
 
 export function isGroupedItems(
   items: ReadonlyArray<any | Group<any>> | undefined,
-): items is Group<any>[] {
+): items is ReadonlyArray<Group<any>> {
   return (
     items != null &&
     items.length > 0 &&
     typeof items[0] === 'object' &&
     items[0] != null &&
-    'items' in (items[0] as object)
+    'items' in items[0]
   );
+}
+
+/**
+ * Checks if the items array contains an item with a null value that has a non-null label.
+ */
+export function hasNullItemLabel(items: ItemsInput): boolean {
+  if (!Array.isArray(items)) {
+    return items != null && 'null' in items;
+  }
+
+  const arrayItems = items as ReadonlyArray<LabeledItem> | ReadonlyArray<Group<any>>;
+
+  if (isGroupedItems(arrayItems)) {
+    for (const group of arrayItems) {
+      for (const item of group.items) {
+        if (item && item.value == null && item.label != null) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  for (const item of arrayItems) {
+    if (item && item.value == null && item.label != null) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 export function stringifyAsLabel(item: any, itemToStringLabel?: (item: any) => string) {
@@ -61,6 +87,10 @@ export function resolveSelectedLabel(
   items: ItemsInput,
   itemToStringLabel?: (item: any) => string,
 ): React.ReactNode {
+  function fallback() {
+    return stringifyAsLabel(value, itemToStringLabel);
+  }
+
   if (itemToStringLabel && value != null) {
     return itemToStringLabel(value);
   }
@@ -72,43 +102,34 @@ export function resolveSelectedLabel(
 
   // Items provided as plain record map
   if (items && !Array.isArray(items)) {
-    return (items as any)[value] ?? stringifyAsLabel(value, itemToStringLabel);
+    return (items as any)[value] ?? fallback();
   }
 
   // Items provided as array (flat or grouped)
   if (Array.isArray(items)) {
-    const flatItems: LabeledItem[] = isGroupedItems(items)
-      ? (items as Group<LabeledItem>[]).flatMap((g) => g.items)
-      : (items as LabeledItem[]);
+    const arrayItems = items as ReadonlyArray<LabeledItem> | ReadonlyArray<Group<any>>;
+    const flatItems: ReadonlyArray<LabeledItem> = isGroupedItems(arrayItems)
+      ? arrayItems.flatMap((group) => group.items)
+      : arrayItems;
 
-    // If no value selected, prefer the null option label when available
-    if (value == null) {
-      const nullItem = flatItems.find((it) => it.value == null);
-      if (nullItem && nullItem.label != null) {
-        return nullItem.label;
-      }
-      return stringifyAsLabel(value, itemToStringLabel);
-    }
-
-    // Primitive selected value: map to first matching item's label
-    if (typeof value !== 'object') {
-      const match = flatItems.find((it) => it && it.value === value);
+    if (value == null || typeof value !== 'object') {
+      const match = flatItems.find((item) => item.value === value);
       if (match && match.label != null) {
         return match.label;
       }
-      return stringifyAsLabel(value, itemToStringLabel);
+      return fallback();
     }
 
     // Object without explicit label: try matching by its `value` property
     if ('value' in value) {
-      const match = flatItems.find((it) => it && it.value === value.value);
+      const match = flatItems.find((item) => item && item.value === value.value);
       if (match && match.label != null) {
         return match.label;
       }
     }
   }
 
-  return stringifyAsLabel(value, itemToStringLabel);
+  return fallback();
 }
 
 export function resolveMultipleLabels(

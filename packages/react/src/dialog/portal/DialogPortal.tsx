@@ -41,22 +41,21 @@ export const DialogPortal = React.forwardRef(function DialogPortal(
   );
 });
 
-export namespace DialogPortal {
-  export interface State {}
-}
+export interface DialogPortalState {}
 
-export interface DialogPortalProps extends FloatingPortal.Props<DialogPortal.State> {
+export interface DialogPortalProps extends FloatingPortal.Props<DialogPortalState> {
   /**
    * Whether to keep the portal mounted in the DOM while the popup is hidden.
    * @default false
    */
-  keepMounted?: boolean;
+  keepMounted?: boolean | undefined;
   /**
    * A parent element to render the portal element into.
    */
-  container?: FloatingPortal.Props<DialogPortal.State>['container'];
+  container?: FloatingPortal.Props<DialogPortalState>['container'] | undefined;
 }
 
 export namespace DialogPortal {
+  export type State = DialogPortalState;
   export type Props = DialogPortalProps;
 }

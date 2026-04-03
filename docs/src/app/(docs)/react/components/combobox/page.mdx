@@ -15,7 +15,7 @@ import { DemoComboboxHero } from './demos/hero';
 - **Combobox is a filterable Select**: Use Combobox when the input is restricted to a set of predefined selectable items, similar to [Select](/react/components/select) but whose items are filterable using an input. Prefer using Combobox over Select when the number of items is sufficiently large to warrant filtering.
 - **Avoid for simple search widgets**: Combobox does not allow free-form text input. For search widgets, consider using [Autocomplete](/react/components/autocomplete) instead.
 - **Avoid when not rendering an input**: Use [Select](/react/components/select) instead of Combobox if no input is being rendered, which includes accessibility features specific to a listbox without an input.
-- **Form controls must have an accessible name**: It can be created using a `<label>` element or the `Field` component. See the [forms guide](/react/handbook/forms).
+- **Form controls must have an accessible name**: If `<Combobox.Input>` is the form control, label it with a native `<label>` or `<Field.Label>`, or provide an `aria-label` when no visible label is rendered. `<Combobox.Label>` labels `<Combobox.Trigger>` and is intended for the [input-inside-popup](#input-inside-popup) pattern, where the trigger is the form control. See the [forms guide](/react/handbook/forms).
 
 ## Anatomy
 
@@ -25,17 +25,21 @@ Import the components and place them together:
 import { Combobox } from '@base-ui/react/combobox';
 
 <Combobox.Root>
-  <Combobox.Input />
-  <Combobox.Trigger />
-  <Combobox.Icon />
-  <Combobox.Clear />
-  <Combobox.Value />
+  <Combobox.Label />
 
-  <Combobox.Chips>
-    <Combobox.Chip>
-      <Combobox.ChipRemove />
-    </Combobox.Chip>
-  </Combobox.Chips>
+  <Combobox.InputGroup>
+    <Combobox.Input />
+    <Combobox.Trigger />
+    <Combobox.Icon />
+    <Combobox.Clear />
+    <Combobox.Value />
+
+    <Combobox.Chips>
+      <Combobox.Chip>
+        <Combobox.ChipRemove />
+      </Combobox.Chip>
+    </Combobox.Chips>
+  </Combobox.InputGroup>
 
   <Combobox.Portal>
     <Combobox.Backdrop />
@@ -72,6 +76,10 @@ import { Combobox } from '@base-ui/react/combobox';
 Combobox infers the item type from the `defaultValue` or `value` props passed to `<Combobox.Root>`.
 The type of items held in the `items` array must also match the `value` prop type passed to `<Combobox.Item>`.
 
+## Examples
+
+### Typed wrapper component
+
 The following example shows a typed wrapper around the Combobox component with correct type inference and type safety:
 
 ```tsx title="Specifying generic type parameters"
@@ -84,8 +92,6 @@ export function MyCombobox<Value, Multiple extends boolean | undefined = false>(
   return <Combobox.Root {...props}>{/* ... */}</Combobox.Root>;
 }
 ```
-
-## Examples
 
 ### Multiple select
 
@@ -103,6 +109,17 @@ import { DemoComboboxMultiple } from './demos/multiple';
 import { DemoComboboxInputInsidePopup } from './demos/input-inside-popup';
 
 <DemoComboboxInputInsidePopup compact />
+
+Use `<Combobox.Label>` to provide a visible label for the combobox trigger in this pattern:
+
+```tsx title="Using Combobox.Label to label a combobox" {2}
+<Combobox.Root>
+  <Combobox.Label>Favorite fruit</Combobox.Label>
+  {/* ... */}
+</Combobox.Root>
+```
+
+`<Combobox.Label>` renders a `<div>`, so clicking it focuses the combobox trigger without opening the popup.
 
 ### Grouped
 
@@ -166,10 +183,111 @@ import { DemoComboboxVirtualized } from './demos/virtualized';
 
 ## API reference
 
-<Reference
-  component="Combobox"
-  parts="Root, Value, Icon, Input, Clear, Trigger, Chips, Chip, ChipRemove, List, Portal, Backdrop, Positioner, Popup, Arrow, Status, Empty, Collection, Row, Item, ItemIndicator, Group, GroupLabel, Separator"
-/>
+import { TypesCombobox } from './types';
+
+### Root
+
+<TypesCombobox.Root />
+
+### Label
+
+<TypesCombobox.Label />
+
+### Value
+
+<TypesCombobox.Value />
+
+### Icon
+
+<TypesCombobox.Icon />
+
+### Input
+
+<TypesCombobox.Input />
+
+### InputGroup
+
+<TypesCombobox.InputGroup />
+
+### Clear
+
+<TypesCombobox.Clear />
+
+### Trigger
+
+<TypesCombobox.Trigger />
+
+### Chips
+
+<TypesCombobox.Chips />
+
+### Chip
+
+<TypesCombobox.Chip />
+
+### ChipRemove
+
+<TypesCombobox.ChipRemove />
+
+### List
+
+<TypesCombobox.List />
+
+### Portal
+
+<TypesCombobox.Portal />
+
+### Backdrop
+
+<TypesCombobox.Backdrop />
+
+### Positioner
+
+<TypesCombobox.Positioner />
+
+### Popup
+
+<TypesCombobox.Popup />
+
+### Arrow
+
+<TypesCombobox.Arrow />
+
+### Status
+
+<TypesCombobox.Status />
+
+### Empty
+
+<TypesCombobox.Empty />
+
+### Collection
+
+<TypesCombobox.Collection />
+
+### Row
+
+<TypesCombobox.Row />
+
+### Item
+
+<TypesCombobox.Item />
+
+### ItemIndicator
+
+<TypesCombobox.ItemIndicator />
+
+### Group
+
+<TypesCombobox.Group />
+
+### GroupLabel
+
+<TypesCombobox.GroupLabel />
+
+### Separator
+
+<TypesCombobox.Separator />
 
 ## useFilter
 
@@ -177,48 +295,13 @@ Matches items against a query using `Intl.Collator` for robust string matching.
 This hook is used when externally filtering items.
 Pass the result to the `filter` prop of `<Combobox.Root>`.
 
-### Input parameters
+<TypesCombobox.useFilter hideDescription />
 
-Accepts all `Intl.CollatorOptions`, plus the following options:
+## useFilteredItems
 
-<PropsReferenceTable
-  data={{
-    locale: {
-      type: 'Intl.LocalesArgument',
-      description: 'The locale to use for string comparison.',
-    },
-    multiple: {
-      type: 'boolean',
-      description: 'Whether the combobox is in multiple selection mode.',
-      default: 'false',
-    },
-    value: {
-      type: 'any',
-      description:
-        'The current value of the combobox. For single selection, pass this so all items are visible when the query is empty or matches the selection.',
-    },
-  }}
-/>
+Returns the internally filtered items when called inside `<Combobox.Root>`.
 
-### Return value
-
-<PropsReferenceTable
-  type="return"
-  data={{
-    contains: {
-      type: '(itemValue: any, query: string, itemToString?: (itemValue) => string) => boolean',
-      description: 'Returns whether the item matches the query anywhere.',
-    },
-    startsWith: {
-      type: '(itemValue: any, query: string, itemToString?: (itemValue) => string) => boolean',
-      description: 'Returns whether the item starts with the query.',
-    },
-    endsWith: {
-      type: '(itemValue: any, query: string, itemToString?: (itemValue) => string) => boolean',
-      description: 'Returns whether the item ends with the query.',
-    },
-  }}
-/>
+<TypesCombobox.useFilteredItems hideDescription />
 
 export const metadata = {
   keywords: [

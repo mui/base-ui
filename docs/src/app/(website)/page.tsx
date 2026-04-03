@@ -27,34 +27,41 @@ export default function Homepage() {
           }),
         }}
       />
+      {/* Organization schema for Google Knowledge Panel and entity recognition.
+          https://developers.google.com/search/docs/appearance/structured-data/organization */}
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Organization',
+            name: 'Base UI',
+            url: process.env.BASE_URL,
+            logo: `${process.env.BASE_URL}/static/favicon.svg`,
+            sameAs: [
+              process.env.SOURCE_CODE_REPO,
+              'https://x.com/base_ui',
+              'https://www.npmjs.com/package/@base-ui/react',
+              'https://discord.com/invite/g6C3hUtuxz',
+              'https://bsky.app/profile/did:plc:nwr6peuxqzdzlbi72qr5kldc',
+            ],
+          }),
+        }}
+      />
 
-      <section className="d-c">
-        <h1 className="Text size-3 bp2:size-4 gcs-1 gce-9 bp4:gce-5">
+      <section className="bui-d-c">
+        <h1 className="Text size-3 bp2:size-4 bui-gcs-1 bui-gce-9 bp4:bui-gce-5">
           Unstyled UI components for building accessible user interfaces
         </h1>
-        <div className="gcs-1 gce-9">
-          <Link className="Text size-2 Link d-if" href="/react/overview/quick-start">
+        <div className="bui-gcs-1 bui-gce-9">
+          <Link className="Text size-2 bui-d-if" href="/react/overview/quick-start" withArrow>
             Documentation
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 16 16"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="Icon"
-            >
-              <path className="LinkArrowCaret" d="M6 12L10 8L6 4"></path>
-              <path className="LinkArrowLine" d="M2 8L13 8"></path>
-            </svg>
           </Link>
         </div>
       </section>
-      <section className="d-c">
-        <div className="d-f fd-c g-4 gcs-1 gce-9 bp2:gcs-3 bp4:gce-7">
+      <section className="bui-d-c">
+        <div className="bui-d-f bui-fd-c bui-g-4 bui-gcs-1 bui-gce-9 bp2:bui-gcs-3 bp4:bui-gce-7">
           <p className="Text size-2">
             From the creators of Radix, Floating&nbsp;UI, and Material&nbsp;UI, Base&nbsp;UI is a
             comprehensive UI component library for building accessible user interfaces with React.
@@ -77,21 +84,21 @@ export default function Homepage() {
           </p>
         </div>
       </section>
-      <div className="gcs-1 gce-9 bp3:gcs-3">
+      <div className="bui-gcs-1 bui-gce-9 bp3:bui-gcs-3">
         <div className="Separator" role="separator" aria-hidden="true"></div>
       </div>
-      <section className="d-c">
-        <div className="gcs-1 gce-9 bp2:gce-3">
+      <section className="bui-d-c">
+        <div className="bui-gcs-1 bui-gce-9 bp2:bui-gce-3">
           <h2 className="Text size-2">Made for the makers</h2>
         </div>
         <ul
-          className="List gcs-1 gce-9 bp3:gcs-3 d-g gtc-2 bp2:gtc-4 bp3:gtc-6 g-8 bp2:g-9"
+          className="List bui-gcs-1 bui-gce-9 bp3:bui-gcs-3 bui-d-g bui-gtc-2 bp2:bui-gtc-4 bp3:bui-gtc-6 bui-g-8 bp2:bui-g-9"
           aria-label="companies using Base UI"
         >
           <li>
-            <div className="d-f fd-c g-2">
+            <div className="bui-d-f bui-fd-c bui-g-2">
               <div className="Figure" aria-hidden="true">
-                <div className="d-f ai-c jc-c h-100">
+                <div className="bui-d-f bui-ai-c bui-jc-c bui-h-100">
                   <Paper />
                 </div>
               </div>
@@ -99,9 +106,9 @@ export default function Homepage() {
             </div>
           </li>
           <li>
-            <div className="d-f fd-c g-2">
+            <div className="bui-d-f bui-fd-c bui-g-2">
               <div className="Figure" aria-hidden="true">
-                <div className="d-f ai-c jc-c h-100">
+                <div className="bui-d-f bui-ai-c bui-jc-c bui-h-100">
                   <GitHub />
                 </div>
               </div>
@@ -109,9 +116,9 @@ export default function Homepage() {
             </div>
           </li>
           <li>
-            <div className="d-f fd-c g-2">
+            <div className="bui-d-f bui-fd-c bui-g-2">
               <div className="Figure" aria-hidden="true">
-                <div className="d-f ai-c jc-c h-100">
+                <div className="bui-d-f bui-ai-c bui-jc-c bui-h-100">
                   <Zed />
                 </div>
               </div>
@@ -119,9 +126,9 @@ export default function Homepage() {
             </div>
           </li>
           <li>
-            <div className="d-f fd-c g-2">
+            <div className="bui-d-f bui-fd-c bui-g-2">
               <div className="Figure" aria-hidden="true">
-                <div className="d-f ai-c jc-c h-100">
+                <div className="bui-d-f bui-ai-c bui-jc-c bui-h-100">
                   <Unsplash />
                 </div>
               </div>
@@ -129,9 +136,9 @@ export default function Homepage() {
             </div>
           </li>
           <li>
-            <div className="d-f fd-c g-2">
+            <div className="bui-d-f bui-fd-c bui-g-2">
               <div className="Figure" aria-hidden="true">
-                <div className="d-f ai-c jc-c h-100">
+                <div className="bui-d-f bui-ai-c bui-jc-c bui-h-100">
                   <Operate />
                 </div>
               </div>
@@ -139,9 +146,9 @@ export default function Homepage() {
             </div>
           </li>
           <li>
-            <div className="d-f fd-c g-2">
+            <div className="bui-d-f bui-fd-c bui-g-2">
               <div className="Figure" aria-hidden="true">
-                <div className="d-f ai-c jc-c h-100">
+                <div className="bui-d-f bui-ai-c bui-jc-c bui-h-100">
                   <Interfere />
                 </div>
               </div>
@@ -150,89 +157,115 @@ export default function Homepage() {
           </li>
         </ul>
       </section>
-      <div className="gcs-1 gce-9 bp3:gcs-3">
+      <div className="bui-gcs-1 bui-gce-9 bp3:bui-gcs-3">
         <div className="Separator" role="separator" aria-hidden="true"></div>
       </div>
-      <section className="d-c">
-        <div className="gcs-1 gce-9 bp2:gce-3">
+      <section className="bui-d-c">
+        <div className="bui-gcs-1 bui-gce-9 bp2:bui-gce-3">
           <h2 className="Text size-2">So you know who to blame</h2>
         </div>
-        <div className="gcs-1 gce-9 bp2:gcs-3 bp4:gce-7">
+        <div className="bui-gcs-1 bui-gce-9 bp2:bui-gcs-3 bp4:bui-gce-7">
           <ul
             className="List"
             aria-label="team members"
             style={{ borderTop: '1px solid var(--border)' }}
           >
-            <li className="ListItem d-g gtc-2 g-8 bp3:g-9">
+            <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
               <span className="Text size-2">Colm Tuite</span>
               <span className="Text size-2">Director of Design Engineering</span>
             </li>
-            <li className="ListItem d-g gtc-2 g-8 bp3:g-9">
+            <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
               <span className="Text size-2">Marija Najdova</span>
               <span className="Text size-2">Director of Engineering</span>
             </li>
-            <li className="ListItem d-g gtc-2 g-8 bp3:g-9">
+            <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
               <span className="Text size-2">Albert Yu</span>
               <span className="Text size-2">Engineer</span>
             </li>
-            <li className="ListItem d-g gtc-2 g-8 bp3:g-9">
+            <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
               <span className="Text size-2">Flavien Delangle</span>
               <span className="Text size-2">Engineer</span>
             </li>
-            <li className="ListItem d-g gtc-2 g-8 bp3:g-9">
+            <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
               <span className="Text size-2">James Nelson</span>
               <span className="Text size-2">Engineer</span>
             </li>
-            <li className="ListItem d-g gtc-2 g-8 bp3:g-9">
+            <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
               <span className="Text size-2">Lukas Tyla</span>
               <span className="Text size-2">Engineer</span>
             </li>
-            <li className="ListItem d-g gtc-2 g-8 bp3:g-9">
+            <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
               <span className="Text size-2">Michał Dudak</span>
               <span className="Text size-2">Engineer</span>
             </li>
-            <li className="ListItem d-g gtc-2 g-8 bp3:g-9">
+            <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
               <span className="Text size-2">Vlad Moroz</span>
               <span className="Text size-2">Contributor</span>
             </li>
           </ul>
         </div>
       </section>
-      <div className="gcs-1 gce-9 bp3:gcs-3">
+      <div className="bui-gcs-1 bui-gce-9 bp3:bui-gcs-3">
         <div className="Separator" role="separator" aria-hidden="true"></div>
       </div>
-      <section className="d-c">
-        <div className="gcs-1 gce-9 bp2:gce-3">
+      <section className="bui-d-c">
+        <div className="bui-gcs-1 bui-gce-9 bp2:bui-gce-3">
           <h2 className="Text size-2">The fine print</h2>
         </div>
-        <div className="gcs-1 gce-9 bp2:gcs-3 bp4:gce-7">
-          <Accordion.Root className="AccordionRoot">
-            <Accordion.Item className="AccordionItem">
+        <div className="bui-gcs-1 bui-gce-9 bp2:bui-gcs-3 bp4:bui-gce-7">
+          <Accordion.Root
+            className="AccordionRoot"
+            itemScope
+            itemType="https://schema.org/FAQPage"
+            // Setting `keepMounted` so that the content of all panels is available in the DOM for search engines. This is especially important for the homepage, which contains important SEO content.
+            keepMounted
+          >
+            <Accordion.Item
+              className="AccordionItem"
+              itemScope
+              itemProp="mainEntity"
+              itemType="https://schema.org/Question"
+            >
               <Accordion.Header className="AccordionHeader">
-                <Accordion.Trigger className="AccordionTrigger Text size-2">
+                <Accordion.Trigger className="AccordionTrigger Text size-2" itemProp="name">
                   What is Base UI?
                   <PlusIcon className="AccordionIcon AccordionIconPlus" />
                   <MinusIcon className="AccordionIcon AccordionIconMinus" />
                 </Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel className="AccordionPanel">
-                <p className="Text size-2">
+              <Accordion.Panel
+                className="AccordionPanel"
+                itemScope
+                itemProp="acceptedAnswer"
+                itemType="https://schema.org/Answer"
+              >
+                <p className="Text size-2" itemProp="text">
                   Base UI is a library of unstyled UI components for building accessible component
                   libraries, user interfaces, web applications, and websites with React. Base UI
                   components are highly configurable, composable, and customizable.
                 </p>
               </Accordion.Panel>
             </Accordion.Item>
-            <Accordion.Item className="AccordionItem">
+            <Accordion.Item
+              className="AccordionItem"
+              itemScope
+              itemProp="mainEntity"
+              itemType="https://schema.org/Question"
+            >
               <Accordion.Header className="AccordionHeader">
-                <Accordion.Trigger className="AccordionTrigger Text size-2">
+                <Accordion.Trigger className="AccordionTrigger Text size-2" itemProp="name">
                   Does Base UI work with any styling library?
                   <PlusIcon className="AccordionIcon AccordionIconPlus" />
                   <MinusIcon className="AccordionIcon AccordionIconMinus" />
                 </Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel className="AccordionPanel">
-                <p className="Text size-2">
+              <Accordion.Panel
+                className="AccordionPanel"
+                itemScope
+                itemProp="acceptedAnswer"
+                itemType="https://schema.org/Answer"
+              >
+                <p className="Text size-2" itemProp="text">
                   Yes. Base UI works with Tailwind, CSS Modules, CSS-in-JS, plain CSS, and any other
                   styling library you prefer. It also works with JavaScript animation libraries like
                   Motion, or just plain CSS transitions. Base UI is an unstyled component library.
@@ -240,24 +273,34 @@ export default function Homepage() {
                 </p>
               </Accordion.Panel>
             </Accordion.Item>
-            <Accordion.Item className="AccordionItem">
+            <Accordion.Item
+              className="AccordionItem"
+              itemScope
+              itemProp="mainEntity"
+              itemType="https://schema.org/Question"
+            >
               <Accordion.Header className="AccordionHeader">
-                <Accordion.Trigger className="AccordionTrigger Text size-2">
+                <Accordion.Trigger className="AccordionTrigger Text size-2" itemProp="name">
                   Which accessibility standards does Base UI follow?
                   <PlusIcon className="AccordionIcon AccordionIconPlus" />
                   <MinusIcon className="AccordionIcon AccordionIconMinus" />
                 </Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel className="AccordionPanel">
-                <p className="Text size-2">
+              <Accordion.Panel
+                className="AccordionPanel"
+                itemScope
+                itemProp="acceptedAnswer"
+                itemType="https://schema.org/Answer"
+              >
+                <p className="Text size-2" itemProp="text">
                   When designing and speccing components, we follow{' '}
-                  <a className="Link" href="https://www.w3.org/WAI/ARIA/apg/patterns/">
+                  <Link href="https://www.w3.org/WAI/ARIA/apg/patterns/">
                     ARIA Authoring Practices Guide patterns
-                  </a>
+                  </Link>
                   , and comply with the{' '}
-                  <a className="Link" href="https://www.w3.org/TR/WCAG22/#new-features-in-wcag-2-2">
+                  <Link href="https://www.w3.org/TR/WCAG22/#new-features-in-wcag-2-2">
                     WCAG 2.2 standard
-                  </a>
+                  </Link>
                   . Base UI is compliant with all Success Criteria levels relating to component
                   behavior. However, in most cases, we go way beyond these guides. Base UI
                   components are tested across a wide range of browsers, devices, platforms, and
@@ -265,16 +308,26 @@ export default function Homepage() {
                 </p>
               </Accordion.Panel>
             </Accordion.Item>
-            <Accordion.Item className="AccordionItem">
+            <Accordion.Item
+              className="AccordionItem"
+              itemScope
+              itemProp="mainEntity"
+              itemType="https://schema.org/Question"
+            >
               <Accordion.Header className="AccordionHeader">
-                <Accordion.Trigger className="AccordionTrigger Text size-2">
+                <Accordion.Trigger className="AccordionTrigger Text size-2" itemProp="name">
                   How does Base UI differ from Radix UI?
                   <PlusIcon className="AccordionIcon AccordionIconPlus" />
                   <MinusIcon className="AccordionIcon AccordionIconMinus" />
                 </Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel className="AccordionPanel">
-                <div className="d-f fd-c g-4">
+              <Accordion.Panel
+                className="AccordionPanel"
+                itemScope
+                itemProp="acceptedAnswer"
+                itemType="https://schema.org/Answer"
+              >
+                <div className="bui-d-f bui-fd-c bui-g-4" itemProp="text">
                   <p className="Text size-2">
                     In terms of API design, both libraries are very similar. We intentionally kept
                     our APIs close to Radix UI for an easier migration path. Base UI provides more
@@ -291,48 +344,78 @@ export default function Homepage() {
                 </div>
               </Accordion.Panel>
             </Accordion.Item>
-            <Accordion.Item className="AccordionItem">
+            <Accordion.Item
+              className="AccordionItem"
+              itemScope
+              itemProp="mainEntity"
+              itemType="https://schema.org/Question"
+            >
               <Accordion.Header className="AccordionHeader">
-                <Accordion.Trigger className="AccordionTrigger Text size-2">
+                <Accordion.Trigger className="AccordionTrigger Text size-2" itemProp="name">
                   Can I use Base UI without React?
                   <PlusIcon className="AccordionIcon AccordionIconPlus" />
                   <MinusIcon className="AccordionIcon AccordionIconMinus" />
                 </Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel className="AccordionPanel">
-                <p className="Text size-2">
+              <Accordion.Panel
+                className="AccordionPanel"
+                itemScope
+                itemProp="acceptedAnswer"
+                itemType="https://schema.org/Answer"
+              >
+                <p className="Text size-2" itemProp="text">
                   Base UI is a React library. It is not designed to be used without React. We may
                   consider supporting other libraries at some point, but for the foreseeable future,
                   React is our primary focus.
                 </p>
               </Accordion.Panel>
             </Accordion.Item>
-            <Accordion.Item className="AccordionItem">
+            <Accordion.Item
+              className="AccordionItem"
+              itemScope
+              itemProp="mainEntity"
+              itemType="https://schema.org/Question"
+            >
               <Accordion.Header className="AccordionHeader">
-                <Accordion.Trigger className="AccordionTrigger Text size-2">
+                <Accordion.Trigger className="AccordionTrigger Text size-2" itemProp="name">
                   Is Base UI free for commercial use?
                   <PlusIcon className="AccordionIcon AccordionIconPlus" />
                   <MinusIcon className="AccordionIcon AccordionIconMinus" />
                 </Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel className="AccordionPanel">
-                <p className="Text size-2">
+              <Accordion.Panel
+                className="AccordionPanel"
+                itemScope
+                itemProp="acceptedAnswer"
+                itemType="https://schema.org/Answer"
+              >
+                <p className="Text size-2" itemProp="text">
                   Yes. Base UI is licensed under the MIT license, and is free for commercial use.
                   You are free to use it in your commercial projects, and to modify it to suit your
                   needs.
                 </p>
               </Accordion.Panel>
             </Accordion.Item>
-            <Accordion.Item className="AccordionItem">
+            <Accordion.Item
+              className="AccordionItem"
+              itemScope
+              itemProp="mainEntity"
+              itemType="https://schema.org/Question"
+            >
               <Accordion.Header className="AccordionHeader">
-                <Accordion.Trigger className="AccordionTrigger Text size-2">
+                <Accordion.Trigger className="AccordionTrigger Text size-2" itemProp="name">
                   Do you offer enterprise SLAs?
                   <PlusIcon className="AccordionIcon AccordionIconPlus" />
                   <MinusIcon className="AccordionIcon AccordionIconMinus" />
                 </Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel className="AccordionPanel">
-                <p className="Text size-2">
+              <Accordion.Panel
+                className="AccordionPanel"
+                itemScope
+                itemProp="acceptedAnswer"
+                itemType="https://schema.org/Answer"
+              >
+                <p className="Text size-2" itemProp="text">
                   Not currently. We do provide dedicated support channels to some very large
                   enterprise companies who are working with us as design partners. But we do not
                   currently provide Service Level Agreements, guaranteed response times, issue
@@ -352,9 +435,13 @@ const description = 'Unstyled UI components for building accessible web apps and
 export const metadata: Metadata = {
   description,
   twitter: {
+    site: '@base_ui',
+    card: 'summary_large_image',
     description,
   },
   openGraph: {
+    type: 'website',
+    url: './',
     description,
   },
 };

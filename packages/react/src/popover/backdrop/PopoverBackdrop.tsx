@@ -9,7 +9,7 @@ import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { REASONS } from '../../utils/reasons';
 
-const stateAttributesMapping: StateAttributesMapping<PopoverBackdrop.State> = {
+const stateAttributesMapping: StateAttributesMapping<PopoverBackdropState> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -24,7 +24,7 @@ export const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
   props: PopoverBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...elementProps } = props;
+  const { className, render, style, ...elementProps } = props;
 
   const { store } = usePopoverRootContext();
 
@@ -33,13 +33,10 @@ export const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
   const transitionStatus = store.useState('transitionStatus');
   const openReason = store.useState('openChangeReason');
 
-  const state: PopoverBackdrop.State = React.useMemo(
-    () => ({
-      open,
-      transitionStatus,
-    }),
-    [open, transitionStatus],
-  );
+  const state: PopoverBackdropState = {
+    open,
+    transitionStatus,
+  };
 
   const element = useRenderElement('div', props, {
     state,
@@ -67,10 +64,13 @@ export interface PopoverBackdropState {
    * Whether the popover is currently open.
    */
   open: boolean;
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
 }
 
-export interface PopoverBackdropProps extends BaseUIComponentProps<'div', PopoverBackdrop.State> {}
+export interface PopoverBackdropProps extends BaseUIComponentProps<'div', PopoverBackdropState> {}
 
 export namespace PopoverBackdrop {
   export type State = PopoverBackdropState;

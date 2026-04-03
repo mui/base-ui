@@ -20,6 +20,37 @@ function hasInsetScrollbars(referenceElement: Element | null) {
   return win.innerWidth - doc.documentElement.clientWidth > 0;
 }
 
+function supportsStableScrollbarGutter(referenceElement: Element | null) {
+  const supported =
+    typeof CSS !== 'undefined' && CSS.supports && CSS.supports('scrollbar-gutter', 'stable');
+
+  if (!supported || typeof document === 'undefined') {
+    return false;
+  }
+
+  const doc = ownerDocument(referenceElement);
+  const html = doc.documentElement;
+  const body = doc.body;
+
+  const scrollContainer = isOverflowElement(html) ? html : body;
+
+  const originalScrollContainerOverflowY = scrollContainer.style.overflowY;
+  const originalHtmlStyleGutter = html.style.scrollbarGutter;
+
+  html.style.scrollbarGutter = 'stable';
+
+  scrollContainer.style.overflowY = 'scroll';
+  const before = scrollContainer.offsetWidth;
+
+  scrollContainer.style.overflowY = 'hidden';
+  const after = scrollContainer.offsetWidth;
+
+  scrollContainer.style.overflowY = originalScrollContainerOverflowY;
+  html.style.scrollbarGutter = originalHtmlStyleGutter;
+
+  return before === after;
+}
+
 function preventScrollOverlayScrollbars(referenceElement: Element | null) {
   const doc = ownerDocument(referenceElement);
   const html = doc.documentElement;
@@ -30,10 +61,18 @@ function preventScrollOverlayScrollbars(referenceElement: Element | null) {
   // But if <body> has an `overflow` style (like `overflow-x: hidden`), we need to lock it
   // instead, as sticky elements shift otherwise.
   const elementToLock = isOverflowElement(html) ? html : body;
-  const originalOverflow = elementToLock.style.overflow;
-  elementToLock.style.overflow = 'hidden';
+  const originalElementToLockStyles = {
+    overflowY: elementToLock.style.overflowY,
+    overflowX: elementToLock.style.overflowX,
+  };
+
+  Object.assign(elementToLock.style, {
+    overflowY: 'hidden',
+    overflowX: 'hidden',
+  });
+
   return () => {
-    elementToLock.style.overflow = originalOverflow;
+    Object.assign(elementToLock.style, originalElementToLockStyles);
   };
 }
 
@@ -45,11 +84,8 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
 
   let scrollTop = 0;
   let scrollLeft = 0;
+  let updateGutterOnly = false;
   const resizeFrame = AnimationFrame.create();
-
-  // Handle `scrollbar-gutter` in Chrome when there is no scrollable content.
-  const supportsStableScrollbarGutter =
-    typeof CSS !== 'undefined' && CSS.supports?.('scrollbar-gutter', 'stable');
 
   // Pinch-zoom in Safari causes a shift. Just don't lock scroll if there's any pinch-zoom.
   if (isWebKit && (win.visualViewport?.scale ?? 1) !== 1) {
@@ -93,8 +129,8 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
       htmlStyles.overflowX === 'scroll' || bodyStyles.overflowX === 'scroll';
 
     // Values can be negative in Firefox
-    const scrollbarWidth = Math.max(0, win.innerWidth - html.clientWidth);
-    const scrollbarHeight = Math.max(0, win.innerHeight - html.clientHeight);
+    const scrollbarWidth = Math.max(0, win.innerWidth - body.clientWidth);
+    const scrollbarHeight = Math.max(0, win.innerHeight - body.clientHeight);
 
     // Avoid shift due to the default <body> margin. This does cause elements to be clipped
     // with whitespace. Warn if <body> has margins?
@@ -102,12 +138,14 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
     const marginX = parseFloat(bodyStyles.marginLeft) + parseFloat(bodyStyles.marginRight);
     const elementToLock = isOverflowElement(html) ? html : body;
 
+    updateGutterOnly = supportsStableScrollbarGutter(referenceElement);
+
     /*
      * DOM writes:
      * Do not read the DOM past this point!
      */
 
-    if (supportsStableScrollbarGutter) {
+    if (updateGutterOnly) {
       html.style.scrollbarGutter = scrollbarGutterValue;
       elementToLock.style.overflowY = 'hidden';
       elementToLock.style.overflowX = 'hidden';
@@ -147,7 +185,7 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
     Object.assign(html.style, originalHtmlStyles);
     Object.assign(body.style, originalBodyStyles);
 
-    if (!supportsStableScrollbarGutter) {
+    if (!updateGutterOnly) {
       html.scrollTop = scrollTop;
       html.scrollLeft = scrollLeft;
       html.removeAttribute('data-base-ui-scroll-locked');

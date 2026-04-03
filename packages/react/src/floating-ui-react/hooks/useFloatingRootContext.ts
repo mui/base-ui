@@ -1,3 +1,4 @@
+'use client';
 import { isElement } from '@floating-ui/utils/dom';
 import { useId } from '@base-ui/utils/useId';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
@@ -9,17 +10,14 @@ import { FloatingRootStore, type FloatingRootState } from '../components/Floatin
 import { PopupTriggerMap } from '../../utils/popups';
 
 export interface UseFloatingRootContextOptions {
-  open?: boolean;
+  open?: boolean | undefined;
   onOpenChange?(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
-  elements?: {
-    reference?: ReferenceType | null;
-    floating?: HTMLElement | null;
-    triggers?: PopupTriggerMap;
-  };
-  /**
-   * Whether to prevent the auto-emitted `openchange` event.
-   */
-  noEmit?: boolean;
+  elements?:
+    | {
+        reference?: ReferenceType | null | undefined;
+        floating?: HTMLElement | null | undefined;
+      }
+    | undefined;
 }
 
 export function useFloatingRootContext(options: UseFloatingRootContextOptions): FloatingRootStore {
@@ -43,13 +41,14 @@ export function useFloatingRootContext(options: UseFloatingRootContextOptions): 
     () =>
       new FloatingRootStore({
         open,
+        transitionStatus: undefined,
         onOpenChange,
         referenceElement: elements.reference ?? null,
         floatingElement: elements.floating ?? null,
-        triggerElements: elements.triggers ?? new PopupTriggerMap(),
+        triggerElements: new PopupTriggerMap(),
         floatingId,
         nested,
-        noEmit: options.noEmit || false,
+        noEmit: false,
       }),
   ).current;
 
@@ -74,7 +73,7 @@ export function useFloatingRootContext(options: UseFloatingRootContextOptions): 
 
   store.context.onOpenChange = onOpenChange;
   store.context.nested = nested;
-  store.context.noEmit = options.noEmit || false;
+  store.context.noEmit = false;
 
   return store;
 }

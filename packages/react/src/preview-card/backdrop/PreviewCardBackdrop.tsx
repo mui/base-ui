@@ -8,7 +8,7 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 
-const stateAttributesMapping: StateAttributesMapping<PreviewCardBackdrop.State> = {
+const stateAttributesMapping: StateAttributesMapping<PreviewCardBackdropState> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -23,17 +23,17 @@ export const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop
   componentProps: PreviewCardBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
-  const { open, mounted, transitionStatus } = usePreviewCardRootContext();
+  const store = usePreviewCardRootContext();
+  const open = store.useState('open');
+  const mounted = store.useState('mounted');
+  const transitionStatus = store.useState('transitionStatus');
 
-  const state: PreviewCardBackdrop.State = React.useMemo(
-    () => ({
-      open,
-      transitionStatus,
-    }),
-    [open, transitionStatus],
-  );
+  const state: PreviewCardBackdropState = {
+    open,
+    transitionStatus,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -61,12 +61,15 @@ export interface PreviewCardBackdropState {
    * Whether the preview card is currently open.
    */
   open: boolean;
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
 }
 
 export interface PreviewCardBackdropProps extends BaseUIComponentProps<
   'div',
-  PreviewCardBackdrop.State
+  PreviewCardBackdropState
 > {}
 
 export namespace PreviewCardBackdrop {

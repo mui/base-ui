@@ -16,7 +16,7 @@ export const PopoverDescription = React.forwardRef(function PopoverDescription(
   componentProps: PopoverDescription.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const { store } = usePopoverRootContext();
 
@@ -41,7 +41,7 @@ export interface PopoverDescriptionState {}
 
 export interface PopoverDescriptionProps extends BaseUIComponentProps<
   'p',
-  PopoverDescription.State
+  PopoverDescriptionState
 > {}
 
 export namespace PopoverDescription {

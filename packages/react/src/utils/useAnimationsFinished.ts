@@ -36,86 +36,85 @@ export function useAnimationsFinished(
     ) => {
       frame.cancel();
 
-      function done() {
-        // Synchronously flush the unmounting of the component so that the browser doesn't
-        // paint: https://github.com/mui/base-ui/issues/979
-        ReactDOM.flushSync(fnToExecute);
-      }
-
       const element = resolveRef(elementOrRef);
       if (element == null) {
         return;
       }
       const resolvedElement = element;
 
+      const done = () => {
+        // Synchronously flush the unmounting of the component so that the browser doesn't
+        // paint: https://github.com/mui/base-ui/issues/979
+        ReactDOM.flushSync(fnToExecute);
+      };
+
       if (
         typeof resolvedElement.getAnimations !== 'function' ||
         globalThis.BASE_UI_ANIMATIONS_DISABLED
       ) {
         fnToExecute();
-      } else {
-        function execWaitForStartingStyleRemoved() {
-          const startingStyleAttribute = TransitionStatusDataAttributes.startingStyle;
+        return;
+      }
 
-          // If `[data-starting-style]` isn't present, fall back to waiting one more frame
-          // to give "open" animations a chance to be registered.
-          if (!resolvedElement.hasAttribute(startingStyleAttribute)) {
-            frame.request(exec);
-            return;
-          }
+      function exec() {
+        Promise.all(resolvedElement.getAnimations().map((animation) => animation.finished))
+          .then(() => {
+            if (!signal?.aborted) {
+              done();
+            }
+          })
+          .catch(() => {
+            if (treatAbortedAsFinished) {
+              if (!signal?.aborted) {
+                done();
+              }
+              return;
+            }
 
-          // Wait for `[data-starting-style]` to have been removed.
-          const attributeObserver = new MutationObserver(() => {
-            if (!resolvedElement.hasAttribute(startingStyleAttribute)) {
-              attributeObserver.disconnect();
+            const currentAnimations = resolvedElement.getAnimations();
+
+            if (
+              !signal?.aborted &&
+              currentAnimations.length > 0 &&
+              currentAnimations.some(
+                (animation) => animation.pending || animation.playState !== 'finished',
+              )
+            ) {
+              // Sometimes animations can be aborted because a property they depend on changes while the animation plays.
+              // In such cases, we need to re-check if any new animations have started.
               exec();
             }
           });
+      }
 
-          attributeObserver.observe(resolvedElement, {
-            attributes: true,
-            attributeFilter: [startingStyleAttribute],
-          });
+      if (waitForStartingStyleRemoved) {
+        const startingStyleAttribute = TransitionStatusDataAttributes.startingStyle;
 
-          signal?.addEventListener('abort', () => attributeObserver.disconnect(), { once: true });
-        }
-
-        function exec() {
-          Promise.all(resolvedElement.getAnimations().map((anim) => anim.finished))
-            .then(() => {
-              if (signal?.aborted) {
-                return;
-              }
-
-              done();
-            })
-            .catch(() => {
-              const currentAnimations = resolvedElement.getAnimations();
-
-              if (treatAbortedAsFinished) {
-                if (signal?.aborted) {
-                  return;
-                }
-
-                done();
-              } else if (
-                currentAnimations.length > 0 &&
-                currentAnimations.some((anim) => anim.pending || anim.playState !== 'finished')
-              ) {
-                // Sometimes animations can be aborted because a property they depend on changes while the animation plays.
-                // In such cases, we need to re-check if any new animations have started.
-                exec();
-              }
-            });
-        }
-
-        if (waitForStartingStyleRemoved) {
-          execWaitForStartingStyleRemoved();
+        // If `[data-starting-style]` isn't present, fall back to waiting one more frame
+        // to give "open" animations a chance to be registered.
+        if (!resolvedElement.hasAttribute(startingStyleAttribute)) {
+          frame.request(exec);
           return;
         }
 
-        frame.request(exec);
+        // Wait for `[data-starting-style]` to have been removed.
+        const attributeObserver = new MutationObserver(() => {
+          if (!resolvedElement.hasAttribute(startingStyleAttribute)) {
+            attributeObserver.disconnect();
+            exec();
+          }
+        });
+
+        attributeObserver.observe(resolvedElement, {
+          attributes: true,
+          attributeFilter: [startingStyleAttribute],
+        });
+
+        signal?.addEventListener('abort', () => attributeObserver.disconnect(), { once: true });
+        return;
       }
+
+      frame.request(exec);
     },
   );
 }

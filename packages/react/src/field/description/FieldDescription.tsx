@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { FieldRoot } from '../root/FieldRoot';
+import { type FieldRootState } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { fieldValidityMapping } from '../utils/constants';
@@ -19,7 +19,7 @@ export const FieldDescription = React.forwardRef(function FieldDescription(
   componentProps: FieldDescription.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
-  const { render, id: idProp, className, ...elementProps } = componentProps;
+  const { render, id: idProp, className, style, ...elementProps } = componentProps;
 
   const id = useBaseUiId(idProp);
 
@@ -48,9 +48,9 @@ export const FieldDescription = React.forwardRef(function FieldDescription(
   return element;
 });
 
-export type FieldDescriptionState = FieldRoot.State;
+export interface FieldDescriptionState extends FieldRootState {}
 
-export interface FieldDescriptionProps extends BaseUIComponentProps<'p', FieldDescription.State> {}
+export interface FieldDescriptionProps extends BaseUIComponentProps<'p', FieldDescriptionState> {}
 
 export namespace FieldDescription {
   export type State = FieldDescriptionState;

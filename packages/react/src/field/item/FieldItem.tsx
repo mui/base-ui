@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { FieldRoot } from '../root/FieldRoot';
+import { type FieldRootState } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { fieldValidityMapping } from '../utils/constants';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -19,7 +19,13 @@ export const FieldItem = React.forwardRef(function FieldItem(
   componentProps: FieldItem.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, disabled: disabledProp = false, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    style,
+    disabled: disabledProp = false,
+    ...elementProps
+  } = componentProps;
 
   const { state, disabled: rootDisabled } = useFieldRootContext(false);
 
@@ -31,7 +37,7 @@ export const FieldItem = React.forwardRef(function FieldItem(
   // this a more reliable check
   const hasParentCheckbox = checkboxGroupContext?.allValues !== undefined;
 
-  const initialControlId = hasParentCheckbox ? parentId : undefined;
+  const controlId = hasParentCheckbox ? parentId : undefined;
 
   const fieldItemContext: FieldItemContext = React.useMemo(() => ({ disabled }), [disabled]);
 
@@ -43,22 +49,24 @@ export const FieldItem = React.forwardRef(function FieldItem(
   });
 
   return (
-    <LabelableProvider initialControlId={initialControlId}>
+    <LabelableProvider controlId={controlId}>
       <FieldItemContext.Provider value={fieldItemContext}>{element}</FieldItemContext.Provider>
     </LabelableProvider>
   );
 });
 
-export interface FieldItemProps extends BaseUIComponentProps<'div', FieldItem.State> {
+export interface FieldItemState extends FieldRootState {}
+
+export interface FieldItemProps extends BaseUIComponentProps<'div', FieldItemState> {
   /**
    * Whether the wrapped control should ignore user interaction.
    * The `disabled` prop on `<Field.Root>` takes precedence over this.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
 }
 
 export namespace FieldItem {
-  export type State = FieldRoot.State;
+  export type State = FieldItemState;
   export type Props = FieldItemProps;
 }

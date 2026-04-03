@@ -19,7 +19,6 @@
   border: 1px solid var(--color-gray-200);
   background-color: var(--color-gray-50);
   color: var(--color-gray-900);
-  font-weight: 700;
   user-select: none;
 
   &[data-popup-open] {
@@ -166,6 +165,7 @@
 
 .Viewport {
   --viewport-inline-padding: 0.5rem;
+  box-sizing: border-box;
   position: relative;
   height: 100%;
   width: 100%;

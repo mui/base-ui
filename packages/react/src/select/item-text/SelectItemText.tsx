@@ -19,7 +19,7 @@ export const SelectItemText = React.memo(
     const { indexRef, textRef, selectedByFocus, hasRegistered } = useSelectItemContext();
     const { selectedItemTextRef } = useSelectRootContext();
 
-    const { className, render, ...elementProps } = componentProps;
+    const { className, render, style, ...elementProps } = componentProps;
 
     const localRef = React.useCallback(
       (node: HTMLElement | null) => {
@@ -46,7 +46,7 @@ export const SelectItemText = React.memo(
 
 export interface SelectItemTextState {}
 
-export interface SelectItemTextProps extends BaseUIComponentProps<'div', SelectItemText.State> {}
+export interface SelectItemTextProps extends BaseUIComponentProps<'div', SelectItemTextState> {}
 
 export namespace SelectItemText {
   export type State = SelectItemTextState;

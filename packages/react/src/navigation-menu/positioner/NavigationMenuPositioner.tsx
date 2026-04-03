@@ -10,18 +10,21 @@ import {
 } from '../../floating-ui-react/utils';
 import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
 import {
   useNavigationMenuRootContext,
   useNavigationMenuTreeContext,
 } from '../root/NavigationMenuRootContext';
 import { useNavigationMenuPortalContext } from '../portal/NavigationMenuPortalContext';
-import { useAnchorPositioning, type Align, type Side } from '../../utils/useAnchorPositioning';
+import {
+  useAnchorPositioning,
+  type Align,
+  type Side,
+  type UseAnchorPositioningSharedParameters,
+} from '../../utils/useAnchorPositioning';
 import { NavigationMenuPositionerContext } from './NavigationMenuPositionerContext';
-import { popupStateMapping } from '../../utils/popupStateMapping';
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
-import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import { usePositioner } from '../../utils/usePositioner';
 
 const EMPTY_ROOT_CONTEXT = getEmptyRootContext();
 
@@ -60,6 +63,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     arrowPadding = 5,
     sticky = false,
     disableAnchorTracking = false,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -124,33 +128,13 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     adaptiveOrigin,
   });
 
-  const defaultProps: React.ComponentProps<'div'> = React.useMemo(() => {
-    const hiddenStyles: React.CSSProperties = {};
-
-    if (!open) {
-      hiddenStyles.pointerEvents = 'none';
-    }
-
-    return {
-      role: 'presentation',
-      hidden: !mounted,
-      style: {
-        ...positioning.positionerStyles,
-        ...hiddenStyles,
-      },
-    };
-  }, [open, mounted, positioning.positionerStyles]);
-
-  const state: NavigationMenuPositioner.State = React.useMemo(
-    () => ({
-      open,
-      side: positioning.side,
-      align: positioning.align,
-      anchorHidden: positioning.anchorHidden,
-      instant,
-    }),
-    [open, positioning.side, positioning.align, positioning.anchorHidden, instant],
-  );
+  const state: NavigationMenuPositionerState = {
+    open,
+    side: positioning.side,
+    align: positioning.align,
+    anchorHidden: positioning.anchorHidden,
+    instant,
+  };
 
   React.useEffect(() => {
     if (!open) {
@@ -174,11 +158,13 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     };
   }, [open, resizeTimeout, positionerElement]);
 
-  const element = useRenderElement('div', componentProps, {
-    state,
-    ref: [forwardedRef, setPositionerElement, positionerRef],
-    props: [defaultProps, getDisabledMountTransitionStyles(transitionStatus), elementProps],
-    stateAttributesMapping: popupStateMapping,
+  const element = usePositioner(componentProps, state, {
+    styles: positioning.positionerStyles,
+    transitionStatus,
+    props: elementProps,
+    refs: [forwardedRef, setPositionerElement, positionerRef],
+    hidden: !mounted,
+    inert: !open,
   });
 
   return (
@@ -193,8 +179,17 @@ export interface NavigationMenuPositionerState {
    * Whether the navigation menu is currently open.
    */
   open: boolean;
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
   align: Align;
+  /**
+   * Whether the anchor element is hidden.
+   */
   anchorHidden: boolean;
   /**
    * Whether CSS transitions should be disabled.
@@ -204,8 +199,8 @@ export interface NavigationMenuPositionerState {
 
 export interface NavigationMenuPositionerProps
   extends
-    useAnchorPositioning.SharedParameters,
-    BaseUIComponentProps<'div', NavigationMenuPositioner.State> {}
+    UseAnchorPositioningSharedParameters,
+    BaseUIComponentProps<'div', NavigationMenuPositionerState> {}
 
 export namespace NavigationMenuPositioner {
   export type State = NavigationMenuPositionerState;

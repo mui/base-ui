@@ -29,6 +29,7 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
     id: idProp,
     payload,
     handle,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -64,13 +65,10 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
 
   const localInteractionProps = useInteractions([click]);
 
-  const state: DialogTrigger.State = React.useMemo(
-    () => ({
-      disabled,
-      open: isOpenedByThisTrigger,
-    }),
-    [disabled, isOpenedByThisTrigger],
-  );
+  const state: DialogTriggerState = {
+    disabled,
+    open: isOpenedByThisTrigger,
+  };
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
@@ -95,21 +93,21 @@ export interface DialogTrigger {
 }
 
 export interface DialogTriggerProps<Payload = unknown>
-  extends NativeButtonProps, BaseUIComponentProps<'button', DialogTrigger.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', DialogTriggerState> {
   /**
    * A handle to associate the trigger with a dialog.
    * Can be created with the Dialog.createHandle() method.
    */
-  handle?: DialogHandle<Payload>;
+  handle?: DialogHandle<Payload> | undefined;
   /**
    * A payload to pass to the dialog when it is opened.
    */
-  payload?: Payload;
+  payload?: Payload | undefined;
   /**
    * ID of the trigger. In addition to being forwarded to the rendered element,
    * it is also used to specify the active trigger for the dialogs in controlled mode (with the DialogRoot `triggerId` prop).
    */
-  id?: string;
+  id?: string | undefined;
 }
 
 export interface DialogTriggerState {

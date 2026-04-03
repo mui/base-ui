@@ -6,13 +6,13 @@ export default function ExampleGroupedCombobox() {
   const id = React.useId();
   return (
     <Combobox.Root items={groupedProduce}>
-      <div className="relative flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">
+      <div className="relative flex flex-col gap-1 text-sm leading-5 font-bold text-gray-900">
         <label htmlFor={id}>Select produce</label>
-        <div className="relative [&>input]:pr-[calc(0.5rem+1.5rem)] has-[.combobox-clear]:[&>input]:pr-[calc(0.5rem+1.5rem*2)]">
+        <Combobox.InputGroup className="relative box-content h-10 w-[16rem] rounded-md border border-gray-200 bg-[canvas] focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-blue-800 [&>input]:pr-[calc(0.5rem+1.5rem)] has-[.combobox-clear]:[&>input]:pr-[calc(0.5rem+1.5rem*2)]">
           <Combobox.Input
             placeholder="e.g. Mango"
             id={id}
-            className="bg-[canvas] h-10 w-[16rem] rounded-md border border-gray-200 pl-3.5 text-base font-normal text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+            className="h-full w-full border-0 bg-transparent pl-3.5 text-base font-normal text-gray-900 outline-none"
           />
           <div className="absolute right-2 bottom-0 flex h-10 items-center justify-center text-gray-600">
             <Combobox.Clear
@@ -28,19 +28,19 @@ export default function ExampleGroupedCombobox() {
               <ChevronDownIcon className="size-4" />
             </Combobox.Trigger>
           </div>
-        </div>
+        </Combobox.InputGroup>
       </div>
 
       <Combobox.Portal>
         <Combobox.Positioner className="outline-none" sideOffset={4}>
           <Combobox.Popup className="w-[var(--anchor-width)] max-h-[23rem] max-w-[var(--available-width)] origin-[var(--transform-origin)] overflow-hidden rounded-md bg-[canvas] pt-0 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-95 data-[ending-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:opacity-0 dark:shadow-none dark:outline-gray-300 duration-100">
-            <Combobox.Empty className="p-4 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0">
-              No produce found.
+            <Combobox.Empty>
+              <div className="p-4 text-[0.925rem] leading-4 text-gray-600">No produce found.</div>
             </Combobox.Empty>
             <Combobox.List className="outline-0 overflow-y-auto scroll-pt-[2.25rem] scroll-pb-[0.5rem] overscroll-contain max-h-[min(23rem,var(--available-height))]">
               {(group: ProduceGroup) => (
                 <Combobox.Group key={group.value} items={group.items} className="block pb-2">
-                  <Combobox.GroupLabel className="sticky top-0 z-[1] mb-0 mr-2 mt-0 ml-0 w-[calc(100%-0.5rem)] bg-[canvas] pr-4 pl-[2.25rem] pt-3 pb-1 text-[0.7rem] font-semibold uppercase tracking-wider">
+                  <Combobox.GroupLabel className="sticky top-0 z-[1] mb-0 mr-2 mt-0 ml-0 w-[calc(100%-0.5rem)] bg-[canvas] pr-4 pl-[2.25rem] pt-3 pb-1 text-[0.7rem] font-bold uppercase tracking-wider">
                     {group.value}
                   </Combobox.GroupLabel>
                   <Combobox.Collection>

@@ -17,7 +17,8 @@ export type { UseFloatingPortalNodeProps } from './components/FloatingPortal';
 export type { UseClientPointProps } from './hooks/useClientPoint';
 export type { UseDismissProps } from './hooks/useDismiss';
 export type { UseFocusProps } from './hooks/useFocus';
-export type { UseHoverProps, HandleCloseContext, HandleClose } from './hooks/useHover';
+export type { UseHoverProps } from './hooks/useHover';
+export type { HandleCloseContext, HandleClose } from './hooks/useHoverShared';
 export type { UseHoverFloatingInteractionProps } from './hooks/useHoverFloatingInteraction';
 export type { UseHoverReferenceInteractionProps } from './hooks/useHoverReferenceInteraction';
 export type { UseListNavigationProps } from './hooks/useListNavigation';
@@ -116,10 +117,10 @@ export interface FloatingEvents {
 }
 
 export interface ContextData {
-  openEvent?: Event;
-  floatingContext?: FloatingContext;
+  openEvent?: Event | undefined;
+  floatingContext?: FloatingContext | undefined;
   /** @deprecated use `onTypingChange` prop in `useTypeahead` */
-  typing?: boolean;
+  typing?: boolean | undefined;
   [key: string]: any;
 }
 
@@ -143,18 +144,19 @@ export type FloatingContext = Omit<
 export interface FloatingNodeType {
   id: string | undefined;
   parentId: string | null;
-  context?: FloatingContext;
+  context?: FloatingContext | undefined;
 }
 
 export type FloatingTreeType = FloatingTreeStore;
 
 export interface ElementProps {
-  reference?: React.HTMLProps<Element>;
-  floating?: React.HTMLProps<HTMLElement>;
+  reference?: React.HTMLProps<Element> | undefined;
+  floating?: React.HTMLProps<HTMLElement> | undefined;
   item?:
     | React.HTMLProps<HTMLElement>
-    | ((props: ExtendedUserProps) => React.HTMLProps<HTMLElement>);
-  trigger?: React.HTMLProps<Element>;
+    | ((props: ExtendedUserProps) => React.HTMLProps<HTMLElement>)
+    | undefined;
+  trigger?: React.HTMLProps<Element> | undefined;
 }
 
 export type ReferenceType = Element | VirtualElement;
@@ -176,20 +178,22 @@ export type UseFloatingReturn = Prettify<
 >;
 
 export interface UseFloatingOptions extends Omit<UsePositionOptions, 'elements'> {
-  rootContext?: FloatingRootContext;
+  rootContext?: FloatingRootContext | undefined;
   /**
    * Object of external elements as an alternative to the `refs` object setters.
    */
-  elements?: {
-    /**
-     * Externally passed reference element. Store in state.
-     */
-    reference?: ReferenceType | null;
-    /**
-     * Externally passed floating element. Store in state.
-     */
-    floating?: HTMLElement | null;
-  };
+  elements?:
+    | {
+        /**
+         * Externally passed reference element. Store in state.
+         */
+        reference?: ReferenceType | null | undefined;
+        /**
+         * Externally passed floating element. Store in state.
+         */
+        floating?: HTMLElement | null | undefined;
+      }
+    | undefined;
   /**
    * An event callback that is invoked when the floating element is opened or
    * closed.
@@ -198,9 +202,9 @@ export interface UseFloatingOptions extends Omit<UsePositionOptions, 'elements'>
   /**
    * Unique node id when using `FloatingTree`.
    */
-  nodeId?: string;
+  nodeId?: string | undefined;
   /**
    * External FlatingTree to use when the one provided by context can't be used.
    */
-  externalTree?: FloatingTreeStore;
+  externalTree?: FloatingTreeStore | undefined;
 }

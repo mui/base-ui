@@ -51,6 +51,14 @@ import { DemoNavigationMenuNested } from './demos/nested';
 
 <DemoNavigationMenuNested compact />
 
+### Nested inline submenus
+
+For second-level navigation that should stay in the same panel, omit the nested `<NavigationMenu.Portal>` and render only `List` + `Viewport` with a `defaultValue`.
+
+import { DemoNavigationMenuNestedInline } from './demos/nested-inline';
+
+<DemoNavigationMenuNestedInline compact />
+
 ### Custom links
 
 The `<NavigationMenu.Link>` part can be customized to render the link from your framework using the `render` prop to enable client-side routing.
@@ -102,10 +110,59 @@ Native scrollbars are visible while transitioning content, so we recommend using
 
 ## API reference
 
-<Reference
-  component="NavigationMenu"
-  parts="Root, List, Item, Trigger, Icon, Content, Link, Backdrop, Portal, Positioner, Popup, Viewport, Arrow"
-/>
+import { TypesNavigationMenu } from './types';
+
+### Root
+
+<TypesNavigationMenu.Root />
+
+### List
+
+<TypesNavigationMenu.List />
+
+### Item
+
+<TypesNavigationMenu.Item />
+
+### Trigger
+
+<TypesNavigationMenu.Trigger />
+
+### Icon
+
+<TypesNavigationMenu.Icon />
+
+### Content
+
+<TypesNavigationMenu.Content />
+
+### Link
+
+<TypesNavigationMenu.Link />
+
+### Backdrop
+
+<TypesNavigationMenu.Backdrop />
+
+### Portal
+
+<TypesNavigationMenu.Portal />
+
+### Positioner
+
+<TypesNavigationMenu.Positioner />
+
+### Popup
+
+<TypesNavigationMenu.Popup />
+
+### Viewport
+
+<TypesNavigationMenu.Viewport />
+
+### Arrow
+
+<TypesNavigationMenu.Arrow />
 
 export const metadata = {
   keywords: [

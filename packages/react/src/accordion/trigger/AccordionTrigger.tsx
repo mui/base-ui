@@ -16,7 +16,7 @@ import {
   stopEvent,
 } from '../../composite/composite';
 import { useAccordionRootContext } from '../root/AccordionRootContext';
-import type { AccordionItem } from '../item/AccordionItem';
+import type { AccordionItemState } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 
@@ -57,6 +57,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
     id: idProp,
     render,
     nativeButton = true,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -68,6 +69,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
     disabled,
     focusableWhenDisabled: true,
     native: nativeButton,
+    composite: true,
   });
 
   const { accordionItemRefs, direction, loopFocus, orientation } = useAccordionRootContext();
@@ -91,6 +93,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
       'aria-controls': open ? panelId : undefined,
       'aria-expanded': open,
       id,
+      tabIndex: 0,
       onClick: handleTrigger,
       onKeyDown(event: React.KeyboardEvent) {
         if (!SUPPORTED_KEYS.has(event.key)) {
@@ -106,7 +109,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
 
         let nextIndex = -1;
 
-        const thisIndex = triggers.indexOf(event.target as HTMLButtonElement);
+        const thisIndex = triggers.indexOf(event.currentTarget as HTMLButtonElement);
 
         function toNext() {
           if (loopFocus) {
@@ -181,9 +184,12 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
   return element;
 });
 
+export interface AccordionTriggerState extends AccordionItemState {}
+
 export interface AccordionTriggerProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', AccordionItem.State> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', AccordionTriggerState> {}
 
 export namespace AccordionTrigger {
+  export type State = AccordionTriggerState;
   export type Props = AccordionTriggerProps;
 }

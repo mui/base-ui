@@ -5,7 +5,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import { useNumberFieldButton } from '../root/useNumberFieldButton';
-import type { NumberFieldRoot } from '../root/NumberFieldRoot';
+import type { NumberFieldRootState } from '../root/NumberFieldRoot';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 
 /**
@@ -23,6 +23,7 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
     className,
     disabled: disabledProp = false,
     nativeButton = true,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -35,16 +36,11 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
     incrementValue,
     inputRef,
     inputValue,
-    intentionalTouchCheckTimeout,
-    isPressedRef,
     locale,
     maxWithDefault,
-    movesAfterTouchRef,
     readOnly,
     setValue,
-    startAutoChange,
     state,
-    stopAutoChange,
     value,
     valueRef,
     lastChangedValueRef,
@@ -57,8 +53,6 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
   const props = useNumberFieldButton({
     isIncrement: true,
     inputRef,
-    startAutoChange,
-    stopAutoChange,
     inputValue,
     disabled,
     readOnly,
@@ -69,9 +63,6 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
     allowInputSyncRef,
     formatOptionsRef,
     valueRef,
-    isPressedRef,
-    intentionalTouchCheckTimeout,
-    movesAfterTouchRef,
     locale,
     lastChangedValueRef,
     onValueCommitted,
@@ -101,10 +92,10 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
   return element;
 });
 
-export interface NumberFieldIncrementState extends NumberFieldRoot.State {}
+export interface NumberFieldIncrementState extends NumberFieldRootState {}
 
 export interface NumberFieldIncrementProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', NumberFieldIncrement.State> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', NumberFieldIncrementState> {}
 
 export namespace NumberFieldIncrement {
   export type State = NumberFieldIncrementState;

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { type DialogRoot } from '../root/DialogRoot';
 import type { FloatingUIOpenChangeDetails } from '../../utils/types';
@@ -27,8 +28,9 @@ type Context = PopupStoreContext<DialogRoot.ChangeEventDetails> & {
   readonly popupRef: React.RefObject<HTMLElement | null>;
   readonly backdropRef: React.RefObject<HTMLDivElement | null>;
   readonly internalBackdropRef: React.RefObject<HTMLDivElement | null>;
-  readonly onNestedDialogOpen?: (ownChildrenCount: number) => void;
-  readonly onNestedDialogClose?: () => void;
+  readonly outsidePressEnabledRef: React.MutableRefObject<boolean>;
+  readonly onNestedDialogOpen?: ((ownChildrenCount: number) => void) | undefined;
+  readonly onNestedDialogClose?: (() => void) | undefined;
 };
 
 const selectors = {
@@ -56,6 +58,7 @@ export class DialogStore<Payload> extends ReactStore<
         popupRef: React.createRef<HTMLElement>(),
         backdropRef: React.createRef<HTMLDivElement>(),
         internalBackdropRef: React.createRef<HTMLDivElement>(),
+        outsidePressEnabledRef: { current: true },
         triggerElements: new PopupTriggerMap(),
         onOpenChange: undefined,
         onOpenChangeComplete: undefined,
@@ -107,6 +110,18 @@ export class DialogStore<Payload> extends ReactStore<
 
     this.update(updatedState);
   };
+
+  static useStore<Payload>(
+    externalStore: DialogStore<Payload> | undefined,
+    initialState?: Partial<State<Payload>>,
+  ) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const internalStore = useRefWithInit(() => {
+      return new DialogStore<Payload>(initialState);
+    }).current;
+
+    return externalStore ?? internalStore;
+  }
 }
 
 function createInitialState<Payload>(initialState: Partial<State<Payload>> = {}): State<Payload> {

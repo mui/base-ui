@@ -6,7 +6,7 @@ import { useScrollAreaViewportContext } from '../viewport/ScrollAreaViewportCont
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
-import type { ScrollAreaRoot } from '../root/ScrollAreaRoot';
+import type { ScrollAreaRootState } from '../root/ScrollAreaRoot';
 
 /**
  * A container for the content of the scroll area.
@@ -18,7 +18,7 @@ export const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
   componentProps: ScrollAreaContent.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const contentWrapperRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -68,11 +68,11 @@ export const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
   return element;
 });
 
-export interface ScrollAreaContentState extends ScrollAreaRoot.State {}
+export interface ScrollAreaContentState extends ScrollAreaRootState {}
 
 export interface ScrollAreaContentProps extends BaseUIComponentProps<
   'div',
-  ScrollAreaContent.State
+  ScrollAreaContentState
 > {}
 
 export namespace ScrollAreaContent {

@@ -1,6 +1,5 @@
-import { expect } from 'chai';
+import { expect, vi } from 'vitest';
 import { screen, act } from '@mui/internal-test-utils';
-import { spy } from 'sinon';
 import { NumberField } from '@base-ui/react/number-field';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { isWebKit } from '@base-ui/utils/detectBrowser';
@@ -49,7 +48,7 @@ describe('<NumberField.ScrubArea />', () => {
         <NumberField.ScrubArea />
       </NumberField.Root>,
     );
-    expect(screen.queryByRole('presentation')).not.to.equal(null);
+    expect(screen.queryByRole('presentation')).not.toBe(null);
   });
 
   // Only run the following tests in Chromium/Firefox.
@@ -75,23 +74,23 @@ describe('<NumberField.ScrubArea />', () => {
       scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: -10 }));
     });
 
-    expect(input).to.have.value('-10');
+    expect(input).toHaveValue('-10');
     await act(async () => {
       scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 5 }));
     });
 
-    expect(input).to.have.value('-5');
+    expect(input).toHaveValue('-5');
 
     await act(async () => {
       scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: -2 }));
     });
 
-    expect(input).to.have.value('-7');
+    expect(input).toHaveValue('-7');
   });
 
   it('calls onValueChange while scrubbing and onValueCommitted on pointerup', async () => {
-    const onValueChange = spy();
-    const onValueCommitted = spy();
+    const onValueChange = vi.fn();
+    const onValueCommitted = vi.fn();
 
     await render(
       <NumberField.Root
@@ -114,17 +113,17 @@ describe('<NumberField.ScrubArea />', () => {
     });
 
     // One or more changes depending on pixel sensitivity and environment
-    expect(onValueChange.callCount).to.be.greaterThan(0);
+    expect(onValueChange.mock.calls.length).toBeGreaterThan(0);
 
     await act(async () => {
       window.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
     });
 
-    expect(onValueCommitted.callCount).to.equal(1);
+    expect(onValueCommitted.mock.calls.length).toBe(1);
 
-    const lastChange = onValueChange.lastCall.args[0];
-    const committed = onValueCommitted.firstCall.args[0];
-    expect(committed).to.equal(lastChange);
+    const lastChange = onValueChange.mock.lastCall?.[0];
+    const committed = onValueCommitted.mock.calls[0][0];
+    expect(committed).toBe(lastChange);
   });
 
   describe('prop: pixelSensitivity', () => {
@@ -146,13 +145,13 @@ describe('<NumberField.ScrubArea />', () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: -2 }));
       });
 
-      expect(input).to.have.value('0');
+      expect(input).toHaveValue('0');
 
       await act(async () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 2 }));
       });
 
-      expect(input).to.have.value('0');
+      expect(input).toHaveValue('0');
 
       await act(async () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 1 }));
@@ -161,37 +160,37 @@ describe('<NumberField.ScrubArea />', () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 1 }));
       });
 
-      expect(input).to.have.value('0');
+      expect(input).toHaveValue('0');
 
       await act(async () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 1 }));
       });
 
-      expect(input).to.have.value('1');
+      expect(input).toHaveValue('1');
 
       await act(async () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 5 }));
       });
 
-      expect(input).to.have.value('6');
+      expect(input).toHaveValue('6');
 
       await act(async () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: -4 }));
       });
 
-      expect(input).to.have.value('6');
+      expect(input).toHaveValue('6');
 
       await act(async () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: -1 }));
       });
 
-      expect(input).to.have.value('5');
+      expect(input).toHaveValue('5');
 
       await act(async () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 5 }));
       });
 
-      expect(input).to.have.value('10');
+      expect(input).toHaveValue('10');
     });
   });
 
@@ -214,13 +213,49 @@ describe('<NumberField.ScrubArea />', () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 10 }));
       });
 
-      expect(input).to.have.value('10');
+      expect(input).toHaveValue('10');
 
       await act(async () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementY: 10 }));
       });
 
-      expect(input).to.have.value('10');
+      expect(input).toHaveValue('10');
     });
+  });
+
+  it('should fire onClick when clicked without scrubbing', async () => {
+    const handleClick = vi.fn();
+
+    const { user } = await render(
+      <NumberField.Root defaultValue={0}>
+        <NumberField.ScrubArea data-testid="scrub-area" onClick={handleClick}>
+          <NumberField.ScrubAreaCursor />
+        </NumberField.ScrubArea>
+      </NumberField.Root>,
+    );
+
+    await user.click(screen.getByTestId('scrub-area'));
+
+    expect(handleClick.mock.calls.length).toBe(1);
+  });
+
+  it('should fire onClick on child elements', async () => {
+    const handleScrubAreaClick = vi.fn();
+    const handleLabelClick = vi.fn();
+
+    const { user } = await render(
+      <NumberField.Root defaultValue={0}>
+        <NumberField.ScrubArea onClick={handleScrubAreaClick}>
+          {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
+          <label onClick={handleLabelClick}>Amount</label>
+          <NumberField.ScrubAreaCursor />
+        </NumberField.ScrubArea>
+      </NumberField.Root>,
+    );
+
+    await user.click(screen.getByText('Amount'));
+
+    expect(handleLabelClick.mock.calls.length).toBe(1);
+    expect(handleScrubAreaClick.mock.calls.length).toBe(1);
   });
 });

@@ -19,7 +19,7 @@ import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { COMPOSITE_KEYS } from '../../composite/composite';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 
-const stateAttributesMapping: StateAttributesMapping<MenuPopup.State> = {
+const stateAttributesMapping: StateAttributesMapping<MenuPopupState> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -34,7 +34,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   componentProps: MenuPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, finalFocus, ...elementProps } = componentProps;
+  const { render, className, style, finalFocus, ...elementProps } = componentProps;
 
   const { store } = useMenuRootContext();
   const { side, align } = useMenuPositionerContext();
@@ -89,21 +89,25 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     closeDelay,
   });
 
-  const state: MenuPopup.State = React.useMemo(
-    () => ({
-      transitionStatus,
-      side,
-      align,
-      open,
-      nested: parent.type === 'menu',
-      instant: instantType,
-    }),
-    [transitionStatus, side, align, open, parent.type, instantType],
+  const state: MenuPopupState = {
+    transitionStatus,
+    side,
+    align,
+    open,
+    nested: parent.type === 'menu',
+    instant: instantType,
+  };
+
+  const setPopupElement = React.useCallback(
+    (element: HTMLElement | null) => {
+      store.set('popupElement', element);
+    },
+    [store],
   );
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, store.context.popupRef],
+    ref: [forwardedRef, store.context.popupRef, setPopupElement],
     stateAttributesMapping,
     props: [
       popupProps,
@@ -150,12 +154,12 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   );
 });
 
-export interface MenuPopupProps extends BaseUIComponentProps<'div', MenuPopup.State> {
+export interface MenuPopupProps extends BaseUIComponentProps<'div', MenuPopupState> {
   children?: React.ReactNode;
   /**
    * @ignore
    */
-  id?: string;
+  id?: string | undefined;
   /**
    * Determines the element to focus when the menu is closed.
    *
@@ -168,19 +172,36 @@ export interface MenuPopupProps extends BaseUIComponentProps<'div', MenuPopup.St
   finalFocus?:
     | boolean
     | React.RefObject<HTMLElement | null>
-    | ((closeType: InteractionType) => boolean | HTMLElement | null | void);
+    | ((closeType: InteractionType) => boolean | HTMLElement | null | void)
+    | undefined;
 }
 
-export type MenuPopupState = {
+export interface MenuPopupState {
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
   align: Align;
   /**
    * Whether the menu is currently open.
    */
   open: boolean;
+  /**
+   * Whether the component is nested.
+   */
   nested: boolean;
-};
+  /**
+   * Whether transitions should be skipped.
+   */
+  instant: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
+}
 
 export namespace MenuPopup {
   export type Props = MenuPopupProps;

@@ -10,7 +10,7 @@ import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { REASONS } from '../../utils/reasons';
 
-const stateAttributesMapping: StateAttributesMapping<MenuBackdrop.State> = {
+const stateAttributesMapping: StateAttributesMapping<MenuBackdropState> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -25,7 +25,7 @@ export const MenuBackdrop = React.forwardRef(function MenuBackdrop(
   componentProps: MenuBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, style, ...elementProps } = componentProps;
 
   const { store } = useMenuRootContext();
   const open = store.useState('open');
@@ -35,13 +35,10 @@ export const MenuBackdrop = React.forwardRef(function MenuBackdrop(
 
   const contextMenuContext = useContextMenuRootContext();
 
-  const state: MenuBackdrop.State = React.useMemo(
-    () => ({
-      open,
-      transitionStatus,
-    }),
-    [open, transitionStatus],
-  );
+  const state: MenuBackdropState = {
+    open,
+    transitionStatus,
+  };
 
   return useRenderElement('div', componentProps, {
     ref: contextMenuContext?.backdropRef
@@ -69,10 +66,13 @@ export interface MenuBackdropState {
    * Whether the menu is currently open.
    */
   open: boolean;
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
 }
 
-export interface MenuBackdropProps extends BaseUIComponentProps<'div', MenuBackdrop.State> {}
+export interface MenuBackdropProps extends BaseUIComponentProps<'div', MenuBackdropState> {}
 
 export namespace MenuBackdrop {
   export type State = MenuBackdropState;

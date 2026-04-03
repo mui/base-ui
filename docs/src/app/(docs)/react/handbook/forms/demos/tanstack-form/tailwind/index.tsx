@@ -130,7 +130,7 @@ function TanstackForm() {
                 value={field.state.value}
                 onValueChange={field.handleChange}
               >
-                <div className="relative flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">
+                <div className="relative flex flex-col gap-1 text-sm leading-5 text-gray-900">
                   <Field.Label>Region</Field.Label>
                   <Combobox.Input placeholder="e.g. eu-central-1" onBlur={field.handleBlur} />
                   <div className="absolute right-2 bottom-0 flex h-10 items-center justify-center text-gray-600">
@@ -229,18 +229,20 @@ function TanstackForm() {
               dirty={field.state.meta.isDirty}
               touched={field.state.meta.isTouched}
             >
-              <Field.Label>Server type</Field.Label>
               <Select.Root
                 items={SERVER_TYPES}
                 value={field.state.value}
                 onValueChange={field.handleChange}
               >
-                <Select.Trigger className="!w-48" onBlur={field.handleBlur}>
-                  <Select.Value />
-                  <Select.Icon>
-                    <ChevronsUpDown className="size-4" />
-                  </Select.Icon>
-                </Select.Trigger>
+                <div className="flex flex-col items-start gap-1">
+                  <Select.Label>Server type</Select.Label>
+                  <Select.Trigger className="!w-48" onBlur={field.handleBlur}>
+                    <Select.Value />
+                    <Select.Icon>
+                      <ChevronsUpDown className="size-4" />
+                    </Select.Icon>
+                  </Select.Trigger>
+                </div>
                 <Select.Portal>
                   <Select.Positioner>
                     <Select.Popup>
@@ -339,8 +341,16 @@ function TanstackForm() {
                 <Slider.Control>
                   <Slider.Track>
                     <Slider.Indicator />
-                    <Slider.Thumb index={0} onBlur={field.handleBlur} />
-                    <Slider.Thumb index={1} onBlur={field.handleBlur} />
+                    <Slider.Thumb
+                      index={0}
+                      aria-label="Minimum threshold"
+                      onBlur={field.handleBlur}
+                    />
+                    <Slider.Thumb
+                      index={1}
+                      aria-label="Maximum threshold"
+                      onBlur={field.handleBlur}
+                    />
                   </Slider.Track>
                 </Slider.Control>
               </Fieldset.Root>
@@ -366,9 +376,7 @@ function TanstackForm() {
                 render={
                   <RadioGroup
                     value={field.state.value}
-                    onValueChange={(newValue) =>
-                      field.handleChange(newValue as FormValues['storageType'])
-                    }
+                    onValueChange={field.handleChange}
                     className="gap-4"
                   />
                 }

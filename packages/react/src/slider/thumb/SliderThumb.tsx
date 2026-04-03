@@ -19,23 +19,24 @@ import {
   HOME,
   END,
   COMPOSITE_KEYS,
+  PAGE_UP,
+  PAGE_DOWN,
 } from '../../composite/composite';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useDirection } from '../../direction-provider/DirectionContext';
+import { useCSPContext } from '../../csp-provider/CSPContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { matchesFocusVisible } from '../../floating-ui-react/utils/element';
 import { type LabelableContext } from '../../labelable-provider/LabelableContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { getMidpoint } from '../utils/getMidpoint';
 import { getSliderValue } from '../utils/getSliderValue';
 import { roundValueToStep } from '../utils/roundValueToStep';
-import type { SliderRoot } from '../root/SliderRoot';
+import type { SliderRootState } from '../root/SliderRoot';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import { SliderThumbDataAttributes } from './SliderThumbDataAttributes';
 import { script as prehydrationScript } from './prehydrationScript.min';
-
-const PAGE_UP = 'PageUp';
-const PAGE_DOWN = 'PageDown';
 
 const ALL_KEYS = new Set([
   ARROW_UP,
@@ -106,9 +107,11 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     onFocus: onFocusProp,
     onKeyDown: onKeyDownProp,
     tabIndex: tabIndexProp,
+    style,
     ...elementProps
   } = componentProps;
 
+  const { nonce } = useCSPContext();
   const id = useBaseUiId(idProp);
 
   const {
@@ -126,6 +129,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     max,
     min,
     minStepsBetweenValues,
+    form,
     name,
     orientation,
     pressedInputRef,
@@ -150,6 +154,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const thumbRef = React.useRef<HTMLElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const restoringFocusVisibleRef = React.useRef(false);
 
   const defaultInputId = useBaseUiId();
   const labelableId = useLabelableId();
@@ -195,11 +200,16 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     const thumbOffsetFromControlEdge =
       thumbRect[side] / 2 + (controlSize * thumbValuePercent) / 100;
     const nextPositionPercent = (thumbOffsetFromControlEdge / controlRect[side]) * 100;
-    setPositionPercent(nextPositionPercent);
+    const nextInsetPosition = Number.isFinite(nextPositionPercent)
+      ? nextPositionPercent
+      : undefined;
+
+    setPositionPercent(nextInsetPosition);
+
     if (index === 0) {
-      setIndicatorPosition((prevPosition) => [nextPositionPercent, prevPosition[1]]);
+      setIndicatorPosition((prevPosition) => [nextInsetPosition, prevPosition[1]]);
     } else if (last) {
-      setIndicatorPosition((prevPosition) => [prevPosition[0], nextPositionPercent]);
+      setIndicatorPosition((prevPosition) => [prevPosition[0], nextInsetPosition]);
     }
   });
 
@@ -214,6 +224,28 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       getInsetPosition();
     }
   }, [getInsetPosition, inset, thumbValuePercent]);
+
+  useIsoLayoutEffect(() => {
+    if (!inset || typeof ResizeObserver !== 'function') {
+      return undefined;
+    }
+
+    const control = controlRef.current;
+    const thumb = thumbRef.current;
+
+    if (!control || !thumb) {
+      return undefined;
+    }
+
+    const resizeObserver = new ResizeObserver(getInsetPosition);
+
+    resizeObserver.observe(control);
+    resizeObserver.observe(thumb);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [controlRef, getInsetPosition, inset]);
 
   const getThumbStyle = React.useCallback(() => {
     const startEdge = vertical ? 'bottom' : 'insetInlineStart';
@@ -245,7 +277,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     }
 
     return {
-      ['--position' as string]: `${positionPercent}%`,
+      ['--position' as string]: `${positionPercent ?? 0}%`,
       visibility:
         (renderBeforeHydration && !isMounted) || positionPercent === undefined
           ? 'hidden'
@@ -275,11 +307,13 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     cssWritingMode = rtl ? 'vertical-rl' : 'vertical-lr';
   }
 
+  const ariaLabel =
+    typeof getAriaLabelProp === 'function' ? getAriaLabelProp(index) : ariaLabelProp;
+
   const inputProps = mergeProps<'input'>(
     {
-      'aria-label':
-        typeof getAriaLabelProp === 'function' ? getAriaLabelProp(index) : ariaLabelProp,
-      'aria-labelledby': ariaLabelledByProp ?? labelId,
+      'aria-label': ariaLabel,
+      'aria-labelledby': ariaLabelledByProp ?? (ariaLabel == null ? labelId : undefined),
       'aria-describedby': ariaDescribedByProp,
       'aria-orientation': orientation,
       'aria-valuenow': thumbValue,
@@ -297,18 +331,30 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
               locale,
             ),
       disabled,
+      form,
       id: inputId,
       max,
       min,
       name,
-      onChange(event: React.ChangeEvent<HTMLInputElement>) {
-        handleInputChange(event.target.valueAsNumber, index, event);
+      onChange(event) {
+        handleInputChange(event.currentTarget.valueAsNumber, index, event);
       },
-      onFocus() {
+      onFocus(event) {
+        const isRestoringFocusVisible = restoringFocusVisibleRef.current;
+        restoringFocusVisibleRef.current = false;
         setActive(index);
         setFocused(true);
+
+        if (isRestoringFocusVisible) {
+          event.stopPropagation();
+        }
       },
-      onBlur() {
+      onBlur(event) {
+        if (restoringFocusVisibleRef.current) {
+          event.stopPropagation();
+          return;
+        }
+
         if (!thumbRef.current) {
           return;
         }
@@ -385,6 +431,20 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         }
 
         if (newValue !== null) {
+          const input = event.currentTarget as HTMLInputElement;
+
+          if (!matchesFocusVisible(input)) {
+            restoringFocusVisibleRef.current = true;
+            input.blur();
+            input.focus({
+              preventScroll: true,
+              // Show `:focus-visible` after keyboard interaction, even if the
+              // thumb was previously focused by a pointer.
+              // @ts-expect-error - focusVisible is not yet in the lib.dom.d.ts
+              focusVisible: true,
+            });
+          }
+
           handleInputChange(newValue, index, event);
           event.preventDefault();
         }
@@ -423,6 +483,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
               // preceding thumbs are already rendered in the DOM
               last && (
                 <script
+                  nonce={nonce}
                   // eslint-disable-next-line react/no-danger
                   dangerouslySetInnerHTML={{ __html: prehydrationScript }}
                   suppressHydrationWarning
@@ -450,7 +511,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         },
         style: getThumbStyle(),
         suppressHydrationWarning: renderBeforeHydration || undefined,
-        tabIndex: -1,
       },
       elementProps,
     ],
@@ -464,26 +524,29 @@ export interface ThumbMetadata {
   inputId: LabelableContext['controlId'];
 }
 
-export interface SliderThumbState extends SliderRoot.State {}
+export interface SliderThumbState extends SliderRootState {}
 
 export interface SliderThumbProps extends Omit<
-  BaseUIComponentProps<'div', SliderThumb.State>,
+  BaseUIComponentProps<'div', SliderThumbState>,
   'onBlur' | 'onFocus'
 > {
   /**
    * Whether the thumb should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * A function which returns a string value for the [`aria-label`](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-label) attribute of the `input`.
    */
-  getAriaLabel?: ((index: number) => string) | null;
+  getAriaLabel?: ((index: number) => string) | null | undefined;
   /**
    * A function which returns a string value for the [`aria-valuetext`](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-valuetext) attribute of the `input`.
    * This is important for screen reader users.
    */
-  getAriaValueText?: ((formattedValue: string, value: number, index: number) => string) | null;
+  getAriaValueText?:
+    | ((formattedValue: string, value: number, index: number) => string)
+    | null
+    | undefined;
   /**
    * The index of the thumb which corresponds to the index of its value in the
    * `value` or `defaultValue` array.
@@ -501,19 +564,19 @@ export interface SliderThumbProps extends Omit<
   /**
    * A ref to access the nested input element.
    */
-  inputRef?: React.Ref<HTMLInputElement>;
+  inputRef?: React.Ref<HTMLInputElement> | undefined;
   /**
    * A blur handler forwarded to the `input`.
    */
-  onBlur?: React.FocusEventHandler<HTMLInputElement>;
+  onBlur?: React.FocusEventHandler<HTMLInputElement> | undefined;
   /**
    * A focus handler forwarded to the `input`.
    */
-  onFocus?: React.FocusEventHandler<HTMLInputElement>;
+  onFocus?: React.FocusEventHandler<HTMLInputElement> | undefined;
   /**
    * Optional tab index attribute forwarded to the `input`.
    */
-  tabIndex?: number;
+  tabIndex?: number | undefined;
 }
 
 export namespace SliderThumb {

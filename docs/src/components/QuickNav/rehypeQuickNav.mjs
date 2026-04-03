@@ -3,6 +3,7 @@ import { createMdxElement } from 'docs/src/mdx/createMdxElement.mjs';
 
 const ROOT = 'QuickNav.Root';
 const TITLE = 'QuickNav.Title';
+const CONTENT = 'QuickNav.Content';
 const LIST = 'QuickNav.List';
 const ITEM = 'QuickNav.Item';
 const LINK = 'QuickNav.Link';
@@ -21,17 +22,22 @@ const LINK = 'QuickNav.Link';
 export function rehypeQuickNav() {
   return (tree, file) => {
     /** @type {TocEntry[]} */
-    const toc = file.data.toc;
+    const toc = file.data.toc ?? [];
+    const content = createMdxElement({
+      name: CONTENT,
+      children: tree.children,
+    });
+
+    if (!toc.length) {
+      tree.children = [content];
+      return;
+    }
+
     const root = createMdxElement({
       name: ROOT,
       children: toc.flatMap(getNodeFromEntry).filter(Boolean),
     });
-
-    if (!toc.length) {
-      return;
-    }
-
-    tree.children.unshift(root);
+    tree.children = [root, content];
   };
 }
 

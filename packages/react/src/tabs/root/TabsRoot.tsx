@@ -7,7 +7,6 @@ import type { BaseUIComponentProps, Orientation as BaseOrientation } from '../..
 import { useRenderElement } from '../../utils/useRenderElement';
 import { CompositeList } from '../../composite/list/CompositeList';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
-import { useDirection } from '../../direction-provider/DirectionContext';
 import { TabsRootContext } from './TabsRootContext';
 import { tabsStateAttributesMapping } from './stateAttributesMapping';
 import type { TabsTab } from '../tab/TabsTab';
@@ -32,10 +31,9 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     orientation = 'horizontal',
     render,
     value: valueProp,
+    style,
     ...elementProps
   } = componentProps;
-
-  const direction = useDirection();
 
   // Track whether the user explicitly provided a `defaultValue` prop.
   // Used to determine if we should honor a disabled tab selection.
@@ -59,19 +57,84 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
   );
 
+  // Used for activation direction detection via tab element positions.
+  const getTabElementBySelectedValue = React.useCallback(
+    (selectedValue: TabsTab.Value | undefined): HTMLElement | null => {
+      if (selectedValue === undefined) {
+        return null;
+      }
+
+      for (const [tabElement, tabMetadata] of tabMap.entries()) {
+        if (tabMetadata != null && selectedValue === (tabMetadata.value ?? tabMetadata.index)) {
+          return tabElement as HTMLElement;
+        }
+      }
+
+      return null;
+    },
+    [tabMap],
+  );
+
   const [tabActivationDirection, setTabActivationDirection] =
     React.useState<TabsTab.ActivationDirection>('none');
 
+  const previousValueRef = React.useRef(value);
+  const directionJustComputedRef = React.useRef(false);
+  const directionComputationIncompleteRef = React.useRef(false);
+
+  // Compute activation direction during render when value changes programmatically
+  // so that children see the correct direction on their very first render.
+  // Skipped when the click-path handler already computed it (directionJustComputedRef).
+  // The ref is read-only here — updated only after commit via layout effect.
+  // https://github.com/mui/base-ui/issues/3873
+  if (previousValueRef.current !== value && !directionJustComputedRef.current) {
+    const activationDirection = computeActivationDirection(
+      previousValueRef.current,
+      value,
+      orientation,
+      tabMap,
+    );
+
+    // When a new tab is added and selected in the same controlled update,
+    // the tab element may not yet be registered in tabMap, so direction was
+    // computed from a value-based fallback. Keep previousValueRef stale so
+    // we re-compute from DOM positions once tabMap is up to date.
+    const isIncomplete =
+      previousValueRef.current != null &&
+      value != null &&
+      getTabElementBySelectedValue(value) == null;
+
+    directionComputationIncompleteRef.current = isIncomplete;
+
+    if (activationDirection !== tabActivationDirection) {
+      setTabActivationDirection(activationDirection);
+    }
+  }
+
+  // Sync the previous value ref after commit and reset the direction flag.
+  // When direction computation was incomplete (new tab not yet in tabMap),
+  // keep previousValueRef stale so a tabMap update triggers re-computation.
+  useIsoLayoutEffect(() => {
+    if (!directionComputationIncompleteRef.current) {
+      previousValueRef.current = value;
+    }
+    directionJustComputedRef.current = false;
+  });
+
   const onValueChange = useStableCallback(
     (newValue: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => {
+      const activationDirection = computeActivationDirection(value, newValue, orientation, tabMap);
+      eventDetails.activationDirection = activationDirection;
+
       onValueChangeProp?.(newValue, eventDetails);
 
       if (eventDetails.isCanceled) {
         return;
       }
 
+      directionJustComputedRef.current = true;
       setValue(newValue);
-      setTabActivationDirection(eventDetails.activationDirection);
+      setTabActivationDirection(activationDirection);
     },
   );
 
@@ -124,27 +187,8 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     [tabMap],
   );
 
-  // used in `useActivationDirectionDetector` for setting data-activation-direction
-  const getTabElementBySelectedValue = React.useCallback(
-    (selectedValue: TabsTab.Value | undefined): HTMLElement | null => {
-      if (selectedValue === undefined) {
-        return null;
-      }
-
-      for (const [tabElement, tabMetadata] of tabMap.entries()) {
-        if (tabMetadata != null && selectedValue === (tabMetadata.value ?? tabMetadata.index)) {
-          return tabElement as HTMLElement;
-        }
-      }
-
-      return null;
-    },
-    [tabMap],
-  );
-
   const tabsContextValue: TabsRootContext = React.useMemo(
     () => ({
-      direction,
       getTabElementBySelectedValue,
       getTabIdByPanelValue,
       getTabPanelIdByValue,
@@ -157,7 +201,6 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       value,
     }),
     [
-      direction,
       getTabElementBySelectedValue,
       getTabIdByPanelValue,
       getTabPanelIdByValue,
@@ -234,7 +277,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     value,
   ]);
 
-  const state: TabsRoot.State = {
+  const state: TabsRootState = {
     orientation,
     tabActivationDirection,
   };
@@ -253,34 +296,110 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   );
 });
 
+function computeActivationDirection(
+  oldValue: TabsTab.Value | null,
+  newValue: TabsTab.Value | null,
+  orientation: 'horizontal' | 'vertical',
+  tabMap: Map<Node, CompositeMetadata<TabsTab.Metadata> | null>,
+): TabsTab.ActivationDirection {
+  if (oldValue == null || newValue == null) {
+    return 'none';
+  }
+
+  let oldTab: HTMLElement | null = null;
+  let newTab: HTMLElement | null = null;
+
+  for (const [tabElement, tabMetadata] of tabMap.entries()) {
+    if (tabMetadata == null) {
+      continue;
+    }
+    const tabValue = tabMetadata.value ?? tabMetadata.index;
+    if (oldValue === tabValue) {
+      oldTab = tabElement as HTMLElement;
+    }
+    if (newValue === tabValue) {
+      newTab = tabElement as HTMLElement;
+    }
+    if (oldTab != null && newTab != null) {
+      break;
+    }
+  }
+
+  if (oldTab == null || newTab == null) {
+    // Fallback for dynamic tabs: when a tab element isn't registered yet
+    // (e.g. added and selected in the same update), infer direction from
+    // the values themselves. Works for comparable types (numbers, strings).
+    if (
+      oldTab !== newTab &&
+      (typeof oldValue === 'number' || typeof oldValue === 'string') &&
+      typeof oldValue === typeof newValue
+    ) {
+      if (orientation === 'horizontal') {
+        return newValue > oldValue ? 'right' : 'left';
+      }
+      return newValue > oldValue ? 'down' : 'up';
+    }
+    return 'none';
+  }
+
+  const oldRect = oldTab.getBoundingClientRect();
+  const newRect = newTab.getBoundingClientRect();
+
+  if (orientation === 'horizontal') {
+    if (newRect.left < oldRect.left) {
+      return 'left';
+    }
+    if (newRect.left > oldRect.left) {
+      return 'right';
+    }
+  } else {
+    if (newRect.top < oldRect.top) {
+      return 'up';
+    }
+    if (newRect.top > oldRect.top) {
+      return 'down';
+    }
+  }
+
+  return 'none';
+}
+
 export type TabsRootOrientation = BaseOrientation;
 
 export interface TabsRootState {
+  /**
+   * The component orientation.
+   */
   orientation: TabsRoot.Orientation;
+  /**
+   * The direction used for tab activation.
+   */
   tabActivationDirection: TabsTab.ActivationDirection;
 }
 
-export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRoot.State> {
+export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRootState> {
   /**
    * The value of the currently active `Tab`. Use when the component is controlled.
    * When the value is `null`, no Tab will be active.
    */
-  value?: TabsTab.Value;
+  value?: TabsTab.Value | undefined;
   /**
    * The default value. Use when the component is not controlled.
    * When the value is `null`, no Tab will be active.
    * @default 0
    */
-  defaultValue?: TabsTab.Value;
+  defaultValue?: TabsTab.Value | undefined;
   /**
    * The component orientation (layout flow direction).
    * @default 'horizontal'
    */
-  orientation?: TabsRoot.Orientation;
+  orientation?: TabsRoot.Orientation | undefined;
   /**
    * Callback invoked when new value is being set.
    */
-  onValueChange?: (value: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => void;
+  onValueChange?:
+    | ((value: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => void)
+    | undefined;
 }
 
 export type TabsRootChangeEventReason = typeof REASONS.none;

@@ -6,9 +6,7 @@
     flex-shrink: 0;
     margin-inline: 1px;
     font-family: var(--default-font-family);
-    letter-spacing: 0.015em;
-    font-weight: normal;
-    vertical-align: text-top;
+    font-weight: 400;
     white-space: nowrap;
 
     position: relative;

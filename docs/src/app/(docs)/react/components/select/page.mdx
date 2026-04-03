@@ -14,7 +14,7 @@ import { DemoSelectHero } from './demos/hero';
 
 - **Prefer Combobox for large lists**: Select is not filterable, aside from basic keyboard typeahead functionality to find items by focusing and highlighting them. Prefer [Combobox](/react/components/combobox) instead of Select when the number of items is sufficiently large to warrant filtering.
 - **Special positioning behavior**: The select popup by default overlaps its trigger so the selected item's text is aligned with the trigger's value text. This behavior [can be disabled or customized](/react/components/select#positioning).
-- **Form controls must have an accessible name**: It can be created using the `Field` component. See the [forms guide](/react/handbook/forms).
+- **Form controls must have an accessible name**: Prefer `<Select.Label>`, or provide an `aria-label` on `<Select.Trigger>` when no visible label is rendered. See [Labeling a select](#labeling-a-select) and the [forms guide](/react/handbook/forms).
 
 ## Anatomy
 
@@ -24,6 +24,7 @@ Import the component and assemble its parts:
 import { Select } from '@base-ui/react/select';
 
 <Select.Root>
+  <Select.Label />
   <Select.Trigger>
     <Select.Value />
     <Select.Icon />
@@ -126,16 +127,16 @@ To avoid lookup, [object values](#object-values) for each item can also be used.
 
 ### Labeling a select
 
-A select should have a visible label. Use the [Field](/react/components/field) component to provide a label for the select trigger:
+Use `<Select.Label>` to provide a visible label for the select trigger:
 
-```tsx title="Using Field to label a select" {2}
-<Field.Root>
-  <Field.Label>Theme</Field.Label>
-  <Select.Root>{/* ... */}</Select.Root>
-</Field.Root>
+```tsx title="Using Select.Label to label a select" {2}
+<Select.Root>
+  <Select.Label>Theme</Select.Label>
+  {/* ... */}
+</Select.Root>
 ```
 
-The Field component ensures clicking on the label will focus the select trigger without opening it (matching native behavior), and hovering over the label will not activate CSS `:hover` on the trigger, unlike a native `<label>`.
+`<Select.Label>` renders a `<div>`, so clicking it focuses the select trigger without opening the popup.
 
 ### Placeholder values
 
@@ -185,12 +186,113 @@ import { DemoSelectObjectValues } from './demos/object-values';
 
 <DemoSelectObjectValues compact />
 
+### Grouped
+
+Organize related options with `<Select.Group>` and `<Select.GroupLabel>` to add section headings inside the popup.
+
+Groups are represented by an array of objects with an `items` property, which itself is an array of individual items for each group. An extra property, such as `value`, can be provided for the heading text when rendering the group label.
+
+```tsx title="Example" {3,9,13}
+interface ProduceGroupItem {
+  value: string;
+  items: string[];
+}
+
+const groups: ProduceGroupItem[] = [
+  {
+    value: 'Fruits',
+    items: ['Apple', 'Banana', 'Orange'],
+  },
+  {
+    value: 'Vegetables',
+    items: ['Carrot', 'Lettuce', 'Spinach'],
+  },
+];
+```
+
+import { DemoSelectGrouped } from './demos/grouped';
+
+<DemoSelectGrouped compact />
+
 ## API reference
 
-<Reference
-  component="Select"
-  parts="Root, Trigger, Value, Icon, Backdrop, Portal, Positioner, Popup, List, Arrow, Item, ItemText, ItemIndicator, Group, GroupLabel, ScrollUpArrow, ScrollDownArrow, Separator"
-/>
+import { TypesSelect } from './types';
+
+### Root
+
+<TypesSelect.Root />
+
+### Label
+
+<TypesSelect.Label />
+
+### Trigger
+
+<TypesSelect.Trigger />
+
+### Value
+
+<TypesSelect.Value />
+
+### Icon
+
+<TypesSelect.Icon />
+
+### Backdrop
+
+<TypesSelect.Backdrop />
+
+### Portal
+
+<TypesSelect.Portal />
+
+### Positioner
+
+<TypesSelect.Positioner />
+
+### Popup
+
+<TypesSelect.Popup />
+
+### List
+
+<TypesSelect.List />
+
+### Arrow
+
+<TypesSelect.Arrow />
+
+### Item
+
+<TypesSelect.Item />
+
+### ItemText
+
+<TypesSelect.ItemText />
+
+### ItemIndicator
+
+<TypesSelect.ItemIndicator />
+
+### Group
+
+<TypesSelect.Group />
+
+### GroupLabel
+
+<TypesSelect.GroupLabel />
+
+### ScrollUpArrow
+
+<TypesSelect.ScrollUpArrow />
+
+### ScrollDownArrow
+
+<TypesSelect.ScrollDownArrow />
+
+### Separator
+
+<TypesSelect.Separator />
 
 export const metadata = {
   keywords: [

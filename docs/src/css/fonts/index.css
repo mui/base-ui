@@ -1,0 +1,103 @@
+@font-face {
+  font-family: 'die grotesk a';
+  font-weight: normal;
+  src: url('/fonts/die-grotesk-a-regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'die grotesk a';
+  font-weight: 700;
+  src: url('/fonts/die-grotesk-a-bold.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'die grotesk b';
+  font-weight: normal;
+  src: url('/fonts/die-grotesk-b-regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'die grotesk b';
+  font-weight: 700;
+  src: url('/fonts/die-grotesk-b-bold.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'SF Mono';
+  font-weight: normal;
+  src: local('SFMono-Regular'), local('ui-monospace');
+  /* Match 14px Unica to 13.25px SF Mono */
+  size-adjust: calc(100% * 13.25 / 14);
+}
+
+@font-face {
+  font-family: 'SF Mono';
+  font-weight: bold;
+  src: local('SFMono-Bold'), local('ui-monospace');
+  /* Match 14px Unica to 13.25px SF Mono */
+  size-adjust: calc(100% * 13.25 / 14);
+}
+
+@font-face {
+  font-family: Menlo;
+  font-weight: normal;
+  src: local('Menlo-Regular');
+  /* Match other monospace fonts to SF Mono in width */
+  size-adjust: calc(100% * 13.5 / 14);
+  ascent-override: 95%;
+}
+
+@font-face {
+  font-family: Menlo;
+  font-weight: bold;
+  src: local('Menlo-Bold');
+  /* Match other monospace fonts to SF Mono in width */
+  size-adjust: calc(100% * 13.5 / 14);
+  ascent-override: 95%;
+}
+
+@font-face {
+  font-family: Consolas;
+  font-weight: normal;
+  src: local('Consolas');
+  /* Match other monospace fonts to SF Mono in width */
+  size-adjust: calc(100% * 14.75 / 14);
+  ascent-override: 85%;
+}
+
+@font-face {
+  font-family: Consolas;
+  font-weight: bold;
+  src: local('Consolas-Bold');
+  /* Match other monospace fonts to SF Mono in width */
+  size-adjust: calc(100% * 14.75 / 14);
+  ascent-override: 85%;
+}
+
+@font-face {
+  font-family: 'DejaVu Sans Mono';
+  font-weight: normal;
+  src: local('DejaVuSansMono');
+  size-adjust: calc(100% * 13.5 / 14);
+}
+
+@font-face {
+  font-family: 'DejaVu Sans Mono';
+  font-weight: bold;
+  src: local('DejaVuSansMono-Bold');
+  size-adjust: calc(100% * 13.5 / 14);
+}
+
+@font-face {
+  font-family: Inconsolata;
+  font-weight: normal;
+  src: local('Inconsolata-Regular');
+  size-adjust: calc(100% * 15.75 / 14);
+}
+
+@font-face {
+  font-family: Inconsolata;
+  font-weight: bold;
+  src: local('Inconsolata-Bold');
+  size-adjust: calc(100% * 15.75 / 14);
+}

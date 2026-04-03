@@ -59,6 +59,9 @@ export default function ExampleAsyncSingleCombobox() {
     return 'Try a different search term.';
   }
 
+  const status = getStatus();
+  const emptyMessage = getEmptyMessage();
+
   return (
     <Combobox.Root
       items={items}
@@ -109,7 +112,7 @@ export default function ExampleAsyncSingleCombobox() {
     >
       <div className={styles.Label}>
         <label htmlFor={id}>Assign reviewer</label>
-        <div className={styles.InputWrapper}>
+        <Combobox.InputGroup className={styles.InputGroup}>
           <Combobox.Input id={id} placeholder="e.g. Michael" className={styles.Input} />
           <div className={styles.ActionButtons}>
             <Combobox.Clear className={styles.Clear} aria-label="Clear selection">
@@ -119,14 +122,18 @@ export default function ExampleAsyncSingleCombobox() {
               <ChevronDownIcon className={styles.TriggerIcon} />
             </Combobox.Trigger>
           </div>
-        </div>
+        </Combobox.InputGroup>
       </div>
 
       <Combobox.Portal>
         <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
           <Combobox.Popup className={styles.Popup} aria-busy={isPending || undefined}>
-            <Combobox.Status className={styles.Status}>{getStatus()}</Combobox.Status>
-            <Combobox.Empty className={styles.Empty}>{getEmptyMessage()}</Combobox.Empty>
+            <Combobox.Status>
+              {status ? <div className={styles.Status}>{status}</div> : null}
+            </Combobox.Status>
+            <Combobox.Empty>
+              {emptyMessage ? <div className={styles.Empty}>{emptyMessage}</div> : null}
+            </Combobox.Empty>
             <Combobox.List>
               {(user: DirectoryUser) => (
                 <Combobox.Item key={user.id} className={styles.Item} value={user}>

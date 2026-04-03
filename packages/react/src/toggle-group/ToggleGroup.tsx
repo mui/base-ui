@@ -25,8 +25,8 @@ const stateAttributesMapping = {
  *
  * Documentation: [Base UI Toggle Group](https://base-ui.com/react/components/toggle-group)
  */
-export const ToggleGroup = React.forwardRef(function ToggleGroup(
-  componentProps: ToggleGroup.Props,
+export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends string>(
+  componentProps: ToggleGroup.Props<Value>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -39,6 +39,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
     value: valueProp,
     className,
     render,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -52,6 +53,11 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
     return undefined;
   }, [valueProp, defaultValueProp]);
 
+  const isValueInitialized = React.useMemo(
+    () => valueProp !== undefined || defaultValueProp !== undefined,
+    [valueProp, defaultValueProp],
+  );
+
   const disabled = (toolbarContext?.disabled ?? false) || disabledProp;
 
   const [groupValue, setValueState] = useControlled({
@@ -63,11 +69,11 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
 
   const setGroupValue = useStableCallback(
     (
-      newValue: string,
+      newValue: Value,
       nextPressed: boolean,
       eventDetails: BaseUIChangeEventDetails<typeof REASONS.none>,
     ) => {
-      let newGroupValue: any[] | undefined;
+      let newGroupValue: Value[];
       if (multiple) {
         newGroupValue = groupValue.slice();
         if (nextPressed) {
@@ -90,19 +96,17 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
     },
   );
 
-  const state: ToggleGroup.State = React.useMemo(
-    () => ({ disabled, multiple, orientation }),
-    [disabled, orientation, multiple],
-  );
+  const state: ToggleGroupState = { disabled, multiple, orientation };
 
-  const contextValue: ToggleGroupContext = React.useMemo(
+  const contextValue: ToggleGroupContext<Value> = React.useMemo(
     () => ({
       disabled,
       orientation,
       setGroupValue,
       value: groupValue,
+      isValueInitialized,
     }),
-    [disabled, orientation, setGroupValue, groupValue],
+    [disabled, orientation, setGroupValue, groupValue, isValueInitialized],
   );
 
   const defaultProps: HTMLProps = {
@@ -125,64 +129,86 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
         <CompositeRoot
           render={render}
           className={className}
+          style={style}
           state={state}
           refs={[forwardedRef]}
           props={[defaultProps, elementProps]}
           stateAttributesMapping={stateAttributesMapping}
           loopFocus={loopFocus}
+          enableHomeAndEndKeys
+          orientation={orientation}
         />
       )}
     </ToggleGroupContext.Provider>
   );
-});
+}) as {
+  <Value extends string>(
+    props: ToggleGroup.Props<Value> & React.RefAttributes<HTMLDivElement>,
+  ): React.JSX.Element;
+};
 
 export interface ToggleGroupState {
   /**
    * Whether the component should ignore user interaction.
    */
   disabled: boolean;
-  multiple: boolean;
-}
-
-export interface ToggleGroupProps extends BaseUIComponentProps<'div', ToggleGroup.State> {
-  /**
-   * The open state of the toggle group represented by an array of
-   * the values of all pressed toggle buttons.
-   * This is the controlled counterpart of `defaultValue`.
-   */
-  value?: readonly any[];
-  /**
-   * The open state of the toggle group represented by an array of
-   * the values of all pressed toggle buttons.
-   * This is the uncontrolled counterpart of `value`.
-   */
-  defaultValue?: readonly any[];
-  /**
-   * Callback fired when the pressed states of the toggle group changes.
-   */
-  onValueChange?: (groupValue: any[], eventDetails: ToggleGroup.ChangeEventDetails) => void;
-  /**
-   * Whether the toggle group should ignore user interaction.
-   * @default false
-   */
-  disabled?: boolean;
-  /**
-   * @default 'horizontal'
-   */
-  orientation?: Orientation;
-  /**
-   * Whether to loop keyboard focus back to the first item
-   * when the end of the list is reached while using the arrow keys.
-   * @default true
-   */
-  loopFocus?: boolean;
   /**
    * When `false` only one item in the group can be pressed. If any item in
    * the group becomes pressed, the others will become unpressed.
    * When `true` multiple items can be pressed.
    * @default false
    */
-  multiple?: boolean;
+  multiple: boolean;
+  /**
+   * The orientation of the toggle group.
+   */
+  orientation: Orientation;
+}
+
+export interface ToggleGroupProps<Value extends string> extends BaseUIComponentProps<
+  'div',
+  ToggleGroupState
+> {
+  /**
+   * The open state of the toggle group represented by an array of
+   * the values of all pressed toggle buttons.
+   * This is the controlled counterpart of `defaultValue`.
+   */
+  value?: readonly Value[] | undefined;
+  /**
+   * The open state of the toggle group represented by an array of
+   * the values of all pressed toggle buttons.
+   * This is the uncontrolled counterpart of `value`.
+   */
+  defaultValue?: readonly Value[] | undefined;
+  /**
+   * Callback fired when the pressed states of the toggle group changes.
+   */
+  onValueChange?:
+    | ((groupValue: Value[], eventDetails: ToggleGroup.ChangeEventDetails) => void)
+    | undefined;
+  /**
+   * Whether the toggle group should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean | undefined;
+  /**
+   * @default 'horizontal'
+   */
+  orientation?: Orientation | undefined;
+  /**
+   * Whether to loop keyboard focus back to the first item
+   * when the end of the list is reached while using the arrow keys.
+   * @default true
+   */
+  loopFocus?: boolean | undefined;
+  /**
+   * When `false` only one item in the group can be pressed. If any item in
+   * the group becomes pressed, the others will become unpressed.
+   * When `true` multiple items can be pressed.
+   * @default false
+   */
+  multiple?: boolean | undefined;
 }
 
 export type ToggleGroupChangeEventReason = typeof REASONS.none;
@@ -191,7 +217,7 @@ export type ToggleGroupChangeEventDetails = BaseUIChangeEventDetails<ToggleGroup
 
 export namespace ToggleGroup {
   export type State = ToggleGroupState;
-  export type Props = ToggleGroupProps;
+  export type Props<Value extends string = string> = ToggleGroupProps<Value>;
   export type ChangeEventReason = ToggleGroupChangeEventReason;
   export type ChangeEventDetails = ToggleGroupChangeEventDetails;
 }

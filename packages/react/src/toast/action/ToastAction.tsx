@@ -15,7 +15,14 @@ export const ToastAction = React.forwardRef(function ToastAction(
   componentProps: ToastAction.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, disabled, nativeButton = true, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    style,
+    disabled,
+    nativeButton = true,
+    ...elementProps
+  } = componentProps;
 
   const { toast } = useToastRootContext();
 
@@ -27,12 +34,9 @@ export const ToastAction = React.forwardRef(function ToastAction(
     native: nativeButton,
   });
 
-  const state: ToastAction.State = React.useMemo(
-    () => ({
-      type: toast.type,
-    }),
-    [toast.type],
-  );
+  const state: ToastActionState = {
+    type: toast.type,
+  };
 
   const element = useRenderElement('button', componentProps, {
     ref: [forwardedRef, buttonRef],
@@ -62,7 +66,7 @@ export interface ToastActionState {
 }
 
 export interface ToastActionProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', ToastAction.State> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', ToastActionState> {}
 
 export namespace ToastAction {
   export type State = ToastActionState;

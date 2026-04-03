@@ -38,7 +38,7 @@ const Inner = React.memo(
       componentProps: SelectItemIndicator.Props,
       forwardedRef: React.ForwardedRef<HTMLSpanElement>,
     ) => {
-      const { render, className, keepMounted, ...elementProps } = componentProps;
+      const { render, className, style, keepMounted, ...elementProps } = componentProps;
 
       const { selected } = useSelectItemContext();
 
@@ -46,13 +46,10 @@ const Inner = React.memo(
 
       const { transitionStatus, setMounted } = useTransitionStatus(selected);
 
-      const state: SelectItemIndicator.State = React.useMemo(
-        () => ({
-          selected,
-          transitionStatus,
-        }),
-        [selected, transitionStatus],
-      );
+      const state: SelectItemIndicatorState = {
+        selected,
+        transitionStatus,
+      };
 
       const element = useRenderElement('span', componentProps, {
         ref: [forwardedRef, indicatorRef],
@@ -83,17 +80,25 @@ const Inner = React.memo(
 );
 
 export interface SelectItemIndicatorState {
+  /**
+   * Whether the item is selected.
+   */
   selected: boolean;
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
 }
 
 export interface SelectItemIndicatorProps extends BaseUIComponentProps<
   'span',
-  SelectItemIndicator.State
+  SelectItemIndicatorState
 > {
   children?: React.ReactNode;
-  /** Whether to keep the HTML element in the DOM when the item is not selected. */
-  keepMounted?: boolean;
+  /**
+   * Whether to keep the HTML element in the DOM when the item is not selected.
+   */
+  keepMounted?: boolean | undefined;
 }
 
 export namespace SelectItemIndicator {

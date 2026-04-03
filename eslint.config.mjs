@@ -12,6 +12,7 @@ import { fileURLToPath } from 'url';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
+const playgroundRootDir = path.join(dirname, 'playground', 'vite-app');
 
 const OneLevelImportMessage = [
   'Prefer one level nested imports to avoid bundling everything in dev mode or breaking CJS/ESM split.',
@@ -31,10 +32,23 @@ const NO_RESTRICTED_IMPORTS_PATHS_TOP_LEVEL_PACKAGES = [
 ];
 
 export default defineConfig(
-  globalIgnores(['./examples']),
+  globalIgnores(['./examples', './playground/vite-app/dist']),
   createBaseConfig({
     baseDirectory: dirname,
   }),
+  {
+    name: 'Playground Vite app overrides',
+    files: ['playground/vite-app/**/*.{ts,tsx}'],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.app.json', './tsconfig.node.json'],
+        tsconfigRootDir: playgroundRootDir,
+      },
+    },
+    rules: {
+      'no-console': 'off',
+    },
+  },
   {
     name: 'Base UI overrides',
     files: [`**/*${EXTENSION_TS}`],
@@ -43,6 +57,9 @@ export default defineConfig(
         typescript: {
           project: ['tsconfig.json'],
         },
+      },
+      next: {
+        rootDir: 'docs',
       },
     },
     /**
@@ -76,7 +93,6 @@ export default defineConfig(
 
       // This rule doesn't recognise <label> wrapped around custom controls
       'jsx-a11y/label-has-associated-control': 'off',
-
       // Turn off new eslint-plugin-react-hooks rules till we can fix all warnings
       'react-hooks/globals': 'off',
       'react-hooks/immutability': 'off',
@@ -85,11 +101,22 @@ export default defineConfig(
     },
   },
   {
+    files: [`packages/*/src/**/*${EXTENSION_TS}`],
+    ignores: [`**/*${EXTENSION_TEST_FILE}`, `**/*.spec${EXTENSION_TS}`, `test/**/*${EXTENSION_TS}`],
+    rules: {
+      'mui/add-undef-to-optional': 'error',
+      'mui/disallow-react-api-in-server-components': 'error',
+    },
+  },
+  {
     files: [
       // matching the pattern of the test runner
       `**/*${EXTENSION_TEST_FILE}`,
     ],
     extends: createTestConfig({ useMocha: false }),
+    rules: {
+      'mui/add-undef-to-optional': 'off',
+    },
   },
   baseSpecRules,
   {
@@ -151,6 +178,7 @@ export default defineConfig(
       'testing-library/prefer-screen-queries': 'off', // Enable usage of playwright queries
       'testing-library/no-await-sync-queries': 'off',
       'testing-library/render-result-naming-convention': 'off', // inconsequential in regression tests
+      'mui/consistent-production-guard': 'off',
     },
   },
 );
