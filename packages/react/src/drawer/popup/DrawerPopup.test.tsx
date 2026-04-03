@@ -359,7 +359,9 @@ describe('<Drawer.Popup />', () => {
     },
   );
 
-  it.skipIf(isJSDOM)('reapplies the height transition when a nested drawer closes', async () => {
+  it.skipIf(isJSDOM)(
+    'keeps a fixed height applied while a nested drawer closes',
+    async () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
     const style = `
@@ -437,18 +439,17 @@ describe('<Drawer.Popup />', () => {
         expect(parentPopup.style.getPropertyValue('--drawer-height')).not.toBe('');
       });
 
-      let heightTransitionRuns = 0;
-      let heightTransitionEnds = 0;
-
-      parentPopup.addEventListener('transitionrun', (event) => {
-        if ((event as TransitionEvent).propertyName === 'height') {
-          heightTransitionRuns += 1;
-        }
+      const mutations: Array<{ hasNested: boolean; drawerHeight: string }> = [];
+      const observer = new MutationObserver(() => {
+        mutations.push({
+          hasNested: parentPopup.hasAttribute('data-nested-drawer-open'),
+          drawerHeight: parentPopup.style.getPropertyValue('--drawer-height'),
+        });
       });
-      parentPopup.addEventListener('transitionend', (event) => {
-        if ((event as TransitionEvent).propertyName === 'height') {
-          heightTransitionEnds += 1;
-        }
+
+      observer.observe(parentPopup, {
+        attributeFilter: ['data-nested-drawer-open', 'style'],
+        attributes: true,
       });
 
       await act(async () => {
@@ -462,15 +463,24 @@ describe('<Drawer.Popup />', () => {
         expect(parentPopup).not.toHaveAttribute('data-nested-drawer-open');
       });
       await waitFor(() => {
-        expect(heightTransitionRuns).toBeGreaterThan(0);
+        expect(parentPopup.style.getPropertyValue('--drawer-height')).not.toBe('');
       });
       await waitFor(() => {
-        expect(heightTransitionEnds).toBeGreaterThan(0);
+        expect(
+          mutations.some((mutation) => !mutation.hasNested && mutation.drawerHeight !== ''),
+        ).toBe(true);
+      });
+
+      observer.disconnect();
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('child-popup')).toBeNull();
       });
     } finally {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
     }
-  });
+    },
+  );
 
   it.skipIf(isJSDOM)(
     'restores a fixed height before nested state when reopening a nested drawer',
