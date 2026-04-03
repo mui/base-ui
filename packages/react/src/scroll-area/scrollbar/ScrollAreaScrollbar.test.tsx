@@ -78,7 +78,7 @@ describe('<ScrollArea.Scrollbar />', () => {
   });
 
   describe('data-hovering attribute', () => {
-    it('adds [data-hovering] while the pointer is over the scroll area', async () => {
+    it('adds [data-hovering] when the synthetic pointer target differs from the native path', async () => {
       await render(
         <ScrollArea.Root data-testid="root" style={{ width: 200, height: 200 }}>
           <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
@@ -93,7 +93,23 @@ describe('<ScrollArea.Scrollbar />', () => {
 
       expect(verticalScrollbar).not.toHaveAttribute('data-hovering');
 
-      fireEvent.pointerEnter(viewport, { pointerType: 'mouse' });
+      const PointerEventCtor = window.PointerEvent ?? window.Event;
+      const event = new PointerEventCtor('pointerover', {
+        bubbles: true,
+      });
+
+      Object.defineProperties(event, {
+        composedPath: {
+          configurable: true,
+          value: () => [document.body, viewport],
+        },
+        pointerType: {
+          configurable: true,
+          value: 'mouse',
+        },
+      });
+
+      fireEvent(viewport, event);
 
       expect(verticalScrollbar).toHaveAttribute('data-hovering', '');
 
