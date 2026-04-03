@@ -710,8 +710,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/utils/build
       '@mui/internal-bundle-size-checker':
-        specifier: 1.0.9-canary.68
-        version: 1.0.9-canary.68(@types/node@22.18.13)(esbuild@0.27.2)(jiti@2.6.1)(rolldown@1.0.0-rc.12)(rollup@4.55.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.2)
+        specifier: https://pkg.pr.new/@mui/internal-bundle-size-checker@2755c7b
+        version: https://pkg.pr.new/@mui/internal-bundle-size-checker@2755c7b(@types/node@22.18.13)(esbuild@0.27.2)(jiti@2.6.1)(rolldown@1.0.0-rc.12)(rollup@4.55.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.2)
       radix-ui:
         specifier: ^1.4.3
         version: 1.4.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -2359,8 +2359,9 @@ packages:
     peerDependencies:
       '@babel/core': '7'
 
-  '@mui/internal-bundle-size-checker@1.0.9-canary.68':
-    resolution: {integrity: sha512-3ljQiXhzq4jAJShAXBfM4oTRP/VsXnD/YTnMeKxbe8EjymsZsnnffbyuLaeye+KV2RCYnXgYeUJ1So2T5U9GTQ==}
+  '@mui/internal-bundle-size-checker@https://pkg.pr.new/@mui/internal-bundle-size-checker@2755c7b':
+    resolution: {integrity: sha512-jVU25LGqYJIo/P1lILskhD+JqHo+m8miHdN3/xi6ZQrUMRPcb0tYsTt8sLRRzcq8S7aC1oW3esf8fFaXSyHzEA==, tarball: https://pkg.pr.new/@mui/internal-bundle-size-checker@2755c7b}
+    version: 1.0.7
     hasBin: true
 
   '@mui/internal-code-infra@0.0.4-canary.10':
@@ -12402,7 +12403,7 @@ snapshots:
       '@babel/core': 7.29.0
       resolve: 1.22.11
 
-  '@mui/internal-bundle-size-checker@1.0.9-canary.68(@types/node@22.18.13)(esbuild@0.27.2)(jiti@2.6.1)(rolldown@1.0.0-rc.12)(rollup@4.55.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.2)':
+  '@mui/internal-bundle-size-checker@https://pkg.pr.new/@mui/internal-bundle-size-checker@2755c7b(@types/node@22.18.13)(esbuild@0.27.2)(jiti@2.6.1)(rolldown@1.0.0-rc.12)(rollup@4.55.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.2)':
     dependencies:
       '@aws-sdk/client-s3': 3.1010.0
       '@aws-sdk/credential-providers': 3.1010.0
