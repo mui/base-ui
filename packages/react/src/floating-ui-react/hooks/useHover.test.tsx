@@ -306,7 +306,7 @@ describe.skipIf(!isJSDOM)('useHover', () => {
 
     Object.defineProperty(event, 'composedPath', {
       configurable: true,
-      value: () => [document.body, child],
+      value: () => [child, child.parentElement, document.body],
     });
 
     fireEvent(child, event);

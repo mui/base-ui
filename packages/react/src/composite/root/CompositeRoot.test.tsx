@@ -126,6 +126,8 @@ describe('Composite', () => {
 
       fireEvent(host, focusEvent);
 
+      // Focusing a native input within a composite selects the whole value so
+      // the first arrow key returns control to the textbox before moving focus.
       expect(input.selectionStart).toBe(0);
       expect(input.selectionEnd).toBe(4);
 

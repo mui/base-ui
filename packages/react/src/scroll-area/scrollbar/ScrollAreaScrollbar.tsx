@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import { contains, getTarget } from '../../floating-ui-react/utils';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { ScrollAreaScrollbarContext } from './ScrollAreaScrollbarContext';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -125,8 +126,12 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
         return;
       }
 
-      // Ignore clicks on thumb
-      if (event.currentTarget !== event.target) {
+      const target = getTarget(event.nativeEvent) as Element | null;
+      const thumb = orientation === 'vertical' ? thumbYRef.current : thumbXRef.current;
+
+      // Ignore clicks on thumb, including cases where React retargets the
+      // synthetic event to the track host across a shadow boundary.
+      if (thumb && contains(thumb, target)) {
         return;
       }
 

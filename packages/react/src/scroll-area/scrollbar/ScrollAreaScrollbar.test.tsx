@@ -119,6 +119,74 @@ describe('<ScrollArea.Scrollbar />', () => {
     });
   });
 
+  describe('track pointer down', () => {
+    it('ignores thumb clicks when the native path differs from the synthetic target', async () => {
+      await render(
+        <ScrollArea.Root style={{ width: 200, height: 200 }}>
+          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+            <div style={{ width: 1000, height: 1000 }} />
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar orientation="vertical" data-testid="vertical" keepMounted>
+            <ScrollArea.Thumb data-testid="thumb" />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport') as HTMLDivElement;
+      const verticalScrollbar = screen.getByTestId('vertical');
+      const thumb = screen.getByTestId('thumb');
+
+      Object.defineProperties(viewport, {
+        clientHeight: {
+          configurable: true,
+          value: 200,
+        },
+        scrollHeight: {
+          configurable: true,
+          value: 1000,
+        },
+        scrollTop: {
+          configurable: true,
+          writable: true,
+          value: 0,
+        },
+      });
+
+      Object.defineProperties(verticalScrollbar, {
+        offsetHeight: {
+          configurable: true,
+          value: 200,
+        },
+        getBoundingClientRect: {
+          configurable: true,
+          value: () => ({
+            top: 0,
+          }),
+        },
+      });
+
+      Object.defineProperty(thumb, 'offsetHeight', {
+        configurable: true,
+        value: 40,
+      });
+
+      const event = new MouseEvent('pointerdown', {
+        bubbles: true,
+        button: 0,
+        clientY: 160,
+      });
+
+      Object.defineProperty(event, 'composedPath', {
+        configurable: true,
+        value: () => [thumb, verticalScrollbar],
+      });
+
+      fireEvent(verticalScrollbar, event);
+
+      expect(viewport.scrollTop).toBe(0);
+    });
+  });
+
   describe.skipIf(isJSDOM)('data overflow attributes (scrollbars)', () => {
     const VIEWPORT_SIZE = 200;
     const SCROLLABLE_CONTENT_SIZE = 1000;
