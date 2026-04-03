@@ -418,54 +418,90 @@ function scrollCompositeItemIntoView(
   let top = root.scrollTop;
   const rootStyles = getScrollStyles(root);
   const itemStyles = getScrollStyles(item);
-  const rootRect = root.getBoundingClientRect();
-  const itemRect = item.getBoundingClientRect();
 
   if (orientation !== 'vertical' && root.scrollWidth > root.clientWidth) {
-    const start =
-      direction === 'rtl'
-        ? rootRect.right -
-          rootStyles.scrollPaddingRight -
-          itemRect.right -
-          itemStyles.scrollMarginRight
-        : itemRect.left -
-          itemStyles.scrollMarginLeft -
-          rootRect.left -
-          rootStyles.scrollPaddingLeft;
-    const end =
-      direction === 'rtl'
-        ? rootRect.left + rootStyles.scrollPaddingLeft - itemRect.left + itemStyles.scrollMarginLeft
-        : itemRect.right +
-          itemStyles.scrollMarginRight -
-          rootRect.right +
-          rootStyles.scrollPaddingRight;
+    const itemOffsetLeft = getOffset(root, item, 'left');
+    const nextLeft = getItemScrollPosition(
+      root.scrollLeft,
+      root.clientWidth,
+      rootStyles.scrollPaddingLeft,
+      rootStyles.scrollPaddingRight,
+      itemOffsetLeft,
+      item.offsetWidth,
+      itemStyles.scrollMarginLeft,
+      itemStyles.scrollMarginRight,
+      direction === 'rtl' ? itemStyles.scrollMarginRight : itemStyles.scrollMarginLeft,
+    );
 
-    if (start < 0) {
-      left += start;
-    } else if (end > 0) {
-      left += end;
+    if (nextLeft != null) {
+      left = nextLeft;
     }
   }
 
   if (orientation !== 'horizontal' && root.scrollHeight > root.clientHeight) {
-    const start =
-      itemRect.top - itemStyles.scrollMarginTop - rootRect.top - rootStyles.scrollPaddingTop;
-    const end =
-      itemRect.bottom +
-      itemStyles.scrollMarginBottom -
-      rootRect.bottom +
-      rootStyles.scrollPaddingBottom;
+    const itemOffsetTop = getOffset(root, item, 'top');
+    const nextTop = getItemScrollPosition(
+      root.scrollTop,
+      root.clientHeight,
+      rootStyles.scrollPaddingTop,
+      rootStyles.scrollPaddingBottom,
+      itemOffsetTop,
+      item.offsetHeight,
+      itemStyles.scrollMarginTop,
+      itemStyles.scrollMarginBottom,
+      itemStyles.scrollMarginTop,
+    );
 
-    if (start < 0) {
-      top += start;
-    } else if (end > 0) {
-      top += end;
+    if (nextTop != null) {
+      top = nextTop;
     }
   }
 
   if (left !== root.scrollLeft || top !== root.scrollTop) {
     root.scrollTo({ left, top, behavior: 'auto' });
   }
+}
+
+function getOffset(ancestor: HTMLElement, element: HTMLElement, side: 'left' | 'top') {
+  const propName = side === 'left' ? 'offsetLeft' : 'offsetTop';
+  let result = 0;
+
+  while (element.offsetParent) {
+    result += element[propName];
+    if (element.offsetParent === ancestor) {
+      break;
+    }
+    element = element.offsetParent as HTMLElement;
+  }
+
+  return result;
+}
+
+// Positional arguments are intentional here to keep the helper small after minification.
+function getItemScrollPosition(
+  scroll: number,
+  clientSize: number,
+  paddingStart: number,
+  paddingEnd: number,
+  itemOffset: number,
+  itemSize: number,
+  marginStart: number,
+  marginEnd: number,
+  startMargin: number,
+) {
+  const start = itemOffset - startMargin;
+
+  if (start < scroll + paddingStart) {
+    return itemOffset - marginStart - paddingStart;
+  }
+
+  const end = itemOffset + itemSize + marginEnd;
+
+  if (end > scroll + clientSize - paddingEnd) {
+    return end - clientSize + paddingEnd;
+  }
+
+  return null;
 }
 
 function getScrollStyles(element: HTMLElement) {
