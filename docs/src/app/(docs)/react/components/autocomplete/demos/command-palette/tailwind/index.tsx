@@ -32,15 +32,17 @@ export default function ExampleAutocompleteCommandPalette() {
             >
               <Autocomplete.Input
                 className="w-full border-0 border-b border-gray-100 bg-transparent p-4 text-base font-normal tracking-[0.016em] text-gray-900 placeholder:text-gray-500 outline-none"
-                placeholder="Search for apps and commands..."
+                placeholder="Search for apps and commands…"
               />
               <Dialog.Close className="sr-only">Close command palette</Dialog.Close>
 
               <ScrollArea.Root className="relative flex max-h-[min(60dvh,24rem)] min-h-0 flex-[0_1_auto] overflow-hidden">
                 <ScrollArea.Viewport className="min-h-0 flex-1 overscroll-contain [scroll-padding-block:0.25rem] focus-visible:outline focus-visible:outline-1 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
                   <ScrollArea.Content style={{ minWidth: '100%' }}>
-                    <Autocomplete.Empty className="flex min-h-32 items-center justify-center p-4 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:min-h-0 empty:p-0">
-                      No results found.
+                    <Autocomplete.Empty>
+                      <div className="flex min-h-32 items-center justify-center p-4 text-[0.925rem] leading-4 text-gray-600">
+                        No results found.
+                      </div>
                     </Autocomplete.Empty>
 
                     <Autocomplete.List className="p-2">

@@ -17,7 +17,7 @@ export const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxI
   componentProps: MenuCheckboxItemIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, keepMounted = false, ...elementProps } = componentProps;
+  const { render, className, style, keepMounted = false, ...elementProps } = componentProps;
 
   const item = useMenuCheckboxItemContext();
 

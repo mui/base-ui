@@ -44,7 +44,7 @@ export default function Experiment() {
         onCreate={(label) => {
           setItems((prev) => [...prev, label].sort());
         }}
-        placeholder="Red, Green, Blue..."
+        placeholder="Red, Green, Blue…"
       />
     </div>
   );

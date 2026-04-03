@@ -4,7 +4,10 @@ import { useDismiss, useHoverFloatingInteraction } from '../../floating-ui-react
 import { getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
-import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
+import {
+  useNavigationMenuRootContext,
+  useNavigationMenuTreeContext,
+} from '../root/NavigationMenuRootContext';
 import { EMPTY_OBJECT } from '../../utils/constants';
 import { NAVIGATION_MENU_TRIGGER_IDENTIFIER } from '../utils/constants';
 import { NavigationMenuDismissContext } from './NavigationMenuDismissContext';
@@ -21,7 +24,9 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
   componentProps: NavigationMenuList.Props,
   forwardedRef: React.ForwardedRef<HTMLUListElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, style, ...elementProps } = componentProps;
+
+  const nodeId = useNavigationMenuTreeContext();
 
   const {
     orientation,
@@ -42,6 +47,7 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
   useHoverFloatingInteraction(context, {
     enabled: Boolean(floatingRootContext) && hoverInteractionsEnabled,
     closeDelay,
+    nodeId,
   });
 
   const dismiss = useDismiss(context, {
@@ -110,6 +116,7 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
       <CompositeRoot
         render={render}
         className={className}
+        style={style}
         state={state}
         refs={[forwardedRef]}
         props={props}

@@ -88,7 +88,6 @@
     "@base-ui/utils": "workspace:*",
     "@floating-ui/react-dom": "^2.1.8",
     "@floating-ui/utils": "^0.2.11",
-    "tabbable": "^6.4.0",
     "use-sync-external-store": "^1.6.0"
   },
   "devDependencies": {
@@ -104,7 +103,7 @@
     "luxon": "3.7.2",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "react-router": "7.13.1",
+    "react-router": "7.13.2",
     "typescript": "5.9.3",
     "vitest-browser-react": "2.1.0"
   },

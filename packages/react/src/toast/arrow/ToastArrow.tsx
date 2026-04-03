@@ -15,7 +15,7 @@ export const ToastArrow = React.forwardRef(function ToastArrow(
   componentProps: ToastArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, style, ...elementProps } = componentProps;
 
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = useToastPositionerContext();
 

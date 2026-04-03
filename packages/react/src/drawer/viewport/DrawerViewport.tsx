@@ -66,7 +66,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   props: DrawerViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, children, ...elementProps } = props;
+  const { className, render, style, children, ...elementProps } = props;
 
   const { store } = useDialogRootContext();
   const {

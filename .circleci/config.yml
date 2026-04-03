@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  code-infra: https://raw.githubusercontent.com/mui/mui-public/1eedf1bb22170479a7e6d236667e018c28ac9dd1/.circleci/orbs/code-infra.yml
+  code-infra: https://raw.githubusercontent.com/mui/mui-public/b989d008bd34fbf9fb9d3395da2f6a32536f574d/.circleci/orbs/code-infra.yml
 
 parameters:
   browserstack-force:
@@ -151,7 +151,7 @@ jobs:
     resource_class: large
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.58.2-noble
+      playwright-img-version: v1.59.1-noble
     steps:
       - checkout
       - code-infra/install-deps:
@@ -166,7 +166,7 @@ jobs:
     resource_class: 'medium+'
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.58.2-noble
+      playwright-img-version: v1.59.1-noble
     steps:
       - checkout
       - code-infra/install-deps
@@ -182,7 +182,7 @@ jobs:
     <<: *default-job
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.58.2-noble
+      playwright-img-version: v1.59.1-noble
     steps:
       - checkout
       - code-infra/install-deps
@@ -235,7 +235,7 @@ jobs:
     resource_class: large
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.58.2-noble
+      playwright-img-version: v1.59.1-noble
     steps:
       - checkout
       - code-infra/install-deps

@@ -85,7 +85,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
   componentProps: SliderControl.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render: renderProp, className, ...elementProps } = componentProps;
+  const { render: renderProp, className, style, ...elementProps } = componentProps;
 
   const {
     disabled,

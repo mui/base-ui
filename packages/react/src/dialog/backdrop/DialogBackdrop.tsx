@@ -23,7 +23,7 @@ export const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   componentProps: DialogBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, forceRender = false, ...elementProps } = componentProps;
+  const { render, className, style, forceRender = false, ...elementProps } = componentProps;
   const { store } = useDialogRootContext();
 
   const open = store.useState('open');

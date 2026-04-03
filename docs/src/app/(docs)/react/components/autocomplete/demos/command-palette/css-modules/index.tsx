@@ -28,7 +28,7 @@ export default function ExampleAutocompleteCommandPalette() {
             >
               <Autocomplete.Input
                 className={styles.Input}
-                placeholder="Search for apps and commands..."
+                placeholder="Search for apps and commands…"
               />
               <Dialog.Close className={styles.VisuallyHiddenClose}>
                 Close command palette
@@ -37,8 +37,8 @@ export default function ExampleAutocompleteCommandPalette() {
               <ScrollArea.Root className={styles.ListArea}>
                 <ScrollArea.Viewport className={styles.ListViewport}>
                   <ScrollArea.Content className={styles.ListContent}>
-                    <Autocomplete.Empty className={styles.Empty}>
-                      No results found.
+                    <Autocomplete.Empty>
+                      <div className={styles.Empty}>No results found.</div>
                     </Autocomplete.Empty>
 
                     <Autocomplete.List className={styles.List}>

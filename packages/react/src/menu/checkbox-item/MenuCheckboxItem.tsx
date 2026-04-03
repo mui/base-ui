@@ -36,6 +36,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
     checked: checkedProp,
     defaultChecked,
     onCheckedChange,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -61,7 +62,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
     id,
     store,
     nativeButton,
-    nodeId: menuPositionerContext?.nodeId,
+    nodeId: menuPositionerContext?.context.nodeId,
     itemMetadata: REGULAR_ITEM,
   });
 

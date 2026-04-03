@@ -15,6 +15,7 @@ export function CompositeItem<Metadata, State extends Record<string, any>>(
   const {
     render,
     className,
+    style,
     state = EMPTY_OBJECT as State,
     props = EMPTY_ARRAY,
     refs = EMPTY_ARRAY,
@@ -38,7 +39,7 @@ export interface CompositeItemState {}
 
 export interface CompositeItemProps<Metadata, State extends Record<string, any>> extends Pick<
   BaseUIComponentProps<any, State>,
-  'render' | 'className'
+  'render' | 'className' | 'style'
 > {
   children?: React.ReactNode;
   metadata?: Metadata | undefined;
