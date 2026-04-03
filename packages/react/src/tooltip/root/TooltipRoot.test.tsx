@@ -1056,9 +1056,11 @@ describe('nested tooltips', () => {
 
     expect(screen.getByTestId('outer-popup')).not.toBe(null);
 
-    // Now move onto the inner trigger
+    // Now move onto the inner trigger — mouseover bubbles to the outer trigger,
+    // which detects the nested trigger and closes itself.
     fireEvent.pointerEnter(innerTrigger, { clientX: 50, clientY: 10 });
     fireEvent.mouseEnter(innerTrigger);
+    fireEvent.mouseOver(innerTrigger);
 
     await flushMicrotasks();
 
@@ -1103,6 +1105,78 @@ describe('nested tooltips', () => {
     // The outer tooltip should open since the nested trigger is disabled
     expect(screen.getByTestId('outer-popup')).not.toBe(null);
     expect(screen.queryByTestId('inner-popup')).toBe(null);
+  });
+
+  it('should not open the outer tooltip when hovering over a nested trigger inside a shadow root', async () => {
+    const host = document.body.appendChild(document.createElement('div'));
+    const shadowRoot = host.attachShadow({ mode: 'open' });
+    const container = document.createElement('div');
+    shadowRoot.appendChild(container);
+
+    try {
+      await render(
+        <Tooltip.Root>
+          <Tooltip.Trigger data-testid="outer-trigger" render={<span />}>
+            Outer
+            <Tooltip.Root>
+              <Tooltip.Trigger data-testid="inner-trigger" render={<div />}>
+                Inner
+              </Tooltip.Trigger>
+              <Tooltip.Portal>
+                <Tooltip.Positioner>
+                  <Tooltip.Popup data-testid="inner-popup">Inner tooltip</Tooltip.Popup>
+                </Tooltip.Positioner>
+              </Tooltip.Portal>
+            </Tooltip.Root>
+          </Tooltip.Trigger>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup data-testid="outer-popup">Outer tooltip</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Tooltip.Root>,
+        { container },
+      );
+
+      const outerTrigger = shadowRoot.querySelector('[data-testid="outer-trigger"]') as HTMLElement;
+      const innerTrigger = shadowRoot.querySelector('[data-testid="inner-trigger"]') as HTMLElement;
+      const innerShadowRoot = innerTrigger.attachShadow({ mode: 'open' });
+      const innerShadowTarget = document.createElement('span');
+      innerShadowTarget.textContent = 'Inner shadow target';
+      innerShadowRoot.appendChild(innerShadowTarget);
+
+      // Hover the outer trigger first so the outer tooltip starts its open delay.
+      fireEvent.pointerDown(outerTrigger, { pointerType: 'mouse' });
+      fireEvent.pointerEnter(outerTrigger, { clientX: 10, clientY: 10 });
+      fireEvent.mouseEnter(outerTrigger);
+      fireEvent.mouseMove(outerTrigger, { clientX: 10, clientY: 10 });
+
+      // Move onto content inside the inner trigger's shadow root before the
+      // delay expires. The composed mouseover bubbles to the outer trigger,
+      // and the shadow-DOM-safe closest() walks out of the shadow root to
+      // find [data-tooltip-trigger] on the inner trigger, suppressing the
+      // outer tooltip via shouldOpen.
+      fireEvent.pointerEnter(innerTrigger, { clientX: 50, clientY: 10 });
+      fireEvent.mouseEnter(innerTrigger);
+      innerShadowTarget.dispatchEvent(
+        new MouseEvent('mouseover', {
+          bubbles: true,
+          composed: true,
+          clientX: 50,
+          clientY: 10,
+        }),
+      );
+      fireEvent.mouseMove(innerTrigger, { clientX: 50, clientY: 10 });
+
+      clock.tick(OPEN_DELAY);
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('outer-popup')).toBe(null);
+    } finally {
+      await act(async () => {
+        host.remove();
+      });
+    }
   });
 
   it('should open the outer tooltip when hovering over the non-nested area', async () => {

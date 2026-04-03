@@ -2,9 +2,9 @@ import { isElement, isHTMLElement } from '@floating-ui/utils/dom';
 import { isJSDOM } from '@base-ui/utils/detectBrowser';
 import { FOCUSABLE_ATTRIBUTE, TYPEABLE_SELECTOR } from './constants';
 import { type PopupTriggerMap } from '../../utils/popups';
-import { activeElement, contains, getTarget } from './shadowDom';
+import { activeElement, closest, contains, getTarget } from './shadowDom';
 
-export { activeElement, contains, getTarget };
+export { activeElement, closest, contains, getTarget };
 
 export function isTargetInsideEnabledTrigger(
   target: EventTarget | null,

@@ -1,9 +1,8 @@
 'use client';
 import * as React from 'react';
+import { isElement } from '@floating-ui/utils/dom';
 import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { ownerWindow } from '@base-ui/utils/owner';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -18,7 +17,7 @@ import {
   useFocus,
   useHoverReferenceInteraction,
 } from '../../floating-ui-react';
-import { contains } from '../../floating-ui-react/utils/element';
+import { closest, contains, getTarget } from '../../floating-ui-react/utils/element';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { TooltipTriggerDataAttributes } from './TooltipTriggerDataAttributes';
@@ -26,12 +25,6 @@ import { TooltipTriggerDataAttributes } from './TooltipTriggerDataAttributes';
 import { OPEN_DELAY } from '../utils/constants';
 
 const ENABLED_TOOLTIP_TRIGGER_SELECTOR = `[${TooltipTriggerDataAttributes.tooltipTrigger}]:not([${TooltipTriggerDataAttributes.triggerDisabled}])`;
-
-/**
- * Custom event dispatched by a tooltip trigger on mouseenter so that ancestor
- * tooltip triggers can close their already-open tooltips.
- */
-const NESTED_TRIGGER_ENTER_EVENT = 'baseui-tooltip-trigger-enter';
 
 /**
  * An element to attach the tooltip to.
@@ -98,34 +91,26 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   const trackCursorAxis = store.useState('trackCursorAxis');
   const disableHoverablePopup = store.useState('disableHoverablePopup');
 
-  const lastMousePositionRef = React.useRef<{ x: number; y: number } | null>(null);
+  const isNestedTriggerHoveredRef = React.useRef(false);
 
-  // Prevents the outer tooltip from opening when the cursor is over a nested
-  // tooltip trigger (a descendant of this trigger that is itself a tooltip trigger).
-  const shouldOpen = useStableCallback(() => {
-    const pos = lastMousePositionRef.current;
+  // Detect whether an event target is inside an enabled nested tooltip trigger.
+  const detectNestedTriggerHover = useStableCallback((target: EventTarget | null) => {
     const triggerEl = triggerElementRef.current;
-    if (!pos || !triggerEl) {
-      return true;
+    let nestedTriggerHovered = false;
+
+    if (triggerEl && isElement(target)) {
+      const nearestTrigger = closest(target as Element, ENABLED_TOOLTIP_TRIGGER_SELECTOR);
+      if (nearestTrigger && nearestTrigger !== triggerEl && contains(triggerEl, nearestTrigger)) {
+        nestedTriggerHovered = true;
+      }
     }
 
-    const doc = triggerEl.ownerDocument;
-    if (typeof doc.elementFromPoint !== 'function') {
-      return true;
-    }
+    isNestedTriggerHoveredRef.current = nestedTriggerHovered;
+    return nestedTriggerHovered;
+  });
 
-    const elementUnderCursor = doc.elementFromPoint(pos.x, pos.y);
-    if (!elementUnderCursor) {
-      return true;
-    }
-
-    // Only suppress when the nested trigger is enabled (can show its own tooltip).
-    const nearestTrigger = elementUnderCursor.closest(ENABLED_TOOLTIP_TRIGGER_SELECTOR);
-    if (nearestTrigger && nearestTrigger !== triggerEl && contains(triggerEl, nearestTrigger)) {
-      return false;
-    }
-
-    return true;
+  const shouldOpen = useStableCallback(() => {
+    return !isNestedTriggerHoveredRef.current;
   });
 
   const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
@@ -168,30 +153,15 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
 
   const focusProps = useFocus(floatingRootContext, { enabled: !disabled }).reference;
 
-  // Close this trigger's tooltip when a descendant tooltip trigger is hovered.
-  // Only applies to hover-opened tooltips — focus-opened tooltips should remain
-  // visible until blur.
-  const handleNestedTriggerEnter = useStableCallback((event: Event) => {
-    // Only react if the event came from a descendant, not from this trigger itself.
-    if (event.target === triggerElementRef.current) {
-      return;
-    }
-    if (store.select('open') && store.select('lastOpenChangeReason') === REASONS.triggerHover) {
-      store.setOpen(false, createChangeEventDetails(REASONS.triggerHover));
+  const handleNestedTriggerHover = useStableCallback((event: MouseEvent) => {
+    if (
+      detectNestedTriggerHover(getTarget(event)) &&
+      store.select('open') &&
+      store.select('lastOpenChangeReason') === REASONS.triggerHover
+    ) {
+      store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
     }
   });
-
-  useIsoLayoutEffect(() => {
-    const triggerEl = triggerElementRef.current;
-    if (!triggerEl || disabled) {
-      return undefined;
-    }
-
-    triggerEl.addEventListener(NESTED_TRIGGER_ENTER_EVENT, handleNestedTriggerEnter);
-    return () => {
-      triggerEl.removeEventListener(NESTED_TRIGGER_ENTER_EVENT, handleNestedTriggerEnter);
-    };
-  }, [disabled, handleNestedTriggerEnter]);
 
   const state: TooltipTriggerState = { open: isOpenedByThisTrigger };
 
@@ -205,27 +175,11 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
       focusProps,
       rootTriggerProps,
       {
-        onPointerEnter(event: React.PointerEvent) {
-          lastMousePositionRef.current = { x: event.clientX, y: event.clientY };
+        onMouseOver(event: React.MouseEvent) {
+          handleNestedTriggerHover(event.nativeEvent);
         },
-        onPointerMove(event: React.PointerEvent) {
-          // Keep cursor position fresh so shouldOpen can check accurately when
-          // the hover delay fires. Mutate in place to avoid per-move allocation.
-          const pos = lastMousePositionRef.current;
-          if (pos) {
-            pos.x = event.clientX;
-            pos.y = event.clientY;
-          }
-        },
-        onMouseEnter(event: React.MouseEvent) {
-          // Notify ancestor tooltip triggers that a nested trigger was entered,
-          // so they can close their already-open tooltips.
-          if (!disabled) {
-            const EventCtor = ownerWindow(event.currentTarget as Element).Event;
-            (event.currentTarget as HTMLElement).dispatchEvent(
-              new EventCtor(NESTED_TRIGGER_ENTER_EVENT, { bubbles: true, composed: true }),
-            );
-          }
+        onMouseLeave() {
+          isNestedTriggerHoveredRef.current = false;
         },
         onPointerDown() {
           store.set('closeOnClick', closeOnClick);

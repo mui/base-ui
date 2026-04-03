@@ -10,7 +10,7 @@ export enum TooltipTriggerDataAttributes {
    */
   triggerDisabled = 'data-trigger-disabled',
   /**
-   * Present on all tooltip triggers. Used to detect nested tooltip triggers.
+   * Present on all tooltip triggers.
    */
   tooltipTrigger = 'data-tooltip-trigger',
 }
