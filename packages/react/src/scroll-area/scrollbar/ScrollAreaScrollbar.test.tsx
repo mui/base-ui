@@ -77,6 +77,32 @@ describe('<ScrollArea.Scrollbar />', () => {
     });
   });
 
+  describe('data-hovering attribute', () => {
+    it('adds [data-hovering] while the pointer is over the scroll area', async () => {
+      await render(
+        <ScrollArea.Root data-testid="root" style={{ width: 200, height: 200 }}>
+          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+            <div style={{ width: 1000, height: 1000 }} />
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar orientation="vertical" data-testid="vertical" keepMounted />
+        </ScrollArea.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport');
+      const verticalScrollbar = screen.getByTestId('vertical');
+
+      expect(verticalScrollbar).not.toHaveAttribute('data-hovering');
+
+      fireEvent.pointerEnter(viewport, { pointerType: 'mouse' });
+
+      expect(verticalScrollbar).toHaveAttribute('data-hovering', '');
+
+      fireEvent.pointerLeave(viewport, { pointerType: 'mouse' });
+
+      expect(verticalScrollbar).not.toHaveAttribute('data-hovering');
+    });
+  });
+
   describe.skipIf(isJSDOM)('data overflow attributes (scrollbars)', () => {
     const VIEWPORT_SIZE = 200;
     const SCROLLABLE_CONTENT_SIZE = 1000;
