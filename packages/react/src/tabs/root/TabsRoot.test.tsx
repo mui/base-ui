@@ -4,6 +4,7 @@ import { act, flushMicrotasks, fireEvent, screen, waitFor } from '@mui/internal-
 import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
 import { Popover } from '@base-ui/react/popover';
 import { Dialog } from '@base-ui/react/dialog';
+import { ScrollArea } from '@base-ui/react/scroll-area';
 import { Tabs } from '@base-ui/react/tabs';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
@@ -28,6 +29,76 @@ describe('<Tabs.Root />', () => {
   }));
 
   describe('prop: children', () => {
+    it.skipIf(isJSDOM)(
+      'scrolls the selected tab into view on mount when the tabs list owns the overflow',
+      async () => {
+        await render(
+          <Tabs.Root defaultValue={2}>
+            <Tabs.List style={{ display: 'flex', overflowX: 'auto', width: 120 }}>
+              <Tabs.Tab value={0} style={{ flex: '0 0 120px' }}>
+                Tab 1
+              </Tabs.Tab>
+              <Tabs.Tab value={1} style={{ flex: '0 0 120px' }}>
+                Tab 2
+              </Tabs.Tab>
+              <Tabs.Tab value={2} style={{ flex: '0 0 120px' }}>
+                Tab 3
+              </Tabs.Tab>
+            </Tabs.List>
+          </Tabs.Root>,
+        );
+
+        const listElement = screen.getByRole('tablist');
+        const tabElement = screen.getByRole('tab', { name: 'Tab 3' });
+
+        await waitFor(() => {
+          expect(listElement.scrollLeft).toBeGreaterThan(0);
+
+          const listRect = listElement.getBoundingClientRect();
+          const tabRect = tabElement.getBoundingClientRect();
+
+          expect(tabRect.left).toBeGreaterThanOrEqual(listRect.left);
+          expect(tabRect.right).toBeLessThanOrEqual(listRect.right);
+        });
+      },
+    );
+
+    it('does not use native scrollIntoView on mount when a ScrollArea viewport owns the overflow', async ({
+      onTestFinished,
+    }) => {
+      const scrollIntoView = vi.fn();
+      const originalScrollIntoView = HTMLElement.prototype.scrollIntoView;
+      HTMLElement.prototype.scrollIntoView = scrollIntoView;
+
+      onTestFinished(() => {
+        HTMLElement.prototype.scrollIntoView = originalScrollIntoView;
+      });
+
+      await render(
+        <Tabs.Root defaultValue={2}>
+          <ScrollArea.Root style={{ width: 120 }}>
+            <ScrollArea.Viewport>
+              <ScrollArea.Content>
+                <Tabs.List style={{ display: 'flex' }}>
+                  <Tabs.Tab value={0} style={{ flex: '0 0 120px' }}>
+                    Tab 1
+                  </Tabs.Tab>
+                  <Tabs.Tab value={1} style={{ flex: '0 0 120px' }}>
+                    Tab 2
+                  </Tabs.Tab>
+                  <Tabs.Tab value={2} style={{ flex: '0 0 120px' }}>
+                    Tab 3
+                  </Tabs.Tab>
+                </Tabs.List>
+              </ScrollArea.Content>
+            </ScrollArea.Viewport>
+          </ScrollArea.Root>
+        </Tabs.Root>,
+      );
+
+      expect(scrollIntoView).not.toHaveBeenCalled();
+    });
+
     it('should accept a null child', async () => {
       await render(
         <Tabs.Root value={0}>

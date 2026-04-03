@@ -7,7 +7,7 @@ import { Fieldset } from '@base-ui/react/fieldset';
 import { Form } from '@base-ui/react/form';
 import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
 import { isJSDOM, createRenderer } from '#test-utils';
-import { act, screen, fireEvent } from '@mui/internal-test-utils';
+import { act, screen, fireEvent, waitFor } from '@mui/internal-test-utils';
 import { describeConformance } from '../../test/describeConformance';
 
 describe('<RadioGroup />', () => {
@@ -23,6 +23,41 @@ describe('<RadioGroup />', () => {
       const { container } = await render(<RadioGroup role="switch" />);
       expect(container.firstElementChild as HTMLElement).toHaveAttribute('role', 'switch');
     });
+
+    it.skipIf(isJSDOM)(
+      'scrolls the checked radio into view on mount when the radio group owns the overflow',
+      async () => {
+        await render(
+          <RadioGroup
+            defaultValue="c"
+            style={{ display: 'flex', flexDirection: 'column', overflowY: 'auto', maxHeight: 100 }}
+          >
+            <Radio.Root value="a" style={{ minHeight: 48 }}>
+              A
+            </Radio.Root>
+            <Radio.Root value="b" style={{ minHeight: 48 }}>
+              B
+            </Radio.Root>
+            <Radio.Root value="c" style={{ minHeight: 48 }}>
+              C
+            </Radio.Root>
+          </RadioGroup>,
+        );
+
+        const groupElement = screen.getByRole('radiogroup');
+        const radioElement = screen.getByRole('radio', { name: 'C' });
+
+        await waitFor(() => {
+          expect(groupElement.scrollTop).toBeGreaterThan(0);
+
+          const groupRect = groupElement.getBoundingClientRect();
+          const radioRect = radioElement.getBoundingClientRect();
+
+          expect(radioRect.top).toBeGreaterThanOrEqual(groupRect.top);
+          expect(radioRect.bottom).toBeLessThanOrEqual(groupRect.bottom);
+        });
+      },
+    );
   });
 
   describe('prop: onValueChange', () => {

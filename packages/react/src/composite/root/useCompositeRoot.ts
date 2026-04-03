@@ -28,7 +28,6 @@ import {
   isListIndexDisabled,
   isIndexOutOfListBounds,
   isNativeInput,
-  scrollIntoViewIfNeeded,
   type Dimensions,
   type ModifierKey,
 } from '../composite';
@@ -81,6 +80,7 @@ export interface UseCompositeRootParameters {
 }
 
 const EMPTY_ARRAY: never[] = [];
+const COMPOSITE_ROOT = 'data-base-ui-composite-root';
 
 export function useCompositeRoot(params: UseCompositeRootParameters) {
   const {
@@ -111,11 +111,14 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const hasSetDefaultIndexRef = React.useRef(false);
 
   const highlightedIndex = externalHighlightedIndex ?? internalHighlightedIndex;
+  const scrollHighlightedItemIntoView = useStableCallback((item: HTMLElement | null) => {
+    item?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+  });
+
   const onHighlightedIndexChange = useStableCallback((index, shouldScrollIntoView = false) => {
     (externalSetHighlightedIndex ?? internalSetHighlightedIndex)(index);
     if (shouldScrollIntoView) {
-      const newActiveItem = elementsRef.current[index];
-      scrollIntoViewIfNeeded(rootRef.current, newActiveItem, direction, orientation);
+      scrollHighlightedItemIntoView(elementsRef.current[index]);
     }
   });
 
@@ -133,9 +136,8 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
     if (activeIndex !== -1) {
       onHighlightedIndexChange(activeIndex);
+      scrollCompositeItemIntoView(activeItem, orientation, direction);
     }
-
-    scrollIntoViewIfNeeded(rootRef.current, activeItem, direction, orientation);
   });
 
   const wrappedOnLoop = useStableCallback(
@@ -150,6 +152,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const props = React.useMemo<HTMLProps>(
     () => ({
       'aria-orientation': orientation === 'both' ? undefined : orientation,
+      [COMPOSITE_ROOT]: '',
       ref: mergedRef,
       onFocus(event) {
         const element = rootRef.current;
@@ -343,7 +346,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
           // Wait for FocusManager `returnFocus` to execute.
           queueMicrotask(() => {
-            elementsRef.current[nextIndex]?.focus();
+            elementsRef.current[nextIndex]?.focus({ preventScroll: true });
           });
         }
       },
@@ -393,4 +396,53 @@ function isModifierKeySet(event: React.KeyboardEvent, ignoredModifierKeys: Modif
     }
   }
   return false;
+}
+
+function scrollCompositeItemIntoView(
+  item: HTMLElement | null,
+  orientation: 'horizontal' | 'vertical' | 'both',
+  direction: TextDirection,
+) {
+  if (!item) {
+    return;
+  }
+
+  const root = item.closest<HTMLElement>(`[${COMPOSITE_ROOT}]`);
+
+  if (!root) {
+    return;
+  }
+
+  let left = root.scrollLeft;
+  let top = root.scrollTop;
+  const rootRect = root.getBoundingClientRect();
+  const itemRect = item.getBoundingClientRect();
+
+  if (orientation !== 'vertical' && root.scrollWidth > root.clientWidth) {
+    const start =
+      direction === 'rtl' ? rootRect.right - itemRect.right : itemRect.left - rootRect.left;
+    const end =
+      direction === 'rtl' ? rootRect.left - itemRect.left : itemRect.right - rootRect.right;
+
+    if (start < 0) {
+      left += start;
+    } else if (end > 0) {
+      left += end;
+    }
+  }
+
+  if (orientation !== 'horizontal' && root.scrollHeight > root.clientHeight) {
+    const start = itemRect.top - rootRect.top;
+    const end = itemRect.bottom - rootRect.bottom;
+
+    if (start < 0) {
+      top += start;
+    } else if (end > 0) {
+      top += end;
+    }
+  }
+
+  if (left !== root.scrollLeft || top !== root.scrollTop) {
+    root.scrollTo({ left, top, behavior: 'auto' });
+  }
 }

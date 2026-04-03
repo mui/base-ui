@@ -1,8 +1,9 @@
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { act, createRenderer, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { isJSDOM } from '#test-utils';
 import { DirectionProvider } from '../../direction-provider';
+import { ACTIVE_COMPOSITE_ITEM } from '../constants';
 import { CompositeItem } from '../item/CompositeItem';
 import { CompositeRoot } from './CompositeRoot';
 
@@ -10,6 +11,60 @@ describe('Composite', () => {
   const { render } = createRenderer();
 
   describe('list', () => {
+    it('scrolls the newly highlighted item into view using native scrollIntoView', async ({
+      onTestFinished,
+    }) => {
+      const scrollIntoView = vi.fn();
+      const originalScrollIntoView = HTMLElement.prototype.scrollIntoView;
+      HTMLElement.prototype.scrollIntoView = scrollIntoView;
+
+      onTestFinished(() => {
+        HTMLElement.prototype.scrollIntoView = originalScrollIntoView;
+      });
+
+      render(
+        <CompositeRoot orientation="horizontal">
+          <CompositeItem data-testid="1">1</CompositeItem>
+          <CompositeItem data-testid="2">2</CompositeItem>
+          <CompositeItem data-testid="3">3</CompositeItem>
+        </CompositeRoot>,
+      );
+
+      const item1 = screen.getByTestId('1');
+      const item2 = screen.getByTestId('2');
+
+      act(() => item1.focus());
+
+      fireEvent.keyDown(item1, { key: 'ArrowRight' });
+      await flushMicrotasks();
+
+      expect(item2).toHaveFocus();
+      expect(scrollIntoView).toHaveBeenCalledWith({ block: 'nearest', inline: 'nearest' });
+    });
+
+    it('does not use native scrollIntoView when initializing the active item', async ({
+      onTestFinished,
+    }) => {
+      const scrollIntoView = vi.fn();
+      const originalScrollIntoView = HTMLElement.prototype.scrollIntoView;
+      HTMLElement.prototype.scrollIntoView = scrollIntoView;
+
+      onTestFinished(() => {
+        HTMLElement.prototype.scrollIntoView = originalScrollIntoView;
+      });
+
+      render(
+        <div>
+          <CompositeRoot orientation="vertical">
+            <CompositeItem>1</CompositeItem>
+            <CompositeItem {...{ [ACTIVE_COMPOSITE_ITEM]: '' }}>2</CompositeItem>
+          </CompositeRoot>
+        </div>,
+      );
+
+      expect(scrollIntoView).not.toHaveBeenCalled();
+    });
+
     it('controlled mode', async () => {
       function App() {
         const [highlightedIndex, setHighlightedIndex] = React.useState(0);
