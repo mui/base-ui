@@ -63,7 +63,7 @@ import {
   DateBuilderReturnType,
   TemporalTimezone,
   TemporalAdapter,
-} from '../internals/temporal';
+} from '../temporal';
 
 const FORMATS: TemporalAdapterFormats = {
   // Digit formats with leading zeroes

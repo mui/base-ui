@@ -89,6 +89,8 @@
     "./internals/shadowDom": "./src/internals/shadowDom.ts",
     "./internals/stateAttributesMapping": "./src/internals/stateAttributesMapping.ts",
     "./internals/temporal": "./src/internals/temporal/index.ts",
+    "./internals/temporal-adapter-date-fns": "./src/internals/temporal-adapter-date-fns/index.ts",
+    "./internals/temporal-adapter-luxon": "./src/internals/temporal-adapter-luxon/index.ts",
     "./internals/temporal-adapter-provider": "./src/internals/temporal-adapter-provider/index.ts",
     "./internals/TimeoutManager": "./src/internals/TimeoutManager.ts",
     "./internals/types": "./src/internals/types.ts",

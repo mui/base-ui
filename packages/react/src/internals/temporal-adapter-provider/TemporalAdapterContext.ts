@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { TemporalAdapter } from '../temporal';
-import { TemporalAdapterDateFns } from '../../temporal-adapter-date-fns/TemporalAdapterDateFns';
+import { TemporalAdapterDateFns } from '../temporal-adapter-date-fns/TemporalAdapterDateFns';
 
 export type TemporalAdapterContext = {
   adapter: TemporalAdapter;

@@ -1,5 +1,5 @@
 import { expect } from 'vitest';
-import { TemporalAdapterDateFns } from '../../temporal-adapter-date-fns/TemporalAdapterDateFns';
+import { TemporalAdapterDateFns } from '../temporal-adapter-date-fns/TemporalAdapterDateFns';
 import { getInitialReferenceDate } from './getInitialReferenceDate';
 
 describe('getInitialReferenceDate', () => {

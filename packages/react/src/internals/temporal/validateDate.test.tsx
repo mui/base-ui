@@ -1,8 +1,8 @@
 import { expect } from 'vitest';
 // TODO Temporal: Replace with `@base-ui/react/types` import when Temporal components will become public.
 import { TemporalAdapter } from '.';
-import { TemporalAdapterDateFns } from '../../temporal-adapter-date-fns';
-import { TemporalAdapterLuxon } from '../../temporal-adapter-luxon';
+import { TemporalAdapterDateFns } from '../temporal-adapter-date-fns';
+import { TemporalAdapterLuxon } from '../temporal-adapter-luxon';
 import { validateDate } from './validateDate';
 
 // @ts-expect-error

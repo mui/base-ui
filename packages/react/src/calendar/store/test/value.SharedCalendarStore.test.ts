@@ -1,5 +1,5 @@
 import { expect, vi } from 'vitest';
-import { TemporalAdapterDateFns } from '../../../temporal-adapter-date-fns/TemporalAdapterDateFns';
+import { TemporalAdapterDateFns } from '../../../internals/temporal-adapter-date-fns/TemporalAdapterDateFns';
 import { TemporalValue } from '../../../internals/temporal';
 import { ValidateDateReturnValue } from '../../../internals/temporal/validateDate';
 import { getDateManager } from '../../../internals/temporal/getDateManager';

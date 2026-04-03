@@ -9,7 +9,7 @@ import {
 } from '@mui/internal-test-utils/createRenderer';
 // TODO Temporal: Replace with `@base-ui/react/types` import when Temporal components will become public.
 import { TemporalAdapter } from '../src/internals/temporal';
-import { TemporalAdapterDateFns } from '../../react/src/temporal-adapter-date-fns/TemporalAdapterDateFns';
+import { TemporalAdapterDateFns } from '../../react/src/internals/temporal-adapter-date-fns/TemporalAdapterDateFns';
 
 /**
  * Returns a function to render a temporal component, wrapped with LocalizationProvider.
