@@ -444,17 +444,13 @@
     min-height: 100%;
     align-items: flex-start;
     justify-content: center;
+    padding-bottom: 50vh;
   }
 
   .SearchListDefault {
     outline: 0;
-    overflow-y: auto;
-    max-height: min(22.5rem, var(--available-height));
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
     padding: 0.5rem;
-    overscroll-behavior: contain;
-    scroll-padding-top: 2.25rem;
-    scroll-padding-bottom: 0.5rem;
   }
 }
