@@ -47,7 +47,14 @@ Use the viewport overflow CSS variables to drive a CSS mask, which gradually inc
 
 When the fade is applied to `<ScrollArea.Viewport>` itself, the variables can be used directly. Child elements still need to opt in with `inherit` if they use the overflow values.
 
-```css title="scroll-area.module.css" {2-13}
+```css title="Child element opt-in"
+.Child {
+  --scroll-area-overflow-y-start: inherit;
+  --scroll-area-overflow-y-end: inherit;
+}
+```
+
+```css title="scroll-area.module.css"
 .Viewport {
   mask-image: linear-gradient(
     to bottom,
@@ -81,7 +88,7 @@ For SSR, a fallback can be used as part of the end-side `var()` call so the mask
 
 Use `<Tabs.List>`'s `render` prop to render `<ScrollArea.Viewport>` directly when the tab list itself needs the viewport overflow values for a mask fade. This keeps the mask logic on the same element that receives the scroll state.
 
-```jsx title="Tabs with ScrollArea"
+```jsx title="Tabs with ScrollArea" {3}
 <Tabs.Root defaultValue="overview">
   <ScrollArea.Root>
     <Tabs.List render={<ScrollArea.Viewport />}>
