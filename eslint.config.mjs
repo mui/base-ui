@@ -24,6 +24,10 @@ const NO_RESTRICTED_IMPORTS_PATTERNS_DEEPLY_NESTED = [
     regex: '@base-ui/react/(?!internals/).+/.+',
     message: OneLevelImportMessage,
   },
+  {
+    regex: '@base-ui/react/internals/.+/.+',
+    message: OneLevelImportMessage,
+  },
 ];
 
 // Add relevant packages to the list below.

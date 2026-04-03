@@ -18,6 +18,23 @@ describe('@base-ui/react', () => {
     });
   });
 
+  it.skipIf(!isJSDOM)('should resolve internals and auxiliary exports', async () => {
+    const packageJson = await import('../package.json');
+    const subpathExports = packageJson.exports;
+
+    const internalKeys = Object.keys(subpathExports).filter(
+      (key) => key.startsWith('./internals/') || key === './localization-provider',
+    );
+
+    await Promise.all(
+      internalKeys.map(async (subpath) => {
+        const importSpecifier = `@base-ui/react/${subpath.replace('./', '')}`;
+        const module = await import(/* @vite-ignore */ importSpecifier);
+        expect(module, `${subpath} failed to resolve`).toBeDefined();
+      }),
+    );
+  });
+
   it.skipIf(!isJSDOM)('should have the correct root exports', async () => {
     const packageJson = await import('../package.json');
     const subpathExports = packageJson.exports;
