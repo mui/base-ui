@@ -93,6 +93,22 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
 
   const isNestedTriggerHoveredRef = React.useRef(false);
 
+  const getOpenDelay = useStableCallback(() => {
+    const providerDelay = providerContext?.delay;
+    const groupOpenValue = typeof delayRef.current === 'object' ? delayRef.current.open : undefined;
+
+    let computedOpenDelay = delayWithDefault;
+    if (hasProvider) {
+      if (groupOpenValue !== 0) {
+        computedOpenDelay = delay ?? providerDelay ?? delayWithDefault;
+      } else {
+        computedOpenDelay = 0;
+      }
+    }
+
+    return computedOpenDelay;
+  });
+
   // Detect whether an event target is inside an enabled nested tooltip trigger.
   const detectNestedTriggerHover = useStableCallback((target: EventTarget | null) => {
     const triggerEl = triggerElementRef.current;
@@ -119,20 +135,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     move: false,
     handleClose: !disableHoverablePopup && trackCursorAxis !== 'both' ? safePolygon() : null,
     restMs() {
-      const providerDelay = providerContext?.delay;
-      const groupOpenValue =
-        typeof delayRef.current === 'object' ? delayRef.current.open : undefined;
-
-      let computedRestMs = delayWithDefault;
-      if (hasProvider) {
-        if (groupOpenValue !== 0) {
-          computedRestMs = delay ?? providerDelay ?? delayWithDefault;
-        } else {
-          computedRestMs = 0;
-        }
-      }
-
-      return computedRestMs;
+      return getOpenDelay();
     },
     delay() {
       const closeValue = typeof delayRef.current === 'object' ? delayRef.current.close : undefined;
@@ -154,12 +157,27 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   const focusProps = useFocus(floatingRootContext, { enabled: !disabled }).reference;
 
   const handleNestedTriggerHover = useStableCallback((event: MouseEvent) => {
+    const wasNestedTriggerHovered = isNestedTriggerHoveredRef.current;
+    const nestedTriggerHovered = detectNestedTriggerHover(getTarget(event));
+    const triggerEl = triggerElementRef.current as HTMLElement | null;
+
     if (
-      detectNestedTriggerHover(getTarget(event)) &&
+      nestedTriggerHovered &&
       store.select('open') &&
       store.select('lastOpenChangeReason') === REASONS.triggerHover
     ) {
       store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
+      return;
+    }
+
+    if (
+      wasNestedTriggerHovered &&
+      !nestedTriggerHovered &&
+      !store.select('open') &&
+      getOpenDelay() === 0 &&
+      triggerEl
+    ) {
+      store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerEl));
     }
   });
 
