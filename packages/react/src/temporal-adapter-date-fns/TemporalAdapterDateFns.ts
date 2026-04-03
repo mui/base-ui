@@ -93,7 +93,6 @@ const FORMATS: TemporalAdapterFormats = {
   localizedNumericDate: 'P', // Note: Day and month are padded on enUS unlike Luxon
 };
 
-// TODO Temporal: Replace with `@base-ui/react/types` path when Temporal components will become public.
 declare module '@base-ui/react/internals/temporal' {
   interface TemporalSupportedObjectLookup {
     'date-fns': Date;
@@ -184,17 +183,16 @@ export class TemporalAdapterDateFns implements TemporalAdapter {
 
   public setTimezone = (value: Date, timezone: TemporalTimezone): Date => {
     const isSystemTimezone = timezone === 'system' || timezone === 'default';
-
-    if (value instanceof TZDate) {
-      if (isSystemTimezone) {
-        return this.toJsDate(value);
-      }
-      return value.withTimeZone(timezone);
-    }
+    const canChangeTz = typeof (value as any)?.withTimeZone === 'function';
 
     if (isSystemTimezone) {
-      return value;
+      return this.toJsDate(value);
     }
+
+    if (canChangeTz) {
+      return (value as any).withTimeZone(timezone);
+    }
+
     return new TZDate(value, timezone);
   };
 
