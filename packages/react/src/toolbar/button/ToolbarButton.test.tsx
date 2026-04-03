@@ -12,7 +12,7 @@ import { screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { NOOP } from '../../internals/noop';
 import { ToolbarRootContext } from '../root/ToolbarRootContext';
-import { CompositeRootContext } from '../../composite/root/CompositeRootContext';
+import { CompositeRootContext } from '../../internals/composite/root/CompositeRootContext';
 
 const testCompositeContext: CompositeRootContext = {
   highlightedIndex: 0,

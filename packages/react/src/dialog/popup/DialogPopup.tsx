@@ -13,7 +13,7 @@ import { DialogPopupCssVars } from './DialogPopupCssVars';
 import { DialogPopupDataAttributes } from './DialogPopupDataAttributes';
 import { useDialogPortalContext } from '../portal/DialogPortalContext';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
-import { COMPOSITE_KEYS } from '../../composite/composite';
+import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 
 const stateAttributesMapping: StateAttributesMapping<DialogPopupState> = {
   ...baseMapping,

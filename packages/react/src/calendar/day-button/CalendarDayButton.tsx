@@ -10,7 +10,7 @@ import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext'
 import { useSharedCalendarDayGridBodyContext } from '../day-grid-body/SharedCalendarDayGridBodyContext';
 import { useTemporalAdapter } from '../../internals/temporal-adapter-provider/TemporalAdapterContext';
 import { useCalendarDayGridCellContext } from '../day-grid-cell/SharedCalendarDayGridCellContext';
-import { CompositeItem } from '../../composite/item/CompositeItem';
+import { CompositeItem } from '../../internals/composite/item/CompositeItem';
 import { selectors } from '../store';
 import { UseSharedCalendarDayGridBodyItemMetadata } from '../day-grid-body/useSharedCalendarDayGridBody';
 

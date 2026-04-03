@@ -11,7 +11,7 @@ import { type MenuRoot } from '../menu/root/MenuRoot';
 import { BaseUIComponentProps } from '../internals/types';
 import { MenubarContext, useMenubarContext } from './MenubarContext';
 import { useOpenInteractionType } from '../utils/useOpenInteractionType';
-import { CompositeRoot } from '../composite/root/CompositeRoot';
+import { CompositeRoot } from '../internals/composite/root/CompositeRoot';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { MenuOpenEventDetails } from '../menu/utils/types';
 import { StateAttributesMapping } from '../internals/getStateAttributesProps';

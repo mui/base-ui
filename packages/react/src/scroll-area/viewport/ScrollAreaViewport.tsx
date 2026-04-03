@@ -11,7 +11,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { getOffset } from '../utils/getOffset';
 import { MIN_THUMB_SIZE } from '../constants';
-import { clamp } from '../../utils/clamp';
+import { clamp } from '../../internals/clamp';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
 import type { HiddenState, ScrollAreaRootState } from '../root/ScrollAreaRoot';

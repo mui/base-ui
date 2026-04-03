@@ -9,7 +9,7 @@ import { useSelectRootContext } from '../root/SelectRootContext';
 import {
   useCompositeListItem,
   IndexGuessBehavior,
-} from '../../composite/list/useCompositeListItem';
+} from '../../internals/composite/list/useCompositeListItem';
 import type {
   BaseUIComponentProps,
   BaseUIEvent,

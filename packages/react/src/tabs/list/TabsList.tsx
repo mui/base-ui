@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import type { TabsRoot, TabsRootState } from '../root/TabsRoot';
-import { CompositeRoot } from '../../composite/root/CompositeRoot';
+import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
 import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import type { TabsTab } from '../tab/TabsTab';

@@ -4,7 +4,7 @@ import { useStore } from '@base-ui/utils/store';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { ComboboxChipsContext } from './ComboboxChipsContext';
-import { CompositeList } from '../../composite/list/CompositeList';
+import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { selectors } from '../store';
 import { EMPTY_OBJECT } from '../../utils/constants';

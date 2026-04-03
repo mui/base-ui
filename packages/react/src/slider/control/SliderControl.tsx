@@ -7,7 +7,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import type { Coords } from '../../floating-ui-react/types';
-import { clamp } from '../../utils/clamp';
+import { clamp } from '../../internals/clamp';
 import type { BaseUIComponentProps } from '../../internals/types';
 import {
   createChangeEventDetails,

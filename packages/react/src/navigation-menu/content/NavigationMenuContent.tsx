@@ -15,7 +15,7 @@ import { TransitionStatus, useTransitionStatus } from '../../internals/useTransi
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
-import { CompositeRoot } from '../../composite/root/CompositeRoot';
+import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { EMPTY_OBJECT } from '../../utils/constants';
 

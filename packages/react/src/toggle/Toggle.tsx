@@ -9,7 +9,7 @@ import { useRenderElement } from '../internals/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../internals/types';
 import { useToggleGroupContext } from '../toggle-group/ToggleGroupContext';
 import { useButton } from '../internals/use-button/useButton';
-import { CompositeItem } from '../composite/item/CompositeItem';
+import { CompositeItem } from '../internals/composite/item/CompositeItem';
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,

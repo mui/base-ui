@@ -12,8 +12,8 @@ import { useCalendarWeekList } from '../use-week-list/useCalendarWeekList';
 import { selectors } from '../store';
 import { computeMonthDayGrid } from '../utils/computeMonthDayGrid';
 import { areArraysEqual } from '../../internals/areArraysEqual';
-import { CompositeMetadata } from '../../composite/list/CompositeList';
-import { CompositeRoot } from '../../composite/root/CompositeRoot';
+import { CompositeMetadata } from '../../internals/composite/list/CompositeList';
+import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
 import { findNonDisabledListIndex, isListIndexDisabled } from '../../floating-ui-react/utils';
 import {
   ARROW_DOWN,
@@ -25,7 +25,7 @@ import {
   END,
   PAGE_UP,
   PAGE_DOWN,
-} from '../../composite/composite';
+} from '../../internals/composite/composite';
 import { validateDate } from '../../internals/temporal/validateDate';
 
 const BACKWARD_KEYS = new Set([ARROW_UP, ARROW_LEFT]);

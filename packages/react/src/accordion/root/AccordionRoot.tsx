@@ -5,7 +5,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
 import { BaseUIComponentProps, Orientation } from '../../internals/types';
-import { CompositeList } from '../../composite/list/CompositeList';
+import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { AccordionRootContext } from './AccordionRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';

@@ -18,7 +18,7 @@ import { DrawerPopupCssVars } from './DrawerPopupCssVars';
 import { DrawerPopupDataAttributes } from './DrawerPopupDataAttributes';
 import { useDialogPortalContext } from '../../dialog/portal/DialogPortalContext';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
-import { COMPOSITE_KEYS } from '../../composite/composite';
+import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { useDrawerRootContext, type DrawerSwipeDirection } from '../root/DrawerRootContext';
 import { useDrawerSnapPoints } from '../root/useDrawerSnapPoints';
 import { useDrawerViewportContext } from '../viewport/DrawerViewportContext';

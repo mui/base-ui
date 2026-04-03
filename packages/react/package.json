@@ -44,6 +44,7 @@
     "./fieldset": "./src/fieldset/index.ts",
     "./form": "./src/form/index.ts",
     "./input": "./src/input/index.ts",
+    "./localization-provider": "./src/localization-provider/index.ts",
     "./menu": "./src/menu/index.ts",
     "./menubar": "./src/menubar/index.ts",
     "./merge-props": "./src/merge-props/index.ts",
@@ -70,6 +71,7 @@
     "./unstable-use-media-query": "./src/unstable-use-media-query/index.ts",
     "./use-render": "./src/use-render/index.ts",
     "./internals/areArraysEqual": "./src/internals/areArraysEqual.ts",
+    "./internals/clamp": "./src/internals/clamp.ts",
     "./internals/createBaseUIEventDetails": "./src/internals/createBaseUIEventDetails.ts",
     "./internals/direction-context": "./src/internals/direction-context/index.ts",
     "./internals/field-constants": "./src/internals/field-constants/index.ts",
@@ -94,8 +96,7 @@
     "./internals/useOpenChangeComplete": "./src/internals/useOpenChangeComplete.tsx",
     "./internals/usePressAndHold": "./src/internals/usePressAndHold.ts",
     "./internals/useRenderElement": "./src/internals/useRenderElement.tsx",
-    "./internals/useTransitionStatus": "./src/internals/useTransitionStatus.ts",
-    "./localization-provider": "./src/localization-provider/index.ts"
+    "./internals/useTransitionStatus": "./src/internals/useTransitionStatus.ts"
   },
   "imports": {
     "#test-utils": "./test/index.ts",

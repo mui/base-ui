@@ -12,7 +12,7 @@ import {
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import { selectors } from '../store';
 import { ComboboxCollection } from '../collection/ComboboxCollection';
-import { CompositeList } from '../../composite/list/CompositeList';
+import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { stopEvent } from '../../floating-ui-react/utils';
 
 /**

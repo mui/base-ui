@@ -7,7 +7,7 @@ import {
   useSharedCalendarDayGridBody,
   UseSharedCalendarDayGridBodyParameters,
 } from './useSharedCalendarDayGridBody';
-import { CompositeRoot } from '../../composite/root/CompositeRoot';
+import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
 
 /**
  * Groups all parts of the calendar's day grid.

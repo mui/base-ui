@@ -14,7 +14,7 @@ import {
   type UseAnchorPositioningSharedParameters,
 } from '../../utils/useAnchorPositioning';
 import { BaseUIComponentProps } from '../../internals/types';
-import { CompositeList } from '../../composite/list/CompositeList';
+import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useMenuPortalContext } from '../portal/MenuPortalContext';
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';

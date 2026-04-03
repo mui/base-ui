@@ -1,5 +1,5 @@
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import type { TextDirection } from '../internals/direction-context/DirectionContext';
+import type { TextDirection } from '../direction-context/DirectionContext';
 
 export {
   stopEvent,
@@ -12,7 +12,7 @@ export {
   getGridNavigatedIndex,
   getMaxListIndex,
   getMinListIndex,
-} from '../floating-ui-react/utils';
+} from '../../floating-ui-react/utils';
 
 export interface Dimensions {
   width: number;

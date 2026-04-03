@@ -21,8 +21,8 @@ import {
   COMPOSITE_KEYS,
   PAGE_UP,
   PAGE_DOWN,
-} from '../../composite/composite';
-import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
+} from '../../internals/composite/composite';
+import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { useCSPContext } from '../../csp-provider/CSPContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';

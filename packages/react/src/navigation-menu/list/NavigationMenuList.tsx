@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useDismiss, useHoverFloatingInteraction } from '../../floating-ui-react';
 import { getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
-import { CompositeRoot } from '../../composite/root/CompositeRoot';
+import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
 import {
   useNavigationMenuRootContext,
   useNavigationMenuTreeContext,

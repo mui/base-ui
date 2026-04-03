@@ -11,7 +11,7 @@ import { mergeProps } from '../../merge-props';
 import { useDrawerRootContext } from '../root/DrawerRootContext';
 import { useDrawerSnapPoints } from '../root/useDrawerSnapPoints';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
-import { clamp } from '../../utils/clamp';
+import { clamp } from '../../internals/clamp';
 import {
   useSwipeDismiss,
   type SwipeDirection,

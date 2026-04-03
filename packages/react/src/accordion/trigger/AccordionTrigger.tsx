@@ -14,7 +14,7 @@ import {
   HOME,
   END,
   stopEvent,
-} from '../../composite/composite';
+} from '../../internals/composite/composite';
 import { useAccordionRootContext } from '../root/AccordionRootContext';
 import type { AccordionItemState } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';

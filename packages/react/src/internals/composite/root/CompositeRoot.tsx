@@ -3,12 +3,12 @@ import * as React from 'react';
 import { CompositeList, type CompositeMetadata } from '../list/CompositeList';
 import { useCompositeRoot } from './useCompositeRoot';
 import { CompositeRootContext } from './CompositeRootContext';
-import { useRenderElement } from '../../internals/useRenderElement';
-import type { BaseUIComponentProps, BaseUIEvent } from '../../internals/types';
+import { useRenderElement } from '../../useRenderElement';
+import type { BaseUIComponentProps, BaseUIEvent } from '../../types';
 import type { Dimensions, ModifierKey } from '../composite';
-import { useDirection } from '../../internals/direction-context/DirectionContext';
-import { EMPTY_ARRAY, EMPTY_OBJECT } from '../../utils/constants';
-import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import { useDirection } from '../../direction-context/DirectionContext';
+import { EMPTY_ARRAY, EMPTY_OBJECT } from '../../../utils/constants';
+import { StateAttributesMapping } from '../../getStateAttributesProps';
 
 /**
  * @internal

@@ -5,8 +5,8 @@ import {
   Orientation as BaseOrientation,
   HTMLProps,
 } from '../../internals/types';
-import { CompositeRoot } from '../../composite/root/CompositeRoot';
-import type { CompositeMetadata } from '../../composite/list/CompositeList';
+import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
+import type { CompositeMetadata } from '../../internals/composite/list/CompositeList';
 import { ToolbarRootContext } from './ToolbarRootContext';
 
 /**

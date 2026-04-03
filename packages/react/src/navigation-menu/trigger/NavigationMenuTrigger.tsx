@@ -43,7 +43,7 @@ import { FocusGuard } from '../../utils/FocusGuard';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { TransitionStatusDataAttributes } from '../../internals/stateAttributesMapping';
 import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
-import { CompositeItem } from '../../composite/item/CompositeItem';
+import { CompositeItem } from '../../internals/composite/item/CompositeItem';
 import { useButton } from '../../internals/use-button';
 import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
 import { getCssDimensions } from '../../utils/getCssDimensions';

@@ -16,10 +16,10 @@ import {
 import { useValueChanged } from '../../utils/useValueChanged';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { clamp } from '../../utils/clamp';
+import { clamp } from '../../internals/clamp';
 import { areArraysEqual } from '../../internals/areArraysEqual';
 import { activeElement, contains } from '../../floating-ui-react/utils';
-import { CompositeList, type CompositeMetadata } from '../../composite/list/CompositeList';
+import { CompositeList, type CompositeMetadata } from '../../internals/composite/list/CompositeList';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';

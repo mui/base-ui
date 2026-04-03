@@ -3,7 +3,7 @@ import * as React from 'react';
 import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
-import type { TextDirection } from '../../internals/direction-context/DirectionContext';
+import type { TextDirection } from '../../direction-context/DirectionContext';
 import {
   ALL_KEYS,
   ARROW_DOWN,
@@ -34,8 +34,8 @@ import {
 } from '../composite';
 import { ACTIVE_COMPOSITE_ITEM } from '../constants';
 import { CompositeMetadata } from '../list/CompositeList';
-import { HTMLProps } from '../../internals/types';
-import { getTarget } from '../../floating-ui-react/utils';
+import { HTMLProps } from '../../types';
+import { getTarget } from '../../../floating-ui-react/utils';
 
 export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both' | undefined;

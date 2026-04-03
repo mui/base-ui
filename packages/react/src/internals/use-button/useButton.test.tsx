@@ -4,7 +4,7 @@ import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { useButton } from './useButton';
-import { CompositeRoot } from '../../composite/root/CompositeRoot';
+import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { mergeProps } from '../../merge-props';
 
 describe('useButton', () => {

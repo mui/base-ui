@@ -15,7 +15,7 @@ import {
   ARROW_DOWN,
   HOME,
   END,
-} from '../../composite/composite';
+} from '../../internals/composite/composite';
 import type { Orientation } from '../../internals/types';
 import type { SliderRoot } from './SliderRoot';
 import { createTouches, getHorizontalSliderRect } from '../utils/test-utils';

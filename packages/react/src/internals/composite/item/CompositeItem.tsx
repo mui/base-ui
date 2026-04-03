@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
-import { useRenderElement } from '../../internals/useRenderElement';
+import { useRenderElement } from '../../useRenderElement';
 import { useCompositeItem } from './useCompositeItem';
-import type { BaseUIComponentProps } from '../../internals/types';
-import { EMPTY_OBJECT, EMPTY_ARRAY } from '../../utils/constants';
-import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import type { BaseUIComponentProps } from '../../types';
+import { EMPTY_OBJECT, EMPTY_ARRAY } from '../../../utils/constants';
+import { StateAttributesMapping } from '../../getStateAttributesProps';
 
 /**
  * @internal

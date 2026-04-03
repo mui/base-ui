@@ -5,7 +5,7 @@ import { useButton } from '../../internals/use-button';
 import type { ToolbarRootState } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 import { useToolbarGroupContext } from '../group/ToolbarGroupContext';
-import { CompositeItem } from '../../composite/item/CompositeItem';
+import { CompositeItem } from '../../internals/composite/item/CompositeItem';
 
 /**
  * A button that can be used as-is or as a trigger for other components.
