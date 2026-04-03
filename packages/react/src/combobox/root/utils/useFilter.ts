@@ -1,7 +1,11 @@
 'use client';
 import * as React from 'react';
 import { createCollatorItemFilter, createSingleSelectionCollatorFilter } from './index';
-import { type Filter, type GetFilterParameters as UseFilterOptions, getFilter } from '../../../internals/filter';
+import {
+  type Filter,
+  type GetFilterParameters as UseFilterOptions,
+  getFilter,
+} from '../../../internals/filter';
 
 export type { Filter, UseFilterOptions };
 
