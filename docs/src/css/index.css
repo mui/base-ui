@@ -279,6 +279,7 @@
 
 @layer all {
   html {
+    color-scheme: light dark;
     word-break: break-word;
   }
 
