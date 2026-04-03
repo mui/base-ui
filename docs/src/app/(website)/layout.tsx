@@ -1,9 +1,12 @@
+// Keep CSS imports first to ensure layers are declared before component styles
+import 'docs/src/css/index.css';
+import './css/index.css';
+
 import * as React from 'react';
 import type { Metadata, Viewport } from 'next/types';
 import { GoogleAnalytics } from 'docs/src/components/GoogleAnalytics';
 import { Link } from 'docs/src/components/Link';
 import { Logo } from 'docs/src/components/Logo';
-import './css/index.css';
 
 export default function Layout({ children }: React.PropsWithChildren) {
   return (

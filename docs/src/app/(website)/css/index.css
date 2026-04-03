@@ -1,14 +1,5 @@
-@layer theme;
-@layer components;
-@layer utilities;
-
-/* Theme */
 @import './theme.css';
 
-/* Fonts */
-@import 'docs/src/css/fonts/index.css';
-
-/* Components */
 @import './components/Accordion.css';
 @import './components/Body.css';
 @import './components/BulletList.css';
@@ -17,6 +8,3 @@
 @import './components/List.css';
 @import './components/Separator.css';
 @import './components/Text.css';
-
-/* Utilities */
-@import 'docs/src/css/utilities/index.css';
