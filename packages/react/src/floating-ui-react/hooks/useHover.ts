@@ -6,7 +6,7 @@ import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { contains, isInteractiveElement } from '../utils';
+import { contains, getTarget, isInteractiveElement } from '../utils';
 
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import type { Delay, ElementProps, FloatingContext, FloatingRootContext } from '../types';
