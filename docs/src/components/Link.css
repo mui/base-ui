@@ -15,6 +15,19 @@
       color: var(--gray-s1, var(--color-background));
     }
 
+    &:has(code) {
+      text-decoration-color: var(--color-blue);
+    }
+
+    &:has(code):active {
+      color: var(--color-background);
+      background-color: var(--color-blue);
+    }
+
+    &:has(code):active * {
+      color: var(--color-background) !important;
+    }
+
     &:focus-visible {
       outline: 2px solid currentColor;
       outline-offset: 2px;
