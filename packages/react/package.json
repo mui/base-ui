@@ -72,6 +72,7 @@
     "./use-render": "./src/use-render/index.ts",
     "./internals/areArraysEqual": "./src/internals/areArraysEqual.ts",
     "./internals/clamp": "./src/internals/clamp.ts",
+    "./internals/composite": "./src/internals/composite/index.ts",
     "./internals/createBaseUIEventDetails": "./src/internals/createBaseUIEventDetails.ts",
     "./internals/direction-context": "./src/internals/direction-context/index.ts",
     "./internals/field-constants": "./src/internals/field-constants/index.ts",
