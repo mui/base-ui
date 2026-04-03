@@ -85,7 +85,6 @@
     "./internals/serializeValue": "./src/internals/serializeValue.ts",
     "./internals/shadowDom": "./src/internals/shadowDom.ts",
     "./internals/stateAttributesMapping": "./src/internals/stateAttributesMapping.ts",
-    "./internals/stringifyAsLabel": "./src/internals/stringifyAsLabel.ts",
     "./internals/temporal": "./src/internals/temporal/index.ts",
     "./internals/temporal-adapter-provider": "./src/internals/temporal-adapter-provider/index.ts",
     "./internals/TimeoutManager": "./src/internals/TimeoutManager.ts",

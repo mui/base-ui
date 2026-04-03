@@ -1,4 +1,4 @@
-import { stringifyAsLabel } from './stringifyAsLabel';
+import { stringifyAsLabel } from '../utils/resolveValueLabel';
 
 const filterCache = new Map<string, Filter>();
 

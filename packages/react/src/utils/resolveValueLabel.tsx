@@ -1,9 +1,6 @@
 'use client';
 import * as React from 'react';
 import { serializeValue } from '../internals/serializeValue';
-import { stringifyAsLabel } from '../internals/stringifyAsLabel';
-
-export { stringifyAsLabel };
 
 type ItemRecord = Record<string, React.ReactNode>;
 type ItemsInput = ItemRecord | ReadonlyArray<LabeledItem> | ReadonlyArray<Group<any>> | undefined;
@@ -58,6 +55,21 @@ export function hasNullItemLabel(items: ItemsInput): boolean {
   }
 
   return false;
+}
+
+export function stringifyAsLabel(item: any, itemToStringLabel?: (item: any) => string) {
+  if (itemToStringLabel && item != null) {
+    return itemToStringLabel(item) ?? '';
+  }
+  if (item && typeof item === 'object') {
+    if ('label' in item && item.label != null) {
+      return String(item.label);
+    }
+    if ('value' in item) {
+      return String(item.value);
+    }
+  }
+  return serializeValue(item);
 }
 
 export function stringifyAsValue(item: any, itemToStringValue?: (item: any) => string) {
