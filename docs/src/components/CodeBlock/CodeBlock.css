@@ -4,6 +4,21 @@
     background-color: var(--color-content);
     border: 1px solid var(--gray-c2);
     border-radius: var(--radius-6);
+
+    & code .frame {
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+    }
+
+    & code .frame[data-lined] {
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    & code .frame[data-lined] .line {
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+    }
   }
 
   .CodeBlockPanel {
@@ -79,22 +94,15 @@
 
     & code .frame {
       display: block;
-      padding-left: 0.75rem;
-      padding-right: 0.75rem;
     }
 
     & code .frame[data-lined] {
-      display: block;
       white-space: normal;
-      padding-left: 0;
-      padding-right: 0;
     }
 
     & code .frame[data-lined] .line {
       display: block;
       white-space: pre;
-      padding-left: 0.75rem;
-      padding-right: 0.75rem;
     }
 
     & .line:empty {
@@ -109,7 +117,6 @@
 
   .CodeBlockPre,
   .CodeBlockRoot .CodeBlockPreInline {
-    background-color: var(--color-content);
     padding: 0.5rem 0;
     border-radius: var(--radius-6);
   }
