@@ -8,7 +8,6 @@ import { useStore } from '@base-ui/utils/store';
 import { useSelectRootContext, useSelectFloatingContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { popupStateMapping } from '../../utils/popupStateMapping';
 import {
   useAnchorPositioning,
   type Align,
@@ -17,14 +16,13 @@ import {
 } from '../../utils/useAnchorPositioning';
 import { SelectPositionerContext } from './SelectPositionerContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
-import { useRenderElement } from '../../utils/useRenderElement';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
-import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { clearStyles } from '../popup/utils';
 import { selectors } from '../store';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { findItemIndex, selectedValueIncludes } from '../../utils/itemEquality';
+import { usePositioner } from '../../utils/usePositioner';
 
 const FIXED: React.CSSProperties = { position: 'fixed' };
 
@@ -132,23 +130,6 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const renderedSide = alignItemWithTriggerActive ? 'none' : positioning.side;
   const positionerStyles = alignItemWithTriggerActive ? FIXED : positioning.positionerStyles;
 
-  const defaultProps: React.ComponentProps<'div'> = React.useMemo(() => {
-    const hiddenStyles: React.CSSProperties = {};
-
-    if (!open) {
-      hiddenStyles.pointerEvents = 'none';
-    }
-
-    return {
-      role: 'presentation',
-      hidden: !mounted,
-      style: {
-        ...positionerStyles,
-        ...hiddenStyles,
-      },
-    };
-  }, [open, mounted, positionerStyles]);
-
   const state: SelectPositionerState = {
     open,
     side: renderedSide,
@@ -160,11 +141,13 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     store.set('positionerElement', element);
   });
 
-  const element = useRenderElement('div', componentProps, {
-    ref: [forwardedRef, setPositionerElement],
-    state,
-    stateAttributesMapping: popupStateMapping,
-    props: [defaultProps, getDisabledMountTransitionStyles(transitionStatus), elementProps],
+  const element = usePositioner(componentProps, state, {
+    styles: positionerStyles,
+    transitionStatus,
+    props: elementProps,
+    refs: [forwardedRef, setPositionerElement],
+    hidden: !mounted,
+    inert: !open,
   });
 
   const prevMapSizeRef = React.useRef(0);

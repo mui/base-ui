@@ -136,6 +136,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends s
           stateAttributesMapping={stateAttributesMapping}
           loopFocus={loopFocus}
           enableHomeAndEndKeys
+          orientation={orientation}
         />
       )}
     </ToggleGroupContext.Provider>
