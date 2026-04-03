@@ -130,21 +130,33 @@ export default function CompositeScrollAncestorsExperiment() {
 
         <section className={styles.case}>
           <div className={styles.caseHeader}>
+            <h2 className={styles.caseTitle}>Selected horizontal tab out of view on mount</h2>
+            <p className={styles.caseText}>
+              Reload this page to check whether a preselected horizontal tab is scrolled into view
+              when <code>Tabs.List</code> itself owns horizontal overflow.
+            </p>
+          </div>
+          <TabsExample
+            activateOnFocus={settings.activateOnFocus}
+            initialValue="schedules"
+            listOwnsScroll
+          />
+        </section>
+
+        <section className={styles.case}>
+          <div className={styles.caseHeader}>
             <h2 className={styles.caseTitle}>Selected tab below the fold on mount</h2>
             <p className={styles.caseText}>
               Reload this page to check whether a preselected vertical tab is scrolled into view
-              when it starts below the visible part of a plain overflow container.
+              when <code>Tabs.List</code> itself owns vertical overflow.
             </p>
           </div>
-          <div className={styles.scrollerYFrame}>
-            <div className={styles.scrollerY}>
-              <TabsExample
-                activateOnFocus={settings.activateOnFocus}
-                initialValue="schedules"
-                orientation="vertical"
-              />
-            </div>
-          </div>
+          <TabsExample
+            activateOnFocus={settings.activateOnFocus}
+            initialValue="schedules"
+            listOwnsScroll
+            orientation="vertical"
+          />
         </section>
 
         <section className={styles.case}>
@@ -243,17 +255,23 @@ function TabsExample(props: {
   activateOnFocus: boolean;
   orientation?: 'horizontal' | 'vertical';
   initialValue?: string;
+  listOwnsScroll?: boolean;
 }) {
   const {
     activateOnFocus,
     initialValue = TAB_ITEMS[0].toLowerCase(),
+    listOwnsScroll = false,
     orientation = 'horizontal',
   } = props;
   const [value, setValue] = React.useState(initialValue);
 
   return (
     <Tabs.Root
-      className={styles.tabsRoot}
+      className={clsx(
+        styles.tabsRoot,
+        listOwnsScroll &&
+          (orientation === 'vertical' ? styles.tabsRootScrollerY : styles.tabsRootScrollerX),
+      )}
       onValueChange={setValue}
       orientation={orientation}
       value={value}
@@ -261,7 +279,12 @@ function TabsExample(props: {
       <Tabs.List
         activateOnFocus={activateOnFocus}
         aria-label="Project sections"
-        className={clsx(styles.tabsList, orientation === 'vertical' && styles.tabsListVertical)}
+        className={clsx(
+          styles.tabsList,
+          orientation === 'vertical' && styles.tabsListVertical,
+          listOwnsScroll &&
+            (orientation === 'vertical' ? styles.tabsListScrollerY : styles.tabsListScrollerX),
+        )}
       >
         {TAB_ITEMS.map((item) => (
           <Tabs.Tab

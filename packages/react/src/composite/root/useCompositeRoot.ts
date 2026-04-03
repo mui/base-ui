@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
+import { ownerWindow } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
@@ -415,14 +416,29 @@ function scrollCompositeItemIntoView(
 
   let left = root.scrollLeft;
   let top = root.scrollTop;
+  const rootStyles = getScrollStyles(root);
+  const itemStyles = getScrollStyles(item);
   const rootRect = root.getBoundingClientRect();
   const itemRect = item.getBoundingClientRect();
 
   if (orientation !== 'vertical' && root.scrollWidth > root.clientWidth) {
     const start =
-      direction === 'rtl' ? rootRect.right - itemRect.right : itemRect.left - rootRect.left;
+      direction === 'rtl'
+        ? rootRect.right -
+          rootStyles.scrollPaddingRight -
+          itemRect.right -
+          itemStyles.scrollMarginRight
+        : itemRect.left -
+          itemStyles.scrollMarginLeft -
+          rootRect.left -
+          rootStyles.scrollPaddingLeft;
     const end =
-      direction === 'rtl' ? rootRect.left - itemRect.left : itemRect.right - rootRect.right;
+      direction === 'rtl'
+        ? rootRect.left + rootStyles.scrollPaddingLeft - itemRect.left + itemStyles.scrollMarginLeft
+        : itemRect.right +
+          itemStyles.scrollMarginRight -
+          rootRect.right +
+          rootStyles.scrollPaddingRight;
 
     if (start < 0) {
       left += start;
@@ -432,8 +448,13 @@ function scrollCompositeItemIntoView(
   }
 
   if (orientation !== 'horizontal' && root.scrollHeight > root.clientHeight) {
-    const start = itemRect.top - rootRect.top;
-    const end = itemRect.bottom - rootRect.bottom;
+    const start =
+      itemRect.top - itemStyles.scrollMarginTop - rootRect.top - rootStyles.scrollPaddingTop;
+    const end =
+      itemRect.bottom +
+      itemStyles.scrollMarginBottom -
+      rootRect.bottom +
+      rootStyles.scrollPaddingBottom;
 
     if (start < 0) {
       top += start;
@@ -445,4 +466,19 @@ function scrollCompositeItemIntoView(
   if (left !== root.scrollLeft || top !== root.scrollTop) {
     root.scrollTo({ left, top, behavior: 'auto' });
   }
+}
+
+function getScrollStyles(element: HTMLElement) {
+  const styles = ownerWindow(element).getComputedStyle(element);
+
+  return {
+    scrollMarginTop: parseFloat(styles.scrollMarginTop) || 0,
+    scrollMarginRight: parseFloat(styles.scrollMarginRight) || 0,
+    scrollMarginBottom: parseFloat(styles.scrollMarginBottom) || 0,
+    scrollMarginLeft: parseFloat(styles.scrollMarginLeft) || 0,
+    scrollPaddingTop: parseFloat(styles.scrollPaddingTop) || 0,
+    scrollPaddingRight: parseFloat(styles.scrollPaddingRight) || 0,
+    scrollPaddingBottom: parseFloat(styles.scrollPaddingBottom) || 0,
+    scrollPaddingLeft: parseFloat(styles.scrollPaddingLeft) || 0,
+  };
 }

@@ -34,15 +34,26 @@ describe('<Tabs.Root />', () => {
       async () => {
         await render(
           <Tabs.Root defaultValue={2}>
-            <Tabs.List style={{ display: 'flex', overflowX: 'auto', width: 120 }}>
-              <Tabs.Tab value={0} style={{ flex: '0 0 120px' }}>
+            <Tabs.List
+              style={{
+                display: 'flex',
+                overflowX: 'auto',
+                scrollPaddingLeft: 8,
+                scrollPaddingRight: 8,
+                width: 140,
+              }}
+            >
+              <Tabs.Tab value={0} style={{ flex: '0 0 80px' }}>
                 Tab 1
               </Tabs.Tab>
-              <Tabs.Tab value={1} style={{ flex: '0 0 120px' }}>
+              <Tabs.Tab value={1} style={{ flex: '0 0 80px' }}>
                 Tab 2
               </Tabs.Tab>
-              <Tabs.Tab value={2} style={{ flex: '0 0 120px' }}>
+              <Tabs.Tab value={2} style={{ flex: '0 0 80px', scrollMarginRight: 12 }}>
                 Tab 3
+              </Tabs.Tab>
+              <Tabs.Tab value={3} style={{ flex: '0 0 80px' }}>
+                Tab 4
               </Tabs.Tab>
             </Tabs.List>
           </Tabs.Root>,
@@ -57,8 +68,8 @@ describe('<Tabs.Root />', () => {
           const listRect = listElement.getBoundingClientRect();
           const tabRect = tabElement.getBoundingClientRect();
 
-          expect(tabRect.left).toBeGreaterThanOrEqual(listRect.left);
-          expect(tabRect.right).toBeLessThanOrEqual(listRect.right);
+          expect(tabRect.left).toBeGreaterThanOrEqual(listRect.left + 8);
+          expect(tabRect.right).toBeLessThanOrEqual(listRect.right - 8);
         });
       },
     );

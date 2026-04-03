@@ -29,23 +29,39 @@ describe('<RadioGroup />', () => {
       async () => {
         await render(
           <RadioGroup
-            defaultValue="c"
-            style={{ display: 'flex', flexDirection: 'column', overflowY: 'auto', maxHeight: 100 }}
+            defaultValue="d"
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              maxHeight: 100,
+              overflowY: 'auto',
+              scrollPaddingTop: 8,
+              scrollPaddingBottom: 8,
+            }}
           >
-            <Radio.Root value="a" style={{ minHeight: 48 }}>
+            <Radio.Root value="a" style={{ minHeight: 32 }}>
               A
             </Radio.Root>
-            <Radio.Root value="b" style={{ minHeight: 48 }}>
+            <Radio.Root value="b" style={{ minHeight: 32 }}>
               B
             </Radio.Root>
-            <Radio.Root value="c" style={{ minHeight: 48 }}>
+            <Radio.Root value="c" style={{ minHeight: 32 }}>
               C
+            </Radio.Root>
+            <Radio.Root value="d" style={{ minHeight: 32, scrollMarginBottom: 12 }}>
+              D
+            </Radio.Root>
+            <Radio.Root value="e" style={{ minHeight: 32 }}>
+              E
+            </Radio.Root>
+            <Radio.Root value="f" style={{ minHeight: 32 }}>
+              F
             </Radio.Root>
           </RadioGroup>,
         );
 
         const groupElement = screen.getByRole('radiogroup');
-        const radioElement = screen.getByRole('radio', { name: 'C' });
+        const radioElement = screen.getByRole('radio', { name: 'D' });
 
         await waitFor(() => {
           expect(groupElement.scrollTop).toBeGreaterThan(0);
@@ -53,8 +69,8 @@ describe('<RadioGroup />', () => {
           const groupRect = groupElement.getBoundingClientRect();
           const radioRect = radioElement.getBoundingClientRect();
 
-          expect(radioRect.top).toBeGreaterThanOrEqual(groupRect.top);
-          expect(radioRect.bottom).toBeLessThanOrEqual(groupRect.bottom);
+          expect(radioRect.top).toBeGreaterThanOrEqual(groupRect.top + 8);
+          expect(radioRect.bottom).toBeLessThanOrEqual(groupRect.bottom - 8);
         });
       },
     );
