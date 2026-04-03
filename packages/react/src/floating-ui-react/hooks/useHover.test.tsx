@@ -275,6 +275,48 @@ describe.skipIf(!isJSDOM)('useHover', () => {
     fireEvent.mouseLeave(button);
   });
 
+  test('does not treat a synthetic child target as inactive when the native path differs', async () => {
+    const onOpenChange = vi.fn();
+
+    function App() {
+      const [open, setOpen] = React.useState(true);
+      const { refs, context } = useFloating({
+        open,
+        onOpenChange(nextOpen, details) {
+          onOpenChange(nextOpen, details);
+          setOpen(nextOpen);
+        },
+      });
+      const { getReferenceProps, getFloatingProps } = useInteractions([useHover(context)]);
+
+      return (
+        <React.Fragment>
+          <button ref={refs.setReference} {...getReferenceProps()}>
+            <span data-testid="child" />
+          </button>
+          {open && <div role="tooltip" ref={refs.setFloating} {...getFloatingProps()} />}
+        </React.Fragment>
+      );
+    }
+
+    render(<App />);
+
+    const child = screen.getByTestId('child');
+    const event = new MouseEvent('mousemove', { bubbles: true });
+
+    Object.defineProperty(event, 'composedPath', {
+      configurable: true,
+      value: () => [document.body, child],
+    });
+
+    fireEvent(child, event);
+
+    await flushMicrotasks();
+
+    expect(onOpenChange).toHaveBeenCalledTimes(0);
+    expect(screen.queryByRole('tooltip')).not.toBe(null);
+  });
+
   test('cleans up blockPointerEvents if trigger changes', async () => {
     vi.useRealTimers();
     const user = userEvent.setup();

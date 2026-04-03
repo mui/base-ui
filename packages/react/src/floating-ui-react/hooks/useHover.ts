@@ -6,7 +6,7 @@ import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { contains, getTarget, isInteractiveElement } from '../utils';
+import { contains, isInteractiveElement } from '../utils';
 
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import type { Delay, ElementProps, FloatingContext, FloatingRootContext } from '../types';
@@ -457,7 +457,7 @@ export function useHover(
         // wasn't used to open the floating element.
         const isOverInactiveTrigger =
           store.select('domReferenceElement') &&
-          !contains(store.select('domReferenceElement'), getTarget(nativeEvent) as Element);
+          !contains(store.select('domReferenceElement'), event.target as Element);
 
         function handleMouseMove() {
           if (!blockMouseMoveRef.current && (!store.select('open') || isOverInactiveTrigger)) {

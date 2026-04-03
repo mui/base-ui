@@ -127,7 +127,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
       }
 
       // Ignore clicks on thumb
-      if (event.currentTarget !== getTarget(event.nativeEvent)) {
+      if (event.currentTarget !== event.target) {
         return;
       }
 

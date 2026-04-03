@@ -35,7 +35,6 @@ import {
 import { ACTIVE_COMPOSITE_ITEM } from '../constants';
 import { CompositeMetadata } from '../list/CompositeList';
 import { HTMLProps } from '../../utils/types';
-import { getTarget } from '../../floating-ui-react/utils';
 
 export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both' | undefined;
@@ -153,11 +152,10 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       ref: mergedRef,
       onFocus(event) {
         const element = rootRef.current;
-        const target = getTarget(event.nativeEvent);
-        if (!element || target == null || !isNativeInput(target)) {
+        if (!element || !isNativeInput(event.target)) {
           return;
         }
-        target.setSelectionRange(0, target.value.length ?? 0);
+        event.target.setSelectionRange(0, event.target.value.length ?? 0);
       },
       onKeyDown(event) {
         const RELEVANT_KEYS = enableHomeAndEndKeys ? ALL_KEYS : ARROW_KEYS;
@@ -188,11 +186,10 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
           both: horizontalBackwardKey,
         }[orientation];
 
-        const target = getTarget(event.nativeEvent);
-        if (target != null && isNativeInput(target) && !isElementDisabled(target)) {
-          const selectionStart = target.selectionStart;
-          const selectionEnd = target.selectionEnd;
-          const textContent = target.value ?? '';
+        if (isNativeInput(event.target) && !isElementDisabled(event.target)) {
+          const selectionStart = event.target.selectionStart;
+          const selectionEnd = event.target.selectionEnd;
+          const textContent = event.target.value ?? '';
           // return to native textbox behavior when
           // 1 - Shift is held to make a text selection, or if there already is a text selection
           if (selectionStart == null || event.shiftKey || selectionStart !== selectionEnd) {
