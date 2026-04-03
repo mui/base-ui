@@ -359,9 +359,7 @@ describe('<Drawer.Popup />', () => {
     },
   );
 
-  it.skipIf(isJSDOM)(
-    'keeps a fixed height applied while a nested drawer closes',
-    async () => {
+  it.skipIf(isJSDOM)('keeps a fixed height applied while a nested drawer closes', async () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
     const style = `
@@ -479,8 +477,7 @@ describe('<Drawer.Popup />', () => {
     } finally {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
     }
-    },
-  );
+  });
 
   it.skipIf(isJSDOM)(
     'restores a fixed height before nested state when reopening a nested drawer',
