@@ -173,10 +173,13 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     if (
       wasNestedTriggerHovered &&
       !nestedTriggerHovered &&
+      !disabled &&
       !store.select('open') &&
       getOpenDelay() === 0 &&
       triggerEl
     ) {
+      // With zero delay, moving off a nested trigger does not get a later
+      // hover callback to reopen the parent trigger.
       store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerEl));
     }
   });
