@@ -43,21 +43,21 @@ export default function Layout({ children }: React.PropsWithChildren) {
                 aria-label="social links"
               >
                 <Link
-                  className="Text size-1"
+                  className="Text Text-size-1"
                   href="https://x.com/base_ui"
                   rel="noopener noreferrer"
                 >
                   X
                 </Link>
                 <Link
-                  className="Text size-1"
+                  className="Text Text-size-1"
                   href="https://github.com/mui/base-ui"
                   rel="noopener noreferrer"
                 >
                   GitHub
                 </Link>
                 <Link
-                  className="Text size-1"
+                  className="Text Text-size-1"
                   href="https://discord.com/invite/g6C3hUtuxz"
                   rel="noopener noreferrer"
                 >
@@ -65,7 +65,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
                 </Link>
               </nav>
               <div className="bui-d-n bp3:bui-d-b bui-gcs-7 bui-gce-9">
-                <Link className="Text size-1 Link" href="/react/components/accordion">
+                <Link className="Text Text-size-1 Link" href="/react/components/accordion">
                   Components
                 </Link>
               </div>
@@ -78,42 +78,42 @@ export default function Layout({ children }: React.PropsWithChildren) {
             </div>
             <footer className="bui-d-c">
               <div className="bui-gcs-1 bui-gce-9 bp2:bui-gce-3">
-                <span className="Text size-1">© Base UI</span>
+                <span className="Text Text-size-1">© Base UI</span>
               </div>
               <nav
                 className="bui-d-f bui-fd-c bui-g-2 bui-gcs-1 bui-gce-9 bp2:bui-gcs-3 bp4:bui-gce-7"
                 aria-label="social links"
               >
                 <Link
-                  className="Text size-1"
+                  className="Text Text-size-1"
                   href="https://x.com/base_ui"
                   rel="noopener noreferrer"
                 >
                   X
                 </Link>
                 <Link
-                  className="Text size-1"
+                  className="Text Text-size-1"
                   href="https://github.com/mui/base-ui"
                   rel="noopener noreferrer"
                 >
                   GitHub
                 </Link>
                 <Link
-                  className="Text size-1"
+                  className="Text Text-size-1"
                   href="https://discord.com/invite/g6C3hUtuxz"
                   rel="noopener noreferrer"
                 >
                   Discord
                 </Link>
                 <Link
-                  className="Text size-1"
+                  className="Text Text-size-1"
                   href="https://www.npmjs.com/package/@base-ui/react"
                   rel="noopener noreferrer"
                 >
                   npm
                 </Link>
                 <a
-                  className="Text size-1 Link"
+                  className="Text Text-size-1 Link"
                   href="https://bsky.app/profile/did:plc:nwr6peuxqzdzlbi72qr5kldc"
                   rel="noopener noreferrer"
                 >
