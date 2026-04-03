@@ -4,7 +4,6 @@ import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
-import type { TextDirection } from '../../direction-provider/DirectionContext';
 import {
   ALL_KEYS,
   ARROW_DOWN,
@@ -81,7 +80,6 @@ export interface UseCompositeRootParameters {
 }
 
 const EMPTY_ARRAY: never[] = [];
-const COMPOSITE_ROOT = 'data-base-ui-composite-root';
 
 export function useCompositeRoot(params: UseCompositeRootParameters) {
   const {
@@ -112,14 +110,10 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const hasSetDefaultIndexRef = React.useRef(false);
 
   const highlightedIndex = externalHighlightedIndex ?? internalHighlightedIndex;
-  const scrollHighlightedItemIntoView = useStableCallback((item: HTMLElement | null) => {
-    item?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
-  });
-
   const onHighlightedIndexChange = useStableCallback((index, shouldScrollIntoView = false) => {
     (externalSetHighlightedIndex ?? internalSetHighlightedIndex)(index);
     if (shouldScrollIntoView) {
-      scrollHighlightedItemIntoView(elementsRef.current[index]);
+      elementsRef.current[index]?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
     }
   });
 
@@ -137,7 +131,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
     if (activeIndex !== -1) {
       onHighlightedIndexChange(activeIndex);
-      scrollCompositeItemIntoView(activeItem, orientation, direction);
+      scrollCompositeItemIntoViewOnMount(rootRef.current, activeItem);
     }
   });
 
@@ -153,7 +147,6 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const props = React.useMemo<HTMLProps>(
     () => ({
       'aria-orientation': orientation === 'both' ? undefined : orientation,
-      [COMPOSITE_ROOT]: '',
       ref: mergedRef,
       onFocus(event) {
         const element = rootRef.current;
@@ -399,122 +392,26 @@ function isModifierKeySet(event: React.KeyboardEvent, ignoredModifierKeys: Modif
   return false;
 }
 
-function scrollCompositeItemIntoView(
-  item: HTMLElement | null,
-  orientation: 'horizontal' | 'vertical' | 'both',
-  direction: TextDirection,
-) {
-  if (!item) {
+function scrollCompositeItemIntoViewOnMount(root: HTMLElement | null, item: HTMLElement | null) {
+  if (!root || !item) {
     return;
   }
 
-  const root = item.closest<HTMLElement>(`[${COMPOSITE_ROOT}]`);
-
-  if (!root) {
+  if (root.scrollWidth <= root.clientWidth && root.scrollHeight <= root.clientHeight) {
     return;
   }
 
-  let left = root.scrollLeft;
-  let top = root.scrollTop;
-  const rootStyles = getScrollStyles(root);
-  const itemStyles = getScrollStyles(item);
+  const { innerHeight, innerWidth } = ownerWindow(root);
+  const rootRect = root.getBoundingClientRect();
 
-  if (orientation !== 'vertical' && root.scrollWidth > root.clientWidth) {
-    const itemOffsetLeft = getOffset(root, item, 'left');
-    const nextLeft = getItemScrollPosition(
-      root.scrollLeft,
-      root.clientWidth,
-      rootStyles.scrollPaddingLeft,
-      rootStyles.scrollPaddingRight,
-      itemOffsetLeft,
-      item.offsetWidth,
-      itemStyles.scrollMarginLeft,
-      itemStyles.scrollMarginRight,
-      direction === 'rtl' ? itemStyles.scrollMarginRight : itemStyles.scrollMarginLeft,
-    );
-
-    if (nextLeft != null) {
-      left = nextLeft;
-    }
+  if (
+    rootRect.top < 0 ||
+    rootRect.left < 0 ||
+    rootRect.bottom > innerHeight ||
+    rootRect.right > innerWidth
+  ) {
+    return;
   }
 
-  if (orientation !== 'horizontal' && root.scrollHeight > root.clientHeight) {
-    const itemOffsetTop = getOffset(root, item, 'top');
-    const nextTop = getItemScrollPosition(
-      root.scrollTop,
-      root.clientHeight,
-      rootStyles.scrollPaddingTop,
-      rootStyles.scrollPaddingBottom,
-      itemOffsetTop,
-      item.offsetHeight,
-      itemStyles.scrollMarginTop,
-      itemStyles.scrollMarginBottom,
-      itemStyles.scrollMarginTop,
-    );
-
-    if (nextTop != null) {
-      top = nextTop;
-    }
-  }
-
-  if (left !== root.scrollLeft || top !== root.scrollTop) {
-    root.scrollTo({ left, top, behavior: 'auto' });
-  }
-}
-
-function getOffset(ancestor: HTMLElement, element: HTMLElement, side: 'left' | 'top') {
-  const propName = side === 'left' ? 'offsetLeft' : 'offsetTop';
-  let result = 0;
-
-  while (element.offsetParent) {
-    result += element[propName];
-    if (element.offsetParent === ancestor) {
-      break;
-    }
-    element = element.offsetParent as HTMLElement;
-  }
-
-  return result;
-}
-
-// Positional arguments are intentional here to keep the helper small after minification.
-function getItemScrollPosition(
-  scroll: number,
-  clientSize: number,
-  paddingStart: number,
-  paddingEnd: number,
-  itemOffset: number,
-  itemSize: number,
-  marginStart: number,
-  marginEnd: number,
-  startMargin: number,
-) {
-  const start = itemOffset - startMargin;
-
-  if (start < scroll + paddingStart) {
-    return itemOffset - marginStart - paddingStart;
-  }
-
-  const end = itemOffset + itemSize + marginEnd;
-
-  if (end > scroll + clientSize - paddingEnd) {
-    return end - clientSize + paddingEnd;
-  }
-
-  return null;
-}
-
-function getScrollStyles(element: HTMLElement) {
-  const styles = ownerWindow(element).getComputedStyle(element);
-
-  return {
-    scrollMarginTop: parseFloat(styles.scrollMarginTop) || 0,
-    scrollMarginRight: parseFloat(styles.scrollMarginRight) || 0,
-    scrollMarginBottom: parseFloat(styles.scrollMarginBottom) || 0,
-    scrollMarginLeft: parseFloat(styles.scrollMarginLeft) || 0,
-    scrollPaddingTop: parseFloat(styles.scrollPaddingTop) || 0,
-    scrollPaddingRight: parseFloat(styles.scrollPaddingRight) || 0,
-    scrollPaddingBottom: parseFloat(styles.scrollPaddingBottom) || 0,
-    scrollPaddingLeft: parseFloat(styles.scrollPaddingLeft) || 0,
-  };
+  item.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
 }
