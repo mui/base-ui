@@ -45,15 +45,6 @@ import { DemoScrollAreaScrollFade } from './demos/scroll-fade';
 
 Use the viewport overflow CSS variables to drive a CSS mask, which gradually increases the fade as the user scrolls away from the edges.
 
-When the fade is applied to `<ScrollArea.Viewport>` itself, the variables can be used directly. Child elements still need to opt in with `inherit` if they use the overflow values.
-
-```css title="Child element opt-in"
-.Child {
-  --scroll-area-overflow-y-start: inherit;
-  --scroll-area-overflow-y-end: inherit;
-}
-```
-
 ```css title="scroll-area.module.css"
 .Viewport {
   mask-image: linear-gradient(
@@ -70,15 +61,15 @@ When the fade is applied to `<ScrollArea.Viewport>` itself, the variables can be
 For SSR, a fallback can be used as part of the end-side `var()` call so the mask is visible before the overflow CSS variables hydrate.
 
 ```css title="SSR fallback" ", 40px"
-.Viewport {
-  mask-image: linear-gradient(
-    to bottom,
-    transparent 0,
-    black min(40px, var(--scroll-area-overflow-y-start)),
-    black calc(100% - min(40px, var(--scroll-area-overflow-y-end, 40px))),
-    transparent 100%
-  );
-  mask-repeat: no-repeat;
+var(--scroll-area-overflow-y-end, 40px);
+```
+
+When the fade is applied to `<ScrollArea.Viewport>` itself, the variables can be used directly. However, inheritance to children is disabled, so they must explicitly opt-in using the `inherit` keyword.
+
+```css title="Child element opt-in"
+.Child {
+  --scroll-area-overflow-y-start: inherit;
+  --scroll-area-overflow-y-end: inherit;
 }
 ```
 
