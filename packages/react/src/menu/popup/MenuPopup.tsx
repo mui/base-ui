@@ -7,11 +7,9 @@ import type { MenuRoot } from '../root/MenuRoot';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
@@ -19,10 +17,7 @@ import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { COMPOSITE_KEYS } from '../../composite/composite';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 
-const stateAttributesMapping: StateAttributesMapping<MenuPopupState> = {
-  ...baseMapping,
-  ...transitionStatusMapping,
-};
+const stateAttributesMapping = popupTransitionStateMapping;
 
 /**
  * A container for the menu items.
@@ -98,16 +93,9 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     instant: instantType,
   };
 
-  const setPopupElement = React.useCallback(
-    (element: HTMLElement | null) => {
-      store.set('popupElement', element);
-    },
-    [store],
-  );
-
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, store.context.popupRef, setPopupElement],
+    ref: [forwardedRef, store.context.popupRef, store.useStateSetter('popupElement')],
     stateAttributesMapping,
     props: [
       popupProps,

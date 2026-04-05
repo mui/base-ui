@@ -127,18 +127,11 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     instant: instantType,
   };
 
-  const setPositionerElement = React.useCallback(
-    (element: HTMLElement | null) => {
-      store.set('positionerElement', element);
-    },
-    [store],
-  );
-
   const element = usePositioner(componentProps, state, {
     styles: positioning.positionerStyles,
     transitionStatus,
     props: elementProps,
-    refs: [forwardedRef, setPositionerElement],
+    refs: [forwardedRef, store.useStateSetter('positionerElement')],
     hidden: !mounted,
     inert: !open,
   });
