@@ -35,7 +35,7 @@ import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import { useCompositeRootContext } from '../../composite/root/CompositeRootContext';
 import { findRootOwnerId } from '../utils/findRootOwnerId';
-import { useTriggerDataForwarding } from '../../utils/popups';
+import { useTriggerDataForwarding, useTriggerFocusGuards } from '../../utils/popups';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { REASONS } from '../../utils/reasons';
 import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHandler';
@@ -45,7 +45,6 @@ import { useMenubarContext } from '../../menubar/MenubarContext';
 import { MenuParent } from '../root/MenuRoot';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -254,57 +253,8 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     getButtonProps,
   ];
 
-  const preFocusGuardRef = React.useRef<HTMLElement>(null);
-
-  const handlePreFocusGuardFocus = useStableCallback((event: React.FocusEvent) => {
-    ReactDOM.flushSync(() => {
-      store.setOpen(
-        false,
-        createChangeEventDetails(
-          REASONS.focusOut,
-          event.nativeEvent,
-          event.currentTarget as HTMLElement,
-        ),
-      );
-    });
-
-    const previousTabbable: FocusableElement | null = getTabbableBeforeElement(
-      preFocusGuardRef.current,
-    );
-    previousTabbable?.focus();
-  });
-
-  const handleFocusTargetFocus = useStableCallback((event: React.FocusEvent) => {
-    const currentPositionerElement = store.select('positionerElement');
-    if (currentPositionerElement && isOutsideEvent(event, currentPositionerElement)) {
-      store.context.beforeContentFocusGuardRef.current?.focus();
-    } else {
-      ReactDOM.flushSync(() => {
-        store.setOpen(
-          false,
-          createChangeEventDetails(
-            REASONS.focusOut,
-            event.nativeEvent,
-            event.currentTarget as HTMLElement,
-          ),
-        );
-      });
-
-      let nextTabbable = getTabbableAfterElement(
-        store.context.triggerFocusTargetRef.current || triggerElementRef.current,
-      );
-
-      while (nextTabbable !== null && contains(currentPositionerElement, nextTabbable)) {
-        const prevTabbable = nextTabbable;
-        nextTabbable = getNextTabbable(nextTabbable);
-        if (nextTabbable === prevTabbable) {
-          break;
-        }
-      }
-
-      nextTabbable?.focus();
-    }
-  });
+  const { preFocusGuardRef, handlePreFocusGuardFocus, handleFocusTargetFocus } =
+    useTriggerFocusGuards(store, triggerElementRef);
 
   const element = useRenderElement('button', componentProps, {
     enabled: !isInMenubar,
