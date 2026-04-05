@@ -8,6 +8,7 @@
     "react-component",
     "mui",
     "unstyled",
+    "base-ui",
     "a11y"
   ],
   "repository": {
