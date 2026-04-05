@@ -165,10 +165,6 @@
   color: var(--color-gray-600);
 }
 
-.Status:empty {
-  display: none;
-}
-
 .Spinner {
   box-sizing: border-box;
   width: 0.75rem;
@@ -190,7 +186,7 @@
   }
 }
 
-.Empty:not(:empty) {
+.Empty {
   box-sizing: border-box;
   font-size: 0.875rem;
   line-height: 1rem;

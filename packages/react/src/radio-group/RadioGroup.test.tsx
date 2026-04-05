@@ -1003,6 +1003,27 @@ describe('<RadioGroup />', () => {
       expect(error).toHaveTextContent('required');
     });
 
+    it('submits null to onFormSubmit when no radio is selected', async () => {
+      const handleSubmit = vi.fn();
+
+      await renderFakeTimers(
+        <Form onFormSubmit={handleSubmit}>
+          <Field.Root name="test">
+            <RadioGroup name="group">
+              <Radio.Root value="a" data-testid="item-a" />
+              <Radio.Root value="b" data-testid="item-b" />
+            </RadioGroup>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.mock.calls.length).toBe(1);
+      expect(handleSubmit.mock.calls[0][0]).toEqual({ test: null });
+    });
+
     it('clears required validation when a value is selected', async () => {
       const { user } = await renderFakeTimers(
         <Form>

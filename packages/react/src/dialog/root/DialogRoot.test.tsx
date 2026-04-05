@@ -7,6 +7,7 @@ import { Menu } from '@base-ui/react/menu';
 import { Select } from '@base-ui/react/select';
 import { NumberField } from '@base-ui/react/number-field';
 import { ScrollArea } from '@base-ui/react/scroll-area';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { REASONS } from '../../utils/reasons';
 
 describe('<Dialog.Root />', () => {
@@ -1332,7 +1333,7 @@ function DetachedTriggerDialog(props: Omit<TestDialogProps, 'omitTrigger'>) {
   const { triggerProps, triggerWrapper = (trigger) => trigger } = props;
 
   const { children: triggerChildren, ...restTriggerProps } = triggerProps ?? {};
-  const dialogHandle = Dialog.createHandle();
+  const dialogHandle = useRefWithInit(() => Dialog.createHandle()).current;
 
   return (
     <React.Fragment>
@@ -1354,7 +1355,7 @@ function MultipleDetachedTriggersDialog(props: Omit<TestDialogProps, 'omitTrigge
   const { triggerProps, triggerWrapper = (trigger) => trigger } = props;
 
   const { children: triggerChildren, ...restTriggerProps } = triggerProps ?? {};
-  const dialogHandle = Dialog.createHandle();
+  const dialogHandle = useRefWithInit(() => Dialog.createHandle()).current;
 
   return (
     <React.Fragment>

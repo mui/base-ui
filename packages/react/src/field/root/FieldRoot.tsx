@@ -10,6 +10,7 @@ import { LabelableProvider } from '../../labelable-provider';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useFieldValidation } from './useFieldValidation';
+import { useFieldControlRegistration } from './useFieldControlRegistration';
 
 /**
  * @internal
@@ -118,6 +119,15 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     validation.commit(validityData.value);
   }, [validation, validityData]);
 
+  const registerFieldControl = useFieldControlRegistration({
+    commit: validation.commit,
+    invalid,
+    markedDirtyRef,
+    name,
+    setValidityData,
+    validityData,
+  });
+
   React.useImperativeHandle(actionsRef, () => ({ validate: handleImperativeValidate }), [
     handleImperativeValidate,
   ]);
@@ -143,6 +153,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
       shouldValidateOnChange,
       state,
       markedDirtyRef,
+      registerFieldControl,
       validation,
     }),
     [
@@ -163,6 +174,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
       validationDebounceTime,
       shouldValidateOnChange,
       state,
+      registerFieldControl,
       validation,
     ],
   );
