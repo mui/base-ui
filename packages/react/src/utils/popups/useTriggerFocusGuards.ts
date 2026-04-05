@@ -10,7 +10,10 @@ import {
   getTabbableBeforeElement,
   isOutsideEvent,
 } from '../../floating-ui-react/utils';
-import { createChangeEventDetails } from '../createBaseUIEventDetails';
+import {
+  type BaseUIChangeEventDetails,
+  createChangeEventDetails,
+} from '../createBaseUIEventDetails';
 import { REASONS } from '../reasons';
 
 /**
@@ -18,8 +21,11 @@ import { REASONS } from '../reasons';
  * Both PopoverStore and MenuStore satisfy this interface.
  */
 interface TriggerFocusGuardStore {
-  setOpen(open: boolean, eventDetails: any): void;
-  select(key: 'positionerElement', ...args: any[]): HTMLElement | null;
+  setOpen(
+    open: boolean,
+    eventDetails: BaseUIChangeEventDetails<typeof REASONS.focusOut>,
+  ): void;
+  select(key: 'positionerElement'): HTMLElement | null;
   context: {
     readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
     readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;

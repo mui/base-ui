@@ -21,7 +21,8 @@ import { PopoverHandle } from '../store/PopoverHandle';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { REASONS } from '../../utils/reasons';
-import { useTriggerDataForwarding, useTriggerFocusGuards } from '../../utils/popups';
+import { useTriggerDataForwarding } from '../../utils/popups';
+import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 
 /**
  * A button that opens the popover.
