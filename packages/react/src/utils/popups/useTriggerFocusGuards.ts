@@ -21,10 +21,7 @@ import { REASONS } from '../reasons';
  * Both PopoverStore and MenuStore satisfy this interface.
  */
 interface TriggerFocusGuardStore {
-  setOpen(
-    open: boolean,
-    eventDetails: BaseUIChangeEventDetails<typeof REASONS.focusOut>,
-  ): void;
+  setOpen(open: boolean, eventDetails: BaseUIChangeEventDetails<typeof REASONS.focusOut>): void;
   select(key: 'positionerElement'): HTMLElement | null;
   context: {
     readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
