@@ -11,6 +11,7 @@ import { fastComponent } from '@base-ui/utils/fastHooks';
 import {
   FloatingEvents,
   FloatingTree,
+  type FloatingRootContext,
   useDismiss,
   useFloatingNodeId,
   useFloatingParentNodeId,
@@ -237,6 +238,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   const allowTouchToCloseRef = React.useRef(true);
   const allowTouchToCloseTimeout = useTimeout();
+  let floatingRootContext!: FloatingRootContext;
 
   const setOpen = useStableCallback(
     (
@@ -390,7 +392,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   React.useImperativeHandle(ctx?.actionsRef, () => ({ setOpen }), [setOpen]);
 
-  const floatingRootContext = useSyncedFloatingRootContext({
+  floatingRootContext = useSyncedFloatingRootContext({
     popupStore: store,
     onOpenChange: setOpen,
   });

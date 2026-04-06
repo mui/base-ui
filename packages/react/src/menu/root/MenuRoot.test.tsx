@@ -1599,9 +1599,7 @@ describe('<Menu.Root />', () => {
         clock.withFakeTimers();
 
         it('reopens on hover after an impatient click closes via item press', async () => {
-          await renderFakeTimers(
-            <TestMenu triggerProps={{ openOnHover: true, delay: 100 }} />,
-          );
+          await renderFakeTimers(<TestMenu triggerProps={{ openOnHover: true, delay: 100 }} />);
 
           const trigger = screen.getByRole('button', { name: 'Toggle' });
 
