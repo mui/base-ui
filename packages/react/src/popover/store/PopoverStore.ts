@@ -40,6 +40,7 @@ type Context = PopupStoreContext<PopoverRoot.ChangeEventDetails> & {
   readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
   readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
   readonly stickIfOpenTimeout: Timeout;
+  updatePosition?: (() => void) | undefined;
 };
 
 function createInitialState<Payload>(): State<Payload> {
@@ -100,6 +101,7 @@ export class PopoverStore<Payload> extends ReactStore<
         triggerFocusTargetRef: React.createRef<HTMLElement>(),
         beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
         stickIfOpenTimeout: new Timeout(),
+        updatePosition: undefined,
         triggerElements: new PopupTriggerMap(),
       },
       selectors,

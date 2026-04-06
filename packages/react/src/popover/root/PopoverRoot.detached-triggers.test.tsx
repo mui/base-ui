@@ -11,6 +11,12 @@ describe('<Popover.Root />', () => {
 
   const { render } = createRenderer();
 
+  it('treats updatePosition as a no-op when no positioner is mounted', () => {
+    const popover = Popover.createHandle();
+
+    expect(() => popover.updatePosition()).not.toThrow();
+  });
+
   describe.skipIf(isJSDOM)('multiple triggers within Root', () => {
     type NumberPayload = { payload: number | undefined };
 
@@ -736,6 +742,72 @@ describe('<Popover.Root />', () => {
   });
 
   describe.skipIf(isJSDOM)('imperative actions on the handle', () => {
+    it('updates the position when requested imperatively', async () => {
+      const popover = Popover.createHandle();
+      let anchorRect = {
+        x: 100,
+        y: 120,
+        width: 0,
+        height: 0,
+        top: 120,
+        left: 100,
+        right: 100,
+        bottom: 120,
+      };
+      const virtualAnchor = {
+        getBoundingClientRect: () => anchorRect,
+      };
+
+      await render(
+        <div>
+          <Popover.Trigger handle={popover} id="trigger">
+            Trigger
+          </Popover.Trigger>
+          <Popover.Root handle={popover}>
+            <Popover.Portal>
+              <Popover.Positioner
+                anchor={virtualAnchor}
+                align="start"
+                data-testid="positioner"
+                positionMethod="fixed"
+              >
+                <Popover.Popup style={{ width: 40, height: 20 }}>Content</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </div>,
+      );
+
+      await act(() => popover.open('trigger'));
+
+      const positioner = await screen.findByTestId('positioner');
+      const initialLeft = positioner.getBoundingClientRect().left;
+
+      await waitFor(() => {
+        expect(positioner.getBoundingClientRect().left).toBe(initialLeft);
+      });
+
+      anchorRect = {
+        ...anchorRect,
+        x: 220,
+        left: 220,
+        right: 220,
+      };
+      const expectedDelta = anchorRect.left - 100;
+
+      expect(Math.abs(positioner.getBoundingClientRect().left - initialLeft)).toBeLessThanOrEqual(
+        1,
+      );
+
+      await act(() => popover.updatePosition());
+
+      await waitFor(() => {
+        expect(
+          Math.abs(positioner.getBoundingClientRect().left - (initialLeft + expectedDelta)),
+        ).toBeLessThanOrEqual(1);
+      });
+    });
+
     it('opens and closes the dialog', async () => {
       const popover = Popover.createHandle();
       await render(

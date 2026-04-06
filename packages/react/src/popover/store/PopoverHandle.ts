@@ -49,6 +49,15 @@ export class PopoverHandle<Payload> {
   }
 
   /**
+   * Re-positions the popover.
+   * Useful for anchors whose position changes outside of React's lifecycle,
+   * such as virtual anchors during canvas animations.
+   */
+  updatePosition() {
+    this.store.context.updatePosition?.();
+  }
+
+  /**
    * Indicates whether the popover is currently open.
    */
   get isOpen() {
