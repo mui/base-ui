@@ -242,19 +242,24 @@ export function useHoverReferenceInteraction(
         contains(currentDomReference, triggerNode) &&
         isHoverCloseTransition;
       const isRestOnlyDelay = restMsValue > 0 && !openDelay;
+      const shouldOpenImmediately =
+        (isOverInactive && (isOpen || isHoverCloseTransition)) ||
+        isReenteringSameTriggerDuringCloseTransition;
 
       const shouldOpen = !isOpen || isOverInactive;
 
       // Open immediately when moving between triggers while open, or during
       // a hover-driven close transition (including same-trigger re-entry).
-      if (
-        (isOverInactive && (isOpen || isHoverCloseTransition)) ||
-        isReenteringSameTriggerDuringCloseTransition
-      ) {
+      if (shouldOpenImmediately) {
         store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
-      } else if (isRestOnlyDelay) {
         return;
-      } else if (openDelay) {
+      }
+
+      if (isRestOnlyDelay) {
+        return;
+      }
+
+      if (openDelay) {
         instance.openChangeTimeout.start(openDelay, () => {
           if (shouldOpen) {
             store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));

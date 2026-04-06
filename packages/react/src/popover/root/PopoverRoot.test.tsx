@@ -320,7 +320,7 @@ describe('<Popover.Root />', () => {
         async () => {
           globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
-          const closeTransitionMs = 1000;
+          const closeTransitionMs = 50;
           const style = `
             @keyframes popover-reopen-during-close {
               from {
@@ -342,7 +342,7 @@ describe('<Popover.Root />', () => {
               <style dangerouslySetInnerHTML={{ __html: style }} />
               <TestPopover
                 portalProps={{ keepMounted: true }}
-                triggerProps={{ openOnHover: true, delay: OPEN_DELAY }}
+                triggerProps={{ openOnHover: true, delay: 1 }}
                 popupProps={{ className: 'animation-test-indicator' }}
               />
             </React.Fragment>,
