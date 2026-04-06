@@ -1598,6 +1598,44 @@ describe('<Menu.Root />', () => {
 
         clock.withFakeTimers();
 
+        it('reopens on hover after an impatient click closes via item press', async () => {
+          await renderFakeTimers(
+            <TestMenu triggerProps={{ openOnHover: true, delay: 100 }} />,
+          );
+
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+          fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
+          fireEvent.mouseEnter(trigger);
+          fireEvent.mouseMove(trigger, { movementX: 10, movementY: 0 });
+
+          clock.tick(100);
+          await flushMicrotasks();
+
+          expect(screen.queryByRole('menu')).not.toBe(null);
+
+          clock.tick(PATIENT_CLICK_THRESHOLD - 1);
+          fireEvent.click(trigger);
+
+          await flushMicrotasks();
+
+          fireEvent.click(screen.getByTestId('item-1'));
+
+          await flushMicrotasks();
+
+          expect(screen.queryByRole('menu')).toBe(null);
+
+          // Re-enter with mouse events only. A fresh pointerenter can be
+          // missed after the click-driven close, but hover should still work.
+          fireEvent.mouseEnter(trigger);
+          fireEvent.mouseMove(trigger, { movementX: 10, movementY: 0 });
+
+          clock.tick(100);
+          await flushMicrotasks();
+
+          expect(screen.queryByRole('menu')).not.toBe(null);
+        });
+
         it('treats hover-opened menus as modal after a click', async () => {
           await renderFakeTimers(
             <Menu.Root>

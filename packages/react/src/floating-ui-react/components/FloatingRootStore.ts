@@ -84,21 +84,29 @@ export class FloatingRootStore extends ReactStore<
   }
 
   /**
+   * Syncs the event used by hover logic to distinguish hover-open from click-like interaction.
+   */
+  syncOpenEvent = (newOpen: boolean, event: Event | undefined) => {
+    if (
+      !newOpen ||
+      !this.state.open ||
+      // Prevent a pending hover-open from overwriting a click-open event, while allowing
+      // click events to upgrade a hover-open.
+      (event != null && isClickLikeEvent(event))
+    ) {
+      this.context.dataRef.current.openEvent = newOpen ? event : undefined;
+    }
+  };
+
+  /**
    * Emits the `openchange` event through the internal event emitter and calls the `onOpenChange` handler with the provided arguments.
    *
    * @param newOpen The new open state.
    * @param eventDetails Details about the event that triggered the open state change.
    */
   setOpen = (newOpen: boolean, eventDetails: BaseUIChangeEventDetails<string>) => {
-    if (
-      !newOpen ||
-      !this.state.open ||
-      // Prevent a pending hover-open from overwriting a click-open event, while allowing
-      // click events to upgrade a hover-open.
-      isClickLikeEvent(eventDetails.event)
-    ) {
-      this.context.dataRef.current.openEvent = newOpen ? eventDetails.event : undefined;
-    }
+    this.syncOpenEvent(newOpen, eventDetails.event);
+
     if (!this.context.noEmit) {
       const details: FloatingUIOpenChangeDetails = {
         open: newOpen,

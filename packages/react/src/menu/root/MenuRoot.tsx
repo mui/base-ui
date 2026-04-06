@@ -275,6 +275,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         reason: eventDetails.reason,
         nested,
       };
+      floatingRootContext.syncOpenEvent(nextOpen, eventDetails.event);
 
       floatingEvents?.emit('openchange', details);
 

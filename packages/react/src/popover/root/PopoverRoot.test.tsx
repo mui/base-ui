@@ -360,15 +360,15 @@ describe('<Popover.Root />', () => {
             expect(screen.getByTestId('popover-popup')).toHaveAttribute('data-ending-style');
           });
 
-          await user.hover(trigger);
+          // Re-enter without a follow-up mousemove so this only passes if the
+          // close-transition fast path runs from `onMouseEnter`.
+          fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
+          fireEvent.mouseEnter(trigger);
 
-          await waitFor(
-            () => {
-              expect(screen.getByTestId('popover-popup')).toHaveAttribute('data-open');
-              expect(screen.getByTestId('popover-popup')).not.toHaveAttribute('data-closed');
-            },
-            { timeout: 200 },
-          );
+          await waitFor(() => {
+            expect(screen.getByTestId('popover-popup')).toHaveAttribute('data-open');
+          });
+          expect(screen.getByTestId('popover-popup')).not.toHaveAttribute('data-closed');
         },
       );
     });
