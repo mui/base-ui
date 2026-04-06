@@ -34,6 +34,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   // `mapTick` uses a counter rather than objects for low precision-loss risk and better memory efficiency
   const [mapTick, setMapTick] = React.useState(0);
   const lastTickRef = React.useRef(mapTick);
+  const sortedNodesRef = React.useRef<Element[]>([]);
 
   const register = useStableCallback((node: Element, metadata: Metadata) => {
     map.set(node, metadata ?? null);
@@ -52,11 +53,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     disableEslintWarning(mapTick);
 
     const newMap = new Map<Element, CompositeMetadata<Metadata>>();
-    // Filter out disconnected elements before sorting to avoid inconsistent
-    // compareDocumentPosition results when elements are detached from the DOM.
-    const sortedNodes = Array.from(map.keys())
-      .filter((node) => node.isConnected)
-      .sort(sortByDocumentPosition);
+    const sortedNodes = getOrderedNodes(map);
 
     sortedNodes.forEach((node, index) => {
       const metadata = map.get(node) ?? ({} as CompositeMetadata<Metadata>);
@@ -67,6 +64,8 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   }, [map, mapTick]);
 
   useIsoLayoutEffect(() => {
+    sortedNodesRef.current = Array.from(sortedMap.keys());
+
     if (typeof MutationObserver !== 'function' || sortedMap.size === 0) {
       return undefined;
     }
@@ -94,6 +93,21 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
       mutationObserver.disconnect();
     };
   }, [sortedMap]);
+
+  useIsoLayoutEffect(() => {
+    const nextSortedNodes = getOrderedNodes(map);
+    const previousSortedNodes = sortedNodesRef.current;
+
+    if (
+      nextSortedNodes.length === previousSortedNodes.length &&
+      nextSortedNodes.every((node, index) => node === previousSortedNodes[index])
+    ) {
+      return;
+    }
+
+    lastTickRef.current += 1;
+    setMapTick(lastTickRef.current);
+  }, [children, map]);
 
   useIsoLayoutEffect(() => {
     const shouldUpdateLengths = lastTickRef.current === mapTick;
@@ -168,6 +182,14 @@ function sortByDocumentPosition(a: Element, b: Element) {
   }
 
   return 0;
+}
+
+function getOrderedNodes(map: Map<Element, unknown>) {
+  // Filter out disconnected elements before sorting to avoid inconsistent
+  // compareDocumentPosition results when elements are detached from the DOM.
+  return Array.from(map.keys())
+    .filter((node) => node.isConnected)
+    .sort(sortByDocumentPosition);
 }
 
 function disableEslintWarning(_: any) {}

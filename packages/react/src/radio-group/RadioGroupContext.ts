@@ -19,7 +19,7 @@ export interface RadioGroupContext<Value> {
     value: Value,
     eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none']>,
   ) => void;
-  touched: boolean;
+  touchedRef: React.RefObject<boolean>;
   setTouched: React.Dispatch<React.SetStateAction<boolean>>;
   validation?: UseFieldValidationReturnValue | undefined;
   registerControlRef: (element: HTMLElement | null, disabled?: boolean) => void;

@@ -1,6 +1,6 @@
 import { expect } from 'vitest';
 import * as React from 'react';
-import { act, createRenderer, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import { act, createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
 import { isJSDOM } from '#test-utils';
 import { DirectionProvider } from '../../direction-provider';
 import { CompositeItem } from '../item/CompositeItem';
@@ -10,7 +10,7 @@ describe('Composite', () => {
   const { render } = createRenderer();
 
   describe('list', () => {
-    it('controlled mode', async () => {
+    it('controlled mode', () => {
       function App() {
         const [highlightedIndex, setHighlightedIndex] = React.useState(0);
         return (
@@ -36,31 +36,27 @@ describe('Composite', () => {
       expect(item1).toHaveAttribute('tabindex', '0');
 
       fireEvent.keyDown(item1, { key: 'ArrowDown' });
-      await flushMicrotasks();
 
       expect(item2).toHaveAttribute('tabindex', '0');
       expect(item2).toHaveFocus();
 
       fireEvent.keyDown(item2, { key: 'ArrowDown' });
-      await flushMicrotasks();
 
       expect(item3).toHaveAttribute('tabindex', '0');
       expect(item3).toHaveFocus();
 
       fireEvent.keyDown(item3, { key: 'ArrowUp' });
-      await flushMicrotasks();
 
       expect(item2).toHaveAttribute('tabindex', '0');
       expect(item2).toHaveFocus();
 
       fireEvent.keyDown(item2, { key: 'ArrowUp' });
-      await flushMicrotasks();
 
       expect(item1).toHaveAttribute('tabindex', '0');
       expect(item1).toHaveFocus();
     });
 
-    it('uncontrolled mode', async () => {
+    it('uncontrolled mode', () => {
       render(
         <CompositeRoot>
           <CompositeItem data-testid="1">1</CompositeItem>
@@ -76,28 +72,44 @@ describe('Composite', () => {
       act(() => item1.focus());
 
       fireEvent.keyDown(item1, { key: 'ArrowDown' });
-      await flushMicrotasks();
 
       expect(item2).toHaveAttribute('tabindex', '0');
       expect(item2).toHaveFocus();
 
       fireEvent.keyDown(item2, { key: 'ArrowDown' });
-      await flushMicrotasks();
 
       expect(item3).toHaveAttribute('tabindex', '0');
       expect(item3).toHaveFocus();
 
       fireEvent.keyDown(item3, { key: 'ArrowUp' });
-      await flushMicrotasks();
 
       expect(item2).toHaveAttribute('tabindex', '0');
       expect(item2).toHaveFocus();
 
       fireEvent.keyDown(item2, { key: 'ArrowUp' });
-      await flushMicrotasks();
 
       expect(item1).toHaveAttribute('tabindex', '0');
       expect(item1).toHaveFocus();
+    });
+
+    it('moves focus synchronously on arrow navigation', () => {
+      render(
+        <CompositeRoot>
+          <CompositeItem data-testid="1">1</CompositeItem>
+          <CompositeItem data-testid="2">2</CompositeItem>
+          <CompositeItem data-testid="3">3</CompositeItem>
+        </CompositeRoot>,
+      );
+
+      const item1 = screen.getByTestId('1');
+      const item2 = screen.getByTestId('2');
+
+      act(() => item1.focus());
+
+      fireEvent.keyDown(item1, { key: 'ArrowDown' });
+
+      expect(item2).toHaveAttribute('tabindex', '0');
+      expect(item2).toHaveFocus();
     });
 
     it.skipIf(isJSDOM)('updates the order of items', async () => {
@@ -124,7 +136,7 @@ describe('Composite', () => {
     });
 
     describe('Home and End keys', () => {
-      it('Home key moves focus to the first item', async () => {
+      it('Home key moves focus to the first item', () => {
         render(
           <CompositeRoot enableHomeAndEndKeys>
             <CompositeItem data-testid="1">1</CompositeItem>
@@ -139,13 +151,12 @@ describe('Composite', () => {
         act(() => item3.focus());
 
         fireEvent.keyDown(item3, { key: 'Home' });
-        await flushMicrotasks();
 
         expect(item1).toHaveAttribute('tabindex', '0');
         expect(item1).toHaveFocus();
       });
 
-      it('End key moves focus to the last item', async () => {
+      it('End key moves focus to the last item', () => {
         render(
           <CompositeRoot enableHomeAndEndKeys>
             <CompositeItem data-testid="1">1</CompositeItem>
@@ -160,7 +171,6 @@ describe('Composite', () => {
         act(() => item1.focus());
 
         fireEvent.keyDown(item1, { key: 'End' });
-        await flushMicrotasks();
 
         expect(item3).toHaveAttribute('tabindex', '0');
         expect(item3).toHaveFocus();
@@ -168,7 +178,7 @@ describe('Composite', () => {
     });
 
     describe.skipIf(isJSDOM)('rtl', () => {
-      it('horizontal orientation', async () => {
+      it('horizontal orientation', () => {
         render(
           <div dir="rtl">
             <DirectionProvider direction="rtl">
@@ -188,41 +198,35 @@ describe('Composite', () => {
         act(() => item1.focus());
 
         fireEvent.keyDown(item1, { key: 'ArrowDown' });
-        await flushMicrotasks();
 
         fireEvent.keyDown(item1, { key: 'ArrowLeft' });
-        await flushMicrotasks();
 
         expect(item2).toHaveAttribute('tabindex', '0');
         expect(item2).toHaveFocus();
 
         fireEvent.keyDown(item2, { key: 'ArrowLeft' });
-        await flushMicrotasks();
 
         expect(item3).toHaveAttribute('tabindex', '0');
         expect(item3).toHaveFocus();
 
         fireEvent.keyDown(item3, { key: 'ArrowRight' });
-        await flushMicrotasks();
 
         expect(item2).toHaveAttribute('tabindex', '0');
         expect(item2).toHaveFocus();
 
         fireEvent.keyDown(item2, { key: 'ArrowRight' });
-        await flushMicrotasks();
 
         expect(item1).toHaveAttribute('tabindex', '0');
         expect(item1).toHaveFocus();
 
         // loop backward
         fireEvent.keyDown(item1, { key: 'ArrowRight' });
-        await flushMicrotasks();
 
         expect(item3).toHaveAttribute('tabindex', '0');
         expect(item3).toHaveFocus();
       });
 
-      it('both horizontal and vertical orientation', async () => {
+      it('both horizontal and vertical orientation', () => {
         render(
           <div dir="rtl">
             <DirectionProvider direction="rtl">
@@ -242,37 +246,31 @@ describe('Composite', () => {
         act(() => item1.focus());
 
         fireEvent.keyDown(item1, { key: 'ArrowLeft' });
-        await flushMicrotasks();
 
         expect(item2).toHaveAttribute('tabindex', '0');
         expect(item2).toHaveFocus();
 
         fireEvent.keyDown(item2, { key: 'ArrowLeft' });
-        await flushMicrotasks();
 
         expect(item3).toHaveAttribute('tabindex', '0');
         expect(item3).toHaveFocus();
 
         fireEvent.keyDown(item3, { key: 'ArrowRight' });
-        await flushMicrotasks();
 
         expect(item2).toHaveAttribute('tabindex', '0');
         expect(item2).toHaveFocus();
 
         fireEvent.keyDown(item2, { key: 'ArrowRight' });
-        await flushMicrotasks();
 
         expect(item1).toHaveAttribute('tabindex', '0');
         expect(item1).toHaveFocus();
 
         fireEvent.keyDown(item1, { key: 'ArrowDown' });
-        await flushMicrotasks();
 
         expect(item2).toHaveAttribute('tabindex', '0');
         expect(item2).toHaveFocus();
 
         fireEvent.keyDown(item2, { key: 'ArrowDown' });
-        await flushMicrotasks();
 
         expect(item3).toHaveAttribute('tabindex', '0');
         expect(item3).toHaveFocus();
@@ -300,53 +298,45 @@ describe('Composite', () => {
       act(() => screen.getByTestId('1').focus());
 
       fireEvent.keyDown(screen.getByTestId('1'), { key: 'ArrowDown' });
-      await flushMicrotasks();
 
       expect(screen.getByTestId('4')).toHaveAttribute('tabindex', '0');
       expect(screen.getByTestId('4')).toHaveFocus();
 
       fireEvent.keyDown(screen.getByTestId('4'), { key: 'ArrowRight' });
-      await flushMicrotasks();
 
       expect(screen.getByTestId('5')).toHaveAttribute('tabindex', '0');
       expect(screen.getByTestId('5')).toHaveFocus();
 
       fireEvent.keyDown(screen.getByTestId('5'), { key: 'ArrowDown' });
-      await flushMicrotasks();
 
       expect(screen.getByTestId('8')).toHaveAttribute('tabindex', '0');
       expect(screen.getByTestId('8')).toHaveFocus();
 
       fireEvent.keyDown(screen.getByTestId('8'), { key: 'ArrowLeft' });
-      await flushMicrotasks();
 
       expect(screen.getByTestId('7')).toHaveAttribute('tabindex', '0');
       expect(screen.getByTestId('7')).toHaveFocus();
 
       fireEvent.keyDown(screen.getByTestId('7'), { key: 'ArrowUp' });
-      await flushMicrotasks();
 
       expect(screen.getByTestId('4')).toHaveAttribute('tabindex', '0');
       expect(screen.getByTestId('4')).toHaveFocus();
 
       act(() => screen.getByTestId('9').focus());
-      await flushMicrotasks();
 
       expect(screen.getByTestId('9')).toHaveAttribute('tabindex', '0');
 
       fireEvent.keyDown(screen.getByTestId('9'), { key: 'Home' });
-      await flushMicrotasks();
 
       expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '0');
 
       fireEvent.keyDown(screen.getByTestId('1'), { key: 'End' });
-      await flushMicrotasks();
 
       expect(screen.getByTestId('9')).toHaveAttribute('tabindex', '0');
     });
 
     describe.skipIf(isJSDOM)('rtl', () => {
-      it('horizontal orientation', async () => {
+      it('horizontal orientation', () => {
         render(
           <div dir="rtl">
             <DirectionProvider direction="rtl">
@@ -364,36 +354,30 @@ describe('Composite', () => {
         act(() => screen.getByTestId('1').focus());
 
         fireEvent.keyDown(screen.getByTestId('1'), { key: 'ArrowLeft' });
-        await flushMicrotasks();
 
         expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '0');
         expect(screen.getByTestId('2')).toHaveFocus();
 
         fireEvent.keyDown(screen.getByTestId('2'), { key: 'ArrowLeft' });
-        await flushMicrotasks();
 
         expect(screen.getByTestId('3')).toHaveAttribute('tabindex', '0');
         expect(screen.getByTestId('3')).toHaveFocus();
 
         fireEvent.keyDown(screen.getByTestId('3'), { key: 'ArrowLeft' });
-        await flushMicrotasks();
 
         expect(screen.getByTestId('4')).toHaveAttribute('tabindex', '0');
         expect(screen.getByTestId('4')).toHaveFocus();
 
         fireEvent.keyDown(screen.getByTestId('4'), { key: 'ArrowLeft' });
-        await flushMicrotasks();
 
         expect(screen.getByTestId('5')).toHaveAttribute('tabindex', '0');
         expect(screen.getByTestId('5')).toHaveFocus();
 
         fireEvent.keyDown(screen.getByTestId('5'), { key: 'Home' });
-        await flushMicrotasks();
 
         expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '0');
 
         fireEvent.keyDown(screen.getByTestId('1'), { key: 'End' });
-        await flushMicrotasks();
 
         expect(screen.getByTestId('9')).toHaveAttribute('tabindex', '0');
       });
@@ -416,49 +400,42 @@ describe('Composite', () => {
         act(() => screen.getByTestId('1').focus());
 
         fireEvent.keyDown(screen.getByTestId('1'), { key: 'ArrowDown' });
-        await flushMicrotasks();
 
         expect(screen.getByTestId('4')).toHaveAttribute('tabindex', '0');
         expect(screen.getByTestId('4')).toHaveFocus();
 
         fireEvent.keyDown(screen.getByTestId('4'), { key: 'ArrowLeft' });
-        await flushMicrotasks();
 
         expect(screen.getByTestId('5')).toHaveAttribute('tabindex', '0');
         expect(screen.getByTestId('5')).toHaveFocus();
 
         fireEvent.keyDown(screen.getByTestId('5'), { key: 'ArrowDown' });
-        await flushMicrotasks();
 
         expect(screen.getByTestId('8')).toHaveAttribute('tabindex', '0');
         expect(screen.getByTestId('8')).toHaveFocus();
 
         fireEvent.keyDown(screen.getByTestId('8'), { key: 'ArrowRight' });
-        await flushMicrotasks();
 
         expect(screen.getByTestId('7')).toHaveAttribute('tabindex', '0');
         expect(screen.getByTestId('7')).toHaveFocus();
 
         fireEvent.keyDown(screen.getByTestId('7'), { key: 'ArrowUp' });
-        await flushMicrotasks();
 
         expect(screen.getByTestId('4')).toHaveAttribute('tabindex', '0');
         expect(screen.getByTestId('4')).toHaveFocus();
 
         fireEvent.keyDown(screen.getByTestId('4'), { key: 'End' });
-        await flushMicrotasks();
 
         expect(screen.getByTestId('9')).toHaveAttribute('tabindex', '0');
 
         fireEvent.keyDown(screen.getByTestId('9'), { key: 'Home' });
-        await flushMicrotasks();
 
         expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '0');
       });
     });
 
     describe('prop: disabledIndices', () => {
-      it('disables navigating item when their index is included', async () => {
+      it('disables navigating item when their index is included', () => {
         function App() {
           const [highlightedIndex, setHighlightedIndex] = React.useState(0);
           return (
@@ -482,13 +459,11 @@ describe('Composite', () => {
         act(() => item1.focus());
 
         fireEvent.keyDown(item1, { key: 'ArrowDown' });
-        await flushMicrotasks();
 
         expect(item3).toHaveAttribute('tabindex', '0');
         expect(item3).toHaveFocus();
 
         fireEvent.keyDown(item3, { key: 'ArrowUp' });
-        await flushMicrotasks();
 
         expect(item1).toHaveAttribute('tabindex', '0');
         expect(item1).toHaveFocus();
@@ -533,25 +508,21 @@ describe('Composite', () => {
         act(() => item1.focus());
 
         fireEvent.keyDown(item1, { key: 'ArrowDown' });
-        await flushMicrotasks();
 
         expect(item2).toHaveAttribute('tabindex', '0');
         expect(item2).toHaveFocus();
 
         fireEvent.keyDown(item2, { key: 'ArrowDown' });
-        await flushMicrotasks();
 
         expect(item3).toHaveAttribute('tabindex', '0');
         expect(item3).toHaveFocus();
 
         fireEvent.keyDown(item3, { key: 'ArrowDown' });
-        await flushMicrotasks();
 
         expect(item1).toHaveAttribute('tabindex', '0');
         expect(item1).toHaveFocus();
 
         fireEvent.keyDown(item1, { key: 'ArrowUp' });
-        await flushMicrotasks();
 
         expect(item3).toHaveAttribute('tabindex', '0');
         expect(item3).toHaveFocus();
@@ -560,7 +531,7 @@ describe('Composite', () => {
   });
 
   describe('prop: disabledIndices', () => {
-    it('disables navigating item when their index is included', async () => {
+    it('disables navigating item when their index is included', () => {
       function App() {
         const [highlightedIndex, setHighlightedIndex] = React.useState(0);
         return (
@@ -584,13 +555,11 @@ describe('Composite', () => {
       act(() => item1.focus());
 
       fireEvent.keyDown(item1, { key: 'ArrowDown' });
-      await flushMicrotasks();
 
       expect(item3).toHaveAttribute('tabindex', '0');
       expect(item3).toHaveFocus();
 
       fireEvent.keyDown(item3, { key: 'ArrowUp' });
-      await flushMicrotasks();
 
       expect(item1).toHaveAttribute('tabindex', '0');
       expect(item1).toHaveFocus();
@@ -635,25 +604,21 @@ describe('Composite', () => {
       act(() => item1.focus());
 
       fireEvent.keyDown(item1, { key: 'ArrowDown' });
-      await flushMicrotasks();
 
       expect(item2).toHaveAttribute('tabindex', '0');
       expect(item2).toHaveFocus();
 
       fireEvent.keyDown(item2, { key: 'ArrowDown' });
-      await flushMicrotasks();
 
       expect(item3).toHaveAttribute('tabindex', '0');
       expect(item3).toHaveFocus();
 
       fireEvent.keyDown(item3, { key: 'ArrowDown' });
-      await flushMicrotasks();
 
       expect(item1).toHaveAttribute('tabindex', '0');
       expect(item1).toHaveFocus();
 
       fireEvent.keyDown(item1, { key: 'ArrowUp' });
-      await flushMicrotasks();
 
       expect(item3).toHaveAttribute('tabindex', '0');
       expect(item3).toHaveFocus();
@@ -661,7 +626,7 @@ describe('Composite', () => {
   });
 
   describe('prop: modifierKeys', () => {
-    it('prevents arrow key navigation when any modifier key is pressed by default', async () => {
+    it('prevents arrow key navigation when any modifier key is pressed by default', () => {
       render(
         <CompositeRoot>
           <CompositeItem data-testid="1">1</CompositeItem>
@@ -676,23 +641,19 @@ describe('Composite', () => {
       expect(item1).toHaveFocus();
 
       fireEvent.keyDown(item1, { key: 'ArrowDown', shiftKey: true });
-      await flushMicrotasks();
       expect(item1).toHaveFocus();
 
       fireEvent.keyDown(item1, { key: 'ArrowDown', ctrlKey: true });
-      await flushMicrotasks();
       expect(item1).toHaveFocus();
 
       fireEvent.keyDown(item1, { key: 'ArrowDown', altKey: true });
-      await flushMicrotasks();
       expect(item1).toHaveFocus();
 
       fireEvent.keyDown(item1, { key: 'ArrowDown', metaKey: true });
-      await flushMicrotasks();
       expect(item1).toHaveFocus();
     });
 
-    it('specifies allowed modifier keys that do not prevent arrow key navigation when pressed', async () => {
+    it('specifies allowed modifier keys that do not prevent arrow key navigation when pressed', () => {
       render(
         <CompositeRoot modifierKeys={['Alt', 'Meta']}>
           <CompositeItem data-testid="1">1</CompositeItem>
@@ -710,19 +671,15 @@ describe('Composite', () => {
       expect(item1).toHaveFocus();
 
       fireEvent.keyDown(item1, { key: 'ArrowDown', shiftKey: true });
-      await flushMicrotasks();
       expect(item1).toHaveFocus();
 
       fireEvent.keyDown(item1, { key: 'ArrowDown', ctrlKey: true });
-      await flushMicrotasks();
       expect(item1).toHaveFocus();
 
       fireEvent.keyDown(item1, { key: 'ArrowDown', altKey: true });
-      await flushMicrotasks();
       expect(item2).toHaveFocus();
 
       fireEvent.keyDown(item2, { key: 'ArrowDown', metaKey: true });
-      await flushMicrotasks();
       expect(item3).toHaveFocus();
     });
   });
