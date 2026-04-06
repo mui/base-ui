@@ -960,6 +960,60 @@ describe('<Menu.Root />', () => {
       );
     });
 
+    describe('focus guards', () => {
+      it('closes the menu and moves focus to the next element when tabbing forward from the open menu', async () => {
+        const { user } = await render(
+          <div>
+            <input />
+            <TestMenu />
+            <input data-testid="after" />
+          </div>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await user.click(trigger);
+
+        const menu = await screen.findByTestId('menu');
+        expect(menu).not.toBe(null);
+
+        await user.tab();
+
+        expect(screen.getByTestId('after')).toHaveFocus();
+        await waitFor(() => {
+          expect(screen.queryByTestId('menu')).toBe(null);
+        });
+      });
+
+      it.skipIf(isJSDOM)(
+        'closes the menu and moves focus to the previous element when shift-tabbing from the open menu',
+        async () => {
+          const { user } = await render(
+            <div>
+              <input data-testid="before" />
+              <TestMenu />
+              <input />
+            </div>,
+          );
+
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+          await user.click(trigger);
+
+          const menu = await screen.findByTestId('menu');
+          expect(menu).not.toBe(null);
+
+          await user.tab({ shift: true });
+
+          await waitFor(() => {
+            expect(screen.getByTestId('before')).toHaveFocus();
+          });
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('menu')).toBe(null);
+          });
+        },
+      );
+    });
+
     describe('prop: closeParentOnEsc', () => {
       it('does not close the parent menu when the Escape key is pressed by default', async () => {
         const { user } = await render(<TestMenu />);
