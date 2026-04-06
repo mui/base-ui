@@ -11,7 +11,6 @@ export function getEmptyRootContext(): FloatingRootContext {
     triggerElements: new PopupTriggerMap(),
     floatingId: '',
     nested: false,
-    noEmit: false,
     onOpenChange: undefined,
   });
 }

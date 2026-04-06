@@ -28,7 +28,6 @@ export interface FloatingRootStoreContext {
   readonly dataRef: React.RefObject<ContextData>;
   readonly events: FloatingEvents;
   nested: boolean;
-  noEmit: boolean;
   readonly triggerElements: PopupTriggerMap;
 }
 
@@ -51,7 +50,6 @@ interface FloatingRootStoreOptions {
   triggerElements: PopupTriggerMap;
   floatingId: string | undefined;
   nested: boolean;
-  noEmit: boolean;
   onOpenChange:
     | ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void)
     | undefined;
@@ -63,7 +61,7 @@ export class FloatingRootStore extends ReactStore<
   typeof selectors
 > {
   constructor(options: FloatingRootStoreOptions) {
-    const { nested, noEmit, onOpenChange, triggerElements, ...initialState } = options;
+    const { nested, onOpenChange, triggerElements, ...initialState } = options;
 
     super(
       {
@@ -76,7 +74,6 @@ export class FloatingRootStore extends ReactStore<
         dataRef: { current: {} },
         events: createEventEmitter(),
         nested,
-        noEmit,
         triggerElements,
       },
       selectors,
@@ -104,17 +101,15 @@ export class FloatingRootStore extends ReactStore<
   dispatchOpenChange = (newOpen: boolean, eventDetails: BaseUIChangeEventDetails<string>) => {
     this.syncOpenEvent(newOpen, eventDetails.event);
 
-    if (!this.context.noEmit) {
-      const details: FloatingUIOpenChangeDetails = {
-        open: newOpen,
-        reason: eventDetails.reason,
-        nativeEvent: eventDetails.event,
-        nested: this.context.nested,
-        triggerElement: eventDetails.trigger,
-      };
+    const details: FloatingUIOpenChangeDetails = {
+      open: newOpen,
+      reason: eventDetails.reason,
+      nativeEvent: eventDetails.event,
+      nested: this.context.nested,
+      triggerElement: eventDetails.trigger,
+    };
 
-      this.context.events.emit('openchange', details);
-    }
+    this.context.events.emit('openchange', details);
   };
 
   /**
