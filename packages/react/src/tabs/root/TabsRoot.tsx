@@ -90,25 +90,19 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   // The previous value snapshot is stored in state and synced after commit.
   // https://github.com/mui/base-ui/issues/3873
   if (previousValue !== value) {
-    tabActivationDirection = computeActivationDirection(
-      previousValue,
-      value,
-      orientation,
-      tabMap,
-    );
+    tabActivationDirection = computeActivationDirection(previousValue, value, orientation, tabMap);
 
     // When a new tab is added and selected in the same controlled update,
     // the tab element may not yet be registered in tabMap, so direction was
     // computed from a value-based fallback. Keep the previous value snapshot
     // stale so we re-compute from DOM positions once tabMap is up to date.
     directionComputationIncomplete =
-      previousValue != null &&
-      value != null &&
-      getTabElementBySelectedValue(value) == null;
+      previousValue != null && value != null && getTabElementBySelectedValue(value) == null;
   }
   const nextPreviousValue = directionComputationIncomplete ? previousValue : value;
   const shouldSyncActivationDirectionState =
-    previousValue !== nextPreviousValue || committedTabActivationDirection !== tabActivationDirection;
+    previousValue !== nextPreviousValue ||
+    committedTabActivationDirection !== tabActivationDirection;
 
   useIsoLayoutEffect(() => {
     if (!shouldSyncActivationDirectionState) {
