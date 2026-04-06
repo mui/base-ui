@@ -106,6 +106,13 @@ type ToastRootToastObject<Data extends {} = any> = {
   onClose?: () => void;
   /** Callback function to be called when the toast is removed from the list after any animations are complete when closed. */
   onRemove?: () => void;
+  /**
+   * Whether to move focus to the toast when it opens.
+   * When `true`, the previously focused element is saved and restored when the toast closes.
+   * Timers are paused while the toast has focus.
+   * @default false
+   */
+  focus?: boolean;
   /** The props for the action button. */
   actionProps?: Omit<
     React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>,
@@ -565,6 +572,13 @@ type ToastObject<Data extends {}> = {
   onClose?: () => void;
   /** Callback function to be called when the toast is removed from the list after any animations are complete when closed. */
   onRemove?: () => void;
+  /**
+   * Whether to move focus to the toast when it opens.
+   * When `true`, the previously focused element is saved and restored when the toast closes.
+   * Timers are paused while the toast has focus.
+   * @default false
+   */
+  focus?: boolean;
   /** The props for the action button. */
   actionProps?: Omit<
     React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>,
@@ -629,6 +643,13 @@ type ToastManagerAddOptions<Data extends {}> = {
   onClose?: () => void;
   /** Callback function to be called when the toast is removed from the list after any animations are complete when closed. */
   onRemove?: () => void;
+  /**
+   * Whether to move focus to the toast when it opens.
+   * When `true`, the previously focused element is saved and restored when the toast closes.
+   * Timers are paused while the toast has focus.
+   * @default false
+   */
+  focus?: boolean;
   /** The props for the action button. */
   actionProps?: Omit<
     React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>,
@@ -849,6 +870,13 @@ type ToastManagerUpdateOptions<Data extends {}> = {
   onClose?: () => void;
   /** Callback function to be called when the toast is removed from the list after any animations are complete when closed. */
   onRemove?: () => void;
+  /**
+   * Whether to move focus to the toast when it opens.
+   * When `true`, the previously focused element is saved and restored when the toast closes.
+   * Timers are paused while the toast has focus.
+   * @default false
+   */
+  focus?: boolean;
   /** The props for the action button. */
   actionProps?: Omit<
     React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>,
