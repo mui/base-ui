@@ -1,8 +1,7 @@
-import * as React from 'react';
-import { Select } from '@base-ui-components/react/select';
+import { expect } from 'vitest';
+import { Select } from '@base-ui/react/select';
 import { createRenderer, describeConformance } from '#test-utils';
 import { screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 
 describe('<Select.Group />', () => {
   const { render } = createRenderer();
@@ -27,7 +26,7 @@ describe('<Select.Group />', () => {
       </Select.Root>,
     );
 
-    expect(screen.getByRole('group')).to.have.attribute('aria-labelledby');
+    expect(screen.getByRole('group')).toHaveAttribute('aria-labelledby');
     expect(screen.getByText('Fruits')).toBeVisible();
   });
 
@@ -46,6 +45,6 @@ describe('<Select.Group />', () => {
 
     const Group = screen.getByRole('group');
     const label = screen.getByText('Vegetables');
-    expect(Group).to.have.attribute('aria-labelledby', label.id);
+    expect(Group).toHaveAttribute('aria-labelledby', label.id);
   });
 });

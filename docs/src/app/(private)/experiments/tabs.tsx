@@ -1,13 +1,10 @@
 'use client';
 import * as React from 'react';
 import clsx from 'clsx';
-import { DirectionProvider } from '@base-ui-components/react/direction-provider';
-import { Tabs } from '@base-ui-components/react/tabs';
-import {
-  SettingsMetadata,
-  useExperimentSettings,
-} from '../../../components/Experiments/SettingsPanel';
-import '../../../demo-theme.css';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
+import { Tabs } from '@base-ui/react/tabs';
+import { SettingsMetadata, useExperimentSettings } from './_components/SettingsPanel';
+import '../../../demo-data/theme/css-modules/theme.css';
 import classes from './tabs.module.css';
 
 export default function TabsExperiment() {
@@ -26,10 +23,7 @@ export default function TabsExperiment() {
           onValueChange={(val) => setValue(val)}
           orientation={settings.orientation}
         >
-          <Tabs.List
-            className={classes.list}
-            activateOnFocus={settings.activateOnFocus}
-          >
+          <Tabs.List className={classes.list} activateOnFocus={settings.activateOnFocus}>
             <Tabs.Tab className={classes.tab} value={0}>
               Code
             </Tabs.Tab>
@@ -46,10 +40,7 @@ export default function TabsExperiment() {
               Actions
             </Tabs.Tab>
             <Tabs.Indicator
-              className={clsx(
-                classes.indicator,
-                settings.elasticIndicator && classes.elastic,
-              )}
+              className={clsx(classes.indicator, settings.elasticIndicator && classes.elastic)}
             />
           </Tabs.List>
           <Tabs.Panel className={classes.panel} value={0} keepMounted>

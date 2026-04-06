@@ -1,6 +1,5 @@
-import * as React from 'react';
-import { expect } from 'chai';
-import { Dialog } from '@base-ui-components/react/dialog';
+import { expect } from 'vitest';
+import { Dialog } from '@base-ui/react/dialog';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
 
@@ -9,6 +8,8 @@ describe('<Dialog.Trigger />', () => {
 
   describeConformance(<Dialog.Trigger />, () => ({
     refInstanceof: window.HTMLButtonElement,
+    testComponentPropWith: 'button',
+    button: true,
     render: (node) => {
       return render(
         <Dialog.Root open modal={false}>
@@ -33,14 +34,14 @@ describe('<Dialog.Trigger />', () => {
       );
 
       const trigger = screen.getByRole('button');
-      expect(trigger).to.have.attribute('disabled');
-      expect(trigger).to.have.attribute('data-disabled');
+      expect(trigger).toHaveAttribute('disabled');
+      expect(trigger).toHaveAttribute('data-disabled');
 
       await user.click(trigger);
-      expect(screen.queryByText('title text')).to.equal(null);
+      expect(screen.queryByText('title text')).toBe(null);
 
       await user.keyboard('[Tab]');
-      expect(document.activeElement).to.not.equal(trigger);
+      expect(document.activeElement).not.toBe(trigger);
     });
 
     it('custom element', async () => {
@@ -57,15 +58,15 @@ describe('<Dialog.Trigger />', () => {
       );
 
       const trigger = screen.getByRole('button');
-      expect(trigger).to.not.have.attribute('disabled');
-      expect(trigger).to.have.attribute('data-disabled');
-      expect(trigger).to.have.attribute('aria-disabled', 'true');
+      expect(trigger).not.toHaveAttribute('disabled');
+      expect(trigger).toHaveAttribute('data-disabled');
+      expect(trigger).toHaveAttribute('aria-disabled', 'true');
 
       await user.click(trigger);
-      expect(screen.queryByText('title text')).to.equal(null);
+      expect(screen.queryByText('title text')).toBe(null);
 
       await user.keyboard('[Tab]');
-      expect(document.activeElement).to.not.equal(trigger);
+      expect(document.activeElement).not.toBe(trigger);
     });
   });
 });

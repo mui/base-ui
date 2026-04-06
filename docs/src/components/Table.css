@@ -1,6 +1,7 @@
 @layer components {
   .TableRoot {
-    @apply text-sm;
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
     color: var(--color-gray);
     border: 1px solid var(--color-gray-200);
     border-collapse: separate;
@@ -26,8 +27,7 @@
 
   .TableColumnHeader {
     text-align: initial;
-    font-weight: 500;
-    letter-spacing: 0.00625em;
+    font-weight: 400;
     color: var(--color-foreground);
     background-color: var(--color-gray-50);
     border-bottom: 1px solid var(--color-gray-200);
@@ -35,7 +35,7 @@
 
   .TableCell {
     text-align: initial;
-    font-weight: normal;
+    font-weight: 400;
 
     :not(:last-child) > & {
       border-bottom: 1px solid var(--color-gray-200);
@@ -69,7 +69,7 @@
     /* Ensure consistent height of the cells */
     display: flex;
     align-items: center;
-    min-height: 2.25rem;
+    min-height: 2.5rem;
     padding: 0.5rem 0.75rem;
 
     /* Make individual cells scrollable */

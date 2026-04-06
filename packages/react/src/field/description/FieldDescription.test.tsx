@@ -1,7 +1,6 @@
-import * as React from 'react';
-import { Field } from '@base-ui-components/react/field';
+import { expect } from 'vitest';
+import { Field } from '@base-ui/react/field';
 import { createRenderer, screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 import { describeConformance } from '../../../test/describeConformance';
 
 describe('<Field.Description />', () => {
@@ -22,7 +21,7 @@ describe('<Field.Description />', () => {
       </Field.Root>,
     );
 
-    expect(screen.getByRole('textbox')).to.have.attribute(
+    expect(screen.getByRole('textbox')).toHaveAttribute(
       'aria-describedby',
       screen.getByText('Message').id,
     );

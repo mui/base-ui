@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps } from '../../utils/types';
+import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
-import type { NumberFieldRoot } from '../root/NumberFieldRoot';
+import type { NumberFieldRootState } from '../root/NumberFieldRoot';
 import { useNumberFieldButton } from '../root/useNumberFieldButton';
-import { styleHookMapping } from '../utils/styleHooks';
+import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 
 /**
  * A stepper button that decreases the field value when clicked.
@@ -18,7 +18,14 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
   componentProps: NumberFieldDecrement.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, disabled: disabledProp = false, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    disabled: disabledProp = false,
+    nativeButton = true,
+    style,
+    ...elementProps
+  } = componentProps;
 
   const {
     allowInputSyncRef,
@@ -29,31 +36,23 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
     incrementValue,
     inputRef,
     inputValue,
-    intentionalTouchCheckTimeout,
-    isPressedRef,
-    maxWithDefault,
     minWithDefault,
-    movesAfterTouchRef,
     readOnly,
     setValue,
-    startAutoChange,
     state,
-    stopAutoChange,
     value,
     valueRef,
     locale,
+    lastChangedValueRef,
+    onValueCommitted,
   } = useNumberFieldRootContext();
 
-  const disabled = disabledProp || contextDisabled;
+  const isMin = value != null && value <= minWithDefault;
+  const disabled = disabledProp || contextDisabled || isMin;
 
-  const { props } = useNumberFieldButton({
+  const props = useNumberFieldButton({
     isIncrement: false,
     inputRef,
-    startAutoChange,
-    stopAutoChange,
-    minWithDefault,
-    maxWithDefault,
-    value,
     inputValue,
     disabled,
     readOnly,
@@ -64,28 +63,41 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
     allowInputSyncRef,
     formatOptionsRef,
     valueRef,
-    isPressedRef,
-    intentionalTouchCheckTimeout,
-    movesAfterTouchRef,
     locale,
+    lastChangedValueRef,
+    onValueCommitted,
   });
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
+    native: nativeButton,
+    focusableWhenDisabled: true,
   });
+
+  const buttonState = React.useMemo(
+    () => ({
+      ...state,
+      disabled,
+    }),
+    [state, disabled],
+  );
 
   const element = useRenderElement('button', componentProps, {
     ref: [forwardedRef, buttonRef],
-    state,
+    state: buttonState,
     props: [props, elementProps, getButtonProps],
-    customStyleHookMapping: styleHookMapping,
+    stateAttributesMapping,
   });
 
   return element;
 });
 
-export namespace NumberFieldDecrement {
-  export interface State extends NumberFieldRoot.State {}
+export interface NumberFieldDecrementState extends NumberFieldRootState {}
 
-  export interface Props extends BaseUIComponentProps<'button', State> {}
+export interface NumberFieldDecrementProps
+  extends NativeButtonProps, BaseUIComponentProps<'button', NumberFieldDecrementState> {}
+
+export namespace NumberFieldDecrement {
+  export type State = NumberFieldDecrementState;
+  export type Props = NumberFieldDecrementProps;
 }

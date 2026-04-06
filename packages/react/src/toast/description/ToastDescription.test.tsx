@@ -1,8 +1,7 @@
-import * as React from 'react';
-import { Toast } from '@base-ui-components/react/toast';
+import { expect } from 'vitest';
+import { Toast } from '@base-ui/react/toast';
 import { createRenderer, describeConformance } from '#test-utils';
 import { screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 import { List, Button } from '../utils/test-utils';
 
 const toast: Toast.Root.ToastObject = {
@@ -43,8 +42,8 @@ describe('<Toast.Description />', () => {
     const descriptionId = descriptionElement.id;
 
     const rootElement = screen.getByTestId('root');
-    expect(rootElement).to.not.equal(null);
-    expect(rootElement.getAttribute('aria-describedby')).to.equal(descriptionId);
+    expect(rootElement).not.toBe(null);
+    expect(rootElement.getAttribute('aria-describedby')).toBe(descriptionId);
   });
 
   it('does not render if it has no children', async () => {
@@ -70,7 +69,7 @@ describe('<Toast.Description />', () => {
     await user.click(button);
 
     const descriptionElement = screen.queryByTestId('description');
-    expect(descriptionElement).to.equal(null);
+    expect(descriptionElement).toBe(null);
   });
 
   it('renders the description by default', async () => {
@@ -87,7 +86,7 @@ describe('<Toast.Description />', () => {
     await user.click(button);
 
     const titleElement = screen.getByTestId('description');
-    expect(titleElement).to.not.equal(null);
-    expect(titleElement.textContent).to.equal('description');
+    expect(titleElement).not.toBe(null);
+    expect(titleElement.textContent).toBe('description');
   });
 });

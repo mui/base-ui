@@ -1,17 +1,14 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import type { TabsRoot, TabsRootState } from '../root/TabsRoot';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
-import { tabsStyleHookMapping } from '../root/styleHooks';
+import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useTabsRootContext } from '../root/TabsRootContext';
-import type { TabsRoot } from '../root/TabsRoot';
 import type { TabsTab } from '../tab/TabsTab';
 import { TabsListContext } from './TabsListContext';
-
-const EMPTY_ARRAY: number[] = [];
+import { EMPTY_ARRAY } from '../../utils/constants';
 
 /**
  * Groups the individual tab buttons.
@@ -24,194 +21,153 @@ export const TabsList = React.forwardRef(function TabsList(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    activateOnFocus = true,
+    activateOnFocus = false,
     className,
-    loop = true,
+    loopFocus = true,
     render,
+    style,
     ...elementProps
   } = componentProps;
 
-  const {
-    getTabElementBySelectedValue,
-    onValueChange,
-    orientation,
-    value,
-    setTabMap,
-    tabActivationDirection,
-  } = useTabsRootContext();
+  const { onValueChange, orientation, value, setTabMap, tabActivationDirection } =
+    useTabsRootContext();
 
   const [highlightedTabIndex, setHighlightedTabIndex] = React.useState(0);
+  const [tabsListElement, setTabsListElement] = React.useState<HTMLElement | null>(null);
 
-  const tabsListRef = React.useRef<HTMLElement>(null);
+  const indicatorUpdateListenersRef = React.useRef(new Set<() => void>());
+  const tabResizeObserverElementsRef = React.useRef(new Set<HTMLElement>());
+  const resizeObserverRef = React.useRef<ResizeObserver | null>(null);
 
-  const detectActivationDirection = useActivationDirectionDetector(
-    value, // the old value
-    orientation,
-    tabsListRef,
-    getTabElementBySelectedValue,
-  );
+  const notifyIndicatorUpdateListeners = useStableCallback(() => {
+    indicatorUpdateListenersRef.current.forEach((listener) => {
+      listener();
+    });
+  });
 
-  const onTabActivation = useEventCallback((newValue: any, event: Event) => {
-    if (newValue !== value) {
-      const activationDirection = detectActivationDirection(newValue);
-      onValueChange(newValue, activationDirection, event);
+  React.useEffect(() => {
+    if (typeof ResizeObserver === 'undefined') {
+      return undefined;
     }
+
+    const resizeObserver = new ResizeObserver(() => {
+      if (!indicatorUpdateListenersRef.current.size) {
+        return;
+      }
+      notifyIndicatorUpdateListeners();
+    });
+
+    resizeObserverRef.current = resizeObserver;
+
+    if (tabsListElement) {
+      resizeObserver.observe(tabsListElement);
+    }
+
+    tabResizeObserverElementsRef.current.forEach((element) => {
+      resizeObserver.observe(element);
+    });
+
+    return () => {
+      resizeObserver.disconnect();
+      resizeObserverRef.current = null;
+    };
+  }, [tabsListElement, notifyIndicatorUpdateListeners]);
+
+  const registerIndicatorUpdateListener = useStableCallback((listener: () => void) => {
+    indicatorUpdateListenersRef.current.add(listener);
+    return () => {
+      indicatorUpdateListenersRef.current.delete(listener);
+    };
   });
 
-  const state: TabsList.State = React.useMemo(
-    () => ({
-      orientation,
-      tabActivationDirection,
-    }),
-    [orientation, tabActivationDirection],
+  const registerTabResizeObserverElement = useStableCallback((element: HTMLElement) => {
+    tabResizeObserverElementsRef.current.add(element);
+    resizeObserverRef.current?.observe(element);
+    return () => {
+      tabResizeObserverElementsRef.current.delete(element);
+      resizeObserverRef.current?.unobserve(element);
+    };
+  });
+
+  const onTabActivation = useStableCallback(
+    (newValue: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => {
+      if (newValue !== value) {
+        onValueChange(newValue, eventDetails);
+      }
+    },
   );
 
-  const element = useRenderElement('div', componentProps, {
-    state,
-    ref: [forwardedRef, tabsListRef],
-    props: [
-      {
-        'aria-orientation': orientation === 'vertical' ? 'vertical' : undefined,
-        role: 'tablist',
-      },
-      elementProps,
-    ],
-    customStyleHookMapping: tabsStyleHookMapping,
-  });
+  const state: TabsListState = {
+    orientation,
+    tabActivationDirection,
+  };
+
+  const defaultProps: HTMLProps = {
+    'aria-orientation': orientation === 'vertical' ? 'vertical' : undefined,
+    role: 'tablist',
+  };
 
   const tabsListContextValue: TabsListContext = React.useMemo(
     () => ({
       activateOnFocus,
       highlightedTabIndex,
+      registerIndicatorUpdateListener,
+      registerTabResizeObserverElement,
       onTabActivation,
       setHighlightedTabIndex,
-      tabsListRef,
-      value,
+      tabsListElement,
     }),
     [
       activateOnFocus,
       highlightedTabIndex,
+      registerIndicatorUpdateListener,
+      registerTabResizeObserverElement,
       onTabActivation,
       setHighlightedTabIndex,
-      tabsListRef,
-      value,
+      tabsListElement,
     ],
   );
 
   return (
     <TabsListContext.Provider value={tabsListContextValue}>
-      <CompositeRoot<TabsTab.Metadata>
+      <CompositeRoot
+        render={render}
+        className={className}
+        style={style}
+        state={state}
+        refs={[forwardedRef, setTabsListElement]}
+        props={[defaultProps, elementProps]}
+        stateAttributesMapping={tabsStateAttributesMapping}
         highlightedIndex={highlightedTabIndex}
         enableHomeAndEndKeys
-        loop={loop}
+        loopFocus={loopFocus}
         orientation={orientation}
         onHighlightedIndexChange={setHighlightedTabIndex}
         onMapChange={setTabMap}
-        render={element}
-        disabledIndices={EMPTY_ARRAY}
+        disabledIndices={EMPTY_ARRAY as number[]}
       />
     </TabsListContext.Provider>
   );
 });
 
-function getInset(tab: HTMLElement, tabsList: HTMLElement) {
-  const { left: tabLeft, top: tabTop } = tab.getBoundingClientRect();
-  const { left: listLeft, top: listTop } = tabsList.getBoundingClientRect();
+export interface TabsListState extends TabsRootState {}
 
-  const left = tabLeft - listLeft;
-  const top = tabTop - listTop;
-
-  return { left, top };
-}
-
-function useActivationDirectionDetector(
-  // the old value
-  selectedTabValue: any,
-  orientation: TabsRoot.Orientation,
-  tabsListRef: React.RefObject<HTMLElement | null>,
-  getTabElement: (selectedValue: any) => HTMLElement | null,
-): (newValue: any) => TabsTab.ActivationDirection {
-  const previousTabEdge = React.useRef<number | null>(null);
-
-  useModernLayoutEffect(() => {
-    // Whenever orientation changes, reset the state.
-    if (selectedTabValue == null || tabsListRef.current == null) {
-      previousTabEdge.current = null;
-      return;
-    }
-
-    const activeTab = getTabElement(selectedTabValue);
-    if (activeTab == null) {
-      previousTabEdge.current = null;
-      return;
-    }
-
-    const { left, top } = getInset(activeTab, tabsListRef.current);
-    previousTabEdge.current = orientation === 'horizontal' ? left : top;
-  }, [orientation, getTabElement, tabsListRef, selectedTabValue]);
-
-  return React.useCallback(
-    (newValue: any) => {
-      if (newValue === selectedTabValue) {
-        return 'none';
-      }
-
-      if (newValue == null) {
-        previousTabEdge.current = null;
-        return 'none';
-      }
-
-      if (newValue != null && tabsListRef.current != null) {
-        const selectedTabElement = getTabElement(newValue);
-
-        if (selectedTabElement != null) {
-          const { left, top } = getInset(selectedTabElement, tabsListRef.current);
-
-          if (previousTabEdge.current == null) {
-            previousTabEdge.current = orientation === 'horizontal' ? left : top;
-            return 'none';
-          }
-
-          if (orientation === 'horizontal') {
-            if (left < previousTabEdge.current) {
-              previousTabEdge.current = left;
-              return 'left';
-            }
-            if (left > previousTabEdge.current) {
-              previousTabEdge.current = left;
-              return 'right';
-            }
-          } else if (top < previousTabEdge.current) {
-            previousTabEdge.current = top;
-            return 'up';
-          } else if (top > previousTabEdge.current) {
-            previousTabEdge.current = top;
-            return 'down';
-          }
-        }
-      }
-
-      return 'none';
-    },
-    [getTabElement, orientation, previousTabEdge, tabsListRef, selectedTabValue],
-  );
+export interface TabsListProps extends BaseUIComponentProps<'div', TabsListState> {
+  /**
+   * Whether to automatically change the active tab on arrow key focus.
+   * Otherwise, tabs will be activated using <kbd>Enter</kbd> or <kbd>Space</kbd> key press.
+   * @default false
+   */
+  activateOnFocus?: boolean | undefined;
+  /**
+   * Whether to loop keyboard focus back to the first item
+   * when the end of the list is reached while using the arrow keys.
+   * @default true
+   */
+  loopFocus?: boolean | undefined;
 }
 
 export namespace TabsList {
-  export interface State extends TabsRoot.State {}
-
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * Whether to automatically change the active tab on arrow key focus.
-     * Otherwise, tabs will be activated using Enter or Spacebar key press.
-     * @default true
-     */
-    activateOnFocus?: boolean;
-    /**
-     * Whether to loop keyboard focus back to the first item
-     * when the end of the list is reached while using the arrow keys.
-     * @default true
-     */
-    loop?: boolean;
-  }
+  export type State = TabsListState;
+  export type Props = TabsListProps;
 }

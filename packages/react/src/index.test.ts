@@ -1,20 +1,20 @@
+import { describe, it, expect } from 'vitest';
 /**
  * Important: This test also serves as a point to
  * import the entire lib for coverage reporting
  */
-import { expect } from 'chai';
-import { describe, it } from 'vitest';
 import { isJSDOM } from '#test-utils';
 import * as BaseUI from './index';
 
-describe('@base-ui-components/react', () => {
+describe('@base-ui/react', () => {
   it('should have exports', () => {
-    expect(typeof BaseUI).to.equal('object');
+    expect(typeof BaseUI).toBe('object');
   });
 
   it('should not have undefined exports', () => {
-    (Object.keys(BaseUI) as (keyof typeof BaseUI)[]).forEach((exportKey) => {
-      expect(Boolean(BaseUI[exportKey])).to.equal(true);
+    Object.keys(BaseUI).forEach((exportKey) => {
+      const value = (BaseUI as Record<string, unknown>)[exportKey];
+      expect(Boolean(value)).toBe(true);
     });
   });
 
@@ -24,21 +24,24 @@ describe('@base-ui-components/react', () => {
 
     await Promise.all(
       Object.keys(subpathExports)
-        .filter((key) => !['.', './utils'].includes(key) && !key.startsWith('./unstable-'))
+        .filter(
+          (key) =>
+            ![
+              '.',
+              './utils',
+              './temporal-adapter-luxon',
+              './temporal-adapter-date-fns',
+              './types',
+            ].includes(key) && !key.startsWith('./unstable-'),
+        )
         .map(async (subpath) => {
-          const importSpecifier = `@base-ui-components/react/${subpath.replace('./', '')}`;
+          const importSpecifier = `@base-ui/react/${subpath.replace('./', '')}`;
           const module = await import(/* @vite-ignore */ importSpecifier);
 
           Object.keys(module).forEach((exportKey) => {
-            expect((BaseUI as Record<string, unknown>)[exportKey]).not.to.equal(
-              undefined,
-              `${exportKey} (from ${importSpecifier}) was not found in root exports`,
-            );
+            expect((BaseUI as Record<string, unknown>)[exportKey]).not.toBeUndefined();
           });
         }),
     );
-
-    // Ensure the utils are also exported
-    expect(BaseUI.utils).not.to.equal(undefined);
   });
 });

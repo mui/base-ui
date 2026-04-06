@@ -12,9 +12,8 @@ Thanks for writing tests! Here's a quick run-down on our current setup.
 ## Tools we use
 
 - [@testing-library/react](https://testing-library.com/docs/react-testing-library/intro/)
-- [Chai](https://www.chaijs.com/)
-- [Sinon](https://sinonjs.org/)
 - [Vitest](https://vitest.dev/)
+- [@testing-library/jest-dom](https://testing-library.com/docs/ecosystem-jest-dom/)
 - [Playwright](https://playwright.dev/)
 - [jsdom](https://github.com/jsdom/jsdom)
 
@@ -34,10 +33,8 @@ describe('test suite', () => {
 });
 ```
 
-For new tests please use `expect` from the BDD testing approach. Prefer to use as expressive [matchers](https://www.chaijs.com/api/bdd/) as possible. This keeps
-the tests readable, and, more importantly, the message if they fail as descriptive as possible.
-
-In addition to the core matchers from `chai` we also use matchers from [`chai-dom`](https://github.com/nathanboktae/chai-dom#readme).
+For new tests please use Vitest's native `expect()` and `vi.fn()` APIs. Prefer expressive built-in matchers along with
+[`@testing-library/jest-dom`](https://testing-library.com/docs/ecosystem-jest-dom/) DOM assertions where applicable.
 
 Deciding where to put a test is (like naming things) a hard problem:
 
@@ -132,7 +129,7 @@ If you want to run only tests from a particular file, append its name to the com
 `pnpm test:chromium`
 `pnpm test:firefox`
 
-Testing the components with JSDOM sometimes isn't enough, as it doesn't support all the APIs.
+Testing the components with jsdom sometimes isn't enough, as it doesn't support all the APIs.
 We need to make sure they will behave as expected with a **real DOM**.
 To solve that problem we use Vitest in [browser mode](https://vitest.dev/guide/browser/).
 
@@ -184,7 +181,7 @@ Alternatively, you might want to open `http://localhost:5173` (while `pnpm test:
 
 ### Testing multiple versions of React
 
-You can check integration of different versions of React (for example different [release channels](https://react.dev/community/versioning-policy) or PRs to React) by running `node scripts/useReactVersion.mjs <version>`.
+You can check integration of different versions of React (for example different [release channels](https://react.dev/community/versioning-policy) or PRs to React) by running `pnpm dlx @mui/internal-code-infra@canary set-version-overrides --pkg react@<version>`.
 
 Possible values for `version`:
 

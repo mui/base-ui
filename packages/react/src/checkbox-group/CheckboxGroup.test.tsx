@@ -1,11 +1,10 @@
+import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
-import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
-import { Checkbox } from '@base-ui-components/react/checkbox';
-import { Field } from '@base-ui-components/react/field';
-import { Form } from '@base-ui-components/react/form';
-import { spy } from 'sinon';
-import { expect } from 'chai';
+import { CheckboxGroup } from '@base-ui/react/checkbox-group';
+import { Checkbox } from '@base-ui/react/checkbox';
+import { Field } from '@base-ui/react/field';
+import { Form } from '@base-ui/react/form';
 import { describeConformance, isJSDOM } from '#test-utils';
 
 describe('<CheckboxGroup />', () => {
@@ -36,33 +35,33 @@ describe('<CheckboxGroup />', () => {
       const green = screen.getByTestId('green');
       const blue = screen.getByTestId('blue');
 
-      expect(red).to.have.attribute('aria-checked', 'true');
-      expect(green).to.have.attribute('aria-checked', 'false');
-      expect(blue).to.have.attribute('aria-checked', 'false');
+      expect(red).toHaveAttribute('aria-checked', 'true');
+      expect(green).toHaveAttribute('aria-checked', 'false');
+      expect(blue).toHaveAttribute('aria-checked', 'false');
 
       fireEvent.click(green);
 
-      expect(red).to.have.attribute('aria-checked', 'true');
-      expect(green).to.have.attribute('aria-checked', 'true');
-      expect(blue).to.have.attribute('aria-checked', 'false');
+      expect(red).toHaveAttribute('aria-checked', 'true');
+      expect(green).toHaveAttribute('aria-checked', 'true');
+      expect(blue).toHaveAttribute('aria-checked', 'false');
 
       fireEvent.click(blue);
 
-      expect(red).to.have.attribute('aria-checked', 'true');
-      expect(green).to.have.attribute('aria-checked', 'true');
-      expect(blue).to.have.attribute('aria-checked', 'true');
+      expect(red).toHaveAttribute('aria-checked', 'true');
+      expect(green).toHaveAttribute('aria-checked', 'true');
+      expect(blue).toHaveAttribute('aria-checked', 'true');
 
       fireEvent.click(green);
 
-      expect(red).to.have.attribute('aria-checked', 'true');
-      expect(green).to.have.attribute('aria-checked', 'false');
-      expect(blue).to.have.attribute('aria-checked', 'true');
+      expect(red).toHaveAttribute('aria-checked', 'true');
+      expect(green).toHaveAttribute('aria-checked', 'false');
+      expect(blue).toHaveAttribute('aria-checked', 'true');
     });
   });
 
   describe('prop: onValueChange', () => {
     it('should be called when the value changes', () => {
-      const handleValueChange = spy();
+      const handleValueChange = vi.fn();
 
       function App() {
         const [value, setValue] = React.useState<string[]>([]);
@@ -89,18 +88,18 @@ describe('<CheckboxGroup />', () => {
 
       fireEvent.click(red);
 
-      expect(handleValueChange.callCount).to.equal(1);
-      expect(handleValueChange.firstCall.args[0]).to.deep.equal(['red']);
+      expect(handleValueChange.mock.calls.length).toBe(1);
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['red']);
 
       fireEvent.click(green);
 
-      expect(handleValueChange.callCount).to.equal(2);
-      expect(handleValueChange.secondCall.args[0]).to.deep.equal(['red', 'green']);
+      expect(handleValueChange.mock.calls.length).toBe(2);
+      expect(handleValueChange.mock.calls[1][0]).toEqual(['red', 'green']);
 
       fireEvent.click(blue);
 
-      expect(handleValueChange.callCount).to.equal(3);
-      expect(handleValueChange.thirdCall.args[0]).to.deep.equal(['red', 'green', 'blue']);
+      expect(handleValueChange.mock.calls.length).toBe(3);
+      expect(handleValueChange.mock.calls[2][0]).toEqual(['red', 'green', 'blue']);
     });
   });
 
@@ -122,15 +121,15 @@ describe('<CheckboxGroup />', () => {
       const green = screen.getByTestId('green');
       const blue = screen.getByTestId('blue');
 
-      expect(red).to.have.attribute('aria-checked', 'true');
-      expect(green).to.have.attribute('aria-checked', 'false');
-      expect(blue).to.have.attribute('aria-checked', 'false');
+      expect(red).toHaveAttribute('aria-checked', 'true');
+      expect(green).toHaveAttribute('aria-checked', 'false');
+      expect(blue).toHaveAttribute('aria-checked', 'false');
 
       fireEvent.click(green);
 
-      expect(red).to.have.attribute('aria-checked', 'true');
-      expect(green).to.have.attribute('aria-checked', 'true');
-      expect(blue).to.have.attribute('aria-checked', 'false');
+      expect(red).toHaveAttribute('aria-checked', 'true');
+      expect(green).toHaveAttribute('aria-checked', 'true');
+      expect(blue).toHaveAttribute('aria-checked', 'false');
     });
   });
 
@@ -152,9 +151,9 @@ describe('<CheckboxGroup />', () => {
       const green = screen.getByTestId('green');
       const blue = screen.getByTestId('blue');
 
-      expect(red).to.have.attribute('disabled', '');
-      expect(green).to.have.attribute('disabled', '');
-      expect(blue).to.have.attribute('disabled', '');
+      expect(red).toHaveAttribute('aria-disabled', 'true');
+      expect(green).toHaveAttribute('aria-disabled', 'true');
+      expect(blue).toHaveAttribute('aria-disabled', 'true');
     });
 
     it('does not disable all checkboxes when `false`', () => {
@@ -174,9 +173,9 @@ describe('<CheckboxGroup />', () => {
       const green = screen.getByTestId('green');
       const blue = screen.getByTestId('blue');
 
-      expect(red).not.to.have.attribute('disabled', '');
-      expect(green).not.to.have.attribute('disabled', '');
-      expect(blue).not.to.have.attribute('disabled', '');
+      expect(red).not.toHaveAttribute('aria-disabled', 'true');
+      expect(green).not.toHaveAttribute('aria-disabled', 'true');
+      expect(blue).not.toHaveAttribute('aria-disabled', 'true');
     });
 
     it('takes precedence over individual checkboxes', () => {
@@ -196,218 +195,362 @@ describe('<CheckboxGroup />', () => {
       const green = screen.getByTestId('green');
       const blue = screen.getByTestId('blue');
 
-      expect(red).to.have.attribute('disabled', '');
-      expect(green).to.have.attribute('disabled', '');
-      expect(blue).to.have.attribute('disabled', '');
+      expect(red).toHaveAttribute('aria-disabled', 'true');
+      expect(green).toHaveAttribute('aria-disabled', 'true');
+      expect(blue).toHaveAttribute('aria-disabled', 'true');
     });
   });
 
   describe('Field', () => {
-    it('prop: validationMode=onChange', async () => {
-      const validateSpy = spy((value) => {
+    it('prop: validationMode=onSubmit', async () => {
+      const validateSpy = vi.fn((value) => {
         const v = value as string[];
-        return v.includes('fuji-apple') ? 'error' : null;
+        if (v.length === 0) {
+          return 'custom error 1';
+        }
+        if (v.length < 2) {
+          return 'custom error 2';
+        }
+        if (v.includes('two')) {
+          return 'custom error 3';
+        }
+        return null;
+      });
+      const { user } = render(
+        <Form>
+          <Field.Root validate={validateSpy} name="test">
+            <CheckboxGroup defaultValue={[]}>
+              <Field.Item>
+                <Checkbox.Root value="one" data-testid="checkbox" />
+              </Field.Item>
+              <Field.Item>
+                <Checkbox.Root value="two" data-testid="checkbox" />
+              </Field.Item>
+              <Field.Item>
+                <Checkbox.Root value="three" data-testid="checkbox" />
+              </Field.Item>
+            </CheckboxGroup>
+          </Field.Root>
+          <button type="submit">submit</button>
+        </Form>,
+      );
+
+      const checkboxes = screen.getAllByTestId('checkbox');
+      const [checkbox1, checkbox2, checkbox3] = checkboxes;
+      checkboxes.forEach((checkbox) => expect(checkbox).not.toHaveAttribute('aria-invalid'));
+
+      await user.click(checkbox2);
+      checkboxes.forEach((checkbox) => expect(checkbox).not.toHaveAttribute('aria-invalid'));
+
+      await user.click(screen.getByText('submit'));
+      checkboxes.forEach((checkbox) => expect(checkbox).toHaveAttribute('aria-invalid'));
+
+      await user.click(checkbox1);
+      expect(validateSpy.mock.lastCall?.[0]).toEqual(['two', 'one']);
+      checkboxes.forEach((checkbox) => expect(checkbox).toHaveAttribute('aria-invalid'));
+      await user.click(checkbox2);
+      await user.click(checkbox3);
+      expect(validateSpy.mock.lastCall?.[0]).toEqual(['one', 'three']);
+      checkboxes.forEach((checkbox) => expect(checkbox).not.toHaveAttribute('aria-invalid'));
+    });
+
+    it('prop: validationMode=onChange', async () => {
+      const validateSpy = vi.fn((value) => {
+        const v = value as string[];
+        return v.includes('one') ? 'error' : null;
       });
       render(
         <Field.Root validationMode="onChange" validate={validateSpy} name="apple">
-          <CheckboxGroup defaultValue={['fuji-apple']}>
-            <Checkbox.Root value="fuji-apple" data-testid="button-1" />
-            <Checkbox.Root value="gala-apple" data-testid="button-2" />
-            <Checkbox.Root value="granny-smith-apple" data-testid="button-3" />
+          <CheckboxGroup defaultValue={['one']}>
+            <Field.Item>
+              <Checkbox.Root value="one" data-testid="checkbox" />
+            </Field.Item>
+            <Field.Item>
+              <Checkbox.Root value="two" data-testid="checkbox" />
+            </Field.Item>
+            <Field.Item>
+              <Checkbox.Root value="three" data-testid="checkbox" />
+            </Field.Item>
           </CheckboxGroup>
         </Field.Root>,
       );
 
-      const button1 = screen.getByTestId('button-1');
-      const button2 = screen.getByTestId('button-2');
-      const button3 = screen.getByTestId('button-3');
+      const checkboxes = screen.getAllByTestId('checkbox');
+      const [checkbox1, checkbox2, checkbox3] = checkboxes;
 
-      expect(button1).not.to.have.attribute('aria-invalid');
-      expect(button2).not.to.have.attribute('aria-invalid');
-      expect(button3).not.to.have.attribute('aria-invalid');
+      checkboxes.forEach((checkbox) => expect(checkbox).not.toHaveAttribute('aria-invalid'));
 
-      fireEvent.click(button1);
+      fireEvent.click(checkbox1);
+      checkboxes.forEach((checkbox) => expect(checkbox).not.toHaveAttribute('aria-invalid'));
+      expect(validateSpy.mock.calls.length).toBe(1);
+      expect(validateSpy.mock.lastCall?.[0]).toEqual([]);
 
-      expect(button1).not.to.have.attribute('aria-invalid');
-      expect(button2).not.to.have.attribute('aria-invalid');
-      expect(button3).not.to.have.attribute('aria-invalid');
-      expect(validateSpy.callCount).to.equal(1);
-      expect(validateSpy.args[0][0]).to.deep.equal([]);
+      fireEvent.click(checkbox2);
+      checkboxes.forEach((checkbox) => expect(checkbox).not.toHaveAttribute('aria-invalid'));
+      expect(validateSpy.mock.calls.length).toBe(2);
+      expect(validateSpy.mock.lastCall?.[0]).toEqual(['two']);
 
-      fireEvent.click(button2);
+      fireEvent.click(checkbox1);
+      checkboxes.forEach((checkbox) => expect(checkbox).toHaveAttribute('aria-invalid', 'true'));
+      expect(validateSpy.mock.calls.length).toBe(3);
+      expect(validateSpy.mock.lastCall?.[0]).toEqual(['two', 'one']);
 
-      expect(button1).not.to.have.attribute('aria-invalid');
-      expect(button2).not.to.have.attribute('aria-invalid');
-      expect(button3).not.to.have.attribute('aria-invalid');
-      expect(validateSpy.callCount).to.equal(2);
-      expect(validateSpy.args[1][0]).to.deep.equal(['gala-apple']);
+      fireEvent.click(checkbox3);
+      checkboxes.forEach((checkbox) => expect(checkbox).toHaveAttribute('aria-invalid', 'true'));
+    });
 
-      fireEvent.click(button1);
+    it('revalidates when the controlled value changes externally', async () => {
+      const validateSpy = vi.fn((value: unknown) => {
+        const values = value as string[];
+        return values.includes('one') ? 'error' : null;
+      });
 
-      expect(button1).to.have.attribute('aria-invalid', 'true');
-      expect(button2).to.have.attribute('aria-invalid', 'true');
-      expect(button3).to.have.attribute('aria-invalid', 'true');
-      expect(validateSpy.callCount).to.equal(3);
-      expect(validateSpy.args[2][0]).to.deep.equal(['gala-apple', 'fuji-apple']);
+      function App() {
+        const [selected, setSelected] = React.useState<string[]>([]);
 
-      fireEvent.click(button3);
+        return (
+          <React.Fragment>
+            <Field.Root validationMode="onChange" validate={validateSpy} name="apple">
+              <CheckboxGroup value={selected}>
+                <Field.Item>
+                  <Checkbox.Root value="one" data-testid="checkbox" />
+                </Field.Item>
+                <Field.Item>
+                  <Checkbox.Root value="two" data-testid="checkbox" />
+                </Field.Item>
+              </CheckboxGroup>
+            </Field.Root>
+            <button type="button" onClick={() => setSelected(['one'])}>
+              Select externally
+            </button>
+          </React.Fragment>
+        );
+      }
 
-      expect(button1).to.have.attribute('aria-invalid', 'true');
-      expect(button2).to.have.attribute('aria-invalid', 'true');
-      expect(button3).to.have.attribute('aria-invalid', 'true');
+      render(<App />);
+
+      const checkboxes = screen.getAllByTestId('checkbox');
+      const toggle = screen.getByText('Select externally');
+
+      checkboxes.forEach((checkbox) => expect(checkbox).not.toHaveAttribute('aria-invalid'));
+      const initialCallCount = validateSpy.mock.calls.length;
+
+      fireEvent.click(toggle);
+
+      expect(validateSpy.mock.calls.length).toBe(initialCallCount + 1);
+      expect(validateSpy.mock.lastCall?.[0]).toEqual(['one']);
+      checkboxes.forEach((checkbox) => expect(checkbox).toHaveAttribute('aria-invalid', 'true'));
     });
 
     it('prop: validationMode=onBlur', async () => {
-      const validateSpy = spy((value) => {
+      const validateSpy = vi.fn((value) => {
         const v = value as string[];
-        return v.includes('fuji-apple') ? 'error' : null;
+        return v.includes('one') ? 'error' : null;
       });
       render(
         <Field.Root validationMode="onBlur" validate={validateSpy} name="apple">
-          <CheckboxGroup defaultValue={['fuji-apple']}>
-            <Checkbox.Root value="fuji-apple" data-testid="button-1" />
-            <Checkbox.Root value="gala-apple" data-testid="button-2" />
-            <Checkbox.Root value="granny-smith-apple" data-testid="button-3" />
+          <CheckboxGroup defaultValue={['one']}>
+            <Field.Item>
+              <Checkbox.Root value="one" data-testid="checkbox" />
+            </Field.Item>
+            <Field.Item>
+              <Checkbox.Root value="two" data-testid="checkbox" />
+            </Field.Item>
+            <Field.Item>
+              <Checkbox.Root value="three" data-testid="checkbox" />
+            </Field.Item>
           </CheckboxGroup>
           <Field.Error data-testid="error" />
         </Field.Root>,
       );
 
-      const button1 = screen.getByTestId('button-1');
-      const button2 = screen.getByTestId('button-2');
-      const button3 = screen.getByTestId('button-3');
+      const checkboxes = screen.getAllByTestId('checkbox');
+      const [checkbox1, , checkbox3] = checkboxes;
 
-      expect(button1).not.to.have.attribute('aria-invalid');
-      expect(button2).not.to.have.attribute('aria-invalid');
-      expect(button3).not.to.have.attribute('aria-invalid');
+      checkboxes.forEach((checkbox) => expect(checkbox).not.toHaveAttribute('aria-invalid'));
 
-      fireEvent.click(button1);
-      expect(validateSpy.callCount).to.equal(0);
-      fireEvent.blur(button1);
-      expect(validateSpy.callCount).to.equal(1);
-      expect(validateSpy.args[0][0]).to.deep.equal([]);
+      fireEvent.click(checkbox1);
+      expect(validateSpy.mock.calls.length).toBe(0);
+      fireEvent.blur(checkbox1);
+      expect(validateSpy.mock.calls.length).toBe(1);
+      expect(validateSpy.mock.lastCall?.[0]).toEqual([]);
 
-      expect(button1).not.to.have.attribute('aria-invalid');
-      expect(button2).not.to.have.attribute('aria-invalid');
-      expect(button3).not.to.have.attribute('aria-invalid');
+      checkboxes.forEach((checkbox) => expect(checkbox).not.toHaveAttribute('aria-invalid'));
 
-      fireEvent.click(button3);
-      expect(validateSpy.callCount).to.equal(1);
-      fireEvent.blur(button3);
-      expect(validateSpy.callCount).to.equal(2);
-      expect(validateSpy.args[1][0]).to.deep.equal(['granny-smith-apple']);
+      fireEvent.click(checkbox3);
+      expect(validateSpy.mock.calls.length).toBe(1);
+      fireEvent.blur(checkbox3);
+      expect(validateSpy.mock.calls.length).toBe(2);
+      expect(validateSpy.mock.lastCall?.[0]).toEqual(['three']);
 
-      expect(button1).not.to.have.attribute('aria-invalid');
-      expect(button2).not.to.have.attribute('aria-invalid');
-      expect(button3).not.to.have.attribute('aria-invalid');
+      checkboxes.forEach((checkbox) => expect(checkbox).not.toHaveAttribute('aria-invalid'));
 
-      fireEvent.click(button1);
-      expect(validateSpy.callCount).to.equal(2);
-      fireEvent.blur(button1);
-      expect(validateSpy.callCount).to.equal(3);
-      expect(validateSpy.args[2][0]).to.deep.equal(['granny-smith-apple', 'fuji-apple']);
+      fireEvent.click(checkbox1);
+      expect(validateSpy.mock.calls.length).toBe(2);
+      fireEvent.blur(checkbox1);
+      expect(validateSpy.mock.calls.length).toBe(3);
+      expect(validateSpy.mock.lastCall?.[0]).toEqual(['three', 'one']);
 
-      expect(button1).to.have.attribute('aria-invalid', 'true');
-      expect(button2).to.have.attribute('aria-invalid', 'true');
-      expect(button3).to.have.attribute('aria-invalid', 'true');
+      checkboxes.forEach((checkbox) => expect(checkbox).toHaveAttribute('aria-invalid', 'true'));
     });
   });
 
   describe('Field.Label', () => {
     it('implicit association', async () => {
-      const changeSpy = spy();
-      const { container } = await render(
+      const changeSpy = vi.fn();
+      render(
         <Field.Root name="apple">
           <CheckboxGroup defaultValue={['fuji-apple', 'gala-apple']}>
-            <Field.Label>
-              <Checkbox.Root value="fuji-apple" />
-              Fuji
-            </Field.Label>
-            <Field.Label>
-              <Checkbox.Root value="gala-apple" />
-              Gala
-            </Field.Label>
-            <Field.Label>
-              <Checkbox.Root value="granny-smith-apple" onCheckedChange={changeSpy} />
-              Granny Smith
-            </Field.Label>
+            <Field.Item>
+              <Field.Label data-testid="label">
+                <Checkbox.Root value="fuji-apple" />
+                Fuji
+              </Field.Label>
+            </Field.Item>
+            <Field.Item>
+              <Field.Label data-testid="label">
+                <Checkbox.Root value="gala-apple" />
+                Gala
+              </Field.Label>
+            </Field.Item>
+            <Field.Item>
+              <Field.Label data-testid="label">
+                <Checkbox.Root value="granny-smith-apple" onCheckedChange={changeSpy} />
+                Granny Smith
+              </Field.Label>
+            </Field.Item>
           </CheckboxGroup>
         </Field.Root>,
       );
 
-      const labels = container.querySelectorAll('label');
-      expect(labels.length).to.equal(3);
-      labels.forEach((label) => {
-        expect(label).to.not.have.attribute('for');
-      });
+      const checkboxes = screen.getAllByRole('checkbox');
+      const labels = screen.getAllByTestId('label');
+      const inputs = document.querySelectorAll('input[type="checkbox"]');
 
-      const buttons = screen.getAllByRole('checkbox');
-      buttons.forEach((button) => {
-        expect(button).to.not.have.attribute('aria-labelledby');
+      checkboxes.forEach((checkbox, index) => {
+        const label = labels[index];
+        const input = inputs[index];
+
+        expect(label.getAttribute('for')).not.toBe(null);
+        expect(label.getAttribute('for')).toBe(input.getAttribute('id'));
+        expect(label.getAttribute('id')).not.toBe(null);
+        expect(label.getAttribute('id')).toBe(checkbox.getAttribute('aria-labelledby'));
       });
 
       fireEvent.click(labels[2]);
-      expect(changeSpy.callCount).to.equal(1);
+      expect(changeSpy.mock.calls.length).toBe(1);
     });
 
     it('explicit association', async () => {
-      const changeSpy = spy();
+      const changeSpy = vi.fn();
+
       await render(
         <Field.Root name="apple">
           <CheckboxGroup defaultValue={['fuji-apple', 'gala-apple']}>
-            <Field.Label id="Label1" htmlFor="Checkbox1">
-              Fuji
-            </Field.Label>
-            <Field.Label id="Label2" htmlFor="Checkbox2">
-              Gala
-            </Field.Label>
-            <Checkbox.Root id="Checkbox1" aria-labelledby="Label1" value="fuji-apple" />
-            <Checkbox.Root
-              id="Checkbox2"
-              aria-labelledby="Label2"
-              value="gala-apple"
-              onCheckedChange={changeSpy}
-            />
+            <Field.Item>
+              <Checkbox.Root value="fuji-apple" />
+              <Field.Label data-testid="label">Fuji</Field.Label>
+              <Field.Description data-testid="description">
+                A fuji apple is the round, edible fruit of an apple tree
+              </Field.Description>
+            </Field.Item>
+            <Field.Item>
+              <Checkbox.Root value="gala-apple" onCheckedChange={changeSpy} />
+              <Field.Label data-testid="label">Gala</Field.Label>
+              <Field.Description data-testid="description">
+                A gala apple is the round, edible fruit of an apple tree
+              </Field.Description>
+            </Field.Item>
           </CheckboxGroup>
         </Field.Root>,
       );
 
-      const label1 = screen.getByText('Fuji');
-      expect(label1).to.have.attribute('for', 'Checkbox1');
+      const checkboxes = screen.getAllByRole('checkbox');
+      const labels = screen.getAllByTestId('label');
+      const descriptions = screen.getAllByTestId('description');
+      const inputs = document.querySelectorAll('input[type="checkbox"]');
+
+      checkboxes.forEach((checkbox, index) => {
+        const label = labels[index];
+        const description = descriptions[index];
+        const input = inputs[index];
+
+        expect(label.getAttribute('for')).not.toBe(null);
+        expect(label.getAttribute('for')).toBe(input.getAttribute('id'));
+        expect(label.getAttribute('id')).not.toBe(null);
+        expect(label.getAttribute('id')).toBe(checkbox.getAttribute('aria-labelledby'));
+        expect(description.getAttribute('id')).not.toBe(null);
+        expect(description.getAttribute('id')).toBe(checkbox.getAttribute('aria-describedby'));
+      });
 
       fireEvent.click(screen.getByText('Gala'));
-      expect(changeSpy.callCount).to.equal(1);
+      expect(changeSpy.mock.calls.length).toBe(1);
+    });
+  });
+
+  describe('Field.Description', () => {
+    it('links the group and individual checkboxes', async () => {
+      await render(
+        <Field.Root name="apple">
+          <CheckboxGroup defaultValue={[]}>
+            <Field.Description data-testid="group-description">Group description</Field.Description>
+            <Field.Item>
+              <Field.Label>
+                <Checkbox.Root value="fuji-apple" />
+                Fuji
+              </Field.Label>
+            </Field.Item>
+          </CheckboxGroup>
+        </Field.Root>,
+      );
+
+      const groupDescription = screen.getByTestId('group-description');
+      const groupDescriptionId = groupDescription.getAttribute('id');
+      expect(groupDescriptionId).not.toBe(null);
+      expect(screen.getByRole('group').getAttribute('aria-describedby')).toContain(
+        groupDescriptionId,
+      );
+      expect(screen.getByRole('checkbox').getAttribute('aria-describedby')).toContain(
+        groupDescriptionId,
+      );
     });
   });
 
   describe.skipIf(isJSDOM)('Form', () => {
     it('includes the checkbox group value in form submission', async () => {
-      const { getByRole } = await render(
+      render(
         <Form
           onSubmit={(event) => {
             event.preventDefault();
             const formData = new FormData(event.currentTarget);
-            expect(formData.getAll('apple')).to.deep.equal(['fuji-apple', 'gala-apple']);
+            expect(formData.getAll('apple')).toEqual(['fuji-apple', 'gala-apple']);
           }}
         >
           <Field.Root name="apple">
             <CheckboxGroup defaultValue={['fuji-apple', 'gala-apple']}>
-              <Checkbox.Root value="fuji-apple" data-testid="button-1" />
-              <Checkbox.Root value="gala-apple" data-testid="button-2" />
-              <Checkbox.Root value="granny-smith-apple" data-testid="button-3" />
+              <Field.Item>
+                <Checkbox.Root value="fuji-apple" data-testid="button-1" />
+              </Field.Item>
+              <Field.Item>
+                <Checkbox.Root value="gala-apple" data-testid="button-2" />
+              </Field.Item>
+              <Field.Item>
+                <Checkbox.Root value="granny-smith-apple" data-testid="button-3" />
+              </Field.Item>
             </CheckboxGroup>
           </Field.Root>
           <button type="submit">Submit</button>
         </Form>,
       );
 
-      const submit = getByRole('button');
+      const submit = screen.getByRole('button');
       fireEvent.click(submit);
     });
 
     it('is validated as a group upon form submission', async () => {
-      const validateSpy = spy();
-      const { getByRole } = await render(
+      const validateSpy = vi.fn();
+
+      render(
         <Form
           onSubmit={(event) => {
             event.preventDefault();
@@ -415,19 +558,25 @@ describe('<CheckboxGroup />', () => {
         >
           <Field.Root name="apple" validate={validateSpy}>
             <CheckboxGroup defaultValue={['fuji-apple', 'gala-apple']}>
-              <Checkbox.Root value="fuji-apple" data-testid="button-1" />
-              <Checkbox.Root value="gala-apple" data-testid="button-2" />
-              <Checkbox.Root value="granny-smith-apple" data-testid="button-3" />
+              <Field.Item>
+                <Checkbox.Root value="fuji-apple" data-testid="button-1" />
+              </Field.Item>
+              <Field.Item>
+                <Checkbox.Root value="gala-apple" data-testid="button-2" />
+              </Field.Item>
+              <Field.Item>
+                <Checkbox.Root value="granny-smith-apple" data-testid="button-3" />
+              </Field.Item>
             </CheckboxGroup>
           </Field.Root>
           <button type="submit">Submit</button>
         </Form>,
       );
 
-      const submit = getByRole('button');
+      const submit = screen.getByRole('button');
       fireEvent.click(submit);
-      expect(validateSpy.callCount).to.equal(1);
-      expect(validateSpy.args[0][0]).to.deep.equal(['fuji-apple', 'gala-apple']);
+      expect(validateSpy.mock.calls.length).toBe(1);
+      expect(validateSpy.mock.calls[0][0]).toEqual(['fuji-apple', 'gala-apple']);
     });
 
     it('focuses the first checkbox when the field receives an error from Form', async () => {
@@ -436,7 +585,6 @@ describe('<CheckboxGroup />', () => {
         return (
           <Form
             errors={errors}
-            onClearErrors={setErrors}
             onSubmit={(event) => {
               event.preventDefault();
               setErrors({ group: 'server error' });
@@ -444,8 +592,12 @@ describe('<CheckboxGroup />', () => {
           >
             <Field.Root name="group" data-testid="field">
               <CheckboxGroup defaultValue={['one']}>
-                <Checkbox.Root value="one" />
-                <Checkbox.Root value="two" />
+                <Field.Item>
+                  <Checkbox.Root value="one" />
+                </Field.Item>
+                <Field.Item>
+                  <Checkbox.Root value="two" />
+                </Field.Item>
               </CheckboxGroup>
               <Field.Error data-testid="error" />
             </Field.Root>
@@ -454,15 +606,15 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      const { user } = await render(<App />);
-      expect(screen.queryByTestId('error')).to.equal(null);
+      const { user } = render(<App />);
+      expect(screen.queryByTestId('error')).toBe(null);
       const submit = screen.getByText('Submit');
       await user.click(submit);
 
       const [checkbox1] = screen.getAllByRole('checkbox');
       expect(checkbox1).toHaveFocus();
-      expect(checkbox1).to.have.attribute('aria-invalid', 'true');
-      expect(screen.queryByTestId('error')).to.have.text('server error');
+      expect(checkbox1).toHaveAttribute('aria-invalid', 'true');
+      expect(screen.queryByTestId('error')).toHaveTextContent('server error');
     });
 
     it('excludes parent checkboxes from form submission', async () => {
@@ -475,7 +627,7 @@ describe('<CheckboxGroup />', () => {
             onSubmit={(event) => {
               event.preventDefault();
               const formData = new FormData(event.currentTarget);
-              expect(formData.getAll('apple')).to.deep.equal([
+              expect(formData.getAll('apple')).toEqual([
                 'fuji-apple',
                 'gala-apple',
                 'granny-smith-apple',
@@ -484,10 +636,18 @@ describe('<CheckboxGroup />', () => {
           >
             <Field.Root name="apple">
               <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
-                <Checkbox.Root parent />
-                <Checkbox.Root value="fuji-apple" />
-                <Checkbox.Root value="gala-apple" />
-                <Checkbox.Root value="granny-smith-apple" />
+                <Field.Item>
+                  <Checkbox.Root parent />
+                </Field.Item>
+                <Field.Item>
+                  <Checkbox.Root value="fuji-apple" />
+                </Field.Item>
+                <Field.Item>
+                  <Checkbox.Root value="gala-apple" />
+                </Field.Item>
+                <Field.Item>
+                  <Checkbox.Root value="granny-smith-apple" />
+                </Field.Item>
               </CheckboxGroup>
             </Field.Root>
             <button type="submit">Submit</button>
@@ -495,18 +655,46 @@ describe('<CheckboxGroup />', () => {
         );
       }
 
-      const { user } = await render(<App />);
+      const { user } = render(<App />);
 
       const [parentCheckbox, , , checkbox3] = screen.getAllByRole('checkbox');
 
-      expect(parentCheckbox).to.have.attribute('aria-checked', 'mixed');
+      expect(parentCheckbox).toHaveAttribute('aria-checked', 'mixed');
 
       await user.click(checkbox3);
 
-      expect(parentCheckbox).to.have.attribute('aria-checked', 'true');
+      expect(parentCheckbox).toHaveAttribute('aria-checked', 'true');
 
       const submit = screen.getByText('Submit');
       fireEvent.click(submit);
+    });
+
+    it('appends the id attribute of the error to aria-describedby of individual checkboxes', async () => {
+      await render(
+        <Form errors={{ group: 'error' }}>
+          <Field.Root name="group">
+            <CheckboxGroup defaultValue={['one']}>
+              <Field.Item>
+                <Checkbox.Root value="one" />
+                <Field.Description>Description</Field.Description>
+              </Field.Item>
+              <Field.Item>
+                <Checkbox.Root value="two" />
+              </Field.Item>
+            </CheckboxGroup>
+            <Field.Error data-testid="error" />
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+      const error = screen.getByTestId('error');
+      expect(error).not.toBe(null);
+
+      const [checkbox1] = screen.getAllByRole('checkbox');
+      expect(checkbox1.getAttribute('aria-describedby')).toContain(error.getAttribute('id'));
+      expect(checkbox1.getAttribute('aria-describedby')).toContain(
+        screen.getByText('Description').getAttribute('id'),
+      );
     });
   });
 });

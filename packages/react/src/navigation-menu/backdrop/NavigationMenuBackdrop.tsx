@@ -4,11 +4,11 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import type { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 
-const customStyleHookMapping: CustomStyleHookMapping<NavigationMenuBackdrop.State> = {
+const stateAttributesMapping: StateAttributesMapping<NavigationMenuBackdropState> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -23,17 +23,14 @@ export const NavigationMenuBackdrop = React.forwardRef(function NavigationMenuBa
   componentProps: NavigationMenuBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, style, ...elementProps } = componentProps;
 
   const { open, mounted, transitionStatus } = useNavigationMenuRootContext();
 
-  const state: NavigationMenuBackdrop.State = React.useMemo(
-    () => ({
-      open,
-      transitionStatus,
-    }),
-    [open, transitionStatus],
-  );
+  const state: NavigationMenuBackdropState = {
+    open,
+    transitionStatus,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -49,23 +46,29 @@ export const NavigationMenuBackdrop = React.forwardRef(function NavigationMenuBa
       },
       elementProps,
     ],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return element;
 });
 
-export namespace NavigationMenuBackdrop {
-  export interface State {
-    /**
-     * If `true`, the popup is open.
-     */
-    open: boolean;
-    /**
-     * The transition status of the popup.
-     */
-    transitionStatus: TransitionStatus;
-  }
+export interface NavigationMenuBackdropState {
+  /**
+   * If `true`, the popup is open.
+   */
+  open: boolean;
+  /**
+   * The transition status of the popup.
+   */
+  transitionStatus: TransitionStatus;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface NavigationMenuBackdropProps extends BaseUIComponentProps<
+  'div',
+  NavigationMenuBackdropState
+> {}
+
+export namespace NavigationMenuBackdrop {
+  export type State = NavigationMenuBackdropState;
+  export type Props = NavigationMenuBackdropProps;
 }

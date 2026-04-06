@@ -1,9 +1,8 @@
+import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { expect } from 'chai';
-import { spy } from 'sinon';
 import { screen, fireEvent, act } from '@mui/internal-test-utils';
-import { NumberField } from '@base-ui-components/react/number-field';
-import { createRenderer, describeConformance } from '#test-utils';
+import { NumberField } from '@base-ui/react/number-field';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { CHANGE_VALUE_TICK_DELAY, START_AUTO_CHANGE_DELAY } from '../utils/constants';
 
 describe('<NumberField.Increment />', () => {
@@ -11,6 +10,8 @@ describe('<NumberField.Increment />', () => {
 
   describeConformance(<NumberField.Increment />, () => ({
     refInstanceof: window.HTMLButtonElement,
+    testComponentPropWith: 'button',
+    button: true,
     render(node) {
       return render(<NumberField.Root>{node}</NumberField.Root>);
     },
@@ -22,7 +23,7 @@ describe('<NumberField.Increment />', () => {
         <NumberField.Increment />
       </NumberField.Root>,
     );
-    expect(screen.queryByLabelText('Increase')).not.to.equal(null);
+    expect(screen.queryByLabelText('Increase')).not.toBe(null);
   });
 
   it('increments starting from 0 click', async () => {
@@ -35,7 +36,7 @@ describe('<NumberField.Increment />', () => {
 
     const button = screen.getByRole('button');
     fireEvent.click(button);
-    expect(screen.getByRole('textbox')).to.have.value('0');
+    expect(screen.getByRole('textbox')).toHaveValue('0');
   });
 
   it('increments to 1 starting from defaultValue=0 click', async () => {
@@ -48,7 +49,7 @@ describe('<NumberField.Increment />', () => {
 
     const button = screen.getByRole('button');
     fireEvent.click(button);
-    expect(screen.getByRole('textbox')).to.have.value('1');
+    expect(screen.getByRole('textbox')).toHaveValue('1');
   });
 
   it('first increment after external controlled update', async () => {
@@ -68,10 +69,28 @@ describe('<NumberField.Increment />', () => {
     const increase = screen.getByLabelText('Increase');
 
     await user.click(screen.getByText('external'));
-    expect(input).to.have.value('1.23456');
+    expect(input).toHaveValue((1.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
 
     await user.click(increase);
-    expect(input).to.have.value('2.235');
+    expect(input).toHaveValue((2.235).toLocaleString(undefined, { minimumFractionDigits: 3 }));
+  });
+
+  it('only calls onValueChange once per increment', async () => {
+    const handleValueChange = vi.fn();
+    const { user } = await render(
+      <NumberField.Root onValueChange={handleValueChange}>
+        <NumberField.Increment />
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const button = screen.getByRole('button');
+
+    await user.click(button);
+    expect(handleValueChange.mock.calls.length).toBe(1);
+
+    await user.click(button);
+    expect(handleValueChange.mock.calls.length).toBe(2);
   });
 
   describe('press and hold', () => {
@@ -90,7 +109,7 @@ describe('<NumberField.Increment />', () => {
 
       fireEvent.pointerDown(button); // onChange x1
 
-      expect(input).to.have.value('1');
+      expect(input).toHaveValue('1');
 
       clock.tick(START_AUTO_CHANGE_DELAY);
 
@@ -98,13 +117,41 @@ describe('<NumberField.Increment />', () => {
       clock.tick(CHANGE_VALUE_TICK_DELAY); // onChange x3
       clock.tick(CHANGE_VALUE_TICK_DELAY); // onChange x4
 
-      expect(input).to.have.value('4');
+      expect(input).toHaveValue('4');
 
       fireEvent.pointerUp(button);
 
       clock.tick(CHANGE_VALUE_TICK_DELAY);
 
-      expect(input).to.have.value('4');
+      expect(input).toHaveValue('4');
+    });
+
+    it('stops calling onValueChange once max is reached', async () => {
+      const handleValueChange = vi.fn();
+      await render(
+        <NumberField.Root defaultValue={9} max={10} onValueChange={handleValueChange}>
+          <NumberField.Increment />
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+
+      const button = screen.getByRole('button');
+      const input = screen.getByRole('textbox');
+
+      fireEvent.pointerDown(button); // onChange x1
+
+      expect(input).toHaveValue('10');
+      expect(handleValueChange.mock.calls.length).toBe(1);
+
+      clock.tick(START_AUTO_CHANGE_DELAY);
+
+      clock.tick(CHANGE_VALUE_TICK_DELAY);
+      clock.tick(CHANGE_VALUE_TICK_DELAY);
+
+      expect(input).toHaveValue('10');
+      expect(handleValueChange.mock.calls.length).toBe(1);
+
+      fireEvent.pointerUp(button);
     });
 
     it('does not increment twice with pointerdown and click', async () => {
@@ -122,7 +169,7 @@ describe('<NumberField.Increment />', () => {
       fireEvent.pointerUp(button);
       fireEvent.click(button, { detail: 1 });
 
-      expect(input).to.have.value('1');
+      expect(input).toHaveValue('1');
     });
 
     it('should stop incrementing after mouseleave', async () => {
@@ -138,7 +185,7 @@ describe('<NumberField.Increment />', () => {
 
       fireEvent.pointerDown(button); // onChange x1
 
-      expect(input).to.have.value('1');
+      expect(input).toHaveValue('1');
 
       clock.tick(START_AUTO_CHANGE_DELAY);
 
@@ -146,13 +193,13 @@ describe('<NumberField.Increment />', () => {
       clock.tick(CHANGE_VALUE_TICK_DELAY); // onChange x3
       clock.tick(CHANGE_VALUE_TICK_DELAY); // onChange x4
 
-      expect(input).to.have.value('4');
+      expect(input).toHaveValue('4');
 
       fireEvent.mouseLeave(button);
 
       clock.tick(CHANGE_VALUE_TICK_DELAY);
 
-      expect(input).to.have.value('4');
+      expect(input).toHaveValue('4');
     });
 
     it('should start incrementing again after mouseleave then mouseenter', async () => {
@@ -168,7 +215,7 @@ describe('<NumberField.Increment />', () => {
 
       fireEvent.pointerDown(button); // onChange x1
 
-      expect(input).to.have.value('1');
+      expect(input).toHaveValue('1');
 
       clock.tick(START_AUTO_CHANGE_DELAY);
 
@@ -176,19 +223,19 @@ describe('<NumberField.Increment />', () => {
       clock.tick(CHANGE_VALUE_TICK_DELAY); // onChange x3
       clock.tick(CHANGE_VALUE_TICK_DELAY); // onChange x4
 
-      expect(input).to.have.value('4');
+      expect(input).toHaveValue('4');
 
       fireEvent.mouseLeave(button);
 
       clock.tick(CHANGE_VALUE_TICK_DELAY);
 
-      expect(input).to.have.value('4');
+      expect(input).toHaveValue('4');
 
       fireEvent.mouseEnter(button);
 
       clock.tick(CHANGE_VALUE_TICK_DELAY); // onChange x5
 
-      expect(input).to.have.value('5');
+      expect(input).toHaveValue('5');
     });
 
     it('should not start incrementing again after mouseleave then mouseenter after pointerup', async () => {
@@ -204,7 +251,7 @@ describe('<NumberField.Increment />', () => {
 
       fireEvent.pointerDown(button); // onChange x1
 
-      expect(input).to.have.value('1');
+      expect(input).toHaveValue('1');
 
       clock.tick(START_AUTO_CHANGE_DELAY);
 
@@ -212,25 +259,25 @@ describe('<NumberField.Increment />', () => {
       clock.tick(CHANGE_VALUE_TICK_DELAY); // onChange x3
       clock.tick(CHANGE_VALUE_TICK_DELAY); // onChange x4
 
-      expect(input).to.have.value('4');
+      expect(input).toHaveValue('4');
 
       fireEvent.pointerUp(button);
 
       clock.tick(CHANGE_VALUE_TICK_DELAY);
 
-      expect(input).to.have.value('4');
+      expect(input).toHaveValue('4');
 
       fireEvent.mouseLeave(button);
 
       clock.tick(CHANGE_VALUE_TICK_DELAY);
 
-      expect(input).to.have.value('4');
+      expect(input).toHaveValue('4');
 
       fireEvent.mouseEnter(button);
 
       clock.tick(CHANGE_VALUE_TICK_DELAY);
 
-      expect(input).to.have.value('4');
+      expect(input).toHaveValue('4');
     });
   });
 
@@ -244,7 +291,7 @@ describe('<NumberField.Increment />', () => {
 
     const button = screen.getByRole('button');
     fireEvent.click(button);
-    expect(screen.getByRole('textbox')).to.have.value('');
+    expect(screen.getByRole('textbox')).toHaveValue('');
   });
 
   it('should increment when input is dirty but not blurred (click)', async () => {
@@ -262,7 +309,7 @@ describe('<NumberField.Increment />', () => {
     fireEvent.change(input, { target: { value: '100' } });
     fireEvent.click(screen.getByRole('button'));
 
-    expect(input).to.have.value('101');
+    expect(input).toHaveValue('101');
   });
 
   it('should increment when input is dirty but not blurred (pointerdown)', async () => {
@@ -280,7 +327,23 @@ describe('<NumberField.Increment />', () => {
     fireEvent.change(input, { target: { value: '100' } });
     fireEvent.pointerDown(screen.getByRole('button'));
 
-    expect(input).to.have.value('101');
+    expect(input).toHaveValue('101');
+  });
+
+  it('treats pen pointer as touch-like', async () => {
+    await render(
+      <NumberField.Root defaultValue={0}>
+        <NumberField.Increment />
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const button = screen.getByRole('button');
+    const input = screen.getByRole('textbox');
+
+    fireEvent.pointerDown(button, { pointerType: 'pen', button: 0 });
+
+    expect(document.activeElement).not.toBe(input);
   });
 
   it('always increments on quick touch (touchend that occurs before TOUCH_TIMEOUT)', async () => {
@@ -300,7 +363,7 @@ describe('<NumberField.Increment />', () => {
     fireEvent.click(button, { detail: 1 });
     fireEvent.touchEnd(button);
 
-    expect(input).to.have.value('1');
+    expect(input).toHaveValue('1');
 
     fireEvent.touchStart(button);
     // No mouseenter occurs after the first focus
@@ -308,7 +371,31 @@ describe('<NumberField.Increment />', () => {
     fireEvent.click(button, { detail: 1 });
     fireEvent.touchEnd(button);
 
-    expect(input).to.have.value('2');
+    expect(input).toHaveValue('2');
+  });
+
+  it.skipIf(isJSDOM)('fires onValueCommitted once on first soft tap (touch)', async () => {
+    const onValueCommitted = vi.fn();
+    await render(
+      <NumberField.Root defaultValue={0} onValueCommitted={onValueCommitted}>
+        <NumberField.Increment />
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const button = screen.getByLabelText('Increase');
+
+    // Simulate the typical sequence with a 300ms tap delay producing mouse compatibility events
+    fireEvent.touchStart(button);
+    fireEvent.pointerDown(button, { pointerType: 'touch' });
+    // No movement; quick tap
+    fireEvent.touchEnd(button);
+    // Compatibility mouse events and click
+    fireEvent.mouseEnter(button);
+    fireEvent.click(button, { detail: 1 });
+
+    expect(onValueCommitted.mock.calls.length).toBe(1);
+    expect(onValueCommitted.mock.calls[0][0]).toBe(1);
   });
 
   describe('prop: snapOnStep', () => {
@@ -323,7 +410,7 @@ describe('<NumberField.Increment />', () => {
       const button = screen.getByRole('button');
       fireEvent.click(button);
 
-      expect(screen.getByRole('textbox')).to.have.value('4.7');
+      expect(screen.getByRole('textbox')).toHaveValue((4.7).toLocaleString());
     });
 
     it('should snap on increment when snapOnStep is true', async () => {
@@ -337,17 +424,17 @@ describe('<NumberField.Increment />', () => {
       const button = screen.getByRole('button');
       fireEvent.click(button);
 
-      expect(screen.getByRole('textbox')).to.have.value('2');
+      expect(screen.getByRole('textbox')).toHaveValue('2');
 
       fireEvent.change(screen.getByRole('textbox'), { target: { value: '1.9' } });
       fireEvent.click(button);
 
-      expect(screen.getByRole('textbox')).to.have.value('2');
+      expect(screen.getByRole('textbox')).toHaveValue('2');
 
       fireEvent.change(screen.getByRole('textbox'), { target: { value: '-0.2' } });
       fireEvent.click(button);
 
-      expect(screen.getByRole('textbox')).to.have.value('0');
+      expect(screen.getByRole('textbox')).toHaveValue('0');
     });
 
     it('should increment with respect to the min value', async () => {
@@ -362,24 +449,24 @@ describe('<NumberField.Increment />', () => {
       const input = screen.getByRole('textbox');
 
       fireEvent.click(button);
-      expect(input).to.have.value('3');
+      expect(input).toHaveValue('3');
 
       fireEvent.click(button);
-      expect(input).to.have.value('5');
+      expect(input).toHaveValue('5');
 
       fireEvent.change(input, { target: { value: '1.112' } });
       fireEvent.click(button);
-      expect(input).to.have.value('3');
+      expect(input).toHaveValue('3');
 
       fireEvent.change(input, { target: { value: '0.999' } });
       fireEvent.click(button);
-      expect(input).to.have.value('1');
+      expect(input).toHaveValue('1');
     });
   });
 
   describe('disabled state', () => {
     it('should not increment when root is disabled', async () => {
-      const handleValueChange = spy();
+      const handleValueChange = vi.fn();
       await render(
         <NumberField.Root disabled onValueChange={handleValueChange}>
           <NumberField.Increment />
@@ -389,12 +476,12 @@ describe('<NumberField.Increment />', () => {
 
       const button = screen.getByRole('button');
       fireEvent.click(button);
-      expect(screen.getByRole('textbox')).to.have.value('');
-      expect(handleValueChange.callCount).to.equal(0);
+      expect(screen.getByRole('textbox')).toHaveValue('');
+      expect(handleValueChange.mock.calls.length).toBe(0);
     });
 
     it('should not increment when button is disabled', async () => {
-      const handleValueChange = spy();
+      const handleValueChange = vi.fn();
       await render(
         <NumberField.Root defaultValue={0} onValueChange={handleValueChange}>
           <NumberField.Increment disabled />
@@ -403,12 +490,38 @@ describe('<NumberField.Increment />', () => {
       );
       const input = screen.getByRole('textbox');
       const button = screen.getByRole('button');
-      expect(button).to.have.attribute('disabled');
-      expect(input).to.have.value('0');
+      expect(button).toHaveAttribute('disabled');
+      expect(input).toHaveValue('0');
 
       fireEvent.pointerDown(button);
-      expect(handleValueChange.callCount).to.equal(0);
-      expect(input).to.have.value('0');
+      expect(handleValueChange.mock.calls.length).toBe(0);
+      expect(input).toHaveValue('0');
+    });
+
+    describe('prop: className', () => {
+      it('when root is disabled', async () => {
+        const classNameSpy = vi.fn();
+        await render(
+          <NumberField.Root disabled>
+            <NumberField.Increment className={classNameSpy} />
+            <NumberField.Input />
+          </NumberField.Root>,
+        );
+
+        expect(classNameSpy.mock.lastCall?.[0]).toHaveProperty('disabled', true);
+      });
+
+      it('when button is disabled', async () => {
+        const classNameSpy = vi.fn();
+        await render(
+          <NumberField.Root>
+            <NumberField.Increment disabled className={classNameSpy} />
+            <NumberField.Input />
+          </NumberField.Root>,
+        );
+
+        expect(classNameSpy.mock.lastCall?.[0]).toHaveProperty('disabled', true);
+      });
     });
   });
 });

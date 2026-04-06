@@ -1,7 +1,6 @@
-import * as React from 'react';
-import { Tooltip } from '@base-ui-components/react/tooltip';
+import { expect } from 'vitest';
+import { Tooltip } from '@base-ui/react/tooltip';
 import { screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Tooltip.Popup />', () => {
@@ -31,6 +30,6 @@ describe('<Tooltip.Popup />', () => {
       </Tooltip.Root>,
     );
 
-    expect(screen.getByText('Content')).not.to.equal(null);
+    expect(screen.getByText('Content')).not.toBe(null);
   });
 });

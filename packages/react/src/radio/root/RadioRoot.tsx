@@ -1,29 +1,39 @@
 'use client';
 import * as React from 'react';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
+import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
+import { EMPTY_OBJECT } from '../../utils/constants';
 import { NOOP } from '../../utils/noop';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useForkRef } from '../../utils/useForkRef';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { stateAttributesMapping } from '../utils/stateAttributesMapping';
+import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { visuallyHidden } from '../../utils/visuallyHidden';
 import { useButton } from '../../use-button';
 import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
 import { CompositeItem } from '../../composite/item/CompositeItem';
+import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { customStyleHookMapping } from '../utils/customStyleHookMapping';
+import { useFieldItemContext } from '../../field/item/FieldItemContext';
+import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import { useAriaLabelledBy } from '../../labelable-provider/useAriaLabelledBy';
+import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
+import { serializeValue } from '../../utils/serializeValue';
 import { RadioRootContext } from './RadioRootContext';
 
 /**
  * Represents the radio button itself.
- * Renders a `<button>` element and a hidden `<input>` beside.
+ * Renders a `<span>` element and a hidden `<input>` beside.
  *
  * Documentation: [Base UI Radio](https://base-ui.com/react/components/radio)
  */
-export const RadioRoot = React.forwardRef(function RadioRoot(
-  componentProps: RadioRoot.Props,
-  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
+export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
+  componentProps: RadioRoot.Props<Value>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     render,
@@ -31,135 +41,189 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     disabled: disabledProp = false,
     readOnly: readOnlyProp = false,
     required: requiredProp = false,
+    'aria-labelledby': ariaLabelledByProp,
     value,
     inputRef: inputRefProp,
-    nativeButton = true,
+    nativeButton = false,
+    id: idProp,
+    style,
     ...elementProps
   } = componentProps;
 
+  const groupContext = useRadioGroupContext();
+
   const {
-    disabled: disabledRoot,
-    readOnly: readOnlyRoot,
-    required: requiredRoot,
+    disabled: disabledGroup,
+    readOnly: readOnlyGroup,
+    required: requiredGroup,
+    form: formGroup,
     checkedValue,
-    setCheckedValue,
-    onValueChange,
-    touched,
-    setTouched,
-    fieldControlValidation,
-    registerControlRef,
-  } = useRadioGroupContext();
+    touched = false,
+    validation,
+    name,
+  } = groupContext ?? {};
+  const setCheckedValue = groupContext?.setCheckedValue ?? NOOP;
+  const setTouched = groupContext?.setTouched ?? NOOP;
+  const registerControlRef = groupContext?.registerControlRef ?? NOOP;
+  const registerInputRef = groupContext?.registerInputRef ?? NOOP;
 
-  const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
+  const {
+    setDirty,
+    validityData,
+    setTouched: setFieldTouched,
+    setFilled,
+    state: fieldState,
+    disabled: fieldDisabled,
+  } = useFieldRootContext();
+  const fieldItemContext = useFieldItemContext();
+  const { labelId, getDescriptionProps } = useLabelableContext();
 
-  const disabled = fieldDisabled || disabledRoot || disabledProp;
-  const readOnly = readOnlyRoot || readOnlyProp;
-  const required = requiredRoot || requiredProp;
+  const disabled = fieldDisabled || fieldItemContext.disabled || disabledGroup || disabledProp;
+  const readOnly = readOnlyGroup || readOnlyProp;
+  const required = requiredGroup || requiredProp;
+  const form = formGroup;
 
-  const { setDirty, validityData, setTouched: setFieldTouched, setFilled } = useFieldRootContext();
+  const checked = groupContext ? checkedValue === value : value === '';
+  const serializedValue = React.useMemo(() => serializeValue(value), [value]);
 
-  const checked = checkedValue === value;
-
+  const radioRef = React.useRef<HTMLElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const ref = useForkRef(inputRefProp, inputRef);
 
-  useModernLayoutEffect(() => {
+  const handleControlRef = useStableCallback((element: HTMLElement | null) => {
+    if (!element) {
+      return;
+    }
+
+    registerControlRef(element, disabled);
+  });
+
+  const mergedInputRef = useMergedRefs(inputRefProp, inputRef, registerInputRef);
+
+  useIsoLayoutEffect(() => {
     if (inputRef.current?.checked) {
       setFilled(true);
     }
   }, [setFilled]);
 
-  const rootProps: React.ComponentPropsWithRef<'button'> = React.useMemo(
-    () => ({
-      role: 'radio',
-      'aria-checked': checked,
-      'aria-required': required || undefined,
-      'aria-disabled': disabled || undefined,
-      'aria-readonly': readOnly || undefined,
-      [ACTIVE_COMPOSITE_ITEM as string]: checked ? '' : undefined,
-      disabled,
-      onKeyDown(event) {
-        if (event.key === 'Enter') {
-          event.preventDefault();
-        }
-      },
-      onClick(event) {
-        if (event.defaultPrevented || disabled || readOnly) {
-          return;
-        }
+  useIsoLayoutEffect(() => {
+    if (!inputRef.current) {
+      return;
+    }
 
-        event.preventDefault();
+    if (disabled && checked) {
+      registerInputRef(null);
+      return;
+    }
 
-        inputRef.current?.click();
-      },
-      onFocus(event) {
-        if (event.defaultPrevented || disabled || readOnly || !touched) {
-          return;
-        }
+    if (radioRef.current) {
+      registerControlRef(radioRef.current, disabled);
+    }
 
-        inputRef.current?.click();
+    registerInputRef(inputRef.current);
+  }, [checked, disabled, registerControlRef, registerInputRef]);
 
-        setTouched(false);
-      },
-    }),
-    [checked, required, disabled, readOnly, touched, setTouched],
+  const id = useBaseUiId();
+  const inputId = useLabelableId({
+    id: idProp,
+    implicit: false,
+    controlRef: radioRef,
+  });
+  const hiddenInputId = nativeButton ? undefined : inputId;
+  const ariaLabelledBy = useAriaLabelledBy(
+    ariaLabelledByProp,
+    labelId,
+    inputRef,
+    !nativeButton,
+    hiddenInputId,
   );
+
+  const rootProps: React.ComponentPropsWithRef<'span'> = {
+    role: 'radio',
+    'aria-checked': checked,
+    'aria-required': required || undefined,
+    'aria-readonly': readOnly || undefined,
+    'aria-labelledby': ariaLabelledBy,
+    [ACTIVE_COMPOSITE_ITEM as string]: checked ? '' : undefined,
+    id: nativeButton ? inputId : id,
+    onKeyDown(event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+      }
+    },
+    onClick(event) {
+      if (event.defaultPrevented || disabled || readOnly) {
+        return;
+      }
+
+      event.preventDefault();
+
+      inputRef.current?.dispatchEvent(
+        new PointerEvent('click', {
+          bubbles: true,
+          shiftKey: event.shiftKey,
+          ctrlKey: event.ctrlKey,
+          altKey: event.altKey,
+          metaKey: event.metaKey,
+        }),
+      );
+    },
+    onFocus(event) {
+      if (event.defaultPrevented || disabled || readOnly || !touched) {
+        return;
+      }
+
+      inputRef.current?.click();
+
+      setTouched(false);
+    },
+  };
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     native: nativeButton,
   });
 
-  const id = useBaseUiId();
+  const inputProps: React.ComponentPropsWithRef<'input'> = {
+    type: 'radio',
+    ref: mergedInputRef,
+    form,
+    id: hiddenInputId,
+    name,
+    tabIndex: -1,
+    style: name ? visuallyHiddenInput : visuallyHidden,
+    'aria-hidden': true,
+    ...(value !== undefined ? { value: serializedValue } : EMPTY_OBJECT),
+    disabled,
+    checked,
+    required,
+    readOnly,
+    onChange(event) {
+      // Workaround for https://github.com/facebook/react/issues/9023
+      if (event.nativeEvent.defaultPrevented) {
+        return;
+      }
 
-  const inputProps: React.ComponentPropsWithRef<'input'> = React.useMemo(
-    () => ({
-      type: 'radio',
-      ref,
-      // Set `id` to stop Chrome warning about an unassociated input
-      id,
-      tabIndex: -1,
-      style: visuallyHidden,
-      'aria-hidden': true,
-      disabled,
-      checked,
-      required,
-      readOnly,
-      onChange(event) {
-        // Workaround for https://github.com/facebook/react/issues/9023
-        if (event.nativeEvent.defaultPrevented) {
-          return;
-        }
+      if (disabled || readOnly || value === undefined) {
+        return;
+      }
 
-        if (disabled || readOnly || value === undefined) {
-          return;
-        }
+      const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
-        setFieldTouched(true);
-        setDirty(value !== validityData.initialValue);
-        setCheckedValue(value);
-        setFilled(true);
-        onValueChange?.(value, event.nativeEvent);
-      },
-    }),
-    [
-      checked,
-      disabled,
-      id,
-      onValueChange,
-      readOnly,
-      ref,
-      required,
-      setCheckedValue,
-      setDirty,
-      setFieldTouched,
-      setFilled,
-      validityData.initialValue,
-      value,
-    ],
-  );
+      if (details.isCanceled) {
+        return;
+      }
 
-  const state: RadioRoot.State = React.useMemo(
+      setFieldTouched(true);
+      setDirty(value !== validityData.initialValue);
+      setFilled(true);
+      setCheckedValue(value, details);
+    },
+    onFocus() {
+      radioRef.current?.focus();
+    },
+  };
+
+  const state: RadioRootState = React.useMemo(
     () => ({
       ...fieldState,
       required,
@@ -170,75 +234,94 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     [fieldState, disabled, readOnly, checked, required],
   );
 
-  const contextValue: RadioRootContext = React.useMemo(() => state, [state]);
+  const contextValue: RadioRootContext = state;
 
-  const element = useRenderElement('button', componentProps, {
+  const isRadioGroup = groupContext !== undefined;
+
+  const refs = [forwardedRef, radioRef, buttonRef, handleControlRef];
+  const props = [
+    rootProps,
+    getDescriptionProps,
+    validation?.getValidationProps ?? EMPTY_OBJECT,
+    elementProps,
+    getButtonProps,
+  ];
+
+  const element = useRenderElement('span', componentProps, {
+    enabled: !isRadioGroup,
     state,
-    ref: [forwardedRef, registerControlRef, buttonRef],
-    props: [
-      rootProps,
-      fieldControlValidation?.getValidationProps ?? undefined,
-      elementProps,
-      getButtonProps,
-    ],
-    customStyleHookMapping,
+    ref: refs,
+    props,
+    stateAttributesMapping,
   });
 
   return (
     <RadioRootContext.Provider value={contextValue}>
-      {setCheckedValue === NOOP ? element : <CompositeItem render={element} />}
+      {isRadioGroup ? (
+        <CompositeItem
+          tag="span"
+          render={render}
+          className={className}
+          style={style}
+          state={state}
+          refs={refs}
+          props={props}
+          stateAttributesMapping={stateAttributesMapping}
+        />
+      ) : (
+        element
+      )}
       <input {...inputProps} />
     </RadioRootContext.Provider>
   );
-});
+}) as {
+  <Value>(props: RadioRoot.Props<Value>): React.JSX.Element;
+};
+
+export interface RadioRootState extends FieldRootState {
+  /**
+   * Whether the radio button is currently selected.
+   */
+  checked: boolean;
+  /**
+   * Whether the component should ignore user interaction.
+   */
+  disabled: boolean;
+  /**
+   * Whether the user should be unable to select the radio button.
+   */
+  readOnly: boolean;
+  /**
+   * Whether the user must choose a value before submitting a form.
+   */
+  required: boolean;
+}
+
+export interface RadioRootProps<Value = any>
+  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'span', RadioRootState>, 'value'> {
+  /**
+   * The unique identifying value of the radio in a group.
+   */
+  value: Value;
+  /**
+   * Whether the component should ignore user interaction.
+   */
+  disabled?: boolean | undefined;
+  /**
+   * Whether the user must choose a value before submitting a form.
+   */
+  required?: boolean | undefined;
+  /**
+   * Whether the user should be unable to select the radio button.
+   */
+  readOnly?: boolean | undefined;
+  /**
+   * A ref to access the hidden input element.
+   */
+  inputRef?: React.Ref<HTMLInputElement> | undefined;
+}
 
 export namespace RadioRoot {
-  export interface Props extends Omit<BaseUIComponentProps<'button', State>, 'value'> {
-    /**
-     * The unique identifying value of the radio in a group.
-     */
-    value: any;
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-    /**
-     * Whether the user must choose a value before submitting a form.
-     * @default false
-     */
-    required?: boolean;
-    /**
-     * Whether the user should be unable to select the radio button.
-     * @default false
-     */
-    readOnly?: boolean;
-    /**
-     * A ref to access the hidden input element.
-     */
-    inputRef?: React.Ref<HTMLInputElement>;
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default true
-     */
-    nativeButton?: boolean;
-  }
-
-  export interface State {
-    /**
-     * Whether the radio button is currently selected.
-     */
-    checked: boolean;
-    disabled: boolean;
-    /**
-     * Whether the user should be unable to select the radio button.
-     */
-    readOnly: boolean;
-    /**
-     * Whether the user must choose a value before submitting a form.
-     */
-    required: boolean;
-  }
+  export type State = RadioRootState;
+  export type Props<TValue = any> = RadioRootProps<TValue>;
 }

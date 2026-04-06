@@ -157,7 +157,7 @@ export const theme = {
         'string.regexp.character-class',
         'string.regexp constant.character.escape',
         'string.regexp source.ruby.embedded',
-        'string.regexp string.regexp.arbitrary-repitition',
+        'string.regexp string.regexp.arbitrary-repetition',
       ],
       settings: {
         foreground: 'var(--syntax-string)',
@@ -327,14 +327,12 @@ export const theme = {
 // work sessions. We instantiate the highlighter as a property of `globalThis`
 // so that the object persists between hot reloads and doesn't leak memory.
 
-// eslint-disable-next-line no-undef
 globalThis.highlighter ??= await createHighlighter({
   themes: [theme],
   langs: ['tsx', 'jsx', 'css'],
 });
 
 /** @type {Awaited<ReturnType<typeof import('shiki').createHighlighter>> } */
-// eslint-disable-next-line no-undef
 export const highlighter = globalThis.highlighter;
 
 /** @type {import('unified').PluggableList} */

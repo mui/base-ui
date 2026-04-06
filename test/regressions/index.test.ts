@@ -1,7 +1,7 @@
-import * as path from 'node:path';
-import * as fse from 'fs-extra';
-import { chromium, Locator } from '@playwright/test';
 import { describe, it } from 'vitest';
+import * as path from 'node:path';
+import * as fs from 'node:fs/promises';
+import { chromium, Locator } from '@playwright/test';
 
 const baseUrl = 'http://localhost:5173';
 const screenshotDir = path.resolve(__dirname, './screenshots/chrome');
@@ -13,7 +13,7 @@ const browser = await chromium.launch({
 });
 // reuse viewport from `vrtest`
 // https://github.com/nathanmarks/vrtest/blob/1185b852a6c1813cedf5d81f6d6843d9a241c1ce/src/server/runner.js#L44
-const page = await browser.newPage({ viewport: { width: 1000, height: 700 } });
+const page = await browser.newPage({ viewport: { width: 1000, height: 700 }, timezoneId: 'UTC' });
 
 // Block images since they slow down tests (need download).
 // They're also most likely decorative for documentation demos
@@ -63,7 +63,7 @@ async function renderFixture(index: number) {
 
 async function takeScreenshot({ testcase, route }: { testcase: Locator; route: string }) {
   const screenshotPath = path.resolve(screenshotDir, `.${route}.png`);
-  await fse.ensureDir(path.dirname(screenshotPath));
+  await fs.mkdir(path.dirname(screenshotPath), { recursive: true });
 
   const explicitScreenshotTarget = await page.$('[data-testid="screenshot-target"]');
   const screenshotTarget = explicitScreenshotTarget || testcase;
@@ -72,7 +72,7 @@ async function takeScreenshot({ testcase, route }: { testcase: Locator; route: s
 }
 
 // prepare screenshots
-await fse.emptyDir(screenshotDir);
+await fs.rm(screenshotDir, { force: true, recursive: true });
 
 describe('visual regressions', () => {
   beforeEach(async () => {

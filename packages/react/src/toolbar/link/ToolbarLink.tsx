@@ -1,10 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
-import { CompositeItem } from '../../composite/item/CompositeItem';
 import type { ToolbarRoot } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
+import { CompositeItem } from '../../composite/item/CompositeItem';
 
 const TOOLBAR_LINK_METADATA = {
   // links cannot be disabled, this metadata is only used for deriving `disabledIndices``
@@ -22,32 +21,38 @@ export const ToolbarLink = React.forwardRef(function ToolbarLink(
   componentProps: ToolbarLink.Props,
   forwardedRef: React.ForwardedRef<HTMLAnchorElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, style, ...elementProps } = componentProps;
 
   const { orientation } = useToolbarRootContext();
 
-  const state: ToolbarLink.State = React.useMemo(
-    () => ({
-      orientation,
-    }),
-    [orientation],
-  );
-
-  const element = useRenderElement('a', componentProps, {
-    state,
-    ref: forwardedRef,
-    props: elementProps,
-  });
+  const state: ToolbarLinkState = {
+    orientation,
+  };
 
   return (
-    <CompositeItem<ToolbarRoot.ItemMetadata> metadata={TOOLBAR_LINK_METADATA} render={element} />
+    <CompositeItem
+      tag="a"
+      render={render}
+      className={className}
+      style={style}
+      metadata={TOOLBAR_LINK_METADATA}
+      state={state}
+      refs={[forwardedRef]}
+      props={[elementProps]}
+    />
   );
 });
 
-export namespace ToolbarLink {
-  export interface State {
-    orientation: ToolbarRoot.Orientation;
-  }
+export interface ToolbarLinkState {
+  /**
+   * The component orientation.
+   */
+  orientation: ToolbarRoot.Orientation;
+}
 
-  export interface Props extends BaseUIComponentProps<'a', State> {}
+export interface ToolbarLinkProps extends BaseUIComponentProps<'a', ToolbarLinkState> {}
+
+export namespace ToolbarLink {
+  export type State = ToolbarLinkState;
+  export type Props = ToolbarLinkProps;
 }

@@ -1,10 +1,11 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { inertValue } from '@base-ui/utils/inertValue';
 import { FloatingNode } from '../../floating-ui-react';
-import { contains } from '../../floating-ui-react/utils';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { contains, getTarget } from '../../floating-ui-react/utils';
+import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import {
   useNavigationMenuRootContext,
   useNavigationMenuTreeContext,
@@ -12,13 +13,13 @@ import {
 import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext';
 import { TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
-import { inertValue } from '../../utils/inertValue';
 import { popupStateMapping } from '../../utils/popupStateMapping';
+import { EMPTY_OBJECT } from '../../utils/constants';
 
-const customStyleHookMapping: CustomStyleHookMapping<NavigationMenuContent.State> = {
+const stateAttributesMapping: StateAttributesMapping<NavigationMenuContentState> = {
   ...popupStateMapping,
   ...transitionStatusMapping,
   activationDirection(value) {
@@ -42,7 +43,7 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
   componentProps: NavigationMenuContent.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, keepMounted = false, style, ...elementProps } = componentProps;
 
   const {
     mounted: popupMounted,
@@ -50,17 +51,25 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
     value,
     activationDirection,
     currentContentRef,
+    viewportTargetElement,
   } = useNavigationMenuRootContext();
-  const itemValue = useNavigationMenuItemContext();
+  const { value: itemValue } = useNavigationMenuItemContext();
   const nodeId = useNavigationMenuTreeContext();
 
   const open = popupMounted && value === itemValue;
 
   const ref = React.useRef<HTMLDivElement | null>(null);
 
+  const [hasMountedInPortal, setHasMountedInPortal] = React.useState(false);
   const [focusInside, setFocusInside] = React.useState(false);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+
+  // If the popup unmounts before the content's exit animation completes, reset the internal
+  // mounted state so the next open can re-enter via `transitionStatus="starting"`.
+  if (mounted && !popupMounted) {
+    setMounted(false);
+  }
 
   useOpenChangeComplete({
     ref,
@@ -72,14 +81,21 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
     },
   });
 
-  const state: NavigationMenuContent.State = React.useMemo(
-    () => ({
-      open,
-      transitionStatus,
-      activationDirection,
-    }),
-    [open, transitionStatus, activationDirection],
-  );
+  // When a content re-enters while still mounted (e.g. switching top-level triggers
+  // back before the exit animation completes), the DOM element hasn't changed so the
+  // callback ref won't fire again. Ensure the shared ref is updated so the
+  // MutationObserver in the trigger watches the correct content element.
+  useIsoLayoutEffect(() => {
+    if (open && ref.current) {
+      currentContentRef.current = ref.current;
+    }
+  }, [open, currentContentRef]);
+
+  const state: NavigationMenuContentState = {
+    open,
+    transitionStatus,
+    activationDirection,
+  };
 
   const handleCurrentContentRef = React.useCallback(
     (node: HTMLDivElement | null) => {
@@ -90,8 +106,12 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
     [currentContentRef],
   );
 
-  const commonProps: React.ComponentProps<'div'> = {
-    onFocus() {
+  const commonProps: HTMLProps<HTMLDivElement> = {
+    onFocus(event) {
+      const target = getTarget(event.nativeEvent) as Element | null;
+      if (target?.hasAttribute('data-base-ui-focus-guard')) {
+        return;
+      }
       setFocusInside(true);
     },
     onBlur(event) {
@@ -101,52 +121,85 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
     },
   };
 
-  const shouldRender = viewportElement !== null && mounted;
+  const defaultProps: HTMLProps =
+    !open && mounted
+      ? {
+          style: { position: 'absolute', top: 0, left: 0 },
+          inert: inertValue(!focusInside),
+          ...commonProps,
+        }
+      : commonProps;
 
-  const element = useRenderElement('div', componentProps, {
-    enabled: shouldRender,
-    state,
-    ref: [forwardedRef, ref, handleCurrentContentRef],
-    props: [
-      !open && mounted
-        ? {
-            style: { position: 'absolute', top: 0, left: 0 },
-            inert: inertValue(!focusInside),
-            ...commonProps,
-          }
-        : commonProps,
-      elementProps,
-    ],
-    customStyleHookMapping,
-  });
+  const portalContainer = viewportTargetElement || viewportElement;
+  const hidden = keepMounted && !mounted;
+  const shouldRenderInline = keepMounted && !portalContainer && !hasMountedInPortal;
 
-  if (!viewportElement || !element) {
+  if (keepMounted && portalContainer && !hasMountedInPortal) {
+    setHasMountedInPortal(true);
+  }
+
+  if (shouldRenderInline) {
+    return (
+      <CompositeRoot
+        render={render}
+        className={className}
+        style={style}
+        state={state}
+        refs={[forwardedRef]}
+        props={[defaultProps, { hidden: true }, elementProps]}
+        stateAttributesMapping={stateAttributesMapping}
+      />
+    );
+  }
+
+  if (!portalContainer || (!mounted && !keepMounted)) {
     return null;
   }
 
   return ReactDOM.createPortal(
     <FloatingNode id={nodeId}>
-      <CompositeRoot render={element} stopEventPropagation />
+      <CompositeRoot
+        render={render}
+        className={className}
+        style={style}
+        state={state}
+        refs={[forwardedRef, ref, handleCurrentContentRef]}
+        props={[defaultProps, hidden ? { hidden: true } : EMPTY_OBJECT, elementProps]}
+        stateAttributesMapping={stateAttributesMapping}
+      />
     </FloatingNode>,
-    viewportElement,
+    portalContainer,
   );
 });
 
-export namespace NavigationMenuContent {
-  export interface State {
-    /**
-     * If `true`, the component is open.
-     */
-    open: boolean;
-    /**
-     * The transition status of the component.
-     */
-    transitionStatus: TransitionStatus;
-    /**
-     * The direction of the activation.
-     */
-    activationDirection: 'left' | 'right' | 'up' | 'down' | null;
-  }
+export interface NavigationMenuContentState {
+  /**
+   * If `true`, the component is open.
+   */
+  open: boolean;
+  /**
+   * The transition status of the component.
+   */
+  transitionStatus: TransitionStatus;
+  /**
+   * The direction of the activation.
+   */
+  activationDirection: 'left' | 'right' | 'up' | 'down' | null;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface NavigationMenuContentProps extends BaseUIComponentProps<
+  'div',
+  NavigationMenuContentState
+> {
+  /**
+   * Whether to keep the content mounted in the DOM while the popup is closed.
+   * Ensures the content is present during server-side rendering for web crawlers.
+   * @default false
+   */
+  keepMounted?: boolean | undefined;
+}
+
+export namespace NavigationMenuContent {
+  export type State = NavigationMenuContentState;
+  export type Props = NavigationMenuContentProps;
 }

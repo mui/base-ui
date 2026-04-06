@@ -146,7 +146,7 @@ A big thanks to the 10 contributors who made this release possible. Here are som
 - [core] Simpler pnpm dedupe error message to act on @oliviertassinari
 - [core] Upgrade to core-js v3 (#418) @atomiks
 - [core] Verify types in test code (#457) @michaldudak
-- [dependencies] Do not try to update eslint (#515) @michaldudak
+- [dependencies] Do not try to update ESLint (#515) @michaldudak
 - [docs-infra] Fix a stylelint issue (#421) @oliviertassinari
 - [docs-infra] Integrate the latest @mui/docs (#378) @michaldudak
 - [test] Clean up and unify test code (#532) @michaldudak

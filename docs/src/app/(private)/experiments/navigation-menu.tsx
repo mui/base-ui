@@ -1,37 +1,15 @@
 'use client';
 import * as React from 'react';
-import { NavigationMenu } from '@base-ui-components/react/navigation-menu';
+import { NavigationMenu } from '@base-ui/react/navigation-menu';
+import { Collapsible } from '@base-ui/react/collapsible';
 import styles from './navigation-menu.module.css';
 
 export default function ExampleNavigationMenu() {
   const [renderExtraItem, setRenderExtraItem] = React.useState(false);
-  const [renderExtraItem2, setRenderExtraItem2] = React.useState(false);
-
-  React.useEffect(() => {
-    setTimeout(() => {
-      setRenderExtraItem(true);
-    }, 2500);
-    setTimeout(() => {
-      setRenderExtraItem2(true);
-    }, 5000);
-  }, []);
+  const [hoveredLink, setHoveredLink] = React.useState<string | null>(null);
 
   return (
     <div>
-      <ol style={{ listStyle: 'decimal' }}>
-        <li>Open the menu</li>
-        <li>
-          After 2500ms since mount, a new item will be rendered in the Overview menu
-        </li>
-        <li>Move to the Handbook menu</li>
-        <li>
-          After 5000ms since mount, a new item will be rendered in the Handbook menu
-        </li>
-        <li>
-          Resizing while open also works as expected - the menu will resize to the
-          new size
-        </li>
-      </ol>
       <NavigationMenu.Root className={styles.Root}>
         <NavigationMenu.List className={styles.List}>
           <NavigationMenu.Item>
@@ -42,8 +20,112 @@ export default function ExampleNavigationMenu() {
               </NavigationMenu.Icon>
             </NavigationMenu.Trigger>
             <NavigationMenu.Content className={styles.Content}>
-              <ul className={styles.GridLinkList}>
-                {overviewLinks.map((item) => (
+              <div style={{ display: 'flex', gap: 20 }}>
+                {/* Left side - Links */}
+                <div style={{ flex: 1 }}>
+                  <ul className={styles.GridLinkList}>
+                    {overviewLinks.map((item) => (
+                      <li key={item.href}>
+                        <Link
+                          className={styles.LinkCard}
+                          href={item.href}
+                          onMouseEnter={() => {
+                            setHoveredLink(item.href);
+                          }}
+                        >
+                          <h3 className={styles.LinkTitle}>{item.title}</h3>
+                          <p className={styles.LinkDescription}>{item.description}</p>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Right side - Dynamic content */}
+                <div style={{ flex: 1 }}>
+                  {hoveredLink && (
+                    <div
+                      style={{
+                        backgroundColor: 'black',
+                        color: 'white',
+                        padding: 20,
+                        borderRadius: 8,
+                        minHeight: 200,
+                        width: hoveredLink === '/react/overview/quick-start' ? 200 : 400,
+                        height: hoveredLink === '/react/overview/accessibility' ? 150 : 300,
+                      }}
+                    >
+                      {hoveredLink === '/react/overview/quick-start' && (
+                        <div>
+                          <h4 style={{ marginBottom: 10 }}>Quick Start Guide</h4>
+                          <p>
+                            All components are included in a single package. Base UI is
+                            tree-shakeable, so your app bundle will contain only the components that
+                            you actually use.
+                          </p>
+                        </div>
+                      )}
+                      {hoveredLink === '/react/overview/accessibility' && (
+                        <div>
+                          <h4 style={{ marginBottom: 10 }}>Accessibility Features</h4>
+                          <p>
+                            ARIA attributes built-in, keyboard navigation, screen reader support,
+                            and focus management.
+                          </p>
+                        </div>
+                      )}
+                      {hoveredLink === '/react/overview/releases' && (
+                        <div>
+                          <h4 style={{ marginBottom: 10 }}>Latest Releases</h4>
+                          <p>
+                            v1.0.0 - Major release with new components, performance improvements,
+                            and bug fixes.
+                          </p>
+                        </div>
+                      )}
+                      {hoveredLink === '/react/overview/about' && (
+                        <div>
+                          <h4 style={{ marginBottom: 10 }}>About Base UI</h4>
+                          <p>
+                            Unstyled components that are fully customizable, and built by the MUI
+                            team.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </NavigationMenu.Content>
+          </NavigationMenu.Item>
+
+          <NavigationMenu.Item>
+            <NavigationMenu.Trigger className={styles.Trigger}>
+              Handbook
+              <NavigationMenu.Icon className={styles.Icon}>
+                <ChevronDownIcon />
+              </NavigationMenu.Icon>
+            </NavigationMenu.Trigger>
+            <NavigationMenu.Content className={styles.Content}>
+              <Collapsible.Root className={styles.CollapsibleRoot}>
+                <Collapsible.Trigger className={styles.CollapsibleTrigger}>
+                  Recovery keys
+                </Collapsible.Trigger>
+                <Collapsible.Panel className={styles.CollapsiblePanel}>
+                  <div className={styles.RecoveryList}>
+                    <div>alien-bean-pasta</div>
+                    <div>wild-irish-burrito</div>
+                    <div>horse-battery-staple</div>
+                  </div>
+                </Collapsible.Panel>
+              </Collapsible.Root>
+
+              <button type="button" onClick={() => setRenderExtraItem(!renderExtraItem)}>
+                Render extra item
+              </button>
+
+              <ul className={styles.FlexLinkList}>
+                {handbookLinks.map((item) => (
                   <li key={item.href}>
                     <Link className={styles.LinkCard} href={item.href}>
                       <h3 className={styles.LinkTitle}>{item.title}</h3>
@@ -53,10 +135,7 @@ export default function ExampleNavigationMenu() {
                 ))}
                 {renderExtraItem && (
                   <li>
-                    <Link
-                      className={styles.LinkCard}
-                      href="/react/overview/quick-start"
-                    >
+                    <Link className={styles.LinkCard} href="/react/overview/quick-start">
                       <h3 className={styles.LinkTitle}>Quick Start</h3>
                       <p className={styles.LinkDescription}>
                         Install and assemble your first component.
@@ -70,34 +149,36 @@ export default function ExampleNavigationMenu() {
 
           <NavigationMenu.Item>
             <NavigationMenu.Trigger className={styles.Trigger}>
-              Handbook
+              Product
               <NavigationMenu.Icon className={styles.Icon}>
                 <ChevronDownIcon />
               </NavigationMenu.Icon>
             </NavigationMenu.Trigger>
             <NavigationMenu.Content className={styles.Content}>
-              <ul className={styles.FlexLinkList}>
-                {handbookLinks.map((item) => (
-                  <li key={item.href}>
-                    <Link className={styles.LinkCard} href={item.href}>
-                      <h3 className={styles.LinkTitle}>{item.title}</h3>
-                      <p className={styles.LinkDescription}>{item.description}</p>
-                    </Link>
-                  </li>
-                ))}
-                {renderExtraItem2 && (
-                  <li>
-                    <Link
-                      className={styles.LinkCard}
-                      href="/react/overview/quick-start"
-                    >
-                      <h3 className={styles.LinkTitle}>Quick Start</h3>
+              <MixedNestedNavigationMenuContent />
+            </NavigationMenu.Content>
+          </NavigationMenu.Item>
+
+          <NavigationMenu.Item>
+            <NavigationMenu.Trigger className={styles.Trigger}>
+              Long List
+              <NavigationMenu.Icon className={styles.Icon}>
+                <ChevronDownIcon />
+              </NavigationMenu.Icon>
+            </NavigationMenu.Trigger>
+            <NavigationMenu.Content className={styles.Content}>
+              <ul className={styles.LongList}>
+                {Array.from({ length: 50 }, (_, index) => (
+                  <li key={index}>
+                    <Link className={styles.LinkCard} href={`/item-${index}`}>
+                      <h3 className={styles.LinkTitle}>Item {index + 1}</h3>
                       <p className={styles.LinkDescription}>
-                        Install and assemble your first component.
+                        This is item number {index + 1} in the long list for testing scrollable
+                        menus.
                       </p>
                     </Link>
                   </li>
-                )}
+                ))}
               </ul>
             </NavigationMenu.Content>
           </NavigationMenu.Item>
@@ -111,8 +192,10 @@ export default function ExampleNavigationMenu() {
 
         <NavigationMenu.Portal>
           <NavigationMenu.Positioner
+            align="start"
             className={styles.Positioner}
             sideOffset={10}
+            alignOffset={-100}
             collisionPadding={{ top: 5, bottom: 5, left: 20, right: 20 }}
           >
             <NavigationMenu.Popup className={styles.Popup}>
@@ -125,10 +208,7 @@ export default function ExampleNavigationMenu() {
         </NavigationMenu.Portal>
       </NavigationMenu.Root>
 
-      <NavigationMenu.Root
-        className={styles.Root}
-        style={{ position: 'absolute', bottom: 100 }}
-      >
+      <NavigationMenu.Root className={styles.Root} style={{ position: 'absolute', bottom: 100 }}>
         <NavigationMenu.List className={styles.List}>
           <NavigationMenu.Item>
             <NavigationMenu.Trigger className={styles.Trigger}>
@@ -147,19 +227,6 @@ export default function ExampleNavigationMenu() {
                     </Link>
                   </li>
                 ))}
-                {renderExtraItem && (
-                  <li>
-                    <Link
-                      className={styles.LinkCard}
-                      href="/react/overview/quick-start"
-                    >
-                      <h3 className={styles.LinkTitle}>Quick Start</h3>
-                      <p className={styles.LinkDescription}>
-                        Install and assemble your first component.
-                      </p>
-                    </Link>
-                  </li>
-                )}
               </ul>
             </NavigationMenu.Content>
           </NavigationMenu.Item>
@@ -172,6 +239,10 @@ export default function ExampleNavigationMenu() {
               </NavigationMenu.Icon>
             </NavigationMenu.Trigger>
             <NavigationMenu.Content className={styles.Content}>
+              <button type="button" onClick={() => setRenderExtraItem(!renderExtraItem)}>
+                Render extra item
+              </button>
+
               <ul className={styles.FlexLinkList}>
                 {handbookLinks.map((item) => (
                   <li key={item.href}>
@@ -181,12 +252,9 @@ export default function ExampleNavigationMenu() {
                     </Link>
                   </li>
                 ))}
-                {renderExtraItem2 && (
+                {renderExtraItem && (
                   <li>
-                    <Link
-                      className={styles.LinkCard}
-                      href="/react/overview/quick-start"
-                    >
+                    <Link className={styles.LinkCard} href="/react/overview/quick-start">
                       <h3 className={styles.LinkTitle}>Quick Start</h3>
                       <p className={styles.LinkDescription}>
                         Install and assemble your first component.
@@ -221,6 +289,127 @@ export default function ExampleNavigationMenu() {
         </NavigationMenu.Portal>
       </NavigationMenu.Root>
     </div>
+  );
+}
+
+function MixedNestedNavigationMenuContent() {
+  return (
+    <NavigationMenu.Root orientation="vertical" defaultValue="developers">
+      <div className={styles.InlineNestedShell}>
+        <NavigationMenu.List className={styles.InlineNestedList}>
+          <NavigationMenu.Item value="developers">
+            <NavigationMenu.Trigger className={styles.InlineNestedTrigger}>
+              <span>Developers</span>
+              <span className={styles.InlineNestedHint}>Go from idea to UI faster.</span>
+            </NavigationMenu.Trigger>
+            <NavigationMenu.Content className={styles.InlineNestedContent}>
+              <div className={styles.SubmenuStack}>
+                <div>
+                  <h3 className={styles.SectionTitle}>
+                    Build product UI without giving up control
+                  </h3>
+                  <p className={styles.SectionDescription}>
+                    Hover Composition and move into the popup across the gap to test the handoff.
+                  </p>
+                </div>
+
+                <ul className={styles.FlexLinkList}>
+                  <li>
+                    <Link className={styles.LinkCard} href="/react/overview/quick-start">
+                      <h3 className={styles.LinkTitle}>Quick start</h3>
+                      <p className={styles.LinkDescription}>
+                        Install Base UI and get your first interactive primitive on screen fast.
+                      </p>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link className={styles.LinkCard} href="/react/overview/accessibility">
+                      <h3 className={styles.LinkTitle}>Accessibility</h3>
+                      <p className={styles.LinkDescription}>
+                        Review keyboard support and semantic defaults before anything ships.
+                      </p>
+                    </Link>
+                  </li>
+                  <li>
+                    <NavigationMenu.Root>
+                      <NavigationMenu.List className={styles.DeepSubmenuList}>
+                        <NavigationMenu.Item value="composition">
+                          <NavigationMenu.Trigger className={styles.DeepSubmenuTrigger}>
+                            Composition
+                            <span className={styles.DeepSubmenuArrow}>→</span>
+                          </NavigationMenu.Trigger>
+                          <NavigationMenu.Content className={styles.DeepSubmenuContent}>
+                            <div className={styles.SubmenuStack}>
+                              <div>
+                                <h4 className={styles.SectionTitle}>Composition popup</h4>
+                                <p className={styles.SectionDescription}>
+                                  This positioned submenu reproduces the inline-to-popup cursor path
+                                  from the bug report.
+                                </p>
+                              </div>
+                              <ul className={styles.FlexLinkList}>
+                                {deepLinks.map((item) => (
+                                  <li key={item.href}>
+                                    <Link className={styles.LinkCard} href={item.href}>
+                                      <h3 className={styles.LinkTitle}>{item.title}</h3>
+                                      <p className={styles.LinkDescription}>{item.description}</p>
+                                    </Link>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </NavigationMenu.Content>
+                        </NavigationMenu.Item>
+                      </NavigationMenu.List>
+
+                      <NavigationMenu.Portal>
+                        <NavigationMenu.Positioner
+                          className={styles.Positioner}
+                          side="right"
+                          sideOffset={10}
+                          collisionPadding={{
+                            top: 5,
+                            bottom: 5,
+                            left: 20,
+                            right: 20,
+                          }}
+                        >
+                          <NavigationMenu.Popup className={styles.Popup}>
+                            <NavigationMenu.Viewport className={styles.Viewport} />
+                          </NavigationMenu.Popup>
+                        </NavigationMenu.Positioner>
+                      </NavigationMenu.Portal>
+                    </NavigationMenu.Root>
+                  </li>
+                </ul>
+              </div>
+            </NavigationMenu.Content>
+          </NavigationMenu.Item>
+
+          <NavigationMenu.Item value="systems">
+            <NavigationMenu.Trigger className={styles.InlineNestedTrigger}>
+              <span>Design systems</span>
+              <span className={styles.InlineNestedHint}>
+                Move here to close the current branch.
+              </span>
+            </NavigationMenu.Trigger>
+            <NavigationMenu.Content className={styles.InlineNestedContent}>
+              <div className={styles.SubmenuStack}>
+                <h3 className={styles.SectionTitle}>
+                  Turn shared standards into working components
+                </h3>
+                <p className={styles.SectionDescription}>
+                  A sibling panel for quickly switching the active inline branch while you test
+                  hover transitions.
+                </p>
+              </div>
+            </NavigationMenu.Content>
+          </NavigationMenu.Item>
+        </NavigationMenu.List>
+
+        <NavigationMenu.Viewport className={styles.InlineNestedViewport} />
+      </div>
+    </NavigationMenu.Root>
   );
 }
 
@@ -284,7 +473,7 @@ const overviewLinks = [
   {
     href: '/react/overview/about',
     title: 'About',
-    description: 'Learn more about Base UI and our mission.',
+    description: 'Learn more about Base UI and our mission.',
   },
 ] as const;
 
@@ -293,18 +482,31 @@ const handbookLinks = [
     href: '/react/handbook/styling',
     title: 'Styling',
     description:
-      'Base UI components can be styled with plain CSS, Tailwind CSS, CSS-in-JS, or CSS Modules.',
+      'Base UI components can be styled with plain CSS, Tailwind CSS, CSS-in-JS, or CSS Modules.',
   },
   {
     href: '/react/handbook/animation',
     title: 'Animation',
     description:
-      'Base UI components can be animated with CSS transitions, CSS animations, or JavaScript libraries.',
+      'Base UI components can be animated with CSS transitions, CSS animations, or JavaScript libraries.',
   },
   {
     href: '/react/handbook/composition',
     title: 'Composition',
     description:
-      'Base UI components can be replaced and composed with your own existing components.',
+      'Base UI components can be replaced and composed with your own existing components.',
+  },
+] as const;
+
+const deepLinks = [
+  {
+    href: '/react/handbook/composition',
+    title: 'Composition handbook',
+    description: 'Follow the hover path into this popup and confirm the entire chain stays open.',
+  },
+  {
+    href: '/react/components/navigation-menu',
+    title: 'Navigation Menu docs',
+    description: 'Compare the experiment against the shipped component guidance and examples.',
   },
 ] as const;

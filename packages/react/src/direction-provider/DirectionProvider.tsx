@@ -17,13 +17,18 @@ export const DirectionProvider: React.FC<DirectionProvider.Props> = function Dir
   );
 };
 
+export interface DirectionProviderState {}
+
+export interface DirectionProviderProps {
+  children?: React.ReactNode;
+  /**
+   * The reading direction of the text
+   * @default 'ltr'
+   */
+  direction?: TextDirection | undefined;
+}
+
 export namespace DirectionProvider {
-  export interface Props {
-    children?: React.ReactNode;
-    /**
-     * The reading direction of the text
-     * @default 'ltr'
-     */
-    direction?: TextDirection;
-  }
+  export type State = DirectionProviderState;
+  export type Props = DirectionProviderProps;
 }

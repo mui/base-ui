@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { NOOP } from '../../utils/noop';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 
 export type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';
 
 interface UseImageLoadingStatusOptions {
-  referrerPolicy?: React.HTMLAttributeReferrerPolicy;
-  crossOrigin?: React.ImgHTMLAttributes<HTMLImageElement>['crossOrigin'];
+  referrerPolicy?: React.HTMLAttributeReferrerPolicy | undefined;
+  crossOrigin?: React.ImgHTMLAttributes<HTMLImageElement>['crossOrigin'] | undefined;
 }
 
 export function useImageLoadingStatus(
@@ -16,7 +16,7 @@ export function useImageLoadingStatus(
 ): ImageLoadingStatus {
   const [loadingStatus, setLoadingStatus] = React.useState<ImageLoadingStatus>('idle');
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!src) {
       setLoadingStatus('error');
       return NOOP;

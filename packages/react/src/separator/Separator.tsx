@@ -13,9 +13,9 @@ export const Separator = React.forwardRef(function SeparatorComponent(
   componentProps: Separator.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, orientation = 'horizontal', ...elementProps } = componentProps;
+  const { className, render, orientation = 'horizontal', style, ...elementProps } = componentProps;
 
-  const state: Separator.State = React.useMemo(() => ({ orientation }), [orientation]);
+  const state: SeparatorState = { orientation };
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -26,19 +26,22 @@ export const Separator = React.forwardRef(function SeparatorComponent(
   return element;
 });
 
-export namespace Separator {
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * The orientation of the separator.
-     * @default 'horizontal'
-     */
-    orientation?: Orientation;
-  }
+export interface SeparatorProps extends BaseUIComponentProps<'div', SeparatorState> {
+  /**
+   * The orientation of the separator.
+   * @default 'horizontal'
+   */
+  orientation?: Orientation | undefined;
+}
 
-  export interface State {
-    /**
-     * The orientation of the separator.
-     */
-    orientation: Orientation;
-  }
+export interface SeparatorState {
+  /**
+   * The orientation of the separator.
+   */
+  orientation: Orientation;
+}
+
+export namespace Separator {
+  export type Props = SeparatorProps;
+  export type State = SeparatorState;
 }

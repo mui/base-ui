@@ -1,8 +1,8 @@
+import { expect } from 'vitest';
 import * as React from 'react';
-import { Menu } from '@base-ui-components/react/menu';
+import { Menu } from '@base-ui/react/menu';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { screen, waitFor } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 
 describe('<Menu.RadioItemIndicator />', () => {
   const { render } = createRenderer();
@@ -60,14 +60,14 @@ describe('<Menu.RadioItemIndicator />', () => {
 
     const { user } = await render(<Test />);
 
-    expect(screen.queryByTestId('indicator')).not.to.equal(null);
+    expect(screen.queryByTestId('indicator')).not.toBe(null);
 
     const closeButton = screen.getByText('Close');
 
     await user.click(closeButton);
 
     await waitFor(() => {
-      expect(screen.queryByTestId('indicator')).to.equal(null);
+      expect(screen.queryByTestId('indicator')).toBe(null);
     });
   });
 
@@ -129,13 +129,13 @@ describe('<Menu.RadioItemIndicator />', () => {
 
     const { user } = await render(<Test />);
 
-    expect(screen.getByTestId('indicator')).not.to.equal(null);
+    expect(screen.getByTestId('indicator')).not.toBe(null);
 
     const closeButton = screen.getByText('Close');
     await user.click(closeButton);
 
     await waitFor(() => {
-      expect(animationFinished).to.equal(true);
+      expect(animationFinished).toBe(true);
     });
   });
 });

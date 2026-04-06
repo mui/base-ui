@@ -3,50 +3,60 @@ import * as React from 'react';
 import { CompositeList, type CompositeMetadata } from '../list/CompositeList';
 import { useCompositeRoot } from './useCompositeRoot';
 import { CompositeRootContext } from './CompositeRootContext';
-import { useEventCallback } from '../../utils/useEventCallback';
 import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, BaseUIEvent } from '../../utils/types';
 import type { Dimensions, ModifierKey } from '../composite';
 import { useDirection } from '../../direction-provider/DirectionContext';
-
-const COMPOSITE_ROOT_STATE = {};
+import { EMPTY_ARRAY, EMPTY_OBJECT } from '../../utils/constants';
+import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 
 /**
  * @internal
  */
-export function CompositeRoot<Metadata extends {}>(componentProps: CompositeRoot.Props<Metadata>) {
+export function CompositeRoot<Metadata extends {}, State extends Record<string, any>>(
+  componentProps: CompositeRoot.Props<Metadata, State>,
+) {
   const {
     render,
     className,
+    style,
+    refs = EMPTY_ARRAY as React.Ref<Element>[],
+    props = EMPTY_ARRAY,
+    state = EMPTY_OBJECT as State,
+    stateAttributesMapping,
     highlightedIndex: highlightedIndexProp,
     onHighlightedIndexChange: onHighlightedIndexChangeProp,
     orientation,
     dense,
     itemSizes,
-    loop,
+    loopFocus,
+    onLoop,
     cols,
     enableHomeAndEndKeys,
     onMapChange: onMapChangeProp,
-    stopEventPropagation,
+    stopEventPropagation = true,
     rootRef,
     disabledIndices,
     modifierKeys,
     highlightItemOnHover = false,
+    tag = 'div',
     ...elementProps
   } = componentProps;
 
   const direction = useDirection();
 
   const {
-    props,
+    props: defaultProps,
     highlightedIndex,
     onHighlightedIndexChange,
     elementsRef,
     onMapChange: onMapChangeUnwrapped,
+    relayKeyboardEvent,
   } = useCompositeRoot({
     itemSizes,
     cols,
-    loop,
+    loopFocus,
+    onLoop,
     dense,
     orientation,
     highlightedIndex: highlightedIndexProp,
@@ -59,49 +69,78 @@ export function CompositeRoot<Metadata extends {}>(componentProps: CompositeRoot
     modifierKeys,
   });
 
-  const onMapChange = useEventCallback(
-    (newMap: Map<Element, CompositeMetadata<Metadata> | null>) => {
-      onMapChangeProp?.(newMap);
-      onMapChangeUnwrapped(newMap);
-    },
-  );
-
-  const element = useRenderElement('div', componentProps, {
-    state: COMPOSITE_ROOT_STATE,
-    props: [props, elementProps],
+  const element = useRenderElement(tag, componentProps, {
+    state,
+    ref: refs,
+    props: [defaultProps, ...props, elementProps],
+    stateAttributesMapping,
   });
 
   const contextValue: CompositeRootContext = React.useMemo(
-    () => ({ highlightedIndex, onHighlightedIndexChange, highlightItemOnHover }),
-    [highlightedIndex, onHighlightedIndexChange, highlightItemOnHover],
+    () => ({
+      highlightedIndex,
+      onHighlightedIndexChange,
+      highlightItemOnHover,
+      relayKeyboardEvent,
+    }),
+    [highlightedIndex, onHighlightedIndexChange, highlightItemOnHover, relayKeyboardEvent],
   );
 
   return (
     <CompositeRootContext.Provider value={contextValue}>
-      <CompositeList<Metadata> elementsRef={elementsRef} onMapChange={onMapChange}>
+      <CompositeList<Metadata>
+        elementsRef={elementsRef}
+        onMapChange={(newMap) => {
+          onMapChangeProp?.(newMap);
+          onMapChangeUnwrapped(newMap);
+        }}
+      >
         {element}
       </CompositeList>
     </CompositeRootContext.Provider>
   );
 }
 
-export namespace CompositeRoot {
-  export interface State {}
+export interface CompositeRootState {}
 
-  export interface Props<Metadata> extends BaseUIComponentProps<'div', State> {
-    orientation?: 'horizontal' | 'vertical' | 'both';
-    cols?: number;
-    loop?: boolean;
-    highlightedIndex?: number;
-    onHighlightedIndexChange?: (index: number) => void;
-    itemSizes?: Dimensions[];
-    dense?: boolean;
-    enableHomeAndEndKeys?: boolean;
-    onMapChange?: (newMap: Map<Node, CompositeMetadata<Metadata> | null>) => void;
-    stopEventPropagation?: boolean;
-    rootRef?: React.RefObject<HTMLElement | null>;
-    disabledIndices?: number[];
-    modifierKeys?: ModifierKey[];
-    highlightItemOnHover?: boolean;
-  }
+export interface CompositeRootProps<Metadata, State extends Record<string, any>> extends Pick<
+  BaseUIComponentProps<'div', State>,
+  'render' | 'className' | 'children' | 'style'
+> {
+  props?: Array<Record<string, any> | (() => Record<string, any>)> | undefined;
+  state?: State | undefined;
+  stateAttributesMapping?: StateAttributesMapping<State> | undefined;
+  refs?: React.Ref<HTMLElement | null>[] | undefined;
+  tag?: keyof React.JSX.IntrinsicElements | undefined;
+  orientation?: 'horizontal' | 'vertical' | 'both' | undefined;
+  cols?: number | undefined;
+  loopFocus?: boolean | undefined;
+  onLoop?:
+    | ((
+        event: React.KeyboardEvent,
+        prevIndex: number,
+        nextIndex: number,
+        elementsRef: React.RefObject<(HTMLDivElement | null)[]>,
+      ) => number)
+    | undefined;
+  highlightedIndex?: number | undefined;
+  onHighlightedIndexChange?: ((index: number) => void) | undefined;
+  itemSizes?: Dimensions[] | undefined;
+  dense?: boolean | undefined;
+  enableHomeAndEndKeys?: boolean | undefined;
+  onMapChange?: ((newMap: Map<Node, CompositeMetadata<Metadata> | null>) => void) | undefined;
+  onKeyDown?: ((event: BaseUIEvent<React.KeyboardEvent>) => void) | undefined;
+  stopEventPropagation?: boolean | undefined;
+  rootRef?: React.RefObject<HTMLElement | null> | undefined;
+  disabledIndices?: number[] | undefined;
+  modifierKeys?: ModifierKey[] | undefined;
+  highlightItemOnHover?: boolean | undefined;
+}
+
+export namespace CompositeRoot {
+  export type State = CompositeRootState;
+  export type Props<Metadata, TState extends Record<string, any>> = CompositeRootProps<
+    Metadata,
+    TState
+  >;
 }

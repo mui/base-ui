@@ -1,5 +1,5 @@
-import type { CustomStyleHookMapping } from './getStyleHookProps';
-import { TransitionStatusDataAttributes } from './styleHookMapping';
+import type { StateAttributesMapping } from './getStateAttributesProps';
+import { TransitionStatusDataAttributes } from './stateAttributesMapping';
 
 export enum CommonPopupDataAttributes {
   /**
@@ -22,6 +22,16 @@ export enum CommonPopupDataAttributes {
    * Present when the anchor is hidden.
    */
   anchorHidden = 'data-anchor-hidden',
+  /**
+   * Indicates which side the popup is positioned relative to the trigger.
+   * @type { 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'}
+   */
+  side = 'data-side',
+  /**
+   * Indicates how the popup is aligned relative to specified side.
+   * @type {'start' | 'center' | 'end'}
+   */
+  align = 'data-align',
 }
 
 export enum CommonTriggerDataAttributes {
@@ -63,7 +73,7 @@ export const triggerOpenStateMapping = {
     }
     return null;
   },
-} satisfies CustomStyleHookMapping<{ open: boolean }>;
+} satisfies StateAttributesMapping<{ open: boolean }>;
 
 export const pressableTriggerOpenStateMapping = {
   open(value) {
@@ -72,7 +82,7 @@ export const pressableTriggerOpenStateMapping = {
     }
     return null;
   },
-} satisfies CustomStyleHookMapping<{ open: boolean }>;
+} satisfies StateAttributesMapping<{ open: boolean }>;
 
 export const popupStateMapping = {
   open(value) {
@@ -87,4 +97,4 @@ export const popupStateMapping = {
     }
     return null;
   },
-} satisfies CustomStyleHookMapping<{ open: boolean; anchorHidden: boolean }>;
+} satisfies StateAttributesMapping<{ open: boolean; anchorHidden: boolean }>;

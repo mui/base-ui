@@ -1,16 +1,17 @@
 'use client';
 import * as React from 'react';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useCompositeListContext } from './CompositeListContext';
 
 export interface UseCompositeListItemParameters<Metadata> {
-  label?: string | null;
-  metadata?: Metadata;
-  textRef?: React.RefObject<HTMLElement | null>;
+  index?: number | undefined;
+  label?: string | null | undefined;
+  metadata?: Metadata | undefined;
+  textRef?: React.RefObject<HTMLElement | null> | undefined;
   /** Enables guessing the indexes. This avoids a re-render after mount, which is useful for
    * large lists. This should be used for lists that are likely flat and vertical, other cases
    * might trigger a re-render anyway. */
-  indexGuessBehavior?: IndexGuessBehavior;
+  indexGuessBehavior?: IndexGuessBehavior | undefined;
 }
 
 interface UseCompositeListItemReturnValue {
@@ -29,23 +30,24 @@ export enum IndexGuessBehavior {
 export function useCompositeListItem<Metadata>(
   params: UseCompositeListItemParameters<Metadata> = {},
 ): UseCompositeListItemReturnValue {
-  const { label, metadata, textRef, indexGuessBehavior } = params;
+  const { label, metadata, textRef, indexGuessBehavior, index: externalIndex } = params;
 
   const { register, unregister, subscribeMapChange, elementsRef, labelsRef, nextIndexRef } =
     useCompositeListContext();
 
   const indexRef = React.useRef(-1);
   const [index, setIndex] = React.useState<number>(
-    indexGuessBehavior === IndexGuessBehavior.GuessFromOrder
-      ? () => {
-          if (indexRef.current === -1) {
-            const newIndex = nextIndexRef.current;
-            nextIndexRef.current += 1;
-            indexRef.current = newIndex;
+    externalIndex ??
+      (indexGuessBehavior === IndexGuessBehavior.GuessFromOrder
+        ? () => {
+            if (indexRef.current === -1) {
+              const newIndex = nextIndexRef.current;
+              nextIndexRef.current += 1;
+              indexRef.current = newIndex;
+            }
+            return indexRef.current;
           }
-          return indexRef.current;
-        }
-      : -1,
+        : -1),
   );
 
   const componentRef = React.useRef<Element | null>(null);
@@ -68,7 +70,11 @@ export function useCompositeListItem<Metadata>(
     [index, elementsRef, labelsRef, label, textRef],
   );
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
+    if (externalIndex != null) {
+      return undefined;
+    }
+
     const node = componentRef.current;
     if (node) {
       register(node, metadata);
@@ -77,9 +83,13 @@ export function useCompositeListItem<Metadata>(
       };
     }
     return undefined;
-  }, [register, unregister, metadata]);
+  }, [externalIndex, register, unregister, metadata]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
+    if (externalIndex != null) {
+      return undefined;
+    }
+
     return subscribeMapChange((map) => {
       const i = componentRef.current ? map.get(componentRef.current)?.index : null;
 
@@ -87,7 +97,7 @@ export function useCompositeListItem<Metadata>(
         setIndex(i);
       }
     });
-  }, [subscribeMapChange, setIndex]);
+  }, [externalIndex, subscribeMapChange, setIndex]);
 
   return React.useMemo(
     () => ({

@@ -1,8 +1,7 @@
+import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { expect } from 'chai';
-import { spy } from 'sinon';
-import { fireEvent, act, waitFor } from '@mui/internal-test-utils';
-import { Menu } from '@base-ui-components/react/menu';
+import { fireEvent, act, waitFor, screen } from '@mui/internal-test-utils';
+import { Menu } from '@base-ui/react/menu';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
 describe('<Menu.CheckboxItem />', () => {
@@ -26,10 +25,10 @@ describe('<Menu.CheckboxItem />', () => {
       skip();
     }
 
-    const renderItem1Spy = spy();
-    const renderItem2Spy = spy();
-    const renderItem3Spy = spy();
-    const renderItem4Spy = spy();
+    const renderItem1Spy = vi.fn();
+    const renderItem2Spy = vi.fn();
+    const renderItem3Spy = vi.fn();
+    const renderItem4Spy = vi.fn();
 
     const LoggingRoot = React.forwardRef(function LoggingRoot(
       props: any & { renderSpy: () => void },
@@ -40,7 +39,7 @@ describe('<Menu.CheckboxItem />', () => {
       return <li {...other} ref={ref} />;
     });
 
-    const { getAllByRole } = await render(
+    await render(
       <Menu.Root open>
         <Menu.Portal>
           <Menu.Positioner>
@@ -63,17 +62,17 @@ describe('<Menu.CheckboxItem />', () => {
       </Menu.Root>,
     );
 
-    const menuItems = getAllByRole('menuitemcheckbox');
+    const menuItems = screen.getAllByRole('menuitemcheckbox');
     await act(async () => {
       menuItems[0].focus();
     });
 
-    renderItem1Spy.resetHistory();
-    renderItem2Spy.resetHistory();
-    renderItem3Spy.resetHistory();
-    renderItem4Spy.resetHistory();
+    renderItem1Spy.mockClear();
+    renderItem2Spy.mockClear();
+    renderItem3Spy.mockClear();
+    renderItem4Spy.mockClear();
 
-    expect(renderItem1Spy.callCount).to.equal(0);
+    expect(renderItem1Spy.mock.calls.length).toBe(0);
 
     fireEvent.keyDown(menuItems[0], { key: 'ArrowDown' }); // highlights '2'
 
@@ -81,22 +80,22 @@ describe('<Menu.CheckboxItem />', () => {
 
     await waitFor(
       () => {
-        expect(renderItem1Spy.callCount).to.equal(2); // '1' rerenders as it loses highlight
+        expect(renderItem1Spy.mock.calls.length).toBe(2); // '1' rerenders as it loses highlight
       },
       { timeout: 1000 },
     );
 
     await waitFor(
       () => {
-        expect(renderItem2Spy.callCount).to.equal(2); // '2' rerenders as it receives highlight
+        expect(renderItem2Spy.mock.calls.length).toBe(2); // '2' rerenders as it receives highlight
       },
       { timeout: 1000 },
     );
 
     // neither the highlighted nor the selected state of these options changed,
     // so they don't need to rerender:
-    expect(renderItem3Spy.callCount).to.equal(0);
-    expect(renderItem4Spy.callCount).to.equal(0);
+    expect(renderItem3Spy.mock.calls.length).toBe(0);
+    expect(renderItem4Spy.mock.calls.length).toBe(0);
   });
 
   describe('state management', () => {
@@ -107,7 +106,7 @@ describe('<Menu.CheckboxItem />', () => {
       ] as const
     ).forEach(([checked, ariaChecked, dataState]) =>
       it('adds the state and ARIA attributes when checked', async () => {
-        const { getByRole, user } = await render(
+        const { user } = await render(
           <Menu.Root>
             <Menu.Trigger>Open</Menu.Trigger>
             <Menu.Portal>
@@ -120,17 +119,17 @@ describe('<Menu.CheckboxItem />', () => {
           </Menu.Root>,
         );
 
-        const trigger = getByRole('button', { name: 'Open' });
+        const trigger = screen.getByRole('button', { name: 'Open' });
         await user.click(trigger);
 
-        const item = getByRole('menuitemcheckbox');
-        expect(item).to.have.attribute('aria-checked', ariaChecked);
-        expect(item).to.have.attribute(`data-${dataState}`, '');
+        const item = screen.getByRole('menuitemcheckbox');
+        expect(item).toHaveAttribute('aria-checked', ariaChecked);
+        expect(item).toHaveAttribute(`data-${dataState}`, '');
       }),
     );
 
     it('toggles the checked state when clicked', async () => {
-      const { getByRole, user } = await render(
+      const { user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
@@ -143,23 +142,23 @@ describe('<Menu.CheckboxItem />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('button', { name: 'Open' });
       await user.click(trigger);
 
-      const item = getByRole('menuitemcheckbox');
+      const item = screen.getByRole('menuitemcheckbox');
       await user.click(item);
 
-      expect(item).to.have.attribute('aria-checked', 'true');
-      expect(item).to.have.attribute('data-checked', '');
+      expect(item).toHaveAttribute('aria-checked', 'true');
+      expect(item).toHaveAttribute('data-checked', '');
 
       await user.click(item);
 
-      expect(item).to.have.attribute('aria-checked', 'false');
-      expect(item).to.have.attribute('data-unchecked', '');
+      expect(item).toHaveAttribute('aria-checked', 'false');
+      expect(item).toHaveAttribute('data-unchecked', '');
     });
 
     it(`toggles the checked state when Space is pressed`, async () => {
-      const { getByRole, user } = await render(
+      const { user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
@@ -172,30 +171,67 @@ describe('<Menu.CheckboxItem />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('button', { name: 'Open' });
       await act(async () => {
         trigger.focus();
       });
       await user.keyboard('[ArrowDown]');
-      const item = getByRole('menuitemcheckbox');
+      const item = screen.getByRole('menuitemcheckbox');
 
       await waitFor(() => {
         expect(item).toHaveFocus();
       });
 
       await user.keyboard(`[Space]`);
-      expect(item).to.have.attribute('data-checked', '');
+      expect(item).toHaveAttribute('data-checked', '');
 
       await user.keyboard(`[Space]`);
-      expect(item).to.have.attribute('data-unchecked', '');
+      expect(item).toHaveAttribute('data-unchecked', '');
     });
+
+    it.skipIf(isJSDOM)(
+      'does not toggle when Space is pressed during an active typeahead session',
+      async () => {
+        const onCheckedChange = vi.fn();
+        const { user } = await render(
+          <Menu.Root open>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.CheckboxItem onCheckedChange={onCheckedChange}>Item One</Menu.CheckboxItem>
+                  <Menu.CheckboxItem onCheckedChange={onCheckedChange}>Item Two</Menu.CheckboxItem>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>,
+        );
+
+        const [itemOne, itemTwo] = screen.getAllByRole('menuitemcheckbox');
+
+        await act(async () => {
+          itemOne.focus();
+        });
+
+        await user.keyboard('Item T');
+
+        await waitFor(() => {
+          expect(itemTwo).toHaveFocus();
+        });
+
+        await user.keyboard('[Space]');
+        await user.keyboard('[Space]');
+
+        expect(onCheckedChange.mock.calls.length > 0).toBe(false);
+        expect(itemTwo).toHaveAttribute('aria-checked', 'false');
+      },
+    );
 
     it(`toggles the checked state when Enter is pressed`, async ({ skip }) => {
       if (isJSDOM) {
         skip();
       }
 
-      const { getByRole, user } = await render(
+      const { user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
@@ -208,25 +244,25 @@ describe('<Menu.CheckboxItem />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('button', { name: 'Open' });
       await act(async () => {
         trigger.focus();
       });
 
       await user.keyboard('[ArrowDown]');
-      const item = getByRole('menuitemcheckbox');
+      const item = screen.getByRole('menuitemcheckbox');
 
       await waitFor(() => {
         expect(item).toHaveFocus();
       });
 
       await user.keyboard(`[Enter]`);
-      expect(item).to.have.attribute('data-checked', '');
+      expect(item).toHaveAttribute('data-checked', '');
     });
 
     it('calls `onCheckedChange` when the item is clicked', async () => {
-      const onCheckedChange = spy();
-      const { getByRole, user } = await render(
+      const onCheckedChange = vi.fn();
+      const { user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
@@ -239,23 +275,23 @@ describe('<Menu.CheckboxItem />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('button', { name: 'Open' });
       await user.click(trigger);
 
-      const item = getByRole('menuitemcheckbox');
+      const item = screen.getByRole('menuitemcheckbox');
       await user.click(item);
 
-      expect(onCheckedChange.callCount).to.equal(1);
-      expect(onCheckedChange.lastCall.args[0]).to.equal(true);
+      expect(onCheckedChange.mock.calls.length).toBe(1);
+      expect(onCheckedChange.mock.lastCall?.[0]).toBe(true);
 
       await user.click(item);
 
-      expect(onCheckedChange.callCount).to.equal(2);
-      expect(onCheckedChange.lastCall.args[0]).to.equal(false);
+      expect(onCheckedChange.mock.calls.length).toBe(2);
+      expect(onCheckedChange.mock.lastCall?.[0]).toBe(false);
     });
 
     it('keeps the state when closed and reopened', async () => {
-      const { getByRole, user } = await render(
+      const { user } = await render(
         <Menu.Root modal={false}>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal keepMounted>
@@ -268,28 +304,28 @@ describe('<Menu.CheckboxItem />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('button', { name: 'Open' });
       await act(() => {
         trigger.focus();
       });
 
       await user.keyboard('{Enter}');
 
-      const item = getByRole('menuitemcheckbox');
+      const item = screen.getByRole('menuitemcheckbox');
       await user.click(item);
 
       await user.keyboard('{Enter}');
       await user.keyboard('{Enter}');
 
-      const itemAfterReopen = getByRole('menuitemcheckbox');
-      expect(itemAfterReopen).to.have.attribute('aria-checked', 'true');
-      expect(itemAfterReopen).to.have.attribute('data-checked');
+      const itemAfterReopen = screen.getByRole('menuitemcheckbox');
+      expect(itemAfterReopen).toHaveAttribute('aria-checked', 'true');
+      expect(itemAfterReopen).toHaveAttribute('data-checked');
     });
   });
 
   describe('prop: closeOnClick', () => {
     it('when `closeOnClick=true`, closes the menu when the item is clicked', async () => {
-      const { getByRole, queryByRole, user } = await render(
+      const { user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
@@ -302,17 +338,17 @@ describe('<Menu.CheckboxItem />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('button', { name: 'Open' });
       await user.click(trigger);
 
-      const item = getByRole('menuitemcheckbox');
+      const item = screen.getByRole('menuitemcheckbox');
       await user.click(item);
 
-      expect(queryByRole('menu')).to.equal(null);
+      expect(screen.queryByRole('menu')).toBe(null);
     });
 
     it('does not close the menu when the item is clicked by default', async () => {
-      const { getByRole, queryByRole, user } = await render(
+      const { user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
@@ -325,24 +361,24 @@ describe('<Menu.CheckboxItem />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('button', { name: 'Open' });
       await user.click(trigger);
 
-      const item = getByRole('menuitemcheckbox');
+      const item = screen.getByRole('menuitemcheckbox');
       await user.click(item);
 
-      expect(queryByRole('menu')).not.to.equal(null);
+      expect(screen.queryByRole('menu')).not.toBe(null);
     });
   });
 
-  describe('focusableWhenDisabled', () => {
+  describe('prop: focusableWhenDisabled', () => {
     it('can be focused but not interacted with when disabled', async () => {
-      const handleCheckedChange = spy();
-      const handleClick = spy();
-      const handleKeyDown = spy();
-      const handleKeyUp = spy();
+      const handleCheckedChange = vi.fn();
+      const handleClick = vi.fn();
+      const handleKeyDown = vi.fn();
+      const handleKeyUp = vi.fn();
 
-      const { getByRole } = await render(
+      await render(
         <Menu.Root open>
           <Menu.Portal>
             <Menu.Positioner>
@@ -362,25 +398,25 @@ describe('<Menu.CheckboxItem />', () => {
         </Menu.Root>,
       );
 
-      const item = getByRole('menuitemcheckbox');
+      const item = screen.getByRole('menuitemcheckbox');
       await act(() => item.focus());
       expect(item).toHaveFocus();
 
       fireEvent.keyDown(item, { key: 'Enter' });
-      expect(handleKeyDown.callCount).to.equal(0);
-      expect(handleClick.callCount).to.equal(0);
-      expect(handleCheckedChange.callCount).to.equal(0);
+      expect(handleKeyDown.mock.calls.length).toBe(0);
+      expect(handleClick.mock.calls.length).toBe(0);
+      expect(handleCheckedChange.mock.calls.length).toBe(0);
 
       fireEvent.keyUp(item, { key: 'Space' });
-      expect(handleKeyUp.callCount).to.equal(0);
-      expect(handleClick.callCount).to.equal(0);
-      expect(handleCheckedChange.callCount).to.equal(0);
+      expect(handleKeyUp.mock.calls.length).toBe(0);
+      expect(handleClick.mock.calls.length).toBe(0);
+      expect(handleCheckedChange.mock.calls.length).toBe(0);
 
       fireEvent.click(item);
-      expect(handleKeyDown.callCount).to.equal(0);
-      expect(handleKeyUp.callCount).to.equal(0);
-      expect(handleClick.callCount).to.equal(0);
-      expect(handleCheckedChange.callCount).to.equal(0);
+      expect(handleKeyDown.mock.calls.length).toBe(0);
+      expect(handleKeyUp.mock.calls.length).toBe(0);
+      expect(handleClick.mock.calls.length).toBe(0);
+      expect(handleCheckedChange.mock.calls.length).toBe(0);
     });
   });
 });

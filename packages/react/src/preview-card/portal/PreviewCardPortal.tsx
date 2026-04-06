@@ -7,13 +7,18 @@ import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
 /**
  * A portal element that moves the popup to a different part of the DOM.
  * By default, the portal element is appended to `<body>`.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
-export function PreviewCardPortal(props: PreviewCardPortal.Props) {
-  const { children, keepMounted = false, container } = props;
+export const PreviewCardPortal = React.forwardRef(function PreviewCardPortal(
+  props: PreviewCardPortal.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const { keepMounted = false, ...portalProps } = props;
 
-  const { mounted } = usePreviewCardRootContext();
+  const store = usePreviewCardRootContext();
+  const mounted = store.useState('mounted');
 
   const shouldRender = mounted || keepMounted;
   if (!shouldRender) {
@@ -22,22 +27,22 @@ export function PreviewCardPortal(props: PreviewCardPortal.Props) {
 
   return (
     <PreviewCardPortalContext.Provider value={keepMounted}>
-      <FloatingPortalLite root={container}>{children}</FloatingPortalLite>
+      <FloatingPortalLite ref={forwardedRef} {...portalProps} />
     </PreviewCardPortalContext.Provider>
   );
+});
+
+export interface PreviewCardPortalState {}
+
+export interface PreviewCardPortalProps extends FloatingPortalLite.Props<PreviewCardPortalState> {
+  /**
+   * Whether to keep the portal mounted in the DOM while the popup is hidden.
+   * @default false
+   */
+  keepMounted?: boolean | undefined;
 }
 
 export namespace PreviewCardPortal {
-  export interface Props {
-    children?: React.ReactNode;
-    /**
-     * Whether to keep the portal mounted in the DOM while the popup is hidden.
-     * @default false
-     */
-    keepMounted?: boolean;
-    /**
-     * A parent element to render the portal element into.
-     */
-    container?: HTMLElement | null | React.RefObject<HTMLElement | null>;
-  }
+  export type State = PreviewCardPortalState;
+  export type Props = PreviewCardPortalProps;
 }

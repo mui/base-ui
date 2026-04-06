@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { type BaseUIComponentProps } from '../../utils/types';
 
@@ -14,19 +13,14 @@ import { type BaseUIComponentProps } from '../../utils/types';
  */
 export const DialogTitle = React.forwardRef(function DialogTitle(
   componentProps: DialogTitle.Props,
-  forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
+  forwardedRef: React.ForwardedRef<HTMLHeadingElement>,
 ) {
-  const { render, className, id: idProp, ...elementProps } = componentProps;
-  const { setTitleElementId } = useDialogRootContext();
+  const { render, className, style, id: idProp, ...elementProps } = componentProps;
+  const { store } = useDialogRootContext();
 
   const id = useBaseUiId(idProp);
 
-  useModernLayoutEffect(() => {
-    setTitleElementId(id);
-    return () => {
-      setTitleElementId(undefined);
-    };
-  }, [id, setTitleElementId]);
+  store.useSyncedValueWithCleanup('titleElementId', id);
 
   return useRenderElement('h2', componentProps, {
     ref: forwardedRef,
@@ -34,8 +28,11 @@ export const DialogTitle = React.forwardRef(function DialogTitle(
   });
 });
 
-export namespace DialogTitle {
-  export interface Props extends BaseUIComponentProps<'h2', State> {}
+export interface DialogTitleProps extends BaseUIComponentProps<'h2', DialogTitleState> {}
 
-  export interface State {}
+export interface DialogTitleState {}
+
+export namespace DialogTitle {
+  export type Props = DialogTitleProps;
+  export type State = DialogTitleState;
 }

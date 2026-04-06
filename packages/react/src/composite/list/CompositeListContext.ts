@@ -6,7 +6,7 @@ export interface CompositeListContextValue<Metadata> {
   unregister: (node: Element) => void;
   subscribeMapChange: (fn: (map: Map<Element, Metadata | null>) => void) => () => void;
   elementsRef: React.RefObject<Array<HTMLElement | null>>;
-  labelsRef?: React.RefObject<Array<string | null>>;
+  labelsRef?: React.RefObject<Array<string | null>> | undefined;
   nextIndexRef: React.RefObject<number>;
 }
 

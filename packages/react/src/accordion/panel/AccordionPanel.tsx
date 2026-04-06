@@ -1,18 +1,18 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { warn } from '@base-ui/utils/warn';
 import { BaseUIComponentProps } from '../../utils/types';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { warn } from '../../utils/warn';
 import { useCollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
 import { useCollapsiblePanel } from '../../collapsible/panel/useCollapsiblePanel';
 import { useAccordionRootContext } from '../root/AccordionRootContext';
 import type { AccordionRoot } from '../root/AccordionRoot';
-import type { AccordionItem } from '../item/AccordionItem';
+import type { AccordionItemState } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
-import { accordionStyleHookMapping } from '../item/styleHooks';
+import { accordionStateAttributesMapping } from '../item/stateAttributesMapping';
 import { AccordionPanelCssVars } from './AccordionPanelCssVars';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { useRenderElement } from '../../utils/useRenderElement';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 
 /**
@@ -31,6 +31,7 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
     keepMounted: keepMountedProp,
     id: idProp,
     render,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -65,7 +66,7 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useModernLayoutEffect(() => {
+    useIsoLayoutEffect(() => {
       if (keepMountedProp === false && hiddenUntilFound) {
         warn(
           'The `keepMounted={false}` prop on a Accordion.Panel will be ignored when using `contextHiddenUntilFound` on the Panel or the Root since it requires the panel to remain mounted when closed.',
@@ -74,7 +75,7 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
     }, [hiddenUntilFound, keepMountedProp]);
   }
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (idProp) {
       setPanelIdState(idProp);
       return () => {
@@ -84,16 +85,16 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
     return undefined;
   }, [idProp, setPanelIdState]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setHiddenUntilFound(hiddenUntilFound);
   }, [setHiddenUntilFound, hiddenUntilFound]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setKeepMounted(keepMounted);
   }, [setKeepMounted, keepMounted]);
 
   useOpenChangeComplete({
-    open,
+    open: open && transitionStatus === 'idle',
     ref: panelRef,
     onComplete() {
       if (!open) {
@@ -128,7 +129,7 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
 
   const { state, triggerId } = useAccordionItemContext();
 
-  const panelState: AccordionPanel.State = React.useMemo(
+  const panelState: AccordionPanelState = React.useMemo(
     () => ({
       ...state,
       transitionStatus,
@@ -153,10 +154,10 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
       },
       elementProps,
     ],
-    customStyleHookMapping: accordionStyleHookMapping,
+    stateAttributesMapping: accordionStateAttributesMapping,
   });
 
-  const shouldRender = keepMounted || hiddenUntilFound || (!keepMounted && mounted);
+  const shouldRender = keepMounted || hiddenUntilFound || mounted;
   if (!shouldRender) {
     return null;
   }
@@ -164,12 +165,19 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
   return element;
 });
 
-export namespace AccordionPanel {
-  export interface State extends AccordionItem.State {
-    transitionStatus: TransitionStatus;
-  }
+export interface AccordionPanelState extends AccordionItemState {
+  /**
+   * The transition status of the component.
+   */
+  transitionStatus: TransitionStatus;
+}
 
-  export interface Props
-    extends BaseUIComponentProps<'div', AccordionItem.State>,
-      Pick<AccordionRoot.Props, 'hiddenUntilFound' | 'keepMounted'> {}
+export interface AccordionPanelProps
+  extends
+    BaseUIComponentProps<'div', AccordionPanelState>,
+    Pick<AccordionRoot.Props, 'hiddenUntilFound' | 'keepMounted'> {}
+
+export namespace AccordionPanel {
+  export type State = AccordionPanelState;
+  export type Props = AccordionPanelProps;
 }

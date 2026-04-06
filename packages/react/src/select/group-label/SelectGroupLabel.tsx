@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useSelectGroupContext } from '../group/SelectGroupContext';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
@@ -16,13 +16,13 @@ export const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
   componentProps: SelectGroupLabel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, id: idProp, ...elementProps } = componentProps;
+  const { className, render, id: idProp, style, ...elementProps } = componentProps;
 
   const { setLabelId } = useSelectGroupContext();
 
   const id = useBaseUiId(idProp);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setLabelId(id);
   }, [id, setLabelId]);
 
@@ -34,8 +34,11 @@ export const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
   return element;
 });
 
-export namespace SelectGroupLabel {
-  export interface State {}
+export interface SelectGroupLabelState {}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface SelectGroupLabelProps extends BaseUIComponentProps<'div', SelectGroupLabelState> {}
+
+export namespace SelectGroupLabel {
+  export type State = SelectGroupLabelState;
+  export type Props = SelectGroupLabelProps;
 }

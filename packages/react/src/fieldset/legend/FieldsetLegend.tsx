@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useFieldsetRootContext } from '../root/FieldsetRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -16,25 +16,22 @@ export const FieldsetLegend = React.forwardRef(function FieldsetLegend(
   componentProps: FieldsetLegend.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, id: idProp, ...elementProps } = componentProps;
+  const { render, className, style, id: idProp, ...elementProps } = componentProps;
 
   const { disabled, setLegendId } = useFieldsetRootContext();
 
   const id = useBaseUiId(idProp);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setLegendId(id);
     return () => {
       setLegendId(undefined);
     };
   }, [setLegendId, id]);
 
-  const state: FieldsetLegend.State = React.useMemo(
-    () => ({
-      disabled: disabled ?? false,
-    }),
-    [disabled],
-  );
+  const state: FieldsetLegendState = {
+    disabled: disabled ?? false,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -45,13 +42,16 @@ export const FieldsetLegend = React.forwardRef(function FieldsetLegend(
   return element;
 });
 
-export namespace FieldsetLegend {
-  export interface State {
-    /**
-     * Whether the component should ignore user interaction.
-     */
-    disabled: boolean;
-  }
+export interface FieldsetLegendState {
+  /**
+   * Whether the component should ignore user interaction.
+   */
+  disabled: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface FieldsetLegendProps extends BaseUIComponentProps<'div', FieldsetLegendState> {}
+
+export namespace FieldsetLegend {
+  export type State = FieldsetLegendState;
+  export type Props = FieldsetLegendProps;
 }

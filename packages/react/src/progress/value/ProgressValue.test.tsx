@@ -1,7 +1,6 @@
-import * as React from 'react';
-import { expect } from 'chai';
-import { spy } from 'sinon';
-import { Progress } from '@base-ui-components/react/progress';
+import { expect, vi } from 'vitest';
+import { screen } from '@mui/internal-test-utils';
+import { Progress } from '@base-ui/react/progress';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Progress.Value />', () => {
@@ -16,13 +15,14 @@ describe('<Progress.Value />', () => {
 
   describe('prop: children', () => {
     it('renders the value when children is not provided', async () => {
-      const { getByTestId } = await render(
+      await render(
         <Progress.Root value={30}>
           <Progress.Value data-testid="value" />
         </Progress.Root>,
       );
-      const value = getByTestId('value');
-      expect(value).to.have.text('30%');
+
+      const value = screen.getByTestId('value');
+      expect(value).toHaveTextContent((0.3).toLocaleString(undefined, { style: 'percent' }));
     });
 
     it('renders a formatted value when a format is provided', async () => {
@@ -33,18 +33,20 @@ describe('<Progress.Value />', () => {
       function formatValue(v: number) {
         return new Intl.NumberFormat(undefined, format).format(v);
       }
-      const { getByTestId } = await render(
+
+      await render(
         <Progress.Root value={30} format={format}>
           <Progress.Value data-testid="value" />
         </Progress.Root>,
       );
-      const value = getByTestId('value');
-      expect(value).to.have.text(formatValue(30));
+
+      const value = screen.getByTestId('value');
+      expect(value).toHaveTextContent(formatValue(30));
     });
 
     describe('it accepts a render function', () => {
       it('numerical value', async () => {
-        const renderSpy = spy();
+        const renderSpy = vi.fn();
         const format: Intl.NumberFormatOptions = {
           style: 'currency',
           currency: 'USD',
@@ -57,12 +59,12 @@ describe('<Progress.Value />', () => {
             <Progress.Value data-testid="value">{renderSpy}</Progress.Value>
           </Progress.Root>,
         );
-        expect(renderSpy.lastCall.args[0]).to.deep.equal(formatValue(30));
-        expect(renderSpy.lastCall.args[1]).to.deep.equal(30);
+        expect(renderSpy.mock.lastCall?.[0]).toEqual(formatValue(30));
+        expect(renderSpy.mock.lastCall?.[1]).toEqual(30);
       });
 
       it('indeterminate value', async () => {
-        const renderSpy = spy();
+        const renderSpy = vi.fn();
         const format: Intl.NumberFormatOptions = {
           style: 'currency',
           currency: 'USD',
@@ -72,8 +74,8 @@ describe('<Progress.Value />', () => {
             <Progress.Value data-testid="value">{renderSpy}</Progress.Value>
           </Progress.Root>,
         );
-        expect(renderSpy.lastCall.args[0]).to.deep.equal('indeterminate');
-        expect(renderSpy.lastCall.args[1]).to.deep.equal(null);
+        expect(renderSpy.mock.lastCall?.[0]).toEqual('indeterminate');
+        expect(renderSpy.mock.lastCall?.[1]).toEqual(null);
       });
     });
   });

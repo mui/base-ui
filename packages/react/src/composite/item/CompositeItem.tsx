@@ -3,27 +3,57 @@ import * as React from 'react';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useCompositeItem } from './useCompositeItem';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { EMPTY_OBJECT, EMPTY_ARRAY } from '../../utils/constants';
+import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 
 /**
  * @internal
  */
-export function CompositeItem<Metadata>(componentProps: CompositeItem.Props<Metadata>) {
-  const { render, className, itemRef = null, metadata, ...elementProps } = componentProps;
+export function CompositeItem<Metadata, State extends Record<string, any>>(
+  componentProps: CompositeItem.Props<Metadata, State>,
+) {
+  const {
+    render,
+    className,
+    style,
+    state = EMPTY_OBJECT as State,
+    props = EMPTY_ARRAY,
+    refs = EMPTY_ARRAY,
+    metadata,
+    stateAttributesMapping,
+    tag = 'div',
+    ...elementProps
+  } = componentProps;
 
-  const { props, ref } = useCompositeItem({ metadata });
+  const { compositeProps, compositeRef } = useCompositeItem({ metadata });
 
-  return useRenderElement('div', componentProps, {
-    ref: [itemRef, ref],
-    props: [props, elementProps],
+  return useRenderElement(tag, componentProps, {
+    state,
+    ref: [...refs, compositeRef],
+    props: [compositeProps, ...props, elementProps],
+    stateAttributesMapping,
   });
 }
 
-export namespace CompositeItem {
-  export interface State {}
+export interface CompositeItemState {}
 
-  export interface Props<Metadata> extends Omit<BaseUIComponentProps<'div', State>, 'itemRef'> {
-    // the itemRef name collides with https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/itemref
-    itemRef?: React.RefObject<HTMLElement | null>;
-    metadata?: Metadata;
-  }
+export interface CompositeItemProps<Metadata, State extends Record<string, any>> extends Pick<
+  BaseUIComponentProps<any, State>,
+  'render' | 'className' | 'style'
+> {
+  children?: React.ReactNode;
+  metadata?: Metadata | undefined;
+  refs?: React.Ref<HTMLElement | null>[] | undefined;
+  props?: Array<Record<string, any> | (() => Record<string, any>)> | undefined;
+  state?: State | undefined;
+  stateAttributesMapping?: StateAttributesMapping<State> | undefined;
+  tag?: keyof React.JSX.IntrinsicElements | undefined;
+}
+
+export namespace CompositeItem {
+  export type State = CompositeItemState;
+  export type Props<Metadata, TState extends Record<string, any>> = CompositeItemProps<
+    Metadata,
+    TState
+  >;
 }

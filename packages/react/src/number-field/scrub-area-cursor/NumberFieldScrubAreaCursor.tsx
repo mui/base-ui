@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { isWebKit } from '@base-ui/utils/detectBrowser';
+import { ownerDocument } from '@base-ui/utils/owner';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
-import { isWebKit } from '../../utils/detectBrowser';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { NumberFieldRoot } from '../root/NumberFieldRoot';
-import { ownerDocument } from '../../utils/owner';
-import { styleHookMapping } from '../utils/styleHooks';
+import type { NumberFieldRootState } from '../root/NumberFieldRoot';
+import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useNumberFieldScrubAreaContext } from '../scrub-area/NumberFieldScrubAreaContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 
@@ -23,7 +23,7 @@ export const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldS
   componentProps: NumberFieldScrubAreaCursor.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const { state } = useNumberFieldRootContext();
   const { isScrubbing, isTouchInput, isPointerLockDenied, scrubAreaCursorRef } =
@@ -49,14 +49,20 @@ export const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldS
       },
       elementProps,
     ],
-    customStyleHookMapping: styleHookMapping,
+    stateAttributesMapping,
   });
 
   return element && ReactDOM.createPortal(element, ownerDocument(domElement).body);
 });
 
-export namespace NumberFieldScrubAreaCursor {
-  export interface State extends NumberFieldRoot.State {}
+export interface NumberFieldScrubAreaCursorState extends NumberFieldRootState {}
 
-  export interface Props extends BaseUIComponentProps<'span', State> {}
+export interface NumberFieldScrubAreaCursorProps extends BaseUIComponentProps<
+  'span',
+  NumberFieldScrubAreaCursorState
+> {}
+
+export namespace NumberFieldScrubAreaCursor {
+  export type State = NumberFieldScrubAreaCursorState;
+  export type Props = NumberFieldScrubAreaCursorProps;
 }

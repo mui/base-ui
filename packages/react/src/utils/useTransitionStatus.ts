@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import { useModernLayoutEffect } from './useModernLayoutEffect';
-import { AnimationFrame } from './useAnimationFrame';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
 
 export type TransitionStatus = 'starting' | 'ending' | 'idle' | undefined;
 
@@ -34,7 +33,7 @@ export function useTransitionStatus(
     setTransitionStatus(undefined);
   }
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!open && mounted && transitionStatus !== 'ending' && deferEndingState) {
       const frame = AnimationFrame.request(() => {
         setTransitionStatus('ending');
@@ -48,15 +47,15 @@ export function useTransitionStatus(
     return undefined;
   }, [open, mounted, transitionStatus, deferEndingState]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!open || enableIdleState) {
       return undefined;
     }
 
     const frame = AnimationFrame.request(() => {
-      ReactDOM.flushSync(() => {
-        setTransitionStatus(undefined);
-      });
+      // Avoid `flushSync` here due to Firefox.
+      // See https://github.com/mui/base-ui/pull/3424
+      setTransitionStatus(undefined);
     });
 
     return () => {
@@ -64,7 +63,7 @@ export function useTransitionStatus(
     };
   }, [enableIdleState, open]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!open || !enableIdleState) {
       return undefined;
     }
@@ -80,14 +79,11 @@ export function useTransitionStatus(
     return () => {
       AnimationFrame.cancel(frame);
     };
-  }, [enableIdleState, open, mounted, setTransitionStatus, transitionStatus]);
+  }, [enableIdleState, open, mounted, transitionStatus]);
 
-  return React.useMemo(
-    () => ({
-      mounted,
-      setMounted,
-      transitionStatus,
-    }),
-    [mounted, transitionStatus],
-  );
+  return {
+    mounted,
+    setMounted,
+    transitionStatus,
+  };
 }

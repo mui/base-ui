@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { DirectionProvider } from '@base-ui-components/react/direction-provider';
-import { Accordion } from '@base-ui-components/react/accordion';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
+import { Accordion } from '@base-ui/react/accordion';
 import styles from './horizontal.module.css';
 
 const displayValueMap = {
@@ -20,7 +20,7 @@ export default function App() {
         <Accordion.Root
           className={styles.Root}
           aria-label="Uncontrolled Horizontal Accordion"
-          openMultiple={false}
+          multiple={false}
         >
           {['one', 'two', 'three'].map((value) => (
             <Accordion.Item className={styles.Item} key={value}>
@@ -62,7 +62,7 @@ export default function App() {
           <Accordion.Root
             className={styles.Root}
             aria-label="Controlled Horizontal RTL Accordion"
-            openMultiple={false}
+            multiple={false}
             orientation="horizontal"
             value={val}
             onValueChange={(newValue: Accordion.Root.Props['value']) => {

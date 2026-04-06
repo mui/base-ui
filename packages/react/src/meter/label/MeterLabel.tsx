@@ -1,11 +1,10 @@
 'use client';
 import * as React from 'react';
-import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useMeterRootContext } from '../root/MeterRootContext';
-import type { MeterRoot } from '../root/MeterRoot';
+import type { MeterRootState } from '../root/MeterRoot';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useRegisteredLabelId } from '../../utils/useRegisteredLabelId';
 
 /**
  * An accessible label for the meter.
@@ -17,23 +16,29 @@ export const MeterLabel = React.forwardRef(function MeterLabel(
   componentProps: MeterLabel.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, id: idProp, ...elementProps } = componentProps;
-
-  const id = useBaseUiId(idProp);
+  const { render, className, style, id: idProp, ...elementProps } = componentProps;
 
   const { setLabelId } = useMeterRootContext();
 
-  useModernLayoutEffect(() => {
-    setLabelId(id);
-    return () => setLabelId(undefined);
-  }, [id, setLabelId]);
+  const id = useRegisteredLabelId(idProp, setLabelId);
 
   return useRenderElement('span', componentProps, {
     ref: forwardedRef,
-    props: [{ id }, elementProps],
+    props: [
+      {
+        id,
+        role: 'presentation',
+      },
+      elementProps,
+    ],
   });
 });
 
+export interface MeterLabelState extends MeterRootState {}
+
+export interface MeterLabelProps extends BaseUIComponentProps<'span', MeterLabelState> {}
+
 export namespace MeterLabel {
-  export interface Props extends BaseUIComponentProps<'span', MeterRoot.State> {}
+  export type State = MeterLabelState;
+  export type Props = MeterLabelProps;
 }

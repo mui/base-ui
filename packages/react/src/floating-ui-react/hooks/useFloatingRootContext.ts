@@ -1,85 +1,80 @@
-import * as React from 'react';
+'use client';
 import { isElement } from '@floating-ui/utils/dom';
-import { useEventCallback } from '../../utils/useEventCallback';
-
-import type {
-  FloatingRootContext,
-  ReferenceElement,
-  ContextData,
-  OpenChangeReason,
-} from '../types';
-import { createEventEmitter } from '../utils/createEventEmitter';
-import { useId } from '../../utils/useId';
+import { useId } from '@base-ui/utils/useId';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import type { ReferenceType } from '../types';
+import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
+import { FloatingRootStore, type FloatingRootState } from '../components/FloatingRootStore';
+import { PopupTriggerMap } from '../../utils/popups';
 
 export interface UseFloatingRootContextOptions {
-  open?: boolean;
-  onOpenChange?: (open: boolean, event?: Event, reason?: OpenChangeReason) => void;
-  elements: {
-    reference: Element | null;
-    floating: HTMLElement | null;
-  };
+  open?: boolean | undefined;
+  onOpenChange?(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
+  elements?:
+    | {
+        reference?: ReferenceType | null | undefined;
+        floating?: HTMLElement | null | undefined;
+      }
+    | undefined;
 }
 
-export function useFloatingRootContext(
-  options: UseFloatingRootContextOptions,
-): FloatingRootContext {
-  const { open = false, onOpenChange: onOpenChangeProp, elements: elementsProp } = options;
+export function useFloatingRootContext(options: UseFloatingRootContextOptions): FloatingRootStore {
+  const { open = false, onOpenChange, elements = {} } = options;
 
   const floatingId = useId();
-  const dataRef = React.useRef<ContextData>({});
-  const [events] = React.useState(() => createEventEmitter());
   const nested = useFloatingParentNodeId() != null;
 
   if (process.env.NODE_ENV !== 'production') {
-    const optionDomReference = elementsProp.reference;
+    const optionDomReference = elements.reference;
     if (optionDomReference && !isElement(optionDomReference)) {
       console.error(
         'Cannot pass a virtual element to the `elements.reference` option,',
-        'as it must be a real DOM element. Use `refs.setPositionReference()`',
+        'as it must be a real DOM element. Use `context.setPositionReference()`',
         'instead.',
       );
     }
   }
 
-  const [positionReference, setPositionReference] = React.useState<ReferenceElement | null>(
-    elementsProp.reference,
-  );
+  const store = useRefWithInit(
+    () =>
+      new FloatingRootStore({
+        open,
+        transitionStatus: undefined,
+        onOpenChange,
+        referenceElement: elements.reference ?? null,
+        floatingElement: elements.floating ?? null,
+        triggerElements: new PopupTriggerMap(),
+        floatingId,
+        syncOnly: false,
+        nested,
+      }),
+  ).current;
 
-  const onOpenChange = useEventCallback(
-    (newOpen: boolean, event?: Event, reason?: OpenChangeReason) => {
-      dataRef.current.openEvent = newOpen ? event : undefined;
-      events.emit('openchange', { open: newOpen, event, reason, nested });
-      onOpenChangeProp?.(newOpen, event, reason);
-    },
-  );
-
-  const refs = React.useMemo(
-    () => ({
-      setPositionReference,
-    }),
-    [],
-  );
-
-  const elements = React.useMemo(
-    () => ({
-      reference: positionReference || elementsProp.reference || null,
-      floating: elementsProp.floating || null,
-      domReference: elementsProp.reference as Element | null,
-    }),
-    [positionReference, elementsProp.reference, elementsProp.floating],
-  );
-
-  return React.useMemo<FloatingRootContext>(
-    () => ({
-      dataRef,
+  useIsoLayoutEffect(() => {
+    const valuesToSync: Writeable<Partial<FloatingRootState>> = {
       open,
-      onOpenChange,
-      elements,
-      events,
       floatingId,
-      refs,
-    }),
-    [open, onOpenChange, elements, events, floatingId, refs],
-  );
+    };
+
+    // Only sync elements that are defined to avoid overwriting existing ones
+    if (elements.reference !== undefined) {
+      valuesToSync.referenceElement = elements.reference;
+      valuesToSync.domReferenceElement = isElement(elements.reference) ? elements.reference : null;
+    }
+
+    if (elements.floating !== undefined) {
+      valuesToSync.floatingElement = elements.floating;
+    }
+
+    store.update(valuesToSync);
+  }, [open, floatingId, elements.reference, elements.floating, store]);
+
+  store.context.onOpenChange = onOpenChange;
+  store.context.nested = nested;
+
+  return store;
 }
+
+type Writeable<T> = { -readonly [P in keyof T]: T[P] };

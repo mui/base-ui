@@ -1,14 +1,15 @@
 'use client';
 import * as React from 'react';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
-import { useLatestRef } from '../../utils/useLatestRef';
 import { FocusGuard } from '../../utils/FocusGuard';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { ToastViewportContext } from './ToastViewportContext';
-import { useToastContext } from '../provider/ToastProviderContext';
+import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import { useToastProviderContext } from '../provider/ToastProviderContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { isFocusVisible } from '../utils/focusVisible';
-import { ownerDocument, ownerWindow } from '../../utils/owner';
+import { ToastViewportCssVars } from './ToastViewportCssVars';
 
 /**
  * A container viewport for toasts.
@@ -20,92 +21,91 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   componentProps: ToastViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, children, ...elementProps } = componentProps;
+  const { render, className, style, children, ...elementProps } = componentProps;
 
-  const {
-    toasts,
-    pauseTimers,
-    resumeTimers,
-    setHovering,
-    setFocused,
-    viewportRef,
-    windowFocusedRef,
-    prevFocusElement,
-    setPrevFocusElement,
-    hovering,
-    focused,
-    hasDifferingHeights,
-  } = useToastContext();
+  const store = useToastProviderContext();
+  const windowFocusTimeout = useTimeout();
 
   const handlingFocusGuardRef = React.useRef(false);
-  const focusedRef = useLatestRef(focused);
-  const numToasts = toasts.length;
+  const markedReadyForMouseLeaveRef = React.useRef(false);
+  const touchActiveRef = React.useRef(false);
+
+  const isEmpty = store.useState('isEmpty');
+  const toasts = store.useState('toasts');
+  const focused = store.useState('focused');
+  const expanded = store.useState('expanded');
+  const prevFocusElement = store.useState('prevFocusElement');
+  const frontmostHeight = toasts[0]?.height ?? 0;
+
+  const hasTransitioningToasts = React.useMemo(
+    () => toasts.some((toast) => toast.transitionStatus === 'ending'),
+    [toasts],
+  );
 
   // Listen globally for F6 so we can force-focus the viewport.
   React.useEffect(() => {
-    if (!viewportRef.current) {
+    const viewport = store.state.viewport;
+    if (!viewport) {
       return undefined;
     }
 
     function handleGlobalKeyDown(event: KeyboardEvent) {
-      if (numToasts === 0) {
+      if (isEmpty) {
         return;
       }
 
-      if (event.key === 'F6' && event.target !== viewportRef.current) {
+      if (event.key === 'F6' && getTarget(event) !== viewport) {
         event.preventDefault();
-        setPrevFocusElement(
-          activeElement(ownerDocument(viewportRef.current)) as HTMLElement | null,
-        );
-        viewportRef.current?.focus();
-        pauseTimers();
-        setFocused(true);
+        store.setPrevFocusElement(activeElement(ownerDocument(viewport)) as HTMLElement | null);
+        viewport?.focus({ preventScroll: true });
+        store.pauseTimers();
+        store.setFocused(true);
       }
     }
 
-    const win = ownerWindow(viewportRef.current);
+    const win = ownerWindow(viewport);
 
     win.addEventListener('keydown', handleGlobalKeyDown);
 
     return () => {
       win.removeEventListener('keydown', handleGlobalKeyDown);
     };
-  }, [pauseTimers, setFocused, setPrevFocusElement, numToasts, viewportRef]);
+  }, [store, isEmpty]);
 
   React.useEffect(() => {
-    if (!viewportRef.current || !numToasts) {
+    const viewport = store.state.viewport;
+    if (!viewport || isEmpty) {
       return undefined;
     }
 
-    const win = ownerWindow(viewportRef.current);
+    const win = ownerWindow(viewport);
 
     function handleWindowBlur(event: FocusEvent) {
-      if (event.target !== win) {
+      if (getTarget(event) !== win) {
         return;
       }
 
-      windowFocusedRef.current = false;
-      pauseTimers();
+      store.setIsWindowFocused(false);
+      store.pauseTimers();
     }
 
     function handleWindowFocus(event: FocusEvent) {
-      if (event.relatedTarget || event.target === win) {
+      if (event.relatedTarget) {
         return;
       }
 
       const target = getTarget(event);
-      const activeEl = activeElement(ownerDocument(viewportRef.current));
+      const activeEl = activeElement(ownerDocument(viewport));
       if (
-        !contains(viewportRef.current, target as HTMLElement | null) ||
+        target === win ||
+        !contains(viewport, target as HTMLElement | null) ||
         !isFocusVisible(activeEl)
       ) {
-        resumeTimers();
+        store.resumeTimers();
       }
 
       // Wait for the `handleFocus` event to fire.
-      setTimeout(() => {
-        windowFocusedRef.current = true;
-      });
+      windowFocusTimeout.start(0, () => store.setIsWindowFocused(true));
     }
 
     win.addEventListener('blur', handleWindowBlur, true);
@@ -116,55 +116,109 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
       win.removeEventListener('focus', handleWindowFocus, true);
     };
   }, [
-    pauseTimers,
-    resumeTimers,
-    viewportRef,
-    windowFocusedRef,
-    setFocused,
-    focusedRef,
-    // `viewportRef.current` isn't available on the first render,
+    store,
+    windowFocusTimeout,
+    // `store.state.viewport` isn't available on the first render,
     // since the portal node hasn't yet been created.
     // By adding this dependency, we ensure the window listeners
     // are added when toasts have been created, once the ref is available.
-    numToasts,
+    isEmpty,
   ]);
 
+  React.useEffect(() => {
+    const viewport = store.state.viewport;
+    if (!viewport || isEmpty) {
+      return undefined;
+    }
+
+    const doc = ownerDocument(viewport);
+    doc.addEventListener('pointerdown', store.handleDocumentPointerDown, true);
+
+    return () => {
+      doc.removeEventListener('pointerdown', store.handleDocumentPointerDown, true);
+    };
+  }, [isEmpty, store]);
+
   function handleFocusGuard(event: React.FocusEvent) {
-    if (!viewportRef.current) {
+    const viewport = store.state.viewport;
+    if (!viewport) {
       return;
     }
 
     handlingFocusGuardRef.current = true;
 
     // If we're coming off the container, move to the first toast
-    if (event.relatedTarget === viewportRef.current) {
+    if (event.relatedTarget === viewport) {
       toasts[0]?.ref?.current?.focus();
     } else {
-      prevFocusElement?.focus({ preventScroll: true });
+      store.restoreFocusToPrevElement();
     }
   }
 
   function handleKeyDown(event: React.KeyboardEvent) {
-    if (event.key === 'Tab' && event.shiftKey && event.target === viewportRef.current) {
+    if (
+      event.key === 'Tab' &&
+      event.shiftKey &&
+      getTarget(event.nativeEvent) === store.state.viewport
+    ) {
       event.preventDefault();
-      prevFocusElement?.focus({ preventScroll: true });
-      resumeTimers();
+      store.restoreFocusToPrevElement();
+      store.resumeTimers();
     }
   }
 
-  function handleMouseEnter() {
-    pauseTimers();
-    setHovering(true);
-  }
+  function flushMouseLeave() {
+    const hasEndingToasts = store.state.toasts.some((toast) => toast.transitionStatus === 'ending');
 
-  function handleMouseLeave() {
-    const activeEl = activeElement(ownerDocument(viewportRef.current));
-    if (contains(viewportRef.current, activeEl) && isFocusVisible(activeEl)) {
+    if (
+      !store.state.isWindowFocused ||
+      hasEndingToasts ||
+      touchActiveRef.current ||
+      !markedReadyForMouseLeaveRef.current
+    ) {
       return;
     }
 
-    resumeTimers();
-    setHovering(false);
+    // Once transitions have finished, see if a mouseleave was already triggered
+    // but blocked from taking effect. If so, we can now safely resume timers and
+    // collapse the viewport.
+    store.resumeTimers();
+    store.setHovering(false);
+    markedReadyForMouseLeaveRef.current = false;
+  }
+
+  React.useEffect(flushMouseLeave, [hasTransitioningToasts, store]);
+
+  function handleMouseEnter() {
+    store.pauseTimers();
+    store.setHovering(true);
+    markedReadyForMouseLeaveRef.current = false;
+  }
+
+  function handleMouseLeave() {
+    if (hasTransitioningToasts || touchActiveRef.current) {
+      // When swiping to dismiss, wait until the transitions have settled
+      // or the touch interaction ends to avoid collapsing mid-gesture.
+      markedReadyForMouseLeaveRef.current = true;
+    } else {
+      store.resumeTimers();
+      store.setHovering(false);
+    }
+  }
+
+  function handlePointerDown(event: React.PointerEvent) {
+    if (event.pointerType === 'touch') {
+      touchActiveRef.current = true;
+    }
+  }
+
+  function handlePointerEnd(event: React.PointerEvent) {
+    if (event.pointerType !== 'touch') {
+      return;
+    }
+
+    touchActiveRef.current = false;
+    flushMouseLeave();
   }
 
   function handleFocus() {
@@ -177,31 +231,31 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
       return;
     }
 
-    // If the window was previously blurred, the focus must be visible to
-    // pause the timers, since for pointers it's unexpected that focus is
-    // considered inside the viewport at this point.
-    const activeEl = activeElement(ownerDocument(viewportRef.current));
-    if (!windowFocusedRef.current && !isFocusVisible(activeEl)) {
-      return;
+    // Only set focused when the active element is focus-visible.
+    // This prevents the viewport from staying expanded when clicking inside without
+    // keyboard navigation.
+    if (isFocusVisible(activeElement(ownerDocument(store.state.viewport)))) {
+      store.setFocused(true);
+      store.pauseTimers();
     }
-
-    setFocused(true);
-    pauseTimers();
   }
 
   function handleBlur(event: React.FocusEvent) {
-    if (!focused || contains(viewportRef.current, event.relatedTarget as HTMLElement | null)) {
+    if (!focused || contains(store.state.viewport, event.relatedTarget as HTMLElement | null)) {
       return;
     }
 
-    setFocused(false);
-    resumeTimers();
+    store.setFocused(false);
+    store.resumeTimers();
   }
 
-  const props = {
-    role: 'region',
+  const defaultProps: HTMLProps = {
     tabIndex: -1,
-    'aria-label': `${numToasts} notification${numToasts !== 1 ? 's' : ''} (F6)`,
+    role: 'region',
+    'aria-live': 'polite',
+    'aria-atomic': false,
+    'aria-relevant': 'additions text',
+    'aria-label': 'Notifications',
     onMouseEnter: handleMouseEnter,
     onMouseMove: handleMouseEnter,
     onMouseLeave: handleMouseLeave,
@@ -209,50 +263,73 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     onBlur: handleBlur,
     onKeyDown: handleKeyDown,
     onClick: handleFocus,
+    onPointerDown: handlePointerDown,
+    onPointerUp: handlePointerEnd,
+    onPointerCancel: handlePointerEnd,
   };
 
-  const state: ToastViewport.State = React.useMemo(
-    () => ({
-      expanded: hovering || focused || hasDifferingHeights,
-    }),
-    [hovering, focused, hasDifferingHeights],
-  );
+  const state: ToastViewportState = {
+    expanded,
+  };
 
   const element = useRenderElement('div', componentProps, {
-    ref: [forwardedRef, viewportRef],
+    ref: [forwardedRef, store.setViewport],
     state,
     props: [
-      props,
+      defaultProps,
       {
-        ...elementProps,
+        style: {
+          [ToastViewportCssVars.frontmostHeight as string]: frontmostHeight
+            ? `${frontmostHeight}px`
+            : undefined,
+        },
+      },
+      elementProps,
+      {
         children: (
           <React.Fragment>
-            {numToasts > 0 && prevFocusElement && <FocusGuard onFocus={handleFocusGuard} />}
+            {!isEmpty && prevFocusElement && <FocusGuard onFocus={handleFocusGuard} />}
             {children}
-            {numToasts > 0 && prevFocusElement && <FocusGuard onFocus={handleFocusGuard} />}
+            {!isEmpty && prevFocusElement && <FocusGuard onFocus={handleFocusGuard} />}
           </React.Fragment>
         ),
       },
     ],
   });
 
-  const contextValue = React.useMemo(() => ({ viewportRef }), [viewportRef]);
+  const highPriorityToasts = React.useMemo(
+    () => toasts.filter((toast) => toast.priority === 'high'),
+    [toasts],
+  );
 
   return (
-    <ToastViewportContext.Provider value={contextValue}>
-      {numToasts > 0 && prevFocusElement && <FocusGuard onFocus={handleFocusGuard} />}
+    <React.Fragment>
+      {!isEmpty && prevFocusElement && <FocusGuard onFocus={handleFocusGuard} />}
       {element}
-    </ToastViewportContext.Provider>
+      {!focused && highPriorityToasts.length > 0 && (
+        <div style={visuallyHidden}>
+          {highPriorityToasts.map((toast) => (
+            <div key={toast.id} role="alert" aria-atomic>
+              <div>{toast.title}</div>
+              <div>{toast.description}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </React.Fragment>
   );
 });
 
-export namespace ToastViewport {
-  export interface State {
-    /**
-     * Whether toasts are expanded in the viewport.
-     */
-    expanded: boolean;
-  }
+export interface ToastViewportState {
+  /**
+   * Whether toasts are expanded in the viewport.
+   */
+  expanded: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface ToastViewportProps extends BaseUIComponentProps<'div', ToastViewportState> {}
+
+export namespace ToastViewport {
+  export type State = ToastViewportState;
+  export type Props = ToastViewportProps;
 }

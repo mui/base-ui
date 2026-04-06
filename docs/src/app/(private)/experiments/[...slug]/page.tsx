@@ -1,13 +1,12 @@
-import * as React from 'react';
 import { type Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import glob from 'fast-glob';
-import { Sidebar } from 'docs/src/components/Experiments/Sidebar';
-import { ExperimentRoot } from 'docs/src/components/Experiments/ExperimentRoot';
-import classes from 'docs/src/components/Experiments/ExperimentRoot.module.css';
-import { ExperimentSettingsProvider } from 'docs/src/components/Experiments/SettingsPanel';
+import { globby } from 'globby';
+import { Sidebar } from '../_components/Sidebar';
+import { ExperimentRoot } from '../_components/ExperimentRoot';
+import classes from '../_components/ExperimentRoot.module.css';
+import { ExperimentSettingsProvider } from '../_components/SettingsPanel';
 
 const currentDirectory = dirname(fileURLToPath(import.meta.url));
 const experimentsRootDirectory = resolve(currentDirectory, '..');
@@ -49,16 +48,20 @@ export default async function Page(props: Props) {
 }
 
 export async function generateStaticParams() {
-  const files = glob.globSync(
-    ['**/*.tsx', '!infra/**/*', '!**/page.tsx', '!**/layout.tsx'],
-    { cwd: experimentsRootDirectory },
+  const files = await globby(
+    ['**/*.tsx', '!infra/**/*', '!**/page.tsx', '!**/layout.tsx', '!_components/**/*'],
+    {
+      cwd: experimentsRootDirectory,
+    },
   );
 
-  return files.map((file) => {
-    return {
-      slug: file.replace(/\.tsx$/, '').split('/'),
-    };
-  });
+  return files
+    .filter((file) => file.split('/').length <= 2)
+    .map((file) => {
+      return {
+        slug: file.replace(/\.tsx$/, '').split('/'),
+      };
+    });
 }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {

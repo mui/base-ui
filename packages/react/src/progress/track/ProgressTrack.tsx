@@ -2,8 +2,8 @@
 import * as React from 'react';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useProgressRootContext } from '../root/ProgressRootContext';
-import { progressStyleHookMapping } from '../root/styleHooks';
-import type { ProgressRoot } from '../root/ProgressRoot';
+import { progressStateAttributesMapping } from '../root/stateAttributesMapping';
+import type { ProgressRootState } from '../root/ProgressRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
@@ -16,7 +16,7 @@ export const ProgressTrack = React.forwardRef(function ProgressTrack(
   componentProps: ProgressTrack.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const { state } = useProgressRootContext();
 
@@ -24,12 +24,17 @@ export const ProgressTrack = React.forwardRef(function ProgressTrack(
     state,
     ref: forwardedRef,
     props: elementProps,
-    customStyleHookMapping: progressStyleHookMapping,
+    stateAttributesMapping: progressStateAttributesMapping,
   });
 
   return element;
 });
 
+export interface ProgressTrackState extends ProgressRootState {}
+
+export interface ProgressTrackProps extends BaseUIComponentProps<'div', ProgressTrackState> {}
+
 export namespace ProgressTrack {
-  export interface Props extends BaseUIComponentProps<'div', ProgressRoot.State> {}
+  export type State = ProgressTrackState;
+  export type Props = ProgressTrackProps;
 }

@@ -4,8 +4,8 @@ import { formatNumber } from '../../utils/formatNumber';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useSliderRootContext } from '../root/SliderRootContext';
-import { sliderStyleHookMapping } from '../root/styleHooks';
-import type { SliderRoot } from '../root/SliderRoot';
+import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
+import type { SliderRootState } from '../root/SliderRoot';
 
 /**
  * Displays the current value of the slider as text.
@@ -22,6 +22,7 @@ export const SliderValue = React.forwardRef(function SliderValue(
     render,
     className,
     children,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -67,17 +68,25 @@ export const SliderValue = React.forwardRef(function SliderValue(
       },
       elementProps,
     ],
-    customStyleHookMapping: sliderStyleHookMapping,
+    stateAttributesMapping: sliderStateAttributesMapping,
   });
 
   return element;
 });
 
+export interface SliderValueState extends SliderRootState {}
+
+export interface SliderValueProps extends Omit<
+  BaseUIComponentProps<'output', SliderValueState>,
+  'children'
+> {
+  children?:
+    | null
+    | ((formattedValues: readonly string[], values: readonly number[]) => React.ReactNode)
+    | undefined;
+}
+
 export namespace SliderValue {
-  export interface Props
-    extends Omit<BaseUIComponentProps<'output', SliderRoot.State>, 'children'> {
-    children?:
-      | null
-      | ((formattedValues: readonly string[], values: readonly number[]) => React.ReactNode);
-  }
+  export type State = SliderValueState;
+  export type Props = SliderValueProps;
 }

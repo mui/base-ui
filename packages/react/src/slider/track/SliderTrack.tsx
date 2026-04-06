@@ -3,8 +3,8 @@ import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useSliderRootContext } from '../root/SliderRootContext';
-import type { SliderRoot } from '../root/SliderRoot';
-import { sliderStyleHookMapping } from '../root/styleHooks';
+import type { SliderRootState } from '../root/SliderRoot';
+import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 
 /**
  * Contains the slider indicator and represents the entire range of the slider.
@@ -14,9 +14,9 @@ import { sliderStyleHookMapping } from '../root/styleHooks';
  */
 export const SliderTrack = React.forwardRef(function SliderTrack(
   componentProps: SliderTrack.Props,
-  forwardedRef: React.ForwardedRef<HTMLElement>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const { state } = useSliderRootContext();
 
@@ -31,12 +31,17 @@ export const SliderTrack = React.forwardRef(function SliderTrack(
       },
       elementProps,
     ],
-    customStyleHookMapping: sliderStyleHookMapping,
+    stateAttributesMapping: sliderStateAttributesMapping,
   });
 
   return element;
 });
 
+export interface SliderTrackState extends SliderRootState {}
+
+export interface SliderTrackProps extends BaseUIComponentProps<'div', SliderTrackState> {}
+
 export namespace SliderTrack {
-  export interface Props extends BaseUIComponentProps<'div', SliderRoot.State> {}
+  export type State = SliderTrackState;
+  export type Props = SliderTrackProps;
 }

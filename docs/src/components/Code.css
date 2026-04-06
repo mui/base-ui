@@ -2,23 +2,32 @@
   .Code {
     letter-spacing: normal;
 
+    p &[data-inline] {
+      letter-spacing: -0.01em;
+      word-spacing: -0.2em;
+      line-height: normal;
+    }
+
     /* In a code block */
     pre & {
       white-space: normal;
     }
 
-    & [data-line] {
-      display: block;
-      white-space: pre;
-      padding-inline: 0.75rem;
-    }
-
-    & [data-line]:empty {
-      height: 1lh;
-    }
-
     & mark {
       display: inline-block;
+    }
+
+    & a {
+      text-decoration: underline;
+      text-decoration-color: color-mix(in oklab, currentColor, transparent);
+      text-underline-offset: 2px;
+      text-decoration-thickness: 1px;
+
+      @media (hover: hover) {
+        &:hover {
+          text-decoration-color: currentColor;
+        }
+      }
     }
   }
 }

@@ -1,25 +1,21 @@
-import type { ReferenceType, FloatingNodeType } from '../types';
+import type { FloatingNodeType } from '../types';
 
 /* eslint-disable @typescript-eslint/no-loop-func */
 
-export function getNodeChildren<RT extends ReferenceType = ReferenceType>(
-  nodes: Array<FloatingNodeType<RT>>,
+export function getNodeChildren(
+  nodes: Array<FloatingNodeType>,
   id: string | undefined,
   onlyOpenChildren = true,
-): Array<FloatingNodeType<RT>> {
-  const directChildren = nodes.filter(
-    (node) => node.parentId === id && (!onlyOpenChildren || node.context?.open),
-  );
+): Array<FloatingNodeType> {
+  const directChildren = nodes.filter((node) => node.parentId === id);
+
   return directChildren.flatMap((child) => [
-    child,
+    ...(!onlyOpenChildren || child.context?.open ? [child] : []),
     ...getNodeChildren(nodes, child.id, onlyOpenChildren),
   ]);
 }
 
-export function getDeepestNode<RT extends ReferenceType = ReferenceType>(
-  nodes: Array<FloatingNodeType<RT>>,
-  id: string | undefined,
-) {
+export function getDeepestNode(nodes: Array<FloatingNodeType>, id: string | undefined) {
   let deepestNodeId: string | undefined;
   let maxDepth = -1;
 
@@ -41,11 +37,8 @@ export function getDeepestNode<RT extends ReferenceType = ReferenceType>(
   return nodes.find((node) => node.id === deepestNodeId);
 }
 
-export function getNodeAncestors<RT extends ReferenceType = ReferenceType>(
-  nodes: Array<FloatingNodeType<RT>>,
-  id: string | undefined,
-) {
-  let allAncestors: Array<FloatingNodeType<RT>> = [];
+export function getNodeAncestors(nodes: Array<FloatingNodeType>, id: string | undefined) {
+  let allAncestors: Array<FloatingNodeType> = [];
   let currentParentId = nodes.find((node) => node.id === id)?.parentId;
 
   while (currentParentId) {

@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { PreviewCard } from '@base-ui-components/react';
+import { PreviewCard } from '@base-ui/react';
 
 // @ts-expect-error - `keepMounted` should not be available
 <PreviewCard.Positioner keepMounted />;

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
-import type { ToolbarRoot } from '../root/ToolbarRoot';
+import type { ToolbarRootState } from '../root/ToolbarRoot';
 import { ToolbarGroupContext } from './ToolbarGroupContext';
 
 /**
@@ -14,9 +14,15 @@ import { ToolbarGroupContext } from './ToolbarGroupContext';
  */
 export const ToolbarGroup = React.forwardRef(function ToolbarGroup(
   componentProps: ToolbarGroup.Props,
-  forwardedRef: React.ForwardedRef<HTMLElement>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, disabled: disabledProp = false, render, ...elementProps } = componentProps;
+  const {
+    className,
+    disabled: disabledProp = false,
+    render,
+    style,
+    ...elementProps
+  } = componentProps;
 
   const { orientation, disabled: toolbarDisabled } = useToolbarRootContext();
 
@@ -29,13 +35,10 @@ export const ToolbarGroup = React.forwardRef(function ToolbarGroup(
     [disabled],
   );
 
-  const state: ToolbarRoot.State = React.useMemo(
-    () => ({
-      disabled,
-      orientation,
-    }),
-    [disabled, orientation],
-  );
+  const state: ToolbarRootState = {
+    disabled,
+    orientation,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -48,12 +51,17 @@ export const ToolbarGroup = React.forwardRef(function ToolbarGroup(
   );
 });
 
+export interface ToolbarGroupState extends ToolbarRootState {}
+
+export interface ToolbarGroupProps extends BaseUIComponentProps<'div', ToolbarGroupState> {
+  /**
+   * When `true` all toolbar items in the group are disabled.
+   * @default false
+   */
+  disabled?: boolean | undefined;
+}
+
 export namespace ToolbarGroup {
-  export interface Props extends BaseUIComponentProps<'div', ToolbarRoot.State> {
-    /**
-     * When `true` all toolbar items in the group are disabled.
-     * @default false
-     */
-    disabled?: boolean;
-  }
+  export type State = ToolbarGroupState;
+  export type Props = ToolbarGroupProps;
 }

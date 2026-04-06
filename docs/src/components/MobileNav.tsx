@@ -1,11 +1,12 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import clsx from 'clsx';
 import NextLink from 'next/link';
-import { Dialog } from '@base-ui-components/react/dialog';
-import * as ReactDOM from 'react-dom';
-import { useScrollLock } from '@base-ui-components/react/utils';
+import { Dialog } from '@base-ui/react/dialog';
+import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { HEADER_HEIGHT } from './Header';
+import './MobileNav.css';
 
 const MobileNavStateCallback = React.createContext<(open: boolean) => void>(() => undefined);
 
@@ -40,7 +41,7 @@ function PopupImpl(props: React.PropsWithChildren) {
   const [forceScrollLock, setForceScrollLock] = React.useState(false);
   const setOpen = React.useContext(MobileNavStateCallback);
   const rem = React.useRef(16);
-  useScrollLock({ enabled: forceScrollLock, open: forceScrollLock, mounted: forceScrollLock });
+  useScrollLock(forceScrollLock);
 
   React.useEffect(() => {
     rem.current = parseFloat(getComputedStyle(document.documentElement).fontSize);
@@ -71,13 +72,13 @@ function PopupImpl(props: React.PropsWithChildren) {
                 if (viewport.scrollTop < -32) {
                   const y = viewport.scrollTop;
                   // Scroll lock is forced during the flick down gesture to maintain
-                  // a continous blend between the native scroll inertia and our own animation
+                  // a continuous blend between the native scroll inertia and our own animation
                   setForceScrollLock(true);
 
                   viewport.addEventListener(
                     'scroll',
                     function handleNextScroll() {
-                      // ...look at whether the system's intertia scrolling is continuing the motion
+                      // ...look at whether the system's inertia scrolling is continuing the motion
                       // in the same direction. If so, the flick is strong enough to close the dialog.
                       if (viewport.scrollTop < y) {
                         // It's gonna eventually bounce back to scrollTop 0. We need to counteract this
@@ -105,11 +106,16 @@ function PopupImpl(props: React.PropsWithChildren) {
       >
         <div className="MobileNavViewportInner">
           {/* We need the area behind the panel to close on tap but also to scroll the viewport. */}
-          <Dialog.Close className="MobileNavBackdropTapArea" tabIndex={-1} render={<div />} />
+          <Dialog.Close
+            className="MobileNavBackdropTapArea"
+            tabIndex={-1}
+            nativeButton={false}
+            render={<div />}
+          />
 
           <nav className="MobileNavPanel">
             {/* Reverse order to place the close button at the end of the DOM, but at sticky top visually */}
-            <div className="flex flex-col-reverse">
+            <div className="MobileNavBody">
               <div>{props.children}</div>
               <div className="MobileNavCloseContainer">
                 <Dialog.Close aria-label="Close the navigation" className="MobileNavClose">
@@ -158,29 +164,29 @@ export function Badge(props: React.ComponentProps<'span'>) {
   return <span {...props} className={clsx('MobileNavBadge', props.className)} />;
 }
 
-export function Label(props: React.ComponentProps<'span'>) {
-  return <span {...props} className={clsx('MobileNavLabel', props.className)} />;
-}
-
 interface ItemProps extends React.ComponentPropsWithoutRef<'li'> {
   active?: boolean;
   href: string;
   rel?: string;
+  external?: boolean;
 }
 
-export function Item(props: ItemProps) {
+export function Item({ href, external, ...props }: ItemProps) {
   const setOpen = React.useContext(MobileNavStateCallback);
+
+  const LinkComponent = external ? 'a' : NextLink;
+
   return (
     <li {...props} className={clsx('MobileNavItem', props.className)}>
-      <NextLink
+      <LinkComponent
         aria-current={props.active ? 'page' : undefined}
         className="MobileNavLink"
-        href={props.href}
+        href={href}
         rel={props.rel}
         // We handle scroll manually
-        scroll={false}
+        scroll={external ? undefined : false}
         onClick={() => {
-          if (props.href === window.location.pathname) {
+          if (href === window.location.pathname) {
             // If the URL is the same, close, wait a little, and scroll to top smoothly
             setOpen(false);
             setTimeout(() => {
@@ -196,7 +202,7 @@ export function Item(props: ItemProps) {
         }}
       >
         {props.children}
-      </NextLink>
+      </LinkComponent>
     </li>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Select } from '@base-ui-components/react/select';
+import { Select } from '@base-ui/react/select';
 import {
   Button,
   ListBox,
@@ -11,12 +11,7 @@ import {
 } from 'react-aria-components';
 import * as Radix from '@radix-ui/react-select';
 import * as Ariakit from '@ariakit/react';
-import {
-  Listbox,
-  ListboxButton,
-  ListboxOption,
-  ListboxOptions,
-} from '@headlessui/react';
+import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react';
 
 const items = Array.from({ length: 1000 }, (_, i) => ({
   label: `Item ${i}`,
@@ -133,11 +128,7 @@ function HeadlessUISelect() {
       <ListboxButton>Select an item</ListboxButton>
       <ListboxOptions anchor="bottom">
         {items.map((item) => (
-          <ListboxOption
-            key={item.value}
-            value={item.value}
-            className="data-focus:bg-blue-100"
-          >
+          <ListboxOption key={item.value} value={item.value} className="data-focus:bg-blue-100">
             {({ focus, selected }) => (
               <div className={focus ? 'bg-black text-white' : undefined}>
                 {selected && <span className="size-5">✓</span>}

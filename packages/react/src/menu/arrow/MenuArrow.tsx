@@ -17,24 +17,22 @@ export const MenuArrow = React.forwardRef(function MenuArrow(
   componentProps: MenuArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, style, ...elementProps } = componentProps;
 
-  const { open } = useMenuRootContext();
+  const { store } = useMenuRootContext();
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = useMenuPositionerContext();
+  const open = store.useState('open');
 
-  const state: MenuArrow.State = React.useMemo(
-    () => ({
-      open,
-      side,
-      align,
-      uncentered: arrowUncentered,
-    }),
-    [open, side, align, arrowUncentered],
-  );
+  const state: MenuArrowState = {
+    open,
+    side,
+    align,
+    uncentered: arrowUncentered,
+  };
 
   return useRenderElement('div', componentProps, {
     ref: [arrowRef, forwardedRef],
-    customStyleHookMapping: popupStateMapping,
+    stateAttributesMapping: popupStateMapping,
     state,
     props: {
       style: arrowStyles,
@@ -44,16 +42,28 @@ export const MenuArrow = React.forwardRef(function MenuArrow(
   });
 });
 
-export namespace MenuArrow {
-  export interface State {
-    /**
-     * Whether the menu is currently open.
-     */
-    open: boolean;
-    side: Side;
-    align: Align;
-    uncentered: boolean;
-  }
+export interface MenuArrowState {
+  /**
+   * Whether the menu is currently open.
+   */
+  open: boolean;
+  /**
+   * The side of the anchor the component is placed on.
+   */
+  side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
+  align: Align;
+  /**
+   * Whether the arrow cannot be centered on the anchor.
+   */
+  uncentered: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface MenuArrowProps extends BaseUIComponentProps<'div', MenuArrowState> {}
+
+export namespace MenuArrow {
+  export type State = MenuArrowState;
+  export type Props = MenuArrowProps;
 }

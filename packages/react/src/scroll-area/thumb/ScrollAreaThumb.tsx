@@ -7,7 +7,7 @@ import { ScrollAreaScrollbarCssVars } from '../scrollbar/ScrollAreaScrollbarCssV
 import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
- * The draggable part of the the scrollbar that indicates the current scroll position.
+ * The draggable part of the scrollbar that indicates the current scroll position.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
@@ -16,7 +16,7 @@ export const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
   componentProps: ScrollAreaThumb.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const {
     thumbYRef,
@@ -26,11 +26,12 @@ export const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
     handlePointerUp,
     setScrollingX,
     setScrollingY,
+    hasMeasuredScrollbar,
   } = useScrollAreaRootContext();
 
   const { orientation } = useScrollAreaScrollbarContext();
 
-  const state: ScrollAreaThumb.State = React.useMemo(() => ({ orientation }), [orientation]);
+  const state: ScrollAreaThumbState = { orientation };
 
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, orientation === 'vertical' ? thumbYRef : thumbXRef],
@@ -49,6 +50,7 @@ export const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
           handlePointerUp(event);
         },
         style: {
+          visibility: hasMeasuredScrollbar ? undefined : 'hidden',
           ...(orientation === 'vertical' && {
             height: `var(${ScrollAreaScrollbarCssVars.scrollAreaThumbHeight})`,
           }),
@@ -64,10 +66,16 @@ export const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
   return element;
 });
 
-export namespace ScrollAreaThumb {
-  export interface State {
-    orientation?: 'horizontal' | 'vertical';
-  }
+export interface ScrollAreaThumbState {
+  /**
+   * The component orientation.
+   */
+  orientation?: 'horizontal' | 'vertical' | undefined;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface ScrollAreaThumbProps extends BaseUIComponentProps<'div', ScrollAreaThumbState> {}
+
+export namespace ScrollAreaThumb {
+  export type State = ScrollAreaThumbState;
+  export type Props = ScrollAreaThumbProps;
 }

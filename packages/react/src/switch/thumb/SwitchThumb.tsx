@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
-import type { SwitchRoot } from '../root/SwitchRoot';
+import type { SwitchRootState } from '../root/SwitchRoot';
 import { useSwitchRootContext } from '../root/SwitchRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { styleHookMapping } from '../styleHooks';
+import { stateAttributesMapping } from '../stateAttributesMapping';
 
 /**
  * The movable part of the switch that indicates whether the switch is on or off.
@@ -17,7 +17,7 @@ export const SwitchThumb = React.forwardRef(function SwitchThumb(
   componentProps: SwitchThumb.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const { state: fieldState } = useFieldRootContext();
 
@@ -27,13 +27,16 @@ export const SwitchThumb = React.forwardRef(function SwitchThumb(
   return useRenderElement('span', componentProps, {
     state: extendedState,
     ref: forwardedRef,
-    customStyleHookMapping: styleHookMapping,
+    stateAttributesMapping,
     props: elementProps,
   });
 });
 
-export namespace SwitchThumb {
-  export interface Props extends BaseUIComponentProps<'span', State> {}
+export interface SwitchThumbProps extends BaseUIComponentProps<'span', SwitchThumbState> {}
 
-  export interface State extends SwitchRoot.State {}
+export interface SwitchThumbState extends SwitchRootState {}
+
+export namespace SwitchThumb {
+  export type Props = SwitchThumbProps;
+  export type State = SwitchThumbState;
 }

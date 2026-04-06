@@ -2,12 +2,18 @@
 import * as React from 'react';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
-import { type Side, type Align, useAnchorPositioning } from '../../utils/useAnchorPositioning';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-import { popupStateMapping } from '../../utils/popupStateMapping';
+import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react';
+import {
+  type Side,
+  type Align,
+  useAnchorPositioning,
+  type UseAnchorPositioningSharedParameters,
+} from '../../utils/useAnchorPositioning';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { usePreviewCardPortalContext } from '../portal/PreviewCardPortalContext';
 import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
+import { usePositioner } from '../../utils/usePositioner';
 
 /**
  * Positions the popup against the trigger.
@@ -32,13 +38,22 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     collisionPadding = 5,
     arrowPadding = 5,
     sticky = false,
-    trackAnchor = true,
+    disableAnchorTracking = false,
     collisionAvoidance = POPUP_COLLISION_AVOIDANCE,
+    style,
     ...elementProps
   } = componentProps;
 
-  const { open, mounted, floatingRootContext, setPositionerElement } = usePreviewCardRootContext();
+  const store = usePreviewCardRootContext();
   const keepMounted = usePreviewCardPortalContext();
+  const nodeId = useFloatingNodeId();
+
+  const open = store.useState('open');
+  const mounted = store.useState('mounted');
+  const floatingRootContext = store.useState('floatingRootContext');
+  const instantType = store.useState('instantType');
+  const transitionStatus = store.useState('transitionStatus');
+  const hasViewport = store.useState('hasViewport');
 
   const positioning = useAnchorPositioning({
     anchor,
@@ -53,81 +68,66 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     collisionBoundary,
     collisionPadding,
     sticky,
-    trackAnchor,
+    disableAnchorTracking,
     keepMounted,
+    nodeId,
     collisionAvoidance,
+    adaptiveOrigin: hasViewport ? adaptiveOrigin : undefined,
   });
 
-  const defaultProps: HTMLProps = React.useMemo(() => {
-    const hiddenStyles: React.CSSProperties = {};
+  const state: PreviewCardPositionerState = {
+    open,
+    side: positioning.side,
+    align: positioning.align,
+    anchorHidden: positioning.anchorHidden,
+    instant: instantType,
+  };
 
-    if (!open) {
-      hiddenStyles.pointerEvents = 'none';
-    }
-
-    return {
-      role: 'presentation',
-      hidden: !mounted,
-      style: {
-        ...positioning.positionerStyles,
-        ...hiddenStyles,
-      },
-    };
-  }, [open, mounted, positioning.positionerStyles]);
-
-  const state: PreviewCardPositioner.State = React.useMemo(
-    () => ({
-      open,
-      side: positioning.side,
-      align: positioning.align,
-      anchorHidden: positioning.anchorHidden,
-    }),
-    [open, positioning.side, positioning.align, positioning.anchorHidden],
-  );
-
-  const contextValue: PreviewCardPositionerContext = React.useMemo(
-    () => ({
-      side: positioning.side,
-      align: positioning.align,
-      arrowRef: positioning.arrowRef,
-      arrowUncentered: positioning.arrowUncentered,
-      arrowStyles: positioning.arrowStyles,
-    }),
-    [
-      positioning.side,
-      positioning.align,
-      positioning.arrowRef,
-      positioning.arrowUncentered,
-      positioning.arrowStyles,
-    ],
-  );
-
-  const element = useRenderElement('div', componentProps, {
-    state,
-    ref: [setPositionerElement, forwardedRef],
-    props: [defaultProps, elementProps],
-    customStyleHookMapping: popupStateMapping,
+  const element = usePositioner(componentProps, state, {
+    styles: positioning.positionerStyles,
+    transitionStatus,
+    props: elementProps,
+    refs: [forwardedRef, store.useStateSetter('positionerElement')],
+    hidden: !mounted,
+    inert: !open,
   });
 
   return (
-    <PreviewCardPositionerContext.Provider value={contextValue}>
-      {element}
+    <PreviewCardPositionerContext.Provider value={positioning}>
+      <FloatingNode id={nodeId}>{element}</FloatingNode>
     </PreviewCardPositionerContext.Provider>
   );
 });
 
-export namespace PreviewCardPositioner {
-  export interface State {
-    /**
-     * Whether the preview card is currently open.
-     */
-    open: boolean;
-    side: Side;
-    align: Align;
-    anchorHidden: boolean;
-  }
+export interface PreviewCardPositionerState {
+  /**
+   * Whether the preview card is currently open.
+   */
+  open: boolean;
+  /**
+   * The side of the anchor the component is placed on.
+   */
+  side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
+  align: Align;
+  /**
+   * Whether the anchor element is hidden.
+   */
+  anchorHidden: boolean;
+  /**
+   * Whether transitions should be skipped.
+   */
+  instant: 'dismiss' | 'focus' | undefined;
+}
 
-  export interface Props
-    extends useAnchorPositioning.SharedParameters,
-      BaseUIComponentProps<'div', State> {}
+export interface PreviewCardPositionerProps
+  extends
+    UseAnchorPositioningSharedParameters,
+    BaseUIComponentProps<'div', PreviewCardPositionerState> {}
+
+export namespace PreviewCardPositioner {
+  export type State = PreviewCardPositionerState;
+  export type Props = PreviewCardPositionerProps;
 }

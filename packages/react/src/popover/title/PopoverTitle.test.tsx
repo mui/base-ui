@@ -1,7 +1,6 @@
-import * as React from 'react';
-import { Popover } from '@base-ui-components/react/popover';
+import { expect } from 'vitest';
+import { Popover } from '@base-ui/react/popover';
 import { screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Popover.Title />', () => {
@@ -12,6 +11,7 @@ describe('<Popover.Title />', () => {
     render(node) {
       return render(
         <Popover.Root open>
+          <Popover.Trigger>Trigger</Popover.Trigger>
           <Popover.Portal>
             <Popover.Positioner>
               <Popover.Popup>{node}</Popover.Popup>
@@ -25,6 +25,7 @@ describe('<Popover.Title />', () => {
   it('labels the popup element with its id', async () => {
     await render(
       <Popover.Root open>
+        <Popover.Trigger>Trigger</Popover.Trigger>
         <Popover.Portal>
           <Popover.Positioner>
             <Popover.Popup>
@@ -36,6 +37,6 @@ describe('<Popover.Title />', () => {
     );
 
     const id = document.querySelector('h2')?.id;
-    expect(screen.getByRole('dialog')).to.have.attribute('aria-labelledby', id);
+    expect(screen.getByRole('dialog')).toHaveAttribute('aria-labelledby', id);
   });
 });

@@ -17,6 +17,12 @@
 
     opacity: 0;
     transition: opacity 150ms 300ms;
+    pointer-events: none;
+
+    &[data-hovering],
+    &[data-scrolling] {
+      pointer-events: auto;
+    }
 
     &[data-scrolling] {
       opacity: 1;

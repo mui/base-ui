@@ -1,8 +1,6 @@
-import * as React from 'react';
-import { expect } from 'chai';
-import { spy } from 'sinon';
-import { Toolbar } from '@base-ui-components/react/toolbar';
-import { NumberField } from '@base-ui-components/react/number-field';
+import { expect, vi } from 'vitest';
+import { Toolbar } from '@base-ui/react/toolbar';
+import { NumberField } from '@base-ui/react/number-field';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { NOOP } from '../../utils/noop';
@@ -15,6 +13,7 @@ const testCompositeContext: CompositeRootContext = {
   highlightedIndex: 0,
   onHighlightedIndexChange: NOOP,
   highlightItemOnHover: false,
+  relayKeyboardEvent: NOOP,
 };
 
 const testToolbarContext: ToolbarRootContext = {
@@ -42,13 +41,13 @@ describe('<Toolbar.Input />', () => {
 
   describe('ARIA attributes', () => {
     it('renders a textbox', async () => {
-      const { getByTestId } = await render(
+      await render(
         <Toolbar.Root>
           <Toolbar.Input data-testid="input" />
         </Toolbar.Root>,
       );
 
-      expect(getByTestId('input')).to.equal(screen.getByRole('textbox'));
+      expect(screen.getByTestId('input')).toBe(screen.getByRole('textbox'));
     });
   });
 
@@ -63,15 +62,15 @@ describe('<Toolbar.Input />', () => {
       const [orientation, nextKey, prevKey] = entry;
 
       it(`orientation: ${orientation}`, async () => {
-        const { getAllByRole, getByRole, user } = await render(
+        const { user } = await render(
           <Toolbar.Root orientation={orientation as Orientation}>
             <Toolbar.Button />
             <Toolbar.Input defaultValue="abcd" />
             <Toolbar.Button />
           </Toolbar.Root>,
         );
-        const input = getByRole('textbox') as HTMLInputElement;
-        const [button1, button2] = getAllByRole('button');
+        const input = screen.getByRole('textbox') as HTMLInputElement;
+        const [button1, button2] = screen.getAllByRole('button');
 
         await user.keyboard('[Tab]');
         expect(button1).toHaveFocus();
@@ -80,8 +79,8 @@ describe('<Toolbar.Input />', () => {
         expect(input).toHaveFocus();
 
         // Firefox doesn't support document.getSelection() in inputs
-        expect(input.selectionStart).to.equal(0);
-        expect(input.selectionEnd).to.equal(4);
+        expect(input.selectionStart).toBe(0);
+        expect(input.selectionEnd).toBe(4);
 
         await user.keyboard(`[${ARROW_RIGHT}]`);
         await user.keyboard(`[${nextKey}]`);
@@ -111,11 +110,11 @@ describe('<Toolbar.Input />', () => {
         </Toolbar.Root>,
       );
 
-      expect(screen.getByRole('textbox')).to.have.attribute('aria-roledescription', 'Number field');
+      expect(screen.getByRole('textbox')).toHaveAttribute('aria-roledescription', 'Number field');
     });
 
     it('handles interactions', async () => {
-      const onValueChange = spy();
+      const onValueChange = vi.fn();
       const { user } = await render(
         <Toolbar.Root>
           <NumberField.Root min={1} max={10} defaultValue={5} onValueChange={onValueChange}>
@@ -131,20 +130,20 @@ describe('<Toolbar.Input />', () => {
       const input = screen.getByRole('textbox');
 
       await user.keyboard('[Tab]');
-      expect(input).to.have.attribute('tabindex', '0');
+      expect(input).toHaveAttribute('tabindex', '0');
       expect(input).toHaveFocus();
 
       await user.keyboard(`[${ARROW_UP}]`);
-      expect(onValueChange.callCount).to.equal(1);
-      expect(onValueChange.args[0][0]).to.equal(6);
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(onValueChange.mock.calls[0][0]).toBe(6);
 
       await user.keyboard(`[${ARROW_DOWN}]`);
-      expect(onValueChange.callCount).to.equal(2);
-      expect(onValueChange.args[1][0]).to.equal(5);
+      expect(onValueChange.mock.calls.length).toBe(2);
+      expect(onValueChange.mock.calls[1][0]).toBe(5);
     });
 
     it('disabled state', async () => {
-      const onValueChange = spy();
+      const onValueChange = vi.fn();
       const { user } = await render(
         <Toolbar.Root>
           <NumberField.Root min={1} max={10} defaultValue={5} onValueChange={onValueChange}>
@@ -159,17 +158,17 @@ describe('<Toolbar.Input />', () => {
 
       const input = screen.getByRole('textbox');
 
-      expect(input).to.not.have.attribute('disabled');
-      expect(input).to.have.attribute('data-disabled');
-      expect(input).to.have.attribute('aria-disabled', 'true');
+      expect(input).not.toHaveAttribute('disabled');
+      expect(input).toHaveAttribute('data-disabled');
+      expect(input).toHaveAttribute('aria-disabled', 'true');
 
       await user.keyboard('[Tab]');
-      expect(input).to.have.attribute('tabindex', '0');
+      expect(input).toHaveAttribute('tabindex', '0');
       expect(input).toHaveFocus();
 
       await user.keyboard(`[${ARROW_UP}]`);
       await user.keyboard(`[${ARROW_DOWN}]`);
-      expect(onValueChange.callCount).to.equal(0);
+      expect(onValueChange.mock.calls.length).toBe(0);
     });
   });
 });

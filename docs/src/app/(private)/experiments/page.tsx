@@ -1,7 +1,6 @@
-import * as React from 'react';
 import clsx from 'clsx';
-import { Sidebar } from 'docs/src/components/Experiments/Sidebar';
-import classes from 'docs/src/components/Experiments/ExperimentRoot.module.css';
+import { Sidebar } from './_components/Sidebar';
+import classes from './_components/ExperimentRoot.module.css';
 
 export default async function Experiments() {
   return (

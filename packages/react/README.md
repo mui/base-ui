@@ -9,7 +9,7 @@ Base UI is a library of unstyled React components. You gain complete control ov
 Install the package in your project directory with:
 
 ```bash
-npm install @base-ui-components/react
+npm install @base-ui/react
 ```
 
 ## Documentation
@@ -25,7 +25,7 @@ Use the "base-ui" tag on Stack Overflow to make it easier for the community to 
 
 ## Contributing
 
-Read the [contributing guide](/CONTRIBUTING.md) to learn about our development process, how to propose bug fixes and improvements, and how to build and test your changes.
+Read the [contributing guide](../../CONTRIBUTING.md) to learn about our development process, how to propose bug fixes and improvements, and how to build and test your changes.
 
 Contributing to Base UI is about more than just issues and pull requests!
 There are many other ways to [support Base UI](https://mui.com/material-ui/getting-started/faq/#mui-is-awesome-how-can-i-support-the-project) beyond contributing to the code base.
@@ -40,8 +40,7 @@ Future plans and high-priority features and enhancements can be found in the [ro
 
 ## License
 
-This project is licensed under the terms of the
-[MIT license](/LICENSE).
+This project is licensed under the terms of the [MIT license](../../LICENSE).
 
 ## Security
 

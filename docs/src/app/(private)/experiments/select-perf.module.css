@@ -53,6 +53,8 @@
   transition:
     transform 150ms,
     opacity 150ms;
+  max-height: var(--available-height);
+  overflow-y: auto;
 
   &[data-starting-style],
   &[data-ending-style] {

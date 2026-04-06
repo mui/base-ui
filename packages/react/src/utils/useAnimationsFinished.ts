@@ -1,23 +1,27 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { useEventCallback } from './useEventCallback';
-import { useTimeout } from './useTimeout';
-import { useAnimationFrame } from './useAnimationFrame';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { resolveRef } from './resolveRef';
+import { TransitionStatusDataAttributes } from './stateAttributesMapping';
 
 /**
  * Executes a function once all animations have finished on the provided element.
- * @param ref - The element to watch for animations.
- * @param waitForNextTick - Whether to wait for the next tick before checking for animations.
+ * @param elementOrRef - The element to watch for animations.
+ * @param waitForStartingStyleRemoved - Whether to wait for [data-starting-style] to be removed before checking for animations.
+ * @param treatAbortedAsFinished - Whether to treat aborted animations as finished. If `false`, and there are aborted animations,
+ *   the function will check again if any new animations have started and wait for them to finish.
+ * @returns A function that takes a callback to execute once all animations have finished, and an optional AbortSignal to abort the callback
  */
 export function useAnimationsFinished(
-  ref: React.RefObject<HTMLElement | null>,
-  waitForNextTick = false,
+  elementOrRef: React.RefObject<HTMLElement | null> | HTMLElement | null,
+  waitForStartingStyleRemoved = false,
+  treatAbortedAsFinished = true,
 ) {
   const frame = useAnimationFrame();
-  const timeout = useTimeout();
 
-  return useEventCallback(
+  return useStableCallback(
     (
       /**
        * A function to execute once all animations have finished.
@@ -31,41 +35,86 @@ export function useAnimationsFinished(
       signal: AbortSignal | null = null,
     ) => {
       frame.cancel();
-      timeout.clear();
 
-      const element = ref.current;
+      const element = resolveRef(elementOrRef);
+      if (element == null) {
+        return;
+      }
+      const resolvedElement = element;
 
-      if (!element) {
+      const done = () => {
+        // Synchronously flush the unmounting of the component so that the browser doesn't
+        // paint: https://github.com/mui/base-ui/issues/979
+        ReactDOM.flushSync(fnToExecute);
+      };
+
+      if (
+        typeof resolvedElement.getAnimations !== 'function' ||
+        globalThis.BASE_UI_ANIMATIONS_DISABLED
+      ) {
+        fnToExecute();
         return;
       }
 
-      if (typeof element.getAnimations !== 'function' || globalThis.BASE_UI_ANIMATIONS_DISABLED) {
-        fnToExecute();
-      } else {
-        frame.request(() => {
-          function exec() {
-            if (!element) {
+      function exec() {
+        Promise.all(resolvedElement.getAnimations().map((animation) => animation.finished))
+          .then(() => {
+            if (!signal?.aborted) {
+              done();
+            }
+          })
+          .catch(() => {
+            if (treatAbortedAsFinished) {
+              if (!signal?.aborted) {
+                done();
+              }
               return;
             }
 
-            Promise.allSettled(element.getAnimations().map((anim) => anim.finished)).then(() => {
-              if (signal != null && signal.aborted) {
-                return;
-              }
-              // Synchronously flush the unmounting of the component so that the browser doesn't
-              // paint: https://github.com/mui/base-ui/issues/979
-              ReactDOM.flushSync(fnToExecute);
-            });
-          }
+            const currentAnimations = resolvedElement.getAnimations();
 
-          // `open: true` animations need to wait for the next tick to be detected
-          if (waitForNextTick) {
-            timeout.start(0, exec);
-          } else {
+            if (
+              !signal?.aborted &&
+              currentAnimations.length > 0 &&
+              currentAnimations.some(
+                (animation) => animation.pending || animation.playState !== 'finished',
+              )
+            ) {
+              // Sometimes animations can be aborted because a property they depend on changes while the animation plays.
+              // In such cases, we need to re-check if any new animations have started.
+              exec();
+            }
+          });
+      }
+
+      if (waitForStartingStyleRemoved) {
+        const startingStyleAttribute = TransitionStatusDataAttributes.startingStyle;
+
+        // If `[data-starting-style]` isn't present, fall back to waiting one more frame
+        // to give "open" animations a chance to be registered.
+        if (!resolvedElement.hasAttribute(startingStyleAttribute)) {
+          frame.request(exec);
+          return;
+        }
+
+        // Wait for `[data-starting-style]` to have been removed.
+        const attributeObserver = new MutationObserver(() => {
+          if (!resolvedElement.hasAttribute(startingStyleAttribute)) {
+            attributeObserver.disconnect();
             exec();
           }
         });
+
+        attributeObserver.observe(resolvedElement, {
+          attributes: true,
+          attributeFilter: [startingStyleAttribute],
+        });
+
+        signal?.addEventListener('abort', () => attributeObserver.disconnect(), { once: true });
+        return;
       }
+
+      frame.request(exec);
     },
   );
 }

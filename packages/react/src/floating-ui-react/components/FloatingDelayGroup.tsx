@@ -1,19 +1,25 @@
+'use client';
 import * as React from 'react';
-import { useTimeout, Timeout } from '../../utils/useTimeout';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
+import { useTimeout, Timeout } from '@base-ui/utils/useTimeout';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 
-import { getDelay } from '../hooks/useHover';
-import type { FloatingRootContext, Delay } from '../types';
+import { getDelay } from '../hooks/useHoverShared';
+import type { FloatingRootContext, Delay, FloatingContext } from '../types';
+import {
+  BaseUIChangeEventDetails,
+  createChangeEventDetails,
+} from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 
 interface ContextValue {
   hasProvider: boolean;
   timeoutMs: number;
-  delayRef: React.MutableRefObject<Delay>;
-  initialDelayRef: React.MutableRefObject<Delay>;
+  delayRef: React.RefObject<Delay>;
+  initialDelayRef: React.RefObject<Delay>;
   timeout: Timeout;
-  currentIdRef: React.MutableRefObject<any>;
-  currentContextRef: React.MutableRefObject<{
-    onOpenChange: (open: boolean) => void;
+  currentIdRef: React.RefObject<any>;
+  currentContextRef: React.RefObject<{
+    onOpenChange: (open: boolean, eventDetails: BaseUIChangeEventDetails<any>) => void;
     setIsInstantPhase: (value: boolean) => void;
   } | null>;
 }
@@ -40,7 +46,7 @@ export interface FloatingDelayGroupProps {
    * This is useful if you want grouping to “last” longer than the close delay,
    * for example if there is no close delay at all.
    */
-  timeoutMs?: number;
+  timeoutMs?: number | undefined;
 }
 
 /**
@@ -84,17 +90,16 @@ export function FloatingDelayGroup(props: FloatingDelayGroupProps): React.JSX.El
 
 interface UseDelayGroupOptions {
   /**
-   * Whether delay grouping should be enabled.
-   * @default true
+   * Whether the trigger this hook is used in has opened the tooltip.
    */
-  enabled?: boolean;
+  open: boolean;
 }
 
 interface UseDelayGroupReturn {
   /**
    * The delay reference object.
    */
-  delayRef: React.MutableRefObject<Delay>;
+  delayRef: React.RefObject<Delay>;
   /**
    * Whether animations should be removed.
    */
@@ -112,11 +117,12 @@ interface UseDelayGroupReturn {
  * @internal
  */
 export function useDelayGroup(
-  context: FloatingRootContext,
-  options: UseDelayGroupOptions = {},
+  context: FloatingRootContext | FloatingContext,
+  options: UseDelayGroupOptions = { open: false },
 ): UseDelayGroupReturn {
-  const { open, onOpenChange, floatingId } = context;
-  const { enabled = true } = options;
+  const store = 'rootStore' in context ? context.rootStore : context;
+  const floatingId = store.useState('floatingId');
+  const { open } = options;
 
   const groupContext = React.useContext(FloatingDelayGroupContext);
   const {
@@ -131,7 +137,7 @@ export function useDelayGroup(
 
   const [isInstantPhase, setIsInstantPhase] = React.useState(false);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     function unset() {
       setIsInstantPhase(false);
       currentContextRef.current?.setIsInstantPhase(false);
@@ -140,9 +146,6 @@ export function useDelayGroup(
       delayRef.current = initialDelayRef.current;
     }
 
-    if (!enabled) {
-      return undefined;
-    }
     if (!currentIdRef.current) {
       return undefined;
     }
@@ -151,7 +154,17 @@ export function useDelayGroup(
       setIsInstantPhase(false);
 
       if (timeoutMs) {
-        timeout.start(timeoutMs, unset);
+        const closingId = floatingId;
+        timeout.start(timeoutMs, () => {
+          // If another tooltip has taken over the group, skip resetting.
+          if (
+            store.select('open') ||
+            (currentIdRef.current && currentIdRef.current !== closingId)
+          ) {
+            return;
+          }
+          unset();
+        });
         return () => {
           timeout.clear();
         };
@@ -161,7 +174,6 @@ export function useDelayGroup(
     }
     return undefined;
   }, [
-    enabled,
     open,
     floatingId,
     currentIdRef,
@@ -170,12 +182,10 @@ export function useDelayGroup(
     initialDelayRef,
     currentContextRef,
     timeout,
+    store,
   ]);
 
-  useModernLayoutEffect(() => {
-    if (!enabled) {
-      return;
-    }
+  useIsoLayoutEffect(() => {
     if (!open) {
       return;
     }
@@ -183,7 +193,10 @@ export function useDelayGroup(
     const prevContext = currentContextRef.current;
     const prevId = currentIdRef.current;
 
-    currentContextRef.current = { onOpenChange, setIsInstantPhase };
+    // A new tooltip is opening, so cancel any pending timeout that would reset
+    // the group's delay back to the initial value.
+    timeout.clear();
+    currentContextRef.current = { onOpenChange: store.setOpen, setIsInstantPhase };
     currentIdRef.current = floatingId;
     delayRef.current = {
       open: 0,
@@ -191,19 +204,17 @@ export function useDelayGroup(
     };
 
     if (prevId !== null && prevId !== floatingId) {
-      timeout.clear();
       setIsInstantPhase(true);
       prevContext?.setIsInstantPhase(true);
-      prevContext?.onOpenChange(false);
+      prevContext?.onOpenChange(false, createChangeEventDetails(REASONS.none));
     } else {
       setIsInstantPhase(false);
       prevContext?.setIsInstantPhase(false);
     }
   }, [
-    enabled,
     open,
     floatingId,
-    onOpenChange,
+    store,
     currentIdRef,
     delayRef,
     timeoutMs,
@@ -212,7 +223,7 @@ export function useDelayGroup(
     timeout,
   ]);
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     return () => {
       currentContextRef.current = null;
     };

@@ -17,42 +17,54 @@ export const NavigationMenuArrow = React.forwardRef(function NavigationMenuArrow
   componentProps: NavigationMenuArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, style, ...elementProps } = componentProps;
 
   const { open } = useNavigationMenuRootContext();
   const { arrowRef, side, align, arrowUncentered, arrowStyles } =
     useNavigationMenuPositionerContext();
 
-  const state: NavigationMenuArrow.State = React.useMemo(
-    () => ({
-      open,
-      side,
-      align,
-      uncentered: arrowUncentered,
-    }),
-    [open, side, align, arrowUncentered],
-  );
+  const state: NavigationMenuArrowState = {
+    open,
+    side,
+    align,
+    uncentered: arrowUncentered,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, arrowRef],
     props: [{ style: arrowStyles, 'aria-hidden': true }, elementProps],
-    customStyleHookMapping: popupStateMapping,
+    stateAttributesMapping: popupStateMapping,
   });
 
   return element;
 });
 
-export namespace NavigationMenuArrow {
-  export interface State {
-    /**
-     * Whether the popup is currently open.
-     */
-    open: boolean;
-    side: Side;
-    align: Align;
-    uncentered: boolean;
-  }
+export interface NavigationMenuArrowState {
+  /**
+   * Whether the popup is currently open.
+   */
+  open: boolean;
+  /**
+   * The side of the anchor the component is placed on.
+   */
+  side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
+  align: Align;
+  /**
+   * Whether the arrow cannot be centered on the anchor.
+   */
+  uncentered: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface NavigationMenuArrowProps extends BaseUIComponentProps<
+  'div',
+  NavigationMenuArrowState
+> {}
+
+export namespace NavigationMenuArrow {
+  export type State = NavigationMenuArrowState;
+  export type Props = NavigationMenuArrowProps;
 }

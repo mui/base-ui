@@ -1,10 +1,17 @@
+'use client';
 import * as React from 'react';
 
-export const NavigationMenuItemContext = React.createContext<string | undefined>(undefined);
+export interface NavigationMenuItemContextValue {
+  value: any;
+}
+
+export const NavigationMenuItemContext = React.createContext<
+  NavigationMenuItemContextValue | undefined
+>(undefined);
 
 export function useNavigationMenuItemContext() {
   const value = React.useContext(NavigationMenuItemContext);
-  if (value === undefined) {
+  if (!value) {
     throw new Error(
       'Base UI: NavigationMenuItem parts must be used within a <NavigationMenu.Item>.',
     );

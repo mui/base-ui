@@ -1,7 +1,8 @@
 'use client';
 import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
-import type { MeterRoot } from '../root/MeterRoot';
+import { valueToPercent } from '../../utils/valueToPercent';
+import type { MeterRootState } from '../root/MeterRoot';
 import { useMeterRootContext } from '../root/MeterRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 
@@ -15,9 +16,11 @@ export const MeterIndicator = React.forwardRef(function MeterIndicator(
   componentProps: MeterIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
-  const { percentageValue } = useMeterRootContext();
+  const context = useMeterRootContext();
+
+  const percentageWidth = valueToPercent(context.value, context.min, context.max);
 
   return useRenderElement('div', componentProps, {
     ref: forwardedRef,
@@ -26,7 +29,7 @@ export const MeterIndicator = React.forwardRef(function MeterIndicator(
         style: {
           insetInlineStart: 0,
           height: 'inherit',
-          width: `${percentageValue}%`,
+          width: `${percentageWidth}%`,
         },
       },
       elementProps,
@@ -34,6 +37,11 @@ export const MeterIndicator = React.forwardRef(function MeterIndicator(
   });
 });
 
+export interface MeterIndicatorState extends MeterRootState {}
+
+export interface MeterIndicatorProps extends BaseUIComponentProps<'div', MeterIndicatorState> {}
+
 export namespace MeterIndicator {
-  export interface Props extends BaseUIComponentProps<'div', MeterRoot.State> {}
+  export type State = MeterIndicatorState;
+  export type Props = MeterIndicatorProps;
 }

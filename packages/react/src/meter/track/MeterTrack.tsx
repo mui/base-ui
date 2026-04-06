@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { MeterRoot } from '../root/MeterRoot';
+import type { MeterRootState } from '../root/MeterRoot';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 
@@ -14,7 +14,7 @@ export const MeterTrack = React.forwardRef(function MeterTrack(
   componentProps: MeterTrack.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   return useRenderElement('div', componentProps, {
     ref: forwardedRef,
@@ -22,6 +22,11 @@ export const MeterTrack = React.forwardRef(function MeterTrack(
   });
 });
 
+export interface MeterTrackState extends MeterRootState {}
+
+export interface MeterTrackProps extends BaseUIComponentProps<'div', MeterTrackState> {}
+
 export namespace MeterTrack {
-  export interface Props extends BaseUIComponentProps<'div', MeterRoot.State> {}
+  export type State = MeterTrackState;
+  export type Props = MeterTrackProps;
 }

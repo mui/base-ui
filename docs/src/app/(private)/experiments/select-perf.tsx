@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Select } from '@base-ui-components/react/select';
+import { Select } from '@base-ui/react/select';
 import styles from './select-perf.module.css';
 
 const items = Array.from({ length: 1000 }, (_, i) => `Item ${i + 1}`);

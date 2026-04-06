@@ -13,39 +13,42 @@ import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext'
  */
 export const NavigationMenuIcon = React.forwardRef(function NavigationMenuIcon(
   componentProps: NavigationMenuIcon.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, style, ...elementProps } = componentProps;
 
-  const itemValue = useNavigationMenuItemContext();
+  const { value: itemValue } = useNavigationMenuItemContext();
   const { open, value } = useNavigationMenuRootContext();
 
   const isActiveItem = open && value === itemValue;
 
-  const state: NavigationMenuIcon.State = React.useMemo(
-    () => ({
-      open: isActiveItem,
-    }),
-    [isActiveItem],
-  );
+  const state: NavigationMenuIconState = {
+    open: isActiveItem,
+  };
 
   const element = useRenderElement('span', componentProps, {
     state,
     ref: forwardedRef,
     props: [{ 'aria-hidden': true, children: '▼' }, elementProps],
-    customStyleHookMapping: triggerOpenStateMapping,
+    stateAttributesMapping: triggerOpenStateMapping,
   });
 
   return element;
 });
 
-export namespace NavigationMenuIcon {
-  export interface State {
-    /**
-     * Whether the navigation menu is open and the item is active.
-     */
-    open: boolean;
-  }
+export interface NavigationMenuIconState {
+  /**
+   * Whether the navigation menu is open and the item is active.
+   */
+  open: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'span', State> {}
+export interface NavigationMenuIconProps extends BaseUIComponentProps<
+  'span',
+  NavigationMenuIconState
+> {}
+
+export namespace NavigationMenuIcon {
+  export type State = NavigationMenuIconState;
+  export type Props = NavigationMenuIconProps;
 }

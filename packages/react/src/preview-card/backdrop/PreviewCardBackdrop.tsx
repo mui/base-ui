@@ -2,13 +2,13 @@
 import * as React from 'react';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { type CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { type StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 
-const customStyleHookMapping: CustomStyleHookMapping<PreviewCardBackdrop.State> = {
+const stateAttributesMapping: StateAttributesMapping<PreviewCardBackdropState> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -23,17 +23,17 @@ export const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop
   componentProps: PreviewCardBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
-  const { open, mounted, transitionStatus } = usePreviewCardRootContext();
+  const store = usePreviewCardRootContext();
+  const open = store.useState('open');
+  const mounted = store.useState('mounted');
+  const transitionStatus = store.useState('transitionStatus');
 
-  const state: PreviewCardBackdrop.State = React.useMemo(
-    () => ({
-      open,
-      transitionStatus,
-    }),
-    [open, transitionStatus],
-  );
+  const state: PreviewCardBackdropState = {
+    open,
+    transitionStatus,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -50,20 +50,29 @@ export const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop
       },
       elementProps,
     ],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
   return element;
 });
 
-export namespace PreviewCardBackdrop {
-  export interface State {
-    /**
-     * Whether the preview card is currently open.
-     */
-    open: boolean;
-    transitionStatus: TransitionStatus;
-  }
+export interface PreviewCardBackdropState {
+  /**
+   * Whether the preview card is currently open.
+   */
+  open: boolean;
+  /**
+   * The transition status of the component.
+   */
+  transitionStatus: TransitionStatus;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface PreviewCardBackdropProps extends BaseUIComponentProps<
+  'div',
+  PreviewCardBackdropState
+> {}
+
+export namespace PreviewCardBackdrop {
+  export type State = PreviewCardBackdropState;
+  export type Props = PreviewCardBackdropProps;
 }

@@ -1,8 +1,10 @@
+'use client';
 import * as React from 'react';
+import type { MenuRoot } from '../root/MenuRoot';
 
 export interface MenuRadioGroupContext {
   value: any;
-  setValue: (newValue: any, event: Event) => void;
+  setValue: (newValue: any, eventDetails: MenuRoot.ChangeEventDetails) => void;
   disabled: boolean;
 }
 

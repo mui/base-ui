@@ -1,14 +1,14 @@
+import { expect } from 'vitest';
 import * as React from 'react';
-import { Select } from '@base-ui-components/react/select';
+import { Select } from '@base-ui/react/select';
 import { screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
   props: Select.Trigger.Props,
-  ref: React.ForwardedRef<HTMLDivElement>,
+  ref: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  return <Select.Trigger {...props} ref={ref} render={<div />} />;
+  return <Select.Trigger {...props} ref={ref} />;
 });
 
 describe('<Select.Positioner />', () => {
@@ -53,7 +53,7 @@ describe('<Select.Positioner />', () => {
         </Select.Root>,
       );
 
-      expect(screen.getByTestId('positioner').style.transform).to.equal(
+      expect(screen.getByTestId('positioner').style.transform).toBe(
         `translate(${baselineX}px, ${baselineY + sideOffset}px)`,
       );
     });
@@ -75,7 +75,7 @@ describe('<Select.Positioner />', () => {
         </Select.Root>,
       );
 
-      expect(screen.getByTestId('positioner').style.transform).to.equal(
+      expect(screen.getByTestId('positioner').style.transform).toBe(
         `translate(${baselineX}px, ${baselineY + popupWidth + anchorWidth}px)`,
       );
     });
@@ -103,7 +103,7 @@ describe('<Select.Positioner />', () => {
       );
 
       // correctly flips the side in the browser
-      expect(side).to.equal('right');
+      expect(side).toBe('right');
     });
 
     it('can read the latest align inside sideOffset', async () => {
@@ -129,7 +129,7 @@ describe('<Select.Positioner />', () => {
       );
 
       // correctly flips the align in the browser
-      expect(align).to.equal('end');
+      expect(align).toBe('end');
     });
 
     it('reads logical side inside sideOffset', async () => {
@@ -154,7 +154,7 @@ describe('<Select.Positioner />', () => {
       );
 
       // correctly flips the side in the browser
-      expect(side).to.equal('inline-end');
+      expect(side).toBe('inline-end');
     });
   });
 
@@ -177,7 +177,7 @@ describe('<Select.Positioner />', () => {
         </Select.Root>,
       );
 
-      expect(screen.getByTestId('positioner').style.transform).to.equal(
+      expect(screen.getByTestId('positioner').style.transform).toBe(
         `translate(${baselineX + alignOffset}px, ${baselineY}px)`,
       );
     });
@@ -199,7 +199,7 @@ describe('<Select.Positioner />', () => {
         </Select.Root>,
       );
 
-      expect(screen.getByTestId('positioner').style.transform).to.equal(
+      expect(screen.getByTestId('positioner').style.transform).toBe(
         `translate(${baselineX + popupWidth}px, ${baselineY}px)`,
       );
     });
@@ -227,7 +227,7 @@ describe('<Select.Positioner />', () => {
       );
 
       // correctly flips the side in the browser
-      expect(side).to.equal('right');
+      expect(side).toBe('right');
     });
 
     it('can read the latest align inside alignOffset', async () => {
@@ -253,7 +253,7 @@ describe('<Select.Positioner />', () => {
       );
 
       // correctly flips the align in the browser
-      expect(align).to.equal('end');
+      expect(align).toBe('end');
     });
 
     it('reads logical side inside alignOffset', async () => {
@@ -278,7 +278,7 @@ describe('<Select.Positioner />', () => {
       );
 
       // correctly flips the side in the browser
-      expect(side).to.equal('inline-end');
+      expect(side).toBe('inline-end');
     });
   });
 });

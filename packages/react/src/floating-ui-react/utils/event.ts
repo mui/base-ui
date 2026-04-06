@@ -1,4 +1,4 @@
-import { isAndroid, isJSDOM } from '../../utils/detectBrowser';
+import { isAndroid, isJSDOM } from '@base-ui/utils/detectBrowser';
 
 export function stopEvent(event: Event | React.SyntheticEvent) {
   event.preventDefault();
@@ -9,11 +9,9 @@ export function isReactEvent(event: any): event is React.SyntheticEvent {
   return 'nativeEvent' in event;
 }
 
-// License: https://github.com/adobe/react-spectrum/blob/b35d5c02fe900badccd0cf1a8f23bb593419f238/packages/@react-aria/utils/src/isVirtualEvent.ts
+// License: https://github.com/adobe/react-spectrum/blob/main/packages/@react-aria/utils/src/isVirtualEvent.ts
 export function isVirtualClick(event: MouseEvent | PointerEvent): boolean {
-  // FIXME: Firefox is now emitting a deprecation warning for `mozInputSource`.
-  // Try to find a workaround for this. `react-aria` source still has the check.
-  if ((event as any).mozInputSource === 0 && event.isTrusted) {
+  if ((event as PointerEvent).pointerType === '' && event.isTrusted) {
     return true;
   }
 
@@ -53,4 +51,9 @@ export function isMouseLikePointerType(pointerType: string | undefined, strict?:
     values.push('', undefined);
   }
   return values.includes(pointerType);
+}
+
+export function isClickLikeEvent(event: Event | React.SyntheticEvent) {
+  const type = event.type;
+  return type === 'click' || type === 'mousedown' || type === 'keydown' || type === 'keyup';
 }

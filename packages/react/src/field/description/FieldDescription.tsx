@@ -1,11 +1,12 @@
 'use client';
 import * as React from 'react';
-import { FieldRoot } from '../root/FieldRoot';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { type FieldRootState } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
+import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { fieldValidityMapping } from '../utils/constants';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
@@ -18,15 +19,14 @@ export const FieldDescription = React.forwardRef(function FieldDescription(
   componentProps: FieldDescription.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
-  const { render, id: idProp, className, ...elementProps } = componentProps;
-
-  const { state } = useFieldRootContext(false);
+  const { render, id: idProp, className, style, ...elementProps } = componentProps;
 
   const id = useBaseUiId(idProp);
 
-  const { setMessageIds } = useFieldRootContext();
+  const fieldRootContext = useFieldRootContext(false);
+  const { setMessageIds } = useLabelableContext();
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!id) {
       return undefined;
     }
@@ -40,16 +40,19 @@ export const FieldDescription = React.forwardRef(function FieldDescription(
 
   const element = useRenderElement('p', componentProps, {
     ref: forwardedRef,
-    state,
+    state: fieldRootContext.state,
     props: [{ id }, elementProps],
-    customStyleHookMapping: fieldValidityMapping,
+    stateAttributesMapping: fieldValidityMapping,
   });
 
   return element;
 });
 
-export namespace FieldDescription {
-  export type State = FieldRoot.State;
+export interface FieldDescriptionState extends FieldRootState {}
 
-  export interface Props extends BaseUIComponentProps<'p', State> {}
+export interface FieldDescriptionProps extends BaseUIComponentProps<'p', FieldDescriptionState> {}
+
+export namespace FieldDescription {
+  export type State = FieldDescriptionState;
+  export type Props = FieldDescriptionProps;
 }

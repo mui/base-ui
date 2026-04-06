@@ -1,5 +1,5 @@
-import * as React from 'react';
-import { Menu } from '@base-ui-components/react/menu';
+import { expect } from 'vitest';
+import { Menu } from '@base-ui/react/menu';
 import { createRenderer, describeConformance } from '#test-utils';
 import { screen, waitFor } from '@mui/internal-test-utils';
 
@@ -15,8 +15,10 @@ describe('<Menu.Backdrop />', () => {
 
   it('sets `pointer-events: none` style on backdrop if opened by hover', async () => {
     const { user } = await render(
-      <Menu.Root delay={0} openOnHover>
-        <Menu.Trigger>Open</Menu.Trigger>
+      <Menu.Root>
+        <Menu.Trigger delay={0} openOnHover>
+          Open
+        </Menu.Trigger>
         <Menu.Portal>
           <Menu.Backdrop data-testid="backdrop" />
           <Menu.Positioner>
@@ -28,13 +30,13 @@ describe('<Menu.Backdrop />', () => {
 
     await user.hover(screen.getByText('Open'));
 
-    expect(screen.getByTestId('backdrop').style.pointerEvents).to.equal('none');
+    expect(screen.getByTestId('backdrop').style.pointerEvents).toBe('none');
   });
 
   it('does not set `pointer-events: none` style on backdrop if opened by click', async () => {
     const { user } = await render(
-      <Menu.Root delay={0}>
-        <Menu.Trigger>Open</Menu.Trigger>
+      <Menu.Root>
+        <Menu.Trigger delay={0}>Open</Menu.Trigger>
         <Menu.Portal>
           <Menu.Backdrop data-testid="backdrop" />
           <Menu.Positioner>
@@ -47,7 +49,7 @@ describe('<Menu.Backdrop />', () => {
     await user.click(screen.getByText('Open'));
 
     await waitFor(() => {
-      expect(screen.getByTestId('backdrop').style.pointerEvents).not.to.equal('none');
+      expect(screen.getByTestId('backdrop').style.pointerEvents).not.toBe('none');
     });
   });
 });

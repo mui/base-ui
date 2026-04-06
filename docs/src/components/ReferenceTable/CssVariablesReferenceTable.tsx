@@ -1,62 +1,94 @@
 import * as React from 'react';
-import { createMdxComponent } from 'docs/src/mdx/createMdxComponent';
-import { inlineMdxComponents } from 'docs/src/mdx-components';
-import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting';
-import { ReferenceTablePopover } from './ReferenceTablePopover';
+import clsx from 'clsx';
+import type { EnhancedEnumMember } from '@mui/internal-docs-infra/useTypes';
+import * as Accordion from '../Accordion';
 import * as Table from '../Table';
-import type { CssVariableDef } from './types';
 import { TableCode } from '../TableCode';
 
 interface CssVariablesReferenceTableProps extends React.ComponentProps<typeof Table.Root> {
-  data: Record<string, CssVariableDef>;
+  data: Record<string, EnhancedEnumMember>;
+  name?: string;
 }
 
-export async function CssVariablesReferenceTable({
+export function CssVariablesReferenceTable({
   data,
+  name: partName,
   ...props
 }: CssVariablesReferenceTableProps) {
   return (
-    <Table.Root {...props}>
-      <Table.Head>
-        <Table.Row>
-          <Table.ColumnHeader className="w-full xs:w-48 sm:w-56 md:w-1/3">
-            CSS Variable
-          </Table.ColumnHeader>
-          <Table.ColumnHeader className="w-10 xs:w-2/3">
-            <div className="sr-only xs:not-sr-only xs:contents">Description</div>
-          </Table.ColumnHeader>
-          {/* A cell to maintain a layout consistent with the props table */}
-          <Table.ColumnHeader className="w-10 max-xs:hidden" aria-hidden role="presentation" />
-        </Table.Row>
-      </Table.Head>
-      <Table.Body>
-        {Object.keys(data).map(async (name) => {
-          const cssVariable = data[name];
-
-          const CssVaribleDescription = await createMdxComponent(cssVariable.description, {
-            rehypePlugins: rehypeSyntaxHighlighting,
-            useMDXComponents: () => inlineMdxComponents,
-          });
+    <React.Fragment>
+      <Accordion.Root {...props} className={clsx(props.className, 'bp0:bui-d-n')}>
+        <Accordion.HeaderRow>
+          <Accordion.HeaderCell className="bui-pl-3">CSS Variable</Accordion.HeaderCell>
+        </Accordion.HeaderRow>
+        {Object.keys(data).map((name, index) => {
+          const attribute = data[name];
 
           return (
-            <Table.Row key={name}>
-              <Table.RowHeader>
-                <TableCode className="text-navy">{name}</TableCode>
-              </Table.RowHeader>
-              <Table.Cell colSpan={2}>
-                <div className="hidden xs:contents">
-                  <CssVaribleDescription />
-                </div>
-                <div className="contents xs:hidden">
-                  <ReferenceTablePopover>
-                    <CssVaribleDescription />
-                  </ReferenceTablePopover>
-                </div>
-              </Table.Cell>
-            </Table.Row>
+            <Accordion.Item
+              key={name}
+              gaCategory="reference"
+              gaLabel={`CSS variable: ${partName ? `${partName}-` : ''}${name}`}
+              gaParams={{
+                type: 'css_variable',
+                slug: `${partName ? `${partName}-` : ''}${name}`,
+                part_name: partName || '',
+              }}
+            >
+              <Accordion.Trigger index={index}>
+                <TableCode style={{ color: 'var(--color-navy)' }}>{name}</TableCode>
+                <svg
+                  className="AccordionIcon bui-ml-a bui-mr-1"
+                  width="10"
+                  height="10"
+                  viewBox="0 0 10 10"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" />
+                </svg>
+              </Accordion.Trigger>
+              <Accordion.Panel>
+                <Accordion.Content className="ReferenceCompactPanel">
+                  {attribute.description}
+                </Accordion.Content>
+              </Accordion.Panel>
+            </Accordion.Item>
           );
         })}
-      </Table.Body>
-    </Table.Root>
+      </Accordion.Root>
+
+      <Table.Root {...props} className={clsx('bui-d-n', 'bp0:bui-d-b', props.className)}>
+        <Table.Head>
+          <Table.Row>
+            {/* widths must match the props table grid layout */}
+            <Table.ColumnHeader className="ReferenceWideNameColumn">
+              CSS Variable
+            </Table.ColumnHeader>
+            <Table.ColumnHeader className="ReferenceWideDescriptionColumn">
+              Description
+            </Table.ColumnHeader>
+            {/* A cell to maintain a layout consistent with the props table */}
+            <Table.ColumnHeader className="bui-w-10" aria-hidden>
+              <span className="bui-v-h">{'-'}</span>
+            </Table.ColumnHeader>
+          </Table.Row>
+        </Table.Head>
+        <Table.Body>
+          {Object.keys(data).map((name) => {
+            const cssVariable = data[name];
+
+            return (
+              <Table.Row key={name}>
+                <Table.RowHeader>
+                  <TableCode style={{ color: 'var(--color-navy)' }}>{name}</TableCode>
+                </Table.RowHeader>
+                <Table.Cell colSpan={2}>{cssVariable.description}</Table.Cell>
+              </Table.Row>
+            );
+          })}
+        </Table.Body>
+      </Table.Root>
+    </React.Fragment>
   );
 }

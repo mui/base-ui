@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { Dialog } from '@base-ui-components/react/dialog';
+import { Dialog } from '@base-ui/react/dialog';
 import styles from './mobile-scroll-lock.module.css';
 
 export default function ExampleDialog() {
@@ -12,17 +11,12 @@ export default function ExampleDialog() {
         <Dialog.Portal>
           <Dialog.Backdrop className={styles.Backdrop} />
           <Dialog.Popup className={styles.Popup}>
-            <textarea
-              placeholder="What's on your mind?"
-              style={{ width: '100%', height: 300 }}
-            />
+            <textarea placeholder="What's on your mind?" style={{ width: '100%', height: 300 }} />
             <div className={styles.Actions}>
               <Dialog.Close className={styles.Button}>Close</Dialog.Close>
             </div>
             <Dialog.Root>
-              <Dialog.Trigger className={styles.Button}>
-                View notifications
-              </Dialog.Trigger>
+              <Dialog.Trigger className={styles.Button}>View notifications</Dialog.Trigger>
               <Dialog.Portal>
                 <Dialog.Backdrop className={styles.Backdrop} />
                 <Dialog.Popup className={styles.Popup}>

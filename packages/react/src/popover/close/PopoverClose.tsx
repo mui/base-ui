@@ -1,8 +1,12 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useButton } from '../../use-button';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
+import { useClosePartRegistration } from '../../utils/closePart';
 
 /**
  * A button that closes the popover.
@@ -11,30 +15,52 @@ import { useRenderElement } from '../../utils/useRenderElement';
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
 export const PopoverClose = React.forwardRef(function PopoverClose(
-  props: PopoverClose.Props,
+  componentProps: PopoverClose.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, ...elementProps } = props;
+  const {
+    render,
+    className,
+    disabled = false,
+    nativeButton = true,
+    style,
+    ...elementProps
+  } = componentProps;
 
-  const { setOpen } = usePopoverRootContext();
+  const { buttonRef, getButtonProps } = useButton({
+    disabled,
+    focusableWhenDisabled: false,
+    native: nativeButton,
+  });
 
-  const element = useRenderElement('button', props, {
-    ref: forwardedRef,
+  const { store } = usePopoverRootContext();
+  useClosePartRegistration();
+
+  const element = useRenderElement('button', componentProps, {
+    ref: [forwardedRef, buttonRef],
     props: [
       {
         onClick(event) {
-          setOpen(false, event.nativeEvent, 'close-press');
+          store.setOpen(
+            false,
+            createChangeEventDetails(REASONS.closePress, event.nativeEvent, event.currentTarget),
+          );
         },
       },
       elementProps,
+      getButtonProps,
     ],
   });
 
   return element;
 });
 
-export namespace PopoverClose {
-  export interface State {}
+export interface PopoverCloseState {}
 
-  export interface Props extends BaseUIComponentProps<'button', State> {}
+export interface PopoverCloseProps
+  extends NativeButtonProps, BaseUIComponentProps<'button', PopoverCloseState> {}
+
+export namespace PopoverClose {
+  export type State = PopoverCloseState;
+  export type Props = PopoverCloseProps;
 }

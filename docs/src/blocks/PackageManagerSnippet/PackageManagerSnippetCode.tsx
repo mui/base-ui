@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Tabs } from '@base-ui-components/react/tabs';
+import { Tabs } from '@base-ui/react/tabs';
 
 export function PackageManagerSnippetCode(props: PackageManagerSnippetCode.Props) {
   const { value, children } = props;

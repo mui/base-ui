@@ -1,8 +1,10 @@
+'use client';
 import c from 'clsx';
 import * as React from 'react';
-import { useForkRefN } from '../../src/utils/useForkRef';
+import { useMergedRefsN } from '@base-ui/utils/useMergedRefs';
 import { CompositeList } from '../../src/composite/list/CompositeList';
 import { useCompositeListItem } from '../../src/composite/list/useCompositeListItem';
+import { getEmptyRootContext } from '../../src/floating-ui-react/utils/getEmptyRootContext';
 import {
   autoUpdate,
   flip,
@@ -26,6 +28,7 @@ import {
   useTypeahead,
   useFocus,
 } from '../../src/floating-ui-react';
+import styles from './Menu.module.css';
 
 type MenuContextType = {
   getItemProps: ReturnType<typeof useInteractions>['getItemProps'];
@@ -92,7 +95,7 @@ export const MenuComponent = React.forwardRef<
   const parent = React.useContext(MenuContext);
   const item = useCompositeListItem();
 
-  const { floatingStyles, refs, context } = useFloating<HTMLButtonElement>({
+  const { floatingStyles, refs, context } = useFloating({
     nodeId,
     open: isOpen,
     onOpenChange: setIsOpen,
@@ -104,9 +107,10 @@ export const MenuComponent = React.forwardRef<
     ],
     whileElementsMounted: autoUpdate,
   });
+  const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
+  const hoverContext = isNested && allowHover ? context : fallbackContext;
 
-  const hover = useHover(context, {
-    enabled: isNested && allowHover,
+  const hover = useHover(hoverContext, {
     delay: { open: 75 },
     handleClose: safePolygon({ blockPointerEvents: true }),
   });
@@ -206,19 +210,16 @@ export const MenuComponent = React.forwardRef<
     <FloatingNode id={nodeId}>
       <button
         type="button"
-        ref={useForkRefN([refs.setReference, item.ref, forwardedRef])}
+        ref={useMergedRefsN([refs.setReference, item.ref, forwardedRef])}
         data-open={isOpen ? '' : undefined}
         // eslint-disable-next-line no-nested-ternary
         tabIndex={!isNested ? props.tabIndex : parent.activeIndex === item.index ? 0 : -1}
-        className={c(
-          props.className || 'flex items-center justify-between gap-4 rounded px-2 py-1 text-left',
-          {
-            'focus:bg-blue-500 outline-none focus:text-white': isNested,
-            'bg-blue-500 text-white': isOpen && isNested && !hasFocusInside,
-            'bg-slate-200 rounded px-2 py-1': isNested && isOpen && hasFocusInside,
-            'bg-slate-200': !isNested && isOpen,
-          },
-        )}
+        className={c(props.className || styles.Trigger, {
+          [styles.TriggerNested]: isNested,
+          [styles.TriggerNestedOpenNoFocus]: isOpen && isNested && !hasFocusInside,
+          [styles.TriggerNestedOpenHasFocus]: isNested && isOpen && hasFocusInside,
+          [styles.TriggerRootOpen]: !isNested && isOpen,
+        })}
         {...getReferenceProps(
           parent.getItemProps({
             ...props,
@@ -238,7 +239,7 @@ export const MenuComponent = React.forwardRef<
       >
         {label}
         {isNested && (
-          <span aria-hidden className="ml-4">
+          <span aria-hidden className={styles.Icon}>
             Icon
           </span>
         )}
@@ -262,23 +263,23 @@ export const MenuComponent = React.forwardRef<
               <FloatingFocusManager
                 context={context}
                 modal={false}
-                initialFocus={isNested ? -1 : 0}
+                initialFocus={!isNested}
                 returnFocus={!isNested}
               >
                 <div
                   ref={refs.setFloating}
                   className={c(
-                    'border-slate-900/10 rounded border bg-white bg-clip-padding p-1 shadow-lg outline-none',
+                    styles.Panel,
                     {
-                      'flex flex-col': !cols,
+                      [styles.PanelFlex]: !cols,
                     },
                     {
-                      [`grid grid-cols-[repeat(var(--cols),_minmax(0,_1fr))] gap-3`]: cols,
+                      [styles.PanelGrid]: cols,
                     },
                   )}
                   style={{
                     ...floatingStyles,
-                    // @ts-ignore
+                    // @ts-expect-error css var
                     '--cols': cols,
                     // eslint-disable-next-line no-nested-ternary
                     visibility: !keepMounted ? undefined : isOpen ? 'visible' : 'hidden',
@@ -315,15 +316,12 @@ export const MenuItem = React.forwardRef<
   return (
     <button
       {...props}
-      ref={useForkRefN([item.ref, forwardedRef])}
+      ref={useMergedRefsN([item.ref, forwardedRef])}
       type="button"
       role="menuitem"
       disabled={disabled}
       tabIndex={isActive ? 0 : -1}
-      className={c(
-        'focus:bg-blue-500 flex rounded px-2 py-1 text-left outline-none focus:text-white',
-        { 'opacity-40': disabled },
-      )}
+      className={c(styles.Item, { [styles.ItemDisabled]: disabled })}
       {...menu.getItemProps({
         active: isActive,
         onClick(event: React.MouseEvent<HTMLButtonElement>) {
@@ -386,8 +384,8 @@ export function Main() {
   /* eslint-disable no-console */
   return (
     <React.Fragment>
-      <h1 className="mb-8 text-5xl font-bold">Menu</h1>
-      <div className="border-slate-400 mb-4 grid h-[20rem] place-items-center rounded border lg:w-[40rem]">
+      <h1 className={styles.Heading}>Menu</h1>
+      <div className={styles.Container}>
         <Menu label="Edit">
           <MenuItem label="Undo" onClick={() => console.log('Undo')} />
           <MenuItem label="Redo" />

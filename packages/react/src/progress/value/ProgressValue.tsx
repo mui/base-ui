@@ -3,8 +3,8 @@ import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useProgressRootContext } from '../root/ProgressRootContext';
-import type { ProgressRoot } from '../root/ProgressRoot';
-import { progressStyleHookMapping } from '../root/styleHooks';
+import type { ProgressRootState } from '../root/ProgressRoot';
+import { progressStateAttributesMapping } from '../root/stateAttributesMapping';
 /**
  * A text label displaying the current value.
  * Renders a `<span>` element.
@@ -15,7 +15,7 @@ export const ProgressValue = React.forwardRef(function ProgressValue(
   componentProps: ProgressValue.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, children, ...elementProps } = componentProps;
+  const { className, render, children, style, ...elementProps } = componentProps;
 
   const { value, formattedValue, state } = useProgressRootContext();
 
@@ -35,15 +35,25 @@ export const ProgressValue = React.forwardRef(function ProgressValue(
       },
       elementProps,
     ],
-    customStyleHookMapping: progressStyleHookMapping,
+    stateAttributesMapping: progressStateAttributesMapping,
   });
 
   return element;
 });
 
+export interface ProgressValueState extends ProgressRootState {}
+
+export interface ProgressValueProps extends Omit<
+  BaseUIComponentProps<'span', ProgressValueState>,
+  'children'
+> {
+  children?:
+    | null
+    | ((formattedValue: string | null, value: number | null) => React.ReactNode)
+    | undefined;
+}
+
 export namespace ProgressValue {
-  export interface Props
-    extends Omit<BaseUIComponentProps<'span', ProgressRoot.State>, 'children'> {
-    children?: null | ((formattedValue: string | null, value: number | null) => React.ReactNode);
-  }
+  export type State = ProgressValueState;
+  export type Props = ProgressValueProps;
 }

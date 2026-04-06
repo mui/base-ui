@@ -1,12 +1,21 @@
+'use client';
 import * as React from 'react';
 import type { FloatingRootContext } from '../../floating-ui-react';
-import type { BaseOpenChangeReason } from '../../utils/translateOpenChangeReason';
-import type { TransitionStatus } from '../../utils';
+import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import type { NavigationMenuRoot } from './NavigationMenuRoot';
 
-export interface NavigationMenuRootContext {
+export type NavigationMenuPopupAutoSizeResetState = {
+  abortController: AbortController | null;
+  owner: any;
+};
+
+export interface NavigationMenuRootContext<Value = any> {
   open: boolean;
-  value: any;
-  setValue: (value: any, event?: Event, reason?: BaseOpenChangeReason) => void;
+  value: NavigationMenuRoot.Value<Value>;
+  setValue: (
+    value: NavigationMenuRoot.Value<Value>,
+    eventDetails: NavigationMenuRoot.ChangeEventDetails,
+  ) => void;
   transitionStatus: TransitionStatus;
   mounted: boolean;
   popupElement: HTMLElement | null;
@@ -15,6 +24,8 @@ export interface NavigationMenuRootContext {
   setPositionerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
   viewportElement: HTMLElement | null;
   setViewportElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
+  viewportTargetElement: HTMLElement | null;
+  setViewportTargetElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
   activationDirection: 'left' | 'right' | 'up' | 'down' | null;
   setActivationDirection: React.Dispatch<
     React.SetStateAction<'left' | 'right' | 'up' | 'down' | null>
@@ -29,23 +40,32 @@ export interface NavigationMenuRootContext {
   beforeOutsideRef: React.RefObject<HTMLSpanElement | null>;
   afterOutsideRef: React.RefObject<HTMLSpanElement | null>;
   prevTriggerElementRef: React.RefObject<Element | null | undefined>;
+  popupAutoSizeResetRef: React.MutableRefObject<NavigationMenuPopupAutoSizeResetState>;
   delay: number;
   closeDelay: number;
   orientation: 'horizontal' | 'vertical';
+  viewportInert: boolean;
+  setViewportInert: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const NavigationMenuRootContext = React.createContext<NavigationMenuRootContext | undefined>(
-  undefined,
-);
+export const NavigationMenuRootContext = React.createContext<
+  NavigationMenuRootContext<any> | undefined
+>(undefined);
 
 if (process.env.NODE_ENV !== 'production') {
   NavigationMenuRootContext.displayName = 'NavigationMenuRootContext';
 }
 
-function useNavigationMenuRootContext(optional?: false): NavigationMenuRootContext;
-function useNavigationMenuRootContext(optional: true): NavigationMenuRootContext | undefined;
-function useNavigationMenuRootContext(optional?: boolean) {
-  const context = React.useContext(NavigationMenuRootContext);
+function useNavigationMenuRootContext<Value = any>(
+  optional?: false,
+): NavigationMenuRootContext<Value>;
+function useNavigationMenuRootContext<Value = any>(
+  optional: true,
+): NavigationMenuRootContext<Value> | undefined;
+function useNavigationMenuRootContext<Value = any>(optional?: boolean) {
+  const context = React.useContext<NavigationMenuRootContext<Value> | undefined>(
+    NavigationMenuRootContext,
+  );
   if (context === undefined && !optional) {
     throw new Error(
       'Base UI: NavigationMenuRootContext is missing. Navigation Menu parts must be placed within <NavigationMenu.Root>.',

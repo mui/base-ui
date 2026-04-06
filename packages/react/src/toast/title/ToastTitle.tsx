@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useId } from '@base-ui/utils/useId';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useToastRootContext } from '../root/ToastRootContext';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
-import { useId } from '../../utils/useId';
 import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
@@ -16,9 +16,16 @@ export const ToastTitle = React.forwardRef(function ToastTitle(
   componentProps: ToastTitle.Props,
   forwardedRef: React.ForwardedRef<HTMLHeadingElement>,
 ) {
-  const { render, className, id: idProp, children: childrenProp, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    style,
+    id: idProp,
+    children: childrenProp,
+    ...elementProps
+  } = componentProps;
 
-  const { toast } = useToastRootContext();
+  const { toast, setTitleId } = useToastRootContext();
 
   const children = childrenProp ?? toast.title;
 
@@ -26,9 +33,7 @@ export const ToastTitle = React.forwardRef(function ToastTitle(
 
   const id = useId(idProp);
 
-  const { setTitleId } = useToastRootContext();
-
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!shouldRender) {
       return undefined;
     }
@@ -40,12 +45,9 @@ export const ToastTitle = React.forwardRef(function ToastTitle(
     };
   }, [shouldRender, id, setTitleId]);
 
-  const state: ToastTitle.State = React.useMemo(
-    () => ({
-      type: toast.type,
-    }),
-    [toast.type],
-  );
+  const state: ToastTitleState = {
+    type: toast.type,
+  };
 
   const element = useRenderElement('h2', componentProps, {
     ref: forwardedRef,
@@ -64,13 +66,16 @@ export const ToastTitle = React.forwardRef(function ToastTitle(
   return element;
 });
 
-export namespace ToastTitle {
-  export interface State {
-    /**
-     * The type of the toast.
-     */
-    type: string | undefined;
-  }
+export interface ToastTitleState {
+  /**
+   * The type of the toast.
+   */
+  type: string | undefined;
+}
 
-  export interface Props extends BaseUIComponentProps<'h2', State> {}
+export interface ToastTitleProps extends BaseUIComponentProps<'h2', ToastTitleState> {}
+
+export namespace ToastTitle {
+  export type State = ToastTitleState;
+  export type Props = ToastTitleProps;
 }

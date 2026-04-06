@@ -2,9 +2,9 @@
 import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import type { AccordionItem } from '../item/AccordionItem';
+import type { AccordionItemState } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
-import { accordionStyleHookMapping } from '../item/styleHooks';
+import { accordionStateAttributesMapping } from '../item/stateAttributesMapping';
 
 /**
  * A heading that labels the corresponding panel.
@@ -16,7 +16,7 @@ export const AccordionHeader = React.forwardRef(function AccordionHeader(
   componentProps: AccordionHeader.Props,
   forwardedRef: React.ForwardedRef<HTMLHeadingElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const { state } = useAccordionItemContext();
 
@@ -24,12 +24,17 @@ export const AccordionHeader = React.forwardRef(function AccordionHeader(
     state,
     ref: forwardedRef,
     props: elementProps,
-    customStyleHookMapping: accordionStyleHookMapping,
+    stateAttributesMapping: accordionStateAttributesMapping,
   });
 
   return element;
 });
 
+export interface AccordionHeaderState extends AccordionItemState {}
+
+export interface AccordionHeaderProps extends BaseUIComponentProps<'h3', AccordionHeaderState> {}
+
 export namespace AccordionHeader {
-  export interface Props extends BaseUIComponentProps<'h3', AccordionItem.State> {}
+  export type State = AccordionHeaderState;
+  export type Props = AccordionHeaderProps;
 }

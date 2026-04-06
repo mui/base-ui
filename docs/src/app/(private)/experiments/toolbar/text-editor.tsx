@@ -1,22 +1,19 @@
 'use client';
 import * as React from 'react';
-import { Toolbar } from '@base-ui-components/react/toolbar';
-import { Tooltip } from '@base-ui-components/react/tooltip';
-import { Toggle } from '@base-ui-components/react/toggle';
-import { ToggleGroup } from '@base-ui-components/react/toggle-group';
-import { Select } from '@base-ui-components/react/select';
-import { NumberField } from '@base-ui-components/react/number-field';
-import { Menu } from '@base-ui-components/react/menu';
-import {
-  SettingsMetadata,
-  useExperimentSettings,
-} from '../../../../components/Experiments/SettingsPanel';
+import { Toolbar } from '@base-ui/react/toolbar';
+import { Tooltip } from '@base-ui/react/tooltip';
+import { Toggle } from '@base-ui/react/toggle';
+import { ToggleGroup } from '@base-ui/react/toggle-group';
+import { Select } from '@base-ui/react/select';
+import { NumberField } from '@base-ui/react/number-field';
+import { Menu } from '@base-ui/react/menu';
+import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
 import toolbarClasses from './toolbar.module.css';
-import selectClasses from '../../../(public)/(content)/react/components/select/demos/hero/css-modules/index.module.css';
-import tooltipClasses from '../../../(public)/(content)/react/components/tooltip/demos/hero/css-modules/index.module.css';
-import menuClasses from '../../../(public)/(content)/react/components/menu/demos/submenu/css-modules/index.module.css';
-import numberFieldClasses from '../../../(public)/(content)/react/components/number-field/demos/hero/css-modules/index.module.css';
-import '../../../../demo-theme.css';
+import selectClasses from '../../../(docs)/react/components/select/demos/hero/css-modules/index.module.css';
+import tooltipClasses from '../../../(docs)/react/components/tooltip/demos/hero/css-modules/index.module.css';
+import menuClasses from '../../../(docs)/react/components/menu/demos/submenu/css-modules/index.module.css';
+import numberFieldClasses from '../../../(docs)/react/components/number-field/demos/hero/css-modules/index.module.css';
+import '../../../../demo-data/theme/css-modules/theme.css';
 import {
   BoldIcon,
   ItalicsIcon,
@@ -103,10 +100,7 @@ function renderToggleWithTooltip(args: {
         <Tooltip.Positioner sideOffset={10}>
           <Tooltip.Popup className={styles.tooltip.Popup}>
             <Tooltip.Arrow
-              className={classNames(
-                styles.tooltip.Arrow,
-                styles.toolbar.TooltipArrow,
-              )}
+              className={classNames(styles.tooltip.Arrow, styles.toolbar.TooltipArrow)}
             >
               <ArrowSvg className={styles.toolbar.ArrowSvg} />
             </Tooltip.Arrow>
@@ -139,6 +133,7 @@ export default function App() {
               <Toolbar.Button
                 disabled={SELECT_DISABLED}
                 render={<Select.Trigger />}
+                nativeButton={false}
                 className={styles.select.Select}
               >
                 <Select.Value />
@@ -147,10 +142,7 @@ export default function App() {
                 </Select.Icon>
               </Toolbar.Button>
               <Select.Portal>
-                <Select.Positioner
-                  className={styles.select.Positioner}
-                  sideOffset={8}
-                >
+                <Select.Positioner className={styles.select.Positioner} sideOffset={8}>
                   <Select.Popup
                     className={styles.select.Popup}
                     style={{ backgroundColor: 'var(--color-gray-50)' }}
@@ -170,9 +162,7 @@ export default function App() {
                       <Select.ItemIndicator className={styles.select.ItemIndicator}>
                         <CheckIcon className={styles.select.ItemIndicatorIcon} />
                       </Select.ItemIndicator>
-                      <Select.ItemText className={styles.select.ItemText}>
-                        Serif
-                      </Select.ItemText>
+                      <Select.ItemText className={styles.select.ItemText}>Serif</Select.ItemText>
                     </Select.Item>
                     <Select.Item className={styles.select.Item} value="mono">
                       <Select.ItemIndicator className={styles.select.ItemIndicator}>
@@ -186,9 +176,7 @@ export default function App() {
                       <Select.ItemIndicator className={styles.select.ItemIndicator}>
                         <CheckIcon className={styles.select.ItemIndicatorIcon} />
                       </Select.ItemIndicator>
-                      <Select.ItemText className={styles.select.ItemText}>
-                        Cursive
-                      </Select.ItemText>
+                      <Select.ItemText className={styles.select.ItemText}>Cursive</Select.ItemText>
                     </Select.Item>
                   </Select.Popup>
                 </Select.Positioner>
@@ -205,18 +193,13 @@ export default function App() {
                     className={styles.numField.Field}
                   >
                     <NumberField.ScrubArea className={styles.numField.ScrubArea}>
-                      <NumberField.ScrubAreaCursor
-                        className={styles.numField.ScrubAreaCursor}
-                      >
+                      <NumberField.ScrubAreaCursor className={styles.numField.ScrubAreaCursor}>
                         <CursorGrowIcon />
                       </NumberField.ScrubAreaCursor>
                     </NumberField.ScrubArea>
 
                     <NumberField.Group
-                      className={classNames(
-                        styles.toolbar.NumberFieldGroup,
-                        styles.numField.Group,
-                      )}
+                      className={classNames(styles.toolbar.NumberFieldGroup, styles.numField.Group)}
                     >
                       <NumberField.Decrement
                         className={styles.numField.Decrement}
@@ -246,10 +229,7 @@ export default function App() {
                 <Tooltip.Positioner sideOffset={10}>
                   <Tooltip.Popup className={styles.tooltip.Popup}>
                     <Tooltip.Arrow
-                      className={classNames(
-                        styles.tooltip.Arrow,
-                        styles.toolbar.TooltipArrow,
-                      )}
+                      className={classNames(styles.tooltip.Arrow, styles.toolbar.TooltipArrow)}
                     >
                       <ArrowSvg className={styles.toolbar.ArrowSvg} />
                     </Tooltip.Arrow>
@@ -262,7 +242,7 @@ export default function App() {
             <Toolbar.Separator className={styles.toolbar.Separator} />
 
             <ToggleGroup
-              toggleMultiple
+              multiple
               defaultValue={[]}
               className={styles.toolbar.ToggleGroup}
               disabled={settings.toolbarDisabled}
@@ -335,10 +315,7 @@ export default function App() {
                   side="inline-end"
                   sideOffset={8}
                 >
-                  <Menu.Popup
-                    className={styles.menu.Popup}
-                    style={{ backgroundColor: 'canvas' }}
-                  >
+                  <Menu.Popup className={styles.menu.Popup} style={{ backgroundColor: 'canvas' }}>
                     <Menu.Arrow
                       className={styles.menu.Arrow}
                       style={{
@@ -349,12 +326,10 @@ export default function App() {
                       <ArrowSvg className={styles.toolbar.ArrowSvg} />
                     </Menu.Arrow>
                     <Menu.Item className={styles.menu.Item}>Help</Menu.Item>
-                    <Menu.Item className={styles.menu.Item}>
-                      Keyboard Shortcuts
-                    </Menu.Item>
+                    <Menu.Item className={styles.menu.Item}>Keyboard Shortcuts</Menu.Item>
                     <Menu.Item className={styles.menu.Item}>Release Notes</Menu.Item>
                     <Menu.Separator className={styles.menu.Separator} />
-                    <Menu.Root>
+                    <Menu.SubmenuRoot>
                       <Menu.SubmenuTrigger className={styles.menu.SubmenuTrigger}>
                         Debug
                         <ChevronRightIcon />
@@ -366,26 +341,16 @@ export default function App() {
                           sideOffset={-4}
                         >
                           <Menu.Popup className={styles.menu.Popup}>
-                            <Menu.Item className={styles.menu.Item}>
-                              Show debug log
-                            </Menu.Item>
-                            <Menu.Item className={styles.menu.Item}>
-                              Show network log
-                            </Menu.Item>
-                            <Menu.Item className={styles.menu.Item}>
-                              Show all logs
-                            </Menu.Item>
+                            <Menu.Item className={styles.menu.Item}>Show debug log</Menu.Item>
+                            <Menu.Item className={styles.menu.Item}>Show network log</Menu.Item>
+                            <Menu.Item className={styles.menu.Item}>Show all logs</Menu.Item>
                             <Menu.Separator className={styles.menu.Separator} />
-                            <Menu.Item className={styles.menu.Item}>
-                              Clear cache
-                            </Menu.Item>
-                            <Menu.Item className={styles.menu.Item}>
-                              Clear local storage
-                            </Menu.Item>
+                            <Menu.Item className={styles.menu.Item}>Clear cache</Menu.Item>
+                            <Menu.Item className={styles.menu.Item}>Clear local storage</Menu.Item>
                           </Menu.Popup>
                         </Menu.Positioner>
                       </Menu.Portal>
-                    </Menu.Root>
+                    </Menu.SubmenuRoot>
                     <Menu.Separator className={styles.menu.Separator} />
                     <Menu.Item className={styles.menu.Item}>Log Out</Menu.Item>
                   </Menu.Popup>
@@ -394,13 +359,7 @@ export default function App() {
             </Menu.Root>
           </Toolbar.Root>
         </Tooltip.Provider>
-        <textarea
-          className={styles.toolbar.Textarea}
-          name=""
-          id=""
-          rows={10}
-          defaultValue=""
-        />
+        <textarea className={styles.toolbar.Textarea} name="" id="" rows={10} defaultValue="" />
       </div>
     </React.Fragment>
   );
