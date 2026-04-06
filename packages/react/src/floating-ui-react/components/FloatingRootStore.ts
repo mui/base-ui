@@ -99,12 +99,9 @@ export class FloatingRootStore extends ReactStore<
   };
 
   /**
-   * Emits the `openchange` event through the internal event emitter and calls the `onOpenChange` handler with the provided arguments.
-   *
-   * @param newOpen The new open state.
-   * @param eventDetails Details about the event that triggered the open state change.
+   * Runs the root-owned side effects for an open state change.
    */
-  setOpen = (newOpen: boolean, eventDetails: BaseUIChangeEventDetails<string>) => {
+  dispatchOpenChange = (newOpen: boolean, eventDetails: BaseUIChangeEventDetails<string>) => {
     this.syncOpenEvent(newOpen, eventDetails.event);
 
     if (!this.context.noEmit) {
@@ -118,6 +115,16 @@ export class FloatingRootStore extends ReactStore<
 
       this.context.events.emit('openchange', details);
     }
+  };
+
+  /**
+   * Emits the `openchange` event through the internal event emitter and calls the `onOpenChange` handler with the provided arguments.
+   *
+   * @param newOpen The new open state.
+   * @param eventDetails Details about the event that triggered the open state change.
+   */
+  setOpen = (newOpen: boolean, eventDetails: BaseUIChangeEventDetails<string>) => {
+    this.dispatchOpenChange(newOpen, eventDetails);
 
     this.context.onOpenChange?.(newOpen, eventDetails);
   };
