@@ -126,7 +126,7 @@ function filterToc(entries, excludedIds) {
     return entries ?? [];
   }
   return entries
-    .filter((entry) => !excludedIds.has(entry.id))
+    .filter((entry) => !excludedIds.has(String(entry.id ?? '')))
     .map((entry) => ({
       ...entry,
       children: entry.children?.length ? filterToc(entry.children, excludedIds) : undefined,
