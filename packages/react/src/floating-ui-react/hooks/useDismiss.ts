@@ -490,15 +490,25 @@ export function useDismiss(
       }
     }
 
+    function addTargetEventListenerOnce<EventType extends Event>(
+      event: EventType,
+      listener: (event: EventType) => void,
+    ) {
+      const target = getTarget(event);
+
+      if (!target) {
+        return;
+      }
+
+      const unsubscribe = addEventListener(target, event.type, () => {
+        listener(event);
+        unsubscribe();
+      });
+    }
+
     function handleTouchStartCapture(event: TouchEvent) {
       currentPointerTypeRef.current = 'touch';
-      const target = getTarget(event);
-      let unsubscribe: (() => void) | undefined;
-      function callback() {
-        handleTouchStart(event);
-        unsubscribe?.();
-      }
-      unsubscribe = target ? addEventListener(target, event.type, callback) : undefined;
+      addTargetEventListenerOnce(event, handleTouchStart);
     }
 
     function closeOnPressOutsideCapture(event: PointerEvent | MouseEvent) {
@@ -516,18 +526,13 @@ export function useDismiss(
         return;
       }
 
-      const target = getTarget(event);
-
-      let unsubscribe: (() => void) | undefined;
-      function callback() {
-        if (event.type === 'pointerdown') {
-          handlePointerDown(event as PointerEvent);
+      addTargetEventListenerOnce(event, (targetEvent) => {
+        if (targetEvent.type === 'pointerdown') {
+          handlePointerDown(targetEvent as PointerEvent);
         } else {
-          closeOnPressOutside(event as MouseEvent);
+          closeOnPressOutside(targetEvent as MouseEvent);
         }
-        unsubscribe?.();
-      }
-      unsubscribe = target ? addEventListener(target, event.type, callback) : undefined;
+      });
     }
 
     function handlePressEndCapture(event: PointerEvent | MouseEvent) {
@@ -603,13 +608,7 @@ export function useDismiss(
     }
 
     function handleTouchMoveCapture(event: TouchEvent) {
-      const target = getTarget(event);
-      let unsubscribe: (() => void) | undefined;
-      function callback() {
-        handleTouchMove(event);
-        unsubscribe?.();
-      }
-      unsubscribe = target ? addEventListener(target, event.type, callback) : undefined;
+      addTargetEventListenerOnce(event, handleTouchMove);
     }
 
     function handleTouchEnd(event: TouchEvent) {
@@ -631,13 +630,7 @@ export function useDismiss(
     }
 
     function handleTouchEndCapture(event: TouchEvent) {
-      const target = getTarget(event);
-      let unsubscribe: (() => void) | undefined;
-      function callback() {
-        handleTouchEnd(event);
-        unsubscribe?.();
-      }
-      unsubscribe = target ? addEventListener(target, event.type, callback) : undefined;
+      addTargetEventListenerOnce(event, handleTouchEnd);
     }
 
     const doc = ownerDocument(floatingElement);

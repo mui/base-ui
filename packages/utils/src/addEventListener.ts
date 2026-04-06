@@ -3,6 +3,7 @@ type EventTargetWithListeners = Pick<EventTarget, 'addEventListener' | 'removeEv
 type KnownEventTarget =
   | AbortSignal
   | Document
+  | Element
   | HTMLElement
   | MediaQueryList
   | SVGElement
@@ -21,14 +22,19 @@ type EventMap<Target> = Target extends Window
           ? SVGElementEventMap
           : Target extends HTMLElement
             ? HTMLElementEventMap
-            : Target extends AbortSignal
-              ? AbortSignalEventMap
-              : never;
+            : Target extends Element
+              ? ElementEventMap & GlobalEventHandlersEventMap
+              : Target extends AbortSignal
+                ? AbortSignalEventMap
+                : never;
 
 type TypedEventListener<Target, Event> =
   | { handleEvent(event: Event): void }
   | ((this: Target, event: Event) => void);
 
+/**
+ * Adds an event listener and returns a cleanup function to remove it.
+ */
 export function addEventListener<
   Target extends KnownEventTarget,
   Type extends keyof EventMap<Target>,

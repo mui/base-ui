@@ -12,6 +12,12 @@ const unsubscribeFromElementKeyDown = addEventListener(element, 'keydown', (even
 });
 expectType<() => void, typeof unsubscribeFromElementKeyDown>(unsubscribeFromElementKeyDown);
 
+const genericElement: Element = document.createElement('div');
+const unsubscribeFromGenericElement = addEventListener(genericElement, 'keydown', (event) => {
+  expectType<KeyboardEvent, typeof event>(event);
+});
+expectType<() => void, typeof unsubscribeFromGenericElement>(unsubscribeFromGenericElement);
+
 const mediaQueryList = window.matchMedia('(min-width: 1px)');
 const unsubscribeFromMediaQuery = addEventListener(mediaQueryList, 'change', (event) => {
   expectType<MediaQueryListEvent, typeof event>(event);
