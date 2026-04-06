@@ -102,7 +102,7 @@
   --color-red-800: var(--color-red);
 
   /* Typography */
-  --font-mono: 'SF Mono', 'Menlo', 'DejaVu Sans Mono', 'Consolas', 'Inconsolata', monospace;
+  --font-mono: 'Paper Mono', monospace;
   --font-sans: 'Die Grotesk A', system-ui, sans-serif;
   --font-sans-b: 'Die Grotesk B', system-ui, sans-serif;
   --font-serif: Georgia, 'Times New Roman', Times, 'Noto Serif', 'DejaVu Serif', serif;
