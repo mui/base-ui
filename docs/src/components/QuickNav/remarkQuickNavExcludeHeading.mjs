@@ -2,9 +2,9 @@
 import { visit } from 'unist-util-visit';
 
 /**
- * A markdown link definition `[//]: # 'quick-nav-exclude'` renders no visible output.
+ * A markdown link definition `[//]: # '@exclude-table-of-contents'` renders no visible output.
  * When placed immediately before a heading, this plugin marks that heading with
- * `data-exclude-quick-nav` so `rehypeQuickNav` omits it from the TOC.
+ * `data-exclude-toc` so `rehypeQuickNav` omits it from the TOC.
  *
  * @returns {function(*): void}
  */
@@ -14,7 +14,7 @@ export function remarkQuickNavExcludeHeading() {
       if (
         node.url === '#' &&
         node.identifier === '//' &&
-        node.title === 'quick-nav-exclude' &&
+        node.title === '@exclude-table-of-contents' &&
         parent &&
         index != null
       ) {
@@ -23,7 +23,7 @@ export function remarkQuickNavExcludeHeading() {
           if (!next.data) {
             next.data = {};
           }
-          next.data.hProperties = { ...next.data.hProperties, 'data-exclude-quick-nav': '' };
+          next.data.hProperties = { ...next.data.hProperties, 'data-exclude-toc': '' };
         }
       }
     });

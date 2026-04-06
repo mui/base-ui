@@ -108,7 +108,7 @@ function collectExcludedHeadingIds(tree) {
     // MDX keeps the kebab-case key; standard remark-rehype would camelCase it.
     if (
       props.id &&
-      (props.dataExcludeQuickNav !== undefined || props['data-exclude-quick-nav'] !== undefined)
+      (props.dataExcludeToc !== undefined || props['data-exclude-toc'] !== undefined)
     ) {
       excluded.add(String(props.id));
     }
