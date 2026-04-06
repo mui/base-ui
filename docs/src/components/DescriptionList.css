@@ -22,7 +22,6 @@
   .DescriptionTerm {
     font-size: var(--text-sm);
     line-height: var(--text-sm--line-height);
-    letter-spacing: var(--text-sm--letter-spacing);
     font-weight: var(--font-weight-700);
     color: var(--color-foreground);
     white-space: nowrap;

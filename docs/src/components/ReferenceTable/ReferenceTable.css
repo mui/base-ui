@@ -4,7 +4,6 @@
     padding: 0;
     font-size: var(--text-xs);
     line-height: var(--text-xs--line-height);
-    letter-spacing: var(--text-xs--letter-spacing);
   }
 
   .ReferenceHeaderRow {
@@ -288,7 +287,6 @@
     color: var(--color-gray-600);
     font-size: var(--text-sm);
     line-height: var(--text-sm--line-height);
-    letter-spacing: var(--text-sm--letter-spacing);
     margin-top: 0.25rem;
     margin-left: 0.125rem;
   }
@@ -314,7 +312,6 @@
   .AdditionalTypeBackLink {
     font-size: var(--text-sm);
     line-height: var(--text-sm--line-height);
-    letter-spacing: var(--text-sm--letter-spacing);
     font-weight: var(--font-weight-400);
     color: var(--color-gray-500);
   }
@@ -340,7 +337,6 @@
   .AdditionalTypeReExport {
     font-size: var(--text-sm);
     line-height: var(--text-sm--line-height);
-    letter-spacing: var(--text-sm--letter-spacing);
     color: var(--color-gray-600);
   }
 
@@ -363,7 +359,6 @@
     margin-bottom: 0.75rem;
     font-size: var(--text-base);
     line-height: var(--text-base--line-height);
-    letter-spacing: var(--text-base--letter-spacing);
     font-weight: var(--font-weight-700);
     color: var(--color-gray-900);
   }
@@ -378,7 +373,6 @@
     margin-bottom: 0.5rem;
     font-size: var(--text-sm);
     line-height: var(--text-sm--line-height);
-    letter-spacing: var(--text-sm--letter-spacing);
     color: var(--color-gray-600);
   }
 
