@@ -37,7 +37,6 @@ export function rehypeQuickNav() {
 
     const excludedIds = collectExcludedHeadingIds(tree);
     const filteredToc = filterToc(toc, excludedIds);
-    file.data.toc = filteredToc;
 
     if (!filteredToc.length) {
       tree.children = [content];
@@ -105,17 +104,13 @@ function collectExcludedHeadingIds(tree) {
     if (!headingRank(node)) {
       return;
     }
-    const p = node.properties;
-    if (!p?.id) {
-      return;
-    }
-    const a = p.dataExcludeQuickNav;
-    const b = p['data-exclude-quick-nav'];
-    if (a === false || b === false) {
-      return;
-    }
-    if (a !== undefined || b !== undefined) {
-      excluded.add(String(p.id));
+    const props = node.properties ?? {};
+    // MDX keeps the kebab-case key; standard remark-rehype would camelCase it.
+    if (
+      props.id &&
+      (props.dataExcludeQuickNav !== undefined || props['data-exclude-quick-nav'] !== undefined)
+    ) {
+      excluded.add(String(props.id));
     }
   });
   return excluded;
@@ -131,7 +126,7 @@ function filterToc(entries, excludedIds) {
     return entries ?? [];
   }
   return entries
-    .filter((entry) => !excludedIds.has(String(entry.id ?? '')))
+    .filter((entry) => !excludedIds.has(entry.id))
     .map((entry) => ({
       ...entry,
       children: entry.children?.length ? filterToc(entry.children, excludedIds) : undefined,
