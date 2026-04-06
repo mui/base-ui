@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useOnMount } from '@base-ui/utils/useOnMount';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { valueToPercent } from '../../utils/valueToPercent';
+import { useIsHydrating } from '../../utils/useIsHydrating';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
@@ -14,6 +15,7 @@ function getInsetStyles(
   start: number | undefined,
   end: number | undefined,
   renderBeforeHydration: boolean,
+  hydrating: boolean,
   mounted: boolean,
 ): React.CSSProperties & Record<string, unknown> {
   const visibility =
@@ -24,7 +26,7 @@ function getInsetStyles(
   const crossSide = vertical ? 'width' : 'height';
 
   const styles: React.CSSProperties & Record<string, unknown> = {
-    visibility: renderBeforeHydration && !mounted ? 'hidden' : visibility,
+    visibility: renderBeforeHydration && hydrating && !mounted ? 'hidden' : visibility,
     position: vertical ? 'absolute' : 'relative',
     [crossSide]: 'inherit',
   };
@@ -92,6 +94,7 @@ export const SliderIndicator = React.forwardRef(function SliderIndicator(
     useSliderRootContext();
 
   const [isMounted, setIsMounted] = React.useState(false);
+  const isHydrating = useIsHydrating();
   useOnMount(() => setIsMounted(true));
 
   const vertical = orientation === 'vertical';
@@ -104,6 +107,7 @@ export const SliderIndicator = React.forwardRef(function SliderIndicator(
         indicatorPosition[0],
         indicatorPosition[1],
         renderBeforeHydration,
+        isHydrating,
         isMounted,
       )
     : getCenteredStyles(

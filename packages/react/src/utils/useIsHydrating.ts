@@ -1,7 +1,8 @@
 import { useSyncExternalStore } from 'use-sync-external-store/shim';
+import { NOOP } from './noop';
 
 function subscribe() {
-  return () => {};
+  return NOOP;
 }
 
 function getSnapshot() {

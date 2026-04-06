@@ -281,7 +281,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     return {
       ['--position' as string]: `${positionPercent ?? 0}%`,
       visibility:
-        (renderBeforeHydration && !isMounted) || positionPercent === undefined
+        (renderBeforeHydration && isHydrating && !isMounted) || positionPercent === undefined
           ? 'hidden'
           : undefined,
       position: 'absolute',
@@ -294,6 +294,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     activeIndex,
     index,
     inset,
+    isHydrating,
     isMounted,
     positionPercent,
     range,
