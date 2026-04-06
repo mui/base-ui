@@ -314,6 +314,65 @@ describe('<Popover.Root />', () => {
       });
     });
 
+    describe('hover close transitions', () => {
+      it.skipIf(isJSDOM)(
+        'reopens immediately when re-hovering the trigger during a hover close transition',
+        async () => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+          const closeTransitionMs = 1000;
+          const style = `
+            @keyframes popover-reopen-during-close {
+              from {
+                opacity: 1;
+              }
+              to {
+                opacity: 0.01;
+              }
+            }
+
+            .animation-test-indicator[data-ending-style] {
+              animation: popover-reopen-during-close ${closeTransitionMs}ms linear forwards;
+            }
+          `;
+
+          const { user } = await render(
+            <React.Fragment>
+              {/* eslint-disable-next-line react/no-danger */}
+              <style dangerouslySetInnerHTML={{ __html: style }} />
+              <TestPopover
+                portalProps={{ keepMounted: true }}
+                triggerProps={{ openOnHover: true, delay: OPEN_DELAY }}
+                popupProps={{ className: 'animation-test-indicator' }}
+              />
+            </React.Fragment>,
+          );
+
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+          await user.hover(trigger);
+          await waitFor(() => {
+            expect(screen.getByTestId('popover-popup')).toHaveAttribute('data-open');
+          });
+
+          await user.unhover(trigger);
+          await waitFor(() => {
+            expect(screen.getByTestId('popover-popup')).toHaveAttribute('data-ending-style');
+          });
+
+          await user.hover(trigger);
+
+          await waitFor(
+            () => {
+              expect(screen.getByTestId('popover-popup')).toHaveAttribute('data-open');
+              expect(screen.getByTestId('popover-popup')).not.toHaveAttribute('data-closed');
+            },
+            { timeout: 200 },
+          );
+        },
+      );
+    });
+
     describe('BaseUIChangeEventDetails', () => {
       it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
         await render(

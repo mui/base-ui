@@ -200,10 +200,6 @@ export function useHoverReferenceInteraction(
       // Only rest delay is set; there's no fallback delay.
       // This will be handled by `onMouseMove`.
       const restMsValue = getRestMs(restMsRef.current);
-      if (restMsValue > 0 && !getDelay(delayRef.current, 'open')) {
-        return;
-      }
-
       const openDelay = getDelay(delayRef.current, 'open', instance.pointerType);
       const eventTarget = getTarget(event);
       const currentTarget = (event.currentTarget as HTMLElement) ?? null;
@@ -245,6 +241,7 @@ export function useHoverReferenceInteraction(
         isElement(currentDomReference) &&
         contains(currentDomReference, triggerNode) &&
         isHoverCloseTransition;
+      const isRestOnlyDelay = restMsValue > 0 && !openDelay;
 
       const shouldOpen = !isOpen || isOverInactive;
 
@@ -255,6 +252,8 @@ export function useHoverReferenceInteraction(
         isReenteringSameTriggerDuringCloseTransition
       ) {
         store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
+      } else if (isRestOnlyDelay) {
+        return;
       } else if (openDelay) {
         instance.openChangeTimeout.start(openDelay, () => {
           if (shouldOpen) {
