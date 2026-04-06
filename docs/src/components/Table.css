@@ -27,7 +27,7 @@
 
   .TableColumnHeader {
     text-align: initial;
-    font-weight: 400;
+    font-weight: var(--font-weight-400);
     color: var(--color-foreground);
     background-color: var(--color-gray-50);
     border-bottom: 1px solid var(--color-gray-200);
@@ -35,7 +35,7 @@
 
   .TableCell {
     text-align: initial;
-    font-weight: 400;
+    font-weight: var(--font-weight-400);
 
     :not(:last-child) > & {
       border-bottom: 1px solid var(--color-gray-200);

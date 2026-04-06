@@ -41,7 +41,7 @@
     background-color: hsl(0deg 0% 0% / 5%);
     font: inherit;
     font-size: 1rem;
-    font-weight: 400;
+    font-weight: var(--font-weight-400);
     line-height: 1.5;
     color: var(--color-gray-900);
     user-select: none;
@@ -192,7 +192,7 @@
     padding: 1.5rem 0.75rem;
     text-align: center;
     font-size: 0.9375rem;
-    font-weight: 400;
+    font-weight: var(--font-weight-400);
     color: var(--color-gray-600);
   }
 
@@ -217,7 +217,7 @@
     border: 0;
     background: transparent;
     font-size: var(--text-base);
-    font-weight: 400;
+    font-weight: var(--font-weight-400);
     color: var(--color-gray-900);
     outline: none;
   }
@@ -237,7 +237,7 @@
     height: 2rem;
     padding-left: 0.875rem;
     font-size: 0.9375rem;
-    font-weight: 400;
+    font-weight: var(--font-weight-400);
     line-height: 1;
     color: var(--color-gray-600);
     user-select: none;
@@ -252,7 +252,7 @@
     padding-right: 0.5rem;
     border-radius: var(--radius-md);
     font-size: 0.9375rem;
-    font-weight: 400;
+    font-weight: var(--font-weight-400);
     line-height: 1;
     color: var(--color-gray-900);
     cursor: default;

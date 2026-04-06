@@ -315,7 +315,7 @@
     font-size: var(--text-sm);
     line-height: var(--text-sm--line-height);
     letter-spacing: var(--text-sm--letter-spacing);
-    font-weight: 400;
+    font-weight: var(--font-weight-400);
     color: var(--color-gray-500);
   }
 
@@ -364,7 +364,7 @@
     font-size: var(--text-base);
     line-height: var(--text-base--line-height);
     letter-spacing: var(--text-base--letter-spacing);
-    font-weight: 700;
+    font-weight: var(--font-weight-700);
     color: var(--color-gray-900);
   }
 

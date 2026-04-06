@@ -202,6 +202,10 @@
     --text-md--line-height: 1.375rem;
     --text-md--letter-spacing: 0.016em;
 
+    /* Font weight */
+    --font-weight-400: 400;
+    --font-weight-700: 700;
+
     /* Breakpoints (use custom-media.css where possible) */
     --breakpoint-max-layout-width: 89rem; /* 1424px - this is a 1440px device minus 16px scrollbar */
 

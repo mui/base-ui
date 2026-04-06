@@ -54,7 +54,7 @@
     font-size: var(--text-sm);
     line-height: var(--text-sm--line-height);
     color: var(--color-gray-700);
-    font-weight: 400;
+    font-weight: var(--font-weight-400);
   }
 
   .CodeBlockCopyIcon {

@@ -10,7 +10,7 @@
       arial,
       sans-serif;
     margin: 0;
-    font-weight: 400;
+    font-weight: var(--font-weight-400);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
