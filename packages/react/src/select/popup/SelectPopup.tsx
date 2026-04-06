@@ -34,6 +34,7 @@ import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTr
 import { clamp } from '../../utils/clamp';
 import { getMaxScrollOffset, SCROLL_EDGE_TOLERANCE_PX } from '../../utils/scrollEdges';
 import { useCSPContext } from '../../csp-provider/CSPContext';
+import { useDirection } from '../../direction-provider/DirectionContext';
 
 const stateAttributesMapping: StateAttributesMapping<SelectPopupState> = {
   ...popupStateMapping,
@@ -75,6 +76,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   } = useSelectPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
   const floatingRootContext = useSelectFloatingContext();
+  const direction = useDirection();
 
   const { nonce, disableStyleElements } = useCSPContext();
 
@@ -291,7 +293,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         const scale = getScale(triggerElement);
         const triggerRect = normalizeRect(triggerElement.getBoundingClientRect(), scale);
         const positionerRect = normalizeRect(positionerElement.getBoundingClientRect(), scale);
-        const triggerX = triggerRect.left;
         const triggerHeight = triggerRect.height;
         const scroller = listElement || popupElement;
         const scrollHeight = scroller.scrollHeight;
@@ -314,20 +315,23 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         const valueElement = valueRef.current;
 
         let textRect: ClientRectObject | undefined;
-        let offsetX = 0;
+        let alignedLeft =
+          direction === 'rtl' ? triggerRect.right - positionerRect.width : triggerRect.left;
         let offsetY = 0;
 
         if (textElement && valueElement) {
           const valueRect = normalizeRect(valueElement.getBoundingClientRect(), scale);
           textRect = normalizeRect(textElement.getBoundingClientRect(), scale);
 
-          const valueLeftFromTriggerLeft = valueRect.left - triggerX;
-          const textLeftFromPositionerLeft = textRect.left - positionerRect.left;
+          alignedLeft =
+            positionerRect.left +
+            (direction === 'rtl'
+              ? valueRect.right - textRect.right
+              : valueRect.left - textRect.left);
           const valueCenterFromPositionerTop =
             valueRect.top - triggerRect.top + valueRect.height / 2;
           const textCenterFromTriggerTop = textRect.top - positionerRect.top + textRect.height / 2;
 
-          offsetX = valueLeftFromTriggerLeft - textLeftFromPositionerLeft;
           offsetY = textCenterFromTriggerTop - valueCenterFromPositionerTop;
         }
 
@@ -336,11 +340,13 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         const maxHeight = viewportHeight - marginTop - marginBottom;
         const scrollTop = idealHeight - height;
 
-        const left = Math.max(paddingLeft, triggerX + offsetX);
         const maxRight = viewportWidth - paddingRight;
-        const rightOverflow = Math.max(0, left + positionerRect.width - maxRight);
 
-        positionerElement.style.left = `${left - rightOverflow}px`;
+        positionerElement.style.left = `${clamp(
+          alignedLeft,
+          paddingLeft,
+          maxRight - positionerRect.width,
+        )}px`;
         positionerElement.style.height = `${height}px`;
         positionerElement.style.maxHeight = 'auto';
         positionerElement.style.marginTop = `${marginTop}px`;
@@ -425,6 +431,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     scrollDownArrowRef,
     scrollUpArrowRef,
     listElement,
+    direction,
   ]);
 
   React.useEffect(() => {
