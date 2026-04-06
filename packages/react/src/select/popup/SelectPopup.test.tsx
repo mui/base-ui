@@ -5,77 +5,6 @@ import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
-const RTL_FIXTURE_OPTIONS = [
-  { value: 'first', label: 'الخيار الأول' },
-  { value: 'selected', label: 'الخيار المحدد' },
-  { value: 'third', label: 'الخيار الثالث' },
-];
-
-const RTL_FIXTURE_CSS = `
-  .rtlFixtureRoot {
-    width: 240px;
-    margin-left: 100px;
-    padding-top: 96px;
-    direction: rtl;
-  }
-
-  .rtlFixtureTrigger {
-    box-sizing: border-box;
-    display: flex;
-    justify-content: flex-end;
-    height: 2.5rem;
-    width: 160px;
-    padding-inline-start: 28px;
-    padding-inline-end: 12px;
-    font-size: 1rem;
-    line-height: 1.5rem;
-    direction: rtl;
-  }
-
-  .rtlFixturePositioner,
-  .rtlFixturePopup,
-  .rtlFixtureItem {
-    direction: rtl;
-  }
-
-  .rtlFixturePopup {
-    box-sizing: border-box;
-    min-width: var(--anchor-width);
-  }
-
-  .rtlFixturePopup[data-side='none'] {
-    min-width: calc(var(--anchor-width) + 1rem);
-  }
-
-  .rtlFixtureList {
-    padding-block: 0.25rem;
-    max-height: var(--available-height);
-  }
-
-  .rtlFixtureItem {
-    box-sizing: border-box;
-    padding-block: 0.5rem;
-    padding-inline-start: 1rem;
-    padding-inline-end: 0.625rem;
-    display: grid;
-    gap: 0.5rem;
-    align-items: center;
-    grid-template-columns: 0.75rem 1fr;
-  }
-
-  [data-side='none'] .rtlFixtureItem {
-    padding-inline-start: 3rem;
-  }
-
-  .rtlFixtureIndicator {
-    grid-column: 1;
-  }
-
-  .rtlFixtureText {
-    grid-column: 2;
-  }
-`;
-
 describe('<Select.Popup />', () => {
   const { render } = createRenderer();
 
@@ -360,50 +289,167 @@ describe('<Select.Popup />', () => {
     });
   });
 
-  it.skipIf(isJSDOM)(
-    'aligns the selected item with the trigger inline end on first open in the docs-style rtl layout',
-    async () => {
-      const { user } = await render(<RtlAlignmentSelect defaultValue="selected" />);
+  describe.skipIf(isJSDOM)('rtl alignment', () => {
+    const RTL_FIXTURE_OPTIONS = [
+      { value: 'first', label: 'الخيار الأول' },
+      { value: 'selected', label: 'الخيار المحدد' },
+      { value: 'third', label: 'الخيار الثالث' },
+    ];
 
-      try {
-        await user.click(screen.getByRole('combobox'));
-
-        const positioner = await screen.findByTestId('positioner');
-        const value = screen.getByTestId('value');
-        const itemText = screen.getByTestId('item-text');
-
-        await waitFor(() => {
-          expect(positioner).toHaveAttribute('data-side', 'none');
-          expect(
-            Math.abs(value.getBoundingClientRect().right - itemText.getBoundingClientRect().right),
-          ).toBeLessThan(1);
-        });
-      } finally {
-        await act(async () => {
-          await new Promise((resolve) => {
-            setTimeout(resolve, 0);
-          });
-        });
+    const RTL_FIXTURE_CSS = `
+      .rtlFixtureRoot {
+        width: 240px;
+        margin-left: 100px;
+        padding-top: 96px;
+        direction: rtl;
       }
-    },
-  );
 
-  it.skipIf(isJSDOM)('seeds anchor width from the custom anchor on first open', async () => {
-    function AnchoredRtlAlignmentSelect() {
-      const anchorRef = React.useRef<HTMLDivElement | null>(null);
+      .rtlFixtureTrigger {
+        box-sizing: border-box;
+        display: flex;
+        justify-content: flex-end;
+        height: 2.5rem;
+        width: 160px;
+        padding-inline-start: 28px;
+        padding-inline-end: 12px;
+        font-size: 1rem;
+        line-height: 1.5rem;
+        direction: rtl;
+      }
+
+      .rtlFixturePositioner,
+      .rtlFixturePopup,
+      .rtlFixtureItem {
+        direction: rtl;
+      }
+
+      .rtlFixturePopup {
+        box-sizing: border-box;
+        min-width: var(--anchor-width);
+      }
+
+      .rtlFixturePopup[data-side='none'] {
+        min-width: calc(var(--anchor-width) + 1rem);
+      }
+
+      .rtlFixtureList {
+        padding-block: 0.25rem;
+        max-height: var(--available-height);
+      }
+
+      .rtlFixtureItem {
+        box-sizing: border-box;
+        padding-block: 0.5rem;
+        padding-inline-start: 1rem;
+        padding-inline-end: 0.625rem;
+        display: grid;
+        gap: 0.5rem;
+        align-items: center;
+        grid-template-columns: 0.75rem 1fr;
+      }
+
+      [data-side='none'] .rtlFixtureItem {
+        padding-inline-start: 3rem;
+      }
+
+      .rtlFixtureIndicator {
+        grid-column: 1;
+      }
+
+      .rtlFixtureText {
+        grid-column: 2;
+      }
+    `;
+
+    function RtlAlignmentSelect({
+      defaultValue,
+      anchorRef,
+      anchorStyle,
+    }: {
+      defaultValue: string;
+      anchorRef?: React.RefObject<HTMLDivElement | null>;
+      anchorStyle?: React.CSSProperties;
+    }) {
+      const [open, setOpen] = React.useState(false);
 
       return (
-        <RtlAlignmentSelect
-          defaultValue="selected"
-          anchorRef={anchorRef}
-          anchorStyle={{ width: 240 }}
-        />
+        <div dir="rtl" className="rtlFixtureRoot" ref={anchorRef} style={anchorStyle}>
+          <style>{RTL_FIXTURE_CSS}</style>
+          <DirectionProvider direction="rtl">
+            <Select.Root defaultValue={defaultValue} open={open} onOpenChange={setOpen}>
+              <Select.Trigger className="rtlFixtureTrigger">
+                <Select.Value data-testid="value">
+                  {(value) =>
+                    RTL_FIXTURE_OPTIONS.find((option) => option.value === value)?.label ?? 'اختر'
+                  }
+                </Select.Value>
+              </Select.Trigger>
+
+              <Select.Portal>
+                <Select.Positioner
+                  anchor={anchorRef}
+                  className="rtlFixturePositioner"
+                  data-testid="positioner"
+                  dir="rtl"
+                  sideOffset={8}
+                >
+                  <Select.Popup className="rtlFixturePopup" dir="rtl">
+                    <Select.List className="rtlFixtureList">
+                      {RTL_FIXTURE_OPTIONS.map(({ label, value }) => (
+                        <Select.Item key={value} value={value} className="rtlFixtureItem">
+                          <Select.ItemIndicator className="rtlFixtureIndicator">
+                            ✓
+                          </Select.ItemIndicator>
+                          <Select.ItemText
+                            className="rtlFixtureText"
+                            data-testid={value === defaultValue ? 'item-text' : undefined}
+                          >
+                            {label}
+                          </Select.ItemText>
+                        </Select.Item>
+                      ))}
+                    </Select.List>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </DirectionProvider>
+        </div>
       );
     }
 
-    const { user } = await render(<AnchoredRtlAlignmentSelect />);
+    it('aligns the selected item with the trigger inline end on first open in the docs-style rtl layout', async () => {
+      const { user } = await render(<RtlAlignmentSelect defaultValue="selected" />);
 
-    try {
+      await user.click(screen.getByRole('combobox'));
+
+      const positioner = await screen.findByTestId('positioner');
+      const value = screen.getByTestId('value');
+      const itemText = screen.getByTestId('item-text');
+
+      await waitFor(() => {
+        expect(positioner).toHaveAttribute('data-side', 'none');
+        expect(
+          Math.abs(value.getBoundingClientRect().right - itemText.getBoundingClientRect().right),
+        ).toBeLessThan(1);
+      });
+    });
+
+    it('seeds anchor width from the custom anchor on first open', async () => {
+      function AnchoredRtlAlignmentSelect() {
+        const anchorRef = React.useRef<HTMLDivElement | null>(null);
+
+        return (
+          <RtlAlignmentSelect
+            defaultValue="selected"
+            anchorRef={anchorRef}
+            anchorStyle={{ width: 240 }}
+          />
+        );
+      }
+
+      const { user } = await render(<AnchoredRtlAlignmentSelect />);
+
       await user.click(screen.getByRole('combobox'));
 
       const positioner = await screen.findByTestId('positioner');
@@ -412,13 +458,7 @@ describe('<Select.Popup />', () => {
         expect(positioner).toHaveAttribute('data-side', 'none');
         expect(positioner.style.getPropertyValue('--anchor-width')).toBe('240px');
       });
-    } finally {
-      await act(async () => {
-        await new Promise((resolve) => {
-          setTimeout(resolve, 0);
-        });
-      });
-    }
+    });
   });
 
   it.skipIf(isJSDOM)(
@@ -937,58 +977,3 @@ describe('<Select.Popup />', () => {
     });
   });
 });
-
-function RtlAlignmentSelect({
-  defaultValue,
-  anchorRef,
-  anchorStyle,
-}: {
-  defaultValue: string;
-  anchorRef?: React.RefObject<HTMLDivElement | null>;
-  anchorStyle?: React.CSSProperties;
-}) {
-  const [open, setOpen] = React.useState(false);
-
-  return (
-    <div dir="rtl" className="rtlFixtureRoot" ref={anchorRef} style={anchorStyle}>
-      <style>{RTL_FIXTURE_CSS}</style>
-      <DirectionProvider direction="rtl">
-        <Select.Root defaultValue={defaultValue} open={open} onOpenChange={setOpen}>
-          <Select.Trigger className="rtlFixtureTrigger">
-            <Select.Value data-testid="value">
-              {(value) =>
-                RTL_FIXTURE_OPTIONS.find((option) => option.value === value)?.label ?? 'اختر'
-              }
-            </Select.Value>
-          </Select.Trigger>
-
-          <Select.Portal>
-            <Select.Positioner
-              anchor={anchorRef}
-              className="rtlFixturePositioner"
-              data-testid="positioner"
-              dir="rtl"
-              sideOffset={8}
-            >
-              <Select.Popup className="rtlFixturePopup" dir="rtl">
-                <Select.List className="rtlFixtureList">
-                  {RTL_FIXTURE_OPTIONS.map(({ label, value }) => (
-                    <Select.Item key={value} value={value} className="rtlFixtureItem">
-                      <Select.ItemIndicator className="rtlFixtureIndicator">✓</Select.ItemIndicator>
-                      <Select.ItemText
-                        className="rtlFixtureText"
-                        data-testid={value === defaultValue ? 'item-text' : undefined}
-                      >
-                        {label}
-                      </Select.ItemText>
-                    </Select.Item>
-                  ))}
-                </Select.List>
-              </Select.Popup>
-            </Select.Positioner>
-          </Select.Portal>
-        </Select.Root>
-      </DirectionProvider>
-    </div>
-  );
-}
