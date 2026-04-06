@@ -5,200 +5,74 @@ import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
-const RTL_EXPERIMENT_OPTIONS = [
-  { value: 'arabic', label: 'العربية الفصحى' },
-  { value: 'levantine', label: 'العربية الشامية' },
-  { value: 'maghrebi', label: 'العربية المغاربية' },
-  { value: 'sudanese', label: 'العربية السودانية' },
-  { value: 'gulf', label: 'العربية الخليجية' },
+const RTL_FIXTURE_OPTIONS = [
+  { value: 'first', label: 'الخيار الأول' },
+  { value: 'selected', label: 'الخيار المحدد' },
+  { value: 'third', label: 'الخيار الثالث' },
 ];
 
-const RTL_EXPERIMENT_ARABIC_FONT_FAMILY =
-  '"Noto Naskh Arabic", "Amiri", "Scheherazade New", Georgia, serif';
-
-const RTL_EXPERIMENT_CSS = `
-  .selectHeroExperiment_Page {
-    min-height: 100vh;
-    padding: 40px;
-    background: var(--color-gray-50);
-    color: var(--color-gray-900);
-    font-family: ${RTL_EXPERIMENT_ARABIC_FONT_FAMILY};
+const RTL_FIXTURE_CSS = `
+  .rtlFixtureRoot {
+    width: 240px;
+    margin-left: 100px;
+    padding-top: 96px;
+    direction: rtl;
   }
 
-  .selectHeroExperiment_Container {
-    max-width: 480px;
-    margin-inline: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .selectHeroExperiment_Title {
-    margin: 0;
-    font-size: 28px;
-    line-height: 1.2;
-  }
-
-  .selectHeroExperiment_Description {
-    margin: 0;
-    line-height: 1.6;
-  }
-
-  .selectHeroExperiment_Field {
-    display: flex;
-    flex-direction: column;
-    align-items: start;
-    gap: 0.25rem;
-    margin-top: 12px;
-  }
-
-  .selectHeroExperiment_Label {
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    font-weight: 700;
-    color: var(--color-gray-900);
-    cursor: default;
-  }
-
-  .selectHeroExperiment_Value[data-placeholder] {
-    opacity: 0.6;
-  }
-
-  .selectHeroExperiment_Select {
+  .rtlFixtureTrigger {
     box-sizing: border-box;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
+    justify-content: flex-end;
     height: 2.5rem;
-    padding-left: 0.875rem;
-    padding-right: 0.75rem;
-    margin: 0;
-    outline: 0;
-    border: 1px solid var(--color-gray-200);
-    border-radius: 0.375rem;
-    background-color: canvas;
-    font-family: ${RTL_EXPERIMENT_ARABIC_FONT_FAMILY};
+    width: 160px;
+    padding-inline-start: 28px;
+    padding-inline-end: 12px;
     font-size: 1rem;
     line-height: 1.5rem;
-    font-weight: 400;
-    color: var(--color-gray-900);
-    -webkit-user-select: none;
-    user-select: none;
-    min-width: 10rem;
     direction: rtl;
   }
 
-  .selectHeroExperiment_Select[data-popup-open] {
-    background-color: var(--color-gray-100);
-  }
-
-  .selectHeroExperiment_Positioner {
-    outline: none;
-    z-index: 1;
-    -webkit-user-select: none;
-    user-select: none;
+  .rtlFixturePositioner,
+  .rtlFixturePopup,
+  .rtlFixtureItem {
     direction: rtl;
   }
 
-  .selectHeroExperiment_Popup {
+  .rtlFixturePopup {
     box-sizing: border-box;
-    border-radius: 0.375rem;
-    background-color: canvas;
-    background-clip: padding-box;
-    color: var(--color-gray-900);
     min-width: var(--anchor-width);
-    transform-origin: var(--transform-origin);
-    transition:
-      transform 150ms,
-      opacity 150ms;
-    font-family: ${RTL_EXPERIMENT_ARABIC_FONT_FAMILY};
-    direction: rtl;
   }
 
-  .selectHeroExperiment_Popup[data-starting-style],
-  .selectHeroExperiment_Popup[data-ending-style] {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-
-  .selectHeroExperiment_Popup[data-side='none'] {
-    transition: none;
-    transform: none;
-    opacity: 1;
+  .rtlFixturePopup[data-side='none'] {
     min-width: calc(var(--anchor-width) + 1rem);
   }
 
-  @media (prefers-color-scheme: light) {
-    .selectHeroExperiment_Popup {
-      outline: 1px solid var(--color-gray-200);
-      box-shadow:
-        0 10px 15px -3px var(--color-gray-200),
-        0 4px 6px -4px var(--color-gray-200);
-    }
-  }
-
-  .selectHeroExperiment_List {
-    box-sizing: border-box;
-    position: relative;
+  .rtlFixtureList {
     padding-block: 0.25rem;
-    overflow-y: auto;
     max-height: var(--available-height);
-    scroll-padding-block: 1.5rem;
   }
 
-  .selectHeroExperiment_Item {
+  .rtlFixtureItem {
     box-sizing: border-box;
-    outline: 0;
-    font-size: 0.875rem;
-    line-height: 1rem;
     padding-block: 0.5rem;
-    padding-left: 1rem;
-    padding-right: 0.625rem;
+    padding-inline-start: 1rem;
+    padding-inline-end: 0.625rem;
     display: grid;
     gap: 0.5rem;
     align-items: center;
     grid-template-columns: 0.75rem 1fr;
-    cursor: default;
-    -webkit-user-select: none;
-    user-select: none;
-    direction: rtl;
   }
 
-  [data-side='none'] .selectHeroExperiment_Item {
-    font-size: 1rem;
-    padding-left: 3rem;
-    padding-right: 0.625rem;
+  [data-side='none'] .rtlFixtureItem {
+    padding-inline-start: 3rem;
   }
 
-  .selectHeroExperiment_Item[data-highlighted] {
-    z-index: 0;
-    position: relative;
-    color: var(--color-gray-50);
+  .rtlFixtureIndicator {
+    grid-column: 1;
   }
 
-  .selectHeroExperiment_Item[data-highlighted]::before {
-    content: '';
-    z-index: -1;
-    position: absolute;
-    inset-block: 0;
-    inset-inline: 0.25rem;
-    border-radius: 0.25rem;
-    background-color: var(--color-gray-900);
-  }
-
-  .selectHeroExperiment_ItemIndicator {
-    grid-column-start: 1;
-  }
-
-  .selectHeroExperiment_ItemIndicatorIcon {
-    display: block;
-    width: 0.75rem;
-    height: 0.75rem;
-  }
-
-  .selectHeroExperiment_ItemText {
-    grid-column-start: 2;
+  .rtlFixtureText {
+    grid-column: 2;
   }
 `;
 
@@ -489,7 +363,7 @@ describe('<Select.Popup />', () => {
   it.skipIf(isJSDOM)(
     'aligns the selected item with the trigger inline end on first open in the docs-style rtl layout',
     async () => {
-      const { user } = await render(<RtlHeroExperimentSelect defaultValue="maghrebi" />);
+      const { user } = await render(<RtlAlignmentSelect defaultValue="selected" />);
 
       try {
         await user.click(screen.getByRole('combobox'));
@@ -515,19 +389,19 @@ describe('<Select.Popup />', () => {
   );
 
   it.skipIf(isJSDOM)('seeds anchor width from the custom anchor on first open', async () => {
-    function AnchoredRtlHeroExperimentSelect() {
+    function AnchoredRtlAlignmentSelect() {
       const anchorRef = React.useRef<HTMLDivElement | null>(null);
 
       return (
-        <RtlHeroExperimentSelect
-          defaultValue="maghrebi"
+        <RtlAlignmentSelect
+          defaultValue="selected"
           anchorRef={anchorRef}
           anchorStyle={{ width: 240 }}
         />
       );
     }
 
-    const { user } = await render(<AnchoredRtlHeroExperimentSelect />);
+    const { user } = await render(<AnchoredRtlAlignmentSelect />);
 
     try {
       await user.click(screen.getByRole('combobox'));
@@ -1064,7 +938,7 @@ describe('<Select.Popup />', () => {
   });
 });
 
-function RtlHeroExperimentSelect({
+function RtlAlignmentSelect({
   defaultValue,
   anchorRef,
   anchorStyle,
@@ -1076,90 +950,45 @@ function RtlHeroExperimentSelect({
   const [open, setOpen] = React.useState(false);
 
   return (
-    <div dir="rtl" className="selectHeroExperiment_Page">
-      <style>{RTL_EXPERIMENT_CSS}</style>
+    <div dir="rtl" className="rtlFixtureRoot" ref={anchorRef} style={anchorStyle}>
+      <style>{RTL_FIXTURE_CSS}</style>
       <DirectionProvider direction="rtl">
-        <div className="selectHeroExperiment_Container">
-          <h1 className="selectHeroExperiment_Title">RTL Select alignment</h1>
-          <p className="selectHeroExperiment_Description">
-            تجربة بسيطة لاختبار محاذاة <code>Select</code> في الاتجاه من اليمين إلى اليسار.
-          </p>
+        <Select.Root defaultValue={defaultValue} open={open} onOpenChange={setOpen}>
+          <Select.Trigger className="rtlFixtureTrigger">
+            <Select.Value data-testid="value">
+              {(value) =>
+                RTL_FIXTURE_OPTIONS.find((option) => option.value === value)?.label ?? 'اختر'
+              }
+            </Select.Value>
+          </Select.Trigger>
 
-          <div className="selectHeroExperiment_Field" ref={anchorRef} style={anchorStyle}>
-            <Select.Root defaultValue={defaultValue} open={open} onOpenChange={setOpen}>
-              <Select.Label className="selectHeroExperiment_Label">اللهجة</Select.Label>
-              <Select.Trigger className="selectHeroExperiment_Select">
-                <Select.Value className="selectHeroExperiment_Value" data-testid="value">
-                  {(value) =>
-                    RTL_EXPERIMENT_OPTIONS.find((option) => option.value === value)?.label ??
-                    'اختر لهجة'
-                  }
-                </Select.Value>
-                <Select.Icon className="selectHeroExperiment_SelectIcon">
-                  <ChevronUpDownIcon />
-                </Select.Icon>
-              </Select.Trigger>
-
-              <Select.Portal>
-                <Select.Positioner
-                  anchor={anchorRef}
-                  className="selectHeroExperiment_Positioner"
-                  data-testid="positioner"
-                  dir="rtl"
-                  sideOffset={8}
-                >
-                  <Select.Popup className="selectHeroExperiment_Popup" dir="rtl">
-                    <Select.List className="selectHeroExperiment_List">
-                      {RTL_EXPERIMENT_OPTIONS.map(({ label, value }) => (
-                        <Select.Item
-                          key={value}
-                          value={value}
-                          className="selectHeroExperiment_Item"
-                        >
-                          <Select.ItemIndicator className="selectHeroExperiment_ItemIndicator">
-                            <CheckIcon className="selectHeroExperiment_ItemIndicatorIcon" />
-                          </Select.ItemIndicator>
-                          <Select.ItemText
-                            className="selectHeroExperiment_ItemText"
-                            data-testid={value === defaultValue ? 'item-text' : undefined}
-                          >
-                            {label}
-                          </Select.ItemText>
-                        </Select.Item>
-                      ))}
-                    </Select.List>
-                  </Select.Popup>
-                </Select.Positioner>
-              </Select.Portal>
-            </Select.Root>
-          </div>
-        </div>
+          <Select.Portal>
+            <Select.Positioner
+              anchor={anchorRef}
+              className="rtlFixturePositioner"
+              data-testid="positioner"
+              dir="rtl"
+              sideOffset={8}
+            >
+              <Select.Popup className="rtlFixturePopup" dir="rtl">
+                <Select.List className="rtlFixtureList">
+                  {RTL_FIXTURE_OPTIONS.map(({ label, value }) => (
+                    <Select.Item key={value} value={value} className="rtlFixtureItem">
+                      <Select.ItemIndicator className="rtlFixtureIndicator">✓</Select.ItemIndicator>
+                      <Select.ItemText
+                        className="rtlFixtureText"
+                        data-testid={value === defaultValue ? 'item-text' : undefined}
+                      >
+                        {label}
+                      </Select.ItemText>
+                    </Select.Item>
+                  ))}
+                </Select.List>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>
       </DirectionProvider>
     </div>
-  );
-}
-
-function ChevronUpDownIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg
-      width="8"
-      height="12"
-      viewBox="0 0 8 12"
-      fill="none"
-      stroke="currentcolor"
-      strokeWidth="1.5"
-      {...props}
-    >
-      <path d="M0.5 4.5L4 1.5L7.5 4.5" />
-      <path d="M0.5 7.5L4 10.5L7.5 7.5" />
-    </svg>
-  );
-}
-
-function CheckIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg fill="currentcolor" width="10" height="10" viewBox="0 0 10 10" {...props}>
-      <path d="M9.1603 1.12218C9.50684 1.34873 9.60427 1.81354 9.37792 2.16038L5.13603 8.66012C5.01614 8.8438 4.82192 8.96576 4.60451 8.99384C4.3871 9.02194 4.1683 8.95335 4.00574 8.80615L1.24664 6.30769C0.939709 6.02975 0.916013 5.55541 1.19372 5.24822C1.47142 4.94102 1.94536 4.91731 2.2523 5.19524L4.36085 7.10461L8.12299 1.33999C8.34934 0.993152 8.81376 0.895638 9.1603 1.12218Z" />
-    </svg>
   );
 }
