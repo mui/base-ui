@@ -390,11 +390,7 @@ export function useHoverReferenceInteraction(
 
         const currentDomReference = store.select('domReferenceElement');
         const currentOpen = store.select('open');
-        const isOverInactive = isOverInactiveTrigger(
-          currentDomReference,
-          trigger,
-          getTarget(nativeEvent),
-        );
+        const isOverInactive = isOverInactiveTrigger(currentDomReference, trigger, event.target);
 
         if (mouseOnly && !isMouseLikePointerType(instance.pointerType)) {
           return;

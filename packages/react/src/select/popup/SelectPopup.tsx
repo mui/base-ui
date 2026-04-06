@@ -2,11 +2,10 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { rectToClientRect } from '@floating-ui/utils';
-import { useTimeout } from '@base-ui/utils/useTimeout';
 import { isWebKit } from '@base-ui/utils/detectBrowser';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
-import { isMouseWithinBounds } from '@base-ui/utils/isMouseWithinBounds';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStore } from '@base-ui/utils/store';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
@@ -63,6 +62,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     multiple,
     handleScrollArrowVisibility,
     scrollHandlerRef,
+    listRef,
     highlightItemOnHover,
   } = useSelectRootContext();
   const {
@@ -78,8 +78,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
   const { nonce, disableStyleElements } = useCSPContext();
 
-  const highlightTimeout = useTimeout();
-
   const id = useStore(store, selectors.id);
   const open = useStore(store, selectors.open);
   const mounted = useStore(store, selectors.mounted);
@@ -94,6 +92,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const originalPositionerStylesRef = React.useRef<React.CSSProperties>({});
 
   const scrollArrowFrame = useAnimationFrame();
+  const initialPlacedTimeout = useTimeout();
 
   const handleScroll = useStableCallback((scroller: HTMLDivElement) => {
     if (!positionerElement || !popupRef.current || !initialPlacedRef.current) {
@@ -403,8 +402,17 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         handleScrollArrowVisibility();
 
         // Avoid the `onScroll` event logic from triggering before the popup is placed.
-        setTimeout(() => {
+        initialPlacedTimeout.start(0, () => {
           initialPlacedRef.current = true;
+
+          if (
+            highlightItemOnHover &&
+            store.state.selectedIndex === null &&
+            store.state.activeIndex === null &&
+            listRef.current[0] != null
+          ) {
+            store.set('activeIndex', 0);
+          }
         });
       } finally {
         restoreTransformStyles();
@@ -425,6 +433,9 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     scrollDownArrowRef,
     scrollUpArrowRef,
     listElement,
+    listRef,
+    highlightItemOnHover,
+    initialPlacedTimeout,
   ]);
 
   React.useEffect(() => {
@@ -464,18 +475,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     },
     onMouseMove() {
       keyboardActiveRef.current = false;
-    },
-    onPointerLeave(event) {
-      if (!highlightItemOnHover || isMouseWithinBounds(event) || event.pointerType === 'touch') {
-        return;
-      }
-
-      const popup = event.currentTarget;
-
-      highlightTimeout.start(0, () => {
-        store.set('activeIndex', null);
-        popup.focus({ preventScroll: true });
-      });
     },
     onScroll(event) {
       if (listElement) {
