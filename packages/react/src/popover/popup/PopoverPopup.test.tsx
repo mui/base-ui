@@ -37,6 +37,51 @@ describe('<Popover.Popup />', () => {
   });
 
   describe('prop: initialFocus', () => {
+    it('should prevent page scroll when default initial focus lands on a tabbable element', async () => {
+      const originalFocus = HTMLElement.prototype.focus;
+      let lastPreventScroll;
+
+      Object.defineProperty(HTMLElement.prototype, 'focus', {
+        configurable: true,
+        writable: true,
+        value(options) {
+          lastPreventScroll = options?.preventScroll;
+          return originalFocus.call(this, options);
+        },
+      });
+
+      try {
+        await render(
+          <div>
+            <Popover.Root>
+              <Popover.Trigger>Open</Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup>
+                    <input data-testid="popover-input" />
+                    <button>Close</button>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </div>,
+        );
+
+        const trigger = screen.getByText('Open');
+        await act(async () => {
+          trigger.click();
+        });
+
+        await waitFor(() => {
+          expect(screen.getByTestId('popover-input')).toHaveFocus();
+        });
+
+        expect(lastPreventScroll).to.equal(true);
+      } finally {
+        HTMLElement.prototype.focus = originalFocus;
+      }
+    });
+
     it('should focus the first focusable element within the popup by default', async () => {
       await render(
         <div>

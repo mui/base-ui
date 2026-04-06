@@ -746,7 +746,10 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       elToFocus = elToFocus || getDefaultFocusElement();
 
       enqueueFocus(elToFocus, {
-        preventScroll: elToFocus === floatingFocusElement,
+        // Opening a portal-backed floating element should not unexpectedly scroll
+        // the page to reveal the focused element. This is especially visible for
+        // popovers rendered at the end of <body>.
+        preventScroll: true,
       });
     });
   }, [
