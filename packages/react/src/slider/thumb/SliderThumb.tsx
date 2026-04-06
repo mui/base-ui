@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useOnMount } from '@base-ui/utils/useOnMount';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { BaseUIComponentProps } from '../../utils/types';
@@ -177,11 +176,8 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const thumbValue = sliderValues[index];
   const thumbValuePercent = valueToPercent(thumbValue, min, max);
 
-  const [isMounted, setIsMounted] = React.useState(false);
   const [positionPercent, setPositionPercent] = React.useState<number | undefined>();
   const isHydrating = useIsHydrating();
-
-  useOnMount(() => setIsMounted(true));
 
   const safeLastUsedThumbIndex =
     lastUsedThumbIndex >= 0 && lastUsedThumbIndex < sliderValues.length ? lastUsedThumbIndex : -1;
@@ -281,7 +277,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     return {
       ['--position' as string]: `${positionPercent ?? 0}%`,
       visibility:
-        (renderBeforeHydration && isHydrating && !isMounted) || positionPercent === undefined
+        (renderBeforeHydration && isHydrating) || positionPercent === undefined
           ? 'hidden'
           : undefined,
       position: 'absolute',
@@ -295,7 +291,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     index,
     inset,
     isHydrating,
-    isMounted,
     positionPercent,
     range,
     renderBeforeHydration,
@@ -480,7 +475,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
             {childrenProp}
             <input ref={mergedInputRef} {...inputProps} />
             {inset &&
-              !isMounted &&
               isHydrating &&
               renderBeforeHydration &&
               // this must be rendered with the last thumb to ensure all
