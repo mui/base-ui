@@ -1286,6 +1286,22 @@ describe('<Tabs.Root />', () => {
   });
 
   describe.skipIf(isJSDOM)('activation direction', () => {
+    function waitForAnimationFrame() {
+      return new Promise<void>((resolve) => {
+        requestAnimationFrame(() => {
+          resolve();
+        });
+      });
+    }
+
+    async function waitForSettledPanelTransitions() {
+      await act(async () => {
+        await flushMicrotasks();
+        await waitForAnimationFrame();
+        await waitForAnimationFrame();
+      });
+    }
+
     it('should set the `data-activation-direction` attribute on the tabs root with orientation=horizontal', async () => {
       const panelRenderMock = vi.fn();
       const { user } = await render(
@@ -1315,8 +1331,8 @@ describe('<Tabs.Root />', () => {
       );
       expect(root).toHaveAttribute('data-activation-direction', 'right');
 
+      await waitForSettledPanelTransitions();
       panelRenderMock.mockClear();
-      await flushMicrotasks();
 
       await user.click(tab1);
 
@@ -1356,8 +1372,8 @@ describe('<Tabs.Root />', () => {
       );
       expect(root).toHaveAttribute('data-activation-direction', 'down');
 
+      await waitForSettledPanelTransitions();
       panelRenderMock.mockClear();
-      await flushMicrotasks();
 
       await user.click(tab1);
 
@@ -1525,7 +1541,11 @@ describe('<Tabs.Root />', () => {
                 ))}
               </Tabs.List>
               {tabs.map((tab) => (
-                <Tabs.Panel key={tab} value={tab} render={(_, state) => panelRenderMock(state)} />
+                <Tabs.Panel
+                  key={tab}
+                  value={tab}
+                  render={(_, state) => panelRenderMock({ value: tab, ...state })}
+                />
               ))}
             </Tabs.Root>
           </div>
@@ -1542,9 +1562,8 @@ describe('<Tabs.Root />', () => {
 
       await user.click(screen.getByText('Add and Select'));
 
-      expect(panelRenderMock).toHaveBeenNthCalledWith(
-        1,
-        expect.objectContaining({ tabActivationDirection: 'right' }),
+      expect(panelRenderMock.mock.calls.find(([state]) => state.value === 2)?.[0]).toEqual(
+        expect.objectContaining({ value: 2, tabActivationDirection: 'right' }),
       );
       expect(root).toHaveAttribute('data-activation-direction', 'right');
     });
