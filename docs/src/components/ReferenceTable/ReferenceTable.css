@@ -364,7 +364,7 @@
     font-size: var(--text-base);
     line-height: var(--text-base--line-height);
     letter-spacing: var(--text-base--letter-spacing);
-    font-weight: 500;
+    font-weight: 700;
     color: var(--color-gray-900);
   }
 
