@@ -17,17 +17,17 @@
     text-wrap: pretty;
   }
 
-  .Text.Text-size-1 {
+  .Text.sz-1 {
     font-size: 15px;
     line-height: 22px;
   }
 
-  .Text.Text-size-2 {
+  .Text.sz-2 {
     font-size: 18px;
     line-height: 25px;
   }
 
-  .Text.Text-size-3 {
+  .Text.sz-3 {
     font-size: 36px;
     line-height: 38px;
     text-wrap: balance;
@@ -41,7 +41,7 @@
       sans-serif;
   }
 
-  .Text.Text-size-4 {
+  .Text.sz-4 {
     font-size: 42px;
     line-height: 44px;
     text-wrap: balance;
@@ -56,17 +56,17 @@
   }
 
   @media (min-width: 48rem) {
-    .Text.bp2\:Text-size-1 {
+    .Text.bp2\:sz-1 {
       font-size: 15px;
       line-height: 22px;
     }
 
-    .Text.bp2\:Text-size-2 {
+    .Text.bp2\:sz-2 {
       font-size: 18px;
       line-height: 25px;
     }
 
-    .Text.bp2\:Text-size-3 {
+    .Text.bp2\:sz-3 {
       font-size: 36px;
       line-height: 38px;
       text-wrap: balance;
@@ -80,7 +80,7 @@
         sans-serif;
     }
 
-    .Text.bp2\:Text-size-4 {
+    .Text.bp2\:sz-4 {
       font-size: 42px;
       line-height: 44px;
       text-wrap: balance;

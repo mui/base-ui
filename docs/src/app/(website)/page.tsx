@@ -51,33 +51,33 @@ export default function Homepage() {
       />
 
       <section className="bui-d-c">
-        <h1 className="Text Text-size-3 bp2:Text-size-4 bui-gcs-1 bui-gce-9 bp4:bui-gce-5">
+        <h1 className="Text sz-3 bp2:sz-4 bui-gcs-1 bui-gce-9 bp4:bui-gce-5">
           Unstyled UI components for building accessible user interfaces
         </h1>
         <div className="bui-gcs-1 bui-gce-9">
-          <Link className="Text Text-size-2 bui-d-if" href="/react/overview/quick-start" withArrow>
+          <Link className="Text sz-2 bui-d-if" href="/react/overview/quick-start" withArrow>
             Documentation
           </Link>
         </div>
       </section>
       <section className="bui-d-c">
         <div className="bui-d-f bui-fd-c bui-g-4 bui-gcs-1 bui-gce-9 bp2:bui-gcs-3 bp4:bui-gce-7">
-          <p className="Text Text-size-2">
+          <p className="Text sz-2">
             From the creators of Radix, Floating&nbsp;UI, and Material&nbsp;UI, Base&nbsp;UI is a
             comprehensive UI component library for building accessible user interfaces with React.
           </p>
-          <p className="Text Text-size-2">
+          <p className="Text sz-2">
             Each Base UI component is meticulously designed for composability, consistency, and
             craft. The library's architecture prioritizes flexibility—without imposing visual
             opinions—helping teams craft distinctive interfaces that are fundamentally accessible
             and reliable.
           </p>
-          <p className="Text Text-size-2">
+          <p className="Text sz-2">
             Collectively, we've been building component libraries for multiple decades. We've
             learned what works, what lasts, and what doesn't. And we really, really sweat the
             details.
           </p>
-          <p className="Text Text-size-2">
+          <p className="Text sz-2">
             Base UI is built to last. It is designed with care and maintained with intent. Our
             mission is to provide a future-proof foundation for professional interface design on the
             Web.
@@ -89,7 +89,7 @@ export default function Homepage() {
       </div>
       <section className="bui-d-c">
         <div className="bui-gcs-1 bui-gce-9 bp2:bui-gce-3">
-          <h2 className="Text Text-size-2">Made for the makers</h2>
+          <h2 className="Text sz-2">Made for the makers</h2>
         </div>
         <ul
           className="List bui-gcs-1 bui-gce-9 bp3:bui-gcs-3 bui-d-g bui-gtc-2 bp2:bui-gtc-4 bp3:bui-gtc-6 bui-g-8 bp2:bui-g-9"
@@ -102,7 +102,7 @@ export default function Homepage() {
                   <Paper />
                 </div>
               </div>
-              <span className="Text Text-size-1">Paper</span>
+              <span className="Text sz-1">Paper</span>
             </div>
           </li>
           <li>
@@ -112,7 +112,7 @@ export default function Homepage() {
                   <GitHub />
                 </div>
               </div>
-              <span className="Text Text-size-1">GitHub</span>
+              <span className="Text sz-1">GitHub</span>
             </div>
           </li>
           <li>
@@ -122,7 +122,7 @@ export default function Homepage() {
                   <Zed />
                 </div>
               </div>
-              <span className="Text Text-size-1">Zed</span>
+              <span className="Text sz-1">Zed</span>
             </div>
           </li>
           <li>
@@ -132,7 +132,7 @@ export default function Homepage() {
                   <Unsplash />
                 </div>
               </div>
-              <span className="Text Text-size-1">Unsplash</span>
+              <span className="Text sz-1">Unsplash</span>
             </div>
           </li>
           <li>
@@ -142,7 +142,7 @@ export default function Homepage() {
                   <Operate />
                 </div>
               </div>
-              <span className="Text Text-size-1">Operate</span>
+              <span className="Text sz-1">Operate</span>
             </div>
           </li>
           <li>
@@ -152,7 +152,7 @@ export default function Homepage() {
                   <Interfere />
                 </div>
               </div>
-              <span className="Text Text-size-1">Interfere</span>
+              <span className="Text sz-1">Interfere</span>
             </div>
           </li>
         </ul>
@@ -162,7 +162,7 @@ export default function Homepage() {
       </div>
       <section className="bui-d-c">
         <div className="bui-gcs-1 bui-gce-9 bp2:bui-gce-3">
-          <h2 className="Text Text-size-2">So you know who to blame</h2>
+          <h2 className="Text sz-2">So you know who to blame</h2>
         </div>
         <div className="bui-gcs-1 bui-gce-9 bp2:bui-gcs-3 bp4:bui-gce-7">
           <ul
@@ -171,36 +171,36 @@ export default function Homepage() {
             style={{ borderTop: '1px solid var(--border)' }}
           >
             <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
-              <span className="Text Text-size-2">Colm Tuite</span>
-              <span className="Text Text-size-2">Director of Design Engineering</span>
+              <span className="Text sz-2">Colm Tuite</span>
+              <span className="Text sz-2">Director of Design Engineering</span>
             </li>
             <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
-              <span className="Text Text-size-2">Marija Najdova</span>
-              <span className="Text Text-size-2">Director of Engineering</span>
+              <span className="Text sz-2">Marija Najdova</span>
+              <span className="Text sz-2">Director of Engineering</span>
             </li>
             <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
-              <span className="Text Text-size-2">Albert Yu</span>
-              <span className="Text Text-size-2">Engineer</span>
+              <span className="Text sz-2">Albert Yu</span>
+              <span className="Text sz-2">Engineer</span>
             </li>
             <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
-              <span className="Text Text-size-2">Flavien Delangle</span>
-              <span className="Text Text-size-2">Engineer</span>
+              <span className="Text sz-2">Flavien Delangle</span>
+              <span className="Text sz-2">Engineer</span>
             </li>
             <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
-              <span className="Text Text-size-2">James Nelson</span>
-              <span className="Text Text-size-2">Engineer</span>
+              <span className="Text sz-2">James Nelson</span>
+              <span className="Text sz-2">Engineer</span>
             </li>
             <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
-              <span className="Text Text-size-2">Lukas Tyla</span>
-              <span className="Text Text-size-2">Engineer</span>
+              <span className="Text sz-2">Lukas Tyla</span>
+              <span className="Text sz-2">Engineer</span>
             </li>
             <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
-              <span className="Text Text-size-2">Michał Dudak</span>
-              <span className="Text Text-size-2">Engineer</span>
+              <span className="Text sz-2">Michał Dudak</span>
+              <span className="Text sz-2">Engineer</span>
             </li>
             <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
-              <span className="Text Text-size-2">Vlad Moroz</span>
-              <span className="Text Text-size-2">Contributor</span>
+              <span className="Text sz-2">Vlad Moroz</span>
+              <span className="Text sz-2">Contributor</span>
             </li>
           </ul>
         </div>
@@ -210,7 +210,7 @@ export default function Homepage() {
       </div>
       <section className="bui-d-c">
         <div className="bui-gcs-1 bui-gce-9 bp2:bui-gce-3">
-          <h2 className="Text Text-size-2">The fine print</h2>
+          <h2 className="Text sz-2">The fine print</h2>
         </div>
         <div className="bui-gcs-1 bui-gce-9 bp2:bui-gcs-3 bp4:bui-gce-7">
           <Accordion.Root
@@ -227,10 +227,7 @@ export default function Homepage() {
               itemType="https://schema.org/Question"
             >
               <Accordion.Header className="AccordionWebsiteHeader">
-                <Accordion.Trigger
-                  className="AccordionWebsiteTrigger Text Text-size-2"
-                  itemProp="name"
-                >
+                <Accordion.Trigger className="AccordionWebsiteTrigger Text sz-2" itemProp="name">
                   What is Base UI?
                   <PlusIcon className="AccordionWebsiteIcon AccordionWebsiteIconPlus" />
                   <MinusIcon className="AccordionWebsiteIcon AccordionWebsiteIconMinus" />
@@ -242,7 +239,7 @@ export default function Homepage() {
                 itemProp="acceptedAnswer"
                 itemType="https://schema.org/Answer"
               >
-                <p className="Text Text-size-2" itemProp="text">
+                <p className="Text sz-2" itemProp="text">
                   Base UI is a library of unstyled UI components for building accessible component
                   libraries, user interfaces, web applications, and websites with React. Base UI
                   components are highly configurable, composable, and customizable.
@@ -256,10 +253,7 @@ export default function Homepage() {
               itemType="https://schema.org/Question"
             >
               <Accordion.Header className="AccordionWebsiteHeader">
-                <Accordion.Trigger
-                  className="AccordionWebsiteTrigger Text Text-size-2"
-                  itemProp="name"
-                >
+                <Accordion.Trigger className="AccordionWebsiteTrigger Text sz-2" itemProp="name">
                   Does Base UI work with any styling library?
                   <PlusIcon className="AccordionWebsiteIcon AccordionWebsiteIconPlus" />
                   <MinusIcon className="AccordionWebsiteIcon AccordionWebsiteIconMinus" />
@@ -271,7 +265,7 @@ export default function Homepage() {
                 itemProp="acceptedAnswer"
                 itemType="https://schema.org/Answer"
               >
-                <p className="Text Text-size-2" itemProp="text">
+                <p className="Text sz-2" itemProp="text">
                   Yes. Base UI works with Tailwind, CSS Modules, CSS-in-JS, plain CSS, and any other
                   styling library you prefer. It also works with JavaScript animation libraries like
                   Motion, or just plain CSS transitions. Base UI is an unstyled component library.
@@ -286,10 +280,7 @@ export default function Homepage() {
               itemType="https://schema.org/Question"
             >
               <Accordion.Header className="AccordionWebsiteHeader">
-                <Accordion.Trigger
-                  className="AccordionWebsiteTrigger Text Text-size-2"
-                  itemProp="name"
-                >
+                <Accordion.Trigger className="AccordionWebsiteTrigger Text sz-2" itemProp="name">
                   Which accessibility standards does Base UI follow?
                   <PlusIcon className="AccordionWebsiteIcon AccordionWebsiteIconPlus" />
                   <MinusIcon className="AccordionWebsiteIcon AccordionWebsiteIconMinus" />
@@ -301,7 +292,7 @@ export default function Homepage() {
                 itemProp="acceptedAnswer"
                 itemType="https://schema.org/Answer"
               >
-                <p className="Text Text-size-2" itemProp="text">
+                <p className="Text sz-2" itemProp="text">
                   When designing and speccing components, we follow{' '}
                   <Link href="https://www.w3.org/WAI/ARIA/apg/patterns/">
                     ARIA Authoring Practices Guide patterns
@@ -324,10 +315,7 @@ export default function Homepage() {
               itemType="https://schema.org/Question"
             >
               <Accordion.Header className="AccordionWebsiteHeader">
-                <Accordion.Trigger
-                  className="AccordionWebsiteTrigger Text Text-size-2"
-                  itemProp="name"
-                >
+                <Accordion.Trigger className="AccordionWebsiteTrigger Text sz-2" itemProp="name">
                   How does Base UI differ from Radix UI?
                   <PlusIcon className="AccordionWebsiteIcon AccordionWebsiteIconPlus" />
                   <MinusIcon className="AccordionWebsiteIcon AccordionWebsiteIconMinus" />
@@ -340,7 +328,7 @@ export default function Homepage() {
                 itemType="https://schema.org/Answer"
               >
                 <div className="bui-d-f bui-fd-c bui-g-4" itemProp="text">
-                  <p className="Text Text-size-2">
+                  <p className="Text sz-2">
                     In terms of API design, both libraries are very similar. We intentionally kept
                     our APIs close to Radix UI for an easier migration path. Base UI provides more
                     complex components such as Combobox and Autocomplete. Base UI also provides
@@ -348,7 +336,7 @@ export default function Homepage() {
                     menus on hover. Base UI is more robust and more polished in terms of a11y and
                     edge case handling.
                   </p>
-                  <p className="Text Text-size-2">
+                  <p className="Text sz-2">
                     But the most important difference is that Base UI is actively maintained and
                     developed, with a dedicated team of 7 developers, designers, and managers
                     working on it full-time.
@@ -363,10 +351,7 @@ export default function Homepage() {
               itemType="https://schema.org/Question"
             >
               <Accordion.Header className="AccordionWebsiteHeader">
-                <Accordion.Trigger
-                  className="AccordionWebsiteTrigger Text Text-size-2"
-                  itemProp="name"
-                >
+                <Accordion.Trigger className="AccordionWebsiteTrigger Text sz-2" itemProp="name">
                   Can I use Base UI without React?
                   <PlusIcon className="AccordionWebsiteIcon AccordionWebsiteIconPlus" />
                   <MinusIcon className="AccordionWebsiteIcon AccordionWebsiteIconMinus" />
@@ -378,7 +363,7 @@ export default function Homepage() {
                 itemProp="acceptedAnswer"
                 itemType="https://schema.org/Answer"
               >
-                <p className="Text Text-size-2" itemProp="text">
+                <p className="Text sz-2" itemProp="text">
                   Base UI is a React library. It is not designed to be used without React. We may
                   consider supporting other libraries at some point, but for the foreseeable future,
                   React is our primary focus.
@@ -392,10 +377,7 @@ export default function Homepage() {
               itemType="https://schema.org/Question"
             >
               <Accordion.Header className="AccordionWebsiteHeader">
-                <Accordion.Trigger
-                  className="AccordionWebsiteTrigger Text Text-size-2"
-                  itemProp="name"
-                >
+                <Accordion.Trigger className="AccordionWebsiteTrigger Text sz-2" itemProp="name">
                   Is Base UI free for commercial use?
                   <PlusIcon className="AccordionWebsiteIcon AccordionWebsiteIconPlus" />
                   <MinusIcon className="AccordionWebsiteIcon AccordionWebsiteIconMinus" />
@@ -407,7 +389,7 @@ export default function Homepage() {
                 itemProp="acceptedAnswer"
                 itemType="https://schema.org/Answer"
               >
-                <p className="Text Text-size-2" itemProp="text">
+                <p className="Text sz-2" itemProp="text">
                   Yes. Base UI is licensed under the MIT license, and is free for commercial use.
                   You are free to use it in your commercial projects, and to modify it to suit your
                   needs.
@@ -421,10 +403,7 @@ export default function Homepage() {
               itemType="https://schema.org/Question"
             >
               <Accordion.Header className="AccordionWebsiteHeader">
-                <Accordion.Trigger
-                  className="AccordionWebsiteTrigger Text Text-size-2"
-                  itemProp="name"
-                >
+                <Accordion.Trigger className="AccordionWebsiteTrigger Text sz-2" itemProp="name">
                   Do you offer enterprise SLAs?
                   <PlusIcon className="AccordionWebsiteIcon AccordionWebsiteIconPlus" />
                   <MinusIcon className="AccordionWebsiteIcon AccordionWebsiteIconMinus" />
@@ -436,7 +415,7 @@ export default function Homepage() {
                 itemProp="acceptedAnswer"
                 itemType="https://schema.org/Answer"
               >
-                <p className="Text Text-size-2" itemProp="text">
+                <p className="Text sz-2" itemProp="text">
                   Not currently. We do provide dedicated support channels to some very large
                   enterprise companies who are working with us as design partners. But we do not
                   currently provide Service Level Agreements, guaranteed response times, issue
