@@ -64,6 +64,7 @@ export const SelectItem = React.memo(
       keyboardActiveRef,
       multiple,
       highlightItemOnHover,
+      selectedItemTextRef,
     } = useSelectRootContext();
 
     const highlightTimeout = useTimeout();
@@ -109,9 +110,14 @@ export const SelectItem = React.memo(
         compareItemEquality(itemValue, selectedCandidate, isItemEqualToValue)
       ) {
         store.set('selectedIndex', index);
+        // Set the selected item text ref synchronously so it's available
+        // in SelectPopup's layout effect for alignment measurement.
+        if (textRef.current) {
+          selectedItemTextRef.current = textRef.current;
+        }
       }
       return undefined;
-    }, [hasRegistered, index, multiple, isItemEqualToValue, store, itemValue]);
+    }, [hasRegistered, index, multiple, isItemEqualToValue, store, itemValue, selectedItemTextRef]);
 
     const state: SelectItemState = {
       disabled,

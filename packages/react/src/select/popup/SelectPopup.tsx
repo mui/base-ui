@@ -77,6 +77,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const insideToolbar = useToolbarRootContext(true) != null;
   const floatingRootContext = useSelectFloatingContext();
   const direction = useDirection();
+  const referenceElement = floatingRootContext.useState('referenceElement');
 
   const { nonce, disableStyleElements } = useCSPContext();
 
@@ -267,17 +268,19 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       !popupElement ||
       store.state.transitionStatus === 'ending'
     ) {
-      return;
+      return undefined;
     }
 
     if (!alignItemWithTriggerActive) {
       initialPlacedRef.current = true;
       scrollArrowFrame.request(handleScrollArrowVisibility);
       popupElement.style.removeProperty('--transform-origin');
-      return;
+      return undefined;
     }
 
-    // Wait for `selectedItemTextRef.current` to be set.
+    // Run in a microtask so that `flushSync` in the fallback path is not called
+    // during the React lifecycle. The `selectedItemTextRef` is set synchronously
+    // in SelectItem's layout effect, so it is available before this runs.
     queueMicrotask(() => {
       // Ensure we remove any transforms that can affect the location of the popup
       // and therefore the calculations.
@@ -285,6 +288,9 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       popupElement.style.removeProperty('--transform-origin');
 
       try {
+        const textElement = selectedItemTextRef.current;
+        const valueElement = valueRef.current;
+
         const positionerStyles = getComputedStyle(positionerElement);
         const popupStyles = getComputedStyle(popupElement);
 
@@ -292,6 +298,20 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         const win = ownerWindow(positionerElement);
         const scale = getScale(triggerElement);
         const triggerRect = normalizeRect(triggerElement.getBoundingClientRect(), scale);
+
+        // Pre-set --anchor-width so that CSS rules depending on it (e.g.
+        // min-width: calc(var(--anchor-width) + ...)) are applied before we
+        // measure the positioner dimensions. Floating UI's size middleware sets
+        // this asynchronously, so it may not be available yet on first open.
+        const rawReferenceRect =
+          referenceElement?.getBoundingClientRect() ?? triggerElement.getBoundingClientRect();
+        const dpr = win.devicePixelRatio || 1;
+        const snappedAnchorWidth =
+          (Math.round((rawReferenceRect.x + rawReferenceRect.width) * dpr) -
+            Math.round(rawReferenceRect.x * dpr)) /
+          dpr;
+        positionerElement.style.setProperty('--anchor-width', `${snappedAnchorWidth}px`);
+
         const positionerRect = normalizeRect(positionerElement.getBoundingClientRect(), scale);
         const triggerHeight = triggerRect.height;
         const scroller = listElement || popupElement;
@@ -310,9 +330,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         const viewportHeight = doc.documentElement.clientHeight - marginTop - marginBottom;
         const viewportWidth = doc.documentElement.clientWidth;
         const availableSpaceBeneathTrigger = viewportHeight - triggerRect.bottom + triggerHeight;
-
-        const textElement = selectedItemTextRef.current;
-        const valueElement = valueRef.current;
 
         let textRect: ClientRectObject | undefined;
         let alignedLeft =
@@ -416,6 +433,8 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         restoreTransformStyles();
       }
     });
+
+    return undefined;
   }, [
     store,
     open,
@@ -432,6 +451,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     scrollUpArrowRef,
     listElement,
     direction,
+    referenceElement,
   ]);
 
   React.useEffect(() => {
