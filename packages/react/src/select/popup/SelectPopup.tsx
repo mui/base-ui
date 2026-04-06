@@ -81,7 +81,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const { nonce, disableStyleElements } = useCSPContext();
 
   const highlightTimeout = useTimeout();
-  const initialPlacementTimeout = useTimeout();
 
   const id = useStore(store, selectors.id);
   const open = useStore(store, selectors.open);
@@ -406,10 +405,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
       handleScrollArrowVisibility();
 
-      // Avoid the `onScroll` event logic from triggering before the popup is placed.
-      initialPlacementTimeout.start(0, () => {
-        initialPlacedRef.current = true;
-      });
+      initialPlacedRef.current = true;
     } finally {
       restoreTransformStyles();
     }
@@ -430,7 +426,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     listElement,
     direction,
     isPositioned,
-    initialPlacementTimeout,
   ]);
 
   React.useEffect(() => {
