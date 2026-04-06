@@ -464,6 +464,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       onOpenChangeComplete,
       keyboardActiveRef,
       alignItemWithTriggerActiveRef,
+      highlightItemOnHover,
       initialValueRef,
     }),
     [
@@ -482,6 +483,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       validation,
       onOpenChangeComplete,
       handleScrollArrowVisibility,
+      highlightItemOnHover,
     ],
   );
 

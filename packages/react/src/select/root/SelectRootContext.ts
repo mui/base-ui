@@ -37,6 +37,7 @@ export interface SelectRootContext {
   onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   keyboardActiveRef: React.RefObject<boolean>;
   alignItemWithTriggerActiveRef: React.RefObject<boolean>;
+  highlightItemOnHover: boolean;
   initialValueRef: React.RefObject<any>;
 }
 

@@ -4,6 +4,7 @@ import * as ReactDOM from 'react-dom';
 import { rectToClientRect } from '@floating-ui/utils';
 import { isWebKit } from '@base-ui/utils/detectBrowser';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStore } from '@base-ui/utils/store';
@@ -61,6 +62,8 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     multiple,
     handleScrollArrowVisibility,
     scrollHandlerRef,
+    listRef,
+    highlightItemOnHover,
   } = useSelectRootContext();
   const {
     side,
@@ -89,6 +92,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const originalPositionerStylesRef = React.useRef<React.CSSProperties>({});
 
   const scrollArrowFrame = useAnimationFrame();
+  const initialPlacedTimeout = useTimeout();
 
   const handleScroll = useStableCallback((scroller: HTMLDivElement) => {
     if (!positionerElement || !popupRef.current || !initialPlacedRef.current) {
@@ -398,8 +402,17 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         handleScrollArrowVisibility();
 
         // Avoid the `onScroll` event logic from triggering before the popup is placed.
-        setTimeout(() => {
+        initialPlacedTimeout.start(0, () => {
           initialPlacedRef.current = true;
+
+          if (
+            highlightItemOnHover &&
+            store.state.selectedIndex === null &&
+            store.state.activeIndex === null &&
+            listRef.current[0] != null
+          ) {
+            store.set('activeIndex', 0);
+          }
         });
       } finally {
         restoreTransformStyles();
@@ -420,6 +433,9 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     scrollDownArrowRef,
     scrollUpArrowRef,
     listElement,
+    listRef,
+    highlightItemOnHover,
+    initialPlacedTimeout,
   ]);
 
   React.useEffect(() => {
