@@ -6,7 +6,6 @@ import { Timeout } from '@base-ui/utils/useTimeout';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useOnMount } from '@base-ui/utils/useOnMount';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import { FloatingUIOpenChangeDetails } from '../../utils/types';
 import { PopoverRoot } from './../root/PopoverRoot';
 import { REASONS } from '../../utils/reasons';
 import {
@@ -128,16 +127,7 @@ export class PopoverStore<Payload> extends ReactStore<
       return;
     }
 
-    const details: FloatingUIOpenChangeDetails = {
-      open: nextOpen,
-      nativeEvent: eventDetails.event,
-      reason: eventDetails.reason,
-      nested: this.state.nested,
-      triggerElement: eventDetails.trigger,
-    };
-
-    const floatingEvents = this.state.floatingRootContext.context.events;
-    floatingEvents?.emit('openchange', details);
+    this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
 
     const changeState = () => {
       const updatedState: Partial<State<Payload>> = {

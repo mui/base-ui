@@ -330,6 +330,40 @@ describe('<PreviewCard.Root />', () => {
       });
     });
 
+    describe('dismissal', () => {
+      clock.withFakeTimers();
+
+      it('reopens on hover after Escape closes it', async () => {
+        await render(<TestPreviewCard triggerProps={{ delay: 100 }} />);
+
+        const trigger = screen.getByRole('link', { name: 'Link' });
+
+        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        clock.tick(100);
+        await flushMicrotasks();
+
+        expect(screen.getByText('Content')).not.toBe(null);
+
+        fireEvent.keyDown(document.body, { key: 'Escape' });
+        await flushMicrotasks();
+
+        expect(screen.queryByText('Content')).toBe(null);
+
+        // Re-enter with mouse events only. A fresh pointerenter can be missed
+        // after the click-driven close, but hover should still work.
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        clock.tick(100);
+        await flushMicrotasks();
+
+        expect(screen.getByText('Content')).not.toBe(null);
+      });
+    });
+
     describe.skipIf(!isJSDOM)('prop: actionsRef', () => {
       it('unmounts the preview card when the `unmount` method is called', async () => {
         const actionsRef = {
