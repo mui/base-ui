@@ -32,7 +32,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
   const {
     allValues,
     className,
-    defaultValue,
+    defaultValue: defaultValueProp,
     disabled: disabledProp = false,
     id: idProp,
     onValueChange,
@@ -57,6 +57,14 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
 
   const disabled = fieldDisabled || disabledProp;
 
+  const defaultValue = React.useMemo(() => {
+    if (externalValue === undefined) {
+      return defaultValueProp ?? EMPTY_ARRAY;
+    }
+
+    return undefined;
+  }, [externalValue, defaultValueProp]);
+
   const [value, setValueUnwrapped] = useControlled({
     controlled: externalValue,
     default: defaultValue,
@@ -78,8 +86,8 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
 
   const parent = useCheckboxGroupParent({
     allValues,
-    value: externalValue,
-    onValueChange,
+    value,
+    onValueChange: setValue,
   });
 
   const id = useBaseUiId(idProp);

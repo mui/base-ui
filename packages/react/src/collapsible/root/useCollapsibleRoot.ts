@@ -20,7 +20,7 @@ export interface Dimensions {
 export function useCollapsibleRoot(
   parameters: UseCollapsibleRootParameters,
 ): UseCollapsibleRootReturnValue {
-  const { open: openParam, defaultOpen, onOpenChange, disabled } = parameters;
+  const { open: openParam, defaultOpen = false, onOpenChange, disabled } = parameters;
 
   const isControlled = openParam !== undefined;
 
