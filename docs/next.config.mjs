@@ -9,6 +9,7 @@ import nextMdx from '@next/mdx';
 import rehypeExtractToc from '@stefanprobst/rehype-extract-toc';
 import remarkGfm from 'remark-gfm';
 import remarkTypography from 'remark-typography';
+import { remarkQuickNavExcludeNext } from 'docs/src/components/QuickNav/remarkQuickNavExcludeNext.mjs';
 import { rehypeQuickNav } from 'docs/src/components/QuickNav/rehypeQuickNav.mjs';
 import { rehypeConcatHeadings } from 'docs/src/components/QuickNav/rehypeConcatHeadings.mjs';
 import { rehypeKbd } from 'docs/src/components/Kbd/rehypeKbd.mjs';
@@ -45,6 +46,7 @@ const withMdx = nextMdx({
       ],
       remarkTypography,
       transformMarkdownRelativePaths,
+      remarkQuickNavExcludeNext,
     ],
     rehypePlugins: [
       ...rehypeSyntaxHighlighting,
