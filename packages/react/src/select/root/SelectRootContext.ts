@@ -13,7 +13,6 @@ export interface SelectRootContext {
   readOnly: boolean;
   required: boolean;
   multiple: boolean;
-  highlightItemOnHover: boolean;
   setValue: (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => void;
   setOpen: (open: boolean, eventDetails: SelectRoot.ChangeEventDetails) => void;
   listRef: React.RefObject<Array<HTMLElement | null>>;

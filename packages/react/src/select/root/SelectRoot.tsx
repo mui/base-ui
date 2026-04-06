@@ -358,9 +358,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
       store.set('activeIndex', nextActiveIndex);
     },
-    // Implement our own listeners since `onPointerLeave` on each option fires while scrolling with
-    // the `alignItemWithTrigger=true`, causing a performance issue on Chrome.
-    focusItemOnHover: false,
+    focusItemOnHover: highlightItemOnHover,
   });
 
   const typeahead = useTypeahead(floatingContext, {
@@ -447,7 +445,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       multiple,
       itemToStringLabel,
       itemToStringValue,
-      highlightItemOnHover,
       setValue,
       setOpen,
       listRef,
@@ -478,7 +475,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       multiple,
       itemToStringLabel,
       itemToStringValue,
-      highlightItemOnHover,
       setValue,
       setOpen,
       getItemProps,
