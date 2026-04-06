@@ -4,6 +4,7 @@ import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
 import { useOnMount } from '@base-ui/utils/useOnMount';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { getCssDimensions } from '../../utils/getCssDimensions';
+import { useIsHydrating } from '../../utils/useIsHydrating';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { TabsRoot, TabsRootState } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
@@ -46,6 +47,7 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
   const { tabsListElement, registerIndicatorUpdateListener } = useTabsListContext();
 
   const [isMounted, setIsMounted] = React.useState(false);
+  const isHydrating = useIsHydrating();
 
   useOnMount(() => setIsMounted(true));
 
@@ -168,7 +170,7 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
   return (
     <React.Fragment>
       {element}
-      {!isMounted && renderBeforeHydration && (
+      {!isMounted && isHydrating && renderBeforeHydration && (
         <script
           nonce={nonce}
           // eslint-disable-next-line react/no-danger

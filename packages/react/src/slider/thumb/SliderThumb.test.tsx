@@ -905,9 +905,10 @@ describe('<Slider.Thumb />', () => {
 
   describe.skipIf(isJSDOM)('server-side rendering', () => {
     it('single thumb', async () => {
-      await renderToString(
+      const { container } = await renderToString(
         <Slider.Root
           defaultValue={30}
+          thumbAlignment="edge"
           style={{
             width: '100px',
           }}
@@ -922,6 +923,7 @@ describe('<Slider.Thumb />', () => {
         </Slider.Root>,
       );
 
+      expect(container.querySelector('script')).not.toBe(null);
       expect(getComputedStyle(screen.getByTestId('thumb')).getPropertyValue('left')).toBe('30px');
     });
 

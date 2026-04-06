@@ -1,0 +1,21 @@
+import { useSyncExternalStore } from 'use-sync-external-store/shim';
+
+function subscribe() {
+  return () => {};
+}
+
+function getSnapshot() {
+  return false;
+}
+
+function getServerSnapshot() {
+  return true;
+}
+
+/**
+ * Returns `true` while React is hydrating server-rendered markup and `false`
+ * for fresh client-only mounts.
+ */
+export function useIsHydrating() {
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+}

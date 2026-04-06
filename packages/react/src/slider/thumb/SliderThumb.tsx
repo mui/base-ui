@@ -9,6 +9,7 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { formatNumber } from '../../utils/formatNumber';
 import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useIsHydrating } from '../../utils/useIsHydrating';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { valueToPercent } from '../../utils/valueToPercent';
 import {
@@ -178,6 +179,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const [isMounted, setIsMounted] = React.useState(false);
   const [positionPercent, setPositionPercent] = React.useState<number | undefined>();
+  const isHydrating = useIsHydrating();
 
   useOnMount(() => setIsMounted(true));
 
@@ -478,6 +480,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
             <input ref={mergedInputRef} {...inputProps} />
             {inset &&
               !isMounted &&
+              isHydrating &&
               renderBeforeHydration &&
               // this must be rendered with the last thumb to ensure all
               // preceding thumbs are already rendered in the DOM
