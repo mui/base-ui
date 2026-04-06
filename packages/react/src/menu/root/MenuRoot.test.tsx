@@ -965,7 +965,7 @@ describe('<Menu.Root />', () => {
         const { user } = await render(
           <div>
             <input />
-            <TestMenu />
+            <TestMenu rootProps={{ modal: false }} />
             <input data-testid="after" />
           </div>,
         );
@@ -973,8 +973,12 @@ describe('<Menu.Root />', () => {
         const trigger = screen.getByRole('button', { name: 'Toggle' });
         await user.click(trigger);
 
-        const menu = await screen.findByTestId('menu');
-        expect(menu).not.toBe(null);
+        await screen.findByTestId('menu');
+
+        const menuItem = screen.getByTestId('item-1');
+        await act(async () => {
+          menuItem.focus();
+        });
 
         await user.tab();
 
@@ -984,34 +988,35 @@ describe('<Menu.Root />', () => {
         });
       });
 
-      it.skipIf(isJSDOM)(
-        'closes the menu and moves focus to the previous element when shift-tabbing from the open menu',
-        async () => {
-          const { user } = await render(
-            <div>
-              <input data-testid="before" />
-              <TestMenu />
-              <input />
-            </div>,
-          );
+      it('closes the menu and moves focus to the trigger when shift-tabbing from the open menu', async () => {
+        const { user } = await render(
+          <div>
+            <input data-testid="before" />
+            <TestMenu />
+            <input />
+          </div>,
+        );
 
-          const trigger = screen.getByRole('button', { name: 'Toggle' });
-          await user.click(trigger);
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await user.click(trigger);
 
-          const menu = await screen.findByTestId('menu');
-          expect(menu).not.toBe(null);
+        await screen.findByTestId('menu');
 
-          await user.tab({ shift: true });
+        const menuItem = screen.getByTestId('item-1');
+        await act(async () => {
+          menuItem.focus();
+        });
 
-          await waitFor(() => {
-            expect(screen.getByTestId('before')).toHaveFocus();
-          });
+        await user.keyboard('{Shift>}{Tab}{/Shift}');
 
-          await waitFor(() => {
-            expect(screen.queryByTestId('menu')).toBe(null);
-          });
-        },
-      );
+        await waitFor(() => {
+          expect(trigger).toHaveFocus();
+        });
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('menu')).toBe(null);
+        });
+      });
     });
 
     describe('prop: closeParentOnEsc', () => {
