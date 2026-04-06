@@ -34,7 +34,7 @@ import {
 import { selectors, type State as StoreState } from '../store';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useField } from '../../field/useField';
+import { useRegisterFieldControl } from '../../field/root/useRegisterFieldControl';
 import { useFormContext } from '../../form/FormContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { createCollatorItemFilter, createSingleSelectionCollatorFilter } from './utils';
@@ -84,6 +84,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     onSelectedValueChange,
     defaultInputValue: defaultInputValueProp,
     inputValue: inputValueProp,
+    open: openProp,
+    defaultOpen = false,
     selectionMode = 'none',
     onItemHighlighted: onItemHighlightedProp,
     name: nameProp,
@@ -219,8 +221,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   });
 
   const [open, setOpenUnwrapped] = useControlled({
-    controlled: props.open,
-    default: props.defaultOpen,
+    controlled: openProp,
+    default: defaultOpen,
     name: 'Combobox',
     state: 'open',
   });
@@ -435,14 +437,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const { openMethod, triggerProps } = useOpenInteractionType(open);
+  const getFieldValue = useStableCallback(() => fieldStringValue);
 
-  useField({
+  useRegisterFieldControl(inputInsidePopup ? triggerRef : inputRef, {
     id,
-    name,
-    commit: validation.commit,
     value: fieldRawValue,
-    controlRef: inputInsidePopup ? triggerRef : inputRef,
-    getValue: () => fieldStringValue,
+    getValue: getFieldValue,
   });
 
   const forceMount = useStableCallback(() => {

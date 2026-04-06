@@ -16,8 +16,8 @@ import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button/useButton';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useRegisterFieldControl } from '../../field/root/useRegisterFieldControl';
 import { useFieldItemContext } from '../../field/item/FieldItemContext';
-import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { useAriaLabelledBy } from '../../labelable-provider/useAriaLabelledBy';
@@ -61,6 +61,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     uncheckedValue,
     value: valueProp,
     nativeButton = false,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -166,14 +167,10 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     };
   }, [registerControlId, controlSourceRef]);
 
-  useField({
+  useRegisterFieldControl(controlRef, {
     enabled: !groupContext,
     id,
-    commit: validation.commit,
     value: checked,
-    controlRef,
-    name,
-    getValue: () => checked,
   });
 
   const inputRef = React.useRef<HTMLInputElement>(null);

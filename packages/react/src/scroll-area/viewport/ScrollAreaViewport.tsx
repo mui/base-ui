@@ -72,7 +72,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   componentProps: ScrollAreaViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const {
     viewportRef,

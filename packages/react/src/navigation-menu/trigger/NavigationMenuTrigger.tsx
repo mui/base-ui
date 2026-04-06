@@ -26,7 +26,6 @@ import {
   getTabbableAfterElement,
   getNextTabbable,
   getPreviousTabbable,
-  isTabbable,
   isOutsideEvent,
   stopEvent,
 } from '../../floating-ui-react/utils';
@@ -67,7 +66,14 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   componentProps: NavigationMenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { className, render, nativeButton = true, disabled, ...elementProps } = componentProps;
+  const {
+    className,
+    render,
+    nativeButton = true,
+    disabled,
+    style,
+    ...elementProps
+  } = componentProps;
 
   const {
     value,
@@ -775,6 +781,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         tag="button"
         render={render}
         className={className}
+        style={style}
         state={state}
         stateAttributesMapping={pressableTriggerOpenStateMapping}
         refs={[forwardedRef, handleTriggerElement, buttonRef]}
@@ -804,10 +811,10 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
             ref={afterOutsideRef}
             onFocus={(event) => {
               if (referenceElement && isOutsideEvent(event, referenceElement)) {
-                const elementToFocus =
-                  afterInsideRef.current && isTabbable(afterInsideRef.current)
-                    ? afterInsideRef.current
-                    : triggerElement;
+                ReactDOM.flushSync(() => {
+                  setViewportInert(false);
+                });
+                const elementToFocus = afterInsideRef.current || triggerElement;
                 elementToFocus?.focus();
               } else {
                 let nextTabbable = getNextTabbable(triggerElement);

@@ -252,6 +252,73 @@ describe('<Dialog.Root />', () => {
   describe.skipIf(isJSDOM)('multiple detached triggers', () => {
     type NumberPayload = { payload: number | undefined };
 
+    function TriggerWithNesting({
+      handle,
+      nesting,
+    }: {
+      handle: ReturnType<typeof Dialog.createHandle>;
+      nesting: 0 | 1 | 2 | 3;
+    }) {
+      const trigger = <Dialog.Trigger handle={handle}>Trigger</Dialog.Trigger>;
+
+      if (nesting === 0) {
+        return trigger;
+      }
+
+      if (nesting === 1) {
+        return <div>{trigger}</div>;
+      }
+
+      if (nesting === 2) {
+        return (
+          <div>
+            <div>{trigger}</div>
+          </div>
+        );
+      }
+
+      return (
+        <div>
+          <div>
+            <div>{trigger}</div>
+          </div>
+        </div>
+      );
+    }
+
+    function DetachedTriggerReparentingTest({
+      handle,
+      nesting,
+    }: {
+      handle: ReturnType<typeof Dialog.createHandle>;
+      nesting: 0 | 1 | 2 | 3;
+    }) {
+      return (
+        <React.Fragment>
+          <TriggerWithNesting handle={handle} nesting={nesting} />
+          <Dialog.Root handle={handle}>
+            <Dialog.Portal>
+              <Dialog.Popup>
+                Dialog Content
+                <Dialog.Close>Close</Dialog.Close>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </React.Fragment>
+      );
+    }
+
+    async function openAndCloseDialog(user: any) {
+      await user.click(screen.getByRole('button', { name: 'Trigger' }));
+      await waitFor(() => {
+        expect(screen.getByText('Dialog Content')).toBeVisible();
+      });
+      await user.click(screen.getByText('Close'));
+      await waitFor(() => {
+        expect(screen.queryByText('Dialog Content')).toBe(null);
+      });
+    }
+
     it('opens the dialog with any trigger', async () => {
       const testDialog = Dialog.createHandle();
       const { user } = await render(
@@ -299,6 +366,89 @@ describe('<Dialog.Root />', () => {
       await waitFor(() => {
         expect(screen.queryByText('Dialog Content')).not.toBe(null);
       });
+    });
+
+    it('keeps detached triggers clickable when reparented (remove wrappers)', async () => {
+      const testDialog = Dialog.createHandle();
+      const { user, setProps } = await render(
+        <DetachedTriggerReparentingTest handle={testDialog} nesting={3} />,
+      );
+
+      await openAndCloseDialog(user);
+
+      await setProps({ nesting: 2 });
+      await openAndCloseDialog(user);
+
+      await setProps({ nesting: 1 });
+      await openAndCloseDialog(user);
+
+      await setProps({ nesting: 0 });
+      await openAndCloseDialog(user);
+    });
+
+    it('keeps detached triggers clickable when reparented (add wrappers)', async () => {
+      const testDialog = Dialog.createHandle();
+      const { user, setProps } = await render(
+        <DetachedTriggerReparentingTest handle={testDialog} nesting={0} />,
+      );
+
+      await openAndCloseDialog(user);
+
+      await setProps({ nesting: 1 });
+      await openAndCloseDialog(user);
+
+      await setProps({ nesting: 2 });
+      await openAndCloseDialog(user);
+
+      await setProps({ nesting: 3 });
+      await openAndCloseDialog(user);
+    });
+
+    it('keeps detached triggers clickable during Fast Refresh-like handle recreation', async () => {
+      function DetachedTriggerTest({ handle }: { handle: ReturnType<typeof Dialog.createHandle> }) {
+        return (
+          <React.Fragment>
+            <Dialog.Trigger handle={handle}>Trigger</Dialog.Trigger>
+            <Dialog.Root handle={handle}>
+              <Dialog.Portal>
+                <Dialog.Popup>
+                  Dialog Content
+                  <Dialog.Close>Close</Dialog.Close>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </React.Fragment>
+        );
+      }
+
+      const handleA = Dialog.createHandle();
+      const { user, setProps } = await render(<DetachedTriggerTest handle={handleA} />);
+
+      await openAndCloseDialog(user);
+
+      await setProps({ handle: Dialog.createHandle() });
+      await openAndCloseDialog(user);
+
+      await setProps({ handle: Dialog.createHandle() });
+      await openAndCloseDialog(user);
+    });
+
+    it('keeps detached triggers clickable when reparented during Fast Refresh-like handle recreation', async () => {
+      const handleA = Dialog.createHandle();
+      const { user, setProps } = await render(
+        <DetachedTriggerReparentingTest handle={handleA} nesting={3} />,
+      );
+
+      await openAndCloseDialog(user);
+
+      await setProps({ handle: Dialog.createHandle(), nesting: 2 });
+      await openAndCloseDialog(user);
+
+      await setProps({ handle: Dialog.createHandle(), nesting: 1 });
+      await openAndCloseDialog(user);
+
+      await setProps({ handle: Dialog.createHandle(), nesting: 0 });
+      await openAndCloseDialog(user);
     });
 
     it('sets the payload and renders content based on its value', async () => {

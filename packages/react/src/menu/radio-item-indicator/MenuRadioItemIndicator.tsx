@@ -17,7 +17,7 @@ export const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemInd
   componentProps: MenuRadioItemIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, keepMounted = false, ...elementProps } = componentProps;
+  const { render, className, style, keepMounted = false, ...elementProps } = componentProps;
 
   const item = useMenuRadioItemContext();
 

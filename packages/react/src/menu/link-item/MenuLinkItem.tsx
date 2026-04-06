@@ -26,6 +26,7 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
     id: idProp,
     label,
     closeOnClick = false,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -33,7 +34,7 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
 
   const listItem = useCompositeListItem({ label });
   const menuPositionerContext = useMenuPositionerContext(true);
-  const nodeId = menuPositionerContext?.nodeId;
+  const nodeId = menuPositionerContext?.context.nodeId;
 
   const id = useBaseUiId(idProp);
 

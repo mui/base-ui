@@ -35,6 +35,7 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
     onOpenChange: onOpenChangeProp,
     render,
     value: valueProp,
+    style,
     ...elementProps
   } = componentProps;
 

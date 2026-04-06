@@ -15,7 +15,7 @@ export const MeterValue = React.forwardRef(function MeterValue(
   componentProps: MeterValue.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, children, ...elementProps } = componentProps;
+  const { className, render, children, style, ...elementProps } = componentProps;
 
   const { value, formattedValue } = useMeterRootContext();
 

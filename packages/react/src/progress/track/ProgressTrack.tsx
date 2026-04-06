@@ -16,7 +16,7 @@ export const ProgressTrack = React.forwardRef(function ProgressTrack(
   componentProps: ProgressTrack.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const { state } = useProgressRootContext();
 

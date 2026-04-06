@@ -34,6 +34,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     direction = 'horizontal',
     pixelSensitivity = 2,
     teleportDistance,
+    style,
     ...elementProps
   } = componentProps;
 

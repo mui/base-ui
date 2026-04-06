@@ -55,6 +55,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     delay = OPEN_DELAY,
     closeDelay = 0,
     id: idProp,
+    style,
     ...elementProps
   } = componentProps;
 

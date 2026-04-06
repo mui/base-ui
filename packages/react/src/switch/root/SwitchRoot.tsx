@@ -13,9 +13,9 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useButton } from '../../use-button';
 import { SwitchRootContext } from './SwitchRootContext';
 import { stateAttributesMapping } from '../stateAttributesMapping';
-import { useField } from '../../field/useField';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useRegisterFieldControl } from '../../field/root/useRegisterFieldControl';
 import { useFormContext } from '../../form/FormContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { useAriaLabelledBy } from '../../labelable-provider/useAriaLabelledBy';
@@ -52,6 +52,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     render,
     uncheckedValue,
     value,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -97,13 +98,9 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     state: 'checked',
   });
 
-  useField({
+  useRegisterFieldControl(switchRef, {
     id,
-    commit: validation.commit,
     value: checked,
-    controlRef: switchRef,
-    name,
-    getValue: () => checked,
   });
 
   useIsoLayoutEffect(() => {

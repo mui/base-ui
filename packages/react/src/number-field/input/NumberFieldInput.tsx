@@ -4,8 +4,8 @@ import { stopEvent } from '../../floating-ui-react/utils';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useRegisterFieldControl } from '../../field/root/useRegisterFieldControl';
 import { fieldValidityMapping } from '../../field/utils/constants';
-import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { DEFAULT_STEP } from '../utils/constants';
@@ -57,7 +57,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   componentProps: NumberFieldInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const {
     allowInputSyncRef,
@@ -94,13 +94,9 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   const hasTouchedInputRef = React.useRef(false);
   const blockRevalidationRef = React.useRef(false);
 
-  useField({
+  useRegisterFieldControl(inputRef, {
     id,
-    commit: validation.commit,
     value,
-    controlRef: inputRef,
-    name,
-    getValue: () => value ?? null,
   });
 
   useValueChanged(value, (previousValue) => {

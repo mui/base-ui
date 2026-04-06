@@ -15,7 +15,7 @@ export const ProgressValue = React.forwardRef(function ProgressValue(
   componentProps: ProgressValue.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, children, ...elementProps } = componentProps;
+  const { className, render, children, style, ...elementProps } = componentProps;
 
   const { value, formattedValue, state } = useProgressRootContext();
 

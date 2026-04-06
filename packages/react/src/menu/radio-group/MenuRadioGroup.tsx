@@ -25,6 +25,7 @@ export const MenuRadioGroup = React.memo(
       defaultValue,
       onValueChange: onValueChangeProp,
       disabled = false,
+      style,
       ...elementProps
     } = componentProps;
 
