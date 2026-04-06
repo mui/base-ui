@@ -48,7 +48,7 @@ export function useSyncedFloatingRootContext<State extends PopupStoreState<any>>
         triggerElements,
         onOpenChange,
         floatingId,
-        deferOpenChangeDispatch: true,
+        syncOnly: true,
         nested,
       }),
   ).current;
@@ -75,7 +75,6 @@ export function useSyncedFloatingRootContext<State extends PopupStoreState<any>>
 
   // TODO: When `setOpen` is a part of the PopupStore API, we don't need to sync it.
   store.context.onOpenChange = onOpenChange;
-  store.context.deferOpenChangeDispatch = true;
   store.context.nested = nested;
 
   return store;
