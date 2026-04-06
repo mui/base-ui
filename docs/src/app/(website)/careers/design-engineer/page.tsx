@@ -6,7 +6,7 @@ export default function DesignEngineerPage() {
   return (
     <React.Fragment>
       <section className="bui-d-c">
-        <h1 className="Text sz-3 bp2:size-4 bui-gcs-1 bui-gce-9 bp4:bui-gce-5">Design Engineer</h1>
+        <h1 className="Text sz-3 bp2:sz-4 bui-gcs-1 bui-gce-9 bp4:bui-gce-5">Design Engineer</h1>
         <div className="bui-gcs-1 bui-gce-9">
           <Link
             className="Text sz-2 bui-d-if"
