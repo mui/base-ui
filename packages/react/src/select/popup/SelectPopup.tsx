@@ -70,6 +70,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     side,
     align,
     alignItemWithTriggerActive,
+    isPositioned,
     setControlledAlignItemWithTrigger,
     scrollDownArrowRef,
     scrollUpArrowRef,
@@ -77,7 +78,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const insideToolbar = useToolbarRootContext(true) != null;
   const floatingRootContext = useSelectFloatingContext();
   const direction = useDirection();
-  const referenceElement = floatingRootContext.useState('referenceElement');
 
   const { nonce, disableStyleElements } = useCSPContext();
 
@@ -266,16 +266,17 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       !triggerElement ||
       !positionerElement ||
       !popupElement ||
+      (alignItemWithTriggerActive && !isPositioned) ||
       store.state.transitionStatus === 'ending'
     ) {
-      return undefined;
+      return;
     }
 
     if (!alignItemWithTriggerActive) {
       initialPlacedRef.current = true;
       scrollArrowFrame.request(handleScrollArrowVisibility);
       popupElement.style.removeProperty('--transform-origin');
-      return undefined;
+      return;
     }
 
     // Run in a microtask so that `flushSync` in the fallback path is not called
@@ -298,19 +299,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         const win = ownerWindow(positionerElement);
         const scale = getScale(triggerElement);
         const triggerRect = normalizeRect(triggerElement.getBoundingClientRect(), scale);
-
-        // Pre-set --anchor-width so that CSS rules depending on it (e.g.
-        // min-width: calc(var(--anchor-width) + ...)) are applied before we
-        // measure the positioner dimensions. Floating UI's size middleware sets
-        // this asynchronously, so it may not be available yet on first open.
-        const rawReferenceRect =
-          referenceElement?.getBoundingClientRect() ?? triggerElement.getBoundingClientRect();
-        const dpr = win.devicePixelRatio || 1;
-        const snappedAnchorWidth =
-          (Math.round((rawReferenceRect.x + rawReferenceRect.width) * dpr) -
-            Math.round(rawReferenceRect.x * dpr)) /
-          dpr;
-        positionerElement.style.setProperty('--anchor-width', `${snappedAnchorWidth}px`);
 
         const positionerRect = normalizeRect(positionerElement.getBoundingClientRect(), scale);
         const triggerHeight = triggerRect.height;
@@ -433,8 +421,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         restoreTransformStyles();
       }
     });
-
-    return undefined;
   }, [
     store,
     open,
@@ -451,7 +437,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     scrollUpArrowRef,
     listElement,
     direction,
-    referenceElement,
+    isPositioned,
   ]);
 
   React.useEffect(() => {
