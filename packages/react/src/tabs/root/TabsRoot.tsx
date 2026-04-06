@@ -79,17 +79,19 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     previousValue: value,
     tabActivationDirection: 'none' as TabsTab.ActivationDirection,
   }));
+  const { previousValue, tabActivationDirection: committedTabActivationDirection } =
+    activationDirectionState;
 
-  let tabActivationDirection = activationDirectionState.tabActivationDirection;
+  let tabActivationDirection = committedTabActivationDirection;
   let directionComputationIncomplete = false;
 
   // Compute activation direction during render when value changes so children see
   // the correct direction on their very first render after the selection update.
   // The previous value snapshot is stored in state and synced after commit.
   // https://github.com/mui/base-ui/issues/3873
-  if (activationDirectionState.previousValue !== value) {
+  if (previousValue !== value) {
     tabActivationDirection = computeActivationDirection(
-      activationDirectionState.previousValue,
+      previousValue,
       value,
       orientation,
       tabMap,
@@ -100,28 +102,24 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     // computed from a value-based fallback. Keep the previous value snapshot
     // stale so we re-compute from DOM positions once tabMap is up to date.
     directionComputationIncomplete =
-      activationDirectionState.previousValue != null &&
+      previousValue != null &&
       value != null &&
       getTabElementBySelectedValue(value) == null;
   }
+  const nextPreviousValue = directionComputationIncomplete ? previousValue : value;
+  const shouldSyncActivationDirectionState =
+    previousValue !== nextPreviousValue || committedTabActivationDirection !== tabActivationDirection;
 
   useIsoLayoutEffect(() => {
-    setActivationDirectionState((prev) => {
-      const previousValue = directionComputationIncomplete ? prev.previousValue : value;
+    if (!shouldSyncActivationDirectionState) {
+      return;
+    }
 
-      if (
-        prev.previousValue === previousValue &&
-        prev.tabActivationDirection === tabActivationDirection
-      ) {
-        return prev;
-      }
-
-      return {
-        previousValue,
-        tabActivationDirection,
-      };
+    setActivationDirectionState({
+      previousValue: nextPreviousValue,
+      tabActivationDirection,
     });
-  }, [directionComputationIncomplete, tabActivationDirection, value]);
+  }, [nextPreviousValue, shouldSyncActivationDirectionState, tabActivationDirection]);
 
   const onValueChange = useStableCallback(
     (newValue: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => {
@@ -275,7 +273,6 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       };
     });
   }, [
-    setActivationDirectionState,
     defaultValueProp,
     firstEnabledTabValue,
     hasExplicitDefaultValueProp,

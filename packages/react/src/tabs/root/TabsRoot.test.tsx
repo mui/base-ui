@@ -1297,6 +1297,9 @@ describe('<Tabs.Root />', () => {
     async function waitForSettledPanelTransitions() {
       await act(async () => {
         await flushMicrotasks();
+        // One frame lets panel transition work scheduled during the click settle,
+        // and the second frame lets any resulting React update commit before the
+        // next click assertion starts observing new render calls.
         await waitForAnimationFrame();
         await waitForAnimationFrame();
       });
