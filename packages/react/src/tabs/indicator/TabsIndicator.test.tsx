@@ -396,7 +396,7 @@ describe('<Tabs.Indicator />', () => {
 
   describe('pre-hydration rendering', () => {
     it('renders the inline pre-hydration script during server-side rendering', async () => {
-      const { container } = await renderToString(
+      await renderToString(
         <Tabs.Root value={1}>
           <Tabs.List>
             <Tabs.Tab value={1}>One</Tabs.Tab>
@@ -405,7 +405,7 @@ describe('<Tabs.Indicator />', () => {
         </Tabs.Root>,
       );
 
-      expect(container.querySelector('script')).not.toBe(null);
+      expect(document.querySelector('script')).not.toBe(null);
     });
   });
 });

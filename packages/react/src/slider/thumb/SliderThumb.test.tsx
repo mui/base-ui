@@ -905,7 +905,28 @@ describe('<Slider.Thumb />', () => {
 
   describe.skipIf(isJSDOM)('server-side rendering', () => {
     it('single thumb', async () => {
-      const { container } = await renderToString(
+      await renderToString(
+        <Slider.Root
+          defaultValue={30}
+          style={{
+            width: '100px',
+          }}
+        >
+          <Slider.Value />
+          <Slider.Control>
+            <Slider.Track>
+              <Slider.Indicator />
+              <Slider.Thumb data-testid="thumb" />
+            </Slider.Track>
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      expect(getComputedStyle(screen.getByTestId('thumb')).getPropertyValue('left')).toBe('30px');
+    });
+
+    it('renders the inline pre-hydration script for edge-aligned thumbs', async () => {
+      await renderToString(
         <Slider.Root
           defaultValue={30}
           thumbAlignment="edge"
@@ -923,8 +944,7 @@ describe('<Slider.Thumb />', () => {
         </Slider.Root>,
       );
 
-      expect(container.querySelector('script')).not.toBe(null);
-      expect(getComputedStyle(screen.getByTestId('thumb')).getPropertyValue('left')).toBe('30px');
+      expect(document.querySelector('script')).not.toBe(null);
     });
 
     it('multiple thumbs', async () => {
