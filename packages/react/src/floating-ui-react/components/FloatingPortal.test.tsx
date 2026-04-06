@@ -4,7 +4,7 @@ import { fireEvent, flushMicrotasks, render, screen } from '@mui/internal-test-u
 import { isJSDOM } from '@base-ui/utils/detectBrowser';
 import { FloatingPortal, useFloating } from '../index';
 import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
-import type { UseFloatingPortalNodeProps } from './FloatingPortal';
+import type { UseFloatingPortalNodeProps } from './useFloatingPortalNode';
 
 interface AppProps {
   container?: UseFloatingPortalNodeProps['container'];

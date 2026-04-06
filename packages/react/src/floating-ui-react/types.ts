@@ -13,7 +13,7 @@ import type { FloatingRootStore } from './components/FloatingRootStore';
 export * from '.';
 export type { FloatingDelayGroupProps } from './components/FloatingDelayGroup';
 export type { FloatingFocusManagerProps } from './components/FloatingFocusManager';
-export type { UseFloatingPortalNodeProps } from './components/FloatingPortal';
+export type { UseFloatingPortalNodeProps } from './components/useFloatingPortalNode';
 export type { UseClientPointProps } from './hooks/useClientPoint';
 export type { UseDismissProps } from './hooks/useDismiss';
 export type { UseFocusProps } from './hooks/useFocus';

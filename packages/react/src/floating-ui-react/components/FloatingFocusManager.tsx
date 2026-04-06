@@ -37,7 +37,7 @@ import { REASONS } from '../../utils/reasons';
 import { createAttribute } from '../utils/createAttribute';
 import { enqueueFocus } from '../utils/enqueueFocus';
 import { markOthers } from '../utils/markOthers';
-import { usePortalContext } from './FloatingPortal';
+import { usePortalContext } from './useFloatingPortalNode';
 import { useFloatingTree } from './FloatingTree';
 import { FloatingTreeStore } from '../components/FloatingTreeStore';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
