@@ -60,7 +60,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
                   Discord
                 </Link>
               </nav>
-              <div className="bui-d-n bp3:bui-d-b bui-gcs-7 bui-gce-9">
+              <div className="bui-d-n bp3:bui-d-f bui-ai-s bui-gcs-7 bui-gce-9">
                 <Link className="Text sz-1" href="/react/components/accordion">
                   Components
                 </Link>
