@@ -91,6 +91,9 @@ describe('<ScrollArea.Scrollbar />', () => {
       const viewport = screen.getByTestId('viewport');
       const verticalScrollbar = screen.getByTestId('vertical');
 
+      // Real browser runs can start with the viewport already hovered because
+      // ScrollAreaViewport syncs `:hover` on mount.
+      fireEvent.pointerLeave(viewport, { pointerType: 'mouse' });
       expect(verticalScrollbar).not.toHaveAttribute('data-hovering');
 
       const PointerEventCtor = window.PointerEvent ?? window.Event;
