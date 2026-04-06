@@ -1,13 +1,13 @@
 import { expect } from 'vitest';
 import * as React from 'react';
-import { createRenderer } from '#test-utils';
 import { screen } from '@mui/internal-test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { InternalBackdrop } from './InternalBackdrop';
 
 describe('InternalBackdrop', () => {
   const { render } = createRenderer();
 
-  it('minifies the cutout clip-path polygon string', async () => {
+  it.skipIf(!isJSDOM)('minifies the cutout clip-path polygon string', async () => {
     const cutout = document.createElement('button');
 
     Object.defineProperty(cutout, 'getBoundingClientRect', {
