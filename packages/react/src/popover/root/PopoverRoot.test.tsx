@@ -342,6 +342,8 @@ describe('<Popover.Root />', () => {
               <style dangerouslySetInnerHTML={{ __html: style }} />
               <TestPopover
                 portalProps={{ keepMounted: true }}
+                // Popover.Trigger uses `delay` as `restMs`, so this remains a
+                // rest-only hover reopen case with no fallback open delay.
                 triggerProps={{ openOnHover: true, delay: 1 }}
                 popupProps={{ className: 'animation-test-indicator' }}
               />
@@ -1203,6 +1205,45 @@ describe('<Popover.Root />', () => {
           await flushMicrotasks();
 
           expect(positioner.previousElementSibling).toHaveAttribute('role', 'presentation');
+        });
+
+        it('reopens on hover after an impatient click is followed by a close button press', async () => {
+          await render(
+            <TestPopover
+              triggerProps={{ openOnHover: true, delay: 100 }}
+              popupProps={{ children: <Popover.Close>Close</Popover.Close> }}
+            />,
+          );
+
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+          fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
+          fireEvent.mouseEnter(trigger);
+          fireEvent.mouseMove(trigger, { movementX: 10, movementY: 0 });
+
+          clock.tick(100);
+          await flushMicrotasks();
+
+          expect(screen.queryByRole('dialog')).not.toBe(null);
+
+          clock.tick(PATIENT_CLICK_THRESHOLD - 1);
+          fireEvent.click(trigger);
+          await flushMicrotasks();
+
+          fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+          await flushMicrotasks();
+
+          expect(screen.queryByRole('dialog')).toBe(null);
+
+          // Re-enter with mouse events only. A fresh pointerenter can be
+          // missed after the click-driven close, but hover should still work.
+          fireEvent.mouseEnter(trigger);
+          fireEvent.mouseMove(trigger, { movementX: 10, movementY: 0 });
+
+          clock.tick(100);
+          await flushMicrotasks();
+
+          expect(screen.queryByRole('dialog')).not.toBe(null);
         });
       });
     });

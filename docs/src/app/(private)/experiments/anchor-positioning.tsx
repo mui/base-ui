@@ -52,8 +52,8 @@ export default function AnchorPositioning() {
     floatingElement: null,
     triggerElements: new PopupTriggerMap(),
     floatingId: '',
+    deferOpenChangeDispatch: false,
     nested: false,
-    noEmit: false,
     onOpenChange: undefined,
   });
 
