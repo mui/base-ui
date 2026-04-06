@@ -304,9 +304,11 @@ describe.skipIf(!isJSDOM)('useHover', () => {
     const child = screen.getByTestId('child');
     const event = new MouseEvent('mousemove', { bubbles: true });
 
+    // Deliberately skew the native path so `getTarget(nativeEvent)` resolves
+    // outside the trigger while React's synthetic `event.target` remains `child`.
     Object.defineProperty(event, 'composedPath', {
       configurable: true,
-      value: () => [child, child.parentElement, document.body],
+      value: () => [document.body, child.parentElement, child],
     });
 
     fireEvent(child, event);
