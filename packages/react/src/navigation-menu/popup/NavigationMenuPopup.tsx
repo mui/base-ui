@@ -27,7 +27,7 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
   componentProps: NavigationMenuPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { className, render, id: idProp, ...elementProps } = componentProps;
+  const { className, render, id: idProp, style, ...elementProps } = componentProps;
 
   const { open, transitionStatus, setPopupElement } = useNavigationMenuRootContext();
   const positioning = useNavigationMenuPositionerContext();

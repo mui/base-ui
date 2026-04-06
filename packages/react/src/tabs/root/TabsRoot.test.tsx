@@ -1,4 +1,5 @@
 import { expect, vi } from 'vitest';
+import * as React from 'react';
 import { act, flushMicrotasks, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
 import { Popover } from '@base-ui/react/popover';
@@ -1285,58 +1286,335 @@ describe('<Tabs.Root />', () => {
   });
 
   describe.skipIf(isJSDOM)('activation direction', () => {
+    function waitForAnimationFrame() {
+      return new Promise<void>((resolve) => {
+        requestAnimationFrame(() => {
+          resolve();
+        });
+      });
+    }
+
+    async function waitForSettledPanelTransitions() {
+      await act(async () => {
+        await flushMicrotasks();
+        // One frame lets panel transition work scheduled during the click settle,
+        // and the second frame lets any resulting React update commit before the
+        // next click assertion starts observing new render calls.
+        await waitForAnimationFrame();
+        await waitForAnimationFrame();
+      });
+    }
+
+    function getFirstPanelRenderStateByValue(
+      panelRenderMock: ReturnType<typeof vi.fn>,
+      value: any,
+    ) {
+      return panelRenderMock.mock.calls.find(([state]) => state.value === value)?.[0];
+    }
+
     it('should set the `data-activation-direction` attribute on the tabs root with orientation=horizontal', async () => {
-      await render(
+      const panelRenderMock = vi.fn();
+      const { user } = await render(
         <Tabs.Root data-testid="root">
           <Tabs.List>
             <Tabs.Tab value={0} />
             <Tabs.Tab value={1} />
           </Tabs.List>
+          <Tabs.Panel value={0} render={(_, state) => panelRenderMock({ value: 0, ...state })} />
+          <Tabs.Panel value={1} render={(_, state) => panelRenderMock({ value: 1, ...state })} />
         </Tabs.Root>,
       );
+
+      // clear the initial render calls from mounting the component
+      panelRenderMock.mockClear();
 
       const root = screen.getByTestId('root');
       const [tab1, tab2] = screen.getAllByRole('tab');
 
       expect(root).toHaveAttribute('data-activation-direction', 'none');
-      await act(async () => {
-        tab2.click();
-      });
+      await user.click(tab2);
 
+      expect(getFirstPanelRenderStateByValue(panelRenderMock, 1)).toEqual(
+        expect.objectContaining({ value: 1, tabActivationDirection: 'right' }),
+      );
       expect(root).toHaveAttribute('data-activation-direction', 'right');
 
-      await act(async () => {
-        tab1.click();
-      });
+      await waitForSettledPanelTransitions();
+      panelRenderMock.mockClear();
 
+      await user.click(tab1);
+
+      expect(getFirstPanelRenderStateByValue(panelRenderMock, 0)).toEqual(
+        expect.objectContaining({ value: 0, tabActivationDirection: 'left' }),
+      );
       expect(root).toHaveAttribute('data-activation-direction', 'left');
     });
 
     it('should set the `data-activation-direction` attribute on the tabs root with orientation=vertical', async () => {
-      await render(
+      const panelRenderMock = vi.fn();
+      const { user } = await render(
         <Tabs.Root data-testid="root" orientation="vertical">
           <Tabs.List>
             <Tabs.Tab value={0} style={{ display: 'block' }} />
             <Tabs.Tab value={1} style={{ display: 'block' }} />
           </Tabs.List>
+          <Tabs.Panel value={0} render={(_, state) => panelRenderMock({ value: 0, ...state })} />
+          <Tabs.Panel value={1} render={(_, state) => panelRenderMock({ value: 1, ...state })} />
         </Tabs.Root>,
       );
+
+      // clear the initial render calls from mounting the component
+      panelRenderMock.mockClear();
 
       const root = screen.getByTestId('root');
       const [tab1, tab2] = screen.getAllByRole('tab');
 
       expect(root).toHaveAttribute('data-activation-direction', 'none');
-      await act(async () => {
-        tab2.click();
-      });
+      await user.click(tab2);
 
+      expect(getFirstPanelRenderStateByValue(panelRenderMock, 1)).toEqual(
+        expect.objectContaining({ value: 1, tabActivationDirection: 'down' }),
+      );
       expect(root).toHaveAttribute('data-activation-direction', 'down');
 
-      await act(async () => {
-        tab1.click();
-      });
+      await waitForSettledPanelTransitions();
+      panelRenderMock.mockClear();
 
+      await user.click(tab1);
+
+      expect(getFirstPanelRenderStateByValue(panelRenderMock, 0)).toEqual(
+        expect.objectContaining({ value: 0, tabActivationDirection: 'up' }),
+      );
       expect(root).toHaveAttribute('data-activation-direction', 'up');
+    });
+
+    it('should update `data-activation-direction` on programmatic value changes with orientation=horizontal', async () => {
+      const panelRenderMock = vi.fn();
+      const { setProps } = await render(
+        <Tabs.Root data-testid="root" value={0}>
+          <Tabs.List>
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} />
+          </Tabs.List>
+          <Tabs.Panel value={0} render={(_, state) => panelRenderMock({ value: 0, ...state })} />
+          <Tabs.Panel value={1} render={(_, state) => panelRenderMock({ value: 1, ...state })} />
+        </Tabs.Root>,
+      );
+
+      // clear the initial render calls from mounting the component
+      panelRenderMock.mockClear();
+
+      const root = screen.getByTestId('root');
+      expect(root).toHaveAttribute('data-activation-direction', 'none');
+
+      await setProps({ value: 1 });
+
+      expect(getFirstPanelRenderStateByValue(panelRenderMock, 1)).toEqual(
+        expect.objectContaining({ value: 1, tabActivationDirection: 'right' }),
+      );
+      expect(root).toHaveAttribute('data-activation-direction', 'right');
+
+      panelRenderMock.mockClear();
+
+      await setProps({ value: 0 });
+
+      expect(getFirstPanelRenderStateByValue(panelRenderMock, 0)).toEqual(
+        expect.objectContaining({ value: 0, tabActivationDirection: 'left' }),
+      );
+      expect(root).toHaveAttribute('data-activation-direction', 'left');
+    });
+
+    it('should update `data-activation-direction` on programmatic value changes with orientation=vertical', async () => {
+      const panelRenderMock = vi.fn();
+      const { setProps } = await render(
+        <Tabs.Root data-testid="root" value={0} orientation="vertical">
+          <Tabs.List>
+            <Tabs.Tab value={0} style={{ display: 'block' }} />
+            <Tabs.Tab value={1} style={{ display: 'block' }} />
+          </Tabs.List>
+          <Tabs.Panel value={0} render={(_, state) => panelRenderMock({ value: 0, ...state })} />
+          <Tabs.Panel value={1} render={(_, state) => panelRenderMock({ value: 1, ...state })} />
+        </Tabs.Root>,
+      );
+
+      // clear the initial render calls from mounting the component
+      panelRenderMock.mockClear();
+
+      const root = screen.getByTestId('root');
+      expect(root).toHaveAttribute('data-activation-direction', 'none');
+
+      await setProps({ value: 1 });
+
+      expect(getFirstPanelRenderStateByValue(panelRenderMock, 1)).toEqual(
+        expect.objectContaining({ value: 1, tabActivationDirection: 'down' }),
+      );
+      expect(root).toHaveAttribute('data-activation-direction', 'down');
+
+      panelRenderMock.mockClear();
+
+      await setProps({ value: 0 });
+
+      expect(getFirstPanelRenderStateByValue(panelRenderMock, 0)).toEqual(
+        expect.objectContaining({ value: 0, tabActivationDirection: 'up' }),
+      );
+      expect(root).toHaveAttribute('data-activation-direction', 'up');
+    });
+
+    it('should update `data-activation-direction` on programmatic change after a canceled click', async () => {
+      const { user, setProps } = await render(
+        <Tabs.Root
+          data-testid="root"
+          value={0}
+          onValueChange={(_value, eventDetails) => {
+            eventDetails.cancel();
+          }}
+        >
+          <Tabs.List>
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} />
+          </Tabs.List>
+          <Tabs.Panel value={0} />
+          <Tabs.Panel value={1} />
+        </Tabs.Root>,
+      );
+
+      const root = screen.getByTestId('root');
+      const [, tab2] = screen.getAllByRole('tab');
+
+      // Click is canceled — value stays at 0
+      await user.click(tab2);
+      expect(root).toHaveAttribute('data-activation-direction', 'none');
+
+      // A later programmatic change should still compute direction correctly
+      await setProps({ value: 1 });
+
+      expect(root).toHaveAttribute('data-activation-direction', 'right');
+    });
+
+    it('should update `data-activation-direction` on programmatic change after a controlled parent ignores click', async () => {
+      const { user, setProps } = await render(
+        <Tabs.Root data-testid="root" value={0} onValueChange={() => {}}>
+          <Tabs.List>
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} />
+          </Tabs.List>
+          <Tabs.Panel value={0} />
+          <Tabs.Panel value={1} />
+        </Tabs.Root>,
+      );
+
+      const root = screen.getByTestId('root');
+      const [, tab2] = screen.getAllByRole('tab');
+
+      // Click fires onValueChange but parent doesn't update value
+      await user.click(tab2);
+
+      // A later programmatic change should still compute direction correctly
+      await setProps({ value: 1 });
+
+      expect(root).toHaveAttribute('data-activation-direction', 'right');
+    });
+
+    it('should compute correct direction when adding and selecting a new tab in one controlled update', async () => {
+      const panelRenderMock = vi.fn();
+      function DynamicTabs() {
+        const [tabs, setTabs] = React.useState([0, 1]);
+        const [value, setValue] = React.useState(0);
+
+        return (
+          <div>
+            <button
+              type="button"
+              onClick={() => {
+                setTabs([0, 1, 2]);
+                setValue(2);
+              }}
+            >
+              Add and Select
+            </button>
+            <Tabs.Root data-testid="root" value={value}>
+              <Tabs.List>
+                {tabs.map((tab) => (
+                  <Tabs.Tab key={tab} value={tab} />
+                ))}
+              </Tabs.List>
+              {tabs.map((tab) => (
+                <Tabs.Panel
+                  key={tab}
+                  value={tab}
+                  render={(_, state) => panelRenderMock({ value: tab, ...state })}
+                />
+              ))}
+            </Tabs.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<DynamicTabs />);
+
+      // clear the initial render calls from mounting the component
+      panelRenderMock.mockClear();
+
+      const root = screen.getByTestId('root');
+      expect(root).toHaveAttribute('data-activation-direction', 'none');
+
+      await user.click(screen.getByText('Add and Select'));
+
+      expect(panelRenderMock.mock.calls.find(([state]) => state.value === 2)?.[0]).toEqual(
+        expect.objectContaining({ value: 2, tabActivationDirection: 'right' }),
+      );
+      expect(root).toHaveAttribute('data-activation-direction', 'right');
+    });
+
+    it('should compute correct direction on final render when adding and selecting a new tab in one controlled update with out of order string values', async () => {
+      const panelRenderMock = vi.fn();
+      function DynamicTabs() {
+        const [tabs, setTabs] = React.useState(['Overview', 'Projects']);
+        const [value, setValue] = React.useState('Overview');
+
+        return (
+          <div>
+            <button
+              type="button"
+              onClick={() => {
+                setTabs(['Overview', 'Projects', 'Account']);
+                setValue('Account');
+              }}
+            >
+              Add and Select
+            </button>
+            <Tabs.Root data-testid="root" value={value}>
+              <Tabs.List>
+                {tabs.map((tab) => (
+                  <Tabs.Tab key={tab} value={tab} />
+                ))}
+              </Tabs.List>
+              {tabs.map((tab) => (
+                <Tabs.Panel key={tab} value={tab} render={(_, state) => panelRenderMock(state)} />
+              ))}
+            </Tabs.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<DynamicTabs />);
+
+      // clear the initial render calls from mounting the component
+      panelRenderMock.mockClear();
+
+      const root = screen.getByTestId('root');
+      expect(root).toHaveAttribute('data-activation-direction', 'none');
+
+      await user.click(screen.getByText('Add and Select'));
+
+      expect(panelRenderMock).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({ tabActivationDirection: 'left' }),
+      );
+      expect(panelRenderMock).toHaveBeenLastCalledWith(
+        expect.objectContaining({ tabActivationDirection: 'right' }),
+      );
+      expect(root).toHaveAttribute('data-activation-direction', 'right');
     });
   });
 

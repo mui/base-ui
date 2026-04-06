@@ -19,7 +19,8 @@ export const CalendarDayGridBody = React.forwardRef(function CalendarDayGridBody
   componentProps: CalendarDayGridBody.Props,
   forwardedRef: React.ForwardedRef<HTMLTableSectionElement>,
 ) {
-  const { className, render, children, fixedWeekNumber, offset, ...elementProps } = componentProps;
+  const { className, render, children, fixedWeekNumber, offset, style, ...elementProps } =
+    componentProps;
 
   const { props, compositeRootProps, context, ref } = useSharedCalendarDayGridBody({
     children,

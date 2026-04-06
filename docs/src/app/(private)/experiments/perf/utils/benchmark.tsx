@@ -7,7 +7,7 @@ import styles from '../perf.module.css';
 
 const DOM_SETTLE_QUIET_WINDOW_MS = 32;
 
-const Controls = React.memo(function Controls(props: {
+export const Controls = React.memo(function Controls(props: {
   setShowBenchmark: React.Dispatch<React.SetStateAction<boolean>>;
   benchmarkRootRef: React.RefObject<HTMLDivElement | null>;
 }) {
@@ -151,7 +151,7 @@ export default function PerformanceBenchmark(props: React.PropsWithChildren<{}>)
   );
 }
 
-function logResults(results: number[]) {
+export function logResults(results: number[]) {
   console.log(results);
   console.log(
     'Average:',
@@ -171,7 +171,7 @@ function logResults(results: number[]) {
   );
 }
 
-function removeOutliers(data: number[]) {
+export function removeOutliers(data: number[]) {
   const sortedData = data.slice().sort((a, b) => a - b);
   const q1Index = Math.floor(sortedData.length / 4);
   const q3Index = Math.floor((sortedData.length * 3) / 4);

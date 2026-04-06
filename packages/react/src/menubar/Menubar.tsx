@@ -40,6 +40,7 @@ export const Menubar = React.forwardRef(function Menubar(
     modal = true,
     disabled = false,
     id: idProp,
+    style,
     ...elementProps
   } = props;
 
@@ -83,6 +84,7 @@ export const Menubar = React.forwardRef(function Menubar(
           <CompositeRoot
             render={render}
             className={className}
+            style={style}
             state={state}
             stateAttributesMapping={menubarStateAttributesMapping}
             refs={[forwardedRef, setContentElement, contentRef]}

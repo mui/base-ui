@@ -25,6 +25,7 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
     className,
     disabled: disabledProp = false,
     nativeButton = true,
+    style,
     ...elementProps
   } = componentProps;
 

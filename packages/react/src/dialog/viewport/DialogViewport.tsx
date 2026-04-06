@@ -31,7 +31,7 @@ export const DialogViewport = React.forwardRef(function DialogViewport(
   componentProps: DialogViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, children, ...elementProps } = componentProps;
+  const { className, render, children, style, ...elementProps } = componentProps;
 
   const keepMounted = useDialogPortalContext();
   const { store } = useDialogRootContext();

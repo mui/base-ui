@@ -66,7 +66,14 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   componentProps: NavigationMenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { className, render, nativeButton = true, disabled, ...elementProps } = componentProps;
+  const {
+    className,
+    render,
+    nativeButton = true,
+    disabled,
+    style,
+    ...elementProps
+  } = componentProps;
 
   const {
     value,
@@ -774,6 +781,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         tag="button"
         render={render}
         className={className}
+        style={style}
         state={state}
         stateAttributesMapping={pressableTriggerOpenStateMapping}
         refs={[forwardedRef, handleTriggerElement, buttonRef]}

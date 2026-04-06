@@ -13,20 +13,18 @@ import {
   type Side,
   type UseAnchorPositioningSharedParameters,
 } from '../../utils/useAnchorPositioning';
-import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
-import { popupStateMapping } from '../../utils/popupStateMapping';
 import { CompositeList } from '../../composite/list/CompositeList';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useMenuPortalContext } from '../portal/MenuPortalContext';
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
-import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { MenuOpenEventDetails } from '../utils/types';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
+import { usePositioner } from '../../utils/usePositioner';
 
 /**
  * Positions the menu popup against the trigger.
@@ -53,6 +51,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     sticky = false,
     disableAnchorTracking = false,
     collisionAvoidance: collisionAvoidanceProp = DROPDOWN_COLLISION_AVOIDANCE,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -129,23 +128,6 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     externalTree: floatingTreeRoot,
     adaptiveOrigin: hasViewport ? adaptiveOrigin : undefined,
   });
-
-  const positionerProps = React.useMemo(() => {
-    const hiddenStyles: React.CSSProperties = {};
-
-    if (!open) {
-      hiddenStyles.pointerEvents = 'none';
-    }
-
-    return {
-      role: 'presentation',
-      hidden: !mounted,
-      style: {
-        ...positioner.positionerStyles,
-        ...hiddenStyles,
-      },
-    };
-  }, [open, mounted, positioner.positionerStyles]);
 
   React.useEffect(() => {
     function onMenuOpenChange(details: MenuOpenEventDetails) {
@@ -276,30 +258,13 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     instant: instantType,
   };
 
-  const contextValue: MenuPositionerContext = React.useMemo(
-    () => ({
-      side: positioner.side,
-      align: positioner.align,
-      arrowRef: positioner.arrowRef,
-      arrowUncentered: positioner.arrowUncentered,
-      arrowStyles: positioner.arrowStyles,
-      nodeId: positioner.context.nodeId,
-    }),
-    [
-      positioner.side,
-      positioner.align,
-      positioner.arrowRef,
-      positioner.arrowUncentered,
-      positioner.arrowStyles,
-      positioner.context.nodeId,
-    ],
-  );
-
-  const element = useRenderElement('div', componentProps, {
-    state,
-    stateAttributesMapping: popupStateMapping,
-    ref: [forwardedRef, store.useStateSetter('positionerElement')],
-    props: [positionerProps, getDisabledMountTransitionStyles(transitionStatus), elementProps],
+  const element = usePositioner(componentProps, state, {
+    styles: positioner.positionerStyles,
+    transitionStatus,
+    props: elementProps,
+    refs: [forwardedRef, store.useStateSetter('positionerElement')],
+    hidden: !mounted,
+    inert: !open,
   });
 
   const shouldRenderBackdrop =
@@ -317,7 +282,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   }
 
   return (
-    <MenuPositionerContext.Provider value={contextValue}>
+    <MenuPositionerContext.Provider value={positioner}>
       {shouldRenderBackdrop && (
         <InternalBackdrop
           ref={

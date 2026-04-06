@@ -29,6 +29,7 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
     id: idProp,
     payload,
     handle,
+    style,
     ...elementProps
   } = componentProps;
 

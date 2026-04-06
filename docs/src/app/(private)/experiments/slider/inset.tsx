@@ -44,7 +44,7 @@ function DemoSlider(props: Slider.Root.Props & { wide?: boolean }) {
           ['--base-color']:
             props.thumbAlignment !== 'edge-client-only' ? 'var(--color-red)' : 'var(--color-blue)',
           ['--track-width']: wide ? '320px' : undefined,
-          ...(styleProp ?? {}),
+          ...(typeof styleProp === 'object' ? styleProp : {}),
         } as React.CSSProperties
       }
     >

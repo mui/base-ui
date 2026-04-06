@@ -1,21 +1,11 @@
 'use client';
 import * as React from 'react';
-import type { Side, Align } from '../../utils/useAnchorPositioning';
+import type { UseAnchorPositioningReturnValue } from '../../utils/useAnchorPositioning';
 
-export interface MenuPositionerContext {
-  /**
-   * The side of the anchor element the popup is positioned relative to.
-   */
-  side: Side;
-  /**
-   * How to align the popup relative to the specified side.
-   */
-  align: Align;
-  arrowRef: React.RefObject<Element | null>;
-  arrowUncentered: boolean;
-  arrowStyles: React.CSSProperties;
-  nodeId: string | undefined;
-}
+export type MenuPositionerContext = Pick<
+  UseAnchorPositioningReturnValue,
+  'side' | 'align' | 'arrowRef' | 'arrowUncentered' | 'arrowStyles' | 'context'
+>;
 
 export const MenuPositionerContext = React.createContext<MenuPositionerContext | undefined>(
   undefined,

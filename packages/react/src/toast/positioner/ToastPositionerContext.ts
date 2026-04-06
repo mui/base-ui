@@ -1,14 +1,11 @@
 'use client';
 import * as React from 'react';
-import type { Side, Align } from '../../utils/useAnchorPositioning';
+import type { UseAnchorPositioningReturnValue } from '../../utils/useAnchorPositioning';
 
-export interface ToastPositionerContext {
-  side: Side;
-  align: Align;
-  arrowRef: React.RefObject<Element | null>;
-  arrowUncentered: boolean;
-  arrowStyles: React.CSSProperties;
-}
+export type ToastPositionerContext = Pick<
+  UseAnchorPositioningReturnValue,
+  'side' | 'align' | 'arrowRef' | 'arrowUncentered' | 'arrowStyles'
+>;
 
 export const ToastPositionerContext = React.createContext<ToastPositionerContext | undefined>(
   undefined,

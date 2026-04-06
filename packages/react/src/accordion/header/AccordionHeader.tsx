@@ -16,7 +16,7 @@ export const AccordionHeader = React.forwardRef(function AccordionHeader(
   componentProps: AccordionHeader.Props,
   forwardedRef: React.ForwardedRef<HTMLHeadingElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const { state } = useAccordionItemContext();
 

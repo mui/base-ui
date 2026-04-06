@@ -21,8 +21,8 @@ import { areArraysEqual } from '../../utils/areArraysEqual';
 import { activeElement, contains } from '../../floating-ui-react/utils';
 import { CompositeList, type CompositeMetadata } from '../../composite/list/CompositeList';
 import type { FieldRootState } from '../../field/root/FieldRoot';
-import { useField } from '../../field/useField';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useRegisterFieldControl } from '../../field/root/useRegisterFieldControl';
 import { useFormContext } from '../../form/FormContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { resolveAriaLabelledBy, getDefaultLabelId } from '../../utils/resolveAriaLabelledBy';
@@ -84,6 +84,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     thumbCollisionBehavior = 'push',
     thumbAlignment = 'center',
     value: valueProp,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -168,13 +169,9 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     }
   });
 
-  useField({
+  useRegisterFieldControl(controlRef, {
     id,
-    commit: validation.commit,
     value: valueUnwrapped,
-    controlRef,
-    name,
-    getValue: () => valueUnwrapped,
   });
 
   useValueChanged(valueUnwrapped, () => {

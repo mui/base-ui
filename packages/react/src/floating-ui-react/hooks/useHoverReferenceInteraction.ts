@@ -73,6 +73,7 @@ export function useHoverReferenceInteraction(
   const tree = useFloatingTree(externalTree);
 
   const instance = useHoverInteractionSharedState(store);
+  const isHoverCloseActiveRef = React.useRef(false);
 
   const handleCloseRef = useValueAsRef(handleClose);
   const delayRef = useValueAsRef(delay);
@@ -158,11 +159,14 @@ export function useHoverReferenceInteraction(
 
     function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
       if (!details.open) {
+        isHoverCloseActiveRef.current = details.reason === REASONS.triggerHover;
         cleanupMouseMoveHandler();
         instance.openChangeTimeout.clear();
         instance.restTimeout.clear();
         instance.blockMouseMove = true;
         instance.restTimeoutPending = false;
+      } else {
+        isHoverCloseActiveRef.current = false;
       }
     }
 
@@ -196,25 +200,66 @@ export function useHoverReferenceInteraction(
       // Only rest delay is set; there's no fallback delay.
       // This will be handled by `onMouseMove`.
       const restMsValue = getRestMs(restMsRef.current);
-      if (restMsValue > 0 && !getDelay(delayRef.current, 'open')) {
-        return;
+      const openDelay = getDelay(delayRef.current, 'open', instance.pointerType);
+      const eventTarget = getTarget(event);
+      const currentTarget = (event.currentTarget as HTMLElement) ?? null;
+      const currentDomReference = store.select('domReferenceElement');
+      let triggerNode = currentTarget;
+
+      // Wrapper/delegated mode: resolve the actual trigger from the event target.
+      if (isElement(eventTarget) && !store.context.triggerElements.hasElement(eventTarget)) {
+        for (const triggerElement of store.context.triggerElements.elements()) {
+          if (contains(triggerElement, eventTarget)) {
+            triggerNode = triggerElement as HTMLElement;
+            break;
+          }
+        }
       }
 
-      const openDelay = getDelay(delayRef.current, 'open', instance.pointerType);
-      const triggerNode = (event.currentTarget as HTMLElement) ?? null;
-      const currentDomReference = store.select('domReferenceElement');
+      // Wrapper/delegated mode fallback: if the wrapper contains the active trigger,
+      // treat this as re-entering that active trigger.
+      if (
+        isElement(currentTarget) &&
+        isElement(currentDomReference) &&
+        !store.context.triggerElements.hasElement(currentTarget) &&
+        contains(currentTarget, currentDomReference)
+      ) {
+        triggerNode = currentDomReference as HTMLElement;
+      }
+
       const isOverInactive =
         triggerNode == null
           ? false
-          : isOverInactiveTrigger(currentDomReference, triggerNode, getTarget(event));
-
+          : isOverInactiveTrigger(currentDomReference, triggerNode, eventTarget);
       const isOpen = store.select('open');
+      const isInClosingTransition = store.select('transitionStatus') === 'ending';
+      const isHoverCloseTransition =
+        !isOpen && isInClosingTransition && isHoverCloseActiveRef.current;
+      const isReenteringSameTriggerDuringCloseTransition =
+        !isOverInactive &&
+        isElement(triggerNode) &&
+        isElement(currentDomReference) &&
+        contains(currentDomReference, triggerNode) &&
+        isHoverCloseTransition;
+      const isRestOnlyDelay = restMsValue > 0 && !openDelay;
+      const shouldOpenImmediately =
+        (isOverInactive && (isOpen || isHoverCloseTransition)) ||
+        isReenteringSameTriggerDuringCloseTransition;
+
       const shouldOpen = !isOpen || isOverInactive;
 
-      // When moving between triggers while already open, open immediately without delay
-      if (isOverInactive && isOpen) {
+      // Open immediately when moving between triggers while open, or during
+      // a hover-driven close transition (including same-trigger re-entry).
+      if (shouldOpenImmediately) {
         store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
-      } else if (openDelay) {
+        return;
+      }
+
+      if (isRestOnlyDelay) {
+        return;
+      }
+
+      if (openDelay) {
         instance.openChangeTimeout.start(openDelay, () => {
           if (shouldOpen) {
             store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
@@ -345,11 +390,7 @@ export function useHoverReferenceInteraction(
 
         const currentDomReference = store.select('domReferenceElement');
         const currentOpen = store.select('open');
-        const isOverInactive = isOverInactiveTrigger(
-          currentDomReference,
-          trigger,
-          getTarget(nativeEvent),
-        );
+        const isOverInactive = isOverInactiveTrigger(currentDomReference, trigger, event.target);
 
         if (mouseOnly && !isMouseLikePointerType(instance.pointerType)) {
           return;
