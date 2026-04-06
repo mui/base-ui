@@ -180,11 +180,11 @@
     --color-foreground: var(--color-gray-900);
     --color-popup: white;
     --color-gridline: oklch(91.6% 1% 264deg);
-    --color-selection: oklch(80% 50% 264deg / 25%);
+    --color-selection: oklch(80% 28% 264deg / 50%);
     --color-highlight: var(--color-blue);
-    --color-line-highlight: oklch(80% 50% 264deg / 10%);
-    --color-line-highlight-strong: oklch(80% 50% 264deg / 25%);
-    --color-inline-highlight: oklch(80% 50% 264deg / 15%);
+    --color-line-highlight: oklch(80% 28% 264deg / 20%);
+    --color-line-highlight-strong: oklch(80% 28% 264deg / 35%);
+    --color-inline-highlight: oklch(80% 28% 264deg / 20%);
 
     /* Text colors */
     --color-gray: var(--color-gray-600);
