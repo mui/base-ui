@@ -575,6 +575,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           style={name ? visuallyHiddenInput : visuallyHidden}
           tabIndex={-1}
           aria-hidden
+          suppressHydrationWarning
         />
         {hiddenInputs}
       </SelectFloatingContext.Provider>

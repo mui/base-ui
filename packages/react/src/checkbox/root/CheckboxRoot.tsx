@@ -356,7 +356,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       {!checked && !groupContext && name && !parent && uncheckedValue !== undefined && (
         <input type="hidden" form={form} name={name} value={uncheckedValue} />
       )}
-      <input {...inputProps} />
+      <input {...inputProps} suppressHydrationWarning />
     </CheckboxRootContext.Provider>
   );
 });
