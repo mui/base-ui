@@ -925,6 +925,28 @@ describe('<Slider.Thumb />', () => {
       expect(getComputedStyle(screen.getByTestId('thumb')).getPropertyValue('left')).toBe('30px');
     });
 
+    it('renders the inline pre-hydration script for edge-aligned thumbs', async () => {
+      await renderToString(
+        <Slider.Root
+          defaultValue={30}
+          thumbAlignment="edge"
+          style={{
+            width: '100px',
+          }}
+        >
+          <Slider.Value />
+          <Slider.Control>
+            <Slider.Track>
+              <Slider.Indicator />
+              <Slider.Thumb data-testid="thumb" />
+            </Slider.Track>
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      expect(document.querySelector('script')).not.toBe(null);
+    });
+
     it('multiple thumbs', async () => {
       renderToString(
         <Slider.Root

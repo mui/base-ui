@@ -2,6 +2,12 @@
   .Code {
     letter-spacing: normal;
 
+    p &[data-inline] {
+      letter-spacing: -0.01em;
+      word-spacing: -0.2em;
+      line-height: normal;
+    }
+
     /* In a code block */
     pre & {
       white-space: normal;

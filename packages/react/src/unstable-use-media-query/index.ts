@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useSyncExternalStore } from 'use-sync-external-store/shim';
 
 export function useMediaQuery(query: string, options: useMediaQuery.Options): boolean {
@@ -41,12 +42,7 @@ export function useMediaQuery(query: string, options: useMediaQuery.Options): bo
 
     return [
       () => mediaQueryList.matches,
-      (notify: () => void) => {
-        mediaQueryList.addEventListener('change', notify);
-        return () => {
-          mediaQueryList.removeEventListener('change', notify);
-        };
-      },
+      (notify: () => void) => addEventListener(mediaQueryList, 'change', notify),
     ];
   }, [getDefaultSnapshot, matchMedia, query]);
 

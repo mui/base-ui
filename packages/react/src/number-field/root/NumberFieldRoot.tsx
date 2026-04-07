@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -367,11 +368,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         });
       }
 
-      element.addEventListener('wheel', handleWheel);
-
-      return () => {
-        element.removeEventListener('wheel', handleWheel);
-      };
+      return addEventListener(element, 'wheel', handleWheel);
     },
     [allowWheelScrub, incrementValue, disabled, readOnly, largeStep, step, getStepAmount],
   );

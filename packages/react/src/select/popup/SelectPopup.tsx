@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { rectToClientRect } from '@floating-ui/utils';
-import { useTimeout } from '@base-ui/utils/useTimeout';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { isWebKit } from '@base-ui/utils/detectBrowser';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
@@ -9,6 +9,7 @@ import { isMouseWithinBounds } from '@base-ui/utils/isMouseWithinBounds';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStore } from '@base-ui/utils/store';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { FloatingFocusManager, platform as floatingPlatform } from '../../floating-ui-react';
 import type { ClientRectObject } from '../../floating-ui-react';
@@ -79,7 +80,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const direction = useDirection();
 
   const { nonce, disableStyleElements } = useCSPContext();
-
   const highlightTimeout = useTimeout();
 
   const id = useStore(store, selectors.id);
@@ -439,11 +439,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       setOpen(false, createChangeEventDetails(REASONS.windowResize, event));
     }
 
-    win.addEventListener('resize', handleResize);
-
-    return () => {
-      win.removeEventListener('resize', handleResize);
-    };
+    return addEventListener(win, 'resize', handleResize);
   }, [setOpen, alignItemWithTriggerActive, positionerElement, open]);
 
   const defaultProps: HTMLProps = {
