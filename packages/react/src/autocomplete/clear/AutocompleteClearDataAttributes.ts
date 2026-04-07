@@ -1,1 +1,1 @@
-export { ComboboxClearDataAttributes as AutocompleteClearDataAttributes } from '../../combobox/clear/ComboboxClearDataAtributes';
+export { ComboboxClearDataAttributes as AutocompleteClearDataAttributes } from '../../combobox/clear/ComboboxClearDataAttributes';
