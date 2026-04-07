@@ -182,7 +182,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
       mergeProps<'input'>(
         {
           checked,
-          disabled: disabled || readOnly,
+          disabled,
           form,
           id: hiddenInputId,
           name,
@@ -195,6 +195,11 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
           onChange(event) {
             // Workaround for https://github.com/facebook/react/issues/9023
             if (event.nativeEvent.defaultPrevented) {
+              return;
+            }
+
+            if (readOnly) {
+              event.preventDefault();
               return;
             }
 

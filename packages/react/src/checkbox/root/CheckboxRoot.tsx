@@ -211,7 +211,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const inputProps = mergeProps<'input'>(
     {
       checked,
-      disabled: disabled || readOnly,
+      disabled,
       form,
       // parent checkboxes unset `name` to be excluded from form submission
       name: parent ? undefined : name,
@@ -227,6 +227,11 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       onChange(event) {
         // Workaround for https://github.com/facebook/react/issues/9023
         if (event.nativeEvent.defaultPrevented) {
+          return;
+        }
+
+        if (readOnly) {
+          event.preventDefault();
           return;
         }
 
