@@ -7,8 +7,8 @@ import { useBaseUiId } from '../utils/useBaseUiId';
 import { contains } from '../floating-ui-react/utils';
 import { SHIFT } from '../composite/composite';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
-import { useField } from '../field/useField';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
+import { useRegisterFieldControl } from '../field/root/useRegisterFieldControl';
 import { fieldValidityMapping } from '../field/utils/constants';
 import type { FieldRootState } from '../field/root/FieldRoot';
 import { useFieldsetRootContext } from '../fieldset/root/FieldsetRootContext';
@@ -40,9 +40,11 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     onValueChange: onValueChangeProp,
     value: externalValue,
     defaultValue,
+    form,
     name: nameProp,
     inputRef: inputRefProp,
     id: idProp,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -145,13 +147,12 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     return undefined;
   });
 
-  useField({
+  const getFieldValue = useStableCallback(() => checkedValue ?? null);
+
+  useRegisterFieldControl(controlRef, {
     id,
-    commit: validation.commit,
     value: checkedValue,
-    controlRef,
-    name,
-    getValue: () => checkedValue ?? null,
+    getValue: getFieldValue,
   });
 
   useValueChanged(checkedValue, () => {
@@ -188,6 +189,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
       ...fieldState,
       checkedValue,
       disabled,
+      form,
       validation,
       name,
       onValueChange,
@@ -202,6 +204,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     [
       checkedValue,
       disabled,
+      form,
       validation,
       fieldState,
       name,
@@ -249,6 +252,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
       <CompositeRoot
         render={render}
         className={className}
+        style={style}
         state={state}
         props={[defaultProps, validation.getValidationProps, elementProps]}
         refs={[forwardedRef]}
@@ -296,6 +300,11 @@ export interface RadioGroupProps<Value = any> extends Omit<
    * Identifies the field when a form is submitted.
    */
   name?: string | undefined;
+  /**
+   * Identifies the form that owns the radio inputs.
+   * Useful when the radio group is rendered outside the form.
+   */
+  form?: string | undefined;
   /**
    * The controlled value of the radio item that should be currently selected.
    *

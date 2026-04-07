@@ -6,7 +6,7 @@ export default function ExampleCombobox() {
   const id = React.useId();
   return (
     <Combobox.Root items={fruits}>
-      <div className="relative flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">
+      <div className="relative flex flex-col gap-1 text-sm leading-5 font-bold text-gray-900">
         <label htmlFor={id}>Choose a fruit</label>
         <Combobox.InputGroup className="relative box-content h-10 w-64 rounded-md border border-gray-200 bg-[canvas] focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-blue-800 [&>input]:pr-[calc(0.5rem+1.5rem)] has-[.combobox-clear]:[&>input]:pr-[calc(0.5rem+1.5rem*2)]">
           <Combobox.Input
@@ -34,8 +34,8 @@ export default function ExampleCombobox() {
       <Combobox.Portal>
         <Combobox.Positioner className="outline-none" sideOffset={4}>
           <Combobox.Popup className="w-[var(--anchor-width)] max-h-[23rem] max-w-[var(--available-width)] origin-[var(--transform-origin)] rounded-md bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-95 data-[ending-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300 duration-100">
-            <Combobox.Empty className="p-4 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0">
-              No fruits found.
+            <Combobox.Empty>
+              <div className="p-4 text-[0.925rem] leading-4 text-gray-600">No fruits found.</div>
             </Combobox.Empty>
             <Combobox.List className="outline-0 overflow-y-auto scroll-py-[0.5rem] py-2 overscroll-contain max-h-[min(23rem,var(--available-height))] data-[empty]:p-0">
               {(item: Fruit) => (

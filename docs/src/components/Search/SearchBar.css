@@ -41,7 +41,7 @@
     background-color: hsl(0deg 0% 0% / 5%);
     font: inherit;
     font-size: 1rem;
-    font-weight: 500;
+    font-weight: 400;
     line-height: 1.5;
     color: var(--color-gray-900);
     user-select: none;
@@ -100,14 +100,6 @@
     }
   }
 
-  .SearchTrigger:active {
-    background-color: hsl(0deg 0% 0% / 12%);
-  }
-
-  .SearchTrigger:active::before {
-    background-color: var(--color-gray-50);
-  }
-
   .SearchTrigger:focus-visible {
     outline: 2px solid var(--color-blue-800);
     outline-offset: -1px;
@@ -118,8 +110,7 @@
     cursor: default;
   }
 
-  .SearchTrigger[data-disabled]:hover,
-  .SearchTrigger[data-disabled]:active {
+  .SearchTrigger[data-disabled]:hover {
     background-color: hsl(0deg 0% 0% / 5%);
   }
 
@@ -159,23 +150,19 @@
 
   .SearchTriggerCmd {
     font-size: var(--text-lg);
-    letter-spacing: var(--text-lg--letter-spacing);
   }
 
   .SearchTriggerCtrl {
     font-size: var(--text-xs);
-    letter-spacing: var(--text-xs--letter-spacing);
   }
 
   .SearchTriggerPlus {
     font-size: var(--text-xs);
-    letter-spacing: var(--text-xs--letter-spacing);
     color: var(--color-gray-400);
   }
 
   .SearchTriggerK {
     font-size: var(--text-xs);
-    letter-spacing: var(--text-xs--letter-spacing);
   }
 
   .SearchBreadcrumbPart {
@@ -205,7 +192,6 @@
     padding: 1.5rem 0.75rem;
     text-align: center;
     font-size: 0.9375rem;
-    letter-spacing: 0.016em;
     font-weight: 400;
     color: var(--color-gray-600);
   }
@@ -231,7 +217,6 @@
     border: 0;
     background: transparent;
     font-size: var(--text-base);
-    letter-spacing: 0.016em;
     font-weight: 400;
     color: var(--color-gray-900);
     outline: none;
@@ -252,7 +237,6 @@
     height: 2rem;
     padding-left: 0.875rem;
     font-size: 0.9375rem;
-    letter-spacing: 0.00625em;
     font-weight: 400;
     line-height: 1;
     color: var(--color-gray-600);
@@ -268,7 +252,6 @@
     padding-right: 0.5rem;
     border-radius: var(--radius-md);
     font-size: 0.9375rem;
-    letter-spacing: 0.016em;
     font-weight: 400;
     line-height: 1;
     color: var(--color-gray-900);
@@ -417,7 +400,6 @@
     display: flex;
     font-size: var(--text-xs);
     line-height: var(--text-xs--line-height);
-    letter-spacing: var(--text-xs--letter-spacing);
     color: var(--color-gray-500);
   }
 
@@ -440,6 +422,14 @@
     color: var(--color-gray-600);
   }
 
+  .SearchClose {
+    display: none;
+  }
+
+  .SearchClose:focus {
+    display: flex;
+  }
+
   .SearchRootScrollable {
     height: 100%;
     overscroll-behavior: contain;
@@ -454,17 +444,13 @@
     min-height: 100%;
     align-items: flex-start;
     justify-content: center;
+    padding-bottom: 50vh;
   }
 
   .SearchListDefault {
     outline: 0;
-    overflow-y: auto;
-    max-height: min(22.5rem, var(--available-height));
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
     padding: 0.5rem;
-    overscroll-behavior: contain;
-    scroll-padding-top: 2.25rem;
-    scroll-padding-bottom: 0.5rem;
   }
 }

@@ -1154,6 +1154,70 @@ describe('<Select.Root />', () => {
     });
   });
 
+  describe('scroll arrows', () => {
+    it('normalizes overlapping fractional scroll ranges when toggling scroll arrow visibility', async () => {
+      let scrollTop = 0.4;
+
+      await render(
+        <Select.Root open>
+          <Select.Trigger>Open</Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner alignItemWithTrigger={false}>
+              <Select.Popup>
+                <Select.ScrollUpArrow keepMounted />
+                <Select.List
+                  ref={(node) => {
+                    if (!node) {
+                      return;
+                    }
+
+                    Object.defineProperty(node, 'scrollTop', {
+                      configurable: true,
+                      get: () => scrollTop,
+                      set: (value: number) => {
+                        scrollTop = value;
+                      },
+                    });
+                    Object.defineProperty(node, 'scrollHeight', {
+                      value: 60.6,
+                      configurable: true,
+                    });
+                    Object.defineProperty(node, 'clientHeight', {
+                      value: 60,
+                      configurable: true,
+                    });
+                  }}
+                >
+                  <Select.Item value="one">One</Select.Item>
+                  <Select.Item value="two">Two</Select.Item>
+                  <Select.Item value="three">Three</Select.Item>
+                </Select.List>
+                <Select.ScrollDownArrow keepMounted />
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const list = screen.getByRole('listbox');
+      const upArrow = screen.getByText('▲');
+      const downArrow = screen.getByText('▼');
+
+      await waitFor(() => {
+        expect(upArrow).toHaveAttribute('data-visible');
+        expect(downArrow).not.toHaveAttribute('data-visible');
+      });
+
+      scrollTop = 0.2;
+      fireEvent.scroll(list);
+
+      await waitFor(() => {
+        expect(upArrow).not.toHaveAttribute('data-visible');
+        expect(downArrow).toHaveAttribute('data-visible');
+      });
+    });
+  });
+
   describe.skipIf(isJSDOM)('select inside popover', () => {
     it('keeps the popover open when selecting via drag-to-select', async () => {
       ignoreActWarnings();
@@ -1738,6 +1802,78 @@ describe('<Select.Root />', () => {
       expect(handleFormSubmit.mock.calls.length).toBe(1);
       expect(handleFormSubmit.mock.calls[0][0]).toEqual({ country: 'US' });
     });
+
+    it.skipIf(isJSDOM)('submits to an external form when `form` is provided', async () => {
+      const submitSpy = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        return formData.get('country');
+      });
+
+      await render(
+        <React.Fragment>
+          <form id="external-form" onSubmit={submitSpy}>
+            <button type="submit">Submit</button>
+          </form>
+          <Select.Root name="country" form="external-form" defaultValue="US">
+            <Select.Trigger>
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="US">United States</Select.Item>
+                  <Select.Item value="CA">Canada</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </React.Fragment>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(submitSpy.mock.calls.length).toBe(1);
+      expect(submitSpy.mock.results.at(-1)?.value).toBe('US');
+    });
+
+    it.skipIf(isJSDOM)(
+      'submits multiple values to an external form when `form` is provided',
+      async () => {
+        const submitSpy = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+          event.preventDefault();
+          const formData = new FormData(event.currentTarget);
+          return formData.getAll('countries');
+        });
+
+        await render(
+          <React.Fragment>
+            <form id="external-form" onSubmit={submitSpy}>
+              <button type="submit">Submit</button>
+            </form>
+            <Select.Root multiple name="countries" form="external-form" value={['US', 'CA']}>
+              <Select.Trigger>
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="US">United States</Select.Item>
+                    <Select.Item value="CA">Canada</Select.Item>
+                    <Select.Item value="AU">Australia</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </React.Fragment>,
+        );
+
+        fireEvent.click(screen.getByText('Submit'));
+
+        expect(submitSpy.mock.calls.length).toBe(1);
+        expect(submitSpy.mock.results.at(-1)?.value).toEqual(['US', 'CA']);
+      },
+    );
 
     it('triggers native HTML validation on submit', async () => {
       const { user } = await render(
@@ -3670,6 +3806,40 @@ describe('<Select.Root />', () => {
         expect(optionB).toHaveAttribute('data-highlighted');
       });
     });
+
+    it.skipIf(isJSDOM)(
+      'highlights the first item after opening when alignItemWithTrigger is active and no value is selected',
+      async () => {
+        await render(
+          <div style={{ paddingTop: 120, paddingLeft: 24 }}>
+            <Select.Root>
+              <Select.Trigger data-testid="trigger" style={{ width: 120, height: 36 }}>
+                <Select.Value placeholder="Pick one" />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup style={{ maxHeight: 'none' }}>
+                    <Select.Item value="a">a</Select.Item>
+                    <Select.Item value="b">b</Select.Item>
+                    <Select.Item value="c">c</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+        fireEvent.mouseDown(trigger);
+
+        const optionA = await screen.findByRole('option', { name: 'a' });
+
+        await waitFor(() => {
+          expect(optionA).toHaveAttribute('data-highlighted');
+        });
+      },
+    );
 
     it('does not highlight items from mouse movement when disabled', async () => {
       const { user } = await render(

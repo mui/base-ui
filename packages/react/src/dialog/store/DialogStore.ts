@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { type DialogRoot } from '../root/DialogRoot';
-import type { FloatingUIOpenChangeDetails } from '../../utils/types';
 import {
   createInitialPopupStoreState,
   PopupStoreContext,
@@ -86,14 +86,7 @@ export class DialogStore<Payload> extends ReactStore<
       return;
     }
 
-    const details: FloatingUIOpenChangeDetails = {
-      open: nextOpen,
-      nativeEvent: eventDetails.event,
-      reason: eventDetails.reason,
-      nested: this.state.nested,
-    };
-
-    this.state.floatingRootContext.context.events?.emit('openchange', details);
+    this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
 
     const updatedState: Partial<State<Payload>> = {
       open: nextOpen,
@@ -109,6 +102,18 @@ export class DialogStore<Payload> extends ReactStore<
 
     this.update(updatedState);
   };
+
+  static useStore<Payload>(
+    externalStore: DialogStore<Payload> | undefined,
+    initialState?: Partial<State<Payload>>,
+  ) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const internalStore = useRefWithInit(() => {
+      return new DialogStore<Payload>(initialState);
+    }).current;
+
+    return externalStore ?? internalStore;
+  }
 }
 
 function createInitialState<Payload>(initialState: Partial<State<Payload>> = {}): State<Payload> {

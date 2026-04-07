@@ -2,14 +2,13 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { isTabbable } from 'tabbable';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { isWebKit } from '@base-ui/utils/detectBrowser';
 import {
   safePolygon,
   useClick,
@@ -68,7 +67,14 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   componentProps: NavigationMenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { className, render, nativeButton = true, disabled, ...elementProps } = componentProps;
+  const {
+    className,
+    render,
+    nativeButton = true,
+    disabled,
+    style,
+    ...elementProps
+  } = componentProps;
 
   const {
     value,
@@ -392,11 +398,11 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       resizeFrame.request(syncCurrentSize);
     }
 
-    win.addEventListener('resize', handleResize);
+    const unsubscribe = addEventListener(win, 'resize', handleResize);
 
     return () => {
       resizeFrame.cancel();
-      win.removeEventListener('resize', handleResize);
+      unsubscribe();
     };
   }, [open, isActiveItem, popupElement, positionerElement, resizeFrame, syncCurrentSize]);
 
@@ -550,6 +556,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   });
 
   const hoverInteractionState = useHoverInteractionSharedState(context);
+  const shouldBlockSafePolygonPointerEvents = pointerType !== 'touch';
 
   React.useEffect(() => {
     if (!open) {
@@ -572,14 +579,18 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   });
 
   function getScope() {
-    return triggerElementRef.current?.closest('ul') ?? null;
+    if (!nested || !positionerElement) {
+      return triggerElementRef.current?.closest('ul') ?? null;
+    }
+
+    return null;
   }
 
   const hoverProps = useHoverReferenceInteraction(context, {
     enabled: hoverInteractionsEnabled,
     move: false,
     handleClose: safePolygon({
-      blockPointerEvents: pointerType !== 'touch' && (!isWebKit || nested),
+      blockPointerEvents: shouldBlockSafePolygonPointerEvents,
       getScope,
     }),
     restMs: mounted && positionerElement ? 0 : delay,
@@ -609,6 +620,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   function handleActivation(event: React.MouseEvent | React.KeyboardEvent) {
     ReactDOM.flushSync(() => {
+      const currentTarget = isHTMLElement(event.currentTarget) ? event.currentTarget : null;
       const prevTriggerRect = prevTriggerElementRef.current?.getBoundingClientRect();
 
       if (mounted && prevTriggerRect && triggerElement) {
@@ -646,23 +658,26 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
       if (
         event.type === 'mouseenter' &&
-        nested &&
-        !positionerElement &&
-        pointerType !== 'touch' &&
+        shouldBlockSafePolygonPointerEvents &&
+        (!nested || !positionerElement) &&
         hoverFloatingElement &&
-        isHTMLElement(event.currentTarget)
+        currentTarget
       ) {
-        const scopeElement = getScope();
+        const applyPointerEventsMutation = () => {
+          const scopeElement = getScope() ?? currentTarget.ownerDocument.body;
 
-        if (!scopeElement) {
-          return;
+          applySafePolygonPointerEventsMutation(hoverInteractionState, {
+            scopeElement,
+            referenceElement: currentTarget,
+            floatingElement: hoverFloatingElement,
+          });
+        };
+
+        if (value != null && value !== itemValue) {
+          queueMicrotask(applyPointerEventsMutation);
+        } else {
+          applyPointerEventsMutation();
         }
-
-        applySafePolygonPointerEventsMutation(hoverInteractionState, {
-          scopeElement,
-          referenceElement: event.currentTarget,
-          floatingElement: hoverFloatingElement,
-        });
       }
     });
   }
@@ -694,12 +709,17 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     setPointerType(event.pointerType);
   }
 
+  function handleTriggerPointerDown(event: React.PointerEvent) {
+    handleSetPointerType(event);
+    clearSafePolygonPointerEventsMutation(hoverInteractionState);
+  }
+
   const defaultProps: HTMLProps = {
     tabIndex: 0,
     onMouseEnter: handleOpenEvent,
     onClick: handleOpenEvent,
     onPointerEnter: handleSetPointerType,
-    onPointerDown: handleSetPointerType,
+    onPointerDown: handleTriggerPointerDown,
     'aria-expanded': isActiveItem,
     'aria-controls': isActiveItem ? popupElement?.id : undefined,
     [NAVIGATION_MENU_TRIGGER_IDENTIFIER as string]: '',
@@ -762,6 +782,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         tag="button"
         render={render}
         className={className}
+        style={style}
         state={state}
         stateAttributesMapping={pressableTriggerOpenStateMapping}
         refs={[forwardedRef, handleTriggerElement, buttonRef]}
@@ -791,10 +812,10 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
             ref={afterOutsideRef}
             onFocus={(event) => {
               if (referenceElement && isOutsideEvent(event, referenceElement)) {
-                const elementToFocus =
-                  afterInsideRef.current && isTabbable(afterInsideRef.current)
-                    ? afterInsideRef.current
-                    : triggerElement;
+                ReactDOM.flushSync(() => {
+                  setViewportInert(false);
+                });
+                const elementToFocus = afterInsideRef.current || triggerElement;
                 elementToFocus?.focus();
               } else {
                 let nextTabbable = getNextTabbable(triggerElement);

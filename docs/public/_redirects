@@ -6,6 +6,9 @@
 # Playground SPA redirects
 /vite-playground/* /vite-playground/index.html 200
 
+# Shortlink to Netlify deploy previews
+/pr/:number https://deploy-preview-:number--base-ui.netlify.app/ 302
+
 # For links that we can't edit later on, for example hosted in the code published on npm
 /r/discord https://discord.com/invite/g6C3hUtuxz 302
 /r/invalid-render-prop /react/handbook/composition 302

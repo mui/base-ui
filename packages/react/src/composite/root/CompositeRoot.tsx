@@ -19,6 +19,7 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
   const {
     render,
     className,
+    style,
     refs = EMPTY_ARRAY as React.Ref<Element>[],
     props = EMPTY_ARRAY,
     state = EMPTY_OBJECT as State,
@@ -104,7 +105,7 @@ export interface CompositeRootState {}
 
 export interface CompositeRootProps<Metadata, State extends Record<string, any>> extends Pick<
   BaseUIComponentProps<'div', State>,
-  'render' | 'className' | 'children'
+  'render' | 'className' | 'children' | 'style'
 > {
   props?: Array<Record<string, any> | (() => Record<string, any>)> | undefined;
   state?: State | undefined;

@@ -1,4 +1,6 @@
-export function isMouseWithinBounds(event: React.MouseEvent) {
+export function isMouseWithinBounds(
+  event: React.MouseEvent<HTMLElement> | React.PointerEvent<HTMLElement>,
+) {
   const targetRect = event.currentTarget.getBoundingClientRect();
 
   // Safari randomly fires `mouseleave` incorrectly when the item is

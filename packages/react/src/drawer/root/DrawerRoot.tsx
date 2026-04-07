@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerWindow } from '@base-ui/utils/owner';
@@ -302,7 +303,7 @@ export interface DrawerRootProps<Payload = unknown> {
   /**
    * ID of the trigger that the drawer is associated with.
    * This is useful in conjunction with the `open` prop to create a controlled drawer.
-   * There's no need to specify this prop when the drawer is uncontrolled (i.e. when the `open` prop is not set).
+   * There's no need to specify this prop when the drawer is uncontrolled (that is, when the `open` prop is not set).
    */
   triggerId?: string | null | undefined;
   /**
@@ -470,11 +471,10 @@ function DrawerProviderReporter() {
     }
 
     const closeWatcher = new CloseWatcherCtor();
-
-    closeWatcher.addEventListener('close', handleCloseWatcher);
+    const unsubscribe = addEventListener(closeWatcher, 'close', handleCloseWatcher);
 
     return () => {
-      closeWatcher.removeEventListener('close', handleCloseWatcher);
+      unsubscribe();
       closeWatcher.destroy();
     };
   }, [dialogRootContext.store, isTopmost, open, popupElement]);

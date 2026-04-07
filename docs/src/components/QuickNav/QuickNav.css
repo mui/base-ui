@@ -7,8 +7,23 @@
     position: relative;
   }
 
+  .QuickNavContent {
+    padding-top: 1.5rem;
+    padding-bottom: 5rem;
+
+    @media (--sm) {
+      padding-top: 2rem;
+    }
+
+    @media (--show-side-nav) {
+      padding-bottom: 8rem;
+    }
+  }
+
   .QuickNavRoot {
     --quick-nav-margin-x: 2rem;
+    --quick-nav-scrollbar-thumb-width: 0.25rem;
+    --quick-nav-scrollbar-width: 1.5rem;
 
     /* Use line height instead of fixed item height in case text breaks into multiple lines */
     --quick-nav-item-height: 2rem;
@@ -17,17 +32,11 @@
       var(--quick-nav-item-height) / 2 - var(--quick-nav-item-line-height) / 2
     );
 
-    /* The variable is used in JS positioning logic */
-    --top: -1px;
-    --margin-top: 5.75rem; /* Match hero code block top */
-
     font-size: var(--text-md);
     line-height: var(--text-md--line-height);
-    letter-spacing: var(--text-md--letter-spacing);
     z-index: 1;
     position: sticky;
-    top: var(--top);
-    margin-top: var(--margin-top);
+    top: 0;
     width: 0;
     float: right;
     contain: layout;
@@ -39,18 +48,56 @@
   }
 
   .QuickNavInner {
-    border-top: 1px solid var(--color-gray-200);
     position: relative;
     left: var(--quick-nav-margin-x);
-    padding-top: 0.75rem;
-    padding-bottom: 2.5rem;
-    width: calc(var(--sidebar-width) - var(--quick-nav-margin-x) * 2);
+    width: calc(var(--sidebar-width) - var(--quick-nav-margin-x));
   }
 
-  .QuickNavTitle {
-    padding-block: var(--quick-nav-item-padding-y);
-    font-weight: 500;
-    letter-spacing: calc(var(--text-md--letter-spacing) * -1);
+  .QuickNavViewport {
+    max-height: 100dvh;
+    padding-top: 0.75rem;
+    padding-right: var(--quick-nav-scrollbar-width);
+    padding-bottom: 4.5rem;
+    padding-left: 0;
+
+    /* Scroll containers are focusable */
+    outline: 0;
+  }
+
+  .QuickNavScrollbar {
+    display: flex;
+    padding-top: 1.5rem;
+    padding-bottom: 4.5rem;
+
+    /* Click target width */
+    width: var(--quick-nav-scrollbar-width);
+
+    opacity: 0;
+    transition: opacity 200ms 500ms;
+
+    &:active,
+    &[data-scrolling],
+    .QuickNavViewport:focus-visible + & {
+      transition-duration: 0ms;
+      transition-delay: 0ms;
+      opacity: 1;
+    }
+  }
+
+  .QuickNavScrollbarThumb {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+
+    &::before {
+      content: '';
+      display: block;
+      height: 100%;
+      /* Visible thumb width */
+      width: var(--quick-nav-scrollbar-thumb-width);
+      border-radius: var(--radius-sm);
+      background-color: var(--color-gray-400);
+    }
   }
 
   .QuickNavList {
@@ -67,7 +114,7 @@
   .QuickNavLink {
     display: flex;
     padding: var(--quick-nav-item-padding-y) 0.5rem;
-    margin-inline: var(--quick-nav-item-padding-y) -0.5rem;
+    margin-inline: 0 -0.5rem;
     border-radius: var(--radius-md);
 
     &:focus-visible {

@@ -21,7 +21,7 @@ const values = Object.keys(languages) as Language[];
 
 function renderValue(value: Language[]) {
   if (value.length === 0) {
-    return 'Select languages…';
+    return 'Select languages';
   }
 
   const firstLanguage = languages[value[0]];
@@ -33,10 +33,10 @@ export default function MultiSelectExample() {
   return (
     <div className="flex flex-col gap-1">
       <Select.Root multiple defaultValue={['javascript', 'typescript']}>
-        <Select.Label className="cursor-default text-sm leading-5 font-medium text-gray-900">
+        <Select.Label className="cursor-default text-sm leading-5 font-bold text-gray-900">
           Languages
         </Select.Label>
-        <Select.Trigger className="flex h-10 min-w-[14rem] items-center justify-between gap-3 rounded-md border border-gray-200 pr-3 pl-3.5 text-base bg-[canvas] text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100">
+        <Select.Trigger className="flex h-10 min-w-[14rem] items-center justify-between gap-3 rounded-md border border-gray-200 pr-3 pl-3.5 text-base bg-[canvas] text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100 font-normal">
           <Select.Value className="data-[placeholder]:opacity-60">{renderValue}</Select.Value>
           <Select.Icon className="flex">
             <ChevronUpDownIcon />

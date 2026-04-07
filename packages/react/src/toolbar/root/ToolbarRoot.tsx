@@ -21,6 +21,7 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
     orientation = 'horizontal',
     className,
     render,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -59,6 +60,7 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
       <CompositeRoot
         render={render}
         className={className}
+        style={style}
         state={state}
         refs={[forwardedRef]}
         props={[defaultProps, elementProps]}

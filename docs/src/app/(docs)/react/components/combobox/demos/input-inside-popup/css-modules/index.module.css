@@ -21,6 +21,7 @@
   font-family: inherit;
   font-size: 1rem;
   line-height: 1.5rem;
+  font-weight: 400;
   color: var(--color-gray-900);
   cursor: default;
   background-color: canvas;
@@ -71,6 +72,7 @@
   border-radius: 0.375rem;
   font-family: inherit;
   font-size: 1rem;
+  font-weight: 400;
   background-color: canvas;
   color: var(--color-gray-900);
   outline: none;
@@ -84,7 +86,7 @@
 .Label {
   font-size: 0.875rem;
   line-height: 1.25rem;
-  font-weight: 500;
+  font-weight: 700;
   color: var(--color-gray-900);
   cursor: default;
 }
@@ -194,7 +196,7 @@
   background-color: var(--color-gray-200);
 }
 
-.Empty:not(:empty) {
+.Empty {
   box-sizing: border-box;
   font-size: 0.925rem;
   line-height: 1rem;

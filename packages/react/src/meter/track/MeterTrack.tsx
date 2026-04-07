@@ -14,7 +14,7 @@ export const MeterTrack = React.forwardRef(function MeterTrack(
   componentProps: MeterTrack.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   return useRenderElement('div', componentProps, {
     ref: forwardedRef,

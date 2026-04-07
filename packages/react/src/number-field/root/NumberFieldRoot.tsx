@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -9,6 +10,7 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { isIOS } from '@base-ui/utils/detectBrowser';
+import { activeElement } from '../../floating-ui-react/utils';
 import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import type { FieldRootState } from '../../field/root/FieldRoot';
@@ -58,6 +60,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     required = false,
     disabled: disabledProp = false,
     readOnly = false,
+    form,
     name: nameProp,
     defaultValue,
     value: valueProp,
@@ -71,6 +74,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     render,
     className,
     inputRef: inputRefProp,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -347,7 +351,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         if (
           // Allow pinch-zooming.
           event.ctrlKey ||
-          ownerDocument(inputRef.current).activeElement !== inputRef.current
+          activeElement(ownerDocument(inputRef.current)) !== inputRef.current
         ) {
           return;
         }
@@ -364,11 +368,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         });
       }
 
-      element.addEventListener('wheel', handleWheel);
-
-      return () => {
-        element.removeEventListener('wheel', handleWheel);
-      };
+      return addEventListener(element, 'wheel', handleWheel);
     },
     [allowWheelScrub, incrementValue, disabled, readOnly, largeStep, step, getStepAmount],
   );
@@ -483,6 +483,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         })}
         ref={hiddenInputRef}
         type="number"
+        form={form}
         name={name}
         value={value ?? ''}
         min={min}
@@ -562,11 +563,16 @@ export interface NumberFieldRootProps extends Omit<
    */
   name?: string | undefined;
   /**
+   * Identifies the form that owns the hidden input.
+   * Useful when the number field is rendered outside the form.
+   */
+  form?: string | undefined;
+  /**
    * The raw numeric value of the field.
    */
   value?: number | null | undefined;
   /**
-   * The uncontrolled value of the field when it’s initially rendered.
+   * The uncontrolled value of the field when it's initially rendered.
    *
    * To render a controlled number field, use the `value` prop instead.
    */

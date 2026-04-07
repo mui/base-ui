@@ -23,7 +23,7 @@ export const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop
   componentProps: PreviewCardBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const store = usePreviewCardRootContext();
   const open = store.useState('open');

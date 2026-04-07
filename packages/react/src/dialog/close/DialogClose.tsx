@@ -22,6 +22,7 @@ export const DialogClose = React.forwardRef(function DialogClose(
     className,
     disabled = false,
     nativeButton = true,
+    style,
     ...elementProps
   } = componentProps;
 

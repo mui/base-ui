@@ -41,13 +41,14 @@ export function useFloatingRootContext(options: UseFloatingRootContextOptions): 
     () =>
       new FloatingRootStore({
         open,
+        transitionStatus: undefined,
         onOpenChange,
         referenceElement: elements.reference ?? null,
         floatingElement: elements.floating ?? null,
         triggerElements: new PopupTriggerMap(),
         floatingId,
+        syncOnly: false,
         nested,
-        noEmit: false,
       }),
   ).current;
 
@@ -72,7 +73,6 @@ export function useFloatingRootContext(options: UseFloatingRootContextOptions): 
 
   store.context.onOpenChange = onOpenChange;
   store.context.nested = nested;
-  store.context.noEmit = false;
 
   return store;
 }

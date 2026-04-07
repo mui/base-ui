@@ -1,7 +1,8 @@
 'use client';
 import * as React from 'react';
-import { tabbable, isTabbable, focusable, type FocusableElement } from 'tabbable';
 import { getNodeName, isHTMLElement } from '@floating-ui/utils/dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
+import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -17,19 +18,21 @@ import {
   contains,
   getTarget,
   isTypeableCombobox,
-  isVirtualClick,
-  isVirtualPointerEvent,
-  stopEvent,
-  getNodeAncestors,
-  getNodeChildren,
   getFloatingFocusElement,
-  getTabbableOptions,
+  isTypeableElement,
+} from '../utils/element';
+import { isVirtualClick, isVirtualPointerEvent, stopEvent } from '../utils/event';
+import {
+  tabbable,
+  focusable,
   isOutsideEvent,
+  isTabbable,
   getNextTabbable,
   getPreviousTabbable,
-  isElementVisible,
-  isTypeableElement,
-} from '../utils';
+  type FocusableElement,
+} from '../utils/tabbable';
+import { getNodeAncestors, getNodeChildren } from '../utils/nodes';
+import { isElementVisible } from '../utils/composite';
 import type { FloatingContext, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
@@ -44,7 +47,7 @@ import { FloatingUIOpenChangeDetails } from '../../utils/types';
 import { resolveRef } from '../../utils/resolveRef';
 
 function getEventType(event: Event, lastInteractionType?: InteractionType): InteractionType {
-  const win = ownerWindow(event.target);
+  const win = ownerWindow(getTarget(event));
   if (event instanceof win.KeyboardEvent) {
     return 'keyboard';
   }
@@ -95,12 +98,11 @@ function getFirstTabbableElement(container: Element | null) {
     return null;
   }
 
-  const tabbableOptions = getTabbableOptions();
-  if (isTabbable(container, tabbableOptions)) {
+  if (isTabbable(container)) {
     return container;
   }
 
-  return tabbable(container, tabbableOptions)[0] || container;
+  return tabbable(container)[0] || container;
 }
 
 function isFocusable(element: Element | null) {
@@ -120,18 +122,24 @@ function handleTabIndex(
   orderRef: React.RefObject<Array<'reference' | 'floating' | 'content'>>,
 ) {
   if (
+    floatingFocusElement.hasAttribute('tabindex') &&
+    !floatingFocusElement.hasAttribute('data-tabindex')
+  ) {
+    return;
+  }
+
+  if (
     !orderRef.current.includes('floating') &&
     !floatingFocusElement.getAttribute('role')?.includes('dialog')
   ) {
     return;
   }
 
-  const options = getTabbableOptions();
-  const focusableElements = focusable(floatingFocusElement, options);
+  const focusableElements = focusable(floatingFocusElement);
   const tabbableContent = focusableElements.filter((element) => {
     const dataTabIndex = element.getAttribute('data-tabindex') || '';
     return (
-      isTabbable(element, options) ||
+      isTabbable(element) ||
       (element.hasAttribute('data-tabindex') && !dataTabIndex.startsWith('-'))
     );
   });
@@ -301,7 +309,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const preventReturnFocusRef = React.useRef(false);
   const isPointerDownRef = React.useRef(false);
   const pointerDownOutsideRef = React.useRef(false);
-  const tabbableIndexRef = React.useRef(-1);
+  const lastFocusedTabbableRef = React.useRef<FocusableElement | null>(null);
   const closeTypeRef = React.useRef<InteractionType>('');
   const lastInteractionTypeRef = React.useRef<InteractionType>('');
 
@@ -324,22 +332,13 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
   const getTabbableContent = useStableCallback(
     (container: Element | null = floatingFocusElement) => {
-      return container ? tabbable(container, getTabbableOptions()) : [];
+      return container ? tabbable(container) : [];
     },
   );
 
   const getResolvedInsideElements = useStableCallback(
     () => getInsideElements?.().filter((element): element is Element => element != null) ?? [],
   );
-
-  const getTabbableElements = useStableCallback((container?: Element) => {
-    const content = getTabbableContent(container);
-
-    return orderRef.current
-      .map(() => content)
-      .filter(Boolean)
-      .flat() as Array<FocusableElement>;
-  });
 
   // Prevent Tab from escaping the modal when there are no tabbable elements.
   React.useEffect(() => {
@@ -361,10 +360,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     }
 
     const doc = ownerDocument(floatingFocusElement);
-    doc.addEventListener('keydown', onKeyDown);
-    return () => {
-      doc.removeEventListener('keydown', onKeyDown);
-    };
+    return addEventListener(doc, 'keydown', onKeyDown);
   }, [
     disabled,
     domReference,
@@ -373,7 +369,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     orderRef,
     isUntrappedTypeableCombobox,
     getTabbableContent,
-    getTabbableElements,
   ]);
 
   // Track pointer/keyboard interactions to disambiguate focus and outside presses.
@@ -409,16 +404,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       lastInteractionTypeRef.current = 'keyboard';
     }
 
-    doc.addEventListener('pointerdown', onPointerDown, true);
-    doc.addEventListener('pointerup', clearPointerDownOutside, true);
-    doc.addEventListener('pointercancel', clearPointerDownOutside, true);
-    doc.addEventListener('keydown', onKeyDown, true);
-    return () => {
-      doc.removeEventListener('pointerdown', onPointerDown, true);
-      doc.removeEventListener('pointerup', clearPointerDownOutside, true);
-      doc.removeEventListener('pointercancel', clearPointerDownOutside, true);
-      doc.removeEventListener('keydown', onKeyDown, true);
-    };
+    return mergeCleanups(
+      addEventListener(doc, 'pointerdown', onPointerDown, true),
+      addEventListener(doc, 'pointerup', clearPointerDownOutside, true),
+      addEventListener(doc, 'pointercancel', clearPointerDownOutside, true),
+      addEventListener(doc, 'keydown', onKeyDown, true),
+    );
   }, [
     disabled,
     floating,
@@ -446,11 +437,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     }
 
     function handleFocusIn(event: FocusEvent) {
-      const target = getTarget(event) as Element | null;
-      const tabbableContent = getTabbableContent() as Array<Element | null>;
-      const tabbableIndex = tabbableContent.indexOf(target);
-      if (tabbableIndex !== -1) {
-        tabbableIndexRef.current = tabbableIndex;
+      const target = getTarget(event) as FocusableElement | null;
+      if (isTabbable(target)) {
+        lastFocusedTabbableRef.current = target;
       }
     }
 
@@ -533,10 +522,10 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
             }
           }
 
-          const prevTabbableIndex = tabbableIndexRef.current;
           const tabbableContent = getTabbableContent() as Array<Element | null>;
+          const prevTabbable = lastFocusedTabbableRef.current;
           const nodeToFocus =
-            tabbableContent[prevTabbableIndex] ||
+            (prevTabbable && tabbableContent.includes(prevTabbable) ? prevTabbable : null) ||
             tabbableContent[tabbableContent.length - 1] ||
             floatingFocusElement;
 
@@ -584,43 +573,20 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     }
 
     const domReferenceElement = isHTMLElement(domReference) ? domReference : null;
-    const cleanups: Array<() => void> = [];
-
     if (!floating && !domReferenceElement) {
       return undefined;
     }
 
-    if (domReferenceElement) {
-      domReferenceElement.addEventListener('focusout', handleFocusOutside);
-      domReferenceElement.addEventListener('pointerdown', handlePointerDown);
-      cleanups.push(() => {
-        domReferenceElement.removeEventListener('focusout', handleFocusOutside);
-        domReferenceElement.removeEventListener('pointerdown', handlePointerDown);
-      });
-    }
-
-    if (floating) {
-      floating.addEventListener('focusin', handleFocusIn);
-      floating.addEventListener('focusout', handleFocusOutside);
-
-      if (portalContext) {
-        floating.addEventListener('focusout', markInsideReactTree, true);
-        cleanups.push(() => {
-          floating.removeEventListener('focusout', markInsideReactTree, true);
-        });
-      }
-
-      cleanups.push(() => {
-        floating.removeEventListener('focusin', handleFocusIn);
-        floating.removeEventListener('focusout', handleFocusOutside);
-      });
-    }
-
-    return () => {
-      cleanups.forEach((cleanup) => {
-        cleanup();
-      });
-    };
+    return mergeCleanups(
+      domReferenceElement && addEventListener(domReferenceElement, 'focusout', handleFocusOutside),
+      domReferenceElement &&
+        addEventListener(domReferenceElement, 'pointerdown', handlePointerDown),
+      floating && addEventListener(floating, 'focusin', handleFocusIn),
+      floating && addEventListener(floating, 'focusout', handleFocusOutside),
+      floating &&
+        portalContext &&
+        addEventListener(floating, 'focusout', markInsideReactTree, true),
+    );
   }, [
     disabled,
     domReference,
@@ -717,7 +683,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
     // Wait for any layout effect state setters to execute to set `tabIndex`.
     queueMicrotask(() => {
-      const focusableElements = getTabbableElements(floatingFocusElement);
       const initialFocusValueOrFn = initialFocusRef.current;
       const resolvedInitialFocus =
         typeof initialFocusValueOrFn === 'function'
@@ -729,19 +694,28 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         return;
       }
 
-      let elToFocus: FocusableElement | null | undefined;
-      if (resolvedInitialFocus === true || resolvedInitialFocus === null) {
-        elToFocus = focusableElements[0] || floatingFocusElement;
-      } else {
-        elToFocus = resolveRef(resolvedInitialFocus);
-      }
-      elToFocus = elToFocus || focusableElements[0] || floatingFocusElement;
-
       const focusAlreadyInsideFloatingEl = contains(floatingFocusElement, previouslyFocusedElement);
 
       if (focusAlreadyInsideFloatingEl) {
         return;
       }
+
+      let focusableElements: Array<FocusableElement> | null = null;
+      const getDefaultFocusElement = () => {
+        if (focusableElements == null) {
+          focusableElements = getTabbableContent(floatingFocusElement);
+        }
+
+        return focusableElements[0] || floatingFocusElement;
+      };
+
+      let elToFocus: FocusableElement | null | undefined;
+      if (resolvedInitialFocus === true || resolvedInitialFocus === null) {
+        elToFocus = getDefaultFocusElement();
+      } else {
+        elToFocus = resolveRef(resolvedInitialFocus);
+      }
+      elToFocus = elToFocus || getDefaultFocusElement();
 
       enqueueFocus(elToFocus, {
         preventScroll: elToFocus === floatingFocusElement,
@@ -752,7 +726,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     open,
     floatingFocusElement,
     ignoreInitialFocus,
-    getTabbableElements,
+    getTabbableContent,
     initialFocusRef,
     openInteractionTypeRef,
   ]);
@@ -792,12 +766,14 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         preventReturnFocusRef.current = false;
       } else {
         let isPreventScrollSupported = false;
-        document.createElement('div').focus({
-          get preventScroll() {
-            isPreventScrollSupported = true;
-            return false;
-          },
-        });
+        ownerDocument(floatingFocusElement)
+          .createElement('div')
+          .focus({
+            get preventScroll() {
+              isPreventScrollSupported = true;
+              return false;
+            },
+          });
 
         if (isPreventScrollSupported) {
           preventReturnFocusRef.current = false;
@@ -848,16 +824,17 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
             contains(node.context?.elements.floating, activeEl),
           ));
 
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      const returnFocusValueOrFn = returnFocusRef.current;
       const returnElement = getReturnElement();
 
       queueMicrotask(() => {
         // This is `returnElement`, if it's tabbable, or its first tabbable child.
         const tabbableReturnElement = getFirstTabbableElement(returnElement);
-        const hasExplicitReturnFocus = typeof returnFocusRef.current !== 'boolean';
+        const hasExplicitReturnFocus = typeof returnFocusValueOrFn !== 'boolean';
 
         if (
-          // eslint-disable-next-line react-hooks/exhaustive-deps
-          returnFocusRef.current &&
+          returnFocusValueOrFn &&
           !preventReturnFocusRef.current &&
           isHTMLElement(tabbableReturnElement) &&
           // If the focus moved somewhere else after mount, avoid returning focus
@@ -945,7 +922,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           ref={mergedBeforeGuardRef}
           onFocus={(event) => {
             if (modal) {
-              const els = getTabbableElements();
+              const els = getTabbableContent();
               enqueueFocus(els[els.length - 1]);
             } else if (portalContext?.portalNode) {
               preventReturnFocusRef.current = false;
@@ -966,7 +943,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           ref={mergedAfterGuardRef}
           onFocus={(event) => {
             if (modal) {
-              enqueueFocus(getTabbableElements()[0]);
+              enqueueFocus(getTabbableContent()[0]);
             } else if (portalContext?.portalNode) {
               if (closeOnFocusOut) {
                 preventReturnFocusRef.current = true;

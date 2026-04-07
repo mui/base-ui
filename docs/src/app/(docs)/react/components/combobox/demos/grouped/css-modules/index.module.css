@@ -27,6 +27,7 @@
   border-radius: inherit;
   font-family: inherit;
   font-size: 1rem;
+  font-weight: 400;
   background-color: transparent;
   color: var(--color-gray-900);
   outline: none;
@@ -42,7 +43,7 @@
   gap: 0.25rem;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  font-weight: 500;
+  font-weight: 700;
   color: var(--color-gray-900);
   position: relative;
 }
@@ -139,7 +140,7 @@
   box-sizing: border-box;
   padding: 0.75rem 1rem 0.25rem calc(1rem + 0.75rem + 0.5rem);
   font-size: 0.6875rem;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   background-color: canvas;
@@ -194,7 +195,7 @@
   grid-column-start: 2;
 }
 
-.Empty:not(:empty) {
+.Empty {
   box-sizing: border-box;
   padding: 1rem;
   font-size: 0.925rem;

@@ -32,7 +32,7 @@
   user-select: none;
   font-family: inherit;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 400;
 
   &:focus-visible {
     background-color: transparent;

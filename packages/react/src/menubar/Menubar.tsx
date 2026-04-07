@@ -15,12 +15,11 @@ import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { MenuOpenEventDetails } from '../menu/utils/types';
 import { StateAttributesMapping } from '../utils/getStateAttributesProps';
+import { MenubarDataAttributes } from './MenubarDataAttributes';
 
 const menubarStateAttributesMapping: StateAttributesMapping<MenubarState> = {
   hasSubmenuOpen(value) {
-    return {
-      'data-has-submenu-open': value ? 'true' : 'false',
-    };
+    return value ? { [MenubarDataAttributes.hasSubmenuOpen]: '' } : null;
   },
 };
 
@@ -41,6 +40,7 @@ export const Menubar = React.forwardRef(function Menubar(
     modal = true,
     disabled = false,
     id: idProp,
+    style,
     ...elementProps
   } = props;
 
@@ -84,6 +84,7 @@ export const Menubar = React.forwardRef(function Menubar(
           <CompositeRoot
             render={render}
             className={className}
+            style={style}
             state={state}
             stateAttributesMapping={menubarStateAttributesMapping}
             refs={[forwardedRef, setContentElement, contentRef]}

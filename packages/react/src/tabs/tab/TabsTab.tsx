@@ -32,6 +32,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
     value,
     id: idProp,
     nativeButton = true,
+    style,
     ...elementProps
   } = componentProps;
 

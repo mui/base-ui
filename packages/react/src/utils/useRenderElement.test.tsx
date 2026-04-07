@@ -14,7 +14,7 @@ describe('useRenderElement', () => {
     componentProps: BaseUIComponentProps<'div', { active?: boolean }> & { active?: boolean },
     forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
-    const { className, render: renderProp, active, ...elementProps } = componentProps;
+    const { className, render: renderProp, active, style, ...elementProps } = componentProps;
 
     const state = { active };
 
@@ -26,6 +26,66 @@ describe('useRenderElement', () => {
 
     return element;
   });
+
+  const DirectPropsTestComponent = React.forwardRef(function DirectPropsTestComponent(
+    componentProps: BaseUIComponentProps<'div', { active?: boolean }> & { active?: boolean },
+    forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  ) {
+    const { className, render: renderProp, active, style, ...elementProps } = componentProps;
+
+    return useRenderElement('div', componentProps, {
+      state: { active },
+      ref: forwardedRef,
+      props: elementProps,
+    });
+  });
+
+  const ArrayPropsTestComponent = React.forwardRef(function ArrayPropsTestComponent(
+    componentProps: BaseUIComponentProps<'div', { active?: boolean }> & { active?: boolean },
+    forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  ) {
+    const { className, render: renderProp, active, style, ...elementProps } = componentProps;
+
+    return useRenderElement('div', componentProps, {
+      state: { active },
+      ref: forwardedRef,
+      props: [elementProps, { className: 'test-component' }],
+    });
+  });
+
+  function DisabledPropsTestComponent(props: {
+    propsGetter: () => React.ComponentPropsWithRef<'div'>;
+  }) {
+    return useRenderElement(
+      'div',
+      {},
+      {
+        enabled: false,
+        props: [props.propsGetter],
+      },
+    );
+  }
+
+  function RerenderTestComponent(props: {
+    enabled?: boolean;
+    refs?: React.Ref<HTMLDivElement> | Array<React.Ref<HTMLDivElement> | undefined> | undefined;
+    onClick?: React.MouseEventHandler<HTMLDivElement>;
+  }) {
+    return useRenderElement(
+      'div',
+      {},
+      {
+        enabled: props.enabled,
+        ref: props.refs,
+        props: [
+          {
+            id: 'rerender-target',
+            onClick: props.onClick,
+          },
+        ],
+      },
+    );
+  }
 
   it('accepts className as function', async () => {
     const { container } = await render(
@@ -71,6 +131,140 @@ describe('useRenderElement', () => {
     const element = container.firstElementChild;
 
     expect(element?.getAttribute('style')).toBe('padding: 10px;');
+  });
+
+  it('makes single prop objects preventable', async () => {
+    const handleMouseDown = vi.fn((event) => {
+      event.preventBaseUIHandler();
+    });
+
+    const { container } = await render(<DirectPropsTestComponent onMouseDown={handleMouseDown} />);
+
+    const element = container.firstElementChild as HTMLDivElement;
+
+    expect(() =>
+      element.dispatchEvent(new MouseEvent('mousedown', { bubbles: true })),
+    ).not.toThrow();
+    expect(handleMouseDown).toHaveBeenCalledTimes(1);
+  });
+
+  it('makes multi-prop arrays preventable when the event handler is first', async () => {
+    const handleMouseDown = vi.fn((event) => {
+      event.preventBaseUIHandler();
+    });
+
+    const { container } = await render(<ArrayPropsTestComponent onMouseDown={handleMouseDown} />);
+
+    const element = container.firstElementChild as HTMLDivElement;
+
+    expect(() =>
+      element.dispatchEvent(new MouseEvent('mousedown', { bubbles: true })),
+    ).not.toThrow();
+    expect(handleMouseDown).toHaveBeenCalledTimes(1);
+  });
+
+  it('makes obscure single-prop events preventable', async () => {
+    const handleContextMenu = vi.fn((event) => {
+      event.preventBaseUIHandler();
+    });
+
+    const { container } = await render(
+      <DirectPropsTestComponent onContextMenu={handleContextMenu} />,
+    );
+
+    const element = container.firstElementChild as HTMLDivElement;
+
+    expect(() =>
+      element.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true })),
+    ).not.toThrow();
+    expect(handleContextMenu).toHaveBeenCalledTimes(1);
+  });
+
+  it('makes obscure multi-prop array events preventable when the event handler is first', async () => {
+    const handleContextMenu = vi.fn((event) => {
+      event.preventBaseUIHandler();
+    });
+
+    const { container } = await render(
+      <ArrayPropsTestComponent onContextMenu={handleContextMenu} />,
+    );
+
+    const element = container.firstElementChild as HTMLDivElement;
+
+    expect(() =>
+      element.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true })),
+    ).not.toThrow();
+    expect(handleContextMenu).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not resolve props when disabled', async () => {
+    const propsGetter = vi.fn(() => ({
+      onMouseDown() {},
+    }));
+
+    const { container } = await render(<DisabledPropsTestComponent propsGetter={propsGetter} />);
+
+    expect(container.firstElementChild).toBeNull();
+    expect(propsGetter).not.toHaveBeenCalled();
+  });
+
+  it('handles enabled toggles across rerenders', async () => {
+    const ref = React.createRef<HTMLDivElement>();
+    const handleClick = vi.fn();
+    const { rerender } = await render(
+      <RerenderTestComponent enabled={false} refs={ref} onClick={handleClick} />,
+    );
+
+    expect(document.getElementById('rerender-target')).toBeNull();
+    expect(ref.current).toBeNull();
+
+    await rerender(<RerenderTestComponent enabled refs={ref} onClick={handleClick} />);
+
+    const element = document.getElementById('rerender-target') as HTMLDivElement;
+
+    expect(element).not.toBeNull();
+    expect(ref.current).toBe(element);
+
+    element.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(handleClick).toHaveBeenCalledTimes(1);
+
+    await rerender(<RerenderTestComponent enabled={false} refs={ref} onClick={handleClick} />);
+
+    expect(document.getElementById('rerender-target')).toBeNull();
+    expect(ref.current).toBeNull();
+  });
+
+  it('updates merged refs and event handlers when ref shape changes across rerenders', async () => {
+    const primaryRef = React.createRef<HTMLDivElement>();
+    const secondaryRef = React.createRef<HTMLDivElement>();
+    const firstHandleClick = vi.fn();
+    const secondHandleClick = vi.fn();
+    const { rerender } = await render(
+      <RerenderTestComponent refs={primaryRef} onClick={firstHandleClick} />,
+    );
+
+    const initialElement = document.getElementById('rerender-target');
+
+    expect(primaryRef.current).toBe(initialElement);
+    expect(secondaryRef.current).toBeNull();
+
+    await rerender(
+      <RerenderTestComponent refs={[primaryRef, secondaryRef]} onClick={secondHandleClick} />,
+    );
+
+    const updatedElement = document.getElementById('rerender-target') as HTMLDivElement;
+
+    expect(primaryRef.current).toBe(updatedElement);
+    expect(secondaryRef.current).toBe(updatedElement);
+
+    updatedElement.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(firstHandleClick).toHaveBeenCalledTimes(0);
+    expect(secondHandleClick).toHaveBeenCalledTimes(1);
+
+    await rerender(<RerenderTestComponent refs={secondaryRef} onClick={secondHandleClick} />);
+
+    expect(primaryRef.current).toBeNull();
+    expect(secondaryRef.current).toBe(document.getElementById('rerender-target'));
   });
 
   describe('prop: render', () => {
@@ -380,15 +574,15 @@ describe('useRenderElement', () => {
 
     it('does not throw when className is provided with minimal props', async () => {
       const { container } = await render(<MinimalComponent className="test-class" />);
-      expect(container.firstElementChild).to.not.equal(null);
-      expect(container.firstElementChild).to.have.attribute('class', 'test-class');
+      expect(container.firstElementChild).not.toBeNull();
+      expect(container.firstElementChild).toHaveAttribute('class', 'test-class');
     });
 
     it('does not throw when style is provided with minimal props', async () => {
       const { container } = await render(<MinimalComponent style={{ color: 'red' }} />);
-      expect(container.firstElementChild).to.not.equal(null);
+      expect(container.firstElementChild).not.toBeNull();
       const element = container.firstElementChild as HTMLElement;
-      expect(element.style.color).to.equal('red');
+      expect(element.style.color).toBe('red');
     });
   });
 });

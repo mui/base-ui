@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
-import { useOnMount } from '@base-ui/utils/useOnMount';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { getCssDimensions } from '../../utils/getCssDimensions';
+import { useIsHydrating } from '../../utils/useIsHydrating';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { TabsRoot, TabsRootState } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
@@ -30,7 +30,13 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
   componentProps: TabsIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, renderBeforeHydration = false, ...elementProps } = componentProps;
+  const {
+    className,
+    render,
+    renderBeforeHydration = false,
+    style: styleProp,
+    ...elementProps
+  } = componentProps;
 
   const { nonce } = useCSPContext();
 
@@ -39,9 +45,7 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
 
   const { tabsListElement, registerIndicatorUpdateListener } = useTabsListContext();
 
-  const [isMounted, setIsMounted] = React.useState(false);
-
-  useOnMount(() => setIsMounted(true));
+  const isHydrating = useIsHydrating();
 
   const rerender = useForcedRerendering();
 
@@ -162,7 +166,7 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
   return (
     <React.Fragment>
       {element}
-      {!isMounted && renderBeforeHydration && (
+      {isHydrating && renderBeforeHydration && (
         <script
           nonce={nonce}
           // eslint-disable-next-line react/no-danger
@@ -192,7 +196,7 @@ export interface TabsIndicatorState extends TabsRootState {
 export interface TabsIndicatorProps extends BaseUIComponentProps<'span', TabsIndicatorState> {
   /**
    * Whether to render itself before React hydrates.
-   * This minimizes the time that the indicator isn’t visible after server-side rendering.
+   * This minimizes the time that the indicator isn't visible after server-side rendering.
    * @default false
    */
   renderBeforeHydration?: boolean | undefined;

@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
+import { isMouseWithinBounds } from '@base-ui/utils/isMouseWithinBounds';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -10,10 +11,10 @@ import {
   contains,
   getTarget,
   isTypeableCombobox,
-  isVirtualClick,
-  isVirtualPointerEvent,
-  stopEvent,
   getFloatingFocusElement,
+} from '../utils/element';
+import { isVirtualClick, isVirtualPointerEvent, stopEvent } from '../utils/event';
+import {
   isIndexOutOfListBounds,
   getMinListIndex,
   getMaxListIndex,
@@ -23,7 +24,7 @@ import {
   getGridCellIndices,
   getGridCellIndexOfCorner,
   findNonDisabledListIndex,
-} from '../utils';
+} from '../utils/composite';
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
@@ -134,7 +135,7 @@ export interface UseListNavigationProps {
    */
   focusItemOnHover?: boolean | undefined;
   /**
-   * Whether pressing an arrow key on the navigation’s main axis opens the
+   * Whether pressing an arrow key on the navigation's main axis opens the
    * floating element.
    * @default true
    */
@@ -179,7 +180,7 @@ export interface UseListNavigationProps {
    */
   parentOrientation?: UseListNavigationProps['orientation'] | undefined;
   /**
-   * Whether the direction of the floating element’s navigation is in RTL
+   * Whether the direction of the floating element's navigation is in RTL
    * layout.
    * @default false
    */
@@ -190,7 +191,7 @@ export interface UseListNavigationProps {
    * (such as an input), but allow arrow keys to navigate list items.
    * This is common in autocomplete listbox components.
    * Your virtually-focused list items must have a unique `id` set on them.
-   * If you’re using a component role with the `useRole()` Hook, then an `id` is
+   * If you're using a component role with the `useRole()` Hook, then an `id` is
    * generated automatically.
    * @default false
    */
@@ -201,7 +202,7 @@ export interface UseListNavigationProps {
    */
   orientation?: 'vertical' | 'horizontal' | 'both' | undefined;
   /**
-   * Specifies how many columns the list has (i.e., it’s a grid). Use an
+   * Specifies how many columns the list has (i.e., it's a grid). Use an
    * orientation of 'horizontal' (e.g. for an emoji picker/date picker, where
    * pressing ArrowRight or ArrowLeft can change rows), or 'both' (where the
    * current row cannot be escaped with ArrowRight or ArrowLeft, only ArrowUp
@@ -531,6 +532,10 @@ export function useListNavigation(
         forceSyncFocusRef.current = true;
 
         const relatedTarget = event.relatedTarget as HTMLElement | null;
+
+        if (isMouseWithinBounds(event)) {
+          return;
+        }
 
         if (!focusItemOnHover || listRef.current.includes(relatedTarget)) {
           return;

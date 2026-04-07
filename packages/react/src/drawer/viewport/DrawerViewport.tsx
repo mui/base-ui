@@ -2,6 +2,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isElement } from '@floating-ui/utils/dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -23,7 +24,7 @@ import { DrawerBackdropCssVars } from '../backdrop/DrawerBackdropCssVars';
 import { DRAWER_CONTENT_ATTRIBUTE } from '../content/DrawerContentDataAttributes';
 import { REASONS } from '../../utils/reasons';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { contains } from '../../floating-ui-react/utils';
+import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import { DrawerViewportContext } from './DrawerViewportContext';
 import { TransitionStatusDataAttributes } from '../../utils/stateAttributesMapping';
 import { findScrollableTouchTarget, type ScrollAxis } from '../../utils/scrollable';
@@ -66,7 +67,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   props: DrawerViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, children, ...elementProps } = props;
+  const { className, render, style, children, ...elementProps } = props;
 
   const { store } = useDialogRootContext();
   const {
@@ -183,6 +184,15 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     setSwipeRelease(null);
   });
 
+  const finishNestedSwipe = useStableCallback(() => {
+    if (!nestedSwipeActiveRef.current) {
+      return;
+    }
+
+    nestedSwipeActiveRef.current = false;
+    notifyParentSwipingChange?.(false);
+  });
+
   const applySwipeProgress = useStableCallback(
     ({
       resolvedProgress,
@@ -195,10 +205,14 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     }) => {
       const isActive = open && !nested && shouldTrackProgress;
       const swipeProgress = isActive ? resolvedProgress : 0;
+      const nestedSwipeProgress = open && shouldTrackProgress ? resolvedProgress : 0;
 
       if (notifyParent && notifyParentSwipeProgressChange) {
-        const nestedSwipeProgress = open && shouldTrackProgress ? resolvedProgress : 0;
         notifyParentSwipeProgressChange(nestedSwipeProgress);
+
+        if (nestedSwipeProgress <= 0) {
+          finishNestedSwipe();
+        }
       }
 
       visualStateStore?.set({
@@ -379,9 +393,8 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     onSwipingChange(swiping) {
       setBackdropSwipingAttribute(store.context.backdropRef.current, swiping);
 
-      if (!swiping) {
-        nestedSwipeActiveRef.current = false;
-        notifyParentSwipingChange?.(false);
+      if (!swiping && !notifyParentSwipeProgressChange) {
+        finishNestedSwipe();
       }
     },
     swipeThreshold({ element, direction }) {
@@ -494,7 +507,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           return;
         }
 
-        notifyParentSwipingChange?.(false);
+        finishNestedSwipe();
         setSwipeDismissed(true);
 
         popupElement.style.removeProperty('transition');
@@ -863,11 +876,10 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
       updateTouchScrollPosition(touchState, touch);
     }
 
-    doc.addEventListener('touchmove', handleNativeTouchMove, { passive: false, capture: true });
-
-    return () => {
-      doc.removeEventListener('touchmove', handleNativeTouchMove, { capture: true });
-    };
+    return addEventListener(doc, 'touchmove', handleNativeTouchMove, {
+      passive: false,
+      capture: true,
+    });
   }, [
     mounted,
     nestedDrawerOpen,
@@ -928,9 +940,9 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     return () => {
       visualStateStore?.set({ swipeProgress: 0, frontmostHeight: 0 });
       setBackdropSwipingAttribute(store.context.backdropRef.current, false);
-      notifyParentSwipingChange?.(false);
+      finishNestedSwipe();
     };
-  }, [notifyParentSwipingChange, store, visualStateStore]);
+  }, [finishNestedSwipe, store, visualStateStore]);
 
   const swipeProviderValue = React.useMemo(
     () => ({
@@ -1046,10 +1058,17 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           }
 
           const rootElement = viewportElement ?? popupElementState;
-          const target = isElement(event.target) ? event.target : null;
+          const eventTarget = getTarget(event.nativeEvent);
+          const target = isElement(eventTarget) ? eventTarget : null;
+          if (rootElement && target && !contains(rootElement, target)) {
+            ignoreTouchSwipeRef.current = true;
+            touchScrollStateRef.current = null;
+            return;
+          }
+
           let scrollTarget: HTMLElement | null = null;
           let hasCrossAxisScrollableContent = false;
-          if (rootElement && target && contains(rootElement, target)) {
+          if (rootElement && target) {
             scrollTarget = findScrollableTouchTarget(target, rootElement, scrollAxis);
             hasCrossAxisScrollableContent =
               findScrollableTouchTarget(target, rootElement, crossScrollAxis) != null;
@@ -1218,11 +1237,11 @@ function hasExpandedSelectionWithinTarget(selection: Selection, target: Element)
 }
 
 function shouldIgnoreSwipeForTextSelection(doc: Document, rootElement: HTMLElement): boolean {
-  const activeElement = doc.activeElement;
-  const activeElementWithinRoot = Boolean(activeElement && contains(rootElement, activeElement));
+  const activeEl = activeElement(doc);
+  const activeElementWithinRoot = Boolean(activeEl && contains(rootElement, activeEl));
 
-  if (activeElementWithinRoot && isTextSelectionControl(activeElement)) {
-    const { selectionStart, selectionEnd } = activeElement;
+  if (activeElementWithinRoot && isTextSelectionControl(activeEl)) {
+    const { selectionStart, selectionEnd } = activeEl;
     if (selectionStart != null && selectionEnd != null && selectionStart < selectionEnd) {
       return true;
     }
@@ -1242,7 +1261,7 @@ function isEventOnRangeInput(event: TouchEvent, win: ReturnType<typeof ownerWind
     return composedPath.some((pathTarget) => isRangeInput(pathTarget, win));
   }
 
-  return isRangeInput(event.target, win);
+  return isRangeInput(getTarget(event), win);
 }
 
 function isReactTouchEventOnRangeInput(event: React.TouchEvent<Element>): boolean {

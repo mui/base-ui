@@ -22,6 +22,7 @@ export const SliderValue = React.forwardRef(function SliderValue(
     render,
     className,
     children,
+    style,
     ...elementProps
   } = componentProps;
 

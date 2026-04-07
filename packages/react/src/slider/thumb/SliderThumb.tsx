@@ -2,13 +2,13 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useOnMount } from '@base-ui/utils/useOnMount';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { BaseUIComponentProps } from '../../utils/types';
 import { formatNumber } from '../../utils/formatNumber';
 import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useIsHydrating } from '../../utils/useIsHydrating';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { valueToPercent } from '../../utils/valueToPercent';
 import {
@@ -26,6 +26,7 @@ import { useCompositeListItem } from '../../composite/list/useCompositeListItem'
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useCSPContext } from '../../csp-provider/CSPContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { matchesFocusVisible } from '../../floating-ui-react/utils/element';
 import { type LabelableContext } from '../../labelable-provider/LabelableContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { getMidpoint } from '../utils/getMidpoint';
@@ -106,6 +107,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     onFocus: onFocusProp,
     onKeyDown: onKeyDownProp,
     tabIndex: tabIndexProp,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -127,6 +129,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     max,
     min,
     minStepsBetweenValues,
+    form,
     name,
     orientation,
     pressedInputRef,
@@ -151,6 +154,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const thumbRef = React.useRef<HTMLElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const restoringFocusVisibleRef = React.useRef(false);
 
   const defaultInputId = useBaseUiId();
   const labelableId = useLabelableId();
@@ -172,10 +176,8 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const thumbValue = sliderValues[index];
   const thumbValuePercent = valueToPercent(thumbValue, min, max);
 
-  const [isMounted, setIsMounted] = React.useState(false);
   const [positionPercent, setPositionPercent] = React.useState<number | undefined>();
-
-  useOnMount(() => setIsMounted(true));
+  const isHydrating = useIsHydrating();
 
   const safeLastUsedThumbIndex =
     lastUsedThumbIndex >= 0 && lastUsedThumbIndex < sliderValues.length ? lastUsedThumbIndex : -1;
@@ -275,7 +277,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     return {
       ['--position' as string]: `${positionPercent ?? 0}%`,
       visibility:
-        (renderBeforeHydration && !isMounted) || positionPercent === undefined
+        (renderBeforeHydration && isHydrating) || positionPercent === undefined
           ? 'hidden'
           : undefined,
       position: 'absolute',
@@ -288,7 +290,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     activeIndex,
     index,
     inset,
-    isMounted,
+    isHydrating,
     positionPercent,
     range,
     renderBeforeHydration,
@@ -327,18 +329,30 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
               locale,
             ),
       disabled,
+      form,
       id: inputId,
       max,
       min,
       name,
-      onChange(event: React.ChangeEvent<HTMLInputElement>) {
-        handleInputChange(event.target.valueAsNumber, index, event);
+      onChange(event) {
+        handleInputChange(event.currentTarget.valueAsNumber, index, event);
       },
-      onFocus() {
+      onFocus(event) {
+        const isRestoringFocusVisible = restoringFocusVisibleRef.current;
+        restoringFocusVisibleRef.current = false;
         setActive(index);
         setFocused(true);
+
+        if (isRestoringFocusVisible) {
+          event.stopPropagation();
+        }
       },
-      onBlur() {
+      onBlur(event) {
+        if (restoringFocusVisibleRef.current) {
+          event.stopPropagation();
+          return;
+        }
+
         if (!thumbRef.current) {
           return;
         }
@@ -415,6 +429,20 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         }
 
         if (newValue !== null) {
+          const input = event.currentTarget as HTMLInputElement;
+
+          if (!matchesFocusVisible(input)) {
+            restoringFocusVisibleRef.current = true;
+            input.blur();
+            input.focus({
+              preventScroll: true,
+              // Show `:focus-visible` after keyboard interaction, even if the
+              // thumb was previously focused by a pointer.
+              // @ts-expect-error - focusVisible is not yet in the lib.dom.d.ts
+              focusVisible: true,
+            });
+          }
+
           handleInputChange(newValue, index, event);
           event.preventDefault();
         }
@@ -447,7 +475,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
             {childrenProp}
             <input ref={mergedInputRef} {...inputProps} />
             {inset &&
-              !isMounted &&
+              isHydrating &&
               renderBeforeHydration &&
               // this must be rendered with the last thumb to ensure all
               // preceding thumbs are already rendered in the DOM
@@ -481,7 +509,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         },
         style: getThumbStyle(),
         suppressHydrationWarning: renderBeforeHydration || undefined,
-        tabIndex: -1,
       },
       elementProps,
     ],

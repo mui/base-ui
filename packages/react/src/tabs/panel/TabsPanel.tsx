@@ -31,7 +31,7 @@ export const TabsPanel = React.forwardRef(function TabPanel(
   componentProps: TabsPanel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, value, render, keepMounted = false, ...elementProps } = componentProps;
+  const { className, value, render, keepMounted = false, style, ...elementProps } = componentProps;
 
   const {
     getTabIdByPanelValue,

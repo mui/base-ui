@@ -11,11 +11,11 @@ export default function ExampleCheckboxGroup() {
       defaultValue={['fuji-apple']}
       className="flex flex-col items-start gap-1 text-gray-900"
     >
-      <div className="font-medium" id={id}>
+      <div className="font-bold" id={id}>
         Apples
       </div>
 
-      <label className="flex items-center gap-2">
+      <label className="flex items-center gap-2 font-normal">
         <Checkbox.Root
           name="apple"
           value="fuji-apple"
@@ -28,7 +28,7 @@ export default function ExampleCheckboxGroup() {
         Fuji
       </label>
 
-      <label className="flex items-center gap-2">
+      <label className="flex items-center gap-2 font-normal">
         <Checkbox.Root
           name="apple"
           value="gala-apple"
@@ -41,7 +41,7 @@ export default function ExampleCheckboxGroup() {
         Gala
       </label>
 
-      <label className="flex items-center gap-2">
+      <label className="flex items-center gap-2 font-normal">
         <Checkbox.Root
           name="apple"
           value="granny-smith-apple"

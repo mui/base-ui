@@ -54,7 +54,10 @@
 @import '../components/DescriptionList.css';
 @import '../components/ReferenceTable/ReferenceTable.css';
 
+/* Rehype-based syntax highlighting (legacy) */
 @import '../syntax-highlighting/index.css';
+/* Prettylights-based syntax highlighting */
+@import './syntax.css';
 
 @import './utilities/index.css';
 
@@ -99,8 +102,10 @@
   --color-red-800: var(--color-red);
 
   /* Typography */
-  --font-mono: 'SF Mono', 'Menlo', 'DejaVu Sans Mono', 'Consolas', 'Inconsolata', monospace;
-  --font-sans: 'Unica 77', system-ui, sans-serif;
+  --font-mono: 'Paper Mono', monospace;
+  --font-sans: 'Die Grotesk A', system-ui, sans-serif;
+  --font-sans-b: 'Die Grotesk B', system-ui, sans-serif;
+  --font-serif: Georgia, 'Times New Roman', Times, 'Noto Serif', 'DejaVu Serif', serif;
 
   --text-xs: 0.8125rem;
   --text-xs--line-height: 1.25rem;
@@ -147,6 +152,12 @@
 /* Undo `tailwindcss/preflight` in non-Tailwind demos. */
 
 @layer base {
+  /* Undo Die Grotesk OpenType features in demos and regression tests */
+  [data-demo],
+  [data-testid='testcase'] {
+    font-feature-settings: normal;
+  }
+
   [data-demo]:not([data-demo='tailwind']) * {
     all: revert-layer;
   }
@@ -169,11 +180,11 @@
     --color-foreground: var(--color-gray-900);
     --color-popup: white;
     --color-gridline: oklch(91.6% 1% 264deg);
-    --color-selection: oklch(80% 50% 264deg / 25%);
+    --color-selection: oklch(80% 28% 264deg / 50%);
     --color-highlight: var(--color-blue);
-    --color-line-highlight: oklch(80% 50% 264deg / 10%);
-    --color-line-highlight-strong: oklch(80% 50% 264deg / 25%);
-    --color-inline-highlight: oklch(80% 50% 264deg / 15%);
+    --color-line-highlight: oklch(80% 28% 264deg / 20%);
+    --color-line-highlight-strong: oklch(80% 28% 264deg / 35%);
+    --color-inline-highlight: oklch(80% 28% 264deg / 20%);
 
     /* Text colors */
     --color-gray: var(--color-gray-600);
@@ -277,6 +288,10 @@
     -moz-osx-font-smoothing: grayscale;
     /* Stable scrollbar */
     overflow-y: scroll;
+    /* Die Grotesk OpenType features */
+    font-feature-settings:
+      'ss02' 1,
+      'zero' 1;
   }
 
   /* Debugging red text? You just forgot to set or inherit color in your demo. */

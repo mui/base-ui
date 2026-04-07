@@ -314,6 +314,67 @@ describe('<Popover.Root />', () => {
       });
     });
 
+    describe('hover close transitions', () => {
+      it.skipIf(isJSDOM)(
+        'reopens immediately when re-hovering the trigger during a hover close transition',
+        async () => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+          const closeTransitionMs = 50;
+          const style = `
+            @keyframes popover-reopen-during-close {
+              from {
+                opacity: 1;
+              }
+              to {
+                opacity: 0.01;
+              }
+            }
+
+            .animation-test-indicator[data-ending-style] {
+              animation: popover-reopen-during-close ${closeTransitionMs}ms linear forwards;
+            }
+          `;
+
+          const { user } = await render(
+            <React.Fragment>
+              {/* eslint-disable-next-line react/no-danger */}
+              <style dangerouslySetInnerHTML={{ __html: style }} />
+              <TestPopover
+                portalProps={{ keepMounted: true }}
+                // Popover.Trigger uses `delay` as `restMs`, so this remains a
+                // rest-only hover reopen case with no fallback open delay.
+                triggerProps={{ openOnHover: true, delay: 1 }}
+                popupProps={{ className: 'animation-test-indicator' }}
+              />
+            </React.Fragment>,
+          );
+
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+          await user.hover(trigger);
+          await waitFor(() => {
+            expect(screen.getByTestId('popover-popup')).toHaveAttribute('data-open');
+          });
+
+          await user.unhover(trigger);
+          await waitFor(() => {
+            expect(screen.getByTestId('popover-popup')).toHaveAttribute('data-ending-style');
+          });
+
+          // Re-enter without a follow-up mousemove so this only passes if the
+          // close-transition fast path runs from `onMouseEnter`.
+          fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
+          fireEvent.mouseEnter(trigger);
+
+          await waitFor(() => {
+            expect(screen.getByTestId('popover-popup')).toHaveAttribute('data-open');
+          });
+          expect(screen.getByTestId('popover-popup')).not.toHaveAttribute('data-closed');
+        },
+      );
+    });
+
     describe('BaseUIChangeEventDetails', () => {
       it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
         await render(
@@ -1053,18 +1114,18 @@ describe('<Popover.Root />', () => {
         await user.click(trigger);
 
         await waitFor(() => {
-          expect(screen.queryByRole('dialog')).not.to.equal(null);
+          expect(screen.queryByRole('dialog')).not.toBe(null);
         });
 
         expect(
-          trigger.previousElementSibling?.hasAttribute('data-base-ui-focus-guard'),
-        ).not.to.equal(true);
-        expect(trigger.nextElementSibling?.hasAttribute('data-base-ui-focus-guard')).not.to.equal(
-          true,
+          trigger.previousElementSibling?.hasAttribute('data-base-ui-focus-guard') ?? false,
+        ).toBe(false);
+        expect(trigger.nextElementSibling?.hasAttribute('data-base-ui-focus-guard') ?? false).toBe(
+          false,
         );
         expect(
           document.querySelectorAll('[data-base-ui-focus-guard][data-type="inside"]'),
-        ).to.have.length(2);
+        ).toHaveLength(2);
       });
 
       it('should keep trigger focus guards when `true` without a close part', async () => {
@@ -1079,8 +1140,8 @@ describe('<Popover.Root />', () => {
         );
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });
-        expect(trigger.previousElementSibling).to.have.attribute('data-base-ui-focus-guard');
-        expect(trigger.nextElementSibling).to.have.attribute('data-base-ui-focus-guard');
+        expect(trigger.previousElementSibling).toHaveAttribute('data-base-ui-focus-guard');
+        expect(trigger.nextElementSibling).toHaveAttribute('data-base-ui-focus-guard');
 
         await act(async () => {
           screen.getByTestId('input-inside').focus();
@@ -1091,7 +1152,7 @@ describe('<Popover.Root />', () => {
         expect(screen.getByTestId('focus-target')).toHaveFocus();
 
         await waitFor(() => {
-          expect(screen.queryByTestId('popover-popup')).to.equal(null);
+          expect(screen.queryByTestId('popover-popup')).toBe(null);
         });
       });
 
@@ -1144,6 +1205,45 @@ describe('<Popover.Root />', () => {
           await flushMicrotasks();
 
           expect(positioner.previousElementSibling).toHaveAttribute('role', 'presentation');
+        });
+
+        it('reopens on hover after an impatient click is followed by a close button press', async () => {
+          await render(
+            <TestPopover
+              triggerProps={{ openOnHover: true, delay: 100 }}
+              popupProps={{ children: <Popover.Close>Close</Popover.Close> }}
+            />,
+          );
+
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+          fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
+          fireEvent.mouseEnter(trigger);
+          fireEvent.mouseMove(trigger, { movementX: 10, movementY: 0 });
+
+          clock.tick(100);
+          await flushMicrotasks();
+
+          expect(screen.queryByRole('dialog')).not.toBe(null);
+
+          clock.tick(PATIENT_CLICK_THRESHOLD - 1);
+          fireEvent.click(trigger);
+          await flushMicrotasks();
+
+          fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+          await flushMicrotasks();
+
+          expect(screen.queryByRole('dialog')).toBe(null);
+
+          // Re-enter with mouse events only. A fresh pointerenter can be
+          // missed after the click-driven close, but hover should still work.
+          fireEvent.mouseEnter(trigger);
+          fireEvent.mouseMove(trigger, { movementX: 10, movementY: 0 });
+
+          clock.tick(100);
+          await flushMicrotasks();
+
+          expect(screen.queryByRole('dialog')).not.toBe(null);
         });
       });
     });

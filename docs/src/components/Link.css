@@ -1,27 +1,59 @@
 @layer components {
   .Link {
-    color: var(--color-blue);
+    display: inline;
+    width: fit-content;
+    color: currentColor;
+    align-items: center;
+    gap: 4px;
+    -webkit-tap-highlight-color: transparent;
     text-decoration: underline;
-    text-underline-offset: 2px;
     text-decoration-thickness: 1px;
-    text-decoration-color: color-mix(in oklab, var(--color-blue), transparent);
+    text-underline-offset: 4px;
 
-    &[target='_blank'] {
-      margin-right: 0.125em;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25em;
+    &:active {
+      background-color: var(--gray-t2, var(--color-foreground));
+      color: var(--gray-s1, var(--color-background));
+    }
+
+    &:has(code) {
+      text-decoration-color: var(--color-blue);
+    }
+
+    &:has(code):active {
+      color: var(--color-background);
+      background-color: var(--color-blue);
+    }
+
+    &:has(code):active * {
+      color: var(--color-background) !important;
     }
 
     &:focus-visible {
-      outline: 2px solid var(--color-blue);
-      outline-offset: -2px;
+      outline: 2px solid currentColor;
+      outline-offset: 2px;
       border-radius: var(--radius-sm);
+    }
+
+    .LinkArrowLine {
+      opacity: 0;
+      transition: opacity 100ms ease;
+    }
+
+    .LinkArrowCaret {
+      transition: transform 100ms ease;
     }
 
     @media (hover: hover) {
       &:hover {
-        text-decoration-color: var(--color-blue);
+        text-decoration: none;
+      }
+
+      &:hover .LinkArrowLine {
+        opacity: 1;
+      }
+
+      &:hover .LinkArrowCaret {
+        transform: translateX(4px);
       }
     }
   }

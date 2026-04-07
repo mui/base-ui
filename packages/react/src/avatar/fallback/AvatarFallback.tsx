@@ -17,7 +17,7 @@ export const AvatarFallback = React.forwardRef(function AvatarFallback(
   componentProps: AvatarFallback.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, delay, ...elementProps } = componentProps;
+  const { className, render, delay, style, ...elementProps } = componentProps;
 
   const { imageLoadingStatus } = useAvatarRootContext();
   const [delayPassed, setDelayPassed] = React.useState(delay === undefined);

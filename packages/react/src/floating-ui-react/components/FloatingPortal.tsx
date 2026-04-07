@@ -2,6 +2,8 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isNode } from '@floating-ui/utils/dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
+import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -12,7 +14,7 @@ import {
   getPreviousTabbable,
   getNextTabbable,
   isOutsideEvent,
-} from '../utils';
+} from '../utils/tabbable';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { createAttribute } from '../utils/createAttribute';
@@ -162,7 +164,8 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
   componentProps: FloatingPortal.Props<any> & { renderGuards?: boolean | undefined },
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { children, container, className, render, renderGuards, ...elementProps } = componentProps;
+  const { children, container, className, render, renderGuards, style, ...elementProps } =
+    componentProps;
 
   const { portalNode, portalSubtree } = useFloatingPortalNode({
     container,
@@ -177,6 +180,7 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
   const afterInsideRef = React.useRef<HTMLSpanElement>(null);
 
   const [focusManagerState, setFocusManagerState] = React.useState<FocusManagerState>(null);
+  const focusInsideDisabledRef = React.useRef(false);
 
   const modal = focusManagerState?.modal;
   const open = focusManagerState?.open;
@@ -197,27 +201,32 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
     // element outside or using the mouse.
     function onFocus(event: FocusEvent) {
       if (portalNode && event.relatedTarget && isOutsideEvent(event)) {
-        const focusing = event.type === 'focusin';
-        const manageFocus = focusing ? enableFocusInside : disableFocusInside;
-        manageFocus(portalNode);
+        if (event.type === 'focusin') {
+          if (focusInsideDisabledRef.current) {
+            enableFocusInside(portalNode);
+            focusInsideDisabledRef.current = false;
+          }
+        } else {
+          disableFocusInside(portalNode);
+          focusInsideDisabledRef.current = true;
+        }
       }
     }
 
     // Listen to the event on the capture phase so they run before the focus
     // trap elements onFocus prop is called.
-    portalNode.addEventListener('focusin', onFocus, true);
-    portalNode.addEventListener('focusout', onFocus, true);
-    return () => {
-      portalNode.removeEventListener('focusin', onFocus, true);
-      portalNode.removeEventListener('focusout', onFocus, true);
-    };
+    return mergeCleanups(
+      addEventListener(portalNode, 'focusin', onFocus, true),
+      addEventListener(portalNode, 'focusout', onFocus, true),
+    );
   }, [portalNode, modal]);
 
   React.useEffect(() => {
-    if (!portalNode || open) {
+    if (!portalNode || open !== false) {
       return;
     }
     enableFocusInside(portalNode);
+    focusInsideDisabledRef.current = false;
   }, [open, portalNode]);
 
   const portalContextValue = React.useMemo(
