@@ -84,7 +84,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     addEventListener(
       doc,
       'mouseup',
-      (mouseEvent: MouseEvent) => {
+      (mouseEvent) => {
         allowMouseUpTriggerRef.current = false;
 
         if (!allowMouseUpRef.current) {

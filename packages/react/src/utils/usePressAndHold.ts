@@ -134,7 +134,7 @@ export function usePressAndHold(params: UsePressAndHoldParameters): UsePressAndH
     addEventListener(
       win,
       'pointerup',
-      (event: PointerEvent) => {
+      (event) => {
         isPressedRef.current = false;
         stopAutoChange();
         onStop?.(event);
