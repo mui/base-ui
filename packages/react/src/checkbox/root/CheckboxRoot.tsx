@@ -242,7 +242,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
         setCheckedState(nextChecked);
 
-        if (value && groupValue && setGroupValue && !parent) {
+        if (value && groupValue && setGroupValue && !parent && !isGroupedWithParent) {
           const nextGroupValue = nextChecked
             ? [...groupValue, value]
             : groupValue.filter((item) => item !== value);
