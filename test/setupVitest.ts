@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { beforeAll, vi } from 'vitest';
 import setupVitest from '@mui/internal-test-utils/setupVitest';
 // eslint-disable-next-line import/no-relative-packages
 import '../packages/react/test/addVitestMatchers';
@@ -10,15 +10,20 @@ declare global {
   var BASE_UI_ANIMATIONS_DISABLED: boolean;
 }
 
+let resetSourceError = () => {};
+
 setupVitest();
 
-afterEach(async () => {
-  vi.resetAllMocks();
-  resetBuiltError();
+beforeAll(async () => {
   // In compiler tests with workspace aliases disabled, the source module and package entry
   // can be loaded as separate instances, so reset the source copy too.
   // eslint-disable-next-line import/no-relative-packages
-  const { reset: resetSourceError } = await import('../packages/utils/src/error');
+  ({ reset: resetSourceError } = await import('../packages/utils/src/error'));
+});
+
+afterEach(() => {
+  vi.resetAllMocks();
+  resetBuiltError();
   resetSourceError();
 });
 
