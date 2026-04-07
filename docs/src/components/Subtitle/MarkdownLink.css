@@ -4,13 +4,6 @@
 
     &:focus-visible {
       outline: none;
-      color: var(--color-foreground);
-    }
-
-    @media (hover: hover) {
-      &:hover {
-        color: var(--color-foreground);
-      }
     }
   }
 
@@ -22,7 +15,7 @@
     gap: 0.5em;
     padding: 0.5em;
     margin-inline: -0.5em;
-    color: inherit;
+    color: var(--color-foreground);
   }
 
   .MarkdownLinkAnchor:focus-visible .MarkdownLink {
