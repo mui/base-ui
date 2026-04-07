@@ -36,8 +36,10 @@ export interface AutocompleteInputGroupState extends FieldRoot.State {
   listEmpty: boolean;
 }
 
-export interface AutocompleteInputGroupProps
-  extends BaseUIComponentProps<'div', AutocompleteInputGroupState> {}
+export interface AutocompleteInputGroupProps extends BaseUIComponentProps<
+  'div',
+  AutocompleteInputGroupState
+> {}
 
 export interface AutocompleteInputGroup {
   (
