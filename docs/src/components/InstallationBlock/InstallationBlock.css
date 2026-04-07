@@ -42,22 +42,12 @@
       font-weight: var(--font-weight-700);
 
       &::before {
-        background-color: white;
+        background-color: var(--gray-s1);
         outline: 1px solid var(--gray-c3);
         outline-offset: -1px;
         box-shadow:
           0 2px 3px -2px var(--gray-c3),
           inset 0 -1px 1px var(--gray-c2);
-      }
-
-      @media (prefers-color-scheme: dark) {
-        &::before {
-          outline: none;
-          background-color: var(--gray-s2);
-          box-shadow:
-            0 0 3px 0 var(--gray-c3),
-            inset 0 0 0 1px var(--gray-p2);
-        }
       }
     }
 
