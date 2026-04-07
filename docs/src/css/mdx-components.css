@@ -92,8 +92,8 @@
   }
 
   .MdFigure {
-    margin-top: calc(var(--spacing) * 5);
-    margin-bottom: calc(var(--spacing) * 6);
+    margin-top: var(--space-20);
+    margin-bottom: var(--space-24);
   }
 
   .MdEm {

@@ -241,6 +241,18 @@
     --font-weight-400: 400;
     --font-weight-700: 700;
 
+    /* Spacing (`--spacing-*` is used by Tailwind) */
+    --space-4: 0.25rem; /* 4px */
+    --space-8: 0.5rem; /* 8px */
+    --space-12: 0.75rem; /* 12px */
+    --space-16: 1rem; /* 16px */
+    --space-20: 1.25rem; /* 20px */
+    --space-24: 1.5rem; /* 24px */
+    --space-28: 1.75rem; /* 28px */
+    --space-32: 2rem; /* 32px */
+    --space-40: 2.5rem; /* 40px */
+    --space-48: 3rem; /* 48px */
+
     /* Radius */
     --radius-2: 0.125rem; /* 2px */
     --radius-3: 0.1875rem; /* 3px */
@@ -364,6 +376,17 @@
     --radius-16: initial;
     --radius-pill: initial;
     --radius-circle: initial;
+
+    --space-4: initial;
+    --space-8: initial;
+    --space-12: initial;
+    --space-16: initial;
+    --space-20: initial;
+    --space-24: initial;
+    --space-28: initial;
+    --space-32: initial;
+    --space-40: initial;
+    --space-48: initial;
 
     --color-content: initial;
     --color-background: initial;

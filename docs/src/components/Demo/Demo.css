@@ -5,7 +5,7 @@
     background-color: var(--color-content);
     border: 1px solid var(--gray-c2);
     border-radius: var(--radius-6);
-    margin-bottom: calc(var(--spacing) * 6);
+    margin-bottom: var(--space-24);
   }
 
   .DemoPlaygroundExternalLink {
