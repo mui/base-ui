@@ -47,8 +47,8 @@ export function useFloatingRootContext(options: UseFloatingRootContextOptions): 
         floatingElement: elements.floating ?? null,
         triggerElements: new PopupTriggerMap(),
         floatingId,
+        syncOnly: false,
         nested,
-        noEmit: false,
       }),
   ).current;
 
@@ -73,7 +73,6 @@ export function useFloatingRootContext(options: UseFloatingRootContextOptions): 
 
   store.context.onOpenChange = onOpenChange;
   store.context.nested = nested;
-  store.context.noEmit = false;
 
   return store;
 }
