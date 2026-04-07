@@ -3807,6 +3807,40 @@ describe('<Select.Root />', () => {
       });
     });
 
+    it.skipIf(isJSDOM)(
+      'highlights the first item after opening when alignItemWithTrigger is active and no value is selected',
+      async () => {
+        await render(
+          <div style={{ paddingTop: 120, paddingLeft: 24 }}>
+            <Select.Root>
+              <Select.Trigger data-testid="trigger" style={{ width: 120, height: 36 }}>
+                <Select.Value placeholder="Pick one" />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup style={{ maxHeight: 'none' }}>
+                    <Select.Item value="a">a</Select.Item>
+                    <Select.Item value="b">b</Select.Item>
+                    <Select.Item value="c">c</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+        fireEvent.mouseDown(trigger);
+
+        const optionA = await screen.findByRole('option', { name: 'a' });
+
+        await waitFor(() => {
+          expect(optionA).toHaveAttribute('data-highlighted');
+        });
+      },
+    );
+
     it('does not highlight items from mouse movement when disabled', async () => {
       const { user } = await render(
         <Select.Root defaultOpen highlightItemOnHover={false}>

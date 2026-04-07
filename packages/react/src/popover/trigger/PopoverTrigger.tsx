@@ -1,7 +1,5 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useButton } from '../../use-button/useButton';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
@@ -22,17 +20,9 @@ import { OPEN_DELAY } from '../utils/constants';
 import { PopoverHandle } from '../store/PopoverHandle';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
-import {
-  contains,
-  type FocusableElement,
-  getNextTabbable,
-  getTabbableAfterElement,
-  getTabbableBeforeElement,
-  isOutsideEvent,
-} from '../../floating-ui-react/utils';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { useTriggerDataForwarding } from '../../utils/popups';
+import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 
 /**
  * A button that opens the popover.
@@ -150,57 +140,8 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     stateAttributesMapping,
   });
 
-  const preFocusGuardRef = React.useRef<HTMLElement>(null);
-
-  const handlePreFocusGuardFocus = useStableCallback((event: React.FocusEvent) => {
-    ReactDOM.flushSync(() => {
-      store.setOpen(
-        false,
-        createChangeEventDetails(
-          REASONS.focusOut,
-          event.nativeEvent,
-          event.currentTarget as HTMLElement,
-        ),
-      );
-    });
-
-    const previousTabbable: FocusableElement | null = getTabbableBeforeElement(
-      preFocusGuardRef.current,
-    );
-    previousTabbable?.focus();
-  });
-
-  const handleFocusTargetFocus = useStableCallback((event: React.FocusEvent) => {
-    const positionerElement = store.select('positionerElement');
-    if (positionerElement && isOutsideEvent(event, positionerElement)) {
-      store.context.beforeContentFocusGuardRef.current?.focus();
-    } else {
-      ReactDOM.flushSync(() => {
-        store.setOpen(
-          false,
-          createChangeEventDetails(
-            REASONS.focusOut,
-            event.nativeEvent,
-            event.currentTarget as HTMLElement,
-          ),
-        );
-      });
-
-      let nextTabbable = getTabbableAfterElement(
-        store.context.triggerFocusTargetRef.current || triggerElementRef.current,
-      );
-
-      while (nextTabbable !== null && contains(positionerElement, nextTabbable)) {
-        const prevTabbable = nextTabbable;
-        nextTabbable = getNextTabbable(nextTabbable);
-        if (nextTabbable === prevTabbable) {
-          break;
-        }
-      }
-
-      nextTabbable?.focus();
-    }
-  });
+  const { preFocusGuardRef, handlePreFocusGuardFocus, handleFocusTargetFocus } =
+    useTriggerFocusGuards(store, triggerElementRef);
 
   // A fragment with key is required to ensure that the `element` is mounted to the same DOM node
   // regardless of whether the focus guards are rendered or not.

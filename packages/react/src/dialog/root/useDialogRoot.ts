@@ -55,7 +55,6 @@ export function useDialogRoot(params: UseDialogRootParameters): UseDialogRootRet
     popupStore: store,
     onOpenChange: store.setOpen,
     treatPopupAsFloatingElement: true,
-    noEmit: true,
   });
 
   const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = React.useState(0);

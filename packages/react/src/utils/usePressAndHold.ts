@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useInterval } from '@base-ui/utils/useInterval';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -124,14 +125,16 @@ export function usePressAndHold(params: UsePressAndHoldParameters): UsePressAndH
 
     // A global context menu listener is necessary to prevent the context menu from
     // appearing when the touch is slightly outside of the element's hit area.
-    win.addEventListener('contextmenu', handleContextMenu);
-    unsubscribeFromGlobalContextMenuRef.current = () => {
-      win.removeEventListener('contextmenu', handleContextMenu);
-    };
+    unsubscribeFromGlobalContextMenuRef.current = addEventListener(
+      win,
+      'contextmenu',
+      handleContextMenu,
+    );
 
-    win.addEventListener(
+    addEventListener(
+      win,
       'pointerup',
-      (event: PointerEvent) => {
+      (event) => {
         isPressedRef.current = false;
         stopAutoChange();
         onStop?.(event);
