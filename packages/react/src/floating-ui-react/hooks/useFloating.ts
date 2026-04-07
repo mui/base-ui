@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useFloating as usePosition, type VirtualElement } from '@floating-ui/react-dom';
 import { isElement } from '@floating-ui/utils/dom';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-
+import { FloatingRootStore } from '../components/FloatingRootStore';
 import { useFloatingTree } from '../components/FloatingTree';
 import type {
   FloatingContext,
@@ -13,7 +13,6 @@ import type {
   UseFloatingReturn,
 } from '../types';
 import { useFloatingRootContext } from './useFloatingRootContext';
-import { FloatingRootStore } from '../components/FloatingRootStore';
 
 /**
  * Provides data to position a floating element and context to add interactions.
@@ -24,6 +23,7 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
 
   const internalRootStore = useFloatingRootContext(options);
   const rootContext = options.rootContext || internalRootStore;
+
   const referenceElement = rootContext.useState('referenceElement');
   const floatingElement = rootContext.useState('floatingElement');
   const domReferenceElement = rootContext.useState('domReferenceElement');

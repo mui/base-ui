@@ -1,11 +1,13 @@
 'use client';
 import * as React from 'react';
-import { getWindow, isElement, isHTMLElement } from '@floating-ui/utils/dom';
 import { addEventListener } from '@base-ui/utils/addEventListener';
-import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { isMac, isSafari } from '@base-ui/utils/detectBrowser';
-import { useTimeout } from '@base-ui/utils/useTimeout';
+import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { ownerDocument } from '@base-ui/utils/owner';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { getWindow, isElement, isHTMLElement } from '@floating-ui/utils/dom';
+import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
+import { createAttribute } from '../utils/createAttribute';
 import {
   activeElement,
   contains,
@@ -14,13 +16,9 @@ import {
   isTypeableElement,
   matchesFocusVisible,
 } from '../utils/element';
-
-import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { createAttribute } from '../utils/createAttribute';
 import { FloatingUIOpenChangeDetails } from '../../internals/types';
-
 const isMacSafari = isMac && isSafari;
 
 export interface UseFocusProps {
@@ -49,6 +47,7 @@ export function useFocus(
   const { enabled = true, delay } = props;
 
   const store = 'rootStore' in context ? context.rootStore : context;
+
   const { events, dataRef } = store.context;
 
   const blockFocusRef = React.useRef(false);

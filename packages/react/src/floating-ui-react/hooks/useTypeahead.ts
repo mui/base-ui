@@ -1,13 +1,12 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
+import { isElementVisible } from '../utils/composite';
+import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { contains } from '../utils/element';
 import { stopEvent } from '../utils/event';
-import { isElementVisible } from '../utils/composite';
-
-import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 
 export interface UseTypeaheadProps {
   /**
@@ -74,6 +73,7 @@ export function useTypeahead(
   } = props;
 
   const store = 'rootStore' in context ? context.rootStore : context;
+
   const dataRef = store.context.dataRef;
   const open = store.useState('open');
 

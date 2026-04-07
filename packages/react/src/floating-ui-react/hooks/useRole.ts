@@ -35,6 +35,7 @@ export function useRole(
   const { role = 'dialog' } = props;
 
   const store = 'rootStore' in context ? context.rootStore : context;
+
   const open = store.useState('open');
   const defaultFloatingId = store.useState('floatingId');
   const domReference = store.useState('domReferenceElement');

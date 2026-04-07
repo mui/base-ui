@@ -1,12 +1,12 @@
 'use client';
 import { useId } from '@base-ui/utils/useId';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { ReactStore } from '@base-ui/utils/store';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { isElement } from '@floating-ui/utils/dom';
 import { BaseUIChangeEventDetails } from '../../types';
-import { useFloatingParentNodeId } from '../components/FloatingTree';
 import { PopupStoreContext, PopupStoreSelectors, PopupStoreState } from '../../utils/popups';
+import { useFloatingParentNodeId } from '../components/FloatingTree';
 import { FloatingRootState, FloatingRootStore } from '../components/FloatingRootStore';
 
 export interface UseSyncedFloatingRootContextOptions<State extends PopupStoreState<any>> {

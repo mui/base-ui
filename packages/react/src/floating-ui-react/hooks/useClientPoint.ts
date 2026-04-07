@@ -114,6 +114,7 @@ export function useClientPoint(
   const { enabled = true, axis = 'both' } = props;
 
   const store = 'rootStore' in context ? context.rootStore : context;
+
   const open = store.useState('open');
   const floating = store.useState('floatingElement');
   const domReference = store.useState('domReferenceElement');

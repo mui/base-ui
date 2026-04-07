@@ -1,36 +1,37 @@
 'use client';
 import * as React from 'react';
-import { isHTMLElement } from '@floating-ui/utils/dom';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { isMouseWithinBounds } from '@base-ui/utils/isMouseWithinBounds';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
-import {
-  activeElement,
-  contains,
-  getTarget,
-  isTypeableCombobox,
-  getFloatingFocusElement,
-} from '../utils/element';
-import { isVirtualClick, isVirtualPointerEvent, stopEvent } from '../utils/event';
-import {
-  isIndexOutOfListBounds,
-  getMinListIndex,
-  getMaxListIndex,
-  getGridNavigatedIndex,
-  isListIndexDisabled,
-  createGridCellMap,
-  getGridCellIndices,
-  getGridCellIndexOfCorner,
-  findNonDisabledListIndex,
-} from '../utils/composite';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { isHTMLElement } from '@floating-ui/utils/dom';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
-import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { REASONS } from '../../internals/reasons';
+import {
+  createGridCellMap,
+  findNonDisabledListIndex,
+  getGridCellIndexOfCorner,
+  getGridCellIndices,
+  getGridNavigatedIndex,
+  getMaxListIndex,
+  getMinListIndex,
+  isIndexOutOfListBounds,
+  isListIndexDisabled,
+} from '../utils/composite';
+import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP } from '../utils/constants';
+import {
+  activeElement,
+  contains,
+  getFloatingFocusElement,
+  getTarget,
+  isTypeableCombobox,
+} from '../utils/element';
 import { enqueueFocus } from '../utils/enqueueFocus';
-import { ARROW_UP, ARROW_DOWN, ARROW_RIGHT, ARROW_LEFT } from '../utils/constants';
+import { isVirtualClick, isVirtualPointerEvent, stopEvent } from '../utils/event';
 
 export const ESCAPE = 'Escape';
 
@@ -257,6 +258,7 @@ export function useListNavigation(
   } = props;
 
   const store = 'rootStore' in context ? context.rootStore : context;
+
   const open = store.useState('open');
   const floatingElement = store.useState('floatingElement');
   const domReferenceElement = store.useState('domReferenceElement');

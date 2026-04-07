@@ -1,17 +1,15 @@
 'use client';
 import * as React from 'react';
-import { isElement } from '@floating-ui/utils/dom';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerDocument } from '@base-ui/utils/owner';
-
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { isElement } from '@floating-ui/utils/dom';
 import type { FloatingContext, FloatingRootContext } from '../types';
 import { contains, getTarget, isTargetInsideEnabledTrigger } from '../utils/element';
 import { getNodeChildren } from '../utils/nodes';
-
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
@@ -53,6 +51,7 @@ export function useHoverFloatingInteraction(
   const { enabled = true, closeDelay: closeDelayProp = 0, nodeId: nodeIdProp } = parameters;
 
   const store = 'rootStore' in context ? context.rootStore : context;
+
   const open = store.useState('open');
   const floatingElement = store.useState('floatingElement');
   const domReferenceElement = store.useState('domReferenceElement');

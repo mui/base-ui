@@ -1,19 +1,20 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { isElement } from '@floating-ui/utils/dom';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument } from '@base-ui/utils/owner';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { isElement } from '@floating-ui/utils/dom';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
+import { FloatingUIOpenChangeDetails, HTMLProps } from '../../internals/types';
+import { useFloatingTree } from '../components/FloatingTree';
+import type { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type { Delay, FloatingContext, FloatingRootContext } from '../types';
 import { contains, getTarget, isTargetInsideEnabledTrigger } from '../utils/element';
 import { isMouseLikePointerType } from '../utils/event';
-import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { REASONS } from '../../internals/reasons';
-import { useFloatingTree } from '../components/FloatingTree';
-import type { FloatingTreeStore } from '../components/FloatingTreeStore';
 import {
   applySafePolygonPointerEventsMutation,
   clearSafePolygonPointerEventsMutation,
@@ -25,7 +26,6 @@ import {
   getRestMs,
   isClickLikeOpenEvent as isClickLikeOpenEventShared,
 } from './useHoverShared';
-import { FloatingUIOpenChangeDetails, HTMLProps } from '../../internals/types';
 
 export interface UseHoverReferenceInteractionProps {
   enabled?: boolean | undefined;
@@ -72,6 +72,7 @@ export function useHoverReferenceInteraction(
   } = props;
 
   const store = 'rootStore' in context ? context.rootStore : context;
+
   const { dataRef, events } = store.context;
 
   const tree = useFloatingTree(externalTree);

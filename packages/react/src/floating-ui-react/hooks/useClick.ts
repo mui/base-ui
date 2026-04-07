@@ -71,6 +71,7 @@ export function useClick(
   } = props;
 
   const store = 'rootStore' in context ? context.rootStore : context;
+
   const dataRef = store.context.dataRef;
 
   const pointerTypeRef = React.useRef<'mouse' | 'pen' | 'touch'>(undefined);

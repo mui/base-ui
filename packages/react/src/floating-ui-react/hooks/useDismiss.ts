@@ -1,5 +1,10 @@
 'use client';
 import * as React from 'react';
+import { addEventListener } from '@base-ui/utils/addEventListener';
+import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { Timeout, useTimeout } from '@base-ui/utils/useTimeout';
 import {
   getComputedStyle,
   getParentNode,
@@ -9,23 +14,16 @@ import {
   isShadowRoot,
   isWebKit,
 } from '@floating-ui/utils/dom';
-import { addEventListener } from '@base-ui/utils/addEventListener';
-import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
-import { Timeout, useTimeout } from '@base-ui/utils/useTimeout';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { ownerDocument } from '@base-ui/utils/owner';
-import { contains, getTarget, isEventTargetWithin, isRootElement } from '../utils/element';
-import { isReactEvent } from '../utils/event';
-import { getNodeChildren } from '../utils/nodes';
-
-/* eslint-disable no-underscore-dangle */
-
 import { useFloatingTree } from '../components/FloatingTree';
 import { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { createAttribute } from '../utils/createAttribute';
+import { contains, getTarget, isEventTargetWithin, isRootElement } from '../utils/element';
+import { isReactEvent } from '../utils/event';
+import { getNodeChildren } from '../utils/nodes';
+/* eslint-disable no-underscore-dangle */
 
 type PressType = 'intentional' | 'sloppy';
 
@@ -144,6 +142,7 @@ export function useDismiss(
   } = props;
 
   const store = 'rootStore' in context ? context.rootStore : context;
+
   const open = store.useState('open');
   const floatingElement = store.useState('floatingElement');
   const { dataRef } = store.context;

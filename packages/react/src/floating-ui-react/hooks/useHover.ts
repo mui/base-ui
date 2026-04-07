@@ -1,20 +1,19 @@
 'use client';
 import * as React from 'react';
-import { isElement } from '@floating-ui/utils/dom';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
-import { useTimeout } from '@base-ui/utils/useTimeout';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { contains, getTarget, isInteractiveElement } from '../utils';
-
-import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
-import type { Delay, ElementProps, FloatingContext, FloatingRootContext } from '../types';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { isElement } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { FloatingUIOpenChangeDetails } from '../../internals/types';
+import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
+import type { Delay, ElementProps, FloatingContext, FloatingRootContext } from '../types';
+import { contains, getTarget, isInteractiveElement } from '../utils';
 import type { HandleClose } from './useHoverShared';
 import { getDelay, getRestMs } from './useHoverShared';
 
@@ -59,6 +58,7 @@ export function useHover(
   const { delay = 0, handleClose = null, restMs = 0, move = true } = props;
 
   const store = 'rootStore' in context ? context.rootStore : context;
+
   const open = store.useState('open');
   const floatingElement = store.useState('floatingElement');
   const domReferenceElement = store.useState('domReferenceElement');
