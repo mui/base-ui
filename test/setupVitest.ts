@@ -3,7 +3,9 @@ import setupVitest from '@mui/internal-test-utils/setupVitest';
 // eslint-disable-next-line import/no-relative-packages
 import '../packages/react/test/addVitestMatchers';
 import '@testing-library/jest-dom/vitest';
-import { reset } from '@base-ui/utils/error';
+import { reset as resetBuiltError } from '@base-ui/utils/error';
+// eslint-disable-next-line import/no-relative-packages
+import { reset as resetSourceError } from '../packages/utils/src/error';
 
 declare global {
   // eslint-disable-next-line vars-on-top
@@ -14,7 +16,8 @@ setupVitest();
 
 afterEach(() => {
   vi.resetAllMocks();
-  reset();
+  resetBuiltError();
+  resetSourceError();
 });
 
 globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
