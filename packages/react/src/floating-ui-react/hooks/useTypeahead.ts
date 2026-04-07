@@ -73,8 +73,6 @@ export function useTypeahead(
   } = props;
 
   const store = 'rootStore' in context ? context.rootStore : context;
-
-  const dataRef = store.context.dataRef;
   const open = store.useState('open');
 
   const timeout = useTimeout();
@@ -103,11 +101,6 @@ export function useTypeahead(
   }, [open, selectedIndex, activeIndex]);
 
   const setTypingChange = useStableCallback((value: boolean) => {
-    if (dataRef.current.typing === value) {
-      return;
-    }
-
-    dataRef.current.typing = value;
     onTypingChange?.(value);
   });
 
