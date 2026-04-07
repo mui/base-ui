@@ -131,7 +131,8 @@ export function usePressAndHold(params: UsePressAndHoldParameters): UsePressAndH
       handleContextMenu,
     );
 
-    win.addEventListener(
+    addEventListener(
+      win,
       'pointerup',
       (event: PointerEvent) => {
         isPressedRef.current = false;

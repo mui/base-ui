@@ -81,7 +81,8 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     handleLongPress(event.clientX, event.clientY, event.nativeEvent);
     const doc = ownerDocument(triggerRef.current);
 
-    doc.addEventListener(
+    addEventListener(
+      doc,
       'mouseup',
       (mouseEvent: MouseEvent) => {
         allowMouseUpTriggerRef.current = false;

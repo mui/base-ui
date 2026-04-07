@@ -121,22 +121,19 @@ export function useHoverReferenceInteraction(
     },
   );
 
-  const closeWithDelay = React.useCallback(
-    (event: MouseEvent, runElseBranch = true) => {
-      const closeDelay = getDelay(delayRef.current, 'close', instance.pointerType);
-      if (closeDelay) {
-        instance.openChangeTimeout.start(closeDelay, () => {
-          store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
-          tree?.events.emit('floating.closed', event);
-        });
-      } else if (runElseBranch) {
-        instance.openChangeTimeout.clear();
+  const closeWithDelay = useStableCallback((event: MouseEvent, runElseBranch = true) => {
+    const closeDelay = getDelay(delayRef.current, 'close', instance.pointerType);
+    if (closeDelay) {
+      instance.openChangeTimeout.start(closeDelay, () => {
         store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
         tree?.events.emit('floating.closed', event);
-      }
-    },
-    [delayRef, store, instance, tree],
-  );
+      });
+    } else if (runElseBranch) {
+      instance.openChangeTimeout.clear();
+      store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
+      tree?.events.emit('floating.closed', event);
+    }
+  });
 
   const cleanupMouseMoveHandler = useStableCallback(() => {
     if (!instance.handler) {
@@ -146,11 +143,12 @@ export function useHoverReferenceInteraction(
     doc.removeEventListener('mousemove', instance.handler);
     instance.handler = undefined;
   });
-  React.useEffect(() => cleanupMouseMoveHandler, [cleanupMouseMoveHandler]);
 
   const clearPointerEvents = useStableCallback(() => {
     clearSafePolygonPointerEventsMutation(instance);
   });
+
+  React.useEffect(() => cleanupMouseMoveHandler, [cleanupMouseMoveHandler]);
 
   // When closing before opening, clear the delay timeouts to cancel it
   // from showing.
