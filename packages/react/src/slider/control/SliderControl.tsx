@@ -280,7 +280,6 @@ export const SliderControl = React.forwardRef(function SliderControl(
       preventScroll: true,
       // Prevent pointer-driven focus rings in browsers that support this option.
       // Supported in Chrome from 144+.
-      // @ts-expect-error - focusVisible is not yet in the lib.dom.d.ts
       focusVisible: false,
     });
   });
