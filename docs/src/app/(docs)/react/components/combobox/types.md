@@ -324,6 +324,15 @@ Renders a `<button>` element.
 | keepMounted  | `boolean`                                                                                    | `false` | Whether the component should remain mounted in the DOM when not visible.                                                                                                                      |
 | render       | `ReactElement \| ((props: HTMLProps, state: Combobox.Clear.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
+**Clear Data Attributes:**
+
+| Attribute           | Type | Description                                   |
+| :------------------ | :--- | :-------------------------------------------- |
+| data-popup-open     | -    | Present when the corresponding popup is open. |
+| data-disabled       | -    | Present when the button is disabled.          |
+| data-starting-style | -    | Present when the button is animating in.      |
+| data-ending-style   | -    | Present when the button is animating out.     |
+
 ### Clear.Props
 
 Re-export of [Clear](#clear) props.
