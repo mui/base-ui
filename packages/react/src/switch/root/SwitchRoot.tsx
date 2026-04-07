@@ -182,7 +182,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
       mergeProps<'input'>(
         {
           checked,
-          disabled,
+          disabled: disabled || readOnly,
           form,
           id: hiddenInputId,
           name,
@@ -226,6 +226,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
       hiddenInputId,
       name,
       onCheckedChange,
+      readOnly,
       required,
       setCheckedState,
       validation,
