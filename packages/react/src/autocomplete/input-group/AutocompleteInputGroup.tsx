@@ -1,9 +1,9 @@
 'use client';
 import type * as React from 'react';
 import { ComboboxInputGroup } from '../../combobox/input-group/ComboboxInputGroup';
-import type { ComboboxInputGroupProps } from '../../combobox/input-group/ComboboxInputGroup';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import type { Side } from '../../utils/useAnchorPositioning';
+import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
  * A wrapper for the input and its associated controls.
@@ -34,13 +34,10 @@ export interface AutocompleteInputGroupState extends FieldRoot.State {
    * Present when the corresponding items list is empty.
    */
   listEmpty: boolean;
-  /**
-   * Whether the autocomplete doesn't have a value.
-   */
-  placeholder: boolean;
 }
 
-export interface AutocompleteInputGroupProps extends ComboboxInputGroupProps {}
+export interface AutocompleteInputGroupProps
+  extends BaseUIComponentProps<'div', AutocompleteInputGroupState> {}
 
 export interface AutocompleteInputGroup {
   (

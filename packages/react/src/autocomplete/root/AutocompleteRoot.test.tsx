@@ -123,6 +123,39 @@ describe('<Autocomplete.Root />', () => {
     expect(hiddenInput).not.toHaveAttribute('autocomplete');
   });
 
+  it('does not expose data-placeholder on InputGroup', async () => {
+    const { user } = await render(
+      <Autocomplete.Root items={['alpha', 'beta']} openOnInputClick>
+        <Autocomplete.InputGroup data-testid="group">
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.Trigger />
+        </Autocomplete.InputGroup>
+        <Autocomplete.Portal>
+          <Autocomplete.Positioner>
+            <Autocomplete.Popup>
+              <Autocomplete.List>
+                {(item: string) => (
+                  <Autocomplete.Item key={item} value={item}>
+                    {item}
+                  </Autocomplete.Item>
+                )}
+              </Autocomplete.List>
+            </Autocomplete.Popup>
+          </Autocomplete.Positioner>
+        </Autocomplete.Portal>
+      </Autocomplete.Root>,
+    );
+
+    const group = screen.getByTestId('group');
+    const input = screen.getByTestId('input');
+
+    expect(group).not.toHaveAttribute('data-placeholder');
+
+    await user.type(input, 'al');
+
+    expect(group).not.toHaveAttribute('data-placeholder');
+  });
+
   describe('prop: autoHighlight', () => {
     it('calls onItemHighlighted when the popup auto highlights on open', async () => {
       const onItemHighlighted = vi.fn();

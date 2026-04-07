@@ -1,9 +1,9 @@
 'use client';
 import type * as React from 'react';
 import { ComboboxTrigger } from '../../combobox/trigger/ComboboxTrigger';
-import type { ComboboxTriggerProps } from '../../combobox/trigger/ComboboxTrigger';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import type { Side } from '../../utils/useAnchorPositioning';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 
 /**
  * A button that opens the popup.
@@ -36,7 +36,14 @@ export interface AutocompleteTriggerState extends FieldRootState {
   placeholder: boolean;
 }
 
-export interface AutocompleteTriggerProps extends ComboboxTriggerProps {}
+export interface AutocompleteTriggerProps
+  extends NativeButtonProps, BaseUIComponentProps<'button', AutocompleteTriggerState> {
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean | undefined;
+}
 
 export interface AutocompleteTrigger {
   (
