@@ -521,7 +521,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
               // Move focus to the trigger element when the hidden input is focused.
               store.state.triggerElement?.focus({
                 // Supported in Chrome from 144 (January 2026)
-                // @ts-expect-error - focusVisible is not yet in the lib.dom.d.ts
                 focusVisible: true,
               });
             },
