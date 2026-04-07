@@ -5,7 +5,7 @@
     color: var(--gray-t1);
     border: 1px solid var(--gray-c2);
     border-collapse: separate;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-6);
     white-space: nowrap;
     overflow: hidden;
   }

@@ -95,7 +95,7 @@
       height: 100%;
       /* Visible thumb width */
       width: var(--quick-nav-scrollbar-thumb-width);
-      border-radius: var(--radius-sm);
+      border-radius: var(--radius-4);
       background-color: var(--gray-p2);
     }
   }
@@ -115,7 +115,7 @@
     display: flex;
     padding: var(--quick-nav-item-padding-y) 0.5rem;
     margin-inline: 0 -0.5rem;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-6);
 
     &:focus-visible {
       z-index: 1;

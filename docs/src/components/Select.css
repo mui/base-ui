@@ -15,7 +15,7 @@
     outline: 0;
     max-width: var(--available-width);
     max-height: var(--available-height);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-6);
     background-color: var(--color-popup);
     overflow: hidden;
     cursor: default;
@@ -52,7 +52,7 @@
         inset-inline: 0.25rem;
         inset-block: 0;
         z-index: -1;
-        border-radius: var(--radius-sm);
+        border-radius: var(--radius-4);
         background-color: var(--color-highlight);
       }
     }

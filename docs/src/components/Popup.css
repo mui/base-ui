@@ -2,7 +2,7 @@
   .Popup {
     max-width: var(--available-width, none);
     max-height: var(--available-height, none);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-6);
     background-color: var(--color-popup);
     box-shadow:
       0 154px 62px 0 rgb(36 40 52 / 1%),

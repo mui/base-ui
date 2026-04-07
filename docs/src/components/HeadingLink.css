@@ -1,6 +1,6 @@
 @layer components {
   .HeadingLink {
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-6);
     position: relative;
 
     &:focus-visible {
@@ -18,7 +18,7 @@
         left: calc(0px - var(--focus-h-padding));
         width: calc(100% + var(--focus-h-padding) * 2);
         height: calc(100% + var(--focus-v-padding) * 2);
-        border-radius: var(--radius-md);
+        border-radius: var(--radius-6);
       }
     }
 

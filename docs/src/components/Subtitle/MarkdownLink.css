@@ -28,7 +28,7 @@
   .MarkdownLinkAnchor:focus-visible .MarkdownLink {
     outline: 2px solid var(--color-blue);
     outline-offset: -2px;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-4);
   }
 
   .MarkdownLinkAnchor:hover .MarkdownLink {

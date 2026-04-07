@@ -29,7 +29,7 @@
 
     &::before {
       inset: -0.125rem -0.375rem;
-      border-radius: var(--radius-sm);
+      border-radius: var(--radius-4);
     }
 
     /* Increase the clickable size */

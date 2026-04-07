@@ -3,7 +3,7 @@
     align-self: stretch;
     background-color: var(--color-content);
     border: 1px solid var(--gray-c2);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-6);
 
     & pre {
       white-space: normal;
@@ -107,13 +107,13 @@
   .CodeBlockRoot .CodeBlockPreInline {
     background-color: var(--color-content);
     padding: 0.5rem 0;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-6);
   }
 
   .CodeBlockPreBackground {
     background-color: var(--color-content);
     padding: 0.5rem 0;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-6);
   }
 
   .CodeBlockPreContainer {

@@ -112,8 +112,8 @@
     position: relative;
     padding-block: 1rem;
 
-    border-top-left-radius: var(--radius-xl);
-    border-top-right-radius: var(--radius-xl);
+    border-top-left-radius: var(--radius-12);
+    border-top-right-radius: var(--radius-12);
 
     box-shadow:
       0 10px 64px -10px rgb(36 40 52 / 20%),
@@ -134,7 +134,7 @@
       max-width: 40rem;
       background-image: none;
       background-color: var(--color-popup);
-      border-radius: var(--radius-xl);
+      border-radius: var(--radius-12);
     }
   }
 

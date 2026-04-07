@@ -4,7 +4,7 @@
   .DemoRoot {
     background-color: var(--color-content);
     border: 1px solid var(--gray-c2);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-6);
     margin-bottom: calc(var(--spacing) * 6);
   }
 
@@ -26,8 +26,8 @@
     position: relative;
 
     background-color: var(--color-content);
-    border-top-left-radius: var(--radius-md);
-    border-top-right-radius: var(--radius-md);
+    border-top-left-radius: var(--radius-6);
+    border-top-right-radius: var(--radius-6);
 
     /* Scroll */
     overflow: auto hidden;
@@ -163,7 +163,7 @@
 
     &::before {
       inset: -0.125rem -0.375rem;
-      border-radius: var(--radius-sm);
+      border-radius: var(--radius-4);
     }
 
     /* Increase the clickable size  */
