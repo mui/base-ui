@@ -48,6 +48,10 @@ export interface DrawerRootContext {
    */
   hasNestedDrawer: boolean;
   /**
+   * Called by the drawer popup to report its own measured height.
+   */
+  onPopupHeightChange: (height: number) => void;
+  /**
    * Whether a nested drawer is currently being swiped.
    */
   nestedSwiping: boolean;
@@ -59,10 +63,6 @@ export interface DrawerRootContext {
    * Called by a nested drawer to report whether it is still present (open or transitioning out).
    */
   onNestedDrawerPresenceChange: (present: boolean) => void;
-  /**
-   * Called by the drawer popup to report its own measured height.
-   */
-  onPopupHeightChange: (height: number) => void;
   /**
    * Called by a nested drawer to report the frontmost height of its own stack.
    */
