@@ -14,6 +14,7 @@ import {
   type DrawerSnapPoint,
 } from './DrawerRootContext';
 import { Dialog } from '../../dialog';
+import { IsDrawerContext } from '../../dialog/root/DialogRoot';
 import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
@@ -233,20 +234,22 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
 
   return (
     <DrawerRootContext.Provider value={contextValue}>
-      <Dialog.Root
-        open={openProp}
-        defaultOpen={defaultOpen}
-        onOpenChange={handleOpenChange}
-        onOpenChangeComplete={onOpenChangeComplete}
-        disablePointerDismissal={disablePointerDismissal}
-        modal={modal}
-        actionsRef={actionsRef}
-        handle={handle}
-        triggerId={triggerIdProp}
-        defaultTriggerId={defaultTriggerIdProp}
-      >
-        {resolvedChildren}
-      </Dialog.Root>
+      <IsDrawerContext.Provider value>
+        <Dialog.Root
+          open={openProp}
+          defaultOpen={defaultOpen}
+          onOpenChange={handleOpenChange}
+          onOpenChangeComplete={onOpenChangeComplete}
+          disablePointerDismissal={disablePointerDismissal}
+          modal={modal}
+          actionsRef={actionsRef}
+          handle={handle}
+          triggerId={triggerIdProp}
+          defaultTriggerId={defaultTriggerIdProp}
+        >
+          {resolvedChildren}
+        </Dialog.Root>
+      </IsDrawerContext.Provider>
     </DrawerRootContext.Provider>
   );
 }

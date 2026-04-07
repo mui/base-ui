@@ -472,7 +472,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         children: (
           <React.Fragment>
             {childrenProp}
-            <input ref={mergedInputRef} {...inputProps} />
+            <input ref={mergedInputRef} {...inputProps} suppressHydrationWarning />
             {inset &&
               isHydrating &&
               renderBeforeHydration &&
