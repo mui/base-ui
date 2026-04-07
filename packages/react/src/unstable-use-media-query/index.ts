@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useSyncExternalStore } from 'use-sync-external-store/shim';
 
 export function useMediaQuery(query: string, options: useMediaQuery.Options): boolean {
@@ -41,12 +42,7 @@ export function useMediaQuery(query: string, options: useMediaQuery.Options): bo
 
     return [
       () => mediaQueryList.matches,
-      (notify: () => void) => {
-        mediaQueryList.addEventListener('change', notify);
-        return () => {
-          mediaQueryList.removeEventListener('change', notify);
-        };
-      },
+      (notify: () => void) => addEventListener(mediaQueryList, 'change', notify),
     ];
   }, [getDefaultSnapshot, matchMedia, query]);
 
@@ -66,12 +62,12 @@ export interface UseMediaQueryOptions {
    * it returns a default matches during the first mount.
    * @default false
    */
-  defaultMatches?: boolean;
+  defaultMatches?: boolean | undefined;
   /**
    * You can provide your own implementation of matchMedia.
    * This can be used for handling an iframe content window.
    */
-  matchMedia?: typeof window.matchMedia;
+  matchMedia?: typeof window.matchMedia | undefined;
   /**
    * To perform the server-side hydration, the hook needs to render twice.
    * A first time with `defaultMatches`, the value of the server, and a second time with the resolved value.
@@ -79,13 +75,16 @@ export interface UseMediaQueryOptions {
    * You can set this option to `true` if you use the returned value **only** client-side.
    * @default false
    */
-  noSsr?: boolean;
+  noSsr?: boolean | undefined;
   /**
    * You can provide your own implementation of `matchMedia`, it's used when rendering server-side.
    */
-  ssrMatchMedia?: (query: string) => { matches: boolean };
+  ssrMatchMedia?: ((query: string) => { matches: boolean }) | undefined;
 }
 
+export interface UseMediaQueryState {}
+
 export namespace useMediaQuery {
+  export type State = UseMediaQueryState;
   export type Options = UseMediaQueryOptions;
 }

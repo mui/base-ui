@@ -1,78 +1,129 @@
-import * as React from 'react';
-import { useTimeout } from '@base-ui/utils/useTimeout';
+'use client';
+import { useOnMount } from '@base-ui/utils/useOnMount';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { Timeout } from '@base-ui/utils/useTimeout';
 
 import type { ContextData, FloatingRootContext, SafePolygonOptions } from '../types';
-import { createAttribute } from '../utils/createAttribute';
-import { TYPEABLE_SELECTOR } from '../utils/constants';
+import { isInteractiveElement } from '../utils';
 
-export const safePolygonIdentifier = createAttribute('safe-polygon');
-const interactiveSelector = `button,a,[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`;
+export { isInteractiveElement };
 
-export function isInteractiveElement(element: Element | null) {
-  return element ? Boolean(element.closest(interactiveSelector)) : false;
+export class HoverInteraction {
+  pointerType: string | undefined;
+  interactedInside: boolean;
+  handler: ((event: MouseEvent) => void) | undefined;
+  blockMouseMove: boolean;
+  performedPointerEventsMutation: boolean;
+  pointerEventsScopeElement: HTMLElement | SVGSVGElement | null;
+  pointerEventsReferenceElement: HTMLElement | SVGSVGElement | null;
+  pointerEventsFloatingElement: HTMLElement | null;
+  restTimeoutPending: boolean;
+  openChangeTimeout: Timeout;
+  restTimeout: Timeout;
+  handleCloseOptions: SafePolygonOptions | undefined;
+
+  constructor() {
+    this.pointerType = undefined;
+    this.interactedInside = false;
+    this.handler = undefined;
+    this.blockMouseMove = true;
+    this.performedPointerEventsMutation = false;
+    this.pointerEventsScopeElement = null;
+    this.pointerEventsReferenceElement = null;
+    this.pointerEventsFloatingElement = null;
+    this.restTimeoutPending = false;
+    this.openChangeTimeout = new Timeout();
+    this.restTimeout = new Timeout();
+    this.handleCloseOptions = undefined;
+  }
+
+  static create(): HoverInteraction {
+    return new HoverInteraction();
+  }
+
+  dispose = () => {
+    this.openChangeTimeout.clear();
+    this.restTimeout.clear();
+  };
+
+  disposeEffect = () => {
+    return this.dispose;
+  };
 }
 
-export interface HoverInteractionSharedState {
-  pointerTypeRef: React.RefObject<string | undefined>;
-  interactedInsideRef: React.RefObject<boolean>;
-  handlerRef: React.RefObject<((event: MouseEvent) => void) | undefined>;
-  blockMouseMoveRef: React.RefObject<boolean>;
-  performedPointerEventsMutationRef: React.RefObject<boolean>;
-  unbindMouseMoveRef: React.RefObject<() => void>;
-  restTimeoutPendingRef: React.RefObject<boolean>;
-  openChangeTimeout: ReturnType<typeof useTimeout>;
-  restTimeout: ReturnType<typeof useTimeout>;
-  handleCloseOptionsRef: React.RefObject<SafePolygonOptions | undefined>;
+type PointerEventsMutationState = Pick<
+  HoverInteraction,
+  | 'performedPointerEventsMutation'
+  | 'pointerEventsScopeElement'
+  | 'pointerEventsReferenceElement'
+  | 'pointerEventsFloatingElement'
+>;
+
+const pointerEventsMutationOwnerByScopeElement = new WeakMap<
+  HTMLElement | SVGSVGElement,
+  PointerEventsMutationState
+>();
+
+export function clearSafePolygonPointerEventsMutation(instance: PointerEventsMutationState) {
+  if (!instance.performedPointerEventsMutation) {
+    return;
+  }
+
+  const scopeElement = instance.pointerEventsScopeElement;
+
+  if (scopeElement && pointerEventsMutationOwnerByScopeElement.get(scopeElement) === instance) {
+    instance.pointerEventsScopeElement?.style.removeProperty('pointer-events');
+    instance.pointerEventsReferenceElement?.style.removeProperty('pointer-events');
+    instance.pointerEventsFloatingElement?.style.removeProperty('pointer-events');
+    pointerEventsMutationOwnerByScopeElement.delete(scopeElement);
+  }
+
+  instance.performedPointerEventsMutation = false;
+  instance.pointerEventsScopeElement = null;
+  instance.pointerEventsReferenceElement = null;
+  instance.pointerEventsFloatingElement = null;
+}
+
+export function applySafePolygonPointerEventsMutation(
+  instance: PointerEventsMutationState,
+  options: {
+    scopeElement: HTMLElement | SVGSVGElement;
+    referenceElement: HTMLElement | SVGSVGElement;
+    floatingElement: HTMLElement;
+  },
+) {
+  const { scopeElement, referenceElement, floatingElement } = options;
+
+  const existingOwner = pointerEventsMutationOwnerByScopeElement.get(scopeElement);
+  if (existingOwner && existingOwner !== instance) {
+    clearSafePolygonPointerEventsMutation(existingOwner);
+  }
+
+  clearSafePolygonPointerEventsMutation(instance);
+  instance.performedPointerEventsMutation = true;
+  instance.pointerEventsScopeElement = scopeElement;
+  instance.pointerEventsReferenceElement = referenceElement;
+  instance.pointerEventsFloatingElement = floatingElement;
+  pointerEventsMutationOwnerByScopeElement.set(scopeElement, instance);
+
+  scopeElement.style.pointerEvents = 'none';
+  referenceElement.style.pointerEvents = 'auto';
+  floatingElement.style.pointerEvents = 'auto';
 }
 
 type HoverContextData = ContextData & {
-  hoverInteractionState?: HoverInteractionSharedState;
+  hoverInteractionState?: HoverInteraction | undefined;
 };
 
-export function useHoverInteractionSharedState(
-  store: FloatingRootContext,
-): HoverInteractionSharedState {
-  const pointerTypeRef = React.useRef<string | undefined>(undefined);
-  const interactedInsideRef = React.useRef(false);
-  const handlerRef = React.useRef<((event: MouseEvent) => void) | undefined>(undefined);
-  const blockMouseMoveRef = React.useRef(true);
-  const performedPointerEventsMutationRef = React.useRef(false);
-  const unbindMouseMoveRef = React.useRef<() => void>(() => {});
-  const restTimeoutPendingRef = React.useRef(false);
-  const openChangeTimeout = useTimeout();
-  const restTimeout = useTimeout();
-  const handleCloseOptionsRef = React.useRef<SafePolygonOptions | undefined>(undefined);
+export function useHoverInteractionSharedState(store: FloatingRootContext): HoverInteraction {
+  const instance = useRefWithInit(HoverInteraction.create).current;
 
-  return React.useMemo(() => {
-    const data = store.context.dataRef.current as HoverContextData;
+  const data = store.context.dataRef.current as HoverContextData;
+  if (!data.hoverInteractionState) {
+    data.hoverInteractionState = instance;
+  }
 
-    if (!data.hoverInteractionState) {
-      data.hoverInteractionState = {
-        pointerTypeRef,
-        interactedInsideRef,
-        handlerRef,
-        blockMouseMoveRef,
-        performedPointerEventsMutationRef,
-        unbindMouseMoveRef,
-        restTimeoutPendingRef,
-        openChangeTimeout,
-        restTimeout,
-        handleCloseOptionsRef,
-      };
-    }
+  useOnMount(data.hoverInteractionState.disposeEffect);
 
-    return data.hoverInteractionState;
-  }, [
-    store,
-    pointerTypeRef,
-    interactedInsideRef,
-    handlerRef,
-    blockMouseMoveRef,
-    performedPointerEventsMutationRef,
-    unbindMouseMoveRef,
-    restTimeoutPendingRef,
-    openChangeTimeout,
-    restTimeout,
-    handleCloseOptionsRef,
-  ]);
+  return data.hoverInteractionState;
 }

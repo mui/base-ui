@@ -1,14 +1,14 @@
+import { expect } from 'vitest';
 import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
 import { screen, waitFor } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
   props: Popover.Trigger.Props,
-  ref: React.ForwardedRef<HTMLDivElement>,
+  ref: React.ForwardedRef<any>,
 ) {
-  return <Popover.Trigger {...props} ref={ref} render={<div />} />;
+  return <Popover.Trigger {...props} ref={ref} render={<div />} nativeButton={false} />;
 });
 
 describe('<Popover.Positioner />', () => {
@@ -49,7 +49,7 @@ describe('<Popover.Positioner />', () => {
         </Popover.Root>,
       );
 
-      expect(screen.getByTestId('positioner').getBoundingClientRect()).to.include({
+      expect(screen.getByTestId('positioner').getBoundingClientRect()).toMatchObject({
         x: baselineX,
         y: baselineY + sideOffset,
       });
@@ -70,7 +70,7 @@ describe('<Popover.Positioner />', () => {
         </Popover.Root>,
       );
 
-      expect(screen.getByTestId('positioner').getBoundingClientRect()).to.include({
+      expect(screen.getByTestId('positioner').getBoundingClientRect()).toMatchObject({
         x: baselineX,
         y: baselineY + popupWidth + anchorWidth,
       });
@@ -97,7 +97,7 @@ describe('<Popover.Positioner />', () => {
       );
 
       // correctly flips the side in the browser
-      expect(side).to.equal('right');
+      expect(side).toBe('right');
     });
 
     it('can read the latest align inside sideOffset', async () => {
@@ -122,7 +122,7 @@ describe('<Popover.Positioner />', () => {
       );
 
       // correctly flips the align in the browser
-      expect(align).to.equal('end');
+      expect(align).toBe('end');
     });
 
     it('reads logical side inside sideOffset', async () => {
@@ -146,7 +146,7 @@ describe('<Popover.Positioner />', () => {
       );
 
       // correctly flips the side in the browser
-      expect(side).to.equal('inline-end');
+      expect(side).toBe('inline-end');
     });
   });
 
@@ -164,7 +164,7 @@ describe('<Popover.Positioner />', () => {
         </Popover.Root>,
       );
 
-      expect(screen.getByTestId('positioner').getBoundingClientRect()).to.include({
+      expect(screen.getByTestId('positioner').getBoundingClientRect()).toMatchObject({
         x: baselineX + alignOffset,
         y: baselineY,
       });
@@ -185,7 +185,7 @@ describe('<Popover.Positioner />', () => {
         </Popover.Root>,
       );
 
-      expect(screen.getByTestId('positioner').getBoundingClientRect()).to.include({
+      expect(screen.getByTestId('positioner').getBoundingClientRect()).toMatchObject({
         x: baselineX + popupWidth,
         y: baselineY,
       });
@@ -212,7 +212,7 @@ describe('<Popover.Positioner />', () => {
       );
 
       // correctly flips the side in the browser
-      expect(side).to.equal('right');
+      expect(side).toBe('right');
     });
 
     it('can read the latest align inside alignOffset', async () => {
@@ -237,7 +237,7 @@ describe('<Popover.Positioner />', () => {
       );
 
       // correctly flips the align in the browser
-      expect(align).to.equal('end');
+      expect(align).toBe('end');
     });
 
     it('reads logical side inside alignOffset', async () => {
@@ -261,7 +261,7 @@ describe('<Popover.Positioner />', () => {
       );
 
       // correctly flips the side in the browser
-      expect(side).to.equal('inline-end');
+      expect(side).toBe('inline-end');
     });
   });
 
@@ -279,21 +279,21 @@ describe('<Popover.Positioner />', () => {
       );
     }
 
-    const { setProps } = await render(<App top={0} />);
+    const { setPropsAsync } = await render(<App top={0} />);
     const positioner = screen.getByTestId('positioner');
 
     const initial = { x: 5, y: 100 };
     const final = { x: 5, y: 200 };
 
-    expect(positioner.getBoundingClientRect()).to.include(initial);
+    expect(positioner.getBoundingClientRect()).toMatchObject(initial);
 
-    setProps({ top: 100 });
+    await setPropsAsync({ top: 100 });
 
     await waitFor(() => {
-      expect(positioner.getBoundingClientRect()).not.to.include(initial);
+      expect(positioner.getBoundingClientRect()).not.toMatchObject(initial);
     });
 
-    expect(positioner.getBoundingClientRect()).to.include(final);
+    expect(positioner.getBoundingClientRect()).toMatchObject(final);
   });
 
   it.skipIf(isJSDOM)('remains anchored if keepMounted=true', async () => {
@@ -310,20 +310,20 @@ describe('<Popover.Positioner />', () => {
       );
     }
 
-    const { setProps } = await render(<App top={0} />);
+    const { setPropsAsync } = await render(<App top={0} />);
     const positioner = screen.getByTestId('positioner');
 
     const initial = { x: 5, y: 100 };
     const final = { x: 5, y: 200 };
 
-    expect(positioner.getBoundingClientRect()).to.include(initial);
+    expect(positioner.getBoundingClientRect()).toMatchObject(initial);
 
-    setProps({ top: 100 });
+    await setPropsAsync({ top: 100 });
 
     await waitFor(() => {
-      expect(positioner.getBoundingClientRect()).not.to.include(initial);
+      expect(positioner.getBoundingClientRect()).not.toMatchObject(initial);
     });
 
-    expect(positioner.getBoundingClientRect()).to.include(final);
+    expect(positioner.getBoundingClientRect()).toMatchObject(final);
   });
 });

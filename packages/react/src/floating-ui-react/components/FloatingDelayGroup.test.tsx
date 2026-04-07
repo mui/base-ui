@@ -1,8 +1,8 @@
+import { vi, expect } from 'vitest';
 /* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable react/jsx-fragments */
 import * as React from 'react';
 import { act, fireEvent, render, screen } from '@mui/internal-test-utils';
-import { vi } from 'vitest';
 
 import { isJSDOM } from '@base-ui/utils/detectBrowser';
 import {
@@ -12,8 +12,6 @@ import {
   useHover,
   useInteractions,
 } from '../index';
-
-vi.useFakeTimers();
 
 interface Props {
   label: string;
@@ -86,6 +84,10 @@ function App() {
 }
 
 describe.skipIf(!isJSDOM)('FloatingDelayGroup', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
   test('groups delays correctly', async () => {
     render(<App />);
 

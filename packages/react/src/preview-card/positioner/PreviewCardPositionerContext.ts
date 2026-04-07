@@ -1,14 +1,11 @@
 'use client';
 import * as React from 'react';
-import type { Side, Align } from '../../utils/useAnchorPositioning';
+import type { UseAnchorPositioningReturnValue } from '../../utils/useAnchorPositioning';
 
-export interface PreviewCardPositionerContext {
-  side: Side;
-  align: Align;
-  arrowRef: React.MutableRefObject<Element | null>;
-  arrowUncentered: boolean;
-  arrowStyles: React.CSSProperties;
-}
+export type PreviewCardPositionerContext = Pick<
+  UseAnchorPositioningReturnValue,
+  'side' | 'align' | 'arrowRef' | 'arrowUncentered' | 'arrowStyles'
+>;
 
 export const PreviewCardPositionerContext = React.createContext<
   PreviewCardPositionerContext | undefined

@@ -1,9 +1,8 @@
+import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Toast } from '@base-ui/react/toast';
 import { Dialog } from '@base-ui/react/dialog';
 import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
-import { spy } from 'sinon';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { useToastManager } from './useToastManager';
 import { List } from './utils/test-utils';
@@ -47,11 +46,365 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       const button = screen.getByRole('button', { name: 'add' });
       fireEvent.click(button);
 
-      expect(screen.queryByTestId('root')).not.to.equal(null);
+      expect(screen.queryByTestId('root')).not.toBe(null);
 
       await tick(clock, 5000);
 
-      expect(screen.queryByTestId('root')).to.equal(null);
+      expect(screen.queryByTestId('root')).toBe(null);
+    });
+
+    it('keeps multiple providers isolated when one provider updates', async () => {
+      function ProviderContents(props: { label: string; title: string }) {
+        const { add, update, toasts } = useToastManager();
+        const idRef = React.useRef<string | null>(null);
+
+        return (
+          <React.Fragment>
+            <Toast.Viewport>
+              {toasts.map((toast) => (
+                <Toast.Root key={toast.id} toast={toast}>
+                  <Toast.Title>{toast.title}</Toast.Title>
+                </Toast.Root>
+              ))}
+            </Toast.Viewport>
+            <button
+              onClick={() => {
+                idRef.current = add({
+                  title: props.title,
+                });
+              }}
+            >
+              add {props.label}
+            </button>
+            <button
+              onClick={() => {
+                if (idRef.current) {
+                  update(idRef.current, {
+                    title: `${props.title} updated`,
+                  });
+                }
+              }}
+            >
+              update {props.label}
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <React.Fragment>
+          <Toast.Provider>
+            <ProviderContents label="first" title="First toast" />
+          </Toast.Provider>
+          <Toast.Provider>
+            <ProviderContents label="second" title="Second toast" />
+          </Toast.Provider>
+        </React.Fragment>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add first' }));
+      fireEvent.click(screen.getByRole('button', { name: 'add second' }));
+
+      expect(screen.getByText('First toast')).not.toBe(null);
+      expect(screen.getByText('Second toast')).not.toBe(null);
+
+      fireEvent.click(screen.getByRole('button', { name: 'update first' }));
+
+      expect(screen.getByText('First toast updated')).not.toBe(null);
+      expect(screen.queryByText('Second toast updated')).toBe(null);
+      expect(screen.getByText('Second toast')).not.toBe(null);
+    });
+
+    it('replaces a closing toast when adding again with the same id', async () => {
+      function Buttons() {
+        const { add, close, toasts } = useToastManager();
+        const toastIdRef = React.useRef<string | null>(null);
+
+        return (
+          <React.Fragment>
+            <button
+              onClick={() => {
+                toastIdRef.current = add({
+                  id: 'save',
+                  title: 'Saving...',
+                  timeout: 0,
+                });
+              }}
+            >
+              add
+            </button>
+            <button
+              onClick={() => {
+                if (toastIdRef.current) {
+                  close(toastIdRef.current);
+                }
+              }}
+            >
+              close
+            </button>
+            <button
+              onClick={() => {
+                toastIdRef.current = add({
+                  id: 'save',
+                  title: 'Saved',
+                  timeout: 0,
+                });
+              }}
+            >
+              re-add
+            </button>
+            <div data-testid="toast-count">{toasts.length}</div>
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+          <Buttons />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      expect(screen.getByTestId('title')).toHaveTextContent('Saving...');
+      expect(screen.queryAllByTestId('root')).toHaveLength(1);
+
+      fireEvent.click(screen.getByRole('button', { name: 'close' }));
+      fireEvent.click(screen.getByRole('button', { name: 're-add' }));
+
+      expect(screen.getByTestId('title')).toHaveTextContent('Saved');
+      expect(screen.queryAllByTestId('root')).toHaveLength(1);
+      expect(screen.getByTestId('toast-count')).toHaveTextContent('1');
+    });
+
+    it('does not call onRemove when replacing an ending toast', async () => {
+      const onRemoveSpy = vi.fn();
+
+      function Buttons() {
+        const { add, close, toasts } = useToastManager();
+        const toastIdRef = React.useRef<string | null>(null);
+
+        return (
+          <React.Fragment>
+            <button
+              onClick={() => {
+                toastIdRef.current = add({
+                  id: 'save',
+                  title: 'Saving...',
+                  timeout: 0,
+                  onRemove: onRemoveSpy,
+                });
+              }}
+            >
+              add
+            </button>
+            <button
+              onClick={() => {
+                if (toastIdRef.current) {
+                  close(toastIdRef.current);
+                }
+              }}
+            >
+              close
+            </button>
+            <button
+              onClick={() => {
+                toastIdRef.current = add({
+                  id: 'save',
+                  title: 'Saved',
+                  timeout: 0,
+                });
+              }}
+            >
+              re-add
+            </button>
+            <div data-testid="toast-count">{toasts.length}</div>
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <Buttons />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      expect(screen.getByTestId('toast-count')).toHaveTextContent('1');
+
+      fireEvent.click(screen.getByRole('button', { name: 'close' }));
+      fireEvent.click(screen.getByRole('button', { name: 're-add' }));
+
+      expect(screen.getByTestId('toast-count')).toHaveTextContent('1');
+      expect(onRemoveSpy).toHaveBeenCalledTimes(0);
+    });
+
+    it('calls onRemove once after replacing an ending toast and later removing the replacement', async () => {
+      const onRemoveSpy = vi.fn();
+
+      function Buttons() {
+        const { add, close, toasts } = useToastManager();
+        const toastIdRef = React.useRef<string | null>(null);
+        const [showViewport, setShowViewport] = React.useState(false);
+
+        return (
+          <React.Fragment>
+            {showViewport ? (
+              <Toast.Viewport>
+                <List />
+              </Toast.Viewport>
+            ) : null}
+            <button
+              onClick={() => {
+                toastIdRef.current = add({
+                  id: 'save',
+                  title: 'Saving...',
+                  timeout: 0,
+                  onRemove: onRemoveSpy,
+                });
+              }}
+            >
+              add
+            </button>
+            <button
+              onClick={() => {
+                if (toastIdRef.current) {
+                  close(toastIdRef.current);
+                }
+              }}
+            >
+              close
+            </button>
+            <button
+              onClick={() => {
+                toastIdRef.current = add({
+                  id: 'save',
+                  title: 'Saved',
+                  timeout: 0,
+                  onRemove: onRemoveSpy,
+                });
+              }}
+            >
+              re-add
+            </button>
+            <button onClick={() => setShowViewport(true)}>show viewport</button>
+            <div data-testid="toast-count">{toasts.length}</div>
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <Buttons />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      fireEvent.click(screen.getByRole('button', { name: 'close' }));
+      fireEvent.click(screen.getByRole('button', { name: 're-add' }));
+
+      expect(screen.getByTestId('toast-count')).toHaveTextContent('1');
+      expect(onRemoveSpy).toHaveBeenCalledTimes(0);
+
+      fireEvent.click(screen.getByRole('button', { name: 'show viewport' }));
+      fireEvent.click(screen.getByRole('button', { name: 'close' }));
+
+      expect(onRemoveSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('ignores transitionStatus when upserting an existing toast', async () => {
+      function Buttons() {
+        const { add, toasts } = useToastManager();
+
+        return (
+          <React.Fragment>
+            <button
+              onClick={() => {
+                add({
+                  id: 'save',
+                  title: 'Saving...',
+                  timeout: 0,
+                });
+              }}
+            >
+              add
+            </button>
+            <button
+              onClick={() => {
+                add({
+                  id: 'save',
+                  title: 'Saved',
+                  timeout: 0,
+                  transitionStatus: 'ending',
+                });
+              }}
+            >
+              upsert
+            </button>
+            {toasts.map((toast) => (
+              <React.Fragment key={toast.id}>
+                <div data-testid="title-value">{toast.title}</div>
+                <div data-testid="transition-status">{toast.transitionStatus}</div>
+              </React.Fragment>
+            ))}
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <Buttons />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      expect(screen.getByTestId('title-value')).toHaveTextContent('Saving...');
+      expect(screen.getByTestId('transition-status')).toHaveTextContent('starting');
+
+      fireEvent.click(screen.getByRole('button', { name: 'upsert' }));
+      expect(screen.getByTestId('title-value')).toHaveTextContent('Saved');
+      expect(screen.getByTestId('transition-status')).toHaveTextContent('starting');
+    });
+
+    it('increments updateKey when adding again with the same id', async () => {
+      function Buttons() {
+        const { add, toasts } = useToastManager();
+
+        return (
+          <React.Fragment>
+            <button
+              onClick={() => {
+                add({
+                  id: 'save',
+                  title: 'Draft saved',
+                  timeout: 0,
+                });
+              }}
+            >
+              add
+            </button>
+            {toasts.map((toast) => (
+              <div key={toast.id} data-testid="update-key">
+                {toast.updateKey}
+              </div>
+            ))}
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <Buttons />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      expect(screen.getByTestId('update-key')).toHaveTextContent('0');
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      expect(screen.getByTestId('update-key')).toHaveTextContent('1');
     });
 
     describe('option: timeout', () => {
@@ -73,11 +426,11 @@ describe.skipIf(!isJSDOM)('useToast', () => {
         const button = screen.getByRole('button', { name: 'add' });
         fireEvent.click(button);
 
-        expect(screen.queryByTestId('root')).not.to.equal(null);
+        expect(screen.queryByTestId('root')).not.toBe(null);
 
         await tick(clock, 1000);
 
-        expect(screen.queryByTestId('root')).to.equal(null);
+        expect(screen.queryByTestId('root')).toBe(null);
       });
     });
 
@@ -120,7 +473,7 @@ describe.skipIf(!isJSDOM)('useToast', () => {
         const button = screen.getByRole('button', { name: 'add' });
         fireEvent.click(button);
 
-        expect(screen.queryByTestId('title')).to.have.text('title');
+        expect(screen.queryByTestId('title')).toHaveTextContent('title');
       });
     });
 
@@ -163,7 +516,7 @@ describe.skipIf(!isJSDOM)('useToast', () => {
         const button = screen.getByRole('button', { name: 'add' });
         fireEvent.click(button);
 
-        expect(screen.queryByTestId('description')).to.have.text('description');
+        expect(screen.queryByTestId('description')).toHaveTextContent('description');
       });
     });
 
@@ -196,14 +549,14 @@ describe.skipIf(!isJSDOM)('useToast', () => {
         const button = screen.getByRole('button', { name: 'add' });
         fireEvent.click(button);
 
-        expect(screen.queryByTestId('title')).to.have.text('test');
-        expect(screen.queryByText('success')).not.to.equal(null);
+        expect(screen.queryByTestId('title')).toHaveTextContent('test');
+        expect(screen.queryByText('success')).not.toBe(null);
       });
     });
 
     describe('option: onClose', () => {
       it('calls onClose when the toast is closed', async () => {
-        const onCloseSpy = spy();
+        const onCloseSpy = vi.fn();
 
         function AddButton() {
           const { add, close } = useToastManager();
@@ -245,16 +598,16 @@ describe.skipIf(!isJSDOM)('useToast', () => {
         const addButton = screen.getByRole('button', { name: 'add' });
         fireEvent.click(addButton);
 
-        expect(onCloseSpy.callCount).to.equal(0);
+        expect(onCloseSpy.mock.calls.length).toBe(0);
 
         const closeButton = screen.getByRole('button', { name: 'close' });
         fireEvent.click(closeButton);
 
-        expect(onCloseSpy.callCount).to.equal(1);
+        expect(onCloseSpy.mock.calls.length).toBe(1);
       });
 
       it('calls onClose when the toast auto-dismisses', async () => {
-        const onCloseSpy = spy();
+        const onCloseSpy = vi.fn();
 
         function AddButton() {
           const { add } = useToastManager();
@@ -285,17 +638,17 @@ describe.skipIf(!isJSDOM)('useToast', () => {
         const button = screen.getByRole('button', { name: 'add' });
         fireEvent.click(button);
 
-        expect(onCloseSpy.callCount).to.equal(0);
+        expect(onCloseSpy.mock.calls.length).toBe(0);
 
         await tick(clock, 1000);
 
-        expect(onCloseSpy.callCount).to.equal(1);
+        expect(onCloseSpy.mock.calls.length).toBe(1);
       });
     });
 
     describe('option: onRemove', () => {
       it('calls onRemove when the toast is removed', async () => {
-        const onRemoveSpy = spy();
+        const onRemoveSpy = vi.fn();
 
         function AddButton() {
           const { add, close } = useToastManager();
@@ -337,12 +690,12 @@ describe.skipIf(!isJSDOM)('useToast', () => {
         const addButton = screen.getByRole('button', { name: 'add' });
         fireEvent.click(addButton);
 
-        expect(onRemoveSpy.callCount).to.equal(0);
+        expect(onRemoveSpy.mock.calls.length).toBe(0);
 
         const closeButton = screen.getByRole('button', { name: 'close' });
         fireEvent.click(closeButton);
 
-        expect(onRemoveSpy.callCount).to.equal(1);
+        expect(onRemoveSpy.mock.calls.length).toBe(1);
       });
     });
 
@@ -371,15 +724,15 @@ describe.skipIf(!isJSDOM)('useToast', () => {
 
         const highRoot = screen.getByTestId('root');
 
-        expect(highRoot.getAttribute('role')).to.equal('alertdialog');
-        expect(highRoot.getAttribute('aria-modal')).to.equal('false');
-        expect(screen.getByRole('alert')).not.to.equal(null);
-        expect(screen.getByRole('alert').getAttribute('aria-atomic')).to.equal('true');
+        expect(highRoot.getAttribute('role')).toBe('alertdialog');
+        expect(highRoot.getAttribute('aria-modal')).toBe('false');
+        expect(screen.getByRole('alert')).not.toBe(null);
+        expect(screen.getByRole('alert').getAttribute('aria-atomic')).toBe('true');
 
         const closeHighButton = screen.getByLabelText('close-press');
         fireEvent.click(closeHighButton);
 
-        expect(screen.queryByRole('alert')).to.equal(null);
+        expect(screen.queryByRole('alert')).toBe(null);
       });
     });
   });
@@ -395,6 +748,7 @@ describe.skipIf(!isJSDOM)('useToast', () => {
         <Toast.Root key={t.id} toast={t} data-testid="root">
           <Toast.Title data-testid="title">{t.title}</Toast.Title>
           <Toast.Description data-testid="description">{t.description}</Toast.Description>
+          <Toast.Close aria-label="close-press" />
           <span>{t.type}</span>
         </Toast.Root>
       ));
@@ -437,11 +791,11 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       const button = screen.getByRole('button', { name: 'add' });
       fireEvent.click(button);
 
-      expect(screen.getByTestId('description')).to.have.text('loading');
+      expect(screen.getByTestId('description')).toHaveTextContent('loading');
 
       await tick(clock, 1000);
 
-      expect(screen.getByTestId('description')).to.have.text('success');
+      expect(screen.getByTestId('description')).toHaveTextContent('success');
     });
 
     it('displays error state as description after promise rejects', async () => {
@@ -483,11 +837,11 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       const button = screen.getByRole('button', { name: 'add' });
       fireEvent.click(button);
 
-      expect(screen.getByTestId('description')).to.have.text('loading');
+      expect(screen.getByTestId('description')).toHaveTextContent('loading');
 
       await tick(clock, 1000);
 
-      expect(screen.getByTestId('description')).to.have.text('error');
+      expect(screen.getByTestId('description')).toHaveTextContent('error');
     });
 
     it('passes data when success is a function', async () => {
@@ -525,11 +879,11 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       const button = screen.getByRole('button', { name: 'add' });
       fireEvent.click(button);
 
-      expect(screen.getByTestId('description')).to.have.text('loading');
+      expect(screen.getByTestId('description')).toHaveTextContent('loading');
 
       await tick(clock, 1000);
 
-      expect(screen.getByTestId('description')).to.have.text('test success');
+      expect(screen.getByTestId('description')).toHaveTextContent('test success');
     });
 
     it('passes data when error is a function', async () => {
@@ -569,11 +923,11 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       const button = screen.getByRole('button', { name: 'add' });
       fireEvent.click(button);
 
-      expect(screen.getByTestId('description')).to.have.text('loading');
+      expect(screen.getByTestId('description')).toHaveTextContent('loading');
 
       await tick(clock, 1000);
 
-      expect(screen.getByTestId('description')).to.have.text('test error');
+      expect(screen.getByTestId('description')).toHaveTextContent('test error');
     });
 
     it('supports custom options', async () => {
@@ -614,10 +968,57 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       const button = screen.getByRole('button', { name: 'add' });
       fireEvent.click(button);
 
-      expect(screen.getByTestId('title')).to.have.text('loading title');
-      expect(screen.getByTestId('description')).to.have.text('loading description');
+      expect(screen.getByTestId('title')).toHaveTextContent('loading title');
+      expect(screen.getByTestId('description')).toHaveTextContent('loading description');
 
       await flushMicrotasks();
+    });
+
+    it('does not reopen a dismissed promise toast when it resolves', async () => {
+      let resolvePromise: (value: string) => void = () => {
+        throw new Error('Promise resolver should be assigned before resolving.');
+      };
+
+      function AddButton() {
+        const { promise } = useToastManager();
+        return (
+          <button
+            onClick={() => {
+              const pendingPromise = new Promise<string>((resolve) => {
+                resolvePromise = resolve;
+              });
+
+              promise(pendingPromise, {
+                loading: 'loading',
+                success: 'success',
+                error: 'error',
+              });
+            }}
+          >
+            add
+          </button>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <CustomList />
+          </Toast.Viewport>
+          <AddButton />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+
+      expect(screen.getByTestId('description')).toHaveTextContent('loading');
+
+      fireEvent.click(screen.getByLabelText('close-press'));
+      resolvePromise('success');
+
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('root')).toBe(null);
     });
 
     describe('timeout handling', () => {
@@ -658,15 +1059,15 @@ describe.skipIf(!isJSDOM)('useToast', () => {
         const button = screen.getByRole('button', { name: 'add' });
         fireEvent.click(button);
 
-        expect(screen.getByTestId('description')).to.have.text('loading');
+        expect(screen.getByTestId('description')).toHaveTextContent('loading');
 
         await tick(clock, 1000);
 
-        expect(screen.getByTestId('description')).to.have.text('success');
+        expect(screen.getByTestId('description')).toHaveTextContent('success');
 
         await tick(clock, 5000);
 
-        expect(screen.queryByTestId('root')).to.equal(null);
+        expect(screen.queryByTestId('root')).toBe(null);
       });
 
       it('auto-dismisses error toast after default timeout when promise rejects', async () => {
@@ -708,14 +1109,14 @@ describe.skipIf(!isJSDOM)('useToast', () => {
         const button = screen.getByRole('button', { name: 'add' });
         fireEvent.click(button);
 
-        expect(screen.getByTestId('description')).to.have.text('loading');
+        expect(screen.getByTestId('description')).toHaveTextContent('loading');
 
         await tick(clock, 1000);
 
-        expect(screen.getByTestId('description')).to.have.text('error');
+        expect(screen.getByTestId('description')).toHaveTextContent('error');
 
         await tick(clock, 5000);
-        expect(screen.queryByTestId('root')).to.equal(null);
+        expect(screen.queryByTestId('root')).toBe(null);
       });
 
       it('uses custom timeout from success options when promise resolves', async () => {
@@ -760,13 +1161,13 @@ describe.skipIf(!isJSDOM)('useToast', () => {
 
         await tick(clock, 1000);
 
-        expect(screen.getByTestId('description')).to.have.text('success');
+        expect(screen.getByTestId('description')).toHaveTextContent('success');
 
         await tick(clock, 1000);
-        expect(screen.getByTestId('root')).not.to.equal(null);
+        expect(screen.getByTestId('root')).not.toBe(null);
 
         await tick(clock, 1000);
-        expect(screen.queryByTestId('root')).to.equal(null);
+        expect(screen.queryByTestId('root')).toBe(null);
       });
 
       it('uses custom timeout from error options when promise rejects', async () => {
@@ -813,13 +1214,13 @@ describe.skipIf(!isJSDOM)('useToast', () => {
 
         await tick(clock, 1000);
 
-        expect(screen.getByTestId('description')).to.have.text('error');
+        expect(screen.getByTestId('description')).toHaveTextContent('error');
 
         await tick(clock, 2000);
-        expect(screen.getByTestId('root')).not.to.equal(null);
+        expect(screen.getByTestId('root')).not.toBe(null);
 
         await tick(clock, 1000);
-        expect(screen.queryByTestId('root')).to.equal(null);
+        expect(screen.queryByTestId('root')).toBe(null);
       });
 
       it('uses provider timeout when no custom timeout is specified', async () => {
@@ -861,10 +1262,57 @@ describe.skipIf(!isJSDOM)('useToast', () => {
 
         await tick(clock, 1000);
 
-        expect(screen.getByTestId('description')).to.have.text('success');
+        expect(screen.getByTestId('description')).toHaveTextContent('success');
 
         await tick(clock, 1000);
-        expect(screen.queryByTestId('root')).to.equal(null);
+        expect(screen.queryByTestId('root')).toBe(null);
+      });
+
+      it('does not inherit a loading timeout when success does not specify one', async () => {
+        function AddButton() {
+          const { promise } = useToastManager();
+          return (
+            <button
+              onClick={() => {
+                promise(
+                  new Promise((res) => {
+                    setTimeout(() => {
+                      res('success');
+                    }, 1000);
+                  }),
+                  {
+                    loading: {
+                      description: 'loading',
+                      timeout: 0,
+                    },
+                    success: 'success',
+                    error: 'error',
+                  },
+                );
+              }}
+            >
+              add
+            </button>
+          );
+        }
+
+        await render(
+          <Toast.Provider>
+            <Toast.Viewport>
+              <CustomList />
+            </Toast.Viewport>
+            <AddButton />
+          </Toast.Provider>,
+        );
+
+        fireEvent.click(screen.getByRole('button', { name: 'add' }));
+        expect(screen.getByTestId('description')).toHaveTextContent('loading');
+
+        await tick(clock, 1000);
+        expect(screen.getByTestId('description')).toHaveTextContent('success');
+
+        await tick(clock, 5000);
+        expect(screen.queryByTestId('root')).toBe(null);
       });
 
       it('does not auto-dismiss when timeout is set to 0', async () => {
@@ -909,10 +1357,10 @@ describe.skipIf(!isJSDOM)('useToast', () => {
 
         await tick(clock, 1000);
 
-        expect(screen.getByTestId('description')).to.have.text('success');
+        expect(screen.getByTestId('description')).toHaveTextContent('success');
 
         await tick(clock, 10000);
-        expect(screen.getByTestId('root')).not.to.equal(null);
+        expect(screen.getByTestId('root')).not.toBe(null);
       });
 
       it('pauses timers when hovering over toast', async () => {
@@ -957,7 +1405,7 @@ describe.skipIf(!isJSDOM)('useToast', () => {
 
         await tick(clock, 1000);
 
-        expect(screen.getByTestId('description')).to.have.text('success');
+        expect(screen.getByTestId('description')).toHaveTextContent('success');
 
         await tick(clock, 1000);
 
@@ -965,11 +1413,11 @@ describe.skipIf(!isJSDOM)('useToast', () => {
         fireEvent.mouseEnter(toast);
 
         await tick(clock, 5000);
-        expect(screen.getByTestId('root')).not.to.equal(null);
+        expect(screen.getByTestId('root')).not.toBe(null);
 
         fireEvent.mouseLeave(toast);
         await tick(clock, 2000);
-        expect(screen.queryByTestId('root')).to.equal(null);
+        expect(screen.queryByTestId('root')).toBe(null);
       });
     });
   });
@@ -1028,12 +1476,156 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       const button = screen.getByRole('button', { name: 'add' });
       fireEvent.click(button);
 
-      expect(screen.getByTestId('title')).to.have.text('test');
+      expect(screen.getByTestId('title')).toHaveTextContent('test');
 
       const updateButton = screen.getByRole('button', { name: 'update' });
       fireEvent.click(updateButton);
 
-      expect(screen.getByTestId('title')).to.have.text('updated');
+      expect(screen.getByTestId('title')).toHaveTextContent('updated');
+    });
+
+    it('increments updateKey when updating a toast', async () => {
+      function Buttons() {
+        const { add, update, toasts } = useToastManager();
+        const idRef = React.useRef<string | null>(null);
+
+        return (
+          <React.Fragment>
+            <button
+              type="button"
+              onClick={() => {
+                idRef.current = add({
+                  id: 'save',
+                  title: 'Draft saved',
+                  timeout: 0,
+                });
+              }}
+            >
+              add
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (idRef.current) {
+                  update(idRef.current, { title: 'Draft synced' });
+                }
+              }}
+            >
+              update
+            </button>
+            {toasts.map((toast) => (
+              <div key={toast.id} data-testid="update-key">
+                {toast.updateKey}
+              </div>
+            ))}
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <Buttons />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      expect(screen.getByTestId('update-key')).toHaveTextContent('0');
+
+      fireEvent.click(screen.getByRole('button', { name: 'update' }));
+      expect(screen.getByTestId('update-key')).toHaveTextContent('1');
+    });
+
+    it('auto-dismisses when timeout changes from 0 to a positive value', async () => {
+      function AddButton() {
+        const { add, update } = useToastManager();
+        const idRef = React.useRef<string | null>(null);
+        return (
+          <React.Fragment>
+            <button
+              type="button"
+              onClick={() => {
+                idRef.current = add({ title: 'test', timeout: 0 });
+              }}
+            >
+              add
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (idRef.current) {
+                  update(idRef.current, { timeout: 1000 });
+                }
+              }}
+            >
+              update
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <CustomList />
+          </Toast.Viewport>
+          <AddButton />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      expect(screen.queryByTestId('root')).not.toBe(null);
+
+      fireEvent.click(screen.getByRole('button', { name: 'update' }));
+      await tick(clock, 1000);
+
+      expect(screen.queryByTestId('root')).toBe(null);
+    });
+
+    it('schedules a timer when updating a loading toast to a non-loading type', async () => {
+      function AddButton() {
+        const { add, update } = useToastManager();
+        const idRef = React.useRef<string | null>(null);
+        return (
+          <React.Fragment>
+            <button
+              type="button"
+              onClick={() => {
+                idRef.current = add({ title: 'loading', type: 'loading' });
+              }}
+            >
+              add
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (idRef.current) {
+                  update(idRef.current, { title: 'success', type: 'success', timeout: 1000 });
+                }
+              }}
+            >
+              update
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <CustomList />
+          </Toast.Viewport>
+          <AddButton />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      expect(screen.getByTestId('title')).toHaveTextContent('loading');
+
+      fireEvent.click(screen.getByRole('button', { name: 'update' }));
+      expect(screen.getByTestId('title')).toHaveTextContent('success');
+
+      await tick(clock, 1000);
+      expect(screen.queryByTestId('root')).toBe(null);
     });
   });
 
@@ -1089,12 +1681,57 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       const addButton = screen.getByRole('button', { name: 'add' });
       fireEvent.click(addButton);
 
-      expect(screen.getByTestId('root')).not.to.equal(null);
+      expect(screen.getByTestId('root')).not.toBe(null);
 
       const closeButton = screen.getByRole('button', { name: 'close' });
       fireEvent.click(closeButton);
 
-      expect(screen.queryByTestId('root')).to.equal(null);
+      expect(screen.queryByTestId('root')).toBe(null);
+    });
+
+    it('closes all toasts', async () => {
+      function AddButton() {
+        const { add, close } = useToastManager();
+        return (
+          <React.Fragment>
+            <button
+              onClick={() => {
+                add({ title: 'test' });
+              }}
+            >
+              add
+            </button>
+            <button
+              onClick={() => {
+                close();
+              }}
+            >
+              close
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <CustomList />
+          </Toast.Viewport>
+          <AddButton />
+        </Toast.Provider>,
+      );
+
+      const addButton = screen.getByRole('button', { name: 'add' });
+      Array.from({ length: 5 }).forEach(() => {
+        fireEvent.click(addButton);
+      });
+
+      expect(screen.getAllByTestId('root')).toHaveLength(5);
+
+      const closeButton = screen.getByRole('button', { name: 'close' });
+      fireEvent.click(closeButton);
+
+      expect(screen.queryByTestId('root')).toBe(null);
     });
   });
 
@@ -1139,16 +1776,16 @@ describe.skipIf(!isJSDOM)('useToast', () => {
 
       fireEvent.click(addButton);
       const toast1 = screen.getByTestId('toast-1');
-      expect(toast1).not.to.have.attribute('data-limited');
+      expect(toast1).not.toHaveAttribute('data-limited');
 
       fireEvent.click(addButton);
       const toast2 = screen.getByTestId('toast-2');
-      expect(toast2).not.to.have.attribute('data-limited');
+      expect(toast2).not.toHaveAttribute('data-limited');
 
       fireEvent.click(addButton);
       const toast3 = screen.getByTestId('toast-3');
-      expect(toast3).not.to.have.attribute('data-limited');
-      expect(toast1).to.have.attribute('data-limited');
+      expect(toast3).not.toHaveAttribute('data-limited');
+      expect(toast1).toHaveAttribute('data-limited');
     });
 
     it('unmarks toasts as limited when the limit is not exceeded', async () => {
@@ -1164,20 +1801,78 @@ describe.skipIf(!isJSDOM)('useToast', () => {
 
       fireEvent.click(addButton);
       const toast1 = screen.getByTestId('toast-1');
-      expect(toast1).not.to.have.attribute('data-limited');
+      expect(toast1).not.toHaveAttribute('data-limited');
 
       fireEvent.click(addButton);
       const toast2 = screen.getByTestId('toast-2');
-      expect(toast2).not.to.have.attribute('data-limited');
+      expect(toast2).not.toHaveAttribute('data-limited');
 
       fireEvent.click(addButton);
       const toast3 = screen.getByTestId('toast-3');
-      expect(toast3).not.to.have.attribute('data-limited');
+      expect(toast3).not.toHaveAttribute('data-limited');
 
       const closeToast3 = screen.getByTestId('close-toast-3');
       fireEvent.click(closeToast3);
 
-      expect(toast1).not.to.have.attribute('data-limited');
+      expect(toast1).not.toHaveAttribute('data-limited');
+    });
+
+    it('preserves limited state when upserting a limited toast', async () => {
+      function LimitedToastExample() {
+        const { add, toasts } = useToastManager();
+
+        return (
+          <React.Fragment>
+            {toasts.map((toast) => (
+              <Toast.Root key={toast.id} toast={toast} data-testid={String(toast.title)}>
+                <Toast.Title />
+              </Toast.Root>
+            ))}
+            <button
+              onClick={() => {
+                add({ id: 'save', title: 'Saving...', timeout: 0 });
+              }}
+            >
+              add save
+            </button>
+            <button
+              onClick={() => {
+                add({ id: 'other', title: 'Other toast', timeout: 0 });
+              }}
+            >
+              add other
+            </button>
+            <button
+              onClick={() => {
+                add({ id: 'save', title: 'Saved', timeout: 0 });
+              }}
+            >
+              upsert save
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider limit={1}>
+          <Toast.Viewport>
+            <LimitedToastExample />
+          </Toast.Viewport>
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add save' }));
+      const savingToast = screen.getByTestId('Saving...');
+      expect(savingToast).not.toHaveAttribute('data-limited');
+
+      fireEvent.click(screen.getByRole('button', { name: 'add other' }));
+      expect(savingToast).toHaveAttribute('data-limited');
+      expect(screen.getByTestId('Other toast')).not.toHaveAttribute('data-limited');
+
+      fireEvent.click(screen.getByRole('button', { name: 'upsert save' }));
+      const savedToast = screen.getByTestId('Saved');
+      expect(savedToast).toHaveAttribute('data-limited');
+      expect(screen.getByTestId('Other toast')).not.toHaveAttribute('data-limited');
     });
   });
 
@@ -1239,15 +1934,17 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       const openDialogButton = screen.getByRole('button', { name: 'open dialog' });
       fireEvent.click(openDialogButton);
 
-      expect(screen.getByRole('dialog')).not.to.equal(null);
+      expect(screen.getByRole('dialog')).not.toBe(null);
 
       const addToastButton = screen.getByRole('button', { name: 'add' });
       fireEvent.click(addToastButton);
 
       const toastRoot = screen.getByTestId('toast-root');
-      expect(toastRoot).not.to.equal(null);
-      expect(screen.getByTestId('toast-title')).to.have.text('Toast in dialog');
-      expect(screen.getByTestId('toast-description')).to.have.text('This toast is in a dialog');
+      expect(toastRoot).not.toBe(null);
+      expect(screen.getByTestId('toast-title')).toHaveTextContent('Toast in dialog');
+      expect(screen.getByTestId('toast-description')).toHaveTextContent(
+        'This toast is in a dialog',
+      );
     });
 
     it('high priority toasts in dialogs have correct accessibility structure', async () => {
@@ -1288,8 +1985,8 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       fireEvent.click(addToastButton);
 
       const toastRoot = screen.getByTestId('toast-root');
-      expect(toastRoot).to.have.attribute('aria-hidden', 'true');
-      expect(screen.queryByRole('alert')).not.to.equal(null);
+      expect(toastRoot).toHaveAttribute('aria-hidden', 'true');
+      expect(screen.queryByRole('alert')).not.toBe(null);
     });
   });
 });

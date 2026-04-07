@@ -1,11 +1,10 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useRegisteredLabelId } from '../../utils/useRegisteredLabelId';
 import { useProgressRootContext } from '../root/ProgressRootContext';
 import { progressStateAttributesMapping } from '../root/stateAttributesMapping';
-import type { ProgressRoot } from '../root/ProgressRoot';
+import type { ProgressRootState } from '../root/ProgressRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
@@ -18,16 +17,11 @@ export const ProgressLabel = React.forwardRef(function ProgressLabel(
   componentProps: ProgressLabel.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, id: idProp, ...elementProps } = componentProps;
-
-  const id = useBaseUiId(idProp);
+  const { render, className, style, id: idProp, ...elementProps } = componentProps;
 
   const { setLabelId, state } = useProgressRootContext();
 
-  useIsoLayoutEffect(() => {
-    setLabelId(id);
-    return () => setLabelId(undefined);
-  }, [id, setLabelId]);
+  const id = useRegisteredLabelId(idProp, setLabelId);
 
   const element = useRenderElement('span', componentProps, {
     state,
@@ -35,6 +29,7 @@ export const ProgressLabel = React.forwardRef(function ProgressLabel(
     props: [
       {
         id,
+        role: 'presentation',
       },
       elementProps,
     ],
@@ -44,8 +39,11 @@ export const ProgressLabel = React.forwardRef(function ProgressLabel(
   return element;
 });
 
-export interface ProgressLabelProps extends BaseUIComponentProps<'span', ProgressRoot.State> {}
+export interface ProgressLabelState extends ProgressRootState {}
+
+export interface ProgressLabelProps extends BaseUIComponentProps<'span', ProgressLabelState> {}
 
 export namespace ProgressLabel {
+  export type State = ProgressLabelState;
   export type Props = ProgressLabelProps;
 }

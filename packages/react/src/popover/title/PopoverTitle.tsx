@@ -16,7 +16,7 @@ export const PopoverTitle = React.forwardRef(function PopoverTitle(
   componentProps: PopoverTitle.Props,
   forwardedRef: React.ForwardedRef<HTMLHeadingElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const { store } = usePopoverRootContext();
 
@@ -41,7 +41,7 @@ export interface PopoverTitleState {}
 
 export interface PopoverTitleProps extends BaseUIComponentProps<
   'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6',
-  PopoverTitle.State
+  PopoverTitleState
 > {}
 
 export namespace PopoverTitle {

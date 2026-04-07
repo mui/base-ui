@@ -20,7 +20,9 @@ export type State<Payload> = PopupStoreState<Payload> & {
   trackCursorAxis: 'none' | 'x' | 'y' | 'both';
   disableHoverablePopup: boolean;
   openChangeReason: TooltipRoot.ChangeEventReason | null;
+  closeOnClick: boolean;
   closeDelay: number;
+  hasViewport: boolean;
 };
 
 export type Context = PopupStoreContext<TooltipRoot.ChangeEventDetails> & {
@@ -35,7 +37,9 @@ const selectors = {
   trackCursorAxis: createSelector((state: State<unknown>) => state.trackCursorAxis),
   disableHoverablePopup: createSelector((state: State<unknown>) => state.disableHoverablePopup),
   lastOpenChangeReason: createSelector((state: State<unknown>) => state.openChangeReason),
+  closeOnClick: createSelector((state: State<unknown>) => state.closeOnClick),
   closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
+  hasViewport: createSelector((state: State<unknown>) => state.hasViewport),
 };
 
 export class TooltipStore<Payload> extends ReactStore<
@@ -56,7 +60,7 @@ export class TooltipStore<Payload> extends ReactStore<
     );
   }
 
-  public setOpen = (
+  setOpen = (
     nextOpen: boolean,
     eventDetails: Omit<TooltipRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
   ) => {
@@ -76,6 +80,8 @@ export class TooltipStore<Payload> extends ReactStore<
     if (eventDetails.isCanceled) {
       return;
     }
+
+    this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
 
     const changeState = () => {
       const updatedState: Partial<State<Payload>> = { open: nextOpen, openChangeReason: reason };
@@ -108,14 +114,16 @@ export class TooltipStore<Payload> extends ReactStore<
     }
   };
 
-  public static useStore<Payload>(
+  static useStore<Payload>(
     externalStore: TooltipStore<Payload> | undefined,
     initialState?: Partial<State<Payload>>,
   ) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const store = useRefWithInit(() => {
-      return externalStore ?? new TooltipStore<Payload>(initialState);
+    const internalStore = useRefWithInit(() => {
+      return new TooltipStore<Payload>(initialState);
     }).current;
+
+    const store = externalStore ?? internalStore;
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const floatingRootContext = useSyncedFloatingRootContext({
@@ -141,6 +149,8 @@ function createInitialState<Payload>(): State<Payload> {
     trackCursorAxis: 'none',
     disableHoverablePopup: false,
     openChangeReason: null,
+    closeOnClick: true,
     closeDelay: 0,
+    hasViewport: false,
   };
 }

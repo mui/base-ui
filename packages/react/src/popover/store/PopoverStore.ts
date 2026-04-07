@@ -6,7 +6,6 @@ import { Timeout } from '@base-ui/utils/useTimeout';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useOnMount } from '@base-ui/utils/useOnMount';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import { FloatingUIOpenChangeDetails } from '../../utils/types';
 import { PopoverRoot } from './../root/PopoverRoot';
 import { REASONS } from '../../utils/reasons';
 import {
@@ -22,6 +21,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
   instantType: 'dismiss' | 'click' | undefined;
   modal: boolean | 'trap-focus';
+  focusManagerModal: boolean;
   openMethod: InteractionType | null;
   openChangeReason: PopoverRoot.ChangeEventReason | null;
   stickIfOpen: boolean;
@@ -30,6 +30,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   descriptionElementId: string | undefined;
   openOnHover: boolean;
   closeDelay: number;
+  hasViewport: boolean;
 };
 
 type Context = PopupStoreContext<PopoverRoot.ChangeEventDetails> & {
@@ -46,6 +47,7 @@ function createInitialState<Payload>(): State<Payload> {
     ...createInitialPopupStoreState(),
     disabled: false,
     modal: false,
+    focusManagerModal: false,
     instantType: undefined,
     openMethod: null,
     openChangeReason: null,
@@ -55,6 +57,7 @@ function createInitialState<Payload>(): State<Payload> {
     nested: false,
     openOnHover: false,
     closeDelay: 0,
+    hasViewport: false,
   };
 }
 
@@ -65,11 +68,13 @@ const selectors = {
   openMethod: createSelector((state: State<unknown>) => state.openMethod),
   openChangeReason: createSelector((state: State<unknown>) => state.openChangeReason),
   modal: createSelector((state: State<unknown>) => state.modal),
+  focusManagerModal: createSelector((state: State<unknown>) => state.focusManagerModal),
   stickIfOpen: createSelector((state: State<unknown>) => state.stickIfOpen),
   titleElementId: createSelector((state: State<unknown>) => state.titleElementId),
   descriptionElementId: createSelector((state: State<unknown>) => state.descriptionElementId),
   openOnHover: createSelector((state: State<unknown>) => state.openOnHover),
   closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
+  hasViewport: createSelector((state: State<unknown>) => state.hasViewport),
 };
 
 export class PopoverStore<Payload> extends ReactStore<
@@ -122,16 +127,7 @@ export class PopoverStore<Payload> extends ReactStore<
       return;
     }
 
-    const details: FloatingUIOpenChangeDetails = {
-      open: nextOpen,
-      nativeEvent: eventDetails.event,
-      reason: eventDetails.reason,
-      nested: this.state.nested,
-      triggerElement: eventDetails.trigger,
-    };
-
-    const floatingEvents = this.state.floatingRootContext.context.events;
-    floatingEvents?.emit('openchange', details);
+    this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
 
     const changeState = () => {
       const updatedState: Partial<State<Payload>> = {
@@ -176,11 +172,13 @@ export class PopoverStore<Payload> extends ReactStore<
     externalStore: PopoverStore<Payload> | undefined,
     initialState: Partial<State<Payload>>,
   ) {
-    const store = useRefWithInit(() => {
-      return externalStore ?? new PopoverStore<Payload>(initialState);
+    const internalStore = useRefWithInit(() => {
+      return new PopoverStore<Payload>(initialState);
     }).current;
 
-    useOnMount(store.disposeEffect);
+    const store = externalStore ?? internalStore;
+
+    useOnMount(internalStore.disposeEffect);
     return store;
   }
 

@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -8,7 +9,13 @@ import { useTriggerDataForwarding } from '../../utils/popups';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { TooltipHandle } from '../store/TooltipHandle';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
-import { safePolygon, useDelayGroup, useHoverReferenceInteraction } from '../../floating-ui-react';
+import {
+  safePolygon,
+  useDelayGroup,
+  useFocus,
+  useHoverReferenceInteraction,
+} from '../../floating-ui-react';
+import { TooltipTriggerDataAttributes } from './TooltipTriggerDataAttributes';
 
 import { OPEN_DELAY } from '../utils/constants';
 
@@ -18,9 +25,9 @@ import { OPEN_DELAY } from '../utils/constants';
  *
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
-export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
+export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   componentProps: TooltipTrigger.Props,
-  forwardedRef: React.ForwardedRef<any>,
+  forwardedRef: React.ForwardedRef<Element>,
 ) {
   const {
     className,
@@ -29,8 +36,10 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
     payload,
     disabled: disabledProp,
     delay,
+    closeOnClick = true,
     closeDelay,
     id: idProp,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -44,8 +53,8 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
 
   const thisTriggerId = useBaseUiId(idProp);
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
-  const floatingRootContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
+  const floatingRootContext = store.useState('floatingRootContext');
 
   const triggerElementRef = React.useRef<Element | null>(null);
 
@@ -58,6 +67,7 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
     store,
     {
       payload,
+      closeOnClick,
       closeDelay: closeDelayWithDefault,
     },
   );
@@ -111,17 +121,28 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
     isActiveTrigger: isTriggerActive,
   });
 
-  const state: TooltipTrigger.State = React.useMemo(
-    () => ({ open: isOpenedByThisTrigger }),
-    [isOpenedByThisTrigger],
-  );
+  const focusProps = useFocus(floatingRootContext, { enabled: !disabled }).reference;
+
+  const state: TooltipTriggerState = { open: isOpenedByThisTrigger };
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
   const element = useRenderElement('button', componentProps, {
     state,
     ref: [forwardedRef, registerTrigger, triggerElementRef],
-    props: [hoverProps, rootTriggerProps, { id: thisTriggerId }, elementProps],
+    props: [
+      hoverProps,
+      focusProps,
+      rootTriggerProps,
+      {
+        onPointerDown() {
+          store.set('closeOnClick', closeOnClick);
+        },
+        id: thisTriggerId,
+        [TooltipTriggerDataAttributes.triggerDisabled]: disabled ? '' : undefined,
+      } as React.HTMLAttributes<Element>,
+      elementProps,
+    ],
     stateAttributesMapping: triggerOpenStateMapping,
   });
 
@@ -143,26 +164,38 @@ export interface TooltipTriggerState {
 
 export interface TooltipTriggerProps<Payload = unknown> extends BaseUIComponentProps<
   'button',
-  TooltipTrigger.State
+  TooltipTriggerState
 > {
   /**
    * A handle to associate the trigger with a tooltip.
    */
-  handle?: TooltipHandle<Payload>;
+  handle?: TooltipHandle<Payload> | undefined;
   /**
    * A payload to pass to the tooltip when it is opened.
    */
-  payload?: Payload;
+  payload?: Payload | undefined;
   /**
    * How long to wait before opening the tooltip. Specified in milliseconds.
    * @default 600
    */
-  delay?: number;
+  delay?: number | undefined;
+  /**
+   * Whether the tooltip should close when this trigger is clicked.
+   * @default true
+   */
+  closeOnClick?: boolean | undefined;
   /**
    * How long to wait before closing the tooltip. Specified in milliseconds.
    * @default 0
    */
-  closeDelay?: number;
+  closeDelay?: number | undefined;
+  /**
+   * If `true`, the tooltip will not open when interacting with this trigger.
+   * Note that this doesn't apply the `disabled` attribute to the trigger element.
+   * If you want to disable the trigger element itself, you can pass the `disabled` prop to the trigger element via the `render` prop.
+   * @default false
+   */
+  disabled?: boolean | undefined;
 }
 
 export namespace TooltipTrigger {

@@ -115,7 +115,7 @@ function DiscussionPanel() {
     <div className={styles.DiscussionPanel}>
       <Popover.Title className={styles.Title}>Discussion</Popover.Title>
       <p className={styles.NoComments}>There aren't any comments yet.</p>
-      <textarea className={styles.TextArea} placeholder="Write a comment..." />
+      <textarea className={styles.TextArea} placeholder="Write a comment…" />
       <div className={styles.Actions}>
         <button className={styles.Button} type="button">
           Post

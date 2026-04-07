@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { valueToPercent } from '../../utils/valueToPercent';
-import type { MeterRoot } from '../root/MeterRoot';
+import type { MeterRootState } from '../root/MeterRoot';
 import { useMeterRootContext } from '../root/MeterRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 
@@ -16,7 +16,7 @@ export const MeterIndicator = React.forwardRef(function MeterIndicator(
   componentProps: MeterIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const context = useMeterRootContext();
 
@@ -37,8 +37,11 @@ export const MeterIndicator = React.forwardRef(function MeterIndicator(
   });
 });
 
-export interface MeterIndicatorProps extends BaseUIComponentProps<'div', MeterRoot.State> {}
+export interface MeterIndicatorState extends MeterRootState {}
+
+export interface MeterIndicatorProps extends BaseUIComponentProps<'div', MeterIndicatorState> {}
 
 export namespace MeterIndicator {
+  export type State = MeterIndicatorState;
   export type Props = MeterIndicatorProps;
 }

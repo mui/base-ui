@@ -16,10 +16,7 @@ import { Autocomplete } from '@base-ui/react/autocomplete';
 import { z } from 'zod';
 import styles from './form.module.css';
 
-import {
-  SettingsMetadata,
-  useExperimentSettings,
-} from '../../../../components/Experiments/SettingsPanel';
+import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
 
 const fonts = [
   { value: 'sans', label: 'Sans-serif' },
@@ -447,7 +444,7 @@ export default function Page() {
                 {(value: string[]) =>
                   value.length > 0
                     ? value.map((v) => fonts.find((f) => f.value === v)?.label).join(', ')
-                    : 'Select fonts...'
+                    : 'Select fonts…'
                 }
               </Select.Value>
               <Select.Icon className={styles.SelectIcon}>

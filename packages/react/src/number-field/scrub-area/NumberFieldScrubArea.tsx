@@ -1,13 +1,15 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
+import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { ownerWindow, ownerDocument } from '@base-ui/utils/owner';
 import { isFirefox, isWebKit } from '@base-ui/utils/detectBrowser';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
-import type { NumberFieldRoot } from '../root/NumberFieldRoot';
+import type { NumberFieldRootState } from '../root/NumberFieldRoot';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { NumberFieldScrubAreaContext } from './NumberFieldScrubAreaContext';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -16,6 +18,7 @@ import { subscribeToVisualViewportResize } from '../utils/subscribeToVisualViewp
 import { DEFAULT_STEP } from '../utils/constants';
 import { createGenericEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
+import { getTarget } from '../../floating-ui-react/utils';
 
 /**
  * An interactive area where the user can click and drag to change the field value.
@@ -33,6 +36,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     direction = 'horizontal',
     pixelSensitivity = 2,
     teleportDistance,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -52,6 +56,8 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
   const scrubAreaRef = React.useRef<HTMLSpanElement>(null);
 
   const isScrubbingRef = React.useRef(false);
+  const didMoveRef = React.useRef(false);
+  const pointerDownTargetRef = React.useRef<EventTarget | null>(null);
   const scrubAreaCursorRef = React.useRef<HTMLSpanElement>(null);
   const virtualCursorCoords = React.useRef({ x: 0, y: 0 });
   const visualScaleRef = React.useRef(1);
@@ -157,6 +163,17 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
               lastChangedValueRef.current ?? valueRef.current,
               createGenericEventDetails(REASONS.scrub, event),
             );
+
+            // Manually dispatch a click event if no movement happened, since
+            // preventDefault on pointerdown prevents the browser click event.
+            if (!didMoveRef.current && pointerDownTargetRef.current != null) {
+              pointerDownTargetRef.current.dispatchEvent(
+                new MouseEvent('click', { bubbles: true, cancelable: true }),
+              );
+            }
+
+            didMoveRef.current = false;
+            pointerDownTargetRef.current = null;
           }
         }
 
@@ -185,6 +202,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
 
         if (Math.abs(cumulativeDelta) >= pixelSensitivity) {
           cumulativeDelta = 0;
+          didMoveRef.current = true;
           const dValue = direction === 'vertical' ? -movementY : movementX;
           const stepAmount = getStepAmount(event) ?? DEFAULT_STEP;
           const rawAmount = dValue * stepAmount;
@@ -200,14 +218,14 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
       }
 
       const win = ownerWindow(inputRef.current);
-
-      win.addEventListener('pointerup', handleScrubPointerUp, true);
-      win.addEventListener('pointermove', handleScrubPointerMove, true);
+      const unsubscribe = mergeCleanups(
+        addEventListener(win, 'pointerup', handleScrubPointerUp, true),
+        addEventListener(win, 'pointermove', handleScrubPointerMove, true),
+      );
 
       return () => {
         exitPointerLockTimeout.clear();
-        win.removeEventListener('pointerup', handleScrubPointerUp, true);
-        win.removeEventListener('pointermove', handleScrubPointerMove, true);
+        unsubscribe();
       };
     },
     [
@@ -242,11 +260,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
         }
       }
 
-      element.addEventListener('touchstart', handleTouchStart);
-
-      return () => {
-        element.removeEventListener('touchstart', handleTouchStart);
-      };
+      return addEventListener(element, 'touchstart', handleTouchStart);
     },
     [disabled, readOnly],
   );
@@ -273,6 +287,8 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
       }
 
       isScrubbingRef.current = true;
+      didMoveRef.current = false;
+      pointerDownTargetRef.current = getTarget(event.nativeEvent);
       onScrubbingChange(true, event.nativeEvent);
 
       // WebKit causes significant layout shift with the native message, so we can't use it.
@@ -324,23 +340,23 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
   );
 });
 
-export interface NumberFieldScrubAreaState extends NumberFieldRoot.State {}
+export interface NumberFieldScrubAreaState extends NumberFieldRootState {}
 
 export interface NumberFieldScrubAreaProps extends BaseUIComponentProps<
   'span',
-  NumberFieldScrubArea.State
+  NumberFieldScrubAreaState
 > {
   /**
    * Cursor movement direction in the scrub area.
    * @default 'horizontal'
    */
-  direction?: 'horizontal' | 'vertical';
+  direction?: 'horizontal' | 'vertical' | undefined;
   /**
    * Determines how many pixels the cursor must move before the value changes.
    * A higher value will make scrubbing less sensitive.
    * @default 2
    */
-  pixelSensitivity?: number;
+  pixelSensitivity?: number | undefined;
   /**
    * If specified, determines the distance that the cursor may move from the center
    * of the scrub area before it will loop back around.

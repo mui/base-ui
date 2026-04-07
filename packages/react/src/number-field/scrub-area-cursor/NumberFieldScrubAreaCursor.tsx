@@ -5,7 +5,7 @@ import { isWebKit } from '@base-ui/utils/detectBrowser';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { NumberFieldRoot } from '../root/NumberFieldRoot';
+import type { NumberFieldRootState } from '../root/NumberFieldRoot';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useNumberFieldScrubAreaContext } from '../scrub-area/NumberFieldScrubAreaContext';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -23,7 +23,7 @@ export const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldS
   componentProps: NumberFieldScrubAreaCursor.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const { state } = useNumberFieldRootContext();
   const { isScrubbing, isTouchInput, isPointerLockDenied, scrubAreaCursorRef } =
@@ -55,11 +55,11 @@ export const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldS
   return element && ReactDOM.createPortal(element, ownerDocument(domElement).body);
 });
 
-export interface NumberFieldScrubAreaCursorState extends NumberFieldRoot.State {}
+export interface NumberFieldScrubAreaCursorState extends NumberFieldRootState {}
 
 export interface NumberFieldScrubAreaCursorProps extends BaseUIComponentProps<
   'span',
-  NumberFieldScrubAreaCursor.State
+  NumberFieldScrubAreaCursorState
 > {}
 
 export namespace NumberFieldScrubAreaCursor {

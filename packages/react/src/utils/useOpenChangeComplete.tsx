@@ -1,30 +1,30 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useAnimationsFinished } from './useAnimationsFinished';
 
 /**
  * Calls the provided function when the CSS open/close animation or transition completes.
  */
-export function useOpenChangeComplete(parameters: useOpenChangeComplete.Parameters) {
+export function useOpenChangeComplete(parameters: UseOpenChangeCompleteParameters) {
   const { enabled = true, open, ref, onComplete: onCompleteParam } = parameters;
 
-  const openRef = useValueAsRef(open);
   const onComplete = useStableCallback(onCompleteParam);
-  const runOnceAnimationsFinish = useAnimationsFinished(ref, open);
+  const runOnceAnimationsFinish = useAnimationsFinished(ref, open, false);
 
   React.useEffect(() => {
     if (!enabled) {
-      return;
+      return undefined;
     }
 
-    runOnceAnimationsFinish(() => {
-      if (open === openRef.current) {
-        onComplete();
-      }
-    });
-  }, [enabled, open, onComplete, runOnceAnimationsFinish, openRef]);
+    const abortController = new AbortController();
+
+    runOnceAnimationsFinish(onComplete, abortController.signal);
+
+    return () => {
+      abortController.abort();
+    };
+  }, [enabled, open, onComplete, runOnceAnimationsFinish]);
 }
 
 export interface UseOpenChangeCompleteParameters {
@@ -32,11 +32,11 @@ export interface UseOpenChangeCompleteParameters {
    * Whether the hook is enabled.
    * @default true
    */
-  enabled?: boolean;
+  enabled?: boolean | undefined;
   /**
    * Whether the element is open.
    */
-  open?: boolean;
+  open?: boolean | undefined;
   /**
    * Ref to the element being closed.
    */
@@ -47,6 +47,4 @@ export interface UseOpenChangeCompleteParameters {
   onComplete: () => void;
 }
 
-export namespace useOpenChangeComplete {
-  export type Parameters = UseOpenChangeCompleteParameters;
-}
+export interface UseOpenChangeCompleteState {}

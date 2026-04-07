@@ -16,17 +16,22 @@ export const ToastTitle = React.forwardRef(function ToastTitle(
   componentProps: ToastTitle.Props,
   forwardedRef: React.ForwardedRef<HTMLHeadingElement>,
 ) {
-  const { render, className, id: idProp, children: childrenProp, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    style,
+    id: idProp,
+    children: childrenProp,
+    ...elementProps
+  } = componentProps;
 
-  const { toast } = useToastRootContext();
+  const { toast, setTitleId } = useToastRootContext();
 
   const children = childrenProp ?? toast.title;
 
   const shouldRender = Boolean(children);
 
   const id = useId(idProp);
-
-  const { setTitleId } = useToastRootContext();
 
   useIsoLayoutEffect(() => {
     if (!shouldRender) {
@@ -40,12 +45,9 @@ export const ToastTitle = React.forwardRef(function ToastTitle(
     };
   }, [shouldRender, id, setTitleId]);
 
-  const state: ToastTitle.State = React.useMemo(
-    () => ({
-      type: toast.type,
-    }),
-    [toast.type],
-  );
+  const state: ToastTitleState = {
+    type: toast.type,
+  };
 
   const element = useRenderElement('h2', componentProps, {
     ref: forwardedRef,
@@ -71,7 +73,7 @@ export interface ToastTitleState {
   type: string | undefined;
 }
 
-export interface ToastTitleProps extends BaseUIComponentProps<'h2', ToastTitle.State> {}
+export interface ToastTitleProps extends BaseUIComponentProps<'h2', ToastTitleState> {}
 
 export namespace ToastTitle {
   export type State = ToastTitleState;

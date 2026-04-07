@@ -13,9 +13,9 @@ import { type BaseUIComponentProps } from '../../utils/types';
  */
 export const DialogTitle = React.forwardRef(function DialogTitle(
   componentProps: DialogTitle.Props,
-  forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
+  forwardedRef: React.ForwardedRef<HTMLHeadingElement>,
 ) {
-  const { render, className, id: idProp, ...elementProps } = componentProps;
+  const { render, className, style, id: idProp, ...elementProps } = componentProps;
   const { store } = useDialogRootContext();
 
   const id = useBaseUiId(idProp);
@@ -28,7 +28,7 @@ export const DialogTitle = React.forwardRef(function DialogTitle(
   });
 });
 
-export interface DialogTitleProps extends BaseUIComponentProps<'h2', DialogTitle.State> {}
+export interface DialogTitleProps extends BaseUIComponentProps<'h2', DialogTitleState> {}
 
 export interface DialogTitleState {}
 

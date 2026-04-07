@@ -1,12 +1,12 @@
+import { expect } from 'vitest';
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
-import { screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
+import { screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
   props: Tooltip.Trigger.Props,
-  ref: React.ForwardedRef<HTMLDivElement>,
+  ref: React.ForwardedRef<any>,
 ) {
   return <Tooltip.Trigger {...props} ref={ref} render={<div />} />;
 });
@@ -48,8 +48,10 @@ describe('<Tooltip.Positioner />', () => {
         </Tooltip.Root>,
       );
 
-      expect(screen.getByTestId('positioner').style.left).to.equal(`${baselineX}px`);
-      expect(screen.getByTestId('positioner').style.top).to.equal(`${baselineY + sideOffset}px`);
+      expect(screen.getByTestId('positioner').getBoundingClientRect()).toMatchObject({
+        x: baselineX,
+        y: baselineY + sideOffset,
+      });
     });
 
     it('offsets the side when a function is specified', async () => {
@@ -67,10 +69,10 @@ describe('<Tooltip.Positioner />', () => {
         </Tooltip.Root>,
       );
 
-      expect(screen.getByTestId('positioner').style.left).to.equal(`${baselineX}px`);
-      expect(screen.getByTestId('positioner').style.top).to.equal(
-        `${baselineY + popupWidth + anchorWidth}px`,
-      );
+      expect(screen.getByTestId('positioner').getBoundingClientRect()).toMatchObject({
+        x: baselineX,
+        y: baselineY + popupWidth + anchorWidth,
+      });
     });
 
     it('can read the latest side inside sideOffset', async () => {
@@ -94,7 +96,7 @@ describe('<Tooltip.Positioner />', () => {
       );
 
       // correctly flips the side in the browser
-      expect(side).to.equal('right');
+      expect(side).toBe('right');
     });
 
     it('can read the latest align inside sideOffset', async () => {
@@ -119,7 +121,7 @@ describe('<Tooltip.Positioner />', () => {
       );
 
       // correctly flips the align in the browser
-      expect(align).to.equal('end');
+      expect(align).toBe('end');
     });
 
     it('reads logical side inside sideOffset', async () => {
@@ -143,7 +145,7 @@ describe('<Tooltip.Positioner />', () => {
       );
 
       // correctly flips the side in the browser
-      expect(side).to.equal('inline-end');
+      expect(side).toBe('inline-end');
     });
   });
 
@@ -161,8 +163,10 @@ describe('<Tooltip.Positioner />', () => {
         </Tooltip.Root>,
       );
 
-      expect(screen.getByTestId('positioner').style.left).to.equal(`${baselineX + alignOffset}px`);
-      expect(screen.getByTestId('positioner').style.top).to.equal(`${baselineY}px`);
+      expect(screen.getByTestId('positioner').getBoundingClientRect()).toMatchObject({
+        x: baselineX + alignOffset,
+        y: baselineY,
+      });
     });
 
     it('offsets the align when a function is specified', async () => {
@@ -180,8 +184,10 @@ describe('<Tooltip.Positioner />', () => {
         </Tooltip.Root>,
       );
 
-      expect(screen.getByTestId('positioner').style.left).to.equal(`${baselineX + popupWidth}px`);
-      expect(screen.getByTestId('positioner').style.top).to.equal(`${baselineY}px`);
+      expect(screen.getByTestId('positioner').getBoundingClientRect()).toMatchObject({
+        x: baselineX + popupWidth,
+        y: baselineY,
+      });
     });
 
     it('can read the latest side inside alignOffset', async () => {
@@ -205,7 +211,7 @@ describe('<Tooltip.Positioner />', () => {
       );
 
       // correctly flips the side in the browser
-      expect(side).to.equal('right');
+      expect(side).toBe('right');
     });
 
     it('can read the latest align inside alignOffset', async () => {
@@ -230,7 +236,7 @@ describe('<Tooltip.Positioner />', () => {
       );
 
       // correctly flips the align in the browser
-      expect(align).to.equal('end');
+      expect(align).toBe('end');
     });
 
     it('reads logical side inside alignOffset', async () => {
@@ -254,7 +260,43 @@ describe('<Tooltip.Positioner />', () => {
       );
 
       // correctly flips the side in the browser
-      expect(side).to.equal('inline-end');
+      expect(side).toBe('inline-end');
+    });
+  });
+
+  it.skipIf(isJSDOM)('uses transform positioning without Viewport', async () => {
+    await render(
+      <Tooltip.Root open>
+        <Trigger style={triggerStyle}>Trigger</Trigger>
+        <Tooltip.Portal>
+          <Tooltip.Positioner data-testid="positioner">
+            <Tooltip.Popup style={popupStyle}>Popup</Tooltip.Popup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
+      </Tooltip.Root>,
+    );
+
+    const positioner = screen.getByTestId('positioner');
+    expect(positioner.style.transform).not.toBe('');
+  });
+
+  it.skipIf(isJSDOM)('uses top/left positioning with Viewport', async () => {
+    await render(
+      <Tooltip.Root open>
+        <Trigger style={triggerStyle}>Trigger</Trigger>
+        <Tooltip.Portal>
+          <Tooltip.Positioner data-testid="positioner">
+            <Tooltip.Popup style={popupStyle}>
+              <Tooltip.Viewport>Popup</Tooltip.Viewport>
+            </Tooltip.Popup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
+      </Tooltip.Root>,
+    );
+
+    const positioner = screen.getByTestId('positioner');
+    await waitFor(() => {
+      expect(positioner.style.transform).toBe('');
     });
   });
 });

@@ -15,6 +15,7 @@ export function CompositeItem<Metadata, State extends Record<string, any>>(
   const {
     render,
     className,
+    style,
     state = EMPTY_OBJECT as State,
     props = EMPTY_ARRAY,
     refs = EMPTY_ARRAY,
@@ -34,22 +35,25 @@ export function CompositeItem<Metadata, State extends Record<string, any>>(
   });
 }
 
+export interface CompositeItemState {}
+
 export interface CompositeItemProps<Metadata, State extends Record<string, any>> extends Pick<
   BaseUIComponentProps<any, State>,
-  'render' | 'className'
+  'render' | 'className' | 'style'
 > {
   children?: React.ReactNode;
-  metadata?: Metadata;
-  refs?: React.Ref<HTMLElement | null>[];
-  props?: Array<Record<string, any> | (() => Record<string, any>)>;
-  state?: State;
-  stateAttributesMapping?: StateAttributesMapping<State>;
-  tag?: keyof React.JSX.IntrinsicElements;
+  metadata?: Metadata | undefined;
+  refs?: React.Ref<HTMLElement | null>[] | undefined;
+  props?: Array<Record<string, any> | (() => Record<string, any>)> | undefined;
+  state?: State | undefined;
+  stateAttributesMapping?: StateAttributesMapping<State> | undefined;
+  tag?: keyof React.JSX.IntrinsicElements | undefined;
 }
 
 export namespace CompositeItem {
-  export type Props<Metadata, State extends Record<string, any>> = CompositeItemProps<
+  export type State = CompositeItemState;
+  export type Props<Metadata, TState extends Record<string, any>> = CompositeItemProps<
     Metadata,
-    State
+    TState
   >;
 }

@@ -1,9 +1,11 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { isTabbable } from 'tabbable';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { isHTMLElement } from '@floating-ui/utils/dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { ownerWindow } from '@base-ui/utils/owner';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
@@ -12,16 +14,23 @@ import {
   useClick,
   useFloatingRootContext,
   useFloatingTree,
-  useHover,
+  useHoverReferenceInteraction,
   useInteractions,
 } from '../../floating-ui-react';
 import {
+  applySafePolygonPointerEventsMutation,
+  clearSafePolygonPointerEventsMutation,
+  useHoverInteractionSharedState,
+} from '../../floating-ui-react/hooks/useHoverInteractionSharedState';
+import {
   contains,
+  getTabbableAfterElement,
   getNextTabbable,
   getPreviousTabbable,
   isOutsideEvent,
   stopEvent,
 } from '../../floating-ui-react/utils';
+import type { HandleCloseContextBase } from '../../floating-ui-react/hooks/useHoverShared';
 import type { BaseUIComponentProps, NativeButtonProps, HTMLProps } from '../../utils/types';
 import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext';
 import {
@@ -33,16 +42,17 @@ import { REASONS } from '../../utils/reasons';
 import { EMPTY_ARRAY, ownerVisuallyHidden, PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { TransitionStatusDataAttributes } from '../../utils/stateAttributesMapping';
 import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
-import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
-import { NavigationMenuPopupCssVars } from '../popup/NavigationMenuPopupCssVars';
-import { NavigationMenuPositionerCssVars } from '../positioner/NavigationMenuPositionerCssVars';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import { useButton } from '../../use-button';
+import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { getCssDimensions } from '../../utils/getCssDimensions';
 import { NavigationMenuRoot } from '../root/NavigationMenuRoot';
 import { NAVIGATION_MENU_TRIGGER_IDENTIFIER } from '../utils/constants';
 import { useNavigationMenuDismissContext } from '../list/NavigationMenuDismissContext';
+import { NavigationMenuPopupCssVars } from '../popup/NavigationMenuPopupCssVars';
+import { NavigationMenuPositionerCssVars } from '../positioner/NavigationMenuPositionerCssVars';
 
 const DEFAULT_SIZE = { width: 0, height: 0 };
 
@@ -57,7 +67,14 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   componentProps: NavigationMenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { className, render, nativeButton = true, disabled, ...elementProps } = componentProps;
+  const {
+    className,
+    render,
+    nativeButton = true,
+    disabled,
+    style,
+    ...elementProps
+  } = componentProps;
 
   const {
     value,
@@ -69,12 +86,15 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     setFloatingRootContext,
     popupElement,
     viewportElement,
+    transitionStatus,
     rootRef,
     beforeOutsideRef,
     afterOutsideRef,
     afterInsideRef,
     beforeInsideRef,
     prevTriggerElementRef,
+    popupAutoSizeResetRef,
+    currentContentRef,
     delay,
     closeDelay,
     orientation,
@@ -88,26 +108,43 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   const stickIfOpenTimeout = useTimeout();
   const focusFrame = useAnimationFrame();
-  const sizeFrame1 = useAnimationFrame();
-  const sizeFrame2 = useAnimationFrame();
+  const mutationFrame = useAnimationFrame();
+  const resizeFrame = useAnimationFrame();
+  const sizeFrame = useAnimationFrame();
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
   const [stickIfOpen, setStickIfOpen] = React.useState(true);
   const [pointerType, setPointerType] = React.useState<'mouse' | 'touch' | 'pen' | ''>('');
 
+  const triggerElementRef = React.useRef<HTMLElement | null>(null);
   const allowFocusRef = React.useRef(false);
   const prevSizeRef = React.useRef(DEFAULT_SIZE);
-  const animationAbortControllerRef = React.useRef<AbortController | null>(null);
+  const skipAutoSizeSyncRef = React.useRef(false);
 
   const isActiveItem = open && value === itemValue;
   const isActiveItemRef = useValueAsRef(isActiveItem);
   const interactionsEnabled = positionerElement ? true : !value;
+  const hoverFloatingElement = positionerElement || viewportElement;
+  const hoverInteractionsEnabled = hoverFloatingElement ? true : !value;
 
-  const runOnceAnimationsFinish = useAnimationsFinished(popupElement);
+  const runOnceAnimationsFinish = useAnimationsFinished(popupElement, false, false);
 
-  React.useEffect(() => {
-    animationAbortControllerRef.current?.abort();
-  }, [isActiveItem]);
+  const handleTriggerElement = React.useCallback((element: HTMLElement | null) => {
+    triggerElementRef.current = element;
+    setTriggerElement(element);
+  }, []);
+
+  const cancelAutoSizeReset = useStableCallback((force = false) => {
+    if (!force && popupAutoSizeResetRef.current.owner !== itemValue) {
+      return;
+    }
+
+    popupAutoSizeResetRef.current.abortController?.abort();
+    popupAutoSizeResetRef.current.abortController = null;
+    popupAutoSizeResetRef.current.owner = null;
+  });
+
+  React.useEffect(cancelAutoSizeReset, [isActiveItem, cancelAutoSizeReset]);
 
   function setAutoSizes() {
     if (!popupElement) {
@@ -118,7 +155,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, 'auto');
   }
 
-  const handleValueChange = useStableCallback((currentWidth: number, currentHeight: number) => {
+  function clearFixedSizes() {
     if (!popupElement || !positionerElement) {
       return;
     }
@@ -127,45 +164,203 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     popupElement.style.removeProperty(NavigationMenuPopupCssVars.popupHeight);
     positionerElement.style.removeProperty(NavigationMenuPositionerCssVars.positionerWidth);
     positionerElement.style.removeProperty(NavigationMenuPositionerCssVars.positionerHeight);
+  }
 
-    const { width, height } = getCssDimensions(popupElement);
-    const measuredWidth = width || prevSizeRef.current.width;
-    const measuredHeight = height || prevSizeRef.current.height;
-
-    if (currentHeight === 0 || currentWidth === 0) {
-      currentWidth = measuredWidth;
-      currentHeight = measuredHeight;
+  function setSharedFixedSizes(width: number, height: number) {
+    if (!popupElement || !positionerElement) {
+      return;
     }
 
-    popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${currentWidth}px`);
-    popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${currentHeight}px`);
+    popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${width}px`);
+    popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${height}px`);
     positionerElement.style.setProperty(
       NavigationMenuPositionerCssVars.positionerWidth,
-      `${measuredWidth}px`,
+      `${width}px`,
     );
     positionerElement.style.setProperty(
       NavigationMenuPositionerCssVars.positionerHeight,
-      `${measuredHeight}px`,
+      `${height}px`,
     );
+  }
 
-    sizeFrame1.request(() => {
-      popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${measuredWidth}px`);
-      popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${measuredHeight}px`);
+  function scheduleAutoSizeReset() {
+    cancelAutoSizeReset(true);
 
-      sizeFrame2.request(() => {
-        animationAbortControllerRef.current = new AbortController();
-        runOnceAnimationsFinish(setAutoSizes, animationAbortControllerRef.current.signal);
+    const abortController = new AbortController();
+    popupAutoSizeResetRef.current.abortController = abortController;
+    popupAutoSizeResetRef.current.owner = itemValue;
+
+    runOnceAnimationsFinish(() => {
+      if (
+        popupAutoSizeResetRef.current.abortController !== abortController ||
+        popupAutoSizeResetRef.current.owner !== itemValue
+      ) {
+        return;
+      }
+
+      popupAutoSizeResetRef.current.abortController = null;
+      popupAutoSizeResetRef.current.owner = null;
+      setAutoSizes();
+    }, abortController.signal);
+  }
+
+  const handleValueChange = useStableCallback(
+    (
+      currentWidth: number,
+      currentHeight: number,
+      options: {
+        syncPositioner?: boolean | undefined;
+      } = {},
+    ) => {
+      if (!popupElement || !positionerElement) {
+        return;
+      }
+
+      cancelAutoSizeReset(true);
+      const { syncPositioner = false } = options;
+
+      clearFixedSizes();
+
+      const { width, height } = getCssDimensions(popupElement);
+      const measuredWidth = width || prevSizeRef.current.width;
+      const measuredHeight = height || prevSizeRef.current.height;
+
+      if (currentHeight === 0 || currentWidth === 0) {
+        currentWidth = measuredWidth;
+        currentHeight = measuredHeight;
+      }
+
+      popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${currentWidth}px`);
+      popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${currentHeight}px`);
+      positionerElement.style.setProperty(
+        NavigationMenuPositionerCssVars.positionerWidth,
+        `${syncPositioner ? currentWidth : measuredWidth}px`,
+      );
+      positionerElement.style.setProperty(
+        NavigationMenuPositionerCssVars.positionerHeight,
+        `${syncPositioner ? currentHeight : measuredHeight}px`,
+      );
+
+      sizeFrame.request(() => {
+        popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${measuredWidth}px`);
+        popupElement.style.setProperty(
+          NavigationMenuPopupCssVars.popupHeight,
+          `${measuredHeight}px`,
+        );
+
+        if (syncPositioner) {
+          positionerElement.style.setProperty(
+            NavigationMenuPositionerCssVars.positionerWidth,
+            `${measuredWidth}px`,
+          );
+          positionerElement.style.setProperty(
+            NavigationMenuPositionerCssVars.positionerHeight,
+            `${measuredHeight}px`,
+          );
+        }
+
+        scheduleAutoSizeReset();
       });
-    });
+    },
+  );
+
+  const handleInterruptedMutationResize = useStableCallback(
+    (currentWidth: number, currentHeight: number) => {
+      if (!popupElement || !positionerElement) {
+        return;
+      }
+
+      sizeFrame.cancel();
+      mutationFrame.cancel();
+      cancelAutoSizeReset(true);
+
+      if (currentWidth === 0 || currentHeight === 0) {
+        return;
+      }
+
+      setSharedFixedSizes(currentWidth, currentHeight);
+
+      mutationFrame.request(() => {
+        mutationFrame.request(() => {
+          clearFixedSizes();
+
+          const { width, height } = getCssDimensions(popupElement);
+          const measuredWidth = width || currentWidth || prevSizeRef.current.width;
+          const measuredHeight = height || currentHeight || prevSizeRef.current.height;
+
+          setSharedFixedSizes(currentWidth, currentHeight);
+
+          sizeFrame.request(() => {
+            setSharedFixedSizes(measuredWidth, measuredHeight);
+            scheduleAutoSizeReset();
+          });
+        });
+      });
+    },
+  );
+
+  const syncCurrentSize = useStableCallback(() => {
+    if (!popupElement || !positionerElement) {
+      return;
+    }
+
+    sizeFrame.cancel();
+    cancelAutoSizeReset(true);
+
+    clearFixedSizes();
+
+    const { width, height } = getCssDimensions(popupElement);
+
+    if (width === 0 || height === 0) {
+      return;
+    }
+
+    prevSizeRef.current = { width, height };
+    setAutoSizes();
+    positionerElement.style.setProperty(
+      NavigationMenuPositionerCssVars.positionerWidth,
+      `${width}px`,
+    );
+    positionerElement.style.setProperty(
+      NavigationMenuPositionerCssVars.positionerHeight,
+      `${height}px`,
+    );
+  });
+
+  const getMutationBaseline = useStableCallback(() => {
+    if (!popupElement) {
+      return { size: prevSizeRef.current, syncPositioner: false };
+    }
+
+    const popupWidth = popupElement.style.getPropertyValue(NavigationMenuPopupCssVars.popupWidth);
+    const popupHeight = popupElement.style.getPropertyValue(NavigationMenuPopupCssVars.popupHeight);
+    const isResizing =
+      popupWidth !== '' && popupWidth !== 'auto' && popupHeight !== '' && popupHeight !== 'auto';
+
+    if (!isResizing) {
+      return { size: prevSizeRef.current, syncPositioner: false };
+    }
+
+    return {
+      size: {
+        width: popupElement.offsetWidth || prevSizeRef.current.width,
+        height: popupElement.offsetHeight || prevSizeRef.current.height,
+      },
+      syncPositioner: true,
+    };
   });
 
   React.useEffect(() => {
     if (!open) {
       stickIfOpenTimeout.clear();
-      sizeFrame1.cancel();
-      sizeFrame2.cancel();
+      mutationFrame.cancel();
+      resizeFrame.cancel();
+      sizeFrame.cancel();
+      cancelAutoSizeReset(true);
+      skipAutoSizeSyncRef.current = false;
+      setPointerType('');
     }
-  }, [stickIfOpenTimeout, open, sizeFrame1, sizeFrame2]);
+  }, [stickIfOpenTimeout, open, mutationFrame, resizeFrame, sizeFrame, cancelAutoSizeReset]);
 
   React.useEffect(() => {
     if (!mounted) {
@@ -179,7 +374,6 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     }
 
     const resizeObserver = new ResizeObserver(() => {
-      // Using `getCssDimensions` here causes issues due to fractional values.
       prevSizeRef.current = {
         width: popupElement.offsetWidth,
         height: popupElement.offsetHeight,
@@ -194,16 +388,56 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   }, [popupElement]);
 
   React.useEffect(() => {
-    if (!popupElement || !isActiveItem || typeof MutationObserver !== 'function') {
+    if (!open || !isActiveItem || !popupElement || !positionerElement) {
+      return undefined;
+    }
+
+    const win = ownerWindow(positionerElement);
+    function handleResize() {
+      resizeFrame.cancel();
+      resizeFrame.request(syncCurrentSize);
+    }
+
+    const unsubscribe = addEventListener(win, 'resize', handleResize);
+
+    return () => {
+      resizeFrame.cancel();
+      unsubscribe();
+    };
+  }, [open, isActiveItem, popupElement, positionerElement, resizeFrame, syncCurrentSize]);
+
+  React.useEffect(() => {
+    const observedElement = currentContentRef.current;
+
+    if (
+      !observedElement ||
+      !popupElement ||
+      !isActiveItem ||
+      typeof MutationObserver !== 'function'
+    ) {
       return undefined;
     }
 
     const mutationObserver = new MutationObserver(() => {
-      animationAbortControllerRef.current?.abort();
-      handleValueChange(prevSizeRef.current.width, prevSizeRef.current.height);
+      if (
+        transitionStatus === 'starting' ||
+        popupElement.hasAttribute(TransitionStatusDataAttributes.startingStyle)
+      ) {
+        syncCurrentSize();
+        return;
+      }
+
+      const { size, syncPositioner } = getMutationBaseline();
+
+      if (syncPositioner) {
+        handleInterruptedMutationResize(size.width, size.height);
+        return;
+      }
+
+      handleValueChange(size.width, size.height);
     });
 
-    mutationObserver.observe(popupElement, {
+    mutationObserver.observe(observedElement, {
       childList: true,
       subtree: true,
       characterData: true,
@@ -212,7 +446,16 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     return () => {
       mutationObserver.disconnect();
     };
-  }, [popupElement, positionerElement, isActiveItem, handleValueChange]);
+  }, [
+    currentContentRef,
+    popupElement,
+    isActiveItem,
+    transitionStatus,
+    getMutationBaseline,
+    handleInterruptedMutationResize,
+    handleValueChange,
+    syncCurrentSize,
+  ]);
 
   React.useEffect(() => {
     if (isActiveItem && open && popupElement && allowFocusRef.current) {
@@ -225,13 +468,39 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     return () => {
       focusFrame.cancel();
     };
-  }, [beforeOutsideRef, focusFrame, handleValueChange, isActiveItem, open, popupElement]);
+  }, [beforeOutsideRef, focusFrame, isActiveItem, open, popupElement]);
 
   useIsoLayoutEffect(() => {
     if (isActiveItemRef.current && open && popupElement) {
+      if (transitionStatus === 'starting') {
+        const hasNestedMenu = currentContentRef.current?.querySelector('[data-nested]') != null;
+
+        if (hasNestedMenu) {
+          sizeFrame.request(syncCurrentSize);
+          return () => {
+            sizeFrame.cancel();
+          };
+        }
+      }
+
+      if (skipAutoSizeSyncRef.current) {
+        skipAutoSizeSyncRef.current = false;
+        return undefined;
+      }
+
       handleValueChange(0, 0);
     }
-  }, [isActiveItemRef, open, popupElement, handleValueChange]);
+    return undefined;
+  }, [
+    currentContentRef,
+    handleValueChange,
+    isActiveItemRef,
+    open,
+    popupElement,
+    sizeFrame,
+    syncCurrentSize,
+    transitionStatus,
+  ]);
 
   function handleOpenChange(
     nextOpen: boolean,
@@ -282,21 +551,66 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     onOpenChange: handleOpenChange,
     elements: {
       reference: triggerElement,
-      floating: positionerElement || viewportElement,
+      floating: hoverFloatingElement,
     },
   });
 
-  const hover = useHover(context, {
+  const hoverInteractionState = useHoverInteractionSharedState(context);
+  const shouldBlockSafePolygonPointerEvents = pointerType !== 'touch';
+
+  React.useEffect(() => {
+    if (!open) {
+      context.context.dataRef.current.openEvent = undefined;
+      hoverInteractionState.pointerType = undefined;
+      hoverInteractionState.interactedInside = false;
+      hoverInteractionState.restTimeoutPending = false;
+      hoverInteractionState.openChangeTimeout.clear();
+      hoverInteractionState.restTimeout.clear();
+      clearSafePolygonPointerEventsMutation(hoverInteractionState);
+    }
+  }, [context, hoverInteractionState, open]);
+
+  const getInlineHandleCloseContext = useStableCallback(() => {
+    if (!nested || positionerElement || !triggerElementRef.current || !hoverFloatingElement) {
+      return null;
+    }
+
+    return getHandleCloseContext(triggerElementRef.current, hoverFloatingElement, nodeId);
+  });
+
+  function getScope() {
+    if (!nested || !positionerElement) {
+      return triggerElementRef.current?.closest('ul') ?? null;
+    }
+
+    return null;
+  }
+
+  const hoverProps = useHoverReferenceInteraction(context, {
+    enabled: hoverInteractionsEnabled,
     move: false,
-    handleClose: safePolygon({ blockPointerEvents: pointerType !== 'touch' }),
+    handleClose: safePolygon({
+      blockPointerEvents: shouldBlockSafePolygonPointerEvents,
+      getScope,
+    }),
     restMs: mounted && positionerElement ? 0 : delay,
     delay: { close: closeDelay },
+    triggerElementRef,
+    getHandleCloseContext: getInlineHandleCloseContext,
   });
+
+  const hover = React.useMemo(
+    () => (hoverProps ? { reference: hoverProps } : undefined),
+    [hoverProps],
+  );
+
   const click = useClick(context, {
     enabled: interactionsEnabled,
     stickIfOpen,
     toggle: isActiveItem,
   });
+  const { getReferenceProps } = useInteractions([hover, click]);
+
   useIsoLayoutEffect(() => {
     if (isActiveItem) {
       setFloatingRootContext(context);
@@ -304,10 +618,9 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     }
   }, [isActiveItem, context, setFloatingRootContext, prevTriggerElementRef, triggerElement]);
 
-  const { getReferenceProps } = useInteractions([hover, click]);
-
   function handleActivation(event: React.MouseEvent | React.KeyboardEvent) {
     ReactDOM.flushSync(() => {
+      const currentTarget = isHTMLElement(event.currentTarget) ? event.currentTarget : null;
       const prevTriggerRect = prevTriggerElementRef.current?.getBoundingClientRect();
 
       if (mounted && prevTriggerRect && triggerElement) {
@@ -325,7 +638,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       // Reset the `openEvent` to `undefined` when the active item changes so that a
       // `click` -> `hover` on new trigger -> `hover` back to old trigger doesn't unexpectedly
       // cause the popup to remain stuck open when leaving the old trigger.
-      if (event.type !== 'click') {
+      if (event.type !== 'click' && value != null) {
         context.context.dataRef.current.openEvent = undefined;
       }
 
@@ -342,32 +655,63 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
           ),
         );
       }
+
+      if (
+        event.type === 'mouseenter' &&
+        shouldBlockSafePolygonPointerEvents &&
+        (!nested || !positionerElement) &&
+        hoverFloatingElement &&
+        currentTarget
+      ) {
+        const applyPointerEventsMutation = () => {
+          const scopeElement = getScope() ?? currentTarget.ownerDocument.body;
+
+          applySafePolygonPointerEventsMutation(hoverInteractionState, {
+            scopeElement,
+            referenceElement: currentTarget,
+            floatingElement: hoverFloatingElement,
+          });
+        };
+
+        if (value != null && value !== itemValue) {
+          queueMicrotask(applyPointerEventsMutation);
+        } else {
+          applyPointerEventsMutation();
+        }
+      }
     });
   }
 
   const handleOpenEvent = useStableCallback((event: React.MouseEvent | React.KeyboardEvent) => {
-    // For nested scenarios without positioner/popup, we can still open the menu
-    // but we can't do size calculations
     if (!popupElement || !positionerElement) {
       handleActivation(event);
       return;
     }
 
     const { width, height } = getCssDimensions(popupElement);
+    const shouldSkipAutoSizeSync =
+      value != null && value !== itemValue && (event.type === 'click' || pointerType !== 'touch');
 
     handleActivation(event);
+
+    if (shouldSkipAutoSizeSync) {
+      skipAutoSizeSyncRef.current = true;
+    }
+
     handleValueChange(width, height);
   });
 
-  const state: NavigationMenuTrigger.State = React.useMemo(
-    () => ({
-      open: isActiveItem,
-    }),
-    [isActiveItem],
-  );
+  const state: NavigationMenuTriggerState = {
+    open: isActiveItem,
+  };
 
   function handleSetPointerType(event: React.PointerEvent) {
     setPointerType(event.pointerType);
+  }
+
+  function handleTriggerPointerDown(event: React.PointerEvent) {
+    handleSetPointerType(event);
+    clearSafePolygonPointerEventsMutation(hoverInteractionState);
   }
 
   const defaultProps: HTMLProps = {
@@ -375,7 +719,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     onMouseEnter: handleOpenEvent,
     onClick: handleOpenEvent,
     onPointerEnter: handleSetPointerType,
-    onPointerDown: handleSetPointerType,
+    onPointerDown: handleTriggerPointerDown,
     'aria-expanded': isActiveItem,
     'aria-controls': isActiveItem ? popupElement?.id : undefined,
     [NAVIGATION_MENU_TRIGGER_IDENTIFIER as string]: '',
@@ -430,7 +774,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     native: nativeButton,
   });
 
-  const referenceElement = positionerElement || viewportElement;
+  const referenceElement = hoverFloatingElement;
 
   return (
     <React.Fragment>
@@ -438,9 +782,10 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         tag="button"
         render={render}
         className={className}
+        style={style}
         state={state}
         stateAttributesMapping={pressableTriggerOpenStateMapping}
-        refs={[forwardedRef, setTriggerElement, buttonRef]}
+        refs={[forwardedRef, handleTriggerElement, buttonRef]}
         props={[
           getReferenceProps,
           dismissProps?.reference || EMPTY_ARRAY,
@@ -467,16 +812,27 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
             ref={afterOutsideRef}
             onFocus={(event) => {
               if (referenceElement && isOutsideEvent(event, referenceElement)) {
-                const elementToFocus =
-                  afterInsideRef.current && isTabbable(afterInsideRef.current)
-                    ? afterInsideRef.current
-                    : triggerElement;
+                ReactDOM.flushSync(() => {
+                  setViewportInert(false);
+                });
+                const elementToFocus = afterInsideRef.current || triggerElement;
                 elementToFocus?.focus();
               } else {
-                const nextTabbable = getNextTabbable(triggerElement);
+                let nextTabbable = getNextTabbable(triggerElement);
+
+                if (
+                  nested &&
+                  !positionerElement &&
+                  referenceElement &&
+                  nextTabbable &&
+                  contains(referenceElement, nextTabbable)
+                ) {
+                  nextTabbable = getTabbableAfterElement(afterInsideRef.current);
+                }
+
                 nextTabbable?.focus();
 
-                if (!contains(rootRef.current, nextTabbable)) {
+                if ((!nested || positionerElement) && !contains(rootRef.current, nextTabbable)) {
                   setValue(null, createChangeEventDetails(REASONS.focusOut, event.nativeEvent));
                 }
               }
@@ -496,9 +852,44 @@ export interface NavigationMenuTriggerState {
 }
 
 export interface NavigationMenuTriggerProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', NavigationMenuTrigger.State> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', NavigationMenuTriggerState> {}
 
 export namespace NavigationMenuTrigger {
   export type State = NavigationMenuTriggerState;
   export type Props = NavigationMenuTriggerProps;
+}
+
+function getPlacementFromElements(
+  domReferenceElement: Element,
+  floatingElement: HTMLElement,
+): HandleCloseContextBase['placement'] {
+  const referenceRect = domReferenceElement.getBoundingClientRect();
+  const floatingRect = floatingElement.getBoundingClientRect();
+  const referenceCenterX = referenceRect.left + referenceRect.width / 2;
+  const referenceCenterY = referenceRect.top + referenceRect.height / 2;
+  const floatingCenterX = floatingRect.left + floatingRect.width / 2;
+  const floatingCenterY = floatingRect.top + floatingRect.height / 2;
+  const deltaX = floatingCenterX - referenceCenterX;
+  const deltaY = floatingCenterY - referenceCenterY;
+
+  if (Math.abs(deltaX) >= Math.abs(deltaY)) {
+    return deltaX >= 0 ? 'right' : 'left';
+  }
+
+  return deltaY >= 0 ? 'bottom' : 'top';
+}
+
+function getHandleCloseContext(
+  domReferenceElement: Element,
+  floatingElement: HTMLElement,
+  nodeId: string | undefined,
+): HandleCloseContextBase {
+  return {
+    placement: getPlacementFromElements(domReferenceElement, floatingElement),
+    elements: {
+      domReference: domReferenceElement,
+      floating: floatingElement,
+    },
+    nodeId,
+  };
 }

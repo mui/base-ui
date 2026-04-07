@@ -1,11 +1,10 @@
 'use client';
 import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
-import {
-  SettingsMetadata,
-  useExperimentSettings,
-} from '../../../../components/Experiments/SettingsPanel';
-import '../../../../demo-theme.css';
+import clsx from 'clsx';
+import NextLink from 'next/link';
+import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
+import '../../../../demo-data/theme/css-modules/theme.css';
 import classes from './menu.module.css';
 
 interface Settings {
@@ -44,7 +43,7 @@ export default function MenuFullyFeatured() {
         >
           Menu <ChevronDownIcon className={classes.ButtonIcon} />
         </Menu.Trigger>
-        <Menu.Portal keepMounted>
+        <Menu.Portal>
           <Menu.Positioner
             className={classes.Positioner}
             sideOffset={8}
@@ -61,6 +60,23 @@ export default function MenuFullyFeatured() {
               </Menu.Item>
               <Menu.Item className={classes.Item} onClick={handleItemClick}>
                 Item 2
+              </Menu.Item>
+              <Menu.LinkItem
+                href="https://base-ui.com"
+                className={clsx(classes.Item, classes.LinkItem)}
+              >
+                Link 1 (base-ui.com)
+              </Menu.LinkItem>
+              <Menu.LinkItem
+                render={<a href="https://github.com">Link 2 (github.com)</a>}
+                className={clsx(classes.Item, classes.LinkItem)}
+              />
+              <Menu.LinkItem
+                render={<NextLink href="/experiments">Link 3 (/experiments)</NextLink>}
+                className={clsx(classes.Item, classes.LinkItem)}
+              />
+              <Menu.Item className={classes.Item} onClick={handleItemClick}>
+                Item 3
               </Menu.Item>
               <Menu.Separator className={classes.Separator} />
               <Menu.Item className={classes.Item} closeOnClick={false} onClick={handleItemClick}>
@@ -80,7 +96,7 @@ export default function MenuFullyFeatured() {
                 <Menu.Portal>
                   <Menu.Positioner className={classes.Positioner} sideOffset={8}>
                     <Menu.Popup className={classes.Popup}>
-                      <div>Non-focusable text</div>
+                      <div className={classes.NonFocusableText}>Non-focusable text</div>
                       <Menu.Group>
                         <Menu.GroupLabel className={classes.GroupLabel}>
                           Radio items

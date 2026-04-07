@@ -21,22 +21,20 @@ export const ToolbarLink = React.forwardRef(function ToolbarLink(
   componentProps: ToolbarLink.Props,
   forwardedRef: React.ForwardedRef<HTMLAnchorElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, style, ...elementProps } = componentProps;
 
   const { orientation } = useToolbarRootContext();
 
-  const state: ToolbarLink.State = React.useMemo(
-    () => ({
-      orientation,
-    }),
-    [orientation],
-  );
+  const state: ToolbarLinkState = {
+    orientation,
+  };
 
   return (
     <CompositeItem
       tag="a"
       render={render}
       className={className}
+      style={style}
       metadata={TOOLBAR_LINK_METADATA}
       state={state}
       refs={[forwardedRef]}
@@ -46,10 +44,13 @@ export const ToolbarLink = React.forwardRef(function ToolbarLink(
 });
 
 export interface ToolbarLinkState {
+  /**
+   * The component orientation.
+   */
   orientation: ToolbarRoot.Orientation;
 }
 
-export interface ToolbarLinkProps extends BaseUIComponentProps<'a', ToolbarLink.State> {}
+export interface ToolbarLinkProps extends BaseUIComponentProps<'a', ToolbarLinkState> {}
 
 export namespace ToolbarLink {
   export type State = ToolbarLinkState;

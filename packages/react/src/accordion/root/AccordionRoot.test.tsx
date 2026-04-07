@@ -1,6 +1,5 @@
-import { screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
-import { spy } from 'sinon';
+import { expect, vi } from 'vitest';
+import { fireEvent, screen } from '@mui/internal-test-utils';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Accordion } from '@base-ui/react/accordion';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
@@ -33,11 +32,11 @@ describe('<Accordion.Root />', () => {
       const trigger = screen.getByRole('button');
       const panel = screen.queryByText(PANEL_CONTENT_1) as HTMLElement;
 
-      expect(root).to.have.attribute('role', 'region');
-      expect(trigger).to.have.attribute('aria-controls');
-      expect(panel.getAttribute('id')).to.equal(trigger.getAttribute('aria-controls'));
-      expect(panel).to.have.attribute('role', 'region');
-      expect(trigger.getAttribute('id')).to.equal(panel.getAttribute('aria-labelledby'));
+      expect(root).toHaveAttribute('role', 'region');
+      expect(trigger).toHaveAttribute('aria-controls');
+      expect(panel.getAttribute('id')).toBe(trigger.getAttribute('aria-controls'));
+      expect(panel).toHaveAttribute('role', 'region');
+      expect(trigger.getAttribute('id')).toBe(panel.getAttribute('aria-labelledby'));
     });
 
     it('references manual panel id in trigger aria-controls', async () => {
@@ -55,8 +54,8 @@ describe('<Accordion.Root />', () => {
       const trigger = screen.getByRole('button');
       const panel = screen.queryByText(PANEL_CONTENT_1) as HTMLElement;
 
-      expect(trigger).to.have.attribute('aria-controls', 'custom-panel-id');
-      expect(panel).to.have.attribute('id', 'custom-panel-id');
+      expect(trigger).toHaveAttribute('aria-controls', 'custom-panel-id');
+      expect(panel).toHaveAttribute('id', 'custom-panel-id');
     });
   });
 
@@ -75,21 +74,21 @@ describe('<Accordion.Root />', () => {
 
       const trigger = screen.getByRole('button');
 
-      expect(trigger).to.have.attribute('aria-expanded', 'false');
-      expect(screen.queryByText(PANEL_CONTENT_1)).to.equal(null);
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryByText(PANEL_CONTENT_1)).toBe(null);
 
       await user.pointer({ keys: '[MouseLeft]', target: trigger });
 
-      expect(trigger).to.have.attribute('aria-expanded', 'true');
-      expect(trigger).to.have.attribute('data-panel-open');
-      expect(screen.queryByText(PANEL_CONTENT_1)).not.to.equal(null);
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(trigger).toHaveAttribute('data-panel-open');
+      expect(screen.queryByText(PANEL_CONTENT_1)).not.toBe(null);
       expect(screen.queryByText(PANEL_CONTENT_1)).toBeVisible();
-      expect(screen.queryByText(PANEL_CONTENT_1)).to.have.attribute('data-open');
+      expect(screen.queryByText(PANEL_CONTENT_1)).toHaveAttribute('data-open');
 
       await user.pointer({ keys: '[MouseLeft]', target: trigger });
 
-      expect(trigger).to.have.attribute('aria-expanded', 'false');
-      expect(screen.queryByText(PANEL_CONTENT_1)).to.equal(null);
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryByText(PANEL_CONTENT_1)).toBe(null);
     });
 
     describe('prop: defaultValue', () => {
@@ -111,11 +110,11 @@ describe('<Accordion.Root />', () => {
           </Accordion.Root>,
         );
 
-        expect(screen.queryByText(PANEL_CONTENT_1)).not.to.equal(null);
+        expect(screen.queryByText(PANEL_CONTENT_1)).not.toBe(null);
         expect(screen.queryByText(PANEL_CONTENT_1)).toBeVisible();
-        expect(screen.queryByText(PANEL_CONTENT_1)).to.have.attribute('data-open');
+        expect(screen.queryByText(PANEL_CONTENT_1)).toHaveAttribute('data-open');
 
-        expect(screen.queryByText(PANEL_CONTENT_2)).to.equal(null);
+        expect(screen.queryByText(PANEL_CONTENT_2)).toBe(null);
       });
     });
   });
@@ -135,21 +134,21 @@ describe('<Accordion.Root />', () => {
 
       const trigger = screen.getByRole('button');
 
-      expect(trigger).to.have.attribute('aria-expanded', 'false');
-      expect(screen.queryByText(PANEL_CONTENT_1)).to.equal(null);
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryByText(PANEL_CONTENT_1)).toBe(null);
 
       await setProps({ value: [0] });
 
-      expect(trigger).to.have.attribute('aria-expanded', 'true');
-      expect(trigger).to.have.attribute('data-panel-open');
-      expect(screen.queryByText(PANEL_CONTENT_1)).not.to.equal(null);
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(trigger).toHaveAttribute('data-panel-open');
+      expect(screen.queryByText(PANEL_CONTENT_1)).not.toBe(null);
       expect(screen.queryByText(PANEL_CONTENT_1)).toBeVisible();
-      expect(screen.queryByText(PANEL_CONTENT_1)).to.have.attribute('data-open');
+      expect(screen.queryByText(PANEL_CONTENT_1)).toHaveAttribute('data-open');
 
       await setProps({ value: [] });
 
-      expect(trigger).to.have.attribute('aria-expanded', 'false');
-      expect(screen.queryByText(PANEL_CONTENT_1)).to.equal(null);
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryByText(PANEL_CONTENT_1)).toBe(null);
     });
 
     describe('prop: value', () => {
@@ -171,11 +170,11 @@ describe('<Accordion.Root />', () => {
           </Accordion.Root>,
         );
 
-        expect(screen.queryByText(PANEL_CONTENT_1)).not.to.equal(null);
+        expect(screen.queryByText(PANEL_CONTENT_1)).not.toBe(null);
         expect(screen.queryByText(PANEL_CONTENT_1)).toBeVisible();
-        expect(screen.queryByText(PANEL_CONTENT_1)).to.have.attribute('data-open');
+        expect(screen.queryByText(PANEL_CONTENT_1)).toHaveAttribute('data-open');
 
-        expect(screen.queryByText(PANEL_CONTENT_2)).to.equal(null);
+        expect(screen.queryByText(PANEL_CONTENT_2)).toBe(null);
       });
     });
   });
@@ -206,7 +205,7 @@ describe('<Accordion.Root />', () => {
       const item2 = screen.getByTestId('item2');
 
       [item1, header1, trigger1, panel1, item2, header2, trigger2].forEach((element) => {
-        expect(element).to.have.attribute('data-disabled');
+        expect(element).toHaveAttribute('data-disabled');
       });
     });
 
@@ -235,200 +234,248 @@ describe('<Accordion.Root />', () => {
       const item2 = screen.getByTestId('item2');
 
       [item1, header1, trigger1, panel1].forEach((element) => {
-        expect(element).to.have.attribute('data-disabled');
+        expect(element).toHaveAttribute('data-disabled');
       });
       [item2, header2, trigger2].forEach((element) => {
-        expect(element).to.not.have.attribute('data-disabled');
+        expect(element).not.toHaveAttribute('data-disabled');
       });
     });
   });
 
+  it('allows onMouseUp to call preventBaseUIHandler on the trigger', async () => {
+    await render(
+      <Accordion.Root>
+        <Accordion.Item value={0}>
+          <Accordion.Header>
+            <Accordion.Trigger onMouseUp={(event) => event.preventBaseUIHandler()}>
+              Trigger 1
+            </Accordion.Trigger>
+          </Accordion.Header>
+          <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
+        </Accordion.Item>
+      </Accordion.Root>,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Trigger 1' });
+
+    expect(() => fireEvent.mouseUp(trigger)).not.toThrow();
+  });
+
   describe.skipIf(isJSDOM)('keyboard interactions', () => {
-    ['Enter', 'Space'].forEach((key) => {
-      it(`key: ${key} toggles the Accordion open state`, async () => {
-        const { user } = await render(
-          <Accordion.Root>
-            <Accordion.Item>
-              <Accordion.Header>
-                <Accordion.Trigger>Trigger 1</Accordion.Trigger>
-              </Accordion.Header>
-              <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
-            </Accordion.Item>
-          </Accordion.Root>,
-        );
+    [true, false].forEach((isNativeButton) => {
+      describe(`rendering ${isNativeButton ? 'interactive' : 'non-interactive'} triggers`, () => {
+        ['Enter', 'Space'].forEach((key) => {
+          it(`key: ${key} toggles the Accordion open state`, async () => {
+            const { user } = await render(
+              <Accordion.Root>
+                <Accordion.Item>
+                  <Accordion.Header>
+                    <Accordion.Trigger
+                      nativeButton={isNativeButton}
+                      render={isNativeButton ? undefined : <span />}
+                    >
+                      Trigger 1
+                    </Accordion.Trigger>
+                  </Accordion.Header>
+                  <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
+                </Accordion.Item>
+              </Accordion.Root>,
+            );
 
-        const trigger = screen.getByRole('button');
+            const trigger = screen.getByRole('button');
 
-        expect(trigger).to.have.attribute('aria-expanded', 'false');
+            expect(trigger).toHaveAttribute('aria-expanded', 'false');
 
-        expect(screen.queryByText(PANEL_CONTENT_1)).to.equal(null);
+            expect(screen.queryByText(PANEL_CONTENT_1)).toBe(null);
 
-        await user.keyboard('[Tab]');
-        expect(trigger).toHaveFocus();
-        await user.keyboard(`[${key}]`);
+            await user.keyboard('[Tab]');
+            expect(trigger).toHaveFocus();
+            await user.keyboard(`[${key}]`);
 
-        expect(trigger).to.have.attribute('aria-expanded', 'true');
-        expect(trigger).to.have.attribute('data-panel-open');
-        expect(screen.queryByText(PANEL_CONTENT_1)).not.to.equal(null);
-        expect(screen.queryByText(PANEL_CONTENT_1)).toBeVisible();
-        expect(screen.queryByText(PANEL_CONTENT_1)).to.have.attribute('data-open');
+            expect(trigger).toHaveAttribute('aria-expanded', 'true');
+            expect(trigger).toHaveAttribute('data-panel-open');
+            expect(screen.queryByText(PANEL_CONTENT_1)).not.toBe(null);
+            expect(screen.queryByText(PANEL_CONTENT_1)).toBeVisible();
+            expect(screen.queryByText(PANEL_CONTENT_1)).toHaveAttribute('data-open');
 
-        await user.keyboard(`[${key}]`);
+            await user.keyboard(`[${key}]`);
 
-        expect(trigger).to.have.attribute('aria-expanded', 'false');
-        expect(screen.queryByText(PANEL_CONTENT_1)).to.equal(null);
-      });
-    });
+            expect(trigger).toHaveAttribute('aria-expanded', 'false');
+            expect(screen.queryByText(PANEL_CONTENT_1)).toBe(null);
+          });
+        });
 
-    it('ArrowUp and ArrowDown moves focus between triggers and loops by default', async () => {
-      const { user } = await render(
-        <Accordion.Root>
-          <Accordion.Item>
-            <Accordion.Header>
-              <Accordion.Trigger>Trigger 1</Accordion.Trigger>
-            </Accordion.Header>
-            <Accordion.Panel>1</Accordion.Panel>
-          </Accordion.Item>
-          <Accordion.Item>
-            <Accordion.Header>
-              <Accordion.Trigger>Trigger 2</Accordion.Trigger>
-            </Accordion.Header>
-            <Accordion.Panel>2</Accordion.Panel>
-          </Accordion.Item>
-        </Accordion.Root>,
-      );
+        it('ArrowUp and ArrowDown moves focus between triggers and loops by default', async () => {
+          const { user } = await render(
+            <Accordion.Root>
+              <Accordion.Item>
+                <Accordion.Header>
+                  <Accordion.Trigger
+                    nativeButton={isNativeButton}
+                    render={isNativeButton ? undefined : <span />}
+                  >
+                    Trigger 1
+                  </Accordion.Trigger>
+                </Accordion.Header>
+                <Accordion.Panel>1</Accordion.Panel>
+              </Accordion.Item>
+              <Accordion.Item>
+                <Accordion.Header>
+                  <Accordion.Trigger>Trigger 2</Accordion.Trigger>
+                </Accordion.Header>
+                <Accordion.Panel>2</Accordion.Panel>
+              </Accordion.Item>
+            </Accordion.Root>,
+          );
 
-      const [trigger1, trigger2] = screen.getAllByRole('button');
+          const [trigger1, trigger2] = screen.getAllByRole('button');
 
-      await user.keyboard('[Tab]');
-      expect(trigger1).toHaveFocus();
+          await user.keyboard('[Tab]');
+          expect(trigger1).toHaveFocus();
 
-      await user.keyboard('[ArrowDown]');
-      expect(trigger2).toHaveFocus();
+          await user.keyboard('[ArrowDown]');
+          expect(trigger2).toHaveFocus();
 
-      await user.keyboard('[ArrowUp]');
-      expect(trigger1).toHaveFocus();
+          await user.keyboard('[ArrowUp]');
+          expect(trigger1).toHaveFocus();
 
-      await user.keyboard('[ArrowDown]');
-      expect(trigger2).toHaveFocus();
+          await user.keyboard('[ArrowDown]');
+          expect(trigger2).toHaveFocus();
 
-      await user.keyboard('[ArrowDown]');
-      expect(trigger1).toHaveFocus();
-    });
+          await user.keyboard('[ArrowDown]');
+          expect(trigger1).toHaveFocus();
+        });
 
-    it('Arrow keys should not put focus on disabled accordion items', async () => {
-      const { user } = await render(
-        <Accordion.Root>
-          <Accordion.Item>
-            <Accordion.Header>
-              <Accordion.Trigger>Trigger 1</Accordion.Trigger>
-            </Accordion.Header>
-            <Accordion.Panel>1</Accordion.Panel>
-          </Accordion.Item>
-          <Accordion.Item disabled>
-            <Accordion.Header>
-              <Accordion.Trigger>Trigger 2</Accordion.Trigger>
-            </Accordion.Header>
-            <Accordion.Panel>2</Accordion.Panel>
-          </Accordion.Item>
-          <Accordion.Item>
-            <Accordion.Header>
-              <Accordion.Trigger>Trigger 3</Accordion.Trigger>
-            </Accordion.Header>
-            <Accordion.Panel>This is the contents of Accordion.Panel 3</Accordion.Panel>
-          </Accordion.Item>
-        </Accordion.Root>,
-      );
+        it('Arrow keys should not put focus on disabled accordion items', async () => {
+          const { user } = await render(
+            <Accordion.Root>
+              <Accordion.Item>
+                <Accordion.Header>
+                  <Accordion.Trigger
+                    nativeButton={isNativeButton}
+                    render={isNativeButton ? undefined : <span />}
+                  >
+                    Trigger 1
+                  </Accordion.Trigger>
+                </Accordion.Header>
+                <Accordion.Panel>1</Accordion.Panel>
+              </Accordion.Item>
+              <Accordion.Item disabled>
+                <Accordion.Header>
+                  <Accordion.Trigger>Trigger 2</Accordion.Trigger>
+                </Accordion.Header>
+                <Accordion.Panel>2</Accordion.Panel>
+              </Accordion.Item>
+              <Accordion.Item>
+                <Accordion.Header>
+                  <Accordion.Trigger>Trigger 3</Accordion.Trigger>
+                </Accordion.Header>
+                <Accordion.Panel>This is the contents of Accordion.Panel 3</Accordion.Panel>
+              </Accordion.Item>
+            </Accordion.Root>,
+          );
 
-      const [trigger1, , trigger3] = screen.getAllByRole('button');
+          const [trigger1, , trigger3] = screen.getAllByRole('button');
 
-      await user.keyboard('[Tab]');
-      expect(trigger1).toHaveFocus();
+          await user.keyboard('[Tab]');
+          expect(trigger1).toHaveFocus();
 
-      await user.keyboard('[ArrowDown]');
-      expect(trigger3).toHaveFocus();
+          await user.keyboard('[ArrowDown]');
+          expect(trigger3).toHaveFocus();
 
-      await user.keyboard('[ArrowUp]');
-      expect(trigger1).toHaveFocus();
-    });
+          await user.keyboard('[ArrowUp]');
+          expect(trigger1).toHaveFocus();
+        });
 
-    describe('key: End/Home', () => {
-      it('End key moves focus the last trigger', async () => {
-        const { user } = await render(
-          <Accordion.Root>
-            <Accordion.Item>
-              <Accordion.Header>
-                <Accordion.Trigger>Trigger 1</Accordion.Trigger>
-              </Accordion.Header>
-              <Accordion.Panel>1</Accordion.Panel>
-            </Accordion.Item>
-            <Accordion.Item disabled>
-              <Accordion.Header>
-                <Accordion.Trigger>Trigger 2</Accordion.Trigger>
-              </Accordion.Header>
-              <Accordion.Panel>2</Accordion.Panel>
-            </Accordion.Item>
-            <Accordion.Item>
-              <Accordion.Header>
-                <Accordion.Trigger>Trigger 3</Accordion.Trigger>
-              </Accordion.Header>
-              <Accordion.Panel>This is the contents of Accordion.Panel 3</Accordion.Panel>
-            </Accordion.Item>
-            <Accordion.Item>
-              <Accordion.Header>
-                <Accordion.Trigger>Trigger 4</Accordion.Trigger>
-              </Accordion.Header>
-              <Accordion.Panel>This is the contents of Accordion.Panel 4</Accordion.Panel>
-            </Accordion.Item>
-          </Accordion.Root>,
-        );
+        describe('key: End/Home', () => {
+          it('End key moves focus to the last trigger', async () => {
+            const { user } = await render(
+              <Accordion.Root>
+                <Accordion.Item>
+                  <Accordion.Header>
+                    <Accordion.Trigger
+                      nativeButton={isNativeButton}
+                      render={isNativeButton ? undefined : <span />}
+                    >
+                      Trigger 1
+                    </Accordion.Trigger>
+                  </Accordion.Header>
+                  <Accordion.Panel>1</Accordion.Panel>
+                </Accordion.Item>
+                <Accordion.Item disabled>
+                  <Accordion.Header>
+                    <Accordion.Trigger>Trigger 2</Accordion.Trigger>
+                  </Accordion.Header>
+                  <Accordion.Panel>2</Accordion.Panel>
+                </Accordion.Item>
+                <Accordion.Item>
+                  <Accordion.Header>
+                    <Accordion.Trigger>Trigger 3</Accordion.Trigger>
+                  </Accordion.Header>
+                  <Accordion.Panel>This is the contents of Accordion.Panel 3</Accordion.Panel>
+                </Accordion.Item>
+                <Accordion.Item>
+                  <Accordion.Header>
+                    <Accordion.Trigger>Trigger 4</Accordion.Trigger>
+                  </Accordion.Header>
+                  <Accordion.Panel>This is the contents of Accordion.Panel 4</Accordion.Panel>
+                </Accordion.Item>
+              </Accordion.Root>,
+            );
 
-        const [trigger1, , , trigger4] = screen.getAllByRole('button');
+            const [trigger1, , , trigger4] = screen.getAllByRole('button');
 
-        await user.keyboard('[Tab]');
-        expect(trigger1).toHaveFocus();
+            await user.keyboard('[Tab]');
+            expect(trigger1).toHaveFocus();
 
-        await user.keyboard('[End]');
-        expect(trigger4).toHaveFocus();
-      });
+            await user.keyboard('[End]');
+            expect(trigger4).toHaveFocus();
+          });
 
-      it('Home key moves focus to the first trigger', async () => {
-        const { user } = await render(
-          <Accordion.Root>
-            <Accordion.Item>
-              <Accordion.Header>
-                <Accordion.Trigger>Trigger 1</Accordion.Trigger>
-              </Accordion.Header>
-              <Accordion.Panel>1</Accordion.Panel>
-            </Accordion.Item>
-            <Accordion.Item disabled>
-              <Accordion.Header>
-                <Accordion.Trigger>Trigger 2</Accordion.Trigger>
-              </Accordion.Header>
-              <Accordion.Panel>2</Accordion.Panel>
-            </Accordion.Item>
-            <Accordion.Item>
-              <Accordion.Header>
-                <Accordion.Trigger>Trigger 3</Accordion.Trigger>
-              </Accordion.Header>
-              <Accordion.Panel>This is the contents of Accordion.Panel 3</Accordion.Panel>
-            </Accordion.Item>
-            <Accordion.Item>
-              <Accordion.Header>
-                <Accordion.Trigger>Trigger 4</Accordion.Trigger>
-              </Accordion.Header>
-              <Accordion.Panel>This is the contents of Accordion.Panel 4</Accordion.Panel>
-            </Accordion.Item>
-          </Accordion.Root>,
-        );
+          it('Home key moves focus to the first trigger', async () => {
+            const { user } = await render(
+              <Accordion.Root>
+                <Accordion.Item>
+                  <Accordion.Header>
+                    <Accordion.Trigger
+                      nativeButton={isNativeButton}
+                      render={isNativeButton ? undefined : <span />}
+                    >
+                      Trigger 1
+                    </Accordion.Trigger>
+                  </Accordion.Header>
+                  <Accordion.Panel>1</Accordion.Panel>
+                </Accordion.Item>
+                <Accordion.Item disabled>
+                  <Accordion.Header>
+                    <Accordion.Trigger>Trigger 2</Accordion.Trigger>
+                  </Accordion.Header>
+                  <Accordion.Panel>2</Accordion.Panel>
+                </Accordion.Item>
+                <Accordion.Item>
+                  <Accordion.Header>
+                    <Accordion.Trigger>Trigger 3</Accordion.Trigger>
+                  </Accordion.Header>
+                  <Accordion.Panel>This is the contents of Accordion.Panel 3</Accordion.Panel>
+                </Accordion.Item>
+                <Accordion.Item>
+                  <Accordion.Header>
+                    <Accordion.Trigger>Trigger 4</Accordion.Trigger>
+                  </Accordion.Header>
+                  <Accordion.Panel>This is the contents of Accordion.Panel 4</Accordion.Panel>
+                </Accordion.Item>
+              </Accordion.Root>,
+            );
 
-        const [trigger1, , , trigger4] = screen.getAllByRole('button');
+            const [trigger1, , , trigger4] = screen.getAllByRole('button');
 
-        await user.pointer({ keys: '[MouseLeft]', target: trigger4 });
-        expect(trigger4).toHaveFocus();
+            await user.pointer({ keys: '[MouseLeft]', target: trigger4 });
+            expect(trigger4).toHaveFocus();
 
-        await user.keyboard('[Home]');
-        expect(trigger1).toHaveFocus();
+            await user.keyboard('[Home]');
+            expect(trigger1).toHaveFocus();
+          });
+        });
       });
     });
 
@@ -459,12 +506,12 @@ describe('<Accordion.Root />', () => {
       expect(input).toHaveFocus();
 
       // Firefox doesn't support document.getSelection() in inputs
-      expect(input.selectionStart).to.equal(0);
-      expect(input.selectionEnd).to.equal(4);
+      expect(input.selectionStart).toBe(0);
+      expect(input.selectionEnd).toBe(4);
 
       await user.keyboard('[ArrowLeft]');
-      expect(input.selectionStart).to.equal(0);
-      expect(input.selectionEnd).to.equal(0);
+      expect(input.selectionStart).toBe(0);
+      expect(input.selectionEnd).toBe(0);
     });
 
     describe('prop: loopFocus', () => {
@@ -500,6 +547,57 @@ describe('<Accordion.Root />', () => {
     });
   });
 
+  describe('keyboard activation timing', () => {
+    [true, false].forEach((isNativeButton) => {
+      it(`opens and closes on Space keydown when rendering ${
+        isNativeButton ? 'interactive' : 'non-interactive'
+      } triggers`, async () => {
+        const onOpenChange = vi.fn();
+
+        const { user } = await render(
+          <Accordion.Root>
+            <Accordion.Item onOpenChange={onOpenChange}>
+              <Accordion.Header>
+                <Accordion.Trigger
+                  nativeButton={isNativeButton}
+                  render={isNativeButton ? undefined : <span />}
+                >
+                  Trigger 1
+                </Accordion.Trigger>
+              </Accordion.Header>
+              <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
+            </Accordion.Item>
+          </Accordion.Root>,
+        );
+
+        const trigger = screen.getByRole('button');
+
+        await user.keyboard('[Tab]');
+        expect(trigger).toHaveFocus();
+
+        fireEvent.keyDown(trigger, { key: ' ' });
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+        expect(screen.queryByText(PANEL_CONTENT_1)).not.toBe(null);
+        expect(onOpenChange.mock.calls.length).toBe(1);
+        expect(onOpenChange.mock.calls[0][0]).toBe(true);
+
+        fireEvent.keyUp(trigger, { key: ' ' });
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+        expect(onOpenChange.mock.calls.length).toBe(1);
+
+        fireEvent.keyDown(trigger, { key: ' ' });
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+        expect(screen.queryByText(PANEL_CONTENT_1)).toBe(null);
+        expect(onOpenChange.mock.calls.length).toBe(2);
+        expect(onOpenChange.mock.calls[1][0]).toBe(false);
+
+        fireEvent.keyUp(trigger, { key: ' ' });
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+        expect(onOpenChange.mock.calls.length).toBe(2);
+      });
+    });
+  });
+
   describe.skipIf(isJSDOM)('prop: multiple', () => {
     it('multiple items can be open when `multiple = true`', async () => {
       const { user } = await render(
@@ -521,18 +619,18 @@ describe('<Accordion.Root />', () => {
 
       const [trigger1, trigger2] = screen.getAllByRole('button');
 
-      expect(trigger1).to.not.have.attribute('data-panel-open');
-      expect(trigger2).to.not.have.attribute('data-panel-open');
-      expect(screen.queryByText(PANEL_CONTENT_1)).to.equal(null);
-      expect(screen.queryByText(PANEL_CONTENT_2)).to.equal(null);
+      expect(trigger1).not.toHaveAttribute('data-panel-open');
+      expect(trigger2).not.toHaveAttribute('data-panel-open');
+      expect(screen.queryByText(PANEL_CONTENT_1)).toBe(null);
+      expect(screen.queryByText(PANEL_CONTENT_2)).toBe(null);
 
       await user.pointer({ keys: '[MouseLeft]', target: trigger1 });
       await user.pointer({ keys: '[MouseLeft]', target: trigger2 });
 
-      expect(screen.queryByText(PANEL_CONTENT_1)).to.have.attribute('data-open');
-      expect(screen.queryByText(PANEL_CONTENT_2)).to.have.attribute('data-open');
-      expect(trigger1).to.have.attribute('data-panel-open');
-      expect(trigger2).to.have.attribute('data-panel-open');
+      expect(screen.queryByText(PANEL_CONTENT_1)).toHaveAttribute('data-open');
+      expect(screen.queryByText(PANEL_CONTENT_2)).toHaveAttribute('data-open');
+      expect(trigger1).toHaveAttribute('data-panel-open');
+      expect(trigger2).toHaveAttribute('data-panel-open');
     });
 
     it('when false only one item can be open', async () => {
@@ -555,22 +653,22 @@ describe('<Accordion.Root />', () => {
 
       const [trigger1, trigger2] = screen.getAllByRole('button');
 
-      expect(screen.queryByText(PANEL_CONTENT_1)).to.equal(null);
-      expect(screen.queryByText(PANEL_CONTENT_2)).to.equal(null);
-      expect(trigger1).to.not.have.attribute('data-panel-open');
-      expect(trigger2).to.not.have.attribute('data-panel-open');
+      expect(screen.queryByText(PANEL_CONTENT_1)).toBe(null);
+      expect(screen.queryByText(PANEL_CONTENT_2)).toBe(null);
+      expect(trigger1).not.toHaveAttribute('data-panel-open');
+      expect(trigger2).not.toHaveAttribute('data-panel-open');
 
       await user.pointer({ keys: '[MouseLeft]', target: trigger1 });
 
-      expect(screen.queryByText(PANEL_CONTENT_1)).to.have.attribute('data-open');
-      expect(trigger1).to.have.attribute('data-panel-open');
+      expect(screen.queryByText(PANEL_CONTENT_1)).toHaveAttribute('data-open');
+      expect(trigger1).toHaveAttribute('data-panel-open');
 
       await user.pointer({ keys: '[MouseLeft]', target: trigger2 });
 
-      expect(screen.queryByText(PANEL_CONTENT_2)).to.have.attribute('data-open');
-      expect(trigger2).to.have.attribute('data-panel-open');
-      expect(screen.queryByText(PANEL_CONTENT_1)).to.equal(null);
-      expect(trigger1).to.not.have.attribute('data-panel-open');
+      expect(screen.queryByText(PANEL_CONTENT_2)).toHaveAttribute('data-open');
+      expect(trigger2).toHaveAttribute('data-panel-open');
+      expect(screen.queryByText(PANEL_CONTENT_1)).toBe(null);
+      expect(trigger1).not.toHaveAttribute('data-panel-open');
     });
   });
 
@@ -654,7 +752,7 @@ describe('<Accordion.Root />', () => {
 
   describe.skipIf(isJSDOM)('prop: onValueChange', () => {
     it('default item value', async () => {
-      const onValueChange = spy();
+      const onValueChange = vi.fn();
 
       const { user } = await render(
         <Accordion.Root onValueChange={onValueChange} multiple>
@@ -675,21 +773,21 @@ describe('<Accordion.Root />', () => {
 
       const [trigger1, trigger2] = screen.getAllByRole('button');
 
-      expect(onValueChange.callCount).to.equal(0);
+      expect(onValueChange.mock.calls.length).toBe(0);
 
       await user.pointer({ keys: '[MouseLeft]', target: trigger1 });
 
-      expect(onValueChange.callCount).to.equal(1);
-      expect(onValueChange.lastCall.args[0]).to.deep.equal([0]);
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(onValueChange.mock.lastCall?.[0]).toEqual([0]);
 
       await user.pointer({ keys: '[MouseLeft]', target: trigger2 });
 
-      expect(onValueChange.callCount).to.equal(2);
-      expect(onValueChange.lastCall.args[0]).to.deep.equal([0, 1]);
+      expect(onValueChange.mock.calls.length).toBe(2);
+      expect(onValueChange.mock.lastCall?.[0]).toEqual([0, 1]);
     });
 
     it('custom item value', async () => {
-      const onValueChange = spy();
+      const onValueChange = vi.fn();
 
       const { user } = await render(
         <Accordion.Root onValueChange={onValueChange} multiple>
@@ -710,21 +808,21 @@ describe('<Accordion.Root />', () => {
 
       const [trigger1, trigger2] = screen.getAllByRole('button');
 
-      expect(onValueChange.callCount).to.equal(0);
+      expect(onValueChange.mock.calls.length).toBe(0);
 
       await user.pointer({ keys: '[MouseLeft]', target: trigger2 });
 
-      expect(onValueChange.callCount).to.equal(1);
-      expect(onValueChange.args[0][0]).to.deep.equal(['two']);
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(onValueChange.mock.calls[0][0]).toEqual(['two']);
 
       await user.pointer({ keys: '[MouseLeft]', target: trigger1 });
 
-      expect(onValueChange.callCount).to.equal(2);
-      expect(onValueChange.args[1][0]).to.deep.equal(['two', 'one']);
+      expect(onValueChange.mock.calls.length).toBe(2);
+      expect(onValueChange.mock.calls[1][0]).toEqual(['two', 'one']);
     });
 
     it('`multiple` is false', async () => {
-      const onValueChange = spy();
+      const onValueChange = vi.fn();
 
       const { user } = await render(
         <Accordion.Root onValueChange={onValueChange} multiple={false}>
@@ -745,17 +843,17 @@ describe('<Accordion.Root />', () => {
 
       const [trigger1, trigger2] = screen.getAllByRole('button');
 
-      expect(onValueChange.callCount).to.equal(0);
+      expect(onValueChange.mock.calls.length).toBe(0);
 
       await user.pointer({ keys: '[MouseLeft]', target: trigger1 });
 
-      expect(onValueChange.callCount).to.equal(1);
-      expect(onValueChange.args[0][0]).to.deep.equal(['one']);
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(onValueChange.mock.calls[0][0]).toEqual(['one']);
 
       await user.pointer({ keys: '[MouseLeft]', target: trigger2 });
 
-      expect(onValueChange.callCount).to.equal(2);
-      expect(onValueChange.args[1][0]).to.deep.equal(['two']);
+      expect(onValueChange.mock.calls.length).toBe(2);
+      expect(onValueChange.mock.calls[1][0]).toEqual(['two']);
     });
   });
 });

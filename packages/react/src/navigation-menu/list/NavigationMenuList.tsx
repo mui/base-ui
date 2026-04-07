@@ -1,10 +1,13 @@
 'use client';
 import * as React from 'react';
-import { useDismiss } from '../../floating-ui-react';
+import { useDismiss, useHoverFloatingInteraction } from '../../floating-ui-react';
 import { getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
-import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
+import {
+  useNavigationMenuRootContext,
+  useNavigationMenuTreeContext,
+} from '../root/NavigationMenuRootContext';
 import { EMPTY_OBJECT } from '../../utils/constants';
 import { NAVIGATION_MENU_TRIGGER_IDENTIFIER } from '../utils/constants';
 import { NavigationMenuDismissContext } from './NavigationMenuDismissContext';
@@ -19,16 +22,33 @@ import { useRenderElement } from '../../utils/useRenderElement';
  */
 export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
   componentProps: NavigationMenuList.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  forwardedRef: React.ForwardedRef<HTMLUListElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, style, ...elementProps } = componentProps;
 
-  const { orientation, open, floatingRootContext, positionerElement, value, nested } =
-    useNavigationMenuRootContext();
+  const nodeId = useNavigationMenuTreeContext();
+
+  const {
+    orientation,
+    open,
+    floatingRootContext,
+    positionerElement,
+    value,
+    closeDelay,
+    viewportElement,
+    nested,
+  } = useNavigationMenuRootContext();
 
   const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
   const context = floatingRootContext || fallbackContext;
   const interactionsEnabled = positionerElement ? true : !value;
+  const hoverInteractionsEnabled = positionerElement || viewportElement ? true : !value;
+
+  useHoverFloatingInteraction(context, {
+    enabled: Boolean(floatingRootContext) && hoverInteractionsEnabled,
+    closeDelay,
+    nodeId,
+  });
 
   const dismiss = useDismiss(context, {
     enabled: interactionsEnabled,
@@ -44,18 +64,15 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
 
   const dismissProps = floatingRootContext ? dismiss : undefined;
 
-  const state: NavigationMenuList.State = React.useMemo(
-    () => ({
-      open,
-    }),
-    [open],
-  );
+  const state: NavigationMenuListState = {
+    open,
+  };
 
   // `stopEventPropagation` won't stop the propagation if the end of the list is reached,
   // but we want to block it in this case.
   // When nested, skip this handler so arrow keys can reach the parent CompositeRoot.
   const defaultProps: HTMLProps = nested
-    ? {}
+    ? EMPTY_OBJECT
     : {
         onKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
           const shouldStop =
@@ -69,7 +86,12 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
         },
       };
 
-  const props = [dismissProps?.floating || EMPTY_OBJECT, defaultProps, elementProps];
+  const props = [
+    dismissProps?.floating || EMPTY_OBJECT,
+    defaultProps,
+    { 'aria-orientation': undefined },
+    elementProps,
+  ];
 
   // When nested, skip the CompositeRoot wrapper so that triggers can participate
   // in the parent Content's composite navigation context. Also skip the onKeyDown
@@ -94,6 +116,7 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
       <CompositeRoot
         render={render}
         className={className}
+        style={style}
         state={state}
         refs={[forwardedRef]}
         props={props}
@@ -114,7 +137,7 @@ export interface NavigationMenuListState {
 
 export interface NavigationMenuListProps extends BaseUIComponentProps<
   'ul',
-  NavigationMenuList.State
+  NavigationMenuListState
 > {}
 
 export namespace NavigationMenuList {

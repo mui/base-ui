@@ -1,23 +1,13 @@
+import { vi, test, expect } from 'vitest';
 /* eslint-disable @typescript-eslint/no-shadow */
-import {
-  act,
-  cleanup,
-  fireEvent,
-  flushMicrotasks,
-  render,
-  screen,
-  waitFor,
-} from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, render, screen, waitFor } from '@mui/internal-test-utils';
 import * as React from 'react';
-import { vi, test } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { isJSDOM } from '@base-ui/utils/detectBrowser';
 import { useFloating, useHover, useInteractions } from '../index';
 import type { UseHoverProps } from './useHover';
 import { Popover } from '../../../test/floating-ui-tests/Popover';
 import { REASONS } from '../../utils/reasons';
-
-vi.useFakeTimers();
 
 function App({ showReference = true, ...props }: UseHoverProps & { showReference?: boolean }) {
   const [open, setOpen] = React.useState(false);
@@ -36,13 +26,16 @@ function App({ showReference = true, ...props }: UseHoverProps & { showReference
 }
 
 describe.skipIf(!isJSDOM)('useHover', () => {
-  test('opens on mouseenter', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  test('opens on mouseenter', async () => {
     render(<App />);
 
     fireEvent.mouseEnter(screen.getByRole('button'));
     expect(screen.getByRole('tooltip')).toBeInTheDocument();
-
-    cleanup();
+    await flushMicrotasks();
   });
 
   test('closes on mouseleave', () => {
@@ -51,11 +44,9 @@ describe.skipIf(!isJSDOM)('useHover', () => {
     fireEvent.mouseEnter(screen.getByRole('button'));
     fireEvent.mouseLeave(screen.getByRole('button'));
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-
-    cleanup();
   });
 
-  describe('delay', () => {
+  describe('prop: delay', () => {
     test('symmetric number', async () => {
       render(<App delay={1000} />);
 
@@ -72,8 +63,6 @@ describe.skipIf(!isJSDOM)('useHover', () => {
       });
 
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
-
-      cleanup();
     });
 
     test('open', async () => {
@@ -92,8 +81,6 @@ describe.skipIf(!isJSDOM)('useHover', () => {
       });
 
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
-
-      cleanup();
     });
 
     test('close', async () => {
@@ -113,8 +100,6 @@ describe.skipIf(!isJSDOM)('useHover', () => {
       });
 
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-
-      cleanup();
     });
 
     test('open with close 0', async () => {
@@ -133,8 +118,6 @@ describe.skipIf(!isJSDOM)('useHover', () => {
       });
 
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-
-      cleanup();
     });
 
     test('restMs + nullish open delay should respect restMs', async () => {
@@ -147,8 +130,6 @@ describe.skipIf(!isJSDOM)('useHover', () => {
       });
 
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-
-      cleanup();
     });
   });
 
@@ -187,7 +168,6 @@ describe.skipIf(!isJSDOM)('useHover', () => {
     expect(screen.getByRole('tooltip')).toBeInTheDocument();
 
     spy.mockRestore();
-    cleanup();
   });
 
   test.skip('restMs is always 0 for touch input', async () => {
@@ -201,17 +181,6 @@ describe.skipIf(!isJSDOM)('useHover', () => {
     await waitFor(() => {
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
     });
-  });
-
-  test('restMs does not cause floating element to open if mouseOnly is true', async () => {
-    render(<App restMs={100} mouseOnly />);
-
-    fireEvent.pointerDown(screen.getByRole('button'), { pointerType: 'touch' });
-    fireEvent.mouseMove(screen.getByRole('button'));
-
-    await flushMicrotasks();
-
-    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
 
   test('restMs does not reset timer for minor mouse movement', async () => {
@@ -241,7 +210,6 @@ describe.skipIf(!isJSDOM)('useHover', () => {
     expect(screen.getByRole('tooltip')).toBeInTheDocument();
 
     spy.mockRestore();
-    cleanup();
   });
 
   test('mouseleave on the floating element closes it (mouse)', async () => {
@@ -276,8 +244,6 @@ describe.skipIf(!isJSDOM)('useHover', () => {
     });
 
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-
-    cleanup();
   });
 
   test('reason string', async () => {
@@ -309,6 +275,50 @@ describe.skipIf(!isJSDOM)('useHover', () => {
     fireEvent.mouseLeave(button);
   });
 
+  test('does not treat a synthetic child target as inactive when the native path differs', async () => {
+    const onOpenChange = vi.fn();
+
+    function App() {
+      const [open, setOpen] = React.useState(true);
+      const { refs, context } = useFloating({
+        open,
+        onOpenChange(nextOpen, details) {
+          onOpenChange(nextOpen, details);
+          setOpen(nextOpen);
+        },
+      });
+      const { getReferenceProps, getFloatingProps } = useInteractions([useHover(context)]);
+
+      return (
+        <React.Fragment>
+          <button ref={refs.setReference} {...getReferenceProps()}>
+            <span data-testid="child" />
+          </button>
+          {open && <div role="tooltip" ref={refs.setFloating} {...getFloatingProps()} />}
+        </React.Fragment>
+      );
+    }
+
+    render(<App />);
+
+    const child = screen.getByTestId('child');
+    const event = new MouseEvent('mousemove', { bubbles: true });
+
+    // Deliberately skew the native path so `getTarget(nativeEvent)` resolves
+    // outside the trigger while React's synthetic `event.target` remains `child`.
+    Object.defineProperty(event, 'composedPath', {
+      configurable: true,
+      value: () => [document.body, child.parentElement, child],
+    });
+
+    fireEvent(child, event);
+
+    await flushMicrotasks();
+
+    expect(onOpenChange).toHaveBeenCalledTimes(0);
+    expect(screen.queryByRole('tooltip')).not.toBe(null);
+  });
+
   test('cleans up blockPointerEvents if trigger changes', async () => {
     vi.useRealTimers();
     const user = userEvent.setup();
@@ -319,35 +329,23 @@ describe.skipIf(!isJSDOM)('useHover', () => {
         bubbles
         render={({ labelId, descriptionId, close }) => (
           <React.Fragment>
-            <h2 id={labelId} className="mb-2 text-2xl font-bold">
-              Parent title
-            </h2>
-            <p id={descriptionId} className="mb-2">
-              Description
-            </p>
+            <h2 id={labelId}>Parent title</h2>
+            <p id={descriptionId}>Description</p>
             <Popover
               hover
               modal={false}
               bubbles
               render={({ labelId, descriptionId, close }) => (
                 <React.Fragment>
-                  <h2 id={labelId} className="mb-2 text-2xl font-bold">
-                    Child title
-                  </h2>
-                  <p id={descriptionId} className="mb-2">
-                    Description
-                  </p>
-                  <button onClick={close} className="font-bold">
-                    Close
-                  </button>
+                  <h2 id={labelId}>Child title</h2>
+                  <p id={descriptionId}>Description</p>
+                  <button onClick={close}>Close</button>
                 </React.Fragment>
               )}
             >
               <button type="button">Open child</button>
             </Popover>
-            <button onClick={close} className="font-bold">
-              Close
-            </button>
+            <button onClick={close}>Close</button>
           </React.Fragment>
         )}
       >
@@ -367,7 +365,5 @@ describe.skipIf(!isJSDOM)('useHover', () => {
     await user.click(screen.getByText('Parent title'));
     // screen.debug();
     expect(screen.getByText('Parent title')).toBeInTheDocument();
-
-    vi.useFakeTimers();
   });
 });

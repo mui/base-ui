@@ -32,18 +32,17 @@ export const MenuPortal = React.forwardRef(function MenuPortal(
   );
 });
 
-export namespace MenuPortal {
-  export interface State {}
-}
+export interface MenuPortalState {}
 
-export interface MenuPortalProps extends FloatingPortal.Props<MenuPortal.State> {
+export interface MenuPortalProps extends FloatingPortal.Props<MenuPortalState> {
   /**
    * Whether to keep the portal mounted in the DOM while the popup is hidden.
    * @default false
    */
-  keepMounted?: boolean;
+  keepMounted?: boolean | undefined;
 }
 
 export namespace MenuPortal {
+  export type State = MenuPortalState;
   export type Props = MenuPortalProps;
 }

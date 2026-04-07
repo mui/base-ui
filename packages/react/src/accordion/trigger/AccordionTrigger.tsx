@@ -16,24 +16,22 @@ import {
   stopEvent,
 } from '../../composite/composite';
 import { useAccordionRootContext } from '../root/AccordionRootContext';
-import type { AccordionItem } from '../item/AccordionItem';
+import type { AccordionItemState } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 
 const SUPPORTED_KEYS = new Set([ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT, HOME, END]);
 
-function getActiveTriggers(accordionItemRefs: {
-  current: (HTMLElement | null)[];
-}): HTMLButtonElement[] {
+function getActiveTriggers(accordionItemRefs: { current: (HTMLElement | null)[] }): HTMLElement[] {
   const { current: accordionItemElements } = accordionItemRefs;
 
-  const output: HTMLButtonElement[] = [];
+  const output: HTMLElement[] = [];
 
   for (let i = 0; i < accordionItemElements.length; i += 1) {
     const section = accordionItemElements[i];
     if (!isElementDisabled(section)) {
-      const trigger = section?.querySelector('[type="button"]') as HTMLButtonElement;
-      if (!isElementDisabled(trigger)) {
+      const trigger = section?.querySelector<HTMLElement>('[type="button"], [role="button"]');
+      if (trigger && !isElementDisabled(trigger)) {
         output.push(trigger);
       }
     }
@@ -51,7 +49,7 @@ function getActiveTriggers(accordionItemRefs: {
 
 export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
   componentProps: AccordionTrigger.Props,
-  forwardedRef: React.ForwardedRef<Element>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     disabled: disabledProp,
@@ -59,6 +57,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
     id: idProp,
     render,
     nativeButton = true,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -70,6 +69,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
     disabled,
     focusableWhenDisabled: true,
     native: nativeButton,
+    composite: true,
   });
 
   const { accordionItemRefs, direction, loopFocus, orientation } = useAccordionRootContext();
@@ -92,8 +92,8 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
     () => ({
       'aria-controls': open ? panelId : undefined,
       'aria-expanded': open,
-      disabled,
       id,
+      tabIndex: 0,
       onClick: handleTrigger,
       onKeyDown(event: React.KeyboardEvent) {
         if (!SUPPORTED_KEYS.has(event.key)) {
@@ -109,7 +109,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
 
         let nextIndex = -1;
 
-        const thisIndex = triggers.indexOf(event.target as HTMLButtonElement);
+        const thisIndex = triggers.indexOf(event.currentTarget as HTMLButtonElement);
 
         function toNext() {
           if (loopFocus) {
@@ -171,7 +171,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
         }
       },
     }),
-    [accordionItemRefs, disabled, handleTrigger, id, isHorizontal, isRtl, loopFocus, open, panelId],
+    [accordionItemRefs, handleTrigger, id, isHorizontal, isRtl, loopFocus, open, panelId],
   );
 
   const element = useRenderElement('button', componentProps, {
@@ -184,9 +184,12 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
   return element;
 });
 
+export interface AccordionTriggerState extends AccordionItemState {}
+
 export interface AccordionTriggerProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', AccordionItem.State> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', AccordionTriggerState> {}
 
 export namespace AccordionTrigger {
+  export type State = AccordionTriggerState;
   export type Props = AccordionTriggerProps;
 }

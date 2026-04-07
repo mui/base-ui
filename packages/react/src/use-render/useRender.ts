@@ -20,8 +20,8 @@ export function useRender<
 }
 
 export type UseRenderRenderProp<State = Record<string, unknown>> =
-  | ComponentRenderFn<React.HTMLAttributes<any>, State>
-  | React.ReactElement;
+  | React.ReactElement
+  | ComponentRenderFn<React.HTMLAttributes<any>, State>;
 
 export type UseRenderElementProps<ElementType extends React.ElementType> =
   React.ComponentPropsWithRef<ElementType>;
@@ -32,12 +32,12 @@ export type UseRenderComponentProps<
   RenderFunctionProps = HTMLProps,
 > = React.ComponentPropsWithRef<ElementType> & {
   /**
-   * Allows you to replace the component’s HTML element
+   * Allows you to replace the component's HTML element
    * with a different tag, or compose it with another component.
    *
    * Accepts a `ReactElement` or a function that returns the element to render.
    */
-  render?: ComponentRenderFn<RenderFunctionProps, State> | React.ReactElement;
+  render?: React.ReactElement | ComponentRenderFn<RenderFunctionProps, State> | undefined;
 };
 
 export interface UseRenderParameters<
@@ -48,63 +48,66 @@ export interface UseRenderParameters<
   /**
    * The React element or a function that returns one to override the default element.
    */
-  render?: UseRenderRenderProp<State>;
+  render?: UseRenderRenderProp<State> | undefined;
   /**
    * The ref to apply to the rendered element.
    */
-  ref?: React.Ref<RenderedElementType> | React.Ref<RenderedElementType>[];
+  ref?: React.Ref<RenderedElementType> | React.Ref<RenderedElementType>[] | undefined;
   /**
    * The state of the component, passed as the second argument to the `render` callback.
    * State properties are automatically converted to data-* attributes.
    */
-  state?: State;
+  state?: State | undefined;
   /**
    * Custom mapping for converting state properties to data-* attributes.
    * @example
    * { isActive: (value) => (value ? { 'data-is-active': '' } : null) }
    */
-  stateAttributesMapping?: StateAttributesMapping<State>;
+  stateAttributesMapping?: StateAttributesMapping<State> | undefined;
   /**
    * Props to be spread on the rendered element.
    * They are merged with the internal props of the component, so that event handlers
    * are merged, `className` strings and `style` properties are joined, while other external props overwrite the
    * internal ones.
    */
-  props?: Record<string, unknown>;
+  props?: Record<string, unknown> | undefined;
   /**
    * If `false`, the hook will skip most of its internal logic and return `null`.
    * This is useful for rendering a component conditionally.
    * @default true
    */
-  enabled?: Enabled;
+  enabled?: Enabled | undefined;
   /**
    * The default tag name to use for the rendered element when `render` is not provided.
    * @default 'div'
    */
-  defaultTagName?: keyof React.JSX.IntrinsicElements;
+  defaultTagName?: keyof React.JSX.IntrinsicElements | undefined;
 }
 
 export type UseRenderReturnValue<Enabled extends boolean | undefined> = Enabled extends false
   ? null
   : React.ReactElement;
 
+export interface UseRenderState {}
+
 export namespace useRender {
-  export type RenderProp<State = Record<string, unknown>> = UseRenderRenderProp<State>;
+  export type State = UseRenderState;
+  export type RenderProp<TState = Record<string, unknown>> = UseRenderRenderProp<TState>;
 
   export type ElementProps<ElementType extends React.ElementType> =
     UseRenderElementProps<ElementType>;
 
   export type ComponentProps<
     ElementType extends React.ElementType,
-    State = {},
+    TState = {},
     RenderFunctionProps = HTMLProps,
-  > = UseRenderComponentProps<ElementType, State, RenderFunctionProps>;
+  > = UseRenderComponentProps<ElementType, TState, RenderFunctionProps>;
 
   export type Parameters<
-    State,
+    TState,
     RenderedElementType extends Element,
     Enabled extends boolean | undefined,
-  > = UseRenderParameters<State, RenderedElementType, Enabled>;
+  > = UseRenderParameters<TState, RenderedElementType, Enabled>;
 
   export type ReturnValue<Enabled extends boolean | undefined> = UseRenderReturnValue<Enabled>;
 }

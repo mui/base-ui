@@ -1,6 +1,8 @@
 'use client';
 import * as React from 'react';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import { contains, getTarget } from '../../floating-ui-react/utils';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { ScrollAreaScrollbarContext } from './ScrollAreaScrollbarContext';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -9,7 +11,7 @@ import { ScrollAreaRootCssVars } from '../root/ScrollAreaRootCssVars';
 import { ScrollAreaScrollbarCssVars } from './ScrollAreaScrollbarCssVars';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
-import type { ScrollAreaRoot } from '../root/ScrollAreaRoot';
+import type { ScrollAreaRootState } from '../root/ScrollAreaRoot';
 
 /**
  * A vertical or horizontal scrollbar for the scroll area.
@@ -26,6 +28,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
     className,
     orientation = 'vertical',
     keepMounted = false,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -44,28 +47,27 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
     handlePointerUp,
     rootId,
     thumbSize,
+    hasMeasuredScrollbar,
   } = useScrollAreaRootContext();
 
-  const state: ScrollAreaScrollbar.State = React.useMemo(
-    () => ({
-      hovering,
-      scrolling: {
-        horizontal: scrollingX,
-        vertical: scrollingY,
-      }[orientation],
-      orientation,
-      hasOverflowX: !hiddenState.scrollbarXHidden,
-      hasOverflowY: !hiddenState.scrollbarYHidden,
-      overflowXStart: overflowEdges.xStart,
-      overflowXEnd: overflowEdges.xEnd,
-      overflowYStart: overflowEdges.yStart,
-      overflowYEnd: overflowEdges.yEnd,
-      cornerHidden: hiddenState.cornerHidden,
-    }),
-    [hovering, scrollingX, scrollingY, orientation, hiddenState, overflowEdges],
-  );
+  const state: ScrollAreaScrollbarState = {
+    hovering,
+    scrolling: {
+      horizontal: scrollingX,
+      vertical: scrollingY,
+    }[orientation],
+    orientation,
+    hasOverflowX: !hiddenState.x,
+    hasOverflowY: !hiddenState.y,
+    overflowXStart: overflowEdges.xStart,
+    overflowXEnd: overflowEdges.xEnd,
+    overflowYStart: overflowEdges.yStart,
+    overflowYEnd: overflowEdges.yEnd,
+    cornerHidden: hiddenState.corner,
+  };
 
   const direction = useDirection();
+  const hideTrackUntilMeasured = !hasMeasuredScrollbar && !keepMounted;
 
   React.useEffect(() => {
     const viewportEl = viewportRef.current;
@@ -111,11 +113,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
       }
     }
 
-    scrollbarEl.addEventListener('wheel', handleWheel, { passive: false });
-
-    return () => {
-      scrollbarEl.removeEventListener('wheel', handleWheel);
-    };
+    return addEventListener(scrollbarEl, 'wheel', handleWheel, { passive: false });
   }, [orientation, scrollbarXRef, scrollbarYRef, viewportRef]);
 
   const props: HTMLProps = {
@@ -125,8 +123,12 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
         return;
       }
 
-      // Ignore clicks on thumb
-      if (event.currentTarget !== event.target) {
+      const target = getTarget(event.nativeEvent) as Element | null;
+      const thumb = orientation === 'vertical' ? thumbYRef.current : thumbXRef.current;
+
+      // Ignore clicks on thumb, including cases where React retargets the
+      // synthetic event to the track host across a shadow boundary.
+      if (thumb && contains(thumb, target)) {
         return;
       }
 
@@ -193,6 +195,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
       touchAction: 'none',
       WebkitUserSelect: 'none',
       userSelect: 'none',
+      visibility: hideTrackUntilMeasured ? 'hidden' : undefined,
       ...(orientation === 'vertical' && {
         top: 0,
         bottom: `var(${ScrollAreaRootCssVars.scrollAreaCornerHeight})`,
@@ -217,8 +220,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
 
   const contextValue = React.useMemo(() => ({ orientation }), [orientation]);
 
-  const isHidden =
-    orientation === 'vertical' ? hiddenState.scrollbarYHidden : hiddenState.scrollbarXHidden;
+  const isHidden = orientation === 'vertical' ? hiddenState.y : hiddenState.x;
 
   const shouldRender = keepMounted || !isHidden;
   if (!shouldRender) {
@@ -232,29 +234,35 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
   );
 });
 
-export interface ScrollAreaScrollbarState extends ScrollAreaRoot.State {
-  /** Whether the scroll area is being hovered. */
+export interface ScrollAreaScrollbarState extends ScrollAreaRootState {
+  /**
+   * Whether the scroll area is being hovered.
+   */
   hovering: boolean;
-  /** Whether the scroll area is being scrolled. */
+  /**
+   * Whether the scroll area is being scrolled.
+   */
   scrolling: boolean;
-  /** The orientation of the scrollbar. */
+  /**
+   * The orientation of the scrollbar.
+   */
   orientation: 'vertical' | 'horizontal';
 }
 
 export interface ScrollAreaScrollbarProps extends BaseUIComponentProps<
   'div',
-  ScrollAreaScrollbar.State
+  ScrollAreaScrollbarState
 > {
   /**
    * Whether the scrollbar controls vertical or horizontal scroll.
    * @default 'vertical'
    */
-  orientation?: 'vertical' | 'horizontal';
+  orientation?: 'vertical' | 'horizontal' | undefined;
   /**
-   * Whether to keep the HTML element in the DOM when the viewport isn’t scrollable.
+   * Whether to keep the HTML element in the DOM when the viewport isn't scrollable.
    * @default false
    */
-  keepMounted?: boolean;
+  keepMounted?: boolean | undefined;
 }
 
 export namespace ScrollAreaScrollbar {

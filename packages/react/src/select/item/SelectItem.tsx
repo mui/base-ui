@@ -2,15 +2,18 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { isMouseWithinBounds } from '@base-ui/utils/isMouseWithinBounds';
-import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useStore } from '@base-ui/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import {
   useCompositeListItem,
   IndexGuessBehavior,
 } from '../../composite/list/useCompositeListItem';
-import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
+import type {
+  BaseUIComponentProps,
+  BaseUIEvent,
+  HTMLProps,
+  NonNativeButtonProps,
+} from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { SelectItemContext } from './SelectItemContext';
 import { selectors } from '../store';
@@ -28,15 +31,16 @@ import { compareItemEquality, removeItem } from '../../utils/itemEquality';
 export const SelectItem = React.memo(
   React.forwardRef(function SelectItem(
     componentProps: SelectItem.Props,
-    forwardedRef: React.ForwardedRef<HTMLDivElement>,
+    forwardedRef: React.ForwardedRef<HTMLElement>,
   ) {
     const {
       render,
       className,
-      value = null,
+      value: itemValue = null,
       label,
       disabled = false,
       nativeButton = false,
+      style,
       ...elementProps
     } = componentProps;
 
@@ -55,16 +59,13 @@ export const SelectItem = React.memo(
       selectionRef,
       typingRef,
       valuesRef,
-      keyboardActiveRef,
       multiple,
       highlightItemOnHover,
     } = useSelectRootContext();
 
-    const highlightTimeout = useTimeout();
-
     const open = useStore(store, selectors.open);
     const highlighted = useStore(store, selectors.isActive, listItem.index);
-    const selected = useStore(store, selectors.isSelected, listItem.index, value);
+    const selected = useStore(store, selectors.isSelected, listItem.index, itemValue);
     const selectedByFocus = useStore(store, selectors.isSelectedByFocus, listItem.index);
     const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
@@ -75,6 +76,7 @@ export const SelectItem = React.memo(
     const indexRef = useValueAsRef(index);
 
     const lastKeyRef = React.useRef<string | null>(null);
+    const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
     const didPointerDownRef = React.useRef(false);
     const didInteractWithItemRef = React.useRef(false);
 
@@ -90,12 +92,12 @@ export const SelectItem = React.memo(
       }
 
       const values = valuesRef.current;
-      values[index] = value;
+      values[index] = itemValue;
 
       return () => {
         delete values[index];
       };
-    }, [hasRegistered, index, value, valuesRef]);
+    }, [hasRegistered, index, itemValue, valuesRef]);
 
     useIsoLayoutEffect(() => {
       if (!hasRegistered) {
@@ -104,36 +106,34 @@ export const SelectItem = React.memo(
 
       const selectedValue = store.state.value;
 
-      let candidate = selectedValue;
+      let selectedCandidate = selectedValue;
       if (multiple && Array.isArray(selectedValue) && selectedValue.length > 0) {
-        candidate = selectedValue[selectedValue.length - 1];
+        selectedCandidate = selectedValue[selectedValue.length - 1];
       }
 
-      if (candidate !== undefined && compareItemEquality(candidate, value, isItemEqualToValue)) {
+      if (
+        selectedCandidate !== undefined &&
+        compareItemEquality(itemValue, selectedCandidate, isItemEqualToValue)
+      ) {
         store.set('selectedIndex', index);
       }
       return undefined;
-    }, [hasRegistered, index, multiple, isItemEqualToValue, store, value]);
+    }, [hasRegistered, index, multiple, isItemEqualToValue, store, itemValue]);
 
-    const state: SelectItem.State = React.useMemo(
-      () => ({
-        disabled,
-        selected,
-        highlighted,
-      }),
-      [disabled, selected, highlighted],
-    );
+    const state: SelectItemState = {
+      disabled,
+      selected,
+      highlighted,
+    };
 
     const rootProps = getItemProps({ active: highlighted, selected });
-    // With our custom `focusItemOnHover` implementation, this interferes with the logic and can
-    // cause the index state to be stuck when leaving the select popup.
-    rootProps.onFocus = undefined;
     rootProps.id = undefined;
 
     const { getButtonProps, buttonRef } = useButton({
       disabled,
       focusableWhenDisabled: true,
       native: nativeButton,
+      composite: true,
     });
 
     function commitSelection(event: MouseEvent) {
@@ -141,55 +141,40 @@ export const SelectItem = React.memo(
       if (multiple) {
         const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
         const nextValue = selected
-          ? removeItem(currentValue, value, isItemEqualToValue)
-          : [...currentValue, value];
+          ? removeItem(currentValue, itemValue, isItemEqualToValue)
+          : [...currentValue, itemValue];
         setValue(nextValue, createChangeEventDetails(REASONS.itemPress, event));
       } else {
-        setValue(value, createChangeEventDetails(REASONS.itemPress, event));
+        setValue(itemValue, createChangeEventDetails(REASONS.itemPress, event));
         setOpen(false, createChangeEventDetails(REASONS.itemPress, event));
       }
+    }
+
+    function shouldAllowPointerSelection() {
+      return (
+        pointerTypeRef.current === 'touch' ||
+        (highlightItemOnHover ? highlighted : didInteractWithItemRef.current)
+      );
     }
 
     const defaultProps: HTMLProps = {
       role: 'option',
       'aria-selected': selected,
-      'aria-disabled': disabled || undefined,
       tabIndex: highlighted ? 0 : -1,
-      onFocus() {
-        store.set('activeIndex', index);
-      },
-      onMouseEnter() {
-        if (!keyboardActiveRef.current && store.state.selectedIndex === null) {
-          store.set('activeIndex', index);
-        }
-      },
-      onMouseMove() {
-        didInteractWithItemRef.current = true;
-        if (highlightItemOnHover) {
-          store.set('activeIndex', index);
-        }
-      },
-      onMouseLeave(event) {
-        if (!highlightItemOnHover || keyboardActiveRef.current || isMouseWithinBounds(event)) {
-          return;
-        }
-
-        highlightTimeout.start(0, () => {
-          if (store.state.activeIndex === index) {
-            store.set('activeIndex', null);
-          }
-        });
-      },
       onTouchStart() {
         selectionRef.current = {
           allowSelectedMouseUp: false,
           allowUnselectedMouseUp: false,
         };
       },
-      onKeyDown(event) {
+      onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
         lastKeyRef.current = event.key;
         didInteractWithItemRef.current = true;
         store.set('activeIndex', index);
+
+        if (event.key === ' ' && typingRef.current) {
+          event.preventDefault();
+        }
       },
       onClick(event) {
         didPointerDownRef.current = false;
@@ -201,30 +186,35 @@ export const SelectItem = React.memo(
 
         const isKeyboardClick = lastKeyRef.current !== null;
 
-        if (!isKeyboardClick) {
-          didInteractWithItemRef.current = true;
-        }
-
-        const prevented =
-          !isKeyboardClick &&
-          (highlightItemOnHover ? !highlighted : !didInteractWithItemRef.current);
-
-        if (disabled || (lastKeyRef.current === ' ' && typingRef.current) || prevented) {
+        if (
+          disabled ||
+          (event.type === 'keydown' && lastKeyRef.current === ' ' && typingRef.current) ||
+          (!isKeyboardClick && !shouldAllowPointerSelection())
+        ) {
           return;
         }
 
         lastKeyRef.current = null;
         commitSelection(event.nativeEvent);
       },
-      onPointerDown() {
+      onPointerEnter(event) {
+        pointerTypeRef.current = event.pointerType;
+      },
+      onPointerMove(event) {
+        pointerTypeRef.current = event.pointerType;
+        didInteractWithItemRef.current = true;
+      },
+      onPointerDown(event) {
+        pointerTypeRef.current = event.pointerType;
         didPointerDownRef.current = true;
         didInteractWithItemRef.current = true;
       },
-      onMouseUp(event) {
+      onMouseUp() {
         if (disabled) {
           return;
         }
 
+        // Regular click (pointerdown on this element) if didPointerDownRef is set, otherwise drag-to-select
         if (didPointerDownRef.current) {
           didPointerDownRef.current = false;
           return;
@@ -236,12 +226,12 @@ export const SelectItem = React.memo(
         if (
           disallowSelectedMouseUp ||
           disallowUnselectedMouseUp ||
-          !didInteractWithItemRef.current
+          !shouldAllowPointerSelection()
         ) {
           return;
         }
 
-        commitSelection(event.nativeEvent);
+        itemRef.current?.click();
       },
     };
 
@@ -282,7 +272,7 @@ export interface SelectItemState {
 }
 
 export interface SelectItemProps
-  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'div', SelectItem.State>, 'id'> {
+  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'div', SelectItemState>, 'id'> {
   children?: React.ReactNode;
   /**
    * A unique value that identifies this select item.
@@ -293,13 +283,13 @@ export interface SelectItemProps
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * Specifies the text label to use when the item is matched during keyboard text navigation.
    *
    * Defaults to the item text content if not provided.
    */
-  label?: string;
+  label?: string | undefined;
 }
 
 export namespace SelectItem {

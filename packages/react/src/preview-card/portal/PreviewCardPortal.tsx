@@ -17,7 +17,8 @@ export const PreviewCardPortal = React.forwardRef(function PreviewCardPortal(
 ) {
   const { keepMounted = false, ...portalProps } = props;
 
-  const { mounted } = usePreviewCardRootContext();
+  const store = usePreviewCardRootContext();
+  const mounted = store.useState('mounted');
 
   const shouldRender = mounted || keepMounted;
   if (!shouldRender) {
@@ -31,18 +32,17 @@ export const PreviewCardPortal = React.forwardRef(function PreviewCardPortal(
   );
 });
 
-export namespace PreviewCardPortal {
-  export interface State {}
-}
+export interface PreviewCardPortalState {}
 
-export interface PreviewCardPortalProps extends FloatingPortalLite.Props<PreviewCardPortal.State> {
+export interface PreviewCardPortalProps extends FloatingPortalLite.Props<PreviewCardPortalState> {
   /**
    * Whether to keep the portal mounted in the DOM while the popup is hidden.
    * @default false
    */
-  keepMounted?: boolean;
+  keepMounted?: boolean | undefined;
 }
 
 export namespace PreviewCardPortal {
+  export type State = PreviewCardPortalState;
   export type Props = PreviewCardPortalProps;
 }

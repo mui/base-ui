@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { FloatingNode } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
@@ -16,8 +17,9 @@ import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { popupStateMapping } from '../../utils/popupStateMapping';
+import { EMPTY_OBJECT } from '../../utils/constants';
 
-const stateAttributesMapping: StateAttributesMapping<NavigationMenuContent.State> = {
+const stateAttributesMapping: StateAttributesMapping<NavigationMenuContentState> = {
   ...popupStateMapping,
   ...transitionStatusMapping,
   activationDirection(value) {
@@ -41,7 +43,7 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
   componentProps: NavigationMenuContent.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, keepMounted = false, style, ...elementProps } = componentProps;
 
   const {
     mounted: popupMounted,
@@ -58,9 +60,16 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
 
   const ref = React.useRef<HTMLDivElement | null>(null);
 
+  const [hasMountedInPortal, setHasMountedInPortal] = React.useState(false);
   const [focusInside, setFocusInside] = React.useState(false);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+
+  // If the popup unmounts before the content's exit animation completes, reset the internal
+  // mounted state so the next open can re-enter via `transitionStatus="starting"`.
+  if (mounted && !popupMounted) {
+    setMounted(false);
+  }
 
   useOpenChangeComplete({
     ref,
@@ -72,14 +81,21 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
     },
   });
 
-  const state: NavigationMenuContent.State = React.useMemo(
-    () => ({
-      open,
-      transitionStatus,
-      activationDirection,
-    }),
-    [open, transitionStatus, activationDirection],
-  );
+  // When a content re-enters while still mounted (e.g. switching top-level triggers
+  // back before the exit animation completes), the DOM element hasn't changed so the
+  // callback ref won't fire again. Ensure the shared ref is updated so the
+  // MutationObserver in the trigger watches the correct content element.
+  useIsoLayoutEffect(() => {
+    if (open && ref.current) {
+      currentContentRef.current = ref.current;
+    }
+  }, [open, currentContentRef]);
+
+  const state: NavigationMenuContentState = {
+    open,
+    transitionStatus,
+    activationDirection,
+  };
 
   const handleCurrentContentRef = React.useCallback(
     (node: HTMLDivElement | null) => {
@@ -115,9 +131,28 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
       : commonProps;
 
   const portalContainer = viewportTargetElement || viewportElement;
-  const shouldRender = portalContainer !== null && mounted;
+  const hidden = keepMounted && !mounted;
+  const shouldRenderInline = keepMounted && !portalContainer && !hasMountedInPortal;
 
-  if (!portalContainer || !shouldRender) {
+  if (keepMounted && portalContainer && !hasMountedInPortal) {
+    setHasMountedInPortal(true);
+  }
+
+  if (shouldRenderInline) {
+    return (
+      <CompositeRoot
+        render={render}
+        className={className}
+        style={style}
+        state={state}
+        refs={[forwardedRef]}
+        props={[defaultProps, { hidden: true }, elementProps]}
+        stateAttributesMapping={stateAttributesMapping}
+      />
+    );
+  }
+
+  if (!portalContainer || (!mounted && !keepMounted)) {
     return null;
   }
 
@@ -126,9 +161,10 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
       <CompositeRoot
         render={render}
         className={className}
+        style={style}
         state={state}
         refs={[forwardedRef, ref, handleCurrentContentRef]}
-        props={[defaultProps, elementProps]}
+        props={[defaultProps, hidden ? { hidden: true } : EMPTY_OBJECT, elementProps]}
         stateAttributesMapping={stateAttributesMapping}
       />
     </FloatingNode>,
@@ -153,8 +189,15 @@ export interface NavigationMenuContentState {
 
 export interface NavigationMenuContentProps extends BaseUIComponentProps<
   'div',
-  NavigationMenuContent.State
-> {}
+  NavigationMenuContentState
+> {
+  /**
+   * Whether to keep the content mounted in the DOM while the popup is closed.
+   * Ensures the content is present during server-side rendering for web crawlers.
+   * @default false
+   */
+  keepMounted?: boolean | undefined;
+}
 
 export namespace NavigationMenuContent {
   export type State = NavigationMenuContentState;

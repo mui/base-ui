@@ -1,24 +1,25 @@
-import { lruMemoize, createSelectorCreator, Selector } from 'reselect';
-
-/* eslint-disable no-underscore-dangle */ // __cacheKey__
-
-const reselectCreateSelector = createSelectorCreator({
-  memoize: lruMemoize,
-  memoizeOptions: {
-    maxSize: 1,
-    equalityCheck: Object.is,
-  },
-});
+import type { Selector } from 'reselect';
 
 type Fn = (...args: any[]) => any;
-type SelectorWithArgs = ReturnType<typeof reselectCreateSelector> & { selectorArgs: any[3] };
+/**
+ * The NoOptionalParams type is a utility type that checks if a function has optional or default parameters.
+ * If the function has optional or default parameters, it returns a string literal type with an error message.
+ * Otherwise, it returns the original function type.
+ *
+ * This is used to enforce that the combiner function passed to createSelector does not have optional or default parameters,
+ * as memoization relies on the Function.length property, which does not account for optional or default parameters.
+ */
+type NoOptionalParams<F extends Fn> =
+  Parameters<F> extends Required<Parameters<F>>
+    ? F
+    : 'Combiner cannot have optional or default parameters because memoization relies on Function.length';
 
-type CreateSelectorFunction = <
+export type CreateSelectorFunction = <
   const Args extends any[],
   const Selectors extends ReadonlyArray<Selector<any>>,
   const Combiner extends (...args: readonly [...ReturnTypes<Selectors>, ...Args]) => any,
 >(
-  ...items: [...Selectors, Combiner]
+  ...items: [...Selectors, NoOptionalParams<Combiner>]
 ) => (
   ...args: Selectors['length'] extends 0
     ? MergeParams<ReturnTypes<Selectors>, Parameters<Combiner>>
@@ -54,9 +55,13 @@ type MergeParams<
 
 /**
  * Creates a selector function that can be used to derive values from the store's state.
- * The selector can take up to three additional arguments that can be used in the selector logic.
+ *
+ * The combiner function can have up to three additional parameters, but it **cannot have optional or default parameters**.
+ *
  * This function accepts up to six functions and combines them into a single selector function.
- * The last parameter is the combiner function that combines the results of the previous selectors.
+ * The resulting selector will take the state from the combined selectors and any additional parameters required by the combiner.
+ *
+ * The return type of the resulting selector is determined by the return type of the combiner function.
  *
  * @example
  * const selector = createSelector(
@@ -69,7 +74,6 @@ type MergeParams<
  *   (state) => state.open,
  *   (disabled, open) => ({ disabled, open })
  * );
- *
  */
 /* eslint-disable id-denylist */
 export const createSelector = ((
@@ -131,84 +135,3 @@ export const createSelector = ((
   return selector;
 }) as unknown as CreateSelectorFunction;
 /* eslint-enable id-denylist */
-
-export const createSelectorMemoized: CreateSelectorFunction = (...selectors: any[]) => {
-  type CacheKey = { id: number };
-
-  const cache = new WeakMap<CacheKey, SelectorWithArgs>();
-  let nextCacheId = 1;
-
-  const combiner = selectors[selectors.length - 1];
-  const nSelectors = selectors.length - 1 || 1;
-  // (s1, s2, ..., sN, a1, a2, a3) => { ... }
-  const argsLength = combiner.length - nSelectors;
-
-  if (argsLength > 3) {
-    throw new Error('Unsupported number of arguments');
-  }
-
-  const selector = (state: any, a1: any, a2: any, a3: any) => {
-    let cacheKey = state.__cacheKey__;
-    if (!cacheKey) {
-      cacheKey = { id: nextCacheId };
-      state.__cacheKey__ = cacheKey;
-      nextCacheId += 1;
-    }
-
-    let fn = cache.get(cacheKey);
-    if (!fn) {
-      let reselectArgs = selectors;
-      const selectorArgs = [undefined, undefined, undefined];
-      switch (argsLength) {
-        case 0:
-          break;
-        case 1: {
-          reselectArgs = [...selectors.slice(0, -1), () => selectorArgs[0], combiner];
-          break;
-        }
-        case 2: {
-          reselectArgs = [
-            ...selectors.slice(0, -1),
-            () => selectorArgs[0],
-            () => selectorArgs[1],
-            combiner,
-          ];
-          break;
-        }
-        case 3: {
-          reselectArgs = [
-            ...selectors.slice(0, -1),
-            () => selectorArgs[0],
-            () => selectorArgs[1],
-            () => selectorArgs[2],
-            combiner,
-          ];
-          break;
-        }
-        default:
-          throw new Error('Unsupported number of arguments');
-      }
-
-      fn = reselectCreateSelector(...(reselectArgs as any)) as unknown as SelectorWithArgs;
-      fn.selectorArgs = selectorArgs;
-
-      cache.set(cacheKey, fn);
-    }
-
-    fn.selectorArgs[0] = a1;
-    fn.selectorArgs[1] = a2;
-    fn.selectorArgs[2] = a3;
-
-    // prettier-ignore
-    switch (argsLength) {
-      case 0: return fn(state);
-      case 1: return fn(state, a1);
-      case 2: return fn(state, a1, a2);
-      case 3: return fn(state, a1, a2, a3);
-      default:
-        throw /* minify-error-disabled */ new Error('unreachable');
-    }
-  };
-
-  return selector as any;
-};

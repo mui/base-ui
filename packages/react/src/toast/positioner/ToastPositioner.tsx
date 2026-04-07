@@ -1,17 +1,21 @@
 'use client';
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
-import { useAnchorPositioning, type Side, type Align } from '../../utils/useAnchorPositioning';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-import { popupStateMapping } from '../../utils/popupStateMapping';
-import { useRenderElement } from '../../utils/useRenderElement';
+import {
+  useAnchorPositioning,
+  type Side,
+  type Align,
+  type UseAnchorPositioningSharedParameters,
+} from '../../utils/useAnchorPositioning';
+import type { BaseUIComponentProps } from '../../utils/types';
 import { EMPTY_OBJECT, POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { ToastPositionerContext } from './ToastPositionerContext';
 import { useFloatingRootContext } from '../../floating-ui-react';
 import { NOOP } from '../../utils/noop';
 import type { ToastObject } from '../useToastManager';
 import { ToastRootCssVars } from '../root/ToastRootCssVars';
-import { useToastContext } from '../provider/ToastProviderContext';
+import { useToastProviderContext } from '../provider/ToastProviderContext';
+import { usePositioner } from '../../utils/usePositioner';
 
 /**
  * Positions the toast against the anchor.
@@ -25,7 +29,7 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
 ) {
   const { toast, ...props } = componentProps;
 
-  const { toasts } = useToastContext();
+  const store = useToastProviderContext();
 
   const positionerProps = (toast.positionerProps ?? EMPTY_OBJECT) as NonNullable<
     typeof toast.positionerProps
@@ -46,16 +50,14 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
     sticky = positionerProps.sticky ?? false,
     disableAnchorTracking = positionerProps.disableAnchorTracking ?? false,
     collisionAvoidance = positionerProps.collisionAvoidance ?? POPUP_COLLISION_AVOIDANCE,
+    style,
     ...elementProps
   } = props;
 
   const [positionerElement, setPositionerElement] = React.useState<HTMLDivElement | null>(null);
 
-  const domIndex = React.useMemo(() => toasts.indexOf(toast), [toast, toasts]);
-  const visibleIndex = React.useMemo(
-    () => toasts.filter((t) => t.transitionStatus !== 'ending').indexOf(toast),
-    [toast, toasts],
-  );
+  const domIndex = store.useState('toastIndex', toast.id);
+  const visibleIndex = store.useState('toastVisibleIndex', toast.id);
 
   const anchor = isElement(anchorProp) ? anchorProp : null;
 
@@ -86,21 +88,7 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
     collisionAvoidance,
   });
 
-  const defaultProps: HTMLProps = React.useMemo(() => {
-    const hiddenStyles: React.CSSProperties = {};
-
-    return {
-      role: 'presentation',
-      style: {
-        ...positioning.positionerStyles,
-        ...hiddenStyles,
-        [ToastRootCssVars.index as string]:
-          toast.transitionStatus === 'ending' ? domIndex : visibleIndex,
-      },
-    };
-  }, [positioning.positionerStyles, toast.transitionStatus, domIndex, visibleIndex]);
-
-  const state: ToastPositioner.State = React.useMemo(
+  const state: ToastPositionerState = React.useMemo(
     () => ({
       side: positioning.side,
       align: positioning.align,
@@ -109,50 +97,51 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
     [positioning.side, positioning.align, positioning.anchorHidden],
   );
 
-  const contextValue: ToastPositionerContext = React.useMemo(
-    () => ({
-      ...state,
-      arrowRef: positioning.arrowRef,
-      arrowStyles: positioning.arrowStyles,
-      arrowUncentered: positioning.arrowUncentered,
-    }),
-    [state, positioning.arrowRef, positioning.arrowStyles, positioning.arrowUncentered],
-  );
-
-  const element = useRenderElement('div', componentProps, {
-    state,
-    props: [defaultProps, elementProps],
-    ref: [forwardedRef, setPositionerElement],
-    stateAttributesMapping: popupStateMapping,
+  const element = usePositioner(componentProps, state, {
+    styles: {
+      ...positioning.positionerStyles,
+      [ToastRootCssVars.index as string]:
+        toast.transitionStatus === 'ending' ? domIndex : visibleIndex,
+    },
+    transitionStatus: toast.transitionStatus,
+    props: elementProps,
+    refs: [forwardedRef, setPositionerElement],
   });
 
   return (
-    <ToastPositionerContext.Provider value={contextValue}>
-      {element}
-    </ToastPositionerContext.Provider>
+    <ToastPositionerContext.Provider value={positioning}>{element}</ToastPositionerContext.Provider>
   );
 });
 
 export interface ToastPositionerState {
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
   align: Align;
+  /**
+   * Whether the anchor element is hidden.
+   */
   anchorHidden: boolean;
 }
 
 export interface ToastPositionerProps
   extends
-    BaseUIComponentProps<'div', ToastPositioner.State>,
-    Omit<useAnchorPositioning.SharedParameters, 'side' | 'anchor'> {
+    BaseUIComponentProps<'div', ToastPositionerState>,
+    Omit<UseAnchorPositioningSharedParameters, 'side' | 'anchor'> {
   /**
    * An element to position the toast against.
    */
-  anchor?: Element | null;
+  anchor?: Element | null | undefined;
   /**
    * Which side of the anchor element to align the toast against.
    * May automatically change to avoid collisions.
    * @default 'top'
    */
-  side?: Side;
+  side?: Side | undefined;
   /**
    * The toast object associated with the positioner.
    */

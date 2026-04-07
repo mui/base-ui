@@ -9,7 +9,7 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 /**
  * Indicates whether the checkbox item is ticked.
- * Renders a `<div>` element.
+ * Renders a `<span>` element.
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
@@ -17,7 +17,7 @@ export const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxI
   componentProps: MenuCheckboxItemIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, keepMounted = false, ...elementProps } = componentProps;
+  const { render, className, style, keepMounted = false, ...elementProps } = componentProps;
 
   const item = useMenuCheckboxItemContext();
 
@@ -35,15 +35,12 @@ export const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxI
     },
   });
 
-  const state: MenuCheckboxItemIndicator.State = React.useMemo(
-    () => ({
-      checked: item.checked,
-      disabled: item.disabled,
-      highlighted: item.highlighted,
-      transitionStatus,
-    }),
-    [item.checked, item.disabled, item.highlighted, transitionStatus],
-  );
+  const state: MenuCheckboxItemIndicatorState = {
+    checked: item.checked,
+    disabled: item.disabled,
+    highlighted: item.highlighted,
+    transitionStatus,
+  };
 
   const element = useRenderElement('span', componentProps, {
     state,
@@ -61,13 +58,13 @@ export const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxI
 
 export interface MenuCheckboxItemIndicatorProps extends BaseUIComponentProps<
   'span',
-  MenuCheckboxItemIndicator.State
+  MenuCheckboxItemIndicatorState
 > {
   /**
    * Whether to keep the HTML element in the DOM when the checkbox item is not checked.
    * @default false
    */
-  keepMounted?: boolean;
+  keepMounted?: boolean | undefined;
 }
 
 export interface MenuCheckboxItemIndicatorState {
@@ -79,7 +76,13 @@ export interface MenuCheckboxItemIndicatorState {
    * Whether the component should ignore user interaction.
    */
   disabled: boolean;
+  /**
+   * Whether the item is highlighted.
+   */
   highlighted: boolean;
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
 }
 

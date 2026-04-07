@@ -8,7 +8,7 @@ import type { StateAttributesMapping } from '../../utils/getStateAttributesProps
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 
-const stateAttributesMapping: StateAttributesMapping<NavigationMenuBackdrop.State> = {
+const stateAttributesMapping: StateAttributesMapping<NavigationMenuBackdropState> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -23,17 +23,14 @@ export const NavigationMenuBackdrop = React.forwardRef(function NavigationMenuBa
   componentProps: NavigationMenuBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, style, ...elementProps } = componentProps;
 
   const { open, mounted, transitionStatus } = useNavigationMenuRootContext();
 
-  const state: NavigationMenuBackdrop.State = React.useMemo(
-    () => ({
-      open,
-      transitionStatus,
-    }),
-    [open, transitionStatus],
-  );
+  const state: NavigationMenuBackdropState = {
+    open,
+    transitionStatus,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -68,7 +65,7 @@ export interface NavigationMenuBackdropState {
 
 export interface NavigationMenuBackdropProps extends BaseUIComponentProps<
   'div',
-  NavigationMenuBackdrop.State
+  NavigationMenuBackdropState
 > {}
 
 export namespace NavigationMenuBackdrop {

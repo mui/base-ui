@@ -16,7 +16,7 @@ export const FieldsetLegend = React.forwardRef(function FieldsetLegend(
   componentProps: FieldsetLegend.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, id: idProp, ...elementProps } = componentProps;
+  const { render, className, style, id: idProp, ...elementProps } = componentProps;
 
   const { disabled, setLegendId } = useFieldsetRootContext();
 
@@ -29,12 +29,9 @@ export const FieldsetLegend = React.forwardRef(function FieldsetLegend(
     };
   }, [setLegendId, id]);
 
-  const state: FieldsetLegend.State = React.useMemo(
-    () => ({
-      disabled: disabled ?? false,
-    }),
-    [disabled],
-  );
+  const state: FieldsetLegendState = {
+    disabled: disabled ?? false,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -52,7 +49,7 @@ export interface FieldsetLegendState {
   disabled: boolean;
 }
 
-export interface FieldsetLegendProps extends BaseUIComponentProps<'div', FieldsetLegend.State> {}
+export interface FieldsetLegendProps extends BaseUIComponentProps<'div', FieldsetLegendState> {}
 
 export namespace FieldsetLegend {
   export type State = FieldsetLegendState;

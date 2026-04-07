@@ -16,24 +16,18 @@ import { type DialogRoot } from './DialogRoot';
 import { DialogStore } from '../store/DialogStore';
 import { useImplicitActiveTrigger, useOpenStateTransitions } from '../../utils/popups';
 
-export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
-  const { store, parentContext, actionsRef } = params;
+export function useDialogRoot(params: UseDialogRootParameters): UseDialogRootReturnValue {
+  const { store, parentContext, actionsRef, isDrawer } = params;
 
   const open = store.useState('open');
   const disablePointerDismissal = store.useState('disablePointerDismissal');
   const modal = store.useState('modal');
   const popupElement = store.useState('popupElement');
 
-  const {
-    openMethod,
-    triggerProps,
-    reset: resetOpenInteractionType,
-  } = useOpenInteractionType(open);
+  const { openMethod, triggerProps } = useOpenInteractionType(open);
 
   useImplicitActiveTrigger(store);
-  const { forceUnmount } = useOpenStateTransitions(open, store, () => {
-    resetOpenInteractionType();
-  });
+  const { forceUnmount } = useOpenStateTransitions(open, store);
 
   const createDialogEventDetails = useStableCallback((reason: DialogRoot.ChangeEventReason) => {
     const details: DialogRoot.ChangeEventDetails =
@@ -61,10 +55,10 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     popupStore: store,
     onOpenChange: store.setOpen,
     treatPopupAsFloatingElement: true,
-    noEmit: true,
   });
 
   const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = React.useState(0);
+  const [ownNestedOpenDrawers, setOwnNestedOpenDrawers] = React.useState(0);
   const isTopmost = ownNestedOpenDialogs === 0;
 
   const role = useRole(floatingRootContext);
@@ -81,6 +75,10 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
       };
     },
     outsidePress(event) {
+      if (!store.context.outsidePressEnabledRef.current) {
+        return false;
+      }
+
       // For mouse events, only accept left button (button 0)
       // For touch events, a single touch is equivalent to left button
       if ('button' in event && event.button !== 0) {
@@ -114,19 +112,24 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
 
   const { getReferenceProps, getFloatingProps, getTriggerProps } = useInteractions([role, dismiss]);
 
-  // Listen for nested open/close events on this store to maintain the count
-  store.useContextCallback('onNestedDialogOpen', (ownChildrenCount) => {
-    setOwnNestedOpenDialogs(ownChildrenCount + 1);
+  // Listen for nested open/close events on this store to maintain the counts.
+  store.useContextCallback('onNestedDialogOpen', (dialogCount, drawerCount) => {
+    setOwnNestedOpenDialogs(dialogCount);
+    setOwnNestedOpenDrawers(drawerCount);
   });
 
   store.useContextCallback('onNestedDialogClose', () => {
     setOwnNestedOpenDialogs(0);
+    setOwnNestedOpenDrawers(0);
   });
 
   // Notify parent of our open/close state using parent callbacks, if any
   React.useEffect(() => {
     if (parentContext?.onNestedDialogOpen && open) {
-      parentContext.onNestedDialogOpen(ownNestedOpenDialogs);
+      parentContext.onNestedDialogOpen(
+        ownNestedOpenDialogs + 1,
+        ownNestedOpenDrawers + (isDrawer ? 1 : 0),
+      );
     }
     if (parentContext?.onNestedDialogClose && !open) {
       parentContext.onNestedDialogClose();
@@ -136,7 +139,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
         parentContext.onNestedDialogClose();
       }
     };
-  }, [open, parentContext, ownNestedOpenDialogs]);
+  }, [isDrawer, open, ownNestedOpenDialogs, ownNestedOpenDrawers, parentContext]);
 
   const activeTriggerProps = React.useMemo(
     () => getReferenceProps(triggerProps),
@@ -157,6 +160,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     popupProps,
     floatingRootContext,
     nestedOpenDialogCount: ownNestedOpenDialogs,
+    nestedOpenDrawerCount: ownNestedOpenDrawers,
   });
 }
 
@@ -164,16 +168,13 @@ export interface UseDialogRootSharedParameters {}
 
 export interface UseDialogRootParameters {
   store: DialogStore<any>;
-  actionsRef?: DialogRoot.Props['actionsRef'];
-  parentContext?: DialogStore<unknown>['context'];
+  actionsRef?: DialogRoot.Props['actionsRef'] | undefined;
+  parentContext?: DialogStore<unknown>['context'] | undefined;
   onOpenChange: DialogRoot.Props['onOpenChange'];
-  triggerIdProp?: string | null;
+  isDrawer: boolean;
+  triggerIdProp?: string | null | undefined;
 }
 
 export type UseDialogRootReturnValue = void;
 
-export namespace useDialogRoot {
-  export type SharedParameters = UseDialogRootSharedParameters;
-  export type Parameters = UseDialogRootParameters;
-  export type ReturnValue = UseDialogRootReturnValue;
-}
+export interface UseDialogRootState {}

@@ -9,9 +9,9 @@ import { useRenderElement } from '../../utils/useRenderElement';
  */
 export const ComboboxIcon = React.forwardRef(function ComboboxIcon(
   componentProps: ComboboxIcon.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, style, ...elementProps } = componentProps;
 
   const element = useRenderElement('span', componentProps, {
     ref: forwardedRef,
@@ -29,7 +29,7 @@ export const ComboboxIcon = React.forwardRef(function ComboboxIcon(
 
 export interface ComboboxIconState {}
 
-export interface ComboboxIconProps extends BaseUIComponentProps<'span', ComboboxIcon.State> {}
+export interface ComboboxIconProps extends BaseUIComponentProps<'span', ComboboxIconState> {}
 
 export namespace ComboboxIcon {
   export type State = ComboboxIconState;

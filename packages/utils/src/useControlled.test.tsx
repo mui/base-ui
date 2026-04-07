@@ -1,5 +1,5 @@
+import { expect } from 'vitest';
 import * as React from 'react';
-import { expect } from 'chai';
 import { act, createRenderer } from '@mui/internal-test-utils';
 import { useControlled } from './useControlled';
 
@@ -38,13 +38,13 @@ describe('useControlled', () => {
         }}
       </TestComponent>,
     );
-    expect(valueState).to.equal(1);
+    expect(valueState).toBe(1);
 
     act(() => {
       setValueState(2);
     });
 
-    expect(valueState).to.equal(2);
+    expect(valueState).toBe(2);
   });
 
   it('works correctly when is controlled', () => {
@@ -57,7 +57,7 @@ describe('useControlled', () => {
         }}
       </TestComponent>,
     );
-    expect(valueState).to.equal(1);
+    expect(valueState).toBe(1);
   });
 
   it('warns when switching from uncontrolled to controlled', () => {
@@ -87,8 +87,8 @@ describe('useControlled', () => {
     );
   });
 
-  describe('warns when changing the defaultValue prop after initial rendering', () => {
-    it('should detect changes', () => {
+  describe('prop: defaultValue', () => {
+    it('warns when changed after initial rendering', () => {
       let setProps: (newProps: any) => void;
 
       expect(() => {
@@ -102,7 +102,7 @@ describe('useControlled', () => {
       );
     });
 
-    it('should not warn when controlled', () => {
+    it('does not warn when controlled', () => {
       let setProps: (newProps: any) => void;
 
       expect(() => {
@@ -118,13 +118,13 @@ describe('useControlled', () => {
       }).not.toErrorDev();
     });
 
-    it('should not warn when NaN', () => {
+    it('does not warn when NaN', () => {
       expect(() => {
         render(<TestComponent defaultValue={NaN}>{() => null}</TestComponent>);
       }).not.toErrorDev();
     });
 
-    it('should not warn when an array', () => {
+    it('does not warn when an array', () => {
       function TestComponentArray() {
         useControlled({
           controlled: undefined,

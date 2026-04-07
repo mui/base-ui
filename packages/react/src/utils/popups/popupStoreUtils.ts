@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { ReactStore } from '@base-ui/utils/store';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -22,6 +23,7 @@ export function useTriggerRegistration<State extends PopupStoreState<any>>(
 ) {
   // Keep track of the currently registered element to unregister it on unmount or id change.
   const registeredElementIdRef = React.useRef<string | null>(null);
+  const registeredElementRef = React.useRef<Element | null>(null);
 
   return React.useCallback(
     (element: Element | null) => {
@@ -30,12 +32,21 @@ export function useTriggerRegistration<State extends PopupStoreState<any>>(
       }
 
       if (registeredElementIdRef.current !== null) {
-        store.context.triggerElements.delete(registeredElementIdRef.current);
+        const registeredId = registeredElementIdRef.current;
+        const registeredElement = registeredElementRef.current;
+        const currentElement = store.context.triggerElements.getById(registeredId);
+
+        if (registeredElement && currentElement === registeredElement) {
+          store.context.triggerElements.delete(registeredId);
+        }
+
         registeredElementIdRef.current = null;
+        registeredElementRef.current = null;
       }
 
       if (element !== null) {
         registeredElementIdRef.current = id;
+        registeredElementRef.current = element;
         store.context.triggerElements.add(id, element);
       }
     },
@@ -64,7 +75,21 @@ export function useTriggerDataForwarding<State extends PopupStoreState<any>>(
   const registerTrigger = useStableCallback((element: Element | null) => {
     baseRegisterTrigger(element);
 
-    if (element !== null && store.select('open') && store.select('activeTriggerId') == null) {
+    if (!element || !store.select('open')) {
+      return;
+    }
+
+    const activeTriggerId = store.select('activeTriggerId');
+
+    if (activeTriggerId === triggerId) {
+      store.update({
+        activeTriggerElement: element,
+        ...stateUpdates,
+      } as Partial<State>);
+      return;
+    }
+
+    if (activeTriggerId == null) {
       // This runs when popup is open, but no active trigger is set.
       // It can happen when using controlled mode and the trigger is mounted after opening or if `triggerId` prop is not set explicitly.
       // In such cases the first trigger to run this code becomes the active trigger (store.select('activeTriggerId') should not return null after that).

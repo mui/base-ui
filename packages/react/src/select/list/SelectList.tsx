@@ -20,7 +20,7 @@ export const SelectList = React.forwardRef(function SelectList(
   componentProps: SelectList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, style, ...elementProps } = componentProps;
 
   const { store, scrollHandlerRef } = useSelectRootContext();
   const { alignItemWithTriggerActive } = useSelectPositionerContext();
@@ -54,7 +54,7 @@ export const SelectList = React.forwardRef(function SelectList(
   });
 });
 
-export interface SelectListProps extends BaseUIComponentProps<'div', SelectList.State> {}
+export interface SelectListProps extends BaseUIComponentProps<'div', SelectListState> {}
 
 export interface SelectListState {}
 

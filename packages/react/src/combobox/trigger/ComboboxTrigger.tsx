@@ -9,28 +9,25 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
 import {
   useComboboxFloatingContext,
+  useComboboxDerivedItemsContext,
   useComboboxInputValueContext,
   useComboboxRootContext,
 } from '../root/ComboboxRootContext';
+import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { selectors } from '../store';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
-import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { stopEvent, contains, getTarget } from '../../floating-ui-react/utils';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
-import type { FieldRoot } from '../../field/root/FieldRoot';
+import type { FieldRootState } from '../../field/root/FieldRoot';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import { fieldValidityMapping } from '../../field/utils/constants';
-import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useClick, useTypeahead } from '../../floating-ui-react';
+import type { Side } from '../../utils/useAnchorPositioning';
+import { useLabelableId } from '../../labelable-provider/useLabelableId';
+import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 
 const BOUNDARY_OFFSET = 2;
-
-const stateAttributesMapping: StateAttributesMapping<ComboboxTrigger.State> = {
-  ...pressableTriggerOpenStateMapping,
-  ...fieldValidityMapping,
-};
 
 /**
  * A button that opens the popup.
@@ -45,6 +42,8 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     className,
     nativeButton = true,
     disabled: disabledProp = false,
+    id: idProp,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -56,20 +55,28 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     validationMode,
     validation,
   } = useFieldRootContext();
-  const { labelId } = useLabelableContext();
+  const { labelId: fieldLabelId } = useLabelableContext();
   const store = useComboboxRootContext();
+  const { filteredItems } = useComboboxDerivedItemsContext();
 
   const selectionMode = useStore(store, selectors.selectionMode);
   const comboboxDisabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
+  const required = useStore(store, selectors.required);
+  const mounted = useStore(store, selectors.mounted);
+  const popupSideValue = useStore(store, selectors.popupSide);
+  const positionerElement = useStore(store, selectors.positionerElement);
   const listElement = useStore(store, selectors.listElement);
   const triggerProps = useStore(store, selectors.triggerProps);
   const triggerElement = useStore(store, selectors.triggerElement);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
+  const rootId = useStore(store, selectors.id);
+  const comboboxLabelId = useStore(store, selectors.labelId);
   const open = useStore(store, selectors.open);
   const selectedValue = useStore(store, selectors.selectedValue);
   const activeIndex = useStore(store, selectors.activeIndex);
   const selectedIndex = useStore(store, selectors.selectedIndex);
+  const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
 
   const floatingRootContext = useComboboxFloatingContext();
   const inputValue = useComboboxInputValueContext();
@@ -77,6 +84,12 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const focusTimeout = useTimeout();
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
+  const listEmpty = filteredItems.length === 0;
+  const popupSide = mounted && positionerElement ? popupSideValue : null;
+
+  useLabelableId({ id: inputInsidePopup ? idProp : undefined });
+  const id = inputInsidePopup ? (idProp ?? rootId) : idProp;
+  const ariaLabelledBy = resolveAriaLabelledBy(fieldLabelId, comboboxLabelId);
 
   const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
 
@@ -84,7 +97,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     currentPointerTypeRef.current = event.pointerType;
   }
 
-  const domReference = floatingRootContext.select('domReferenceElement');
+  const domReference = floatingRootContext.useState('domReferenceElement');
 
   // Update the floating root context to use the trigger element when it differs from the current reference.
   // This ensures useClick and useTypeahead attach handlers to the correct element.
@@ -120,14 +133,14 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     disabled,
   });
 
-  const state: ComboboxTrigger.State = React.useMemo(
-    () => ({
-      ...fieldState,
-      open,
-      disabled,
-    }),
-    [fieldState, open, disabled],
-  );
+  const state: ComboboxTriggerState = {
+    ...fieldState,
+    open,
+    disabled,
+    popupSide,
+    listEmpty,
+    placeholder: !hasSelectedValue,
+  };
 
   const setTriggerElement = useStableCallback((element) => {
     store.set('triggerElement', element);
@@ -141,14 +154,14 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
       triggerClickProps,
       triggerTypeaheadProps,
       {
+        id,
         tabIndex: inputInsidePopup ? 0 : -1,
-        disabled,
         role: inputInsidePopup ? 'combobox' : undefined,
         'aria-expanded': open ? 'true' : 'false',
         'aria-haspopup': inputInsidePopup ? 'dialog' : 'listbox',
         'aria-controls': open ? listElement?.id : undefined,
-        'aria-readonly': readOnly || undefined,
-        'aria-labelledby': labelId,
+        'aria-required': inputInsidePopup ? required || undefined : undefined,
+        'aria-labelledby': ariaLabelledBy,
         onPointerDown: trackPointerType,
         onPointerEnter: trackPointerType,
         onFocus() {
@@ -160,7 +173,12 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
           focusTimeout.start(0, store.state.forceMount);
         },
-        onBlur() {
+        onBlur(event) {
+          // If focus is moving into the popup, don't count it as a blur.
+          if (contains(positionerElement, event.relatedTarget)) {
+            return;
+          }
+
           setTouched(true);
           setFocused(false);
 
@@ -251,13 +269,13 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
       validation ? validation.getValidationProps(elementProps) : elementProps,
       getButtonProps,
     ],
-    stateAttributesMapping,
+    stateAttributesMapping: triggerStateAttributesMapping,
   });
 
   return element;
 });
 
-export interface ComboboxTriggerState extends FieldRoot.State {
+export interface ComboboxTriggerState extends FieldRootState {
   /**
    * Whether the popup is open.
    */
@@ -266,15 +284,27 @@ export interface ComboboxTriggerState extends FieldRoot.State {
    * Whether the component should ignore user interaction.
    */
   disabled: boolean;
+  /**
+   * Indicates which side the corresponding popup is positioned relative to its anchor.
+   */
+  popupSide: Side | null;
+  /**
+   * Present when the corresponding items list is empty.
+   */
+  listEmpty: boolean;
+  /**
+   * Whether the combobox doesn't have a value.
+   */
+  placeholder: boolean;
 }
 
 export interface ComboboxTriggerProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', ComboboxTrigger.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', ComboboxTriggerState> {
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
 }
 
 export namespace ComboboxTrigger {

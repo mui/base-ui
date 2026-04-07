@@ -22,14 +22,17 @@ interface ReasonToEventMap {
   [REASONS.inputClear]: InputEvent | FocusEvent | Event;
   [REASONS.inputBlur]: FocusEvent;
   [REASONS.inputPaste]: ClipboardEvent;
+  [REASONS.inputPress]: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent;
 
   [REASONS.focusOut]: FocusEvent | KeyboardEvent;
   [REASONS.escapeKey]: KeyboardEvent;
+  [REASONS.closeWatcher]: Event;
   [REASONS.listNavigation]: KeyboardEvent;
   [REASONS.keyboard]: KeyboardEvent;
 
   [REASONS.pointer]: PointerEvent;
   [REASONS.drag]: PointerEvent | TouchEvent;
+  [REASONS.swipe]: PointerEvent | TouchEvent;
   [REASONS.wheel]: WheelEvent;
   [REASONS.scrub]: PointerEvent;
 
@@ -85,7 +88,7 @@ type BaseUIChangeEventDetail<Reason extends string, CustomProperties extends obj
 export type BaseUIChangeEventDetails<
   Reason extends string,
   CustomProperties extends object = {},
-> = Reason extends string ? BaseUIChangeEventDetail<Reason, CustomProperties> : never;
+> = Reason extends string ? BaseUIChangeEventDetail<Reason, CustomProperties> & {} : never;
 
 /**
  * Details of custom generic events emitted by Base UI components.
@@ -104,7 +107,7 @@ type BaseUIGenericEventDetail<Reason extends string, CustomProperties extends ob
 export type BaseUIGenericEventDetails<
   Reason extends string,
   CustomProperties extends object = {},
-> = Reason extends string ? BaseUIGenericEventDetail<Reason, CustomProperties> : never;
+> = Reason extends string ? BaseUIGenericEventDetail<Reason, CustomProperties> & {} : never;
 
 /**
  * Creates a Base UI event details object with the given reason and utilities
@@ -144,7 +147,7 @@ export function createChangeEventDetails<
 }
 
 export function createGenericEventDetails<
-  Reason extends string,
+  Reason extends keyof ReasonToEventMap,
   CustomProperties extends object = {},
 >(
   reason: Reason,

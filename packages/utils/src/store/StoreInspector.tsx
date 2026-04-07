@@ -1,5 +1,10 @@
+'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { isElement } from '@floating-ui/utils/dom';
+import { mergeCleanups } from '../mergeCleanups';
+import { ownerDocument, ownerWindow } from '../owner';
+import { addEventListener } from '../addEventListener';
 import { Store } from './Store';
 import { useForcedRerendering } from '../useForcedRerendering';
 import { useStableCallback } from '../useStableCallback';
@@ -110,6 +115,14 @@ const STYLES = `
 }
 `;
 
+function getTarget(event: Event) {
+  if ('composedPath' in event) {
+    return event.composedPath()[0];
+  }
+
+  return (event as Event).target;
+}
+
 export interface StoreInspectorProps {
   /**
    * Instance of the store to inspect.
@@ -122,12 +135,12 @@ export interface StoreInspectorProps {
   /**
    * Title to display in the panel header.
    */
-  title?: string;
+  title?: string | undefined;
   /**
    * Whether the inspector panel should be open by default.
    * @default false
    */
-  defaultOpen?: boolean;
+  defaultOpen?: boolean | undefined;
 }
 
 /**
@@ -137,6 +150,7 @@ export interface StoreInspectorProps {
 export function StoreInspector(props: StoreInspectorProps) {
   const { store, title, additionalData, defaultOpen = false } = props;
   const [open, setOpen] = React.useState(defaultOpen);
+  const triggerRef = React.useRef<HTMLButtonElement | null>(null);
 
   return (
     <React.Fragment>
@@ -144,6 +158,7 @@ export function StoreInspector(props: StoreInspectorProps) {
         {STYLES}
       </style>
       <button
+        ref={triggerRef}
         className="baseui-store-inspector-trigger"
         type="button"
         onClick={(event) => {
@@ -157,6 +172,7 @@ export function StoreInspector(props: StoreInspectorProps) {
         <FileJson />
       </button>
       <StoreInspectorPanel
+        anchorElement={triggerRef.current}
         open={open}
         store={store}
         title={title}
@@ -168,14 +184,22 @@ export function StoreInspector(props: StoreInspectorProps) {
 }
 
 interface PanelProps {
+  anchorElement: HTMLElement | null;
   store: Store<any>;
-  title?: string;
+  title?: string | undefined;
   additionalData?: any;
   open: boolean;
-  onClose?: () => void;
+  onClose?: (() => void) | undefined;
 }
 
-export function StoreInspectorPanel({ store, title, additionalData, open, onClose }: PanelProps) {
+export function StoreInspectorPanel({
+  anchorElement,
+  store,
+  title,
+  additionalData,
+  open,
+  onClose,
+}: PanelProps) {
   const rerender = useForcedRerendering();
   const rerenderTimeout = useTimeout();
 
@@ -209,6 +233,8 @@ export function StoreInspectorPanel({ store, title, additionalData, open, onClos
     return null;
   }
 
+  const doc = ownerDocument(anchorElement);
+
   const content = (
     <Window
       title={title ?? 'Store Inspector'}
@@ -236,14 +262,14 @@ export function StoreInspectorPanel({ store, title, additionalData, open, onClos
     </Window>
   );
 
-  return open ? ReactDOM.createPortal(content, document.body) : null;
+  return open ? ReactDOM.createPortal(content, doc.body) : null;
 }
 
 function getStringifyReplacer() {
   const ancestors: any[] = [];
 
   return function replacer(this: unknown, _: string, value: unknown) {
-    if (value instanceof Element) {
+    if (isElement(value)) {
       return `Element(${value.tagName.toLowerCase()}${value.id ? `#${value.id}` : ''})`;
     }
 
@@ -278,8 +304,8 @@ function getStringifyReplacer() {
 }
 
 interface WindowProps {
-  title?: string;
-  onClose?: () => void;
+  title?: string | undefined;
+  onClose?: (() => void) | undefined;
   children: React.ReactNode;
   headerActions?: React.ReactNode;
 }
@@ -336,7 +362,7 @@ function Window({ title, onClose, children, headerActions }: WindowProps) {
     if (!headerRef.current || !rootRef.current) {
       return;
     }
-    const target = event.target as Element | null;
+    const target = getTarget(event.nativeEvent) as Element | null;
     if (target && target.closest('button')) {
       return;
     }
@@ -390,8 +416,9 @@ function Window({ title, onClose, children, headerActions }: WindowProps) {
     const currentSize = size ?? { width: rect.width, height: rect.height };
     const currentLeft = position?.left ?? rect.left;
     const currentTop = position?.top ?? rect.top;
-    const maxWidth = Math.max(100, window.innerWidth - currentLeft);
-    const maxHeight = Math.max(80, window.innerHeight - currentTop);
+    const win = ownerWindow(rootRef.current);
+    const maxWidth = Math.max(100, win.innerWidth - currentLeft);
+    const maxHeight = Math.max(80, win.innerHeight - currentTop);
     resizeStateRef.current = {
       resizing: true,
       startX: event.clientX,
@@ -428,7 +455,7 @@ function Window({ title, onClose, children, headerActions }: WindowProps) {
   const endResize = useStableCallback((event?: PointerEvent) => {
     if (event) {
       try {
-        (event.target as any)?.releasePointerCapture?.((event as any).pointerId);
+        (getTarget(event) as any)?.releasePointerCapture?.((event as any).pointerId);
       } catch {
         void 0;
       }
@@ -440,6 +467,7 @@ function Window({ title, onClose, children, headerActions }: WindowProps) {
 
   // Bind/unbind global listeners for dragging and resizing
   useIsoLayoutEffect(() => {
+    const win = ownerWindow(rootRef.current);
     const move = (event: PointerEvent) => {
       onPointerMove(event);
       onResizePointerMove(event);
@@ -448,21 +476,23 @@ function Window({ title, onClose, children, headerActions }: WindowProps) {
       endDrag(event);
       endResize(event);
     };
-    window.addEventListener('pointermove', move);
-    window.addEventListener('pointerup', up);
-    window.addEventListener('pointercancel', up);
-    return () => {
-      window.removeEventListener('pointermove', move);
-      window.removeEventListener('pointerup', up);
-      window.removeEventListener('pointercancel', up);
-    };
+    return mergeCleanups(
+      addEventListener(win, 'pointermove', move),
+      addEventListener(win, 'pointerup', up),
+      addEventListener(win, 'pointercancel', up),
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Compute window style once per render
   const style: React.CSSProperties = {};
-  const viewportMax =
-    typeof window !== 'undefined' ? Math.max(0, window.innerHeight - 16) : undefined;
+  let win: Window | null = null;
+  if (rootRef.current) {
+    win = ownerWindow(rootRef.current);
+  } else if (typeof window !== 'undefined') {
+    win = window;
+  }
+  const viewportMax = win ? Math.max(0, win.innerHeight - 16) : undefined;
   if (position) {
     style.top = position.top;
     style.left = position.left;
@@ -474,10 +504,7 @@ function Window({ title, onClose, children, headerActions }: WindowProps) {
     if (size?.height != null) {
       style.height = size.height;
     }
-    style.maxHeight =
-      typeof window !== 'undefined'
-        ? Math.max(0, window.innerHeight - position.top - 8)
-        : undefined;
+    style.maxHeight = win ? Math.max(0, win.innerHeight - position.top - 8) : undefined;
   } else {
     if (size?.width != null) {
       style.width = size.width;

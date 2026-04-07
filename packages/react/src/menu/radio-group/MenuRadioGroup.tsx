@@ -16,7 +16,7 @@ import type { MenuRoot } from '../root/MenuRoot';
 export const MenuRadioGroup = React.memo(
   React.forwardRef(function MenuRadioGroup(
     componentProps: MenuRadioGroup.Props,
-    forwardedRef: React.ForwardedRef<Element>,
+    forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
     const {
       render,
@@ -25,6 +25,7 @@ export const MenuRadioGroup = React.memo(
       defaultValue,
       onValueChange: onValueChangeProp,
       disabled = false,
+      style,
       ...elementProps
     } = componentProps;
 
@@ -48,7 +49,7 @@ export const MenuRadioGroup = React.memo(
       },
     );
 
-    const state = React.useMemo(() => ({ disabled }), [disabled]);
+    const state: MenuRadioGroupState = { disabled };
 
     const element = useRenderElement('div', componentProps, {
       state,
@@ -75,7 +76,7 @@ export const MenuRadioGroup = React.memo(
   }),
 );
 
-export interface MenuRadioGroupProps extends BaseUIComponentProps<'div', MenuRadioGroup.State> {
+export interface MenuRadioGroupProps extends BaseUIComponentProps<'div', MenuRadioGroupState> {
   /**
    * The content of the component.
    */
@@ -95,18 +96,23 @@ export interface MenuRadioGroupProps extends BaseUIComponentProps<'div', MenuRad
   /**
    * Function called when the selected value changes.
    */
-  onValueChange?: (value: any, eventDetails: MenuRadioGroup.ChangeEventDetails) => void;
+  onValueChange?:
+    | ((value: any, eventDetails: MenuRadioGroup.ChangeEventDetails) => void)
+    | undefined;
   /**
    * Whether the component should ignore user interaction.
    *
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
 }
 
-export type MenuRadioGroupState = {
+export interface MenuRadioGroupState {
+  /**
+   * Whether the component is disabled.
+   */
   disabled: boolean;
-};
+}
 
 export type MenuRadioGroupChangeEventReason = MenuRoot.ChangeEventReason;
 export type MenuRadioGroupChangeEventDetails = MenuRoot.ChangeEventDetails;

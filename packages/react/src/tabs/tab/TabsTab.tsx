@@ -23,7 +23,7 @@ import { activeElement, contains } from '../../floating-ui-react/utils';
  */
 export const TabsTab = React.forwardRef(function TabsTab(
   componentProps: TabsTab.Props,
-  forwardedRef: React.ForwardedRef<Element>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     className,
@@ -32,6 +32,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
     value,
     id: idProp,
     nativeButton = true,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -41,6 +42,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
     activateOnFocus,
     highlightedTabIndex,
     onTabActivation,
+    registerTabResizeObserverElement,
     setHighlightedTabIndex,
     tabsListElement,
   } = useTabsListContext();
@@ -62,6 +64,16 @@ export const TabsTab = React.forwardRef(function TabsTab(
   const active = value === activeTabValue;
 
   const isNavigatingRef = React.useRef(false);
+  const tabElementRef = React.useRef<HTMLElement | null>(null);
+
+  React.useEffect(() => {
+    const tabElement = tabElementRef.current;
+    if (!tabElement) {
+      return undefined;
+    }
+
+    return registerTabResizeObserverElement(tabElement);
+  }, [registerTabResizeObserverElement]);
 
   // Keep the highlighted item in sync with the currently active tab
   // when the value prop changes externally (controlled mode)
@@ -165,18 +177,15 @@ export const TabsTab = React.forwardRef(function TabsTab(
     }
   }
 
-  const state: TabsTab.State = React.useMemo(
-    () => ({
-      disabled,
-      active,
-      orientation,
-    }),
-    [disabled, active, orientation],
-  );
+  const state: TabsTabState = {
+    disabled,
+    active,
+    orientation,
+  };
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [forwardedRef, buttonRef, compositeRef],
+    ref: [forwardedRef, buttonRef, compositeRef, tabElementRef],
     props: [
       compositeProps,
       {
@@ -227,12 +236,18 @@ export interface TabsTabState {
    * Whether the component should ignore user interaction.
    */
   disabled: boolean;
+  /**
+   * Whether the component is active.
+   */
   active: boolean;
+  /**
+   * The component orientation.
+   */
   orientation: TabsRoot.Orientation;
 }
 
 export interface TabsTabProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', TabsTab.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', TabsTabState> {
   /**
    * The value of the Tab.
    */
@@ -246,7 +261,7 @@ export interface TabsTabProps
    * during pre-rendering which Tabs are disabled.
    * To work around it, ensure that `defaultValue` or `value` on `<Tabs.Root>` is set to an enabled Tab's value.
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
 }
 
 export namespace TabsTab {

@@ -15,6 +15,18 @@ const objectItemsReadonly = [
   { value: 'c', label: 'cherry' },
 ] as const;
 
+const groupedItemsReadonly = [
+  {
+    heading: 'Fruits',
+    items: [
+      { value: 'a', label: 'apple' },
+      { value: 'b', label: 'banana' },
+    ],
+  },
+] as const;
+
+<Select.Root items={groupedItemsReadonly} />;
+
 <Select.Root
   items={objectItemsReadonly}
   defaultValue="a"
@@ -187,6 +199,9 @@ function App() {
   defaultOpen
   multiple
 />;
+
+// Should accept null value
+<Select.Root items={objectItemsReadonly} value={null} />;
 
 function App2() {
   const [value, setValue] = React.useState('a');

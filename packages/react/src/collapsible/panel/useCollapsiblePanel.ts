@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
@@ -15,8 +16,8 @@ import { AccordionRootDataAttributes } from '../../accordion/root/AccordionRootD
 import type { CollapsibleRoot } from '../root/CollapsibleRoot';
 
 export function useCollapsiblePanel(
-  parameters: useCollapsiblePanel.Parameters,
-): useCollapsiblePanel.ReturnValue {
+  parameters: UseCollapsiblePanelParameters,
+): UseCollapsiblePanelReturnValue {
   const {
     abortControllerRef,
     animationTypeRef,
@@ -393,11 +394,7 @@ export function useCollapsiblePanel(
         onOpenChange(true, createChangeEventDetails(REASONS.none, event));
       }
 
-      panel.addEventListener('beforematch', handleBeforeMatch);
-
-      return () => {
-        panel.removeEventListener('beforematch', handleBeforeMatch);
-      };
+      return addEventListener(panel, 'beforematch', handleBeforeMatch);
     },
     [onOpenChange, panelRef, setOpen],
   );
@@ -423,7 +420,7 @@ export interface UseCollapsiblePanelParameters {
    */
   height: number | undefined;
   /**
-   * Allows the browser’s built-in page search to find and expand the panel contents.
+   * Allows the browser's built-in page search to find and expand the panel contents.
    *
    * Overrides the `keepMounted` prop and uses `hidden="until-found"`
    * to hide the element without removing it from the DOM.
@@ -469,7 +466,4 @@ export interface UseCollapsiblePanelReturnValue {
   props: HTMLProps;
 }
 
-export namespace useCollapsiblePanel {
-  export type Parameters = UseCollapsiblePanelParameters;
-  export type ReturnValue = UseCollapsiblePanelReturnValue;
-}
+export interface UseCollapsiblePanelState {}

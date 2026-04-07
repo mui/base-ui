@@ -12,9 +12,9 @@ import { MenuGroupContext } from './MenuGroupContext';
  */
 export const MenuGroup = React.forwardRef(function MenuGroup(
   componentProps: MenuGroup.Props,
-  forwardedRef: React.ForwardedRef<Element>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
 
@@ -32,7 +32,7 @@ export const MenuGroup = React.forwardRef(function MenuGroup(
   return <MenuGroupContext.Provider value={context}>{element}</MenuGroupContext.Provider>;
 });
 
-export interface MenuGroupProps extends BaseUIComponentProps<'div', MenuGroup.State> {
+export interface MenuGroupProps extends BaseUIComponentProps<'div', MenuGroupState> {
   /**
    * The content of the component.
    */
