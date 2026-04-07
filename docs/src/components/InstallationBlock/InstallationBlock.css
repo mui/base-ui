@@ -15,7 +15,7 @@
     @media (hover: hover) {
       &:hover {
         &::before {
-          background-color: var(--color-gray-100);
+          background-color: var(--gray-c1);
         }
       }
     }
@@ -43,20 +43,20 @@
 
       &::before {
         background-color: white;
-        outline: 1px solid var(--color-gray-300);
+        outline: 1px solid var(--gray-c3);
         outline-offset: -1px;
         box-shadow:
-          0 2px 3px -2px var(--color-gray-300),
-          inset 0 -1px 1px var(--color-gray-200);
+          0 2px 3px -2px var(--gray-c3),
+          inset 0 -1px 1px var(--gray-c2);
       }
 
       @media (prefers-color-scheme: dark) {
         &::before {
           outline: none;
-          background-color: var(--color-gray-50);
+          background-color: var(--gray-s2);
           box-shadow:
-            0 0 3px 0 var(--color-gray-300),
-            inset 0 0 0 1px var(--color-gray-400);
+            0 0 3px 0 var(--gray-c3),
+            inset 0 0 0 1px var(--gray-p2);
         }
       }
     }

@@ -1,6 +1,17 @@
 @layer components {
   .MarkdownLinkAnchor {
     flex-shrink: 0;
+
+    &:focus-visible {
+      outline: none;
+      color: var(--color-foreground);
+    }
+
+    @media (hover: hover) {
+      &:hover {
+        color: var(--color-foreground);
+      }
+    }
   }
 
   .MarkdownLink {
@@ -12,21 +23,20 @@
     padding: 0.5em;
     margin-inline: -0.5em;
     color: inherit;
+  }
 
-    &:focus-visible {
-      color: var(--color-foreground);
-      outline: 2px solid var(--color-blue);
-      outline-offset: -2px;
-      border-radius: var(--radius-sm);
-    }
+  .MarkdownLinkAnchor:focus-visible .MarkdownLink {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -2px;
+    border-radius: var(--radius-sm);
+  }
 
+  .MarkdownLinkAnchor:hover .MarkdownLink {
     @media (hover: hover) {
-      &:hover {
-        text-decoration: underline;
-        text-underline-offset: 2px;
-        text-decoration-thickness: 1px;
-        text-decoration-color: var(--color-gray-500);
-      }
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      text-decoration-thickness: 1px;
+      text-decoration-color: currentColor;
     }
   }
 

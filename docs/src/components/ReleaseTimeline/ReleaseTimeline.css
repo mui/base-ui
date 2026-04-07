@@ -41,8 +41,8 @@
       background: linear-gradient(
         to bottom,
         transparent,
-        var(--color-gray-200) 2.5rem,
-        var(--color-gray-200) calc(100% - 2.5rem),
+        var(--gray-c2) 2.5rem,
+        var(--gray-c2) calc(100% - 2.5rem),
         transparent
       );
     }
@@ -75,7 +75,7 @@
       height: var(--dot-size);
       border-radius: 50%;
       background: var(--color-content);
-      border: 1px solid var(--color-gray-300);
+      border: 1px solid var(--gray-c3);
       box-shadow: 0 0 0 4px var(--color-content);
       transform: translateX(-50%);
       z-index: 1;
@@ -89,7 +89,7 @@
       top: var(--dot-y);
       width: calc(var(--column-gap) / 2 - var(--dot-size) / 2);
       height: 1px;
-      background: var(--color-gray-200);
+      background: var(--gray-c2);
     }
 
     .TimelineItem:nth-child(odd)::after {
@@ -108,7 +108,7 @@
     flex-direction: column;
     align-items: start;
     gap: 0.75rem;
-    background-color: var(--color-gray-200);
+    background-color: var(--gray-c2);
     border-radius: var(--radius-lg);
     padding: 1.25rem;
     font-size: var(--font-size-15);
@@ -133,8 +133,8 @@
     inset: 1px;
     border-radius: calc(var(--radius-lg) - 1px);
     box-shadow:
-      0 1px 3px 0 var(--color-gray-200),
-      0 1px 2px -1px var(--color-gray-200);
+      0 1px 3px 0 var(--gray-c2),
+      0 1px 2px -1px var(--gray-c2);
     z-index: -1;
   }
 
@@ -147,7 +147,7 @@
   .TimelineDate {
     font-size: var(--font-size-14);
     line-height: 1.25rem;
-    color: var(--color-gray-500);
+    color: var(--gray-t1);
   }
 
   .TimelineVersion {
@@ -190,7 +190,7 @@
     font-size: var(--font-size-12);
     line-height: 1.25rem;
     font-weight: var(--font-weight-400);
-    color: var(--color-green);
+    color: var(--green-t1);
     border: 1px solid currentColor;
     border-radius: 999px;
     user-select: none;

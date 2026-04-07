@@ -86,7 +86,7 @@
       /* Visible thumb width */
       width: var(--side-nav-scrollbar-thumb-width);
       border-radius: var(--radius-sm);
-      background-color: var(--color-gray-400);
+      background-color: var(--gray-p2);
     }
   }
 
@@ -98,7 +98,7 @@
     display: inline-flex;
     padding-block: var(--side-nav-item-padding-y);
     font-weight: var(--font-weight-400);
-    color: var(--color-gray-600);
+    color: var(--gray-t1);
   }
 
   .SideNavItem {
@@ -118,15 +118,15 @@
 
     @media (hover: hover) {
       &:hover {
-        background-color: var(--color-gray-50);
+        background-color: var(--gray-s2);
       }
     }
 
     &[data-active] {
       border: none;
       padding: var(--side-nav-item-padding-y) 0.75rem;
-      background-color: var(--color-gray-50);
-      outline: 1px solid var(--color-gray-200);
+      background-color: var(--gray-s2);
+      outline: 1px solid var(--gray-c2);
       outline-offset: -1px;
       font-weight: var(--font-weight-400);
       word-spacing: -0.005em;
@@ -141,7 +141,7 @@
   }
 
   .SideNavBadge {
-    color: var(--color-red);
+    color: var(--poppy-t1);
     line-height: inherit;
     user-select: none;
     text-transform: uppercase;

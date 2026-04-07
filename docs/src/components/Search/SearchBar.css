@@ -23,7 +23,7 @@
       /* Visible thumb width */
       width: 0.25rem;
       border-radius: var(--radius-sm);
-      background-color: var(--color-gray-400);
+      background-color: var(--gray-p2);
     }
   }
 
@@ -43,12 +43,12 @@
     font-size: var(--font-size-16);
     font-weight: var(--font-weight-400);
     line-height: 1.5;
-    color: var(--color-gray-900);
+    color: var(--gray-t2);
     user-select: none;
     outline: none;
 
     @media (prefers-color-scheme: dark) {
-      background-color: var(--color-gray-200);
+      background-color: var(--gray-c2);
     }
   }
 
@@ -61,7 +61,7 @@
     z-index: 0;
 
     @media (prefers-color-scheme: dark) {
-      background-color: var(--color-gray-75);
+      background-color: var(--gray-c1);
     }
   }
 
@@ -84,7 +84,7 @@
     background-color: hsl(0deg 0% 0% / 15%);
 
     @media (prefers-color-scheme: dark) {
-      background-color: var(--color-gray-300);
+      background-color: var(--gray-c3);
     }
   }
 
@@ -96,17 +96,17 @@
 
   .SearchTrigger:hover .SearchTriggerKbd {
     @media (prefers-color-scheme: dark) {
-      border-color: var(--color-gray-300);
+      border-color: var(--gray-c3);
     }
   }
 
   .SearchTrigger:focus-visible {
-    outline: 2px solid var(--color-blue-800);
+    outline: 2px solid var(--color-blue);
     outline-offset: -1px;
   }
 
   .SearchTrigger[data-disabled] {
-    color: var(--color-gray-500);
+    color: var(--gray-p1);
     cursor: default;
   }
 
@@ -117,7 +117,7 @@
   .SearchTriggerIcon {
     width: 1rem;
     height: 1rem;
-    color: var(--color-gray-500);
+    color: var(--gray-p1);
   }
 
   .SearchTriggerKbd {
@@ -128,10 +128,10 @@
     gap: 0.25rem;
     padding-inline: 0.375rem;
     border-radius: 9999px;
-    border: 1px solid var(--color-gray-300);
-    background-color: var(--color-gray-50);
+    border: 1px solid var(--gray-c3);
+    background-color: var(--gray-s2);
     pointer-events: none;
-    color: var(--color-gray-600);
+    color: var(--gray-t1);
 
     @media (--lg) {
       display: inline-flex;
@@ -158,11 +158,11 @@
 
   .SearchTriggerPlus {
     font-size: var(--font-size-12);
-    color: var(--color-gray-400);
+    color: var(--gray-p2);
   }
 
   .SearchTriggerK {
-    font-size: var(--font-size-12);
+    font-size: 0.8125rem;
   }
 
   .SearchBreadcrumbPart {
@@ -178,7 +178,7 @@
   }
 
   .SearchBreadcrumbSeparator {
-    color: var(--color-gray-300);
+    color: var(--gray-c3);
   }
 
   .SearchScore {
@@ -193,7 +193,7 @@
     text-align: center;
     font-size: 0.9375rem;
     font-weight: var(--font-weight-400);
-    color: var(--color-gray-600);
+    color: var(--gray-t1);
   }
 
   .SearchInputRoot {
@@ -209,7 +209,7 @@
     width: 1rem;
     height: 1rem;
     flex-shrink: 0;
-    color: var(--color-gray-500);
+    color: var(--gray-p1);
   }
 
   .SearchInput {
@@ -218,12 +218,12 @@
     background: transparent;
     font-size: var(--font-size-16);
     font-weight: var(--font-weight-400);
-    color: var(--color-gray-900);
+    color: var(--gray-t2);
     outline: none;
   }
 
   .SearchInput::placeholder {
-    color: var(--color-gray-500);
+    color: var(--gray-p1);
   }
 
   .SearchGroup {
@@ -239,7 +239,7 @@
     font-size: 0.9375rem;
     font-weight: var(--font-weight-400);
     line-height: 1;
-    color: var(--color-gray-600);
+    color: var(--gray-t1);
     user-select: none;
   }
 
@@ -254,14 +254,14 @@
     font-size: 0.9375rem;
     font-weight: var(--font-weight-400);
     line-height: 1;
-    color: var(--color-gray-900);
+    color: var(--gray-t2);
     cursor: default;
     user-select: none;
     outline: none;
   }
 
   .SearchOptionItem[data-highlighted] {
-    background: var(--color-gray-100);
+    background: var(--gray-c1);
   }
 
   .SearchBackdrop {
@@ -312,8 +312,8 @@
     flex-direction: column;
     min-height: 0;
     border-radius: 1rem;
-    background: var(--color-white);
-    color: var(--color-gray-900);
+    background: var(--gray-s1);
+    color: var(--gray-t2);
     outline: 1px solid hsl(0deg 0% 0% / 4%);
     box-shadow:
       0 0.5px 1px hsl(0deg 0% 0% / 12%),
@@ -357,12 +357,12 @@
 
   .SearchHeadContained {
     flex-shrink: 0;
-    border-bottom: 1px solid var(--color-gray-100);
+    border-bottom: 1px solid var(--gray-c1);
     padding: 0.5rem 0.5rem 0.375rem;
   }
 
   .SearchHeadDefault {
-    border-bottom: 1px solid var(--color-gray-100);
+    border-bottom: 1px solid var(--gray-c1);
     padding: 0.5rem 0.5rem 0.375rem;
   }
 
@@ -395,12 +395,12 @@
   }
 
   .SearchFooter {
-    border-top: 1px solid var(--color-gray-100);
+    border-top: 1px solid var(--gray-c1);
     padding: 0.5rem 0.5rem 0.5rem 0.75rem;
     display: flex;
     font-size: var(--font-size-12);
     line-height: 1;
-    color: var(--color-gray-500);
+    color: var(--gray-p1);
   }
 
   .SearchFooterHint {
@@ -416,10 +416,10 @@
     width: 1.25rem;
     height: 1.25rem;
     border-radius: var(--radius-sm);
-    border: 1px solid var(--color-gray-300);
-    background: var(--color-gray-50);
+    border: 1px solid var(--gray-c3);
+    background: var(--gray-s2);
     font-size: 0.625rem;
-    color: var(--color-gray-600);
+    color: var(--gray-t1);
   }
 
   .SearchClose {

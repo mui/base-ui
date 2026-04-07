@@ -1,7 +1,7 @@
 @layer components {
   .GhostButton {
     font-size: var(--font-size-12);
-    color: var(--color-gray);
+    color: var(--gray-t2);
     cursor: default;
     position: relative;
     z-index: 0;
@@ -46,7 +46,7 @@
       content: '';
       position: absolute;
       pointer-events: none;
-      outline: 2px solid var(--color-blue);
+      outline: 2px solid var(--indigo-p1);
       outline-offset: -1px;
     }
 
@@ -54,21 +54,21 @@
       @media (hover: hover) {
         &:hover {
           &::before {
-            background-color: var(--color-gray-100);
+            background-color: var(--gray-c1);
           }
         }
       }
 
       &[data-popup-open] {
         &::before {
-          background-color: var(--color-gray-100);
+          background-color: var(--gray-c1);
         }
       }
 
       /* No pressed state for menus */
       &:not([aria-haspopup]):active {
         &::before {
-          background-color: var(--color-gray-200);
+          background-color: var(--gray-c2);
         }
       }
     }

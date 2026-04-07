@@ -29,7 +29,7 @@
   .ReferenceRequired {
     top: -0.3em;
     font-size: inherit;
-    color: var(--color-red-800);
+    color: var(--poppy-t1);
   }
 
   .ReferenceTypeCell {
@@ -59,7 +59,7 @@
   .ReferenceContent {
     display: flex;
     flex-direction: column;
-    color: var(--color-gray-600);
+    color: var(--gray-t1);
   }
 
   .ReferenceDescription [role='figure'] {
@@ -273,11 +273,11 @@
   }
 
   .MethodParamSep {
-    color: var(--color-gray-500);
+    color: var(--gray-p1);
   }
 
   .MethodParamDesc {
-    color: var(--color-gray-600);
+    color: var(--gray-t1);
     font-size: var(--font-size-14);
     line-height: 1.25rem;
     margin-top: 0.25rem;
@@ -306,7 +306,7 @@
     font-size: var(--font-size-14);
     line-height: 1.25rem;
     font-weight: var(--font-weight-400);
-    color: var(--color-gray-500);
+    color: var(--gray-p1);
   }
 
   .AdditionalTypeBackLink[data-hidden='true'] {
@@ -314,23 +314,23 @@
   }
 
   .AdditionalTypeBackLink:hover {
-    color: var(--color-gray-800);
+    color: var(--gray-t2);
   }
 
   @media (prefers-color-scheme: dark) {
     .AdditionalTypeBackLink {
-      color: var(--color-gray-400);
+      color: var(--gray-p2);
     }
 
     .AdditionalTypeBackLink:hover {
-      color: var(--color-gray-200);
+      color: var(--gray-c2);
     }
   }
 
   .AdditionalTypeReExport {
     font-size: var(--font-size-14);
     line-height: 1.25rem;
-    color: var(--color-gray-600);
+    color: var(--gray-t1);
   }
 
   .AdditionalTypeCodeBlock {
@@ -353,7 +353,7 @@
     font-size: var(--font-size-16);
     line-height: 1.5rem;
     font-weight: var(--font-weight-700);
-    color: var(--color-gray-900);
+    color: var(--gray-t2);
   }
 
   @media (prefers-color-scheme: dark) {
@@ -366,12 +366,12 @@
     margin-bottom: 0.5rem;
     font-size: var(--font-size-14);
     line-height: 1.25rem;
-    color: var(--color-gray-600);
+    color: var(--gray-t1);
   }
 
   @media (prefers-color-scheme: dark) {
     .ReferenceSectionSubtext {
-      color: var(--color-gray-400);
+      color: var(--gray-p2);
     }
   }
 

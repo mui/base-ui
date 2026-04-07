@@ -7,7 +7,7 @@
     font-size: var(--font-size-18);
     line-height: 1.75rem;
     text-wrap: pretty;
-    color: var(--color-gray);
+    color: var(--gray-t1);
     margin-bottom: 1.25rem;
     gap: 0.5rem;
 

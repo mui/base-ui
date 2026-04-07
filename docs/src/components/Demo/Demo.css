@@ -3,7 +3,7 @@
 @layer components {
   .DemoRoot {
     background-color: var(--color-content);
-    border: 1px solid var(--color-gray-200);
+    border: 1px solid var(--gray-c2);
     border-radius: var(--radius-md);
     margin-bottom: calc(var(--spacing) * 6);
   }
@@ -65,10 +65,10 @@
     font-size: var(--font-size-12);
     line-height: 1.25rem;
     white-space: nowrap;
-    color: var(--color-gray);
-    background-color: var(--color-gray-50);
+    color: var(--gray-t2);
+    background-color: var(--gray-s2);
     background-clip: padding-box;
-    border-block: 1px solid var(--color-gray-200);
+    border-block: 1px solid var(--gray-c2);
     display: flex;
     align-items: center;
     gap: 2rem;
@@ -108,7 +108,7 @@
     gap: 1rem;
     margin-left: auto;
     padding-right: 0.75rem;
-    background-color: var(--color-gray-50);
+    background-color: var(--gray-s2);
     height: 100%;
 
     &::before {
@@ -118,7 +118,7 @@
       left: -24px;
       width: 24px;
       height: 100%;
-      background: linear-gradient(to right, transparent, var(--color-gray-50));
+      background: linear-gradient(to right, transparent, var(--gray-s2));
       pointer-events: none;
     }
   }
@@ -149,7 +149,7 @@
     @media (hover: hover) {
       &:hover {
         &::before {
-          background-color: var(--color-gray-100);
+          background-color: var(--gray-c1);
         }
       }
     }
@@ -177,20 +177,20 @@
 
       &::before {
         background-color: white;
-        outline: 1px solid var(--color-gray-300);
+        outline: 1px solid var(--gray-c3);
         outline-offset: -1px;
         box-shadow:
-          0 2px 3px -2px var(--color-gray-300),
-          inset 0 -1px 1px var(--color-gray-200);
+          0 2px 3px -2px var(--gray-c3),
+          inset 0 -1px 1px var(--gray-c2);
       }
 
       @media (prefers-color-scheme: dark) {
         &::before {
           outline: none;
-          background-color: var(--color-gray-50);
+          background-color: var(--gray-s2);
           box-shadow:
-            0 0 3px 0 var(--color-gray-300),
-            inset 0 0 0 1px var(--color-gray-400);
+            0 0 3px 0 var(--gray-c3),
+            inset 0 0 0 1px var(--gray-p2);
         }
       }
     }
@@ -281,12 +281,12 @@
   .DemoCollapseButton {
     font-size: var(--font-size-12);
     line-height: 1.25rem;
-    background-color: var(--color-gray-50);
+    background-color: var(--gray-s2);
     cursor: default;
     width: 100%;
-    color: var(--color-gray);
+    color: var(--gray-t2);
     height: 2.25rem;
-    border-top: 1px solid var(--color-gray-200);
+    border-top: 1px solid var(--gray-c2);
     border-bottom-left-radius: 0.375rem;
     border-bottom-right-radius: 0.375rem;
     border-bottom: 1px solid transparent;
@@ -302,12 +302,12 @@
 
     @media (hover: hover) {
       &:hover {
-        background-color: var(--color-gray-75);
+        background-color: var(--gray-c1);
       }
     }
 
     &:active {
-      background-color: color-mix(in oklch, var(--color-gray-75), var(--color-gray-600) 5%);
+      background-color: color-mix(in oklch, var(--gray-c1), var(--gray-t2) 5%);
     }
 
     &:focus-visible {

@@ -2,7 +2,7 @@
   .CodeBlockRoot {
     align-self: stretch;
     background-color: var(--color-content);
-    border: 1px solid var(--color-gray-200);
+    border: 1px solid var(--gray-c2);
     border-radius: var(--radius-md);
 
     & pre {
@@ -18,9 +18,9 @@
   .CodeBlockPanel {
     font-size: var(--font-size-14);
     line-height: 1;
-    background-color: var(--color-gray-50);
+    background-color: var(--gray-s2);
     background-clip: padding-box;
-    color: var(--color-gray);
+    color: var(--gray-t2);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -30,7 +30,7 @@
     gap: 1rem;
     border-top-left-radius: inherit;
     border-top-right-radius: inherit;
-    border-bottom: 1px solid var(--color-gray-200);
+    border-bottom: 1px solid var(--gray-c2);
 
     /* Scroll */
     overflow: auto hidden;
@@ -53,7 +53,7 @@
   .CodeBlockPanelTitle {
     font-size: var(--font-size-14);
     line-height: 1.25rem;
-    color: var(--color-gray-700);
+    color: var(--gray-t2);
     font-weight: var(--font-weight-400);
   }
 
