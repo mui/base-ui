@@ -2,6 +2,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isHTMLElement } from '@floating-ui/utils/dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -397,11 +398,11 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       resizeFrame.request(syncCurrentSize);
     }
 
-    win.addEventListener('resize', handleResize);
+    const unsubscribe = addEventListener(win, 'resize', handleResize);
 
     return () => {
       resizeFrame.cancel();
-      win.removeEventListener('resize', handleResize);
+      unsubscribe();
     };
   }, [open, isActiveItem, popupElement, positionerElement, resizeFrame, syncCurrentSize]);
 

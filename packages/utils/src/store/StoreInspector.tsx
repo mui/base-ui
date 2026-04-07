@@ -2,7 +2,9 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isElement } from '@floating-ui/utils/dom';
+import { mergeCleanups } from '../mergeCleanups';
 import { ownerDocument, ownerWindow } from '../owner';
+import { addEventListener } from '../addEventListener';
 import { Store } from './Store';
 import { useForcedRerendering } from '../useForcedRerendering';
 import { useStableCallback } from '../useStableCallback';
@@ -474,14 +476,11 @@ function Window({ title, onClose, children, headerActions }: WindowProps) {
       endDrag(event);
       endResize(event);
     };
-    win.addEventListener('pointermove', move);
-    win.addEventListener('pointerup', up);
-    win.addEventListener('pointercancel', up);
-    return () => {
-      win.removeEventListener('pointermove', move);
-      win.removeEventListener('pointerup', up);
-      win.removeEventListener('pointercancel', up);
-    };
+    return mergeCleanups(
+      addEventListener(win, 'pointermove', move),
+      addEventListener(win, 'pointerup', up),
+      addEventListener(win, 'pointercancel', up),
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
