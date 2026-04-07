@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerWindow } from '@base-ui/utils/owner';
@@ -473,11 +474,10 @@ function DrawerProviderReporter() {
     }
 
     const closeWatcher = new CloseWatcherCtor();
-
-    closeWatcher.addEventListener('close', handleCloseWatcher);
+    const unsubscribe = addEventListener(closeWatcher, 'close', handleCloseWatcher);
 
     return () => {
-      closeWatcher.removeEventListener('close', handleCloseWatcher);
+      unsubscribe();
       closeWatcher.destroy();
     };
   }, [dialogRootContext.store, isTopmost, open, popupElement]);

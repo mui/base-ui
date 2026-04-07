@@ -100,6 +100,58 @@ describe('Composite', () => {
       expect(item1).toHaveFocus();
     });
 
+    it('keeps native input behavior when the native target differs from the synthetic target', async () => {
+      render(
+        <CompositeRoot orientation="horizontal">
+          <CompositeItem data-testid="1">1</CompositeItem>
+          <div data-testid="host" />
+          <CompositeItem data-testid="2">2</CompositeItem>
+        </CompositeRoot>,
+      );
+
+      const item1 = screen.getByTestId('1');
+      const item2 = screen.getByTestId('2');
+      const host = screen.getByTestId('host');
+      const input = document.createElement('input');
+
+      input.type = 'text';
+      input.value = 'abcd';
+      input.setSelectionRange(2, 2);
+
+      const focusEvent = new FocusEvent('focusin', { bubbles: true });
+      Object.defineProperty(focusEvent, 'composedPath', {
+        configurable: true,
+        value: () => [input, host],
+      });
+
+      fireEvent(host, focusEvent);
+
+      // Focusing a native input within a composite selects the whole value so
+      // the first arrow key returns control to the textbox before moving focus.
+      expect(input.selectionStart).toBe(0);
+      expect(input.selectionEnd).toBe(4);
+
+      act(() => item1.focus());
+
+      input.setSelectionRange(1, 1);
+
+      const keyDownEvent = new KeyboardEvent('keydown', {
+        key: 'ArrowRight',
+        bubbles: true,
+        cancelable: true,
+      });
+      Object.defineProperty(keyDownEvent, 'composedPath', {
+        configurable: true,
+        value: () => [input, host],
+      });
+
+      fireEvent(host, keyDownEvent);
+      await flushMicrotasks();
+
+      expect(item1).toHaveFocus();
+      expect(item2).not.toHaveFocus();
+    });
+
     it.skipIf(isJSDOM)('updates the order of items', async () => {
       function App(props: { items: string[] }) {
         return (

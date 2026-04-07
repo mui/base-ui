@@ -9,7 +9,6 @@ import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import {
-  FloatingEvents,
   FloatingTree,
   useDismiss,
   useFloatingNodeId,
@@ -25,7 +24,6 @@ import { MenubarContext, useMenubarContext } from '../../menubar/MenubarContext'
 import { TYPEAHEAD_RESET_MS } from '../../utils/constants';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import type { FloatingUIOpenChangeDetails } from '../../utils/types';
 import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
@@ -175,8 +173,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   const nested = floatingParentNodeId != null;
 
-  let floatingEvents: FloatingEvents;
-
   if (process.env.NODE_ENV !== 'production') {
     if (parent.type !== undefined && modalProp !== undefined) {
       console.warn(
@@ -269,14 +265,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         return;
       }
 
-      const details: FloatingUIOpenChangeDetails = {
-        open: nextOpen,
-        nativeEvent: eventDetails.event,
-        reason: eventDetails.reason,
-        nested,
-      };
-
-      floatingEvents?.emit('openchange', details);
+      store.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
 
       const nativeEvent = eventDetails.event as Event;
       if (
@@ -394,7 +383,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     onOpenChange: setOpen,
   });
 
-  floatingEvents = floatingRootContext.context.events;
+  const floatingEvents = floatingRootContext.context.events;
 
   React.useEffect(() => {
     const handleSetOpenEvent = ({

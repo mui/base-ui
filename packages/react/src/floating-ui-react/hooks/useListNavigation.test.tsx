@@ -707,6 +707,48 @@ describe('useListNavigation', () => {
       expect(spy).toHaveBeenCalledTimes(0);
       await flushMicrotasks();
     });
+
+    it('does not clear the active item on pointer leave when the pointer is still within bounds', async () => {
+      const spy = vi.fn();
+      render(<App onNavigate={spy} />);
+
+      fireEvent.click(screen.getByRole('button'));
+
+      const item = screen.getByTestId('item-1');
+
+      vi.spyOn(item, 'getBoundingClientRect').mockReturnValue({
+        x: 0,
+        y: 0,
+        top: 0,
+        right: 100,
+        bottom: 40,
+        left: 0,
+        width: 100,
+        height: 40,
+        toJSON() {
+          return {};
+        },
+      });
+
+      fireEvent.keyDown(screen.getByRole('menu'), { key: 'ArrowDown' });
+
+      await waitFor(() => {
+        expect(item).toHaveFocus();
+      });
+
+      const callsBeforeLeave = spy.mock.calls.length;
+
+      await act(async () => {
+        fireEvent.pointerLeave(item, {
+          clientX: 50,
+          clientY: 20,
+          pointerType: 'mouse',
+        });
+      });
+
+      await flushMicrotasks();
+      expect(spy).toHaveBeenCalledTimes(callsBeforeLeave);
+    });
   });
 
   describe('grid navigation', () => {
