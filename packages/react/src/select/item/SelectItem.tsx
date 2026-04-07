@@ -104,8 +104,8 @@ export const SelectItem = React.memo(
         compareItemEquality(itemValue, selectedCandidate, isItemEqualToValue)
       ) {
         store.set('selectedIndex', index);
-        // Set the selected item text ref synchronously so it's available
-        // in SelectPopup's layout effect for alignment measurement.
+        // Make sure SelectPopup can measure the selected item on first open.
+        // SelectItemText can still update this ref later when focus moves.
         if (textRef.current) {
           selectedItemTextRef.current = textRef.current;
         }

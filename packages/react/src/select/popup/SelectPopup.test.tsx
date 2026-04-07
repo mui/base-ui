@@ -223,6 +223,78 @@ describe('<Select.Popup />', () => {
     });
   });
 
+  it.skipIf(isJSDOM)(
+    'aligns the selected item with the trigger inline start in ltr when popup padding shifts the item text',
+    async () => {
+      await render(
+        <div
+          dir="ltr"
+          style={{
+            marginLeft: 100,
+            minHeight: 600,
+            paddingTop: 96,
+          }}
+        >
+          <DirectionProvider direction="ltr">
+            <Select.Root open defaultValue="with-longer-label">
+              <Select.Trigger
+                style={{
+                  width: 160,
+                  display: 'flex',
+                  justifyContent: 'flex-start',
+                  paddingInlineStart: 12,
+                  paddingInlineEnd: 28,
+                }}
+              >
+                <Select.Value data-testid="value">With longer label</Select.Value>
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner data-testid="positioner">
+                  <Select.Popup
+                    style={{
+                      width: 220,
+                      maxHeight: 'none',
+                      boxSizing: 'border-box',
+                      border: '4px solid transparent',
+                      paddingInlineStart: 20,
+                      paddingInlineEnd: 12,
+                    }}
+                  >
+                    <Select.Item value="with-longer-label">
+                      <Select.ItemText
+                        data-testid="item-text"
+                        style={{
+                          paddingInlineStart: 24,
+                          paddingInlineEnd: 8,
+                        }}
+                      >
+                        With longer label
+                      </Select.ItemText>
+                    </Select.Item>
+                    <Select.Item value="other">
+                      <Select.ItemText>Other option</Select.ItemText>
+                    </Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </DirectionProvider>
+        </div>,
+      );
+
+      const positioner = screen.getByTestId('positioner');
+      const value = screen.getByTestId('value');
+      const itemText = screen.getByTestId('item-text');
+
+      await waitFor(() => {
+        expect(positioner).toHaveAttribute('data-side', 'none');
+        expect(
+          Math.abs(value.getBoundingClientRect().left - itemText.getBoundingClientRect().left),
+        ).toBeLessThan(1);
+      });
+    },
+  );
+
   it.skipIf(isJSDOM)('aligns the selected item with the trigger inline end in rtl', async () => {
     await render(
       <div
@@ -281,13 +353,62 @@ describe('<Select.Popup />', () => {
         Math.abs(value.getBoundingClientRect().right - itemText.getBoundingClientRect().right),
       ).toBeLessThan(1);
     });
-
-    await act(async () => {
-      await new Promise((resolve) => {
-        setTimeout(resolve, 0);
-      });
-    });
   });
+
+  it.skipIf(isJSDOM)(
+    'aligns the first item with the trigger inline end in rtl when no value is selected',
+    async () => {
+      await render(
+        <div
+          dir="rtl"
+          style={{
+            marginLeft: 100,
+            minHeight: 600,
+            paddingTop: 96,
+          }}
+        >
+          <DirectionProvider direction="rtl">
+            <Select.Root open>
+              <Select.Trigger
+                style={{
+                  width: 160,
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  paddingInlineStart: 28,
+                  paddingInlineEnd: 12,
+                }}
+              >
+                <Select.Value data-testid="value" placeholder="اختر لهجة" />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner data-testid="positioner">
+                  <Select.Popup style={{ width: 180, maxHeight: 'none' }}>
+                    <Select.Item value="with-longer-label">
+                      <Select.ItemText data-testid="item-text">With longer label</Select.ItemText>
+                    </Select.Item>
+                    <Select.Item value="other">
+                      <Select.ItemText>Other option</Select.ItemText>
+                    </Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </DirectionProvider>
+        </div>,
+      );
+
+      const positioner = screen.getByTestId('positioner');
+      const value = screen.getByTestId('value');
+      const itemText = screen.getByTestId('item-text');
+
+      await waitFor(() => {
+        expect(positioner).toHaveAttribute('data-side', 'none');
+        expect(
+          Math.abs(value.getBoundingClientRect().right - itemText.getBoundingClientRect().right),
+        ).toBeLessThan(1);
+      });
+    },
+  );
 
   describe.skipIf(isJSDOM)('rtl alignment', () => {
     const RTL_FIXTURE_OPTIONS = [

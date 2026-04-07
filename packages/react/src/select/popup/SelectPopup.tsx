@@ -258,6 +258,9 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   useIsoLayoutEffect(() => {
     const popupElement = popupRef.current;
 
+    // Wait for Floating UI's first positioning pass before reading DOM geometry.
+    // We replace the final coordinates for aligned selects, but still need middleware
+    // like `size()` to set CSS variables such as `--anchor-width`.
     if (
       !open ||
       !triggerElement ||
@@ -324,10 +327,10 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         alignedLeft =
           positionerRect.left +
           (direction === 'rtl' ? valueRect.right - textRect.right : valueRect.left - textRect.left);
-        const valueCenterFromPositionerTop = valueRect.top - triggerRect.top + valueRect.height / 2;
-        const textCenterFromTriggerTop = textRect.top - positionerRect.top + textRect.height / 2;
+        const valueCenterFromTriggerTop = valueRect.top - triggerRect.top + valueRect.height / 2;
+        const textCenterFromPositionerTop = textRect.top - positionerRect.top + textRect.height / 2;
 
-        offsetY = textCenterFromTriggerTop - valueCenterFromPositionerTop;
+        offsetY = textCenterFromPositionerTop - valueCenterFromTriggerTop;
       }
 
       const idealHeight = availableSpaceBeneathTrigger + offsetY + marginBottom + borderBottom;
