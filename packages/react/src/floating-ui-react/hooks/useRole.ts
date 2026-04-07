@@ -32,13 +32,13 @@ export function useRole(
   context: FloatingRootContext | FloatingContext,
   props: UseRoleProps = {},
 ): ElementProps {
+  const { role = 'dialog' } = props;
+
   const store = 'rootStore' in context ? context.rootStore : context;
   const open = store.useState('open');
   const defaultFloatingId = store.useState('floatingId');
   const domReference = store.useState('domReferenceElement');
   const floatingElement = store.useState('floatingElement');
-
-  const { role = 'dialog' } = props;
 
   const defaultReferenceId = useId();
   const referenceId = domReference?.id || defaultReferenceId;

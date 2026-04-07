@@ -56,12 +56,13 @@ export function useHover(
   context: FloatingRootContext | FloatingContext,
   props: UseHoverProps = {},
 ): ElementProps {
+  const { delay = 0, handleClose = null, restMs = 0, move = true } = props;
+
   const store = 'rootStore' in context ? context.rootStore : context;
   const open = store.useState('open');
   const floatingElement = store.useState('floatingElement');
   const domReferenceElement = store.useState('domReferenceElement');
   const { dataRef, events } = store.context;
-  const { delay = 0, handleClose = null, restMs = 0, move = true } = props;
 
   const tree = useFloatingTree();
   const parentId = useFloatingParentNodeId();

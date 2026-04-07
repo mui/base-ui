@@ -132,12 +132,6 @@ export function useDismiss(
   context: FloatingRootContext | FloatingContext,
   props: UseDismissProps = {},
 ): ElementProps {
-  const store = 'rootStore' in context ? context.rootStore : context;
-  const open = store.useState('open');
-  const floatingElement = store.useState('floatingElement');
-
-  const { dataRef } = store.context;
-
   const {
     enabled = true,
     escapeKey = true,
@@ -148,6 +142,11 @@ export function useDismiss(
     bubbles,
     externalTree,
   } = props;
+
+  const store = 'rootStore' in context ? context.rootStore : context;
+  const open = store.useState('open');
+  const floatingElement = store.useState('floatingElement');
+  const { dataRef } = store.context;
 
   const tree = useFloatingTree(externalTree);
   const outsidePressFn = useStableCallback(

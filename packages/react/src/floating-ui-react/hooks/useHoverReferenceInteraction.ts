@@ -57,9 +57,6 @@ export function useHoverReferenceInteraction(
   context: FloatingRootContext | FloatingContext,
   props: UseHoverReferenceInteractionProps = {},
 ): HTMLProps | undefined {
-  const store = 'rootStore' in context ? context.rootStore : context;
-  const { dataRef, events } = store.context;
-
   const {
     enabled = true,
     delay = 0,
@@ -73,6 +70,9 @@ export function useHoverReferenceInteraction(
     getHandleCloseContext,
     isClosing,
   } = props;
+
+  const store = 'rootStore' in context ? context.rootStore : context;
+  const { dataRef, events } = store.context;
 
   const tree = useFloatingTree(externalTree);
 

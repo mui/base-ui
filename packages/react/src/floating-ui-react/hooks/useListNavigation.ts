@@ -233,12 +233,6 @@ export function useListNavigation(
   context: FloatingRootContext | FloatingContext,
   props: UseListNavigationProps,
 ): ElementProps {
-  const store = 'rootStore' in context ? context.rootStore : context;
-  const open = store.useState('open');
-  const floatingElement = store.useState('floatingElement');
-  const domReferenceElement = store.useState('domReferenceElement');
-  const dataRef = store.context.dataRef;
-
   const {
     listRef,
     activeIndex,
@@ -261,6 +255,12 @@ export function useListNavigation(
     resetOnPointerLeave = true,
     externalTree,
   } = props;
+
+  const store = 'rootStore' in context ? context.rootStore : context;
+  const open = store.useState('open');
+  const floatingElement = store.useState('floatingElement');
+  const domReferenceElement = store.useState('domReferenceElement');
+  const dataRef = store.context.dataRef;
 
   if (process.env.NODE_ENV !== 'production') {
     if (allowEscape) {

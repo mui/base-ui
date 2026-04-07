@@ -50,13 +50,13 @@ export function useHoverFloatingInteraction(
   context: FloatingRootContext | FloatingContext,
   parameters: UseHoverFloatingInteractionProps = {},
 ): void {
+  const { enabled = true, closeDelay: closeDelayProp = 0, nodeId: nodeIdProp } = parameters;
+
   const store = 'rootStore' in context ? context.rootStore : context;
   const open = store.useState('open');
   const floatingElement = store.useState('floatingElement');
   const domReferenceElement = store.useState('domReferenceElement');
   const { dataRef } = store.context;
-
-  const { enabled = true, closeDelay: closeDelayProp = 0, nodeId: nodeIdProp } = parameters;
 
   const tree = useFloatingTree();
   const parentId = useFloatingParentNodeId();

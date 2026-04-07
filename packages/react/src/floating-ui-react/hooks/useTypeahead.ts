@@ -62,10 +62,6 @@ export function useTypeahead(
   context: FloatingRootContext | FloatingContext,
   props: UseTypeaheadProps,
 ): ElementProps {
-  const store = 'rootStore' in context ? context.rootStore : context;
-  const dataRef = store.context.dataRef;
-  const open = store.useState('open');
-
   const {
     listRef,
     elementsRef,
@@ -76,6 +72,10 @@ export function useTypeahead(
     resetMs = 750,
     selectedIndex = null,
   } = props;
+
+  const store = 'rootStore' in context ? context.rootStore : context;
+  const dataRef = store.context.dataRef;
+  const open = store.useState('open');
 
   const timeout = useTimeout();
   const stringRef = React.useRef('');

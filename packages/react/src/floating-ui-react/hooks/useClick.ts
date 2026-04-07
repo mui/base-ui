@@ -60,8 +60,6 @@ export function useClick(
   context: FloatingRootContext | FloatingContext,
   props: UseClickProps = {},
 ): ElementProps {
-  const store = 'rootStore' in context ? context.rootStore : context;
-  const dataRef = store.context.dataRef;
   const {
     enabled = true,
     event: eventOption = 'click',
@@ -71,6 +69,9 @@ export function useClick(
     touchOpenDelay = 0,
     reason = REASONS.triggerPress,
   } = props;
+
+  const store = 'rootStore' in context ? context.rootStore : context;
+  const dataRef = store.context.dataRef;
 
   const pointerTypeRef = React.useRef<'mouse' | 'pen' | 'touch'>(undefined);
   const frame = useAnimationFrame();

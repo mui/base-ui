@@ -46,9 +46,10 @@ export function useFocus(
   context: FloatingRootContext | FloatingContext,
   props: UseFocusProps = {},
 ): ElementProps {
+  const { enabled = true, delay } = props;
+
   const store = 'rootStore' in context ? context.rootStore : context;
   const { events, dataRef } = store.context;
-  const { enabled = true, delay } = props;
 
   const blockFocusRef = React.useRef(false);
   // Track which reference should be blocked from re-opening after Escape/press dismissal.
