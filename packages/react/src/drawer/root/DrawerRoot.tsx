@@ -13,7 +13,7 @@ import {
   type DrawerSnapPoint,
 } from './DrawerRootContext';
 import { Dialog } from '../../dialog';
-import { DialogRootTypeContext } from '../../dialog/root/DialogRoot';
+import { IsDrawerContext } from '../../dialog/root/DialogRoot';
 import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
@@ -233,7 +233,7 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
 
   return (
     <DrawerRootContext.Provider value={contextValue}>
-      <DialogRootTypeContext.Provider value>
+      <IsDrawerContext.Provider value>
         <Dialog.Root
           open={openProp}
           defaultOpen={defaultOpen}
@@ -248,7 +248,7 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
         >
           {resolvedChildren}
         </Dialog.Root>
-      </DialogRootTypeContext.Provider>
+      </IsDrawerContext.Provider>
     </DrawerRootContext.Provider>
   );
 }
