@@ -336,9 +336,7 @@ export function useHoverReferenceInteraction(
 
     if (move) {
       return mergeCleanups(
-        addEventListener(trigger, 'mousemove', onMouseEnter, {
-          once: true,
-        }),
+        addEventListener(trigger, 'mousemove', onMouseEnter, { once: true }),
         addEventListener(trigger, 'mouseenter', onMouseEnter),
         addEventListener(trigger, 'mouseleave', onMouseLeave),
       );
