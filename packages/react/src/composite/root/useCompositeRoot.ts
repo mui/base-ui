@@ -37,8 +37,10 @@ import { CompositeMetadata } from '../list/CompositeList';
 import { HTMLProps } from '../../utils/types';
 import { getTarget } from '../../floating-ui-react/utils';
 
+type Orientation = 'horizontal' | 'vertical' | 'both';
+
 export interface UseCompositeRootParameters {
-  orientation?: 'horizontal' | 'vertical' | 'both' | undefined;
+  orientation?: Orientation | undefined;
   cols?: number | undefined;
   loopFocus?: boolean | undefined;
   onLoop?:
@@ -81,6 +83,178 @@ export interface UseCompositeRootParameters {
 }
 
 const EMPTY_ARRAY: never[] = [];
+
+const PREVENTED_KEYS = {
+  horizontal: HORIZONTAL_KEYS,
+  vertical: VERTICAL_KEYS,
+  both: ARROW_KEYS,
+};
+const PREVENTED_KEYS_WITH_EXTRA = {
+  horizontal: HORIZONTAL_KEYS_WITH_EXTRA_KEYS,
+  vertical: VERTICAL_KEYS_WITH_EXTRA_KEYS,
+  both: ALL_KEYS,
+};
+
+const CORNER_BY_KEY: Record<string, 'bl' | 'tr' | 'tl'> = {
+  [ARROW_DOWN]: 'bl',
+  [ARROW_RIGHT]: 'tr',
+};
+
+function getForwardKey(orientation: Orientation, isRtl: boolean) {
+  if (orientation === 'vertical') {
+    return ARROW_DOWN;
+  }
+  return isRtl ? ARROW_LEFT : ARROW_RIGHT;
+}
+
+function getBackwardKey(orientation: Orientation, isRtl: boolean) {
+  if (orientation === 'vertical') {
+    return ARROW_UP;
+  }
+  return isRtl ? ARROW_RIGHT : ARROW_LEFT;
+}
+
+function shouldYieldToNativeInput(
+  event: React.KeyboardEvent,
+  forwardKey: string,
+  backwardKey: string,
+) {
+  const target = getTarget(event.nativeEvent);
+  if (target == null || !isNativeInput(target) || isElementDisabled(target)) {
+    return false;
+  }
+  const selectionStart = target.selectionStart;
+  const selectionEnd = target.selectionEnd;
+  const textContent = target.value ?? '';
+  // return to native textbox behavior when
+  // 1 - Shift is held to make a text selection, or if there already is a text selection
+  if (selectionStart == null || event.shiftKey || selectionStart !== selectionEnd) {
+    return true;
+  }
+  // 2 - arrow-ing forward and not in the last position of the text
+  if (event.key !== backwardKey && selectionStart < textContent.length) {
+    return true;
+  }
+  // 3 - arrow-ing backward and not in the first position of the text
+  if (event.key !== forwardKey && selectionStart > 0) {
+    return true;
+  }
+  return false;
+}
+
+interface GridNextIndexOptions {
+  event: React.KeyboardEvent;
+  elementsRef: React.RefObject<Array<HTMLDivElement | null>>;
+  disabledIndices: number[] | undefined;
+  itemSizes: Array<Dimensions> | undefined;
+  cols: number;
+  dense: boolean;
+  orientation: Orientation;
+  loopFocus: boolean;
+  onLoop:
+    | ((
+        event: React.KeyboardEvent,
+        prevIndex: number,
+        nextIndex: number,
+        elementsRef: React.RefObject<(HTMLDivElement | null)[]>,
+      ) => number)
+    | undefined;
+  highlightedIndex: number;
+  minIndex: number;
+  maxIndex: number;
+  isRtl: boolean;
+}
+
+function getGridNextIndex(opts: GridNextIndexOptions): number {
+  const {
+    event,
+    elementsRef,
+    disabledIndices,
+    itemSizes,
+    cols,
+    dense,
+    orientation,
+    loopFocus,
+    onLoop,
+    highlightedIndex,
+    minIndex,
+    maxIndex,
+    isRtl,
+  } = opts;
+
+  const sizes =
+    itemSizes ||
+    Array.from({ length: elementsRef.current!.length }, () => ({ width: 1, height: 1 }));
+  // To calculate movements on the grid, we use hypothetical cell indices
+  // as if every item was 1x1, then convert back to real indices.
+  const cellMap = createGridCellMap(sizes, cols, dense);
+  const minGridIndex = cellMap.findIndex(
+    (index) =>
+      index != null && !isListIndexDisabled(elementsRef.current, index, disabledIndices),
+  );
+  // last enabled index
+  const maxGridIndex = cellMap.reduce(
+    (foundIndex: number, index, cellIndex) =>
+      index != null && !isListIndexDisabled(elementsRef.current, index, disabledIndices)
+        ? cellIndex
+        : foundIndex,
+    -1,
+  );
+
+  return cellMap[
+    getGridNavigatedIndex(
+      cellMap.map((itemIndex) =>
+        itemIndex != null ? elementsRef.current![itemIndex] : null,
+      ),
+      {
+        event,
+        orientation,
+        loopFocus,
+        onLoop: onLoop
+          ? (e, prev, next) => onLoop(e, prev, next, elementsRef)
+          : (_e, _prev, next) => next,
+        cols,
+        // treat undefined (empty grid spaces) as disabled indices so we
+        // don't end up in them
+        disabledIndices: getGridCellIndices(
+          [
+            ...(disabledIndices ||
+              elementsRef.current!.map((_, index) =>
+                isListIndexDisabled(elementsRef.current, index) ? index : undefined,
+              )),
+            undefined,
+          ],
+          cellMap,
+        ),
+        minIndex: minGridIndex,
+        maxIndex: maxGridIndex,
+        prevIndex: getGridCellIndexOfCorner(
+          highlightedIndex > maxIndex ? minIndex : highlightedIndex,
+          sizes,
+          cellMap,
+          cols,
+          // use a corner matching the edge closest to the direction we're
+          // moving in so we don't end up in the same item. Prefer
+          // top/left over bottom/right.
+          CORNER_BY_KEY[event.key] ?? 'tl',
+        ),
+        rtl: isRtl,
+      },
+    )
+  ] as number; // navigated cell will never be nullish
+}
+
+function isModifierKeySet(event: React.KeyboardEvent, ignoredModifierKeys: ModifierKey[]) {
+  for (const key of MODIFIER_KEYS) {
+    if (ignoredModifierKeys.includes(key)) {
+      continue;
+    }
+    if (event.getModifierState(key)) {
+      return true;
+    }
+  }
+  return false;
+}
 
 export function useCompositeRoot(params: UseCompositeRootParameters) {
   const {
@@ -125,9 +299,9 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     }
     hasSetDefaultIndexRef.current = true;
     const sortedElements = Array.from(map.keys());
-    const activeItem = (sortedElements.find((compositeElement) =>
+    const activeItem = sortedElements.find((compositeElement) =>
       compositeElement?.hasAttribute(ACTIVE_COMPOSITE_ITEM),
-    ) ?? null) as HTMLElement | null;
+    ) as HTMLElement | null;
     // Set the default highlighted index of an arbitrary composite item.
     const activeIndex = activeItem ? sortedElements.indexOf(activeItem) : -1;
 
@@ -137,15 +311,6 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
     scrollIntoViewIfNeeded(rootRef.current, activeItem, direction, orientation);
   });
-
-  const wrappedOnLoop = useStableCallback(
-    (event: React.KeyboardEvent, prevIndex: number, nextIndex: number) => {
-      if (!onLoop) {
-        return nextIndex;
-      }
-      return onLoop?.(event, prevIndex, nextIndex, elementsRef);
-    },
-  );
 
   const props = React.useMemo<HTMLProps>(
     () => ({
@@ -157,7 +322,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         if (!element || target == null || !isNativeInput(target)) {
           return;
         }
-        target.setSelectionRange(0, target.value.length ?? 0);
+        target.setSelectionRange(0, target.value.length);
       },
       onKeyDown(event) {
         const RELEVANT_KEYS = enableHomeAndEndKeys ? ALL_KEYS : ARROW_KEYS;
@@ -175,37 +340,11 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         }
         const isRtl = direction === 'rtl';
 
-        const horizontalForwardKey = isRtl ? ARROW_LEFT : ARROW_RIGHT;
-        const forwardKey = {
-          horizontal: horizontalForwardKey,
-          vertical: ARROW_DOWN,
-          both: horizontalForwardKey,
-        }[orientation];
-        const horizontalBackwardKey = isRtl ? ARROW_RIGHT : ARROW_LEFT;
-        const backwardKey = {
-          horizontal: horizontalBackwardKey,
-          vertical: ARROW_UP,
-          both: horizontalBackwardKey,
-        }[orientation];
+        const forwardKey = getForwardKey(orientation, isRtl);
+        const backwardKey = getBackwardKey(orientation, isRtl);
 
-        const target = getTarget(event.nativeEvent);
-        if (target != null && isNativeInput(target) && !isElementDisabled(target)) {
-          const selectionStart = target.selectionStart;
-          const selectionEnd = target.selectionEnd;
-          const textContent = target.value ?? '';
-          // return to native textbox behavior when
-          // 1 - Shift is held to make a text selection, or if there already is a text selection
-          if (selectionStart == null || event.shiftKey || selectionStart !== selectionEnd) {
-            return;
-          }
-          // 2 - arrow-ing forward and not in the last position of the text
-          if (event.key !== backwardKey && selectionStart < textContent.length) {
-            return;
-          }
-          // 3 -arrow-ing backward and not in the first position of the text
-          if (event.key !== forwardKey && selectionStart > 0) {
-            return;
-          }
+        if (shouldYieldToNativeInput(event, forwardKey, backwardKey)) {
+          return;
         }
 
         let nextIndex = highlightedIndex;
@@ -213,89 +352,31 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         const maxIndex = getMaxListIndex(elementsRef, disabledIndices);
 
         if (isGrid) {
-          const sizes =
-            itemSizes ||
-            Array.from({ length: elementsRef.current.length }, () => ({
-              width: 1,
-              height: 1,
-            }));
-          // To calculate movements on the grid, we use hypothetical cell indices
-          // as if every item was 1x1, then convert back to real indices.
-          const cellMap = createGridCellMap(sizes, cols, dense);
-          const minGridIndex = cellMap.findIndex(
-            (index) =>
-              index != null && !isListIndexDisabled(elementsRef.current, index, disabledIndices),
-          );
-          // last enabled index
-          const maxGridIndex = cellMap.reduce(
-            (foundIndex: number, index, cellIndex) =>
-              index != null && !isListIndexDisabled(elementsRef.current, index, disabledIndices)
-                ? cellIndex
-                : foundIndex,
-            -1,
-          );
-
-          nextIndex = cellMap[
-            getGridNavigatedIndex(
-              cellMap.map((itemIndex) =>
-                itemIndex != null ? elementsRef.current[itemIndex] : null,
-              ),
-              {
-                event,
-                orientation,
-                loopFocus,
-                onLoop: wrappedOnLoop,
-                cols,
-                // treat undefined (empty grid spaces) as disabled indices so we
-                // don't end up in them
-                disabledIndices: getGridCellIndices(
-                  [
-                    ...(disabledIndices ||
-                      elementsRef.current.map((_, index) =>
-                        isListIndexDisabled(elementsRef.current, index) ? index : undefined,
-                      )),
-                    undefined,
-                  ],
-                  cellMap,
-                ),
-                minIndex: minGridIndex,
-                maxIndex: maxGridIndex,
-                prevIndex: getGridCellIndexOfCorner(
-                  highlightedIndex > maxIndex ? minIndex : highlightedIndex,
-                  sizes,
-                  cellMap,
-                  cols,
-                  // use a corner matching the edge closest to the direction we're
-                  // moving in so we don't end up in the same item. Prefer
-                  // top/left over bottom/right.
-                  // eslint-disable-next-line no-nested-ternary
-                  event.key === ARROW_DOWN ? 'bl' : event.key === ARROW_RIGHT ? 'tr' : 'tl',
-                ),
-                rtl: isRtl,
-              },
-            )
-          ] as number; // navigated cell will never be nullish
+          nextIndex = getGridNextIndex({
+            event,
+            elementsRef,
+            disabledIndices,
+            itemSizes,
+            cols,
+            dense,
+            orientation,
+            loopFocus,
+            onLoop,
+            highlightedIndex,
+            minIndex,
+            maxIndex,
+            isRtl,
+          });
         }
 
-        const forwardKeys = {
-          horizontal: [horizontalForwardKey],
-          vertical: [ARROW_DOWN],
-          both: [horizontalForwardKey, ARROW_DOWN],
-        }[orientation];
-
-        const backwardKeys = {
-          horizontal: [horizontalBackwardKey],
-          vertical: [ARROW_UP],
-          both: [horizontalBackwardKey, ARROW_UP],
-        }[orientation];
+        const forwardKeys =
+          orientation === 'both' ? [forwardKey, ARROW_DOWN] : [forwardKey];
+        const backwardKeys =
+          orientation === 'both' ? [backwardKey, ARROW_UP] : [backwardKey];
 
         const preventedKeys = isGrid
           ? RELEVANT_KEYS
-          : {
-              horizontal: enableHomeAndEndKeys ? HORIZONTAL_KEYS_WITH_EXTRA_KEYS : HORIZONTAL_KEYS,
-              vertical: enableHomeAndEndKeys ? VERTICAL_KEYS_WITH_EXTRA_KEYS : VERTICAL_KEYS,
-              both: RELEVANT_KEYS,
-            }[orientation];
+          : (enableHomeAndEndKeys ? PREVENTED_KEYS_WITH_EXTRA : PREVENTED_KEYS)[orientation];
 
         if (enableHomeAndEndKeys) {
           if (event.key === HOME) {
@@ -305,24 +386,22 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
           }
         }
 
-        if (
-          nextIndex === highlightedIndex &&
-          (forwardKeys.includes(event.key) || backwardKeys.includes(event.key))
-        ) {
-          if (loopFocus && nextIndex === maxIndex && forwardKeys.includes(event.key)) {
-            nextIndex = minIndex;
-            if (onLoop) {
-              nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
-            }
-          } else if (loopFocus && nextIndex === minIndex && backwardKeys.includes(event.key)) {
-            nextIndex = maxIndex;
+        const isForward = forwardKeys.includes(event.key);
+        const isBackward = backwardKeys.includes(event.key);
+
+        if (nextIndex === highlightedIndex && (isForward || isBackward)) {
+          if (
+            loopFocus &&
+            ((nextIndex === maxIndex && isForward) || (nextIndex === minIndex && isBackward))
+          ) {
+            nextIndex = isForward ? minIndex : maxIndex;
             if (onLoop) {
               nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
             }
           } else {
             nextIndex = findNonDisabledListIndex(elementsRef.current, {
               startingIndex: nextIndex,
-              decrement: backwardKeys.includes(event.key),
+              decrement: isBackward,
               disabledIndices,
             });
           }
@@ -360,7 +439,6 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       itemSizes,
       loopFocus,
       onLoop,
-      wrappedOnLoop,
       mergedRef,
       modifierKeys,
       onHighlightedIndexChange,
@@ -381,16 +459,4 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     }),
     [props, highlightedIndex, onHighlightedIndexChange, elementsRef, disabledIndices, onMapChange],
   );
-}
-
-function isModifierKeySet(event: React.KeyboardEvent, ignoredModifierKeys: ModifierKey[]) {
-  for (const key of MODIFIER_KEYS.values()) {
-    if (ignoredModifierKeys.includes(key)) {
-      continue;
-    }
-    if (event.getModifierState(key)) {
-      return true;
-    }
-  }
-  return false;
 }
