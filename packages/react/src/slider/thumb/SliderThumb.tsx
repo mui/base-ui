@@ -438,7 +438,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
               preventScroll: true,
               // Show `:focus-visible` after keyboard interaction, even if the
               // thumb was previously focused by a pointer.
-              // @ts-expect-error - focusVisible is not yet in the lib.dom.d.ts
               focusVisible: true,
             });
           }
