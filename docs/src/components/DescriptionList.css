@@ -20,8 +20,8 @@
   }
 
   .DescriptionTerm {
-    font-size: var(--text-sm);
-    line-height: var(--text-sm--line-height);
+    font-size: var(--font-size-14);
+    line-height: 1.25rem;
     font-weight: var(--font-weight-700);
     color: var(--color-foreground);
     white-space: nowrap;
@@ -56,8 +56,8 @@
   }
 
   .DescriptionListDetails {
-    font-size: var(--text-sm);
-    line-height: var(--text-sm--line-height);
+    font-size: var(--font-size-14);
+    line-height: 1.25rem;
 
     color: var(--color-foreground);
     grid-column: span 2;

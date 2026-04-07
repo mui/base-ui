@@ -62,8 +62,8 @@
   }
 
   .DemoToolbar {
-    font-size: var(--text-xs);
-    line-height: var(--text-xs--line-height);
+    font-size: var(--font-size-12);
+    line-height: 1.25rem;
     white-space: nowrap;
     color: var(--color-gray);
     background-color: var(--color-gray-50);
@@ -241,8 +241,8 @@
   }
 
   .DemoSourceBrowser {
-    font-size: var(--text-xs);
-    line-height: var(--text-xs--line-height);
+    font-size: 0.8125rem; /* 13px */
+    line-height: 1.25rem; /* 20px */
     cursor: text;
     display: flex;
 
@@ -279,8 +279,8 @@
   }
 
   .DemoCollapseButton {
-    font-size: var(--text-xs);
-    line-height: var(--text-xs--line-height);
+    font-size: var(--font-size-12);
+    line-height: 1.25rem;
     background-color: var(--color-gray-50);
     cursor: default;
     width: 100%;

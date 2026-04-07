@@ -31,8 +31,7 @@
   }
 
   .MenuItem {
-    font-size: var(--text-xs);
-    line-height: var(--text-xs--line-height);
+    font-size: var(--font-size-12);
     outline: 0;
     display: flex;
     align-items: center;
@@ -61,8 +60,7 @@
     }
 
     @media (pointer: coarse) {
-      font-size: var(--text-md);
-      line-height: var(--text-md--line-height);
+      font-size: var(--font-size-15);
       height: 2.25rem;
     }
   }

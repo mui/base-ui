@@ -193,14 +193,16 @@
     --color-purple: oklch(40% 45% 360deg);
     --color-violet: oklch(40% 60% 300deg);
 
-    /* Typography */
-    --text-xxs: 0.75rem;
-    --text-xxs--line-height: 1.25rem;
-    --text-xxs--letter-spacing: 0.001em;
-
-    --text-md: 0.9375rem;
-    --text-md--line-height: 1.375rem;
-    --text-md--letter-spacing: 0.016em;
+    /* Font size */
+    --font-size-12: 0.75rem; /* 12px */
+    --font-size-14: 0.875rem; /* 14px */
+    --font-size-15: 0.9375rem; /* 15px */
+    --font-size-16: 1rem; /* 16px */
+    --font-size-18: 1.125rem; /* 18px */
+    --font-size-21: 1.3125rem; /* 21px */
+    --font-size-24: 1.5rem; /* 24px */
+    --font-size-36: 2.25rem; /* 36px */
+    --font-size-42: 2.625rem; /* 42px */
 
     /* Font weight */
     --font-weight-400: 400;
@@ -263,13 +265,15 @@
     --color-purple: initial;
     --color-violet: initial;
 
-    --text-xxs: initial;
-    --text-xxs--line-height: initial;
-    --text-xxs--letter-spacing: initial;
-
-    --text-md: initial;
-    --text-md--line-height: initial;
-    --text-md--letter-spacing: initial;
+    --font-size-12: initial;
+    --font-size-14: initial;
+    --font-size-15: initial;
+    --font-size-16: initial;
+    --font-size-18: initial;
+    --font-size-21: initial;
+    --font-size-24: initial;
+    --font-size-36: initial;
+    --font-size-42: initial;
 
     --ease-out-fast: initial;
     --ease-in-slow: initial;

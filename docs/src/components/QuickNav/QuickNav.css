@@ -27,13 +27,13 @@
 
     /* Use line height instead of fixed item height in case text breaks into multiple lines */
     --quick-nav-item-height: 2rem;
-    --quick-nav-item-line-height: var(--text-md--line-height);
+    --quick-nav-item-line-height: 1.375rem;
     --quick-nav-item-padding-y: calc(
       var(--quick-nav-item-height) / 2 - var(--quick-nav-item-line-height) / 2
     );
 
-    font-size: var(--text-md);
-    line-height: var(--text-md--line-height);
+    font-size: var(--font-size-15);
+    line-height: 1.375rem;
     z-index: 1;
     position: sticky;
     top: 0;

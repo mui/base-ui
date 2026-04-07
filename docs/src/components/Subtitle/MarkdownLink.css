@@ -4,8 +4,8 @@
   }
 
   .MarkdownLink {
-    font-size: var(--text-sm);
-    line-height: var(--text-sm--line-height);
+    font-size: var(--font-size-14);
+    line-height: 1.25rem;
     display: inline-flex;
     align-items: baseline;
     gap: 0.5em;

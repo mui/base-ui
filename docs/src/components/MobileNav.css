@@ -68,8 +68,8 @@
     height: 100dvh;
     overflow-y: auto;
 
-    font-size: var(--text-base);
-    line-height: var(--text-base--line-height);
+    font-size: var(--font-size-16);
+    line-height: 1.5rem;
 
     /* Native apps don't show scrollbars on sheets like this */
     scrollbar-width: none;
@@ -154,8 +154,8 @@
   }
 
   .MobileNavHeading {
-    font-size: var(--text-lg);
-    line-height: var(--text-lg--line-height);
+    font-size: var(--font-size-18);
+    line-height: 1.75rem;
     font-weight: var(--font-weight-700);
     padding-inline: var(--mobile-nav-item-padding-x);
 

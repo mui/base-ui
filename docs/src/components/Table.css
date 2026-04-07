@@ -1,7 +1,7 @@
 @layer components {
   .TableRoot {
-    font-size: var(--text-sm);
-    line-height: var(--text-sm--line-height);
+    font-size: var(--font-size-14);
+    line-height: 1.25rem;
     color: var(--color-gray);
     border: 1px solid var(--color-gray-200);
     border-collapse: separate;

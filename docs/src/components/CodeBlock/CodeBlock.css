@@ -16,7 +16,7 @@
   }
 
   .CodeBlockPanel {
-    font-size: var(--text-xs);
+    font-size: var(--font-size-14);
     line-height: 1;
     background-color: var(--color-gray-50);
     background-clip: padding-box;
@@ -51,8 +51,8 @@
   }
 
   .CodeBlockPanelTitle {
-    font-size: var(--text-sm);
-    line-height: var(--text-sm--line-height);
+    font-size: var(--font-size-14);
+    line-height: 1.25rem;
     color: var(--color-gray-700);
     font-weight: var(--font-weight-400);
   }
@@ -66,8 +66,8 @@
   }
 
   .CodeBlockPreInline {
-    font-size: var(--text-xs);
-    line-height: var(--text-xs--line-height);
+    font-size: 0.8125rem; /* 13px */
+    line-height: 1.25rem; /* 20px */
     cursor: text;
     color: var(--color-foreground);
     outline: 0;
