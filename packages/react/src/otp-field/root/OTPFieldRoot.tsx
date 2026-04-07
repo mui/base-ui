@@ -10,8 +10,8 @@ import { warn } from '@base-ui/utils/warn';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { contains } from '../../floating-ui-react/utils/shadowDom';
 import { CompositeList } from '../../composite/list/CompositeList';
-import { useField } from '../../field/useField';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useRegisterFieldControl } from '../../field/root/useRegisterFieldControl';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useFormContext } from '../../form/FormContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
@@ -165,13 +165,10 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     }, [inputCount, length]);
   }
 
-  useField({
+  useRegisterFieldControl(firstInputRef, {
     id,
-    name,
-    commit: validation.commit,
-    value,
     getValue: () => valueRef.current,
-    controlRef: firstInputRef,
+    value,
   });
 
   const focusInput = useStableCallback((index: number) => {
