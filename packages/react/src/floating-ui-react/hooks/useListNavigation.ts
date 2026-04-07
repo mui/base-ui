@@ -458,7 +458,6 @@ export function useListNavigation(
     rtl,
     onNavigate,
     focusItem,
-    disabledIndicesRef,
   ]);
 
   // Ensure the parent floating element has focus when a nested child closes
@@ -570,13 +569,13 @@ export function useListNavigation(
     virtual,
   ]);
 
-  const getParentOrientation = React.useCallback(() => {
+  const getParentOrientation = useStableCallback(() => {
     return (
       parentOrientation ??
       (tree?.nodesRef.current.find((node) => node.id === parentId)?.context?.dataRef?.current
         .orientation as UseListNavigationProps['orientation'])
     );
-  }, [parentId, tree, parentOrientation]);
+  });
 
   const commonOnKeyDown = useStableCallback((event: React.KeyboardEvent) => {
     isPointerModalityRef.current = false;
@@ -842,6 +841,17 @@ export function useListNavigation(
   ]);
 
   const trigger: ElementProps['trigger'] = React.useMemo(() => {
+    function openOnNavigationKeyDown(event: React.KeyboardEvent) {
+      store.setOpen(
+        true,
+        createChangeEventDetails(
+          REASONS.listNavigation,
+          event.nativeEvent,
+          event.currentTarget as HTMLElement,
+        ),
+      );
+    }
+
     function checkVirtualMouse(event: React.PointerEvent) {
       if (focusItemOnOpen === 'auto' && isVirtualClick(event.nativeEvent)) {
         focusItemOnOpenRef.current = !virtual;
@@ -897,14 +907,7 @@ export function useListNavigation(
               indexRef.current = getMinListIndex(listRef, disabledIndicesRef.current);
               onNavigate(event);
             } else {
-              store.setOpen(
-                true,
-                createChangeEventDetails(
-                  REASONS.listNavigation,
-                  event.nativeEvent,
-                  event.currentTarget as HTMLElement,
-                ),
-              );
+              openOnNavigationKeyDown(event);
             }
           }
 
@@ -919,14 +922,7 @@ export function useListNavigation(
           stopEvent(event);
 
           if (!currentOpen && openOnArrowKeyDown) {
-            store.setOpen(
-              true,
-              createChangeEventDetails(
-                REASONS.listNavigation,
-                event.nativeEvent,
-                event.currentTarget as HTMLElement,
-              ),
-            );
+            openOnNavigationKeyDown(event);
           } else {
             commonOnKeyDown(event);
           }

@@ -65,6 +65,7 @@ export function useTypeahead(
   const store = 'rootStore' in context ? context.rootStore : context;
   const dataRef = store.context.dataRef;
   const open = store.useState('open');
+
   const {
     listRef,
     elementsRef,
@@ -102,15 +103,12 @@ export function useTypeahead(
   }, [open, selectedIndex, activeIndex]);
 
   const setTypingChange = useStableCallback((value: boolean) => {
-    if (value) {
-      if (!dataRef.current.typing) {
-        dataRef.current.typing = value;
-        onTypingChange?.(value);
-      }
-    } else if (dataRef.current.typing) {
-      dataRef.current.typing = value;
-      onTypingChange?.(value);
+    if (dataRef.current.typing === value) {
+      return;
     }
+
+    dataRef.current.typing = value;
+    onTypingChange?.(value);
   });
 
   const onKeyDown = useStableCallback((event: React.KeyboardEvent) => {
@@ -216,11 +214,11 @@ export function useTypeahead(
     const next = event.relatedTarget as Element | null;
     const currentDomReferenceElement = store.select('domReferenceElement');
     const currentFloatingElement = store.select('floatingElement');
-    const withinReference = contains(currentDomReferenceElement, next);
-    const withinFloating = contains(currentFloatingElement, next);
+    const withinComposite =
+      contains(currentDomReferenceElement, next) || contains(currentFloatingElement, next);
 
     // Keep the session if focus moves within the composite (reference <-> floating).
-    if (withinReference || withinFloating) {
+    if (withinComposite) {
       return;
     }
 
@@ -231,17 +229,9 @@ export function useTypeahead(
     setTypingChange(false);
   });
 
-  const reference: ElementProps['reference'] = React.useMemo(
-    () => ({ onKeyDown, onBlur }),
-    [onKeyDown, onBlur],
-  );
-
-  const floating: ElementProps['floating'] = React.useMemo(() => {
-    return {
-      onKeyDown,
-      onBlur,
-    };
-  }, [onKeyDown, onBlur]);
+  const sharedProps = React.useMemo(() => ({ onKeyDown, onBlur }), [onKeyDown, onBlur]);
+  const reference: ElementProps['reference'] = sharedProps;
+  const floating: ElementProps['floating'] = sharedProps;
 
   return React.useMemo(
     () => (enabled ? { reference, floating } : {}),

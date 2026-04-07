@@ -47,18 +47,19 @@ export function useFocus(
   props: UseFocusProps = {},
 ): ElementProps {
   const store = 'rootStore' in context ? context.rootStore : context;
-
   const { events, dataRef } = store.context;
   const { enabled = true, delay } = props;
 
   const blockFocusRef = React.useRef(false);
   // Track which reference should be blocked from re-opening after Escape/press dismissal.
   const blockedReferenceRef = React.useRef<Element | null>(null);
-  const timeout = useTimeout();
   const keyboardModalityRef = React.useRef(true);
+
+  const timeout = useTimeout();
 
   React.useEffect(() => {
     const domReference = store.select('domReferenceElement');
+
     if (!enabled) {
       return undefined;
     }
@@ -115,21 +116,25 @@ export function useFocus(
     };
   }, [events, enabled, store]);
 
-  const reference: ElementProps['reference'] = React.useMemo(
-    () => ({
+  const reference: ElementProps['reference'] = React.useMemo(() => {
+    function resetBlockedFocus() {
+      blockFocusRef.current = false;
+      blockedReferenceRef.current = null;
+    }
+
+    return {
       onMouseLeave() {
-        blockFocusRef.current = false;
-        blockedReferenceRef.current = null;
+        resetBlockedFocus();
       },
       onFocus(event) {
         const focusTarget = event.currentTarget as Element;
+
         if (blockFocusRef.current) {
           if (blockedReferenceRef.current === focusTarget) {
             return;
           }
 
-          blockFocusRef.current = false;
-          blockedReferenceRef.current = null;
+          resetBlockedFocus();
         }
 
         const target = getTarget(event.nativeEvent);
@@ -186,8 +191,8 @@ export function useFocus(
         });
       },
       onBlur(event) {
-        blockFocusRef.current = false;
-        blockedReferenceRef.current = null;
+        resetBlockedFocus();
+
         const relatedTarget = event.relatedTarget;
         const nativeEvent = event.nativeEvent;
 
@@ -234,9 +239,8 @@ export function useFocus(
           store.setOpen(false, createChangeEventDetails(REASONS.triggerFocus, nativeEvent));
         });
       },
-    }),
-    [dataRef, store, timeout, delay],
-  );
+    };
+  }, [dataRef, delay, store, timeout]);
 
   return React.useMemo(
     () => (enabled ? { reference, trigger: reference } : {}),

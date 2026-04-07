@@ -103,26 +103,18 @@ export function useRole(
 
   const item: ElementProps['item'] = React.useCallback(
     ({ active, selected }: ExtendedUserProps) => {
-      const commonProps = {
-        role: 'option',
-        ...(active && { id: `${floatingId}-fui-option` }),
-      };
-
       // For `menu`, we are unable to tell if the item is a `menuitemradio`
       // or `menuitemcheckbox`. For backwards-compatibility reasons, also
       // avoid defaulting to `menuitem` as it may overwrite custom role props.
-      switch (role) {
-        case 'select':
-        case 'combobox':
-          return {
-            ...commonProps,
-            'aria-selected': selected,
-          };
-
-        default:
+      if (role !== 'select' && role !== 'combobox') {
+        return {};
       }
 
-      return {};
+      return {
+        role: 'option',
+        ...(active && { id: `${floatingId}-fui-option` }),
+        'aria-selected': selected,
+      };
     },
     [floatingId, role],
   );

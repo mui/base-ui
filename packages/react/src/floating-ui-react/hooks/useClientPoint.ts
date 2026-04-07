@@ -169,9 +169,14 @@ export function useClientPoint(
   // the dismissal touch point.
   const openCheck = isMouseLikePointerType(pointerType) ? floating : open;
 
-  const addListener = React.useCallback(() => {
+  React.useEffect(() => {
     if (!openCheck || !enabled) {
       return undefined;
+    }
+
+    function cleanupListener() {
+      cleanupListenerRef.current?.();
+      cleanupListenerRef.current = null;
     }
 
     const win = getWindow(floating);
@@ -182,27 +187,18 @@ export function useClientPoint(
       if (!contains(floating, target)) {
         setReference(event.clientX, event.clientY);
       } else {
-        cleanupListenerRef.current?.();
-        cleanupListenerRef.current = null;
+        cleanupListener();
       }
     }
 
     if (!dataRef.current.openEvent || isMouseBasedEvent(dataRef.current.openEvent)) {
-      const cleanup = () => {
-        cleanupListenerRef.current?.();
-        cleanupListenerRef.current = null;
-      };
       cleanupListenerRef.current = addEventListener(win, 'mousemove', handleMouseMove);
-      return cleanup;
+      return cleanupListener;
     }
 
     store.set('positionReference', domReference);
     return undefined;
-  }, [openCheck, enabled, floating, dataRef, domReference, store, setReference]);
-
-  React.useEffect(() => {
-    return addListener();
-  }, [addListener, reactive]);
+  }, [openCheck, enabled, floating, dataRef, domReference, store, setReference, reactive]);
 
   React.useEffect(() => {
     if (enabled && !floating) {

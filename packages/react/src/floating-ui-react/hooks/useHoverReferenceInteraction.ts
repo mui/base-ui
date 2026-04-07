@@ -124,20 +124,6 @@ export function useHoverReferenceInteraction(
     },
   );
 
-  const closeWithDelay = useStableCallback((event: MouseEvent, runElseBranch = true) => {
-    const closeDelay = getDelay(delayRef.current, 'close', instance.pointerType);
-    if (closeDelay) {
-      instance.openChangeTimeout.start(closeDelay, () => {
-        store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
-        tree?.events.emit('floating.closed', event);
-      });
-    } else if (runElseBranch) {
-      instance.openChangeTimeout.clear();
-      store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
-      tree?.events.emit('floating.closed', event);
-    }
-  });
-
   const cleanupMouseMoveHandler = useStableCallback(() => {
     if (!instance.handler) {
       return;
@@ -182,6 +168,20 @@ export function useHoverReferenceInteraction(
   React.useEffect(() => {
     if (!enabled) {
       return undefined;
+    }
+
+    function closeWithDelay(event: MouseEvent, runElseBranch = true) {
+      const closeDelay = getDelay(delayRef.current, 'close', instance.pointerType);
+      if (closeDelay) {
+        instance.openChangeTimeout.start(closeDelay, () => {
+          store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
+          tree?.events.emit('floating.closed', event);
+        });
+      } else if (runElseBranch) {
+        instance.openChangeTimeout.clear();
+        store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
+        tree?.events.emit('floating.closed', event);
+      }
     }
 
     const trigger =
@@ -353,7 +353,6 @@ export function useHoverReferenceInteraction(
     clearPointerEvents,
     dataRef,
     delayRef,
-    closeWithDelay,
     store,
     enabled,
     handleCloseRef,

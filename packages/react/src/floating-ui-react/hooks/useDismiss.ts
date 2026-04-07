@@ -183,7 +183,38 @@ export function useDismiss(
   const isComposingRef = React.useRef(false);
   const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
 
+  const hasBlockingChild = useStableCallback(
+    (bubbleKey: '__escapeKeyBubbles' | '__outsidePressBubbles') => {
+      const nodeId = dataRef.current.floatingContext?.nodeId;
+      const children = tree ? getNodeChildren(tree.nodesRef.current, nodeId) : [];
+
+      return children.some(
+        (child) => child.context?.open && !child.context.dataRef.current[bubbleKey],
+      );
+    },
+  );
+
+  const isEventWithinOwnElements = useStableCallback((event: Event) => {
+    return (
+      isEventTargetWithin(event, store.select('floatingElement')) ||
+      isEventTargetWithin(event, store.select('domReferenceElement'))
+    );
+  });
+
   const isReferencePressEnabled = useStableCallback(referencePress);
+  const closeOnReferencePress = useStableCallback((event: React.SyntheticEvent) => {
+    if (!isReferencePressEnabled()) {
+      return;
+    }
+
+    store.setOpen(
+      false,
+      createChangeEventDetails(
+        REASONS.triggerPress,
+        event.nativeEvent as MouseEvent | PointerEvent | TouchEvent | KeyboardEvent,
+      ),
+    );
+  });
 
   const closeOnEscapeKeyDown = useStableCallback(
     (event: React.KeyboardEvent<Element> | KeyboardEvent) => {
@@ -197,24 +228,8 @@ export function useDismiss(
         return;
       }
 
-      const nodeId = dataRef.current.floatingContext?.nodeId;
-
-      const children = tree ? getNodeChildren(tree.nodesRef.current, nodeId) : [];
-
-      if (!escapeKeyBubbles) {
-        if (children.length > 0) {
-          let shouldDismiss = true;
-
-          children.forEach((child) => {
-            if (child.context?.open && !child.context.dataRef.current.__escapeKeyBubbles) {
-              shouldDismiss = false;
-            }
-          });
-
-          if (!shouldDismiss) {
-            return;
-          }
-        }
+      if (!escapeKeyBubbles && hasBlockingChild('__escapeKeyBubbles')) {
+        return;
       }
 
       const native = isReactEvent(event) ? event.nativeEvent : event;
@@ -310,11 +325,7 @@ export function useDismiss(
           isEventTargetWithin(event, node.context?.elements.floating),
         );
 
-      return (
-        isEventTargetWithin(event, store.select('floatingElement')) ||
-        isEventTargetWithin(event, store.select('domReferenceElement')) ||
-        targetIsInsideChildren
-      );
+      return isEventWithinOwnElements(event) || targetIsInsideChildren;
     }
 
     function closeOnPressOutside(event: MouseEvent | PointerEvent | TouchEvent) {
@@ -425,20 +436,8 @@ export function useDismiss(
         return;
       }
 
-      const nodeId = dataRef.current.floatingContext?.nodeId;
-      const children = tree ? getNodeChildren(tree.nodesRef.current, nodeId) : [];
-      if (children.length > 0) {
-        let shouldDismiss = true;
-
-        children.forEach((child) => {
-          if (child.context?.open && !child.context.dataRef.current.__outsidePressBubbles) {
-            shouldDismiss = false;
-          }
-        });
-
-        if (!shouldDismiss) {
-          return;
-        }
+      if (hasBlockingChild('__outsidePressBubbles')) {
+        return;
       }
 
       store.setOpen(false, createChangeEventDetails(REASONS.outsidePress, event));
@@ -451,8 +450,7 @@ export function useDismiss(
         event.pointerType === 'touch' ||
         !store.select('open') ||
         !enabled ||
-        isEventTargetWithin(event, store.select('floatingElement')) ||
-        isEventTargetWithin(event, store.select('domReferenceElement'))
+        isEventWithinOwnElements(event)
       ) {
         return;
       }
@@ -465,8 +463,7 @@ export function useDismiss(
         getOutsidePressEvent() !== 'sloppy' ||
         !store.select('open') ||
         !enabled ||
-        isEventTargetWithin(event, store.select('floatingElement')) ||
-        isEventTargetWithin(event, store.select('domReferenceElement'))
+        isEventWithinOwnElements(event)
       ) {
         return;
       }
@@ -581,8 +578,7 @@ export function useDismiss(
       if (
         getOutsidePressEvent() !== 'sloppy' ||
         !touchStateRef.current ||
-        isEventTargetWithin(event, store.select('floatingElement')) ||
-        isEventTargetWithin(event, store.select('domReferenceElement'))
+        isEventWithinOwnElements(event)
       ) {
         return;
       }
@@ -615,8 +611,7 @@ export function useDismiss(
       if (
         getOutsidePressEvent() !== 'sloppy' ||
         !touchStateRef.current ||
-        isEventTargetWithin(event, store.select('floatingElement')) ||
-        isEventTargetWithin(event, store.select('domReferenceElement'))
+        isEventWithinOwnElements(event)
       ) {
         return;
       }
@@ -675,6 +670,8 @@ export function useDismiss(
     closeOnEscapeKeyDown,
     clearInsideReactTree,
     getOutsidePressEventProp,
+    hasBlockingChild,
+    isEventWithinOwnElements,
     tree,
     store,
     cancelDismissOnEndTimeout,
@@ -685,27 +682,12 @@ export function useDismiss(
   const reference: ElementProps['reference'] = React.useMemo(
     () => ({
       onKeyDown: closeOnEscapeKeyDown,
-      [bubbleHandlerKeys[referencePressEvent]]: (event: React.SyntheticEvent) => {
-        if (!isReferencePressEnabled()) {
-          return;
-        }
-
-        store.setOpen(
-          false,
-          createChangeEventDetails(REASONS.triggerPress, event.nativeEvent as any),
-        );
-      },
+      [bubbleHandlerKeys[referencePressEvent]]: closeOnReferencePress,
       ...(referencePressEvent !== 'intentional' && {
-        onClick(event) {
-          if (!isReferencePressEnabled()) {
-            return;
-          }
-
-          store.setOpen(false, createChangeEventDetails(REASONS.triggerPress, event.nativeEvent));
-        },
+        onClick: closeOnReferencePress,
       }),
     }),
-    [closeOnEscapeKeyDown, store, referencePressEvent, isReferencePressEnabled],
+    [closeOnEscapeKeyDown, closeOnReferencePress, referencePressEvent],
   );
 
   const markPressStartedInsideReactTree = useStableCallback(

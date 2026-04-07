@@ -23,26 +23,26 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
   const { nodeId, externalTree } = options;
 
   const internalRootStore = useFloatingRootContext(options);
-
   const rootContext = options.rootContext || internalRootStore;
+  const referenceElement = rootContext.useState('referenceElement');
+  const floatingElement = rootContext.useState('floatingElement');
+  const domReferenceElement = rootContext.useState('domReferenceElement');
   const rootContextElements = {
-    reference: rootContext.useState('referenceElement'),
-    floating: rootContext.useState('floatingElement'),
-    domReference: rootContext.useState('domReferenceElement'),
+    reference: referenceElement,
+    floating: floatingElement,
+    domReference: domReferenceElement,
   };
 
   const [positionReference, setPositionReferenceRaw] = React.useState<ReferenceType | null>(null);
-
   const domReferenceRef = React.useRef<NarrowedElement<ReferenceType> | null>(null);
 
   const tree = useFloatingTree(externalTree);
 
   useIsoLayoutEffect(() => {
-    if (rootContextElements.domReference) {
-      domReferenceRef.current =
-        rootContextElements.domReference as NarrowedElement<ReferenceType> | null;
+    if (domReferenceElement) {
+      domReferenceRef.current = domReferenceElement as NarrowedElement<ReferenceType> | null;
     }
-  }, [rootContextElements.domReference]);
+  }, [domReferenceElement]);
 
   const position = usePosition({
     ...options,
@@ -73,13 +73,16 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
     NarrowedElement<ReferenceType> | null | undefined
   >(undefined);
   const [localFloatingElement, setLocalFloatingElement] = React.useState<HTMLElement | null>(null);
+
   rootContext.useSyncedValue('referenceElement', localDomReference ?? null);
+
   const localDomReferenceElement = isElement(localDomReference)
     ? (localDomReference as Element)
     : null;
+
   rootContext.useSyncedValue(
     'domReferenceElement',
-    localDomReference === undefined ? rootContextElements.domReference : localDomReferenceElement,
+    localDomReference === undefined ? domReferenceElement : localDomReferenceElement,
   );
   rootContext.useSyncedValue('floatingElement', localFloatingElement);
 
@@ -128,9 +131,9 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
   const elements = React.useMemo(
     () => ({
       ...position.elements,
-      domReference: rootContextElements.domReference,
+      domReference: domReferenceElement,
     }),
-    [position.elements, rootContextElements.domReference],
+    [position.elements, domReferenceElement],
   );
 
   const open = rootContext.useState('open');
