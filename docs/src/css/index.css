@@ -227,7 +227,7 @@
     --color-violet: oklch(40% 60% 300deg);
 
     /* Font size */
-    --font-size-12: 0.75rem; /* 12px */
+    --font-size-13: 0.8125rem; /* 13px */
     --font-size-14: 0.875rem; /* 14px */
     --font-size-15: 0.9375rem; /* 15px */
     --font-size-16: 1rem; /* 16px */
@@ -403,7 +403,7 @@
     --color-green: initial;
     --color-violet: initial;
 
-    --font-size-12: initial;
+    --font-size-13: initial;
     --font-size-14: initial;
     --font-size-15: initial;
     --font-size-16: initial;

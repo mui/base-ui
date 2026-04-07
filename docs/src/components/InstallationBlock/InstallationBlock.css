@@ -5,7 +5,7 @@
   }
 
   .InstallationBlockTab {
-    font-size: var(--font-size-12);
+    font-size: var(--font-size-13);
     line-height: 1.25rem;
     cursor: default;
     position: relative;

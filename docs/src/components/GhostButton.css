@@ -1,6 +1,6 @@
 @layer components {
   .GhostButton {
-    font-size: var(--font-size-12);
+    font-size: var(--font-size-13);
     color: var(--gray-t2);
     cursor: default;
     position: relative;

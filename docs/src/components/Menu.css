@@ -30,7 +30,7 @@
   }
 
   .MenuItem {
-    font-size: var(--font-size-12);
+    font-size: var(--font-size-13);
     outline: 0;
     display: flex;
     align-items: center;

@@ -131,7 +131,7 @@
     border: 1px solid var(--gray-c3);
     background-color: var(--gray-s2);
     pointer-events: none;
-    color: var(--gray-t1);
+    color: var(--gray-t2);
 
     @media (--lg) {
       display: inline-flex;
@@ -153,12 +153,12 @@
   }
 
   .SearchTriggerCtrl {
-    font-size: var(--font-size-12);
+    font-size: var(--font-size-13);
   }
 
   .SearchTriggerPlus {
-    font-size: var(--font-size-12);
-    color: var(--gray-p2);
+    font-size: var(--font-size-13);
+    color: var(--gray-t1);
   }
 
   .SearchTriggerK {
@@ -183,7 +183,7 @@
 
   .SearchScore {
     margin-left: 0.375rem;
-    font-size: var(--font-size-12);
+    font-size: var(--font-size-13);
     opacity: 0.7;
     white-space: nowrap;
   }
@@ -398,7 +398,7 @@
     border-top: 1px solid var(--gray-c1);
     padding: 0.5rem 0.5rem 0.5rem 0.75rem;
     display: flex;
-    font-size: var(--font-size-12);
+    font-size: var(--font-size-13);
     line-height: 1;
     color: var(--gray-p1);
   }

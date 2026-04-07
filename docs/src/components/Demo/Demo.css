@@ -62,7 +62,7 @@
   }
 
   .DemoToolbar {
-    font-size: var(--font-size-12);
+    font-size: var(--font-size-13);
     line-height: 1.25rem;
     white-space: nowrap;
     color: var(--gray-t2);
@@ -279,7 +279,7 @@
   }
 
   .DemoCollapseButton {
-    font-size: var(--font-size-12);
+    font-size: var(--font-size-13);
     line-height: 1.25rem;
     background-color: var(--gray-s2);
     cursor: default;
