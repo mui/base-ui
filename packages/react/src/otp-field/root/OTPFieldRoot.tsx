@@ -410,6 +410,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
           name={name}
           onValueInvalid={reportValueInvalid}
           pattern={hiddenInputPattern}
+          queueFocusInput={queueFocusInput}
           readOnly={readOnly}
           sanitizeValue={sanitizeValue}
           required={required}
@@ -434,6 +435,7 @@ interface OTPFieldHiddenInputProps {
   name: string | undefined;
   onValueInvalid: (value: string, details: OTPFieldRoot.InvalidEventDetails) => void;
   pattern: string | undefined;
+  queueFocusInput: (index: number, nextValue: string) => void;
   readOnly: boolean;
   sanitizeValue: ((value: string) => string) | undefined;
   required: boolean;
@@ -455,6 +457,7 @@ function OTPFieldHiddenInput(props: OTPFieldHiddenInputProps) {
     name,
     onValueInvalid,
     pattern,
+    queueFocusInput,
     readOnly,
     sanitizeValue,
     required,
@@ -493,10 +496,14 @@ function OTPFieldHiddenInput(props: OTPFieldHiddenInputProps) {
             );
           }
 
-          setValue(
+          const committedValue = setValue(
             normalizedValue,
             createChangeEventDetails(REASONS.inputChange, event.nativeEvent),
           );
+
+          if (committedValue != null && committedValue !== '') {
+            queueFocusInput(committedValue.length - 1, committedValue);
+          }
         },
       })}
       ref={validation.inputRef}

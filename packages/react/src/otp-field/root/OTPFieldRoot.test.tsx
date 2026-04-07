@@ -755,6 +755,7 @@ describe('<OTPField />', () => {
       const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
 
       expect(inputs.map((input) => input.value)).toEqual(['1', '2', '3', '4', '5', '6']);
+      expect(document.activeElement).toBe(inputs[5]);
       expect(onValueChange.mock.calls.length).toBe(1);
       expect(onValueChange.mock.calls[0]?.[0]).toBe('123456');
       expect(onValueChange.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
