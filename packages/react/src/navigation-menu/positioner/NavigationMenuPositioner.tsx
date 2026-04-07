@@ -1,6 +1,8 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
+import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import {
@@ -10,7 +12,6 @@ import {
 } from '../../floating-ui-react/utils';
 import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
 import {
   useNavigationMenuRootContext,
   useNavigationMenuTreeContext,
@@ -23,10 +24,9 @@ import {
   type UseAnchorPositioningSharedParameters,
 } from '../../utils/useAnchorPositioning';
 import { NavigationMenuPositionerContext } from './NavigationMenuPositionerContext';
-import { popupStateMapping } from '../../utils/popupStateMapping';
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
-import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import { usePositioner } from '../../utils/usePositioner';
 
 const EMPTY_ROOT_CONTEXT = getEmptyRootContext();
 
@@ -98,12 +98,10 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
 
     // Listen to the event on the capture phase so they run before the focus
     // trap elements onFocus prop is called.
-    positionerElement.addEventListener('focusin', onFocus, true);
-    positionerElement.addEventListener('focusout', onFocus, true);
-    return () => {
-      positionerElement.removeEventListener('focusin', onFocus, true);
-      positionerElement.removeEventListener('focusout', onFocus, true);
-    };
+    return mergeCleanups(
+      addEventListener(positionerElement, 'focusin', onFocus, true),
+      addEventListener(positionerElement, 'focusout', onFocus, true),
+    );
   }, [positionerElement]);
 
   const domReference = (floatingRootContext || EMPTY_ROOT_CONTEXT).useState('domReferenceElement');
@@ -130,23 +128,6 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     adaptiveOrigin,
   });
 
-  const defaultProps: React.ComponentProps<'div'> = React.useMemo(() => {
-    const hiddenStyles: React.CSSProperties = {};
-
-    if (!open) {
-      hiddenStyles.pointerEvents = 'none';
-    }
-
-    return {
-      role: 'presentation',
-      hidden: !mounted,
-      style: {
-        ...positioning.positionerStyles,
-        ...hiddenStyles,
-      },
-    };
-  }, [open, mounted, positioning.positionerStyles]);
-
   const state: NavigationMenuPositionerState = {
     open,
     side: positioning.side,
@@ -171,17 +152,16 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     }
 
     const win = ownerWindow(positionerElement);
-    win.addEventListener('resize', handleResize);
-    return () => {
-      win.removeEventListener('resize', handleResize);
-    };
+    return addEventListener(win, 'resize', handleResize);
   }, [open, resizeTimeout, positionerElement]);
 
-  const element = useRenderElement('div', componentProps, {
-    state,
-    ref: [forwardedRef, setPositionerElement, positionerRef],
-    props: [defaultProps, getDisabledMountTransitionStyles(transitionStatus), elementProps],
-    stateAttributesMapping: popupStateMapping,
+  const element = usePositioner(componentProps, state, {
+    styles: positioning.positionerStyles,
+    transitionStatus,
+    props: elementProps,
+    refs: [forwardedRef, setPositionerElement, positionerRef],
+    hidden: !mounted,
+    inert: !open,
   });
 
   return (

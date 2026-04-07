@@ -106,7 +106,6 @@ export function focusElementWithVisible(element: HTMLElement) {
   element.focus({
     // Available from Chrome 144+ (January 2026).
     // Safari and Firefox already support it.
-    // @ts-expect-error not available in types yet
     focusVisible: true,
   });
 }

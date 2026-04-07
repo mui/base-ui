@@ -1,6 +1,8 @@
 'use client';
 import * as React from 'react';
 import { getNodeName, isHTMLElement } from '@floating-ui/utils/dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
+import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -358,10 +360,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     }
 
     const doc = ownerDocument(floatingFocusElement);
-    doc.addEventListener('keydown', onKeyDown);
-    return () => {
-      doc.removeEventListener('keydown', onKeyDown);
-    };
+    return addEventListener(doc, 'keydown', onKeyDown);
   }, [
     disabled,
     domReference,
@@ -405,16 +404,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       lastInteractionTypeRef.current = 'keyboard';
     }
 
-    doc.addEventListener('pointerdown', onPointerDown, true);
-    doc.addEventListener('pointerup', clearPointerDownOutside, true);
-    doc.addEventListener('pointercancel', clearPointerDownOutside, true);
-    doc.addEventListener('keydown', onKeyDown, true);
-    return () => {
-      doc.removeEventListener('pointerdown', onPointerDown, true);
-      doc.removeEventListener('pointerup', clearPointerDownOutside, true);
-      doc.removeEventListener('pointercancel', clearPointerDownOutside, true);
-      doc.removeEventListener('keydown', onKeyDown, true);
-    };
+    return mergeCleanups(
+      addEventListener(doc, 'pointerdown', onPointerDown, true),
+      addEventListener(doc, 'pointerup', clearPointerDownOutside, true),
+      addEventListener(doc, 'pointercancel', clearPointerDownOutside, true),
+      addEventListener(doc, 'keydown', onKeyDown, true),
+    );
   }, [
     disabled,
     floating,
@@ -578,43 +573,20 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     }
 
     const domReferenceElement = isHTMLElement(domReference) ? domReference : null;
-    const cleanups: Array<() => void> = [];
-
     if (!floating && !domReferenceElement) {
       return undefined;
     }
 
-    if (domReferenceElement) {
-      domReferenceElement.addEventListener('focusout', handleFocusOutside);
-      domReferenceElement.addEventListener('pointerdown', handlePointerDown);
-      cleanups.push(() => {
-        domReferenceElement.removeEventListener('focusout', handleFocusOutside);
-        domReferenceElement.removeEventListener('pointerdown', handlePointerDown);
-      });
-    }
-
-    if (floating) {
-      floating.addEventListener('focusin', handleFocusIn);
-      floating.addEventListener('focusout', handleFocusOutside);
-
-      if (portalContext) {
-        floating.addEventListener('focusout', markInsideReactTree, true);
-        cleanups.push(() => {
-          floating.removeEventListener('focusout', markInsideReactTree, true);
-        });
-      }
-
-      cleanups.push(() => {
-        floating.removeEventListener('focusin', handleFocusIn);
-        floating.removeEventListener('focusout', handleFocusOutside);
-      });
-    }
-
-    return () => {
-      cleanups.forEach((cleanup) => {
-        cleanup();
-      });
-    };
+    return mergeCleanups(
+      domReferenceElement && addEventListener(domReferenceElement, 'focusout', handleFocusOutside),
+      domReferenceElement &&
+        addEventListener(domReferenceElement, 'pointerdown', handlePointerDown),
+      floating && addEventListener(floating, 'focusin', handleFocusIn),
+      floating && addEventListener(floating, 'focusout', handleFocusOutside),
+      floating &&
+        portalContext &&
+        addEventListener(floating, 'focusout', markInsideReactTree, true),
+    );
   }, [
     disabled,
     domReference,

@@ -1,13 +1,15 @@
 'use client';
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
+import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerDocument } from '@base-ui/utils/owner';
 
 import type { FloatingContext, FloatingRootContext } from '../types';
-import { getTarget, isTargetInsideEnabledTrigger } from '../utils/element';
+import { contains, getTarget, isTargetInsideEnabledTrigger } from '../utils/element';
 import { getNodeChildren } from '../utils/nodes';
 
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -34,6 +36,11 @@ export type UseHoverFloatingInteractionProps = {
    * @default 0
    */
   closeDelay?: number | (() => number) | undefined;
+  /**
+   * Tree node id override for floating elements that participate in the tree
+   * without a `FloatingContext`, such as inline nested navigation menus.
+   */
+  nodeId?: string | undefined;
 };
 
 /**
@@ -49,7 +56,7 @@ export function useHoverFloatingInteraction(
   const domReferenceElement = store.useState('domReferenceElement');
   const { dataRef } = store.context;
 
-  const { enabled = true, closeDelay: closeDelayProp = 0 } = parameters;
+  const { enabled = true, closeDelay: closeDelayProp = 0, nodeId: nodeIdProp } = parameters;
 
   const instance = useHoverInteractionSharedState(store);
 
@@ -193,6 +200,20 @@ export function useHoverFloatingInteraction(
         return;
       }
 
+      const currentNodeId = dataRef.current.floatingContext?.nodeId ?? nodeIdProp;
+      const relatedTarget = event.relatedTarget;
+      const isMovingIntoDescendantFloating =
+        tree &&
+        currentNodeId &&
+        isElement(relatedTarget) &&
+        getNodeChildren(tree.nodesRef.current, currentNodeId, false).some((node) =>
+          contains(node.context?.elements.floating, relatedTarget),
+        );
+
+      if (isMovingIntoDescendantFloating) {
+        return;
+      }
+
       // If the safePolygon handler is active, let it handle the close logic.
       if (instance.handler) {
         instance.handler(event);
@@ -218,25 +239,20 @@ export function useHoverFloatingInteraction(
     }
 
     const floating = floatingElement;
-    if (floating) {
-      floating.addEventListener('mouseenter', onFloatingMouseEnter);
-      floating.addEventListener('mouseleave', onFloatingMouseLeave);
-      floating.addEventListener('pointerdown', handleInteractInside, true);
-    }
-
-    return () => {
-      if (floating) {
-        floating.removeEventListener('mouseenter', onFloatingMouseEnter);
-        floating.removeEventListener('mouseleave', onFloatingMouseLeave);
-        floating.removeEventListener('pointerdown', handleInteractInside, true);
-      }
-      tree?.events.off('floating.closed', onNodeClosed);
-    };
+    return mergeCleanups(
+      floating && addEventListener(floating, 'mouseenter', onFloatingMouseEnter),
+      floating && addEventListener(floating, 'mouseleave', onFloatingMouseLeave),
+      floating && addEventListener(floating, 'pointerdown', handleInteractInside, true),
+      () => {
+        tree?.events.off('floating.closed', onNodeClosed);
+      },
+    );
   }, [
     enabled,
     floatingElement,
     store,
     dataRef,
+    nodeIdProp,
     isClickLikeOpenEvent,
     isRelatedTargetInsideEnabledTrigger,
     closeWithDelay,

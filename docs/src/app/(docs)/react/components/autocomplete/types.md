@@ -754,6 +754,10 @@ type AutocompleteSeparatorState = {
 
 Displays a status message whose content changes are announced politely to screen readers.
 Useful for conveying the status of an asynchronously loaded list.
+This component's root element must remain mounted in the DOM to announce
+changes consistently across screen readers. Avoid hiding or removing the
+component itself with `display: none`, `hidden`, `aria-hidden`, or conditional
+rendering. Prefer updating or conditionally rendering its children instead.
 Renders a `<div>` element.
 
 **Status Props:**
@@ -779,6 +783,10 @@ type AutocompleteStatusState = {};
 Renders its children only when the list is empty.
 Requires the `items` prop on the root component.
 Announces changes politely to screen readers.
+This component's root element must remain mounted in the DOM to announce
+changes consistently across screen readers. Avoid hiding or removing the
+component itself with `display: none`, `hidden`, `aria-hidden`, or conditional
+rendering. Prefer updating or conditionally rendering its children instead.
 Renders a `<div>` element.
 
 **Empty Props:**
@@ -942,8 +950,11 @@ type ReturnValue = T[];
 
 ```typescript
 type AutocompleteFilter = {
+  /** Returns whether the item matches the query anywhere. */
   contains: <Item>(item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
+  /** Returns whether the item starts with the query. */
   startsWith: <Item>(item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
+  /** Returns whether the item ends with the query. */
   endsWith: <Item>(item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
 };
 ```

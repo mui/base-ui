@@ -20,6 +20,7 @@ import {
 } from '../../floating-ui-react';
 import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useRegisterFieldControl } from '../../field/root/useRegisterFieldControl';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { selectors, type State as StoreState } from '../store';
@@ -30,7 +31,6 @@ import {
 import { REASONS } from '../../utils/reasons';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFormContext } from '../../form/FormContext';
-import { useField } from '../../field/useField';
 import { type Group, stringifyAsValue } from '../../utils/resolveValueLabel';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '../../utils/constants';
 import { defaultItemEquality, findItemIndex } from '../../utils/itemEquality';
@@ -180,14 +180,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   }, [multiple, value, itemToStringValue]);
 
   const controlRef = useValueAsRef(store.state.triggerElement);
+  const getFieldValue = useStableCallback(() => fieldStringValue);
 
-  useField({
+  useRegisterFieldControl(controlRef, {
     id: generatedId,
-    commit: validation.commit,
     value,
-    controlRef,
-    name,
-    getValue: () => fieldStringValue,
+    getValue: getFieldValue,
   });
 
   const initialValueRef = React.useRef(value);
@@ -360,9 +358,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
       store.set('activeIndex', nextActiveIndex);
     },
-    // Implement our own listeners since `onPointerLeave` on each option fires while scrolling with
-    // the `alignItemWithTrigger=true`, causing a performance issue on Chrome.
-    focusItemOnHover: false,
+    focusItemOnHover: highlightItemOnHover,
   });
 
   const typeahead = useTypeahead(floatingContext, {
@@ -525,7 +521,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
               // Move focus to the trigger element when the hidden input is focused.
               store.state.triggerElement?.focus({
                 // Supported in Chrome from 144 (January 2026)
-                // @ts-expect-error - focusVisible is not yet in the lib.dom.d.ts
                 focusVisible: true,
               });
             },

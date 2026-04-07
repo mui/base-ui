@@ -149,79 +149,13 @@ export default function ExampleNavigationMenu() {
 
           <NavigationMenu.Item>
             <NavigationMenu.Trigger className={styles.Trigger}>
-              Nested
+              Product
               <NavigationMenu.Icon className={styles.Icon}>
                 <ChevronDownIcon />
               </NavigationMenu.Icon>
             </NavigationMenu.Trigger>
             <NavigationMenu.Content className={styles.Content}>
-              <NavigationMenu.Root className={styles.Root} defaultValue="overview">
-                <NavigationMenu.List className={styles.List}>
-                  <NavigationMenu.Item value="overview">
-                    <NavigationMenu.Trigger className={styles.Trigger}>
-                      Overview
-                      <NavigationMenu.Icon className={styles.Icon}>
-                        <ChevronDownIcon />
-                      </NavigationMenu.Icon>
-                    </NavigationMenu.Trigger>
-                    <NavigationMenu.Content className={styles.Content}>
-                      <ul className={styles.GridLinkList}>
-                        {overviewLinks.map((item) => (
-                          <li key={item.href}>
-                            <Link className={styles.LinkCard} href={item.href}>
-                              <h3 className={styles.LinkTitle}>{item.title}</h3>
-                              <p className={styles.LinkDescription}>{item.description}</p>
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </NavigationMenu.Content>
-                  </NavigationMenu.Item>
-
-                  <NavigationMenu.Item value="handbook">
-                    <NavigationMenu.Trigger className={styles.Trigger}>
-                      Handbook
-                      <NavigationMenu.Icon className={styles.Icon}>
-                        <ChevronDownIcon />
-                      </NavigationMenu.Icon>
-                    </NavigationMenu.Trigger>
-                    <NavigationMenu.Content className={styles.Content}>
-                      <button type="button" onClick={() => setRenderExtraItem(!renderExtraItem)}>
-                        Render extra item
-                      </button>
-
-                      <ul className={styles.FlexLinkList}>
-                        {handbookLinks.map((item) => (
-                          <li key={item.href}>
-                            <Link className={styles.LinkCard} href={item.href}>
-                              <h3 className={styles.LinkTitle}>{item.title}</h3>
-                              <p className={styles.LinkDescription}>{item.description}</p>
-                            </Link>
-                          </li>
-                        ))}
-                        {renderExtraItem && (
-                          <li>
-                            <Link className={styles.LinkCard} href="/react/overview/quick-start">
-                              <h3 className={styles.LinkTitle}>Quick Start</h3>
-                              <p className={styles.LinkDescription}>
-                                Install and assemble your first component.
-                              </p>
-                            </Link>
-                          </li>
-                        )}
-                      </ul>
-                    </NavigationMenu.Content>
-                  </NavigationMenu.Item>
-
-                  <NavigationMenu.Item>
-                    <Link className={styles.Trigger} href="https://github.com/mui/base-ui">
-                      GitHub
-                    </Link>
-                  </NavigationMenu.Item>
-                </NavigationMenu.List>
-
-                <NavigationMenu.Viewport className={styles.Viewport} />
-              </NavigationMenu.Root>
+              <MixedNestedNavigationMenuContent />
             </NavigationMenu.Content>
           </NavigationMenu.Item>
 
@@ -358,6 +292,127 @@ export default function ExampleNavigationMenu() {
   );
 }
 
+function MixedNestedNavigationMenuContent() {
+  return (
+    <NavigationMenu.Root orientation="vertical" defaultValue="developers">
+      <div className={styles.InlineNestedShell}>
+        <NavigationMenu.List className={styles.InlineNestedList}>
+          <NavigationMenu.Item value="developers">
+            <NavigationMenu.Trigger className={styles.InlineNestedTrigger}>
+              <span>Developers</span>
+              <span className={styles.InlineNestedHint}>Go from idea to UI faster.</span>
+            </NavigationMenu.Trigger>
+            <NavigationMenu.Content className={styles.InlineNestedContent}>
+              <div className={styles.SubmenuStack}>
+                <div>
+                  <h3 className={styles.SectionTitle}>
+                    Build product UI without giving up control
+                  </h3>
+                  <p className={styles.SectionDescription}>
+                    Hover Composition and move into the popup across the gap to test the handoff.
+                  </p>
+                </div>
+
+                <ul className={styles.FlexLinkList}>
+                  <li>
+                    <Link className={styles.LinkCard} href="/react/overview/quick-start">
+                      <h3 className={styles.LinkTitle}>Quick start</h3>
+                      <p className={styles.LinkDescription}>
+                        Install Base UI and get your first interactive primitive on screen fast.
+                      </p>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link className={styles.LinkCard} href="/react/overview/accessibility">
+                      <h3 className={styles.LinkTitle}>Accessibility</h3>
+                      <p className={styles.LinkDescription}>
+                        Review keyboard support and semantic defaults before anything ships.
+                      </p>
+                    </Link>
+                  </li>
+                  <li>
+                    <NavigationMenu.Root>
+                      <NavigationMenu.List className={styles.DeepSubmenuList}>
+                        <NavigationMenu.Item value="composition">
+                          <NavigationMenu.Trigger className={styles.DeepSubmenuTrigger}>
+                            Composition
+                            <span className={styles.DeepSubmenuArrow}>→</span>
+                          </NavigationMenu.Trigger>
+                          <NavigationMenu.Content className={styles.DeepSubmenuContent}>
+                            <div className={styles.SubmenuStack}>
+                              <div>
+                                <h4 className={styles.SectionTitle}>Composition popup</h4>
+                                <p className={styles.SectionDescription}>
+                                  This positioned submenu reproduces the inline-to-popup cursor path
+                                  from the bug report.
+                                </p>
+                              </div>
+                              <ul className={styles.FlexLinkList}>
+                                {deepLinks.map((item) => (
+                                  <li key={item.href}>
+                                    <Link className={styles.LinkCard} href={item.href}>
+                                      <h3 className={styles.LinkTitle}>{item.title}</h3>
+                                      <p className={styles.LinkDescription}>{item.description}</p>
+                                    </Link>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </NavigationMenu.Content>
+                        </NavigationMenu.Item>
+                      </NavigationMenu.List>
+
+                      <NavigationMenu.Portal>
+                        <NavigationMenu.Positioner
+                          className={styles.Positioner}
+                          side="right"
+                          sideOffset={10}
+                          collisionPadding={{
+                            top: 5,
+                            bottom: 5,
+                            left: 20,
+                            right: 20,
+                          }}
+                        >
+                          <NavigationMenu.Popup className={styles.Popup}>
+                            <NavigationMenu.Viewport className={styles.Viewport} />
+                          </NavigationMenu.Popup>
+                        </NavigationMenu.Positioner>
+                      </NavigationMenu.Portal>
+                    </NavigationMenu.Root>
+                  </li>
+                </ul>
+              </div>
+            </NavigationMenu.Content>
+          </NavigationMenu.Item>
+
+          <NavigationMenu.Item value="systems">
+            <NavigationMenu.Trigger className={styles.InlineNestedTrigger}>
+              <span>Design systems</span>
+              <span className={styles.InlineNestedHint}>
+                Move here to close the current branch.
+              </span>
+            </NavigationMenu.Trigger>
+            <NavigationMenu.Content className={styles.InlineNestedContent}>
+              <div className={styles.SubmenuStack}>
+                <h3 className={styles.SectionTitle}>
+                  Turn shared standards into working components
+                </h3>
+                <p className={styles.SectionDescription}>
+                  A sibling panel for quickly switching the active inline branch while you test
+                  hover transitions.
+                </p>
+              </div>
+            </NavigationMenu.Content>
+          </NavigationMenu.Item>
+        </NavigationMenu.List>
+
+        <NavigationMenu.Viewport className={styles.InlineNestedViewport} />
+      </div>
+    </NavigationMenu.Root>
+  );
+}
+
 function Link(props: NavigationMenu.Link.Props) {
   return (
     <NavigationMenu.Link
@@ -440,5 +495,18 @@ const handbookLinks = [
     title: 'Composition',
     description:
       'Base UI components can be replaced and composed with your own existing components.',
+  },
+] as const;
+
+const deepLinks = [
+  {
+    href: '/react/handbook/composition',
+    title: 'Composition handbook',
+    description: 'Follow the hover path into this popup and confirm the entire chain stays open.',
+  },
+  {
+    href: '/react/components/navigation-menu',
+    title: 'Navigation Menu docs',
+    description: 'Compare the experiment against the shipped component guidance and examples.',
   },
 ] as const;

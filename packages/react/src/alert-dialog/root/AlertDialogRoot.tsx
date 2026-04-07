@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { IsDrawerContext } from '../../dialog/root/DialogRoot';
 import { useDialogRoot } from '../../dialog/root/useDialogRoot';
 import { DialogRootContext, useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -27,24 +27,19 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
     defaultTriggerId: defaultTriggerIdProp = null,
   } = props;
 
-  const parentDialogRootContext = useDialogRootContext();
+  const parentDialogRootContext = useDialogRootContext(true);
   const nested = Boolean(parentDialogRootContext);
 
-  const store = useRefWithInit(() => {
-    return (
-      handle?.store ??
-      new DialogStore<Payload>({
-        open: defaultOpen,
-        openProp,
-        activeTriggerId: defaultTriggerIdProp,
-        triggerIdProp,
-        modal: true,
-        disablePointerDismissal: true,
-        nested,
-        role: 'alertdialog',
-      })
-    );
-  }).current;
+  const store = DialogStore.useStore(handle?.store, {
+    open: defaultOpen,
+    openProp,
+    activeTriggerId: defaultTriggerIdProp,
+    triggerIdProp,
+    modal: true,
+    disablePointerDismissal: true,
+    nested,
+    role: 'alertdialog',
+  });
 
   store.useControlledProp('openProp', openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
@@ -58,6 +53,7 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
     store,
     actionsRef,
     parentContext: parentDialogRootContext?.store.context,
+    isDrawer: false,
     onOpenChange,
     triggerIdProp,
   });
@@ -65,9 +61,11 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
   const contextValue: DialogRootContext<Payload> = React.useMemo(() => ({ store }), [store]);
 
   return (
-    <DialogRootContext.Provider value={contextValue as DialogRootContext}>
-      {typeof children === 'function' ? children({ payload }) : children}
-    </DialogRootContext.Provider>
+    <IsDrawerContext.Provider value={false}>
+      <DialogRootContext.Provider value={contextValue as DialogRootContext}>
+        {typeof children === 'function' ? children({ payload }) : children}
+      </DialogRootContext.Provider>
+    </IsDrawerContext.Provider>
   );
 }
 
