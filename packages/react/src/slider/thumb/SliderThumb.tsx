@@ -5,6 +5,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { BaseUIComponentProps } from '../../utils/types';
+import { clamp } from '../../utils/clamp';
 import { formatNumber } from '../../utils/formatNumber';
 import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -31,7 +32,7 @@ import { type LabelableContext } from '../../labelable-provider/LabelableContext
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { getMidpoint } from '../utils/getMidpoint';
 import { getSliderValue } from '../utils/getSliderValue';
-import { roundValueToStep } from '../utils/roundValueToStep';
+import { getDecimalPrecision, roundValueToStep } from '../utils/roundValueToStep';
 import type { SliderRootState } from '../root/SliderRoot';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
@@ -76,11 +77,18 @@ function getNewValue(
   direction: 1 | -1,
   min: number,
   max: number,
-  step: number,
 ): number {
   const value = direction === 1 ? thumbValue + increment : thumbValue - increment;
-  const roundedValue = roundValueToStep(value, step, min);
-  return Math.min(Math.max(roundedValue, min), max);
+  const roundedValue = Number(
+    value.toFixed(
+      Math.max(
+        getDecimalPrecision(thumbValue),
+        getDecimalPrecision(increment),
+        getDecimalPrecision(min),
+      ),
+    ),
+  );
+  return clamp(roundedValue, min, max);
 }
 
 /**
@@ -380,14 +388,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         const roundedValue = roundValueToStep(thumbValue, step, min);
         switch (event.key) {
           case ARROW_UP:
-            newValue = getNewValue(
-              roundedValue,
-              event.shiftKey ? largeStep : step,
-              1,
-              min,
-              max,
-              step,
-            );
+            newValue = getNewValue(roundedValue, event.shiftKey ? largeStep : step, 1, min, max);
             break;
           case ARROW_RIGHT:
             newValue = getNewValue(
@@ -396,18 +397,10 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
               rtl ? -1 : 1,
               min,
               max,
-              step,
             );
             break;
           case ARROW_DOWN:
-            newValue = getNewValue(
-              roundedValue,
-              event.shiftKey ? largeStep : step,
-              -1,
-              min,
-              max,
-              step,
-            );
+            newValue = getNewValue(roundedValue, event.shiftKey ? largeStep : step, -1, min, max);
             break;
           case ARROW_LEFT:
             newValue = getNewValue(
@@ -416,14 +409,13 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
               rtl ? 1 : -1,
               min,
               max,
-              step,
             );
             break;
           case PAGE_UP:
-            newValue = getNewValue(roundedValue, largeStep, 1, min, max, step);
+            newValue = getNewValue(roundedValue, largeStep, 1, min, max);
             break;
           case PAGE_DOWN:
-            newValue = getNewValue(roundedValue, largeStep, -1, min, max, step);
+            newValue = getNewValue(roundedValue, largeStep, -1, min, max);
             break;
           case END:
             newValue = max;

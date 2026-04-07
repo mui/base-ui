@@ -1932,6 +1932,40 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
               expect(input).toHaveAttribute('aria-valuenow', '25');
             });
 
+            it('preserves largeStep increments when step uses a different grid', async () => {
+              const handleValueChange = vi.fn();
+              const { user } = await render(
+                <div dir={direction}>
+                  <DirectionProvider direction={direction}>
+                    <Slider.Root
+                      orientation={orientation}
+                      defaultValue={20}
+                      step={2}
+                      largeStep={5}
+                      onValueChange={handleValueChange}
+                    >
+                      <Slider.Control>
+                        <Slider.Track>
+                          <Slider.Indicator />
+                          <Slider.Thumb data-testid="thumb" />
+                        </Slider.Track>
+                      </Slider.Control>
+                    </Slider.Root>
+                  </DirectionProvider>
+                </div>,
+              );
+
+              const input = screen.getByRole('slider');
+
+              await user.keyboard('[Tab]');
+              expect(input).toHaveFocus();
+
+              await user.keyboard('[PageUp]');
+              expect(handleValueChange.mock.calls.length).toBe(1);
+              expect(handleValueChange.mock.calls[0][0]).toEqual(25);
+              expect(input).toHaveAttribute('aria-valuenow', '25');
+            });
+
             it('does not exceed max', async () => {
               const handleValueChange = vi.fn();
               const { user } = await render(
