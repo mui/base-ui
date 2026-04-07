@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -481,10 +482,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       }
     }
 
-    element.addEventListener('touchmove', preventDefaultTouchStart, { passive: false });
-    return () => {
-      element.removeEventListener('touchmove', preventDefaultTouchStart);
-    };
+    return addEventListener(element, 'touchmove', preventDefaultTouchStart, { passive: false });
   }, [swipeEnabled]);
 
   function getDragStyles() {
