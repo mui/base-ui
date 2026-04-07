@@ -6,6 +6,20 @@
     border: 1px solid var(--gray-c2);
     border-radius: var(--radius-6);
     margin-bottom: var(--space-24);
+
+    --shadow-1:
+      0 1px 1px 0 var(--blackA-1), 0 2px 1px -1px var(--blackA-1), 0 1px 3px 0 var(--blackA-1);
+    --shadow-2:
+      0 1px 1px 0 var(--blackA-1), 0 1px 3px -1px var(--blackA-1), 0 4px 8px -2px var(--blackA-1);
+    --shadow-3:
+      0 1px 1px 0 var(--blackA-1), 0 2px 6px -1px var(--blackA-1), 0 6px 12px -3px var(--blackA-1),
+      0 8px 16px -4px var(--blackA-1);
+    --shadow-4:
+      0 1px 1px 0 var(--blackA-1), 0 2px 4px -1px var(--blackA-1), 0 4px 8px -2px var(--blackA-1),
+      0 12px 32px -6px var(--blackA-3), 0 20px 48px -10px var(--blackA-1);
+    --shadow-5:
+      0 10px 32px var(--blackA-5), 0 1px 1px var(--blackA-1), 0 4px 6px var(--blackA-2),
+      0 1px 1px var(--blackA-2), 0 24px 68px var(--blackA-4);
   }
 
   .DemoPlaygroundExternalLink {
@@ -176,22 +190,12 @@
       font-weight: bold;
 
       &::before {
-        background-color: white;
+        background-color: var(--gray-s1);
         outline: 1px solid var(--gray-c3);
         outline-offset: -1px;
         box-shadow:
           0 2px 3px -2px var(--gray-c3),
           inset 0 -1px 1px var(--gray-c2);
-      }
-
-      @media (prefers-color-scheme: dark) {
-        &::before {
-          outline: none;
-          background-color: var(--gray-s2);
-          box-shadow:
-            0 0 3px 0 var(--gray-c3),
-            inset 0 0 0 1px var(--gray-p2);
-        }
       }
     }
 

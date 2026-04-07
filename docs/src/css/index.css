@@ -177,7 +177,7 @@
     --gray-s2: hsl(0deg 0% 97.5%);
     --gray-c1: hsl(0deg 0% 95.25%);
     --gray-c2: hsl(0deg 0% 94%);
-    --gray-c3: hsl(0deg 0% 93.1%);
+    --gray-c3: hsl(0deg 0% 88%);
     --gray-p1: hsl(0deg 0% 55%);
     --gray-p2: hsl(0deg 0% 51%);
     --gray-t1: hsl(0deg 0% 46.4%);
@@ -280,7 +280,7 @@
       --gray-s2: hsl(0deg 0% 10%);
       --gray-c1: hsl(0deg 0% 13%);
       --gray-c2: hsl(0deg 0% 16%);
-      --gray-c3: hsl(0deg 0% 20%);
+      --gray-c3: hsl(0deg 0% 32%);
       --gray-p1: hsl(0deg 0% 60%);
       --gray-p2: hsl(0deg 0% 64%);
       --gray-t1: hsl(0deg 0% 70%);
@@ -315,6 +315,7 @@
       --color-content: black;
       --color-background: black;
       --color-popup: var(--gray-s1);
+      --color-gridline: var(--gray-c1);
       --color-selection: oklch(50% 50% 264deg / 40%);
       --color-line-highlight: oklch(50% 50% 264deg / 20%);
       --color-line-highlight-strong: oklch(50% 50% 264deg / 35%);
