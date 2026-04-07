@@ -2,13 +2,13 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useOnMount } from '@base-ui/utils/useOnMount';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { BaseUIComponentProps } from '../../utils/types';
 import { formatNumber } from '../../utils/formatNumber';
 import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useIsHydrating } from '../../utils/useIsHydrating';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { valueToPercent } from '../../utils/valueToPercent';
 import {
@@ -176,10 +176,8 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const thumbValue = sliderValues[index];
   const thumbValuePercent = valueToPercent(thumbValue, min, max);
 
-  const [isMounted, setIsMounted] = React.useState(false);
   const [positionPercent, setPositionPercent] = React.useState<number | undefined>();
-
-  useOnMount(() => setIsMounted(true));
+  const isHydrating = useIsHydrating();
 
   const safeLastUsedThumbIndex =
     lastUsedThumbIndex >= 0 && lastUsedThumbIndex < sliderValues.length ? lastUsedThumbIndex : -1;
@@ -279,7 +277,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     return {
       ['--position' as string]: `${positionPercent ?? 0}%`,
       visibility:
-        (renderBeforeHydration && !isMounted) || positionPercent === undefined
+        (renderBeforeHydration && isHydrating) || positionPercent === undefined
           ? 'hidden'
           : undefined,
       position: 'absolute',
@@ -292,7 +290,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     activeIndex,
     index,
     inset,
-    isMounted,
+    isHydrating,
     positionPercent,
     range,
     renderBeforeHydration,
@@ -440,7 +438,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
               preventScroll: true,
               // Show `:focus-visible` after keyboard interaction, even if the
               // thumb was previously focused by a pointer.
-              // @ts-expect-error - focusVisible is not yet in the lib.dom.d.ts
               focusVisible: true,
             });
           }
@@ -475,9 +472,9 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         children: (
           <React.Fragment>
             {childrenProp}
-            <input ref={mergedInputRef} {...inputProps} />
+            <input ref={mergedInputRef} {...inputProps} suppressHydrationWarning />
             {inset &&
-              !isMounted &&
+              isHydrating &&
               renderBeforeHydration &&
               // this must be rendered with the last thumb to ensure all
               // preceding thumbs are already rendered in the DOM

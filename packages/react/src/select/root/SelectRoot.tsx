@@ -358,9 +358,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
       store.set('activeIndex', nextActiveIndex);
     },
-    // Implement our own listeners since `onPointerLeave` on each option fires while scrolling with
-    // the `alignItemWithTrigger=true`, causing a performance issue on Chrome.
-    focusItemOnHover: false,
+    focusItemOnHover: highlightItemOnHover,
   });
 
   const typeahead = useTypeahead(floatingContext, {
@@ -523,7 +521,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
               // Move focus to the trigger element when the hidden input is focused.
               store.state.triggerElement?.focus({
                 // Supported in Chrome from 144 (January 2026)
-                // @ts-expect-error - focusVisible is not yet in the lib.dom.d.ts
                 focusVisible: true,
               });
             },
@@ -578,6 +575,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           style={name ? visuallyHiddenInput : visuallyHidden}
           tabIndex={-1}
           aria-hidden
+          suppressHydrationWarning
         />
         {hiddenInputs}
       </SelectFloatingContext.Provider>

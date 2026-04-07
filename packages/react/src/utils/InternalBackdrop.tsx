@@ -11,19 +11,8 @@ export const InternalBackdrop = React.forwardRef(function InternalBackdrop(
 
   let clipPath: string | undefined;
   if (cutout) {
-    const rect = cutout?.getBoundingClientRect();
-    clipPath = `polygon(
-      0% 0%,
-      100% 0%,
-      100% 100%,
-      0% 100%,
-      0% 0%,
-      ${rect.left}px ${rect.top}px,
-      ${rect.left}px ${rect.bottom}px,
-      ${rect.right}px ${rect.bottom}px,
-      ${rect.right}px ${rect.top}px,
-      ${rect.left}px ${rect.top}px
-    )`;
+    const rect = cutout.getBoundingClientRect();
+    clipPath = `polygon(0% 0%,100% 0%,100% 100%,0% 100%,0% 0%,${rect.left}px ${rect.top}px,${rect.left}px ${rect.bottom}px,${rect.right}px ${rect.bottom}px,${rect.right}px ${rect.top}px,${rect.left}px ${rect.top}px)`;
   }
 
   return (

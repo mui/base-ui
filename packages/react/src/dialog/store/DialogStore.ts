@@ -3,7 +3,6 @@ import { createSelector, ReactStore } from '@base-ui/utils/store';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { type DialogRoot } from '../root/DialogRoot';
-import type { FloatingUIOpenChangeDetails } from '../../utils/types';
 import {
   createInitialPopupStoreState,
   PopupStoreContext,
@@ -18,6 +17,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   openMethod: InteractionType | null;
   nested: boolean;
   nestedOpenDialogCount: number;
+  nestedOpenDrawerCount: number;
   titleElementId: string | undefined;
   descriptionElementId: string | undefined;
   viewportElement: HTMLElement | null;
@@ -29,7 +29,7 @@ type Context = PopupStoreContext<DialogRoot.ChangeEventDetails> & {
   readonly backdropRef: React.RefObject<HTMLDivElement | null>;
   readonly internalBackdropRef: React.RefObject<HTMLDivElement | null>;
   readonly outsidePressEnabledRef: React.MutableRefObject<boolean>;
-  readonly onNestedDialogOpen?: ((ownChildrenCount: number) => void) | undefined;
+  readonly onNestedDialogOpen?: ((dialogCount: number, drawerCount: number) => void) | undefined;
   readonly onNestedDialogClose?: (() => void) | undefined;
 };
 
@@ -38,6 +38,7 @@ const selectors = {
   modal: createSelector((state: State<unknown>) => state.modal),
   nested: createSelector((state: State<unknown>) => state.nested),
   nestedOpenDialogCount: createSelector((state: State<unknown>) => state.nestedOpenDialogCount),
+  nestedOpenDrawerCount: createSelector((state: State<unknown>) => state.nestedOpenDrawerCount),
   disablePointerDismissal: createSelector((state: State<unknown>) => state.disablePointerDismissal),
   openMethod: createSelector((state: State<unknown>) => state.openMethod),
   descriptionElementId: createSelector((state: State<unknown>) => state.descriptionElementId),
@@ -87,14 +88,7 @@ export class DialogStore<Payload> extends ReactStore<
       return;
     }
 
-    const details: FloatingUIOpenChangeDetails = {
-      open: nextOpen,
-      nativeEvent: eventDetails.event,
-      reason: eventDetails.reason,
-      nested: this.state.nested,
-    };
-
-    this.state.floatingRootContext.context.events?.emit('openchange', details);
+    this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
 
     const updatedState: Partial<State<Payload>> = {
       open: nextOpen,
@@ -136,6 +130,7 @@ function createInitialState<Payload>(initialState: Partial<State<Payload>> = {})
     openMethod: null,
     nested: false,
     nestedOpenDialogCount: 0,
+    nestedOpenDrawerCount: 0,
     role: 'dialog',
     ...initialState,
   };
