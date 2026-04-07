@@ -144,6 +144,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     delay: allowMouseEnter ? { open: delay, close: closeDelay } : 0,
     triggerElementRef,
     externalTree: floatingTreeRoot,
+    isClosing: () => store.select('transitionStatus') === 'ending',
   });
 
   const click = useClick(floatingRootContext, {

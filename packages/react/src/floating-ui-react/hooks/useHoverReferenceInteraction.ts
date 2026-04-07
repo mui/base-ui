@@ -44,6 +44,7 @@ export interface UseHoverReferenceInteractionProps {
   isActiveTrigger?: boolean | undefined;
   triggerElementRef?: Readonly<React.RefObject<Element | null>> | undefined;
   getHandleCloseContext?: (() => HandleCloseContextBase | null) | undefined;
+  isClosing?: (() => boolean) | undefined;
 }
 
 const EMPTY_REF: Readonly<React.RefObject<Element | null>> = { current: null };
@@ -70,6 +71,7 @@ export function useHoverReferenceInteraction(
     externalTree,
     isActiveTrigger = true,
     getHandleCloseContext,
+    isClosing,
   } = props;
 
   const tree = useFloatingTree(externalTree);
@@ -81,6 +83,7 @@ export function useHoverReferenceInteraction(
   const delayRef = useValueAsRef(delay);
   const restMsRef = useValueAsRef(restMs);
   const enabledRef = useValueAsRef(enabled);
+  const isClosingCallback = useStableCallback(isClosing);
 
   if (isActiveTrigger) {
     // eslint-disable-next-line no-underscore-dangle
@@ -232,7 +235,8 @@ export function useHoverReferenceInteraction(
           ? false
           : isOverInactiveTrigger(currentDomReference, triggerNode, eventTarget);
       const isOpen = store.select('open');
-      const isInClosingTransition = store.select('transitionStatus') === 'ending';
+      const isInClosingTransition =
+        isClosingCallback() ?? store.select('transitionStatus') === 'ending';
       const isHoverCloseTransition =
         !isOpen && isInClosingTransition && isHoverCloseActiveRef.current;
       const isReenteringSameTriggerDuringCloseTransition =
@@ -365,6 +369,7 @@ export function useHoverReferenceInteraction(
     tree,
     enabledRef,
     getHandleCloseContext,
+    isClosingCallback,
   ]);
 
   return React.useMemo<HTMLProps | undefined>(() => {
