@@ -78,7 +78,7 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
 
 interface ShippingMethod {
   id: string;
-  name: React.ReactNode;
+  name: string;
   duration: string;
   price: string;
 }
@@ -86,19 +86,19 @@ interface ShippingMethod {
 const shippingMethods: ShippingMethod[] = [
   {
     id: 'standard',
-    name: <span>Standard</span>,
+    name: 'Standard',
     duration: 'Delivers in 4-6 business days',
     price: '$4.99',
   },
   {
     id: 'express',
-    name: <span>Express</span>,
+    name: 'Express',
     duration: 'Delivers in 2-3 business days',
     price: '$9.99',
   },
   {
     id: 'overnight',
-    name: <span>Overnight</span>,
+    name: 'Overnight',
     duration: 'Delivers next business day',
     price: '$19.99',
   },

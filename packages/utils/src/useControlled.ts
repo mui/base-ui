@@ -2,6 +2,7 @@
 // TODO: uncomment once we enable eslint-plugin-react-compiler // eslint-disable-next-line react-compiler/react-compiler -- process.env never changes, dependency arrays are intentionally ignored
 /* eslint-disable react-hooks/rules-of-hooks, react-hooks/exhaustive-deps */
 import * as React from 'react';
+import { error } from './error';
 
 export interface UseControlledProps<T = unknown> {
   /**
@@ -36,9 +37,9 @@ export function useControlled<T = unknown>({
   if (process.env.NODE_ENV !== 'production') {
     React.useEffect(() => {
       if (isControlled !== (controlled !== undefined)) {
-        console.error(
+        error(
           [
-            `Base UI: A component is changing the ${
+            `A component is changing the ${
               isControlled ? '' : 'un'
             }controlled ${state} state of ${name} to be ${isControlled ? 'un' : ''}controlled.`,
             'Elements should not switch from uncontrolled to controlled (or vice versa).',
@@ -54,10 +55,10 @@ export function useControlled<T = unknown>({
     const { current: defaultValue } = React.useRef(defaultProp);
 
     React.useEffect(() => {
-      if (!isControlled && !deepEqual(defaultValue, defaultProp)) {
-        console.error(
+      if (!isControlled && devmodeStringHash(defaultValue) !== devmodeStringHash(defaultProp)) {
+        error(
           [
-            `Base UI: A component is changing the default ${state} state of an uncontrolled ${name} after being initialized. ` +
+            `A component is changing the default ${state} state of an uncontrolled ${name} after being initialized. ` +
               `To suppress this warning opt to use a controlled ${name}.`,
           ].join('\n'),
         );
@@ -74,63 +75,25 @@ export function useControlled<T = unknown>({
   return [value as T, setValueIfUncontrolled];
 }
 
-function deepEqual(a: any, b: any) {
-  if (a === b) {
-    return true;
-  }
+function devmodeStringHash(input: unknown) {
+  let nextId = 0;
+  const seen = new WeakMap<object, number>();
 
-  if (typeof a !== typeof b) {
-    return false;
-  }
-
-  if (typeof a === 'function' && a.toString() === b.toString()) {
-    return true;
-  }
-
-  let length: number;
-  let i: number;
-  let keys: Array<string>;
-
-  if (a && b && typeof a === 'object') {
-    if (Array.isArray(a)) {
-      length = a.length;
-      if (length !== b.length) {
-        return false;
-      }
-      for (i = length - 1; i >= 0; i -= 1) {
-        if (!deepEqual(a[i], b[i])) {
-          return false;
-        }
-      }
-
-      return true;
+  return JSON.stringify(input, function replacer(key, value) {
+    if (key === '_owner' && this.$$typeof) {
+      return undefined;
     }
 
-    keys = Object.keys(a);
-    length = keys.length;
-    if (length !== Object.keys(b).length) {
-      return false;
-    }
-
-    for (i = length - 1; i >= 0; i -= 1) {
-      if (!{}.hasOwnProperty.call(b, keys[i])) {
-        return false;
-      }
-    }
-
-    for (i = length - 1; i >= 0; i -= 1) {
-      const key = keys[i];
-      if (key === '_owner' && a.$$typeof) {
-        continue;
+    if (value !== null && typeof value === 'object') {
+      const id = seen.get(value);
+      if (id !== undefined) {
+        return `__object__:${id}`;
       }
 
-      if (!deepEqual(a[key], b[key])) {
-        return false;
-      }
+      seen.set(value, nextId);
+      nextId += 1;
     }
 
-    return true;
-  }
-
-  return Number.isNaN(a) && Number.isNaN(b);
+    return value;
+  });
 }

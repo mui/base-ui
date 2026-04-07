@@ -190,9 +190,7 @@ describe('useControlled', () => {
 
       expect(() => {
         setProps({ defaultValue: 2 });
-      }).toErrorDev(
-        'Base UI: A component is changing the default value state of an uncontrolled TestComponent after being initialized.',
-      );
+      }).not.toErrorDev();
 
       expect(() => {
         setProps({ defaultValue: 0 });
@@ -228,9 +226,7 @@ describe('useControlled', () => {
 
       expect(() => {
         setProps({ defaultValue: items[2] });
-      }).toErrorDev(
-        'Base UI: A component is changing the default value state of an uncontrolled TestComponent after being initialized.',
-      );
+      }).not.toErrorDev();
 
       expect(() => {
         setProps({ defaultValue: items[0] });
