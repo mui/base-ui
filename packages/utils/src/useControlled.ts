@@ -55,7 +55,10 @@ export function useControlled<T = unknown>({
     const { current: defaultValue } = React.useRef(defaultProp);
 
     React.useEffect(() => {
-      if (!isControlled && devmodeStringHash(defaultValue) !== devmodeStringHash(defaultProp)) {
+      if (
+        !isControlled &&
+        serializeToDevModeString(defaultValue) !== serializeToDevModeString(defaultProp)
+      ) {
         error(
           [
             `A component is changing the default ${state} state of an uncontrolled ${name} after being initialized. ` +
@@ -75,25 +78,35 @@ export function useControlled<T = unknown>({
   return [value as T, setValueIfUncontrolled];
 }
 
-function devmodeStringHash(input: unknown) {
+function serializeToDevModeString(input: unknown) {
   let nextId = 0;
   const seen = new WeakMap<object, number>();
 
-  return JSON.stringify(input, function replacer(key, value) {
-    if (key === '_owner' && this.$$typeof) {
-      return undefined;
-    }
-
-    if (value !== null && typeof value === 'object') {
-      const id = seen.get(value);
-      if (id !== undefined) {
-        return `__object__:${id}`;
+  try {
+    const result = JSON.stringify(input, function replacer(key, value) {
+      if (key === '_owner' && this != null && typeof this === 'object' && '$$typeof' in this) {
+        return undefined;
       }
 
-      seen.set(value, nextId);
-      nextId += 1;
-    }
+      if (typeof value === 'bigint') {
+        return `__bigint__:${value}`;
+      }
 
-    return value;
-  });
+      if (value !== null && typeof value === 'object') {
+        const id = seen.get(value);
+        if (id !== undefined) {
+          return `__object__:${id}`;
+        }
+
+        seen.set(value, nextId);
+        nextId += 1;
+      }
+
+      return value;
+    });
+
+    return result ?? `__top__:${typeof input}`;
+  } catch {
+    return '__unserializable__';
+  }
 }

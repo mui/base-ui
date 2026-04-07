@@ -175,6 +175,21 @@ describe('useControlled', () => {
       }).not.toErrorDev();
     });
 
+    it('does not throw when defaultValue has bigint', () => {
+      function TestComponentBigInt() {
+        useControlled({
+          controlled: undefined,
+          default: 1n,
+          name: 'TestComponent',
+        });
+        return null;
+      }
+
+      expect(() => {
+        render(<TestComponentBigInt />);
+      }).not.toErrorDev();
+    });
+
     it('should warn only when defaultValue changes', () => {
       let setProps: (newProps: any) => void;
 
