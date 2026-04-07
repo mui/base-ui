@@ -44,7 +44,7 @@ describe('<Popover.Popup />', () => {
       Object.defineProperty(HTMLElement.prototype, 'focus', {
         configurable: true,
         writable: true,
-        value(options) {
+        value(options?: FocusOptions) {
           lastPreventScroll = options?.preventScroll;
           return originalFocus.call(this, options);
         },
