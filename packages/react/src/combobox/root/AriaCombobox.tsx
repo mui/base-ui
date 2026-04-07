@@ -84,6 +84,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     onSelectedValueChange,
     defaultInputValue: defaultInputValueProp,
     inputValue: inputValueProp,
+    open: openProp,
+    defaultOpen = false,
     selectionMode = 'none',
     onItemHighlighted: onItemHighlightedProp,
     name: nameProp,
@@ -219,8 +221,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   });
 
   const [open, setOpenUnwrapped] = useControlled({
-    controlled: props.open,
-    default: props.defaultOpen,
+    controlled: openProp,
+    default: defaultOpen,
     name: 'Combobox',
     state: 'open',
   });
