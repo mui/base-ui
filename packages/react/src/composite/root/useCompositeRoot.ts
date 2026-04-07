@@ -183,17 +183,9 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         const isRtl = direction === 'rtl';
 
         const horizontalForwardKey = isRtl ? ARROW_LEFT : ARROW_RIGHT;
-        const forwardKey = {
-          horizontal: horizontalForwardKey,
-          vertical: ARROW_DOWN,
-          both: horizontalForwardKey,
-        }[orientation];
         const horizontalBackwardKey = isRtl ? ARROW_RIGHT : ARROW_LEFT;
-        const backwardKey = {
-          horizontal: horizontalBackwardKey,
-          vertical: ARROW_UP,
-          both: horizontalBackwardKey,
-        }[orientation];
+        const forwardKey = orientation === 'vertical' ? ARROW_DOWN : horizontalForwardKey;
+        const backwardKey = orientation === 'vertical' ? ARROW_UP : horizontalBackwardKey;
 
         const target = getTarget(event.nativeEvent);
         if (target != null && isNativeInput(target) && !isElementDisabled(target)) {
@@ -285,17 +277,10 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
           ] as number; // navigated cell will never be nullish
         }
 
-        const forwardKeys = {
-          horizontal: [horizontalForwardKey],
-          vertical: [ARROW_DOWN],
-          both: [horizontalForwardKey, ARROW_DOWN],
-        }[orientation];
-
-        const backwardKeys = {
-          horizontal: [horizontalBackwardKey],
-          vertical: [ARROW_UP],
-          both: [horizontalBackwardKey, ARROW_UP],
-        }[orientation];
+        const forwardKeys =
+          orientation === 'both' ? [horizontalForwardKey, ARROW_DOWN] : [forwardKey];
+        const backwardKeys =
+          orientation === 'both' ? [horizontalBackwardKey, ARROW_UP] : [backwardKey];
 
         const preventedKeys = isGrid
           ? RELEVANT_KEYS
