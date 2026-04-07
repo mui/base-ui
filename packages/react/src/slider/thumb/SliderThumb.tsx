@@ -72,12 +72,15 @@ function getDefaultAriaValueText(
 
 function getNewValue(
   thumbValue: number,
-  step: number,
+  increment: number,
   direction: 1 | -1,
   min: number,
   max: number,
+  step: number,
 ): number {
-  return direction === 1 ? Math.min(thumbValue + step, max) : Math.max(thumbValue - step, min);
+  const value = direction === 1 ? thumbValue + increment : thumbValue - increment;
+  const roundedValue = roundValueToStep(value, step, min);
+  return Math.min(Math.max(roundedValue, min), max);
 }
 
 /**
@@ -377,7 +380,14 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         const roundedValue = roundValueToStep(thumbValue, step, min);
         switch (event.key) {
           case ARROW_UP:
-            newValue = getNewValue(roundedValue, event.shiftKey ? largeStep : step, 1, min, max);
+            newValue = getNewValue(
+              roundedValue,
+              event.shiftKey ? largeStep : step,
+              1,
+              min,
+              max,
+              step,
+            );
             break;
           case ARROW_RIGHT:
             newValue = getNewValue(
@@ -386,10 +396,18 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
               rtl ? -1 : 1,
               min,
               max,
+              step,
             );
             break;
           case ARROW_DOWN:
-            newValue = getNewValue(roundedValue, event.shiftKey ? largeStep : step, -1, min, max);
+            newValue = getNewValue(
+              roundedValue,
+              event.shiftKey ? largeStep : step,
+              -1,
+              min,
+              max,
+              step,
+            );
             break;
           case ARROW_LEFT:
             newValue = getNewValue(
@@ -398,13 +416,14 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
               rtl ? 1 : -1,
               min,
               max,
+              step,
             );
             break;
           case PAGE_UP:
-            newValue = getNewValue(roundedValue, largeStep, 1, min, max);
+            newValue = getNewValue(roundedValue, largeStep, 1, min, max, step);
             break;
           case PAGE_DOWN:
-            newValue = getNewValue(roundedValue, largeStep, -1, min, max);
+            newValue = getNewValue(roundedValue, largeStep, -1, min, max, step);
             break;
           case END:
             newValue = max;

@@ -1650,6 +1650,41 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
               expect(input).toHaveAttribute('aria-valuenow', '21');
             });
 
+            it(`key: ${key} rounds fractional values to the configured step`, async () => {
+              const handleValueChange = vi.fn();
+              const { user } = await render(
+                <div dir={direction}>
+                  <DirectionProvider direction={direction}>
+                    <Slider.Root
+                      orientation={orientation}
+                      defaultValue={0.2}
+                      min={0}
+                      max={1}
+                      step={0.1}
+                      onValueChange={handleValueChange}
+                    >
+                      <Slider.Control>
+                        <Slider.Track>
+                          <Slider.Indicator />
+                          <Slider.Thumb data-testid="thumb" />
+                        </Slider.Track>
+                      </Slider.Control>
+                    </Slider.Root>
+                  </DirectionProvider>
+                </div>,
+              );
+
+              const input = screen.getByRole('slider');
+
+              await user.keyboard('[Tab]');
+              expect(input).toHaveFocus();
+
+              await user.keyboard(`[${key}]`);
+              expect(handleValueChange.mock.calls.length).toBe(1);
+              expect(handleValueChange.mock.calls[0][0]).toEqual(0.3);
+              expect(input).toHaveAttribute('aria-valuenow', '0.3');
+            });
+
             it(`key: ${key} increments the value by largeStep when Shift is pressed`, async () => {
               const handleValueChange = vi.fn();
               const { user } = await render(
