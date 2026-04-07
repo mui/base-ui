@@ -17,5 +17,5 @@ export function getDecimalPrecision(num: number) {
 
 export function roundValueToStep(value: number, step: number, min: number) {
   const nearest = Math.round((value - min) / step) * step + min;
-  return Number(nearest.toFixed(getDecimalPrecision(step)));
+  return Number(nearest.toFixed(Math.max(getDecimalPrecision(step), getDecimalPrecision(min))));
 }
