@@ -2,6 +2,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isElement } from '@floating-ui/utils/dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -82,11 +83,11 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   const open = store.useState('open');
   const mounted = store.useState('mounted');
   const nested = store.useState('nested');
-  const nestedOpenDialogCount = store.useState('nestedOpenDialogCount');
+  const nestedOpenDrawerCount = store.useState('nestedOpenDrawerCount');
   const viewportElement = store.useState('viewportElement');
   const popupElementState = store.useState('popupElement');
 
-  const nestedDrawerOpen = nestedOpenDialogCount > 0;
+  const nestedDrawerOpen = nestedOpenDrawerCount > 0;
   const scrollAxis =
     swipeDirection === 'left' || swipeDirection === 'right' ? 'horizontal' : 'vertical';
   const isVerticalScrollAxis = scrollAxis === 'vertical';
@@ -875,11 +876,10 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
       updateTouchScrollPosition(touchState, touch);
     }
 
-    doc.addEventListener('touchmove', handleNativeTouchMove, { passive: false, capture: true });
-
-    return () => {
-      doc.removeEventListener('touchmove', handleNativeTouchMove, { capture: true });
-    };
+    return addEventListener(doc, 'touchmove', handleNativeTouchMove, {
+      passive: false,
+      capture: true,
+    });
   }, [
     mounted,
     nestedDrawerOpen,

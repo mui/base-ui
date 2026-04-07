@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
@@ -393,11 +394,7 @@ export function useCollapsiblePanel(
         onOpenChange(true, createChangeEventDetails(REASONS.none, event));
       }
 
-      panel.addEventListener('beforematch', handleBeforeMatch);
-
-      return () => {
-        panel.removeEventListener('beforematch', handleBeforeMatch);
-      };
+      return addEventListener(panel, 'beforematch', handleBeforeMatch);
     },
     [onOpenChange, panelRef, setOpen],
   );
