@@ -19,8 +19,8 @@ export default function ExampleFuzzyMatchingAutocomplete() {
       <Autocomplete.Portal>
         <Autocomplete.Positioner className={styles.Positioner} sideOffset={4}>
           <Autocomplete.Popup className={styles.Popup}>
-            <Autocomplete.Empty className={styles.Empty}>
-              No results found for "{<Autocomplete.Value />}"
+            <Autocomplete.Empty>
+              <div className={styles.Empty}>No results found for "{<Autocomplete.Value />}"</div>
             </Autocomplete.Empty>
 
             <Autocomplete.List className={styles.List}>
