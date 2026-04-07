@@ -141,7 +141,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     disabled,
     popupSide,
     listEmpty,
-    placeholder: !hasSelectedValue,
+    placeholder: selectionMode === 'none' ? false : !hasSelectedValue,
   };
 
   const setTriggerElement = useStableCallback((element) => {

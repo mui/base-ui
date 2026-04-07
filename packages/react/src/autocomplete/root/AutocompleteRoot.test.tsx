@@ -123,12 +123,12 @@ describe('<Autocomplete.Root />', () => {
     expect(hiddenInput).not.toHaveAttribute('autocomplete');
   });
 
-  it('does not expose data-placeholder on InputGroup', async () => {
+  it('does not expose data-placeholder on Trigger or InputGroup', async () => {
     const { user } = await render(
       <Autocomplete.Root items={['alpha', 'beta']} openOnInputClick>
         <Autocomplete.InputGroup data-testid="group">
           <Autocomplete.Input data-testid="input" />
-          <Autocomplete.Trigger />
+          <Autocomplete.Trigger data-testid="trigger" />
         </Autocomplete.InputGroup>
         <Autocomplete.Portal>
           <Autocomplete.Positioner>
@@ -148,12 +148,15 @@ describe('<Autocomplete.Root />', () => {
 
     const group = screen.getByTestId('group');
     const input = screen.getByTestId('input');
+    const trigger = screen.getByTestId('trigger');
 
     expect(group).not.toHaveAttribute('data-placeholder');
+    expect(trigger).not.toHaveAttribute('data-placeholder');
 
     await user.type(input, 'al');
 
     expect(group).not.toHaveAttribute('data-placeholder');
+    expect(trigger).not.toHaveAttribute('data-placeholder');
   });
 
   describe('prop: autoHighlight', () => {

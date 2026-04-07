@@ -30,10 +30,6 @@ export interface AutocompleteTriggerState extends FieldRootState {
    * Present when the corresponding items list is empty.
    */
   listEmpty: boolean;
-  /**
-   * Whether the autocomplete doesn't have a value.
-   */
-  placeholder: boolean;
 }
 
 export interface AutocompleteTriggerProps

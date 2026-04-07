@@ -144,22 +144,21 @@ Renders a `<button>` element.
 
 **Trigger Data Attributes:**
 
-| Attribute        | Type                                                                               | Description                                                                        |
-| :--------------- | :--------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- |
-| data-popup-open  | -                                                                                  | Present when the corresponding popup is open.                                      |
-| data-popup-side  | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start' \| null` | Indicates which side the corresponding popup is positioned relative to its anchor. |
-| data-list-empty  | -                                                                                  | Present when the corresponding items list is empty.                                |
-| data-pressed     | -                                                                                  | Present when the trigger is pressed.                                               |
-| data-disabled    | -                                                                                  | Present when the component is disabled.                                            |
-| data-readonly    | -                                                                                  | Present when the component is readonly.                                            |
-| data-required    | -                                                                                  | Present when the component is required.                                            |
-| data-valid       | -                                                                                  | Present when the component is in valid state (when wrapped in Field.Root).         |
-| data-invalid     | -                                                                                  | Present when the component is in invalid state (when wrapped in Field.Root).       |
-| data-dirty       | -                                                                                  | Present when the component's value has changed (when wrapped in Field.Root).       |
-| data-touched     | -                                                                                  | Present when the component has been touched (when wrapped in Field.Root).          |
-| data-filled      | -                                                                                  | Present when the component has a value (when wrapped in Field.Root).               |
-| data-focused     | -                                                                                  | Present when the trigger is focused (when wrapped in Field.Root).                  |
-| data-placeholder | -                                                                                  | Present when the autocomplete doesn't have a value.                                |
+| Attribute       | Type                                                                               | Description                                                                        |
+| :-------------- | :--------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- |
+| data-popup-open | -                                                                                  | Present when the corresponding popup is open.                                      |
+| data-popup-side | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start' \| null` | Indicates which side the corresponding popup is positioned relative to its anchor. |
+| data-list-empty | -                                                                                  | Present when the corresponding items list is empty.                                |
+| data-pressed    | -                                                                                  | Present when the trigger is pressed.                                               |
+| data-disabled   | -                                                                                  | Present when the component is disabled.                                            |
+| data-readonly   | -                                                                                  | Present when the component is readonly.                                            |
+| data-required   | -                                                                                  | Present when the component is required.                                            |
+| data-valid      | -                                                                                  | Present when the component is in valid state (when wrapped in Field.Root).         |
+| data-invalid    | -                                                                                  | Present when the component is in invalid state (when wrapped in Field.Root).       |
+| data-dirty      | -                                                                                  | Present when the component's value has changed (when wrapped in Field.Root).       |
+| data-touched    | -                                                                                  | Present when the component has been touched (when wrapped in Field.Root).          |
+| data-filled     | -                                                                                  | Present when the component has a value (when wrapped in Field.Root).               |
+| data-focused    | -                                                                                  | Present when the trigger is focused (when wrapped in Field.Root).                  |
 
 ### Trigger.Props
 
@@ -177,8 +176,6 @@ type AutocompleteTriggerState = {
   popupSide: Side | null;
   /** Present when the corresponding items list is empty. */
   listEmpty: boolean;
-  /** Whether the autocomplete doesn't have a value. */
-  placeholder: boolean;
   /** Whether the field has been touched. */
   touched: boolean;
   /** Whether the field value has changed from its initial value. */
