@@ -3,7 +3,7 @@ import * as React from 'react';
 import { format } from 'date-fns/format';
 import { enUS } from 'date-fns/locale/en-US';
 import type { Day } from 'date-fns';
-import { LocalizationProvider } from '@base-ui/react/localization-provider';
+import { LocalizationProvider } from '@base-ui/react/internals/localization-provider';
 import { Calendar } from '@base-ui/react/calendar';
 import { Select } from '@base-ui/react/select';
 import styles from '../../../calendar.module.css';

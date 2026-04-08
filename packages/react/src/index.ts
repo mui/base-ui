@@ -36,7 +36,7 @@ export * from './slider';
 export * from './switch';
 export * from './tabs';
 // TODO Temporal: enable before public release
-// export * from './localization-provider';
+// export * from './internals/localization-provider';
 export * from './toast';
 export * from './toggle';
 export * from './toggle-group';

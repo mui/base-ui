@@ -13,9 +13,9 @@ export default defineConfig({
         ? // TODO Temporal: Remove and revert to `undefined` when calendar is publicly exported
           {
             '@base-ui/react/calendar': path.join(process.cwd(), 'packages/react/src/calendar'),
-            '@base-ui/react/localization-provider': path.join(
+            '@base-ui/react/internals/localization-provider': path.join(
               process.cwd(),
-              'packages/react/src/localization-provider',
+              'packages/react/src/internals/localization-provider',
             ),
           }
         : {

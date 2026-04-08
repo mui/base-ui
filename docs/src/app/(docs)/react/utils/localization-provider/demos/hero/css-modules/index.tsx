@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { format } from 'date-fns/format';
 import { fr } from 'date-fns/locale/fr';
-import { LocalizationProvider } from '@base-ui/react/localization-provider';
+import { LocalizationProvider } from '@base-ui/react/internals/localization-provider';
 import { Calendar } from '@base-ui/react/calendar';
 import styles from '../../../calendar.module.css';
 

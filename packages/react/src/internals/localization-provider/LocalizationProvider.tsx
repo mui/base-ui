@@ -2,8 +2,8 @@
 import * as React from 'react';
 import { Locale } from 'date-fns/locale';
 import { LocalizationContext } from './LocalizationContext';
-import { TemporalAdapterDateFns } from '../internals/temporal-adapter-date-fns/TemporalAdapterDateFns';
-import { TemporalAdapterContext } from '../internals/temporal-adapter-provider/TemporalAdapterContext';
+import { TemporalAdapterDateFns } from '../temporal-adapter-date-fns/TemporalAdapterDateFns';
+import { TemporalAdapterContext } from '../temporal-adapter-provider/TemporalAdapterContext';
 
 /**
  * Defines the temporal locale provider for Base UI temporal components.

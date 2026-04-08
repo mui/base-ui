@@ -23,7 +23,7 @@ describe('@base-ui/react', () => {
     const subpathExports = packageJson.exports;
 
     const internalKeys = Object.keys(subpathExports).filter(
-      (key) => key.startsWith('./internals/') || key === './localization-provider',
+      (key) => key.startsWith('./internals/') || key === './internals/localization-provider',
     );
 
     await Promise.all(
@@ -48,7 +48,7 @@ describe('@base-ui/react', () => {
               './utils',
               './temporal-adapter-luxon',
               './temporal-adapter-date-fns',
-              './localization-provider',
+              './internals/localization-provider',
               './types',
             ].includes(key) &&
             !key.startsWith('./unstable-') &&

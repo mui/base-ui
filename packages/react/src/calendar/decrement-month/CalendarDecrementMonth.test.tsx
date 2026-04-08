@@ -2,7 +2,7 @@ import * as React from 'react';
 import { screen, fireEvent } from '@mui/internal-test-utils';
 import { expect, vi } from 'vitest';
 import { Calendar } from '@base-ui/react/calendar';
-import { LocalizationProvider } from '@base-ui/react/localization-provider';
+import { LocalizationProvider } from '@base-ui/react/internals/localization-provider';
 import { createRenderer, createTemporalRenderer, describeConformance } from '#test-utils';
 
 describe('<Calendar.DecrementMonth />', () => {

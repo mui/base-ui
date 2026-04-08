@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Locale } from 'date-fns/locale';
-import { LocalizationProvider } from '@base-ui/react/localization-provider';
+import { LocalizationProvider } from '@base-ui/react/internals/localization-provider';
 import {
   createRenderer,
   CreateRendererOptions,

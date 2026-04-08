@@ -2,7 +2,10 @@
 import * as React from 'react';
 import { format } from 'date-fns/format';
 import { fr, zhCN } from 'date-fns/locale';
-import { LocalizationProvider, useTemporalLocale } from '@base-ui/react/localization-provider';
+import {
+  LocalizationProvider,
+  useTemporalLocale,
+} from '@base-ui/react/internals/localization-provider';
 import { Calendar } from '@base-ui/react/calendar';
 import styles from '../../../calendar.module.css';
 import indexStyles from './index.module.css';
