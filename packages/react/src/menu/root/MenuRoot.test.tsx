@@ -1186,6 +1186,43 @@ describe('<Menu.Root />', () => {
       });
     });
 
+    describe.skipIf(isJSDOM)('touch scroll lock', () => {
+      it('should apply scroll lock when a touch-opened popup covers the viewport width', async () => {
+        await render(
+          <Menu.Root modal>
+            <Menu.Trigger>Open</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner
+                data-testid="positioner"
+                style={{ '--available-width': '300px' } as React.CSSProperties}
+              >
+                <Menu.Popup style={{ width: '290px' }}>
+                  <Menu.Item>1</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Open' });
+
+        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+        fireEvent.mouseDown(trigger);
+
+        const menu = await screen.findByRole('menu');
+        const doc = menu.ownerDocument;
+
+        await waitFor(() => {
+          const isScrollLocked =
+            doc.documentElement.style.overflow === 'hidden' ||
+            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+            doc.body.style.overflow === 'hidden';
+
+          expect(isScrollLocked).toBe(true);
+        });
+      });
+    });
+
     describe('prop: actionsRef', () => {
       it('unmounts the menu when the `unmount` method is called', async () => {
         const actionsRef = {

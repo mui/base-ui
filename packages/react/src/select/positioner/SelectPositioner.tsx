@@ -23,6 +23,7 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { findItemIndex, selectedValueIncludes } from '../../utils/itemEquality';
 import { usePositioner } from '../../utils/usePositioner';
+import { useTouchOpenScrollLock } from '../../utils/useTouchOpenScrollLock';
 
 const FIXED: React.CSSProperties = { position: 'fixed' };
 
@@ -104,10 +105,13 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   React.useImperativeHandle(alignItemWithTriggerActiveRef, () => alignItemWithTriggerActive);
 
-  useScrollLock(
-    (alignItemWithTriggerActive || modal) && open && openMethod !== 'touch',
-    triggerElement,
+  const scrollLockEnabled = useTouchOpenScrollLock(
+    (alignItemWithTriggerActive || modal) && open,
+    openMethod === 'touch',
+    popupRef,
   );
+
+  useScrollLock(scrollLockEnabled, triggerElement);
 
   const positioning = useAnchorPositioning({
     anchor,

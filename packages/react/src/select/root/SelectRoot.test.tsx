@@ -1107,6 +1107,42 @@ describe('<Select.Root />', () => {
     });
   });
 
+  describe.skipIf(isJSDOM)('touch scroll lock', () => {
+    it('applies scroll lock when a touch-opened popup covers the viewport width', async () => {
+      await render(
+        <Select.Root modal>
+          <Select.Trigger data-testid="trigger">Open</Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner
+              data-testid="positioner"
+              style={{ '--available-width': '300px' } as React.CSSProperties}
+            >
+              <Select.Popup style={{ width: '290px' }}>
+                <Select.Item>1</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+      fireEvent.mouseDown(trigger);
+
+      await screen.findByRole('listbox');
+
+      await waitFor(() => {
+        const isScrollLocked =
+          trigger.ownerDocument.documentElement.style.overflow === 'hidden' ||
+          trigger.ownerDocument.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+          trigger.ownerDocument.body.style.overflow === 'hidden';
+
+        expect(isScrollLocked).toBe(true);
+      });
+    });
+  });
+
   describe('prop: actionsRef', () => {
     it('unmounts the select when the `unmount` method is called', async () => {
       const actionsRef = {

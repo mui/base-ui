@@ -28,6 +28,7 @@ import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
 } from '../../utils/createBaseUIEventDetails';
+import { useTouchOpenScrollLock } from '../../utils/useTouchOpenScrollLock';
 import { REASONS } from '../../utils/reasons';
 import {
   ContextMenuRootContext,
@@ -220,10 +221,13 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     });
   }, [allowOutsidePressDismissalTimeout, open, parent.type]);
 
-  useScrollLock(
-    open && modal && lastOpenChangeReason !== REASONS.triggerHover && openMethod !== 'touch',
-    positionerElement,
+  const scrollLockEnabled = useTouchOpenScrollLock(
+    open && modal && lastOpenChangeReason !== REASONS.triggerHover,
+    openMethod === 'touch',
+    store.context.popupRef,
   );
+
+  useScrollLock(scrollLockEnabled, activeTriggerElement);
 
   useIsoLayoutEffect(() => {
     if (!open && !hoverEnabled) {

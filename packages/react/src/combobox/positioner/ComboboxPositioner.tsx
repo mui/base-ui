@@ -23,6 +23,7 @@ import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { selectors } from '../store';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { usePositioner } from '../../utils/usePositioner';
+import { useTouchOpenScrollLock } from '../../utils/useTouchOpenScrollLock';
 
 /**
  * Positions the popup against the trigger.
@@ -65,6 +66,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   const inputGroupElement = useStore(store, selectors.inputGroupElement);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
   const transitionStatus = useStore(store, selectors.transitionStatus);
+  const popupRef = store.state.popupRef;
 
   const empty = filteredItems.length === 0;
   const resolvedAnchor =
@@ -89,7 +91,13 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     lazyFlip: true,
   });
 
-  useScrollLock(open && modal && openMethod !== 'touch', triggerElement);
+  const scrollLockEnabled = useTouchOpenScrollLock(
+    open && modal,
+    openMethod === 'touch',
+    popupRef,
+  );
+
+  useScrollLock(scrollLockEnabled, triggerElement);
 
   const state: ComboboxPositionerState = {
     open,
