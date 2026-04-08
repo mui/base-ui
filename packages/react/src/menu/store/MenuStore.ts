@@ -17,6 +17,7 @@ import {
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
   modal: boolean;
+  openMethod: InteractionType | null;
   allowMouseEnter: boolean;
   parent: MenuParent;
   rootId: string | undefined;
@@ -37,7 +38,6 @@ export type State<Payload> = PopupStoreState<Payload> & {
 type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
   readonly positionerRef: React.RefObject<HTMLElement | null>;
   readonly popupRef: React.RefObject<HTMLElement | null>;
-  readonly openMethodRef: React.RefObject<InteractionType | null>;
   readonly typingRef: React.RefObject<boolean>;
   readonly itemDomElements: React.RefObject<(HTMLElement | null)[]>;
   readonly itemLabels: React.RefObject<(string | null)[]>;
@@ -58,6 +58,7 @@ const selectors = {
       (state.parent.type === undefined || state.parent.type === 'context-menu') &&
       (state.modal ?? true),
   ),
+  openMethod: createSelector((state: State<unknown>) => state.openMethod),
 
   allowMouseEnter: createSelector((state: State<unknown>) => state.allowMouseEnter),
   stickIfOpen: createSelector((state: State<unknown>) => state.stickIfOpen),
@@ -114,7 +115,6 @@ export class MenuStore<Payload> extends ReactStore<
       {
         positionerRef: React.createRef<HTMLElement | null>(),
         popupRef: React.createRef<HTMLElement | null>(),
-        openMethodRef: React.createRef<InteractionType | null>(),
         typingRef: { current: false },
         itemDomElements: { current: [] },
         itemLabels: { current: [] },
@@ -191,6 +191,7 @@ function createInitialState<Payload>(): State<Payload> {
     ...createInitialPopupStoreState(),
     disabled: false,
     modal: true,
+    openMethod: null,
     allowMouseEnter: false,
     stickIfOpen: true,
     parent: {

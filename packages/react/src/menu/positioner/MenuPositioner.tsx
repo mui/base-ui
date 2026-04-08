@@ -67,6 +67,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const mounted = store.useState('mounted');
   const open = store.useState('open');
   const modal = store.useState('modal');
+  const openMethod = store.useState('openMethod');
   const triggerElement = store.useState('activeTriggerElement');
   const transitionStatus = store.useState('transitionStatus');
   const positionerElement = store.useState('positionerElement');
@@ -261,7 +262,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
 
   useTouchOpenScrollLock(
     open && modal && lastOpenChangeReason !== REASONS.triggerHover,
-    store.context.openMethodRef.current === 'touch',
+    openMethod === 'touch',
     positionerElement,
     triggerElement,
   );

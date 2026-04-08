@@ -60,6 +60,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const openReason = store.useState('openChangeReason');
   const triggerElement = store.useState('activeTriggerElement');
   const modal = store.useState('modal');
+  const openMethod = store.useState('openMethod');
   const positionerElement = store.useState('positionerElement');
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
@@ -119,7 +120,6 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
     return undefined;
   }, [domReference, runOnceAnimationsFinish, store]);
-
   const state: PopoverPositionerState = {
     open,
     side: positioning.side,
@@ -130,7 +130,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   useTouchOpenScrollLock(
     open && modal === true && openReason !== REASONS.triggerHover,
-    store.state.openMethod === 'touch',
+    openMethod === 'touch',
     positionerElement,
     triggerElement,
   );

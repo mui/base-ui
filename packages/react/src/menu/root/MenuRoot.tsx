@@ -179,13 +179,14 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     }
   }
 
+  const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
+
   store.useSyncedValues({
     disabled: disabledProp,
     modal: parent.type === undefined ? modalProp : undefined,
+    openMethod,
     rootId: useId(),
   });
-
-  const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
 
   useImplicitActiveTrigger(store);
   const { forceUnmount } = useOpenStateTransitions(open, store, () => {
@@ -217,8 +218,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       allowOutsidePressDismissalRef.current = true;
     });
   }, [allowOutsidePressDismissalTimeout, open, parent.type]);
-
-  store.context.openMethodRef.current = openMethod;
 
   useIsoLayoutEffect(() => {
     if (!open && !hoverEnabled) {

@@ -1105,7 +1105,9 @@ describe('<Select.Root />', () => {
 
       await user.click(outside);
     });
+  });
 
+  describe.skipIf(isJSDOM)('touch scroll lock', () => {
     it('applies scroll lock when a touch-opened popup covers the viewport width', async () => {
       await render(
         <Select.Root modal>
