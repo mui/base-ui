@@ -1248,6 +1248,41 @@ describe('<Popover.Root />', () => {
       });
     });
 
+    describe.skipIf(isJSDOM)('touch scroll lock', () => {
+      it('applies scroll lock when a touch-opened popup covers the viewport width', async () => {
+        await render(
+          <Popover.Root modal>
+            <Popover.Trigger>Open</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner
+                data-testid="positioner"
+                style={{ '--available-width': '300px', width: '290px' } as React.CSSProperties}
+              >
+                <Popover.Popup>Content</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Open' });
+
+        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+        fireEvent.click(trigger);
+
+        const popup = await screen.findByRole('dialog');
+        const doc = popup.ownerDocument;
+
+        await waitFor(() => {
+          const isScrollLocked =
+            doc.documentElement.style.overflow === 'hidden' ||
+            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+            doc.body.style.overflow === 'hidden';
+
+          expect(isScrollLocked).toBe(true);
+        });
+      });
+    });
+
     describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
       it('is called on close when there is no exit animation defined', async () => {
         const onOpenChangeComplete = vi.fn();

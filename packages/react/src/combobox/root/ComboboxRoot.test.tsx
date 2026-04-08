@@ -1610,6 +1610,45 @@ describe('<Combobox.Root />', () => {
     expect(hiddenInput).toHaveAttribute('autocomplete', 'country');
   });
 
+  describe.skipIf(isJSDOM)('touch scroll lock', () => {
+    it('applies scroll lock when a touch-opened popup covers the viewport width', async () => {
+      await render(
+        <Combobox.Root modal items={['Apple']}>
+          <Combobox.Input />
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner
+              data-testid="positioner"
+              style={{ '--available-width': '300px', width: '290px' } as React.CSSProperties}
+            >
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="Apple">Apple</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+      fireEvent.mouseDown(trigger);
+
+      await screen.findByRole('listbox');
+
+      await waitFor(() => {
+        const isScrollLocked =
+          trigger.ownerDocument.documentElement.style.overflow === 'hidden' ||
+          trigger.ownerDocument.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+          trigger.ownerDocument.body.style.overflow === 'hidden';
+
+        expect(isScrollLocked).toBe(true);
+      });
+    });
+  });
+
   it('does not open on programmatic input events', async () => {
     await render(
       <Combobox.Root>
