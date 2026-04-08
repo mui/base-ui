@@ -13,9 +13,13 @@ import { REASONS } from '../../internals/reasons';
 import { FloatingUIOpenChangeDetails } from '../../internals/types';
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import type { Delay, ElementProps, FloatingContext, FloatingRootContext } from '../types';
-import { contains, getTarget, isInteractiveElement } from '../utils';
+import { contains, getTarget, isInteractiveElement, isTargetInsideEnabledTrigger } from '../utils';
 import type { HandleClose } from './useHoverShared';
-import { getDelay, getRestMs } from './useHoverShared';
+import {
+  getDelay,
+  getRestMs,
+  isClickLikeOpenEvent as isClickLikeOpenEventShared,
+} from './useHoverShared';
 
 export type { HandleCloseContext, HandleClose } from './useHoverShared';
 
@@ -88,13 +92,10 @@ export function useHover(
   });
 
   const isClickLikeOpenEvent = useStableCallback(() => {
-    if (interactedInsideRef.current) {
-      return true;
-    }
-
-    return dataRef.current.openEvent
-      ? ['click', 'mousedown'].includes(dataRef.current.openEvent.type)
-      : false;
+    return isClickLikeOpenEventShared(
+      dataRef.current.openEvent?.type,
+      interactedInsideRef.current,
+    );
   });
 
   // When closing before opening, clear the delay timeouts to cancel it
@@ -175,9 +176,7 @@ export function useHover(
     }
 
     function isLeavingToEnabledTrigger(relatedTarget: EventTarget | null) {
-      return (
-        relatedTarget != null && store.context.triggerElements.hasElement(relatedTarget as Element)
-      );
+      return isTargetInsideEnabledTrigger(relatedTarget, store.context.triggerElements);
     }
 
     function handleInteractInside(event: PointerEvent) {

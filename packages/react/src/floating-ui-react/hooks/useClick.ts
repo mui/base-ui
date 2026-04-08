@@ -103,14 +103,28 @@ export function useClick(
       const openEvent = dataRef.current.openEvent;
       const hasClickedOnInactiveTrigger = store.select('domReferenceElement') !== currentTarget;
 
-      return (
-        (open && hasClickedOnInactiveTrigger) ||
-        !(
-          open &&
-          toggle &&
-          (openEvent && stickIfOpen ? isClickLikeOpenEvent(openEvent.type) : true)
-        )
-      );
+      if (open && hasClickedOnInactiveTrigger) {
+        // Moving between triggers should always open the newly active one.
+        return true;
+      }
+
+      if (!open) {
+        // A closed popup should open on the next press.
+        return true;
+      }
+
+      if (!toggle) {
+        // Non-toggle mode never closes on a repeated trigger press.
+        return true;
+      }
+
+      if (openEvent && stickIfOpen) {
+        // Preserve hover/focus-opened popups until the matching click-like event closes them.
+        return !isClickLikeOpenEvent(openEvent.type);
+      }
+
+      // Otherwise, a repeated click toggles the popup closed.
+      return false;
     }
 
     return {
