@@ -224,7 +224,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   const scrollLockEnabled = useTouchOpenScrollLock(
     open && modal && lastOpenChangeReason !== REASONS.triggerHover,
     openMethod === 'touch',
-    store.context.popupRef,
+    positionerElement,
   );
 
   useScrollLock(scrollLockEnabled, activeTriggerElement);

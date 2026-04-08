@@ -8,30 +8,24 @@ const VIEWPORT_WIDTH_TOLERANCE_PX = 20;
 export function useTouchOpenScrollLock(
   enabled: boolean,
   touchOpen: boolean,
-  popupRef: React.RefObject<HTMLElement | null>,
+  positionerElement: HTMLElement | null,
 ) {
   const [touchOpenShouldLockScroll, setTouchOpenShouldLockScroll] = React.useState(false);
   const frame = useAnimationFrame();
 
   useIsoLayoutEffect(() => {
-    if (!enabled || !touchOpen) {
+    if (!enabled || !touchOpen || positionerElement == null) {
       setTouchOpenShouldLockScroll(false);
       return undefined;
     }
 
+    const currentPositionerElement = positionerElement;
+
     function updateShouldLockScroll() {
-      const popupElement = popupRef.current;
-      const positionerElement = popupElement?.parentElement;
-
-      if (popupElement == null || positionerElement == null) {
-        setTouchOpenShouldLockScroll(false);
-        return;
-      }
-
       const availableWidth = Number.parseFloat(
-        positionerElement.style.getPropertyValue('--available-width'),
+        currentPositionerElement.style.getPropertyValue('--available-width'),
       );
-      const popupWidth = popupElement.offsetWidth;
+      const popupWidth = currentPositionerElement.offsetWidth;
 
       setTouchOpenShouldLockScroll(
         availableWidth > 0 &&
@@ -44,7 +38,7 @@ export function useTouchOpenScrollLock(
     frame.request(updateShouldLockScroll);
 
     return frame.cancel;
-  }, [enabled, frame, popupRef, touchOpen]);
+  }, [enabled, frame, positionerElement, touchOpen]);
 
   return enabled && (!touchOpen || touchOpenShouldLockScroll);
 }

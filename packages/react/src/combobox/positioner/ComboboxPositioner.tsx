@@ -61,12 +61,12 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   const open = useStore(store, selectors.open);
   const mounted = useStore(store, selectors.mounted);
   const openMethod = useStore(store, selectors.openMethod);
+  const positionerElement = useStore(store, selectors.positionerElement);
   const triggerElement = useStore(store, selectors.triggerElement);
   const inputElement = useStore(store, selectors.inputElement);
   const inputGroupElement = useStore(store, selectors.inputGroupElement);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
   const transitionStatus = useStore(store, selectors.transitionStatus);
-  const popupRef = store.state.popupRef;
 
   const empty = filteredItems.length === 0;
   const resolvedAnchor =
@@ -94,7 +94,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   const scrollLockEnabled = useTouchOpenScrollLock(
     open && modal,
     openMethod === 'touch',
-    popupRef,
+    positionerElement,
   );
 
   useScrollLock(scrollLockEnabled, triggerElement);

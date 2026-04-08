@@ -108,7 +108,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const scrollLockEnabled = useTouchOpenScrollLock(
     (alignItemWithTriggerActive || modal) && open,
     openMethod === 'touch',
-    popupRef,
+    positionerElement,
   );
 
   useScrollLock(scrollLockEnabled, triggerElement);

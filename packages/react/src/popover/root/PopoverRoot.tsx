@@ -61,6 +61,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   store.useControlledProp('triggerIdProp', triggerIdProp);
 
   const open = store.useState('open');
+  const positionerElement = store.useState('positionerElement');
   const payload = store.useState('payload') as Payload | undefined;
   const openReason = store.useState('openChangeReason');
 
@@ -77,7 +78,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   const scrollLockEnabled = useTouchOpenScrollLock(
     open && modal === true && openReason !== REASONS.triggerHover,
     openMethod === 'touch',
-    store.context.popupRef,
+    positionerElement,
   );
 
   useScrollLock(scrollLockEnabled, store.state.activeTriggerElement);

@@ -1193,9 +1193,9 @@ describe('<Menu.Root />', () => {
             <Menu.Portal>
               <Menu.Positioner
                 data-testid="positioner"
-                style={{ '--available-width': '300px' } as React.CSSProperties}
+                style={{ '--available-width': '300px', width: '290px' } as React.CSSProperties}
               >
-                <Menu.Popup style={{ width: '100vw' }}>
+                <Menu.Popup>
                   <Menu.Item>1</Menu.Item>
                 </Menu.Popup>
               </Menu.Positioner>

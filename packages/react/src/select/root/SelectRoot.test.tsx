@@ -1115,9 +1115,9 @@ describe('<Select.Root />', () => {
           <Select.Portal>
             <Select.Positioner
               data-testid="positioner"
-              style={{ '--available-width': '300px' } as React.CSSProperties}
+              style={{ '--available-width': '300px', width: '290px' } as React.CSSProperties}
             >
-              <Select.Popup style={{ width: '290px' }}>
+              <Select.Popup>
                 <Select.Item>1</Select.Item>
               </Select.Popup>
             </Select.Positioner>
