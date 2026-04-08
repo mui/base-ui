@@ -36,7 +36,7 @@ export enum OTPFieldInputDataAttributes {
    */
   dirty = 'data-dirty',
   /**
-   * Present when one of the OTP field inputs is focused.
+   * Present when any OTP field input is focused.
    */
   focused = 'data-focused',
 }

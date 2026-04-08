@@ -151,18 +151,12 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    React.useEffect(() => {
-      if (inputCount === 0 || inputCount === length) {
-        return;
-      }
-
-      const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
-      const message =
-        '<OTPField.Root> `length` must match the number of rendered ' +
-        `<OTPField.Input /> parts. Received \`length={${length}}\` but rendered ` +
-        `${inputCount} input${inputCount === 1 ? '' : 's'}.`;
-      warn(message, ownerStackMessage);
-    }, [inputCount, length]);
+    useOTPFieldRootDevWarnings({
+      inputCount,
+      length,
+      sanitizeValue,
+      validationType,
+    });
   }
 
   useRegisterFieldControl(firstInputRef, {
@@ -463,7 +457,7 @@ function OTPFieldHiddenInput(props: OTPFieldHiddenInputProps) {
     validation,
     value,
   } = props;
-  if (length === 0) {
+  if (!Number.isInteger(length) || length <= 0) {
     return null;
   }
 
@@ -530,6 +524,7 @@ export interface OTPFieldRootProps extends Omit<
 > {
   /**
    * The id of the first input element.
+   * Subsequent inputs derive their ids from it (`{id}-2`, `{id}-3`, and so on).
    */
   id?: string | undefined;
   /**
@@ -606,17 +601,15 @@ export interface OTPFieldRootProps extends Omit<
   /**
    * Callback fired when the OTP value changes.
    *
-   * The `eventDetails.reason` indicates what triggered the change:
-   * - `'input-change'` for typing or autofill
-   * - `'input-clear'` when a character is removed by text input
-   * - `'input-paste'` for paste interactions
-   * - `'keyboard'` for keyboard interactions that change the value
+   * The `eventDetails.reason` indicates whether the change came from typing or autofill
+   * (`'input-change'`), text-input removal (`'input-clear'`), paste (`'input-paste'`), or
+   * keyboard editing (`'keyboard'`).
    */
   onValueChange?:
     | ((value: string, eventDetails: OTPFieldRoot.ChangeEventDetails) => void)
     | undefined;
   /**
-   * Callback fired when entered text is sanitized or clamped before the OTP value updates.
+   * Callback fired when entered text is sanitized before the OTP value updates.
    *
    * The `value` argument is the attempted user-entered string before sanitization.
    */
@@ -696,4 +689,52 @@ export namespace OTPFieldRoot {
 function mergeAriaIds(...values: Array<string | undefined>) {
   const ids = values.flatMap((value) => value?.split(/\s+/).filter(Boolean) ?? []);
   return ids.length > 0 ? Array.from(new Set(ids)).join(' ') : undefined;
+}
+
+interface UseOTPFieldRootDevWarningsParameters {
+  inputCount: number;
+  length: number;
+  sanitizeValue: ((value: string) => string) | undefined;
+  validationType: OTPFieldRoot.ValidationType;
+}
+
+function useOTPFieldRootDevWarnings(parameters: UseOTPFieldRootDevWarningsParameters) {
+  const { inputCount, length, sanitizeValue, validationType } = parameters;
+
+  React.useEffect(() => {
+    if (!Number.isInteger(length) || length <= 0 || inputCount === 0 || inputCount === length) {
+      return;
+    }
+
+    const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
+    const message =
+      '<OTPField.Root> `length` must match the number of rendered ' +
+      `<OTPField.Input /> parts. Received \`length={${length}}\` but rendered ` +
+      `${inputCount} input${inputCount === 1 ? '' : 's'}.`;
+    warn(message, ownerStackMessage);
+  }, [inputCount, length]);
+
+  React.useEffect(() => {
+    if (Number.isInteger(length) && length > 0) {
+      return;
+    }
+
+    const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
+    warn(
+      `Base UI: <OTPField.Root> \`length\` must be a positive integer. Received \`length={${String(length)}}\`.`,
+      ownerStackMessage,
+    );
+  }, [length]);
+
+  React.useEffect(() => {
+    if (sanitizeValue == null || validationType === 'none') {
+      return;
+    }
+
+    const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
+    warn(
+      'Base UI: <OTPField.Root> `sanitizeValue` is only used when `validationType="none"`.',
+      ownerStackMessage,
+    );
+  }, [sanitizeValue, validationType]);
 }

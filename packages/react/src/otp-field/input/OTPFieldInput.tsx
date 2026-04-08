@@ -247,7 +247,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
       }
 
       event.preventDefault();
-      const rawValue = event.clipboardData.getData('text/plain');
+      const rawValue = event.clipboardData?.getData('text/plain') ?? '';
       const nextDigits = normalizeOTPValue(rawValue, length, validationType, sanitizeValue);
       const didSanitize = stripOTPWhitespace(rawValue).length > nextDigits.length;
 

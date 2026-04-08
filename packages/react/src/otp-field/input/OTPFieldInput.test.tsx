@@ -29,6 +29,26 @@ describe('<OTPField.Input />', () => {
     );
   }
 
+  function pasteText(target: HTMLElement, value: string) {
+    if (isJSDOM) {
+      fireEvent.paste(target, {
+        clipboardData: {
+          getData: () => value,
+        },
+      });
+      return;
+    }
+
+    const pasteEvent = new Event('paste', { bubbles: true, cancelable: true });
+    Object.defineProperty(pasteEvent, 'clipboardData', {
+      value: {
+        getData: () => value,
+      },
+    });
+
+    fireEvent(target, pasteEvent);
+  }
+
   it('renders one textbox per slot', async () => {
     await render(<OTPFieldTest />);
 
@@ -206,6 +226,24 @@ describe('<OTPField.Input />', () => {
     expect(document.activeElement).toBe(inputs[3]);
   });
 
+  it('blocks Delete and Backspace from changing the value in readonly mode', async () => {
+    await render(<OTPFieldTest defaultValue="1234" readOnly />);
+
+    const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+    await act(async () => {
+      inputs[1].focus();
+    });
+
+    fireEvent.keyDown(inputs[1], { key: 'Delete' });
+    expect(inputs.map((input) => input.value)).toEqual(['1', '2', '3', '4', '', '']);
+    expect(document.activeElement).toBe(inputs[1]);
+
+    fireEvent.keyDown(inputs[1], { key: 'Backspace' });
+    expect(inputs.map((input) => input.value)).toEqual(['1', '2', '3', '4', '', '']);
+    expect(document.activeElement).toBe(inputs[1]);
+  });
+
   it('allows tabbing out of the field from the active slot', async () => {
     const user = userEvent.setup();
 
@@ -315,25 +353,33 @@ describe('<OTPField.Input />', () => {
       inputs[0].focus();
     });
 
-    if (isJSDOM) {
-      fireEvent.paste(inputs[0], {
-        clipboardData: {
-          getData: () => '1234',
-        },
-      });
-    } else {
-      const pasteEvent = new Event('paste', { bubbles: true, cancelable: true });
-      Object.defineProperty(pasteEvent, 'clipboardData', {
-        value: {
-          getData: () => '1234',
-        },
-      });
-
-      fireEvent(inputs[0], pasteEvent);
-    }
+    pasteText(inputs[0], '1234');
 
     expect(inputs.map((input) => input.value)).toEqual(['', '', '', '', '', '']);
     expect(document.activeElement).toBe(inputs[0]);
+  });
+
+  it('replaces values from the middle when pasting into a later slot', async () => {
+    await render(<OTPFieldTest defaultValue="123456" />);
+
+    const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+    await act(async () => {
+      inputs[2].focus();
+    });
+
+    pasteText(inputs[2], '99');
+
+    expect(inputs.map((input) => input.value)).toEqual(['1', '2', '9', '9', '5', '6']);
+    expect(document.activeElement).toBe(inputs[4]);
+  });
+
+  it('marks each input as complete when all slots are filled', async () => {
+    await render(<OTPFieldTest defaultValue="123456" />);
+
+    screen.getAllByRole<HTMLInputElement>('textbox').forEach((input) => {
+      expect(input).toHaveAttribute('data-complete', '');
+    });
   });
 
   it('applies the Field label to every slot', async () => {

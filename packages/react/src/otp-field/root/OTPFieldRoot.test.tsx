@@ -34,6 +34,26 @@ describe('<OTPFieldPreview />', () => {
       .join('');
   }
 
+  function pasteText(target: HTMLElement, value: string) {
+    if (isJSDOM) {
+      fireEvent.paste(target, {
+        clipboardData: {
+          getData: () => value,
+        },
+      });
+      return;
+    }
+
+    const pasteEvent = new Event('paste', { bubbles: true, cancelable: true });
+    Object.defineProperty(pasteEvent, 'clipboardData', {
+      value: {
+        getData: () => value,
+      },
+    });
+
+    fireEvent(target, pasteEvent);
+  }
+
   describe('value handling', () => {
     it('splits the default value across inputs', async () => {
       await render(<OTPField defaultValue="12a34b56" />);
@@ -207,6 +227,21 @@ describe('<OTPFieldPreview />', () => {
 
         expect(getValues()).toBe('AB12CD');
       });
+
+      it('warns when `sanitizeValue` is used without `validationType=\"none\"`', async () => {
+        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+        try {
+          await render(<OTPField sanitizeValue={(value) => value.toUpperCase()} />);
+
+          expect(warnSpy).toHaveBeenCalledTimes(1);
+          expect(warnSpy.mock.calls[0]?.[0]).toContain(
+            'Base UI: <OTPField.Root> `sanitizeValue` is only used when `validationType="none"`.',
+          );
+        } finally {
+          warnSpy.mockRestore();
+        }
+      });
     });
 
     describe('prop: onValueChange', () => {
@@ -272,6 +307,20 @@ describe('<OTPFieldPreview />', () => {
         expect(onValueInvalid.mock.calls[0]?.[0]).toBe('1209');
         expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
       });
+
+      it('fires `input-paste` when pasted text is sanitized before the OTP value updates', async () => {
+        const onValueInvalid = vi.fn();
+
+        await render(<OTPField onValueInvalid={onValueInvalid} />);
+
+        const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+        pasteText(firstInput, '12a34');
+
+        expect(getValues()).toBe('1234');
+        expect(onValueInvalid).toHaveBeenCalledTimes(1);
+        expect(onValueInvalid.mock.calls[0]?.[0]).toBe('12a34');
+        expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputPaste);
+      });
     });
 
     describe('prop: onValueComplete', () => {
@@ -286,6 +335,19 @@ describe('<OTPFieldPreview />', () => {
         expect(onValueComplete).toHaveBeenCalledTimes(1);
         expect(onValueComplete.mock.calls[0]?.[0]).toBe('123456');
         expect(onValueComplete.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
+      });
+
+      it('fires `input-paste` when pasting completes the OTP', async () => {
+        const onValueComplete = vi.fn();
+
+        await render(<OTPField onValueComplete={onValueComplete} />);
+
+        const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+        pasteText(firstInput, '123456');
+
+        expect(onValueComplete).toHaveBeenCalledTimes(1);
+        expect(onValueComplete.mock.calls[0]?.[0]).toBe('123456');
+        expect(onValueComplete.mock.calls[0]?.[1].reason).toBe(REASONS.inputPaste);
       });
 
       it('does not fire before the OTP becomes complete', async () => {
@@ -548,23 +610,7 @@ describe('<OTPFieldPreview />', () => {
         await render(<OTPField onValueChange={onValueChange} />);
 
         const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
-
-        if (isJSDOM) {
-          fireEvent.paste(firstInput, {
-            clipboardData: {
-              getData: () => '123456',
-            },
-          });
-        } else {
-          const pasteEvent = new Event('paste', { bubbles: true, cancelable: true });
-          Object.defineProperty(pasteEvent, 'clipboardData', {
-            value: {
-              getData: () => '123456',
-            },
-          });
-
-          fireEvent(firstInput, pasteEvent);
-        }
+        pasteText(firstInput, '123456');
 
         expect(getValues()).toBe('123456');
         expect(onValueChange).toHaveBeenCalledTimes(1);
@@ -910,6 +956,12 @@ describe('<OTPFieldPreview />', () => {
     expect(root).not.toHaveAttribute('data-focused');
   });
 
+  it('sets `data-complete` when all slots are filled', async () => {
+    await render(<OTPField data-testid="root" defaultValue="123456" />);
+
+    expect(screen.getByTestId('root')).toHaveAttribute('data-complete', '');
+  });
+
   it('renders a fallback hidden input id when name is not provided', async () => {
     await render(<OTPField id="verification-code" />);
 
@@ -940,4 +992,22 @@ describe('<OTPFieldPreview />', () => {
 
     warnSpy.mockRestore();
   });
+
+  it.each([0, -1, 3.7, Number.NaN, Number.POSITIVE_INFINITY])(
+    'warns when length is not a positive integer (%p)',
+    async (invalidLength) => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      try {
+        await render(<OTPFieldBase.Root length={invalidLength} />);
+
+        expect(warnSpy).toHaveBeenCalledTimes(1);
+        expect(warnSpy.mock.calls[0]?.[0]).toContain(
+          `Base UI: <OTPField.Root> \`length\` must be a positive integer. Received \`length={${String(invalidLength)}}\`.`,
+        );
+      } finally {
+        warnSpy.mockRestore();
+      }
+    },
+  );
 });
