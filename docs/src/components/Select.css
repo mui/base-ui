@@ -79,25 +79,4 @@
   .SelectItemText {
     grid-column: 4;
   }
-
-  .SelectArrow {
-    &[data-side='bottom'] {
-      top: -6px;
-    }
-
-    &[data-side='top'] {
-      bottom: -6px;
-      transform: scaleY(-1);
-    }
-  }
-
-  .SelectArrowFill {
-    fill: var(--color-popup);
-  }
-
-  .SelectArrowStroke {
-    @media (prefers-color-scheme: dark) {
-      fill: var(--gray-c3);
-    }
-  }
 }
