@@ -51,6 +51,10 @@
       position: relative;
       color: white;
 
+      @media (prefers-color-scheme: dark) {
+        color: black;
+      }
+
       &::before {
         content: '';
         position: absolute;
@@ -58,7 +62,11 @@
         inset-block: 0;
         z-index: -1;
         border-radius: var(--radius-4);
-        background-color: var(--color-highlight);
+        background-color: var(--gray-t2);
+
+        @media (prefers-color-scheme: dark) {
+          background-color: white;
+        }
       }
     }
 
