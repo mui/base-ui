@@ -28,8 +28,8 @@
   }
 
   .Text.sz-3 {
-    font-size: 36px;
-    line-height: 38px;
+    font-size: var(--font-size-34);
+    line-height: 34px;
     text-wrap: balance;
     font-family:
       'die grotesk b',
@@ -67,8 +67,8 @@
     }
 
     .Text.bp2\:sz-3 {
-      font-size: 36px;
-      line-height: 38px;
+      font-size: var(--font-size-34);
+      line-height: 34px;
       text-wrap: balance;
       font-family:
         'die grotesk b',

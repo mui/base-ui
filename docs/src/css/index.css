@@ -234,7 +234,7 @@
     --font-size-18: 1.125rem; /* 18px */
     --font-size-21: 1.3125rem; /* 21px */
     --font-size-24: 1.5rem; /* 24px */
-    --font-size-36: 2.25rem; /* 36px */
+    --font-size-34: 2.125rem; /* 34px */
     --font-size-42: 2.625rem; /* 42px */
 
     /* Font weight */
@@ -411,7 +411,7 @@
     --font-size-18: initial;
     --font-size-21: initial;
     --font-size-24: initial;
-    --font-size-36: initial;
+    --font-size-34: initial;
     --font-size-42: initial;
 
     --ease-out-fast: initial;
