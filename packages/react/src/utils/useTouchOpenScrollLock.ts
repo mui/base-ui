@@ -35,16 +35,11 @@ export function useTouchOpenScrollLock(
       );
       const popupWidth = currentPositionerElement.offsetWidth;
 
-      if (
+      setTouchOpenShouldLockScroll(
         availableWidth > 0 &&
-        popupWidth > 0 &&
-        popupWidth >= availableWidth - VIEWPORT_WIDTH_TOLERANCE_PX
-      ) {
-        setTouchOpenShouldLockScroll(true);
-        return;
-      }
-
-      setTouchOpenShouldLockScroll(false);
+          popupWidth > 0 &&
+          popupWidth >= availableWidth - VIEWPORT_WIDTH_TOLERANCE_PX,
+      );
     }
 
     maybeLockScroll();
