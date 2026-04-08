@@ -601,9 +601,11 @@ export interface OTPFieldRootProps extends Omit<
   /**
    * Callback fired when the OTP value changes.
    *
-   * The `eventDetails.reason` indicates whether the change came from typing or autofill
-   * (`'input-change'`), text-input removal (`'input-clear'`), paste (`'input-paste'`), or
-   * keyboard editing (`'keyboard'`).
+   * The `eventDetails.reason` indicates what triggered the change:
+   * - `'input-change'` for typing or autofill
+   * - `'input-clear'` when a character is removed by text input
+   * - `'input-paste'` for paste interactions
+   * - `'keyboard'` for keyboard interactions that change the value
    */
   onValueChange?:
     | ((value: string, eventDetails: OTPFieldRoot.ChangeEventDetails) => void)
@@ -721,7 +723,7 @@ function useOTPFieldRootDevWarnings(parameters: UseOTPFieldRootDevWarningsParame
 
     const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
     warn(
-      `Base UI: <OTPField.Root> \`length\` must be a positive integer. Received \`length={${String(length)}}\`.`,
+      `<OTPField.Root> \`length\` must be a positive integer. Received \`length={${String(length)}}\`.`,
       ownerStackMessage,
     );
   }, [length]);
@@ -733,7 +735,7 @@ function useOTPFieldRootDevWarnings(parameters: UseOTPFieldRootDevWarningsParame
 
     const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
     warn(
-      'Base UI: <OTPField.Root> `sanitizeValue` is only used when `validationType="none"`.',
+      '<OTPField.Root> `sanitizeValue` is only used when `validationType="none"`.',
       ownerStackMessage,
     );
   }, [sanitizeValue, validationType]);

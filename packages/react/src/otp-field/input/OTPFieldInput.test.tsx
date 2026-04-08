@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import * as React from 'react';
 import userEvent from '@testing-library/user-event';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
@@ -421,5 +421,99 @@ describe('<OTPField.Input />', () => {
     inputs.forEach((input) => {
       expect(input).toHaveAccessibleName('Verification code');
     });
+  });
+
+  it('keeps the shared label on the first slot even if an aria-label is provided', async () => {
+    await render(
+      <React.Fragment>
+        <label htmlFor="verification-code">Verification code</label>
+        <OTPField.Root id="verification-code" length={OTP_LENGTH}>
+          <OTPField.Input aria-label="Character 1 of 6" />
+          <OTPField.Input aria-label="Character 2 of 6" />
+          <OTPField.Input />
+          <OTPField.Input />
+          <OTPField.Input />
+          <OTPField.Input />
+        </OTPField.Root>
+      </React.Fragment>,
+    );
+
+    const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+    expect(inputs[0]).toHaveAccessibleName('Verification code');
+    expect(inputs[0]).toHaveAttribute('aria-label', 'Character 1 of 6');
+    expect(inputs[1]).toHaveAttribute('aria-label', 'Character 2 of 6');
+  });
+
+  it('warns when aria-label is provided on the first slot without an associated label', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    try {
+      await render(
+        <OTPField.Root length={OTP_LENGTH}>
+          <OTPField.Input aria-label="Character 1 of 6" />
+          <OTPField.Input />
+          <OTPField.Input />
+          <OTPField.Input />
+          <OTPField.Input />
+          <OTPField.Input />
+        </OTPField.Root>,
+      );
+
+      expect(warnSpy).toHaveBeenCalledTimes(1);
+      expect(warnSpy.mock.calls[0]?.[0]).toContain(
+        'Base UI: <OTPField.Input> ignores `aria-label` on the first input.',
+      );
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
+  it('does not warn for a first-slot aria-label when a native label is associated', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    try {
+      await render(
+        <React.Fragment>
+          <label htmlFor="verification-code">Verification code</label>
+          <OTPField.Root id="verification-code" length={OTP_LENGTH}>
+            <OTPField.Input aria-label="Character 1 of 6" />
+            <OTPField.Input />
+            <OTPField.Input />
+            <OTPField.Input />
+            <OTPField.Input />
+            <OTPField.Input />
+          </OTPField.Root>
+        </React.Fragment>,
+      );
+
+      expect(warnSpy).not.toHaveBeenCalled();
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
+  it('does not warn for a first-slot aria-label when Field.Label is associated', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    try {
+      await render(
+        <Field.Root>
+          <Field.Label>Verification code</Field.Label>
+          <OTPField.Root length={OTP_LENGTH}>
+            <OTPField.Input aria-label="Character 1 of 6" />
+            <OTPField.Input />
+            <OTPField.Input />
+            <OTPField.Input />
+            <OTPField.Input />
+            <OTPField.Input />
+          </OTPField.Root>
+        </Field.Root>,
+      );
+
+      expect(warnSpy).not.toHaveBeenCalled();
+    } finally {
+      warnSpy.mockRestore();
+    }
   });
 });

@@ -34,15 +34,15 @@ import { OTPFieldPreview as OTPField } from '@base-ui/react/otp-field';
 ### Labeling an OTP field
 
 Pass an `id` to `<OTPField.Root>` and use a native `<label>` with a matching `htmlFor`. Add
-`aria-describedby` to `<OTPField.Root>` when you want supporting text announced with the field,
-and use `aria-label` on each input to indicate which slot is currently focused to assistive
-technology:
+`aria-describedby` to `<OTPField.Root>` when you want supporting text announced with the field.
+Let the first input use the field label, and add `aria-label` to the remaining inputs so assistive
+technology can announce which later slot is focused:
 
 ```tsx title="OTP Field with a native label and description"
 <div>
   <label htmlFor="verification-code">Verification code</label>
   <OTPField.Root id="verification-code" length={6} aria-describedby="verification-code-description">
-    <OTPField.Input aria-label="Character 1 of 6" />
+    <OTPField.Input />
     <OTPField.Input aria-label="Character 2 of 6" />
     <OTPField.Input aria-label="Character 3 of 6" />
     <OTPField.Input aria-label="Character 4 of 6" />
@@ -63,7 +63,7 @@ Use [Field](/react/components/field) to handle label associations and form integ
     <Field.Label>Verification code</Field.Label>
     <Field.Description>Enter the 6-character code we sent to your device.</Field.Description>
     <OTPField.Root length={6}>
-      <OTPField.Input aria-label="Character 1 of 6" />
+      <OTPField.Input />
       <OTPField.Input aria-label="Character 2 of 6" />
       <OTPField.Input aria-label="Character 3 of 6" />
       <OTPField.Input aria-label="Character 4 of 6" />

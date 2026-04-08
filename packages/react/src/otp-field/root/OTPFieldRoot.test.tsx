@@ -228,7 +228,7 @@ describe('<OTPFieldPreview />', () => {
         expect(getValues()).toBe('AB12CD');
       });
 
-      it('warns when `sanitizeValue` is used without `validationType=\"none\"`', async () => {
+      it('warns when `sanitizeValue` is used without `validationType="none"`', async () => {
         const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
         try {

@@ -1,5 +1,7 @@
 'use client';
 import * as React from 'react';
+import { SafeReact } from '@base-ui/utils/safeReact';
+import { warn } from '@base-ui/utils/warn';
 import { stopEvent } from '../../floating-ui-react/utils';
 import {
   IndexGuessBehavior,
@@ -63,9 +65,27 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
   const { ref: listItemRef, index } = useCompositeListItem({
     indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
   });
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
 
   const slotValue = value[index] ?? '';
   const inputState = getOTPFieldInputState(state, slotValue, index);
+  const inheritedLabel = componentProps['aria-labelledby'] ?? inputAriaLabelledBy;
+  const ariaLabel = index === 0 ? undefined : componentProps['aria-label'];
+
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    React.useEffect(() => {
+      if (index !== 0 || componentProps['aria-label'] == null || inputRef.current?.labels?.length) {
+        return;
+      }
+
+      const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
+      warn(
+        '<OTPField.Input> ignores `aria-label` on the first input. Use a `<label>` or `<Field.Label>` to label the OTP field.',
+        ownerStackMessage,
+      );
+    }, [componentProps['aria-label'], index]);
+  }
 
   const inputProps: React.ComponentProps<'input'> = {
     id: getInputId(index),
@@ -83,12 +103,9 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     pattern,
     readOnly,
     required,
-    'aria-labelledby':
-      componentProps['aria-label'] == null
-        ? (componentProps['aria-labelledby'] ?? inputAriaLabelledBy)
-        : undefined,
+    'aria-labelledby': ariaLabel == null ? inheritedLabel : undefined,
     'aria-invalid': invalid || undefined,
-    'aria-label': componentProps['aria-label'],
+    'aria-label': ariaLabel,
     onMouseDown(event) {
       if (event.defaultPrevented || disabled) {
         return;
@@ -275,7 +292,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
   };
 
   const element = useRenderElement('input', componentProps, {
-    ref: [forwardedRef, listItemRef],
+    ref: [forwardedRef, listItemRef, inputRef],
     state: inputState,
     props: [inputProps, elementProps],
     stateAttributesMapping: inputStateAttributesMapping,
