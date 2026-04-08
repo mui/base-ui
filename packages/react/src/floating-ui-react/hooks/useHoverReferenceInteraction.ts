@@ -83,7 +83,7 @@ export function useHoverReferenceInteraction(
   const delayRef = useValueAsRef(delay);
   const restMsRef = useValueAsRef(restMs);
   const enabledRef = useValueAsRef(enabled);
-  const isClosingCallback = useStableCallback(isClosing);
+  const isClosingRef = useValueAsRef(isClosing);
 
   if (isActiveTrigger) {
     // eslint-disable-next-line no-underscore-dangle
@@ -236,7 +236,7 @@ export function useHoverReferenceInteraction(
           : isOverInactiveTrigger(currentDomReference, triggerNode, eventTarget);
       const isOpen = store.select('open');
       const isInClosingTransition =
-        isClosingCallback() ?? store.select('transitionStatus') === 'ending';
+        isClosingRef.current?.() ?? store.select('transitionStatus') === 'ending';
       const isHoverCloseTransition =
         !isOpen && isInClosingTransition && isHoverCloseActiveRef.current;
       const isReenteringSameTriggerDuringCloseTransition =
@@ -369,7 +369,7 @@ export function useHoverReferenceInteraction(
     tree,
     enabledRef,
     getHandleCloseContext,
-    isClosingCallback,
+    isClosingRef,
   ]);
 
   return React.useMemo<HTMLProps | undefined>(() => {
