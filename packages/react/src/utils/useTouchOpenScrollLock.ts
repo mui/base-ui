@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -24,28 +23,17 @@ export function useTouchOpenScrollLock(
   useIsoLayoutEffect(() => {
     if (!enabled || !touchOpen || positionerElement == null) {
       setTouchOpenShouldLockScroll(false);
-      return undefined;
+      return;
     }
 
-    const currentPositionerElement = positionerElement;
-    const frame = AnimationFrame.create();
+    const viewportWidth = ownerDocument(positionerElement).documentElement.clientWidth;
+    const popupWidth = positionerElement.offsetWidth;
 
-    function maybeLockScroll() {
-      const viewportWidth = ownerDocument(currentPositionerElement).documentElement.clientWidth;
-      const popupWidth = currentPositionerElement.offsetWidth;
-
-      setTouchOpenShouldLockScroll(
-        viewportWidth > 0 &&
-          popupWidth > 0 &&
-          popupWidth >= viewportWidth - VIEWPORT_WIDTH_TOLERANCE_PX,
-      );
-    }
-
-    maybeLockScroll();
-
-    frame.request(maybeLockScroll);
-
-    return frame.cancel;
+    setTouchOpenShouldLockScroll(
+      viewportWidth > 0 &&
+        popupWidth > 0 &&
+        popupWidth >= viewportWidth - VIEWPORT_WIDTH_TOLERANCE_PX,
+    );
   }, [enabled, touchOpen, positionerElement]);
 
   useScrollLock(enabled && (!touchOpen || touchOpenShouldLockScroll), referenceElement);
