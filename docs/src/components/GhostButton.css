@@ -13,7 +13,7 @@
     outline: 0;
     user-select: none;
     border-radius: var(--radius-8);
-    padding-inline: 0.75rem;
+    padding-inline: 0.5rem;
 
     &[data-layout='icon'] {
       width: 1.75rem;
