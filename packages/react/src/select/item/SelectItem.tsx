@@ -52,8 +52,17 @@ export const SelectItem = React.memo(
       indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
     });
 
-    const { store, getItemProps, setOpen, setValue, selectionRef, typingRef, valuesRef, multiple } =
-      useSelectRootContext();
+    const {
+      store,
+      getItemProps,
+      setOpen,
+      setValue,
+      selectionRef,
+      typingRef,
+      valuesRef,
+      multiple,
+      selectedItemTextRef,
+    } = useSelectRootContext();
 
     const highlighted = useStore(store, selectors.isActive, listItem.index);
     const selected = useStore(store, selectors.isSelected, listItem.index, itemValue);
@@ -90,8 +99,13 @@ export const SelectItem = React.memo(
         compareItemEquality(itemValue, selectedCandidate, isItemEqualToValue)
       ) {
         store.set('selectedIndex', index);
+        // Make sure SelectPopup can measure the selected item on first open.
+        // SelectItemText can still update this ref later when focus moves.
+        if (textRef.current) {
+          selectedItemTextRef.current = textRef.current;
+        }
       }
-    }, [hasRegistered, index, isItemEqualToValue, itemValue, multiple, store]);
+    }, [hasRegistered, index, multiple, isItemEqualToValue, store, itemValue, selectedItemTextRef]);
 
     const state: SelectItemState = {
       disabled,

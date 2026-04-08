@@ -289,7 +289,6 @@ export function ListboxRoot<Value>(props: ListboxRoot.Props<Value>): React.JSX.E
         {...validation.getInputValidationProps({
           onFocus() {
             store.state.listElement?.focus({
-              // @ts-expect-error - focusVisible is not yet in the lib.dom.d.ts
               focusVisible: true,
             });
           },
