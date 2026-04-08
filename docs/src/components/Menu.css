@@ -9,7 +9,7 @@
     outline: 0;
     max-width: var(--available-width);
     max-height: var(--available-height);
-    border-radius: var(--radius-6);
+    border-radius: var(--radius-8);
     background-color: var(--color-popup);
     overflow: hidden;
     cursor: default;
