@@ -80,7 +80,7 @@ export function createInitialPopupStoreState<Payload>(): PopupStoreState<Payload
     open: false,
     openProp: undefined,
     mounted: false,
-    transitionStatus: 'idle',
+    transitionStatus: undefined,
     floatingRootContext: getEmptyRootContext(),
     preventUnmountingOnClose: false,
     payload: undefined,

@@ -37,6 +37,6 @@ jobs:
       - run: pnpm release:build
       - name: Publish packages
         if: matrix.os == 'ubuntu-latest'
-        uses: mui/mui-public/.github/actions/ci-publish@b989d008bd34fbf9fb9d3395da2f6a32536f574d
+        uses: mui/mui-public/.github/actions/ci-publish@0913e8254e8626b56e03ea048567da0273f0bd18
         with:
           pr-comment: true

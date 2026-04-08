@@ -2,6 +2,8 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isNode } from '@floating-ui/utils/dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
+import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -213,12 +215,10 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
 
     // Listen to the event on the capture phase so they run before the focus
     // trap elements onFocus prop is called.
-    portalNode.addEventListener('focusin', onFocus, true);
-    portalNode.addEventListener('focusout', onFocus, true);
-    return () => {
-      portalNode.removeEventListener('focusin', onFocus, true);
-      portalNode.removeEventListener('focusout', onFocus, true);
-    };
+    return mergeCleanups(
+      addEventListener(portalNode, 'focusin', onFocus, true),
+      addEventListener(portalNode, 'focusout', onFocus, true),
+    );
   }, [portalNode, modal]);
 
   React.useEffect(() => {

@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -279,7 +280,6 @@ export const SliderControl = React.forwardRef(function SliderControl(
       preventScroll: true,
       // Prevent pointer-driven focus rings in browsers that support this option.
       // Supported in Chrome from 144+.
-      // @ts-expect-error - focusVisible is not yet in the lib.dom.d.ts
       focusVisible: false,
     });
   });
@@ -417,12 +417,12 @@ export const SliderControl = React.forwardRef(function SliderControl(
       return () => stopListening();
     }
 
-    control.addEventListener('touchstart', handleTouchStart, {
+    const unsubscribeTouchStart = addEventListener(control, 'touchstart', handleTouchStart, {
       passive: true,
     });
 
     return () => {
-      control.removeEventListener('touchstart', handleTouchStart);
+      unsubscribeTouchStart();
       focusFrame.cancel();
 
       stopListening();

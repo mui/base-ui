@@ -86,6 +86,7 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
 
   useImplicitActiveTrigger(store);
   const { forceUnmount, transitionStatus } = useOpenStateTransitions(open, store);
+  const floatingRootContext = store.select('floatingRootContext');
   const isInstantPhase = store.useState('isInstantPhase');
   const instantType = store.useState('instantType');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
@@ -131,8 +132,6 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
     () => ({ unmount: forceUnmount, close: handleImperativeClose }),
     [forceUnmount, handleImperativeClose],
   );
-
-  const floatingRootContext = store.useState('floatingRootContext');
 
   const dismiss = useDismiss(floatingRootContext, {
     enabled: !disabled,

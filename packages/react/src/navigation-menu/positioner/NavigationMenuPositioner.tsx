@@ -1,6 +1,8 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
+import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import {
@@ -96,12 +98,10 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
 
     // Listen to the event on the capture phase so they run before the focus
     // trap elements onFocus prop is called.
-    positionerElement.addEventListener('focusin', onFocus, true);
-    positionerElement.addEventListener('focusout', onFocus, true);
-    return () => {
-      positionerElement.removeEventListener('focusin', onFocus, true);
-      positionerElement.removeEventListener('focusout', onFocus, true);
-    };
+    return mergeCleanups(
+      addEventListener(positionerElement, 'focusin', onFocus, true),
+      addEventListener(positionerElement, 'focusout', onFocus, true),
+    );
   }, [positionerElement]);
 
   const domReference = (floatingRootContext || EMPTY_ROOT_CONTEXT).useState('domReferenceElement');
@@ -152,10 +152,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     }
 
     const win = ownerWindow(positionerElement);
-    win.addEventListener('resize', handleResize);
-    return () => {
-      win.removeEventListener('resize', handleResize);
-    };
+    return addEventListener(win, 'resize', handleResize);
   }, [open, resizeTimeout, positionerElement]);
 
   const element = usePositioner(componentProps, state, {

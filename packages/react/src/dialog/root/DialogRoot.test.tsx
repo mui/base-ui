@@ -9,6 +9,7 @@ import { NumberField } from '@base-ui/react/number-field';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { REASONS } from '../../internals/reasons';
+import { useDialogRootContext } from './DialogRootContext';
 
 describe('<Dialog.Root />', () => {
   const { render } = createRenderer();
@@ -200,6 +201,64 @@ describe('<Dialog.Root />', () => {
         await flushMicrotasks();
 
         expect(screen.queryByRole('dialog')).toBe(null);
+      });
+
+      it('emits a single internal openchange when closing on Escape', async () => {
+        const handleInternalOpenChange = vi.fn();
+        const { user } = await render(
+          <TestDialog
+            rootProps={{ defaultOpen: true }}
+            popupProps={{
+              children: (
+                <React.Fragment>
+                  <DialogOpenChangeSpy onOpenChange={handleInternalOpenChange} />
+                  <p>Dialog content</p>
+                  <Dialog.Close>Close</Dialog.Close>
+                </React.Fragment>
+              ),
+            }}
+          />,
+        );
+
+        await user.keyboard('[Escape]');
+        await flushMicrotasks();
+
+        expect(handleInternalOpenChange.mock.calls.length).toBe(1);
+        expect(handleInternalOpenChange.mock.calls[0][0]).toMatchObject({
+          open: false,
+          reason: REASONS.escapeKey,
+        });
+      });
+
+      it('does not emit internal openchange when an Escape close is canceled', async () => {
+        const handleInternalOpenChange = vi.fn();
+        const { user } = await render(
+          <TestDialog
+            rootProps={{
+              defaultOpen: true,
+              onOpenChange: (nextOpen, eventDetails) => {
+                if (!nextOpen) {
+                  eventDetails.cancel();
+                }
+              },
+            }}
+            popupProps={{
+              children: (
+                <React.Fragment>
+                  <DialogOpenChangeSpy onOpenChange={handleInternalOpenChange} />
+                  <p>Dialog content</p>
+                  <Dialog.Close>Close</Dialog.Close>
+                </React.Fragment>
+              ),
+            }}
+          />,
+        );
+
+        await user.keyboard('[Escape]');
+        await flushMicrotasks();
+
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+        expect(handleInternalOpenChange.mock.calls.length).toBe(0);
       });
     });
 
@@ -1266,6 +1325,27 @@ describe('<Dialog.Root />', () => {
     },
   );
 });
+
+function DialogOpenChangeSpy(props: {
+  onOpenChange: (details: { open: boolean; reason: string | null | undefined }) => void;
+}) {
+  const { onOpenChange } = props;
+  const { store } = useDialogRootContext();
+  const floatingRootContext = store.useState('floatingRootContext');
+
+  React.useEffect(() => {
+    function handleOpenChange(details: { open: boolean; reason: string | null | undefined }) {
+      onOpenChange(details);
+    }
+
+    floatingRootContext.context.events.on('openchange', handleOpenChange);
+    return () => {
+      floatingRootContext.context.events.off('openchange', handleOpenChange);
+    };
+  }, [floatingRootContext, onOpenChange]);
+
+  return null;
+}
 
 type TestDialogProps = {
   rootProps?: Omit<Dialog.Root.Props, 'children'>;

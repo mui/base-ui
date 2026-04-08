@@ -1,6 +1,8 @@
 'use client';
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
+import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui/utils/useTimeout';
@@ -237,20 +239,14 @@ export function useHoverFloatingInteraction(
     }
 
     const floating = floatingElement;
-    if (floating) {
-      floating.addEventListener('mouseenter', onFloatingMouseEnter);
-      floating.addEventListener('mouseleave', onFloatingMouseLeave);
-      floating.addEventListener('pointerdown', handleInteractInside, true);
-    }
-
-    return () => {
-      if (floating) {
-        floating.removeEventListener('mouseenter', onFloatingMouseEnter);
-        floating.removeEventListener('mouseleave', onFloatingMouseLeave);
-        floating.removeEventListener('pointerdown', handleInteractInside, true);
-      }
-      tree?.events.off('floating.closed', onNodeClosed);
-    };
+    return mergeCleanups(
+      floating && addEventListener(floating, 'mouseenter', onFloatingMouseEnter),
+      floating && addEventListener(floating, 'mouseleave', onFloatingMouseLeave),
+      floating && addEventListener(floating, 'pointerdown', handleInteractInside, true),
+      () => {
+        tree?.events.off('floating.closed', onNodeClosed);
+      },
+    );
   }, [
     enabled,
     floatingElement,

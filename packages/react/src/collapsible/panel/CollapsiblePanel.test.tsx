@@ -56,6 +56,52 @@ describe('<Collapsible.Panel />', () => {
       expect(screen.queryByText(PANEL_CONTENT)).not.toBeVisible();
       expect(screen.queryByText(PANEL_CONTENT)).toHaveAttribute('data-closed');
     });
+
+    it.skipIf(isJSDOM)(
+      'hides the panel after external controlled close when true and no animations are applied',
+      async () => {
+        function App() {
+          const [open, setOpen] = React.useState(false);
+
+          return (
+            <React.Fragment>
+              <Collapsible.Root open={open} onOpenChange={setOpen}>
+                <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+                <Collapsible.Panel keepMounted>{PANEL_CONTENT}</Collapsible.Panel>
+              </Collapsible.Root>
+
+              <button type="button" onClick={() => setOpen(!open)}>
+                toggle externally
+              </button>
+            </React.Fragment>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        const trigger = screen.getByRole('button', { name: 'Trigger' });
+        const externalTrigger = screen.getByRole('button', { name: 'toggle externally' });
+        const panel = screen.getByText(PANEL_CONTENT);
+
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+        expect(panel).toHaveAttribute('hidden');
+        expect(panel).toHaveAttribute('data-closed');
+        expect(panel).not.toHaveAttribute('data-ending-style');
+
+        await user.click(externalTrigger);
+
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+        expect(panel).not.toHaveAttribute('hidden');
+        expect(panel).toHaveAttribute('data-open');
+
+        await user.click(externalTrigger);
+
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+        expect(panel).toHaveAttribute('hidden');
+        expect(panel).toHaveAttribute('data-closed');
+        expect(panel).not.toHaveAttribute('data-ending-style');
+      },
+    );
   });
 
   // we test firefox in browserstack which does not support this yet

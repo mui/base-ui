@@ -271,7 +271,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
       ) : (
         element
       )}
-      <input {...inputProps} />
+      <input {...inputProps} suppressHydrationWarning />
     </RadioRootContext.Provider>
   );
 }) as {

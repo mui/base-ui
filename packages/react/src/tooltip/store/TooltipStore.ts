@@ -81,6 +81,8 @@ export class TooltipStore<Payload> extends ReactStore<
       return;
     }
 
+    this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
+
     const changeState = () => {
       const updatedState: Partial<State<Payload>> = { open: nextOpen, openChangeReason: reason };
 

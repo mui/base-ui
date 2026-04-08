@@ -1,6 +1,8 @@
 'use client';
 import * as React from 'react';
 import { getWindow, isElement, isHTMLElement } from '@floating-ui/utils/dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
+import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { isMac, isSafari } from '@base-ui/utils/detectBrowser';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerDocument } from '@base-ui/utils/owner';
@@ -85,21 +87,11 @@ export function useFocus(
       keyboardModalityRef.current = false;
     }
 
-    win.addEventListener('blur', onBlur);
-
-    if (isMacSafari) {
-      win.addEventListener('keydown', onKeyDown, true);
-      win.addEventListener('pointerdown', onPointerDown, true);
-    }
-
-    return () => {
-      win.removeEventListener('blur', onBlur);
-
-      if (isMacSafari) {
-        win.removeEventListener('keydown', onKeyDown, true);
-        win.removeEventListener('pointerdown', onPointerDown, true);
-      }
-    };
+    return mergeCleanups(
+      addEventListener(win, 'blur', onBlur),
+      isMacSafari && addEventListener(win, 'keydown', onKeyDown, true),
+      isMacSafari && addEventListener(win, 'pointerdown', onPointerDown, true),
+    );
   }, [store, enabled]);
 
   React.useEffect(() => {

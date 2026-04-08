@@ -139,14 +139,14 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
   const modal = store.useState('modal');
   const mounted = store.useState('mounted');
   const nested = store.useState('nested');
-  const nestedOpenDialogCount = store.useState('nestedOpenDialogCount');
+  const nestedOpenDrawerCount = store.useState('nestedOpenDrawerCount');
   const transitionStatus = store.useState('transitionStatus');
   const open = store.useState('open');
   const openMethod = store.useState('openMethod');
   const titleElementId = store.useState('titleElementId');
   const role = store.useState('role');
 
-  const nestedDrawerOpen = nestedOpenDialogCount > 0;
+  const nestedDrawerOpen = nestedOpenDrawerCount > 0;
 
   const swipe = useDrawerViewportContext(true);
   const swiping = swipe?.swiping ?? false;
@@ -372,7 +372,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
         style: {
           ...dragStyles,
           [DrawerBackdropCssVars.swipeProgress]: '0',
-          [DrawerPopupCssVars.nestedDrawers]: nestedOpenDialogCount,
+          [DrawerPopupCssVars.nestedDrawers]: nestedOpenDrawerCount,
           [DrawerPopupCssVars.height]: popupHeightCssVarValue,
           [DrawerPopupCssVars.snapPointOffset]:
             typeof snapPointOffsetValue === 'number' ? `${snapPointOffsetValue}px` : '0px',

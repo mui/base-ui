@@ -6,7 +6,7 @@ import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { getCssDimensions } from '../../utils/getCssDimensions';
 
 describe('<Tabs.Indicator />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describeConformance(<Tabs.Indicator />, () => ({
     render: (node) => {
@@ -391,6 +391,21 @@ describe('<Tabs.Indicator />', () => {
 
       // React strict mode doubles render calls in tests.
       expect(renderIndicatorSpy.mock.calls.length - initialRenderCount).toBeLessThan(5);
+    });
+  });
+
+  describe('pre-hydration rendering', () => {
+    it('renders the inline pre-hydration script during server-side rendering', async () => {
+      await renderToString(
+        <Tabs.Root value={1}>
+          <Tabs.List>
+            <Tabs.Tab value={1}>One</Tabs.Tab>
+            <Tabs.Indicator renderBeforeHydration />
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      expect(document.querySelector('script')).not.toBe(null);
     });
   });
 });

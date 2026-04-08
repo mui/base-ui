@@ -54,6 +54,7 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   const open = store.useState('open');
+  const floatingRootContext = store.select('floatingRootContext');
 
   const activeTriggerId = store.useState('activeTriggerId');
   const payload = store.useState('payload') as Payload | undefined;
@@ -78,8 +79,6 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
     () => ({ unmount: forceUnmount, close: handleImperativeClose }),
     [forceUnmount, handleImperativeClose],
   );
-
-  const floatingRootContext = store.useState('floatingRootContext');
 
   const dismiss = useDismiss(floatingRootContext);
 

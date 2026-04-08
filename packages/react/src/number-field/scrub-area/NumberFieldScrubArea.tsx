@@ -1,6 +1,8 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
+import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { ownerWindow, ownerDocument } from '@base-ui/utils/owner';
 import { isFirefox, isWebKit } from '@base-ui/utils/detectBrowser';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -216,13 +218,14 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
       }
 
       const win = ownerWindow(inputRef.current);
-      win.addEventListener('pointerup', handleScrubPointerUp, true);
-      win.addEventListener('pointermove', handleScrubPointerMove, true);
+      const unsubscribe = mergeCleanups(
+        addEventListener(win, 'pointerup', handleScrubPointerUp, true),
+        addEventListener(win, 'pointermove', handleScrubPointerMove, true),
+      );
 
       return () => {
         exitPointerLockTimeout.clear();
-        win.removeEventListener('pointerup', handleScrubPointerUp, true);
-        win.removeEventListener('pointermove', handleScrubPointerMove, true);
+        unsubscribe();
       };
     },
     [
@@ -257,11 +260,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
         }
       }
 
-      element.addEventListener('touchstart', handleTouchStart);
-
-      return () => {
-        element.removeEventListener('touchstart', handleTouchStart);
-      };
+      return addEventListener(element, 'touchstart', handleTouchStart);
     },
     [disabled, readOnly],
   );

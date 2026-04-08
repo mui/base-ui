@@ -9,8 +9,7 @@
     --font-sans-b:
       'die grotesk b', system-ui, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', arial,
       sans-serif;
-    --font-mono:
-      'Söhne Mono', 'SF Mono', Menlo, 'DejaVu Sans Mono', Consolas, Inconsolata, monospace;
+    --font-mono: 'Paper Mono', monospace;
     --font-serif: Georgia, 'Times New Roman', Times, 'Noto Serif', 'DejaVu Serif', serif;
 
     /* Font size */

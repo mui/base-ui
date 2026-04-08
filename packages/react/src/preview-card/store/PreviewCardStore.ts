@@ -69,6 +69,8 @@ export class PreviewCardStore<Payload> extends ReactStore<
       return;
     }
 
+    this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
+
     const changeState = () => {
       const updatedState: Partial<State<Payload>> = { open: nextOpen };
 

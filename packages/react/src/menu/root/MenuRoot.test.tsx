@@ -960,6 +960,65 @@ describe('<Menu.Root />', () => {
       );
     });
 
+    describe('focus guards', () => {
+      it('closes the menu and moves focus to the next element when tabbing forward from the open menu', async () => {
+        const { user } = await render(
+          <div>
+            <input />
+            <TestMenu rootProps={{ modal: false }} />
+            <input data-testid="after" />
+          </div>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await user.click(trigger);
+
+        await screen.findByTestId('menu');
+
+        const menuItem = screen.getByTestId('item-1');
+        await act(async () => {
+          menuItem.focus();
+        });
+
+        await user.tab();
+
+        expect(screen.getByTestId('after')).toHaveFocus();
+        await waitFor(() => {
+          expect(screen.queryByTestId('menu')).toBe(null);
+        });
+      });
+
+      it('closes the menu and moves focus to the trigger when shift-tabbing from the open menu', async () => {
+        const { user } = await render(
+          <div>
+            <input data-testid="before" />
+            <TestMenu />
+            <input />
+          </div>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await user.click(trigger);
+
+        await screen.findByTestId('menu');
+
+        const menuItem = screen.getByTestId('item-1');
+        await act(async () => {
+          menuItem.focus();
+        });
+
+        await user.keyboard('{Shift>}{Tab}{/Shift}');
+
+        await waitFor(() => {
+          expect(trigger).toHaveFocus();
+        });
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('menu')).toBe(null);
+        });
+      });
+    });
+
     describe('prop: closeParentOnEsc', () => {
       it('does not close the parent menu when the Escape key is pressed by default', async () => {
         const { user } = await render(<TestMenu />);
@@ -1538,6 +1597,42 @@ describe('<Menu.Root />', () => {
         const { render: renderFakeTimers, clock } = createRenderer();
 
         clock.withFakeTimers();
+
+        it('reopens on hover after an impatient click closes via item press', async () => {
+          await renderFakeTimers(<TestMenu triggerProps={{ openOnHover: true, delay: 100 }} />);
+
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+          fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
+          fireEvent.mouseEnter(trigger);
+          fireEvent.mouseMove(trigger, { movementX: 10, movementY: 0 });
+
+          clock.tick(100);
+          await flushMicrotasks();
+
+          expect(screen.queryByRole('menu')).not.toBe(null);
+
+          clock.tick(PATIENT_CLICK_THRESHOLD - 1);
+          fireEvent.click(trigger);
+
+          await flushMicrotasks();
+
+          fireEvent.click(screen.getByTestId('item-1'));
+
+          await flushMicrotasks();
+
+          expect(screen.queryByRole('menu')).toBe(null);
+
+          // Re-enter with mouse events only. A fresh pointerenter can be
+          // missed after the click-driven close, but hover should still work.
+          fireEvent.mouseEnter(trigger);
+          fireEvent.mouseMove(trigger, { movementX: 10, movementY: 0 });
+
+          clock.tick(100);
+          await flushMicrotasks();
+
+          expect(screen.queryByRole('menu')).not.toBe(null);
+        });
 
         it('treats hover-opened menus as modal after a click', async () => {
           await renderFakeTimers(
