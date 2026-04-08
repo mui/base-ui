@@ -100,10 +100,6 @@ export function useTypeahead(
     }
   }, [open, selectedIndex, activeIndex]);
 
-  const setTypingChange = useStableCallback((value: boolean) => {
-    onTypingChange?.(value);
-  });
-
   const onKeyDown = useStableCallback((event: React.KeyboardEvent) => {
     function isVisible(index: number) {
       const element = elementsRef?.current[index];
@@ -134,12 +130,12 @@ export function useTypeahead(
     if (stringRef.current.length > 0 && event.key === ' ') {
       // Space should continue the in-progress typeahead session.
       stopEvent(event);
-      setTypingChange(true);
+      onTypingChange?.(true);
     }
 
     if (stringRef.current.length > 0 && stringRef.current[0] !== ' ') {
       if (getMatchingIndex(listContent, stringRef.current) === -1 && event.key !== ' ') {
-        setTypingChange(false);
+        onTypingChange?.(false);
       }
     }
 
@@ -157,7 +153,7 @@ export function useTypeahead(
 
     if (open && event.key !== ' ') {
       stopEvent(event);
-      setTypingChange(true);
+      onTypingChange?.(true);
     }
 
     // Capture whether this is a new typing session before mutating the string.
@@ -183,7 +179,7 @@ export function useTypeahead(
     timeout.start(resetMs, () => {
       stringRef.current = '';
       prevIndexRef.current = matchIndexRef.current;
-      setTypingChange(false);
+      onTypingChange?.(false);
     });
 
     // Compute the starting index for this search.
@@ -199,7 +195,7 @@ export function useTypeahead(
       matchIndexRef.current = index;
     } else if (event.key !== ' ') {
       stringRef.current = '';
-      setTypingChange(false);
+      onTypingChange?.(false);
     }
   });
 
@@ -219,7 +215,7 @@ export function useTypeahead(
     timeout.clear();
     stringRef.current = '';
     prevIndexRef.current = matchIndexRef.current;
-    setTypingChange(false);
+    onTypingChange?.(false);
   });
 
   const sharedProps = React.useMemo(() => ({ onKeyDown, onBlur }), [onKeyDown, onBlur]);
