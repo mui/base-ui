@@ -24,7 +24,7 @@ Renders a `<div>` element.
 | length\*        | `number`                                                                                  | -                 | The number of OTP input slots.&#xA;Required so the root can clamp values, detect completion, and generate&#xA;consistent validation markup before all slots hydrate.                                                                                                                                         |
 | mask            | `boolean`                                                                                 | `false`           | Whether the slot inputs should mask entered characters.&#xA;Pass `type` directly to individual `<OTPField.Input>` parts to use a custom&#xA;input type.                                                                                                                                                      |
 | onValueComplete | `((value: string, eventDetails: OTPFieldPreview.Root.CompleteEventDetails) => void)`      | -                 | Callback function that is fired when the OTP value becomes complete. It runs later than `onValueChange`, after the internal value update is applied. If `autoSubmit` is enabled, it runs immediately before the owning form is submitted.                                                                    |
-| onValueInvalid  | `((value: string, eventDetails: OTPFieldPreview.Root.InvalidEventDetails) => void)`       | -                 | Callback fired when entered text contains characters that are rejected by sanitization,&#xA;before the OTP value updates. The `value` argument is the attempted user-entered string before sanitization.                                                                                                     |
+| onValueInvalid  | `((value: string, eventDetails: OTPFieldPreview.Root.InvalidEventDetails) => void)`       | -                 | Callback fired when entered text is sanitized before the OTP value updates. The `value` argument is the attempted user-entered string before sanitization.                                                                                                                                                   |
 | sanitizeValue   | `((value: string) => string)`                                                             | -                 | Function for custom sanitization when `validationType` is set to `'none'`.&#xA;This function runs before updating the OTP value from user interactions.                                                                                                                                                      |
 | validationType  | `OTPFieldPreview.Root.ValidationType`                                                     | `'numeric'`       | The type of input validation to apply to the OTP value.                                                                                                                                                                                                                                                      |
 | disabled        | `boolean`                                                                                 | `false`           | Whether the component should ignore user interaction.                                                                                                                                                                                                                                                        |
@@ -192,16 +192,16 @@ type OTPFieldPreviewInputState = {
   index: number;
   /** The character rendered in this slot. */
   value: string;
+  /** Whether all slots are filled. */
+  complete: boolean;
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
   /** The number of OTP input slots. */
   length: number;
-  /** Whether the user must enter a value before submitting a form. */
-  required: boolean;
   /** Whether the user should be unable to change the field value. */
   readOnly: boolean;
-  /** Whether all slots are filled. */
-  complete: boolean;
+  /** Whether the user must enter a value before submitting a form. */
+  required: boolean;
   /** Whether the field has been touched. */
   touched: boolean;
   /** Whether the field value has changed from its initial value. */
@@ -276,16 +276,16 @@ type OTPFieldInputState = {
   index: number;
   /** The character rendered in this slot. */
   value: string;
+  /** Whether all slots are filled. */
+  complete: boolean;
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
   /** The number of OTP input slots. */
   length: number;
-  /** Whether the user must enter a value before submitting a form. */
-  required: boolean;
   /** Whether the user should be unable to change the field value. */
   readOnly: boolean;
-  /** Whether all slots are filled. */
-  complete: boolean;
+  /** Whether the user must enter a value before submitting a form. */
+  required: boolean;
   /** Whether the field has been touched. */
   touched: boolean;
   /** Whether the field value has changed from its initial value. */
@@ -400,8 +400,7 @@ type OTPFieldRootProps = {
    */
   onValueChange?: (value: string, eventDetails: OTPFieldRoot.ChangeEventDetails) => void;
   /**
-   * Callback fired when entered text contains characters that are rejected by sanitization,
-   * before the OTP value updates.
+   * Callback fired when entered text is sanitized before the OTP value updates.
    *
    * The `value` argument is the attempted user-entered string before sanitization.
    */

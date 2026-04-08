@@ -298,6 +298,21 @@ describe('<OTPField.Input />', () => {
     expect(document.activeElement).toBe(inputs[0]);
   });
 
+  it('deletes the previous filled slot when backspacing on an empty non-first slot', async () => {
+    await render(<OTPFieldTest defaultValue="12" />);
+
+    const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+    await act(async () => {
+      inputs[2].focus();
+    });
+
+    fireEvent.keyDown(inputs[2], { key: 'Backspace' });
+
+    expect(inputs.map((input) => input.value)).toEqual(['1', '', '', '', '', '']);
+    expect(document.activeElement).toBe(inputs[1]);
+  });
+
   it('keeps focus in place when backspace is canceled', async () => {
     await render(
       <OTPFieldTest

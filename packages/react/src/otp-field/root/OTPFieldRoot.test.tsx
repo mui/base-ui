@@ -350,6 +350,24 @@ describe('<OTPFieldPreview />', () => {
         expect(onValueComplete.mock.calls[0]?.[1].reason).toBe(REASONS.inputPaste);
       });
 
+      it('does not fire when a completion-making paste is canceled', async () => {
+        const onValueComplete = vi.fn();
+
+        await render(
+          <OTPField
+            onValueChange={(_, eventDetails) => {
+              eventDetails.cancel();
+            }}
+            onValueComplete={onValueComplete}
+          />,
+        );
+
+        const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+        pasteText(firstInput, '123456');
+
+        expect(onValueComplete).not.toHaveBeenCalled();
+      });
+
       it('does not fire before the OTP becomes complete', async () => {
         const onValueComplete = vi.fn();
 

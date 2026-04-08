@@ -44,6 +44,10 @@ export function stripOTPWhitespace(value: string | null | undefined) {
   return removeWhitespace(value ?? '');
 }
 
+/**
+ * Normalizes user-entered OTP text by stripping whitespace, applying validation or custom
+ * sanitization, and clamping the final value to the configured slot count.
+ */
 export function normalizeOTPValue(
   value: string | null | undefined,
   length: number,
@@ -62,6 +66,10 @@ export function normalizeOTPValue(
   return Array.from(sanitizedValue).slice(0, Math.max(length, 0)).join('');
 }
 
+/**
+ * Replaces characters starting at the provided slot index, then re-normalizes the final OTP value
+ * so paste and multi-character edits stay contiguous and length-bounded.
+ */
 export function replaceOTPValue(
   currentValue: string,
   index: number,
