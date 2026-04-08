@@ -22,8 +22,8 @@ describe('@base-ui/react', () => {
     const packageJson = await import('../package.json');
     const subpathExports = packageJson.exports;
 
-    const internalKeys = Object.keys(subpathExports).filter(
-      (key) => key.startsWith('./internals/') || key === './internals/localization-provider',
+    const internalKeys = Object.keys(subpathExports).filter((key) =>
+      key.startsWith('./internals/'),
     );
 
     await Promise.all(
@@ -43,14 +43,7 @@ describe('@base-ui/react', () => {
       Object.keys(subpathExports)
         .filter(
           (key) =>
-            ![
-              '.',
-              './utils',
-              './temporal-adapter-luxon',
-              './temporal-adapter-date-fns',
-              './internals/localization-provider',
-              './types',
-            ].includes(key) &&
+            !['.', './utils', './types'].includes(key) &&
             !key.startsWith('./unstable-') &&
             !key.startsWith('./internals/'),
         )
