@@ -3,21 +3,16 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { usePreviewCardPositionerContext } from '../positioner/PreviewCardPositionerContext';
-import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
+import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { useHoverFloatingInteraction } from '../../floating-ui-react';
 
-const stateAttributesMapping: StateAttributesMapping<PreviewCardPopupState> = {
-  ...baseMapping,
-  ...transitionStatusMapping,
-};
+const stateAttributesMapping = popupTransitionStateMapping;
 
 /**
  * A container for the preview card contents.

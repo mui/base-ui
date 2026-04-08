@@ -7,10 +7,8 @@ import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { REASONS } from '../../utils/reasons';
@@ -19,10 +17,7 @@ import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { ClosePartProvider, useClosePartCount } from '../../utils/closePart';
 
-const stateAttributesMapping: StateAttributesMapping<PopoverPopupState> = {
-  ...baseMapping,
-  ...transitionStatusMapping,
-};
+const stateAttributesMapping = popupTransitionStateMapping;
 
 /**
  * A container for the popover contents.
@@ -93,16 +88,9 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   const focusManagerModal = modal !== false && hasClosePart;
   store.useSyncedValue('focusManagerModal', focusManagerModal);
 
-  const setPopupElement = React.useCallback(
-    (element: HTMLElement | null) => {
-      store.set('popupElement', element);
-    },
-    [store],
-  );
-
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, store.context.popupRef, setPopupElement],
+    ref: [forwardedRef, store.context.popupRef, store.useStateSetter('popupElement')],
     props: [
       popupProps,
       {
