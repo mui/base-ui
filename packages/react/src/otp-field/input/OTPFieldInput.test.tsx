@@ -471,7 +471,7 @@ describe('<OTPField.Input />', () => {
     const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
 
     expect(inputs[0]).toHaveAccessibleName('Verification code');
-    expect(inputs[0]).toHaveAttribute('aria-label', 'Character 1 of 6');
+    expect(inputs[0]).not.toHaveAttribute('aria-label', 'Character 1 of 6');
     expect(inputs[1]).toHaveAttribute('aria-label', 'Character 2 of 6');
   });
 

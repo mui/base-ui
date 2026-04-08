@@ -34,7 +34,14 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
   componentProps: OTPFieldInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
-  const { render, className, style, ...elementProps } = componentProps;
+  const {
+    'aria-label': externalAriaLabel,
+    'aria-labelledby': externalAriaLabelledBy,
+    render,
+    className,
+    style,
+    ...elementProps
+  } = componentProps;
 
   const {
     activeIndex,
@@ -69,8 +76,8 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
 
   const slotValue = value[index] ?? '';
   const inputState = getOTPFieldInputState(state, slotValue, index);
-  const slotAriaLabel = componentProps['aria-label'];
-  const inheritedLabel = componentProps['aria-labelledby'] ?? inputAriaLabelledBy;
+  const slotAriaLabel = externalAriaLabel;
+  const inheritedLabel = externalAriaLabelledBy ?? inputAriaLabelledBy;
   const ariaLabel = index === 0 ? undefined : slotAriaLabel;
 
   if (process.env.NODE_ENV !== 'production') {
