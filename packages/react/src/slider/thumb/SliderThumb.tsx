@@ -5,6 +5,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { BaseUIComponentProps } from '../../utils/types';
+import { clamp } from '../../utils/clamp';
 import { formatNumber } from '../../utils/formatNumber';
 import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -31,7 +32,7 @@ import { type LabelableContext } from '../../labelable-provider/LabelableContext
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { getMidpoint } from '../utils/getMidpoint';
 import { getSliderValue } from '../utils/getSliderValue';
-import { roundValueToStep } from '../utils/roundValueToStep';
+import { getDecimalPrecision, roundValueToStep } from '../utils/roundValueToStep';
 import type { SliderRootState } from '../root/SliderRoot';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
@@ -72,12 +73,22 @@ function getDefaultAriaValueText(
 
 function getNewValue(
   thumbValue: number,
-  step: number,
+  increment: number,
   direction: 1 | -1,
   min: number,
   max: number,
 ): number {
-  return direction === 1 ? Math.min(thumbValue + step, max) : Math.max(thumbValue - step, min);
+  const value = direction === 1 ? thumbValue + increment : thumbValue - increment;
+  const roundedValue = Number(
+    value.toFixed(
+      Math.max(
+        getDecimalPrecision(thumbValue),
+        getDecimalPrecision(increment),
+        getDecimalPrecision(min),
+      ),
+    ),
+  );
+  return clamp(roundedValue, min, max);
 }
 
 /**
@@ -438,7 +449,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
               preventScroll: true,
               // Show `:focus-visible` after keyboard interaction, even if the
               // thumb was previously focused by a pointer.
-              // @ts-expect-error - focusVisible is not yet in the lib.dom.d.ts
               focusVisible: true,
             });
           }
@@ -473,7 +483,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         children: (
           <React.Fragment>
             {childrenProp}
-            <input ref={mergedInputRef} {...inputProps} />
+            <input ref={mergedInputRef} {...inputProps} suppressHydrationWarning />
             {inset &&
               isHydrating &&
               renderBeforeHydration &&
