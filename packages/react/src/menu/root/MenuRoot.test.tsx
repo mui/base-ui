@@ -1102,6 +1102,7 @@ describe('<Menu.Root />', () => {
         expect(screen.queryByRole('menu', { hidden: false })).toBe(null);
       });
     });
+
     describe('prop: modal', () => {
       it('should render an internal backdrop when `true`', async () => {
         const { user } = await render(
