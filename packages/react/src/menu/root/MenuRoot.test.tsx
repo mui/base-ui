@@ -1147,78 +1147,113 @@ describe('<Menu.Root />', () => {
       });
     });
 
-    describe.skipIf(isJSDOM)('interaction type tracking (openMethod)', () => {
-      it('should not apply scroll lock when opened via touch', async () => {
-        await render(<TestMenu rootProps={{ modal: true }} />);
+    describe.skipIf(isJSDOM)('scroll locking', () => {
+      describe('interaction type tracking (openMethod)', () => {
+        it('should not apply scroll lock when opened via touch', async () => {
+          await render(<TestMenu rootProps={{ modal: true }} />);
 
-        const trigger = screen.getByRole('button', { name: 'Toggle' });
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
 
-        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
-        fireEvent.mouseDown(trigger);
+          fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+          fireEvent.mouseDown(trigger);
 
-        const menu = await screen.findByRole('menu');
+          const menu = await screen.findByRole('menu');
 
-        const doc = menu.ownerDocument;
+          const doc = menu.ownerDocument;
 
-        const isScrollLocked =
-          doc.documentElement.style.overflow === 'hidden' ||
-          doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
-          doc.body.style.overflow === 'hidden';
+          const isScrollLocked =
+            doc.documentElement.style.overflow === 'hidden' ||
+            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+            doc.body.style.overflow === 'hidden';
 
-        expect(isScrollLocked).toBe(false);
-      });
+          expect(isScrollLocked).toBe(false);
+        });
 
-      it('should apply scroll lock when opened via mouse', async () => {
-        const { user } = await render(<TestMenu rootProps={{ modal: true }} />);
+        it('should apply scroll lock when opened via mouse', async () => {
+          const { user } = await render(<TestMenu rootProps={{ modal: true }} />);
 
-        const trigger = screen.getByRole('button', { name: 'Toggle' });
-        const doc = trigger.ownerDocument;
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+          const doc = trigger.ownerDocument;
 
-        await user.click(trigger);
-        await screen.findByRole('menu');
+          await user.click(trigger);
+          await screen.findByRole('menu');
 
-        const isScrollLocked =
-          doc.documentElement.style.overflow === 'hidden' ||
-          doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
-          doc.body.style.overflow === 'hidden';
-
-        expect(isScrollLocked).toBe(true);
-      });
-    });
-
-    describe.skipIf(isJSDOM)('touch scroll lock', () => {
-      it('should apply scroll lock when a touch-opened popup covers the viewport width', async () => {
-        await render(
-          <Menu.Root modal>
-            <Menu.Trigger>Open</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner
-                data-testid="positioner"
-                style={{ '--available-width': '300px', width: '290px' } as React.CSSProperties}
-              >
-                <Menu.Popup>
-                  <Menu.Item>1</Menu.Item>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>,
-        );
-
-        const trigger = screen.getByRole('button', { name: 'Open' });
-
-        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
-        fireEvent.mouseDown(trigger);
-
-        const menu = await screen.findByRole('menu');
-        const doc = menu.ownerDocument;
-
-        await waitFor(() => {
           const isScrollLocked =
             doc.documentElement.style.overflow === 'hidden' ||
             doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
             doc.body.style.overflow === 'hidden';
 
           expect(isScrollLocked).toBe(true);
+        });
+      });
+
+      describe('touch scroll lock', () => {
+        it('should apply scroll lock when a touch-opened popup covers the viewport width', async () => {
+          await render(
+            <Menu.Root modal>
+              <Menu.Trigger>Open</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="positioner" style={{ width: 'calc(100vw - 10px)' }}>
+                  <Menu.Popup>
+                    <Menu.Item>1</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>,
+          );
+
+          const trigger = screen.getByRole('button', { name: 'Open' });
+
+          fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+          fireEvent.mouseDown(trigger);
+
+          const menu = await screen.findByRole('menu');
+          const doc = menu.ownerDocument;
+
+          await waitFor(() => {
+            const isScrollLocked =
+              doc.documentElement.style.overflow === 'hidden' ||
+              doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+              doc.body.style.overflow === 'hidden';
+
+            expect(isScrollLocked).toBe(true);
+          });
+        });
+
+        it('should not apply scroll lock when a touch-opened popup is narrower than the viewport', async () => {
+          await render(
+            <Menu.Root modal>
+              <Menu.Trigger>Open</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="positioner" style={{ width: '240px' }}>
+                  <Menu.Popup>
+                    <Menu.Item>1</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>,
+          );
+
+          const trigger = screen.getByRole('button', { name: 'Open' });
+
+          fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+          fireEvent.mouseDown(trigger);
+
+          const menu = await screen.findByRole('menu');
+          const doc = menu.ownerDocument;
+
+          await act(async () => {
+            await new Promise<void>((resolve) => {
+              requestAnimationFrame(() => resolve());
+            });
+          });
+
+          const isScrollLocked =
+            doc.documentElement.style.overflow === 'hidden' ||
+            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+            doc.body.style.overflow === 'hidden';
+
+          expect(isScrollLocked).toBe(false);
         });
       });
     });
