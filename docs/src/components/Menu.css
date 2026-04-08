@@ -42,6 +42,7 @@
     gap: 0.5rem;
     height: 1.75rem;
     padding-inline: 0.5rem;
+    line-height: 1;
     white-space: nowrap;
     z-index: 0;
     color: var(--color-foreground);
