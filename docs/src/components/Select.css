@@ -36,6 +36,7 @@
     display: grid;
     align-items: center;
     height: 1.75rem;
+    line-height: 1;
     white-space: nowrap;
     z-index: 0;
 
