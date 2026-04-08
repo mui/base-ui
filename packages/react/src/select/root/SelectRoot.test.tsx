@@ -1065,7 +1065,8 @@ describe('<Select.Root />', () => {
         const outside = screen.getByTestId('outside');
 
         await waitFor(() => {
-          const gap = document.documentElement.clientHeight - trigger.getBoundingClientRect().bottom;
+          const gap =
+            document.documentElement.clientHeight - trigger.getBoundingClientRect().bottom;
           expect(Math.abs(gap - 100)).toBeLessThanOrEqual(1);
         });
 

@@ -1255,7 +1255,10 @@ describe('<Popover.Root />', () => {
             <Popover.Root modal>
               <Popover.Trigger>Open</Popover.Trigger>
               <Popover.Portal>
-                <Popover.Positioner data-testid="positioner" style={{ width: 'calc(100vw - 10px)' }}>
+                <Popover.Positioner
+                  data-testid="positioner"
+                  style={{ width: 'calc(100vw - 10px)' }}
+                >
                   <Popover.Popup>Content</Popover.Popup>
                 </Popover.Positioner>
               </Popover.Portal>
