@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { OTPField } from '@base-ui/react/otp-field';
+import { OTPFieldPreview as OTPField } from '@base-ui/react/otp-field';
 
 const CODE_LENGTH = 6;
 

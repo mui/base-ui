@@ -11,29 +11,29 @@ Renders a `<div>` element.
 
 **Root Props:**
 
-| Prop            | Type                                                                                        | Default           | Description                                                                                                                                                                                                                                                                                                  |
-| :-------------- | :------------------------------------------------------------------------------------------ | :---------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| name            | `string`                                                                                    | -                 | Identifies the field when a form is submitted.                                                                                                                                                                                                                                                               |
-| defaultValue    | `string`                                                                                    | -                 | The uncontrolled OTP value when the component is initially rendered.                                                                                                                                                                                                                                         |
-| value           | `string`                                                                                    | -                 | The OTP value.                                                                                                                                                                                                                                                                                               |
-| onValueChange   | `((value: string, eventDetails: OTPField.Root.ChangeEventDetails) => void)`                 | -                 | Callback fired when the OTP value changes. The `eventDetails.reason` indicates what triggered the change: `'input-change'` for typing or autofill`'input-clear'` when a character is removed by text input`'input-paste'` for paste interactions`'keyboard'` for keyboard interactions that change the value |
-| autoComplete    | `string`                                                                                    | `'one-time-code'` | The input autocomplete attribute. Applied to the first slot and hidden validation input.                                                                                                                                                                                                                     |
-| autoSubmit      | `boolean`                                                                                   | `false`           | Whether to submit the owning form when the OTP becomes complete.                                                                                                                                                                                                                                             |
-| form            | `string`                                                                                    | -                 | A string specifying the `form` element with which the hidden input is associated.&#xA;This string's value must match the id of a `form` element in the same document.                                                                                                                                        |
-| inputMode       | `'none' \| 'text' \| 'tel' \| 'url' \| 'email' \| 'numeric' \| 'decimal' \| 'search'`       | -                 | The virtual keyboard hint applied to the slot inputs and hidden validation input. Built-in validation modes provide sensible defaults, but you can override them when needed.                                                                                                                                |
-| length\*        | `number`                                                                                    | -                 | The number of OTP input slots.&#xA;Required so the root can clamp values, detect completion, and generate&#xA;consistent validation markup before all slots hydrate.                                                                                                                                         |
-| mask            | `boolean`                                                                                   | `false`           | Whether the slot inputs should mask entered characters.&#xA;Pass `type` directly to individual `<OTPField.Input>` parts to use a custom&#xA;input type.                                                                                                                                                      |
-| onValueComplete | `((value: string, eventDetails: OTPField.Root.CompleteEventDetails) => void)`               | -                 | Callback function that is fired when the OTP value becomes complete. It runs later than `onValueChange`, after the internal value update is applied. If `autoSubmit` is enabled, it runs immediately before the owning form is submitted. **Warning**: This is a generic event not a change event.           |
-| onValueInvalid  | `((value: string, eventDetails: OTPField.Root.InvalidEventDetails) => void)`                | -                 | Callback fired when entered text is sanitized or clamped before the OTP value updates. The `value` argument is the attempted user-entered string before sanitization.                                                                                                                                        |
-| sanitizeValue   | `((value: string) => string)`                                                               | -                 | Function for custom sanitization when `validationType` is set to `'none'`.&#xA;This function runs before updating the OTP value from user interactions.                                                                                                                                                      |
-| validationType  | `OTPField.Root.ValidationType`                                                              | `'numeric'`       | The type of input validation to apply to the OTP value.                                                                                                                                                                                                                                                      |
-| disabled        | `boolean`                                                                                   | `false`           | Whether the component should ignore user interaction.                                                                                                                                                                                                                                                        |
-| readOnly        | `boolean`                                                                                   | `false`           | Whether the user should be unable to change the field value.                                                                                                                                                                                                                                                 |
-| required        | `boolean`                                                                                   | `false`           | Whether the user must enter a value before submitting a form.                                                                                                                                                                                                                                                |
-| id              | `string`                                                                                    | -                 | The id of the first input element.                                                                                                                                                                                                                                                                           |
-| className       | `string \| ((state: OTPField.Root.State) => string \| undefined)`                           | -                 | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                                     |
-| style           | `React.CSSProperties \| ((state: OTPField.Root.State) => React.CSSProperties \| undefined)` | -                 | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                                                                                  |
-| render          | `ReactElement \| ((props: HTMLProps, state: OTPField.Root.State) => ReactElement)`          | -                 | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                |
+| Prop            | Type                                                                                      | Default           | Description                                                                                                                                                                                                                                                                                                  |
+| :-------------- | :---------------------------------------------------------------------------------------- | :---------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name            | `string`                                                                                  | -                 | Identifies the field when a form is submitted.                                                                                                                                                                                                                                                               |
+| defaultValue    | `string`                                                                                  | -                 | The uncontrolled OTP value when the component is initially rendered.                                                                                                                                                                                                                                         |
+| value           | `string`                                                                                  | -                 | The OTP value.                                                                                                                                                                                                                                                                                               |
+| onValueChange   | `((value: string, eventDetails: OTPFieldPreview.Root.ChangeEventDetails) => void)`        | -                 | Callback fired when the OTP value changes. The `eventDetails.reason` indicates what triggered the change: `'input-change'` for typing or autofill`'input-clear'` when a character is removed by text input`'input-paste'` for paste interactions`'keyboard'` for keyboard interactions that change the value |
+| autoComplete    | `string`                                                                                  | `'one-time-code'` | The input autocomplete attribute. Applied to the first slot and hidden validation input.                                                                                                                                                                                                                     |
+| autoSubmit      | `boolean`                                                                                 | `false`           | Whether to submit the owning form when the OTP becomes complete.                                                                                                                                                                                                                                             |
+| form            | `string`                                                                                  | -                 | A string specifying the `form` element with which the hidden input is associated.&#xA;This string's value must match the id of a `form` element in the same document.                                                                                                                                        |
+| inputMode       | `'none' \| 'text' \| 'tel' \| 'url' \| 'email' \| 'numeric' \| 'decimal' \| 'search'`     | -                 | The virtual keyboard hint applied to the slot inputs and hidden validation input. Built-in validation modes provide sensible defaults, but you can override them when needed.                                                                                                                                |
+| length\*        | `number`                                                                                  | -                 | The number of OTP input slots.&#xA;Required so the root can clamp values, detect completion, and generate&#xA;consistent validation markup before all slots hydrate.                                                                                                                                         |
+| mask            | `boolean`                                                                                 | `false`           | Whether the slot inputs should mask entered characters.&#xA;Pass `type` directly to individual `<OTPField.Input>` parts to use a custom&#xA;input type.                                                                                                                                                      |
+| onValueComplete | `((value: string, eventDetails: OTPFieldPreview.Root.CompleteEventDetails) => void)`      | -                 | Callback function that is fired when the OTP value becomes complete. It runs later than `onValueChange`, after the internal value update is applied. If `autoSubmit` is enabled, it runs immediately before the owning form is submitted.                                                                    |
+| onValueInvalid  | `((value: string, eventDetails: OTPFieldPreview.Root.InvalidEventDetails) => void)`       | -                 | Callback fired when entered text is sanitized or clamped before the OTP value updates. The `value` argument is the attempted user-entered string before sanitization.                                                                                                                                        |
+| sanitizeValue   | `((value: string) => string)`                                                             | -                 | Function for custom sanitization when `validationType` is set to `'none'`.&#xA;This function runs before updating the OTP value from user interactions.                                                                                                                                                      |
+| validationType  | `OTPFieldPreview.Root.ValidationType`                                                     | `'numeric'`       | The type of input validation to apply to the OTP value.                                                                                                                                                                                                                                                      |
+| disabled        | `boolean`                                                                                 | `false`           | Whether the component should ignore user interaction.                                                                                                                                                                                                                                                        |
+| readOnly        | `boolean`                                                                                 | `false`           | Whether the user should be unable to change the field value.                                                                                                                                                                                                                                                 |
+| required        | `boolean`                                                                                 | `false`           | Whether the user must enter a value before submitting a form.                                                                                                                                                                                                                                                |
+| id              | `string`                                                                                  | -                 | The id of the first input element.                                                                                                                                                                                                                                                                           |
+| className       | `string \| ((state: OTPFieldRootState) => string \| undefined)`                           | -                 | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                                     |
+| style           | `React.CSSProperties \| ((state: OTPFieldRootState) => React.CSSProperties \| undefined)` | -                 | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                                                                                  |
+| render          | `ReactElement \| ((props: HTMLProps, state: OTPFieldRootState) => ReactElement)`          | -                 | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                |
 
 **Root Data Attributes:**
 
@@ -57,7 +57,7 @@ Re-export of [Root](#root) props.
 ### Root.State
 
 ```typescript
-type OTPFieldRootState = {
+type OTPFieldPreviewRootState = {
   /** Whether all slots are filled. */
   complete: boolean;
   /** Whether the component should ignore user interaction. */
@@ -86,13 +86,17 @@ type OTPFieldRootState = {
 ### Root.ChangeEventReason
 
 ```typescript
-type OTPFieldRootChangeEventReason = 'input-change' | 'input-clear' | 'input-paste' | 'keyboard';
+type OTPFieldPreviewRootChangeEventReason =
+  | 'input-change'
+  | 'input-clear'
+  | 'input-paste'
+  | 'keyboard';
 ```
 
 ### Root.ChangeEventDetails
 
 ```typescript
-type OTPFieldRootChangeEventDetails = (
+type OTPFieldPreviewRootChangeEventDetails = (
   | { reason: 'input-change'; event: InputEvent | Event }
   | { reason: 'input-clear'; event: InputEvent | Event | FocusEvent }
   | { reason: 'input-paste'; event: ClipboardEvent }
@@ -114,7 +118,7 @@ type OTPFieldRootChangeEventDetails = (
 ### Root.CompleteEventDetails
 
 ```typescript
-type OTPFieldRootCompleteEventDetails =
+type OTPFieldPreviewRootCompleteEventDetails =
   | { reason: 'input-change'; event: InputEvent | Event }
   | { reason: 'input-paste'; event: ClipboardEvent }
   | { reason: 'keyboard'; event: KeyboardEvent };
@@ -123,13 +127,13 @@ type OTPFieldRootCompleteEventDetails =
 ### Root.CompleteEventReason
 
 ```typescript
-type OTPFieldRootCompleteEventReason = 'input-change' | 'input-paste' | 'keyboard';
+type OTPFieldPreviewRootCompleteEventReason = 'input-change' | 'input-paste' | 'keyboard';
 ```
 
 ### Root.InvalidEventDetails
 
 ```typescript
-type OTPFieldRootInvalidEventDetails =
+type OTPFieldPreviewRootInvalidEventDetails =
   | { reason: 'input-change'; event: InputEvent | Event }
   | { reason: 'input-paste'; event: ClipboardEvent };
 ```
@@ -137,13 +141,13 @@ type OTPFieldRootInvalidEventDetails =
 ### Root.InvalidEventReason
 
 ```typescript
-type OTPFieldRootInvalidEventReason = 'input-change' | 'input-paste';
+type OTPFieldPreviewRootInvalidEventReason = 'input-change' | 'input-paste';
 ```
 
 ### Root.ValidationType
 
 ```typescript
-type OTPFieldRootValidationType = 'numeric' | 'alpha' | 'alphanumeric' | 'none';
+type OTPFieldPreviewRootValidationType = 'numeric' | 'alpha' | 'alphanumeric' | 'none';
 ```
 
 ### Input
@@ -153,11 +157,11 @@ Renders an `<input>` element.
 
 **Input Props:**
 
-| Prop      | Type                                                                                         | Default | Description                                                                                                                                                                                   |
-| :-------- | :------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: OTPField.Input.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: OTPField.Input.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render    | `ReactElement \| ((props: HTMLProps, state: OTPField.Input.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                       | Default | Description                                                                                                                                                                                   |
+| :-------- | :----------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: OTPFieldInputState) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: OTPFieldInputState) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render    | `ReactElement \| ((props: HTMLProps, state: OTPFieldInputState) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Input Data Attributes:**
 
@@ -179,6 +183,90 @@ Renders an `<input>` element.
 Re-export of [Input](#input) props.
 
 ### Input.State
+
+```typescript
+type OTPFieldPreviewInputState = {
+  /** Whether this input contains a character. */
+  filled: boolean;
+  /** The input index. */
+  index: number;
+  /** The character rendered in this slot. */
+  value: string;
+  /** Whether all slots are filled. */
+  complete: boolean;
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+  /** The number of OTP input slots. */
+  length: number;
+  /** Whether the user should be unable to change the field value. */
+  readOnly: boolean;
+  /** Whether the user must enter a value before submitting a form. */
+  required: boolean;
+  /** Whether the field has been touched. */
+  touched: boolean;
+  /** Whether the field value has changed from its initial value. */
+  dirty: boolean;
+  /** Whether the field is valid. */
+  valid: boolean | null;
+  /** Whether the field is focused. */
+  focused: boolean;
+};
+```
+
+### Separator
+
+A separator element accessible to screen readers.
+Renders a `<div>` element.
+
+**Separator Props:**
+
+| Prop        | Type                                                                                   | Default        | Description                                                                                                                                                                                   |
+| :---------- | :------------------------------------------------------------------------------------- | :------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| orientation | `Orientation`                                                                          | `'horizontal'` | The orientation of the separator.                                                                                                                                                             |
+| className   | `string \| ((state: SeparatorState) => string \| undefined)`                           | -              | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style       | `React.CSSProperties \| ((state: SeparatorState) => React.CSSProperties \| undefined)` | -              | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render      | `ReactElement \| ((props: HTMLProps, state: SeparatorState) => ReactElement)`          | -              | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+### Separator.Props
+
+Re-export of [Separator](#separator) props.
+
+### Separator.State
+
+```typescript
+type OTPFieldPreviewSeparatorState = {
+  /** The orientation of the separator. */
+  orientation: Orientation;
+};
+```
+
+## Additional Types
+
+### OTPFieldInputProps
+
+```typescript
+type OTPFieldInputProps = {
+  /**
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component's state.
+   */
+  className?: string | ((state: OTPFieldInputState) => string | undefined);
+  /**
+   * Allows you to replace the component's HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
+   */
+  render?: ReactElement | ((props: HTMLProps, state: OTPFieldInputState) => ReactElement);
+  /**
+   * Style applied to the element, or a function that
+   * returns a style object based on the component's state.
+   */
+  style?: React.CSSProperties | ((state: OTPFieldInputState) => React.CSSProperties | undefined);
+};
+```
+
+### OTPFieldInputState
 
 ```typescript
 type OTPFieldInputState = {
@@ -209,27 +297,143 @@ type OTPFieldInputState = {
 };
 ```
 
-### Group
-
-Groups OTP inputs together for layout.
-Renders a `<div>` element.
-
-**Group Props:**
-
-| Prop      | Type                                                                                         | Default | Description                                                                                                                                                                                   |
-| :-------- | :------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: OTPField.Group.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: OTPField.Group.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render    | `ReactElement \| ((props: HTMLProps, state: OTPField.Group.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
-
-### Group.Props
-
-Re-export of [Group](#group) props.
-
-### Group.State
+### OTPFieldRootChangeEventReason
 
 ```typescript
-type OTPFieldGroupState = {
+type OTPFieldRootChangeEventReason = 'input-change' | 'input-clear' | 'input-paste' | 'keyboard';
+```
+
+### OTPFieldRootCompleteEventReason
+
+```typescript
+type OTPFieldRootCompleteEventReason = 'input-change' | 'input-paste' | 'keyboard';
+```
+
+### OTPFieldRootInvalidEventReason
+
+```typescript
+type OTPFieldRootInvalidEventReason = 'input-change' | 'input-paste';
+```
+
+### OTPFieldRootProps
+
+```typescript
+type OTPFieldRootProps = {
+  /** The id of the first input element. */
+  id?: string;
+  /**
+   * The input autocomplete attribute. Applied to the first slot and hidden validation input.
+   * @default 'one-time-code'
+   */
+  autoComplete?: string;
+  /**
+   * A string specifying the `form` element with which the hidden input is associated.
+   * This string's value must match the id of a `form` element in the same document.
+   */
+  form?: string;
+  /**
+   * The number of OTP input slots.
+   * Required so the root can clamp values, detect completion, and generate
+   * consistent validation markup before all slots hydrate.
+   */
+  length: number;
+  /**
+   * Whether to submit the owning form when the OTP becomes complete.
+   * @default false
+   */
+  autoSubmit?: boolean;
+  /**
+   * Whether the slot inputs should mask entered characters.
+   * Pass `type` directly to individual `<OTPField.Input>` parts to use a custom
+   * input type.
+   * @default false
+   */
+  mask?: boolean;
+  /**
+   * The virtual keyboard hint applied to the slot inputs and hidden validation input.
+   *
+   * Built-in validation modes provide sensible defaults, but you can override them when needed.
+   */
+  inputMode?: 'none' | 'text' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal' | 'search';
+  /**
+   * The type of input validation to apply to the OTP value.
+   * @default 'numeric'
+   */
+  validationType?: OTPFieldRoot.ValidationType;
+  /**
+   * Function for custom sanitization when `validationType` is set to `'none'`.
+   * This function runs before updating the OTP value from user interactions.
+   */
+  sanitizeValue?: (value: string) => string;
+  /**
+   * Whether the user must enter a value before submitting a form.
+   * @default false
+   */
+  required?: boolean;
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean;
+  /**
+   * Whether the user should be unable to change the field value.
+   * @default false
+   */
+  readOnly?: boolean;
+  /** Identifies the field when a form is submitted. */
+  name?: string;
+  /** The OTP value. */
+  value?: string;
+  /** The uncontrolled OTP value when the component is initially rendered. */
+  defaultValue?: string;
+  /**
+   * Callback fired when the OTP value changes.
+   *
+   * The `eventDetails.reason` indicates what triggered the change:
+   * - `'input-change'` for typing or autofill
+   * - `'input-clear'` when a character is removed by text input
+   * - `'input-paste'` for paste interactions
+   * - `'keyboard'` for keyboard interactions that change the value
+   */
+  onValueChange?: (value: string, eventDetails: OTPFieldRoot.ChangeEventDetails) => void;
+  /**
+   * Callback fired when entered text is sanitized or clamped before the OTP value updates.
+   *
+   * The `value` argument is the attempted user-entered string before sanitization.
+   */
+  onValueInvalid?: (value: string, eventDetails: OTPFieldRoot.InvalidEventDetails) => void;
+  /**
+   * Callback function that is fired when the OTP value becomes complete.
+   *
+   * It runs later than `onValueChange`, after the internal value update is applied.
+   *
+   * If `autoSubmit` is enabled, it runs immediately before the owning form is submitted.
+   */
+  onValueComplete?: (value: string, eventDetails: OTPFieldRoot.CompleteEventDetails) => void;
+  /**
+   * CSS class applied to the element, or a function that
+   * returns a class based on the component's state.
+   */
+  className?: string | ((state: OTPFieldRootState) => string | undefined);
+  /**
+   * Style applied to the element, or a function that
+   * returns a style object based on the component's state.
+   */
+  style?: React.CSSProperties | ((state: OTPFieldRootState) => React.CSSProperties | undefined);
+  /**
+   * Allows you to replace the component's HTML element
+   * with a different tag, or compose it with another component.
+   *
+   * Accepts a `ReactElement` or a function that returns the element to render.
+   */
+  render?: ReactElement | ((props: HTMLProps, state: OTPFieldRootState) => ReactElement);
+};
+```
+
+### OTPFieldRootState
+
+```typescript
+type OTPFieldRootState = {
   /** Whether all slots are filled. */
   complete: boolean;
   /** Whether the component should ignore user interaction. */
@@ -255,33 +459,6 @@ type OTPFieldGroupState = {
 };
 ```
 
-### Separator
-
-A separator element accessible to screen readers.
-Renders a `<div>` element.
-
-**Separator Props:**
-
-| Prop        | Type                                                                                   | Default        | Description                                                                                                                                                                                   |
-| :---------- | :------------------------------------------------------------------------------------- | :------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| orientation | `Orientation`                                                                          | `'horizontal'` | The orientation of the separator.                                                                                                                                                             |
-| className   | `string \| ((state: SeparatorState) => string \| undefined)`                           | -              | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style       | `React.CSSProperties \| ((state: SeparatorState) => React.CSSProperties \| undefined)` | -              | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render      | `ReactElement \| ((props: HTMLProps, state: SeparatorState) => ReactElement)`          | -              | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
-
-### Separator.Props
-
-Re-export of [Separator](#separator) props.
-
-### Separator.State
-
-```typescript
-type OTPFieldSeparatorState = {
-  /** The orientation of the separator. */
-  orientation: Orientation;
-};
-```
-
 ## External Types
 
 ### ValidationType
@@ -298,25 +475,15 @@ type Orientation = 'horizontal' | 'vertical';
 
 ## Export Groups
 
-- `OTPField.Root`: `OTPField.Root`, `OTPField.Root.State`, `OTPField.Root.Props`, `OTPField.Root.ValidationType`, `OTPField.Root.ChangeEventReason`, `OTPField.Root.ChangeEventDetails`, `OTPField.Root.InvalidEventReason`, `OTPField.Root.InvalidEventDetails`, `OTPField.Root.CompleteEventReason`, `OTPField.Root.CompleteEventDetails`
-- `OTPField.Group`: `OTPField.Group`, `OTPField.Group.State`, `OTPField.Group.Props`
-- `OTPField.Input`: `OTPField.Input`, `OTPField.Input.State`, `OTPField.Input.Props`
-- `OTPField.Separator`: `OTPField.Separator`, `OTPField.Separator.Props`, `OTPField.Separator.State`
-- `Default`: `OTPFieldRootProps`, `OTPFieldRootState`, `OTPFieldRootChangeEventReason`, `OTPFieldRootChangeEventDetails`, `OTPFieldRootInvalidEventReason`, `OTPFieldRootInvalidEventDetails`, `OTPFieldRootCompleteEventReason`, `OTPFieldRootCompleteEventDetails`, `OTPFieldGroupState`, `OTPFieldGroupProps`, `OTPFieldInputState`, `OTPFieldInputProps`
+- `OTPFieldPreview.Root`: `OTPFieldPreview.Root`, `OTPFieldPreview.Root.State`, `OTPFieldPreview.Root.Props`, `OTPFieldPreview.Root.ValidationType`, `OTPFieldPreview.Root.ChangeEventReason`, `OTPFieldPreview.Root.ChangeEventDetails`, `OTPFieldPreview.Root.InvalidEventReason`, `OTPFieldPreview.Root.InvalidEventDetails`, `OTPFieldPreview.Root.CompleteEventReason`, `OTPFieldPreview.Root.CompleteEventDetails`
+- `OTPFieldPreview.Input`: `OTPFieldPreview.Input`, `OTPFieldPreview.Input.State`, `OTPFieldPreview.Input.Props`
+- `OTPFieldPreview.Separator`: `OTPFieldPreview.Separator`, `OTPFieldPreview.Separator.Props`, `OTPFieldPreview.Separator.State`
+- `Default`: `OTPFieldRootProps`, `OTPFieldRootState`, `OTPFieldRootChangeEventReason`, `OTPFieldRootChangeEventDetails`, `OTPFieldRootInvalidEventReason`, `OTPFieldRootInvalidEventDetails`, `OTPFieldRootCompleteEventReason`, `OTPFieldRootCompleteEventDetails`, `OTPFieldInputState`, `OTPFieldInputProps`
 
 ## Canonical Types
 
 Maps `Canonical`: `Alias` — Use Canonical when its namespace is already imported; otherwise use Alias.
 
-- `OTPField.Root.State`: `OTPFieldRootState`
-- `OTPField.Root.Props`: `OTPFieldRootProps`
-- `OTPField.Root.ChangeEventReason`: `OTPFieldRootChangeEventReason`
-- `OTPField.Root.ChangeEventDetails`: `OTPFieldRootChangeEventDetails`
-- `OTPField.Root.InvalidEventReason`: `OTPFieldRootInvalidEventReason`
-- `OTPField.Root.InvalidEventDetails`: `OTPFieldRootInvalidEventDetails`
-- `OTPField.Root.CompleteEventReason`: `OTPFieldRootCompleteEventReason`
-- `OTPField.Root.CompleteEventDetails`: `OTPFieldRootCompleteEventDetails`
-- `OTPField.Group.State`: `OTPFieldGroupState`
-- `OTPField.Group.Props`: `OTPFieldGroupProps`
-- `OTPField.Input.State`: `OTPFieldInputState`
-- `OTPField.Input.Props`: `OTPFieldInputProps`
+- `OTPFieldRoot.ChangeEventDetails`: `OTPFieldRootChangeEventDetails`
+- `OTPFieldRoot.InvalidEventDetails`: `OTPFieldRootInvalidEventDetails`
+- `OTPFieldRoot.CompleteEventDetails`: `OTPFieldRootCompleteEventDetails`

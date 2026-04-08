@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { OTPField } from '@base-ui/react/otp-field';
+import { OTPFieldPreview as OTPField } from '@base-ui/react/otp-field';
 
 const OTP_LENGTH = 6;
 
@@ -12,7 +12,7 @@ export default function OTPFieldGroupedDemo() {
         Verification code
       </label>
       <OTPField.Root id={id} length={OTP_LENGTH} className="flex w-full items-center gap-2">
-        <OTPField.Group className="flex gap-2">
+        <div className="flex gap-2">
           {Array.from({ length: 3 }, (_, index) => (
             <OTPField.Input
               key={index}
@@ -20,11 +20,11 @@ export default function OTPFieldGroupedDemo() {
               aria-label={`Character ${index + 1} of ${OTP_LENGTH}`}
             />
           ))}
-        </OTPField.Group>
+        </div>
         <OTPField.Separator className="flex w-4 items-center justify-center text-gray-500">
           <SeparatorMark />
         </OTPField.Separator>
-        <OTPField.Group className="flex gap-2">
+        <div className="flex gap-2">
           {Array.from({ length: 3 }, (_, index) => (
             <OTPField.Input
               key={index + 3}
@@ -32,7 +32,7 @@ export default function OTPFieldGroupedDemo() {
               aria-label={`Character ${index + 4} of ${OTP_LENGTH}`}
             />
           ))}
-        </OTPField.Group>
+        </div>
       </OTPField.Root>
     </div>
   );

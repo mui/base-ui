@@ -1,12 +1,12 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
-import { OTPField as OTPFieldBase } from '@base-ui/react/otp-field';
+import { OTPFieldPreview as OTPFieldBase } from '@base-ui/react/otp-field';
 import { Field } from '@base-ui/react/field';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { REASONS } from '../../utils/reasons';
 
-describe('<OTPField />', () => {
+describe('<OTPFieldPreview />', () => {
   const { render, renderToString } = createRenderer();
   const OTP_LENGTH = 6;
 
@@ -69,17 +69,17 @@ describe('<OTPField />', () => {
     it('supports grouped layouts without affecting slot counting', async () => {
       await render(
         <OTPFieldBase.Root defaultValue="123456" length={6}>
-          <OTPFieldBase.Group data-testid="first-group">
+          <div data-testid="first-group">
             <OTPFieldBase.Input />
             <OTPFieldBase.Input />
             <OTPFieldBase.Input />
-          </OTPFieldBase.Group>
+          </div>
           <OTPFieldBase.Separator>-</OTPFieldBase.Separator>
-          <OTPFieldBase.Group data-testid="second-group">
+          <div data-testid="second-group">
             <OTPFieldBase.Input />
             <OTPFieldBase.Input />
             <OTPFieldBase.Input />
-          </OTPFieldBase.Group>
+          </div>
         </OTPFieldBase.Root>,
       );
 

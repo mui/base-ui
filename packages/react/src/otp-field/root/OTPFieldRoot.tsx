@@ -629,8 +629,6 @@ export interface OTPFieldRootProps extends Omit<
    * It runs later than `onValueChange`, after the internal value update is applied.
    *
    * If `autoSubmit` is enabled, it runs immediately before the owning form is submitted.
-   *
-   * **Warning**: This is a generic event not a change event.
    */
   onValueComplete?:
     | ((value: string, eventDetails: OTPFieldRoot.CompleteEventDetails) => void)

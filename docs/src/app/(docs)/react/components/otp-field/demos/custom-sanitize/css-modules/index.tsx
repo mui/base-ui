@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { OTPField } from '@base-ui/react/otp-field';
+import { OTPFieldPreview as OTPField } from '@base-ui/react/otp-field';
 import { useInvalidFeedback } from '../useInvalidFeedback';
 import styles from './index.module.css';
 
