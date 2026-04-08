@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { MenuParent, MenuRoot } from '../root/MenuRoot';
 import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
@@ -36,6 +37,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
 type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
   readonly positionerRef: React.RefObject<HTMLElement | null>;
   readonly popupRef: React.RefObject<HTMLElement | null>;
+  readonly openMethodRef: React.RefObject<InteractionType | null>;
   readonly typingRef: React.RefObject<boolean>;
   readonly itemDomElements: React.RefObject<(HTMLElement | null)[]>;
   readonly itemLabels: React.RefObject<(string | null)[]>;
@@ -112,6 +114,7 @@ export class MenuStore<Payload> extends ReactStore<
       {
         positionerRef: React.createRef<HTMLElement | null>(),
         popupRef: React.createRef<HTMLElement | null>(),
+        openMethodRef: React.createRef<InteractionType | null>(),
         typingRef: { current: false },
         itemDomElements: { current: [] },
         itemLabels: { current: [] },

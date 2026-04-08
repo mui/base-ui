@@ -25,6 +25,7 @@ import { MenuOpenEventDetails } from '../utils/types';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { usePositioner } from '../../utils/usePositioner';
+import { useTouchOpenScrollLock } from '../../utils/useTouchOpenScrollLock';
 
 /**
  * Positions the menu popup against the trigger.
@@ -257,6 +258,13 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     nested: parent.type === 'menu',
     instant: instantType,
   };
+
+  useTouchOpenScrollLock(
+    open && modal && lastOpenChangeReason !== REASONS.triggerHover,
+    store.context.openMethodRef.current === 'touch',
+    positionerElement,
+    triggerElement,
+  );
 
   const element = usePositioner(componentProps, state, {
     styles: positioner.positionerStyles,

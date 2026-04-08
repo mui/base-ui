@@ -5,7 +5,6 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
-import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import {
@@ -28,7 +27,6 @@ import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
 } from '../../utils/createBaseUIEventDetails';
-import { useTouchOpenScrollLock } from '../../utils/useTouchOpenScrollLock';
 import { REASONS } from '../../utils/reasons';
 import {
   ContextMenuRootContext,
@@ -161,7 +159,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   const activeTriggerElement = store.useState('activeTriggerElement');
   const positionerElement = store.useState('positionerElement');
   const hoverEnabled = store.useState('hoverEnabled');
-  const modal = store.useState('modal');
   const disabled = store.useState('disabled');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const parent = store.useState('parent');
@@ -221,13 +218,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     });
   }, [allowOutsidePressDismissalTimeout, open, parent.type]);
 
-  const scrollLockEnabled = useTouchOpenScrollLock(
-    open && modal && lastOpenChangeReason !== REASONS.triggerHover,
-    openMethod === 'touch',
-    positionerElement,
-  );
-
-  useScrollLock(scrollLockEnabled, activeTriggerElement);
+  store.context.openMethodRef.current = openMethod;
 
   useIsoLayoutEffect(() => {
     if (!open && !hoverEnabled) {

@@ -1,17 +1,24 @@
 'use client';
 import * as React from 'react';
-import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 
+// Touch-opened popups normally avoid scroll locking so users can still swipe outside to dismiss.
+// This hook re-enables scroll lock only when the popup is effectively full-width.
 const VIEWPORT_WIDTH_TOLERANCE_PX = 20;
 
+/**
+ * Enables scroll lock for touch-opened popups when their positioned width is effectively
+ * viewport-sized.
+ */
 export function useTouchOpenScrollLock(
   enabled: boolean,
   touchOpen: boolean,
   positionerElement: HTMLElement | null,
+  referenceElement: Element | null,
 ) {
   const [touchOpenShouldLockScroll, setTouchOpenShouldLockScroll] = React.useState(false);
-  const frame = useAnimationFrame();
 
   useIsoLayoutEffect(() => {
     if (!enabled || !touchOpen || positionerElement == null) {
@@ -20,25 +27,32 @@ export function useTouchOpenScrollLock(
     }
 
     const currentPositionerElement = positionerElement;
+    const frame = AnimationFrame.create();
 
-    function updateShouldLockScroll() {
-      const availableWidth = Number.parseFloat(
+    function maybeLockScroll() {
+      const availableWidth = parseFloat(
         currentPositionerElement.style.getPropertyValue('--available-width'),
       );
       const popupWidth = currentPositionerElement.offsetWidth;
 
-      setTouchOpenShouldLockScroll(
+      if (
         availableWidth > 0 &&
-          popupWidth > 0 &&
-          popupWidth >= availableWidth - VIEWPORT_WIDTH_TOLERANCE_PX,
-      );
+        popupWidth > 0 &&
+        popupWidth >= availableWidth - VIEWPORT_WIDTH_TOLERANCE_PX
+      ) {
+        setTouchOpenShouldLockScroll(true);
+        return;
+      }
+
+      setTouchOpenShouldLockScroll(false);
     }
 
-    updateShouldLockScroll();
-    frame.request(updateShouldLockScroll);
+    maybeLockScroll();
+
+    frame.request(maybeLockScroll);
 
     return frame.cancel;
-  }, [enabled, frame, positionerElement, touchOpen]);
+  }, [enabled, touchOpen, positionerElement, referenceElement]);
 
-  return enabled && (!touchOpen || touchOpenShouldLockScroll);
+  useScrollLock(enabled && (!touchOpen || touchOpenShouldLockScroll), referenceElement);
 }

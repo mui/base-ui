@@ -1183,9 +1183,7 @@ describe('<Menu.Root />', () => {
 
         expect(isScrollLocked).toBe(true);
       });
-    });
 
-    describe.skipIf(isJSDOM)('touch scroll lock', () => {
       it('should apply scroll lock when a touch-opened popup covers the viewport width', async () => {
         await render(
           <Menu.Root modal>

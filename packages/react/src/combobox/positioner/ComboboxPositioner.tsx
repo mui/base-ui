@@ -4,7 +4,6 @@ import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { inertValue } from '@base-ui/utils/inertValue';
-import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import {
   useComboboxFloatingContext,
   useComboboxRootContext,
@@ -91,13 +90,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     lazyFlip: true,
   });
 
-  const scrollLockEnabled = useTouchOpenScrollLock(
-    open && modal,
-    openMethod === 'touch',
-    positionerElement,
-  );
-
-  useScrollLock(scrollLockEnabled, triggerElement);
+  useTouchOpenScrollLock(open && modal, openMethod === 'touch', positionerElement, triggerElement);
 
   const state: ComboboxPositionerState = {
     open,

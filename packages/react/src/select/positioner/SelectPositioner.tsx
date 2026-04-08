@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useStore } from '@base-ui/utils/store';
 import { useSelectRootContext, useSelectFloatingContext } from '../root/SelectRootContext';
@@ -105,13 +104,12 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   React.useImperativeHandle(alignItemWithTriggerActiveRef, () => alignItemWithTriggerActive);
 
-  const scrollLockEnabled = useTouchOpenScrollLock(
+  useTouchOpenScrollLock(
     (alignItemWithTriggerActive || modal) && open,
     openMethod === 'touch',
     positionerElement,
+    triggerElement,
   );
-
-  useScrollLock(scrollLockEnabled, triggerElement);
 
   const positioning = useAnchorPositioning({
     anchor,
