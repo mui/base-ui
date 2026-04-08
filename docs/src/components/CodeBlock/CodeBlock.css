@@ -25,7 +25,8 @@
     align-items: center;
     justify-content: space-between;
     white-space: nowrap;
-    padding: 0 0.25rem;
+    padding-inline-start: 0.75rem;
+    padding-inline-end: 0.25rem;
     height: 2.25rem;
     gap: 1rem;
     border-top-left-radius: inherit;
