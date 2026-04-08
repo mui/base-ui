@@ -1,6 +1,6 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { screen } from '@mui/internal-test-utils';
+import { screen, waitFor } from '@mui/internal-test-utils';
 import { Collapsible } from '@base-ui/react/collapsible';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { REASONS } from '../../utils/reasons';
@@ -160,6 +160,44 @@ describe('<Collapsible.Root />', () => {
       expect(trigger).not.toHaveAttribute('aria-controls');
       expect(trigger).not.toHaveAttribute('data-panel-open');
       expect(screen.queryByText(PANEL_CONTENT)).toBe(null);
+    });
+  });
+
+  describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
+    it('is called with true when the panel finishes opening', async () => {
+      const onOpenChangeComplete = vi.fn();
+
+      const { user } = await render(
+        <Collapsible.Root onOpenChangeComplete={onOpenChangeComplete}>
+          <Collapsible.Trigger>Toggle</Collapsible.Trigger>
+          <Collapsible.Panel>{PANEL_CONTENT}</Collapsible.Panel>
+        </Collapsible.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(onOpenChangeComplete).toHaveBeenCalledWith(true);
+      });
+    });
+
+    it('is called with false when the panel finishes closing', async () => {
+      const onOpenChangeComplete = vi.fn();
+
+      const { user } = await render(
+        <Collapsible.Root defaultOpen onOpenChangeComplete={onOpenChangeComplete}>
+          <Collapsible.Trigger>Toggle</Collapsible.Trigger>
+          <Collapsible.Panel>{PANEL_CONTENT}</Collapsible.Panel>
+        </Collapsible.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(onOpenChangeComplete).toHaveBeenCalledWith(false);
+      });
     });
   });
 

@@ -20,7 +20,13 @@ export interface Dimensions {
 export function useCollapsibleRoot(
   parameters: UseCollapsibleRootParameters,
 ): UseCollapsibleRootReturnValue {
-  const { open: openParam, defaultOpen, onOpenChange, disabled } = parameters;
+  const {
+    open: openParam,
+    defaultOpen,
+    onOpenChange,
+    onOpenChangeComplete: onOpenChangeCompleteProp,
+    disabled,
+  } = parameters;
 
   const isControlled = openParam !== undefined;
 
@@ -32,6 +38,9 @@ export function useCollapsibleRoot(
   });
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, true, true);
+
+  const onOpenChangeComplete = useStableCallback(onOpenChangeCompleteProp);
+
   const [visible, setVisible] = React.useState(open);
   const [{ height, width }, setDimensions] = React.useState<Dimensions>({
     height: undefined,
@@ -89,6 +98,7 @@ export function useCollapsibleRoot(
 
     if (animationTypeRef.current === 'none' && mounted && !nextOpen) {
       setMounted(false);
+      onOpenChangeComplete?.(false);
     }
   });
 
@@ -99,8 +109,9 @@ export function useCollapsibleRoot(
      */
     if (isControlled && animationTypeRef.current === 'none' && !keepMounted && !open) {
       setMounted(false);
+      onOpenChangeComplete?.(false);
     }
-  }, [isControlled, keepMounted, open, openParam, setMounted]);
+  }, [isControlled, keepMounted, onOpenChangeComplete, open, openParam, setMounted]);
 
   return React.useMemo(
     () => ({
@@ -110,6 +121,7 @@ export function useCollapsibleRoot(
       handleTrigger,
       height,
       mounted,
+      onOpenChangeComplete,
       open,
       panelId,
       panelRef,
@@ -133,6 +145,7 @@ export function useCollapsibleRoot(
       handleTrigger,
       height,
       mounted,
+      onOpenChangeComplete,
       open,
       panelId,
       panelRef,
@@ -170,6 +183,10 @@ export interface UseCollapsibleRootParameters {
    */
   onOpenChange: (open: boolean, eventDetails: CollapsibleRoot.ChangeEventDetails) => void;
   /**
+   * Event handler called after any animations complete when the panel is opened or closed.
+   */
+  onOpenChangeComplete?: ((open: boolean) => void) | undefined;
+  /**
    * Whether the component should ignore user interaction.
    * @default false
    */
@@ -184,6 +201,7 @@ export interface UseCollapsibleRootReturnValue {
    */
   disabled: boolean;
   handleTrigger: (event: React.MouseEvent | React.KeyboardEvent) => void;
+  onOpenChangeComplete: (open: boolean) => void;
   /**
    * The height of the panel.
    */

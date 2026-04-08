@@ -28,6 +28,7 @@ export function useCollapsiblePanel(
     id: idParam,
     mounted,
     onOpenChange,
+    onOpenChangeComplete,
     open,
     panelRef,
     runOnceAnimationsFinish,
@@ -234,6 +235,7 @@ export function useCollapsiblePanel(
             setDimensions({ height: 0, width: 0 });
             panel.style.removeProperty('content-visibility');
             setMounted(false);
+            onOpenChangeComplete?.(false);
             if (abortControllerRef.current === abortController) {
               abortControllerRef.current = null;
             }
@@ -271,6 +273,7 @@ export function useCollapsiblePanel(
     runOnceAnimationsFinish,
     setDimensions,
     setMounted,
+    onOpenChangeComplete,
   ]);
 
   useIsoLayoutEffect(() => {
@@ -305,12 +308,14 @@ export function useCollapsiblePanel(
       runOnceAnimationsFinish(() => {
         setMounted(false);
         setVisible(false);
+        onOpenChangeComplete?.(false);
         abortControllerRef.current = null;
       }, abortControllerRef.current.signal);
     }
   }, [
     abortControllerRef,
     animationTypeRef,
+    onOpenChangeComplete,
     open,
     panelRef,
     runOnceAnimationsFinish,
@@ -440,6 +445,7 @@ export interface UseCollapsiblePanelParameters {
    */
   mounted: boolean;
   onOpenChange: (open: boolean, eventDetails: CollapsibleRoot.ChangeEventDetails) => void;
+  onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   /**
    * Whether the collapsible panel is currently open.
    */
