@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
@@ -112,11 +113,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
       }
     }
 
-    scrollbarEl.addEventListener('wheel', handleWheel, { passive: false });
-
-    return () => {
-      scrollbarEl.removeEventListener('wheel', handleWheel);
-    };
+    return addEventListener(scrollbarEl, 'wheel', handleWheel, { passive: false });
   }, [orientation, scrollbarXRef, scrollbarYRef, viewportRef]);
 
   const props: HTMLProps = {

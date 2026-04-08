@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerWindow } from '@base-ui/utils/owner';
@@ -13,6 +14,7 @@ import {
   type DrawerSnapPoint,
 } from './DrawerRootContext';
 import { Dialog } from '../../dialog';
+import { IsDrawerContext } from '../../dialog/root/DialogRoot';
 import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
@@ -232,20 +234,22 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
 
   return (
     <DrawerRootContext.Provider value={contextValue}>
-      <Dialog.Root
-        open={openProp}
-        defaultOpen={defaultOpen}
-        onOpenChange={handleOpenChange}
-        onOpenChangeComplete={onOpenChangeComplete}
-        disablePointerDismissal={disablePointerDismissal}
-        modal={modal}
-        actionsRef={actionsRef}
-        handle={handle}
-        triggerId={triggerIdProp}
-        defaultTriggerId={defaultTriggerIdProp}
-      >
-        {resolvedChildren}
-      </Dialog.Root>
+      <IsDrawerContext.Provider value>
+        <Dialog.Root
+          open={openProp}
+          defaultOpen={defaultOpen}
+          onOpenChange={handleOpenChange}
+          onOpenChangeComplete={onOpenChangeComplete}
+          disablePointerDismissal={disablePointerDismissal}
+          modal={modal}
+          actionsRef={actionsRef}
+          handle={handle}
+          triggerId={triggerIdProp}
+          defaultTriggerId={defaultTriggerIdProp}
+        >
+          {resolvedChildren}
+        </Dialog.Root>
+      </IsDrawerContext.Provider>
     </DrawerRootContext.Provider>
   );
 }
@@ -470,11 +474,10 @@ function DrawerProviderReporter() {
     }
 
     const closeWatcher = new CloseWatcherCtor();
-
-    closeWatcher.addEventListener('close', handleCloseWatcher);
+    const unsubscribe = addEventListener(closeWatcher, 'close', handleCloseWatcher);
 
     return () => {
-      closeWatcher.removeEventListener('close', handleCloseWatcher);
+      unsubscribe();
       closeWatcher.destroy();
     };
   }, [dialogRootContext.store, isTopmost, open, popupElement]);
