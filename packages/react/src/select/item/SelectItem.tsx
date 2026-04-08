@@ -20,7 +20,7 @@ import { selectors } from '../store';
 import { useButton } from '../../internals/use-button';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { compareItemEquality, removeItem } from '../../utils/itemEquality';
+import { compareItemEquality, removeItem } from '../../internals/itemEquality';
 
 /**
  * An individual option in the select popup.

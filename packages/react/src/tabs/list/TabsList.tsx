@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import type { TabsRoot, TabsRootState } from '../root/TabsRoot';
 import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
@@ -8,7 +9,6 @@ import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import type { TabsTab } from '../tab/TabsTab';
 import { TabsListContext } from './TabsListContext';
-import { EMPTY_ARRAY } from '../../utils/constants';
 
 /**
  * Groups the individual tab buttons.

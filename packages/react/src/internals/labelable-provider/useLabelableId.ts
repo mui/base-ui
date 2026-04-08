@@ -5,7 +5,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { isElement } from '@floating-ui/utils/dom';
 import { NOOP } from '../noop';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useLabelableContext } from './LabelableContext';
 
 export function useLabelableId(params: UseLabelableIdParameters = {}) {

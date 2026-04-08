@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
+import { EMPTY_OBJECT, EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { useRenderElement } from '../../useRenderElement';
 import { useCompositeItem } from './useCompositeItem';
 import type { BaseUIComponentProps } from '../../types';
-import { EMPTY_OBJECT, EMPTY_ARRAY } from '../../../utils/constants';
 import { StateAttributesMapping } from '../../getStateAttributesProps';
 
 /**

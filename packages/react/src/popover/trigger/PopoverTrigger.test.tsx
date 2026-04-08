@@ -9,7 +9,7 @@ import {
   screen,
   waitFor,
 } from '@mui/internal-test-utils';
-import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
+import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
 describe('<Popover.Trigger />', () => {
   const { render } = createRenderer();

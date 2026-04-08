@@ -15,7 +15,7 @@ import {
   PopupStoreState,
   PopupTriggerMap,
 } from '../../utils/popups';
-import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
+import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;

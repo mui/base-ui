@@ -2,7 +2,8 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useBaseUiId } from '../utils/useBaseUiId';
+import { EMPTY_ARRAY } from '@base-ui/utils/empty';
+import { useBaseUiId } from '../internals/useBaseUiId';
 import { useRenderElement } from '../internals/useRenderElement';
 import { CheckboxGroupContext } from './CheckboxGroupContext';
 import type { FieldRootState } from '../field/root/FieldRoot';
@@ -16,9 +17,8 @@ import { useCheckboxGroupParent } from './useCheckboxGroupParent';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
 import { REASONS } from '../internals/reasons';
 import { useFormContext } from '../internals/form-context/FormContext';
-import { useValueChanged } from '../utils/useValueChanged';
+import { useValueChanged } from '../internals/useValueChanged';
 import { areArraysEqual } from '../internals/areArraysEqual';
-import { EMPTY_ARRAY } from '../utils/constants';
 
 /**
  * Provides a shared state to a series of checkboxes.

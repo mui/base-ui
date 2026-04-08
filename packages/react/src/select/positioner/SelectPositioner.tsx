@@ -16,12 +16,12 @@ import {
 } from '../../utils/useAnchorPositioning';
 import { SelectPositionerContext } from './SelectPositionerContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
-import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
+import { DROPDOWN_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { clearStyles } from '../popup/utils';
 import { selectors } from '../store';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { findItemIndex, selectedValueIncludes } from '../../utils/itemEquality';
+import { findItemIndex, selectedValueIncludes } from '../../internals/itemEquality';
 import { usePositioner } from '../../utils/usePositioner';
 
 const FIXED: React.CSSProperties = { position: 'fixed' };

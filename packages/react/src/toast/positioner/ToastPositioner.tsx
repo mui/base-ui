@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import {
   useAnchorPositioning,
   type Side,
@@ -8,7 +9,7 @@ import {
   type UseAnchorPositioningSharedParameters,
 } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { EMPTY_OBJECT, POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
+import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { ToastPositionerContext } from './ToastPositionerContext';
 import { useFloatingRootContext } from '../../floating-ui-react';
 import { NOOP } from '../../internals/noop';

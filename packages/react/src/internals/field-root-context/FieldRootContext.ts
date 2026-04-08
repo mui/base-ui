@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { NOOP } from '../noop';
 import {
   DEFAULT_FIELD_ROOT_STATE,
@@ -10,7 +11,6 @@ import type { FieldValidityData, FieldRootState } from '../../field/root/FieldRo
 import type { Form } from '../../form';
 import type { UseFieldValidationReturnValue } from '../../field/root/useFieldValidation';
 import type { HTMLProps } from '../types';
-import { EMPTY_OBJECT } from '../../utils/constants';
 import type { FieldControlRegistration } from '../field-register-control/useFieldControlRegistration';
 
 export interface FieldRootContext {

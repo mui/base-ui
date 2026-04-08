@@ -8,7 +8,7 @@ import { BaseUIComponentProps } from '../../internals/types';
 import { clamp } from '../../internals/clamp';
 import { formatNumber } from '../../utils/formatNumber';
 import { mergeProps } from '../../merge-props';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useIsHydrating } from '../../utils/useIsHydrating';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { valueToPercent } from '../../utils/valueToPercent';

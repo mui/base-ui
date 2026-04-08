@@ -13,8 +13,8 @@ import {
   type BaseUIChangeEventDetails,
   type BaseUIGenericEventDetails,
 } from '../../internals/createBaseUIEventDetails';
-import { useValueChanged } from '../../utils/useValueChanged';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useValueChanged } from '../../internals/useValueChanged';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { clamp } from '../../internals/clamp';
 import { areArraysEqual } from '../../internals/areArraysEqual';

@@ -17,7 +17,10 @@ import { StateAttributesMapping } from '../../internals/getStateAttributesProps'
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { ToastRootCssVars } from './ToastRootCssVars';
-import { BASE_UI_SWIPE_IGNORE_SELECTOR, LEGACY_SWIPE_IGNORE_SELECTOR } from '../../utils/constants';
+import {
+  BASE_UI_SWIPE_IGNORE_SELECTOR,
+  LEGACY_SWIPE_IGNORE_SELECTOR,
+} from '../../internals/constants';
 
 const stateAttributesMapping: StateAttributesMapping<ToastRootState> = {
   ...transitionStatusMapping,

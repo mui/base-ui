@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { EMPTY_OBJECT } from '../../utils/constants';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { getTarget, isTypeableElement } from '../utils/element';
 import { isClickLikeEvent, isMouseLikePointerType } from '../utils/event';

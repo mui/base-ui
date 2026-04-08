@@ -6,7 +6,7 @@ import {
   NavigationMenuItemContext,
   NavigationMenuItemContextValue,
 } from './NavigationMenuItemContext';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 
 /**
  * An individual navigation menu item.

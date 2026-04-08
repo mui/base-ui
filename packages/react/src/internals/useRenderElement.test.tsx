@@ -3,9 +3,9 @@ import { vi, expect } from 'vitest';
 import * as React from 'react';
 import { createRenderer } from '#test-utils';
 import { reactMajor } from '@mui/internal-test-utils';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from './types';
 import { useRenderElement } from './useRenderElement';
-import { EMPTY_OBJECT } from '../utils/constants';
 
 describe('useRenderElement', () => {
   const { render } = createRenderer();

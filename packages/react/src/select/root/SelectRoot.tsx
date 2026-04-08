@@ -10,6 +10,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStore, Store } from '@base-ui/utils/store';
+import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import {
   useClick,
   useDismiss,
@@ -31,10 +32,9 @@ import {
 import { REASONS } from '../../internals/reasons';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useFormContext } from '../../internals/form-context/FormContext';
-import { type Group, stringifyAsValue } from '../../utils/resolveValueLabel';
-import { EMPTY_ARRAY, EMPTY_OBJECT } from '../../utils/constants';
-import { defaultItemEquality, findItemIndex } from '../../utils/itemEquality';
-import { useValueChanged } from '../../utils/useValueChanged';
+import { type Group, stringifyAsValue } from '../../internals/resolveValueLabel';
+import { defaultItemEquality, findItemIndex } from '../../internals/itemEquality';
+import { useValueChanged } from '../../internals/useValueChanged';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
 import { mergeProps } from '../../merge-props';

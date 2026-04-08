@@ -9,7 +9,7 @@ import {
 } from '../../utils/popupStateMapping';
 import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
+import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
 import {
   safePolygon,
   useClick,
@@ -18,7 +18,7 @@ import {
 } from '../../floating-ui-react';
 import { OPEN_DELAY } from '../utils/constants';
 import { PopoverHandle } from '../store/PopoverHandle';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { REASONS } from '../../internals/reasons';
 import { useTriggerDataForwarding } from '../../utils/popups';

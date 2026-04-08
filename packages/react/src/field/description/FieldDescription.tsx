@@ -6,7 +6,7 @@ import { useFieldRootContext } from '../../internals/field-root-context/FieldRoo
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { fieldValidityMapping } from '../../internals/field-constants/constants';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useRenderElement } from '../../internals/useRenderElement';
 
 /**

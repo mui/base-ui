@@ -10,7 +10,7 @@ import { stopEvent } from '../../floating-ui-react/utils';
 import { selectors } from '../store';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { findItemIndex } from '../../utils/itemEquality';
+import { findItemIndex } from '../../internals/itemEquality';
 
 /**
  * A button to remove a chip.

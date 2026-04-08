@@ -29,7 +29,7 @@ import {
   createGenericEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
-import { useValueChanged } from '../../utils/useValueChanged';
+import { useValueChanged } from '../../internals/useValueChanged';
 import { REASONS } from '../../internals/reasons';
 
 const stateAttributesMapping = {

@@ -3,12 +3,12 @@ import { useMergedRefs, useMergedRefsN } from '@base-ui/utils/useMergedRefs';
 import { getReactElementRef } from '@base-ui/utils/getReactElementRef';
 import { mergeObjects } from '@base-ui/utils/mergeObjects';
 import { warn } from '@base-ui/utils/warn';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from './types';
 import { getStateAttributesProps, StateAttributesMapping } from './getStateAttributesProps';
 import { resolveClassName } from '../utils/resolveClassName';
 import { resolveStyle } from '../utils/resolveStyle';
 import { mergeProps, mergePropsN, mergeClassNames } from '../merge-props';
-import { EMPTY_OBJECT } from '../utils/constants';
 
 type IntrinsicTagName = keyof React.JSX.IntrinsicElements;
 

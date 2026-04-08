@@ -4,7 +4,7 @@ import { useStore } from '@base-ui/utils/store';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { resolveMultipleLabels, resolveSelectedLabel } from '../../utils/resolveValueLabel';
+import { resolveMultipleLabels, resolveSelectedLabel } from '../../internals/resolveValueLabel';
 import { selectors } from '../store';
 import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 

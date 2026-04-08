@@ -1,4 +1,4 @@
-import { EMPTY_OBJECT } from '../utils/constants';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { REASONS } from './reasons';
 
 interface ReasonToEventMap {

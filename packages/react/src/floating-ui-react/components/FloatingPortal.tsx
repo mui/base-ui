@@ -7,6 +7,7 @@ import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   enableFocusInside,
@@ -22,7 +23,7 @@ import {
   useRenderElement,
   type UseRenderElementComponentProps,
 } from '../../internals/useRenderElement';
-import { EMPTY_OBJECT, ownerVisuallyHidden } from '../../utils/constants';
+import { ownerVisuallyHidden } from '../../internals/constants';
 import type { BaseUIComponentProps } from '../../internals/types';
 
 type FocusManagerState = null | {

@@ -17,7 +17,7 @@ import { ComboboxItemContext } from './ComboboxItemContext';
 import { selectors } from '../store';
 import { useButton } from '../../internals/use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
-import { compareItemEquality, findItemIndex } from '../../utils/itemEquality';
+import { compareItemEquality, findItemIndex } from '../../internals/itemEquality';
 
 /**
  * An individual item in the list.

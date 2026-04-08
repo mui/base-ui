@@ -7,4 +7,7 @@ export type {
   UseCompositeListItemParameters,
   IndexGuessBehavior,
 } from './list/useCompositeListItem';
+export { useCompositeRoot } from './root/useCompositeRoot';
+export type { UseCompositeRootParameters } from './root/useCompositeRoot';
+export { scrollIntoViewIfNeeded } from './composite';
 export { findNonDisabledListIndex, isListIndexDisabled } from '../../floating-ui-react/utils';
