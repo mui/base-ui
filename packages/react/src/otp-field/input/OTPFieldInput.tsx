@@ -265,7 +265,14 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
       }
 
       event.preventDefault();
-      const rawValue = event.clipboardData?.getData('text/plain') ?? '';
+      let rawValue = '';
+
+      try {
+        rawValue = event.clipboardData?.getData('text/plain') ?? '';
+      } catch {
+        return;
+      }
+
       const nextDigits = normalizeOTPValue(rawValue, length, validationType, sanitizeValue);
       const didSanitize = stripOTPWhitespace(rawValue).length > nextDigits.length;
 
@@ -302,7 +309,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
   return element;
 });
 
-export interface OTPFieldInputState extends OTPFieldRootState {
+export interface OTPFieldInputState extends Omit<OTPFieldRootState, 'filled' | 'value'> {
   /**
    * Whether this input contains a character.
    */

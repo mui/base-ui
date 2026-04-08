@@ -244,6 +244,21 @@ describe('<OTPField.Input />', () => {
     expect(document.activeElement).toBe(inputs[1]);
   });
 
+  it('blocks paste from changing the value in readonly mode', async () => {
+    await render(<OTPFieldTest defaultValue="1234" readOnly />);
+
+    const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+    await act(async () => {
+      inputs[1].focus();
+    });
+
+    pasteText(inputs[1], '99');
+
+    expect(inputs.map((input) => input.value)).toEqual(['1', '2', '3', '4', '', '']);
+    expect(document.activeElement).toBe(inputs[1]);
+  });
+
   it('allows tabbing out of the field from the active slot', async () => {
     const user = userEvent.setup();
 

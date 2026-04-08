@@ -611,7 +611,8 @@ export interface OTPFieldRootProps extends Omit<
     | ((value: string, eventDetails: OTPFieldRoot.ChangeEventDetails) => void)
     | undefined;
   /**
-   * Callback fired when entered text is sanitized before the OTP value updates.
+   * Callback fired when entered text contains characters that are rejected by sanitization,
+   * before the OTP value updates.
    *
    * The `value` argument is the attempted user-entered string before sanitization.
    */

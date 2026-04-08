@@ -439,6 +439,29 @@ describe('<OTPFieldPreview />', () => {
           vi.useRealTimers();
         }
       });
+
+      it('does not fire again when a controlled value changes from one complete value to another', async () => {
+        const onValueComplete = vi.fn();
+
+        function Test() {
+          const [value, setValue] = React.useState('123456');
+
+          return (
+            <React.Fragment>
+              <OTPField value={value} onValueChange={() => {}} onValueComplete={onValueComplete} />
+              <button type="button" onClick={() => setValue('654321')}>
+                Apply value
+              </button>
+            </React.Fragment>
+          );
+        }
+
+        await render(<Test />);
+
+        fireEvent.click(screen.getByRole('button', { name: 'Apply value' }));
+
+        expect(onValueComplete).not.toHaveBeenCalled();
+      });
     });
   });
 
