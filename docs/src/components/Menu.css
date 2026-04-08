@@ -45,13 +45,17 @@
     line-height: 1;
     white-space: nowrap;
     z-index: 0;
-    color: var(--color-foreground);
+    color: var(--gray-t2);
     text-decoration: none;
     cursor: default;
 
     &[data-highlighted] {
       position: relative;
       color: white;
+
+      @media (prefers-color-scheme: dark) {
+        color: black;
+      }
 
       &::before {
         content: '';
@@ -60,7 +64,11 @@
         inset-block: 0;
         z-index: -1;
         border-radius: var(--radius-4);
-        background-color: var(--color-highlight);
+        background-color: var(--gray-t2);
+
+        @media (prefers-color-scheme: dark) {
+          background-color: white;
+        }
       }
     }
 
