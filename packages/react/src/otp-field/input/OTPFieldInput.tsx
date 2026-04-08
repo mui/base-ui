@@ -69,13 +69,14 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
 
   const slotValue = value[index] ?? '';
   const inputState = getOTPFieldInputState(state, slotValue, index);
+  const slotAriaLabel = componentProps['aria-label'];
   const inheritedLabel = componentProps['aria-labelledby'] ?? inputAriaLabelledBy;
-  const ariaLabel = index === 0 ? undefined : componentProps['aria-label'];
+  const ariaLabel = index === 0 ? undefined : slotAriaLabel;
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     React.useEffect(() => {
-      if (index !== 0 || componentProps['aria-label'] == null || inputRef.current?.labels?.length) {
+      if (index !== 0 || slotAriaLabel == null || inputRef.current?.labels?.length) {
         return;
       }
 
@@ -84,7 +85,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
         '<OTPField.Input> ignores `aria-label` on the first input. Use a `<label>` or `<Field.Label>` to label the OTP field.',
         ownerStackMessage,
       );
-    }, [componentProps['aria-label'], index]);
+    }, [index, slotAriaLabel]);
   }
 
   const inputProps: React.ComponentProps<'input'> = {
