@@ -95,6 +95,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     },
     triggerElementRef,
     isActiveTrigger: isTriggerActive,
+    isClosing: () => store.select('transitionStatus') === 'ending',
   });
 
   const click = useClick(floatingContext, { enabled: floatingContext != null, stickIfOpen });
