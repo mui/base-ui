@@ -3,19 +3,13 @@
     /* The outline is sometimes seen in Safari when the positioner is focused intermittently */
     outline: 0;
     z-index: 1;
-
-    @media (prefers-color-scheme: light) {
-      /* Use filter for the shadow in order to catch the arrow part */
-      filter: drop-shadow(0 0 1px var(--gray-c2)) drop-shadow(0 0.5px 1px var(--gray-c2))
-        drop-shadow(0 1px 2px var(--gray-c2)) drop-shadow(0 3px 8px var(--gray-c3));
-    }
   }
 
   .SelectPopup {
     outline: 0;
     max-width: var(--available-width);
     max-height: var(--available-height);
-    border-radius: var(--radius-6);
+    border-radius: var(--radius-8);
     background-color: var(--color-popup);
     overflow: hidden;
     cursor: default;
@@ -24,6 +18,16 @@
 
     /* Make sure the layout doesn't fall apart on extreme zoom on mobile */
     min-width: min-content;
+
+    @media (prefers-color-scheme: light) {
+      box-shadow:
+        0 0 1px var(--blackA-4),
+        0 0.5px 1px var(--blackA-3),
+        0 1px 3px var(--blackA-1),
+        0 2px 4px -1px var(--blackA-1),
+        0 4px 12px -2px var(--blackA-1),
+        0 4px 16px -4px var(--blackA-1);
+    }
 
     @media (prefers-color-scheme: dark) {
       box-shadow: inset 0 0 0 1px var(--gray-c3);
