@@ -542,11 +542,13 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
                 // Handle single selection: match against registered values using serialization
                 const matchingValue = valuesRef.current.find((v) => {
+                  // Try matching by value first (e.g., "US" for country code)
                   const candidateValue = stringifyAsValue(v, itemToStringValue);
                   if (candidateValue.toLowerCase() === nextValue.toLowerCase()) {
                     return true;
                   }
-
+                  // Also try matching by label for browser autofill compatibility
+                  // (browsers autofill with displayed text like "United States", not the underlying value)
                   const candidateLabel = stringifyAsLabel(v, itemToStringLabel);
                   if (candidateLabel.toLowerCase() === nextValue.toLowerCase()) {
                     return true;

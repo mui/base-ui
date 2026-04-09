@@ -682,6 +682,8 @@ describe('<Select.Root />', () => {
   });
 
   it('should handle browser autofill with object values when autofill uses the label', async () => {
+    // Browsers autofill with the displayed text (label), not the underlying value.
+    // For example, Chrome will autofill "United States" (the label), not "US" (the value).
     const items = [
       { country: 'United States', code: 'US' },
       { country: 'Canada', code: 'CA' },
@@ -716,7 +718,9 @@ describe('<Select.Root />', () => {
       hidden: true,
     });
     expect(selectInput).toHaveAttribute('name', 'country');
-    fireEvent.change(selectInput, { target: { value: 'Canada' } });
+
+    // Simulate browser autofill with the LABEL (displayed text), not the value
+    fireEvent.change(selectInput, { target: { value: 'Canada' } }); // Browser sends "Canada" (label), not "CA" (value)
     await flushMicrotasks();
 
     await user.click(trigger);
