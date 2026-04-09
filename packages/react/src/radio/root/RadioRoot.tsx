@@ -22,7 +22,7 @@ import { useLabelableContext } from '../../internals/labelable-provider/Labelabl
 import { useAriaLabelledBy } from '../../internals/labelable-provider/useAriaLabelledBy';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
-import { serializeValue } from '../../utils/serializeValue';
+import { serializeValue } from '../../internals/serializeValue';
 import { RadioRootContext } from './RadioRootContext';
 
 /**

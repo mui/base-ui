@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { serializeValue } from '../internals/serializeValue';
+import { serializeValue } from './serializeValue';
 
 type ItemRecord = Record<string, React.ReactNode>;
 type ItemsInput = ItemRecord | ReadonlyArray<LabeledItem> | ReadonlyArray<Group<any>> | undefined;

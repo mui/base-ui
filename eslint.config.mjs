@@ -21,11 +21,7 @@ const OneLevelImportMessage = [
 
 const NO_RESTRICTED_IMPORTS_PATTERNS_DEEPLY_NESTED = [
   {
-    regex: '@base-ui/react/(?!internals/).+/.+',
-    message: OneLevelImportMessage,
-  },
-  {
-    regex: '@base-ui/react/internals/.+/.+',
+    regex: '@base-ui/react/(?:(?!internals/).+|internals/.+)/.+',
     message: OneLevelImportMessage,
   },
 ];
