@@ -1248,6 +1248,79 @@ describe('<Popover.Root />', () => {
       });
     });
 
+    describe.skipIf(isJSDOM)('scroll locking', () => {
+      describe('touch scroll lock', () => {
+        it('applies scroll lock when a touch-opened popup covers the viewport width', async () => {
+          await render(
+            <Popover.Root modal>
+              <Popover.Trigger>Open</Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner
+                  data-testid="positioner"
+                  style={{ width: 'calc(100vw - 10px)' }}
+                >
+                  <Popover.Popup>Content</Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>,
+          );
+
+          const trigger = screen.getByRole('button', { name: 'Open' });
+
+          fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+          fireEvent.mouseDown(trigger);
+          fireEvent.click(trigger, { detail: 1 });
+
+          const popup = await screen.findByRole('dialog');
+          const doc = popup.ownerDocument;
+
+          await waitFor(() => {
+            const isScrollLocked =
+              doc.documentElement.style.overflow === 'hidden' ||
+              doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+              doc.body.style.overflow === 'hidden';
+
+            expect(isScrollLocked).toBe(true);
+          });
+        });
+
+        it('does not apply scroll lock when a touch-opened popup is narrower than the viewport', async () => {
+          await render(
+            <Popover.Root modal>
+              <Popover.Trigger>Open</Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner data-testid="positioner" style={{ width: '240px' }}>
+                  <Popover.Popup>Content</Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>,
+          );
+
+          const trigger = screen.getByRole('button', { name: 'Open' });
+
+          fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+          fireEvent.mouseDown(trigger);
+          fireEvent.click(trigger, { detail: 1 });
+
+          const popup = await screen.findByRole('dialog');
+          const doc = popup.ownerDocument;
+
+          await act(async () => {
+            await new Promise<void>((resolve) => {
+              requestAnimationFrame(() => resolve());
+            });
+          });
+
+          const isScrollLocked =
+            doc.documentElement.style.overflow === 'hidden' ||
+            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+            doc.body.style.overflow === 'hidden';
+
+          expect(isScrollLocked).toBe(false);
+        });
+      });
+    });
+
     describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
       it('is called on close when there is no exit animation defined', async () => {
         const onOpenChangeComplete = vi.fn();

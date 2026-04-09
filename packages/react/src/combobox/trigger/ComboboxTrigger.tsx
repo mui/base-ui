@@ -32,6 +32,8 @@ const BOUNDARY_OFFSET = 2;
 /**
  * A button that opens the popup.
  * Renders a `<button>` element.
+ *
+ * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   componentProps: ComboboxTrigger.Props,
@@ -139,7 +141,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     disabled,
     popupSide,
     listEmpty,
-    placeholder: !hasSelectedValue,
+    placeholder: selectionMode === 'none' ? false : !hasSelectedValue,
   };
 
   const setTriggerElement = useStableCallback((element) => {

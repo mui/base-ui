@@ -27,13 +27,13 @@
 
     /* Use line height instead of fixed item height in case text breaks into multiple lines */
     --quick-nav-item-height: 2rem;
-    --quick-nav-item-line-height: var(--text-md--line-height);
+    --quick-nav-item-line-height: 1.375rem;
     --quick-nav-item-padding-y: calc(
       var(--quick-nav-item-height) / 2 - var(--quick-nav-item-line-height) / 2
     );
 
-    font-size: var(--text-md);
-    line-height: var(--text-md--line-height);
+    font-size: var(--font-size-15);
+    line-height: 1.375rem;
     z-index: 1;
     position: sticky;
     top: 0;
@@ -95,13 +95,13 @@
       height: 100%;
       /* Visible thumb width */
       width: var(--quick-nav-scrollbar-thumb-width);
-      border-radius: var(--radius-sm);
-      background-color: var(--color-gray-400);
+      border-radius: var(--radius-4);
+      background-color: var(--gray-p2);
     }
   }
 
   .QuickNavList {
-    color: var(--color-gray);
+    color: var(--gray-t1);
     display: flex;
     flex-direction: column;
     align-items: start;
@@ -115,7 +115,7 @@
     display: flex;
     padding: var(--quick-nav-item-padding-y) 0.5rem;
     margin-inline: 0 -0.5rem;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-6);
 
     &:focus-visible {
       z-index: 1;
@@ -128,7 +128,7 @@
         text-decoration: underline;
         text-underline-offset: 2px;
         text-decoration-thickness: 1px;
-        text-decoration-color: var(--color-gray-500);
+        text-decoration-color: var(--gray-p1);
       }
     }
   }

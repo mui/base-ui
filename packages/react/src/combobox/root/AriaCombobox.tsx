@@ -1243,8 +1243,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
               }
 
               const matchingValue = valuesRef.current.find((v) => {
-                const candidate = stringifyAsValue(v, itemToStringValue);
-                if (candidate.toLowerCase() === nextValue.toLowerCase()) {
+                // Try matching by value first (e.g., "US" for country code)
+                const candidateValue = stringifyAsValue(v, itemToStringValue);
+                if (candidateValue.toLowerCase() === nextValue.toLowerCase()) {
+                  return true;
+                }
+                // Also try matching by label for browser autofill compatibility
+                // (browsers autofill with displayed text like "United States", not the underlying value)
+                const candidateLabel = stringifyAsLabel(v, itemToStringLabel);
+                if (candidateLabel.toLowerCase() === nextValue.toLowerCase()) {
                   return true;
                 }
                 return false;

@@ -13,6 +13,8 @@ import { handleInputPress } from '../utils/handleInputPress';
 /**
  * A container for the chips in a multiselectable input.
  * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxChips = React.forwardRef(function ComboboxChips(
   componentProps: ComboboxChips.Props,

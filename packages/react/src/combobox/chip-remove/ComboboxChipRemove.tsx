@@ -15,6 +15,8 @@ import { findItemIndex } from '../../internals/itemEquality';
 /**
  * A button to remove a chip.
  * Renders a `<button>` element.
+ *
+ * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
   componentProps: ComboboxChipRemove.Props,

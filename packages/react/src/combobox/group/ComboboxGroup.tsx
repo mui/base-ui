@@ -8,6 +8,8 @@ import { GroupCollectionProvider } from '../collection/GroupCollectionContext';
 /**
  * Groups related items with the corresponding label.
  * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxGroup = React.forwardRef(function ComboboxGroup(
   componentProps: ComboboxGroup.Props,

@@ -7,7 +7,6 @@
   font-size: 2rem;
   line-height: 2.5rem;
   font-weight: 500;
-  letter-spacing: var(--text-2xl--letter-spacing);
 }
 
 .Section {
@@ -23,7 +22,6 @@
   margin: 0 0 1rem;
   font-size: var(--text-xl);
   line-height: var(--text-xl--line-height);
-  letter-spacing: var(--text-xl--letter-spacing);
   font-weight: 600;
 }
 
@@ -161,7 +159,6 @@
   display: block;
   font-size: var(--text-sm);
   line-height: var(--text-sm--line-height);
-  letter-spacing: var(--text-sm--letter-spacing);
 }
 
 .BluePrimary {
@@ -307,7 +304,6 @@
 .DisabledLabel {
   font-size: var(--text-sm);
   line-height: var(--text-sm--line-height);
-  letter-spacing: var(--text-sm--letter-spacing);
   color: var(--color-gray-700);
 }
 

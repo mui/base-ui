@@ -30,6 +30,8 @@ const stateAttributesMapping: StateAttributesMapping<ComboboxPopupState> = {
 /**
  * A container for the list.
  * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   componentProps: ComboboxPopup.Props,

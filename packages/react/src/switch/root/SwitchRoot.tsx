@@ -198,6 +198,11 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
               return;
             }
 
+            if (readOnly) {
+              event.preventDefault();
+              return;
+            }
+
             const nextChecked = event.currentTarget.checked;
             const eventDetails = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
@@ -226,6 +231,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
       hiddenInputId,
       name,
       onCheckedChange,
+      readOnly,
       required,
       setCheckedState,
       validation,

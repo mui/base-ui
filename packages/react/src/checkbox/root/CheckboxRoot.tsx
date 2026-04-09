@@ -230,6 +230,11 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
           return;
         }
 
+        if (readOnly) {
+          event.preventDefault();
+          return;
+        }
+
         const nextChecked = event.currentTarget.checked;
         const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
