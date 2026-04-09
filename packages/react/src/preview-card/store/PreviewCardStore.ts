@@ -4,6 +4,7 @@ import { createSelector, ReactStore } from '@base-ui/utils/store';
 import {
   createPopupFloatingRootContext,
   createInitialPopupStoreState,
+  InlineRectCoords,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
@@ -22,6 +23,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
 
 export type Context = PopupStoreContext<PreviewCardRoot.ChangeEventDetails> & {
   closeDelayRef: React.RefObject<number>;
+  inlineRectCoordsRef: React.MutableRefObject<InlineRectCoords | undefined>;
 };
 
 const selectors = {
@@ -52,6 +54,7 @@ export class PreviewCardStore<Payload> extends ReactStore<
         onOpenChangeComplete: undefined,
         triggerElements,
         closeDelayRef: { current: CLOSE_DELAY },
+        inlineRectCoordsRef: { current: undefined },
       },
       selectors,
     );
