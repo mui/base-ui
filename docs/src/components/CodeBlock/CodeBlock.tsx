@@ -119,9 +119,7 @@ export function Content({
         }
       }}
     >
-      <ScrollArea.Viewport className="CodeBlockViewport">
-        {children}
-      </ScrollArea.Viewport>
+      <ScrollArea.Viewport className="CodeBlockViewport">{children}</ScrollArea.Viewport>
       <ScrollArea.Scrollbar orientation="horizontal" />
     </ScrollArea.Root>
   );

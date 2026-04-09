@@ -18,9 +18,7 @@ export function CodeBlockPreComputedContent(props: ContentProps<CodeBlockPreComp
   return (
     <React.Fragment>
       {title ? <CodeBlock.Panel>{title}</CodeBlock.Panel> : null}
-      <CodeBlock.Content>
-        {code.selectedFile}
-      </CodeBlock.Content>
+      <CodeBlock.Content>{code.selectedFile}</CodeBlock.Content>
     </React.Fragment>
   );
 }
