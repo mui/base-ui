@@ -5,7 +5,6 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
-import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import {
@@ -160,7 +159,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   const activeTriggerElement = store.useState('activeTriggerElement');
   const positionerElement = store.useState('positionerElement');
   const hoverEnabled = store.useState('hoverEnabled');
-  const modal = store.useState('modal');
   const disabled = store.useState('disabled');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const parent = store.useState('parent');
@@ -181,13 +179,14 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     }
   }
 
+  const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
+
   store.useSyncedValues({
     disabled: disabledProp,
     modal: parent.type === undefined ? modalProp : undefined,
+    openMethod,
     rootId: useId(),
   });
-
-  const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
 
   useImplicitActiveTrigger(store);
   const { forceUnmount } = useOpenStateTransitions(open, store, () => {
@@ -219,11 +218,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       allowOutsidePressDismissalRef.current = true;
     });
   }, [allowOutsidePressDismissalTimeout, open, parent.type]);
-
-  useScrollLock(
-    open && modal && lastOpenChangeReason !== REASONS.triggerHover && openMethod !== 'touch',
-    positionerElement,
-  );
 
   useIsoLayoutEffect(() => {
     if (!open && !hoverEnabled) {
