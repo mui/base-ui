@@ -42,6 +42,11 @@ export function useImageLoadingStatus(
     image.crossOrigin = crossOrigin ?? null;
     image.src = src;
 
+    // Fast path for cached/decoded images
+    if (image.complete) {
+      setLoadingStatus(image.naturalWidth > 0 ? 'loaded' : 'error');
+    }
+
     return () => {
       isMounted = false;
     };

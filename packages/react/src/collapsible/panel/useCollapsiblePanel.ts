@@ -436,7 +436,9 @@ export interface UseCollapsiblePanelParameters {
    */
   keepMounted: boolean;
   /**
-   * Whether the collapsible panel is currently mounted.
+   * Whether the collapsible panel is mounted for transition and hidden-state
+   * purposes. This can be `false` while the element remains in the DOM when
+   * `keepMounted` or `hiddenUntilFound` is enabled.
    */
   mounted: boolean;
   onOpenChange: (open: boolean, eventDetails: CollapsibleRoot.ChangeEventDetails) => void;

@@ -212,9 +212,10 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
       // Normalize only the displayed text
       const canonicalText = formatNumber(committed, locale, formatOptions);
-      const maxPrecisionText = formatNumberMaxPrecision(parsedValue, locale, formatOptions);
       const shouldPreserveFullPrecision =
-        !hasExplicitPrecision && parsedValue === value && inputValue === maxPrecisionText;
+        !hasExplicitPrecision &&
+        parsedValue === value &&
+        inputValue === formatNumberMaxPrecision(parsedValue, locale, formatOptions);
 
       if (!shouldPreserveFullPrecision && inputValue !== canonicalText) {
         setInputValue(canonicalText);

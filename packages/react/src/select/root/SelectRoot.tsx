@@ -31,7 +31,7 @@ import {
 import { REASONS } from '../../utils/reasons';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFormContext } from '../../form/FormContext';
-import { type Group, stringifyAsValue } from '../../utils/resolveValueLabel';
+import { type Group, stringifyAsLabel, stringifyAsValue } from '../../utils/resolveValueLabel';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '../../utils/constants';
 import { defaultItemEquality, findItemIndex } from '../../utils/itemEquality';
 import { useValueChanged } from '../../utils/useValueChanged';
@@ -542,8 +542,15 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
                 // Handle single selection: match against registered values using serialization
                 const matchingValue = valuesRef.current.find((v) => {
-                  const candidate = stringifyAsValue(v, itemToStringValue);
-                  if (candidate.toLowerCase() === nextValue.toLowerCase()) {
+                  // Try matching by value first (e.g., "US" for country code)
+                  const candidateValue = stringifyAsValue(v, itemToStringValue);
+                  if (candidateValue.toLowerCase() === nextValue.toLowerCase()) {
+                    return true;
+                  }
+                  // Also try matching by label for browser autofill compatibility
+                  // (browsers autofill with displayed text like "United States", not the underlying value)
+                  const candidateLabel = stringifyAsLabel(v, itemToStringLabel);
+                  if (candidateLabel.toLowerCase() === nextValue.toLowerCase()) {
                     return true;
                   }
                   return false;

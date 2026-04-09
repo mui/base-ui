@@ -585,6 +585,32 @@ describe('<NumberField.Input />', () => {
     expect(onValueChange.mock.calls[0][0]).toBe(1.23);
   });
 
+  it('should not throw on blur when format uses roundingIncrement with fixed fraction digits', async () => {
+    const format = {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+      roundingIncrement: 5,
+    };
+
+    await render(
+      <NumberField.Root defaultValue={1.2} format={format}>
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole('textbox');
+    const expectedValue = new Intl.NumberFormat(undefined, format).format(1.2);
+
+    expect(input).toHaveValue(expectedValue);
+
+    await act(async () => {
+      input.focus();
+      input.blur();
+    });
+
+    expect(input).toHaveValue(expectedValue);
+  });
+
   it('should round to step precision on blur when step implies precision constraints', async () => {
     const onValueChange = vi.fn();
 
