@@ -11,7 +11,7 @@ export default function CssAnimations() {
         <Collapsible.Root className={styles.Root} defaultOpen>
           <Collapsible.Trigger className={styles.Trigger}>
             <ChevronIcon className={styles.Icon} />
-            Trigger
+            Trigger 8
           </Collapsible.Trigger>
           <Collapsible.Panel className={styles.Panel} keepMounted>
             <div className={styles.Content}>
@@ -28,7 +28,7 @@ export default function CssAnimations() {
         <Collapsible.Root className={styles.Root} defaultOpen={false}>
           <Collapsible.Trigger className={styles.Trigger}>
             <ChevronIcon className={styles.Icon} />
-            Trigger
+            Trigger 9
           </Collapsible.Trigger>
           <Collapsible.Panel className={styles.Panel} keepMounted>
             <div className={styles.Content}>
@@ -49,7 +49,7 @@ export default function CssAnimations() {
         <Collapsible.Root className={styles.Root} defaultOpen>
           <Collapsible.Trigger className={styles.Trigger}>
             <ChevronIcon className={styles.Icon} />
-            Trigger
+            Trigger 10
           </Collapsible.Trigger>
           <Collapsible.Panel className={styles.Panel} keepMounted={false}>
             <div className={styles.Content}>
@@ -66,7 +66,7 @@ export default function CssAnimations() {
         <Collapsible.Root className={styles.Root} defaultOpen={false}>
           <Collapsible.Trigger className={styles.Trigger}>
             <ChevronIcon className={styles.Icon} />
-            Trigger
+            Trigger 11
           </Collapsible.Trigger>
           <Collapsible.Panel className={styles.Panel} keepMounted={false}>
             <div className={styles.Content}>

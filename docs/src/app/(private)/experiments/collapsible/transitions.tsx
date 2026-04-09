@@ -13,7 +13,7 @@ export default function CssTransitions() {
         <Collapsible.Root className={styles.Root} defaultOpen>
           <Collapsible.Trigger className={styles.Trigger}>
             <ChevronIcon className={styles.Icon} />
-            Trigger
+            Trigger 1
           </Collapsible.Trigger>
           <Collapsible.Panel className={styles.Panel} keepMounted>
             <div className={styles.Content}>
@@ -30,7 +30,7 @@ export default function CssTransitions() {
         <Collapsible.Root className={styles.Root} defaultOpen={false}>
           <Collapsible.Trigger className={styles.Trigger}>
             <ChevronIcon className={styles.Icon} />
-            Trigger
+            Trigger 2
           </Collapsible.Trigger>
           <Collapsible.Panel className={styles.Panel} keepMounted>
             <div className={styles.Content}>
@@ -51,7 +51,7 @@ export default function CssTransitions() {
         <Collapsible.Root className={styles.Root} defaultOpen>
           <Collapsible.Trigger className={styles.Trigger}>
             <ChevronIcon className={styles.Icon} />
-            Trigger
+            Trigger 3
           </Collapsible.Trigger>
           <Collapsible.Panel className={styles.Panel} keepMounted={false}>
             <div className={styles.Content}>
@@ -68,7 +68,7 @@ export default function CssTransitions() {
         <Collapsible.Root className={styles.Root} defaultOpen={false}>
           <Collapsible.Trigger className={styles.Trigger}>
             <ChevronIcon className={styles.Icon} />
-            Trigger
+            Trigger 4
           </Collapsible.Trigger>
           <Collapsible.Panel className={styles.Panel} keepMounted={false}>
             <div className={styles.Content}>
@@ -89,7 +89,7 @@ export default function CssTransitions() {
         <Collapsible.Root className={styles.Root} open={open} onOpenChange={setOpen}>
           <Collapsible.Trigger className={styles.Trigger}>
             <ChevronIcon className={styles.Icon} />
-            Trigger
+            Trigger 5
           </Collapsible.Trigger>
           <Collapsible.Panel className={styles.Panel} keepMounted>
             <div className={styles.Content}>
@@ -108,7 +108,7 @@ export default function CssTransitions() {
         <Collapsible.Root className={styles.Root}>
           <Collapsible.Trigger className={styles.Trigger}>
             <ChevronIcon className={styles.Icon} />
-            Trigger
+            Trigger 6
           </Collapsible.Trigger>
           <Collapsible.Panel className={styles.Panel} keepMounted>
             <div className={styles.Content}>
@@ -121,7 +121,7 @@ export default function CssTransitions() {
               <Collapsible.Root className={styles.Root}>
                 <Collapsible.Trigger className={styles.Trigger}>
                   <ChevronIcon className={styles.Icon} />
-                  Trigger
+                  Trigger 7
                 </Collapsible.Trigger>
                 <Collapsible.Panel className={styles.Panel} keepMounted>
                   <div className={styles.Content}>

@@ -9,7 +9,6 @@ import type { CollapsibleRootState } from '../root/CollapsibleRoot';
 import { collapsibleStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useCollapsiblePanel } from './useCollapsiblePanel';
 import { CollapsiblePanelCssVars } from './CollapsiblePanelCssVars';
-import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 
 /**
@@ -44,26 +43,14 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
   }
 
   const {
-    abortControllerRef,
-    animationTypeRef,
-    height,
     mounted,
     onOpenChange,
     open,
     panelId,
-    panelRef,
-    runOnceAnimationsFinish,
-    setDimensions,
-    setHiddenUntilFound,
-    setKeepMounted,
     setMounted,
     setPanelIdState,
     setOpen,
-    setVisible,
     state,
-    transitionDimensionRef,
-    visible,
-    width,
     transitionStatus,
   } = useCollapsibleRootContext();
 
@@ -80,59 +67,37 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     return undefined;
   }, [idProp, setPanelIdState]);
 
-  useIsoLayoutEffect(() => {
-    setHiddenUntilFound(hiddenUntilFound);
-  }, [setHiddenUntilFound, hiddenUntilFound]);
-
-  useIsoLayoutEffect(() => {
-    setKeepMounted(keepMounted);
-  }, [setKeepMounted, keepMounted]);
-
-  const { props } = useCollapsiblePanel({
-    abortControllerRef,
-    animationTypeRef,
-    externalRef: forwardedRef,
+  const {
     height,
+    props,
+    ref,
+    shouldRender,
+    transitionStatus: panelTransitionStatus,
+    width,
+  } = useCollapsiblePanel({
+    externalRef: forwardedRef,
     hiddenUntilFound,
     id: panelId,
     keepMounted,
     mounted,
     onOpenChange,
     open,
-    panelRef,
-    runOnceAnimationsFinish,
-    setDimensions,
     setMounted,
     setOpen,
-    setVisible,
-    transitionDimensionRef,
-    visible,
-    width,
-  });
-
-  useOpenChangeComplete({
-    open: open && transitionStatus === 'idle',
-    ref: panelRef,
-    onComplete() {
-      if (!open) {
-        return;
-      }
-
-      setDimensions({ height: undefined, width: undefined });
-    },
+    transitionStatus,
   });
 
   const panelState: CollapsiblePanelState = React.useMemo(
     () => ({
       ...state,
-      transitionStatus,
+      transitionStatus: panelTransitionStatus,
     }),
-    [state, transitionStatus],
+    [panelTransitionStatus, state],
   );
 
   const element = useRenderElement('div', componentProps, {
     state: panelState,
-    ref: [forwardedRef, panelRef],
+    ref,
     props: [
       props,
       {
@@ -147,8 +112,6 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     ],
     stateAttributesMapping: collapsibleStateAttributesMapping,
   });
-
-  const shouldRender = keepMounted || hiddenUntilFound || mounted;
 
   if (!shouldRender) {
     return null;

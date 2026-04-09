@@ -11,7 +11,6 @@ import type { AccordionItemState } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
 import { accordionStateAttributesMapping } from '../item/stateAttributesMapping';
 import { AccordionPanelCssVars } from './AccordionPanelCssVars';
-import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 
@@ -39,24 +38,12 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
     useAccordionRootContext();
 
   const {
-    abortControllerRef,
-    animationTypeRef,
-    height,
     mounted,
     onOpenChange,
     open,
     panelId,
-    panelRef,
-    runOnceAnimationsFinish,
-    setDimensions,
-    setHiddenUntilFound,
-    setKeepMounted,
     setMounted,
     setOpen,
-    setVisible,
-    transitionDimensionRef,
-    visible,
-    width,
     setPanelIdState,
     transitionStatus,
   } = useCollapsibleRootContext();
@@ -85,46 +72,24 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
     return undefined;
   }, [idProp, setPanelIdState]);
 
-  useIsoLayoutEffect(() => {
-    setHiddenUntilFound(hiddenUntilFound);
-  }, [setHiddenUntilFound, hiddenUntilFound]);
-
-  useIsoLayoutEffect(() => {
-    setKeepMounted(keepMounted);
-  }, [setKeepMounted, keepMounted]);
-
-  useOpenChangeComplete({
-    open: open && transitionStatus === 'idle',
-    ref: panelRef,
-    onComplete() {
-      if (!open) {
-        return;
-      }
-
-      setDimensions({ width: undefined, height: undefined });
-    },
-  });
-
-  const { props } = useCollapsiblePanel({
-    abortControllerRef,
-    animationTypeRef,
-    externalRef: forwardedRef,
+  const {
     height,
+    props,
+    ref,
+    shouldRender,
+    transitionStatus: panelTransitionStatus,
+    width,
+  } = useCollapsiblePanel({
+    externalRef: forwardedRef,
     hiddenUntilFound,
     id: idProp ?? panelId,
     keepMounted,
     mounted,
     onOpenChange,
     open,
-    panelRef,
-    runOnceAnimationsFinish,
-    setDimensions,
     setMounted,
     setOpen,
-    setVisible,
-    transitionDimensionRef,
-    visible,
-    width,
+    transitionStatus,
   });
 
   const { state, triggerId } = useAccordionItemContext();
@@ -132,14 +97,14 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
   const panelState: AccordionPanelState = React.useMemo(
     () => ({
       ...state,
-      transitionStatus,
+      transitionStatus: panelTransitionStatus,
     }),
-    [state, transitionStatus],
+    [panelTransitionStatus, state],
   );
 
   const element = useRenderElement('div', componentProps, {
     state: panelState,
-    ref: [forwardedRef, panelRef],
+    ref,
     props: [
       props,
       {
@@ -157,7 +122,6 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
     stateAttributesMapping: accordionStateAttributesMapping,
   });
 
-  const shouldRender = keepMounted || hiddenUntilFound || mounted;
   if (!shouldRender) {
     return null;
   }

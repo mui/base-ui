@@ -1,6 +1,6 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { Collapsible } from '@base-ui/react/collapsible';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
@@ -102,6 +102,47 @@ describe('<Collapsible.Panel />', () => {
         expect(panel).not.toHaveAttribute('data-ending-style');
       },
     );
+  });
+
+  describe.skipIf(isJSDOM)('CSS transitions', () => {
+    it('restores a measured height before applying closing transition styles', async () => {
+      const { user } = await render(
+        <React.Fragment>
+          <style>{`
+            .transition-test-panel {
+              overflow: hidden;
+              height: var(--collapsible-panel-height);
+              transition: height 100ms linear;
+            }
+
+            .transition-test-panel[data-ending-style] {
+              height: 0;
+            }
+          `}</style>
+
+          <Collapsible.Root defaultOpen>
+            <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+            <Collapsible.Panel className="transition-test-panel" data-testid="panel">
+              {PANEL_CONTENT}
+            </Collapsible.Panel>
+          </Collapsible.Root>
+        </React.Fragment>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+      const panel = screen.getByTestId('panel');
+
+      await waitFor(() => {
+        expect(panel.style.getPropertyValue('--collapsible-panel-height')).toBe('auto');
+      });
+
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(panel).toHaveAttribute('data-ending-style');
+        expect(panel.style.getPropertyValue('--collapsible-panel-height')).toMatch(/px$/);
+      });
+    });
   });
 
   // we test firefox in browserstack which does not support this yet
