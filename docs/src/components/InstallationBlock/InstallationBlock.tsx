@@ -52,8 +52,8 @@ export function InstallationBlock(props: InstallationBlockProps) {
 
         {INSTALLATION_PACKAGE_MANAGERS.map((pm) => (
           <Tabs.Panel key={pm.value} value={pm.value}>
-            <CodeBlock.Pre data-language="bash">
-              <Code data-language="bash">
+            <CodeBlock.Pre>
+              <Code className="language-bash">
                 <span className="frame">
                   <span className="line">
                     <span className="pl-en">{pm.value}</span>{' '}
