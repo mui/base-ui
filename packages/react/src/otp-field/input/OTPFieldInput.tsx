@@ -272,25 +272,23 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
         return;
       }
 
-      event.preventDefault();
       let rawValue = '';
 
       try {
         rawValue = event.clipboardData?.getData('text/plain') ?? '';
-      } catch (error) {
+      } catch {
         if (process.env.NODE_ENV !== 'production') {
           const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
-          const errorMessage =
-            error instanceof Error ? ` Received \`${error.name}: ${error.message}\`.` : '';
           warn(
-            `<OTPField.Input> could not read clipboard text during paste handling. ` +
-              `Native paste was prevented, so the OTP value was not updated.${errorMessage}`,
+            '<OTPField.Input> could not read clipboard text during paste handling.',
             ownerStackMessage,
           );
         }
 
         return;
       }
+
+      event.preventDefault();
 
       const nextDigits = normalizeOTPValue(rawValue, length, validationType, sanitizeValue);
       const didSanitize = stripOTPWhitespace(rawValue).length > nextDigits.length;

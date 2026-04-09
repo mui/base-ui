@@ -188,17 +188,6 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
 
     if (formElement && typeof formElement.requestSubmit === 'function') {
       formElement.requestSubmit();
-      return;
-    }
-
-    if (process.env.NODE_ENV !== 'production') {
-      const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
-
-      warn(
-        '<OTPField.Root> `autoSubmit` could not submit because the OTP field is not associated with a form. ' +
-          'Wrap it in a `<form>` or provide the `form` prop.',
-        ownerStackMessage,
-      );
     }
   }
 

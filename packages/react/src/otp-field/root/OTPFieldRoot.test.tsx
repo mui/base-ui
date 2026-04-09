@@ -942,25 +942,6 @@ describe('<OTPFieldPreview />', () => {
         expect(getValues()).toBe('12345');
         expect(handleSubmit).not.toHaveBeenCalled();
       });
-
-      it('warns in development when the OTP completes with autoSubmit but no form is associated', async () => {
-        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
-        try {
-          await render(<OTPField autoSubmit />);
-
-          const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
-
-          fireEvent.change(firstInput, { target: { value: '123456' } });
-
-          expect(warnSpy).toHaveBeenCalledTimes(1);
-          expect(warnSpy.mock.calls[0]?.[0]).toContain(
-            'Base UI: <OTPField.Root> `autoSubmit` could not submit because the OTP field is not associated with a form.',
-          );
-        } finally {
-          warnSpy.mockRestore();
-        }
-      });
     });
 
     describe('prop: form', () => {
