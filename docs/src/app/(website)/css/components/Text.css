@@ -10,26 +10,26 @@
       arial,
       sans-serif;
     margin: 0;
-    font-weight: 400;
+    font-weight: var(--font-weight-400);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     text-wrap: pretty;
   }
 
-  .Text.size-1 {
+  .Text.sz-1 {
     font-size: 15px;
     line-height: 22px;
   }
 
-  .Text.size-2 {
+  .Text.sz-2 {
     font-size: 18px;
     line-height: 25px;
   }
 
-  .Text.size-3 {
-    font-size: 36px;
-    line-height: 38px;
+  .Text.sz-3 {
+    font-size: var(--font-size-34);
+    line-height: 34px;
     text-wrap: balance;
     font-family:
       'die grotesk b',
@@ -41,7 +41,7 @@
       sans-serif;
   }
 
-  .Text.size-4 {
+  .Text.sz-4 {
     font-size: 42px;
     line-height: 44px;
     text-wrap: balance;
@@ -56,19 +56,19 @@
   }
 
   @media (min-width: 48rem) {
-    .Text.bp2\:size-1 {
+    .Text.bp2\:sz-1 {
       font-size: 15px;
       line-height: 22px;
     }
 
-    .Text.bp2\:size-2 {
+    .Text.bp2\:sz-2 {
       font-size: 18px;
       line-height: 25px;
     }
 
-    .Text.bp2\:size-3 {
-      font-size: 36px;
-      line-height: 38px;
+    .Text.bp2\:sz-3 {
+      font-size: var(--font-size-34);
+      line-height: 34px;
       text-wrap: balance;
       font-family:
         'die grotesk b',
@@ -80,7 +80,7 @@
         sans-serif;
     }
 
-    .Text.bp2\:size-4 {
+    .Text.bp2\:sz-4 {
       font-size: 42px;
       line-height: 44px;
       text-wrap: balance;
