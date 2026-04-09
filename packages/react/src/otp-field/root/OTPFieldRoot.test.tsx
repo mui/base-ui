@@ -350,6 +350,24 @@ describe('<OTPFieldPreview />', () => {
         expect(onValueComplete.mock.calls[0]?.[1].reason).toBe(REASONS.inputPaste);
       });
 
+      it('fires `input-paste` when pasting into a middle slot completes the OTP', async () => {
+        const onValueComplete = vi.fn();
+
+        await render(<OTPField defaultValue="12" onValueComplete={onValueComplete} />);
+
+        const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+        await act(async () => {
+          inputs[2].focus();
+        });
+
+        pasteText(inputs[2], '3456');
+
+        expect(onValueComplete).toHaveBeenCalledTimes(1);
+        expect(onValueComplete.mock.calls[0]?.[0]).toBe('123456');
+        expect(onValueComplete.mock.calls[0]?.[1].reason).toBe(REASONS.inputPaste);
+      });
+
       it('does not fire when a completion-making paste is canceled', async () => {
         const onValueComplete = vi.fn();
 
@@ -571,6 +589,7 @@ describe('<OTPFieldPreview />', () => {
       const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
 
       expect(firstInput).toBeDisabled();
+      expect(screen.getByRole('group')).toHaveAttribute('data-disabled', '');
 
       fireEvent.change(firstInput, { target: { value: '1' } });
 
@@ -588,6 +607,7 @@ describe('<OTPFieldPreview />', () => {
       const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
 
       expect(firstInput).toHaveAttribute('readonly');
+      expect(screen.getByRole('group')).toHaveAttribute('data-readonly', '');
 
       fireEvent.change(firstInput, { target: { value: '1' } });
 
@@ -827,10 +847,16 @@ describe('<OTPFieldPreview />', () => {
 
     it('handles password manager autofill through the hidden input', async () => {
       const onValueChange = vi.fn();
+      const onValueInvalid = vi.fn();
       const onValueComplete = vi.fn();
 
       await render(
-        <OTPField name="otp" onValueChange={onValueChange} onValueComplete={onValueComplete} />,
+        <OTPField
+          name="otp"
+          onValueChange={onValueChange}
+          onValueInvalid={onValueInvalid}
+          onValueComplete={onValueComplete}
+        />,
       );
 
       const hiddenInput = document.querySelector<HTMLInputElement>('input[name="otp"]');
@@ -846,6 +872,9 @@ describe('<OTPFieldPreview />', () => {
       expect(onValueChange.mock.calls.length).toBe(1);
       expect(onValueChange.mock.calls[0]?.[0]).toBe('123456');
       expect(onValueChange.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
+      expect(onValueInvalid).toHaveBeenCalledTimes(1);
+      expect(onValueInvalid.mock.calls[0]?.[0]).toBe('12a34b56');
+      expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
       expect(onValueComplete.mock.calls.length).toBe(1);
       expect(onValueComplete.mock.calls[0]?.[0]).toBe('123456');
       expect(onValueComplete.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
@@ -912,6 +941,25 @@ describe('<OTPFieldPreview />', () => {
 
         expect(getValues()).toBe('12345');
         expect(handleSubmit).not.toHaveBeenCalled();
+      });
+
+      it('warns in development when the OTP completes with autoSubmit but no form is associated', async () => {
+        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+        try {
+          await render(<OTPField autoSubmit />);
+
+          const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+
+          fireEvent.change(firstInput, { target: { value: '123456' } });
+
+          expect(warnSpy).toHaveBeenCalledTimes(1);
+          expect(warnSpy.mock.calls[0]?.[0]).toContain(
+            'Base UI: <OTPField.Root> `autoSubmit` could not submit because the OTP field is not associated with a form.',
+          );
+        } finally {
+          warnSpy.mockRestore();
+        }
       });
     });
 

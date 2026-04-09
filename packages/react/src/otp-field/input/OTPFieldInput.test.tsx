@@ -49,6 +49,19 @@ describe('<OTPField.Input />', () => {
     fireEvent(target, pasteEvent);
   }
 
+  function pasteWithError(target: HTMLElement, error: Error) {
+    const pasteEvent = new Event('paste', { bubbles: true, cancelable: true });
+    Object.defineProperty(pasteEvent, 'clipboardData', {
+      value: {
+        getData() {
+          throw error;
+        },
+      },
+    });
+
+    fireEvent(target, pasteEvent);
+  }
+
   it('renders one textbox per slot', async () => {
     await render(<OTPFieldTest />);
 
@@ -259,6 +272,30 @@ describe('<OTPField.Input />', () => {
     expect(document.activeElement).toBe(inputs[1]);
   });
 
+  it('warns in development when clipboard text cannot be read during paste handling', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    try {
+      await render(<OTPFieldTest defaultValue="12" />);
+
+      const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+      await act(async () => {
+        inputs[1].focus();
+      });
+
+      pasteWithError(inputs[1], new DOMException('Blocked', 'SecurityError'));
+
+      expect(inputs.map((input) => input.value)).toEqual(['1', '2', '', '', '', '']);
+      expect(warnSpy).toHaveBeenCalledTimes(1);
+      expect(warnSpy.mock.calls[0]?.[0]).toContain(
+        'Base UI: <OTPField.Input> could not read clipboard text during paste handling.',
+      );
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
   it('allows tabbing out of the field from the active slot', async () => {
     const user = userEvent.setup();
 
@@ -412,6 +449,20 @@ describe('<OTPField.Input />', () => {
     });
   });
 
+  it('adds disabled and readonly state attributes to each slot', async () => {
+    const { rerender } = await render(<OTPFieldTest disabled />);
+
+    screen.getAllByRole<HTMLInputElement>('textbox').forEach((input) => {
+      expect(input).toHaveAttribute('data-disabled', '');
+    });
+
+    await rerender(<OTPFieldTest readOnly />);
+
+    screen.getAllByRole<HTMLInputElement>('textbox').forEach((input) => {
+      expect(input).toHaveAttribute('data-readonly', '');
+    });
+  });
+
   it('applies the Field label to every slot', async () => {
     await render(
       <Field.Root>
@@ -544,6 +595,18 @@ describe('<OTPField.Input />', () => {
       expect(warnSpy).not.toHaveBeenCalled();
     } finally {
       warnSpy.mockRestore();
+    }
+  });
+
+  it('throws a descriptive error when rendered outside <OTPField.Root>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<OTPField.Input />)).rejects.toThrow(
+        'Base UI: OTPFieldRootContext is missing. OTPField parts must be placed within <OTPField.Root>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
     }
   });
 });

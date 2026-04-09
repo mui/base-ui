@@ -63,6 +63,7 @@ export function normalizeOTPValue(
     sanitizedValue = sanitizeValue(sanitizedValue);
   }
 
+  // Slice by Unicode code points so multi-byte characters do not split across OTP slots.
   return Array.from(sanitizedValue).slice(0, Math.max(length, 0)).join('');
 }
 

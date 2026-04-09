@@ -104,6 +104,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     autoCorrect: 'off',
     spellCheck: 'false',
     enterKeyHint: index === length - 1 ? 'done' : 'next',
+    // Allow the first slot to accept a full code so browser paste/autofill can target it directly.
     maxLength: index === 0 ? length : 1,
     tabIndex: activeIndex === index ? 0 : -1,
     disabled,
@@ -276,7 +277,18 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
 
       try {
         rawValue = event.clipboardData?.getData('text/plain') ?? '';
-      } catch {
+      } catch (error) {
+        if (process.env.NODE_ENV !== 'production') {
+          const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
+          const errorMessage =
+            error instanceof Error ? ` Received \`${error.name}: ${error.message}\`.` : '';
+          warn(
+            `<OTPField.Input> could not read clipboard text during paste handling. ` +
+              `Native paste was prevented, so the OTP value was not updated.${errorMessage}`,
+            ownerStackMessage,
+          );
+        }
+
         return;
       }
 
