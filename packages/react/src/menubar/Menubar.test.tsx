@@ -664,6 +664,74 @@ describe('<Menubar />', () => {
       });
     });
 
+    describe.skipIf(isJSDOM)('scroll locking', () => {
+      it('applies scroll lock when a touch-opened submenu covers the viewport width', async () => {
+        await render(
+          <Menubar modal style={{ display: 'flex' }}>
+            <Menu.Root>
+              <Menu.Trigger data-testid="file-trigger">File</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="file-menu" style={{ width: 'calc(100vw - 10px)' }}>
+                  <Menu.Popup>
+                    <Menu.Item>Open</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menubar>,
+        );
+
+        const trigger = screen.getByTestId('file-trigger');
+
+        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+        fireEvent.mouseDown(trigger);
+
+        const menu = await screen.findByRole('menu');
+        const doc = menu.ownerDocument;
+
+        await waitFor(() => {
+          const isScrollLocked =
+            doc.documentElement.style.overflow === 'hidden' ||
+            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+            doc.body.style.overflow === 'hidden';
+
+          expect(isScrollLocked).toBe(true);
+        });
+      });
+
+      it('does not apply scroll lock when a touch-opened submenu is narrower than the viewport', async () => {
+        await render(
+          <Menubar modal style={{ display: 'flex' }}>
+            <Menu.Root>
+              <Menu.Trigger data-testid="file-trigger">File</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="file-menu" style={{ width: '240px' }}>
+                  <Menu.Popup>
+                    <Menu.Item>Open</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menubar>,
+        );
+
+        const trigger = screen.getByTestId('file-trigger');
+
+        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+        fireEvent.mouseDown(trigger);
+
+        const menu = await screen.findByRole('menu');
+        const doc = menu.ownerDocument;
+
+        const isScrollLocked =
+          doc.documentElement.style.overflow === 'hidden' ||
+          doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+          doc.body.style.overflow === 'hidden';
+
+        expect(isScrollLocked).toBe(false);
+      });
+    });
+
     describe.skipIf(!isJSDOM)('prop: loopFocus', () => {
       describe('when loopFocus == true', () => {
         it('should loop around to the first item after the last one', async () => {

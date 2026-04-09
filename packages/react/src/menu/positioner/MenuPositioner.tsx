@@ -260,8 +260,11 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     instant: instantType,
   };
 
+  const menubarModal = parent.type === 'menubar' && parent.context.modal;
+  const popupModal = modal && lastOpenChangeReason !== REASONS.triggerHover;
+
   useAnchoredPopupScrollLock(
-    open && modal && lastOpenChangeReason !== REASONS.triggerHover,
+    open && (menubarModal || popupModal),
     openMethod === 'touch',
     positionerElement,
     triggerElement,
