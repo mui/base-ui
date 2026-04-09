@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { afterEach, expect } from 'vitest';
 import * as React from 'react';
 import { PreviewCard } from '@base-ui/react/preview-card';
 import { screen, waitFor } from '@mui/internal-test-utils';
@@ -341,6 +341,13 @@ describe('<PreviewCard.Positioner />', () => {
   });
 
   describe.skipIf(isJSDOM)('multiline inline trigger', () => {
+    afterEach(() => {
+      window.scrollTo(0, 0);
+      document.documentElement.style.height = '';
+      document.body.style.height = '';
+      document.body.style.margin = '';
+    });
+
     it('positions the popup relative to the hovered line of a multiline trigger', async () => {
       const { user } = await render(
         <div>
@@ -396,6 +403,72 @@ describe('<PreviewCard.Positioner />', () => {
         expect(positionerY).to.be.closeTo(expectedY, 2);
 
         // x-coordinate should also be relative to where we hovered on the second line
+        expect(positionerX).to.be.greaterThanOrEqual(secondLineRect.left - 10);
+        expect(positionerX).to.be.lessThanOrEqual(secondLineRect.right + 10);
+      });
+    });
+
+    it('keeps the popup aligned after page scroll', async () => {
+      document.documentElement.style.height = '4000px';
+      document.body.style.height = '4000px';
+      document.body.style.margin = '0';
+
+      const { user } = await render(
+        <div>
+          <div style={{ height: 1200 }} />
+          <PreviewCard.Root>
+            <PreviewCard.Trigger
+              delay={0}
+              data-testid="trigger"
+              style={{ display: 'inline', width: 100, lineHeight: 20 }}
+            >
+              This is a long text that will wrap across multiple lines in the trigger element
+            </PreviewCard.Trigger>
+            <PreviewCard.Portal>
+              <PreviewCard.Positioner data-testid="positioner" side="bottom" sideOffset={5}>
+                <PreviewCard.Popup style={{ width: 80, height: 40 }}>
+                  Preview Content
+                </PreviewCard.Popup>
+              </PreviewCard.Positioner>
+            </PreviewCard.Portal>
+          </PreviewCard.Root>
+          <div style={{ height: 1200 }} />
+        </div>,
+      );
+
+      window.scrollTo(0, 1000);
+
+      await waitFor(() => {
+        expect(window.scrollY).toBe(1000);
+      });
+
+      const trigger = screen.getByTestId('trigger');
+      const triggerRects = trigger.getClientRects();
+
+      expect(triggerRects.length).to.be.greaterThan(1);
+
+      const secondLineRect = triggerRects[1];
+      const secondLineCenterX = secondLineRect.left + secondLineRect.width / 2;
+      const secondLineCenterY = secondLineRect.top + secondLineRect.height / 2;
+
+      await user.pointer([
+        { target: document.body },
+        {
+          target: trigger,
+          coords: { clientX: secondLineCenterX, clientY: secondLineCenterY },
+        },
+      ]);
+
+      const positioner = screen.getByTestId('positioner');
+      await waitFor(() => {
+        expect(positioner).toBeVisible();
+      });
+
+      const expectedY = secondLineRect.bottom + 5;
+
+      await waitFor(() => {
+        const { x: positionerX, y: positionerY } = positioner.getBoundingClientRect();
+        expect(positionerY).to.be.closeTo(expectedY, 2);
         expect(positionerX).to.be.greaterThanOrEqual(secondLineRect.left - 10);
         expect(positionerX).to.be.lessThanOrEqual(secondLineRect.right + 10);
       });

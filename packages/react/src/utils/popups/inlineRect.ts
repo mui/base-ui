@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { Middleware } from '@floating-ui/react-dom';
+import type { Middleware, VirtualElement } from '@floating-ui/react-dom';
 
 export interface InlineRectCoords {
   /** The x position in viewport coordinates. */
@@ -7,7 +7,7 @@ export interface InlineRectCoords {
   /** The y position in viewport coordinates. */
   y: number;
   /** The trigger element whose rects produced these coordinates. */
-  element?: Element | undefined;
+  element: Element;
 }
 
 interface RectLike {
@@ -19,8 +19,40 @@ interface RectLike {
   height: number;
 }
 
+interface ClientRectLike extends RectLike {
+  x: number;
+  y: number;
+}
+
 interface ClientRectsReference {
   getClientRects(): ArrayLike<RectLike>;
+}
+
+function getInlineRectCoords(event: React.MouseEvent<Element>): InlineRectCoords | undefined {
+  const { currentTarget, clientX, clientY } = event;
+
+  if (currentTarget.getClientRects().length < 2) {
+    return undefined;
+  }
+
+  return {
+    x: clientX,
+    y: clientY,
+    element: currentTarget,
+  };
+}
+
+function createRect(left: number, top: number, right: number, bottom: number): ClientRectLike {
+  return {
+    left,
+    top,
+    right,
+    bottom,
+    x: left,
+    y: top,
+    width: right - left,
+    height: bottom - top,
+  };
 }
 
 function copyRect(rect: RectLike): RectLike {
@@ -34,54 +66,20 @@ function copyRect(rect: RectLike): RectLike {
   };
 }
 
-function toRect(rect: RectLike) {
-  return {
-    x: rect.left,
-    y: rect.top,
-    width: rect.width,
-    height: rect.height,
-  };
-}
-
-function getBoundingRect(rects: readonly RectLike[]) {
+function getLineRects(rects: ArrayLike<RectLike>) {
+  const lines: RectLike[] = [];
+  let previousRect: RectLike | undefined;
   let left = Number.POSITIVE_INFINITY;
   let top = Number.POSITIVE_INFINITY;
   let right = Number.NEGATIVE_INFINITY;
   let bottom = Number.NEGATIVE_INFINITY;
 
-  for (const rect of rects) {
-    if (rect.left < left) {
-      left = rect.left;
-    }
-
-    if (rect.top < top) {
-      top = rect.top;
-    }
-
-    if (rect.right > right) {
-      right = rect.right;
-    }
-
-    if (rect.bottom > bottom) {
-      bottom = rect.bottom;
-    }
-  }
-
-  return {
-    left,
-    top,
-    right,
-    bottom,
-    width: right - left,
-    height: bottom - top,
-  };
-}
-
-function getRectsByLine(rects: ArrayLike<RectLike>) {
-  const lines: RectLike[] = [];
-  let previousRect: RectLike | undefined;
-
   for (const rect of Array.from(rects).sort((a, b) => a.top - b.top)) {
+    left = Math.min(left, rect.left);
+    top = Math.min(top, rect.top);
+    right = Math.max(right, rect.right);
+    bottom = Math.max(bottom, rect.bottom);
+
     if (!previousRect || rect.top - previousRect.top > previousRect.height / 2) {
       lines.push(copyRect(rect));
     } else {
@@ -96,63 +94,55 @@ function getRectsByLine(rects: ArrayLike<RectLike>) {
     previousRect = rect;
   }
 
-  return lines;
+  return {
+    lines,
+    fallback: createRect(left, top, right, bottom),
+  };
 }
 
 function getInlineReferenceRect(
   reference: ClientRectsReference,
   placement: string,
   coords: InlineRectCoords | undefined,
-) {
-  const clientRects = getRectsByLine(reference.getClientRects());
+): ClientRectLike | null {
+  const { lines, fallback } = getLineRects(reference.getClientRects());
 
-  if (clientRects.length < 2) {
+  if (lines.length < 2) {
     return null;
   }
 
-  const fallback = getBoundingRect(clientRects);
   const x = coords?.x;
   const y = coords?.y;
   const side = placement[0];
 
-  if (
-    clientRects.length === 2 &&
-    clientRects[0].left > clientRects[1].right &&
-    x != null &&
-    y != null
-  ) {
-    return toRect(
-      clientRects.find(
-        (rect) =>
-          x > rect.left - 2 && x < rect.right + 2 && y > rect.top - 2 && y < rect.bottom + 2,
-      ) || fallback,
+  if (lines.length === 2 && lines[0].left > lines[1].right && x != null && y != null) {
+    const rect = lines.find(
+      (lineRect) =>
+        x > lineRect.left - 2 &&
+        x < lineRect.right + 2 &&
+        y > lineRect.top - 2 &&
+        y < lineRect.bottom + 2,
     );
+
+    return rect ? createRect(rect.left, rect.top, rect.right, rect.bottom) : fallback;
   }
 
   if (side === 't' || side === 'b') {
-    const firstRect = clientRects[0];
-    const lastRect = clientRects[clientRects.length - 1];
+    const firstRect = lines[0];
+    const lastRect = lines[lines.length - 1];
     const targetRect = side === 't' ? firstRect : lastRect;
 
-    return toRect({
-      left: targetRect.left,
-      top: firstRect.top,
-      right: targetRect.right,
-      bottom: lastRect.bottom,
-      width: targetRect.width,
-      height: lastRect.bottom - firstRect.top,
-    });
+    return createRect(targetRect.left, firstRect.top, targetRect.right, lastRect.bottom);
   }
 
-  const firstRect = clientRects[0];
   const isLeft = side === 'l';
+  let left = lines[0].left;
+  let right = lines[0].right;
   let edge = isLeft ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
-  let left = firstRect.left;
-  let right = firstRect.right;
-  let targetFirstRect = firstRect;
-  let targetLastRect = firstRect;
+  let targetFirstRect = lines[0];
+  let targetLastRect = lines[0];
 
-  for (const rect of clientRects) {
+  for (const rect of lines) {
     left = Math.min(left, rect.left);
     right = Math.max(right, rect.right);
 
@@ -167,31 +157,15 @@ function getInlineReferenceRect(
     }
   }
 
-  return toRect({
-    left,
-    top: targetFirstRect.top,
-    right,
-    bottom: targetLastRect.bottom,
-    width: right - left,
-    height: targetLastRect.bottom - targetFirstRect.top,
-  });
+  return createRect(left, targetFirstRect.top, right, targetLastRect.bottom);
 }
 
-/**
- * Gets the inline rect hover coords from a mouse event.
- * Returns undefined if the element has less than 2 client rects (i.e., it's not wrapped).
- */
-export function getInlineRectHoverCoords(
-  event: React.MouseEvent<Element>,
-): InlineRectCoords | undefined {
-  if (event.currentTarget.getClientRects().length < 2) {
-    return undefined;
+function getContextElement(reference: Element | VirtualElement): Element | undefined {
+  if ('contextElement' in reference) {
+    return reference.contextElement;
   }
 
-  return {
-    x: event.clientX,
-    y: event.clientY,
-  };
+  return typeof Element !== 'undefined' && reference instanceof Element ? reference : undefined;
 }
 
 export function getInlineRectTriggerProps(
@@ -199,8 +173,7 @@ export function getInlineRectTriggerProps(
   isOpen: boolean,
 ): Pick<React.HTMLAttributes<Element>, 'onFocus' | 'onMouseEnter' | 'onMouseMove'> {
   function updateCoords(event: React.MouseEvent<Element>) {
-    const coords = getInlineRectHoverCoords(event);
-    coordsRef.current = coords ? { ...coords, element: event.currentTarget } : undefined;
+    coordsRef.current = getInlineRectCoords(event);
   }
 
   return {
@@ -220,16 +193,12 @@ export function getInlineRectTriggerProps(
   };
 }
 
-/**
- * Creates an inline middleware that positions the floating element relative to the
- * hovered rect of a wrapped inline element (e.g., a multi-line link).
- */
 export function createInlineMiddleware(
   coordsRef: React.RefObject<InlineRectCoords | undefined>,
 ): Middleware {
   return {
     name: 'inline',
-    fn(state) {
+    async fn(state) {
       const reference = state.elements.reference;
 
       if (
@@ -245,22 +214,33 @@ export function createInlineMiddleware(
         coords?.element === reference ? coords : undefined,
       );
 
+      if (!rect || typeof state.platform.getElementRects !== 'function') {
+        return {};
+      }
+
+      const resetRects = await state.platform.getElementRects({
+        reference: {
+          contextElement: getContextElement(reference),
+          getBoundingClientRect() {
+            return rect;
+          },
+        },
+        floating: state.elements.floating,
+        strategy: state.strategy,
+      });
+
       if (
-        !rect ||
-        (state.rects.reference.x === rect.x &&
-          state.rects.reference.y === rect.y &&
-          state.rects.reference.width === rect.width &&
-          state.rects.reference.height === rect.height)
+        state.rects.reference.x === resetRects.reference.x &&
+        state.rects.reference.y === resetRects.reference.y &&
+        state.rects.reference.width === resetRects.reference.width &&
+        state.rects.reference.height === resetRects.reference.height
       ) {
         return {};
       }
 
       return {
         reset: {
-          rects: {
-            reference: rect,
-            floating: state.rects.floating,
-          },
+          rects: resetRects,
         },
       };
     },
