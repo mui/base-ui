@@ -9,6 +9,15 @@ export interface Release {
 export const releases: Release[] = [
   {
     latest: true,
+    version: 'v1.4.0',
+    versionSlug: 'v1-4-0',
+    date: '2026-04-09',
+    highlights: [
+      'Toasts can now update an existing notification by ID.',
+      'Many accessibility, form, focus, and rendering bug fixes.',
+    ],
+  },
+  {
     version: 'v1.3.0',
     versionSlug: 'v1-3-0',
     date: '2026-03-12',
