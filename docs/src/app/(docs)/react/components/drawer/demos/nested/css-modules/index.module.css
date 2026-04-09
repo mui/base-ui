@@ -149,7 +149,6 @@
   outline: 1px solid var(--color-gray-200);
   background-color: var(--color-gray-50);
   color: var(--color-gray-900);
-  opacity: 0.9999;
   overflow-y: auto;
   overscroll-behavior: contain;
   transform-origin: 50% calc(100% - var(--bleed));
@@ -198,7 +197,7 @@
   }
 
   &[data-ending-style] {
-    opacity: 0.9998;
+    opacity: 0.9999;
     transition-duration: calc(var(--drawer-swipe-strength) * 400ms);
   }
 }
