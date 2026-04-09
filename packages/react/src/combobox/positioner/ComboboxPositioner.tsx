@@ -22,7 +22,7 @@ import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { selectors } from '../store';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { usePositioner } from '../../utils/usePositioner';
-import { useTouchOpenScrollLock } from '../../utils/useTouchOpenScrollLock';
+import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLock';
 
 /**
  * Positions the popup against the trigger.
@@ -90,7 +90,12 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     lazyFlip: true,
   });
 
-  useTouchOpenScrollLock(open && modal, openMethod === 'touch', positionerElement, triggerElement);
+  useAnchoredPopupScrollLock(
+    open && modal,
+    openMethod === 'touch',
+    positionerElement,
+    triggerElement,
+  );
 
   const state: ComboboxPositionerState = {
     open,
