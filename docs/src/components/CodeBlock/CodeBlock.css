@@ -72,6 +72,10 @@
     justify-content: center;
   }
 
+  .CodeBlockViewport {
+    overscroll-behavior-x: contain;
+  }
+
   .CodeBlockPreInline {
     font-size: 0.8125rem; /* 13px */
     line-height: 1.25rem; /* 20px */
@@ -79,11 +83,7 @@
     color: var(--color-foreground);
     outline: 0;
 
-    /* Scroll */
     display: flex;
-    overflow: auto;
-    /* Prevent Chrome/Safari page navigation gestures when scrolling horizontally */
-    overscroll-behavior-x: contain;
 
     & code {
       /* Different fonts may introduce vertical align issues */

@@ -87,19 +87,12 @@ export function Panel({ className, title, children, ...other }: CodeBlockPanelPr
   );
 }
 
-interface CodeBlockContentProps extends React.ComponentPropsWithoutRef<typeof ScrollArea.Root> {
-  viewportRender?: React.ReactElement;
-  viewportClassName?: string;
-}
-
 export function Content({
   className,
-  viewportRender,
-  viewportClassName,
   children,
   onKeyDown,
   ...other
-}: CodeBlockContentProps) {
+}: React.ComponentPropsWithoutRef<typeof ScrollArea.Root>) {
   const { codeId } = React.useContext(CodeBlockContext);
 
   return (
@@ -126,12 +119,8 @@ export function Content({
         }
       }}
     >
-      <ScrollArea.Viewport
-        style={{ overflow: undefined }}
-        className={viewportClassName}
-        render={viewportRender}
-      >
-        {viewportRender ? null : children}
+      <ScrollArea.Viewport className="CodeBlockViewport">
+        {children}
       </ScrollArea.Viewport>
       <ScrollArea.Scrollbar orientation="horizontal" />
     </ScrollArea.Root>
@@ -140,9 +129,9 @@ export function Content({
 
 export function PreInline(props: React.ComponentProps<'pre'>) {
   return (
-    <Content
-      viewportRender={<pre {...props} className={clsx('CodeBlockPreInline', props.className)} />}
-    />
+    <Content>
+      <pre {...props} className={clsx('CodeBlockPreInline', props.className)} />
+    </Content>
   );
 }
 

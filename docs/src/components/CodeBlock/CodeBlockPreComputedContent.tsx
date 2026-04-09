@@ -18,10 +18,8 @@ export function CodeBlockPreComputedContent(props: ContentProps<CodeBlockPreComp
   return (
     <React.Fragment>
       {title ? <CodeBlock.Panel>{title}</CodeBlock.Panel> : null}
-      <CodeBlock.Content
-        viewportRender={React.isValidElement(code.selectedFile) ? code.selectedFile : undefined}
-      >
-        {React.isValidElement(code.selectedFile) ? null : code.selectedFile}
+      <CodeBlock.Content>
+        {code.selectedFile}
       </CodeBlock.Content>
     </React.Fragment>
   );
