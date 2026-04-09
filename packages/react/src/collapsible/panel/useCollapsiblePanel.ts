@@ -4,6 +4,7 @@ import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { warn } from '@base-ui/utils/warn';
 import { HTMLProps } from '../../internals/types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -43,8 +44,15 @@ export function useCollapsiblePanel(
 
   const panelRef = React.useRef<HTMLDivElement | null>(null);
   const animationTypeRef = React.useRef<AnimationType | null>(null);
-  const [dimensions, setDimensions] = React.useState<Dimensions>(EMPTY_DIMENSIONS);
+  const [dimensions, setDimensionsUnwrapped] = React.useState<Dimensions>(EMPTY_DIMENSIONS);
+  const lastMeasuredDimensionsRef = React.useRef<Dimensions>(EMPTY_DIMENSIONS);
+  // `beforematch` should reveal the matched content immediately, so the next
+  // open cycle skips author-defined motion once and then returns to normal.
   const shouldSkipNextOpenRef = React.useRef(false);
+  // Keyframe mount animations on initially open panels cause a visible layout
+  // shift during the server-rendered first paint, so suppress that first open
+  // lifecycle until the panel has been closed once.
+  const shouldPreventMountAnimationRef = React.useRef(open);
   // Some open paths intentionally bypass motion, but the shared root transition
   // status still advances asynchronously. Override the panel to idle so its data
   // attributes and dimension cleanup reflect the immediate open state.
@@ -54,8 +62,32 @@ export function useCollapsiblePanel(
 
   const hidden = !open && !mounted;
   const panelTransitionStatus = forcePanelIdle ? 'idle' : transitionStatus;
+  const renderedDimensions =
+    !open &&
+    mounted &&
+    animationTypeRef.current === 'css-animation' &&
+    dimensions.height === undefined &&
+    dimensions.width === undefined
+      ? lastMeasuredDimensionsRef.current
+      : dimensions;
+
+  // Most measured dimensions are reused later when CSS keyframe closes need a
+  // pixel size after the rendered dimensions have been reset back to `auto`.
+  // Passing `false` is only for clearing the current dimensions state.
+  const setDimensions = useStableCallback(
+    (nextDimensions: Dimensions, shouldCacheMeasurement: boolean = true) => {
+      if (shouldCacheMeasurement) {
+        lastMeasuredDimensionsRef.current = nextDimensions;
+      }
+
+      setDimensionsUnwrapped(nextDimensions);
+    },
+  );
 
   useIsoLayoutEffect(() => {
+    // `forcePanelIdle` is only a temporary override for open paths that skip
+    // motion. Keep it active while the shared root still reports `starting`,
+    // then drop it once the root transition state catches up.
     if (!forcePanelIdle || transitionStatus === 'starting') {
       return;
     }
@@ -69,8 +101,21 @@ export function useCollapsiblePanel(
       return undefined;
     }
 
-    const animationType = getAnimationType(panel);
+    const animationType = getAnimationType(panel, shouldPreventMountAnimationRef.current && open);
     animationTypeRef.current = animationType;
+
+    // Initially open keyframe panels skip their first paint animation to avoid
+    // layout shift, but we still need to cache the expanded size so the first
+    // close animation can start from pixels instead of `auto`.
+    if (
+      open &&
+      transitionStatus === 'idle' &&
+      shouldPreventMountAnimationRef.current &&
+      animationType === 'css-animation'
+    ) {
+      lastMeasuredDimensionsRef.current = getDimensions(panel);
+      return undefined;
+    }
 
     // Handle the opening pass: measure the expanded size and, when necessary,
     // neutralize author-defined motion so the panel can open immediately.
@@ -87,7 +132,7 @@ export function useCollapsiblePanel(
       shouldSkipNextOpenRef.current = false;
 
       if (animationType === 'css-transition') {
-        const restoreLayoutStyles = temporarilyResetLayoutStyles(panel);
+        const restoreLayoutStyles = resetLayoutStyles(panel);
         setDimensions(getDimensions(panel));
 
         if (!skipNextOpen) {
@@ -124,9 +169,13 @@ export function useCollapsiblePanel(
     // starting from a measured pixel value, including interrupted opens.
     if (!open && mounted && (transitionStatus === 'idle' || transitionStatus === 'starting')) {
       if (animationType === 'none') {
-        setDimensions(EMPTY_DIMENSIONS);
+        setDimensions(EMPTY_DIMENSIONS, false);
         setMounted(false);
         return undefined;
+      }
+
+      if (animationType === 'css-animation') {
+        shouldPreventMountAnimationRef.current = false;
       }
 
       setDimensions(getDimensions(panel));
@@ -158,7 +207,7 @@ export function useCollapsiblePanel(
     }
 
     return undefined;
-  }, [mounted, open, setMounted, transitionStatus]);
+  }, [mounted, open, setDimensions, setMounted, transitionStatus]);
 
   useOpenChangeComplete({
     enabled: open && mounted && panelTransitionStatus === 'idle',
@@ -169,7 +218,7 @@ export function useCollapsiblePanel(
         return;
       }
 
-      setDimensions(EMPTY_DIMENSIONS);
+      setDimensions(EMPTY_DIMENSIONS, false);
     },
   });
 
@@ -183,7 +232,7 @@ export function useCollapsiblePanel(
       }
 
       setMounted(false);
-      setDimensions(EMPTY_DIMENSIONS);
+      setDimensions(EMPTY_DIMENSIONS, false);
     },
   });
 
@@ -232,22 +281,26 @@ export function useCollapsiblePanel(
 
   return React.useMemo(
     () => ({
-      height: dimensions.height,
+      height: renderedDimensions.height,
       props: {
         hidden,
         id: idParam,
+        style: {
+          animationName: shouldPreventMountAnimationRef.current && open ? 'none' : undefined,
+        },
       },
       ref: mergedPanelRef,
       shouldRender,
       transitionStatus: panelTransitionStatus,
-      width: dimensions.width,
+      width: renderedDimensions.width,
     }),
     [
-      dimensions.height,
-      dimensions.width,
+      renderedDimensions.height,
+      renderedDimensions.width,
       hidden,
       idParam,
       mergedPanelRef,
+      open,
       panelTransitionStatus,
       shouldRender,
     ],
@@ -261,13 +314,17 @@ function getDimensions(element: HTMLElement): Dimensions {
   };
 }
 
-function getAnimationType(element: HTMLElement): AnimationType {
+function getAnimationType(
+  element: HTMLElement,
+  hasSuppressedMountAnimation: boolean = false,
+): AnimationType {
   const panelStyles = getComputedStyle(element);
   const hasAnimation =
-    panelStyles.animationName
+    (panelStyles.animationName
       .split(',')
       .map((name) => name.trim())
-      .some((name) => name !== '' && name !== 'none') &&
+      .some((name) => name !== '' && name !== 'none') ||
+      hasSuppressedMountAnimation) &&
     hasNonZeroDuration(panelStyles.animationDuration);
   const hasTransition = hasNonZeroDuration(panelStyles.transitionDuration);
 
@@ -331,7 +388,7 @@ function setTemporaryStyle(element: HTMLElement, property: string, value: string
  * @returns A cleanup function that cancels the scheduled restore and reapplies
  * the original inline layout styles immediately.
  */
-function temporarilyResetLayoutStyles(element: HTMLElement): () => void {
+function resetLayoutStyles(element: HTMLElement): () => void {
   const originalLayoutStyles = {
     'justify-content': element.style.justifyContent,
     'align-items': element.style.alignItems,

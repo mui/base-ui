@@ -7,7 +7,7 @@ import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 const PANEL_CONTENT = 'This is panel content';
 
 describe('<Collapsible.Panel />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describeConformance(<Collapsible.Panel />, () => ({
     refInstanceof: window.HTMLDivElement,
@@ -142,6 +142,141 @@ describe('<Collapsible.Panel />', () => {
         expect(panel).toHaveAttribute('data-ending-style');
         expect(panel.style.getPropertyValue('--collapsible-panel-height')).toMatch(/px$/);
       });
+    });
+  });
+
+  describe.skipIf(isJSDOM)('CSS animations', () => {
+    it('does not run the mount animation when initially open', async () => {
+      await render(
+        <React.Fragment>
+          <style>{`
+            @keyframes panel-slide-down {
+              from {
+                height: 0;
+              }
+
+              to {
+                height: var(--collapsible-panel-height);
+              }
+            }
+
+            .animation-test-panel[data-open] {
+              overflow: hidden;
+              animation: panel-slide-down 100ms linear;
+            }
+          `}</style>
+
+          <Collapsible.Root defaultOpen>
+            <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+            <Collapsible.Panel className="animation-test-panel" data-testid="panel">
+              {PANEL_CONTENT}
+            </Collapsible.Panel>
+          </Collapsible.Root>
+        </React.Fragment>,
+      );
+
+      const panel = screen.getByTestId('panel');
+
+      expect(panel).toHaveAttribute('data-open');
+      expect(panel.getAnimations().length).toBe(0);
+      expect(getComputedStyle(panel).animationName).toBe('none');
+    });
+
+    it('still animates on close and reopen after being initially open', async () => {
+      const { user } = await render(
+        <React.Fragment>
+          <style>{`
+            @keyframes panel-slide-down {
+              from {
+                height: 0;
+              }
+
+              to {
+                height: var(--collapsible-panel-height);
+              }
+            }
+
+            @keyframes panel-slide-up {
+              from {
+                height: var(--collapsible-panel-height);
+              }
+
+              to {
+                height: 0;
+              }
+            }
+
+            .animation-test-panel[data-open] {
+              overflow: hidden;
+              animation: panel-slide-down 100ms linear;
+            }
+
+            .animation-test-panel[data-closed] {
+              overflow: hidden;
+              animation: panel-slide-up 100ms linear;
+            }
+          `}</style>
+
+          <Collapsible.Root defaultOpen>
+            <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+            <Collapsible.Panel className="animation-test-panel" data-testid="panel" keepMounted>
+              {PANEL_CONTENT}
+            </Collapsible.Panel>
+          </Collapsible.Root>
+        </React.Fragment>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+      const panel = screen.getByTestId('panel');
+
+      expect(panel.getAnimations().length).toBe(0);
+
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(panel).toHaveAttribute('data-closed');
+        expect(panel.getAnimations().length).toBe(1);
+      });
+
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(panel).toHaveAttribute('data-open');
+        expect(panel.getAnimations().length).toBe(1);
+      });
+    });
+  });
+
+  describe('server-side rendering', () => {
+    it('suppresses the initial keyframe animation when rendered open', async () => {
+      await renderToString(
+        <React.Fragment>
+          <style>{`
+            @keyframes panel-slide-down {
+              from {
+                height: 0;
+              }
+
+              to {
+                height: var(--collapsible-panel-height);
+              }
+            }
+
+            .animation-test-panel[data-open] {
+              animation: panel-slide-down 100ms linear;
+            }
+          `}</style>
+
+          <Collapsible.Root defaultOpen>
+            <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+            <Collapsible.Panel className="animation-test-panel" data-testid="panel">
+              {PANEL_CONTENT}
+            </Collapsible.Panel>
+          </Collapsible.Root>
+        </React.Fragment>,
+      );
+
+      expect(screen.getByTestId('panel').style.animationName).toBe('none');
     });
   });
 
