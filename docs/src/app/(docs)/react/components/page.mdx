@@ -199,7 +199,7 @@ An input that suggests options as you type.
     - Props: actionsRef, autoHighlight, children, defaultOpen, defaultValue, disabled, filter, filteredItems, form, grid, highlightItemOnHover, id, inline, inputRef, itemToStringValue, items, keepHighlight, limit, locale, loopFocus, modal, mode, name, onItemHighlighted, onOpenChange, onOpenChangeComplete, onValueChange, open, openOnInputClick, readOnly, required, submitOnItemClick, value, virtualized
   - Autocomplete - Trigger
     - Props: className, disabled, nativeButton, render, style
-    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-placeholder, data-popup-open, data-popup-side, data-pressed, data-readonly, data-required, data-touched, data-valid
+    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-popup-open, data-popup-side, data-pressed, data-readonly, data-required, data-touched, data-valid
   - Autocomplete - Value
     - Props: children
   - Autocomplete - Input
@@ -209,6 +209,7 @@ An input that suggests options as you type.
     - Props: className, render, style
   - Autocomplete - Clear
     - Props: className, disabled, keepMounted, nativeButton, render, style
+    - Data Attributes: data-disabled, data-ending-style, data-popup-open, data-starting-style
   - Autocomplete - List
     - Props: children, className, render, style
   - Autocomplete - Portal
@@ -228,10 +229,10 @@ An input that suggests options as you type.
     - Data Attributes: data-align, data-closed, data-open, data-side, data-uncentered
   - Autocomplete - Item
     - Props: children, className, disabled, index, nativeButton, onClick, render, style, value
-    - Data Attributes: data-disabled, data-highlighted, data-selected
+    - Data Attributes: data-disabled, data-highlighted
   - Autocomplete - Group
     - Props: className, items, render, style
-    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-placeholder, data-popup-open, data-popup-side, data-pressed, data-readonly, data-touched, data-valid
+    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-popup-open, data-popup-side, data-pressed, data-readonly, data-touched, data-valid
   - Autocomplete - GroupLabel
     - Props: className, render, style
   - Autocomplete - Separator
@@ -246,7 +247,7 @@ An input that suggests options as you type.
     - Props: className, render, style
   - Autocomplete - InputGroup
     - Props: className, render, style
-    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-placeholder, data-popup-open, data-popup-side, data-pressed, data-readonly, data-touched, data-valid
+    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-popup-open, data-popup-side, data-pressed, data-readonly, data-touched, data-valid
   - Autocomplete - useFilter
     - Parameters: options
   - Autocomplete - useFilteredItems
@@ -542,6 +543,7 @@ An input combined with a list of predefined items to select.
     - Props: className, render, style
   - Combobox - Clear
     - Props: className, disabled, keepMounted, nativeButton, render, style
+    - Data Attributes: data-disabled, data-ending-style, data-popup-open, data-starting-style
   - Combobox - List
     - Props: children, className, render, style
   - Combobox - Portal
