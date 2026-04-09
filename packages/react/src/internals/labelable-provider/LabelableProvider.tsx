@@ -4,7 +4,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { mergeProps } from '../../merge-props';
 import { HTMLProps } from '../types';
-import { useBaseUiId } from '../../internals/useBaseUiId';
+import { useBaseUiId } from '../useBaseUiId';
 import { LabelableContext, useLabelableContext } from './LabelableContext';
 
 /**

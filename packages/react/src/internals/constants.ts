@@ -1,3 +1,5 @@
+import type * as React from 'react';
+
 export const TYPEAHEAD_RESET_MS = 500;
 export const PATIENT_CLICK_THRESHOLD = 500;
 export const DISABLED_TRANSITIONS_STYLE = { style: { transition: 'none' } };
