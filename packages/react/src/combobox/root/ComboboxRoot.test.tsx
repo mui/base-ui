@@ -1583,6 +1583,67 @@ describe('<Combobox.Root />', () => {
     });
   });
 
+  it('should handle browser autofill with object values when autofill uses the label', async () => {
+    // Browsers autofill with the displayed text (label), not the underlying value.
+    // For example, Chrome will autofill "United States" (the label), not "US" (the value).
+    const items = [
+      { country: 'United States', code: 'US' },
+      { country: 'Canada', code: 'CA' },
+    ];
+
+    const onValueChange = vi.fn();
+
+    await render(
+      <Combobox.Root
+        name="country"
+        items={items}
+        itemToStringLabel={(item: (typeof items)[number]) => item.country}
+        itemToStringValue={(item: (typeof items)[number]) => item.code}
+        onValueChange={onValueChange}
+        defaultOpen
+      >
+        <Combobox.Input />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                {(item: (typeof items)[1]) => (
+                  <Combobox.Item key={item.code} value={item}>
+                    {item.country}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByRole('combobox');
+
+    // Simulate browser autofill with the LABEL (displayed text), not the value
+    fireEvent.change(
+      screen.getAllByDisplayValue('').find((el) => el.getAttribute('name') === 'country')!,
+      { target: { value: 'Canada' } }, // Browser sends "Canada" (label), not "CA" (value)
+    );
+    await flushMicrotasks();
+
+    // onValueChange should be called with the matching object
+    expect(onValueChange).toHaveBeenCalledWith(
+      { country: 'Canada', code: 'CA' },
+      expect.objectContaining({ reason: REASONS.none }),
+    );
+
+    fireEvent.click(input);
+
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'Canada' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+    });
+  });
+
   it('should pass autoComplete to the hidden input', async () => {
     await render(
       <Combobox.Root name="country" autoComplete="country">

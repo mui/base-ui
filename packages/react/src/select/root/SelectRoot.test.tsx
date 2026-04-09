@@ -681,6 +681,58 @@ describe('<Select.Root />', () => {
     });
   });
 
+  it('should handle browser autofill with object values when autofill uses the label', async () => {
+    // Browsers autofill with the displayed text (label), not the underlying value.
+    // For example, Chrome will autofill "United States" (the label), not "US" (the value).
+    const items = [
+      { country: 'United States', code: 'US' },
+      { country: 'Canada', code: 'CA' },
+    ];
+
+    const { user } = await render(
+      <Select.Root
+        name="country"
+        itemToStringLabel={(item: any) => item.country}
+        itemToStringValue={(item: any) => item.code}
+      >
+        <Select.Trigger data-testid="trigger">
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              {items.map((it) => (
+                <Select.Item key={it.code} value={it}>
+                  {it.country}
+                </Select.Item>
+              ))}
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+
+    const selectInput = screen.getByRole('textbox', {
+      hidden: true,
+    });
+    expect(selectInput).toHaveAttribute('name', 'country');
+
+    // Simulate browser autofill with the LABEL (displayed text), not the value
+    fireEvent.change(selectInput, { target: { value: 'Canada' } }); // Browser sends "Canada" (label), not "CA" (value)
+    await flushMicrotasks();
+
+    await user.click(trigger);
+
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'Canada', hidden: false })).toHaveAttribute(
+        'data-selected',
+        '',
+      );
+    });
+  });
+
   describe('prop: modal', () => {
     it('should render an internal backdrop when `true`', async () => {
       const { user } = await render(
