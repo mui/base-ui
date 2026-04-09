@@ -70,4 +70,32 @@ describe('<Autocomplete.Item />', () => {
       expect(handleClick.mock.calls.length).toBe(1);
     });
   });
+
+  it('does not expose data-selected when reopening after a value is chosen', async () => {
+    const { user } = await render(
+      <Autocomplete.Root openOnInputClick>
+        <Autocomplete.Input data-testid="input" />
+        <Autocomplete.Portal>
+          <Autocomplete.Positioner>
+            <Autocomplete.Popup>
+              <Autocomplete.List>
+                <Autocomplete.Item value="apple">apple</Autocomplete.Item>
+                <Autocomplete.Item value="banana">banana</Autocomplete.Item>
+              </Autocomplete.List>
+            </Autocomplete.Popup>
+          </Autocomplete.Positioner>
+        </Autocomplete.Portal>
+      </Autocomplete.Root>,
+    );
+
+    const input = screen.getByTestId('input');
+
+    await user.click(input);
+    await user.click(screen.getByRole('option', { name: 'banana' }));
+    await user.click(input);
+
+    await waitFor(() =>
+      expect(screen.getByRole('option', { name: 'banana' })).not.toHaveAttribute('data-selected'),
+    );
+  });
 });

@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useStore } from '@base-ui/utils/store';
 import { useSelectRootContext, useSelectFloatingContext } from '../root/SelectRootContext';
@@ -23,6 +22,7 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { findItemIndex, selectedValueIncludes } from '../../utils/itemEquality';
 import { usePositioner } from '../../utils/usePositioner';
+import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLock';
 
 const FIXED: React.CSSProperties = { position: 'fixed' };
 
@@ -104,8 +104,10 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   React.useImperativeHandle(alignItemWithTriggerActiveRef, () => alignItemWithTriggerActive);
 
-  useScrollLock(
-    (alignItemWithTriggerActive || modal) && open && openMethod !== 'touch',
+  useAnchoredPopupScrollLock(
+    (alignItemWithTriggerActive || modal) && open,
+    openMethod === 'touch',
+    positionerElement,
     triggerElement,
   );
 

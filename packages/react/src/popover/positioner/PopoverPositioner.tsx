@@ -19,6 +19,7 @@ import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
 import { usePositioner } from '../../utils/usePositioner';
+import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLock';
 
 /**
  * Positions the popover against the trigger.
@@ -59,6 +60,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const openReason = store.useState('openChangeReason');
   const triggerElement = store.useState('activeTriggerElement');
   const modal = store.useState('modal');
+  const openMethod = store.useState('openMethod');
   const positionerElement = store.useState('positionerElement');
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
@@ -118,7 +120,6 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
     return undefined;
   }, [domReference, runOnceAnimationsFinish, store]);
-
   const state: PopoverPositionerState = {
     open,
     side: positioning.side,
@@ -126,6 +127,13 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     anchorHidden: positioning.anchorHidden,
     instant: instantType,
   };
+
+  useAnchoredPopupScrollLock(
+    open && modal === true && openReason !== REASONS.triggerHover,
+    openMethod === 'touch',
+    positionerElement,
+    triggerElement,
+  );
 
   const setPositionerElement = React.useCallback(
     (element: HTMLElement | null) => {

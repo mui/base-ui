@@ -7,7 +7,6 @@
   margin-bottom: 1rem;
   font-size: var(--text-lg);
   line-height: var(--text-lg--line-height);
-  letter-spacing: var(--text-lg--letter-spacing);
 }
 
 .Row {
