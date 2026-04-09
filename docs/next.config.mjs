@@ -19,6 +19,7 @@ import { rehypeConcatHeadings } from 'docs/src/components/QuickNav/rehypeConcatH
 import { rehypeKbd } from 'docs/src/components/Kbd/rehypeKbd.mjs';
 import { rehypeSlug } from 'docs/src/components/QuickNav/rehypeSlug.mjs';
 import { rehypeSubtitle } from 'docs/src/components/Subtitle/rehypeSubtitle.mjs';
+import { rehypeEagerCodeBlocks } from 'docs/src/components/CodeBlock/rehypeEagerCodeBlocks.mjs';
 import { ordering } from 'docs/src/utils/typeOrder.mjs';
 
 const currentDirectory = url.fileURLToPath(new URL('.', import.meta.url));
@@ -54,6 +55,7 @@ const withMdx = nextMdx({
     ],
     rehypePlugins: [
       transformHtmlCodeBlock,
+      rehypeEagerCodeBlocks,
       transformHtmlCodeInline,
       enhanceCodeInline,
       rehypeSlug,
