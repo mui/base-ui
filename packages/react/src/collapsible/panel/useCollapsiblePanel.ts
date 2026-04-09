@@ -53,15 +53,25 @@ export function useCollapsiblePanel(
   // shift during the server-rendered first paint, so suppress that first open
   // lifecycle until the panel has been closed once.
   const shouldPreventMountAnimationRef = React.useRef(open);
+  // React.Activity tears down Effects while preserving state, so revealing an
+  // already-open panel would otherwise replay its CSS keyframe open animation.
+  const shouldPreventActivityResumeAnimationRef = React.useRef(false);
   // Some open paths intentionally bypass motion, but the shared root transition
   // status still advances asynchronously. Override the panel to idle so its data
   // attributes and dimension cleanup reflect the immediate open state.
   const [forcePanelIdle, setForcePanelIdle] = React.useState(false);
 
   const mergedPanelRef = useMergedRefs(externalRef, panelRef);
+  const latestOpenRef = React.useRef(open);
+  const latestMountedRef = React.useRef(mounted);
+  latestOpenRef.current = open;
+  latestMountedRef.current = mounted;
 
   const hidden = !open && !mounted;
   const panelTransitionStatus = forcePanelIdle ? 'idle' : transitionStatus;
+  const shouldPreventOpenAnimation =
+    open &&
+    (shouldPreventMountAnimationRef.current || shouldPreventActivityResumeAnimationRef.current);
   const renderedDimensions =
     !open &&
     mounted &&
@@ -95,13 +105,25 @@ export function useCollapsiblePanel(
     setForcePanelIdle(false);
   }, [forcePanelIdle, transitionStatus]);
 
+  React.useEffect(() => {
+    return () => {
+      if (
+        latestOpenRef.current &&
+        latestMountedRef.current &&
+        animationTypeRef.current === 'css-animation'
+      ) {
+        shouldPreventActivityResumeAnimationRef.current = true;
+      }
+    };
+  }, []);
+
   useIsoLayoutEffect(() => {
     const panel = panelRef.current;
     if (!panel) {
       return undefined;
     }
 
-    const animationType = getAnimationType(panel, shouldPreventMountAnimationRef.current && open);
+    const animationType = getAnimationType(panel, shouldPreventOpenAnimation);
     animationTypeRef.current = animationType;
 
     // Initially open keyframe panels skip their first paint animation to avoid
@@ -176,6 +198,7 @@ export function useCollapsiblePanel(
 
       if (animationType === 'css-animation') {
         shouldPreventMountAnimationRef.current = false;
+        shouldPreventActivityResumeAnimationRef.current = false;
       }
 
       setDimensions(getDimensions(panel));
@@ -207,7 +230,7 @@ export function useCollapsiblePanel(
     }
 
     return undefined;
-  }, [mounted, open, setDimensions, setMounted, transitionStatus]);
+  }, [mounted, open, setDimensions, setMounted, shouldPreventOpenAnimation, transitionStatus]);
 
   useOpenChangeComplete({
     enabled: open && mounted && panelTransitionStatus === 'idle',
@@ -286,7 +309,7 @@ export function useCollapsiblePanel(
         hidden,
         id: idParam,
         style: {
-          animationName: shouldPreventMountAnimationRef.current && open ? 'none' : undefined,
+          animationName: shouldPreventOpenAnimation ? 'none' : undefined,
         },
       },
       ref: mergedPanelRef,
@@ -300,8 +323,8 @@ export function useCollapsiblePanel(
       hidden,
       idParam,
       mergedPanelRef,
-      open,
       panelTransitionStatus,
+      shouldPreventOpenAnimation,
       shouldRender,
     ],
   );
@@ -501,5 +524,3 @@ export interface UseCollapsiblePanelReturnValue {
   transitionStatus: TransitionStatus;
   width: number | undefined;
 }
-
-export interface UseCollapsiblePanelState {}

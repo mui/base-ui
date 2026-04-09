@@ -15,3 +15,7 @@
   gap: 1rem;
   align-self: flex-start;
 }
+
+.nativeButton {
+  all: revert;
+}

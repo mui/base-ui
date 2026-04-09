@@ -1,6 +1,13 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import {
+  act,
+  fireEvent,
+  flushMicrotasks,
+  reactMajor,
+  screen,
+  waitFor,
+} from '@mui/internal-test-utils';
 import { Collapsible } from '@base-ui/react/collapsible';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
@@ -8,6 +15,15 @@ const PANEL_CONTENT = 'This is panel content';
 
 describe('<Collapsible.Panel />', () => {
   const { render, renderToString } = createRenderer();
+
+  function getActivity() {
+    type ActivityProps = {
+      mode: 'visible' | 'hidden';
+      children: React.ReactNode;
+    };
+
+    return (React as typeof React & { Activity: React.ComponentType<ActivityProps> }).Activity;
+  }
 
   describeConformance(<Collapsible.Panel />, () => ({
     refInstanceof: window.HTMLDivElement,
@@ -277,6 +293,269 @@ describe('<Collapsible.Panel />', () => {
       );
 
       expect(screen.getByTestId('panel').style.animationName).toBe('none');
+    });
+  });
+
+  describe.skipIf(isJSDOM || reactMajor < 19)('React.Activity', () => {
+    it('does not replay open transitions when revealing an initially open panel', async () => {
+      const Activity = getActivity();
+
+      function App() {
+        const [visible, setVisible] = React.useState(true);
+
+        return (
+          <React.Fragment>
+            <style>{`
+              .transition-test-panel {
+                overflow: hidden;
+                height: var(--collapsible-panel-height);
+                transition: height 100ms linear;
+              }
+
+              .transition-test-panel[data-starting-style],
+              .transition-test-panel[data-ending-style] {
+                height: 0;
+              }
+            `}</style>
+
+            <button type="button" onClick={() => setVisible((prev) => !prev)}>
+              toggle activity
+            </button>
+
+            <Activity mode={visible ? 'visible' : 'hidden'}>
+              <Collapsible.Root defaultOpen>
+                <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+                <Collapsible.Panel className="transition-test-panel" data-testid="panel">
+                  {PANEL_CONTENT}
+                </Collapsible.Panel>
+              </Collapsible.Root>
+            </Activity>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const toggle = screen.getByRole('button', { name: 'toggle activity' });
+      const panel = screen.getByTestId('panel');
+      let transitionRuns = 0;
+
+      panel.addEventListener('transitionrun', () => {
+        transitionRuns += 1;
+      });
+
+      await waitFor(() => {
+        expect(panel.style.getPropertyValue('--collapsible-panel-height')).toBe('auto');
+      });
+
+      transitionRuns = 0;
+
+      await user.click(toggle);
+      await user.click(toggle);
+
+      await waitFor(() => {
+        expect(panel).toHaveAttribute('data-open');
+      });
+
+      expect(transitionRuns).toBe(0);
+    });
+
+    it('does not replay open transitions when revealing a panel opened by the user', async () => {
+      const Activity = getActivity();
+
+      function App() {
+        const [visible, setVisible] = React.useState(true);
+
+        return (
+          <React.Fragment>
+            <style>{`
+              .transition-test-panel {
+                overflow: hidden;
+                height: var(--collapsible-panel-height);
+                transition: height 100ms linear;
+              }
+
+              .transition-test-panel[data-starting-style],
+              .transition-test-panel[data-ending-style] {
+                height: 0;
+              }
+            `}</style>
+
+            <button type="button" onClick={() => setVisible((prev) => !prev)}>
+              toggle activity
+            </button>
+
+            <Activity mode={visible ? 'visible' : 'hidden'}>
+              <Collapsible.Root>
+                <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+                <Collapsible.Panel
+                  className="transition-test-panel"
+                  data-testid="panel"
+                  keepMounted
+                >
+                  {PANEL_CONTENT}
+                </Collapsible.Panel>
+              </Collapsible.Root>
+            </Activity>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const toggle = screen.getByRole('button', { name: 'toggle activity' });
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+      const panel = screen.getByTestId('panel');
+      let transitionRuns = 0;
+
+      panel.addEventListener('transitionrun', () => {
+        transitionRuns += 1;
+      });
+
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(panel).toHaveAttribute('data-open');
+        expect(panel.style.getPropertyValue('--collapsible-panel-height')).toBe('auto');
+      });
+
+      transitionRuns = 0;
+
+      await user.click(toggle);
+      await user.click(toggle);
+
+      await waitFor(() => {
+        expect(panel).toHaveAttribute('data-open');
+      });
+
+      expect(transitionRuns).toBe(0);
+    });
+
+    it('does not replay open keyframe animations when revealing an initially open panel', async () => {
+      const Activity = getActivity();
+
+      function App() {
+        const [visible, setVisible] = React.useState(true);
+
+        return (
+          <React.Fragment>
+            <style>{`
+              @keyframes panel-slide-down {
+                from {
+                  height: 0;
+                }
+
+                to {
+                  height: var(--collapsible-panel-height);
+                }
+              }
+
+              .animation-test-panel[data-open] {
+                overflow: hidden;
+                animation: panel-slide-down 100ms linear;
+              }
+            `}</style>
+
+            <button type="button" onClick={() => setVisible((prev) => !prev)}>
+              toggle activity
+            </button>
+
+            <Activity mode={visible ? 'visible' : 'hidden'}>
+              <Collapsible.Root defaultOpen>
+                <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+                <Collapsible.Panel className="animation-test-panel" data-testid="panel" keepMounted>
+                  {PANEL_CONTENT}
+                </Collapsible.Panel>
+              </Collapsible.Root>
+            </Activity>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const toggle = screen.getByRole('button', { name: 'toggle activity' });
+      const panel = screen.getByTestId('panel');
+
+      await waitFor(() => {
+        expect(panel.getAnimations().length).toBe(0);
+      });
+
+      await user.click(toggle);
+      await user.click(toggle);
+
+      await waitFor(() => {
+        expect(panel).toHaveAttribute('data-open');
+      });
+
+      expect(panel.getAnimations().length).toBe(0);
+    });
+
+    it('does not replay open keyframe animations when revealing a panel opened by the user', async () => {
+      const Activity = getActivity();
+
+      function App() {
+        const [visible, setVisible] = React.useState(true);
+
+        return (
+          <React.Fragment>
+            <style>{`
+              @keyframes panel-slide-down {
+                from {
+                  height: 0;
+                }
+
+                to {
+                  height: var(--collapsible-panel-height);
+                }
+              }
+
+              .animation-test-panel[data-open] {
+                overflow: hidden;
+                animation: panel-slide-down 100ms linear;
+              }
+            `}</style>
+
+            <button type="button" onClick={() => setVisible((prev) => !prev)}>
+              toggle activity
+            </button>
+
+            <Activity mode={visible ? 'visible' : 'hidden'}>
+              <Collapsible.Root>
+                <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+                <Collapsible.Panel className="animation-test-panel" data-testid="panel" keepMounted>
+                  {PANEL_CONTENT}
+                </Collapsible.Panel>
+              </Collapsible.Root>
+            </Activity>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const toggle = screen.getByRole('button', { name: 'toggle activity' });
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+      const panel = screen.getByTestId('panel');
+
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(panel).toHaveAttribute('data-open');
+      });
+
+      await waitFor(() => {
+        expect(panel.getAnimations().length).toBe(0);
+      });
+
+      await user.click(toggle);
+      await user.click(toggle);
+
+      await waitFor(() => {
+        expect(panel).toHaveAttribute('data-open');
+      });
+
+      expect(panel.getAnimations().length).toBe(0);
     });
   });
 
