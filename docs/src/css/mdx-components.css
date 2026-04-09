@@ -1,8 +1,12 @@
 @import './custom-media.css';
 
 @layer components {
-  .MdInlineCode[data-inline] {
+  .MdCode {
     margin-inline: 0.1em;
+  }
+
+  pre .MdCode {
+    margin-inline: 0;
   }
 
   .MdH1 {

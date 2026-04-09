@@ -78,7 +78,9 @@ export function PropertiesReferenceAccordion({ data, name: partName, ...props }:
                 </Accordion.Scrollable>
               )}
               <Accordion.Scrollable className="ReferenceDefaultCell">
-                <TableCode style={{ color: 'var(--syntax-nullish)' }}>{modifiersText}</TableCode>
+                <TableCode style={{ color: 'var(--color-docs-infra-syntax-nullish)' }}>
+                  {modifiersText}
+                </TableCode>
               </Accordion.Scrollable>
               <span className="ReferenceIconWrap">
                 <svg

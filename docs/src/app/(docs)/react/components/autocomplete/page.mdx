@@ -89,19 +89,22 @@ Organize related options with `<Autocomplete.Group>` and `<Autocomplete.GroupLab
 
 Groups are represented by an array of objects with an `items` property, which itself is an array of individual items for each group. An extra property, such as `value`, can be provided for the heading text when rendering the group label.
 
-```tsx title="Example" {3,9,13}
+```tsx title="Example"
 interface ProduceGroupItem {
   value: string;
+  // @highlight
   items: string[];
 }
 
 const groups: ProduceGroupItem[] = [
   {
     value: 'Fruits',
+    // @highlight
     items: ['Apple', 'Banana', 'Orange'],
   },
   {
     value: 'Vegetables',
+    // @highlight
     items: ['Carrot', 'Lettuce', 'Spinach'],
   },
 ];
