@@ -37,7 +37,7 @@ export const releases: Release[] = [
     versionSlug: 'v1-2-0',
     date: '2026-02-12',
     highlights: [
-      '`Drawer` component (preview).',
+      'New `Drawer` component (preview).',
       'New `useFilteredItems` hook for `Autocomplete` and `Combobox`.',
       'Support lazy element in `render`.',
       'Tons of `Combobox` and `Autocomplete` improvements.',
