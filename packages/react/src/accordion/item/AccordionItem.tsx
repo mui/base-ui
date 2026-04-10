@@ -108,11 +108,12 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
   const state: AccordionItemState = React.useMemo(
     () => ({
       ...rootState,
+      hidden: !isOpen && !collapsible.mounted,
       index,
       disabled,
       open: isOpen,
     }),
-    [disabled, index, isOpen, rootState],
+    [collapsible.mounted, disabled, index, isOpen, rootState],
   );
 
   const [triggerId, setTriggerId] = React.useState<string | undefined>(useBaseUiId());
@@ -144,6 +145,10 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
 });
 
 export interface AccordionItemState extends AccordionRootState {
+  /**
+   * Whether the panel is currently hidden.
+   */
+  hidden: boolean;
   /**
    * The item index.
    */
