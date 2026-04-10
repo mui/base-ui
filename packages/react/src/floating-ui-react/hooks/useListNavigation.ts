@@ -308,6 +308,7 @@ export function useListNavigation(
   const previousOpenRef = React.useRef(open);
   const forceSyncFocusRef = React.useRef(false);
   const forceScrollIntoViewRef = React.useRef(false);
+  const cancelQueuedFocusRef = React.useRef<(() => void) | null>(null);
 
   const disabledIndicesRef = useValueAsRef(disabledIndices);
   const latestOpenRef = useValueAsRef(open);
@@ -319,7 +320,7 @@ export function useListNavigation(
       if (virtual) {
         tree?.events.emit('virtualfocus', item);
       } else {
-        enqueueFocus(item, {
+        cancelQueuedFocusRef.current = enqueueFocus(item, {
           sync: forceSyncFocusRef.current,
           preventScroll: true,
         });
@@ -546,7 +547,8 @@ export function useListNavigation(
           return;
         }
 
-        enqueueFocus(null, { sync: true });
+        cancelQueuedFocusRef.current?.();
+        cancelQueuedFocusRef.current = null;
 
         indexRef.current = -1;
         onNavigate(event);
