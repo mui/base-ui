@@ -76,7 +76,7 @@
     width: 100%;
     gap: var(--space-12);
 
-    [data-rehype-pretty-code-figure] {
+    .CodeBlockRoot {
       margin: 0;
       max-width: 100%;
     }
