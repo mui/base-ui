@@ -77,7 +77,7 @@ _Apr 10, 2026_
 
 ### OTP Field
 
-- Add preview `OTP Field` component for one-time password and verification code entry (#4365) by @atomiks
+- Add preview `OTPField` component for one-time password and verification code entry (#4365) by @atomiks
 
 ### Popover
 
