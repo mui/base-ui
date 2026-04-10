@@ -132,6 +132,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     let nextIndex: number | undefined;
 
     const { highlightedChipIndex } = comboboxChipsContext;
+    const renderedChipsCount = comboboxChipsContext.chipsRef.current.length;
 
     if (highlightedChipIndex !== undefined) {
       if (event.key === 'ArrowLeft') {
@@ -143,7 +144,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         }
       } else if (event.key === 'ArrowRight') {
         event.preventDefault();
-        if (highlightedChipIndex < selectedValue.length - 1) {
+        if (highlightedChipIndex < renderedChipsCount - 1) {
           nextIndex = highlightedChipIndex + 1;
         } else {
           nextIndex = undefined;
@@ -169,8 +170,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
       selectedValue.length > 0
     ) {
       event.preventDefault();
-      const lastChipIndex = Math.max(selectedValue.length - 1, 0);
-      nextIndex = lastChipIndex;
+      nextIndex = renderedChipsCount > 0 ? renderedChipsCount - 1 : undefined;
     } else if (
       event.key === 'Backspace' &&
       event.currentTarget.value === '' &&
@@ -411,7 +411,15 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             Array.isArray(selectedValue) &&
             selectedValue.length > 0
           ) {
-            const newValue = selectedValue.slice(0, -1);
+            const renderedChipsCount = comboboxChipsContext.chipsRef.current.length;
+
+            if (renderedChipsCount === 0) {
+              return;
+            }
+
+            const newValue = selectedValue.filter(
+              (_: any, index: number) => index !== renderedChipsCount - 1,
+            );
             // If the removed item was also the active (highlighted) item, clear highlight
             store.state.setIndices({
               activeIndex: null,
