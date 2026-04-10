@@ -1,3 +1,5 @@
+# Versions
+
 ## v1.4.0
 
 _Apr 10, 2026_
@@ -124,8 +126,6 @@ _Apr 10, 2026_
 - Fix incorrect keyboard nav on cross axis (#4488) by @mj12albert
 
 All contributors of this release in alphabetical order : @arturbien, @atomiks, @CiscoFran10, @devxoul, @flaviendelangle, @kyrregjerstad, @LukasTy, @lunaxislu, @mattrothenberg, @mdm317, @michaldudak, @mj12albert, @Profesor08, @ryanrhee, @sai6855, @tsbehlman
-
-# Versions
 
 ## v1.3.0
 
