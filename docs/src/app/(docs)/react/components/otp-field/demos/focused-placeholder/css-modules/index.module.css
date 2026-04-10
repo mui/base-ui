@@ -1,0 +1,57 @@
+.Field {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 0.25rem;
+  width: 100%;
+  max-width: 20rem;
+}
+
+.Label {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 700;
+  color: var(--color-gray-900);
+}
+
+.Root {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.Input {
+  box-sizing: border-box;
+  margin: 0;
+  border: 1px solid var(--color-gray-300);
+  width: 2.5rem;
+  height: 2.75rem;
+  border-radius: 0.5rem;
+  font-family: inherit;
+  font-size: 1.125rem;
+  font-weight: 500;
+  text-align: center;
+  background-color: transparent;
+  color: var(--color-gray-900);
+
+  &::placeholder {
+    color: var(--color-gray-400);
+  }
+
+  &:focus {
+    outline: none;
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
+  }
+
+  &:focus::placeholder {
+    color: transparent;
+  }
+}
+
+.Description {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--color-gray-600);
+}
