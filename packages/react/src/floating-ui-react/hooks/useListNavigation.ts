@@ -495,18 +495,19 @@ export function useListNavigation(
 
   const hasActiveIndex = activeIndex != null;
 
-  const item = React.useMemo(() => {
-    function syncCurrentTarget(event: React.SyntheticEvent<any>) {
-      if (!latestOpenRef.current) {
-        return;
-      }
-      const index = listRef.current.indexOf(event.currentTarget);
-      if (index !== -1 && indexRef.current !== index) {
-        indexRef.current = index;
-        onNavigate(event);
-      }
+  const syncCurrentTarget = useStableCallback((event: React.SyntheticEvent<any>) => {
+    if (!latestOpenRef.current) {
+      return;
     }
 
+    const index = listRef.current.indexOf(event.currentTarget);
+    if (index !== -1 && (indexRef.current !== index || activeIndex !== index)) {
+      indexRef.current = index;
+      onNavigate(event);
+    }
+  });
+
+  const item = React.useMemo(() => {
     const itemProps: ElementProps['item'] = {
       onFocus(event) {
         forceSyncFocusRef.current = true;
@@ -562,6 +563,7 @@ export function useListNavigation(
 
     return itemProps;
   }, [
+    syncCurrentTarget,
     latestOpenRef,
     floatingFocusElementRef,
     focusItemOnHover,

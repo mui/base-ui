@@ -173,6 +173,11 @@ export const ComboboxItem = React.memo(
         didPointerDownRef.current = true;
         event.preventDefault();
       },
+      onMouseDown(event) {
+        // iOS Safari can emit a synthetic mousedown for touch taps without a preceding
+        // pointerdown. Prevent default here too so tapping an item does not blur the input.
+        event.preventDefault();
+      },
       onClick(event) {
         if (disabled || readOnly) {
           return;

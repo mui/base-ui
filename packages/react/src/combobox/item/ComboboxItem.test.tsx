@@ -184,6 +184,67 @@ describe('<Combobox.Item />', () => {
     expect(screen.queryByRole('listbox')).toBe(null);
   });
 
+  it.skipIf(isJSDOM)('keeps the input focused after selecting an item with touch', async () => {
+    const { user } = await render(
+      <Combobox.Root defaultOpen>
+        <Combobox.Input data-testid="input" />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="one">one</Combobox.Item>
+                <Combobox.Item value="two">two</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByTestId('input');
+    await user.click(input);
+    expect(input).toHaveFocus();
+
+    const option = screen.getByRole('option', { name: 'two' });
+
+    await user.pointer([
+      { target: option, keys: '[TouchA>]', pointerName: 'touch' },
+      { target: option, keys: '[/TouchA]', pointerName: 'touch' },
+    ]);
+
+    await waitFor(() => expect(input).toHaveValue('two'));
+    expect(input).toHaveFocus();
+  });
+
+  it('prevents default on mousedown so pointer selection does not steal input focus', async () => {
+    await render(
+      <Combobox.Root defaultOpen>
+        <Combobox.Input data-testid="input" />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="one">one</Combobox.Item>
+                <Combobox.Item value="two">two</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const option = screen.getByRole('option', { name: 'two' });
+    const mouseDown = new MouseEvent('mousedown', {
+      bubbles: true,
+      cancelable: true,
+      button: 0,
+    });
+
+    option.dispatchEvent(mouseDown);
+
+    expect(mouseDown.defaultPrevented).toBe(true);
+  });
+
   it('multiple mode toggles selection and stays open', async () => {
     const { user } = await render(
       <Combobox.Root multiple>
