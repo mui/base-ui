@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -177,7 +178,7 @@ export function useCollapsiblePanel(
 
         const restoreTransitionDuration = setTemporaryStyle(panel, 'transition-duration', '0s');
         setForcePanelIdle(true);
-        return cleanup(restoreLayoutStyles, scheduleRestore(restoreTransitionDuration));
+        return mergeCleanups(restoreLayoutStyles, scheduleRestore(restoreTransitionDuration));
       }
 
       if (animationType === 'css-animation') {
@@ -478,17 +479,6 @@ function scheduleRestore(restore: () => void): () => void {
   return () => {
     AnimationFrame.cancel(frame);
     AnimationFrame.cancel(nextFrame);
-  };
-}
-
-/**
- * Combines multiple optional cleanup callbacks into a single cleanup function.
- * @param cleanups - The cleanup callbacks to invoke in order.
- * @returns A cleanup function that runs each defined callback once.
- */
-function cleanup(...cleanups: Array<(() => void) | undefined>): () => void {
-  return () => {
-    cleanups.forEach((cleanupFn) => cleanupFn?.());
   };
 }
 
