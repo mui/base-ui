@@ -1,6 +1,6 @@
 ## v1.4.0
 
-_Apr 09, 2026_
+_Apr 10, 2026_
 
 ### General Changes
 
@@ -74,6 +74,10 @@ _Apr 09, 2026_
 ### Number Field
 
 - Fix format rounding error on blur (#4557) by @atomiks
+
+### OTP Field
+
+- Add preview `OTP Field` component for one-time password and verification code entry (#4365) by @atomiks
 
 ### Popover
 
