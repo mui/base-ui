@@ -4,7 +4,7 @@ import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { OTPFieldPreview as OTPFieldBase } from '@base-ui/react/otp-field';
 import { Field } from '@base-ui/react/field';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 
 describe('<OTPFieldPreview />', () => {
   const { render, renderToString } = createRenderer();
