@@ -47,7 +47,6 @@ export function useInvalidFeedback() {
     invalidTimeoutRef.current = setTimeout(() => {
       invalidTimeoutRef.current = null;
       setInvalidPulse(0);
-      setStatusMessage('');
     }, 400);
   }
 

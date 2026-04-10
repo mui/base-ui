@@ -62,11 +62,6 @@ function assertOTPFieldComplete(details: OTPFieldCompleteDetails) {
     void event;
   }
 
-  if (details.reason === REASONS.keyboard) {
-    const event: KeyboardEvent = details.event;
-    void event;
-  }
-
   if (details.reason === REASONS.inputChange) {
     const event: InputEvent | Event = details.event;
     void event;

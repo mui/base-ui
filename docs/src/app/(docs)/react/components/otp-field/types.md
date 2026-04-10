@@ -120,14 +120,13 @@ type OTPFieldPreviewRootChangeEventDetails = (
 ```typescript
 type OTPFieldPreviewRootCompleteEventDetails =
   | { reason: 'input-change'; event: InputEvent | Event }
-  | { reason: 'input-paste'; event: ClipboardEvent }
-  | { reason: 'keyboard'; event: KeyboardEvent };
+  | { reason: 'input-paste'; event: ClipboardEvent };
 ```
 
 ### Root.CompleteEventReason
 
 ```typescript
-type OTPFieldPreviewRootCompleteEventReason = 'input-change' | 'input-paste' | 'keyboard';
+type OTPFieldPreviewRootCompleteEventReason = 'input-change' | 'input-paste';
 ```
 
 ### Root.InvalidEventDetails
@@ -306,7 +305,7 @@ type OTPFieldRootChangeEventReason = 'input-change' | 'input-clear' | 'input-pas
 ### OTPFieldRootCompleteEventReason
 
 ```typescript
-type OTPFieldRootCompleteEventReason = 'input-change' | 'input-paste' | 'keyboard';
+type OTPFieldRootCompleteEventReason = 'input-change' | 'input-paste';
 ```
 
 ### OTPFieldRootInvalidEventReason

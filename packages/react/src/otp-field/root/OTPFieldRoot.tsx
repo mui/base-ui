@@ -672,8 +672,7 @@ export type OTPFieldRootInvalidEventDetails =
 
 export type OTPFieldRootCompleteEventReason =
   | typeof REASONS.inputChange
-  | typeof REASONS.inputPaste
-  | typeof REASONS.keyboard;
+  | typeof REASONS.inputPaste;
 export type OTPFieldRootCompleteEventDetails =
   BaseUIGenericEventDetails<OTPFieldRoot.CompleteEventReason>;
 
