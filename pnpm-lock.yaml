@@ -723,6 +723,31 @@ importers:
         specifier: workspace:*
         version: link:../../packages/utils/build
 
+  test/performance:
+    dependencies:
+      react:
+        specifier: 19.2.4
+        version: 19.2.4
+      react-dom:
+        specifier: 19.2.4
+        version: 19.2.4(react@19.2.4)
+    devDependencies:
+      '@mui/internal-benchmark':
+        specifier: 0.0.1
+        version: 0.0.1(@vitest/browser-playwright@4.1.2)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vite@8.0.5(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@types/node@22.18.13)(esbuild@0.27.7)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.2)
+      '@types/react':
+        specifier: 19.2.14
+        version: 19.2.14
+      '@vitest/browser-playwright':
+        specifier: 4.1.2
+        version: 4.1.2(playwright@1.59.1)(vite@8.0.5(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@types/node@22.18.13)(esbuild@0.27.7)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.2)
+      vite:
+        specifier: ^8.0.2
+        version: 8.0.5(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@types/node@22.18.13)(esbuild@0.27.7)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3)
+      vitest:
+        specifier: 4.1.2
+        version: 4.1.2(@types/node@22.18.13)(@vitest/browser-playwright@4.1.2)(@vitest/ui@4.1.2)(jsdom@27.4.0)(vite@8.0.5(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@types/node@22.18.13)(esbuild@0.27.7)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
+
   test/public-types:
     dependencies:
       '@base-ui/react':
@@ -2191,6 +2216,14 @@ packages:
 
   '@mui/internal-bundle-size-checker@1.0.9-canary.75':
     resolution: {integrity: sha512-UC9d7+pq/5hOWbwMq1E6Znw7vI/Ji+JCk5a+9Sbdj6oXIs77hgyjfMkyyJmSsD1fvWeuRlVXr4T/D89qM02jHQ==}
+
+  '@mui/internal-benchmark@0.0.1':
+    resolution: {integrity: sha512-FzQn9jVR7MgDrbX/+PaqAVq+MA7XoSTCsn3FByxRI689KHkwxCq4WxyYSytn0NagJ78LzpMGJV6WnXK3UgU2vA==}
+    peerDependencies:
+      '@vitest/browser-playwright': '>=4.1'
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
+      vitest: '>=4.1'
     hasBin: true
 
   '@mui/internal-code-infra@0.0.4-canary.22':
@@ -11212,6 +11245,22 @@ snapshots:
     dependencies:
       '@babel/core': 7.29.0
       resolve: 1.22.11
+
+  '@mui/internal-benchmark@0.0.1(@vitest/browser-playwright@4.1.2)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vite@8.0.5(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@types/node@22.18.13)(esbuild@0.27.7)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.2)':
+    dependencies:
+      '@babel/runtime': 7.29.2
+      '@vitejs/plugin-react': 6.0.1(babel-plugin-react-compiler@1.0.0)(vite@8.0.5(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@types/node@22.18.13)(esbuild@0.27.7)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
+      '@vitest/browser-playwright': 4.1.2(playwright@1.59.1)(vite@8.0.5(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@types/node@22.18.13)(esbuild@0.27.7)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.2)
+      env-ci: 11.2.0
+      execa: 9.6.1
+      react: 19.2.4
+      react-dom: 19.2.4(react@19.2.4)
+      vitest: 4.1.2(@types/node@22.18.13)(@vitest/browser-playwright@4.1.2)(@vitest/ui@4.1.2)(jsdom@27.4.0)(vite@8.0.5(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@types/node@22.18.13)(esbuild@0.27.7)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
+      zod: 4.3.6
+    transitivePeerDependencies:
+      - '@rolldown/plugin-babel'
+      - babel-plugin-react-compiler
+      - vite
 
   '@mui/internal-bundle-size-checker@1.0.9-canary.75(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@types/node@22.18.13)(esbuild@0.27.7)(jiti@2.6.1)(rolldown@1.0.0-rc.12(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2))(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3)':
     dependencies:
