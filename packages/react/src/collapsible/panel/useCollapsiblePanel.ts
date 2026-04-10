@@ -5,6 +5,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { warn } from '@base-ui/utils/warn';
 import { HTMLProps } from '../../internals/types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -62,19 +63,25 @@ export function useCollapsiblePanel(
   const [forcePanelIdle, setForcePanelIdle] = React.useState(false);
 
   const mergedPanelRef = useMergedRefs(externalRef, panelRef);
-  const latestOpenRef = React.useRef(open);
-  const latestMountedRef = React.useRef(mounted);
-  latestOpenRef.current = open;
-  latestMountedRef.current = mounted;
+  const latestStateRef = useValueAsRef({
+    mounted,
+    open,
+  });
 
   const hidden = !open && !mounted;
   const panelTransitionStatus = forcePanelIdle ? 'idle' : transitionStatus;
   const shouldPreventOpenAnimation =
     open &&
+    // These 2 refs are safe to read in render, they are only written from committed
+    // layout/effect paths and gate one-shot motion suppression for the next open
+    // lifecycle. They intentionally expose the last committed motion snapshot.
     (shouldPreventMountAnimationRef.current || shouldPreventActivityResumeAnimationRef.current);
   const renderedDimensions =
     !open &&
     mounted &&
+    // These 2 refs are also safe to read in render, bothhold the last committed
+    // animation mode and measurement. This fallback only restores a previously
+    // measured pixel size after the live dimensions state has been reset back to `auto`.
     animationTypeRef.current === 'css-animation' &&
     dimensions.height === undefined &&
     dimensions.width === undefined
@@ -94,6 +101,19 @@ export function useCollapsiblePanel(
     },
   );
 
+  // React.Activity unmounts Effects while preserving component state. If that
+  // teardown happens while an already-open keyframe panel is visible, remember
+  // to suppress the replayed open animation on the next committed reveal.
+  const markActivityResumeAnimationSuppressed = useStableCallback(() => {
+    if (
+      latestStateRef.current.open &&
+      latestStateRef.current.mounted &&
+      animationTypeRef.current === 'css-animation'
+    ) {
+      shouldPreventActivityResumeAnimationRef.current = true;
+    }
+  });
+
   useIsoLayoutEffect(() => {
     // `forcePanelIdle` is only a temporary override for open paths that skip
     // motion. Keep it active while the shared root still reports `starting`,
@@ -107,15 +127,9 @@ export function useCollapsiblePanel(
 
   React.useEffect(() => {
     return () => {
-      if (
-        latestOpenRef.current &&
-        latestMountedRef.current &&
-        animationTypeRef.current === 'css-animation'
-      ) {
-        shouldPreventActivityResumeAnimationRef.current = true;
-      }
+      markActivityResumeAnimationSuppressed();
     };
-  }, []);
+  }, [markActivityResumeAnimationSuppressed]);
 
   useIsoLayoutEffect(() => {
     const panel = panelRef.current;
@@ -163,7 +177,7 @@ export function useCollapsiblePanel(
 
         const restoreTransitionDuration = setTemporaryStyle(panel, 'transition-duration', '0s');
         setForcePanelIdle(true);
-        return chainCleanups(restoreLayoutStyles, scheduleRestore(restoreTransitionDuration));
+        return cleanup(restoreLayoutStyles, scheduleRestore(restoreTransitionDuration));
       }
 
       if (animationType === 'css-animation') {
@@ -266,17 +280,13 @@ export function useCollapsiblePanel(
       return;
     }
 
-    /**
-     * React only supports a boolean for the `hidden` attribute and forces
-     * legit string values to booleans so we have to force it back in the DOM
-     * when necessary: https://github.com/facebook/react/issues/24740
-     */
+    // React only supports a boolean for the `hidden` attribute and forces
+    // legit string values to booleans so we have to force it back in the DOM
+    // when necessary: https://github.com/facebook/react/issues/24740
     panel.setAttribute('hidden', 'until-found');
 
-    /**
-     * Persist the closed transition styles while hidden so changing the hidden
-     * attribute to `'until-found'` doesn't itself trigger the transition.
-     */
+    // Persist the closed transition styles while hidden so changing the hidden
+    // attribute to `'until-found'` doesn't itself trigger the transition.
     if (getAnimationType(panel) === 'css-transition') {
       panel.setAttribute(CollapsiblePanelDataAttributes.startingStyle, '');
     }
@@ -476,9 +486,9 @@ function scheduleRestore(restore: () => void): () => void {
  * @param cleanups - The cleanup callbacks to invoke in order.
  * @returns A cleanup function that runs each defined callback once.
  */
-function chainCleanups(...cleanups: Array<(() => void) | undefined>): () => void {
+function cleanup(...cleanups: Array<(() => void) | undefined>): () => void {
   return () => {
-    cleanups.forEach((cleanup) => cleanup?.());
+    cleanups.forEach((cleanupFn) => cleanupFn?.());
   };
 }
 
