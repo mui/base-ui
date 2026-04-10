@@ -63,13 +63,15 @@ import { DemoNavigationMenuNestedInline } from './demos/nested-inline';
 
 The `<NavigationMenu.Link>` part can be customized to render the link from your framework using the `render` prop to enable client-side routing.
 
-```jsx title="Next.js example" {1,7}
+```jsx title="Next.js example"
+// @highlight
 import NextLink from 'next/link';
 import { NavigationMenu } from '@base-ui/react/navigation-menu';
 
 function Link(props: NavigationMenu.Link.Props) {
   return (
     <NavigationMenu.Link
+      {/* @highlight */}
       render={<NextLink href={props.href} />}
       {...props}
     />

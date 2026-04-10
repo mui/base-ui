@@ -8,6 +8,8 @@ type PreProps = {
   'data-slug'?: string;
   'data-precompute'?: string;
   'data-content-props'?: string;
+  'data-highlight-after'?: CodeHighlighterProps<object>['highlightAfter'];
+  'data-enhance-after'?: CodeHighlighterProps<object>['enhanceAfter'];
 };
 
 export function CodeBlockPreComputed(props: PreProps) {
@@ -33,6 +35,8 @@ export function CodeBlockPreComputed(props: PreProps) {
       name={props['data-name']}
       slug={props['data-slug']}
       precompute={precompute}
+      highlightAfter={props['data-highlight-after'] ?? 'idle'}
+      enhanceAfter={props['data-enhance-after'] ?? 'idle'}
       Content={CodeBlockPreComputedContent}
       contentProps={contentProps}
     />

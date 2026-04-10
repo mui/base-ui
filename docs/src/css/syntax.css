@@ -250,20 +250,19 @@
   }
 
   /* Special handling for CSS language */
-  [data-language='css'] {
+  .language-css {
     --color-prettylights-syntax-variable: var(--color-navy);
   }
 
   /* Target CSS property names in CSS code blocks
    Property names are .pl-c1 elements that are followed by a text node containing ':'
    This distinguishes them from function names like 'var' which are followed by '(' */
-  [data-language='css'] .line > .pl-c1:first-of-type {
+  .language-css .line > .pl-c1:first-of-type {
     color: var(--color-foreground);
   }
 
   /* Inline code and highlighted characters - collapse most colors to blue */
-  [data-inline],
-  [data-highlighted-chars] {
+  .MdCode:not(pre .MdCode) {
     --color-prettylights-syntax-comment: var(--color-blue);
     --color-prettylights-syntax-constant: var(--color-blue);
     --color-prettylights-syntax-entity: var(--color-blue);
@@ -272,14 +271,6 @@
     --color-prettylights-syntax-variable: var(--color-blue);
     --color-prettylights-syntax-storage-modifier-import: var(--color-blue);
     --color-docs-infra-syntax-nullish: var(--color-blue);
-  }
-
-  /* Table code - recover some syntax highlighting */
-  [data-table-code] {
-    --color-prettylights-syntax-entity: var(--color-violet);
-    --color-prettylights-syntax-keyword: var(--color-red);
-    --color-prettylights-syntax-string: var(--color-navy);
-    --color-docs-infra-syntax-nullish: var(--color-gray-500);
   }
 
   /* Line highlighting */
@@ -291,15 +282,19 @@
     background-color: var(--color-line-highlight-strong);
   }
 
-  /* Character/word highlighting */
-  pre [data-hlc] {
-    color: var(--color-blue);
-    background-color: var(--color-inline-highlight);
+  /* Word highlighting */
+  pre [data-hl]:not(.line) {
+    display: inline-flex;
   }
 
-  /* Hide JSDoc comment frames in inline and table code contexts */
-  [data-inline] .frame[data-frame-type='comment'],
-  [data-table-code] .frame[data-frame-type='comment'] {
-    display: none;
+  /* Make highlighted words blue */
+  pre [data-hl]:not(.line),
+  pre [data-hl]:not(.line) > * {
+    color: var(--color-blue);
+  }
+
+  /* Stronger emphasis for highlighted words inside already highlighted lines */
+  pre .line[data-hl] [data-hl]:not(.line) {
+    background-color: var(--color-line-highlight-strong);
   }
 }

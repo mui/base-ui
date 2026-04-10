@@ -5,13 +5,19 @@
     border: 1px solid var(--gray-c2);
     border-radius: var(--radius-6);
 
-    & pre {
-      white-space: normal;
+    & code .frame {
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
     }
 
-    & [data-line],
-    & .line {
-      padding-inline: 0.75rem;
+    & code .frame[data-lined] {
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    & code .frame[data-lined] .line {
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
     }
   }
 
@@ -66,19 +72,18 @@
     justify-content: center;
   }
 
+  .CodeBlockViewport {
+    overscroll-behavior-x: contain;
+  }
+
   .CodeBlockPreInline {
     font-size: 0.8125rem; /* 13px */
     line-height: 1.25rem; /* 20px */
     cursor: text;
     color: var(--color-foreground);
     outline: 0;
-    white-space: normal;
 
-    /* Scroll */
     display: flex;
-    overflow: auto;
-    /* Prevent Chrome/Safari page navigation gestures when scrolling horizontally */
-    overscroll-behavior-x: contain;
 
     & code {
       /* Different fonts may introduce vertical align issues */
@@ -87,32 +92,31 @@
       flex-grow: 1;
     }
 
-    & [data-line],
-    & .line {
+    & code .frame {
+      display: block;
+    }
+
+    & code .frame[data-lined] {
+      white-space: normal;
+    }
+
+    & code .frame[data-lined] .line {
       display: block;
       white-space: pre;
     }
 
-    & [data-line]:empty,
     & .line:empty {
       height: 1lh;
     }
 
     /* Hide JSDoc comment frames */
-    &:not(.CodeBlockPre) .frame[data-frame-type='comment'] {
-      display: none;
+    &:not(.CodeBlockPre) [data-frame-type='comment'] {
+      display: none !important;
     }
   }
 
   .CodeBlockPre,
   .CodeBlockRoot .CodeBlockPreInline {
-    background-color: var(--color-content);
-    padding: 0.5rem 0;
-    border-radius: var(--radius-6);
-  }
-
-  .CodeBlockPreBackground {
-    background-color: var(--color-content);
     padding: 0.5rem 0;
     border-radius: var(--radius-6);
   }
