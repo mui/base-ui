@@ -10,6 +10,15 @@ const PARAGRAPH =
 
 const HIDDEN_TEXT = 'The final line mentioned silver orchard before the cover slipped closed.';
 
+function getInlinePanelStyle(state: { open: boolean }) {
+  return {
+    animationDuration: 'var(--duration)',
+    animationName: state.open ? 'panel-slide-down' : 'panel-slide-up',
+    animationTimingFunction: state.open ? 'ease-out' : 'ease-in',
+    overflow: 'hidden',
+  } as const;
+}
+
 function Content({ className, children }: React.ComponentProps<typeof Collapsible.Content>) {
   return (
     <Collapsible.Content className={className}>
@@ -58,6 +67,28 @@ function ActivityComparison() {
 export default function CssAnimations() {
   return (
     <div className={layoutStyles.grid}>
+      <style>{`
+        @keyframes panel-slide-down {
+          from {
+            height: 0;
+          }
+
+          to {
+            height: var(--collapsible-panel-height);
+          }
+        }
+
+        @keyframes panel-slide-up {
+          from {
+            height: var(--collapsible-panel-height);
+          }
+
+          to {
+            height: 0;
+          }
+        }
+      `}</style>
+
       <div className={layoutStyles.wrapper}>
         <pre>keepMounted: true</pre>
         <Collapsible.Root className={styles.root} defaultOpen>
@@ -130,6 +161,15 @@ export default function CssAnimations() {
               <p>{PARAGRAPH}</p>
               <p>{HIDDEN_TEXT}</p>
             </Collapsible.Content>
+          </Collapsible.Panel>
+        </Collapsible.Root>
+        <small>———</small>
+
+        <pre>inline style</pre>
+        <Collapsible.Root className={styles.root} defaultOpen>
+          <Collapsible.Trigger>Trigger 69</Collapsible.Trigger>
+          <Collapsible.Panel keepMounted style={getInlinePanelStyle}>
+            <Content />
           </Collapsible.Panel>
         </Collapsible.Root>
         <small>———</small>

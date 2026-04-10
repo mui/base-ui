@@ -41,6 +41,7 @@ interface ExampleAccordionProps extends Pick<
   'defaultValue' | 'hiddenUntilFound' | 'keepMounted' | 'multiple' | 'onValueChange' | 'value'
 > {
   hiddenTextIndex?: number;
+  panelStyle?: BaseAccordion.Panel.Props['style'];
   rootClassName?: string;
   triggerNumbers: [number, number, number];
 }
@@ -52,6 +53,7 @@ function ExampleAccordion({
   keepMounted,
   multiple,
   onValueChange,
+  panelStyle,
   rootClassName,
   triggerNumbers,
   value,
@@ -73,7 +75,7 @@ function ExampleAccordion({
               Trigger {triggerNumbers[index]}: {item.title}
             </Accordion.Trigger>
           </Accordion.Header>
-          <Accordion.Panel className={styles.panel}>
+          <Accordion.Panel className={styles.panel} style={panelStyle}>
             <Accordion.Content>
               <p>{item.content}</p>
               {hiddenTextIndex === index ? <p>{HIDDEN_TEXT}</p> : null}
@@ -83,6 +85,15 @@ function ExampleAccordion({
       ))}
     </Accordion.Root>
   );
+}
+
+function getInlinePanelStyle(state: { open: boolean }) {
+  return {
+    animationDuration: 'var(--duration)',
+    animationName: state.open ? 'panel-slide-down' : 'panel-slide-up',
+    animationTimingFunction: state.open ? 'ease-out' : 'ease-in',
+    overflow: 'hidden',
+  } as const;
 }
 
 function ActivityComparison({ multiple }: Pick<ExampleAccordionProps, 'multiple'>) {
@@ -118,6 +129,28 @@ export default function CssAnimations() {
 
   return (
     <div className={layoutStyles.grid}>
+      <style>{`
+        @keyframes panel-slide-down {
+          from {
+            height: 0;
+          }
+
+          to {
+            height: var(--accordion-panel-height);
+          }
+        }
+
+        @keyframes panel-slide-up {
+          from {
+            height: var(--accordion-panel-height);
+          }
+
+          to {
+            height: 0;
+          }
+        }
+      `}</style>
+
       <div className={layoutStyles.wrapper}>
         <pre>keepMounted: true</pre>
         <ExampleAccordion
@@ -168,6 +201,16 @@ export default function CssAnimations() {
           hiddenUntilFound
           multiple={multiple}
           triggerNumbers={[60, 61, 62]}
+        />
+        <small>———</small>
+
+        <pre>inline style</pre>
+        <ExampleAccordion
+          defaultValue={[0]}
+          keepMounted
+          multiple={multiple}
+          panelStyle={getInlinePanelStyle}
+          triggerNumbers={[70, 71, 72]}
         />
         <small>———</small>
 

@@ -2,7 +2,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 5rem;
-  min-height: 125vh;
+  min-height: 150vh;
   align-content: start;
 }
 

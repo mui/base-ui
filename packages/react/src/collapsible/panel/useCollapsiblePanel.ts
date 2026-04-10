@@ -319,11 +319,9 @@ export function useCollapsiblePanel(
       props: {
         hidden,
         id: idParam,
-        style: {
-          animationName: shouldPreventOpenAnimation ? 'none' : undefined,
-        },
       },
       ref: mergedPanelRef,
+      shouldPreventOpenAnimation,
       shouldRender,
       transitionStatus: panelTransitionStatus,
       width: renderedDimensions.width,
@@ -520,6 +518,7 @@ export interface UseCollapsiblePanelReturnValue {
   height: number | undefined;
   props: HTMLProps;
   ref: React.Ref<HTMLDivElement>;
+  shouldPreventOpenAnimation: boolean;
   shouldRender: boolean;
   transitionStatus: TransitionStatus;
   width: number | undefined;

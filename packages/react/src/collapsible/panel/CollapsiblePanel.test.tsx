@@ -294,6 +294,43 @@ describe('<Collapsible.Panel />', () => {
 
       expect(screen.getByTestId('panel').style.animationName).toBe('none');
     });
+
+    it('suppresses the initial keyframe animation from inline styles when rendered open', async () => {
+      await renderToString(
+        <React.Fragment>
+          <style>{`
+            @keyframes panel-slide-down {
+              from {
+                height: 0;
+              }
+
+              to {
+                height: var(--collapsible-panel-height);
+              }
+            }
+          `}</style>
+
+          <Collapsible.Root defaultOpen>
+            <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+            <Collapsible.Panel
+              data-testid="panel"
+              style={{
+                animationDuration: '100ms',
+                animationName: 'panel-slide-down',
+                animationTimingFunction: 'linear',
+              }}
+            >
+              {PANEL_CONTENT}
+            </Collapsible.Panel>
+          </Collapsible.Root>
+        </React.Fragment>,
+      );
+
+      const panel = screen.getByTestId('panel');
+
+      expect(panel.style.animationName).toBe('none');
+      expect(panel.style.animationDuration).toBe('100ms');
+    });
   });
 
   describe.skipIf(isJSDOM || reactMajor < 19)('React.Activity', () => {
@@ -524,6 +561,77 @@ describe('<Collapsible.Panel />', () => {
               <Collapsible.Root>
                 <Collapsible.Trigger>Trigger</Collapsible.Trigger>
                 <Collapsible.Panel className="animation-test-panel" data-testid="panel" keepMounted>
+                  {PANEL_CONTENT}
+                </Collapsible.Panel>
+              </Collapsible.Root>
+            </Activity>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const toggle = screen.getByRole('button', { name: 'toggle activity' });
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+      const panel = screen.getByTestId('panel');
+
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(panel).toHaveAttribute('data-open');
+      });
+
+      await waitFor(() => {
+        expect(panel.getAnimations().length).toBe(0);
+      });
+
+      await user.click(toggle);
+      await user.click(toggle);
+
+      await waitFor(() => {
+        expect(panel).toHaveAttribute('data-open');
+      });
+
+      expect(panel.getAnimations().length).toBe(0);
+    });
+
+    it('does not replay open keyframe animations from inline styles when revealing a panel opened by the user', async () => {
+      const Activity = getActivity();
+
+      function App() {
+        const [visible, setVisible] = React.useState(true);
+
+        return (
+          <React.Fragment>
+            <style>{`
+              @keyframes panel-slide-down {
+                from {
+                  height: 0;
+                }
+
+                to {
+                  height: var(--collapsible-panel-height);
+                }
+              }
+            `}</style>
+
+            <button type="button" onClick={() => setVisible((prev) => !prev)}>
+              toggle activity
+            </button>
+
+            <Activity mode={visible ? 'visible' : 'hidden'}>
+              <Collapsible.Root>
+                <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+                <Collapsible.Panel
+                  data-testid="panel"
+                  keepMounted
+                  style={{
+                    animationDuration: '100ms',
+                    animationName: 'panel-slide-down',
+                    animationTimingFunction: 'linear',
+                    overflow: 'hidden',
+                  }}
+                >
                   {PANEL_CONTENT}
                 </Collapsible.Panel>
               </Collapsible.Root>

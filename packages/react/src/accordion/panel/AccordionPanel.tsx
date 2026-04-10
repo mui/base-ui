@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
 import { BaseUIComponentProps } from '../../internals/types';
+import { resolveStyle } from '../../utils/resolveStyle';
 import { useCollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
 import { useCollapsiblePanel } from '../../collapsible/panel/useCollapsiblePanel';
 import { useAccordionRootContext } from '../root/AccordionRootContext';
@@ -76,6 +77,7 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
     height,
     props,
     ref,
+    shouldPreventOpenAnimation,
     shouldRender,
     transitionStatus: panelTransitionStatus,
     width,
@@ -101,26 +103,38 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
     }),
     [panelTransitionStatus, state],
   );
+  const resolvedStyle = resolveStyle(style, panelState);
 
-  const element = useRenderElement('div', componentProps, {
-    state: panelState,
-    ref,
-    props: [
-      props,
-      {
-        'aria-labelledby': triggerId,
-        role: 'region',
-        style: {
-          [AccordionPanelCssVars.accordionPanelHeight as string]:
-            height === undefined ? 'auto' : `${height}px`,
-          [AccordionPanelCssVars.accordionPanelWidth as string]:
-            width === undefined ? 'auto' : `${width}px`,
+  const element = useRenderElement(
+    'div',
+    {
+      ...componentProps,
+      style: undefined,
+    },
+    {
+      state: panelState,
+      ref,
+      props: [
+        props,
+        {
+          'aria-labelledby': triggerId,
+          role: 'region',
+          style: {
+            [AccordionPanelCssVars.accordionPanelHeight as string]:
+              height === undefined ? 'auto' : `${height}px`,
+            [AccordionPanelCssVars.accordionPanelWidth as string]:
+              width === undefined ? 'auto' : `${width}px`,
+          },
         },
-      },
-      elementProps,
-    ],
-    stateAttributesMapping: accordionStateAttributesMapping,
-  });
+        elementProps,
+        resolvedStyle ? { style: resolvedStyle } : undefined,
+        // Resolve the public `style` prop so temporary `animationName: 'none'`
+        // can still win after user's inline styles have been merged.
+        shouldPreventOpenAnimation ? { style: { animationName: 'none' } } : undefined,
+      ],
+      stateAttributesMapping: accordionStateAttributesMapping,
+    },
+  );
 
   if (!shouldRender) {
     return null;

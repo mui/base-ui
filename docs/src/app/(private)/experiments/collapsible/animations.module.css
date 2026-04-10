@@ -39,7 +39,7 @@
 }
 
 .root {
-  --duration: 900ms;
+  --duration: 500ms;
   --icon-duration: 150ms;
 }
 

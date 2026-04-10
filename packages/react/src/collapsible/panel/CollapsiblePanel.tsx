@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
 import { BaseUIComponentProps } from '../../internals/types';
+import { resolveStyle } from '../../utils/resolveStyle';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useCollapsibleRootContext } from '../root/CollapsibleRootContext';
 import type { CollapsibleRootState } from '../root/CollapsibleRoot';
@@ -71,6 +72,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     height,
     props,
     ref,
+    shouldPreventOpenAnimation,
     shouldRender,
     transitionStatus: panelTransitionStatus,
     width,
@@ -95,23 +97,36 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     [panelTransitionStatus, state],
   );
 
-  const element = useRenderElement('div', componentProps, {
-    state: panelState,
-    ref,
-    props: [
-      props,
-      {
-        style: {
-          [CollapsiblePanelCssVars.collapsiblePanelHeight as string]:
-            height === undefined ? 'auto' : `${height}px`,
-          [CollapsiblePanelCssVars.collapsiblePanelWidth as string]:
-            width === undefined ? 'auto' : `${width}px`,
+  const resolvedStyle = resolveStyle(style, panelState);
+
+  const element = useRenderElement(
+    'div',
+    {
+      ...componentProps,
+      style: undefined,
+    },
+    {
+      state: panelState,
+      ref,
+      props: [
+        props,
+        {
+          style: {
+            [CollapsiblePanelCssVars.collapsiblePanelHeight as string]:
+              height === undefined ? 'auto' : `${height}px`,
+            [CollapsiblePanelCssVars.collapsiblePanelWidth as string]:
+              width === undefined ? 'auto' : `${width}px`,
+          },
         },
-      },
-      elementProps,
-    ],
-    stateAttributesMapping: collapsibleStateAttributesMapping,
-  });
+        elementProps,
+        resolvedStyle ? { style: resolvedStyle } : undefined,
+        // Resolve the public `style` prop so temporary `animationName: 'none'`
+        // can still win after user's inline styles have been merged.
+        shouldPreventOpenAnimation ? { style: { animationName: 'none' } } : undefined,
+      ],
+      stateAttributesMapping: collapsibleStateAttributesMapping,
+    },
+  );
 
   if (!shouldRender) {
     return null;
