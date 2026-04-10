@@ -80,7 +80,7 @@ export function useCollapsiblePanel(
   const renderedDimensions =
     !open &&
     mounted &&
-    // These 2 refs are also safe to read in render, bothhold the last committed
+    // These 2 refs are also safe to read in render, both hold the last committed
     // animation mode and measurement. This fallback only restores a previously
     // measured pixel size after the live dimensions state has been reset back to `auto`.
     animationTypeRef.current === 'css-animation' &&
