@@ -12,6 +12,7 @@ import { HTMLProps } from '../../internals/types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
 import { CollapsiblePanelDataAttributes } from './CollapsiblePanelDataAttributes';
 import type { CollapsibleRoot } from '../root/CollapsibleRoot';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
@@ -68,6 +69,7 @@ export function useCollapsiblePanel(
     mounted,
     open,
   });
+  const runOnceCloseAnimationsFinish = useAnimationsFinished(panelRef, false, false);
 
   const hidden = !open && !mounted;
   const panelTransitionStatus = forcePanelIdle ? 'idle' : transitionStatus;
@@ -260,19 +262,78 @@ export function useCollapsiblePanel(
     },
   });
 
-  useOpenChangeComplete({
-    enabled: !open && mounted && panelTransitionStatus === 'ending',
-    open: false,
-    ref: panelRef,
-    onComplete() {
-      if (open) {
+  // Closing panels need extra sequencing beyond `useOpenChangeComplete`.
+  // Chrome can register the exit transition a frame after `[data-ending-style]`
+  // is applied when an Accordion closes one item while opening another.
+  // See https://github.com/mui/base-ui/issues/3099
+  React.useEffect(() => {
+    if (open || !mounted || panelTransitionStatus !== 'ending') {
+      return undefined;
+    }
+
+    const panel = panelRef.current;
+    if (!panel) {
+      return undefined;
+    }
+
+    const abortController = new AbortController();
+    const endingStyleAttribute = CollapsiblePanelDataAttributes.endingStyle;
+    let endingStyleFrame = -1;
+    let attributeObserver: MutationObserver | null = null;
+
+    function handleComplete() {
+      if (latestStateRef.current.open) {
         return;
       }
 
       setMounted(false);
       setDimensions(EMPTY_DIMENSIONS, false);
-    },
-  });
+    }
+
+    function runWhenReady() {
+      endingStyleFrame = AnimationFrame.request(() => {
+        if (!abortController.signal.aborted) {
+          runOnceCloseAnimationsFinish(handleComplete, abortController.signal);
+        }
+      });
+    }
+
+    if (!panel.hasAttribute(endingStyleAttribute)) {
+      attributeObserver = new MutationObserver((mutationList) => {
+        const hasEndingStyle = mutationList.some(
+          (mutation) =>
+            mutation.type === 'attributes' && mutation.attributeName === endingStyleAttribute,
+        );
+
+        if (hasEndingStyle) {
+          attributeObserver?.disconnect();
+          attributeObserver = null;
+          runWhenReady();
+        }
+      });
+
+      attributeObserver.observe(panel, {
+        attributes: true,
+        attributeFilter: [endingStyleAttribute],
+      });
+    } else {
+      runWhenReady();
+    }
+
+    return () => {
+      attributeObserver?.disconnect();
+      AnimationFrame.cancel(endingStyleFrame);
+      abortController.abort();
+    };
+  }, [
+    latestStateRef,
+    mounted,
+    open,
+    panelTransitionStatus,
+    runOnceCloseAnimationsFinish,
+    setDimensions,
+    setMounted,
+  ]);
 
   useIsoLayoutEffect(() => {
     const panel = panelRef.current;

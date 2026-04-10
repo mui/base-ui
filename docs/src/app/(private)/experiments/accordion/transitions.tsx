@@ -111,6 +111,114 @@ function ActivityComparison({ multiple }: Pick<ExampleAccordionProps, 'multiple'
   );
 }
 
+function ComplexAccordion() {
+  return (
+    <Accordion.Root
+      className={clsx(styles.root, styles.slowRoot)}
+      defaultValue={[0]}
+      keepMounted
+      multiple={false}
+    >
+      <Accordion.Item value={0}>
+        <Accordion.Header>
+          <Accordion.Trigger>Trigger 73: Account details</Accordion.Trigger>
+        </Accordion.Header>
+        <Accordion.Panel className={styles.panel}>
+          <Accordion.Content>
+            <p>
+              <label>
+                Project name
+                <br />
+                <input defaultValue="Base UI design system" type="text" />
+              </label>
+            </p>
+            <p>
+              <label>
+                Owner
+                <br />
+                <input defaultValue="Platform team" type="text" />
+              </label>
+            </p>
+            <p>
+              <label>
+                Stage
+                <br />
+                <select defaultValue="beta">
+                  <option value="alpha">Alpha</option>
+                  <option value="beta">Beta</option>
+                  <option value="stable">Stable</option>
+                </select>
+              </label>
+            </p>
+            <fieldset>
+              <legend>Notifications</legend>
+              <label>
+                <input defaultChecked type="checkbox" /> Product updates
+              </label>
+              <br />
+              <label>
+                <input type="checkbox" /> Weekly summary
+              </label>
+            </fieldset>
+          </Accordion.Content>
+        </Accordion.Panel>
+      </Accordion.Item>
+
+      <Accordion.Item value={1}>
+        <Accordion.Header>
+          <Accordion.Trigger>Trigger 74: Delivery plan</Accordion.Trigger>
+        </Accordion.Header>
+        <Accordion.Panel className={styles.panel}>
+          <Accordion.Content>
+            <p>
+              Base UI is a library of high-quality unstyled React components for design systems and
+              web apps.
+            </p>
+            <p>
+              <label>
+                Notes
+                <br />
+                <textarea
+                  defaultValue="This textarea intentionally adds more vertical content so the panel stays visibly present during the exit transition."
+                  rows={4}
+                />
+              </label>
+            </p>
+          </Accordion.Content>
+        </Accordion.Panel>
+      </Accordion.Item>
+
+      <Accordion.Item value={2}>
+        <Accordion.Header>
+          <Accordion.Trigger>Trigger 75: Release notes</Accordion.Trigger>
+        </Accordion.Header>
+        <Accordion.Panel className={styles.panel}>
+          <Accordion.Content>
+            <p>
+              Base UI is a library of high-quality unstyled React components for design systems and
+              web apps.
+            </p>
+            <p>
+              <label>
+                Notes
+                <br />
+                <textarea
+                  defaultValue="This textarea intentionally adds more vertical content so the panel stays visibly present during the exit transition."
+                  rows={4}
+                />
+              </label>
+            </p>
+            <p>
+              Base UI is a library of high-quality unstyled React components for design systems and
+              web apps.
+            </p>
+          </Accordion.Content>
+        </Accordion.Panel>
+      </Accordion.Item>
+    </Accordion.Root>
+  );
+}
+
 export default function CssTransitions() {
   const { settings } = useExperimentSettings<Settings>();
   const [value, setValue] = React.useState<number[]>([0]);
@@ -157,6 +265,21 @@ export default function CssTransitions() {
           rootClassName={styles.slowRoot}
           triggerNumbers={[36, 37, 38]}
         />
+        <small>———</small>
+
+        <pre>
+          switch items:{' '}
+          <a
+            href="https://github.com/mui/base-ui/issues/3099"
+            style={{ color: 'var(--color-blue)', textDecoration: 'underline' }}
+            rel="noreferrer"
+            target="_blank"
+          >
+            Issue #3099
+          </a>
+        </pre>
+
+        <ComplexAccordion />
         <small>———</small>
       </div>
 

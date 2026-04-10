@@ -71,6 +71,70 @@ describe('<Accordion.Panel />', () => {
     });
   });
 
+  describe.skipIf(isJSDOM)('CSS transitions', () => {
+    it('keeps the closing panel visible until its exit transition completes when switching items', async () => {
+      const { user } = await render(
+        <React.Fragment>
+          <style>{`
+            .transition-test-panel {
+              overflow: hidden;
+              height: var(--accordion-panel-height);
+              transition: height 300ms linear;
+            }
+
+            .transition-test-panel[data-starting-style],
+            .transition-test-panel[data-ending-style] {
+              height: 0;
+            }
+          `}</style>
+
+          <Accordion.Root defaultValue={[0]} multiple={false}>
+            <Accordion.Item value={0}>
+              <Accordion.Header>
+                <Accordion.Trigger>Trigger 1</Accordion.Trigger>
+              </Accordion.Header>
+              <Accordion.Panel className="transition-test-panel" data-testid="panel-1" keepMounted>
+                First panel
+              </Accordion.Panel>
+            </Accordion.Item>
+
+            <Accordion.Item value={1}>
+              <Accordion.Header>
+                <Accordion.Trigger>Trigger 2</Accordion.Trigger>
+              </Accordion.Header>
+              <Accordion.Panel className="transition-test-panel" data-testid="panel-2" keepMounted>
+                Second panel
+              </Accordion.Panel>
+            </Accordion.Item>
+          </Accordion.Root>
+        </React.Fragment>,
+      );
+
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+      const panel1 = screen.getByTestId('panel-1');
+      const panel2 = screen.getByTestId('panel-2');
+
+      await waitFor(() => {
+        expect(panel1).toHaveAttribute('data-open');
+        expect(panel1.style.getPropertyValue('--accordion-panel-height')).toBe('auto');
+      });
+
+      await user.click(trigger2);
+
+      await waitFor(() => {
+        expect(panel1).toHaveAttribute('data-ending-style');
+        expect(panel1).not.toHaveAttribute('hidden');
+        expect(panel1.style.getPropertyValue('--accordion-panel-height')).toMatch(/px$/);
+        expect(panel2).toHaveAttribute('data-open');
+      });
+
+      await waitFor(() => {
+        expect(panel1).toHaveAttribute('hidden');
+        expect(panel2).not.toHaveAttribute('hidden');
+      });
+    });
+  });
+
   describe.skipIf(isJSDOM || reactMajor < 19)('React.Activity', () => {
     it('does not replay open keyframe animations from inline styles when revealing a panel opened by the user', async () => {
       const Activity = getActivity();
