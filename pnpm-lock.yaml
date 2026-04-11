@@ -725,6 +725,9 @@ importers:
 
   test/performance:
     dependencies:
+      '@base-ui/react':
+        specifier: workspace:*
+        version: link:../../packages/react/build
       react:
         specifier: 19.2.4
         version: 19.2.4
