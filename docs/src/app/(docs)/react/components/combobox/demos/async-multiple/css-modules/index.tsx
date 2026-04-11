@@ -144,7 +144,10 @@ export default function ExampleAsyncMultipleCombobox() {
                   {value.map((user) => (
                     <Combobox.Chip key={user.id} className={styles.Chip} aria-label={user.name}>
                       {user.name}
-                      <Combobox.ChipRemove className={styles.ChipRemove} aria-label="Remove">
+                      <Combobox.ChipRemove
+                        className={styles.ChipRemove}
+                        aria-label={`Remove ${user.name}`}
+                      >
                         <XIcon />
                       </Combobox.ChipRemove>
                     </Combobox.Chip>

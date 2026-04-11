@@ -138,7 +138,10 @@ export default function ExampleCreatableCombobox() {
                         aria-label={label.value}
                       >
                         {label.value}
-                        <Combobox.ChipRemove className={styles.ChipRemove} aria-label="Remove">
+                        <Combobox.ChipRemove
+                          className={styles.ChipRemove}
+                          aria-label={`Remove ${label.value}`}
+                        >
                           <XIcon />
                         </Combobox.ChipRemove>
                       </Combobox.Chip>
