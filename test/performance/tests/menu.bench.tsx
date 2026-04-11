@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
-import { benchmark } from '@mui/internal-benchmark';
+import { benchmark, ElementTiming } from '@mui/internal-benchmark';
 import { createRows, MountList } from './shared';
 
 const menuRows = createRows(300, 'Menu');
@@ -35,6 +35,9 @@ function LargeMenu() {
       <Menu.Portal>
         <Menu.Positioner sideOffset={8} positionMethod="fixed">
           <Menu.Popup>
+            <div data-benchmark="menu-open-content">
+              <ElementTiming name="menu-open" />
+            </div>
             {largeMenuItems.map((item) => (
               <Menu.Item key={item.id}>{item.label}</Menu.Item>
             ))}
@@ -50,7 +53,18 @@ benchmark('Menu mount (300 instances)', () => <MenuMountList />);
 benchmark(
   'Menu open (500 items)',
   () => <LargeMenu />,
-  async () => {
-    document.querySelector<HTMLElement>('[aria-label="Open menu benchmark"]')?.click();
+  async ({ waitForElementTiming }) => {
+    const trigger = document.querySelector<HTMLElement>('[aria-label="Open menu benchmark"]');
+
+    if (trigger == null) {
+      throw new Error('Missing menu benchmark trigger');
+    }
+
+    trigger.click();
+    await waitForElementTiming('menu-open');
+
+    if (document.querySelector('[data-benchmark="menu-open-content"]') == null) {
+      throw new Error('Menu benchmark popup did not open');
+    }
   },
 );

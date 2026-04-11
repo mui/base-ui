@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
-import { benchmark } from '@mui/internal-benchmark';
+import { benchmark, ElementTiming } from '@mui/internal-benchmark';
 import { createRows, MountList } from './shared';
 
 const selectRows = createRows(200, 'Select');
@@ -46,6 +46,9 @@ function LargeSelect() {
       <Select.Portal>
         <Select.Positioner sideOffset={8}>
           <Select.Popup>
+            <div data-benchmark="select-open-content">
+              <ElementTiming name="select-open" />
+            </div>
             <Select.List>
               {largeSelectItems.map((item) => (
                 <Select.Item key={item.id} value={item.value}>
@@ -66,7 +69,18 @@ benchmark('Select mount (200 instances)', () => <SelectMountList />);
 benchmark(
   'Select open (500 options)',
   () => <LargeSelect />,
-  async () => {
-    document.querySelector<HTMLElement>('[aria-label="Open select benchmark"]')?.click();
+  async ({ waitForElementTiming }) => {
+    const trigger = document.querySelector<HTMLElement>('[aria-label="Open select benchmark"]');
+
+    if (trigger == null) {
+      throw new Error('Missing select benchmark trigger');
+    }
+
+    trigger.click();
+    await waitForElementTiming('select-open');
+
+    if (document.querySelector('[data-benchmark="select-open-content"]') == null) {
+      throw new Error('Select benchmark popup did not open');
+    }
   },
 );
