@@ -4,6 +4,7 @@ import { benchmark } from '@mui/internal-benchmark';
 import { createRows, MountList } from './shared';
 
 const dialogRows = createRows(300, 'Dialog');
+
 function DialogMountList() {
   return (
     <MountList rows={dialogRows}>

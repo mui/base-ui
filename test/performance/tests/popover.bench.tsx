@@ -4,6 +4,7 @@ import { benchmark } from '@mui/internal-benchmark';
 import { createRows, MountList } from './shared';
 
 const popoverRows = createRows(300, 'Popover');
+
 function PopoverMountList() {
   return (
     <MountList rows={popoverRows}>
