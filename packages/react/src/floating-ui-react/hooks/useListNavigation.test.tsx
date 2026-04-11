@@ -698,6 +698,18 @@ describe('useListNavigation', () => {
       await flushMicrotasks();
     });
 
+    it('true - syncs an item on hover when activeIndex is null but selectedIndex matches', async () => {
+      const spy = vi.fn();
+      render(<App focusItemOnOpen={false} selectedIndex={1} onNavigate={(index) => spy(index)} />);
+
+      fireEvent.click(screen.getByRole('button'));
+      fireEvent.mouseMove(screen.getByTestId('item-1'));
+
+      expect(screen.getByTestId('item-1')).toHaveFocus();
+      expect(spy).toHaveBeenCalledWith(1);
+      await flushMicrotasks();
+    });
+
     it('false - does not focus item on hover and does not sync the active index', async () => {
       const spy = vi.fn();
       render(<App onNavigate={spy} focusItemOnOpen={false} focusItemOnHover={false} />);
