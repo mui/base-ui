@@ -69,6 +69,7 @@ export function useCollapsiblePanel(
     mounted,
     open,
   });
+  // Only used to handle panel close
   const runOnceCloseAnimationsFinish = useAnimationsFinished(panelRef, false, false);
 
   const hidden = !open && !mounted;
@@ -263,8 +264,10 @@ export function useCollapsiblePanel(
   });
 
   // Closing panels need extra sequencing beyond `useOpenChangeComplete`.
-  // Chrome can register the exit transition a frame after `[data-ending-style]`
-  // is applied when an Accordion closes one item while opening another.
+  // This passive effect runs after the `ending` render has committed, so
+  // `[data-ending-style]` is already present. Chrome can still register the
+  // exit transition one frame later when an Accordion closes one item while
+  // opening another, so wait one frame before watching animations.
   // See https://github.com/mui/base-ui/issues/3099
   React.useEffect(() => {
     if (open || !mounted || panelTransitionStatus !== 'ending') {
@@ -277,9 +280,7 @@ export function useCollapsiblePanel(
     }
 
     const abortController = new AbortController();
-    const endingStyleAttribute = CollapsiblePanelDataAttributes.endingStyle;
     let endingStyleFrame = -1;
-    let attributeObserver: MutationObserver | null = null;
 
     function handleComplete() {
       if (latestStateRef.current.open) {
@@ -290,38 +291,13 @@ export function useCollapsiblePanel(
       setDimensions(EMPTY_DIMENSIONS, false);
     }
 
-    function runWhenReady() {
-      endingStyleFrame = AnimationFrame.request(() => {
-        if (!abortController.signal.aborted) {
-          runOnceCloseAnimationsFinish(handleComplete, abortController.signal);
-        }
-      });
-    }
-
-    if (!panel.hasAttribute(endingStyleAttribute)) {
-      attributeObserver = new MutationObserver((mutationList) => {
-        const hasEndingStyle = mutationList.some(
-          (mutation) =>
-            mutation.type === 'attributes' && mutation.attributeName === endingStyleAttribute,
-        );
-
-        if (hasEndingStyle) {
-          attributeObserver?.disconnect();
-          attributeObserver = null;
-          runWhenReady();
-        }
-      });
-
-      attributeObserver.observe(panel, {
-        attributes: true,
-        attributeFilter: [endingStyleAttribute],
-      });
-    } else {
-      runWhenReady();
-    }
+    endingStyleFrame = AnimationFrame.request(() => {
+      if (!abortController.signal.aborted) {
+        runOnceCloseAnimationsFinish(handleComplete, abortController.signal);
+      }
+    });
 
     return () => {
-      attributeObserver?.disconnect();
       AnimationFrame.cancel(endingStyleFrame);
       abortController.abort();
     };
