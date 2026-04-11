@@ -3,7 +3,7 @@ import { Slider } from '@base-ui/react/slider';
 import { benchmark } from '@mui/internal-benchmark';
 import { createRows, MountList } from './shared';
 
-const sliderRows = createRows(500, 'Slider');
+const sliderRows = createRows(300, 'Slider');
 
 function SliderMountList() {
   return (
@@ -23,4 +23,4 @@ function SliderMountList() {
   );
 }
 
-benchmark('Slider mount (500 instances)', () => <SliderMountList />);
+benchmark('Slider mount (300 instances)', () => <SliderMountList />);

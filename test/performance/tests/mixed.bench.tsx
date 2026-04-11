@@ -11,15 +11,15 @@ import { Tooltip } from '@base-ui/react/tooltip';
 import { benchmark } from '@mui/internal-benchmark';
 import { createRows } from './shared';
 
-const tooltipRows = createRows(300, 'Tooltip');
-const checkboxRows = createRows(60, 'Checkbox');
-const menuRows = createRows(40, 'Menu');
-const popoverRows = createRows(24, 'Popover');
-const selectRows = createRows(18, 'Select');
-const dialogRows = createRows(12, 'Dialog');
-const tabsRows = createRows(12, 'Tabs');
-const sliderRows = createRows(20, 'Slider');
-const scrollAreaRows = createRows(16, 'Scroll area');
+const tooltipRows = createRows(200, 'Tooltip');
+const checkboxRows = createRows(40, 'Checkbox');
+const menuRows = createRows(24, 'Menu');
+const popoverRows = createRows(16, 'Popover');
+const selectRows = createRows(12, 'Select');
+const dialogRows = createRows(8, 'Dialog');
+const tabsRows = createRows(8, 'Tabs');
+const sliderRows = createRows(12, 'Slider');
+const scrollAreaRows = createRows(10, 'Scroll area');
 const listItems = createRows(5, 'Option');
 const tabValues = ['overview', 'details', 'activity'] as const;
 

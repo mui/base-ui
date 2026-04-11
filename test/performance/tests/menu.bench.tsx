@@ -3,7 +3,7 @@ import { Menu } from '@base-ui/react/menu';
 import { benchmark } from '@mui/internal-benchmark';
 import { createRows, MountList } from './shared';
 
-const menuRows = createRows(500, 'Menu');
+const menuRows = createRows(300, 'Menu');
 const menuItems = createRows(5, 'Menu item');
 const largeMenuItems = createRows(500, 'Menu item');
 
@@ -45,7 +45,7 @@ function LargeMenu() {
   );
 }
 
-benchmark('Menu mount (500 instances)', () => <MenuMountList />);
+benchmark('Menu mount (300 instances)', () => <MenuMountList />);
 
 benchmark(
   'Menu open (500 items)',

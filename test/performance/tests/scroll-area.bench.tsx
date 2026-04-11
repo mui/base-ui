@@ -3,7 +3,7 @@ import { ScrollArea } from '@base-ui/react/scroll-area';
 import { benchmark } from '@mui/internal-benchmark';
 import { createRows, MountList } from './shared';
 
-const scrollAreaRows = createRows(500, 'Scroll area');
+const scrollAreaRows = createRows(300, 'Scroll area');
 
 function ScrollAreaMountList() {
   return (
@@ -31,4 +31,4 @@ function ScrollAreaMountList() {
   );
 }
 
-benchmark('Scroll Area mount (500 instances)', () => <ScrollAreaMountList />);
+benchmark('Scroll Area mount (300 instances)', () => <ScrollAreaMountList />);

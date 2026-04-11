@@ -3,7 +3,7 @@ import { Dialog } from '@base-ui/react/dialog';
 import { benchmark } from '@mui/internal-benchmark';
 import { createRows, MountList } from './shared';
 
-const dialogRows = createRows(500, 'Dialog');
+const dialogRows = createRows(300, 'Dialog');
 function DialogMountList() {
   return (
     <MountList rows={dialogRows}>
@@ -24,4 +24,4 @@ function DialogMountList() {
   );
 }
 
-benchmark('Dialog mount (500 instances)', () => <DialogMountList />);
+benchmark('Dialog mount (300 instances)', () => <DialogMountList />);

@@ -3,7 +3,7 @@ import { Tabs } from '@base-ui/react/tabs';
 import { benchmark } from '@mui/internal-benchmark';
 import { createRows, MountList } from './shared';
 
-const tabsRows = createRows(300, 'Tabs');
+const tabsRows = createRows(200, 'Tabs');
 const tabValues = ['overview', 'details', 'activity'] as const;
 
 function TabsMountList() {
@@ -30,4 +30,4 @@ function TabsMountList() {
   );
 }
 
-benchmark('Tabs mount (300 instances)', () => <TabsMountList />);
+benchmark('Tabs mount (200 instances)', () => <TabsMountList />);

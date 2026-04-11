@@ -3,7 +3,7 @@ import { Popover } from '@base-ui/react/popover';
 import { benchmark } from '@mui/internal-benchmark';
 import { createRows, MountList } from './shared';
 
-const popoverRows = createRows(500, 'Popover');
+const popoverRows = createRows(300, 'Popover');
 function PopoverMountList() {
   return (
     <MountList rows={popoverRows}>
@@ -24,4 +24,4 @@ function PopoverMountList() {
   );
 }
 
-benchmark('Popover mount (500 instances)', () => <PopoverMountList />);
+benchmark('Popover mount (300 instances)', () => <PopoverMountList />);

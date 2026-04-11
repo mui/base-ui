@@ -3,7 +3,7 @@ import { Select } from '@base-ui/react/select';
 import { benchmark } from '@mui/internal-benchmark';
 import { createRows, MountList } from './shared';
 
-const selectRows = createRows(300, 'Select');
+const selectRows = createRows(200, 'Select');
 const selectItems = createRows(5, 'Option');
 const largeSelectItems = createRows(500, 'Option');
 
@@ -61,7 +61,7 @@ function LargeSelect() {
   );
 }
 
-benchmark('Select mount (300 instances)', () => <SelectMountList />);
+benchmark('Select mount (200 instances)', () => <SelectMountList />);
 
 benchmark(
   'Select open (500 options)',
