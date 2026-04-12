@@ -121,13 +121,9 @@ const CHIP_LIMIT = 3;
             <Combobox.ChipRemove aria-label={`Remove ${item}`} />
           </Combobox.Chip>
         ))}
-        {hiddenCount > 0 && (
-          <>
-            {/* @highlight-start */}
-            <span>{`+${hiddenCount} more`}</span>
-            {/* @highlight-end */}
-          </>
-        )}
+        {/* @highlight-start */}
+        {hiddenCount > 0 && <span>{`+${hiddenCount} more`}</span>}
+        {/* @highlight-end */}
         <Combobox.Input />
       </>
     );
