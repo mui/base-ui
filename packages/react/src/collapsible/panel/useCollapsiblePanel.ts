@@ -147,16 +147,16 @@ export function useCollapsiblePanel(
     // Handle the opening pass: measure the expanded size and, when necessary,
     // neutralize author-defined motion so the panel can open immediately.
     if (open && transitionStatus === 'starting') {
+      // `beforematch` opens should reveal the panel immediately so find-in-page
+      // does not wait for the author-defined transition or animation to finish.
+      const skipNextOpen = shouldSkipNextOpenRef.current;
+      shouldSkipNextOpenRef.current = false;
+
       if (animationType === 'none') {
         setDimensions(getDimensions(panel));
         setForcePanelIdle(true);
         return undefined;
       }
-
-      // `beforematch` opens should reveal the panel immediately so find-in-page
-      // does not wait for the author-defined transition or animation to finish.
-      const skipNextOpen = shouldSkipNextOpenRef.current;
-      shouldSkipNextOpenRef.current = false;
 
       if (animationType === 'css-transition') {
         const restoreLayoutStyles = resetLayoutStyles(panel);

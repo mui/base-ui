@@ -673,6 +673,70 @@ describe('<Collapsible.Panel />', () => {
   describe.skipIf(isJSDOM || reactMajor < 19 || !('onbeforematch' in window))(
     'interrupted beforematch opens',
     () => {
+      it('does not suppress a later animated open after a no-motion beforematch open', async () => {
+        function App() {
+          const [motionEnabled, setMotionEnabled] = React.useState(false);
+
+          return (
+            <React.Fragment>
+              <style>{`
+                .transition-test-panel {
+                  overflow: hidden;
+                  height: var(--collapsible-panel-height);
+                  transition: height 100ms linear;
+                }
+
+                .transition-test-panel[data-starting-style],
+                .transition-test-panel[data-ending-style] {
+                  height: 0;
+                }
+              `}</style>
+
+              <button type="button" onClick={() => setMotionEnabled(true)}>
+                enable motion
+              </button>
+
+              <Collapsible.Root>
+                <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+                <Collapsible.Panel
+                  className={motionEnabled ? 'transition-test-panel' : undefined}
+                  data-testid="panel"
+                  hiddenUntilFound
+                  keepMounted
+                  style={motionEnabled ? { transitionDuration: '123ms' } : undefined}
+                >
+                  {PANEL_CONTENT}
+                </Collapsible.Panel>
+              </Collapsible.Root>
+            </React.Fragment>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        const panel = screen.getByTestId('panel');
+        const trigger = screen.getByRole('button', { name: 'Trigger' });
+        const enableMotion = screen.getByRole('button', { name: 'enable motion' });
+
+        fireBeforeMatch(panel);
+
+        await waitFor(() => {
+          expect(panel).toHaveAttribute('data-open');
+        });
+
+        await user.click(trigger);
+
+        await waitFor(() => {
+          expect(panel).toHaveAttribute('data-closed');
+        });
+
+        await user.click(enableMotion);
+        fireEvent.click(trigger);
+
+        expect(panel).toHaveAttribute('data-open');
+        expect(panel.style.transitionDuration).toBe('123ms');
+      });
+
       it('restores the inline transition duration when an instant open is interrupted', async () => {
         const Activity = getActivity();
 
