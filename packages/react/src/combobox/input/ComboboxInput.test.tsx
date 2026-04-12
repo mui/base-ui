@@ -539,6 +539,36 @@ describe('<Combobox.Input />', () => {
       expect(handleValueChange.mock.calls[0][0]).toEqual(['apple', 'cherry']);
     });
 
+    it('removes the last selected value when no chips are rendered', async () => {
+      const handleValueChange = vi.fn();
+      const { user } = await render(
+        <Combobox.Root
+          multiple
+          defaultValue={['apple', 'banana']}
+          onValueChange={handleValueChange}
+        >
+          <Combobox.Chips>
+            <Combobox.Value>
+              {(value: string[]) => (
+                <React.Fragment>
+                  <span>{`+${value.length} selected`}</span>
+                  <Combobox.Input data-testid="input" />
+                </React.Fragment>
+              )}
+            </Combobox.Value>
+          </Combobox.Chips>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      await user.click(input);
+      await user.keyboard('{Backspace}');
+
+      expect(handleValueChange.mock.calls.length).toBe(1);
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['apple']);
+    });
+
     it('closes the popup when tabbing out', async () => {
       const { user } = await render(
         <div>

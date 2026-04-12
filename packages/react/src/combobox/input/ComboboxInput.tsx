@@ -412,13 +412,11 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             selectedValue.length > 0
           ) {
             const renderedChipsCount = comboboxChipsContext.chipsRef.current.length;
-
-            if (renderedChipsCount === 0) {
-              return;
-            }
+            const removalIndex =
+              renderedChipsCount > 0 ? renderedChipsCount - 1 : selectedValue.length - 1;
 
             const newValue = selectedValue.filter(
-              (_: any, index: number) => index !== renderedChipsCount - 1,
+              (_: any, index: number) => index !== removalIndex,
             );
             // If the removed item was also the active (highlighted) item, clear highlight
             store.state.setIndices({

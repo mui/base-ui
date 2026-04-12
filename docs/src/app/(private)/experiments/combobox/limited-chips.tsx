@@ -69,15 +69,17 @@ export default function Experiment() {
                           aria-label={language.value}
                         >
                           {language.value}
-                          <Combobox.ChipRemove className={styles.ChipRemove} aria-label="Remove">
+                          <Combobox.ChipRemove
+                            className={styles.ChipRemove}
+                            aria-label={`Remove ${language.value}`}
+                          >
                             <XIcon />
                           </Combobox.ChipRemove>
                         </Combobox.Chip>
                       ))}
                       {hiddenCount > 0 && (
                         <span id={overflowId} className={styles.Overflow}>
-                          <span aria-hidden>+{hiddenCount}</span>
-                          <span className={styles.VisuallyHidden}>{hiddenCount} more selected</span>
+                          +{hiddenCount} more
                         </span>
                       )}
                       <Combobox.Input
