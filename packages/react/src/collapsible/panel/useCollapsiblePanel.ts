@@ -64,6 +64,10 @@ export function useCollapsiblePanel(
   // attributes and dimension cleanup reflect the immediate open state.
   const [forcePanelIdle, setForcePanelIdle] = React.useState(false);
 
+  if (forcePanelIdle && transitionStatus !== 'starting') {
+    setForcePanelIdle(false);
+  }
+
   const mergedPanelRef = useMergedRefs(externalRef, panelRef);
   const latestStateRef = useValueAsRef({
     mounted,
@@ -109,30 +113,13 @@ export function useCollapsiblePanel(
   // teardown happens while an already-open keyframe panel is visible, remember
   // to suppress the replayed open animation on the next committed reveal.
   const markActivityResumeAnimationSuppressed = useStableCallback(() => {
-    if (
-      latestStateRef.current.open &&
-      latestStateRef.current.mounted &&
-      animationTypeRef.current === 'css-animation'
-    ) {
+    if (open && mounted && animationTypeRef.current === 'css-animation') {
       shouldPreventActivityResumeAnimationRef.current = true;
     }
   });
 
-  useIsoLayoutEffect(() => {
-    // `forcePanelIdle` is only a temporary override for open paths that skip
-    // motion. Keep it active while the shared root still reports `starting`,
-    // then drop it once the root transition state catches up.
-    if (!forcePanelIdle || transitionStatus === 'starting') {
-      return;
-    }
-
-    setForcePanelIdle(false);
-  }, [forcePanelIdle, transitionStatus]);
-
   React.useEffect(() => {
-    return () => {
-      markActivityResumeAnimationSuppressed();
-    };
+    return markActivityResumeAnimationSuppressed;
   }, [markActivityResumeAnimationSuppressed]);
 
   useIsoLayoutEffect(() => {
@@ -312,21 +299,28 @@ export function useCollapsiblePanel(
   useIsoLayoutEffect(() => {
     const panel = panelRef.current;
 
-    if (!panel || !hiddenUntilFound || !hidden) {
+    if (!panel) {
       return;
     }
 
-    // React only supports a boolean for the `hidden` attribute and forces
-    // legit string values to booleans so we have to force it back in the DOM
-    // when necessary: https://github.com/facebook/react/issues/24740
-    panel.setAttribute('hidden', 'until-found');
+    if (hiddenUntilFound && hidden) {
+      // React only supports a boolean for the `hidden` attribute and forces
+      // legit string values to booleans so we have to force it back in the DOM
+      // when necessary: https://github.com/facebook/react/issues/24740
+      panel.setAttribute('hidden', 'until-found');
 
-    // Persist the closed transition styles while hidden so changing the hidden
-    // attribute to `'until-found'` doesn't itself trigger the transition.
-    if (getAnimationType(panel) === 'css-transition') {
-      panel.setAttribute(CollapsiblePanelDataAttributes.startingStyle, '');
+      // Persist the closed transition styles while hidden so changing the hidden
+      // attribute to `'until-found'` doesn't itself trigger the transition.
+      if (getAnimationType(panel) === 'css-transition') {
+        panel.setAttribute(CollapsiblePanelDataAttributes.startingStyle, '');
+        return;
+      }
     }
-  }, [hidden, hiddenUntilFound]);
+
+    if (panelTransitionStatus !== 'starting') {
+      panel.removeAttribute(CollapsiblePanelDataAttributes.startingStyle);
+    }
+  }, [hidden, hiddenUntilFound, panelTransitionStatus]);
 
   React.useEffect(
     function registerBeforeMatchListener() {
@@ -348,30 +342,18 @@ export function useCollapsiblePanel(
 
   const shouldRender = keepMounted || hiddenUntilFound || mounted || open;
 
-  return React.useMemo(
-    () => ({
-      height: renderedDimensions.height,
-      props: {
-        hidden,
-        id: idParam,
-      },
-      ref: mergedPanelRef,
-      shouldPreventOpenAnimation,
-      shouldRender,
-      transitionStatus: panelTransitionStatus,
-      width: renderedDimensions.width,
-    }),
-    [
-      renderedDimensions.height,
-      renderedDimensions.width,
+  return {
+    height: renderedDimensions.height,
+    props: {
       hidden,
-      idParam,
-      mergedPanelRef,
-      panelTransitionStatus,
-      shouldPreventOpenAnimation,
-      shouldRender,
-    ],
-  );
+      id: idParam,
+    },
+    ref: mergedPanelRef,
+    shouldPreventOpenAnimation,
+    shouldRender,
+    transitionStatus: panelTransitionStatus,
+    width: renderedDimensions.width,
+  };
 }
 
 function getDimensions(element: HTMLElement): Dimensions {
@@ -478,9 +460,7 @@ function resetLayoutStyles(element: HTMLElement): () => void {
     });
   }
 
-  let frame = -1;
-
-  frame = AnimationFrame.request(restoreLayoutStyles);
+  const frame = AnimationFrame.request(restoreLayoutStyles);
 
   return () => {
     AnimationFrame.cancel(frame);
