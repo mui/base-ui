@@ -186,18 +186,16 @@ export function useCollapsiblePanel(
 
       if (animationType === 'css-animation') {
         setDimensions(getDimensions(panel));
+        const restoreAnimationName = setTemporaryStyle(panel, 'animation-name', 'none');
+
+        restoreAnimationName();
 
         if (!skipNextOpen) {
-          const restoreAnimationName = setTemporaryStyle(panel, 'animation-name', 'none');
-          restoreAnimationName();
-
           return undefined;
         }
 
-        const restoreAnimationName = setTemporaryStyle(panel, 'animation-name', 'none');
         const restoreAnimationDuration = setTemporaryStyle(panel, 'animation-duration', '0s');
 
-        restoreAnimationName();
         setForcePanelIdle(true);
 
         return scheduleRestore(restoreAnimationDuration);
@@ -469,9 +467,7 @@ function resetLayoutStyles(element: HTMLElement): () => void {
     element.style.setProperty(key, 'initial', 'important');
   });
 
-  let frame = -1;
-
-  frame = AnimationFrame.request(() => {
+  function restoreLayoutStyles() {
     Object.entries(originalLayoutStyles).forEach(([key, value]) => {
       if (value === '') {
         element.style.removeProperty(key);
@@ -480,18 +476,15 @@ function resetLayoutStyles(element: HTMLElement): () => void {
 
       element.style.setProperty(key, value);
     });
-  });
+  }
+
+  let frame = -1;
+
+  frame = AnimationFrame.request(restoreLayoutStyles);
 
   return () => {
     AnimationFrame.cancel(frame);
-    Object.entries(originalLayoutStyles).forEach(([key, value]) => {
-      if (value === '') {
-        element.style.removeProperty(key);
-        return;
-      }
-
-      element.style.setProperty(key, value);
-    });
+    restoreLayoutStyles();
   };
 }
 
@@ -504,16 +497,25 @@ function resetLayoutStyles(element: HTMLElement): () => void {
 function scheduleRestore(restore: () => void): () => void {
   let frame = -1;
   let nextFrame = -1;
+  let restored = false;
+
+  function restoreOnce() {
+    if (restored) {
+      return;
+    }
+
+    restored = true;
+    restore();
+  }
 
   frame = AnimationFrame.request(() => {
-    nextFrame = AnimationFrame.request(() => {
-      restore();
-    });
+    nextFrame = AnimationFrame.request(restoreOnce);
   });
 
   return () => {
     AnimationFrame.cancel(frame);
     AnimationFrame.cancel(nextFrame);
+    restoreOnce();
   };
 }
 

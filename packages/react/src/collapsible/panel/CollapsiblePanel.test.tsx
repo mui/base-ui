@@ -1,17 +1,20 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
-import {
-  act,
-  fireEvent,
-  flushMicrotasks,
-  reactMajor,
-  screen,
-  waitFor,
-} from '@mui/internal-test-utils';
+import { fireEvent, flushMicrotasks, reactMajor, screen, waitFor } from '@mui/internal-test-utils';
 import { Collapsible } from '@base-ui/react/collapsible';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 const PANEL_CONTENT = 'This is panel content';
+
+function fireBeforeMatch(element: Element) {
+  fireEvent(
+    element,
+    new window.Event('beforematch', {
+      bubbles: true,
+      cancelable: false,
+    }),
+  );
+}
 
 describe('<Collapsible.Panel />', () => {
   const { render, renderToString } = createRenderer();
@@ -667,6 +670,72 @@ describe('<Collapsible.Panel />', () => {
     });
   });
 
+  describe.skipIf(isJSDOM || reactMajor < 19 || !('onbeforematch' in window))(
+    'interrupted beforematch opens',
+    () => {
+      it('restores the inline transition duration when an instant open is interrupted', async () => {
+        const Activity = getActivity();
+
+        function App() {
+          const [visible, setVisible] = React.useState(true);
+
+          return (
+            <React.Fragment>
+              <style>{`
+                .transition-test-panel {
+                  overflow: hidden;
+                  height: var(--collapsible-panel-height);
+                  transition-property: height;
+                  transition-duration: 999ms;
+                  transition-timing-function: linear;
+                }
+
+                .transition-test-panel[data-starting-style],
+                .transition-test-panel[data-ending-style] {
+                  height: 0;
+                }
+              `}</style>
+
+              <button type="button" onClick={() => setVisible((prev) => !prev)}>
+                toggle activity
+              </button>
+
+              <Activity mode={visible ? 'visible' : 'hidden'}>
+                <Collapsible.Root>
+                  <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+                  <Collapsible.Panel
+                    className="transition-test-panel"
+                    data-testid="panel"
+                    hiddenUntilFound
+                    keepMounted
+                    style={{ transitionDuration: '123ms' }}
+                  >
+                    {PANEL_CONTENT}
+                  </Collapsible.Panel>
+                </Collapsible.Root>
+              </Activity>
+            </React.Fragment>
+          );
+        }
+
+        await render(<App />);
+
+        const panel = screen.getByTestId('panel');
+        const toggle = screen.getByRole('button', { name: 'toggle activity' });
+
+        fireBeforeMatch(panel);
+        fireEvent.click(toggle);
+
+        fireEvent.click(toggle);
+
+        await waitFor(() => {
+          expect(panel).toHaveAttribute('data-open');
+          expect(panel.style.transitionDuration).toBe('123ms');
+        });
+      });
+    },
+  );
+
   // we test firefox in browserstack which does not support this yet
   describe.skipIf(!('onbeforematch' in window) || isJSDOM)('prop: hiddenUntilFound', () => {
     it('uses `hidden="until-found" to hide panel when true', async () => {
@@ -681,15 +750,9 @@ describe('<Collapsible.Panel />', () => {
         </Collapsible.Root>,
       );
 
-      const panel = screen.queryByText(PANEL_CONTENT);
+      const panel = screen.getByText(PANEL_CONTENT);
 
-      act(() => {
-        const event = new window.Event('beforematch', {
-          bubbles: true,
-          cancelable: false,
-        });
-        panel?.dispatchEvent(event);
-      });
+      fireBeforeMatch(panel);
 
       expect(handleOpenChange.mock.calls.length).toBe(1);
       expect(panel).toHaveAttribute('data-open');
