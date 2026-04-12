@@ -106,7 +106,6 @@ Visible chips can be limited by slicing the selected values rendered in `<Combob
 
 ```tsx title="Limiting visible chips"
 const CHIP_LIMIT = 3;
-const hiddenSelectionDescriptionId = 'hidden-selection-count';
 
 <Combobox.Value>
   {(selectedValue: string[]) => {
@@ -125,13 +124,11 @@ const hiddenSelectionDescriptionId = 'hidden-selection-count';
         {hiddenCount > 0 && (
           <>
             {/* @highlight-start */}
-            <span id={hiddenSelectionDescriptionId}>{`+${hiddenCount} more`}</span>
+            <span>{`+${hiddenCount} more`}</span>
             {/* @highlight-end */}
           </>
         )}
-        <Combobox.Input
-          aria-describedby={hiddenCount > 0 ? hiddenSelectionDescriptionId : undefined}
-        />
+        <Combobox.Input />
       </>
     );
   }}

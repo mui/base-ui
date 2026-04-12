@@ -7,7 +7,6 @@ const CHIP_LIMIT = 3;
 
 export default function Experiment() {
   const id = React.useId();
-  const overflowId = React.useId();
   const [value, setValue] = React.useState<ProgrammingLanguage[]>(() => langs.slice(0, 7));
   const [inputValue, setInputValue] = React.useState('');
   const [expandWhileFocused, setExpandWhileFocused] = React.useState(false);
@@ -78,13 +77,10 @@ export default function Experiment() {
                         </Combobox.Chip>
                       ))}
                       {hiddenCount > 0 && (
-                        <span id={overflowId} className={styles.Overflow}>
-                          +{hiddenCount} more
-                        </span>
+                        <span className={styles.Overflow}>+{hiddenCount} more</span>
                       )}
                       <Combobox.Input
                         id={id}
-                        aria-describedby={hiddenCount > 0 ? overflowId : undefined}
                         placeholder={selectedValue.length > 0 ? '' : 'e.g. TypeScript'}
                         className={styles.Input}
                       />
