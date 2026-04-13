@@ -91,6 +91,8 @@ export function useCollapsiblePanel(
     dimensions.width === undefined
       ? lastMeasuredDimensionsRef.current
       : dimensions;
+  const shouldPersistHiddenTransitionStyles =
+    hiddenUntilFound && hidden && animationTypeRef.current !== 'css-animation';
 
   // Most measured dimensions are reused later when CSS keyframe closes need a
   // pixel size after the rendered dimensions have been reset back to `auto`.
@@ -347,12 +349,6 @@ export function useCollapsiblePanel(
     // legit string values to booleans so we have to force it back in the DOM
     // when necessary: https://github.com/facebook/react/issues/24740
     panel.setAttribute('hidden', 'until-found');
-
-    // Persist the closed transition styles while hidden so changing the hidden
-    // attribute to `'until-found'` doesn't itself trigger the transition.
-    if (getAnimationType(panel) === 'css-transition') {
-      panel.setAttribute(CollapsiblePanelDataAttributes.startingStyle, '');
-    }
   }, [hidden, hiddenUntilFound]);
 
   React.useEffect(
@@ -378,6 +374,9 @@ export function useCollapsiblePanel(
   return {
     height: renderedDimensions.height,
     props: {
+      ...(shouldPersistHiddenTransitionStyles
+        ? { [CollapsiblePanelDataAttributes.startingStyle]: '' }
+        : undefined),
       hidden,
       id: idParam,
     },

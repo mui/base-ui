@@ -893,6 +893,69 @@ describe('<Collapsible.Panel />', () => {
           expect(panel.style.transitionDuration).toBe('123ms');
         });
       });
+
+      it('does not keep a hidden transition running after a hiddenUntilFound panel closes', async () => {
+        function App() {
+          return (
+            <React.Fragment>
+              <style>{`
+                .transition-test-panel {
+                  overflow: hidden;
+                  height: var(--collapsible-panel-height);
+                  opacity: 1;
+                  transition:
+                    height 1000ms linear,
+                    opacity 1000ms linear;
+                }
+
+                .transition-test-panel[data-starting-style],
+                .transition-test-panel[data-ending-style] {
+                  height: 0;
+                  opacity: 0;
+                }
+              `}</style>
+
+              <Collapsible.Root>
+                <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+                <Collapsible.Panel
+                  className="transition-test-panel"
+                  data-testid="panel"
+                  hiddenUntilFound
+                >
+                  {PANEL_CONTENT}
+                </Collapsible.Panel>
+              </Collapsible.Root>
+            </React.Fragment>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        const panel = screen.getByTestId('panel');
+        const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+        await user.click(trigger);
+
+        await waitFor(() => {
+          expect(panel).toHaveAttribute('data-open');
+        });
+
+        await user.click(trigger);
+
+        await waitFor(() => {
+          expect(panel).toHaveAttribute('hidden', 'until-found');
+        });
+
+        await act(async () => {
+          await waitForAnimationFrame();
+          await waitForAnimationFrame();
+        });
+
+        expect(
+          panel.getAnimations().filter((animation) => animation.playState !== 'finished').length,
+        ).toBe(0);
+        expect(getComputedStyle(panel).opacity).toBe('0');
+      });
     },
   );
 
