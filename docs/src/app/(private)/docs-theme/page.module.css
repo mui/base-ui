@@ -2,7 +2,7 @@
   padding: var(--space-40);
   color: var(--gray-t2);
   background: var(--gray-s1);
-  font-family: var(--font-sans-a);
+  font-family: var(--font-sans);
 }
 
 .hero {

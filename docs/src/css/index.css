@@ -100,8 +100,8 @@
 
   /* Typography */
   --font-mono: 'Paper Mono', monospace;
-  --font-sans: 'Die Grotesk A', system-ui, sans-serif;
-  --font-sans-b: 'Die Grotesk B', system-ui, sans-serif;
+  --font-sans: 'die grotesk a', system-ui, sans-serif;
+  --font-sans-b: 'die grotesk b', system-ui, sans-serif;
   --font-serif: Georgia, 'Times New Roman', Times, 'Noto Serif', 'DejaVu Serif', serif;
 
   --text-xs: 0.8125rem;
@@ -259,6 +259,21 @@
     --radius-pill: 9999px;
     --radius-circle: 50%;
 
+    /* Shadow */
+    --shadow-1:
+      0 1px 1px 0 var(--blackA-1), 0 2px 1px -1px var(--blackA-1), 0 1px 3px 0 var(--blackA-1);
+    --shadow-2:
+      0 1px 1px 0 var(--blackA-1), 0 1px 3px -1px var(--blackA-1), 0 4px 8px -2px var(--blackA-1);
+    --shadow-3:
+      0 1px 1px 0 var(--blackA-1), 0 2px 6px -1px var(--blackA-1), 0 6px 12px -3px var(--blackA-1),
+      0 8px 16px -4px var(--blackA-1);
+    --shadow-4:
+      0 1px 1px 0 var(--blackA-1), 0 2px 4px -1px var(--blackA-1), 0 4px 8px -2px var(--blackA-1),
+      0 12px 32px -6px var(--blackA-3), 0 20px 48px -10px var(--blackA-1);
+    --shadow-5:
+      0 10px 32px var(--blackA-5), 0 1px 1px var(--blackA-1), 0 4px 6px var(--blackA-2),
+      0 1px 1px var(--blackA-2), 0 24px 68px var(--blackA-4);
+
     /* Breakpoints (use custom-media.css where possible) */
     --breakpoint-max-layout-width: 89rem; /* 1424px - this is a 1440px device minus 16px scrollbar */
 
@@ -396,6 +411,12 @@
     --color-navy: initial;
     --color-green: initial;
     --color-violet: initial;
+
+    --shadow-1: initial;
+    --shadow-2: initial;
+    --shadow-3: initial;
+    --shadow-4: initial;
+    --shadow-5: initial;
 
     --font-size-13: initial;
     --font-size-14: initial;
