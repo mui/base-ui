@@ -208,9 +208,6 @@ export function Demo({
                   variants={demo.variants}
                   selectedVariant={demo.selectedVariant}
                   selectVariant={demo.selectVariant as any}
-                  availableTransforms={demo.availableTransforms}
-                  selectedTransform={demo.selectedTransform}
-                  selectTransform={demo.selectTransform}
                 />
                 {externalPlaygroundLink}
                 <GhostButton aria-label="Copy code" onClick={demo.copy}>
