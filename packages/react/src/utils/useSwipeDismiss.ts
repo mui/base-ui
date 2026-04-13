@@ -2,8 +2,12 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import {
+  findScrollableTouchTarget,
+  hasScrollableAncestor,
+  type ScrollAxis,
+} from '@base-ui/utils/scrollable';
 import { contains, getTarget } from '../floating-ui-react/utils';
-import { findScrollableTouchTarget, hasScrollableAncestor, type ScrollAxis } from './scrollable';
 import { clamp } from './clamp';
 import { getElementAtPoint } from './getElementAtPoint';
 

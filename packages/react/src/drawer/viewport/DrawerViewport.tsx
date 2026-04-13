@@ -4,6 +4,17 @@ import * as ReactDOM from 'react-dom';
 import { isElement } from '@floating-ui/utils/dom';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import {
+  findScrollableTouchTarget,
+  getScrollMetrics,
+  hasScrollableContentOnAxis,
+  type ScrollAxis,
+} from '@base-ui/utils/scrollable';
+import {
+  getTouchMoveAxis,
+  isEventOnRangeInput,
+  shouldIgnoreTouchMoveForSelection,
+} from '@base-ui/utils/touch';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
@@ -24,10 +35,9 @@ import { DrawerBackdropCssVars } from '../backdrop/DrawerBackdropCssVars';
 import { DRAWER_CONTENT_ATTRIBUTE } from '../content/DrawerContentDataAttributes';
 import { REASONS } from '../../utils/reasons';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
+import { contains, getTarget } from '../../floating-ui-react/utils';
 import { DrawerViewportContext } from './DrawerViewportContext';
 import { TransitionStatusDataAttributes } from '../../utils/stateAttributesMapping';
-import { findScrollableTouchTarget, type ScrollAxis } from '../../utils/scrollable';
 import { BASE_UI_SWIPE_IGNORE_SELECTOR } from '../../utils/constants';
 import { getElementAtPoint } from '../../utils/getElementAtPoint';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -416,7 +426,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
       const touchLike =
         'touches' in nativeEvent ||
         ('pointerType' in nativeEvent && nativeEvent.pointerType === 'touch');
-      if (touchLike && shouldIgnoreSwipeForTextSelection(doc, popupElement)) {
+      if (touchLike && shouldIgnoreTouchMoveForSelection(doc, popupElement)) {
         return false;
       }
 
@@ -818,7 +828,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         return;
       }
 
-      const allowTouchMove = shouldIgnoreSwipeForTextSelection(doc, resolvedRootElement);
+      const allowTouchMove = shouldIgnoreTouchMoveForSelection(doc, resolvedRootElement);
 
       if (allowTouchMove || !open || !mounted || nestedDrawerOpen) {
         updateTouchScrollPosition(touchState, touch);
@@ -1204,66 +1214,6 @@ function getBaseSwipeThreshold(element: HTMLElement, direction: SwipeDirection):
   return Math.max(size * 0.5, MIN_SWIPE_THRESHOLD);
 }
 
-function isRangeInput(
-  target: EventTarget | null,
-  win: ReturnType<typeof ownerWindow>,
-): target is HTMLInputElement {
-  return target instanceof win.HTMLInputElement && target.type === 'range';
-}
-
-function isTextSelectionControl(
-  target: EventTarget | null,
-): target is HTMLInputElement | HTMLTextAreaElement {
-  if (!isElement(target)) {
-    return false;
-  }
-
-  return target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
-}
-
-function hasExpandedSelectionWithinTarget(selection: Selection, target: Element): boolean {
-  const anchorElement = isElement(selection.anchorNode)
-    ? selection.anchorNode
-    : selection.anchorNode?.parentElement;
-  const focusElement = isElement(selection.focusNode)
-    ? selection.focusNode
-    : selection.focusNode?.parentElement;
-
-  return (
-    selection.containsNode(target, true) ||
-    contains(target, anchorElement) ||
-    contains(target, focusElement)
-  );
-}
-
-function shouldIgnoreSwipeForTextSelection(doc: Document, rootElement: HTMLElement): boolean {
-  const activeEl = activeElement(doc);
-  const activeElementWithinRoot = Boolean(activeEl && contains(rootElement, activeEl));
-
-  if (activeElementWithinRoot && isTextSelectionControl(activeEl)) {
-    const { selectionStart, selectionEnd } = activeEl;
-    if (selectionStart != null && selectionEnd != null && selectionStart < selectionEnd) {
-      return true;
-    }
-  }
-
-  const selection = doc.getSelection?.();
-  if (!selection || selection.isCollapsed) {
-    return false;
-  }
-
-  return hasExpandedSelectionWithinTarget(selection, rootElement);
-}
-
-function isEventOnRangeInput(event: TouchEvent, win: ReturnType<typeof ownerWindow>): boolean {
-  const composedPath = event.composedPath();
-  if (composedPath) {
-    return composedPath.some((pathTarget) => isRangeInput(pathTarget, win));
-  }
-
-  return isRangeInput(getTarget(event), win);
-}
-
 function isReactTouchEventOnRangeInput(event: React.TouchEvent<Element>): boolean {
   return isEventOnRangeInput(event.nativeEvent, ownerWindow(event.currentTarget));
 }
@@ -1286,37 +1236,20 @@ function preserveNativeCrossAxisScrollOnMove(
     return false;
   }
 
-  const drawerAxisGestureDelta = isVerticalScrollAxis
-    ? touch.clientY - touchState.startY
-    : touch.clientX - touchState.startX;
-  const crossAxisGestureDelta = isVerticalScrollAxis
-    ? touch.clientX - touchState.startX
-    : touch.clientY - touchState.startY;
-  const absDrawerAxisGestureDelta = Math.abs(drawerAxisGestureDelta);
-  const absCrossAxisGestureDelta = Math.abs(crossAxisGestureDelta);
+  const gestureAxis = getTouchMoveAxis(
+    touchState.startX,
+    touchState.startY,
+    touch.clientX,
+    touch.clientY,
+  );
+  const crossAxis: ScrollAxis = isVerticalScrollAxis ? 'horizontal' : 'vertical';
 
-  if (absCrossAxisGestureDelta < 6 || absCrossAxisGestureDelta <= absDrawerAxisGestureDelta + 2) {
+  if (gestureAxis !== crossAxis) {
     return false;
   }
 
   touchState.preserveNativeCrossAxisScroll = true;
   return true;
-}
-
-function hasScrollableContentOnAxis(scrollTarget: HTMLElement, axis: ScrollAxis): boolean {
-  return axis === 'vertical'
-    ? scrollTarget.scrollHeight > scrollTarget.clientHeight
-    : scrollTarget.scrollWidth > scrollTarget.clientWidth;
-}
-
-function getScrollMetrics(scrollTarget: HTMLElement, axis: ScrollAxis) {
-  if (axis === 'vertical') {
-    const max = Math.max(0, scrollTarget.scrollHeight - scrollTarget.clientHeight);
-    return { offset: scrollTarget.scrollTop, max };
-  }
-
-  const max = Math.max(0, scrollTarget.scrollWidth - scrollTarget.clientWidth);
-  return { offset: scrollTarget.scrollLeft, max };
 }
 
 function isAtSwipeStartEdge(

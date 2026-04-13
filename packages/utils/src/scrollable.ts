@@ -51,3 +51,19 @@ export function findScrollableTouchTarget(
 
   return isScrollable(root, axis) ? root : null;
 }
+
+export function hasScrollableContentOnAxis(scrollTarget: HTMLElement, axis: ScrollAxis): boolean {
+  return axis === 'vertical'
+    ? scrollTarget.scrollHeight > scrollTarget.clientHeight
+    : scrollTarget.scrollWidth > scrollTarget.clientWidth;
+}
+
+export function getScrollMetrics(scrollTarget: HTMLElement, axis: ScrollAxis) {
+  if (axis === 'vertical') {
+    const max = Math.max(0, scrollTarget.scrollHeight - scrollTarget.clientHeight);
+    return { offset: scrollTarget.scrollTop, max };
+  }
+
+  const max = Math.max(0, scrollTarget.scrollWidth - scrollTarget.clientWidth);
+  return { offset: scrollTarget.scrollLeft, max };
+}

@@ -3,10 +3,119 @@ import { isOverflowElement } from '@floating-ui/utils/dom';
 import { addEventListener } from './addEventListener';
 import { isIOS, isWebKit } from './detectBrowser';
 import { ownerDocument, ownerWindow } from './owner';
+import { findScrollableTouchTarget, getScrollMetrics } from './scrollable';
+import { getTouchMoveAxis, isEventOnRangeInput, shouldIgnoreTouchMoveForSelection } from './touch';
 import { useIsoLayoutEffect } from './useIsoLayoutEffect';
 import { Timeout } from './useTimeout';
 import { AnimationFrame } from './useAnimationFrame';
 import { NOOP } from './empty';
+
+interface TouchScrollState {
+  startX: number;
+  startY: number;
+  verticalScrollTarget: HTMLElement | null;
+  horizontalScrollTarget: HTMLElement | null;
+}
+
+type TouchWithTouchType = Touch & { touchType: string | undefined };
+type EventWithPointerType = { pointerType: PointerEvent['pointerType'] };
+
+function isStylusTouch(event: TouchEvent) {
+  const touch = event.touches[0] ?? event.changedTouches[0];
+  const touchType = (touch as TouchWithTouchType | undefined)?.touchType;
+  const pointerType = (event as unknown as EventWithPointerType).pointerType;
+  return touchType === 'stylus' || touchType === 'pen' || pointerType === 'pen';
+}
+
+function preventScrollIOS(referenceElement: Element | null = null) {
+  const doc = ownerDocument(referenceElement);
+  const win = ownerWindow(doc);
+  const restoreOverlayScrollbars = preventScrollOverlayScrollbars(referenceElement);
+
+  let touchState: TouchScrollState | null = null;
+  let allowTouchMove = false;
+
+  function onTouchStart(event: TouchEvent) {
+    const touch = event.touches[0];
+    const target = event.target;
+
+    allowTouchMove =
+      isStylusTouch(event) ||
+      isEventOnRangeInput(event, win) ||
+      (target instanceof win.Element && shouldIgnoreTouchMoveForSelection(doc, target));
+
+    if (!touch) {
+      touchState = null;
+      return;
+    }
+
+    touchState = {
+      startX: touch.clientX,
+      startY: touch.clientY,
+      verticalScrollTarget: findScrollableTouchTarget(target, doc.documentElement, 'vertical'),
+      horizontalScrollTarget: findScrollableTouchTarget(target, doc.documentElement, 'horizontal'),
+    };
+  }
+
+  function onTouchMove(event: TouchEvent) {
+    const touch = event.touches[0];
+
+    if (!touch || event.touches.length === 2 || allowTouchMove) {
+      return;
+    }
+
+    const activeTouchState = touchState;
+    if (!activeTouchState) {
+      return;
+    }
+
+    const axis = getTouchMoveAxis(
+      activeTouchState.startX,
+      activeTouchState.startY,
+      touch.clientX,
+      touch.clientY,
+    );
+    if (!axis) {
+      return;
+    }
+
+    const scrollTarget =
+      axis === 'vertical'
+        ? activeTouchState.verticalScrollTarget
+        : activeTouchState.horizontalScrollTarget;
+
+    const isScrollRoot =
+      !scrollTarget || scrollTarget === doc.documentElement || scrollTarget === doc.body;
+
+    const { offset, max } = scrollTarget
+      ? getScrollMetrics(scrollTarget, axis)
+      : { offset: 0, max: 0 };
+    const delta =
+      axis === 'vertical'
+        ? touch.clientY - activeTouchState.startY
+        : touch.clientX - activeTouchState.startX;
+    let shouldPreventScrollChaining = false;
+    if (delta > 0) {
+      shouldPreventScrollChaining = offset <= 0;
+    } else if (delta < 0) {
+      shouldPreventScrollChaining = offset >= max;
+    }
+
+    if (event.cancelable && (isScrollRoot || shouldPreventScrollChaining)) {
+      event.preventDefault();
+    }
+  }
+
+  const touchOptions = { passive: false, capture: true };
+  doc.addEventListener('touchstart', onTouchStart, touchOptions);
+  doc.addEventListener('touchmove', onTouchMove, touchOptions);
+
+  return () => {
+    doc.removeEventListener('touchstart', onTouchStart, touchOptions);
+    doc.removeEventListener('touchmove', onTouchMove, touchOptions);
+    restoreOverlayScrollbars();
+  };
+}
 
 let originalHtmlStyles: Partial<CSSStyleDeclaration> = {};
 let originalBodyStyles: Partial<CSSStyleDeclaration> = {};
@@ -237,7 +346,7 @@ class ScrollLocker {
 
   private unlock = () => {
     if (this.lockCount === 0 && this.restore) {
-      this.restore?.();
+      this.restore();
       this.restore = null;
     }
   };
@@ -257,15 +366,12 @@ class ScrollLocker {
       return;
     }
 
-    const hasOverlayScrollbars = isIOS || !hasInsetScrollbars(referenceElement);
+    if (isIOS) {
+      this.restore = preventScrollIOS(referenceElement);
+      return;
+    }
 
-    // On iOS, scroll locking does not work if the navbar is collapsed. Due to numerous
-    // side effects and bugs that arise on iOS, it must be researched extensively before
-    // being enabled to ensure it doesn't cause the following issues:
-    // - Textboxes must scroll into view when focused, nor cause a glitchy scroll animation.
-    // - The navbar must not force itself into view and cause layout shift.
-    // - Scroll containers must not flicker upon closing a popup when it has an exit animation.
-    this.restore = hasOverlayScrollbars
+    this.restore = !hasInsetScrollbars(referenceElement)
       ? preventScrollOverlayScrollbars(referenceElement)
       : preventScrollInsetScrollbars(referenceElement);
   }
