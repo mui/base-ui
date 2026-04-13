@@ -1,6 +1,6 @@
 {
   "name": "@base-ui/react",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "author": "MUI Team",
   "description": "Base UI is a library of headless ('unstyled') React components and low-level hooks. You gain complete control over your app's CSS and accessibility features.",
   "license": "MIT",
@@ -51,6 +51,7 @@
     "./meter": "./src/meter/index.ts",
     "./navigation-menu": "./src/navigation-menu/index.ts",
     "./number-field": "./src/number-field/index.ts",
+    "./otp-field": "./src/otp-field/index.ts",
     "./popover": "./src/popover/index.ts",
     "./preview-card": "./src/preview-card/index.ts",
     "./progress": "./src/progress/index.ts",

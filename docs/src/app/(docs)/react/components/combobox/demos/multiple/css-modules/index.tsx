@@ -24,7 +24,10 @@ export default function ExampleMultipleCombobox() {
                       aria-label={language.value}
                     >
                       {language.value}
-                      <Combobox.ChipRemove className={styles.ChipRemove} aria-label="Remove">
+                      <Combobox.ChipRemove
+                        className={styles.ChipRemove}
+                        aria-label={`Remove ${language.value}`}
+                      >
                         <XIcon />
                       </Combobox.ChipRemove>
                     </Combobox.Chip>

@@ -488,8 +488,8 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         skipAutoSizeSyncRef.current = false;
         return undefined;
       }
-
-      handleValueChange(0, 0);
+      const { width, height } = getCssDimensions(popupElement);
+      handleValueChange(width, height);
     }
     return undefined;
   }, [

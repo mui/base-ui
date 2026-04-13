@@ -152,7 +152,7 @@ export default function ExampleAsyncMultipleCombobox() {
                       {user.name}
                       <Combobox.ChipRemove
                         className="inline-flex items-center justify-center rounded-md border-none bg-transparent p-[0.2rem] text-inherit hover:bg-gray-200"
-                        aria-label="Remove"
+                        aria-label={`Remove ${user.name}`}
                       >
                         <XIcon />
                       </Combobox.ChipRemove>
