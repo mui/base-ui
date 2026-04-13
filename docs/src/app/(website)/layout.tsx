@@ -1,4 +1,4 @@
-// Keep CSS imports first to ensure layers are declared before component styles
+// Keep CSS imports first to ensure CSS layer order is correct
 import 'docs/src/css/index.css';
 import './css/index.css';
 
