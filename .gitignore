@@ -43,3 +43,6 @@ next-env.d.ts
 
 # Testing
 test-results/
+
+# Benchmark results
+test/performance/benchmarks/results.json
