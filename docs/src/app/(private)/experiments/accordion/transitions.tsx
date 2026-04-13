@@ -100,12 +100,12 @@ function ActivityComparison({ multiple }: Pick<ExampleAccordionProps, 'multiple'
 
       <small>regular mount</small>
       {visible ? (
-        <ExampleAccordion defaultValue={[0]} multiple={multiple} triggerNumbers={[42, 43, 44]} />
+        <ExampleAccordion defaultValue={[0]} multiple={multiple} triggerNumbers={[46, 47, 48]} />
       ) : null}
 
       <small>React.Activity</small>
       <React.Activity mode={visible ? 'visible' : 'hidden'}>
-        <ExampleAccordion defaultValue={[0]} multiple={multiple} triggerNumbers={[45, 46, 47]} />
+        <ExampleAccordion defaultValue={[0]} multiple={multiple} triggerNumbers={[49, 50, 51]} />
       </React.Activity>
     </React.Fragment>
   );
@@ -121,7 +121,7 @@ function ComplexAccordion() {
     >
       <Accordion.Item value={0}>
         <Accordion.Header>
-          <Accordion.Trigger>Trigger 73: Account details</Accordion.Trigger>
+          <Accordion.Trigger>Trigger 40: Account details</Accordion.Trigger>
         </Accordion.Header>
         <Accordion.Panel className={styles.panel}>
           <Accordion.Content>
@@ -166,7 +166,7 @@ function ComplexAccordion() {
 
       <Accordion.Item value={1}>
         <Accordion.Header>
-          <Accordion.Trigger>Trigger 74: Delivery plan</Accordion.Trigger>
+          <Accordion.Trigger>Trigger 41: Delivery plan</Accordion.Trigger>
         </Accordion.Header>
         <Accordion.Panel className={styles.panel}>
           <Accordion.Content>
@@ -190,7 +190,7 @@ function ComplexAccordion() {
 
       <Accordion.Item value={2}>
         <Accordion.Header>
-          <Accordion.Trigger>Trigger 75: Release notes</Accordion.Trigger>
+          <Accordion.Trigger>Trigger 42: Release notes</Accordion.Trigger>
         </Accordion.Header>
         <Accordion.Panel className={styles.panel}>
           <Accordion.Content>
@@ -232,7 +232,7 @@ export default function CssTransitions() {
           defaultValue={[0]}
           keepMounted
           multiple={multiple}
-          triggerNumbers={[27, 28, 29]}
+          triggerNumbers={[28, 29, 30]}
         />
         <small>———</small>
       </div>
@@ -243,7 +243,7 @@ export default function CssTransitions() {
           defaultValue={[0]}
           keepMounted={false}
           multiple={multiple}
-          triggerNumbers={[30, 31, 32]}
+          triggerNumbers={[31, 32, 33]}
         />
         <small>———</small>
       </div>
@@ -253,7 +253,7 @@ export default function CssTransitions() {
         <ExampleAccordion
           multiple={multiple}
           onValueChange={setValue}
-          triggerNumbers={[33, 34, 35]}
+          triggerNumbers={[34, 35, 36]}
           value={value}
         />
         <small>———</small>
@@ -263,7 +263,7 @@ export default function CssTransitions() {
           defaultValue={[0]}
           multiple={multiple}
           rootClassName={styles.slowRoot}
-          triggerNumbers={[36, 37, 38]}
+          triggerNumbers={[37, 38, 39]}
         />
         <small>———</small>
 
@@ -290,7 +290,7 @@ export default function CssTransitions() {
           hiddenTextIndex={1}
           hiddenUntilFound
           multiple={multiple}
-          triggerNumbers={[39, 40, 41]}
+          triggerNumbers={[43, 44, 45]}
         />
         <small>———</small>
 

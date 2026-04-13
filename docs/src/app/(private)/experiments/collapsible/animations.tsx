@@ -44,7 +44,7 @@ function ActivityComparison() {
       <small>regular mount</small>
       {visible && (
         <Collapsible.Root className={styles.root} defaultOpen>
-          <Collapsible.Trigger>Trigger 25</Collapsible.Trigger>
+          <Collapsible.Trigger>Trigger 26</Collapsible.Trigger>
           <Collapsible.Panel className={styles.panel} keepMounted>
             <Content />
           </Collapsible.Panel>
@@ -54,7 +54,7 @@ function ActivityComparison() {
       <small>activity mount</small>
       <React.Activity mode={visible ? 'visible' : 'hidden'}>
         <Collapsible.Root className={styles.root} defaultOpen>
-          <Collapsible.Trigger>Trigger 26</Collapsible.Trigger>
+          <Collapsible.Trigger>Trigger 27</Collapsible.Trigger>
           <Collapsible.Panel className={styles.panel} keepMounted>
             <Content />
           </Collapsible.Panel>
@@ -92,14 +92,14 @@ export default function CssAnimations() {
       <div className={layoutStyles.wrapper}>
         <pre>keepMounted: true</pre>
         <Collapsible.Root className={styles.root} defaultOpen>
-          <Collapsible.Trigger>Trigger 15</Collapsible.Trigger>
+          <Collapsible.Trigger>Trigger 17</Collapsible.Trigger>
           <Collapsible.Panel className={styles.panel} keepMounted>
             <Content />
           </Collapsible.Panel>
         </Collapsible.Root>
 
         <Collapsible.Root className={styles.root} defaultOpen={false}>
-          <Collapsible.Trigger>Trigger 16</Collapsible.Trigger>
+          <Collapsible.Trigger>Trigger 18</Collapsible.Trigger>
           <Collapsible.Panel className={styles.panel} keepMounted>
             <Content />
           </Collapsible.Panel>
@@ -110,14 +110,14 @@ export default function CssAnimations() {
       <div className={layoutStyles.wrapper}>
         <pre>keepMounted: false</pre>
         <Collapsible.Root className={styles.root} defaultOpen>
-          <Collapsible.Trigger>Trigger 17</Collapsible.Trigger>
+          <Collapsible.Trigger>Trigger 19</Collapsible.Trigger>
           <Collapsible.Panel className={styles.panel} keepMounted={false}>
             <Content />
           </Collapsible.Panel>
         </Collapsible.Root>
 
         <Collapsible.Root className={styles.root} defaultOpen={false}>
-          <Collapsible.Trigger>Trigger 18</Collapsible.Trigger>
+          <Collapsible.Trigger>Trigger 20</Collapsible.Trigger>
           <Collapsible.Panel className={styles.panel} keepMounted={false}>
             <Content />
           </Collapsible.Panel>
@@ -128,11 +128,11 @@ export default function CssAnimations() {
       <div className={layoutStyles.wrapper}>
         <pre>nested</pre>
         <Collapsible.Root className={styles.root}>
-          <Collapsible.Trigger>Trigger 19</Collapsible.Trigger>
+          <Collapsible.Trigger>Trigger 21</Collapsible.Trigger>
           <Collapsible.Panel className={styles.panel} keepMounted>
             <Content>
               <Collapsible.Root className={styles.root}>
-                <Collapsible.Trigger>Trigger 20</Collapsible.Trigger>
+                <Collapsible.Trigger>Trigger 22</Collapsible.Trigger>
                 <Collapsible.Panel className={styles.panel} keepMounted>
                   <Content />
                 </Collapsible.Panel>
@@ -144,7 +144,7 @@ export default function CssAnimations() {
 
         <pre>slow</pre>
         <Collapsible.Root className={clsx(styles.root, styles.slowRoot)} defaultOpen={false}>
-          <Collapsible.Trigger>Trigger 21</Collapsible.Trigger>
+          <Collapsible.Trigger>Trigger 23</Collapsible.Trigger>
           <Collapsible.Panel className={styles.panel} keepMounted>
             <Content />
           </Collapsible.Panel>
@@ -155,7 +155,7 @@ export default function CssAnimations() {
       <div className={layoutStyles.wrapper}>
         <pre>hiddenUntilFound</pre>
         <Collapsible.Root className={styles.root} defaultOpen={false}>
-          <Collapsible.Trigger>Trigger 22</Collapsible.Trigger>
+          <Collapsible.Trigger>Trigger 24</Collapsible.Trigger>
           <Collapsible.Panel className={styles.panel} hiddenUntilFound>
             <Collapsible.Content>
               <p>{PARAGRAPH}</p>
@@ -167,7 +167,7 @@ export default function CssAnimations() {
 
         <pre>inline style</pre>
         <Collapsible.Root className={styles.root} defaultOpen>
-          <Collapsible.Trigger>Trigger 69</Collapsible.Trigger>
+          <Collapsible.Trigger>Trigger 25</Collapsible.Trigger>
           <Collapsible.Panel keepMounted style={getInlinePanelStyle}>
             <Content />
           </Collapsible.Panel>

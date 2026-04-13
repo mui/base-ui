@@ -10,7 +10,7 @@ export default function CollapsibleAnimatePresence() {
   return (
     <div className={styles.wrapper}>
       <Collapsible.Root open={open} onOpenChange={setOpen}>
-        <Collapsible.Trigger>Trigger 24</Collapsible.Trigger>
+        <Collapsible.Trigger>Trigger 16</Collapsible.Trigger>
         <AnimatePresence>
           {open && (
             <Collapsible.Panel

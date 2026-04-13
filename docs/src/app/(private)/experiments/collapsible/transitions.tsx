@@ -35,7 +35,7 @@ function ActivityComparison() {
       <small>regular mount (does not preserve closed state)</small>
       {visible && (
         <Collapsible.Root className={styles.root} defaultOpen>
-          <Collapsible.Trigger>Trigger 23</Collapsible.Trigger>
+          <Collapsible.Trigger>Trigger 14</Collapsible.Trigger>
           <Collapsible.Panel className={styles.panel}>
             <Content />
           </Collapsible.Panel>
@@ -45,7 +45,7 @@ function ActivityComparison() {
       <small>activity mount</small>
       <React.Activity mode={visible ? 'visible' : 'hidden'}>
         <Collapsible.Root className={styles.root} defaultOpen>
-          <Collapsible.Trigger>Trigger 24</Collapsible.Trigger>
+          <Collapsible.Trigger>Trigger 15</Collapsible.Trigger>
           <Collapsible.Panel className={styles.panel}>
             <Content />
           </Collapsible.Panel>

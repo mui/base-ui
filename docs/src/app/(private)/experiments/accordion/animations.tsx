@@ -111,12 +111,12 @@ function ActivityComparison({ multiple }: Pick<ExampleAccordionProps, 'multiple'
 
       <small>regular mount</small>
       {visible ? (
-        <ExampleAccordion defaultValue={[0]} multiple={multiple} triggerNumbers={[63, 64, 65]} />
+        <ExampleAccordion defaultValue={[0]} multiple={multiple} triggerNumbers={[70, 71, 72]} />
       ) : null}
 
       <small>React.Activity</small>
       <React.Activity mode={visible ? 'visible' : 'hidden'}>
-        <ExampleAccordion defaultValue={[0]} multiple={multiple} triggerNumbers={[66, 67, 68]} />
+        <ExampleAccordion defaultValue={[0]} multiple={multiple} triggerNumbers={[73, 74, 75]} />
       </React.Activity>
     </React.Fragment>
   );
@@ -157,7 +157,7 @@ export default function CssAnimations() {
           defaultValue={[0]}
           keepMounted
           multiple={multiple}
-          triggerNumbers={[48, 49, 50]}
+          triggerNumbers={[52, 53, 54]}
         />
         <small>———</small>
       </div>
@@ -168,7 +168,7 @@ export default function CssAnimations() {
           defaultValue={[0]}
           keepMounted={false}
           multiple={multiple}
-          triggerNumbers={[51, 52, 53]}
+          triggerNumbers={[55, 56, 57]}
         />
         <small>———</small>
       </div>
@@ -178,7 +178,7 @@ export default function CssAnimations() {
         <ExampleAccordion
           multiple={multiple}
           onValueChange={setValue}
-          triggerNumbers={[54, 55, 56]}
+          triggerNumbers={[58, 59, 60]}
           value={value}
         />
         <small>———</small>
@@ -188,7 +188,7 @@ export default function CssAnimations() {
           defaultValue={[0]}
           multiple={multiple}
           rootClassName={styles.slowRoot}
-          triggerNumbers={[57, 58, 59]}
+          triggerNumbers={[61, 62, 63]}
         />
         <small>———</small>
       </div>
@@ -200,7 +200,7 @@ export default function CssAnimations() {
           hiddenTextIndex={1}
           hiddenUntilFound
           multiple={multiple}
-          triggerNumbers={[60, 61, 62]}
+          triggerNumbers={[64, 65, 66]}
         />
         <small>———</small>
 
@@ -210,7 +210,7 @@ export default function CssAnimations() {
           keepMounted
           multiple={multiple}
           panelStyle={getInlinePanelStyle}
-          triggerNumbers={[70, 71, 72]}
+          triggerNumbers={[67, 68, 69]}
         />
         <small>———</small>
 
