@@ -2791,7 +2791,9 @@ describe('<NavigationMenu.Root />', () => {
             await flushMicrotasks();
           });
 
-          const popupWidthCalls = popupWidthSpy.mock.calls
+          const popupWidthCalls = (
+            popupWidthSpy.mock.calls as Array<[property: string, value: string, priority?: string]>
+          )
             .filter((call) => call[0] === '--popup-width')
             .map((call) => call[1]);
           const exitingWidthIndex = popupWidthCalls.indexOf('675px');
