@@ -43,6 +43,8 @@ _Apr 10, 2026_
 - Fix initial live region announcements (#4286) by @atomiks
 - Prevent scroll lock when a controlled value triggers a re-render (#4507) by @ryanrhee
 - Fix browser autofill with object values when autofill uses the label (#4560) by @mattrothenberg
+- Prevent item taps from blurring the input (#4578) by @atomiks
+- Respect rendered chips for keyboard navigation (#4572) by @atomiks
 
 ### Dialog
 
@@ -63,6 +65,7 @@ _Apr 10, 2026_
 ### Menu
 
 - Fix `SubmenuTrigger` not respecting disabled state from `render` (#3858) by @CiscoFran10
+- Preserve dialog focus on pointer leave (#4581) by @atomiks
 
 ### Navigation Menu
 
@@ -72,6 +75,7 @@ _Apr 10, 2026_
 - Fix top-level trigger pointer events blocking (#4362) by @atomiks
 - Fix reverse <kbd>Shift</kbd>+<kbd>Tab</kbd> submenu re-entry (#4464) by @atomiks
 - Fix nested inline submenu hover handoff (#4413) by @atomiks
+- Fix transition width when reopening (#4587) by @mdm317
 
 ### Number Field
 
