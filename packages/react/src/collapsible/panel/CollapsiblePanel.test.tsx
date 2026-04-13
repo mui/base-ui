@@ -764,9 +764,72 @@ describe('<Collapsible.Panel />', () => {
 
         await waitFor(() => {
           expect(panel).toHaveAttribute('data-closed');
+          expect(panel.getAnimations().length).toBe(1);
         });
 
         expect(getComputedStyle(panel).animationDuration).toBe('0.123s');
+      });
+
+      it('restores the transition duration before the first close after a beforematch open', async () => {
+        function App() {
+          return (
+            <React.Fragment>
+              <style>{`
+                .transition-test-panel {
+                  overflow: hidden;
+                  height: var(--collapsible-panel-height);
+                  transition-property: height;
+                  transition-duration: 999ms;
+                  transition-timing-function: linear;
+                }
+
+                .transition-test-panel[data-starting-style],
+                .transition-test-panel[data-ending-style] {
+                  height: 0;
+                }
+              `}</style>
+
+              <Collapsible.Root>
+                <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+                <Collapsible.Panel
+                  className="transition-test-panel"
+                  data-testid="panel"
+                  hiddenUntilFound
+                  keepMounted
+                  style={{ transitionDuration: '123ms' }}
+                >
+                  {PANEL_CONTENT}
+                </Collapsible.Panel>
+              </Collapsible.Root>
+            </React.Fragment>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        const panel = screen.getByTestId('panel');
+        const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+        fireBeforeMatch(panel);
+
+        await waitFor(() => {
+          expect(panel).toHaveAttribute('data-open');
+        });
+
+        await act(async () => {
+          await waitForAnimationFrame();
+          await waitForAnimationFrame();
+        });
+
+        expect(getComputedStyle(panel).transitionDuration).toBe('0s');
+
+        await user.click(trigger);
+
+        await waitFor(() => {
+          expect(panel).toHaveAttribute('data-ending-style');
+          expect(panel.style.transitionDuration).toBe('123ms');
+          expect(panel.getAnimations().length).toBe(1);
+        });
       });
 
       it('does not suppress a later animated open after a no-motion beforematch open', async () => {

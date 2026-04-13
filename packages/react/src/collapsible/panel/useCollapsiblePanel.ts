@@ -153,12 +153,16 @@ export function useCollapsiblePanel(
       return undefined;
     }
 
-    const animationType = getAnimationType(panel, shouldPreventOpenAnimation);
-    animationTypeRef.current = animationType;
-
+    // `beforematch` can temporarily force a `0s` motion duration so the matched
+    // content reveals immediately. Restore the authored duration before detecting
+    // the next close animation type, otherwise that first close is misread as
+    // "no motion" and the close transition or keyframe gets skipped.
     if (!open && pendingTemporaryStyleRestoreRef.current) {
       restorePendingTemporaryStyle();
     }
+
+    const animationType = getAnimationType(panel, shouldPreventOpenAnimation);
+    animationTypeRef.current = animationType;
 
     // Initially open keyframe panels skip their first paint animation to avoid
     // layout shift, but we still need to cache the expanded size so the first
