@@ -146,7 +146,7 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
 
 export interface AccordionItemState extends AccordionRootState {
   /**
-   * Whether the accordion item is currently hidden.
+   * Whether the accordion item's panel is currently hidden.
    */
   hidden: boolean;
   /**

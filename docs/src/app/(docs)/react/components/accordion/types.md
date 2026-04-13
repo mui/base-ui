@@ -111,7 +111,7 @@ Re-export of [Trigger](#trigger) props.
 
 ```typescript
 type AccordionTriggerState = {
-  /** Whether the accordion item is currently hidden. */
+  /** Whether the accordion item's panel is currently hidden. */
   hidden: boolean;
   /** The item index. */
   index: number;
@@ -167,7 +167,7 @@ Re-export of [Item](#item) props.
 
 ```typescript
 type AccordionItemState = {
-  /** Whether the accordion item is currently hidden. */
+  /** Whether the accordion item's panel is currently hidden. */
   hidden: boolean;
   /** The item index. */
   index: number;
@@ -237,7 +237,7 @@ Re-export of [Header](#header) props.
 
 ```typescript
 type AccordionHeaderState = {
-  /** Whether the accordion item is currently hidden. */
+  /** Whether the accordion item's panel is currently hidden. */
   hidden: boolean;
   /** The item index. */
   index: number;
@@ -295,7 +295,7 @@ Re-export of [Panel](#panel) props.
 type AccordionPanelState = {
   /** The transition status of the component. */
   transitionStatus: TransitionStatus;
-  /** Whether the accordion item is currently hidden. */
+  /** Whether the accordion item's panel is currently hidden. */
   hidden: boolean;
   /** The item index. */
   index: number;

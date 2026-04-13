@@ -1,6 +1,13 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { fireEvent, flushMicrotasks, reactMajor, screen, waitFor } from '@mui/internal-test-utils';
+import {
+  act,
+  fireEvent,
+  flushMicrotasks,
+  reactMajor,
+  screen,
+  waitFor,
+} from '@mui/internal-test-utils';
 import { Collapsible } from '@base-ui/react/collapsible';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
@@ -14,6 +21,14 @@ function fireBeforeMatch(element: Element) {
       cancelable: false,
     }),
   );
+}
+
+function waitForAnimationFrame() {
+  return new Promise<void>((resolve) => {
+    requestAnimationFrame(() => {
+      resolve();
+    });
+  });
 }
 
 describe('<Collapsible.Panel />', () => {
@@ -673,6 +688,87 @@ describe('<Collapsible.Panel />', () => {
   describe.skipIf(isJSDOM || reactMajor < 19 || !('onbeforematch' in window))(
     'interrupted beforematch opens',
     () => {
+      it('keeps the temporary zero animation duration until the panel closes', async () => {
+        function App() {
+          return (
+            <React.Fragment>
+              <style>{`
+                @keyframes panel-slide-down {
+                  from {
+                    height: 0;
+                  }
+
+                  to {
+                    height: var(--collapsible-panel-height);
+                  }
+                }
+
+                @keyframes panel-slide-up {
+                  from {
+                    height: var(--collapsible-panel-height);
+                  }
+
+                  to {
+                    height: 0;
+                  }
+                }
+
+                .animation-test-panel {
+                  overflow: hidden;
+                  animation-duration: 123ms;
+                }
+
+                .animation-test-panel[data-open] {
+                  animation-name: panel-slide-down;
+                }
+
+                .animation-test-panel[data-closed] {
+                  animation-name: panel-slide-up;
+                }
+              `}</style>
+
+              <Collapsible.Root>
+                <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+                <Collapsible.Panel
+                  className="animation-test-panel"
+                  data-testid="panel"
+                  hiddenUntilFound
+                  keepMounted
+                >
+                  {PANEL_CONTENT}
+                </Collapsible.Panel>
+              </Collapsible.Root>
+            </React.Fragment>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        const panel = screen.getByTestId('panel');
+        const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+        fireBeforeMatch(panel);
+
+        await waitFor(() => {
+          expect(panel).toHaveAttribute('data-open');
+        });
+
+        await act(async () => {
+          await waitForAnimationFrame();
+          await waitForAnimationFrame();
+        });
+
+        expect(getComputedStyle(panel).animationDuration).toBe('0s');
+
+        await user.click(trigger);
+
+        await waitFor(() => {
+          expect(panel).toHaveAttribute('data-closed');
+        });
+
+        expect(getComputedStyle(panel).animationDuration).toBe('0.123s');
+      });
+
       it('does not suppress a later animated open after a no-motion beforematch open', async () => {
         function App() {
           const [motionEnabled, setMotionEnabled] = React.useState(false);

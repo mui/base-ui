@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -63,10 +62,7 @@ export function useCollapsiblePanel(
   // status still advances asynchronously. Override the panel to idle so its data
   // attributes and dimension cleanup reflect the immediate open state.
   const [forcePanelIdle, setForcePanelIdle] = React.useState(false);
-
-  if (forcePanelIdle && transitionStatus !== 'starting') {
-    setForcePanelIdle(false);
-  }
+  const pendingTemporaryStyleRestoreRef = React.useRef<(() => void) | null>(null);
 
   const mergedPanelRef = useMergedRefs(externalRef, panelRef);
   const latestStateRef = useValueAsRef({
@@ -109,6 +105,19 @@ export function useCollapsiblePanel(
     },
   );
 
+  const restorePendingTemporaryStyle = useStableCallback(() => {
+    pendingTemporaryStyleRestoreRef.current?.();
+    pendingTemporaryStyleRestoreRef.current = null;
+  });
+
+  const setPendingTemporaryStyleRestore = useStableCallback((restore: () => void) => {
+    restorePendingTemporaryStyle();
+    pendingTemporaryStyleRestoreRef.current = () => {
+      pendingTemporaryStyleRestoreRef.current = null;
+      restore();
+    };
+  });
+
   // React.Activity unmounts Effects while preserving component state. If that
   // teardown happens while an already-open keyframe panel is visible, remember
   // to suppress the replayed open animation on the next committed reveal.
@@ -118,9 +127,23 @@ export function useCollapsiblePanel(
     }
   });
 
+  useIsoLayoutEffect(() => {
+    // `forcePanelIdle` is only a temporary override for open paths that skip
+    // motion. Keep it active while the shared root still reports `starting`,
+    // then drop it once the root transition state catches up.
+    if (!forcePanelIdle || transitionStatus === 'starting') {
+      return;
+    }
+
+    setForcePanelIdle(false);
+  }, [forcePanelIdle, transitionStatus]);
+
   React.useEffect(() => {
-    return markActivityResumeAnimationSuppressed;
-  }, [markActivityResumeAnimationSuppressed]);
+    return () => {
+      markActivityResumeAnimationSuppressed();
+      restorePendingTemporaryStyle();
+    };
+  }, [markActivityResumeAnimationSuppressed, restorePendingTemporaryStyle]);
 
   useIsoLayoutEffect(() => {
     const panel = panelRef.current;
@@ -130,6 +153,10 @@ export function useCollapsiblePanel(
 
     const animationType = getAnimationType(panel, shouldPreventOpenAnimation);
     animationTypeRef.current = animationType;
+
+    if (!open && pendingTemporaryStyleRestoreRef.current) {
+      restorePendingTemporaryStyle();
+    }
 
     // Initially open keyframe panels skip their first paint animation to avoid
     // layout shift, but we still need to cache the expanded size so the first
@@ -167,25 +194,29 @@ export function useCollapsiblePanel(
         }
 
         const restoreTransitionDuration = setTemporaryStyle(panel, 'transition-duration', '0s');
+        setPendingTemporaryStyleRestore(restoreTransitionDuration);
         setForcePanelIdle(true);
-        return mergeCleanups(restoreLayoutStyles, scheduleRestore(restoreTransitionDuration));
+        return restoreLayoutStyles;
       }
 
       if (animationType === 'css-animation') {
         setDimensions(getDimensions(panel));
-        const restoreAnimationName = setTemporaryStyle(panel, 'animation-name', 'none');
-
-        restoreAnimationName();
 
         if (!skipNextOpen) {
+          const restoreAnimationName = setTemporaryStyle(panel, 'animation-name', 'none');
+          restoreAnimationName();
+
           return undefined;
         }
 
+        const restoreAnimationName = setTemporaryStyle(panel, 'animation-name', 'none');
         const restoreAnimationDuration = setTemporaryStyle(panel, 'animation-duration', '0s');
 
+        restoreAnimationName();
+        setPendingTemporaryStyleRestore(restoreAnimationDuration);
         setForcePanelIdle(true);
 
-        return scheduleRestore(restoreAnimationDuration);
+        return undefined;
       }
     }
 
@@ -233,7 +264,16 @@ export function useCollapsiblePanel(
     }
 
     return undefined;
-  }, [mounted, open, setDimensions, setMounted, shouldPreventOpenAnimation, transitionStatus]);
+  }, [
+    mounted,
+    open,
+    restorePendingTemporaryStyle,
+    setDimensions,
+    setMounted,
+    setPendingTemporaryStyleRestore,
+    shouldPreventOpenAnimation,
+    transitionStatus,
+  ]);
 
   useOpenChangeComplete({
     enabled: open && mounted && panelTransitionStatus === 'idle',
@@ -299,28 +339,21 @@ export function useCollapsiblePanel(
   useIsoLayoutEffect(() => {
     const panel = panelRef.current;
 
-    if (!panel) {
+    if (!panel || !hiddenUntilFound || !hidden) {
       return;
     }
 
-    if (hiddenUntilFound && hidden) {
-      // React only supports a boolean for the `hidden` attribute and forces
-      // legit string values to booleans so we have to force it back in the DOM
-      // when necessary: https://github.com/facebook/react/issues/24740
-      panel.setAttribute('hidden', 'until-found');
+    // React only supports a boolean for the `hidden` attribute and forces
+    // legit string values to booleans so we have to force it back in the DOM
+    // when necessary: https://github.com/facebook/react/issues/24740
+    panel.setAttribute('hidden', 'until-found');
 
-      // Persist the closed transition styles while hidden so changing the hidden
-      // attribute to `'until-found'` doesn't itself trigger the transition.
-      if (getAnimationType(panel) === 'css-transition') {
-        panel.setAttribute(CollapsiblePanelDataAttributes.startingStyle, '');
-        return;
-      }
+    // Persist the closed transition styles while hidden so changing the hidden
+    // attribute to `'until-found'` doesn't itself trigger the transition.
+    if (getAnimationType(panel) === 'css-transition') {
+      panel.setAttribute(CollapsiblePanelDataAttributes.startingStyle, '');
     }
-
-    if (panelTransitionStatus !== 'starting') {
-      panel.removeAttribute(CollapsiblePanelDataAttributes.startingStyle);
-    }
-  }, [hidden, hiddenUntilFound, panelTransitionStatus]);
+  }, [hidden, hiddenUntilFound]);
 
   React.useEffect(
     function registerBeforeMatchListener() {
@@ -465,37 +498,6 @@ function resetLayoutStyles(element: HTMLElement): () => void {
   return () => {
     AnimationFrame.cancel(frame);
     restoreLayoutStyles();
-  };
-}
-
-/**
- * Defers a cleanup by two animation frames so the browser can commit the
- * temporary motion override before the original inline style is restored.
- * @param restore - The cleanup callback to run later.
- * @returns A cleanup function that cancels the scheduled restore callbacks.
- */
-function scheduleRestore(restore: () => void): () => void {
-  let frame = -1;
-  let nextFrame = -1;
-  let restored = false;
-
-  function restoreOnce() {
-    if (restored) {
-      return;
-    }
-
-    restored = true;
-    restore();
-  }
-
-  frame = AnimationFrame.request(() => {
-    nextFrame = AnimationFrame.request(restoreOnce);
-  });
-
-  return () => {
-    AnimationFrame.cancel(frame);
-    AnimationFrame.cancel(nextFrame);
-    restoreOnce();
   };
 }
 
