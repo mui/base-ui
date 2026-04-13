@@ -3,7 +3,7 @@ import type * as React from 'react';
 import { ComboboxTrigger } from '../../combobox/trigger/ComboboxTrigger';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import type { Side } from '../../utils/useAnchorPositioning';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 
 /**
  * A button that opens the popup.

@@ -2,9 +2,9 @@
 import * as React from 'react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { PopoverViewportCssVars } from './PopoverViewportCssVars';
 import { usePopupViewport } from '../../utils/usePopupViewport';
 

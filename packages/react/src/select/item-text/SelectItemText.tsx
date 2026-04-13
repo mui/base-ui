@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useSelectItemContext } from '../item/SelectItemContext';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
  * A text label of the select item.

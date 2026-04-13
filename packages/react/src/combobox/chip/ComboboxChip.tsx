@@ -2,16 +2,16 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useStore } from '@base-ui/utils/store';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { BaseUIComponentProps } from '../../utils/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { BaseUIComponentProps } from '../../internals/types';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
-import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
+import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { ComboboxChipContext } from './ComboboxChipContext';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { selectors } from '../store';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 
 /**
  * An individual chip that represents a value in a multiselectable input.
@@ -46,7 +46,7 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
       }
     } else if (event.key === 'ArrowRight') {
       event.preventDefault();
-      if (index < selectedValue.length - 1) {
+      if (index < chipsRef.current.length - 1) {
         nextIndex = index + 1;
       } else {
         nextIndex = undefined;

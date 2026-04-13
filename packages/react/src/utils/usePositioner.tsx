@@ -1,8 +1,11 @@
 'use client';
 import { popupStateMapping } from './popupStateMapping';
-import { useRenderElement, type UseRenderElementComponentProps } from './useRenderElement';
+import {
+  useRenderElement,
+  type UseRenderElementComponentProps,
+} from '../internals/useRenderElement';
 import { getDisabledMountTransitionStyles } from './getDisabledMountTransitionStyles';
-import type { TransitionStatus } from './useTransitionStatus';
+import type { TransitionStatus } from '../internals/useTransitionStatus';
 
 interface UsePositionerOptions {
   styles: React.CSSProperties;

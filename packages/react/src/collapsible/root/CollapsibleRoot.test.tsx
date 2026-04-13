@@ -3,7 +3,7 @@ import * as React from 'react';
 import { screen } from '@mui/internal-test-utils';
 import { Collapsible } from '@base-ui/react/collapsible';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 
 const PANEL_CONTENT = 'This is panel content';
 

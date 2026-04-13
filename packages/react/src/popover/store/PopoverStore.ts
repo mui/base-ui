@@ -7,7 +7,7 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useOnMount } from '@base-ui/utils/useOnMount';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { PopoverRoot } from './../root/PopoverRoot';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 import {
   createInitialPopupStoreState,
   PopupStoreContext,
@@ -15,7 +15,7 @@ import {
   PopupStoreState,
   PopupTriggerMap,
 } from '../../utils/popups';
-import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
+import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;

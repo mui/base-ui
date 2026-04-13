@@ -10,13 +10,13 @@ import {
   useHoverReferenceInteraction,
   useInteractions,
 } from '../../floating-ui-react';
-import { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
+import { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
-import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
+import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useMenuItem } from '../item/useMenuItem';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useTriggerRegistration } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';

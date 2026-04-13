@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Drawer } from '@base-ui/react/drawer';
 import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, waitSingleFrame } from '#test-utils';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 import { useDrawerRootContext } from './DrawerRootContext';
 
 vi.mock('@base-ui/utils/detectBrowser', async () => {

@@ -1,7 +1,7 @@
 'use client';
 import type * as React from 'react';
 import { ComboboxItem } from '../../combobox/item/ComboboxItem';
-import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
+import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 
 /**
  * An individual item in the list.

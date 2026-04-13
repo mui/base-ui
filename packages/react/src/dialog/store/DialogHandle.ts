@@ -1,6 +1,6 @@
 import { DialogStore } from './DialogStore';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 
 /**
  * A handle to control a Dialog imperatively and to associate detached triggers with it.

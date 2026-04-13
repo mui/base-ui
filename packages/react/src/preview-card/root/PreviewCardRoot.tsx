@@ -7,8 +7,8 @@ import { PreviewCardRootContext, usePreviewCardRootContext } from './PreviewCard
 import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
-} from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+} from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { PreviewCardStore } from '../store/PreviewCardStore';
 import {
   PayloadChildRenderFunction,

@@ -15,8 +15,8 @@ import { PopoverHandle } from '../store/PopoverHandle';
 import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
-} from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+} from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import {
   useImplicitActiveTrigger,
   useOpenStateTransitions,

@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { type StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import { useRenderElement } from '../../internals/useRenderElement';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { type StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 
 const stateAttributesMapping: StateAttributesMapping<MenuBackdropState> = {
   ...baseMapping,

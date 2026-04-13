@@ -4,7 +4,7 @@ import { createSelector, ReactStore } from '@base-ui/utils/store';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { type TooltipRoot } from '../root/TooltipRoot';
 import { useSyncedFloatingRootContext } from '../../floating-ui-react';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 import {
   createInitialPopupStoreState,
   PopupStoreContext,

@@ -25,7 +25,7 @@ import {
   type Middleware,
   type FloatingTreeStore,
 } from '../floating-ui-react';
-import { useDirection } from '../direction-provider/DirectionContext';
+import { useDirection } from '../internals/direction-context/DirectionContext';
 import { arrow } from '../floating-ui-react/middleware/arrow';
 import { hide } from './hideMiddleware';
 import { DEFAULT_SIDES } from './adaptiveOriginMiddleware';

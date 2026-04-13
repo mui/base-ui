@@ -3,16 +3,16 @@ import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import type { BaseUIComponentProps, Orientation as BaseOrientation } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { CompositeList } from '../../composite/list/CompositeList';
-import type { CompositeMetadata } from '../../composite/list/CompositeList';
+import type { BaseUIComponentProps, Orientation as BaseOrientation } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { CompositeList } from '../../internals/composite/list/CompositeList';
+import type { CompositeMetadata } from '../../internals/composite/list/CompositeList';
 import { TabsRootContext } from './TabsRootContext';
 import { tabsStateAttributesMapping } from './stateAttributesMapping';
 import type { TabsTab } from '../tab/TabsTab';
 import type { TabsPanel } from '../panel/TabsPanel';
-import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { type BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 
 /**
  * Groups the tabs and the corresponding panels.
