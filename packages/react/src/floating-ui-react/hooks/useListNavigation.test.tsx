@@ -686,6 +686,61 @@ describe('useListNavigation', () => {
   });
 
   describe('prop: focusItemOnHover', () => {
+    it.skipIf(isJSDOM)(
+      'cancels pending item focus when the pointer leaves before focus lands',
+      async () => {
+        const frameCallbacks = new Map<number, FrameRequestCallback>();
+        let frameId = 0;
+        const requestAnimationFrameSpy = vi
+          .spyOn(window, 'requestAnimationFrame')
+          .mockImplementation((callback) => {
+            frameId += 1;
+            frameCallbacks.set(frameId, callback);
+            return frameId;
+          });
+        const cancelAnimationFrameSpy = vi
+          .spyOn(window, 'cancelAnimationFrame')
+          .mockImplementation((id) => {
+            frameCallbacks.delete(id);
+          });
+        const spy = vi.fn();
+
+        try {
+          render(<App focusItemOnOpen onNavigate={(index) => spy(index)} />);
+
+          fireEvent.click(screen.getByRole('button'));
+          await flushMicrotasks();
+
+          const menu = screen.getByRole('menu');
+          const item = screen.getByTestId('item-0');
+
+          expect(item).toHaveAttribute('aria-selected', 'true');
+          expect(item).not.toHaveFocus();
+
+          fireEvent.pointerLeave(item, {
+            pointerType: 'mouse',
+            relatedTarget: document.body,
+          });
+
+          act(() => {
+            const callbacks = Array.from(frameCallbacks.values());
+            frameCallbacks.clear();
+            callbacks.forEach((callback) => callback(performance.now()));
+          });
+
+          expect(item).not.toHaveFocus();
+          expect(menu).not.toHaveFocus();
+          await waitFor(() => {
+            expect(item).toHaveAttribute('aria-selected', 'false');
+          });
+          expect(spy).toHaveBeenLastCalledWith(null);
+        } finally {
+          requestAnimationFrameSpy.mockRestore();
+          cancelAnimationFrameSpy.mockRestore();
+        }
+      },
+    );
+
     it('true - focuses item on hover and syncs the active index', async () => {
       const spy = vi.fn();
       render(<App onNavigate={spy} />);
