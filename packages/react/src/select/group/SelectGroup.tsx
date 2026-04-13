@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { SelectGroupContext } from './SelectGroupContext';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
  * Groups related select items with the corresponding label.

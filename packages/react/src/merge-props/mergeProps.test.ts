@@ -1,6 +1,6 @@
 import { expect, vi } from 'vitest';
 import { mergeProps, mergePropsN } from '@base-ui/react/merge-props';
-import type { BaseUIEvent } from '../utils/types';
+import type { BaseUIEvent } from '../internals/types';
 
 describe('mergeProps', () => {
   it('merges event handlers', () => {

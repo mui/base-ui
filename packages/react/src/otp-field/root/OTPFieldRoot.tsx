@@ -8,25 +8,25 @@ import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { warn } from '@base-ui/utils/warn';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { contains } from '../../floating-ui-react/utils/shadowDom';
-import { CompositeList } from '../../composite/list/CompositeList';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useRegisterFieldControl } from '../../field/root/useRegisterFieldControl';
+import { contains } from '../../floating-ui-react/utils';
+import { CompositeList } from '../../internals/composite/list/CompositeList';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import type { FieldRootState } from '../../field/root/FieldRoot';
-import { useFormContext } from '../../form/FormContext';
-import { useLabelableContext } from '../../labelable-provider/LabelableContext';
-import { useAriaLabelledBy } from '../../labelable-provider/useAriaLabelledBy';
-import { useLabelableId } from '../../labelable-provider/useLabelableId';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { useValueChanged } from '../../utils/useValueChanged';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { useFormContext } from '../../internals/form-context/FormContext';
+import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
+import { useAriaLabelledBy } from '../../internals/labelable-provider/useAriaLabelledBy';
+import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useValueChanged } from '../../internals/useValueChanged';
+import type { BaseUIComponentProps } from '../../internals/types';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
   type BaseUIChangeEventDetails,
   type BaseUIGenericEventDetails,
-} from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+} from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { OTPFieldRootContext } from './OTPFieldRootContext';
 import { rootStateAttributesMapping } from '../utils/stateAttributesMapping';
 import {

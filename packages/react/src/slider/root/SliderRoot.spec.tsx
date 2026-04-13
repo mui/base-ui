@@ -1,6 +1,6 @@
 import { expectType } from '#test-utils';
 import { Slider } from '@base-ui/react/slider';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 
 const value: number = 25;
 const array = [25];

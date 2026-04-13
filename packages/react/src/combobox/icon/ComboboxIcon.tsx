@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
  * An icon that indicates that the trigger button opens the popup.

@@ -2,17 +2,17 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useBaseUiId } from '../../internals/useBaseUiId';
+import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useMenuRadioGroupContext } from '../radio-group/MenuRadioGroupContext';
 import { MenuRadioItemContext } from './MenuRadioItemContext';
 import { itemMapping } from '../utils/stateAttributesMapping';
-import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
+import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 
 /**
  * A menu item that works like a radio button in a given group.

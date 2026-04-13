@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import type { MeterRootState } from '../root/MeterRoot';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
  * Contains the meter indicator and represents the entire range of the meter.

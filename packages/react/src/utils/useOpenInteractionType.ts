@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { InteractionType, useEnhancedClickHandler } from '@base-ui/utils/useEnhancedClickHandler';
 import { isIOS } from '@base-ui/utils/detectBrowser';
-import { useValueChanged } from './useValueChanged';
+import { useValueChanged } from '../internals/useValueChanged';
 
 /**
  * Determines the interaction type (keyboard, mouse, touch, etc.) that opened the component.

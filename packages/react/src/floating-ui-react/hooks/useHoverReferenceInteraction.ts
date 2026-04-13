@@ -10,8 +10,8 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import type { Delay, FloatingContext, FloatingRootContext } from '../types';
 import { contains, getTarget, isTargetInsideEnabledTrigger } from '../utils/element';
 import { isMouseLikePointerType } from '../utils/event';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { useFloatingTree } from '../components/FloatingTree';
 import type { FloatingTreeStore } from '../components/FloatingTreeStore';
 import {
@@ -25,7 +25,7 @@ import {
   getRestMs,
   isClickLikeOpenEvent as isClickLikeOpenEventShared,
 } from './useHoverShared';
-import { FloatingUIOpenChangeDetails, HTMLProps } from '../../utils/types';
+import { FloatingUIOpenChangeDetails, HTMLProps } from '../../internals/types';
 
 export interface UseHoverReferenceInteractionProps {
   enabled?: boolean | undefined;

@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import {
   NavigationMenuItemContext,
   NavigationMenuItemContextValue,
 } from './NavigationMenuItemContext';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 
 /**
  * An individual navigation menu item.

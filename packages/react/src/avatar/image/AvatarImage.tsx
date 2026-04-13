@@ -2,15 +2,15 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { BaseUIComponentProps } from '../../utils/types';
-import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { BaseUIComponentProps } from '../../internals/types';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useAvatarRootContext } from '../root/AvatarRootContext';
 import type { AvatarRootState } from '../root/AvatarRoot';
 import { avatarStateAttributesMapping } from '../root/stateAttributesMapping';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
-import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
+import { type TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useImageLoadingStatus, ImageLoadingStatus } from './useImageLoadingStatus';
 
 const stateAttributesMapping: StateAttributesMapping<AvatarImageState> = {

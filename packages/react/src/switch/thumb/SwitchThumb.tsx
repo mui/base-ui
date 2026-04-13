@@ -2,9 +2,9 @@
 import * as React from 'react';
 import type { SwitchRootState } from '../root/SwitchRoot';
 import { useSwitchRootContext } from '../root/SwitchRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { stateAttributesMapping } from '../stateAttributesMapping';
 
 /**

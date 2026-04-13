@@ -10,6 +10,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStore, Store } from '@base-ui/utils/store';
+import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import {
   useClick,
   useDismiss,
@@ -19,22 +20,21 @@ import {
   useTypeahead,
 } from '../../floating-ui-react';
 import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useRegisterFieldControl } from '../../field/root/useRegisterFieldControl';
-import { useLabelableId } from '../../labelable-provider/useLabelableId';
-import { useTransitionStatus } from '../../utils/useTransitionStatus';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
+import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
+import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { selectors, type State as StoreState } from '../store';
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
-} from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { useFormContext } from '../../form/FormContext';
-import { type Group, stringifyAsLabel, stringifyAsValue } from '../../utils/resolveValueLabel';
-import { EMPTY_ARRAY, EMPTY_OBJECT } from '../../utils/constants';
-import { defaultItemEquality, findItemIndex } from '../../utils/itemEquality';
-import { useValueChanged } from '../../utils/useValueChanged';
+} from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { useFormContext } from '../../internals/form-context/FormContext';
+import { type Group, stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
+import { defaultItemEquality, findItemIndex } from '../../internals/itemEquality';
+import { useValueChanged } from '../../internals/useValueChanged';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
 import { mergeProps } from '../../merge-props';

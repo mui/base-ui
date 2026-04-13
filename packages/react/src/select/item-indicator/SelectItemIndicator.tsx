@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useSelectItemContext } from '../item/SelectItemContext';
-import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import { type TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 
 /**
  * Indicates whether the select item is selected.

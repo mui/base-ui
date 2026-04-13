@@ -5,7 +5,7 @@ import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { MenuParent, MenuRoot } from '../root/MenuRoot';
 import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
-import { HTMLProps } from '../../utils/types';
+import { HTMLProps } from '../../internals/types';
 import {
   createInitialPopupStoreState,
   PopupStoreContext,

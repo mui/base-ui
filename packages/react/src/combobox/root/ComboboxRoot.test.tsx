@@ -15,9 +15,9 @@ import { Dialog } from '@base-ui/react/dialog';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { useStore } from '@base-ui/utils/store';
-import { CompositeRoot } from '../../composite/root/CompositeRoot';
-import { CompositeItem } from '../../composite/item/CompositeItem';
-import { REASONS } from '../../utils/reasons';
+import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
+import { CompositeItem } from '../../internals/composite/item/CompositeItem';
+import { REASONS } from '../../internals/reasons';
 import { useComboboxRootContext } from './ComboboxRootContext';
 import { selectors } from '../store';
 

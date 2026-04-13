@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import { useTooltipPositionerContext } from '../positioner/TooltipPositionerContext';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 
 /**

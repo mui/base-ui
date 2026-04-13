@@ -9,7 +9,7 @@ import {
 } from '@mui/internal-test-utils';
 import { ContextMenu } from '@base-ui/react/context-menu';
 import { createRenderer, isJSDOM } from '#test-utils';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 
 vi.mock('@base-ui/utils/detectBrowser', async () => {
   const actual = await vi.importActual<typeof import('@base-ui/utils/detectBrowser')>(

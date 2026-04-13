@@ -15,8 +15,8 @@ import { Dialog } from '@base-ui/react/dialog';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
 import userEvent from '@testing-library/user-event';
 import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
-import { REASONS } from '../../utils/reasons';
-import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
+import { REASONS } from '../../internals/reasons';
+import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
 describe('<Menu.Root />', () => {
   beforeEach(() => {

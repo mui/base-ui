@@ -16,9 +16,9 @@ import {
   useAnchorPositioning,
   type UseAnchorPositioningSharedParameters,
 } from '../../utils/useAnchorPositioning';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useComboboxPortalContext } from '../portal/ComboboxPortalContext';
-import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
+import { DROPDOWN_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { selectors } from '../store';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { usePositioner } from '../../utils/usePositioner';

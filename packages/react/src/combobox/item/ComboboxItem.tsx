@@ -10,14 +10,14 @@ import {
 import {
   useCompositeListItem,
   IndexGuessBehavior,
-} from '../../composite/list/useCompositeListItem';
-import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+} from '../../internals/composite/list/useCompositeListItem';
+import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { ComboboxItemContext } from './ComboboxItemContext';
 import { selectors } from '../store';
-import { useButton } from '../../use-button';
+import { useButton } from '../../internals/use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
-import { compareItemEquality, findItemIndex } from '../../utils/itemEquality';
+import { compareItemEquality, findItemIndex } from '../../internals/itemEquality';
 
 /**
  * An individual item in the list.

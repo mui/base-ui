@@ -1,5 +1,5 @@
+import { NOOP } from '@base-ui/utils/empty';
 import type { FocusableElement } from './tabbable';
-import { NOOP } from '../../utils/noop';
 
 interface Options {
   preventScroll?: boolean | undefined;
