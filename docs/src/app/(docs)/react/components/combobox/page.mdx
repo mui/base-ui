@@ -102,6 +102,35 @@ import { DemoComboboxMultiple } from './demos/multiple';
 
 <DemoComboboxMultiple compact />
 
+Visible chips can be limited by slicing the selected values rendered in `<Combobox.Value>`:
+
+```tsx title="Limiting visible chips"
+const CHIP_LIMIT = 3;
+
+<Combobox.Value>
+  {(selectedValue: string[]) => {
+    // @highlight-start
+    const visibleValue = selectedValue.slice(0, CHIP_LIMIT);
+    const hiddenCount = selectedValue.length - visibleValue.length;
+    // @highlight-end
+    return (
+      <>
+        {visibleValue.map((item) => (
+          <Combobox.Chip key={item}>
+            {item}
+            <Combobox.ChipRemove aria-label={`Remove ${item}`} />
+          </Combobox.Chip>
+        ))}
+        {/* @highlight-start */}
+        {hiddenCount > 0 && <span>{`+${hiddenCount} more`}</span>}
+        {/* @highlight-end */}
+        <Combobox.Input />
+      </>
+    );
+  }}
+</Combobox.Value>;
+```
+
 ### Input inside popup
 
 `<Combobox.Input>` can be rendered inside `<Combobox.Popup>` to create a searchable select popup.
