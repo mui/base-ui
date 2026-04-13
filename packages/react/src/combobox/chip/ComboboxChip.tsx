@@ -46,7 +46,7 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
       }
     } else if (event.key === 'ArrowRight') {
       event.preventDefault();
-      if (index < selectedValue.length - 1) {
+      if (index < chipsRef.current.length - 1) {
         nextIndex = index + 1;
       } else {
         nextIndex = undefined;
