@@ -26,6 +26,17 @@ export interface SharedCalendarStoreContext<TValue extends TemporalSupportedValu
         eventDetails: CalendarVisibleDateChangeEventDetails,
       ) => void)
     | undefined;
+  pendingDayGridFocusRequest?: CalendarDayGridFocusRequest | undefined;
+}
+
+export interface CalendarDayGridFocusRequest {
+  amount: number;
+  decrement: boolean;
+  guessedIndex: number;
+  id: symbol;
+  offset: number;
+  renderedMonth: TemporalSupportedObject;
+  sourceItemMapId: symbol;
 }
 
 /**
@@ -153,6 +164,8 @@ export class SharedCalendarStore<TValue extends TemporalSupportedValue, TError> 
         ),
       });
     }
+
+    return eventDetails;
   };
 
   /**

@@ -2,12 +2,18 @@
 import * as React from 'react';
 import { format } from 'date-fns/format';
 import { Calendar } from '@base-ui/react/calendar';
-import { motion, AnimatePresence } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import styles from '../../calendar.module.css';
 
-export default function AnimatedCalendarWithMotion() {
+interface AnimatedCalendarWithMotionProps {
+  defaultVisibleDate?: Date;
+}
+
+export default function AnimatedCalendarWithMotion({
+  defaultVisibleDate,
+}: AnimatedCalendarWithMotionProps) {
   return (
-    <Calendar.Root className={styles.Root}>
+    <Calendar.Root className={styles.Root} defaultVisibleDate={defaultVisibleDate}>
       {({ visibleDate }) => (
         <React.Fragment>
           <header className={styles.Header}>

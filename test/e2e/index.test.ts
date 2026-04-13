@@ -1,4 +1,4 @@
-import { describe, it, beforeAll, afterAll } from 'vitest';
+import { describe, it, beforeAll, beforeEach, afterAll } from 'vitest';
 import { chromium, expect, Page, Browser } from '@playwright/test';
 import '@mui/internal-test-utils/initPlaywrightMatchers';
 
@@ -45,6 +45,46 @@ describe('e2e', () => {
   async function renderFixture(fixturePath: string) {
     await page.goto(`${BASE_URL}/e2e-fixtures/${fixturePath}#no-dev`);
     await page.waitForSelector('[data-testid="testcase"]:not([aria-busy="true"])');
+  }
+
+  async function waitForCalendarState(parameters: {
+    activeElementLabel?: string;
+    bodyCount?: number;
+    minimumBodyCount?: number;
+  }) {
+    await page.waitForFunction(
+      ({ activeElementLabel: expectedLabel, bodyCount, minimumBodyCount }) => {
+        const currentActiveElementLabel =
+          document.activeElement?.getAttribute('aria-label') ?? document.activeElement?.tagName;
+        const mountedBodyCount = document.querySelectorAll('[data-testid="testcase"] tbody').length;
+
+        if (expectedLabel != null && currentActiveElementLabel !== expectedLabel) {
+          return false;
+        }
+
+        if (bodyCount != null && mountedBodyCount !== bodyCount) {
+          return false;
+        }
+
+        if (minimumBodyCount != null && mountedBodyCount < minimumBodyCount) {
+          return false;
+        }
+
+        return true;
+      },
+      parameters,
+    );
+  }
+
+  async function waitForCalendarToSettle(expectedActiveElementLabel: string) {
+    await waitForCalendarState({ activeElementLabel: expectedActiveElementLabel, bodyCount: 1 });
+  }
+
+  async function waitForCalendarTransitionToStart(expectedActiveElementLabel: string) {
+    await waitForCalendarState({
+      activeElementLabel: expectedActiveElementLabel,
+      minimumBodyCount: 2,
+    });
   }
 
   beforeAll(async function beforeHook() {
@@ -227,6 +267,90 @@ describe('e2e', () => {
       await page.mouse.up();
       await expect(page.getByRole('status')).toHaveText('80');
     });
+  });
+
+  describe('<Calendar />', () => {
+    beforeEach(async () => {
+      await page.close();
+      page = await browser.newPage();
+    });
+
+    it('preserves focus after an animated viewport transition settles', async () => {
+      await renderFixture('calendar/AnimatedViewport');
+
+      await page.getByRole('button', { name: 'Next month' }).click();
+      await waitForCalendarState({ bodyCount: 1 });
+
+      const aprilSeventh = page.getByRole('button', { name: 'Tuesday, April 7th, 2026' });
+      await aprilSeventh.focus();
+      await expect(aprilSeventh).toBeFocused();
+
+      await page.keyboard.press('ArrowUp');
+      await waitForCalendarToSettle('Tuesday, March 31st, 2026');
+    }, 5000);
+
+    it('preserves focus after the Motion demo wraps left into the previous month', async () => {
+      await renderFixture('calendar/AnimatedMotionViewport');
+
+      await page.getByRole('button', { name: 'Next month' }).click();
+      await waitForCalendarState({ bodyCount: 1 });
+      await expect(page.getByRole('button', { name: 'Wednesday, April 1st, 2026' })).toBeVisible();
+
+      const aprilFirst = page.getByRole('button', { name: 'Wednesday, April 1st, 2026' });
+      await aprilFirst.focus();
+      await expect(aprilFirst).toBeFocused();
+
+      await page.keyboard.press('ArrowLeft');
+      await waitForCalendarToSettle('Tuesday, March 31st, 2026');
+    }, 5000);
+
+    it('preserves focus after the Motion demo pages into the next month', async () => {
+      await renderFixture('calendar/AnimatedMotionViewport');
+
+      await page.getByRole('button', { name: 'Next month' }).click();
+      await waitForCalendarState({ bodyCount: 1 });
+
+      const aprilFifteenth = page.getByRole('button', { name: 'Wednesday, April 15th, 2026' });
+      await aprilFifteenth.focus();
+      await expect(aprilFifteenth).toBeFocused();
+
+      await page.keyboard.press('PageDown');
+      await waitForCalendarToSettle('Friday, May 15th, 2026');
+    }, 5000);
+
+    it('preserves focus after the Motion demo wraps right into the next month', async () => {
+      await renderFixture('calendar/AnimatedMotionViewport');
+
+      await page.getByRole('button', { name: 'Next month' }).click();
+      await waitForCalendarState({ bodyCount: 1 });
+
+      const aprilThirtieth = page
+        .getByRole('button', { name: 'Thursday, April 30th, 2026' })
+        .first();
+      await aprilThirtieth.focus();
+      await waitForCalendarState({ activeElementLabel: 'Thursday, April 30th, 2026' });
+
+      await page.keyboard.press('ArrowRight');
+      await waitForCalendarToSettle('Friday, May 1st, 2026');
+    }, 10000);
+
+    it('allows interrupted Motion demo navigation while the month animation is still running', async () => {
+      await renderFixture('calendar/AnimatedMotionViewport');
+
+      await page.getByRole('button', { name: 'Next month' }).click();
+      await waitForCalendarState({ bodyCount: 1 });
+
+      const aprilThirtieth = page
+        .getByRole('button', { name: 'Thursday, April 30th, 2026' })
+        .first();
+      await aprilThirtieth.focus();
+      await waitForCalendarState({ activeElementLabel: 'Thursday, April 30th, 2026' });
+
+      await page.keyboard.press('ArrowRight');
+      await waitForCalendarTransitionToStart('Friday, May 1st, 2026');
+      await page.keyboard.press('ArrowRight');
+      await waitForCalendarToSettle('Saturday, May 2nd, 2026');
+    }, 10000);
   });
 
   describe('<Menu />', () => {

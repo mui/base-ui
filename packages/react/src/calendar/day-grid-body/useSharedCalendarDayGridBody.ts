@@ -2,6 +2,9 @@
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { REASONS } from '../../utils/reasons';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import { SharedCalendarDayGridBodyContext } from './SharedCalendarDayGridBodyContext';
@@ -27,9 +30,25 @@ import {
   PAGE_DOWN,
 } from '../../composite/composite';
 import { validateDate } from '../../utils/temporal/validateDate';
+import { activeElement, contains } from '../../floating-ui-react/utils/shadowDom';
 
 const BACKWARD_KEYS = new Set([ARROW_UP, ARROW_LEFT]);
 const CUSTOM_NAVIGATION_KEYS = new Set([HOME, END, PAGE_UP, PAGE_DOWN]);
+const FOCUS_SETTLE_FRAME_COUNT = 2;
+
+function getDisabledIndices(
+  itemMap: Map<Node, CompositeMetadata<UseSharedCalendarDayGridBodyItemMetadata> | null>,
+) {
+  const output: number[] = [];
+
+  for (const meta of itemMap.values()) {
+    if (meta?.index != null && !meta.focusable) {
+      output.push(meta.index);
+    }
+  }
+
+  return output;
+}
 
 export function useSharedCalendarDayGridBody(
   parameters: UseSharedCalendarDayGridBodyParameters,
@@ -41,8 +60,6 @@ export function useSharedCalendarDayGridBody(
   const visibleMonth = useStore(store, selectors.visibleMonth);
   const timezone = useStore(store, selectors.timezoneToRender);
   const ref = React.useRef<HTMLTableSectionElement>(null);
-  const [highlightedIndex, setHighlightedIndex] = React.useState(0);
-  const executeAfterItemMapUpdate = React.useRef<(newMap: any) => void>(null);
 
   const nowValue = adapter.now(timezone);
   const todayRef = React.useRef(nowValue);
@@ -54,6 +71,21 @@ export function useSharedCalendarDayGridBody(
   const month = React.useMemo(() => {
     return offset === 0 ? visibleMonth : adapter.addMonths(visibleMonth, offset);
   }, [adapter, visibleMonth, offset]);
+
+  const [highlightedIndex, setHighlightedIndex] = React.useState(() => {
+    const pendingFocusRequest = store.context.pendingDayGridFocusRequest;
+    if (
+      pendingFocusRequest &&
+      pendingFocusRequest.offset === offset &&
+      adapter.isSameMonth(pendingFocusRequest.renderedMonth, month)
+    ) {
+      return pendingFocusRequest.guessedIndex;
+    }
+
+    return 0;
+  });
+  const fulfillPendingFocusRequestFrame = useAnimationFrame();
+  const pendingFocusRequestCleanupRef = React.useRef<(() => void) | null>(null);
 
   const getWeekList = useCalendarWeekList();
   const weeks = React.useMemo(
@@ -69,21 +101,17 @@ export function useSharedCalendarDayGridBody(
     return children;
   }, [children, weeks]);
 
-  const [itemMap, setItemMap] = React.useState(
-    () => new Map<Node, CompositeMetadata<UseSharedCalendarDayGridBodyItemMetadata> | null>(),
-  );
+  const [{ id: itemMapId, map: itemMap }, setItemMapState] = React.useState(() => ({
+    id: Symbol(),
+    map: new Map<Node, CompositeMetadata<UseSharedCalendarDayGridBodyItemMetadata> | null>(),
+  }));
 
   const items = React.useMemo(() => Array.from(itemMap.keys()) as HTMLElement[], [itemMap]);
 
   const prevDisabledIndicesRef = React.useRef<number[]>([]);
 
   const disabledIndices = React.useMemo(() => {
-    const output: number[] = [];
-    for (const itemMetadata of itemMap.values()) {
-      if (itemMetadata?.index != null && !itemMetadata.focusable) {
-        output.push(itemMetadata.index);
-      }
-    }
+    const output = getDisabledIndices(itemMap);
     if (areArraysEqual(prevDisabledIndicesRef.current, output)) {
       return prevDisabledIndicesRef.current;
     }
@@ -92,19 +120,10 @@ export function useSharedCalendarDayGridBody(
   }, [itemMap]);
 
   const handleItemMapUpdate = (newMap: typeof itemMap) => {
-    setItemMap(newMap);
+    setItemMapState({ id: Symbol(), map: newMap });
   };
 
-  // Execute pending focus callback after React has committed the new item map to the DOM.
-  // This replaces a queueMicrotask approach that could fire before React's commit phase.
-  useIsoLayoutEffect(() => {
-    if (executeAfterItemMapUpdate.current) {
-      executeAfterItemMapUpdate.current(itemMap);
-      executeAfterItemMapUpdate.current = null;
-    }
-  }, [itemMap]);
-
-  const focusNonDisabledItem = (
+  const findNonDisabledItem = (
     elements: Array<HTMLElement | null>,
     itemDisabledIndices: number[],
     guessedIndex: number,
@@ -112,7 +131,7 @@ export function useSharedCalendarDayGridBody(
     amount: number,
   ) => {
     if (elements.length === 0) {
-      return;
+      return null;
     }
     let idx = guessedIndex;
     if (isListIndexDisabled(elements, idx, itemDisabledIndices)) {
@@ -124,9 +143,33 @@ export function useSharedCalendarDayGridBody(
       });
     }
     if (idx >= 0 && idx < elements.length) {
-      setHighlightedIndex(idx);
-      elements[idx]?.focus();
+      return { index: idx, item: elements[idx] };
     }
+
+    return null;
+  };
+
+  const focusNonDisabledItem = (
+    elements: Array<HTMLElement | null>,
+    itemDisabledIndices: number[],
+    guessedIndex: number,
+    decrement: boolean,
+    amount: number,
+  ) => {
+    const targetItem = findNonDisabledItem(
+      elements,
+      itemDisabledIndices,
+      guessedIndex,
+      decrement,
+      amount,
+    );
+
+    if (targetItem) {
+      setHighlightedIndex(targetItem.index);
+      targetItem.item?.focus();
+    }
+
+    return targetItem?.item ?? null;
   };
 
   const focusNextNonDisabledElement = ({
@@ -143,27 +186,192 @@ export function useSharedCalendarDayGridBody(
     focusNonDisabledItem(elements, disabledIndices, newHighlightedIndex, decrement, amount);
   };
 
-  // Focuses the correct item after a cross-month navigation (PageUp/PageDown or arrow-key
-  // loop). Uses the new month's item map directly because the `disabledIndices` state
-  // variable still reflects the old month at this point.
-  const focusItemFromMap = (
-    newMap: typeof itemMap,
+  const clearPendingFocusRequest = useStableCallback((requestId?: symbol) => {
+    if (requestId != null && store.context.pendingDayGridFocusRequest?.id !== requestId) {
+      return;
+    }
+
+    pendingFocusRequestCleanupRef.current?.();
+    pendingFocusRequestCleanupRef.current = null;
+
+    store.context.pendingDayGridFocusRequest = undefined;
+  });
+
+  const setPendingFocusRequest = (
+    renderedMonthToFocus: TemporalSupportedObject,
     guessedIndex: number,
     decrement: boolean,
     amount: number,
   ) => {
-    const newItems = Array.from(newMap.keys()) as HTMLElement[];
-    const newDisabledIndices: number[] = [];
-    for (const meta of newMap.values()) {
-      if (meta?.index != null && !meta.focusable) {
-        newDisabledIndices.push(meta.index);
-      }
-    }
-    focusNonDisabledItem(newItems, newDisabledIndices, guessedIndex, decrement, amount);
+    const requestId = Symbol();
+
+    clearPendingFocusRequest();
+
+    store.context.pendingDayGridFocusRequest = {
+      amount,
+      decrement,
+      guessedIndex,
+      id: requestId,
+      offset,
+      renderedMonth: renderedMonthToFocus,
+      sourceItemMapId: itemMapId,
+    };
   };
+
+  useIsoLayoutEffect(() => {
+    const pendingFocusRequest = store.context.pendingDayGridFocusRequest;
+    if (
+      pendingFocusRequest &&
+      pendingFocusRequest.offset === offset &&
+      adapter.isSameMonth(pendingFocusRequest.renderedMonth, month) &&
+      pendingFocusRequest.sourceItemMapId !== itemMapId &&
+      itemMap.size > 0
+    ) {
+      const requestId = pendingFocusRequest.id;
+      const currentBody = ref.current;
+      if (!currentBody) {
+        return undefined;
+      }
+
+      let settledFrameCount = 0;
+      const doc = ownerDocument(currentBody);
+      const win = ownerWindow(currentBody);
+      const currentDayGrid = currentBody.parentElement;
+      const newItems = Array.from(itemMap.keys()) as HTMLElement[];
+      const newDisabledIndices = getDisabledIndices(itemMap);
+      const targetItem = findNonDisabledItem(
+        newItems,
+        newDisabledIndices,
+        pendingFocusRequest.guessedIndex,
+        pendingFocusRequest.decrement,
+        pendingFocusRequest.amount,
+      );
+      let removePendingVerticalArrowScrollGuard: (() => void) | null = null;
+      const cleanupFocusEffect = () => {
+        fulfillPendingFocusRequestFrame.cancel();
+        removePendingVerticalArrowScrollGuard?.();
+        removePendingVerticalArrowScrollGuard = null;
+
+        if (pendingFocusRequestCleanupRef.current === cleanupFocusEffect) {
+          pendingFocusRequestCleanupRef.current = null;
+        }
+      };
+      pendingFocusRequestCleanupRef.current = cleanupFocusEffect;
+      const preventVerticalArrowScroll = (event: KeyboardEvent) => {
+        if (
+          store.context.pendingDayGridFocusRequest?.id === requestId &&
+          (event.key === ARROW_UP || event.key === ARROW_DOWN)
+        ) {
+          event.preventDefault();
+        }
+      };
+
+      doc.addEventListener('keydown', preventVerticalArrowScroll, true);
+      removePendingVerticalArrowScrollGuard = () => {
+        doc.removeEventListener('keydown', preventVerticalArrowScroll, true);
+      };
+
+      const attemptFocus = () => {
+        if (store.context.pendingDayGridFocusRequest?.id !== requestId) {
+          return;
+        }
+
+        const activeItem = activeElement(doc);
+        const mountedDayGridBodyCount =
+          currentDayGrid == null
+            ? 1
+            : Array.from(currentDayGrid.children).filter((child) => child.nodeName === 'TBODY')
+                .length;
+        const shouldAbandonStaleFocusRequest =
+          activeItem instanceof win.HTMLElement &&
+          activeItem !== doc.body &&
+          activeItem !== doc.documentElement &&
+          currentDayGrid != null &&
+          !contains(currentDayGrid, activeItem);
+
+        if (shouldAbandonStaleFocusRequest) {
+          clearPendingFocusRequest(requestId);
+          return;
+        }
+
+        const shouldYieldToNewNavigation =
+          mountedDayGridBodyCount > 1 &&
+          activeItem instanceof win.HTMLElement &&
+          contains(currentBody, activeItem) &&
+          activeItem !== targetItem?.item &&
+          activeItem.tabIndex === 0;
+
+        if (shouldYieldToNewNavigation) {
+          clearPendingFocusRequest(requestId);
+          return;
+        }
+
+        if (activeItem !== targetItem?.item && targetItem?.item) {
+          setHighlightedIndex(targetItem.index);
+          targetItem.item.focus();
+        }
+
+        const focusedItem = activeElement(doc);
+
+        if (focusedItem !== targetItem?.item) {
+          settledFrameCount = 0;
+          fulfillPendingFocusRequestFrame.request(attemptFocus);
+          return;
+        }
+
+        if (mountedDayGridBodyCount > 1) {
+          settledFrameCount = 0;
+          fulfillPendingFocusRequestFrame.request(attemptFocus);
+          return;
+        }
+
+        settledFrameCount += 1;
+        if (settledFrameCount < FOCUS_SETTLE_FRAME_COUNT) {
+          fulfillPendingFocusRequestFrame.request(attemptFocus);
+          return;
+        }
+
+        clearPendingFocusRequest(requestId);
+      };
+      // Browsers can temporarily move focus to <body> while the viewport remounts.
+      // Keep retrying until the new day button holds focus and the old body is gone,
+      // so keyboard navigation still feels responsive during the transition.
+
+      fulfillPendingFocusRequestFrame.request(attemptFocus);
+
+      return () => {
+        cleanupFocusEffect();
+      };
+    }
+
+    return undefined;
+  }, [
+    adapter,
+    clearPendingFocusRequest,
+    fulfillPendingFocusRequestFrame,
+    itemMap,
+    itemMapId,
+    month,
+    offset,
+    store,
+  ]);
 
   const handleKeyboardNavigation = (event: BaseUIEvent<React.KeyboardEvent>) => {
     const eventKey = event.key;
+    const pendingFocusRequest = store.context.pendingDayGridFocusRequest;
+
+    if (
+      pendingFocusRequest &&
+      pendingFocusRequest.offset === offset &&
+      pendingFocusRequest.sourceItemMapId !== itemMapId &&
+      adapter.isSameMonth(pendingFocusRequest.renderedMonth, month)
+    ) {
+      clearPendingFocusRequest(pendingFocusRequest.id);
+    }
+
+    if (eventKey === ARROW_UP || eventKey === ARROW_DOWN) {
+      event.preventDefault();
+    }
 
     if (!CUSTOM_NAVIGATION_KEYS.has(eventKey)) {
       return;
@@ -209,6 +417,8 @@ export function useSharedCalendarDayGridBody(
 
         const targetDate = adapter.addMonths(currentDay, decrement ? -amount : amount);
         const targetMonth = adapter.addMonths(visibleMonth, decrement ? -amount : amount);
+        const newMonth = adapter.addMonths(month, decrement ? -amount : amount);
+        const newGridDays = computeMonthDayGrid(adapter, newMonth, fixedWeekNumber);
 
         const { minDate, maxDate } = store.state;
         // Check if the target date would be within min/max bounds
@@ -221,7 +431,8 @@ export function useSharedCalendarDayGridBody(
           });
           if (dateValidationError != null) {
             // Block navigation only if the entire target month is outside the valid range.
-            // If the month has some valid days, navigate and let focusItemFromMap find the nearest one.
+            // If the month has some valid days, navigate and let the new month's focus resolution
+            // land on the nearest valid day.
             if (
               (maxDate != null && adapter.isAfter(adapter.startOfMonth(targetMonth), maxDate)) ||
               (minDate != null && adapter.isBefore(adapter.endOfMonth(targetMonth), minDate))
@@ -231,37 +442,38 @@ export function useSharedCalendarDayGridBody(
           }
         }
 
-        store.setVisibleDate(
+        // Find the target date in the new month's grid. Use targetDate (already clamped
+        // by addMonths) so that e.g. Jan 31 + 1 month correctly finds Feb 28.
+        const targetDayOfMonth = adapter.getDate(targetDate);
+        const targetMonthValue = adapter.getMonth(targetDate);
+        const targetYearValue = adapter.getYear(targetDate);
+        const sameDayInNewMonthIndex = newGridDays.findIndex(
+          (day) =>
+            adapter.getDate(day) === targetDayOfMonth &&
+            adapter.getMonth(day) === targetMonthValue &&
+            adapter.getYear(day) === targetYearValue,
+        );
+        // When the target day is disabled, find the nearest valid day in the right direction:
+        // beyond maxDate → search backward for the last valid day;
+        // before minDate → search forward for the first valid day.
+        let searchDecrement = eventKey === PAGE_UP;
+        if (dateValidationError === 'after-max-date') {
+          searchDecrement = true;
+        } else if (dateValidationError === 'before-min-date') {
+          searchDecrement = false;
+        }
+
+        setPendingFocusRequest(newMonth, sameDayInNewMonthIndex, searchDecrement, 1);
+
+        const eventDetails = store.setVisibleDate(
           targetMonth,
           event.nativeEvent,
           event.currentTarget as HTMLElement,
           REASONS.keyboard,
         );
-        executeAfterItemMapUpdate.current = (newMap: typeof itemMap) => {
-          const newMonth = adapter.addMonths(month, decrement ? -amount : amount);
-          const newGridDays = computeMonthDayGrid(adapter, newMonth, fixedWeekNumber);
-          // Find the target date in the new month's grid. Use targetDate (already clamped
-          // by addMonths) so that e.g. Jan 31 + 1 month correctly finds Feb 28.
-          const targetDayOfMonth = adapter.getDate(targetDate);
-          const targetMonthValue = adapter.getMonth(targetDate);
-          const targetYearValue = adapter.getYear(targetDate);
-          const sameDayInNewMonthIndex = newGridDays.findIndex(
-            (day) =>
-              adapter.getDate(day) === targetDayOfMonth &&
-              adapter.getMonth(day) === targetMonthValue &&
-              adapter.getYear(day) === targetYearValue,
-          );
-          // When the target day is disabled, find the nearest valid day in the right direction:
-          // beyond maxDate → search backward for the last valid day;
-          // before minDate → search forward for the first valid day.
-          let searchDecrement = eventKey === PAGE_UP;
-          if (dateValidationError === 'after-max-date') {
-            searchDecrement = true;
-          } else if (dateValidationError === 'before-min-date') {
-            searchDecrement = false;
-          }
-          focusItemFromMap(newMap, sameDayInNewMonthIndex, searchDecrement, 1);
-        };
+        if (eventDetails.isCanceled) {
+          clearPendingFocusRequest();
+        }
 
         break;
       }
@@ -297,30 +509,37 @@ export function useSharedCalendarDayGridBody(
     // DOM has been committed. This covers every arrow-key loop scenario, including
     // cases where an outside-month day is visible as the first/last row of the
     // current grid — the visible date must always update when crossing a month boundary.
-    store.setVisibleDate(
+    const newMonth = adapter.addMonths(month, decrement ? -1 : 1);
+    const newGridDays = computeMonthDayGrid(adapter, newMonth, fixedWeekNumber);
+
+    let guessedIndex: number;
+    if (eventKey === ARROW_LEFT) {
+      guessedIndex = newGridDays.length - 1;
+    } else if (eventKey === ARROW_RIGHT) {
+      guessedIndex = 0;
+    } else if (eventKey === ARROW_DOWN) {
+      guessedIndex = prevIndex % 7;
+    } else {
+      // ARROW_UP: same weekday in the last row of the previous month
+      guessedIndex = newGridDays.length - 7 + (prevIndex % 7);
+    }
+
+    setPendingFocusRequest(
+      newMonth,
+      guessedIndex,
+      decrement,
+      HORIZONTAL_KEYS.has(eventKey) ? 1 : 7,
+    );
+
+    const eventDetails = store.setVisibleDate(
       targetMonth,
       event.nativeEvent,
       event.currentTarget as HTMLElement,
       REASONS.keyboard,
     );
-
-    executeAfterItemMapUpdate.current = (newMap: typeof itemMap) => {
-      const newItems = Array.from(newMap.keys()) as HTMLElement[];
-
-      let guessedIndex: number;
-      if (eventKey === ARROW_LEFT) {
-        guessedIndex = newItems.length - 1;
-      } else if (eventKey === ARROW_RIGHT) {
-        guessedIndex = 0;
-      } else if (eventKey === ARROW_DOWN) {
-        guessedIndex = prevIndex % 7;
-      } else {
-        // ARROW_UP: same weekday in the last row of the previous month
-        guessedIndex = newItems.length - 7 + (prevIndex % 7);
-      }
-
-      focusItemFromMap(newMap, guessedIndex, decrement, HORIZONTAL_KEYS.has(eventKey) ? 1 : 7);
-    };
+    if (eventDetails.isCanceled) {
+      clearPendingFocusRequest();
+    }
 
     // Return the current index so the composite does not move focus before the new month renders.
     return prevIndex;
