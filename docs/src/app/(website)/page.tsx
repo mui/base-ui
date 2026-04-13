@@ -199,6 +199,10 @@ export default function Homepage() {
               <span className="Text sz-2">Engineer</span>
             </li>
             <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
+              <span className="Text sz-2">Aarón García</span>
+              <span className="Text sz-2">Design Engineer</span>
+            </li>
+            <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
               <span className="Text sz-2">Vlad Moroz</span>
               <span className="Text sz-2">Contributor</span>
             </li>
