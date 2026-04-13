@@ -12,16 +12,16 @@
 
 .ExperimentTitle {
   margin: 0 0 0.5rem;
-  font-size: var(--text-lg);
-  line-height: var(--text-lg--line-height);
+  font-size: 1.125rem;
+  line-height: 1.75rem;
   font-weight: 600;
   color: var(--color-gray-900);
 }
 
 .ExperimentDescription {
   margin: 0 0 1rem;
-  font-size: var(--text-sm);
-  line-height: var(--text-sm--line-height);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   color: var(--color-gray-600);
   max-width: 52rem;
 }
@@ -48,9 +48,9 @@
   border-radius: 0.375rem;
   background-color: var(--color-gray-50);
   font-family: inherit;
-  font-size: var(--text-base);
+  font-size: 1rem;
   font-weight: 500;
-  line-height: var(--text-base--line-height);
+  line-height: 1.5rem;
   color: var(--color-gray-900);
   user-select: none;
   text-decoration: none;
@@ -268,8 +268,8 @@
   border-radius: 0.5rem;
   background: transparent;
   font-family: inherit;
-  font-size: var(--text-base);
-  line-height: var(--text-base--line-height);
+  font-size: 1rem;
+  line-height: 1.5rem;
   font-weight: 500;
   color: var(--color-gray-900);
   text-align: left;
@@ -294,8 +294,8 @@
 }
 
 .InlineNestedHint {
-  font-size: var(--text-sm);
-  line-height: var(--text-sm--line-height);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   font-weight: 400;
   color: var(--color-gray-500);
 }
@@ -322,16 +322,16 @@
 
 .SectionTitle {
   margin: 0 0 0.375rem;
-  font-size: var(--text-lg);
-  line-height: var(--text-lg--line-height);
+  font-size: 1.125rem;
+  line-height: 1.75rem;
   font-weight: 600;
   color: var(--color-gray-900);
 }
 
 .SectionDescription {
   margin: 0;
-  font-size: var(--text-sm);
-  line-height: var(--text-base--line-height);
+  font-size: 0.875rem;
+  line-height: 1.5rem;
   color: var(--color-gray-600);
 }
 
@@ -356,8 +356,8 @@
   border-radius: 0.5rem;
   background: var(--color-gray-50);
   font-family: inherit;
-  font-size: var(--text-base);
-  line-height: var(--text-base--line-height);
+  font-size: 1rem;
+  line-height: 1.5rem;
   font-weight: 500;
   color: var(--color-gray-900);
   text-align: left;
@@ -442,15 +442,15 @@
 
 .LinkTitle {
   margin: 0 0 4px;
-  font-size: var(--text-base);
+  font-size: 1rem;
   font-weight: 500;
-  line-height: var(--text-sm--line-height);
+  line-height: 1.25rem;
 }
 
 .LinkDescription {
   margin: 0;
-  font-size: var(--text-sm);
-  line-height: var(--text-sm--line-height);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   color: var(--color-gray-500);
 }
 
@@ -505,8 +505,8 @@
   border-radius: 0.375rem;
   background: var(--color-gray-50);
   padding: 0 0.875rem;
-  font-size: var(--text-base);
-  line-height: var(--text-base--line-height);
+  font-size: 1rem;
+  line-height: 1.5rem;
   font-weight: 500;
   color: var(--color-gray-900);
   user-select: none;
@@ -574,15 +574,15 @@
 
 .ModalTitle {
   margin: -0.375rem 0 0.25rem;
-  font-size: var(--text-lg);
-  line-height: var(--text-lg--line-height);
+  font-size: 1.125rem;
+  line-height: 1.75rem;
   font-weight: 500;
 }
 
 .ModalDescription {
   margin: 0 0 1.5rem;
-  font-size: var(--text-base);
-  line-height: var(--text-base--line-height);
+  font-size: 1rem;
+  line-height: 1.5rem;
   color: var(--color-gray-600);
 }
 
