@@ -1,4 +1,4 @@
-import { clamp } from '../../utils/clamp';
+import { clamp } from '../../internals/clamp';
 
 interface GetPushedThumbValuesParams {
   values: readonly number[];

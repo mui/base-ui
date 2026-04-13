@@ -4,7 +4,7 @@ import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-
 import { ToggleGroup } from '@base-ui/react/toggle-group';
 import { Toggle } from '@base-ui/react/toggle';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { type Orientation } from '../utils/types';
+import { type Orientation } from '../internals/types';
 
 describe('<ToggleGroup />', () => {
   const { render } = createRenderer();

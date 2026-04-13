@@ -1,4 +1,4 @@
-import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { ProgressRootState } from './ProgressRoot';
 import { ProgressRootDataAttributes } from './ProgressRootDataAttributes';
 

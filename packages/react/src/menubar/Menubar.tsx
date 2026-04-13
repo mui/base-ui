@@ -7,12 +7,12 @@ import {
   useFloatingTree,
 } from '../floating-ui-react';
 import { type MenuRoot } from '../menu/root/MenuRoot';
-import { BaseUIComponentProps } from '../utils/types';
+import { BaseUIComponentProps } from '../internals/types';
 import { MenubarContext, useMenubarContext } from './MenubarContext';
-import { CompositeRoot } from '../composite/root/CompositeRoot';
-import { useBaseUiId } from '../utils/useBaseUiId';
+import { CompositeRoot } from '../internals/composite/root/CompositeRoot';
+import { useBaseUiId } from '../internals/useBaseUiId';
 import { MenuOpenEventDetails } from '../menu/utils/types';
-import { StateAttributesMapping } from '../utils/getStateAttributesProps';
+import { StateAttributesMapping } from '../internals/getStateAttributesProps';
 import { MenubarDataAttributes } from './MenubarDataAttributes';
 
 const menubarStateAttributesMapping: StateAttributesMapping<MenubarState> = {

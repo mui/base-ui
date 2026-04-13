@@ -1,5 +1,5 @@
-import { fieldValidityMapping } from '../../field/utils/constants';
-import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import { fieldValidityMapping } from '../../internals/field-constants/constants';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { OTPFieldRootState } from '../root/OTPFieldRoot';
 import type { OTPFieldInputState } from '../input/OTPFieldInput';
 

@@ -7,7 +7,7 @@ import { Slider } from '@base-ui/react/slider';
 import { Form } from '@base-ui/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { isWebKit } from '@base-ui/utils/detectBrowser';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 import {
   ARROW_RIGHT,
   ARROW_LEFT,
@@ -15,8 +15,8 @@ import {
   ARROW_DOWN,
   HOME,
   END,
-} from '../../composite/composite';
-import type { Orientation } from '../../utils/types';
+} from '../../internals/composite/composite';
+import type { Orientation } from '../../internals/types';
 import type { SliderRoot } from './SliderRoot';
 import { createTouches, getHorizontalSliderRect } from '../utils/test-utils';
 

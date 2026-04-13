@@ -3,7 +3,7 @@ import type * as React from 'react';
 import { ComboboxInputGroup } from '../../combobox/input-group/ComboboxInputGroup';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import type { Side } from '../../utils/useAnchorPositioning';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 
 /**
  * A wrapper for the input and its associated controls.

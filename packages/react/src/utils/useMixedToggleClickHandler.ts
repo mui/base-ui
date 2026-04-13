@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { BaseUIEvent } from './types';
-import { EMPTY_OBJECT } from './constants';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { BaseUIEvent } from '../internals/types';
 
 /**
  * Returns `click` and `mousedown` handlers that fix the behavior of triggers of popups that are toggled by different events.
