@@ -24,11 +24,11 @@ export enum CheckboxRootDataAttributes {
    */
   required = 'data-required',
   /**
-   * Present when the checkbox is in valid state (when wrapped in Field.Root).
+   * Present when the checkbox is in a valid state (when wrapped in Field.Root).
    */
   valid = 'data-valid',
   /**
-   * Present when the checkbox is in invalid state (when wrapped in Field.Root).
+   * Present when the checkbox is in an invalid state (when wrapped in Field.Root).
    */
   invalid = 'data-invalid',
   /**
