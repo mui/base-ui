@@ -202,13 +202,14 @@ export function Demo({
               />
 
               <div className="DemoToolbarActions">
-                <DemoVariantSelector
-                  className="contents"
-                  onVariantChange={demo.expand}
-                  variants={demo.variants}
-                  selectedVariant={demo.selectedVariant}
-                  selectVariant={demo.selectVariant as any}
-                />
+                {demo.variants.length > 1 && (
+                  <DemoVariantSelector
+                    onVariantChange={demo.expand}
+                    variants={demo.variants}
+                    selectedVariant={demo.selectedVariant}
+                    selectVariant={demo.selectVariant as any}
+                  />
+                )}
                 {externalPlaygroundLink}
                 <GhostButton aria-label="Copy code" onClick={demo.copy}>
                   Copy

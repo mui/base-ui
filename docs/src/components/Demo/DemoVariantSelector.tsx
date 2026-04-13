@@ -24,7 +24,6 @@ export function DemoVariantSelector({
   selectedVariant,
   selectVariant,
   onVariantChange,
-  ...props
 }: DemoVariantSelectorProps) {
   const handleVariantChange = React.useCallback(
     (value: string | null) => {
@@ -35,23 +34,19 @@ export function DemoVariantSelector({
   );
 
   return (
-    <div {...props}>
-      {variants.length > 1 && (
-        <Select.Root
-          items={translations.variants}
-          value={selectedVariant}
-          onValueChange={handleVariantChange}
-        >
-          <Select.Trigger aria-label="Styling method" />
-          <Select.Popup>
-            {variants.map((variantName) => (
-              <Select.Item key={variantName} value={variantName}>
-                {translations.variants[variantName]}
-              </Select.Item>
-            ))}
-          </Select.Popup>
-        </Select.Root>
-      )}
-    </div>
+    <Select.Root
+      items={translations.variants}
+      value={selectedVariant}
+      onValueChange={handleVariantChange}
+    >
+      <Select.Trigger aria-label="Styling method" />
+      <Select.Popup>
+        {variants.map((variantName) => (
+          <Select.Item key={variantName} value={variantName}>
+            {translations.variants[variantName]}
+          </Select.Item>
+        ))}
+      </Select.Popup>
+    </Select.Root>
   );
 }
