@@ -11,7 +11,7 @@ export const releases: Release[] = [
     latest: true,
     version: 'v1.4.0',
     versionSlug: 'v1-4-0',
-    date: '2026-04-10',
+    date: '2026-04-13',
     highlights: [
       'New `OTPField` component (preview).',
       'Toasts can now update an existing notification by ID.',
