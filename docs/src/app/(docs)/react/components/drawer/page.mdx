@@ -170,6 +170,25 @@ import { DemoDrawerSwipeArea } from './demos/swipe-area';
 
 <DemoDrawerSwipeArea />
 
+### Close confirmation
+
+Use `eventDetails.cancel()` in `onOpenChange` to prevent the drawer from closing when there are unsaved changes, and open a confirmation prompt instead.
+
+```tsx title="Close confirmation"
+<Drawer.Root
+  onOpenChange={(open, eventDetails) => {
+    if (!open && isDirty) {
+      eventDetails.cancel();
+      setConfirmOpen(true);
+    }
+  }}
+>
+```
+
+import { DemoDrawerFormConfirmation } from './demos/form-confirmation';
+
+<DemoDrawerFormConfirmation />
+
 ### Action sheet with separate destructive action
 
 This demo builds an action sheet with a grouped list of actions plus a separate destructive action button.
