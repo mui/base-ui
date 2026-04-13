@@ -104,13 +104,13 @@ export default function Layout({ children }: React.PropsWithChildren) {
                 >
                   npm
                 </Link>
-                <a
-                  className="Text sz-1 Link"
+                <Link
+                  className="Text sz-1"
                   href="https://bsky.app/profile/did:plc:nwr6peuxqzdzlbi72qr5kldc"
                   rel="noopener noreferrer"
                 >
                   Bluesky
-                </a>
+                </Link>
               </nav>
             </footer>
           </div>
