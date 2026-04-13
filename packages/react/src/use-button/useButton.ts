@@ -3,6 +3,7 @@ import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { error } from '@base-ui/utils/error';
+import { warn } from '@base-ui/utils/warn';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { makeEventPreventable, mergeProps } from '../merge-props';
@@ -60,6 +61,11 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
           'as `role` or `aria-disabled`). Use a non-<button> in the `render` prop, or set ' +
           '`nativeButton` to `true`.';
         error(`${message}${ownerStackMessage}`);
+      } else if (elementRef.current.tagName === 'A') {
+        const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
+        const message =
+          'A component that acts as a button was rendered as an <a> tag, which causes usability issues for keyboard and assistive tech users. Prefer using `<a>` directly.';
+        warn(`${message}${ownerStackMessage}`);
       }
     }, [isNativeButton]);
   }
