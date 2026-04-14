@@ -391,7 +391,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     >
       <OTPFieldRootContext.Provider value={contextValue}>
         {element}
-        {hasValidLength ? (
+        {hasValidLength && (
           <input
             {...validation.getInputValidationProps({
               onFocus() {
@@ -445,7 +445,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
             tabIndex={-1}
             style={name ? visuallyHiddenInput : visuallyHidden}
           />
-        ) : null}
+        )}
       </OTPFieldRootContext.Provider>
     </CompositeList>
   );
