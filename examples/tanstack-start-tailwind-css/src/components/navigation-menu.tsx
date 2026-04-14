@@ -132,7 +132,7 @@ export function Popup({ className, ...props }: NavigationMenu.Popup.Props) {
   return (
     <NavigationMenu.Popup
       className={clsx(
-        'data-ending-style:easing-[ease] relative h-(--popup-height) origin-(--transform-origin) rounded-xl bg-white text-gray-900 shadow-xl shadow-black/10 outline-1 outline-gray-200 transition-[opacity,transform,width,height,scale,translate] duration-(--duration) ease-(--easing) data-ending-style:scale-95 data-ending-style:opacity-0 data-ending-style:duration-150 data-starting-style:scale-95 data-starting-style:opacity-0 w-(--popup-width) xs:w-(--popup-width) dark:bg-gray-900 dark:text-gray-50 dark:shadow-2xl dark:shadow-black/50 dark:outline-gray-800',
+        'data-ending-style:easing-[ease] relative h-(--popup-height) origin-(--transform-origin) rounded-lg bg-white text-gray-900 shadow-xl shadow-black/10 outline-1 outline-gray-200 transition-[opacity,transform,width,height,scale,translate] duration-(--duration) ease-(--easing) data-ending-style:scale-95 data-ending-style:opacity-0 data-ending-style:duration-150 data-starting-style:scale-95 data-starting-style:opacity-0 w-(--popup-width) xs:w-(--popup-width) dark:bg-gray-900 dark:text-gray-50 dark:shadow-2xl dark:shadow-black/50 dark:outline-gray-800',
         className,
       )}
       {...props}
