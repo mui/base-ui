@@ -10,7 +10,7 @@ export const Toggle = React.forwardRef<HTMLButtonElement, BaseToggle.Props>(func
     <BaseToggle
       ref={forwardedRef}
       className={clsx(
-        'flex size-8 items-center justify-center rounded-sm text-gray-600 select-none hover:bg-gray-100 focus-visible:bg-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-200 data-[pressed]:text-gray-900',
+        'flex size-8 items-center justify-center rounded-md border border-gray-200 bg-white text-gray-900 select-none hover:bg-gray-50 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-600 active:bg-gray-100 data-pressed:[&_svg]:fill-current dark:border-gray-800 dark:bg-gray-900 dark:text-gray-50 dark:hover:bg-gray-800 dark:focus-visible:outline-blue-400 dark:active:bg-gray-800',
         className,
       )}
       {...props}

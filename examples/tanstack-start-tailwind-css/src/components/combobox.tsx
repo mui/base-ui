@@ -15,7 +15,7 @@ export const Input = React.forwardRef<HTMLInputElement, Combobox.Input.Props>(fu
     <Combobox.Input
       ref={forwardedRef}
       className={clsx(
-        'h-10 w-64 rounded-md font-normal border border-gray-200 pl-3.5 text-base text-gray-900 bg-[canvas] focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800',
+        'h-8 w-64 rounded-md border border-gray-200 bg-white px-3 text-sm font-normal text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-600 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-50 dark:focus:outline-blue-400',
         className,
       )}
       {...props}
@@ -29,7 +29,7 @@ export function Clear({ className, ...props }: Combobox.Clear.Props) {
   return (
     <Combobox.Clear
       className={clsx(
-        'combobox-clear flex h-10 w-6 items-center justify-center rounded-sm bg-transparent p-0',
+        'combobox-clear flex h-8 w-6 items-center justify-center rounded-sm bg-transparent p-0',
         className,
       )}
       {...props}
@@ -43,7 +43,7 @@ export function Trigger({ className, ...props }: Combobox.Trigger.Props) {
   return (
     <Combobox.Trigger
       className={clsx(
-        'flex h-10 w-6 items-center justify-center rounded-sm bg-transparent p-0',
+        'flex h-8 w-6 items-center justify-center rounded-sm bg-transparent p-0',
         className,
       )}
       {...props}
@@ -67,7 +67,7 @@ export function Popup({ className, ...props }: Combobox.Popup.Props) {
   return (
     <Combobox.Popup
       className={clsx(
-        'w-[var(--anchor-width)] max-h-[23rem] max-w-[var(--available-width)] origin-[var(--transform-origin)] rounded-md bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-95 data-[ending-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300 duration-100',
+        'w-(--anchor-width) max-h-92 max-w-(--available-width) origin-(--transform-origin) rounded-md bg-white text-gray-900 shadow-xl shadow-black/10 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-ending-style:scale-95 data-ending-style:opacity-0 data-starting-style:scale-95 data-starting-style:opacity-0 duration-100 dark:bg-gray-900 dark:text-gray-50 dark:shadow-2xl dark:shadow-black/50 dark:outline-gray-800',
         className,
       )}
       {...props}
@@ -78,7 +78,10 @@ export function Popup({ className, ...props }: Combobox.Popup.Props) {
 export function Empty({ className, ...props }: Combobox.Empty.Props) {
   return (
     <Combobox.Empty
-      className={clsx('p-4 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0', className)}
+      className={clsx(
+        'p-3 text-sm leading-5 text-gray-500 empty:m-0 empty:p-0 dark:text-gray-400',
+        className,
+      )}
       {...props}
     />
   );
@@ -88,7 +91,7 @@ export function List({ className, ...props }: Combobox.List.Props) {
   return (
     <Combobox.List
       className={clsx(
-        'outline-0 overflow-y-auto scroll-py-[0.5rem] py-2 overscroll-contain max-h-[min(23rem,var(--available-height))] data-[empty]:p-0',
+        'outline-0 overflow-y-auto scroll-py-2 py-1 overscroll-contain max-h-[min(23rem,var(--available-height))] data-empty:p-0',
         className,
       )}
       {...props}
@@ -100,7 +103,7 @@ export function Item({ className, ...props }: Combobox.Item.Props) {
   return (
     <Combobox.Item
       className={clsx(
-        'grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-4 text-base leading-4 outline-hidden select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900',
+        'grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-4 text-sm leading-5 outline-hidden select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:text-gray-50 data-highlighted:before:absolute data-highlighted:before:inset-x-1 data-highlighted:before:inset-y-0 data-highlighted:before:z-[-1] data-highlighted:before:rounded-sm data-highlighted:before:bg-gray-900 dark:data-highlighted:text-gray-900 dark:data-highlighted:before:bg-gray-50',
         className,
       )}
       {...props}
