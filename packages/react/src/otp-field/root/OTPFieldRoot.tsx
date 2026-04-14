@@ -27,7 +27,7 @@ import {
   type BaseUIGenericEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { OTPFieldRootContext, useOTPFieldRootContext } from './OTPFieldRootContext';
+import { OTPFieldRootContext } from './OTPFieldRootContext';
 import { rootStateAttributesMapping } from '../utils/stateAttributesMapping';
 import {
   getOTPValidationConfig,
@@ -132,6 +132,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   const pattern = validationConfig?.slotPattern;
   const hiddenInputPattern = validationConfig?.getRootPattern(length);
   const inputMode = inputModeProp ?? validationConfig?.inputMode;
+  const hasValidLength = Number.isInteger(length) && length > 0;
 
   const value = normalizeOTPValue(valueUnwrapped, length, validationType, sanitizeValue);
   const valueRef = useValueAsRef(value);
@@ -390,105 +391,65 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     >
       <OTPFieldRootContext.Provider value={contextValue}>
         {element}
-        <OTPFieldHiddenInput
-          id={id}
-          name={name}
-          onValueInvalid={reportValueInvalid}
-          pattern={hiddenInputPattern}
-          validation={validation}
-        />
+        {hasValidLength ? (
+          <input
+            {...validation.getInputValidationProps({
+              onFocus() {
+                focusInput(0);
+              },
+              onChange(event) {
+                if (event.nativeEvent.defaultPrevented) {
+                  return;
+                }
+
+                const rawValue = event.currentTarget.value;
+                const normalizedValue = normalizeOTPValue(
+                  rawValue,
+                  length,
+                  validationType,
+                  sanitizeValue,
+                );
+
+                if (stripOTPWhitespace(rawValue).length > normalizedValue.length) {
+                  reportValueInvalid(
+                    rawValue,
+                    createGenericEventDetails(REASONS.inputChange, event.nativeEvent),
+                  );
+                }
+
+                const committedValue = setValue(
+                  normalizedValue,
+                  createChangeEventDetails(REASONS.inputChange, event.nativeEvent),
+                );
+
+                if (committedValue != null && committedValue !== '') {
+                  queueFocusInput(committedValue.length - 1, committedValue);
+                }
+              },
+            })}
+            ref={validation.inputRef}
+            type="text"
+            id={id && name == null ? `${id}-hidden-input` : undefined}
+            form={form}
+            name={name}
+            value={value}
+            autoComplete={autoComplete}
+            inputMode={inputMode}
+            minLength={length}
+            maxLength={length}
+            pattern={hiddenInputPattern}
+            disabled={disabled}
+            readOnly={readOnly}
+            required={required}
+            aria-hidden
+            tabIndex={-1}
+            style={name ? visuallyHiddenInput : visuallyHidden}
+          />
+        ) : null}
       </OTPFieldRootContext.Provider>
     </CompositeList>
   );
 });
-
-interface OTPFieldHiddenInputProps {
-  id: string | undefined;
-  name: string | undefined;
-  onValueInvalid: (value: string, details: OTPFieldRoot.InvalidEventDetails) => void;
-  pattern: string | undefined;
-  validation: ReturnType<typeof useFieldRootContext>['validation'];
-}
-
-function OTPFieldHiddenInput(props: OTPFieldHiddenInputProps) {
-  const { onValueInvalid, id, name, pattern, validation } = props;
-
-  const {
-    focusInput,
-    form,
-    value,
-    autoComplete,
-    disabled,
-    readOnly,
-    required,
-    queueFocusInput,
-    setValue,
-    sanitizeValue,
-    inputMode,
-    length,
-    validationType,
-  } = useOTPFieldRootContext();
-
-  if (!Number.isInteger(length) || length <= 0) {
-    return null;
-  }
-
-  return (
-    <input
-      {...validation.getInputValidationProps({
-        onFocus() {
-          focusInput(0);
-        },
-        onChange(event) {
-          if (event.nativeEvent.defaultPrevented) {
-            return;
-          }
-
-          const rawValue = event.currentTarget.value;
-          const normalizedValue = normalizeOTPValue(
-            rawValue,
-            length,
-            validationType,
-            sanitizeValue,
-          );
-
-          if (stripOTPWhitespace(rawValue).length > normalizedValue.length) {
-            onValueInvalid(
-              rawValue,
-              createGenericEventDetails(REASONS.inputChange, event.nativeEvent),
-            );
-          }
-
-          const committedValue = setValue(
-            normalizedValue,
-            createChangeEventDetails(REASONS.inputChange, event.nativeEvent),
-          );
-
-          if (committedValue != null && committedValue !== '') {
-            queueFocusInput(committedValue.length - 1, committedValue);
-          }
-        },
-      })}
-      ref={validation.inputRef}
-      type="text"
-      id={id && name == null ? `${id}-hidden-input` : undefined}
-      form={form}
-      name={name}
-      value={value}
-      autoComplete={autoComplete}
-      inputMode={inputMode}
-      minLength={length}
-      maxLength={length}
-      pattern={pattern}
-      disabled={disabled}
-      readOnly={readOnly}
-      required={required}
-      aria-hidden
-      tabIndex={-1}
-      style={name ? visuallyHiddenInput : visuallyHidden}
-    />
-  );
-}
 
 export interface OTPFieldRootProps extends Omit<
   BaseUIComponentProps<'div', OTPFieldRootState>,
